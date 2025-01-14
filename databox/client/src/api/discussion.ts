@@ -22,9 +22,12 @@ export async function postThreadMessage(data: {
     return res.data;
 }
 
-export async function putThreadMessage(id: string, data: {
-    content: string;
-}): Promise<ThreadMessage> {
+export async function putThreadMessage(
+    id: string,
+    data: {
+        content: string;
+    }
+): Promise<ThreadMessage> {
     const res = await apiClient.put(`/messages/${id}`, data);
 
     return res.data;

@@ -20,8 +20,11 @@ import {useChannelRegistration} from '../../../../lib/pusher.ts';
 import {queryClient} from '../../../../lib/query.ts';
 import AssetDiscussion from '../AssetDiscussion.tsx';
 import {annotationZIndex} from '../Annotations/AssetAnnotationsOverlay.tsx';
-import {AssetAnnotation, OnNewAnnotation,} from '../Annotations/annotationTypes.ts';
-import AssetViewHeader from "./AssetViewHeader.tsx";
+import {
+    AssetAnnotation,
+    OnNewAnnotation,
+} from '../Annotations/annotationTypes.ts';
+import AssetViewHeader from './AssetViewHeader.tsx';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -123,7 +126,7 @@ export default function AssetView({modalIndex, open}: Props) {
             return null;
         }
 
-        return <FullPageLoader/>;
+        return <FullPageLoader />;
     }
 
     const rendition = renditions.find(r => r.id === renditionId);
@@ -143,15 +146,17 @@ export default function AssetView({modalIndex, open}: Props) {
                         },
                     }}
                     fullScreen={true}
-                    title={<AssetViewHeader
-                        asset={asset}
-                        rendition={rendition}
-                        renditions={renditions}
-                        displayActions={!integrationOverlay}
-                    />}
+                    title={
+                        <AssetViewHeader
+                            asset={asset}
+                            rendition={rendition}
+                            renditions={renditions}
+                            displayActions={!integrationOverlay}
+                        />
+                    }
                     onClose={onClose}
                 >
-                    {!isSuccess && <FullPageLoader/>}
+                    {!isSuccess && <FullPageLoader />}
                     <Box
                         sx={{
                             height: dimensions.height,

@@ -13,8 +13,7 @@ final readonly class DiscussionPusher
         private PusherManager $pusherManager,
         private SerializerInterface $serializer,
         private MessageBusInterface $bus,
-    )
-    {
+    ) {
     }
 
     public function dispatchMessageToThread(Message $message, bool $removed = false): void

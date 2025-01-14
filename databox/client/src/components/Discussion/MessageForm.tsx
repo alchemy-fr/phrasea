@@ -4,9 +4,13 @@ import {useFormPrompt} from '@alchemy//navigation';
 import {postThreadMessage} from '../../api/discussion.ts';
 import {DeserializedMessageAttachment, ThreadMessage} from '../../types.ts';
 import React, {useCallback} from 'react';
-import {AnnotationType, AssetAnnotation, OnNewAnnotationRef,} from '../Media/Asset/Annotations/annotationTypes.ts';
+import {
+    AnnotationType,
+    AssetAnnotation,
+    OnNewAnnotationRef,
+} from '../Media/Asset/Annotations/annotationTypes.ts';
 import {OnActiveAnnotations} from '../Media/Asset/Attribute/Attributes.tsx';
-import MessageField, {MessageFormData} from "./MessageField.tsx";
+import MessageField, {MessageFormData} from './MessageField.tsx';
 
 type Props = {
     threadKey: string;

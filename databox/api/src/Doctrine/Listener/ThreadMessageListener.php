@@ -18,8 +18,7 @@ readonly class ThreadMessageListener implements EventSubscriber
     public function __construct(
         private DiscussionPusher $discussionPusher,
         private PostFlushStack $postFlushStack,
-    )
-    {
+    ) {
     }
 
     public function preRemove(PreRemoveEventArgs $args): void
