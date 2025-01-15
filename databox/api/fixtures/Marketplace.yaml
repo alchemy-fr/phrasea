@@ -32,7 +32,7 @@ App\Entity\Core\RenditionDefinition:
     name: original
     workspace: '@w_marketplace'
     class: '@m_rc_public'
-    pickSourceFile: true
+    buildMode: 1
     useAsOriginal: true
   m_rd_preview:
     name: preview
