@@ -56,9 +56,9 @@ export default function PDFPlayer({
     useEffect(() => {
         if (annotations && annotations.length > 0) {
             const goTo = annotations[annotations.length - 1].page;
-            goTo && setPageNumber(goTo);
+            numPages && goTo && goTo > 0 && goTo <= numPages && setPageNumber(goTo);
         }
-    }, [annotations]);
+    }, [annotations, numPages]);
 
     const pageAnnotations: AssetAnnotation[] = useMemo(
         () => annotations?.filter(a => a.page === pageNumber) ?? [],
