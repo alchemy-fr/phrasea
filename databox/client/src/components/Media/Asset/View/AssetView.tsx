@@ -111,13 +111,14 @@ export default function AssetView({modalIndex, open}: Props) {
         [onNewAnnotationRef, assetId]
     );
 
-    const [asset, renditions] = (
-        isSuccess ? data : previousData.current ?? []
+    const [[asset, renditions], rendition] = (
+        isSuccess ? [data, data[1].find(r => r.id === renditionId)!] : (previousData.current ?? [[], undefined])
     ) as DataTuple;
 
     React.useEffect(() => {
+        setAnnotations(undefined);
         if (data) {
-            previousData.current = data;
+            previousData.current = [data, data[1].find((r) => r.id === renditionId)!];
         }
     }, [data, previousData]);
 
@@ -128,8 +129,6 @@ export default function AssetView({modalIndex, open}: Props) {
 
         return <FullPageLoader />;
     }
-
-    const rendition = renditions.find(r => r.id === renditionId);
 
     return (
         <RouteDialog>
@@ -240,4 +239,4 @@ export default function AssetView({modalIndex, open}: Props) {
     );
 }
 
-type DataTuple = [Asset, AssetRendition[]];
+type DataTuple = [[Asset, AssetRendition[]], AssetRendition];

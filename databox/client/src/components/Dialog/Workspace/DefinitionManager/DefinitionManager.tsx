@@ -102,6 +102,7 @@ type Props<D extends DefinitionBase> = {
     workspace: Workspace;
     onSort?: OnSort;
     normalizeData?: NormalizeData<D>;
+    denormalizeData?: NormalizeData<D>;
 };
 
 export default function DefinitionManager<D extends DefinitionBase>({
@@ -118,6 +119,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
     workspace,
     onSort,
     normalizeData,
+    denormalizeData,
 }: Props<D>) {
     const [listState, setListState] = useState<ListState<D>>({
         list: undefined,
@@ -404,6 +406,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                             setSubmitting={setSubmitting}
                             onItemUpdate={onItemUpdate}
                             normalizeData={normalizeData}
+                            denormalizeData={denormalizeData}
                         />
                     )}
                     {item && item !== 'new' && handleDelete && (

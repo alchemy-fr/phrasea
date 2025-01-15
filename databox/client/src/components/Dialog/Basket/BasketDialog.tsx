@@ -38,7 +38,6 @@ export default function BasketDialog({}: Props) {
             route={modalRoutes.baskets.routes.manage}
             routeParams={{id}}
             maxWidth={'md'}
-            minHeight={400}
             title={t('basket.manage.title', 'Manage basket {{name}}', {
                 name: data.title,
             })}

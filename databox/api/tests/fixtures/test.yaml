@@ -111,7 +111,7 @@ App\Entity\Core\RenditionDefinition:
   t_rd_original (extends rendition_definition):
     name: original
     class: '@t_rc_restricted'
-    pickSourceFile: true
+    buildMode: 1
     useAsOriginal: true
   t_rd_original_watermarked (extends rendition_definition):
     name: original

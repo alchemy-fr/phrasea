@@ -17,7 +17,7 @@ readonly class AssetManager
 {
     public function __construct(
         private AttributeDataExporter $attributeDataExporter,
-        private OriginalRenditionManager $originalRenditionManager,
+        private PickSourceRenditionManager $originalRenditionManager,
         private EntityManagerInterface $em,
         private WorkflowOrchestrator $workflowOrchestrator,
         private PostFlushStack $postFlushStack,

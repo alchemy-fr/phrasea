@@ -41,7 +41,6 @@ export default function AssetDialog({}: Props) {
             route={modalRoutes.assets.routes.manage}
             routeParams={{id}}
             maxWidth={'md'}
-            minHeight={400}
             title={t('asset.manage.title', 'Manage asset {{name}}', {
                 name: data.title,
             })}

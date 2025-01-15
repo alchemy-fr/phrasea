@@ -1,32 +1,26 @@
 import {RenditionClass, RenditionDefinition, Workspace} from '../../../types';
-import {
-    FormGroup,
-    FormHelperText,
-    FormLabel,
-    ListItemText,
-    TextField,
-} from '@mui/material';
-import {FormRow} from '@alchemy/react-form';
+import {FormGroup, FormHelperText, FormLabel, ListItemText, TextField,} from '@mui/material';
+import {FormFieldErrors, FormRow, RSelectWidget} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
     OnSort,
 } from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
-import {FormFieldErrors} from '@alchemy/react-form';
 import {
     deleteRenditionDefinition,
     getWorkspaceRenditionDefinitions,
     postRenditionDefinition,
     putRenditionDefinition,
+    RenditionBuildMode,
 } from '../../../api/rendition';
 import RenditionClassSelect from '../../Form/RenditionClassSelect';
-import {CheckboxWidget} from '@alchemy/react-form';
 import apiClient from '../../../api/api-client';
 import {toast} from 'react-toastify';
 import React from 'react';
 import RenditionDefinitionSelect from '../../Form/RenditionDefinitionSelect.tsx';
 import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
+import UseAsWidget from "../../Form/UseAsWidget.tsx";
 
 function Item({
     data,
@@ -36,6 +30,8 @@ function Item({
         control,
         reset,
         watch,
+        getValues,
+        setValue,
         formState: {errors},
     },
     workspace,
@@ -46,7 +42,7 @@ function Item({
         reset(normalizeData(data));
     }, [data]);
 
-    const pickSourceFile = watch('pickSourceFile');
+    const buildMode = watch('buildMode');
 
     return (
         <>
@@ -56,7 +52,7 @@ function Item({
                     {...register('name')}
                     disabled={submitting}
                 />
-                <FormFieldErrors field={'name'} errors={errors} />
+                <FormFieldErrors field={'name'} errors={errors}/>
             </FormRow>
             <FormRow>
                 <FormGroup>
@@ -69,7 +65,7 @@ function Item({
                         control={control}
                         workspaceId={workspace.id}
                     />
-                    <FormFieldErrors field={'class'} errors={errors} />
+                    <FormFieldErrors field={'class'} errors={errors}/>
                 </FormGroup>
             </FormRow>
             <FormRow>
@@ -83,6 +79,7 @@ function Item({
                         control={control}
                         workspaceId={workspace.id}
                         disabledValues={[`/rendition-definitions/${data.id}`]}
+                        placeholder={t('form.rendition_definition.parent.placeholder', 'Asset source file')}
                     />
                     <FormHelperText>
                         {t(
@@ -90,83 +87,31 @@ function Item({
                             'Rendition from which this one is derived'
                         )}
                     </FormHelperText>
-                    <FormFieldErrors field={'parent'} errors={errors} />
+                    <FormFieldErrors field={'parent'} errors={errors}/>
                 </FormGroup>
             </FormRow>
             <FormRow>
-                <FormGroup>
-                    <CheckboxWidget
-                        label={t(
-                            'form.rendition_definition.useAsOriginal.label',
-                            'Use as original'
-                        )}
-                        disabled={submitting}
-                        name={'useAsOriginal'}
-                        control={control}
-                    />
-                    <FormFieldErrors field={'useAsOriginal'} errors={errors} />
-                </FormGroup>
+                <UseAsWidget
+                    getValues={getValues}
+                    setValue={setValue}
+                />
             </FormRow>
             <FormRow>
-                <FormGroup>
-                    <CheckboxWidget
-                        label={t(
-                            'form.rendition_definition.useAsPreview.label',
-                            'Use as preview'
-                        )}
-                        disabled={submitting}
-                        name={'useAsPreview'}
-                        control={control}
-                    />
-                    <FormFieldErrors field={'useAsPreview'} errors={errors} />
-                </FormGroup>
+                <RSelectWidget
+                    control={control}
+                    name={'buildMode'}
+                    label={t(
+                        'form.rendition_definition.buildMode.label',
+                        'Build Mode'
+                    )}
+                    options={[
+                        {label: t('rendition_definition.build_mode.none', 'None'), value: RenditionBuildMode.NONE.toString()},
+                        {label: t('rendition_definition.build_mode.pick_source', 'Copy parent or source file'), value: RenditionBuildMode.PICK_SOURCE.toString()},
+                        {label: t('rendition_definition.build_mode.custom', 'Build'), value: RenditionBuildMode.CUSTOM.toString()},
+                    ]}
+                />
             </FormRow>
-            <FormRow>
-                <FormGroup>
-                    <CheckboxWidget
-                        label={t(
-                            'form.rendition_definition.useAsThumbnail.label',
-                            'Use as thumbnail'
-                        )}
-                        disabled={submitting}
-                        name={'useAsThumbnail'}
-                        control={control}
-                    />
-                    <FormFieldErrors field={'useAsThumbnail'} errors={errors} />
-                </FormGroup>
-            </FormRow>
-            <FormRow>
-                <FormGroup>
-                    <CheckboxWidget
-                        label={t(
-                            'form.rendition_definition.useAsThumbnailActive.label',
-                            'Use as active thumbnail'
-                        )}
-                        disabled={submitting}
-                        name={'useAsThumbnailActive'}
-                        control={control}
-                    />
-                    <FormFieldErrors
-                        field={'useAsThumbnailActive'}
-                        errors={errors}
-                    />
-                </FormGroup>
-            </FormRow>
-            <FormRow>
-                <FormGroup>
-                    <CheckboxWidget
-                        label={t(
-                            'form.rendition_definition.pickSourceFile.label',
-                            'Pick source file'
-                        )}
-                        disabled={submitting}
-                        name={'pickSourceFile'}
-                        control={control}
-                    />
-                    <FormFieldErrors field={'pickSourceFile'} errors={errors} />
-                </FormGroup>
-            </FormRow>
-            {!pickSourceFile ? (
+            {buildMode === RenditionBuildMode.CUSTOM.toString() ? (
                 <>
                     <FormRow>
                         <CodeEditorWidget
@@ -180,7 +125,7 @@ function Item({
                             mode={'yaml'}
                             height={'700px'}
                         />
-                        <FormFieldErrors field={'definition'} errors={errors} />
+                        <FormFieldErrors field={'definition'} errors={errors}/>
                     </FormRow>
                 </>
             ) : (
@@ -191,7 +136,7 @@ function Item({
 }
 
 function ListItem({data}: DefinitionItemProps<RenditionDefinition>) {
-    return <ListItemText primary={data.name} />;
+    return <ListItemText primary={data.name}/>;
 }
 
 type Props = {
@@ -203,7 +148,7 @@ type Props = {
 function createNewItem(): Partial<RenditionDefinition> {
     return {
         name: '',
-        pickSourceFile: false,
+        buildMode: RenditionBuildMode.PICK_SOURCE,
         useAsOriginal: false,
         useAsPreview: false,
         useAsThumbnail: false,
@@ -250,6 +195,7 @@ export default function RenditionDefinitionManager({
             handleDelete={deleteRenditionDefinition}
             onSort={onSort}
             normalizeData={normalizeData}
+            denormalizeData={denormalizeData}
         />
     );
 }
@@ -257,17 +203,26 @@ export default function RenditionDefinitionManager({
 function normalizeData(data: RenditionDefinition) {
     return {
         ...data,
+        buildMode: data.buildMode?.toString(),
         class:
             typeof data.class === 'string'
                 ? data.class
                 : data.class
-                  ? (data.class as RenditionClass)['@id']
-                  : null,
+                    ? (data.class as RenditionClass)['@id']
+                    : null,
         parent:
             typeof data.parent === 'string'
                 ? data.parent
                 : data.parent
-                  ? (data.parent as RenditionDefinition)['@id']
-                  : null,
+                    ? (data.parent as RenditionDefinition)['@id']
+                    : null,
+    };
+}
+
+
+function denormalizeData(data: RenditionDefinition) {
+    return {
+        ...data,
+        buildMode: typeof data.buildMode === 'string' ? parseInt(data.buildMode) : data.buildMode,
     };
 }
