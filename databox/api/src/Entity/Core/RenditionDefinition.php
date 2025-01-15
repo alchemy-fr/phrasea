@@ -84,10 +84,20 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     use UpdatedAtTrait;
     use WorkspaceTrait;
 
+    final public const int BUILD_MODE_NONE = 0;
+    final public const int BUILD_MODE_PICK_SOURCE = 1;
+    final public const int BUILD_MODE_CUSTOM = 2;
+
+    public const array BUILD_MODE_CHOICES = [
+        'None' => RenditionDefinition::BUILD_MODE_NONE,
+        'Pick source file' => RenditionDefinition::BUILD_MODE_PICK_SOURCE,
+        'Custom' => RenditionDefinition::BUILD_MODE_CUSTOM,
+    ];
+
     final public const string GROUP_READ = 'renddef:read';
     final public const string GROUP_LIST = 'renddef:index';
     final public const string GROUP_WRITE = 'renddef:w';
-    private const GRANT_ADMIN_PROP = "object ? is_granted('READ_ADMIN', object) : true";
+    private const string GRANT_ADMIN_PROP = "object ? is_granted('READ_ADMIN', object) : true";
 
     /**
      * Override trait for annotation.
@@ -126,9 +136,9 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     private bool $substitutable = true;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
-    #[ORM\Column(type: Types::BOOLEAN)]
+    #[ORM\Column(type: Types::SMALLINT)]
     #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
-    private bool $pickSourceFile = false;
+    private int $buildMode = self::BUILD_MODE_NONE;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN)]
@@ -277,14 +287,14 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
         $this->download = $download;
     }
 
-    public function isPickSourceFile(): bool
+    public function getBuildMode(): int
     {
-        return $this->pickSourceFile;
+        return $this->buildMode;
     }
 
-    public function setPickSourceFile(bool $pickSourceFile): void
+    public function setBuildMode(int $buildMode): void
     {
-        $this->pickSourceFile = $pickSourceFile;
+        $this->buildMode = $buildMode;
     }
 
     public function getKey(): ?string

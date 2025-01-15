@@ -3,6 +3,7 @@ import {AttributeType} from './api/attributes';
 import type {WithTranslations} from '@alchemy/react-form';
 import {Integration} from './components/Integration/types.ts';
 import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTypes.ts';
+import {RenditionBuildMode} from "./api/rendition.ts";
 
 type AlternateUrl = {
     type: string;
@@ -144,7 +145,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
     class: AttributeClass | string | null;
     workspace: Workspace | string;
     definition: string;
-    pickSourceFile?: boolean;
+    buildMode?: RenditionBuildMode | string;
     useAsOriginal?: boolean;
     useAsPreview?: boolean;
     useAsThumbnail?: boolean;
