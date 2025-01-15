@@ -18,12 +18,16 @@ import {useAuth} from '@alchemy/react-auth';
 import AssetSearch from './AssetSearch/AssetSearch';
 import {leftPanelWidth} from '../themes/base';
 
-const AppProxy = React.memo(() => {
-    const location = useLocation();
+function isDrawer(locationSearch: string): boolean {
+    return locationSearch.includes('_m=');
+}
+
+const AppProxy = React.memo(({locationSearch}: {locationSearch: string}) => {
     const alreadyRendered = useRef(false);
     const isSmallView = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down('md')
     );
+
     const [leftPanelOpen, setLeftPanelOpen] = React.useState(!isSmallView);
     const toggleLeftPanel = React.useCallback(() => {
         setLeftPanelOpen(p => !p);
@@ -33,7 +37,7 @@ const AppProxy = React.memo(() => {
         setLeftPanelOpen(!isSmallView);
     }, [isSmallView]);
 
-    if (location.search.includes('_m=') && !alreadyRendered.current) {
+    if (isDrawer(locationSearch) && !alreadyRendered.current) {
         return null;
     }
 
@@ -83,10 +87,13 @@ const AppProxy = React.memo(() => {
             </ResultProvider>
         </SearchProvider>
     );
+}, (a, b) => {
+    return isDrawer(a.locationSearch) === isDrawer(b.locationSearch);
 });
 
 export default function App() {
     const {logout, user} = useAuth();
+    const location = useLocation();
     const onError = useRequestErrorHandler({
         logout: redirectPathAfterLogin => {
             logout({
@@ -113,7 +120,9 @@ export default function App() {
     return (
         <>
             <ToastContainer position={'bottom-left'} />
-            <AppProxy />
+            <AppProxy
+                locationSearch={location.search}
+            />
         </>
     );
 }
