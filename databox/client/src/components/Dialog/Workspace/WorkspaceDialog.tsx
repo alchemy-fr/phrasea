@@ -43,7 +43,6 @@ export default function WorkspaceDialog({}: Props) {
             route={modalRoutes.workspaces.routes.manage}
             routeParams={{id}}
             maxWidth={'md'}
-            minHeight={400}
             title={t('workspace.manage.title', 'Manage workspace {{name}}', {
                 name: data.name,
             })}
