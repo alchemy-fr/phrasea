@@ -55,6 +55,21 @@ export default function Thread({
         [setMessages]
     );
 
+    const deleteMessage = React.useCallback(
+        (id: string) => {
+            setMessages(p =>
+                p
+                    ? {
+                          ...p,
+                          result: p.result.filter(m => m.id !== id),
+                          total: p.total - 1,
+                      }
+                    : undefined
+            );
+        },
+        [setMessages]
+    );
+
     React.useEffect(() => {
         setMessages(undefined);
         if (threadId) {
@@ -69,6 +84,15 @@ export default function Thread({
         `message`,
         data => {
             appendMessage(data);
+        },
+        !!threadId
+    );
+
+    useChannelRegistration(
+        `thread-${threadId}`,
+        `message-delete`,
+        data => {
+            deleteMessage(data.id);
         },
         !!threadId
     );
@@ -91,6 +115,8 @@ export default function Thread({
                           }
                         : undefined
                 );
+
+                onActiveAnnotations?.([]);
 
                 toast.success(
                     t(

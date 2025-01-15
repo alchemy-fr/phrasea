@@ -26,7 +26,7 @@ export default function Renditions({data, onClose, minHeight}: Props) {
 
     useEffect(() => {
         getAssetRenditions(data.id).then(d => setRenditions(d.result));
-    }, []);
+    }, [data.id]);
 
     const onDelete = async (id: string) => {
         openModal(ConfirmDialog, {

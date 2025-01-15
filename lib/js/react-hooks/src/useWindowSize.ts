@@ -17,14 +17,14 @@ export function useWindowSize(): WindowSize {
 
     useEffect(() => {
         const r = () => {
-            setSize(getSize());
+            requestAnimationFrame(() => setSize(getSize()));
         };
         window.addEventListener('resize', r);
 
         return () => {
             window.removeEventListener('resize', r);
         };
-    });
+    }, []);
 
     return size;
 }

@@ -4,7 +4,7 @@ import {useFormPrompt} from '@alchemy//navigation';
 import {putThreadMessage} from '../../api/discussion.ts';
 import {ThreadMessage} from '../../types.ts';
 import React from 'react';
-import MessageField, {MessageFormData} from "./MessageField.tsx";
+import MessageField, {MessageFormData} from './MessageField.tsx';
 
 type Props = {
     data: ThreadMessage;
@@ -12,32 +12,27 @@ type Props = {
     onCancel: () => void;
 };
 
-export default function EditMessage({
-    data,
-    onEdit,
-    onCancel,
-}: Props) {
+export default function EditMessage({data, onEdit, onCancel}: Props) {
     const {t} = useTranslation();
     const inputRef = React.useRef<HTMLInputElement | null>(null);
 
     const useFormSubmitProps = useFormSubmit<MessageFormData, ThreadMessage>({
         defaultValues: data,
         onSubmit: async (formData: MessageFormData) => {
-            return await putThreadMessage(
-                data.id,
-                {
-                    content: formData.content,
-                });
+            return await putThreadMessage(data.id, {
+                content: formData.content,
+            });
         },
         onSuccess: (data: ThreadMessage) => {
             onEdit(data);
         },
     });
 
-    const {
-        handleSubmit,
-        forbidNavigation,
-    } = useFormSubmitProps;
+    React.useEffect(() => {
+        inputRef.current?.focus();
+    }, []);
+
+    const {handleSubmit, forbidNavigation} = useFormSubmitProps;
 
     useFormPrompt(t, forbidNavigation);
 

@@ -16,9 +16,11 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\EditThreadMessageInput;
 use App\Api\Model\Input\ThreadMessageInput;
 use App\Api\Model\Output\ThreadMessageOutput;
 use App\Api\Processor\PostMessageProcessor;
+use App\Api\Processor\PutMessageProcessor;
 use App\Api\Provider\ThreadMessagesProvider;
 use App\Repository\Discussion\MessageRepository;
 use App\Security\Voter\AbstractVoter;
@@ -46,6 +48,8 @@ use Doctrine\ORM\Mapping as ORM;
                 'groups' => [self::GROUP_READ],
             ],
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            input: EditThreadMessageInput::class,
+            processor: PutMessageProcessor::class,
         ),
         new Delete(
             security: 'is_granted("'.AbstractVoter::DELETE.'", object)',

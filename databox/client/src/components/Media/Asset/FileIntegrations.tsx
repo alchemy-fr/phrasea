@@ -13,7 +13,7 @@ import {
     ObjectType,
 } from '../../../api/integrations';
 import RemoveBGAssetEditorActions from '../../Integration/RemoveBG/RemoveBGAssetEditorActions';
-import {SetIntegrationOverlayFunction} from './AssetView';
+import {SetIntegrationOverlayFunction} from './View/AssetView.tsx';
 import AwsRekognitionAssetEditorActions from '../../Integration/AwsRekognition/AwsRekognitionAssetEditorActions';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TUIPhotoEditor from '../../Integration/TuiPhotoEditor/TUIPhotoEditor';

@@ -27,7 +27,7 @@ export default function Integrations({data, onClose, minHeight}: Props) {
             objectType: ObjectType.Basket,
             objectId: data.id,
         }).then(r => setIntegrations(r.result));
-    }, []);
+    }, [data.id]);
 
     const components: Partial<
         Record<Integration, React.FC<BasketIntegrationActionsProps>>

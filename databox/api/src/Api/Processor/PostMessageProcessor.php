@@ -15,9 +15,9 @@ use App\Entity\Discussion\Message;
 use App\Entity\Discussion\Thread;
 use App\Repository\Discussion\ThreadRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\DiscussionPusher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class PostMessageProcessor implements ProcessorInterface
 {
@@ -28,7 +28,7 @@ class PostMessageProcessor implements ProcessorInterface
         private readonly MessageBusInterface $bus,
         private readonly ThreadRepository $threadRepository,
         private readonly PusherManager $pusherManager,
-        private readonly SerializerInterface $serializer,
+        private readonly DiscussionPusher $discussionPusher,
     ) {
     }
 
@@ -63,16 +63,7 @@ class PostMessageProcessor implements ProcessorInterface
         $this->em->persist($message);
         $this->em->flush();
 
-        $this->bus->dispatch($this->pusherManager->createBusMessage(
-            'thread-'.$thread->getId(),
-            'message',
-            json_decode($this->serializer->serialize($message, 'json', [
-                'groups' => [
-                    '_',
-                    Message::GROUP_READ,
-                ],
-            ]), true, 512, JSON_THROW_ON_ERROR),
-        ));
+        $this->discussionPusher->dispatchMessageToThread($message);
 
         $this->bus->dispatch(new PostDiscussionMessage($message->getId()));
 

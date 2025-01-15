@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {OnActiveAnnotations} from './Attribute/Attributes.tsx';
-import React from 'react';
+import React, {memo} from 'react';
 import {Asset} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
 import Thread from '../../Discussion/Thread.tsx';
@@ -18,7 +18,7 @@ type Props = {
     onNewAnnotationRef?: OnNewAnnotationRef;
 };
 
-export default function AssetDiscussion({
+function AssetDiscussion({
     asset,
     onActiveAnnotations,
     onNewAnnotationRef,
@@ -48,3 +48,7 @@ export default function AssetDiscussion({
         </Accordion>
     );
 }
+
+export default memo(AssetDiscussion, (a, b) => {
+    return a.asset.id === b.asset.id;
+});

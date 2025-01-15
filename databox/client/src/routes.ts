@@ -2,7 +2,7 @@ import App from './components/App';
 import WorkspaceDialog from './components/Dialog/Workspace/WorkspaceDialog';
 import CollectionDialog from './components/Dialog/Collection/CollectionDialog';
 import AssetDialog from './components/Dialog/Asset/AssetDialog';
-import AssetView from './components/Media/Asset/AssetView';
+import AssetView from './components/Media/Asset/View/AssetView.tsx';
 import WorkflowView from './components/Workflow/WorkflowView';
 import AppAuthorizationCodePage from './components/AppAuthorizationCodePage';
 import {compileRoutes} from '@alchemy/navigation';
