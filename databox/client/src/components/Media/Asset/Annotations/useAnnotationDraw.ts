@@ -1,6 +1,7 @@
 import React, {useRef} from 'react';
 import {drawingHandlers, StartingPoint} from './events.ts';
 import {
+    AnnotationId,
     AnnotationOptions,
     AnnotationsControl,
     AnnotationType,
@@ -30,7 +31,7 @@ export function useAnnotationDraw({
 }: Props) {
     const startingPoint = useRef<StartingPoint | undefined>();
     const dataRef = useRef<object | undefined>();
-    const selectedAnnotation = useRef<AssetAnnotation | undefined>();
+    const selectedAnnotation = useRef<AnnotationId | undefined>();
 
     React.useEffect(() => {
         if (!annotationsControl || !canvasRef.current) {

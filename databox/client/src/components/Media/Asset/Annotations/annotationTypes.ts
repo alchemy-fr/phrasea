@@ -14,7 +14,10 @@ export enum AnnotationType {
     TimeRange = 'time_range',
 }
 
+export type AnnotationId = string;
+
 export interface AssetAnnotation {
+    id?: string;
     type: AnnotationType;
     name?: string;
     [prop: string]: any;
@@ -84,6 +87,6 @@ export type AnnotationsControlRef = MutableRefObject<
 
 export type OnNewAnnotation = (annotation: AssetAnnotation) => void;
 export type OnUpdateAnnotation = (
-    previous: AssetAnnotation,
+    id: AnnotationId,
     newAnnotation: AssetAnnotation
 ) => AssetAnnotation;

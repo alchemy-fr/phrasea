@@ -20,6 +20,8 @@ type Props = {
     onActiveAnnotations: OnActiveAnnotations | undefined;
 };
 
+let annotationIncrement = 1;
+
 export default function MessageForm({
     threadKey,
     threadId,
@@ -38,6 +40,8 @@ export default function MessageForm({
             annotationsControlRef.current = {
                 onNew: (annotation: AssetAnnotation) => {
                     inputRef.current?.focus();
+
+                    annotation.id = (annotationIncrement++).toString();
 
                     const annotationTypes: Record<AnnotationType, string> = {
                         [AnnotationType.Draw]: t(
@@ -64,7 +68,6 @@ export default function MessageForm({
                     };
 
                     setAttachments(p => {
-                        console.log('p', p);
                         return p.concat({
                                 type: 'annotation',
                                 data: {
@@ -85,10 +88,10 @@ export default function MessageForm({
                         }
                     );
                 },
-                onUpdate: (previous, newAnnotation) => {
+                onUpdate: (id, newAnnotation) => {
                     setAttachments(p =>
                         p.map(a =>
-                            a.data === previous
+                            a.type === 'annotation' && a.data?.id === id
                                 ? {
                                       ...a,
                                       data: newAnnotation,
@@ -132,7 +135,10 @@ export default function MessageForm({
                 content: data.content,
                 attachments: attachments.map(({data, ...rest}) => ({
                     ...rest,
-                    content: JSON.stringify(data),
+                    content: JSON.stringify({
+                        ...data,
+                        id: undefined,
+                    }),
                 })),
             });
         },

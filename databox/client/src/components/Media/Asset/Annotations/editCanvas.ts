@@ -1,4 +1,4 @@
-import {AssetAnnotation, OnUpdateAnnotation} from './annotationTypes.ts';
+import {AnnotationId, AssetAnnotation, OnUpdateAnnotation} from './annotationTypes.ts';
 import {drawingHandlers, OnResizeEvent} from './events.ts';
 import {MutableRefObject} from 'react';
 
@@ -8,7 +8,7 @@ type Props = {
     annotations: AssetAnnotation[] | undefined;
     canvas: HTMLCanvasElement;
     clear: () => void;
-    selectedAnnotation: MutableRefObject<AssetAnnotation | undefined>;
+    selectedAnnotation: MutableRefObject<AnnotationId | undefined>;
     onUpdate: OnUpdateAnnotation;
 };
 
@@ -29,8 +29,7 @@ export function bindEditCanvas({
         const toY = (y: number) => y * height;
 
         if (selectedAnnotation.current) {
-            console.log('n');
-            const annotation = selectedAnnotation.current;
+            const annotation = annotations!.find(a => a.id === selectedAnnotation.current)!;
             const handler = drawingHandlers[annotation.type]!;
             let updatedAnnotation: AssetAnnotation | undefined;
 
@@ -46,7 +45,6 @@ export function bindEditCanvas({
                 const context = canvas.getContext('2d')!;
                 const toX = (x: number) => x * width;
                 const toY = (y: number) => y * height;
-
 
                 clear();
                 handler.drawAnnotation(
@@ -82,18 +80,18 @@ export function bindEditCanvas({
                 };
                 const onMouseUp = () => {
                     if (updatedAnnotation) {
-                        selectedAnnotation.current = onUpdate(
+                        onUpdate(
                             selectedAnnotation.current!,
                             updatedAnnotation
                         );
                     }
 
                     canvas.removeEventListener('mousemove', mouseMove);
-                    canvas.removeEventListener('mouseup', onMouseUp);
+                    window.removeEventListener('mouseup', onMouseUp);
                 };
 
                 canvas.addEventListener('mousemove', mouseMove);
-                canvas.addEventListener('mouseup', onMouseUp);
+                window.addEventListener('mouseup', onMouseUp);
 
                 return;
             }
@@ -115,7 +113,7 @@ export function bindEditCanvas({
             ) {
                 const context = canvas.getContext('2d')!;
 
-                selectedAnnotation.current = annotation;
+                selectedAnnotation.current = annotation.id;
                 clear();
                 handler.drawAnnotation(
                     {
