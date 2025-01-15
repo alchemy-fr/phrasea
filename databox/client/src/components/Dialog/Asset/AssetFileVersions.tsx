@@ -8,9 +8,9 @@ import {
     AssetFileVersionSkeleton,
 } from './AssetFileVersion';
 import {useTranslation} from 'react-i18next';
-import ConfirmDialog from "../../Ui/ConfirmDialog.tsx";
-import {toast} from "react-toastify";
-import {useModals} from "@alchemy/navigation";
+import ConfirmDialog from '../../Ui/ConfirmDialog.tsx';
+import {toast} from 'react-toastify';
+import {useModals} from '@alchemy/navigation';
 
 type Props = {
     data: Asset;
@@ -30,7 +30,6 @@ export default function AssetFileVersions({data, onClose, minHeight}: Props) {
         getAssetFileVersions(data.id).then(d => setVersions(d.result));
     }, []);
 
-
     const onDelete = async (id: string) => {
         openModal(ConfirmDialog, {
             title: t(
@@ -49,7 +48,7 @@ export default function AssetFileVersions({data, onClose, minHeight}: Props) {
                 );
             },
         });
-    }
+    };
 
     return (
         <ContentTab

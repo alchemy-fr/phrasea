@@ -8,44 +8,43 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Attributes, {
     attributesSx,
-    OnAnnotations,
+    OnActiveAnnotations,
 } from './Attribute/Attributes.tsx';
-import React from 'react';
+import React, {memo} from 'react';
 import {Asset} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
 
 type Props = {
     asset: Asset;
-    onAnnotations: OnAnnotations | undefined;
+    onActiveAnnotations: OnActiveAnnotations | undefined;
 };
 
-export default function AssetAttributes({asset, onAnnotations}: Props) {
+function AssetAttributes({asset, onActiveAnnotations}: Props) {
     const [expanded, setExpanded] = React.useState(true);
     const {t} = useTranslation();
 
     return (
-        <Box sx={attributesSx()}>
-            <Accordion
-                expanded={expanded}
-                onChange={() => setExpanded(p => !p)}
+        <Accordion expanded={expanded} onChange={() => setExpanded(p => !p)}>
+            <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="attr-content"
+                id="attr-header"
             >
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="attr-content"
-                    id="attr-header"
-                >
-                    <Typography component="div">
-                        {t('asset.view.attributes', `Asset Attributes`)}
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
+                <Typography component="div">
+                    {t('asset.view.attributes', `Asset Attributes`)}
+                </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+                <Box sx={attributesSx()}>
                     <Attributes
                         asset={asset}
                         displayControls={true}
-                        onAnnotations={onAnnotations}
+                        onActiveAnnotations={onActiveAnnotations}
                     />
-                </AccordionDetails>
-            </Accordion>
-        </Box>
+                </Box>
+            </AccordionDetails>
+        </Accordion>
     );
 }
+
+export default memo(AssetAttributes);

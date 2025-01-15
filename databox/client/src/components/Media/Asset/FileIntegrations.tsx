@@ -5,7 +5,6 @@ import {
     AccordionDetails,
     AccordionSummary,
     CircularProgress,
-    List,
     Typography,
 } from '@mui/material';
 import {
@@ -14,7 +13,7 @@ import {
     ObjectType,
 } from '../../../api/integrations';
 import RemoveBGAssetEditorActions from '../../Integration/RemoveBG/RemoveBGAssetEditorActions';
-import {SetIntegrationOverlayFunction} from './AssetView';
+import {SetIntegrationOverlayFunction} from './View/AssetView.tsx';
 import AwsRekognitionAssetEditorActions from '../../Integration/AwsRekognition/AwsRekognitionAssetEditorActions';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TUIPhotoEditor from '../../Integration/TuiPhotoEditor/TUIPhotoEditor';
@@ -60,7 +59,7 @@ function IntegrationProxy({
 
     // eslint-disable-next-line no-prototype-builtins
     if (
-        integrations.hasOwnProperty(i) &&
+        Object.hasOwnProperty.call(integrations, i) &&
         integrations[i].supports(props.file)
     ) {
         return (
@@ -124,31 +123,24 @@ export default function FileIntegrations({
     return (
         <>
             {!integrations && <CircularProgress color="inherit" />}
-            {integrations && (
-                <List component="nav" aria-labelledby="nested-list-subheader">
-                    {integrations.map(i => (
-                        <IntegrationProxy
-                            key={i.id}
-                            expanded={expanded === i.id}
-                            onExpand={() => {
-                                enableIncs.current[i.id] = enableIncs.current[
-                                    i.id
-                                ]
-                                    ? enableIncs.current[i.id] + 1
-                                    : 1;
-                                setExpanded(p =>
-                                    p === i.id ? undefined : i.id
-                                );
-                            }}
-                            integration={i}
-                            asset={asset}
-                            file={file}
-                            enableInc={enableIncs.current[i.id]}
-                            setIntegrationOverlay={setIntegrationOverlay}
-                        />
-                    ))}
-                </List>
-            )}
+            {integrations &&
+                integrations.map(i => (
+                    <IntegrationProxy
+                        key={i.id}
+                        expanded={expanded === i.id}
+                        onExpand={() => {
+                            enableIncs.current[i.id] = enableIncs.current[i.id]
+                                ? enableIncs.current[i.id] + 1
+                                : 1;
+                            setExpanded(p => (p === i.id ? undefined : i.id));
+                        }}
+                        integration={i}
+                        asset={asset}
+                        file={file}
+                        enableInc={enableIncs.current[i.id]}
+                        setIntegrationOverlay={setIntegrationOverlay}
+                    />
+                ))}
         </>
     );
 }

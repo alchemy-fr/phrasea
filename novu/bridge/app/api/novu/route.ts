@@ -1,5 +1,6 @@
 import { serve } from "@novu/framework/next";
 import {
+    databoxDiscussionNewComment,
     exposeDownloadLink,
     exposeZippyDownloadLink,
     uploaderCommitAcknowledged,
@@ -11,5 +12,6 @@ export const { GET, POST, OPTIONS } = serve({
       uploaderCommitAcknowledged,
       exposeZippyDownloadLink,
       exposeDownloadLink,
+      databoxDiscussionNewComment,
   ],
 });

@@ -5,17 +5,21 @@ import UserMenu from "./src/components/UserMenu";
 import FullPageLoader from "./src/components/FullPageLoader";
 import AppDialog, {AppDialogProps, AppDialogTitle, BootstrapDialog} from "./src/components/Dialog/AppDialog";
 import FlexRow from "./src/components/FlexRow";
+import UserAvatar from "./src/components/UserAvatar";
+import MoreActionsButton from "./src/components/MoreActionsButton";
 
 export {
     NotFoundPage,
     ErrorPage,
     ErrorLayout,
     UserMenu,
+    UserAvatar,
     FullPageLoader,
     AppDialog,
     AppDialogTitle,
     BootstrapDialog,
     FlexRow,
+    MoreActionsButton,
 };
 
 export type {

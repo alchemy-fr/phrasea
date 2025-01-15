@@ -7,7 +7,6 @@ import {Asset, AssetOrAssetContainer} from '../types.ts';
 import {useModals} from '@alchemy/navigation';
 import {ActionsContext, ReloadFunc} from '../components/AssetList/types.ts';
 import {createDefaultActionsContext} from '../components/AssetList/actionContext.ts';
-import SubstituteFileDialog from '../components/Media/Asset/Actions/SubstituteFileDialog.tsx';
 import MoveAssetsDialog from '../components/Media/Asset/Actions/MoveAssetsDialog.tsx';
 import CopyAssetsDialog from '../components/Media/Asset/Actions/CopyAssetsDialog.tsx';
 import ReplaceAssetSourceDialog from '../components/Media/Asset/Actions/ReplaceAssetSourceDialog.tsx';
@@ -52,7 +51,7 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
                 onAction?.();
             },
             onSubstituteFile: () => {
-                openModal(SubstituteFileDialog, {
+                openModal(ReplaceAssetSourceDialog, {
                     asset,
                 });
                 onAction?.();

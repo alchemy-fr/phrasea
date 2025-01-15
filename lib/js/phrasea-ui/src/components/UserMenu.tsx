@@ -1,13 +1,13 @@
 import React, {ReactNode} from 'react';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
-import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import {Divider, ListItemIcon, ListItemText} from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import {useTranslation} from 'react-i18next';
+import UserAvatar from "./UserAvatar";
 
 type Props = {
     actions?: (props: {
@@ -87,19 +87,10 @@ export default function UserMenu({
                 onClick={handleOpenUserMenu}
                 sx={{p: 0}}
             >
-                <Avatar
-                    sx={{
-                        width: menuHeight - 8,
-                        height: menuHeight - 8,
-                        bgcolor: 'secondary.main',
-                        color: 'secondary.contrastText',
-                    }}
-                    alt={username}
-                >
-                    {(
-                        username[0] || 'U'
-                    ).toUpperCase()}
-                </Avatar>
+                <UserAvatar
+                    size={menuHeight - 8}
+                    username={username}
+                />
             </IconButton>
         </Tooltip>
         <Menu

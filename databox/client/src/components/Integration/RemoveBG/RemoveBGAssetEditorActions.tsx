@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 import {Button, Typography} from '@mui/material';
 import {ObjectType, runIntegrationAction} from '../../../api/integrations';
 import ReactCompareImage from 'react-compare-image';
-import {IntegrationOverlayCommonProps} from '../../Media/Asset/AssetView';
+import {IntegrationOverlayCommonProps} from '../../Media/Asset/View/AssetView.tsx';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import IntegrationPanelContent from '../Common/IntegrationPanelContent';
 import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';

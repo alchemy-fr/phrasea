@@ -6,6 +6,8 @@ namespace App\Entity\Template;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -19,9 +21,7 @@ use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Api\Provider\AssetDataTemplateCollectionProvider;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
-use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
-use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\AssetDataTemplateRepository;

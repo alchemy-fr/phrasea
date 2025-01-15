@@ -31,6 +31,13 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/notify-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/test-bundle",
             "options": {
                 "symlink": true
@@ -140,6 +147,7 @@
         "alchemy/auth-bundle": "*",
         "alchemy/configurator-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
+        "alchemy/notify-bundle": "@dev",
         "alchemy/es-bundle": "@dev",
         "alchemy/messenger-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",

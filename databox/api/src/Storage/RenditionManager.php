@@ -106,9 +106,8 @@ final class RenditionManager
 
     public function getOrCreateRendition(
         Asset $asset,
-        RenditionDefinition $definition
-    ): AssetRendition
-    {
+        RenditionDefinition $definition,
+    ): AssetRendition {
         if (null !== $assetRendition = $this->getAssetRenditionByDefinition($asset, $definition)) {
             return $assetRendition;
         }

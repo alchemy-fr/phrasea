@@ -24,6 +24,7 @@ use App\Entity\Core\Share;
 use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
+use App\Service\DiscussionManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AssetOutputTransformer implements OutputTransformerInterface
@@ -43,6 +44,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         private readonly FieldNameResolver $fieldNameResolver,
         private readonly FacetRegistry $facetRegistry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
+        private readonly DiscussionManager $discussionManager,
     ) {
     }
 
@@ -183,6 +185,11 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
                 'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
             ]);
+        }
+
+        if ($this->hasGroup([Asset::GROUP_READ], $context)) {
+            $output->threadKey = $this->discussionManager->getObjectKey($data);
+            $output->thread = $this->discussionManager->getThreadOfObject($data);
         }
 
         return $output;

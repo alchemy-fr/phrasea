@@ -5,9 +5,10 @@ import {getAttributeType} from './types';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import CopyAttribute, {copyToClipBoardContainerClass} from './CopyAttribute';
 import React from 'react';
-import {attributesClasses, OnAnnotations} from './Attributes';
+import {attributesClasses, OnActiveAnnotations} from './Attributes';
 import {isRtlLocale} from '../../../../lib/lang';
 import {Attribute, AttributeDefinition} from '../../../../types.ts';
+import GestureIcon from '@mui/icons-material/Gesture';
 
 type Props = {
     definition: AttributeDefinition;
@@ -16,7 +17,7 @@ type Props = {
     togglePin: undefined | ((definitionId: string) => void);
     pinned: boolean;
     formatContext: TAttributeFormatContext;
-    onAnnotations?: OnAnnotations | undefined;
+    onActiveAnnotations?: OnActiveAnnotations | undefined;
 };
 
 export default function AttributeRowUI({
@@ -26,7 +27,7 @@ export default function AttributeRowUI({
     pinned,
     displayControls,
     formatContext,
-    onAnnotations,
+    onActiveAnnotations,
 }: Props) {
     const {id, name, fieldType, multiple} = definition;
     const formatter = getAttributeType(fieldType);
@@ -132,17 +133,26 @@ export default function AttributeRowUI({
                                           className={
                                               copyToClipBoardContainerClass
                                           }
-                                          onMouseEnter={
-                                              onAnnotations &&
-                                              a.assetAnnotations
-                                                  ? () =>
-                                                        onAnnotations(
-                                                            a.assetAnnotations!
-                                                        )
-                                                  : undefined
-                                          }
                                       >
                                           {formatter.formatValue(formatProps)}
+                                          {displayControls &&
+                                          onActiveAnnotations &&
+                                          a.assetAnnotations ? (
+                                              <IconButton
+                                                  sx={{
+                                                      ml: 1,
+                                                  }}
+                                                  size="small"
+                                                  onClick={e => {
+                                                      e.stopPropagation();
+                                                      onActiveAnnotations!(
+                                                          a.assetAnnotations!
+                                                      );
+                                                  }}
+                                              >
+                                                  <GestureIcon />
+                                              </IconButton>
+                                          ) : null}
                                           {displayControls ? (
                                               <CopyAttribute
                                                   value={formatter.formatValueAsString(

@@ -14,6 +14,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\Share;
+use App\Entity\Discussion\Thread;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class AssetOutput extends AbstractUuidOutput
@@ -55,6 +56,12 @@ class AssetOutput extends AbstractUuidOutput
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private ?string $titleHighlight = null;
+
+    #[Groups([Asset::GROUP_READ])]
+    public ?Thread $thread = null;
+
+    #[Groups([Asset::GROUP_READ])]
+    public ?string $threadKey = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     private int $privacy;
