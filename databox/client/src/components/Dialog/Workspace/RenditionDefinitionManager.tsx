@@ -1,11 +1,5 @@
 import {RenditionClass, RenditionDefinition, Workspace} from '../../../types';
-import {
-    FormGroup,
-    FormHelperText,
-    FormLabel,
-    ListItemText,
-    TextField,
-} from '@mui/material';
+import {FormGroup, FormHelperText, FormLabel, ListItemText, TextField,} from '@mui/material';
 import {FormFieldErrors, FormRow, RSelectWidget} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
@@ -58,7 +52,7 @@ function Item({
                     {...register('name')}
                     disabled={submitting}
                 />
-                <FormFieldErrors field={'name'} errors={errors} />
+                <FormFieldErrors field={'name'} errors={errors}/>
             </FormRow>
             <FormRow>
                 <FormGroup>
@@ -71,7 +65,7 @@ function Item({
                         control={control}
                         workspaceId={workspace.id}
                     />
-                    <FormFieldErrors field={'class'} errors={errors} />
+                    <FormFieldErrors field={'class'} errors={errors}/>
                 </FormGroup>
             </FormRow>
             <FormRow>
