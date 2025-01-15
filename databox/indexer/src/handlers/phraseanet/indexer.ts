@@ -159,15 +159,16 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                             :
                             storiesCollectionPath;
 
-                        const tpath: string[] = splitPath(path);
+                        const storyPathParts: string[] = splitPath(path);
+                        const storyPath = '/' + storyPathParts.join('/');
 
                         // create the base
                         let storyParent: string|undefined = undefined;
-                        if (tpath.length > 0) {
+                        if (storyPathParts.length > 0) {
                             storyParent = '/collections/' + await databoxClient.createCollectionTreeBranch(
                                 workspaceId,
                                 collectionKeyPrefix,
-                                tpath.map(k => ({
+                                storyPathParts.map(k => ({
                                     key: k,
                                     title: k,
                                 }))
@@ -195,13 +196,14 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                 phraseanetDatabox.collections[s.base_id].name
                             }" (#${s.base_id}) ==> collection (#${storyCollId})`
                         );
-                        for (const rs of s.children) {
-                            if (recordStories[rs.record_id] === undefined) {
-                                recordStories[rs.record_id] = [];
+
+                        for await (const child_rid of phraseanetClient.getStoryChildren(s.databox_id, s.story_id)) {
+                            if (recordStories[child_rid] === undefined) {
+                                recordStories[child_rid] = [];
                             }
-                            recordStories[rs.record_id].push({
+                            recordStories[child_rid].push({
                                 id: storyCollId,
-                                path: tpath.join('/') + '/' + s.title,
+                                path: storyPath + '/' + s.title,
                             });
                         }
                     }
@@ -218,36 +220,37 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     offset,
                     dm.searchQuery ?? ''
                 );
-                for (const r of records) {
+                for (const record of records) {
                     logger.info(
-                        `Phraseanet record "${r.title}" (#${
-                            r.record_id
+                        `Phraseanet record "${record.title}" (#${
+                            record.record_id
                         }) from base "${
-                            phraseanetDatabox.collections[r.base_id].name
-                        }" (#${r.base_id})`
+                            phraseanetDatabox.collections[record.base_id].name
+                        }" (#${record.base_id})`
                     );
 
-                    const copyTo = recordStories[r.record_id] ?? [];
+                    const copyTo = recordStories[record.record_id] ?? [];
 
                     // copy the asset to other location(s) ?
                     for (const ct of dm.copyTo ?? []) {
                         const template = Twig.twig({data: ct});
-                        const paths = (await template.renderAsync({record: r, collection: phraseanetDatabox.collections[r.base_id]}))
+                        const paths = (await template.renderAsync({record: record, collection: phraseanetDatabox.collections[record.base_id]}))
                             .split('\n')
                             .map((p: string) => p.trim())
                             .filter((p: string) => p);
 
                         for (const path of paths) {
                             const branch = splitPath(path);
+                            const collId = await databoxClient.createCollectionTreeBranch(
+                                workspaceId,
+                                collectionKeyPrefix,
+                                branch.map(k => ({
+                                    key: k,
+                                    title: k,
+                                }))
+                            );
                             copyTo.push({
-                                id: await databoxClient.createCollectionTreeBranch(
-                                    workspaceId,
-                                    collectionKeyPrefix,
-                                    branch.map(k => ({
-                                        key: k,
-                                        title: k,
-                                    }))
-                                ),
+                                id: collId,
                                 path: path,
                             });
                         }
@@ -255,26 +258,27 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
 
                     let path: string = '';
                     if(recordsCollectionPathTwig !== null) {
-                        path = await recordsCollectionPathTwig.renderAsync({record: r, collection: phraseanetDatabox.collections[r.base_id]});
+                        path = await recordsCollectionPathTwig.renderAsync({record: record, collection: phraseanetDatabox.collections[record.base_id]});
                     } else {
                         // bc: dispatch in original phraseanet collection.name
-                        path = `${recordsCollectionPath}/${escapeSlashes(phraseanetDatabox.collections[r.base_id].name)}`;
+                        path = `${recordsCollectionPath}/${escapeSlashes(phraseanetDatabox.collections[record.base_id].name)}`;
                     }
-                    path += '/' + escapeSlashes(r.original_name);
+                    path += '/' + escapeSlashes(record.original_name);
 
                     yield createAsset(
                         workspaceId,
                         importFiles,
-                        r,
+                        record,
                         path,
                         collectionKeyPrefix,
                         idempotencePrefixes['asset'] +
-                            r.databox_id +
+                            record.databox_id +
                             '_' +
-                            r.record_id,
+                            record.record_id,
                         fieldMap,
                         tagIndex,
                         copyTo,
+                        dm.sourceFile,
                         subdefToRendition,
                         logger,
                     );
@@ -336,6 +340,7 @@ async function importSubdefsStructure(
     const sdByName: Record<string, {
         name: string;
         parent: string | null;
+        pickSourceFile: boolean;
         useAsOriginal: boolean;
         useAsPreview: boolean;
         useAsThumbnail: boolean;
@@ -354,8 +359,8 @@ async function importSubdefsStructure(
         // import all subdefs from phraseanet
         dm['renditions'] = {
             "original": {
-                "from": "document",
                 "useAsOriginal": true,
+                "pickSourceFile": true,
                 "class": "original"
             } as ConfigPhraseanetOriginal
         };
@@ -363,9 +368,9 @@ async function importSubdefsStructure(
         for(const sd of subdefs) {
             if(!dm.renditions[sd.name]) {
                 dm.renditions[sd.name] = {
-                    parent: null,
                     class: sd.class,
                     useAsOriginal: sd.name === 'document',
+                    pickSourceFile: sd.name === 'document',
                     useAsPreview: sd.name === 'preview',
                     useAsThumbnail: sd.name === 'thumbnail',
                     useAsThumbnailActive: sd.name === 'thumbnailgif',
@@ -386,6 +391,7 @@ async function importSubdefsStructure(
                 name: name,
                 parent: 'parent' in rendition ? rendition['parent'] : null,
                 useAsOriginal: rendition['useAsOriginal'] ?? false,
+                pickSourceFile: rendition['pickSourceFile'] ?? false,
                 useAsPreview: rendition['useAsPreview'] ?? false,
                 useAsThumbnail: rendition['useAsThumbnail'] ?? false,
                 useAsThumbnailActive: rendition['useAsThumbnailActive'] ?? false,
@@ -394,10 +400,7 @@ async function importSubdefsStructure(
                 labels: {},
             };
         }
-        if('from' in rendition && rendition['from'] === 'document') {
-            // phrnet original is not a subdef
-            continue;
-        }
+
         for(const [family, settings] of Object.entries('builders' in rendition ? rendition['builders'] : [])) {
             if('build' in settings && 'from' in settings) {
                 logger.error(`  Rendition-definition "${name}" for family "${family}": Use "build" OR "from", not both. Rendition definition ignored`);
@@ -484,7 +487,6 @@ async function importSubdefsStructure(
             }
         }
 
-
         if(sd['parent'] && !renditionIdByName[sd['parent']]) {
             logger.error(`    Parent rendition definition "${sd['parent']}" for "${sd.name}" not found: no parent set. Check declaration order`);
             sd['parent'] = null;
@@ -495,6 +497,7 @@ async function importSubdefsStructure(
             parent: sd['parent'] ? `/rendition-definitions/${renditionIdByName[sd['parent']]}` : null,
             key: `${idempotencePrefix}${sd.name}`,
             class: `/rendition-classes/${classIndex[sd.class]}`,
+            pickSourceFile: sd.pickSourceFile,
             useAsOriginal: sd.useAsOriginal,
             useAsPreview: sd.useAsPreview,
             useAsThumbnail: sd.useAsThumbnail,
@@ -506,7 +509,6 @@ async function importSubdefsStructure(
             },
             definition: jsToYaml(jsConf, 0).trim(),
         });
-
     }
 
     return subdefToRendition;
@@ -864,13 +866,11 @@ function translateVideoSettings_targetImageFrame(sd: PhraseanetSubdefStruct): ob
             {
                 module: 'imagine',
                 options: {
-                    filters: [
-                        {
-                            thumbnail: {
-                                size: [size, size],
-                            },
+                    filters: {
+                        thumbnail: {
+                            size: [size, size],
                         },
-                    ],
+                    },
                 },
             },
         ],
@@ -889,7 +889,7 @@ function translateVideoSettings_targetAnimatedGif(sd: PhraseanetSubdefStruct): o
                 options: {
                     'format': 'animated-gif',
                     'start': 0,
-                    '#0': 'duration: 5',
+                    'duration': 5,
                     'fps': fps,
                     'width': size,
                     'height': size,

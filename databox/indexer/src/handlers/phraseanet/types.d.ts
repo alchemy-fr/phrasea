@@ -26,6 +26,7 @@ export type ConfigPhraseanetSubdefBase = {
     useAsPreview?: boolean;
     useAsOriginal?: boolean;
     useAsThumbnailActive?: boolean;
+    pickSourceFile?: boolean;
     class: string;
 };
 
@@ -51,6 +52,7 @@ export type ConfigDataboxMapping = {
     copyTo: string;
     storiesCollectionPath: string;
     fieldMap: Map<string, FieldMap>;
+    sourceFile?: string;
     renditions: Record<string, ConfigPhraseanetOriginal | ConfigPhraseanetSubdef> | false;
 };
 

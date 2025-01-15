@@ -245,6 +245,12 @@ with `translatable=true`.
 
 All the different AttributeDefinition locales are copied to the "Enabled locales" of the workspace.
 
+## `sourceFile`
+Declare le phraseanet subdef to be used as source file for the asset.
+
+Mostly `"sourceFile": "document"` for the original file.
+
+If not set, assets will be created without source file.
 
 ## `renditions`
 
@@ -254,40 +260,49 @@ A Phraseanet subdef is identified by it **type** (image, video, audio, document,
 
 A Phrasea rendition-definition is declared by its **name** and **build settings** (sections image, video, ...).
 
-### `from`
-The `from` setting maps the phrasea rendition-definition to the phraseanet subdef.
-The build settings will be generated from the phraseanet to match the subdef.
-
 It is possible to declare a rendition with no `from`: not imported from Phraseanet, but created in Phrasea.
 
 ### `parent`
 One can declare a `parent` relation between renditions, the parent rendition **must** be declared before the child.
 
-/!\ `original` is **not** a rendition, but a place to declare settings specifics to the file of the asset.
+If not set, the rendition will be built from the asset file.
 
-The special `original` has no build settings, so the `from` setting is top-level. 
-Mostly it will be mapped to the Phraseanet special `document` subdef, but one could map it to any phraseanet subdef.
+### `useAsOriginal`, `useAsPreview`, `useAsThumbnail`, `useAsActiveThumbnail`
 
-If a rendition is to be created from the original file, do **not** set it a parent. 
+Declare the rendition to be used as original, preview, thumbnail or active thumbnail.
+
+### `pickFromFile`
+Tells the builder to copy the parent file (if no parent: copy the source file) to the rendition file.
+
+### `class`
+Phrasea rendition class, mostly "public" or "private". If not set, the value will be "guessed" from the subdef **class** (document, preview, ...).
+
+### `builders`
+A builder can be defined for each family of renditions (image, video, audio, ...).
+
+#### `from`
+Inside the builder, the `from` maps the phrasea rendition-definition - for the family -,
+to the phraseanet subdef.
+
+The `from` value (phraseanet subdef) is a string like `<document_type>:<subdef_name>`, e.g. `video:preview`.
+
+The build settings will be generated from the phraseanet to match the subdef.
 
 
-### `useAsOriginal`, `useAsPreview`, `useAsThumbnail`, `class`, ...
-
-Common settings for all renditions. If not set, the value will be "guessed" from the subdef name / class.
-
-e.g.
+## e.g.
 
 ```json lines
 ...
+        "sourceFile": "document",
         "renditions": {
             "original": {
-                "from": "document",
                 "useAsOriginal": true,
-                "class": "document"
+                "pickFromFile": true,
+                "class": "public"
             },
             "preview": {
                 "useAsPreview": true,
-                "class": "public_preview",
+                "class": "public",
                 "builders": {
                     "image": {
                         "from": "image:preview"
@@ -299,6 +314,7 @@ e.g.
             },
             "thumbnail": {
                 "useAsThumbnail": true,
+                "class": "public",
                 "parent": "preview",
                 "builders": {
                     "image": {
@@ -312,6 +328,7 @@ e.g.
         }
 ...
 ```
+
 
 -------------------
 

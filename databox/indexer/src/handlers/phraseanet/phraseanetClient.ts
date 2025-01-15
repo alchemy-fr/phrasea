@@ -83,7 +83,7 @@ export default class PhraseanetClient {
         return res.data.response.collections;
     }
 
-    searchRecords(
+    async searchRecords(
         params: Record<string, any>,
         offset: number = 0,
         searchQuery: string
@@ -97,7 +97,7 @@ export default class PhraseanetClient {
         ) as unknown as Promise<CPhraseanetRecord[]>;
     }
 
-    searchStories(
+    async searchStories(
         params: Record<string, any>,
         offset: number = 0,
         searchQuery: string
@@ -136,14 +136,12 @@ export default class PhraseanetClient {
                         limit: limit,
                         search_type: searchType,
                         query: searchQuery,
-                        story_children_limit: 1000,
                         include: [
                             'results.records.subdefs',
                             'results.records.metadata',
                             'results.records.status',
                             'results.stories.metadata',
                             'results.stories.status',
-                            'results.stories.children',
                         ],
                         ...params,
                     },
@@ -169,6 +167,31 @@ export default class PhraseanetClient {
             }
         }
         throw last_error;
+    }
+
+    async *getStoryChildren(databoxId: string, storyId: string): AsyncGenerator<string> {
+        let offset = 0;
+        do {
+            const res = await this.client.get(`/api/v3/stories/${databoxId}/${storyId}/children`, {
+                params: {
+                    offset: offset,
+                    limit: 50,
+                },
+            });
+            if(!Array.isArray(res.data.response) || res.data.response.length === 0) {
+                break;
+            }
+            for(const recordUri of res.data.response) {
+                // -- requesting a uri is the way to get record_id, but it's too slow
+                // r = this.client.get(recordUri);
+                // const recordId = r.data.response.record_id;
+
+                // -- we known that recordUri is like: "/api/v3/records/{sbas_id}/{record_id}/"
+                yield recordUri.split('/')[5];;
+            }
+            offset += 50;
+        }
+        while(true);
     }
 
     async getMetaStruct(

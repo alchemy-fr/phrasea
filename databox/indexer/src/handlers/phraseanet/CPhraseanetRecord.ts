@@ -110,10 +110,12 @@ export class CPhraseanetRecord extends CPhraseanetRecordBase {
 
 export class CPhraseanetStory extends CPhraseanetRecordBase {
     story_id: string = '';
-    children: CPhraseanetRecord[] = [];
     constructor(s: PhraseanetStory, client: PhraseanetClient) {
         super(s, client);
         this.story_id = s.story_id;
-        this.children = s.children.map(r => new CPhraseanetRecord(r, client));
+    }
+
+    async getChildren() {
+        return this.client.getStoryChildren(this.databox_id, this.story_id);
     }
 }
