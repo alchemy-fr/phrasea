@@ -31,6 +31,7 @@ class AssetAnnotationsFaker extends BaseProvider
                 'y' => $y,
                 'r' => min(1 - $x, 1 - $y, rand(5, 50) / 100),
                 'c' => $this->randomColor(),
+                's' => $this->randomSize(),
                 'page' => 2,
             ],
         ];
@@ -47,6 +48,7 @@ class AssetAnnotationsFaker extends BaseProvider
                 'x' => $x,
                 'y' => $y,
                 'c' => $this->randomColor(),
+                's' => $this->randomSize(),
                 'page' => 2,
             ],
         ];
@@ -67,6 +69,7 @@ class AssetAnnotationsFaker extends BaseProvider
                 'x2' => $x2,
                 'y2' => $y2,
                 'c' => $this->randomColor(),
+                's' => $this->randomSize(),
                 'page' => 2,
             ],
         ];
@@ -83,5 +86,10 @@ class AssetAnnotationsFaker extends BaseProvider
         $bleu = str_pad($bleu, 2, '0', STR_PAD_LEFT);
 
         return '#'.$rouge.$vert.$bleu;
+    }
+
+    private function randomSize(): float
+    {
+        return (rand(1, 10) / 2) / 100;
     }
 }
