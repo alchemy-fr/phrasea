@@ -1,11 +1,10 @@
-import AssetAnnotationsOverlay, {
+import AnnotateWrapper, {
     AssetAnnotationHandle,
-} from '../Annotations/AssetAnnotationsOverlay.tsx';
-import AnnotateWrapper from '../Annotations/AnnotateWrapper.tsx';
+} from '../Annotations/AnnotateWrapper.tsx';
 import {MutableRefObject, useCallback, useRef, useState} from 'react';
 import {
+    AnnotationsControl,
     AssetAnnotation,
-    OnNewAnnotation,
 } from '../Annotations/annotationTypes.ts';
 import ZoomControls from './ZoomControls.tsx';
 import {TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch';
@@ -18,7 +17,7 @@ import ToolbarPaper from './ToolbarPaper.tsx';
 type Props = {
     annotationEnabled?: boolean;
     zoomEnabled?: boolean;
-    onNewAnnotation?: OnNewAnnotation | undefined;
+    annotationsControl?: AnnotationsControl | undefined;
     annotations?: AssetAnnotation[] | undefined;
     page?: number;
     controls?: boolean | undefined;
@@ -26,7 +25,7 @@ type Props = {
     forceHand?: boolean;
     children:
         | ((props: {
-              annotationsOverlayRef: MutableRefObject<AssetAnnotationHandle | null>;
+              annotationsWrapperRef: MutableRefObject<AssetAnnotationHandle | null>;
           }) => JSX.Element)
         | JSX.Element;
 };
@@ -35,14 +34,14 @@ export default function FileToolbar({
     annotations,
     annotationEnabled,
     zoomEnabled,
-    onNewAnnotation,
+    annotationsControl,
     children,
     page,
     controls,
     preToolbarActions,
     forceHand,
 }: Props) {
-    const annotationsOverlayRef = useRef<AssetAnnotationHandle | null>(null);
+    const annotationsWrapperRef = useRef<AssetAnnotationHandle | null>(null);
     const [closed, setClosed] = useState(false);
     const [hand, setHand] = useState(forceHand ?? false);
     const contentRef = useRef<HTMLDivElement | null>(null);
@@ -72,10 +71,12 @@ export default function FileToolbar({
     return (
         <>
             <AnnotateWrapper
-                onNewAnnotation={
-                    annotationEnabled ? onNewAnnotation : undefined
-                }
+                annotationEnabled={annotationEnabled}
+                annotations={annotations}
+                annotationsControl={annotationsControl}
                 page={page}
+                ref={annotationsWrapperRef}
+
             >
                 {({canvas, annotationActive, toolbar}) => (
                     <TransformWrapper
@@ -148,14 +149,8 @@ export default function FileToolbar({
                                 }}
                             >
                                 {canvas}
-                                {annotations ? (
-                                    <AssetAnnotationsOverlay
-                                        ref={annotationsOverlayRef}
-                                        annotations={annotations}
-                                    />
-                                ) : null}
                                 {typeof children === 'function'
-                                    ? children({annotationsOverlayRef})
+                                    ? children({annotationsWrapperRef})
                                     : children}
                             </div>
                         </TransformComponent>

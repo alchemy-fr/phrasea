@@ -3,8 +3,8 @@ import {
     AnnotationType,
     DrawAnnotation,
     Point,
-} from './annotationTypes.ts';
-import {DrawingHandler} from './events.ts';
+} from '../annotationTypes.ts';
+import {DrawingHandler} from '../events.ts';
 
 function init(
     context: CanvasRenderingContext2D,
@@ -121,6 +121,8 @@ export function createDrawAnnotationHandler(
             );
             context.closePath();
         },
+        isPointInside: ({}) => false,
+        getResizeHandler: () => undefined,
     };
 }
 

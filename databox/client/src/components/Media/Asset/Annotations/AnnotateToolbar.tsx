@@ -6,9 +6,7 @@ import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye';
 import GestureIcon from '@mui/icons-material/Gesture';
 import {ColorPicker} from '@alchemy/react-form';
 import {StateSetter} from '../../../../types.ts';
-import {useState} from 'react';
 import ToolbarPaper from '../Players/ToolbarPaper.tsx';
-import ModeIcon from '@mui/icons-material/Mode';
 import BrushIcon from '@mui/icons-material/Brush';
 
 type Props = {
@@ -16,6 +14,8 @@ type Props = {
     setMode: StateSetter<AnnotationType | undefined>;
     options: AnnotationOptions;
     setOptions: StateSetter<AnnotationOptions>;
+    annotate: boolean;
+    setAnnotate: StateSetter<boolean>;
 };
 
 export default function AnnotateToolbar({
@@ -23,9 +23,9 @@ export default function AnnotateToolbar({
     setMode,
     options,
     setOptions,
+    annotate,
+    setAnnotate,
 }: Props) {
-    const [annotate, setAnnotate] = useState(false);
-
     return (
         <>
             <IconButton
@@ -90,18 +90,6 @@ export default function AnnotateToolbar({
                             onClick={() => setMode(AnnotationType.Draw)}
                         >
                             <BrushIcon />
-                        </IconButton>
-                    </div>
-                    <div>
-                        <IconButton
-                            color={
-                                mode === AnnotationType.Highlight
-                                    ? 'primary'
-                                    : 'default'
-                            }
-                            onClick={() => setMode(AnnotationType.Highlight)}
-                        >
-                            <ModeIcon />
                         </IconButton>
                     </div>
                     <div>

@@ -7,7 +7,7 @@ import {CircularProgress} from '@mui/material';
 import DiscussionMessage from './DiscussionMessage.tsx';
 import {useChannelRegistration} from '../../lib/pusher.ts';
 import {OnActiveAnnotations} from '../Media/Asset/Attribute/Attributes.tsx';
-import {OnNewAnnotationRef} from '../Media/Asset/Annotations/annotationTypes.ts';
+import {AnnotationsControlRef} from '../Media/Asset/Annotations/annotationTypes.ts';
 import ConfirmDialog from '../Ui/ConfirmDialog.tsx';
 import {toast} from 'react-toastify';
 import {useModals} from '@alchemy/navigation';
@@ -17,14 +17,14 @@ type Props = {
     threadKey: string;
     threadId?: string;
     onActiveAnnotations: OnActiveAnnotations | undefined;
-    onNewAnnotationRef?: OnNewAnnotationRef;
+    annotationsControlRef?: AnnotationsControlRef;
 };
 
 export default function Thread({
     threadKey,
     threadId,
     onActiveAnnotations,
-    onNewAnnotationRef,
+    annotationsControlRef,
 }: Props) {
     const [messages, setMessages] =
         React.useState<ApiCollectionResponse<ThreadMessage>>();
@@ -158,7 +158,7 @@ export default function Thread({
             ))}
 
             <MessageForm
-                onNewAnnotationRef={onNewAnnotationRef}
+                annotationsControlRef={annotationsControlRef}
                 onActiveAnnotations={onActiveAnnotations}
                 threadKey={threadKey}
                 threadId={threadId}

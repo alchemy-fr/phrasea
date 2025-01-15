@@ -1,7 +1,7 @@
 import {File} from '../../../../types';
 import {
+    AnnotationsControl,
     AssetAnnotation,
-    OnNewAnnotation,
 } from '../Annotations/annotationTypes.ts';
 
 export type FileWithUrl = {
@@ -36,7 +36,7 @@ export type PlayerProps = {
     zoomEnabled?: boolean | undefined;
     title: string | undefined;
     controls?: boolean | undefined;
-    onNewAnnotation?: OnNewAnnotation | undefined;
+    annotationsControl?: AnnotationsControl | undefined;
     annotations?: AssetAnnotation[] | undefined;
 };
 

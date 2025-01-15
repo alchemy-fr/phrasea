@@ -3,7 +3,7 @@ import {AttributeType} from './api/attributes';
 import type {WithTranslations} from '@alchemy/react-form';
 import {Integration} from './components/Integration/types.ts';
 import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTypes.ts';
-import {RenditionBuildMode} from "./api/rendition.ts";
+import {RenditionBuildMode} from './api/rendition.ts';
 
 type AlternateUrl = {
     type: string;

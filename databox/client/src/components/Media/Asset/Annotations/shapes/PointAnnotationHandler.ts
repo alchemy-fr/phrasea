@@ -1,5 +1,5 @@
-import {AnnotationOptions, AnnotationType} from './annotationTypes.ts';
-import {DrawingHandler} from './events.ts';
+import {AnnotationOptions, AnnotationType} from '../annotationTypes.ts';
+import {DrawingHandler} from '../events.ts';
 
 function drawPoint({
     x,
@@ -66,4 +66,6 @@ export const PointAnnotationHandler: DrawingHandler = {
         });
     },
     onTerminate: () => {},
+    isPointInside: ({}) => false,
+    getResizeHandler: () => undefined,
 };

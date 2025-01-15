@@ -2,8 +2,8 @@ import {
     AnnotationOptions,
     AnnotationType,
     RectangleAnnotation,
-} from './annotationTypes.ts';
-import {DrawingHandler} from './events.ts';
+} from '../annotationTypes.ts';
+import {DrawingHandler} from '../events.ts';
 
 function drawRectangle({
     x,
@@ -109,4 +109,6 @@ export const RectAnnotationHandler: DrawingHandler = {
         });
     },
     onTerminate: () => {},
+    isPointInside: ({}) => false,
+    getResizeHandler: () => undefined,
 };

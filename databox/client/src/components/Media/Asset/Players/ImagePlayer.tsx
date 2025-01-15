@@ -1,9 +1,9 @@
-import {AssetAnnotationHandle} from '../Annotations/AssetAnnotationsOverlay.tsx';
 import {File} from '../../../../types.ts';
 import {PlayerProps} from './index.ts';
 import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
 import React, {useRef} from 'react';
 import FileToolbar from './FileToolbar.tsx';
+import {AssetAnnotationHandle} from '../Annotations/AnnotateWrapper.tsx';
 
 type Props = {
     file: File;
@@ -16,7 +16,7 @@ export default function ImagePlayer({
     title,
     annotations,
     onLoad,
-    onNewAnnotation,
+    annotationsControl,
     zoomEnabled,
     controls,
 }: Props) {
@@ -37,7 +37,7 @@ export default function ImagePlayer({
             <FileToolbar
                 key={file.id}
                 controls={controls}
-                onNewAnnotation={onNewAnnotation}
+                annotationsControl={annotationsControl}
                 annotations={annotations}
                 zoomEnabled={zoomEnabled}
                 annotationEnabled={true}

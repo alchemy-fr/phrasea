@@ -10,18 +10,18 @@ import React, {memo} from 'react';
 import {Asset} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
 import Thread from '../../Discussion/Thread.tsx';
-import {OnNewAnnotationRef} from './Annotations/annotationTypes.ts';
+import {AnnotationsControlRef} from './Annotations/annotationTypes.ts';
 
 type Props = {
     asset: Asset;
     onActiveAnnotations?: OnActiveAnnotations | undefined;
-    onNewAnnotationRef?: OnNewAnnotationRef;
+    annotationsControlRef?: AnnotationsControlRef;
 };
 
 function AssetDiscussion({
     asset,
     onActiveAnnotations,
-    onNewAnnotationRef,
+    annotationsControlRef,
 }: Props) {
     const [expanded, setExpanded] = React.useState(true);
     const {t} = useTranslation();
@@ -42,7 +42,7 @@ function AssetDiscussion({
                     threadKey={asset.threadKey}
                     threadId={asset.thread?.id}
                     onActiveAnnotations={onActiveAnnotations}
-                    onNewAnnotationRef={onNewAnnotationRef}
+                    annotationsControlRef={annotationsControlRef}
                 />
             </AccordionDetails>
         </Accordion>

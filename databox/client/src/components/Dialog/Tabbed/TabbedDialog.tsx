@@ -55,7 +55,7 @@ export default function TabbedDialog<P extends Record<string, any>>({
                     PaperProps={{
                         style: {
                             minHeight: 550,
-                        }
+                        },
                     }}
                 >
                     <AppDialogTitle onClose={closeModal}>

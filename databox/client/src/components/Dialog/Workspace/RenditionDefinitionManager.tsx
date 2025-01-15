@@ -1,5 +1,11 @@
 import {RenditionClass, RenditionDefinition, Workspace} from '../../../types';
-import {FormGroup, FormHelperText, FormLabel, ListItemText, TextField,} from '@mui/material';
+import {
+    FormGroup,
+    FormHelperText,
+    FormLabel,
+    ListItemText,
+    TextField,
+} from '@mui/material';
 import {FormFieldErrors, FormRow, RSelectWidget} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
@@ -20,7 +26,7 @@ import {toast} from 'react-toastify';
 import React from 'react';
 import RenditionDefinitionSelect from '../../Form/RenditionDefinitionSelect.tsx';
 import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
-import UseAsWidget from "../../Form/UseAsWidget.tsx";
+import UseAsWidget from '../../Form/UseAsWidget.tsx';
 
 function Item({
     data,
@@ -52,7 +58,7 @@ function Item({
                     {...register('name')}
                     disabled={submitting}
                 />
-                <FormFieldErrors field={'name'} errors={errors}/>
+                <FormFieldErrors field={'name'} errors={errors} />
             </FormRow>
             <FormRow>
                 <FormGroup>
@@ -65,7 +71,7 @@ function Item({
                         control={control}
                         workspaceId={workspace.id}
                     />
-                    <FormFieldErrors field={'class'} errors={errors}/>
+                    <FormFieldErrors field={'class'} errors={errors} />
                 </FormGroup>
             </FormRow>
             <FormRow>
@@ -79,7 +85,10 @@ function Item({
                         control={control}
                         workspaceId={workspace.id}
                         disabledValues={[`/rendition-definitions/${data.id}`]}
-                        placeholder={t('form.rendition_definition.parent.placeholder', 'Asset source file')}
+                        placeholder={t(
+                            'form.rendition_definition.parent.placeholder',
+                            'Asset source file'
+                        )}
                     />
                     <FormHelperText>
                         {t(
@@ -87,14 +96,11 @@ function Item({
                             'Rendition from which this one is derived'
                         )}
                     </FormHelperText>
-                    <FormFieldErrors field={'parent'} errors={errors}/>
+                    <FormFieldErrors field={'parent'} errors={errors} />
                 </FormGroup>
             </FormRow>
             <FormRow>
-                <UseAsWidget
-                    getValues={getValues}
-                    setValue={setValue}
-                />
+                <UseAsWidget getValues={getValues} setValue={setValue} />
             </FormRow>
             <FormRow>
                 <RSelectWidget
@@ -105,9 +111,27 @@ function Item({
                         'Build Mode'
                     )}
                     options={[
-                        {label: t('rendition_definition.build_mode.none', 'None'), value: RenditionBuildMode.NONE.toString()},
-                        {label: t('rendition_definition.build_mode.pick_source', 'Copy parent or source file'), value: RenditionBuildMode.PICK_SOURCE.toString()},
-                        {label: t('rendition_definition.build_mode.custom', 'Build'), value: RenditionBuildMode.CUSTOM.toString()},
+                        {
+                            label: t(
+                                'rendition_definition.build_mode.none',
+                                'None'
+                            ),
+                            value: RenditionBuildMode.NONE.toString(),
+                        },
+                        {
+                            label: t(
+                                'rendition_definition.build_mode.pick_source',
+                                'Copy parent or source file'
+                            ),
+                            value: RenditionBuildMode.PICK_SOURCE.toString(),
+                        },
+                        {
+                            label: t(
+                                'rendition_definition.build_mode.custom',
+                                'Build'
+                            ),
+                            value: RenditionBuildMode.CUSTOM.toString(),
+                        },
                     ]}
                 />
             </FormRow>
@@ -125,7 +149,7 @@ function Item({
                             mode={'yaml'}
                             height={'700px'}
                         />
-                        <FormFieldErrors field={'definition'} errors={errors}/>
+                        <FormFieldErrors field={'definition'} errors={errors} />
                     </FormRow>
                 </>
             ) : (
@@ -136,7 +160,7 @@ function Item({
 }
 
 function ListItem({data}: DefinitionItemProps<RenditionDefinition>) {
-    return <ListItemText primary={data.name}/>;
+    return <ListItemText primary={data.name} />;
 }
 
 type Props = {
@@ -208,21 +232,23 @@ function normalizeData(data: RenditionDefinition) {
             typeof data.class === 'string'
                 ? data.class
                 : data.class
-                    ? (data.class as RenditionClass)['@id']
-                    : null,
+                  ? (data.class as RenditionClass)['@id']
+                  : null,
         parent:
             typeof data.parent === 'string'
                 ? data.parent
                 : data.parent
-                    ? (data.parent as RenditionDefinition)['@id']
-                    : null,
+                  ? (data.parent as RenditionDefinition)['@id']
+                  : null,
     };
 }
-
 
 function denormalizeData(data: RenditionDefinition) {
     return {
         ...data,
-        buildMode: typeof data.buildMode === 'string' ? parseInt(data.buildMode) : data.buildMode,
+        buildMode:
+            typeof data.buildMode === 'string'
+                ? parseInt(data.buildMode)
+                : data.buildMode,
     };
 }

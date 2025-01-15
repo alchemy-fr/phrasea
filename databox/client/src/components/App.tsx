@@ -22,74 +22,77 @@ function isDrawer(locationSearch: string): boolean {
     return locationSearch.includes('_m=');
 }
 
-const AppProxy = React.memo(({locationSearch}: {locationSearch: string}) => {
-    const alreadyRendered = useRef(false);
-    const isSmallView = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down('md')
-    );
+const AppProxy = React.memo(
+    ({locationSearch}: {locationSearch: string}) => {
+        const alreadyRendered = useRef(false);
+        const isSmallView = useMediaQuery((theme: Theme) =>
+            theme.breakpoints.down('md')
+        );
 
-    const [leftPanelOpen, setLeftPanelOpen] = React.useState(!isSmallView);
-    const toggleLeftPanel = React.useCallback(() => {
-        setLeftPanelOpen(p => !p);
-    }, []);
+        const [leftPanelOpen, setLeftPanelOpen] = React.useState(!isSmallView);
+        const toggleLeftPanel = React.useCallback(() => {
+            setLeftPanelOpen(p => !p);
+        }, []);
 
-    useEffect(() => {
-        setLeftPanelOpen(!isSmallView);
-    }, [isSmallView]);
+        useEffect(() => {
+            setLeftPanelOpen(!isSmallView);
+        }, [isSmallView]);
 
-    if (isDrawer(locationSearch) && !alreadyRendered.current) {
-        return null;
-    }
+        if (isDrawer(locationSearch) && !alreadyRendered.current) {
+            return null;
+        }
 
-    alreadyRendered.current = true;
+        alreadyRendered.current = true;
 
-    return (
-        <SearchProvider>
-            <ResultProvider>
-                <AssetDropzone>
-                    <MainAppBar
-                        leftPanelOpen={leftPanelOpen}
-                        onToggleLeftPanel={toggleLeftPanel}
-                    />
-                    <DisplayProvider>
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                height: `calc(100vh - ${menuHeight}px)`,
-                            }}
-                        >
-                            {leftPanelOpen && (
-                                <Box
-                                    sx={theme => ({
-                                        width: leftPanelWidth,
-                                        flexGrow: 0,
-                                        flexShrink: 0,
-                                        height: `calc(100vh - ${menuHeight}px)`,
-                                        overflow: 'auto',
-                                        boxShadow: theme.shadows[5],
-                                        zIndex: ZIndex.leftPanel,
-                                    })}
-                                >
-                                    <LeftPanel />
-                                </Box>
-                            )}
+        return (
+            <SearchProvider>
+                <ResultProvider>
+                    <AssetDropzone>
+                        <MainAppBar
+                            leftPanelOpen={leftPanelOpen}
+                            onToggleLeftPanel={toggleLeftPanel}
+                        />
+                        <DisplayProvider>
                             <div
                                 style={{
-                                    flexGrow: 1,
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    height: `calc(100vh - ${menuHeight}px)`,
                                 }}
                             >
-                                <AssetSearch />
+                                {leftPanelOpen && (
+                                    <Box
+                                        sx={theme => ({
+                                            width: leftPanelWidth,
+                                            flexGrow: 0,
+                                            flexShrink: 0,
+                                            height: `calc(100vh - ${menuHeight}px)`,
+                                            overflow: 'auto',
+                                            boxShadow: theme.shadows[5],
+                                            zIndex: ZIndex.leftPanel,
+                                        })}
+                                    >
+                                        <LeftPanel />
+                                    </Box>
+                                )}
+                                <div
+                                    style={{
+                                        flexGrow: 1,
+                                    }}
+                                >
+                                    <AssetSearch />
+                                </div>
                             </div>
-                        </div>
-                    </DisplayProvider>
-                </AssetDropzone>
-            </ResultProvider>
-        </SearchProvider>
-    );
-}, (a, b) => {
-    return isDrawer(a.locationSearch) === isDrawer(b.locationSearch);
-});
+                        </DisplayProvider>
+                    </AssetDropzone>
+                </ResultProvider>
+            </SearchProvider>
+        );
+    },
+    (a, b) => {
+        return isDrawer(a.locationSearch) === isDrawer(b.locationSearch);
+    }
+);
 
 export default function App() {
     const {logout, user} = useAuth();
@@ -120,9 +123,7 @@ export default function App() {
     return (
         <>
             <ToastContainer position={'bottom-left'} />
-            <AppProxy
-                locationSearch={location.search}
-            />
+            <AppProxy locationSearch={location.search} />
         </>
     );
 }

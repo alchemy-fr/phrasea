@@ -1,76 +1,136 @@
-import {annotationZIndex} from './AssetAnnotationsOverlay.tsx';
-import React, {ReactNode, useRef, useState} from 'react';
+import React, {
+    forwardRef,
+    memo,
+    ReactNode,
+    useImperativeHandle,
+    useRef,
+    useState,
+} from 'react';
 import {useAnnotationDraw} from './useAnnotationDraw.ts';
 import {
     AnnotationOptions,
+    AnnotationsControl,
     AnnotationType,
     AssetAnnotation,
     OnNewAnnotation,
 } from './annotationTypes.ts';
 import AnnotateToolbar from './AnnotateToolbar.tsx';
+import {useAnnotationRender} from './useAnnotationRender.tsx';
 
 type Props = {
-    onNewAnnotation?: OnNewAnnotation | undefined;
+    annotationsControl?: AnnotationsControl | undefined;
+    annotations: AssetAnnotation[] | undefined;
     page?: number;
+    annotationEnabled?: boolean;
     children: (props: {
         canvas: ReactNode | null;
         toolbar: ReactNode | null;
         annotationActive: boolean;
+        annotate: boolean;
     }) => JSX.Element;
 };
 
-export default function AnnotateWrapper({
-    onNewAnnotation,
-    page,
-    children,
-}: Props) {
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const [mode, setMode] = useState<AnnotationType | undefined>(undefined);
-    const [options, setOptions] = React.useState<AnnotationOptions>({
-        color: '#000',
-        size: 2,
-    });
+export const annotationZIndex = 100;
 
-    useAnnotationDraw({
-        canvasRef,
-        onNewAnnotation: onNewAnnotation
-            ? (annotation: AssetAnnotation) => {
-                  onNewAnnotation!({
-                      ...annotation,
-                      page,
-                  });
-              }
-            : undefined,
-        onTerminate: () => setMode(undefined),
-        mode,
-        annotationOptions: options,
-    });
+export type AssetAnnotationHandle = {
+    render: () => void;
+};
 
-    return (
-        <>
-            {children({
-                canvas: mode ? (
-                    <canvas
-                        ref={canvasRef}
-                        style={{
-                            cursor: 'crosshair',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            zIndex: annotationZIndex + 1,
-                        }}
-                    />
-                ) : null,
-                toolbar: onNewAnnotation ? (
-                    <AnnotateToolbar
-                        options={options}
-                        setOptions={setOptions}
-                        mode={mode}
-                        setMode={setMode}
-                    />
-                ) : null,
-                annotationActive: !!mode,
-            })}
-        </>
-    );
-}
+export default memo(
+    forwardRef<AssetAnnotationHandle, Props>(function AnnotateWrapper(
+        {
+            annotationEnabled,
+            annotationsControl,
+            page,
+            children,
+            annotations: initialAnnotations,
+        }: Props,
+        ref
+    ) {
+        const canvasRef = useRef<HTMLCanvasElement | null>(null);
+        const [mode, setMode] = useState<AnnotationType | undefined>(undefined);
+        const [annotate, setAnnotate] = useState(false);
+        const [options, setOptions] = React.useState<AnnotationOptions>({
+            color: '#000',
+            size: 2,
+        });
+        const [annotations, setAnnotations] = React.useState<
+            AssetAnnotation[] | undefined
+        >(initialAnnotations);
+
+        const onNewAnnotationHandler = React.useCallback<OnNewAnnotation>(
+            annotation => {
+                annotation.page = page;
+                setAnnotations(p => (p ?? []).concat(annotation));
+                annotationsControl?.onNew(annotation);
+            },
+            [annotationsControl]
+        );
+
+        React.useEffect(() => {
+            setAnnotations(initialAnnotations);
+        }, [annotate, initialAnnotations]);
+
+        const {render} = useAnnotationRender({
+            canvasRef,
+            annotations,
+            page,
+        });
+
+        useImperativeHandle(ref, () => {
+            return {
+                render,
+            };
+        }, [render]);
+
+        useAnnotationDraw({
+            canvasRef,
+            annotationsControl: annotationsControl
+                ? {
+                      onNew: onNewAnnotationHandler,
+                      onUpdate: annotationsControl.onUpdate,
+                  }
+                : undefined,
+            onTerminate: () => setMode(undefined),
+            mode,
+            annotationOptions: options,
+            annotations,
+            page,
+        });
+
+        return (
+            <>
+                {children({
+                    canvas: (
+                        <canvas
+                            ref={canvasRef}
+                            style={{
+                                backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                                cursor:
+                                    annotate && mode ? 'crosshair' : undefined,
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                zIndex: annotationZIndex + 1,
+                                pointerEvents: annotate ? undefined : 'none',
+                            }}
+                        />
+                    ),
+                    toolbar:
+                        annotationEnabled && annotationsControl ? (
+                            <AnnotateToolbar
+                                annotate={annotate}
+                                setAnnotate={setAnnotate}
+                                options={options}
+                                setOptions={setOptions}
+                                mode={mode}
+                                setMode={setMode}
+                            />
+                        ) : null,
+                    annotationActive: !!mode,
+                    annotate,
+                })}
+            </>
+        );
+    })
+);
