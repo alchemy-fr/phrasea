@@ -56,11 +56,12 @@
           "attributeDefinition": "idmp_attributeDefinition",
           "renditionDefinition": "idmp_renditionDefinition"
         },
+        "sourceFile": "document",
         "renditions": {
           "original": {
-            "from": "document",
             "useAsOriginal": true,
-            "class": "document"
+            "pickSourceFile": true,
+            "class": "public"
           },
           "preview": {
             "useAsPreview": true,
@@ -79,6 +80,7 @@
           },
           "thumbnail": {
             "useAsThumbnail": true,
+            "class": "public",
             "parent": "preview",
             "builders": {
               "image": {
