@@ -38,6 +38,10 @@ export function useAnnotationDraw({
             return;
         }
 
+        if (mode) {
+            selectedAnnotation.current = undefined;
+        }
+
         const canvas = canvasRef.current;
         const context = canvas!.getContext('2d')!;
         const clear = () => {
@@ -227,5 +231,5 @@ export function useAnnotationDraw({
                 onUpdate: annotationsControl.onUpdate,
             });
         }
-    }, [canvasRef, mode, annotationOptions, annotations, page]);
+    }, [canvasRef, mode, annotationOptions, annotationsControl, annotations, page]);
 }

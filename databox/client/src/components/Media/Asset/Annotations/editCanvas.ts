@@ -19,14 +19,16 @@ export function bindEditCanvas({
     selectedAnnotation,
     onUpdate,
 }: Props): UnregisterFunction {
-    const onMouseDown = (e: MouseEvent) => {
-        const width = canvas.offsetWidth;
-        const height = canvas.offsetHeight;
-        const relativeX = (x: number) => x / width;
-        const relativeY = (y: number) => y / height;
+    const context = canvas.getContext('2d')!;
+    const width = canvas.offsetWidth;
+    const height = canvas.offsetHeight;
+    const relativeX = (x: number) => x / width;
+    const relativeY = (y: number) => y / height;
 
-        const toX = (x: number) => x * width;
-        const toY = (y: number) => y * height;
+    const toX = (x: number) => x * width;
+    const toY = (y: number) => y * height;
+
+    const onMouseDown = (e: MouseEvent) => {
 
         if (selectedAnnotation.current) {
             const annotation = annotations!.find(a => a.id === selectedAnnotation.current)!;
@@ -42,7 +44,6 @@ export function bindEditCanvas({
             });
 
             if (resizeHandler) {
-                const context = canvas.getContext('2d')!;
                 const toX = (x: number) => x * width;
                 const toY = (y: number) => y * height;
 
@@ -97,6 +98,8 @@ export function bindEditCanvas({
             }
         }
 
+        console.log('click');
+
         selectedAnnotation.current = undefined;
 
         for (const annotation of annotations ?? []) {
@@ -111,8 +114,6 @@ export function bindEditCanvas({
                     toY,
                 })
             ) {
-                const context = canvas.getContext('2d')!;
-
                 selectedAnnotation.current = annotation.id;
                 clear();
                 handler.drawAnnotation(
@@ -127,11 +128,32 @@ export function bindEditCanvas({
                 break;
             }
         }
+
+        if (!selectedAnnotation.current) {
+            clear();
+        }
     };
+
+    if (selectedAnnotation.current) {
+        const annotation = annotations?.find(a => a.id === selectedAnnotation.current);
+        clear();
+        if (annotation) {
+            const handler = drawingHandlers[annotation.type]!;
+            handler.drawAnnotation(
+                {
+                    context,
+                    annotation,
+                    toX,
+                    toY,
+                },
+                true
+            );
+        }
+    }
 
     canvas.addEventListener('mousedown', onMouseDown);
 
     return () => {
-        canvas.addEventListener('mousedown', onMouseDown);
+        canvas.removeEventListener('mousedown', onMouseDown);
     };
 }

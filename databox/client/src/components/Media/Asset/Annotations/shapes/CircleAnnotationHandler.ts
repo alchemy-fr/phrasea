@@ -178,6 +178,23 @@ export const CircleAnnotationHandler: DrawingHandler = {
                     y: relativeY(y),
                 };
             };
+        } else if (
+            isPointInCircle(
+                x,
+                y,
+                getResizeCircleCoords({
+                    x: toX(annotation.x),
+                    y: toY(annotation.y),
+                    radius: toX(annotation.r),
+                })
+            )
+        ) {
+            return ({annotation, relativeX, x}) => {
+                return {
+                    ...annotation,
+                    r: Math.max(relativeX(x) - annotation.x, relativeX(3)),
+                };
+            };
         }
     },
 };

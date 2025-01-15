@@ -105,7 +105,6 @@ export default memo(
                         <canvas
                             ref={canvasRef}
                             style={{
-                                backgroundColor: 'rgba(0, 0, 0, 0.2)',
                                 cursor:
                                     annotate && mode ? 'crosshair' : undefined,
                                 position: 'absolute',
