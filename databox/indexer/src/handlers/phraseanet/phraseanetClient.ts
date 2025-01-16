@@ -179,7 +179,7 @@ export default class PhraseanetClient {
                 },
             });
             if(!Array.isArray(res.data.response) || res.data.response.length === 0) {
-                break;
+                return;
             }
             for(const recordUri of res.data.response) {
                 // -- requesting a uri is the way to get record_id, but it's too slow
@@ -188,6 +188,9 @@ export default class PhraseanetClient {
 
                 // -- we known that recordUri is like: "/api/v3/records/{sbas_id}/{record_id}/"
                 yield recordUri.split('/')[5];;
+            }
+            if(res.data.response.length < 50) {
+                return;
             }
             offset += 50;
         }

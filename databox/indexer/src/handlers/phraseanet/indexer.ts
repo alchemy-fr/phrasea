@@ -21,6 +21,7 @@ import {AttributeDefinition, Tag} from '../../databox/types';
 import Twig from 'twig';
 import {Logger} from 'winston';
 import {DataboxClient} from '../../databox/client';
+import Yaml from 'js-yaml';
 
 export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
     async function* (location, logger, databoxClient, options) {
@@ -507,7 +508,7 @@ async function importSubdefsStructure(
             labels: {
                 phraseanetDefinition: sd.labels,
             },
-            definition: jsToYaml(jsConf, 0).trim(),
+            definition: Yaml.dump(jsConf, {lineWidth: 100}).trim(),
         });
     }
 
@@ -694,7 +695,7 @@ function translateImageSettings(sd: PhraseanetSubdefStruct): object {
                 module: 'imagine',
                 options: {
                     filters: {
-                        auto_rotate: {},
+                        auto_rotate: null,
                         background_fill: {
                             color: '#FFFFFF',
                             opacity: 100,
@@ -897,34 +898,4 @@ function translateVideoSettings_targetAnimatedGif(sd: PhraseanetSubdefStruct): o
             },
         ],
     };
-}
-
-function jsToYaml(a: any, depth: number): string {
-    let t = '';
-    const tab = '  '.repeat(depth);
-    if (a instanceof Array) {
-        for (const k in a) {
-            t += `\n${tab}-${jsToYaml(a[k], depth + 1)}`;
-        }
-    } else if (typeof a === 'object') {
-        for (const k in a) {
-            if (k[0] === '#') {
-                t += `\n${tab}# ${a[k]}`;
-            } else {
-                if((a[k] instanceof Array || typeof a[k] === 'object') && Object.keys(a[k]).length === 0) {
-                    t += `\n${tab}${k}: ~`;
-                } else {
-                    t += `\n${tab}${k}:${jsToYaml(a[k], depth + 1)}`;
-                }
-            }
-        }
-    } else {
-        if (typeof a === 'number') {
-            t += ` ${a}`;
-        } else {
-            t += ` '${a.toString().replace(/'/g, "\\'")}'`;
-        }
-    }
-
-    return t;
 }

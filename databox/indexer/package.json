@@ -28,6 +28,7 @@
     "chokidar": "^3.6.0",
     "commander": "^11.1.0",
     "express": "^4.21.0",
+    "js-yaml": "^4.1.0",
     "minio": "^7.1.3",
     "twig": "^1.17.1",
     "winston": "^3.15.0"
@@ -36,6 +37,7 @@
     "@api-platform/create-client": "^0.10.0",
     "@types/amqplib": "^0.10.5",
     "@types/express": "^4.17.21",
+    "@types/js-yaml": "^4.0.9",
     "@types/minio": "^7.1.1",
     "@types/node": "^18.19.54",
     "@types/twig": "^1.12.16",

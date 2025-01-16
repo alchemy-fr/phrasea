@@ -47,7 +47,7 @@ final readonly class SetDpiTransformerModule implements TransformerModuleInterfa
         $builder
             ->arrayNode('options')
                 ->children()
-                    ->IntegerNode('dpi')
+                    ->integerNode('dpi')
                         ->isRequired()
                         ->example('72')
                     ->end()
@@ -69,11 +69,7 @@ final readonly class SetDpiTransformerModule implements TransformerModuleInterfa
             );
             $writer->write(
                 $inputFile->getPath(),
-                new MetadataBag([
-//                    new Metadata([
-//                        'dpi' => $dpi,
-//                    ]),
-                ]),
+                new MetadataBag([]),
                 null,
                 [$dpi, $dpi]
             );
@@ -82,7 +78,7 @@ final readonly class SetDpiTransformerModule implements TransformerModuleInterfa
             $inputFile->getPath(),
             $inputFile->getType(),
             FamilyEnum::Image,
-            false // TODO implement projection
+            true
         );
     }
 }
