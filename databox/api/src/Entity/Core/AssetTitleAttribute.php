@@ -16,7 +16,7 @@ class AssetTitleAttribute extends AbstractUuidEntity
     private ?Workspace $workspace = null;
 
     #[ORM\ManyToOne(targetEntity: AttributeDefinition::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     protected ?AttributeDefinition $definition = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
