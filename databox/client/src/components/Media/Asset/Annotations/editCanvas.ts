@@ -1,6 +1,7 @@
-import {AnnotationId, AssetAnnotation, OnUpdateAnnotation} from './annotationTypes.ts';
+import {AssetAnnotation, OnUpdateAnnotation} from './annotationTypes.ts';
 import {drawingHandlers, OnResizeEvent} from './events.ts';
 import {MutableRefObject} from 'react';
+import {renderAnnotations} from "./useAnnotationRender.tsx";
 
 type UnregisterFunction = () => void;
 
@@ -8,7 +9,7 @@ type Props = {
     annotations: AssetAnnotation[] | undefined;
     canvas: HTMLCanvasElement;
     clear: () => void;
-    selectedAnnotation: MutableRefObject<AnnotationId | undefined>;
+    selectedAnnotation: MutableRefObject<AssetAnnotation | undefined>;
     onUpdate: OnUpdateAnnotation;
 };
 
@@ -29,9 +30,9 @@ export function bindEditCanvas({
     const toY = (y: number) => y * height;
 
     const onMouseDown = (e: MouseEvent) => {
-
+        e.preventDefault();
         if (selectedAnnotation.current) {
-            const annotation = annotations!.find(a => a.id === selectedAnnotation.current)!;
+            const annotation = annotations!.find(a => a.id === selectedAnnotation.current!.id!)!;
             const handler = drawingHandlers[annotation.type]!;
             let updatedAnnotation: AssetAnnotation | undefined;
 
@@ -71,18 +72,14 @@ export function bindEditCanvas({
                         relativeY,
                     } as OnResizeEvent);
 
+                    selectedAnnotation.current = updatedAnnotation;
                     clear();
-                    handler.drawAnnotation({
-                        annotation: updatedAnnotation,
-                        context,
-                        toX,
-                        toY,
-                    }, true);
                 };
                 const onMouseUp = () => {
                     if (updatedAnnotation) {
+                        selectedAnnotation.current = updatedAnnotation;
                         onUpdate(
-                            selectedAnnotation.current!,
+                            selectedAnnotation.current!.id!,
                             updatedAnnotation
                         );
                     }
@@ -98,8 +95,6 @@ export function bindEditCanvas({
             }
         }
 
-        console.log('click');
-
         selectedAnnotation.current = undefined;
 
         for (const annotation of annotations ?? []) {
@@ -114,7 +109,7 @@ export function bindEditCanvas({
                     toY,
                 })
             ) {
-                selectedAnnotation.current = annotation.id;
+                selectedAnnotation.current = annotation;
                 clear();
                 handler.drawAnnotation(
                     {
@@ -135,20 +130,11 @@ export function bindEditCanvas({
     };
 
     if (selectedAnnotation.current) {
-        const annotation = annotations?.find(a => a.id === selectedAnnotation.current);
-        clear();
-        if (annotation) {
-            const handler = drawingHandlers[annotation.type]!;
-            handler.drawAnnotation(
-                {
-                    context,
-                    annotation,
-                    toX,
-                    toY,
-                },
-                true
-            );
-        }
+        renderAnnotations({
+            canvasRef: {current: canvas},
+            annotations: annotations,
+            selectedAnnotation
+        });
     }
 
     canvas.addEventListener('mousedown', onMouseDown);

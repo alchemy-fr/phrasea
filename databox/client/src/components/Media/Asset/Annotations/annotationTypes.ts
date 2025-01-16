@@ -17,7 +17,7 @@ export enum AnnotationType {
 export type AnnotationId = string;
 
 export interface AssetAnnotation {
-    id?: string;
+    id?: AnnotationId;
     type: AnnotationType;
     name?: string;
     [prop: string]: any;

@@ -78,84 +78,86 @@ export default function FileToolbar({
                 ref={annotationsWrapperRef}
 
             >
-                {({canvas, annotationActive, toolbar}) => (
-                    <TransformWrapper
-                        disabled={
-                            !controls ||
-                            !zoomEnabled ||
-                            annotationActive ||
-                            closed ||
-                            !hand
-                        }
-                        initialScale={1}
-                        disablePadding={true}
-                        centerOnInit={true}
-                        centerZoomedOut={false}
-                        minScale={0.1}
-                    >
-                        {controls ? (
-                            <ToolbarPaper
-                                annotationActive={annotationActive}
-                                sx={theme => ({
-                                    bottom: theme.spacing(2),
-                                    left: !closed ? '50%' : theme.spacing(2),
-                                    transform: !closed
-                                        ? 'translateX(-50%)'
-                                        : undefined,
-                                })}
-                            >
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    {!closed && preToolbarActions}
-                                    {!closed && zoomEnabled && (
-                                        <ZoomControls
-                                            fitContentToWrapper={
-                                                fitContentToWrapper
-                                            }
-                                            setHand={setHand}
-                                            hand={hand}
-                                            forceHand={forceHand}
-                                        />
-                                    )}
-                                    {!closed && toolbar}
-                                    <IconButton
-                                        onClick={() => setClosed(p => !p)}
-                                    >
-                                        {closed ? (
-                                            <MenuOpenIcon />
-                                        ) : (
-                                            <CloseIcon />
-                                        )}
-                                    </IconButton>
-                                </Box>
-                            </ToolbarPaper>
-                        ) : null}
-                        <TransformComponent
-                            wrapperStyle={{
-                                width: '100%',
-                                height: '100%',
-                                userSelect: 'auto',
-                            }}
+                {({canvas, annotationActive, annotate, toolbar}) => {
+                    const disabled = !controls ||
+                        !zoomEnabled ||
+                        annotationActive ||
+                        annotate ||
+                        closed ||
+                        !hand;
+                    return (
+                        <TransformWrapper
+                            disabled={disabled}
+                            initialScale={1}
+                            disablePadding={true}
+                            centerOnInit={true}
+                            centerZoomedOut={false}
+                            minScale={0.1}
                         >
-                            <div
-                                ref={contentRef}
-                                style={{
-                                    cursor: hand ? 'grab' : 'auto',
+                            {controls ? (
+                                <ToolbarPaper
+                                    annotationActive={annotationActive}
+                                    sx={theme => ({
+                                        bottom: theme.spacing(2),
+                                        left: !closed ? '50%' : theme.spacing(2),
+                                        transform: !closed
+                                            ? 'translateX(-50%)'
+                                            : undefined,
+                                    })}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        {!closed && preToolbarActions}
+                                        {!closed && zoomEnabled && (
+                                            <ZoomControls
+                                                fitContentToWrapper={
+                                                    fitContentToWrapper
+                                                }
+                                                setHand={setHand}
+                                                hand={hand}
+                                                forceHand={forceHand}
+                                            />
+                                        )}
+                                        {!closed && toolbar}
+                                        <IconButton
+                                            onClick={() => setClosed(p => !p)}
+                                        >
+                                            {closed ? (
+                                                <MenuOpenIcon/>
+                                            ) : (
+                                                <CloseIcon/>
+                                            )}
+                                        </IconButton>
+                                    </Box>
+                                </ToolbarPaper>
+                            ) : null}
+                            <TransformComponent
+                                wrapperStyle={{
+                                    width: '100%',
+                                    height: '100%',
+                                    userSelect: 'auto',
                                 }}
                             >
-                                {canvas}
-                                {typeof children === 'function'
-                                    ? children({annotationsWrapperRef})
-                                    : children}
-                            </div>
-                        </TransformComponent>
-                    </TransformWrapper>
-                )}
+                                <div
+                                    ref={contentRef}
+                                    style={{
+                                        cursor: !disabled ? 'grab' : 'auto',
+                                    }}
+                                >
+                                    {canvas}
+                                    {typeof children === 'function'
+                                        ? children({annotationsWrapperRef})
+                                        : children}
+                                </div>
+                            </TransformComponent>
+                        </TransformWrapper>
+                    );
+                }}
             </AnnotateWrapper>
         </>
     );
