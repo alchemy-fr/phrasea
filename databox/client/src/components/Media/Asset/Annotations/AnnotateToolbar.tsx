@@ -1,5 +1,5 @@
 import {IconButton, TextField} from '@mui/material';
-import {AnnotationOptions, AnnotationType} from './annotationTypes.ts';
+import {AnnotationOptions, AnnotationsControl, AnnotationType, SelectedAnnotationRef} from './annotationTypes.ts';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import Crop32Icon from '@mui/icons-material/Crop32';
 import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye';
@@ -8,6 +8,35 @@ import {ColorPicker} from '@alchemy/react-form';
 import {StateSetter} from '../../../../types.ts';
 import ToolbarPaper from '../Players/ToolbarPaper.tsx';
 import BrushIcon from '@mui/icons-material/Brush';
+import {drawingHandlers} from "./events.ts";
+import {MutableRefObject} from "react";
+
+function changeIfSelected(
+    canvasRef: MutableRefObject<HTMLCanvasElement | null>,
+    annotationsControl: AnnotationsControl | undefined,
+    selectedAnnotationRef: SelectedAnnotationRef,
+    options: AnnotationOptions,
+): AnnotationOptions {
+    if (annotationsControl) {
+        const annotation = selectedAnnotationRef.current;
+        if (annotation && annotation!.id) {
+            const id = annotation.id;
+            const handler = drawingHandlers[annotation.type];
+            if (handler) {
+                setTimeout(() => {
+                    const newAnnotation = handler.fromOptions(options, annotation, {
+                        relativeX: x => x / canvasRef.current!.offsetWidth,
+                        relativeY: y => y / canvasRef.current!.offsetHeight,
+                    });
+                    annotationsControl?.onUpdate(id, newAnnotation);
+                    selectedAnnotationRef.current = newAnnotation;
+                }, 0);
+            }
+        }
+    }
+
+    return options;
+}
 
 type Props = {
     mode: AnnotationType | undefined;
@@ -16,6 +45,9 @@ type Props = {
     setOptions: StateSetter<AnnotationOptions>;
     annotate: boolean;
     setAnnotate: StateSetter<boolean>;
+    annotationsControl: AnnotationsControl | undefined;
+    selectedAnnotationRef: SelectedAnnotationRef;
+    canvasRef: MutableRefObject<HTMLCanvasElement | null>;
 };
 
 export default function AnnotateToolbar({
@@ -25,6 +57,9 @@ export default function AnnotateToolbar({
     setOptions,
     annotate,
     setAnnotate,
+    annotationsControl,
+    selectedAnnotationRef,
+    canvasRef,
 }: Props) {
     return (
         <>
@@ -33,7 +68,7 @@ export default function AnnotateToolbar({
                 color={annotate ? 'primary' : 'default'}
                 onClick={() => setAnnotate(p => !p)}
             >
-                <GestureIcon />
+                <GestureIcon/>
             </IconButton>
             {annotate && (
                 <ToolbarPaper
@@ -53,7 +88,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Point)}
                         >
-                            <MyLocationIcon />
+                            <MyLocationIcon/>
                         </IconButton>
                     </div>
                     <div>
@@ -65,7 +100,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Rect)}
                         >
-                            <Crop32Icon />
+                            <Crop32Icon/>
                         </IconButton>
                     </div>
                     <div>
@@ -77,7 +112,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Circle)}
                         >
-                            <PanoramaFishEyeIcon />
+                            <PanoramaFishEyeIcon/>
                         </IconButton>
                     </div>
                     <div>
@@ -89,7 +124,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Draw)}
                         >
-                            <BrushIcon />
+                            <BrushIcon/>
                         </IconButton>
                     </div>
                     <div>
@@ -97,7 +132,13 @@ export default function AnnotateToolbar({
                             displayField={false}
                             color={options.color}
                             onChange={c => {
-                                setOptions(p => ({...p, color: c}));
+                                setOptions(p =>
+                                    changeIfSelected(
+                                        canvasRef,
+                                        annotationsControl,
+                                        selectedAnnotationRef,
+                                        {...p, color: c}
+                                    ));
                             }}
                         />
                     </div>
@@ -105,13 +146,25 @@ export default function AnnotateToolbar({
                         <TextField
                             label={'Size'}
                             type={'number'}
+                            inputProps={{
+                                step: options.size <= 1 ? 0.1 : 1,
+                            }}
                             style={{width: 100}}
                             value={options.size}
-                            onChange={e =>
-                                setOptions(p => ({
-                                    ...p,
-                                    size: parseInt(e.target.value),
-                                }))
+                            onChange={e => {
+                                const size = Math.max(0.001, parseFloat(e.target.value) || 1);
+
+                                return setOptions(p =>
+                                    changeIfSelected(
+                                        canvasRef,
+                                        annotationsControl,
+                                        selectedAnnotationRef,
+                                        {
+                                            ...p,
+                                            size,
+                                        }
+                                    ));
+                            }
                             }
                         />
                     </div>

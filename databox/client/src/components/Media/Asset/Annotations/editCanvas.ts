@@ -1,7 +1,7 @@
-import {AssetAnnotation, OnUpdateAnnotation} from './annotationTypes.ts';
+import {AnnotationOptions, AssetAnnotation, OnUpdateAnnotation, SelectedAnnotationRef} from './annotationTypes.ts';
 import {drawingHandlers, OnResizeEvent} from './events.ts';
-import {MutableRefObject} from 'react';
 import {renderAnnotations} from "./useAnnotationRender.tsx";
+import {StateSetter} from "../../../../types.ts";
 
 type UnregisterFunction = () => void;
 
@@ -9,16 +9,18 @@ type Props = {
     annotations: AssetAnnotation[] | undefined;
     canvas: HTMLCanvasElement;
     clear: () => void;
-    selectedAnnotation: MutableRefObject<AssetAnnotation | undefined>;
+    selectedAnnotationRef: SelectedAnnotationRef;
     onUpdate: OnUpdateAnnotation;
+    setAnnotationOptions: StateSetter<AnnotationOptions>;
 };
 
 export function bindEditCanvas({
     annotations,
     canvas,
     clear,
-    selectedAnnotation,
+    selectedAnnotationRef,
     onUpdate,
+    setAnnotationOptions,
 }: Props): UnregisterFunction {
     const context = canvas.getContext('2d')!;
     const width = canvas.offsetWidth;
@@ -31,8 +33,9 @@ export function bindEditCanvas({
 
     const onMouseDown = (e: MouseEvent) => {
         e.preventDefault();
-        if (selectedAnnotation.current) {
-            const annotation = annotations!.find(a => a.id === selectedAnnotation.current!.id!)!;
+
+        function initMouseListeners(): boolean {
+            const annotation = annotations!.find(a => a.id === selectedAnnotationRef.current!.id!)!;
             const handler = drawingHandlers[annotation.type]!;
             let updatedAnnotation: AssetAnnotation | undefined;
 
@@ -72,14 +75,14 @@ export function bindEditCanvas({
                         relativeY,
                     } as OnResizeEvent);
 
-                    selectedAnnotation.current = updatedAnnotation;
+                    selectedAnnotationRef.current = updatedAnnotation;
                     clear();
                 };
                 const onMouseUp = () => {
                     if (updatedAnnotation) {
-                        selectedAnnotation.current = updatedAnnotation;
+                        selectedAnnotationRef.current = updatedAnnotation;
                         onUpdate(
-                            selectedAnnotation.current!.id!,
+                            selectedAnnotationRef.current!.id!,
                             updatedAnnotation
                         );
                     }
@@ -91,11 +94,19 @@ export function bindEditCanvas({
                 canvas.addEventListener('mousemove', mouseMove);
                 window.addEventListener('mouseup', onMouseUp);
 
+                return true;
+            }
+
+            return false;
+        }
+
+        if (selectedAnnotationRef.current) {
+            if (initMouseListeners()) {
                 return;
             }
         }
 
-        selectedAnnotation.current = undefined;
+        selectedAnnotationRef.current = undefined;
 
         for (const annotation of annotations ?? []) {
             const handler = drawingHandlers[annotation.type]!;
@@ -109,8 +120,14 @@ export function bindEditCanvas({
                     toY,
                 })
             ) {
-                selectedAnnotation.current = annotation;
+                selectedAnnotationRef.current = annotation;
                 clear();
+
+                setAnnotationOptions(handler.toOptions(annotation, {
+                    toX,
+                    toY,
+                }));
+
                 handler.drawAnnotation(
                     {
                         context,
@@ -124,16 +141,18 @@ export function bindEditCanvas({
             }
         }
 
-        if (!selectedAnnotation.current) {
+        if (!selectedAnnotationRef.current) {
             clear();
+        } else {
+            initMouseListeners();
         }
     };
 
-    if (selectedAnnotation.current) {
+    if (selectedAnnotationRef.current) {
         renderAnnotations({
             canvasRef: {current: canvas},
             annotations: annotations,
-            selectedAnnotation
+            selectedAnnotationRef,
         });
     }
 

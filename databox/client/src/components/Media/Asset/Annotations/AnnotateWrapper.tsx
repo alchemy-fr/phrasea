@@ -47,6 +47,7 @@ export default memo(
         }: Props,
         ref
     ) {
+        const selectedAnnotationRef = useRef<AssetAnnotation | undefined>();
         const canvasRef = useRef<HTMLCanvasElement | null>(null);
         const [mode, setMode] = useState<AnnotationType | undefined>(undefined);
         const [annotate, setAnnotate] = useState(false);
@@ -83,17 +84,21 @@ export default memo(
             };
         }, [render]);
 
+        const resolvedAnnotationsControl: AnnotationsControl | undefined = annotationsControl
+            ? {
+                onNew: onNewAnnotationHandler,
+                onUpdate: annotationsControl.onUpdate,
+            }
+            : undefined;
+
         useAnnotationDraw({
             canvasRef,
-            annotationsControl: annotationsControl
-                ? {
-                      onNew: onNewAnnotationHandler,
-                      onUpdate: annotationsControl.onUpdate,
-                  }
-                : undefined,
+            annotationsControl: resolvedAnnotationsControl,
+            selectedAnnotationRef,
             onTerminate: () => setMode(undefined),
             mode,
             annotationOptions: options,
+            setAnnotationOptions: setOptions,
             annotations,
             page,
         });
@@ -118,6 +123,9 @@ export default memo(
                     toolbar:
                         annotationEnabled && annotationsControl ? (
                             <AnnotateToolbar
+                                canvasRef={canvasRef}
+                                annotationsControl={resolvedAnnotationsControl}
+                                selectedAnnotationRef={selectedAnnotationRef}
                                 annotate={annotate}
                                 setAnnotate={setAnnotate}
                                 options={options}

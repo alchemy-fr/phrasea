@@ -5,15 +5,19 @@ import {
     AnnotationsControl,
     AnnotationType,
     AssetAnnotation,
+    SelectedAnnotationRef,
 } from './annotationTypes.ts';
 import {bindEditCanvas} from './editCanvas.ts';
 import {renderAnnotations} from './useAnnotationRender.tsx';
+import {StateSetter} from "../../../../types.ts";
 
 type Props = {
     canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
-    annotationsControl?: AnnotationsControl | undefined;
+    annotationsControl: AnnotationsControl | undefined;
+    selectedAnnotationRef: SelectedAnnotationRef;
     mode: AnnotationType | undefined;
     annotationOptions: AnnotationOptions;
+    setAnnotationOptions: StateSetter<AnnotationOptions>;
     onTerminate: () => void;
     annotations: AssetAnnotation[] | undefined;
     page?: number;
@@ -25,12 +29,13 @@ export function useAnnotationDraw({
     onTerminate: onTerminateProp,
     mode,
     annotationOptions,
+    setAnnotationOptions,
+    selectedAnnotationRef,
     annotations,
     page,
 }: Props) {
     const startingPoint = useRef<StartingPoint | undefined>();
     const dataRef = useRef<object | undefined>();
-    const selectedAnnotation = useRef<AssetAnnotation | undefined>();
 
     React.useEffect(() => {
         if (!annotationsControl || !canvasRef.current) {
@@ -38,7 +43,7 @@ export function useAnnotationDraw({
         }
 
         if (mode) {
-            selectedAnnotation.current = undefined;
+            selectedAnnotationRef.current = undefined;
         }
 
         const canvas = canvasRef.current;
@@ -49,7 +54,7 @@ export function useAnnotationDraw({
                 canvasRef,
                 annotations,
                 page,
-                selectedAnnotation,
+                selectedAnnotationRef: selectedAnnotationRef,
             });
         };
 
@@ -116,7 +121,8 @@ export function useAnnotationDraw({
                     options: annotationOptions,
                     data: dataRef.current!,
                     context,
-                    onNewAnnotation: () => {},
+                    onNewAnnotation: () => {
+                    },
                     canvas,
                     startingPoint: startingPoint.current!,
                     relativeX,
@@ -226,8 +232,9 @@ export function useAnnotationDraw({
                 canvas: canvasRef.current!,
                 annotations,
                 clear,
-                selectedAnnotation,
+                selectedAnnotationRef,
                 onUpdate: annotationsControl.onUpdate,
+                setAnnotationOptions,
             });
         }
     }, [canvasRef, mode, annotationOptions, annotationsControl, annotations, page]);

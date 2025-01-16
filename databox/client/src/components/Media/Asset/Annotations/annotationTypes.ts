@@ -45,15 +45,16 @@ export interface CircleAnnotation extends AssetAnnotation {
 
 export type AnnotationOptions = {
     color: string;
+    fillColor?: string;
     size: number;
 };
 
 export interface RectangleAnnotation extends AssetAnnotation {
     type: AnnotationType.Rect;
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
     c?: string; // Border color
     f?: string; // Fill color
     s?: number; // Stroke size
@@ -81,9 +82,12 @@ export type AnnotationsControl = {
     onNew: OnNewAnnotation;
     onUpdate: OnUpdateAnnotation;
 };
+
 export type AnnotationsControlRef = MutableRefObject<
     AnnotationsControl | undefined
 >;
+
+export type SelectedAnnotationRef = MutableRefObject<AssetAnnotation | undefined>;
 
 export type OnNewAnnotation = (annotation: AssetAnnotation) => void;
 export type OnUpdateAnnotation = (

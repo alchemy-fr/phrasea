@@ -87,6 +87,14 @@ export type DrawingHandler = {
     onTerminate: OnTerminate;
     drawAnnotation: (props: DrawAnnotationProps, selected?: boolean) => void;
     isPointInside: (props: PointInsideProps) => boolean;
+    toOptions: (annotation: AssetAnnotation, helpers: {
+        toX: ToFunction,
+        toY: ToFunction,
+    }) => AnnotationOptions;
+    fromOptions: (options: AnnotationOptions, annotation: AssetAnnotation, helpers: {
+        relativeX: ToFunction;
+        relativeY: ToFunction;
+    }) => AssetAnnotation;
     getResizeHandler: (
         props: PointInsideProps
     ) => AnnotationResizeHandler | undefined;

@@ -1,19 +1,19 @@
 import React, {useCallback} from 'react';
 import {drawingHandlers} from './events.ts';
-import {AssetAnnotation} from './annotationTypes.ts';
+import {AssetAnnotation, SelectedAnnotationRef} from './annotationTypes.ts';
 
 type Props = {
     canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
     annotations: AssetAnnotation[] | undefined;
     page?: number;
-    selectedAnnotation?: React.MutableRefObject<AssetAnnotation | undefined>;
+    selectedAnnotationRef?: SelectedAnnotationRef;
 };
 
 export function renderAnnotations({
     canvasRef,
     annotations,
     page,
-    selectedAnnotation,
+    selectedAnnotationRef,
 }: Props) {
     if (canvasRef.current) {
         const canvas = canvasRef.current;
@@ -29,7 +29,7 @@ export function renderAnnotations({
         const context = canvas!.getContext('2d')!;
         context.scale(resolution, resolution);
 
-        const selected = selectedAnnotation?.current;
+        const selected = selectedAnnotationRef?.current;
 
         (annotations ?? [])
             .filter(
