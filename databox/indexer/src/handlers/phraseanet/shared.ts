@@ -29,6 +29,7 @@ export async function createAsset(
     fieldMap: Map<string, FieldMap>,
     tagIndex: TagIndex,
     shortcutIntoCollections: {id: string; path: string}[],
+    sourceSubdefName: string|undefined,
     subdefToRendition: Record<string, string[]>,
     logger: Logger,
 ): Promise<Asset> {
@@ -96,29 +97,18 @@ export async function createAsset(
     }
 
     const renditions = [];
-    let originalSourceFile: {
-        url: string;
-        isPrivate: boolean;
-        importFile: boolean;
-        type: string;
-    }|null = null;
+    let sourceFileUrl: string|undefined = undefined;
 
     for(const sd of record.subdefs ?? []) {
-        if(sd.name === 'document') {
-            originalSourceFile = {
-                url: sd.permalink.url,
-                isPrivate: false,
-                importFile: importFiles,
-                type: sd.mime_type,
-            }
-            logger.info(`  "original": ${sd.permalink.url}`);
-            continue;
+        if(sd.name === sourceSubdefName) {
+            sourceFileUrl = sd.permalink.url;
+            logger.info(`  source: (from "${sd.name}"): ${sd.permalink.url}`);
         }
 
         const phrName = record.phrasea_type + ':' + sd.name;
 
         for(const name of subdefToRendition[phrName] ?? []) {
-            logger.info(`  "${name}" (from "${sd.name}"): ${sd.permalink.url}`);
+            logger.info(`  rendition "${name}": (from "${sd.name}"): ${sd.permalink.url}`);
             renditions.push({
                 name: name,
                 sourceFile: {
@@ -136,9 +126,8 @@ export async function createAsset(
         path: path,
         collectionKeyPrefix: collectionKeyPrefix,
         title: record.title,
-//        sourceFile: sourceFile,
         importFile: importFiles,
-        publicUrl: originalSourceFile?.url,
+        publicUrl: sourceFileUrl,
         isPrivate: false,
         attributes: attributes,
         tags: tags,
