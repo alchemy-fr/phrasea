@@ -1,4 +1,4 @@
-import {FlexRow} from '../../../../../lib/js/phrasea-ui';
+import {FlexRow} from '@alchemy/phrasea-ui';
 import {IconButton} from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import {Share} from '../../types.ts';

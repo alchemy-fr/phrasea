@@ -12,9 +12,9 @@ import {
 } from '@mui/material';
 import {deleteAsset, deleteAssetShortcut, getAsset} from '../../../api/asset';
 import {Trans, useTranslation} from 'react-i18next';
-import {FormSection} from '../../../../../../lib/js/react-form';
+import {FormSection} from '@alchemy/react-form';
 import ConfirmDialog from '../../Ui/ConfirmDialog.tsx';
-import {useModals} from '../../../../../../lib/js/navigation';
+import {useModals} from '@alchemy/navigation';
 import ShortcutIcon from '@mui/icons-material/Shortcut';
 import {CollectionChip, WorkspaceChip} from '../../Ui/Chips.tsx';
 

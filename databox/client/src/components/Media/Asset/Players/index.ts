@@ -1,4 +1,8 @@
 import {File} from '../../../../types';
+import {
+    AssetAnnotation,
+    OnNewAnnotation,
+} from '../Annotations/annotationTypes.ts';
 
 export type FileWithUrl = {
     url: string;
@@ -29,4 +33,11 @@ export type PlayerProps = {
     dimensions?: Dimensions | undefined;
     onLoad?: (() => void) | undefined;
     noInteraction?: boolean | undefined;
+    zoomEnabled?: boolean | undefined;
+    title: string | undefined;
+    controls?: boolean | undefined;
+    onNewAnnotation?: OnNewAnnotation | undefined;
+    annotations?: AssetAnnotation[] | undefined;
 };
+
+export const filePlayerRelativeWrapperClassName = 'fprw';

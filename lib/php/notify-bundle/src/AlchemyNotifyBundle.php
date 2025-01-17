@@ -7,6 +7,7 @@ namespace Alchemy\NotifyBundle;
 use Alchemy\NotifyBundle\Command\TestNotificationCommand;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use Alchemy\NotifyBundle\Notification\SymfonyNotifier;
+use Alchemy\NotifyBundle\Service\NovuClient;
 use Symfony\Component\Config\Definition\Configuration;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\Config\Definition\Processor;
@@ -20,7 +21,13 @@ class AlchemyNotifyBundle extends AbstractBundle
     {
         $definition->rootNode()
             ->children()
-                ->scalarNode('novu_dsn')->defaultValue('novu://%env(NOVU_SECRET_KEY)%@%env(NOVU_API_HOST)%')->end()
+                ->arrayNode('novu')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('secret_key')->defaultValue('%env(NOVU_SECRET_KEY)%')->end()
+                        ->scalarNode('api_host')->defaultValue('%env(NOVU_API_HOST)%')->end()
+                    ->end()
+                ->end()
             ->end()
         ;
     }
@@ -31,29 +38,33 @@ class AlchemyNotifyBundle extends AbstractBundle
         $configs = $builder->getExtensionConfig($extension->getAlias());
         $processor = new Processor();
         $config = $processor->processConfiguration(new Configuration($this, $builder, $extension->getAlias()), $configs);
+        $novuConfig = $config['novu'];
 
         $builder->prependExtensionConfig('framework', [
             'notifier' => [
                 'texter_transports' => [
-                    'novu' => $config['novu_dsn'],
+                    'novu' => sprintf('novu://%s@%s', $novuConfig['secret_key'], $novuConfig['api_host']),
                 ],
                 'channel_policy' => [
                     'high' => 'push',
                 ],
-            ]
+            ],
+            'http_client' => [
+                'scoped_clients' => [
+                    'novu.client' => [
+                        'base_uri' => sprintf('https://%s', $novuConfig['api_host']),
+                        'verify_peer' => '%env(bool:VERIFY_SSL)%',
+                    ],
+                ],
+            ],
         ]);
     }
-
-    protected function getContainerExtensionClass(): string
-    {
-        return AlchemyNotifyExtension::class;
-    }
-
 
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
         $container->parameters()
-            ->set('%env(NOVU_DSN)%', 'novu://API_KEY@default')
+            ->set('alchemy_notify.novu.api_host', $config['novu']['api_host'])
+            ->set('alchemy_notify.novu.secret_key', $config['novu']['secret_key'])
         ;
 
         $services = $container->services();
@@ -62,6 +73,7 @@ class AlchemyNotifyBundle extends AbstractBundle
                 ->autowire()
                 ->autoconfigure();
 
+        $services->set(NovuClient::class);
         $services->set(SymfonyNotifier::class);
         $services->alias(NotifierInterface::class, SymfonyNotifier::class);
         $services->set(TestNotificationCommand::class);

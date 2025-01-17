@@ -1,13 +1,21 @@
-import {useCallback, useContext, useRef, useState} from 'react';
+import React, {
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
 import {createStrictDimensions, PlayerProps} from './index';
 import {Document, Page, pdfjs} from 'react-pdf';
 import {getRatioDimensions} from './VideoPlayer';
 import {DisplayContext} from '../../DisplayContext';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import {Box, CircularProgress, IconButton, Stack} from '@mui/material';
+import {CircularProgress, IconButton} from '@mui/material';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
+import FileToolbar from './FileToolbar.tsx';
 
 type Props = {
     controls?: boolean | undefined;
@@ -18,12 +26,16 @@ export default function PDFPlayer({
     controls,
     dimensions: forcedDimensions,
     onLoad,
+    annotations,
+    onNewAnnotation,
+    zoomEnabled,
 }: Props) {
     const [ratio, setRatio] = useState<number>();
     const [numPages, setNumPages] = useState<number>();
-    const pageRef = useRef<number>(1);
-    const [pageNumber, setPageNumberProxy] = useState<number>(1);
-    const [renderedPageNumber, setRenderedPageNumber] = useState<number>();
+    const [pageNumber, setPageNumber] = useState<number>(1);
+    const [renderedPageNumber, setRenderedPageNumber] = React.useState<
+        number | undefined
+    >();
     const displayContext = useContext(DisplayContext);
     const dimensions = createStrictDimensions(
         forcedDimensions ?? {width: displayContext!.thumbSize}
@@ -41,140 +53,103 @@ export default function PDFPlayer({
         [onLoad]
     );
 
-    const setPageNumber = (num: number): void => {
-        pageRef.current = num;
-        setPageNumberProxy(num);
-    };
+    useEffect(() => {
+        if (annotations && annotations.length > 0) {
+            const goTo = annotations[annotations.length - 1].page;
+            goTo && setPageNumber(goTo);
+        }
+    }, [annotations]);
 
-    const prevPageClassName = 'pdf-prev-page';
-    const controlsClassName = 'pdf-controls';
-    const isLoading = renderedPageNumber !== pageNumber;
+    const pageAnnotations: AssetAnnotation[] = useMemo(
+        () => annotations?.filter(a => a.page === pageNumber) ?? [],
+        [annotations, pageNumber]
+    );
 
     return (
-        <Box
-            sx={{
-                maxWidth: dimensions.width,
-                maxHeight: dimensions.height,
-                position: 'relative',
-                backgroundColor: '#FFF',
-                [`.${prevPageClassName}`]: {
-                    position: 'absolute',
-                    zIndex: 1,
-                },
-                [`.${controlsClassName}`]: {
-                    display: 'none',
-                },
-                [`&:hover .${controlsClassName}`]: {
-                    display: 'flex',
-                },
-            }}
-        >
-            <Document file={file.url} onLoadSuccess={onDocLoad}>
-                {ratio ? (
+        <FileToolbar
+            controls={controls}
+            onNewAnnotation={onNewAnnotation}
+            annotations={
+                renderedPageNumber === pageNumber && pageAnnotations.length > 0
+                    ? pageAnnotations
+                    : undefined
+            }
+            zoomEnabled={zoomEnabled}
+            annotationEnabled={true}
+            page={pageNumber}
+            preToolbarActions={
+                controls ? (
                     <>
-                        {controls ? (
-                            <div
-                                style={{
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    height: '100%',
-                                    width: '100%',
-                                    position: 'absolute',
-                                    zIndex: 10,
-                                    userSelect: 'none',
-                                }}
+                        <div>
+                            <IconButton
+                                onClick={() => setPageNumber(pageNumber - 1)}
+                                disabled={pageNumber === 1}
                             >
-                                {isLoading ? (
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            height: '100%',
-                                            width: '100%',
-                                        }}
-                                    >
-                                        <CircularProgress />
-                                    </div>
-                                ) : (
-                                    ''
-                                )}
-
-                                <div
-                                    className={controlsClassName}
-                                    style={{
-                                        position: 'absolute',
-                                        bottom: 5,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        width: '100%',
-                                    }}
-                                >
-                                    <Stack
-                                        sx={theme => ({
-                                            opacity: 0.9,
-                                            bgcolor: 'background.paper',
-                                            p: 1,
-                                            boxShadow: theme.shadows[2],
-                                            borderRadius:
-                                                theme.shape.borderRadius,
-                                        })}
-                                        direction={'row'}
-                                        alignItems={'center'}
-                                        spacing={3}
-                                    >
-                                        <IconButton
-                                            onClick={() =>
-                                                setPageNumber(pageNumber - 1)
-                                            }
-                                            disabled={pageNumber === 1}
-                                        >
-                                            <KeyboardArrowLeftIcon />
-                                        </IconButton>
-                                        <div>
-                                            {pageNumber} / {numPages}
-                                        </div>
-                                        <IconButton
-                                            onClick={() =>
-                                                setPageNumber(pageNumber + 1)
-                                            }
-                                            disabled={pageNumber === numPages}
-                                        >
-                                            <KeyboardArrowRightIcon />
-                                        </IconButton>
-                                    </Stack>
-                                </div>
-                            </div>
-                        ) : (
-                            ''
-                        )}
-
-                        {isLoading && renderedPageNumber ? (
-                            <Page
-                                {...pdfDimensions}
-                                className={prevPageClassName}
-                                key={renderedPageNumber}
-                                pageNumber={renderedPageNumber}
-                            />
-                        ) : (
-                            ''
-                        )}
-                        <Page
-                            {...pdfDimensions}
-                            key={pageNumber}
-                            pageNumber={pageNumber}
-                            onRenderSuccess={() => {
-                                if (pageRef.current === pageNumber) {
-                                    setRenderedPageNumber(pageNumber);
-                                }
+                                <KeyboardArrowLeftIcon />
+                            </IconButton>
+                        </div>
+                        <div
+                            style={{
+                                whiteSpace: 'nowrap',
                             }}
-                        />
+                        >
+                            {pageNumber} / {numPages}
+                        </div>
+                        <div>
+                            <IconButton
+                                onClick={() => setPageNumber(pageNumber + 1)}
+                                disabled={pageNumber === numPages}
+                            >
+                                <KeyboardArrowRightIcon />
+                            </IconButton>
+                        </div>
                     </>
-                ) : (
-                    ''
-                )}
-            </Document>
-        </Box>
+                ) : undefined
+            }
+        >
+            {({annotationsOverlayRef}) => (
+                <div
+                    style={{
+                        maxWidth: dimensions.width,
+                        maxHeight: dimensions.height,
+                        position: 'relative',
+                        backgroundColor: '#FFF',
+                    }}
+                >
+                    <Document file={file.url} onLoadSuccess={onDocLoad}>
+                        {ratio ? (
+                            <>
+                                <Page
+                                    {...pdfDimensions}
+                                    key={pageNumber}
+                                    pageNumber={pageNumber}
+                                    loading={
+                                        <div
+                                            style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                height: '100%',
+                                                width: '100%',
+                                            }}
+                                        >
+                                            <CircularProgress />
+                                        </div>
+                                    }
+                                    onRenderSuccess={() => {
+                                        setRenderedPageNumber(pageNumber);
+                                        annotationsOverlayRef.current?.render();
+                                    }}
+                                />
+                            </>
+                        ) : null}
+                    </Document>
+                </div>
+            )}
+        </FileToolbar>
     );
 }
 

@@ -9,8 +9,8 @@ import InfoRow from '../Info/InfoRow';
 import {useTranslation} from 'react-i18next';
 import BusinessIcon from '@mui/icons-material/Business';
 import FolderIcon from '@mui/icons-material/Folder';
-import {useNavigateToModal} from "../../Routing/ModalLink.tsx";
-import {modalRoutes} from "../../../routes.ts";
+import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
+import {modalRoutes} from '../../../routes.ts';
 
 type Props = {
     data: Asset;
@@ -80,12 +80,19 @@ export default function InfoAsset({data, onClose, minHeight}: Props) {
                         t('asset.info.collection.none', 'None')
                     }
                     copyValue={data.referenceCollection?.id}
-                    onClick={data.referenceCollection ? () => {
-                        navigateToModal(modalRoutes.collections.routes.manage, {
-                            id: data.referenceCollection!.id,
-                            tab: 'info',
-                        });
-                    } : undefined}
+                    onClick={
+                        data.referenceCollection
+                            ? () => {
+                                  navigateToModal(
+                                      modalRoutes.collections.routes.manage,
+                                      {
+                                          id: data.referenceCollection!.id,
+                                          tab: 'info',
+                                      }
+                                  );
+                              }
+                            : undefined
+                    }
                 />
             </MenuList>
         </ContentTab>

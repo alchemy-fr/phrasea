@@ -7,6 +7,8 @@ namespace App\Entity\Core;
 use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use Alchemy\ESBundle\Indexer\ESIndexableInterface;
 use ApiPlatform\Metadata\ApiResource;
@@ -28,8 +30,8 @@ use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
 use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
-use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\CopyAssetProcessor;
+use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\MultipleAssetCreateProcessor;
 use App\Api\Processor\PrepareDeleteAssetProcessor;
@@ -41,10 +43,9 @@ use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
-use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use App\Entity\ObjectTitleInterface;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\OwnerIdTrait;
-use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
@@ -182,7 +183,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
-class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, \Stringable
+class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, ObjectTitleInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -510,5 +511,10 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public function getMicroseconds(): int
     {
         return $this->microseconds;
+    }
+
+    public function getObjectTitle(): string
+    {
+        return sprintf('Asset %s', $this->getTitle() ?? $this->getId());
     }
 }

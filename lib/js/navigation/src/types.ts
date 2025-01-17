@@ -1,5 +1,5 @@
 import React, {ElementType, FunctionComponent, PropsWithChildren} from "react";
-import {ActionFunction, LoaderFunction} from "react-router-dom";
+import type {ActionFunction, LoaderFunction} from "react-router-dom";
 
 export type RouteDefinition = {
     path: string;
@@ -35,3 +35,10 @@ export type TErrorFallbackComponent = (props: ErrorFallbackProps) => React.JSX.E
 export type TErrorBoundaryComponent = React.JSXElementConstructor<PropsWithChildren<{
     fallback: TErrorFallbackComponent;
 }>>;
+
+
+export type {
+    Location,
+    Path,
+    To,
+} from "react-router-dom";

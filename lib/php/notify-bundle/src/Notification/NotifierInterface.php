@@ -17,4 +17,21 @@ interface NotifierInterface
         string $notificationId,
         array $parameters = [],
     ): void;
+
+    public function notifyTopic(
+        string $topicKey,
+        ?string $authorId,
+        string $notificationId,
+        array $parameters = [],
+    ): void;
+
+    public function addTopicSubscribers(
+        string $topicKey,
+        array $subscribers,
+    ): void;
+
+    public function removeTopicSubscribers(
+        string $topicKey,
+        array $subscribers,
+    ): void;
 }

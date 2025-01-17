@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
-use ApiPlatform\Metadata\ApiProperty;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -16,8 +17,6 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AssetRenditionInput;
 use App\Api\Model\Output\AssetRenditionOutput;
 use App\Api\Provider\RenditionCollectionProvider;
-use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
-use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;

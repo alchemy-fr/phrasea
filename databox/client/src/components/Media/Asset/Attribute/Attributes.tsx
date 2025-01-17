@@ -1,4 +1,4 @@
-import {Asset, AssetAnnotation} from '../../../../types';
+import {Asset} from '../../../../types';
 import React, {useContext} from 'react';
 import AttributeRowUI from './AttributeRowUI';
 import {SxProps} from '@mui/material';
@@ -10,21 +10,22 @@ import {
     copyToClipBoardClass,
     copyToClipBoardContainerClass,
 } from './CopyAttribute.tsx';
+import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
 
-export type OnAnnotations = (annotations: AssetAnnotation[]) => void;
+export type OnActiveAnnotations = (annotations: AssetAnnotation[]) => void;
 
 type Props = {
     asset: Asset;
     displayControls: boolean;
     pinnedOnly?: boolean;
-    onAnnotations?: OnAnnotations | undefined;
+    onActiveAnnotations?: OnActiveAnnotations | undefined;
 };
 
 function Attributes({
     asset,
     displayControls,
     pinnedOnly,
-    onAnnotations,
+    onActiveAnnotations,
 }: Props) {
     const {preferences, updatePreference} = useContext(UserPreferencesContext);
     const formatContext = useContext(AttributeFormatContext);
@@ -90,7 +91,7 @@ function Attributes({
                         displayControls={displayControls}
                         pinned={pinnedAttributes.includes(g.definition.id)}
                         togglePin={asset.workspace ? togglePin : undefined}
-                        onAnnotations={onAnnotations}
+                        onActiveAnnotations={onActiveAnnotations}
                     />
                 );
             })}

@@ -1,15 +1,15 @@
-import {PropsWithChildren} from 'react';
+import {CSSProperties, PropsWithChildren} from 'react';
 import {Box, BoxProps} from '@mui/material';
 
-type Props = PropsWithChildren<BoxProps>;
+type Props = PropsWithChildren<{direction?: CSSProperties['flexDirection']} & BoxProps>;
 
-export default function FlexRow({children, style, ...props}: Props) {
+export default function FlexRow({children, style, direction = 'row', ...props}: Props) {
     return (
         <Box
             {...props}
             style={{
                 display: 'flex',
-                flexDirection: 'row',
+                flexDirection: direction,
                 alignItems: 'center',
                 ...(style ?? {}),
             }}

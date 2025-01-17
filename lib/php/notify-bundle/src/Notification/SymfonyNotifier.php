@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifyBundle\Notification;
 
+use Alchemy\NotifyBundle\Service\NovuClient;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Notifier\Bridge\Novu\NovuSubscriberRecipient;
@@ -15,6 +16,7 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
 
     public function __construct(
         private readonly SymfonyNotifierInterface $notifier,
+        private readonly NovuClient $novuClient,
     )
     {
     }
@@ -42,5 +44,24 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
         $notification->content($content);
 
         $this->notifier->send($notification, $recipient);
+    }
+
+    public function notifyTopic(
+        string $topicKey,
+        ?string $authorId,
+        string $notificationId,
+        array $parameters = [],
+    ): void {
+        $this->novuClient->notifyTopic($topicKey, $authorId, $notificationId, $parameters);
+    }
+
+    public function addTopicSubscribers(string $topicKey, array $subscribers): void
+    {
+        $this->novuClient->addTopicSubscribers($topicKey, $subscribers);
+    }
+
+    public function removeTopicSubscribers(string $topicKey, array $subscribers): void
+    {
+        $this->novuClient->removeTopicSubscribers($topicKey, $subscribers);
     }
 }

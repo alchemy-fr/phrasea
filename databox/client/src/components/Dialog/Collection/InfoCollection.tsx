@@ -9,8 +9,8 @@ import PersonIcon from '@mui/icons-material/Person';
 import {useTranslation} from 'react-i18next';
 import FolderIcon from '@mui/icons-material/Folder';
 import BusinessIcon from '@mui/icons-material/Business';
-import {useNavigateToModal} from "../../Routing/ModalLink.tsx";
-import {modalRoutes} from "../../../routes.ts";
+import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
+import {modalRoutes} from '../../../routes.ts';
 
 type Props = {
     id: string;
