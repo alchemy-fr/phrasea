@@ -891,14 +891,13 @@ services:
     build:
       context: ./infra/docker/keycloak
       target: keycloak
-      args:
-        DASHBOARD_CLIENT_URL: ${DASHBOARD_CLIENT_URL}
     command:
       - 'start'
       - '--optimized'
     networks:
       - internal
     environment:
+      - DASHBOARD_CLIENT_URL=${DASHBOARD_CLIENT_URL}
       - KC_PROXY=edge
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
