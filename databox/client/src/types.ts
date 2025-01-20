@@ -82,6 +82,7 @@ export interface Asset
     pendingUploadToken?: string;
     attributesEditedAt: string;
     groupValue?: GroupValue | undefined;
+    topicSubscriptions: TopicSubscriptions;
 }
 
 type AttrValue = any;
@@ -360,3 +361,5 @@ export type AssetOrAssetContainer = {} & Entity;
 export interface Entity {
     id: string;
 }
+
+export type TopicSubscriptions<T extends string = string> = Record<T, boolean>;

@@ -80,21 +80,19 @@ export default function Thread({
     }, [threadId]);
 
     useChannelRegistration(
-        `thread-${threadId}`,
+        `thread-${threadKey}`,
         `message`,
         data => {
             appendMessage(data);
         },
-        !!threadId
     );
 
     useChannelRegistration(
-        `thread-${threadId}`,
+        `thread-${threadKey}`,
         `message-delete`,
         data => {
             deleteMessage(data.id);
         },
-        !!threadId
     );
 
     const onDeleteMessage = (message: ThreadMessage): void => {

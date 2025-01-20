@@ -28,7 +28,6 @@ class Thread extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
-    use NovuTopicKeyTrait;
 
     final public const string GROUP_READ = 'thread:r';
     final public const string GROUP_LIST = 'thread:i';
@@ -45,5 +44,10 @@ class Thread extends AbstractUuidEntity
     public function setKey(?string $key): void
     {
         $this->key = $key;
+    }
+
+    public function getNotificationKey(): string
+    {
+        return sprintf('%s:thread', $this->getKey());
     }
 }

@@ -110,6 +110,9 @@ class AssetOutput extends AbstractUuidOutput
     #[ApiProperty]
     private \DateTimeImmutable $attributesEditedAt;
 
+    #[Groups([Asset::GROUP_READ])]
+    public ?array $topicSubscriptions = null;
+
     /**
      * Used for result grouping.
      */

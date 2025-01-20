@@ -10,6 +10,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import {useCloseModal} from '../../../Routing/ModalLink.tsx';
 import SaveAsButton from './SaveAsButton.tsx';
+import FollowButton from "../../../Ui/FollowButton.tsx";
 
 type Props = {
     asset: Asset;
@@ -43,6 +44,28 @@ export default function AssetViewActions({asset, file}: Props) {
                     },
                 }}
             >
+                <FollowButton
+                    entity={'assets'}
+                    id={asset.id}
+                    subscriptions={asset.topicSubscriptions}
+                    topics={[
+                        {
+                            key: `asset:${asset.id}:update`,
+                            label: 'Update',
+                            description: 'Get notified when the asset is updated',
+                        },
+                        {
+                            key: `asset:${asset.id}:delete`,
+                            label: 'Delete',
+                            description: 'Get notified when the asset is deleted',
+                        },
+                        {
+                            key: `asset:${asset.id}:thread`,
+                            label: 'Discussion',
+                            description: 'Get notified when there is a new comment on the asset',
+                        },
+                    ]}
+                />
                 {can.download ? (
                     <div>
                         <Button

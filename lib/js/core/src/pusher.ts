@@ -2,6 +2,10 @@ import Pusher from 'pusher-js';
 import {PusherEventCallback, UnregisterWebSocket} from "./types";
 import type {Options} from "pusher-js";
 
+function normalizeChannel(channel: string): string {
+    return channel.replace(/[^a-z0-9_\-=@,.;]/ig, '.');
+}
+
 export function createPusher({
     key,
     host,
@@ -37,6 +41,7 @@ export function registerPusherWs(
     event: string,
     callback: PusherEventCallback,
 ): UnregisterWebSocket {
+    channelName = normalizeChannel(channelName);
     if (!(pusher as any).connecting) {
         (pusher as any).connecting = true;
         pusher.connection.bind('connected', (e: any) => {
