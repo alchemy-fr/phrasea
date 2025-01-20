@@ -31,6 +31,7 @@ class AssetAnnotationsFaker extends BaseProvider
                 'y' => $y,
                 'r' => min(1 - $x, 1 - $y, rand(5, 50) / 100),
                 'c' => $this->randomColor(),
+                'page' => 2,
             ],
         ];
     }
@@ -46,6 +47,7 @@ class AssetAnnotationsFaker extends BaseProvider
                 'x' => $x,
                 'y' => $y,
                 'c' => $this->randomColor(),
+                'page' => 2,
             ],
         ];
     }
@@ -65,6 +67,7 @@ class AssetAnnotationsFaker extends BaseProvider
                 'x2' => $x2,
                 'y2' => $y2,
                 'c' => $this->randomColor(),
+                'page' => 2,
             ],
         ];
     }

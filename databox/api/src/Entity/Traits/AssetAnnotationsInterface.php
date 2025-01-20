@@ -4,7 +4,7 @@ namespace App\Entity\Traits;
 
 interface AssetAnnotationsInterface
 {
-    // "x", "y", "c"? (border color in hexa)
+    // "x", "y", "c"? (color in hexa)
     final public const string TYPE_POINT = 'point';
 
     // "x", "y", "r" (radius in %), "c"? (border color in hexa), "f"? (fill color in hexa)

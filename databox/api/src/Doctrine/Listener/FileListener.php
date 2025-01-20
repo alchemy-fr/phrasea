@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
-use App\Consumer\Handler\File\DeleteFileFromStorage;
 use App\Consumer\Handler\File\DeleteFilesIfOrphan;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
@@ -45,7 +44,6 @@ readonly class FileListener implements EventSubscriber
 
         $this->postFlushStack->addBusMessage(new DeleteFilesIfOrphan([$file->getId()]));
     }
-
 
     public function getSubscribedEvents(): array
     {

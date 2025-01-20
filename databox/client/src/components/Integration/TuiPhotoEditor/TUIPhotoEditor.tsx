@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import IntegrationPanelContent from '../Common/IntegrationPanelContent';
 import {} from '../../Media/Asset/FileIntegrations';
-import {IntegrationOverlayCommonProps} from '../../Media/Asset/AssetView';
+import {IntegrationOverlayCommonProps} from '../../Media/Asset/View/AssetView.tsx';
 import 'tui-image-editor/dist/tui-image-editor.css';
 // @ts-expect-error TS error in package
 import ImageEditor from '@toast-ui/react-image-editor';

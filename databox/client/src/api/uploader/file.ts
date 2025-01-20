@@ -3,7 +3,7 @@ import uploaderClient from '../uploader-client';
 import {promiseConcurrency} from '../../lib/promises';
 import {oauthClient} from '../api-client';
 import {RawAxiosRequestHeaders} from 'axios';
-import {multipartUpload} from '../../../../../lib/js/api/src/multiPartUpload.ts';
+import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
 
 interface MyHeaders extends RawAxiosRequestHeaders {
     Authorization?: string;

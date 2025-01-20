@@ -1,5 +1,12 @@
 import {ReactNode} from 'react';
-import {Box, IconButton, ListItemIcon, ListItemText, MenuItem, Typography,} from '@mui/material';
+import {
+    Box,
+    IconButton,
+    ListItemIcon,
+    ListItemText,
+    MenuItem,
+    Typography,
+} from '@mui/material';
 import CopyToClipboard from '../../../lib/CopyToClipboard';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
@@ -11,7 +18,13 @@ type Props = {
     onClick?: () => void;
 };
 
-export default function InfoRow({icon, label, value, copyValue, onClick}: Props) {
+export default function InfoRow({
+    icon,
+    label,
+    value,
+    copyValue,
+    onClick,
+}: Props) {
     return (
         <MenuItem disableRipple={true}>
             {icon && <ListItemIcon>{icon}</ListItemIcon>}
@@ -33,17 +46,13 @@ export default function InfoRow({icon, label, value, copyValue, onClick}: Props)
                                         copy(copyValue);
                                     }}
                                 >
-                                    <ContentCopyIcon/>
+                                    <ContentCopyIcon />
                                 </IconButton>
                             )}
                         </CopyToClipboard>
                     </Box>
                 )}
-                {onClick ? <a
-                    onClick={onClick}
-                >
-                    {value}
-                </a> : value}
+                {onClick ? <a onClick={onClick}>{value}</a> : value}
             </Typography>
         </MenuItem>
     );

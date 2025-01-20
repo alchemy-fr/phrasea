@@ -65,8 +65,7 @@ export async function deleteBasket(id: string): Promise<void> {
     await apiClient.delete(`/baskets/${id}`);
 }
 
-export type BasketAssetInput = {
-} & Entity;
+export type BasketAssetInput = {} & Entity;
 
 type AddToBasketInput = {
     assets: BasketAssetInput[];

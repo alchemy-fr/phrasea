@@ -1,4 +1,4 @@
-import {Entity} from "../../../../types.ts";
+import {Entity} from '../../../../types.ts';
 
 export type ExposePublication = {
     title: string;

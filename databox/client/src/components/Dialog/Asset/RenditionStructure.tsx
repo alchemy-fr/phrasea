@@ -1,6 +1,12 @@
-import {ReactNode} from "react";
-import {Dimensions} from "../../Media/Asset/Players";
-import {Card, CardActions, CardContent, CardMedia, Typography} from "@mui/material";
+import {ReactNode} from 'react';
+import {Dimensions} from '../../Media/Asset/Players';
+import {
+    Card,
+    CardActions,
+    CardContent,
+    CardMedia,
+    Typography,
+} from '@mui/material';
 
 type Props = {
     title: ReactNode;
@@ -36,9 +42,11 @@ export function RenditionStructure({
             >
                 {media ? media : ''}
             </CardMedia>
-            <CardContent sx={{
-                flexGrow: 1,
-            }}>
+            <CardContent
+                sx={{
+                    flexGrow: 1,
+                }}
+            >
                 <Typography component="div" variant="h5">
                     {title}
                 </Typography>

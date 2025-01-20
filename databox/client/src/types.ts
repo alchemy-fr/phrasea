@@ -2,6 +2,7 @@ import {ApiHydraObjectResponse} from './api/hydra';
 import {AttributeType} from './api/attributes';
 import type {WithTranslations} from '@alchemy/react-form';
 import {Integration} from './components/Integration/types.ts';
+import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTypes.ts';
 
 type AlternateUrl = {
     type: string;
@@ -47,13 +48,14 @@ export type Share = {
 export type ESDocumentState = {
     synced: boolean;
     data: object;
-}
+};
 
 export interface Asset
     extends IPermissions<{
-        canEditAttributes: boolean;
-        canShare: boolean;
-    }>, Entity {
+            canEditAttributes: boolean;
+            canShare: boolean;
+        }>,
+        Entity {
     title?: string | undefined;
     resolvedTitle?: string;
     titleHighlight: string | null;
@@ -61,6 +63,8 @@ export interface Asset
     privacy: number;
     tags: Tag[] | undefined;
     owner?: User;
+    threadKey: string;
+    thread?: Thread | undefined;
     workspace: Workspace;
     attributes: Attribute[];
     referenceCollection?: Collection | undefined;
@@ -208,7 +212,8 @@ export type AttributeEntity = {
     translations: KeyTranslations;
     createdAt: string;
     updatedAt: string;
-} & ApiHydraObjectResponse & Entity;
+} & ApiHydraObjectResponse &
+    Entity;
 
 export interface Tag extends ApiHydraObjectResponse, WithTranslations, Entity {
     name: string;
@@ -249,6 +254,36 @@ export interface Basket extends IPermissions, Entity {
     createdAt: string;
     updatedAt: string;
     owner?: User;
+}
+
+export interface Thread extends Entity {
+    id: string;
+    key: string;
+    createdAt: string;
+}
+
+export type MessageAttachment = {
+    type: string;
+    content: string;
+};
+
+export type DeserializedMessageAttachment = {
+    type: string;
+    data: Record<string, any>;
+};
+
+export interface ThreadMessage extends Entity {
+    id: string;
+    content: string;
+    attachments?: MessageAttachment[];
+    author: User;
+    createdAt: string;
+    updatedAt: string;
+    acknowledged?: boolean;
+    capabilities: {
+        canDelete: boolean;
+        canEdit: boolean;
+    };
 }
 
 export interface BasketAsset extends Entity {
@@ -320,19 +355,6 @@ export type Ace = (
 export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;
 
 export type AssetOrAssetContainer = {} & Entity;
-
-export enum AnnotationType {
-    Point = 'point',
-    Circle = 'circle',
-    Rect = 'rect',
-    Cue = 'cue',
-    TimeRange = 'time_range',
-}
-
-export type AssetAnnotation = {
-    type: AnnotationType;
-    [prop: string]: any;
-};
 
 export interface Entity {
     id: string;

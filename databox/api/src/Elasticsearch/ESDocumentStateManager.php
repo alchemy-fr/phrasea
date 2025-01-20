@@ -7,7 +7,6 @@ use App\Api\Model\Output\ESDocumentStateOutput;
 use Elastica\Request;
 use FOS\ElasticaBundle\Persister\ObjectPersister;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
-use RuntimeException;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
 final readonly class ESDocumentStateManager
@@ -43,6 +42,6 @@ final readonly class ESDocumentStateManager
             }
         }
 
-        throw new RuntimeException(sprintf('No object persister found for object of class %s', get_class($object)));
+        throw new \RuntimeException(sprintf('No object persister found for object of class %s', get_class($object)));
     }
 }

@@ -34,7 +34,14 @@ export const AppDialogTitle = (props: DialogTitleProps) => {
     const {children, onClose, ...other} = props;
 
     return (
-        <DialogTitle sx={{m: 0, p: 2}} {...other}>
+        <DialogTitle
+            sx={{
+                m: 0,
+                p: 2,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+        }} {...other}>
             {children}
             {onClose ? (
                 <IconButton
