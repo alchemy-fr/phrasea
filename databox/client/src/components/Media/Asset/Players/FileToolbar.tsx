@@ -1,7 +1,7 @@
 import AnnotateWrapper, {
     AssetAnnotationHandle,
 } from '../Annotations/AnnotateWrapper.tsx';
-import {MutableRefObject, useCallback, useRef, useState} from 'react';
+import {MutableRefObject, useCallback, useEffect, useRef, useState} from 'react';
 import {
     AnnotationsControl,
     AssetAnnotation,
@@ -26,6 +26,7 @@ type Props = {
     children:
         | ((props: {
               annotationsWrapperRef: MutableRefObject<AssetAnnotationHandle | null>;
+              zoomStep: number;
           }) => JSX.Element)
         | JSX.Element;
 };
@@ -45,6 +46,15 @@ export default function FileToolbar({
     const [closed, setClosed] = useState(false);
     const [hand, setHand] = useState(forceHand ?? false);
     const contentRef = useRef<HTMLDivElement | null>(null);
+    const scaleStepRate = 0.05;
+    const [zoomStep, setZoomStep] = useState<number>(1);
+
+    const increaseZoomStep = useCallback((step: number): void => {
+        setZoomStep(p => Math.max(p, Math.min(Math.ceil(step), 10)));
+    }, [setZoomStep]);
+    useEffect(() => {
+        setZoomStep(1);
+    }, [contentRef]);
 
     const fitContentToWrapper = useCallback(
         (centerView: (scale: number) => void) => {
@@ -76,7 +86,7 @@ export default function FileToolbar({
                 annotationsControl={annotationsControl}
                 page={page}
                 ref={annotationsWrapperRef}
-
+                zoomStep={zoomStep}
             >
                 {({canvas, annotationActive, annotate, toolbar}) => {
                     const disabled = !controls ||
@@ -85,6 +95,7 @@ export default function FileToolbar({
                         annotate ||
                         closed ||
                         !hand;
+
                     return (
                         <TransformWrapper
                             disabled={disabled}
@@ -93,6 +104,10 @@ export default function FileToolbar({
                             centerOnInit={true}
                             centerZoomedOut={false}
                             minScale={0.1}
+                            maxScale={100}
+                            onTransformed={(_ref, {scale}) => {
+                                increaseZoomStep(scale * scaleStepRate);
+                            }}
                         >
                             {controls ? (
                                 <ToolbarPaper
@@ -151,7 +166,7 @@ export default function FileToolbar({
                                 >
                                     {canvas}
                                     {typeof children === 'function'
-                                        ? children({annotationsWrapperRef})
+                                        ? children({annotationsWrapperRef, zoomStep})
                                         : children}
                                 </div>
                             </TransformComponent>

@@ -21,6 +21,7 @@ type Props = {
     onTerminate: () => void;
     annotations: AssetAnnotation[] | undefined;
     page?: number;
+    zoomStep?: number | undefined;
 };
 
 export function useAnnotationDraw({
@@ -33,6 +34,7 @@ export function useAnnotationDraw({
     selectedAnnotationRef,
     annotations,
     page,
+    zoomStep,
 }: Props) {
     const startingPoint = useRef<StartingPoint | undefined>();
     const dataRef = useRef<object | undefined>();
@@ -55,6 +57,7 @@ export function useAnnotationDraw({
                 annotations,
                 page,
                 selectedAnnotationRef: selectedAnnotationRef,
+                zoomStep,
             });
         };
 
@@ -235,6 +238,7 @@ export function useAnnotationDraw({
                 selectedAnnotationRef,
                 onUpdate: annotationsControl.onUpdate,
                 setAnnotationOptions,
+                zoomStep,
             });
         }
     }, [canvasRef, mode, annotationOptions, annotationsControl, annotations, page]);

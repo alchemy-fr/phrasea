@@ -7,6 +7,7 @@ type Props = {
     annotations: AssetAnnotation[] | undefined;
     page?: number;
     selectedAnnotationRef?: SelectedAnnotationRef;
+    zoomStep: number | undefined;
 };
 
 export function renderAnnotations({
@@ -14,13 +15,14 @@ export function renderAnnotations({
     annotations,
     page,
     selectedAnnotationRef,
+    zoomStep = 1
 }: Props) {
     if (canvasRef.current) {
         const canvas = canvasRef.current;
         const parent = canvas.parentNode as HTMLDivElement;
         const {offsetWidth: width, offsetHeight: height} = parent;
 
-        const resolution = Math.max(devicePixelRatio, 2);
+        const resolution = Math.max(devicePixelRatio, 2) * Math.max(zoomStep!, 10);
         canvas.width = width * resolution;
         canvas.height = height * resolution;
         canvas.style.width = width + 'px';
@@ -53,12 +55,13 @@ export function renderAnnotations({
     }
 }
 
-export function useAnnotationRender({canvasRef, annotations, page}: Props) {
+export function useAnnotationRender({canvasRef, annotations, page, zoomStep}: Props) {
     const render = useCallback(() => {
         renderAnnotations({
             canvasRef,
             annotations,
             page,
+            zoomStep,
         });
     }, [canvasRef, annotations]);
 

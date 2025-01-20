@@ -28,6 +28,7 @@ type Props = {
         annotationActive: boolean;
         annotate: boolean;
     }) => JSX.Element;
+    zoomStep: number | undefined;
 };
 
 export const annotationZIndex = 100;
@@ -43,6 +44,7 @@ export default memo(
             annotationsControl,
             page,
             children,
+            zoomStep,
             annotations: initialAnnotations,
         }: Props,
         ref
@@ -76,6 +78,7 @@ export default memo(
             canvasRef,
             annotations,
             page,
+            zoomStep,
         });
 
         useImperativeHandle(ref, () => {

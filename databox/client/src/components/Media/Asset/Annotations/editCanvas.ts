@@ -12,6 +12,7 @@ type Props = {
     selectedAnnotationRef: SelectedAnnotationRef;
     onUpdate: OnUpdateAnnotation;
     setAnnotationOptions: StateSetter<AnnotationOptions>;
+    zoomStep: number | undefined;
 };
 
 export function bindEditCanvas({
@@ -21,6 +22,7 @@ export function bindEditCanvas({
     selectedAnnotationRef,
     onUpdate,
     setAnnotationOptions,
+    zoomStep,
 }: Props): UnregisterFunction {
     const context = canvas.getContext('2d')!;
     const width = canvas.offsetWidth;
@@ -153,6 +155,7 @@ export function bindEditCanvas({
             canvasRef: {current: canvas},
             annotations: annotations,
             selectedAnnotationRef,
+            zoomStep,
         });
     }
 

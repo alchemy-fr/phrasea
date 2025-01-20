@@ -71,6 +71,7 @@ export default function PDFPlayer({
 
     return (
         <FileToolbar
+            key={file.id}
             controls={controls}
             annotationsControl={annotationsControl}
             annotations={
@@ -111,7 +112,7 @@ export default function PDFPlayer({
                 ) : undefined
             }
         >
-            {({annotationsWrapperRef}) => (
+            {({annotationsWrapperRef, zoomStep}) => (
                 <div
                     style={{
                         maxWidth: dimensions.width,
@@ -120,13 +121,17 @@ export default function PDFPlayer({
                         backgroundColor: '#FFF',
                     }}
                 >
-                    <Document file={file.url} onLoadSuccess={onDocLoad}>
+                    <Document
+                        file={file.url}
+                        onLoadSuccess={onDocLoad}
+                    >
                         {ratio ? (
                             <>
                                 <Page
                                     {...pdfDimensions}
                                     key={pageNumber}
                                     pageNumber={pageNumber}
+                                    devicePixelRatio={window.devicePixelRatio * Math.max(zoomStep * Math.max(1, Math.ceil(ratio / 3)), 10)}
                                     loading={
                                         <div
                                             style={{
