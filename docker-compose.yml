@@ -897,7 +897,7 @@ services:
     networks:
       - internal
     environment:
-      - DASHBOARD_CLIENT_URL=${DASHBOARD_CLIENT_URL}
+      - DASHBOARD_CLIENT_URL
       - KC_PROXY=edge
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
@@ -924,6 +924,7 @@ services:
     profiles:
       - openid
     environment:
+      - DASHBOARD_CLIENT_URL
       - KC_PROXY=edge
       - KEYCLOAK_ADMIN=${KEYCLOAK2_ADMIN}
       - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK2_ADMIN_PASSWORD}
