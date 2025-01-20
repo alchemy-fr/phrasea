@@ -3,39 +3,39 @@
 namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
-use FFMpeg\Format\Audio\Wav;
-use FFMpeg\Format\AudioInterface;
+use FFMpeg\Format\Video\Ogg;
+use FFMpeg\Format\VideoInterface;
 
-class WavFormat implements FormatInterface
+class OgvFormat implements FormatInterface
 {
-    private AudioInterface $format;
+    private VideoInterface $format;
 
     public function __construct()
     {
-        $this->format = new Wav();
+        $this->format = new Ogg();
     }
 
     public static function getAllowedExtensions(): array
     {
-        return ['wav'];
+        return ['ogv'];
     }
 
     public static function getMimeType(): string
     {
-        return 'audio/wav';
+        return 'video/ogg';
     }
 
     public static function getFormat(): string
     {
-        return 'audio-wav';
+        return 'video-ogg';
     }
 
     public static function getFamily(): FamilyEnum
     {
-        return FamilyEnum::Audio;
+        return FamilyEnum::Video;
     }
 
-    public function getFFMpegFormat(): AudioInterface
+    public function getFFMpegFormat(): VideoInterface
     {
         return $this->format;
     }

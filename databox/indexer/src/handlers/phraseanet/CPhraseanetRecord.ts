@@ -100,17 +100,22 @@ class CPhraseanetRecordBase {
 
 export class CPhraseanetRecord extends CPhraseanetRecordBase {
     record_id: string = '';
+    phrasea_type: string = '';
     constructor(r: PhraseanetRecord, client: PhraseanetClient) {
         super(r, client);
         this.record_id = r.record_id;
+        this.phrasea_type = r.phrasea_type;
     }
 }
 
 export class CPhraseanetStory extends CPhraseanetRecordBase {
     story_id: string = '';
-    children: CPhraseanetRecord[] = [];
     constructor(s: PhraseanetStory, client: PhraseanetClient) {
         super(s, client);
         this.story_id = s.story_id;
+    }
+
+    async getChildren() {
+        return this.client.getStoryChildren(this.databox_id, this.story_id);
     }
 }

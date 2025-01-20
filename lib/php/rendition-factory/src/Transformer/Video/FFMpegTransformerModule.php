@@ -12,11 +12,14 @@ use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Filter\ResizeFilter;
+use Alchemy\RenditionFactory\Transformer\Video\Format\AacFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
 use Alchemy\RenditionFactory\Transformer\Video\Format\MkvFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\Mp3Format;
 use Alchemy\RenditionFactory\Transformer\Video\Format\Mpeg4Format;
 use Alchemy\RenditionFactory\Transformer\Video\Format\MpegFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\OgaFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\OgvFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\OutputFormatsDocumentation;
 use Alchemy\RenditionFactory\Transformer\Video\Format\QuicktimeFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\WavFormat;
@@ -52,13 +55,18 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
     private static function getSupportedOutputFormats(): array
     {
         return [
+            // video
             MkvFormat::getFormat(),
             Mpeg4Format::getFormat(),
             MpegFormat::getFormat(),
             QuicktimeFormat::getFormat(),
             WebmFormat::getFormat(),
+            OgvFormat::getFormat(),
+            // audio
+            AacFormat::getFormat(),
             WavFormat::getFormat(),
             Mp3Format::getFormat(),
+            OgaFormat::getFormat(),
         ];
     }
 
