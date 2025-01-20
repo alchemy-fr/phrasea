@@ -60,7 +60,7 @@
         "renditions": {
           "original": {
             "useAsOriginal": true,
-            "pickSourceFile": true,
+            "buildMode": 1,
             "class": "public"
           },
           "preview": {

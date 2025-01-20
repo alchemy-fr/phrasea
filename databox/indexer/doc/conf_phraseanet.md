@@ -260,7 +260,12 @@ A Phraseanet subdef is identified by it **type** (image, video, audio, document,
 
 A Phrasea rendition-definition is declared by its **name** and **build settings** (sections image, video, ...).
 
-It is possible to declare a rendition with no `from`: not imported from Phraseanet, but created in Phrasea.
+- If `renditions` is not set, the indexer will import **all** phraseanet subdefs.
+
+- To **not** import / create any rendition / rendition-definition: set **both** `"sourceFile":false`
+**and** `"renditions": false`
+
+- It is possible to declare a rendition with no `from`: not imported from Phraseanet, but created in Phrasea.
 
 ### `parent`
 One can declare a `parent` relation between renditions, the parent rendition **must** be declared before the child.
@@ -271,8 +276,11 @@ If not set, the rendition will be built from the asset file.
 
 Declare the rendition to be used as original, preview, thumbnail or active thumbnail.
 
-### `pickFromFile`
-Tells the builder to copy the parent file (if no parent: copy the source file) to the rendition file.
+### `buildMode`
+Tells the builder how to "build" the rendition.
+- 0: Do not build the rendition
+- 1: Copy the parent file (if no parent: copy the asset file); Mostly used to copy the asset file to the "original" rendition.
+- 2: Build the rendition using build rules defined in `builders` blocks.
 
 ### `class`
 Phrasea rendition class, mostly "public" or "private". If not set, the value will be "guessed" from the subdef **class** (document, preview, ...).
@@ -297,7 +305,7 @@ The build settings will be generated from the phraseanet to match the subdef.
         "renditions": {
             "original": {
                 "useAsOriginal": true,
-                "pickFromFile": true,
+                "buildMode": 1,
                 "class": "public"
             },
             "preview": {

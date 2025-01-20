@@ -1,8 +1,7 @@
 import {IndexIterator} from '../../indexers';
 import {
-    ConfigDataboxMapping, ConfigPhraseanetOriginal, ConfigPhraseanetSubdef,
+    ConfigDataboxMapping, ConfigPhraseanetSubdef,
     FieldMap,
-//    FieldMaps,
     PhraseanetConfig, PhraseanetDatabox,
     PhraseanetSubdefStruct,
 } from './types';
@@ -341,7 +340,7 @@ async function importSubdefsStructure(
     const sdByName: Record<string, {
         name: string;
         parent: string | null;
-        pickSourceFile: boolean;
+        buildMode: number;
         useAsOriginal: boolean;
         useAsPreview: boolean;
         useAsThumbnail: boolean;
@@ -361,9 +360,9 @@ async function importSubdefsStructure(
         dm['renditions'] = {
             "original": {
                 "useAsOriginal": true,
-                "pickSourceFile": true,
-                "class": "original"
-            } as ConfigPhraseanetOriginal
+                "buildMode": 1,
+                "class": "original",
+            } as ConfigPhraseanetSubdef
         };
 
         for(const sd of subdefs) {
@@ -371,14 +370,14 @@ async function importSubdefsStructure(
                 dm.renditions[sd.name] = {
                     class: sd.class,
                     useAsOriginal: sd.name === 'document',
-                    pickSourceFile: sd.name === 'document',
+                    buildMode: sd.name === 'document' ? 1 : 2,
                     useAsPreview: sd.name === 'preview',
                     useAsThumbnail: sd.name === 'thumbnail',
                     useAsThumbnailActive: sd.name === 'thumbnailgif',
                     builders: {},
                 } as ConfigPhraseanetSubdef;
             }
-            (dm.renditions[sd.name] as ConfigPhraseanetSubdef).builders[sd.type] = {
+            dm.renditions[sd.name].builders[sd.type] = {
                 from: `${sd.type}:${sd.name}`
             };
         }
@@ -390,9 +389,9 @@ async function importSubdefsStructure(
         if (!sdByName[name]) {
             sdByName[name] = {
                 name: name,
-                parent: 'parent' in rendition ? rendition['parent'] : null,
+                parent: rendition['parent'] ?? null,
                 useAsOriginal: rendition['useAsOriginal'] ?? false,
-                pickSourceFile: rendition['pickSourceFile'] ?? false,
+                buildMode: rendition['buildMode'] ?? (rendition['builders'] ? 2 : 1),
                 useAsPreview: rendition['useAsPreview'] ?? false,
                 useAsThumbnail: rendition['useAsThumbnail'] ?? false,
                 useAsThumbnailActive: rendition['useAsThumbnailActive'] ?? false,
@@ -402,7 +401,7 @@ async function importSubdefsStructure(
             };
         }
 
-        for(const [family, settings] of Object.entries('builders' in rendition ? rendition['builders'] : [])) {
+        for(const [family, settings] of Object.entries(rendition['builders'] ?? [])) {
             if('build' in settings && 'from' in settings) {
                 logger.error(`  Rendition-definition "${name}" for family "${family}": Use "build" OR "from", not both. Rendition definition ignored`);
                 continue;
@@ -493,12 +492,14 @@ async function importSubdefsStructure(
             sd['parent'] = null;
         }
 
+        console.log(Yaml.dump(jsConf, {lineWidth: 100}).trim());
+
         renditionIdByName[sd.name] = await databoxClient.createRenditionDefinition({
             name: sd.name,
             parent: sd['parent'] ? `/rendition-definitions/${renditionIdByName[sd['parent']]}` : null,
             key: `${idempotencePrefix}${sd.name}`,
             class: `/rendition-classes/${classIndex[sd.class]}`,
-            pickSourceFile: sd.pickSourceFile,
+            buildMode: sd.buildMode,
             useAsOriginal: sd.useAsOriginal,
             useAsPreview: sd.useAsPreview,
             useAsThumbnail: sd.useAsThumbnail,
@@ -767,11 +768,11 @@ function translateVideoSettings_withVcodec(sd: PhraseanetSubdefStruct): object {
     if (audiokbrate > 0) {
         ffmpegModuleOptions['audio_kilobitrate'] = audiokbrate;
     }
-    const audiosrate = sd.options['audiosamplerate'] ?? 0;
-    if (audiosrate > 0) {
-        ffmpegModuleOptions['#0'] =
-            `audio_samplerate: ${audiosrate} (not yet implemented in ffmpeg module)`;
-    }
+    // todo: audiosamplerate (not yet implemented in ffmpeg module)
+    // const audiosrate = sd.options['audiosamplerate'] ?? 0;
+    // if (audiosrate > 0) {
+    //     ffmpegModuleOptions['audio_samplerate'] = audiosrate;
+    // }
 
     return {
         transformations: [
@@ -810,11 +811,11 @@ function translateVideoSettings_withAcodec(sd: PhraseanetSubdefStruct): object {
     if (audiokbrate > 0) {
         ffmpegModuleOptions['audio_kilobitrate'] = audiokbrate;
     }
-    const audiosrate = sd.options['audiosamplerate'] ?? 0;
-    if (audiosrate > 0) {
-        ffmpegModuleOptions['#0'] =
-            `audio_samplerate: ${audiosrate} (not yet implemented in ffmpeg module)`;
-    }
+    // todo: audiosamplerate (not yet implemented in ffmpeg module)
+    // const audiosrate = sd.options['audiosamplerate'] ?? 0;
+    // if (audiosrate > 0) {
+    //     ffmpegModuleOptions['audio_samplerate'] = audiosrate;
+    // }
 
     return {
         transformations: [
