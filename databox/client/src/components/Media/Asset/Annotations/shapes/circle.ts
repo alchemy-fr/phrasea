@@ -1,6 +1,11 @@
-import {AnnotationOptions} from "../annotationTypes.ts";
-import {controlsColor, controlsContrastColor, controlsSize, controlsStroke} from "./shapeCommon.ts";
-import {DrawContext} from "../events.ts";
+import {AnnotationOptions} from '../annotationTypes.ts';
+import {
+    controlsColor,
+    controlsContrastColor,
+    controlsSize,
+    controlsStroke,
+} from './shapeCommon.ts';
+import {DrawContext} from '../events.ts';
 
 export type CircleProps = {
     x: number;
@@ -8,7 +13,10 @@ export type CircleProps = {
     radius: number;
 };
 
-export function getMoveCircleCoordsInCircle({zoom}: DrawContext, {x, y}: CircleProps): CircleProps {
+export function getMoveCircleCoordsInCircle(
+    {zoom}: DrawContext,
+    {x, y}: CircleProps
+): CircleProps {
     return {
         x,
         y,
@@ -16,7 +24,10 @@ export function getMoveCircleCoordsInCircle({zoom}: DrawContext, {x, y}: CircleP
     };
 }
 
-export function getResizeCircleCoords({zoom}: DrawContext, {x, y, radius}: CircleProps): CircleProps {
+export function getResizeCircleCoords(
+    {zoom}: DrawContext,
+    {x, y, radius}: CircleProps
+): CircleProps {
     return {
         x: x + radius,
         y,
@@ -26,26 +37,22 @@ export function getResizeCircleCoords({zoom}: DrawContext, {x, y, radius}: Circl
 
 export function drawCircleControl(
     drawContext: DrawContext,
-    {
-        x,
-        y,
-        radius,
-    }: CircleProps,
+    {x, y, radius}: CircleProps
 ) {
-    drawCircle(drawContext, {x, y, radius}, {
-        color: controlsContrastColor,
-        size: Math.max(.3, controlsStroke / drawContext.zoom),
-        fillColor: controlsColor,
-    });
+    drawCircle(
+        drawContext,
+        {x, y, radius},
+        {
+            color: controlsContrastColor,
+            size: Math.max(0.3, controlsStroke / drawContext.zoom),
+            fillColor: controlsColor,
+        }
+    );
 }
 
 export function drawCircle(
     drawContext: DrawContext,
-    {
-        x,
-        y,
-        radius,
-    }: CircleProps,
+    {x, y, radius}: CircleProps,
     options: AnnotationOptions,
     controls: boolean = false
 ) {
@@ -63,11 +70,11 @@ export function drawCircle(
     if (controls) {
         drawCircleControl(
             drawContext,
-            getMoveCircleCoordsInCircle(drawContext, {x, y, radius}),
+            getMoveCircleCoordsInCircle(drawContext, {x, y, radius})
         );
         drawCircleControl(
             drawContext,
-            getResizeCircleCoords(drawContext, {x, y, radius}),
+            getResizeCircleCoords(drawContext, {x, y, radius})
         );
     }
 }

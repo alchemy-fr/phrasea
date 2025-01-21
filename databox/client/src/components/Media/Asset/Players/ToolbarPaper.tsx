@@ -1,7 +1,7 @@
 import {Paper, PaperProps} from '@mui/material';
 import {PropsWithChildren} from 'react';
 
-import {annotationZIndex} from "../Annotations/common.ts";
+import {annotationZIndex} from '../Annotations/common.ts';
 
 type Props = PropsWithChildren<{
     annotationActive: boolean;

@@ -1,17 +1,19 @@
-import {AnnotationOptions} from "../annotationTypes.ts";
-import {CircleProps, drawCircleControl} from "./circle.ts";
-import {controlsSize} from "./shapeCommon.ts";
-import {DrawContext, ToFunction} from "../events.ts";
+import {AnnotationOptions} from '../annotationTypes.ts';
+import {CircleProps, drawCircleControl} from './circle.ts';
+import {controlsSize} from './shapeCommon.ts';
+import {DrawContext, ToFunction} from '../events.ts';
 
 export type RectangleProps = {
     x: number;
     y: number;
     w: number;
     h: number;
-}
+};
 
-
-export function getMoveCircleCoordsInRectangle({zoom}: DrawContext, {x, y, w, h}: RectangleProps): CircleProps {
+export function getMoveCircleCoordsInRectangle(
+    {zoom}: DrawContext,
+    {x, y, w, h}: RectangleProps
+): CircleProps {
     return {
         x: x + w / 2,
         y: y + h / 2,
@@ -19,15 +21,9 @@ export function getMoveCircleCoordsInRectangle({zoom}: DrawContext, {x, y, w, h}
     };
 }
 
-
 export function drawRectangle(
     drawContext: DrawContext,
-    {
-        x,
-        y,
-        w,
-        h,
-    }: RectangleProps,
+    {x, y, w, h}: RectangleProps,
     options: AnnotationOptions,
     selected: boolean = false,
     resize: boolean = true
@@ -43,16 +39,16 @@ export function drawRectangle(
         drawCircleControl(drawContext, {
             x: x + w / 2,
             y: y + h / 2,
-            radius: controlsSize / drawContext.zoom
+            radius: controlsSize / drawContext.zoom,
         });
 
         if (resize) {
-            [0, 1].forEach((i) => {
-                [0, 1].forEach((j) => {
+            [0, 1].forEach(i => {
+                [0, 1].forEach(j => {
                     drawCircleControl(drawContext, {
                         x: x + w * i,
                         y: y + h * j,
-                        radius: controlsSize / drawContext.zoom
+                        radius: controlsSize / drawContext.zoom,
                     });
                 });
             });
@@ -60,7 +56,12 @@ export function drawRectangle(
     }
 }
 
-export function normalizeRectangleProps({x, y, w, h}: RectangleProps): RectangleProps {
+export function normalizeRectangleProps({
+    x,
+    y,
+    w,
+    h,
+}: RectangleProps): RectangleProps {
     const props: Partial<RectangleProps> = {};
 
     if (w >= 0) {
@@ -92,5 +93,5 @@ export function transformRectangleToPixels(
         y: toY(rect.y),
         w: toX(rect.w),
         h: toY(rect.h),
-    }
+    };
 }

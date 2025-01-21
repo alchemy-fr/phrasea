@@ -1,38 +1,44 @@
 import {AnnotationOptions, AnnotationType, Point} from '../annotationTypes.ts';
 import {DrawContext, DrawingHandler} from '../events.ts';
-import {controlsSize} from "./shapeCommon.ts";
-import {drawCircle, drawCircleControl} from "./circle.ts";
-import {drawLine} from "./line.ts";
-import {getStandardMoveHandler} from "../common.ts";
+import {controlsSize} from './shapeCommon.ts';
+import {drawCircle, drawCircleControl} from './circle.ts';
+import {drawLine} from './line.ts';
+import {getStandardMoveHandler} from '../common.ts';
 
 const grow = 5;
 
 function drawTarget(
     drawContext: DrawContext,
-    {
-        x,
-        y,
-    }: Point,
-    options: AnnotationOptions, selected: boolean = false
+    {x, y}: Point,
+    options: AnnotationOptions,
+    selected: boolean = false
 ) {
     const size = options.size;
-    drawCircle(drawContext, {
-        x,
-        y,
-        radius: size,
-    }, {
-        color: options.color,
-        size: size,
-        fillColor: options.color,
-    });
-    drawCircle(drawContext, {
-        x,
-        y,
-        radius: size * grow,
-    }, {
-        color: options.color,
-        size: size,
-    });
+    drawCircle(
+        drawContext,
+        {
+            x,
+            y,
+            radius: size,
+        },
+        {
+            color: options.color,
+            size: size,
+            fillColor: options.color,
+        }
+    );
+    drawCircle(
+        drawContext,
+        {
+            x,
+            y,
+            radius: size * grow,
+        },
+        {
+            color: options.color,
+            size: size,
+        }
+    );
 
     const radius = size * grow;
     const lineLength = radius / 2;
@@ -42,15 +48,19 @@ function drawTarget(
         [0, 1],
         [0, -1],
     ]) {
-        drawLine(drawContext, {
-            x1: x + radius * cx,
-            y1: y + radius * cy,
-            x2: x + radius * cx + lineLength * cx,
-            y2: y + radius * cy + lineLength * cy,
-        }, {
-            color: options.color,
-            size: size,
-        });
+        drawLine(
+            drawContext,
+            {
+                x1: x + radius * cx,
+                y1: y + radius * cy,
+                x2: x + radius * cx + lineLength * cx,
+                y2: y + radius * cy + lineLength * cy,
+            },
+            {
+                color: options.color,
+                size: size,
+            }
+        );
     }
 
     if (selected) {
@@ -70,16 +80,19 @@ export const TargetAnnotationHandler: DrawingHandler = {
                 x,
                 y,
             },
-            options,);
+            options
+        );
     },
     onDrawMove: ({clear, drawContext, x, y, options}) => {
         clear();
         drawTarget(
-            drawContext, {
+            drawContext,
+            {
                 x,
-                y
+                y,
             },
-            options,);
+            options
+        );
     },
     onDrawEnd: ({
         onNewAnnotation,
@@ -99,26 +112,32 @@ export const TargetAnnotationHandler: DrawingHandler = {
         });
         terminate();
     },
-    drawAnnotation: ({annotation: {x, y, c, s}, drawContext, toX, toY}, selected) => {
-        drawTarget(drawContext,
+    drawAnnotation: (
+        {annotation: {x, y, c, s}, drawContext, toX, toY},
+        selected
+    ) => {
+        drawTarget(
+            drawContext,
             {
                 x: toX(x),
-                y: toY(y)
+                y: toY(y),
             },
             {
                 color: c,
                 size: toX(s),
-            }, selected);
+            },
+            selected
+        );
     },
-    onTerminate: () => {
-    },
+    onTerminate: () => {},
     getResizeHandler: () => {
         return undefined;
     },
-    toOptions: ({c, s}, {toX}) => ({
-        color: c,
-        size: toX(s),
-    } as AnnotationOptions),
+    toOptions: ({c, s}, {toX}) =>
+        ({
+            color: c,
+            size: toX(s),
+        }) as AnnotationOptions,
     fromOptions: (options, annotation, {relativeX}) => ({
         ...annotation,
         c: options.color,

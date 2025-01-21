@@ -85,24 +85,25 @@ export default function MessageForm({
 
                     setAttachments(p => {
                         return p.concat({
-                                type: 'annotation',
-                                data: {
-                                    ...annotation,
-                                    name:
-                                        annotation.name ??
-                                        t('form.annotation.default_name', {
-                                            defaultValue: '{{type}} #{{n}}',
-                                            type: annotationTypes[annotation.type],
-                                            n:
-                                                p.filter(a =>
+                            type: 'annotation',
+                            data: {
+                                ...annotation,
+                                name:
+                                    annotation.name ??
+                                    t('form.annotation.default_name', {
+                                        defaultValue: '{{type}} #{{n}}',
+                                        type: annotationTypes[annotation.type],
+                                        n:
+                                            p.filter(
+                                                a =>
                                                     a.type === 'annotation' &&
-                                                    a.data.type === annotation.type
-                                                ).length + 1,
-                                        }),
-                                },
-                            });
-                        }
-                    );
+                                                    a.data.type ===
+                                                        annotation.type
+                                            ).length + 1,
+                                    }),
+                            },
+                        });
+                    });
                 },
                 onUpdate: (id, newAnnotation) => {
                     setAttachments(p =>
@@ -120,9 +121,11 @@ export default function MessageForm({
                 },
                 onDelete: id => {
                     setAttachments(p =>
-                        p.filter(a => a.type !== 'annotation' || a.data?.id !== id)
+                        p.filter(
+                            a => a.type !== 'annotation' || a.data?.id !== id
+                        )
                     );
-                }
+                },
             };
         }
     }, [annotationsControlRef, inputRef]);

@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\FollowInput;
 use App\Entity\FollowableInterface;
 use App\Security\Voter\AbstractVoter;
-use Symfony\Component\HttpFoundation\Response;
 
 class FollowProcessor implements ProcessorInterface
 {

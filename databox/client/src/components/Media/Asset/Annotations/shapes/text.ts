@@ -1,15 +1,19 @@
-import {DrawContext} from "../events.ts";
-import {AnnotationOptions} from "../annotationTypes.ts";
-import {getMoveCircleCoordsInRectangle} from "./rectangle.ts";
-import {drawCircleControl} from "./circle.ts";
+import {DrawContext} from '../events.ts';
+import {AnnotationOptions} from '../annotationTypes.ts';
+import {getMoveCircleCoordsInRectangle} from './rectangle.ts';
+import {drawCircleControl} from './circle.ts';
 
 export type TextProps = {
     x: number;
     y: number;
     text: string;
-}
+};
 
-export function getTextDimensions(context: CanvasRenderingContext2D, text: string, size: number): {
+export function getTextDimensions(
+    context: CanvasRenderingContext2D,
+    text: string,
+    size: number
+): {
     width: number;
     height: number;
 } {
@@ -25,12 +29,9 @@ export function getTextDimensions(context: CanvasRenderingContext2D, text: strin
 
 export function drawText(
     drawContext: DrawContext,
-    {
-        x,
-        y,
-        text,
-    }: TextProps,
-    options: AnnotationOptions, selected: boolean = false
+    {x, y, text}: TextProps,
+    options: AnnotationOptions,
+    selected: boolean = false
 ) {
     const {context} = drawContext;
     const {size} = options;
@@ -40,11 +41,14 @@ export function drawText(
     context.fillText(text, x, y);
 
     if (selected) {
-        drawCircleControl(drawContext, getMoveCircleCoordsInRectangle(drawContext, {
-            x,
-            y: y - height,
-            w: width,
-            h: height,
-        }));
+        drawCircleControl(
+            drawContext,
+            getMoveCircleCoordsInRectangle(drawContext, {
+                x,
+                y: y - height,
+                w: width,
+                h: height,
+            })
+        );
     }
 }

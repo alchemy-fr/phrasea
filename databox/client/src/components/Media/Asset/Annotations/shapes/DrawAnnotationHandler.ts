@@ -1,20 +1,21 @@
-import {AnnotationOptions, AnnotationType, Point,} from '../annotationTypes.ts';
+import {AnnotationOptions, AnnotationType, Point} from '../annotationTypes.ts';
 import {DrawingHandler, GetBoundingBoxProps} from '../events.ts';
-import {drawDrawing, getDrawingBoundingBox} from "./draw.ts";
-import {transformRectangleToPixels} from "./rectangle.ts";
-import {getStandardMoveHandler} from "../common.ts";
-
+import {drawDrawing, getDrawingBoundingBox} from './draw.ts';
+import {transformRectangleToPixels} from './rectangle.ts';
+import {getStandardMoveHandler} from '../common.ts';
 
 export function createDrawAnnotationHandler(
-    annotationType: AnnotationType,
+    annotationType: AnnotationType
 ): DrawingHandler {
     return {
         onDrawStart: ({drawContext, x, y, data, options}) => {
-            drawDrawing(drawContext, {
-                paths: [
-                    [{x, y}]
-                ]
-            }, options);
+            drawDrawing(
+                drawContext,
+                {
+                    paths: [[{x, y}]],
+                },
+                options
+            );
 
             data.points = [{x, y}];
             data.paths ??= [];
@@ -65,30 +66,39 @@ export function createDrawAnnotationHandler(
                 });
             }
         },
-        drawAnnotation: ({annotation: {paths, c, s, x, y}, drawContext, toX, toY}, selected) => {
+        drawAnnotation: (
+            {annotation: {paths, c, s, x, y}, drawContext, toX, toY},
+            selected
+        ) => {
             const options = {
                 color: c,
                 size: toX(s),
             };
 
-            drawDrawing(drawContext, {
-                x: toX(x ?? 0),
-                y: toY(y ?? 0),
-                paths: paths.map((path: Point[]) =>
-                    path.map(({x, y}: Point) => ({
-                        x: toX(x),
-                        y: toY(y),
-                    }))
-                )
-            }, options, selected);
+            drawDrawing(
+                drawContext,
+                {
+                    x: toX(x ?? 0),
+                    y: toY(y ?? 0),
+                    paths: paths.map((path: Point[]) =>
+                        path.map(({x, y}: Point) => ({
+                            x: toX(x),
+                            y: toY(y),
+                        }))
+                    ),
+                },
+                options,
+                selected
+            );
         },
         getResizeHandler: () => {
             return undefined;
         },
-        toOptions: ({c, s}, {toX}) => ({
-            color: c,
-            size: toX(s),
-        } as AnnotationOptions),
+        toOptions: ({c, s}, {toX}) =>
+            ({
+                color: c,
+                size: toX(s),
+            }) as AnnotationOptions,
         fromOptions: (options, annotation, {relativeX}) => ({
             ...annotation,
             c: options.color,
@@ -98,7 +108,7 @@ export function createDrawAnnotationHandler(
             const box = getDrawingBoundingBox({
                 x: annotation.x,
                 y: annotation.y,
-                paths: annotation.paths
+                paths: annotation.paths,
             });
 
             return transformRectangleToPixels(box, toX, toY);
@@ -106,7 +116,6 @@ export function createDrawAnnotationHandler(
         getMoveHandler: getStandardMoveHandler,
     };
 }
-
 
 export const DrawAnnotationHandler = createDrawAnnotationHandler(
     AnnotationType.Draw

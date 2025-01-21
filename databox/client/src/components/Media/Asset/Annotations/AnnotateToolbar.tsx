@@ -1,5 +1,10 @@
 import {IconButton, TextField} from '@mui/material';
-import {AnnotationOptions, AnnotationsControl, AnnotationType, SelectedAnnotationRef} from './annotationTypes.ts';
+import {
+    AnnotationOptions,
+    AnnotationsControl,
+    AnnotationType,
+    SelectedAnnotationRef,
+} from './annotationTypes.ts';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import Crop32Icon from '@mui/icons-material/Crop32';
 import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye';
@@ -9,8 +14,8 @@ import {ColorPicker} from '@alchemy/react-form';
 import {StateSetter} from '../../../../types.ts';
 import ToolbarPaper from '../Players/ToolbarPaper.tsx';
 import BrushIcon from '@mui/icons-material/Brush';
-import {drawingHandlers} from "./events.ts";
-import {MutableRefObject} from "react";
+import {drawingHandlers} from './events.ts';
+import {MutableRefObject} from 'react';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import AbcIcon from '@mui/icons-material/Abc';
 
@@ -18,7 +23,7 @@ function changeIfSelected(
     canvasRef: MutableRefObject<HTMLCanvasElement | null>,
     annotationsControl: AnnotationsControl | undefined,
     selectedAnnotationRef: SelectedAnnotationRef,
-    options: AnnotationOptions,
+    options: AnnotationOptions
 ): AnnotationOptions {
     if (annotationsControl) {
         const annotation = selectedAnnotationRef.current;
@@ -27,10 +32,14 @@ function changeIfSelected(
             const handler = drawingHandlers[annotation.type];
             if (handler) {
                 setTimeout(() => {
-                    const newAnnotation = handler.fromOptions(options, annotation, {
-                        relativeX: x => x / canvasRef.current!.offsetWidth,
-                        relativeY: y => y / canvasRef.current!.offsetHeight,
-                    });
+                    const newAnnotation = handler.fromOptions(
+                        options,
+                        annotation,
+                        {
+                            relativeX: x => x / canvasRef.current!.offsetWidth,
+                            relativeY: y => y / canvasRef.current!.offsetHeight,
+                        }
+                    );
                     annotationsControl?.onUpdate(id, newAnnotation);
                     selectedAnnotationRef.current = newAnnotation;
                 }, 0);
@@ -71,7 +80,7 @@ export default function AnnotateToolbar({
                 color={annotate ? 'primary' : 'default'}
                 onClick={() => setAnnotate(p => !p)}
             >
-                <GestureIcon/>
+                <GestureIcon />
             </IconButton>
             {annotate && (
                 <ToolbarPaper
@@ -91,7 +100,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Text)}
                         >
-                            <AbcIcon/>
+                            <AbcIcon />
                         </IconButton>
                     </div>
                     <div>
@@ -103,7 +112,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Target)}
                         >
-                            <MyLocationIcon/>
+                            <MyLocationIcon />
                         </IconButton>
                     </div>
                     <div>
@@ -115,7 +124,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Rect)}
                         >
-                            <Crop32Icon/>
+                            <Crop32Icon />
                         </IconButton>
                     </div>
                     <div>
@@ -127,7 +136,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Circle)}
                         >
-                            <PanoramaFishEyeIcon/>
+                            <PanoramaFishEyeIcon />
                         </IconButton>
                     </div>
                     <div>
@@ -139,7 +148,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Arrow)}
                         >
-                            <ArrowRightAltIcon/>
+                            <ArrowRightAltIcon />
                         </IconButton>
                     </div>
                     <div>
@@ -151,7 +160,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Line)}
                         >
-                            <HorizontalRuleIcon/>
+                            <HorizontalRuleIcon />
                         </IconButton>
                     </div>
                     <div>
@@ -163,7 +172,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Draw)}
                         >
-                            <BrushIcon/>
+                            <BrushIcon />
                         </IconButton>
                     </div>
                     <div>
@@ -177,7 +186,8 @@ export default function AnnotateToolbar({
                                         annotationsControl,
                                         selectedAnnotationRef,
                                         {...p, color: c}
-                                    ));
+                                    )
+                                );
                             }}
                         />
                     </div>
@@ -191,7 +201,10 @@ export default function AnnotateToolbar({
                             style={{width: 100}}
                             value={Math.round(options.size * 10) / 10}
                             onChange={e => {
-                                const size = Math.max(0.001, parseFloat(e.target.value) || 1);
+                                const size = Math.max(
+                                    0.001,
+                                    parseFloat(e.target.value) || 1
+                                );
 
                                 return setOptions(p =>
                                     changeIfSelected(
@@ -202,9 +215,9 @@ export default function AnnotateToolbar({
                                             ...p,
                                             size,
                                         }
-                                    ));
-                            }
-                            }
+                                    )
+                                );
+                            }}
                         />
                     </div>
                 </ToolbarPaper>

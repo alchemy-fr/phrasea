@@ -113,7 +113,9 @@ export type AnnotationsControlRef = MutableRefObject<
     AnnotationsControl | undefined
 >;
 
-export type SelectedAnnotationRef = MutableRefObject<AssetAnnotation | undefined>;
+export type SelectedAnnotationRef = MutableRefObject<
+    AssetAnnotation | undefined
+>;
 
 export type OnNewAnnotation = (annotation: AssetAnnotation) => void;
 export type OnUpdateAnnotation = (
@@ -121,6 +123,4 @@ export type OnUpdateAnnotation = (
     newAnnotation: AssetAnnotation
 ) => AssetAnnotation;
 
-export type OnDeleteAnnotation = (
-    id: AnnotationId,
-) => void;
+export type OnDeleteAnnotation = (id: AnnotationId) => void;

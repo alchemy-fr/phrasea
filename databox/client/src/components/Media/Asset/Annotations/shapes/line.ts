@@ -1,17 +1,24 @@
-import {AnnotationOptions} from "../annotationTypes.ts";
-import {DrawContext} from "../events.ts";
-import {isPointInRectangle} from "./RectAnnotationHandler.ts";
-import {CircleProps, drawCircleControl, getResizeCircleCoords} from "./circle.ts";
-import {controlsSize} from "./shapeCommon.ts";
+import {AnnotationOptions} from '../annotationTypes.ts';
+import {DrawContext} from '../events.ts';
+import {isPointInRectangle} from './RectAnnotationHandler.ts';
+import {
+    CircleProps,
+    drawCircleControl,
+    getResizeCircleCoords,
+} from './circle.ts';
+import {controlsSize} from './shapeCommon.ts';
 
 type LineProps = {
     x1: number;
     y1: number;
     x2: number;
     y2: number;
-}
+};
 
-export function getLineMoveCircleCoords({zoom}: DrawContext, {x1, y1, x2, y2}: LineProps): CircleProps {
+export function getLineMoveCircleCoords(
+    {zoom}: DrawContext,
+    {x1, y1, x2, y2}: LineProps
+): CircleProps {
     return {
         x: x1 + (x2 - x1) / 2,
         y: y1 + (y2 - y1) / 2,
@@ -35,9 +42,18 @@ export function drawLine(
     context.stroke();
 
     if (controls) {
-        drawCircleControl(drawContext, getResizeCircleCoords(drawContext, {x: x1, y: y1, radius: 0}));
-        drawCircleControl(drawContext, getResizeCircleCoords(drawContext, {x: x2, y: y2, radius: 0}));
-        drawCircleControl(drawContext, getLineMoveCircleCoords(drawContext, line));
+        drawCircleControl(
+            drawContext,
+            getResizeCircleCoords(drawContext, {x: x1, y: y1, radius: 0})
+        );
+        drawCircleControl(
+            drawContext,
+            getResizeCircleCoords(drawContext, {x: x2, y: y2, radius: 0})
+        );
+        drawCircleControl(
+            drawContext,
+            getLineMoveCircleCoords(drawContext, line)
+        );
     }
 }
 

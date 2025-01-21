@@ -18,11 +18,11 @@ import {
 } from './annotationTypes.ts';
 import AnnotateToolbar from './AnnotateToolbar.tsx';
 import {useAnnotationRender} from './useAnnotationRender.tsx';
-import type {ZoomStepState} from "../Players";
-import type {AssetAnnotationHandle, ZoomRef} from "./common.ts";
-import {annotationZIndex} from "./common.ts";
-import ShapeControl from "./ShapeControl.tsx";
-import {drawingHandlers} from "./events.ts";
+import type {ZoomStepState} from '../Players';
+import type {AssetAnnotationHandle, ZoomRef} from './common.ts';
+import {annotationZIndex} from './common.ts';
+import ShapeControl from './ShapeControl.tsx';
+import {drawingHandlers} from './events.ts';
 
 type Props = {
     annotationsControl?: AnnotationsControl | undefined;
@@ -100,7 +100,7 @@ export default memo(
             return () => {
                 window.removeEventListener('keydown', onSpaceDown);
                 window.removeEventListener('keyup', onSpaceUp);
-            }
+            };
         }, [spaceRef]);
 
         const onShapeDelete = useCallback(() => {
@@ -122,36 +122,42 @@ export default memo(
             }
         }, [annotationsControl, selectedAnnotationRef]);
 
-        const onRename = useCallback((newName: string) => {
-            const annotation = selectedAnnotationRef.current;
-            if (annotation) {
-                const handler = drawingHandlers[annotation.type];
+        const onRename = useCallback(
+            (newName: string) => {
+                const annotation = selectedAnnotationRef.current;
+                if (annotation) {
+                    const handler = drawingHandlers[annotation.type];
 
-                const newAnnotation = {
-                    ...(handler?.onRename?.({annotation, newName}) ?? annotation),
-                    name: newName,
-                };
+                    const newAnnotation = {
+                        ...(handler?.onRename?.({annotation, newName}) ??
+                            annotation),
+                        name: newName,
+                    };
 
-                setAnnotations(p => {
-                    return p!.map(a => {
-                        if (a.id === annotation.id) {
-                            return newAnnotation;
-                        }
-                        return a;
+                    setAnnotations(p => {
+                        return p!.map(a => {
+                            if (a.id === annotation.id) {
+                                return newAnnotation;
+                            }
+                            return a;
+                        });
                     });
-                });
-                annotationsControl?.onUpdate(annotation.id!, newAnnotation);
-            }
-        }, [annotationsControl, selectedAnnotationRef]);
+                    annotationsControl?.onUpdate(annotation.id!, newAnnotation);
+                }
+            },
+            [annotationsControl, selectedAnnotationRef]
+        );
 
         const sa = selectedAnnotationRef.current;
         if (sa) {
             if (annotations) {
                 if (!annotations.includes(sa)) {
-                    selectedAnnotationRef.current = annotations.find(a => a.id === sa.id);
+                    selectedAnnotationRef.current = annotations.find(
+                        a => a.id === sa.id
+                    );
                 }
             } else {
-                selectedAnnotationRef.current = undefined
+                selectedAnnotationRef.current = undefined;
             }
         }
 
@@ -171,13 +177,14 @@ export default memo(
             };
         }, [render]);
 
-        const resolvedAnnotationsControl: AnnotationsControl | undefined = annotationsControl
-            ? {
-                onNew: onNewAnnotationHandler,
-                onUpdate: annotationsControl.onUpdate,
-                onDelete: annotationsControl.onDelete,
-            }
-            : undefined;
+        const resolvedAnnotationsControl: AnnotationsControl | undefined =
+            annotationsControl
+                ? {
+                      onNew: onNewAnnotationHandler,
+                      onUpdate: annotationsControl.onUpdate,
+                      onDelete: annotationsControl.onDelete,
+                  }
+                : undefined;
 
         useAnnotationDraw({
             canvasRef,
@@ -203,12 +210,16 @@ export default memo(
                                 ref={canvasRef}
                                 style={{
                                     cursor:
-                                        annotate && mode ? 'crosshair' : 'default',
+                                        annotate && mode
+                                            ? 'crosshair'
+                                            : 'default',
                                     position: 'absolute',
                                     top: 0,
                                     left: 0,
                                     zIndex: annotationZIndex + 1,
-                                    pointerEvents: annotate ? undefined : 'none',
+                                    pointerEvents: annotate
+                                        ? undefined
+                                        : 'none',
                                 }}
                             />
                             <ShapeControl

@@ -1,20 +1,28 @@
-import {AnnotationOptions, AnnotationType, AssetAnnotation} from '../annotationTypes.ts';
+import {
+    AnnotationOptions,
+    AnnotationType,
+    AssetAnnotation,
+} from '../annotationTypes.ts';
 import {DrawingHandler, OnResizeEvent} from '../events.ts';
-import {getResizeCircleCoords, isPointInCircle} from "./circle.ts";
-import {drawLine as baseDrawLine} from "./line.ts";
+import {getResizeCircleCoords, isPointInCircle} from './circle.ts';
+import {drawLine as baseDrawLine} from './line.ts';
 
 export function createLineAnnotationHandler(
     drawLine: typeof baseDrawLine,
-    annotationType: AnnotationType,
+    annotationType: AnnotationType
 ): DrawingHandler {
     return {
         onDrawStart: ({x, y, drawContext, options}) => {
-            drawLine(drawContext, {
-                x1: x,
-                y1: y,
-                x2: x,
-                y2: y,
-            }, options);
+            drawLine(
+                drawContext,
+                {
+                    x1: x,
+                    y1: y,
+                    x2: x,
+                    y2: y,
+                },
+                options
+            );
         },
         onDrawMove: ({
             clear,
@@ -25,13 +33,15 @@ export function createLineAnnotationHandler(
             options,
         }) => {
             clear();
-            drawLine(drawContext, {
+            drawLine(
+                drawContext,
+                {
                     x1: x,
                     y1: y,
                     x2: mX,
                     y2: mY,
                 },
-                options,
+                options
             );
         },
         onDrawEnd: ({
@@ -74,8 +84,7 @@ export function createLineAnnotationHandler(
                 selected
             );
         },
-        onTerminate: () => {
-        },
+        onTerminate: () => {},
         getResizeHandler: ({annotation, toX, toY, x, y, drawContext}) => {
             if (
                 isPointInCircle(
@@ -115,10 +124,11 @@ export function createLineAnnotationHandler(
                 };
             }
         },
-        toOptions: ({c, s}, {toX}) => ({
-            color: c,
-            size: toX(s),
-        } as AnnotationOptions),
+        toOptions: ({c, s}, {toX}) =>
+            ({
+                color: c,
+                size: toX(s),
+            }) as AnnotationOptions,
         fromOptions: (options, annotation, {relativeX}) => ({
             ...annotation,
             c: options.color,
@@ -132,22 +142,25 @@ export function createLineAnnotationHandler(
                 h: toY(Math.abs(y1 - y2)),
             };
         },
-        getMoveHandler: () => ({
-            annotation,
-            deltaX,
-            deltaY,
-            relativeY,
-            relativeX,
-        }: OnResizeEvent): AssetAnnotation => {
-            return {
-                ...annotation,
-                x1: annotation.x1 + relativeX(deltaX),
-                x2: annotation.x2 + relativeX(deltaX),
-                y1: annotation.y1 + relativeY(deltaY),
-                y2: annotation.y2 + relativeY(deltaY),
-            }
-        },
+        getMoveHandler:
+            () =>
+            ({
+                annotation,
+                deltaX,
+                deltaY,
+                relativeY,
+                relativeX,
+            }: OnResizeEvent): AssetAnnotation => {
+                return {
+                    ...annotation,
+                    x1: annotation.x1 + relativeX(deltaX),
+                    x2: annotation.x2 + relativeX(deltaX),
+                    y1: annotation.y1 + relativeY(deltaY),
+                    y2: annotation.y2 + relativeY(deltaY),
+                };
+            },
     };
 }
 
-export const LineAnnotationHandler: DrawingHandler = createLineAnnotationHandler(baseDrawLine, AnnotationType.Line);
+export const LineAnnotationHandler: DrawingHandler =
+    createLineAnnotationHandler(baseDrawLine, AnnotationType.Line);

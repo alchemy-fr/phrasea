@@ -1,9 +1,9 @@
-import {drawingHandlers, ToFunction} from "./events.ts";
-import React from "react";
-import {AssetAnnotation, SelectedAnnotationRef} from "./annotationTypes.ts";
-import {getZoomFromRef, ShapeControlRef, ZoomRef} from "./common.ts";
-import {drawRectangle} from "./shapes/rectangle.ts";
-import {controlsColor} from "./shapes/shapeCommon.ts";
+import {drawingHandlers, ToFunction} from './events.ts';
+import React from 'react';
+import {AssetAnnotation, SelectedAnnotationRef} from './annotationTypes.ts';
+import {getZoomFromRef, ShapeControlRef, ZoomRef} from './common.ts';
+import {drawRectangle} from './shapes/rectangle.ts';
+import {controlsColor} from './shapes/shapeCommon.ts';
 
 type Props = {
     canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
@@ -29,7 +29,8 @@ export function renderAnnotations({
         const parent = canvas.parentNode as HTMLDivElement;
         const {offsetWidth: width, offsetHeight: height} = parent;
 
-        const resolution = Math.min(devicePixelRatio, 4) * Math.min(zoomRef.current ?? 1, 3);
+        const resolution =
+            Math.min(devicePixelRatio, 4) * Math.min(zoomRef.current ?? 1, 3);
         canvas.width = width * resolution;
         canvas.height = height * resolution;
         canvas.style.width = width + 'px';
@@ -59,15 +60,19 @@ export function renderAnnotations({
                 const handler = drawingHandlers[annotation.type];
                 if (handler) {
                     context.globalAlpha = 1;
-                    const isSelected = selected && selected.id === annotation.id;
+                    const isSelected =
+                        selected && selected.id === annotation.id;
                     const toX: ToFunction = x => x * width;
                     const toY: ToFunction = y => y * height;
-                    handler.drawAnnotation({
-                        drawContext,
-                        annotation,
-                        toX,
-                        toY,
-                    }, isSelected);
+                    handler.drawAnnotation(
+                        {
+                            drawContext,
+                            annotation,
+                            toX,
+                            toY,
+                        },
+                        isSelected
+                    );
 
                     if (isSelected) {
                         const boundingBox = handler.getBoundingBox({
@@ -98,7 +103,8 @@ export function renderAnnotations({
                                 finalX = 0;
                             }
                             if (finalY < 0) {
-                                finalY = boundingBox.y + boundingBox.h + padding;
+                                finalY =
+                                    boundingBox.y + boundingBox.h + padding;
                             }
                             if (finalX + offsetWidth > width) {
                                 finalX = width - offsetWidth;
@@ -106,8 +112,11 @@ export function renderAnnotations({
 
                             controls.style.top = finalY + 'px';
                             controls.style.left = finalX + 'px';
-                            const selectedAnnotation = annotations!.find(a => a.id === selectedAnnotationRef!.current!.id)!;
-                            controls.querySelector('.shape-name')!.textContent = selectedAnnotation.name ?? '';
+                            const selectedAnnotation = annotations!.find(
+                                a => a.id === selectedAnnotationRef!.current!.id
+                            )!;
+                            controls.querySelector('.shape-name')!.textContent =
+                                selectedAnnotation.name ?? '';
                         }
 
                         drawRectangle(drawContext, boundingBox, {

@@ -4,7 +4,7 @@ import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
 import React, {useRef} from 'react';
 import FileToolbar from './FileToolbar.tsx';
 
-import {AssetAnnotationHandle} from "../Annotations/common.ts";
+import {AssetAnnotationHandle} from '../Annotations/common.ts';
 
 type Props = {
     file: File;
@@ -33,22 +33,22 @@ export default function ImagePlayer({
         annotationsOverlayRef.current?.render();
     }, [file]);
 
-    const img = <img
-        style={{
-            maxWidth: '100%',
-            maxHeight: '100%',
-            display: 'block',
-            ...(isSvg ? {width: '100%'} : {}),
-        }}
-        crossOrigin="anonymous"
-        src={file.url}
-        alt={title}
-        onLoad={pOnLoad}
-    />
+    const img = (
+        <img
+            style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                display: 'block',
+                ...(isSvg ? {width: '100%'} : {}),
+            }}
+            crossOrigin="anonymous"
+            src={file.url}
+            alt={title}
+            onLoad={pOnLoad}
+        />
+    );
 
-    if (!annotationsControl
-    || !annotations
-    || !zoomEnabled) {
+    if (!annotationsControl || !annotations || !zoomEnabled) {
         return img;
     }
 

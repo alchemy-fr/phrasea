@@ -1,7 +1,7 @@
-import React from "react";
-import {annotationZIndex} from "./common.ts";
-import {Box, IconButton, Paper, TextField} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
+import React from 'react';
+import {annotationZIndex} from './common.ts';
+import {Box, IconButton, Paper, TextField} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {useTranslation} from 'react-i18next';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
@@ -21,79 +21,103 @@ export default function ShapeControl({
     const {t} = useTranslation();
     const [name, setName] = React.useState<string | undefined>();
 
-    return <div
-        ref={elementRef}
-        style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            zIndex: annotationZIndex + 2,
-            userSelect: 'none',
-            display: 'none',
-            transformOrigin: 'top left',
-        }}
-    >
-        <Paper style={{
-            whiteSpace: 'nowrap',
-        }}>
-            <IconButton
-                onClick={onDuplicate}
-            >
-                <ContentCopyIcon/>
-            </IconButton>
-            <IconButton
-                onClick={() => {
-                    if (window.confirm(t('annotations.delete_shape.confirm', 'Are you sure you want to delete this shape?'))) {
-                        onDelete();
-                    }
+    return (
+        <div
+            ref={elementRef}
+            style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                zIndex: annotationZIndex + 2,
+                userSelect: 'none',
+                display: 'none',
+                transformOrigin: 'top left',
+            }}
+        >
+            <Paper
+                style={{
+                    whiteSpace: 'nowrap',
                 }}
-                color={'error'}
             >
-                <DeleteIcon/>
-            </IconButton>
+                <IconButton onClick={onDuplicate}>
+                    <ContentCopyIcon />
+                </IconButton>
+                <IconButton
+                    onClick={() => {
+                        if (
+                            window.confirm(
+                                t(
+                                    'annotations.delete_shape.confirm',
+                                    'Are you sure you want to delete this shape?'
+                                )
+                            )
+                        ) {
+                            onDelete();
+                        }
+                    }}
+                    color={'error'}
+                >
+                    <DeleteIcon />
+                </IconButton>
 
-            <Box
-                sx={{
-                    p: 1,
-                    display: 'inline-block',
-                }}>
                 <Box
-                    className="shape-name"
-                    onClick={(e) => {
-                        setName((e.target as HTMLDivElement).textContent ?? '');
-                    }}
                     sx={{
-                        display: name === undefined ? 'block' : 'none',
-                    }}/>
-                {name !== undefined && <Box
-                    onClick={(e) => {
-                        setName((e.target as HTMLDivElement).textContent ?? '');
-                    }}
-                    sx={{
+                        p: 1,
                         display: 'inline-block',
-                        my: -1,
-                    }}>
-                    <TextField
-                        size={'small'}
-                        required={true}
-                        variant={'standard'}
-                        error={name.trim().length === 0}
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' && name.trim().length > 0) {
-                                e.preventDefault();
-                                onRename((e.target as HTMLInputElement).value);
-                                setName(undefined);
-                            }
+                    }}
+                >
+                    <Box
+                        className="shape-name"
+                        onClick={e => {
+                            setName(
+                                (e.target as HTMLDivElement).textContent ?? ''
+                            );
                         }}
-                        onBlur={() => {
-                            setName(undefined);
+                        sx={{
+                            display: name === undefined ? 'block' : 'none',
                         }}
-                        autoFocus
                     />
-                </Box>}
-            </Box>
-        </Paper>
-    </div>
+                    {name !== undefined && (
+                        <Box
+                            onClick={e => {
+                                setName(
+                                    (e.target as HTMLDivElement).textContent ??
+                                        ''
+                                );
+                            }}
+                            sx={{
+                                display: 'inline-block',
+                                my: -1,
+                            }}
+                        >
+                            <TextField
+                                size={'small'}
+                                required={true}
+                                variant={'standard'}
+                                error={name.trim().length === 0}
+                                value={name}
+                                onChange={e => setName(e.target.value)}
+                                onKeyDown={e => {
+                                    if (
+                                        e.key === 'Enter' &&
+                                        name.trim().length > 0
+                                    ) {
+                                        e.preventDefault();
+                                        onRename(
+                                            (e.target as HTMLInputElement).value
+                                        );
+                                        setName(undefined);
+                                    }
+                                }}
+                                onBlur={() => {
+                                    setName(undefined);
+                                }}
+                                autoFocus
+                            />
+                        </Box>
+                    )}
+                </Box>
+            </Paper>
+        </div>
+    );
 }

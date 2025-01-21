@@ -9,9 +9,9 @@ import {DrawAnnotationHandler} from './shapes/DrawAnnotationHandler.ts';
 import {RectAnnotationHandler} from './shapes/RectAnnotationHandler.ts';
 import {TargetAnnotationHandler} from './shapes/TargetAnnotationHandler.ts';
 import {CircleAnnotationHandler} from './shapes/CircleAnnotationHandler.ts';
-import {LineAnnotationHandler} from "./shapes/LineAnnotationHandler.ts";
-import {ArrowAnnotationHandler} from "./shapes/ArrowAnnotationHandler.ts";
-import {TextAnnotationHandler} from "./shapes/TextAnnotationHandler.ts";
+import {LineAnnotationHandler} from './shapes/LineAnnotationHandler.ts';
+import {ArrowAnnotationHandler} from './shapes/ArrowAnnotationHandler.ts';
+import {TextAnnotationHandler} from './shapes/TextAnnotationHandler.ts';
 
 export type StartingPoint = Point;
 
@@ -43,12 +43,13 @@ type TerminateProps = {
     terminate: Terminate;
     relativeX: ToFunction;
     relativeY: ToFunction;
-}
+};
 
 type OnEndDrawingEvent = {
     deltaX: number;
     deltaY: number;
-} & TerminateProps & Point &
+} & TerminateProps &
+    Point &
     BaseEvent;
 
 type OnTerminateEvent = {
@@ -65,7 +66,7 @@ type OnTerminate = (event: OnTerminateEvent) => void;
 export type DrawContext = {
     context: CanvasRenderingContext2D;
     zoom: number;
-}
+};
 
 type DrawAnnotationProps = {
     annotation: AssetAnnotation;
@@ -102,12 +103,12 @@ export type GetBoundingBoxProps = {
     options: AnnotationOptions;
     toX: ToFunction;
     toY: ToFunction;
-}
+};
 
 type OnRenameEvent = {
     annotation: AssetAnnotation;
     newName: string;
-}
+};
 
 export type DrawingHandler = {
     onDrawStart: OnStartDrawing;
@@ -115,20 +116,27 @@ export type DrawingHandler = {
     onDrawEnd: OnEndDrawing;
     onTerminate: OnTerminate;
     drawAnnotation: (props: DrawAnnotationProps, selected?: boolean) => void;
-    toOptions: (annotation: AssetAnnotation, helpers: {
-        toX: ToFunction,
-        toY: ToFunction,
-    }) => AnnotationOptions;
-    fromOptions: (options: AnnotationOptions, annotation: AssetAnnotation, helpers: {
-        relativeX: ToFunction;
-        relativeY: ToFunction;
-    }) => AssetAnnotation;
+    toOptions: (
+        annotation: AssetAnnotation,
+        helpers: {
+            toX: ToFunction;
+            toY: ToFunction;
+        }
+    ) => AnnotationOptions;
+    fromOptions: (
+        options: AnnotationOptions,
+        annotation: AssetAnnotation,
+        helpers: {
+            relativeX: ToFunction;
+            relativeY: ToFunction;
+        }
+    ) => AssetAnnotation;
     getBoundingBox: (props: GetBoundingBoxProps) => {
         x: number;
         y: number;
         w: number;
         h: number;
-    },
+    };
     getResizeHandler: (
         props: PointInsideProps
     ) => AnnotationResizeHandler | undefined;

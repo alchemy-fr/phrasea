@@ -1,6 +1,15 @@
 import AnnotateWrapper from '../Annotations/AnnotateWrapper.tsx';
-import {MutableRefObject, useCallback, useEffect, useRef, useState} from 'react';
-import {AnnotationsControl, AssetAnnotation,} from '../Annotations/annotationTypes.ts';
+import {
+    MutableRefObject,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
+import {
+    AnnotationsControl,
+    AssetAnnotation,
+} from '../Annotations/annotationTypes.ts';
 import ZoomControls from './ZoomControls.tsx';
 import {TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch';
 import {Box, IconButton} from '@mui/material';
@@ -8,7 +17,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import {filePlayerRelativeWrapperClassName, ZoomStepState} from './index.ts';
 import ToolbarPaper from './ToolbarPaper.tsx';
-import {AssetAnnotationHandle} from "../Annotations/common.ts";
+import {AssetAnnotationHandle} from '../Annotations/common.ts';
 
 type Props = {
     annotationEnabled?: boolean;
@@ -21,9 +30,9 @@ type Props = {
     forceHand?: boolean;
     children:
         | ((props: {
-        annotationsWrapperRef: MutableRefObject<AssetAnnotationHandle | null>;
-        zoomStep: ZoomStepState;
-    }) => JSX.Element)
+              annotationsWrapperRef: MutableRefObject<AssetAnnotationHandle | null>;
+              zoomStep: ZoomStepState;
+          }) => JSX.Element)
         | JSX.Element;
 };
 
@@ -48,19 +57,25 @@ export default function FileToolbar({
         maxReached: 1,
     });
 
-    const increaseZoomStep = useCallback((step: number): void => {
-        setZoomStep(p => {
-            const current = step < 1 ? Math.ceil(step * 10) / 10 : Math.min(Math.ceil(step), 10);
-            if (current === p.current) {
-                return p;
-            }
+    const increaseZoomStep = useCallback(
+        (step: number): void => {
+            setZoomStep(p => {
+                const current =
+                    step < 1
+                        ? Math.ceil(step * 10) / 10
+                        : Math.min(Math.ceil(step), 10);
+                if (current === p.current) {
+                    return p;
+                }
 
-            return ({
-                current,
-                maxReached: Math.max(p.maxReached, current),
+                return {
+                    current,
+                    maxReached: Math.max(p.maxReached, current),
+                };
             });
-        });
-    }, [setZoomStep]);
+        },
+        [setZoomStep]
+    );
 
     useEffect(() => {
         setZoomStep({
@@ -103,10 +118,8 @@ export default function FileToolbar({
                 zoomRef={zoomRef}
             >
                 {({canvas, annotationActive, toolbar}) => {
-                    const disabled = !controls ||
-                        !zoomEnabled ||
-                        closed ||
-                        !hand;
+                    const disabled =
+                        !controls || !zoomEnabled || closed || !hand;
 
                     return (
                         <TransformWrapper
@@ -127,7 +140,9 @@ export default function FileToolbar({
                                     annotationActive={annotationActive}
                                     sx={theme => ({
                                         bottom: theme.spacing(2),
-                                        left: !closed ? '50%' : theme.spacing(2),
+                                        left: !closed
+                                            ? '50%'
+                                            : theme.spacing(2),
                                         transform: !closed
                                             ? 'translateX(-50%)'
                                             : undefined,
@@ -156,9 +171,9 @@ export default function FileToolbar({
                                             onClick={() => setClosed(p => !p)}
                                         >
                                             {closed ? (
-                                                <MenuOpenIcon/>
+                                                <MenuOpenIcon />
                                             ) : (
-                                                <CloseIcon/>
+                                                <CloseIcon />
                                             )}
                                         </IconButton>
                                     </Box>
@@ -179,7 +194,10 @@ export default function FileToolbar({
                                 >
                                     {canvas}
                                     {typeof children === 'function'
-                                        ? children({annotationsWrapperRef, zoomStep})
+                                        ? children({
+                                              annotationsWrapperRef,
+                                              zoomStep,
+                                          })
                                         : children}
                                 </div>
                             </TransformComponent>

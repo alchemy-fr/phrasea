@@ -8,18 +8,18 @@ import {
     SelectedAnnotationRef,
 } from './annotationTypes.ts';
 import {bindEditCanvas} from './editCanvas.ts';
-import {StateSetter} from "../../../../types.ts";
-import {renderAnnotations} from "./renderAnnotation.ts";
-import {getZoomFromRef, ShapeControlRef, ZoomRef} from "./common.ts";
+import {StateSetter} from '../../../../types.ts';
+import {renderAnnotations} from './renderAnnotation.ts';
+import {getZoomFromRef, ShapeControlRef, ZoomRef} from './common.ts';
 
-export type  CommonAnnotationDrawProps = {
+export type CommonAnnotationDrawProps = {
     annotations: AssetAnnotation[] | undefined;
     canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
     selectedAnnotationRef: SelectedAnnotationRef;
     setAnnotationOptions: StateSetter<AnnotationOptions>;
     spaceRef: React.MutableRefObject<boolean>;
     zoomRef: ZoomRef;
-}
+};
 
 type Props = {
     annotationsControl: AnnotationsControl | undefined;
@@ -139,8 +139,7 @@ export function useAnnotationDraw({
                     options: annotationOptions,
                     data: dataRef.current!,
                     drawContext,
-                    onNewAnnotation: () => {
-                    },
+                    onNewAnnotation: () => {},
                     canvas,
                     startingPoint: startingPoint.current!,
                     relativeX,
@@ -266,5 +265,12 @@ export function useAnnotationDraw({
                 shapeControlRef,
             });
         }
-    }, [canvasRef, mode, annotationOptions, annotationsControl, annotations, page]);
+    }, [
+        canvasRef,
+        mode,
+        annotationOptions,
+        annotationsControl,
+        annotations,
+        page,
+    ]);
 }

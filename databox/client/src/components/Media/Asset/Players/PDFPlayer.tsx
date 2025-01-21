@@ -121,17 +121,24 @@ export default function PDFPlayer({
                         backgroundColor: '#FFF',
                     }}
                 >
-                    <Document
-                        file={file.url}
-                        onLoadSuccess={onDocLoad}
-                    >
+                    <Document file={file.url} onLoadSuccess={onDocLoad}>
                         {ratio ? (
                             <>
                                 <Page
                                     {...pdfDimensions}
                                     key={pageNumber}
                                     pageNumber={pageNumber}
-                                    devicePixelRatio={window.devicePixelRatio * Math.min(zoomStep.maxReached * Math.max(1, Math.ceil(ratio / 3)), 8)}
+                                    devicePixelRatio={
+                                        window.devicePixelRatio *
+                                        Math.min(
+                                            zoomStep.maxReached *
+                                                Math.max(
+                                                    1,
+                                                    Math.ceil(ratio / 3)
+                                                ),
+                                            8
+                                        )
+                                    }
                                     loading={
                                         <div
                                             style={{

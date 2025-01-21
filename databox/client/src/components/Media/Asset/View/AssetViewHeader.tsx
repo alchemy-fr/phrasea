@@ -42,9 +42,11 @@ function AssetViewHeader({
             alignItems={'center'}
         >
             <AssetViewNavigation state={state} currentId={asset.id} />
-            <div style={{
-                flexShrink: 1,
-            }}>
+            <div
+                style={{
+                    flexShrink: 1,
+                }}
+            >
                 <Trans
                     i18nKey={'asset_view.edit_asset'}
                     values={{
