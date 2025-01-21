@@ -24,7 +24,8 @@ import {
     AssetAnnotation,
 } from '../Annotations/annotationTypes.ts';
 import AssetViewHeader from './AssetViewHeader.tsx';
-import {annotationZIndex} from '../Annotations/AnnotateWrapper.tsx';
+
+import {annotationZIndex} from "../Annotations/common.ts";
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;

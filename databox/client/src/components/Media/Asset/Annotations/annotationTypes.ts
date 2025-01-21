@@ -9,6 +9,9 @@ export enum AnnotationType {
     Point = 'point',
     Draw = 'draw',
     Circle = 'circle',
+    Line = 'line',
+    Arrow = 'arrow',
+    Text = 'text',
     Rect = 'rect',
     Cue = 'cue',
     TimeRange = 'time_range',
@@ -27,6 +30,17 @@ export interface PointAnnotation extends AssetAnnotation {
     type: AnnotationType.Point;
     x: number;
     y: number;
+    c?: string; // Color
+    s?: number; // Size
+    page?: number;
+}
+
+export interface LineAnnotation extends AssetAnnotation {
+    type: AnnotationType.Point;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
     c?: string; // Color
     s?: number; // Size
     page?: number;
@@ -65,6 +79,15 @@ export interface DrawAnnotation extends AssetAnnotation {
     paths: Point[][];
     c?: string; // Color
     s?: number; // Line width
+}
+
+export interface TextAnnotation extends AssetAnnotation {
+    type: AnnotationType.Text;
+    x: number;
+    y: number;
+    text: string;
+    c?: string; // Color
+    s?: number; // Text size
 }
 
 export interface CueAnnotation extends AssetAnnotation {

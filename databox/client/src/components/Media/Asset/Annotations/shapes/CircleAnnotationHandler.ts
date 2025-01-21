@@ -1,6 +1,6 @@
 import {AnnotationOptions, AnnotationType} from '../annotationTypes.ts';
 import {DrawingHandler} from '../events.ts';
-import {drawCircle, getMoveCircleCoords, getResizeCircleCoords, isPointInCircle} from "./circle.ts";
+import {drawCircle, getMoveCircleCoordsInCircle, getResizeCircleCoords, isPointInCircle} from "./circle.ts";
 
 function getRadius(deltaX: number, deltaY: number) {
     return Math.abs(
@@ -11,8 +11,8 @@ function getRadius(deltaX: number, deltaY: number) {
 }
 
 export const CircleAnnotationHandler: DrawingHandler = {
-    onDrawStart: ({x, y, context, options}) => {
-        drawCircle(context, {
+    onDrawStart: ({x, y, drawContext, options}) => {
+        drawCircle(drawContext, {
             x,
             y,
             radius: 3,
@@ -21,14 +21,14 @@ export const CircleAnnotationHandler: DrawingHandler = {
     onDrawMove: ({
         clear,
         startingPoint: {x, y},
-        context,
+        drawContext,
         deltaX,
         deltaY,
         options,
     }) => {
         clear();
         const radius = getRadius(deltaX, deltaY);
-        drawCircle(context, {
+        drawCircle(drawContext, {
             x,
             y,
             radius,
@@ -57,11 +57,11 @@ export const CircleAnnotationHandler: DrawingHandler = {
         terminate();
     },
     drawAnnotation: (
-        {annotation: {x, y, r, c, s}, context, toX, toY},
+        {annotation: {x, y, r, c, s}, drawContext, toX, toY},
         selected
     ) => {
         drawCircle(
-            context,
+            drawContext,
             {
                 x: toX(x),
                 y: toY(y),
@@ -83,40 +83,40 @@ export const CircleAnnotationHandler: DrawingHandler = {
             radius: toX(annotation.r),
         });
     },
-    getResizeHandler: ({annotation, toX, toY, x, y}) => {
+    getResizeHandler: ({annotation, toX, toY, x, y, drawContext}) => {
         if (
             isPointInCircle(
                 x,
                 y,
-                getMoveCircleCoords({
+                getMoveCircleCoordsInCircle(drawContext, {
                     x: toX(annotation.x),
                     y: toY(annotation.y),
                     radius: toX(annotation.r),
                 })
             )
         ) {
-            return ({annotation, relativeX, relativeY, x, y}) => {
+            return ({annotation, relativeX, relativeY, deltaX, deltaY}) => {
                 return {
                     ...annotation,
-                    x: relativeX(x),
-                    y: relativeY(y),
+                    x: annotation.x + relativeX(deltaX),
+                    y: annotation.y + relativeY(deltaY),
                 };
             };
         } else if (
             isPointInCircle(
                 x,
                 y,
-                getResizeCircleCoords({
+                getResizeCircleCoords(drawContext, {
                     x: toX(annotation.x),
                     y: toY(annotation.y),
                     radius: toX(annotation.r),
                 })
             )
         ) {
-            return ({annotation, relativeX, x}) => {
+            return ({annotation, relativeX, deltaX}) => {
                 return {
                     ...annotation,
-                    r: Math.max(relativeX(x) - annotation.x, relativeX(3)),
+                    r: Math.max(annotation.r + relativeX(deltaX), relativeX(3)),
                 };
             };
         }

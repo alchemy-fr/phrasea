@@ -1,29 +1,31 @@
-import {AnnotationOptions, AssetAnnotation, OnUpdateAnnotation, SelectedAnnotationRef} from './annotationTypes.ts';
-import {drawingHandlers, OnResizeEvent} from './events.ts';
-import {renderAnnotations} from "./useAnnotationRender.tsx";
-import {StateSetter} from "../../../../types.ts";
+import {AssetAnnotation, OnUpdateAnnotation} from './annotationTypes.ts';
+import {DrawContext, drawingHandlers, OnResizeEvent, StartingPoint, ToFunction} from './events.ts';
+import {CommonAnnotationDrawProps} from "./useAnnotationDraw.ts";
+import {getZoomFromRef} from "./common.ts";
+import {MutableRefObject} from "react";
 
 type UnregisterFunction = () => void;
 
 type Props = {
-    annotations: AssetAnnotation[] | undefined;
-    canvas: HTMLCanvasElement;
     clear: () => void;
-    selectedAnnotationRef: SelectedAnnotationRef;
     onUpdate: OnUpdateAnnotation;
-    setAnnotationOptions: StateSetter<AnnotationOptions>;
-    zoomStep: number | undefined;
-};
+    previouslySelectedAnnotations: MutableRefObject<AssetAnnotation[]>;
+    startingPoint: MutableRefObject<StartingPoint | undefined>;
+} & CommonAnnotationDrawProps;
 
 export function bindEditCanvas({
     annotations,
-    canvas,
+    canvasRef,
     clear,
     selectedAnnotationRef,
     onUpdate,
     setAnnotationOptions,
-    zoomStep,
+    spaceRef,
+    zoomRef,
+    startingPoint,
+    previouslySelectedAnnotations,
 }: Props): UnregisterFunction {
+    const canvas = canvasRef.current!;
     const context = canvas.getContext('2d')!;
     const width = canvas.offsetWidth;
     const height = canvas.offsetHeight;
@@ -33,8 +35,29 @@ export function bindEditCanvas({
     const toX = (x: number) => x * width;
     const toY = (y: number) => y * height;
 
+    const drawContext = {
+        context,
+        zoom: getZoomFromRef(zoomRef),
+    };
+
+
+    const onDblClick = (e: MouseEvent) => {
+        if (!spaceRef.current) {
+            e.stopPropagation();
+        }
+    }
+
     const onMouseDown = (e: MouseEvent) => {
-        e.preventDefault();
+        if (!spaceRef.current) {
+            e.stopPropagation();
+        } else {
+            return;
+        }
+
+        startingPoint.current = {
+            x: e.offsetX,
+            y: e.offsetY,
+        };
 
         function initMouseListeners(): boolean {
             const annotation = annotations!.find(a => a.id === selectedAnnotationRef.current!.id!)!;
@@ -42,6 +65,7 @@ export function bindEditCanvas({
             let updatedAnnotation: AssetAnnotation | undefined;
 
             const resizeHandler = handler.getResizeHandler({
+                drawContext,
                 annotation,
                 toX,
                 toY,
@@ -56,7 +80,7 @@ export function bindEditCanvas({
                 clear();
                 handler.drawAnnotation(
                     {
-                        context,
+                        drawContext,
                         annotation,
                         toX,
                         toY,
@@ -67,14 +91,17 @@ export function bindEditCanvas({
                 const mouseMove = (e: MouseEvent) => {
                     const x = e.offsetX;
                     const y = e.offsetY;
+                    const st = startingPoint.current!;
 
                     updatedAnnotation = resizeHandler({
                         annotation,
-                        context,
+                        drawContext,
                         x,
                         y,
                         relativeX,
                         relativeY,
+                        deltaX: x - st.x,
+                        deltaY: y - st.y,
                     } as OnResizeEvent);
 
                     selectedAnnotationRef.current = updatedAnnotation;
@@ -106,41 +133,46 @@ export function bindEditCanvas({
             if (initMouseListeners()) {
                 return;
             }
+
+            if (previouslySelectedAnnotations.current.length > 20) {
+                previouslySelectedAnnotations.current.shift();
+            }
+            previouslySelectedAnnotations.current.push(selectedAnnotationRef.current);
+        } else {
+            previouslySelectedAnnotations.current = [];
         }
 
         selectedAnnotationRef.current = undefined;
 
-        for (const annotation of annotations ?? []) {
+        const {offsetX, offsetY} = e;
+        const annotation = getBestSelectionCandidate(
+            drawContext,
+            annotations,
+            previouslySelectedAnnotations,
+            offsetX,
+            offsetY,
+            toX,
+            toY,
+        );
+        if (annotation) {
+            selectedAnnotationRef.current = annotation;
+            clear();
+
             const handler = drawingHandlers[annotation.type]!;
-            const {offsetX, offsetY} = e;
-            if (
-                handler.isPointInside({
+            setAnnotationOptions(handler.toOptions(annotation, {
+                toX,
+                toY,
+            }));
+
+            handler.drawAnnotation(
+                {
+                    drawContext,
                     annotation,
-                    x: offsetX,
-                    y: offsetY,
                     toX,
                     toY,
-                })
-            ) {
-                selectedAnnotationRef.current = annotation;
-                clear();
-
-                setAnnotationOptions(handler.toOptions(annotation, {
-                    toX,
-                    toY,
-                }));
-
-                handler.drawAnnotation(
-                    {
-                        context,
-                        annotation,
-                        toX,
-                        toY,
-                    },
-                    true
-                );
-                break;
-            }
+                },
+                true
+            );
         }
 
         if (!selectedAnnotationRef.current) {
@@ -150,18 +182,51 @@ export function bindEditCanvas({
         }
     };
 
-    if (selectedAnnotationRef.current) {
-        renderAnnotations({
-            canvasRef: {current: canvas},
-            annotations: annotations,
-            selectedAnnotationRef,
-            zoomStep,
-        });
-    }
-
     canvas.addEventListener('mousedown', onMouseDown);
+    canvas.addEventListener('dblclick', onDblClick);
 
     return () => {
         canvas.removeEventListener('mousedown', onMouseDown);
+        canvas.removeEventListener('dblclick', onDblClick);
     };
+}
+
+function getBestSelectionCandidate(
+    drawContext: DrawContext,
+    annotations: AssetAnnotation[] | undefined,
+    previouslySelectedAnnotations: MutableRefObject<AssetAnnotation[]>,
+    offsetX: number,
+    offsetY: number,
+    toX: ToFunction,
+    toY: ToFunction,
+): AssetAnnotation | undefined {
+    const candidates = [];
+    for (const annotation of annotations ?? []) {
+        const handler = drawingHandlers[annotation.type]!;
+        if (
+            handler.isPointInside({
+                drawContext,
+                annotation,
+                x: offsetX,
+                y: offsetY,
+                toX,
+                toY,
+            })
+        ) {
+            if (!previouslySelectedAnnotations.current.includes(annotation)) {
+                return annotation;
+            } else {
+                candidates.push(annotation);
+            }
+        }
+    }
+
+    if (candidates.length > 0) {
+        const annotation = previouslySelectedAnnotations.current[0]!;
+        previouslySelectedAnnotations.current = [];
+
+        return annotation;
+    }
+
+    return
 }

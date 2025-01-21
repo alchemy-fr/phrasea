@@ -1,6 +1,7 @@
 import {AnnotationOptions} from "../annotationTypes.ts";
-import {drawCircleControl} from "./circle.ts";
+import {CircleProps, drawCircleControl} from "./circle.ts";
 import {controlsSize} from "./shapeCommon.ts";
+import {DrawContext} from "../events.ts";
 
 export type RectangleProps = {
     x: number;
@@ -9,38 +10,53 @@ export type RectangleProps = {
     h: number;
 }
 
+
+export function getMoveCircleCoordsInRectangle({zoom}: DrawContext, {x, y, w, h}: RectangleProps): CircleProps {
+    return {
+        x: x + w / 2,
+        y: y + h / 2,
+        radius: controlsSize / zoom,
+    };
+}
+
+
 export function drawRectangle(
-    context: CanvasRenderingContext2D,
+    drawContext: DrawContext,
     {
         x,
         y,
         w,
         h,
     }: RectangleProps,
-    options: AnnotationOptions, selected: boolean = false
+    options: AnnotationOptions,
+    selected: boolean = false,
+    resize: boolean = true
 ) {
     const a = new Path2D();
     a.rect(x, y, w, h);
+    const {context} = drawContext;
     context.strokeStyle = options.color;
     context.lineWidth = options.size;
     context.stroke(a);
 
     if (selected) {
-        drawCircleControl(context, {
+        drawCircleControl(drawContext, {
             x: x + w / 2,
             y: y + h / 2,
-            radius: controlsSize
+            radius: controlsSize / drawContext.zoom
         });
 
-        [0, 1].forEach((i) => {
-            [0, 1].forEach((j) => {
-                drawCircleControl(context, {
-                    x: x + w * i,
-                    y: y + h * j,
-                    radius: controlsSize
+        if (resize) {
+            [0, 1].forEach((i) => {
+                [0, 1].forEach((j) => {
+                    drawCircleControl(drawContext, {
+                        x: x + w * i,
+                        y: y + h * j,
+                        radius: controlsSize / drawContext.zoom
+                    });
                 });
             });
-        });
+        }
     }
 }
 

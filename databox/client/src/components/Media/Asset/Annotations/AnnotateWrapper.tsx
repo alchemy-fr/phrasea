@@ -1,11 +1,4 @@
-import React, {
-    forwardRef,
-    memo,
-    ReactNode,
-    useImperativeHandle,
-    useRef,
-    useState,
-} from 'react';
+import React, {forwardRef, memo, ReactNode, useEffect, useImperativeHandle, useRef, useState,} from 'react';
 import {useAnnotationDraw} from './useAnnotationDraw.ts';
 import {
     AnnotationOptions,
@@ -16,6 +9,9 @@ import {
 } from './annotationTypes.ts';
 import AnnotateToolbar from './AnnotateToolbar.tsx';
 import {useAnnotationRender} from './useAnnotationRender.tsx';
+import type {ZoomStepState} from "../Players";
+import type {AssetAnnotationHandle, ZoomRef} from "./common.ts";
+import {annotationZIndex} from "./common.ts";
 
 type Props = {
     annotationsControl?: AnnotationsControl | undefined;
@@ -28,13 +24,8 @@ type Props = {
         annotationActive: boolean;
         annotate: boolean;
     }) => JSX.Element;
-    zoomStep: number | undefined;
-};
-
-export const annotationZIndex = 100;
-
-export type AssetAnnotationHandle = {
-    render: () => void;
+    zoomStep: ZoomStepState;
+    zoomRef: ZoomRef;
 };
 
 export default memo(
@@ -45,11 +36,13 @@ export default memo(
             page,
             children,
             zoomStep,
+            zoomRef,
             annotations: initialAnnotations,
         }: Props,
         ref
     ) {
         const selectedAnnotationRef = useRef<AssetAnnotation | undefined>();
+        const spaceRef = useRef<boolean>(false);
         const canvasRef = useRef<HTMLCanvasElement | null>(null);
         const [mode, setMode] = useState<AnnotationType | undefined>(undefined);
         const [annotate, setAnnotate] = useState(false);
@@ -74,11 +67,38 @@ export default memo(
             setAnnotations(initialAnnotations);
         }, [annotate, initialAnnotations]);
 
+        useEffect(() => {
+            const onSpaceDown = (e: KeyboardEvent) => {
+                if (e.key === ' ') {
+                    spaceRef.current = true;
+                    e.stopPropagation();
+                    canvasRef.current?.style.setProperty('cursor', 'grab');
+                }
+            };
+            const onSpaceUp = (e: KeyboardEvent) => {
+                if (e.key === ' ') {
+                    spaceRef.current = false;
+                    e.stopPropagation();
+                    canvasRef.current?.style.setProperty('cursor', 'default');
+                }
+            };
+            window.addEventListener('keydown', onSpaceDown);
+            window.addEventListener('keyup', onSpaceUp);
+
+            return () => {
+                window.removeEventListener('keydown', onSpaceDown);
+                window.removeEventListener('keyup', onSpaceUp);
+            }
+        }, [spaceRef]);
+
+
         const {render} = useAnnotationRender({
             canvasRef,
             annotations,
             page,
             zoomStep,
+            zoomRef,
+            selectedAnnotationRef,
         });
 
         useImperativeHandle(ref, () => {
@@ -104,6 +124,8 @@ export default memo(
             setAnnotationOptions: setOptions,
             annotations,
             page,
+            spaceRef,
+            zoomRef,
         });
 
         return (
@@ -114,7 +136,7 @@ export default memo(
                             ref={canvasRef}
                             style={{
                                 cursor:
-                                    annotate && mode ? 'crosshair' : undefined,
+                                    annotate && mode ? 'crosshair' : 'default',
                                 position: 'absolute',
                                 top: 0,
                                 left: 0,

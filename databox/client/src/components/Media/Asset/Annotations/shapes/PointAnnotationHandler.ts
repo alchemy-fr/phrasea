@@ -1,5 +1,5 @@
 import {AnnotationOptions, AnnotationType, Point} from '../annotationTypes.ts';
-import {DrawingHandler} from '../events.ts';
+import {DrawContext, DrawingHandler} from '../events.ts';
 import {controlsSize} from "./shapeCommon.ts";
 import {drawCircle, drawCircleControl, isPointInCircle} from "./circle.ts";
 import {drawLine} from "./line.ts";
@@ -7,7 +7,7 @@ import {drawLine} from "./line.ts";
 const grow = 5;
 
 function drawPoint(
-    context: CanvasRenderingContext2D,
+    drawContext: DrawContext,
     {
         x,
         y,
@@ -15,7 +15,7 @@ function drawPoint(
     options: AnnotationOptions, selected: boolean = false
 ) {
     const size = options.size;
-    drawCircle(context, {
+    drawCircle(drawContext, {
         x,
         y,
         radius: size,
@@ -24,7 +24,7 @@ function drawPoint(
         size: size,
         fillColor: options.color,
     });
-    drawCircle(context, {
+    drawCircle(drawContext, {
         x,
         y,
         radius: size * grow,
@@ -41,7 +41,7 @@ function drawPoint(
         [0, 1],
         [0, -1],
     ]) {
-        drawLine(context, {
+        drawLine(drawContext, {
             x1: x + radius * cx,
             y1: y + radius * cy,
             x2: x + radius * cx + lineLength * cx,
@@ -53,28 +53,28 @@ function drawPoint(
     }
 
     if (selected) {
-        drawCircleControl(context, {
+        drawCircleControl(drawContext, {
             x,
             y,
-            radius: controlsSize,
+            radius: controlsSize / drawContext.zoom,
         });
     }
 }
 
 export const PointAnnotationHandler: DrawingHandler = {
-    onDrawStart: ({x, y, context, options}) => {
+    onDrawStart: ({x, y, drawContext, options}) => {
         drawPoint(
-            context,
+            drawContext,
             {
                 x,
                 y,
             },
             options,);
     },
-    onDrawMove: ({clear, context, x, y, options}) => {
+    onDrawMove: ({clear, drawContext, x, y, options}) => {
         clear();
         drawPoint(
-            context, {
+            drawContext, {
                 x,
                 y
             },
@@ -98,8 +98,8 @@ export const PointAnnotationHandler: DrawingHandler = {
         });
         terminate();
     },
-    drawAnnotation: ({annotation: {x, y, c, s}, context, toX, toY}, selected) => {
-        drawPoint(context,
+    drawAnnotation: ({annotation: {x, y, c, s}, drawContext, toX, toY}, selected) => {
+        drawPoint(drawContext,
             {
                 x: toX(x),
                 y: toY(y)
@@ -130,11 +130,11 @@ export const PointAnnotationHandler: DrawingHandler = {
                 }
             )
         ) {
-            return ({annotation, relativeX, relativeY, x, y}) => {
+            return ({annotation, relativeX, relativeY, deltaX, deltaY}) => {
                 return {
                     ...annotation,
-                    x: relativeX(x),
-                    y: relativeY(y),
+                    x: annotation.x + relativeX(deltaX),
+                    y: annotation.y + relativeY(deltaY),
                 };
             };
         }

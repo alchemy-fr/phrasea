@@ -36,6 +36,10 @@ export default function MessageForm({
     >([]);
 
     React.useEffect(() => {
+        setAttachments([]);
+    }, [threadKey]);
+
+    React.useEffect(() => {
         if (annotationsControlRef) {
             annotationsControlRef.current = {
                 onNew: (annotation: AssetAnnotation) => {
@@ -47,6 +51,18 @@ export default function MessageForm({
                         [AnnotationType.Draw]: t(
                             'annotation.type.draw',
                             'Draw'
+                        ),
+                        [AnnotationType.Line]: t(
+                            'annotation.type.line',
+                            'Line'
+                        ),
+                        [AnnotationType.Arrow]: t(
+                            'annotation.type.arrow',
+                            'Arrow'
+                        ),
+                        [AnnotationType.Text]: t(
+                            'annotation.type.text',
+                            'Text'
                         ),
                         [AnnotationType.Cue]: t('annotation.type.cue', 'Cue'),
                         [AnnotationType.Circle]: t(

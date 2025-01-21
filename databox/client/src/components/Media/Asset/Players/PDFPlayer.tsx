@@ -131,7 +131,7 @@ export default function PDFPlayer({
                                     {...pdfDimensions}
                                     key={pageNumber}
                                     pageNumber={pageNumber}
-                                    devicePixelRatio={window.devicePixelRatio * Math.max(zoomStep * Math.max(1, Math.ceil(ratio / 3)), 10)}
+                                    devicePixelRatio={window.devicePixelRatio * Math.min(zoomStep.maxReached * Math.max(1, Math.ceil(ratio / 3)), 8)}
                                     loading={
                                         <div
                                             style={{

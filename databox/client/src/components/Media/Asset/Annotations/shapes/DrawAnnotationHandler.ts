@@ -4,27 +4,28 @@ import {
     DrawAnnotation,
     Point,
 } from '../annotationTypes.ts';
-import {DrawingHandler} from '../events.ts';
+import {DrawContext, DrawingHandler} from '../events.ts';
 
 function init(
-    context: CanvasRenderingContext2D,
+    drawContext: DrawContext,
     options: AnnotationOptions,
     applyStyle: ApplyStyle | undefined
 ) {
+    const {context} = drawContext;
     context.lineWidth = options.size;
     context.strokeStyle = options.color;
     context.lineJoin = 'round';
     context.lineCap = 'round';
     context.beginPath();
-    applyStyle?.(context);
+    applyStyle?.(drawContext);
 }
 
-type ApplyStyle = (context: CanvasRenderingContext2D) => void;
+type ApplyStyle = (drawContext: DrawContext) => void;
 
 export function createDrawAnnotationHandler(
     annotationType: AnnotationType,
     onPoint: (props: {
-        context: CanvasRenderingContext2D;
+        drawContext: DrawContext;
         point: Point;
         index: number;
         options: AnnotationOptions;
@@ -32,10 +33,10 @@ export function createDrawAnnotationHandler(
     applyStyle?: ApplyStyle
 ): DrawingHandler {
     return {
-        onDrawStart: ({context, x, y, data, options}) => {
-            init(context, options, applyStyle);
+        onDrawStart: ({drawContext, x, y, data, options}) => {
+            init(drawContext, options, applyStyle);
             onPoint({
-                context,
+                drawContext,
                 point: {
                     x,
                     y,
@@ -47,16 +48,16 @@ export function createDrawAnnotationHandler(
             data.paths ??= [];
             data.paths.push(data.points);
         },
-        onDrawMove: ({context, x, y, data, options}) => {
+        onDrawMove: ({drawContext, x, y, data, options}) => {
             if (x <= 0) {
                 x = 0;
             }
             if (y <= 0) {
                 y = 0;
             }
-            applyStyle?.(context);
+            applyStyle?.(drawContext);
             onPoint({
-                context,
+                drawContext,
                 point: {
                     x,
                     y,
@@ -66,8 +67,8 @@ export function createDrawAnnotationHandler(
             });
             data.points.push({x, y});
         },
-        onDrawEnd: ({context, terminate, data}) => {
-            context.closePath();
+        onDrawEnd: ({drawContext, terminate, data}) => {
+            drawContext.context.closePath();
 
             if (data.points.length === 1) {
                 data.paths.pop();
@@ -76,13 +77,13 @@ export function createDrawAnnotationHandler(
         },
         onTerminate: ({
             data,
-            context,
+            drawContext,
             onNewAnnotation,
             relativeX,
             relativeY,
             options,
         }) => {
-            context.closePath();
+            drawContext.context.closePath();
             if (data.paths.length > 0) {
                 onNewAnnotation({
                     type: annotationType,
@@ -99,17 +100,17 @@ export function createDrawAnnotationHandler(
                 });
             }
         },
-        drawAnnotation: ({annotation: {paths, c, s}, context, toX, toY}) => {
+        drawAnnotation: ({annotation: {paths, c, s}, drawContext, toX, toY}) => {
             const options = {
                 color: c,
                 size: toX(s),
             };
-            init(context, options, applyStyle);
+            init(drawContext, options, applyStyle);
 
             (paths as DrawAnnotation['paths']).forEach(path =>
                 path.forEach((point: Point, i) => {
                     onPoint({
-                        context,
+                        drawContext,
                         point: {
                             x: toX(point.x),
                             y: toY(point.y),
@@ -119,7 +120,7 @@ export function createDrawAnnotationHandler(
                     });
                 })
             );
-            context.closePath();
+            drawContext.context.closePath();
         },
         isPointInside: ({}) => false,
         getResizeHandler: () => undefined,
@@ -137,7 +138,8 @@ export function createDrawAnnotationHandler(
 
 export const DrawAnnotationHandler = createDrawAnnotationHandler(
     AnnotationType.Draw,
-    ({context, point, index}) => {
+    ({drawContext, point, index}) => {
+        const {context} = drawContext;
         if (index === 0) {
             context.moveTo(point.x, point.y);
         } else {

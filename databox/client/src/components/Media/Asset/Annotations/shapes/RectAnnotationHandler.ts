@@ -1,18 +1,18 @@
 import {AnnotationOptions, AnnotationType, RectangleAnnotation,} from '../annotationTypes.ts';
-import {DrawingHandler} from '../events.ts';
-import {drawRectangle, normalizeRectangleProps, RectangleProps} from "./rectangle.ts";
+import {DrawingHandler, OnResizeEvent} from '../events.ts';
+import {drawRectangle, getMoveCircleCoordsInRectangle, normalizeRectangleProps, RectangleProps} from "./rectangle.ts";
 import {isPointInCircle} from "./circle.ts";
 import {controlsSize} from "./shapeCommon.ts";
 
 
-function isPointInRectangle(x: number, y: number, {x: rx, y: ry, w, h}: RectangleProps) {
+export function isPointInRectangle(x: number, y: number, {x: rx, y: ry, w, h}: RectangleProps) {
     return x >= rx && x <= rx + w && y >= ry && y <= ry + h;
 }
 
 export const RectAnnotationHandler: DrawingHandler = {
-    onDrawStart: ({x, y, context, options}) => {
+    onDrawStart: ({x, y, drawContext, options}) => {
         drawRectangle(
-            context,
+            drawContext,
             {
                 x,
                 y,
@@ -24,7 +24,7 @@ export const RectAnnotationHandler: DrawingHandler = {
     },
     onDrawMove: ({
         clear,
-        context,
+        drawContext,
         startingPoint: {x, y},
         deltaY,
         deltaX,
@@ -32,7 +32,7 @@ export const RectAnnotationHandler: DrawingHandler = {
     }) => {
         clear();
         drawRectangle(
-            context,
+            drawContext,
             {
                 x,
                 y,
@@ -66,10 +66,10 @@ export const RectAnnotationHandler: DrawingHandler = {
         onNewAnnotation(props as RectangleAnnotation);
         terminate();
     },
-    drawAnnotation: ({annotation, context, toX, toY}, selected) => {
+    drawAnnotation: ({annotation, drawContext, toX, toY}, selected) => {
         const {x, y, w, h, c, s} = annotation;
         drawRectangle(
-            context,
+            drawContext,
             {
                 x: toX(x),
                 y: toY(y),
@@ -92,7 +92,7 @@ export const RectAnnotationHandler: DrawingHandler = {
             h: toY(annotation.h),
         });
     },
-    getResizeHandler: ({annotation, toX, toY, x, y}) => {
+    getResizeHandler: ({drawContext, annotation, toX, toY, x, y}) => {
         for (const [cx, cy] of [
             [0, 0],
             [1, 0],
@@ -102,19 +102,17 @@ export const RectAnnotationHandler: DrawingHandler = {
             if (isPointInCircle(x, y, {
                 x: toX(annotation.x + annotation.w * cx),
                 y: toY(annotation.y + annotation.h * cy),
-                radius: controlsSize,
+                radius: controlsSize / drawContext.zoom,
             })) {
-                return ({annotation, relativeX, relativeY, x, y}) => {
-                    const rX = relativeX(x);
-                    const rY = relativeY(y);
-                    const deltaX = rX - annotation.x;
-                    const deltaY = rY - annotation.y;
+                return ({annotation, relativeX, relativeY, deltaX, deltaY}: OnResizeEvent) => {
+                    const dX = relativeX(deltaX);
+                    const dY = relativeY(deltaY);
 
                     const xywh = {
-                        x: annotation.x + deltaX * (1 - cx),
-                        y: annotation.y + deltaY * (1 - cy),
-                        w: annotation.w - deltaX * (1 - cx) + (deltaX - annotation.w) * cx,
-                        h: annotation.h - deltaY * (1 - cy) + (deltaY - annotation.h) * cy,
+                        x: annotation.x + dX * (1 - cx),
+                        y: annotation.y + dY * (1 - cy),
+                        w: annotation.w - dX * (1 - cx) + dX * cx,
+                        h: annotation.h - dY * (1 - cy) + dY * cy,
                     };
 
                     return {
@@ -125,17 +123,17 @@ export const RectAnnotationHandler: DrawingHandler = {
             }
         }
 
-        if (isPointInCircle(x, y, {
-            x: toX(annotation.x + annotation.w / 2),
-            y: toY(annotation.y + annotation.h / 2),
-            radius: controlsSize,
-        })) {
-            console.log('x, y', x, y);
-            return ({annotation, relativeX, relativeY, x, y}) => {
+        if (isPointInCircle(x, y, getMoveCircleCoordsInRectangle(drawContext, {
+            x: toX(annotation.x),
+            y: toY(annotation.y),
+            h: toX(annotation.h),
+            w: toY(annotation.w),
+        }))) {
+            return ({annotation, relativeX, relativeY, deltaX, deltaY}) => {
                 return {
                     ...annotation,
-                    x: relativeX(x) - annotation.w / 2,
-                    y: relativeY(y) - annotation.h / 2,
+                    x: annotation.x + relativeX(deltaX),
+                    y: annotation.y + relativeY(deltaY),
                 };
             };
         }

@@ -3,6 +3,7 @@ import {AnnotationOptions, AnnotationsControl, AnnotationType, SelectedAnnotatio
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import Crop32Icon from '@mui/icons-material/Crop32';
 import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye';
+import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 import GestureIcon from '@mui/icons-material/Gesture';
 import {ColorPicker} from '@alchemy/react-form';
 import {StateSetter} from '../../../../types.ts';
@@ -10,6 +11,8 @@ import ToolbarPaper from '../Players/ToolbarPaper.tsx';
 import BrushIcon from '@mui/icons-material/Brush';
 import {drawingHandlers} from "./events.ts";
 import {MutableRefObject} from "react";
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
+import AbcIcon from '@mui/icons-material/Abc';
 
 function changeIfSelected(
     canvasRef: MutableRefObject<HTMLCanvasElement | null>,
@@ -82,6 +85,18 @@ export default function AnnotateToolbar({
                     <div>
                         <IconButton
                             color={
+                                mode === AnnotationType.Text
+                                    ? 'primary'
+                                    : 'default'
+                            }
+                            onClick={() => setMode(AnnotationType.Text)}
+                        >
+                            <AbcIcon/>
+                        </IconButton>
+                    </div>
+                    <div>
+                        <IconButton
+                            color={
                                 mode === AnnotationType.Point
                                     ? 'primary'
                                     : 'default'
@@ -113,6 +128,30 @@ export default function AnnotateToolbar({
                             onClick={() => setMode(AnnotationType.Circle)}
                         >
                             <PanoramaFishEyeIcon/>
+                        </IconButton>
+                    </div>
+                    <div>
+                        <IconButton
+                            color={
+                                mode === AnnotationType.Arrow
+                                    ? 'primary'
+                                    : 'default'
+                            }
+                            onClick={() => setMode(AnnotationType.Arrow)}
+                        >
+                            <ArrowRightAltIcon/>
+                        </IconButton>
+                    </div>
+                    <div>
+                        <IconButton
+                            color={
+                                mode === AnnotationType.Line
+                                    ? 'primary'
+                                    : 'default'
+                            }
+                            onClick={() => setMode(AnnotationType.Line)}
+                        >
+                            <HorizontalRuleIcon/>
                         </IconButton>
                     </div>
                     <div>

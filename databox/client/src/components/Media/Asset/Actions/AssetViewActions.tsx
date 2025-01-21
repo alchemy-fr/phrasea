@@ -34,6 +34,7 @@ export default function AssetViewActions({asset, file}: Props) {
         <>
             <Box
                 sx={{
+                    flexShrink: 0,
                     'zIndex': 1,
                     'position': 'relative',
                     'ml': 2,
