@@ -2,36 +2,66 @@ import React, {useRef} from 'react';
 import {drawingHandlers, StartingPoint} from './events.ts';
 import {
     AnnotationOptions,
+    AnnotationsControl,
     AnnotationType,
-    OnNewAnnotation,
+    AssetAnnotation,
+    SelectedAnnotationRef,
 } from './annotationTypes.ts';
+import {bindEditCanvas} from './editCanvas.ts';
+import {renderAnnotations} from './useAnnotationRender.tsx';
+import {StateSetter} from "../../../../types.ts";
 
 type Props = {
     canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
-    onNewAnnotation: OnNewAnnotation | undefined;
+    annotationsControl: AnnotationsControl | undefined;
+    selectedAnnotationRef: SelectedAnnotationRef;
     mode: AnnotationType | undefined;
     annotationOptions: AnnotationOptions;
+    setAnnotationOptions: StateSetter<AnnotationOptions>;
     onTerminate: () => void;
+    annotations: AssetAnnotation[] | undefined;
+    page?: number;
+    zoomStep?: number | undefined;
 };
 
 export function useAnnotationDraw({
     canvasRef,
-    onNewAnnotation,
+    annotationsControl,
     onTerminate: onTerminateProp,
     mode,
     annotationOptions,
+    setAnnotationOptions,
+    selectedAnnotationRef,
+    annotations,
+    page,
+    zoomStep,
 }: Props) {
     const startingPoint = useRef<StartingPoint | undefined>();
     const dataRef = useRef<object | undefined>();
 
     React.useEffect(() => {
-        if (
-            onNewAnnotation &&
-            mode &&
-            canvasRef.current &&
-            mode in drawingHandlers
-        ) {
-            const canvas = canvasRef.current;
+        if (!annotationsControl || !canvasRef.current) {
+            return;
+        }
+
+        if (mode) {
+            selectedAnnotationRef.current = undefined;
+        }
+
+        const canvas = canvasRef.current;
+        const context = canvas!.getContext('2d')!;
+        const clear = () => {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            renderAnnotations({
+                canvasRef,
+                annotations,
+                page,
+                selectedAnnotationRef: selectedAnnotationRef,
+                zoomStep,
+            });
+        };
+
+        if (mode && mode in drawingHandlers) {
             const parent = canvas.parentNode as HTMLDivElement;
             const {offsetWidth: width, offsetHeight: height} = parent;
             const relativeX = (x: number) => x / width;
@@ -39,15 +69,6 @@ export function useAnnotationDraw({
 
             const {onDrawStart, onDrawMove, onDrawEnd, onTerminate} =
                 drawingHandlers[mode];
-
-            const resolution = Math.max(devicePixelRatio, 2);
-            canvas.width = width * resolution;
-            canvas.height = height * resolution;
-            canvas.style.width = width + 'px';
-            canvas.style.height = height + 'px';
-
-            const context = canvas!.getContext('2d')!;
-            context.scale(resolution, resolution);
 
             const reset = () => {
                 canvas.removeEventListener('mousemove', onMouseMove);
@@ -78,8 +99,7 @@ export function useAnnotationDraw({
                     y,
                     deltaX: x - st.x,
                     deltaY: y - st.y,
-                    clear: () =>
-                        context.clearRect(0, 0, canvas.width, canvas.height),
+                    clear,
                 });
             };
 
@@ -88,11 +108,12 @@ export function useAnnotationDraw({
                     options: annotationOptions,
                     data: dataRef.current!,
                     context,
-                    onNewAnnotation,
+                    onNewAnnotation: annotationsControl.onNew,
                     canvas,
                     startingPoint: startingPoint.current!,
                     relativeX,
                     relativeY,
+                    clear,
                 });
                 onTerminateProp();
                 reset();
@@ -103,11 +124,13 @@ export function useAnnotationDraw({
                     options: annotationOptions,
                     data: dataRef.current!,
                     context,
-                    onNewAnnotation: () => {},
+                    onNewAnnotation: () => {
+                    },
                     canvas,
                     startingPoint: startingPoint.current!,
                     relativeX,
                     relativeY,
+                    clear,
                 });
                 onTerminateProp();
                 reset();
@@ -124,7 +147,7 @@ export function useAnnotationDraw({
                     options: annotationOptions,
                     data: dataRef.current!,
                     context,
-                    onNewAnnotation,
+                    onNewAnnotation: annotationsControl.onNew,
                     terminate: terminateHandler,
                     canvas,
                     startingPoint: st,
@@ -134,6 +157,7 @@ export function useAnnotationDraw({
                     deltaY: y - st.y,
                     relativeX,
                     relativeY,
+                    clear,
                 });
             };
 
@@ -193,6 +217,7 @@ export function useAnnotationDraw({
                     startingPoint: startingPoint.current!,
                     x,
                     y,
+                    clear,
                 });
 
                 canvas.addEventListener('mousemove', onMouseMove);
@@ -205,6 +230,16 @@ export function useAnnotationDraw({
                 canvas.removeEventListener('mousedown', onMouseDown);
                 reset();
             };
+        } else if (!mode) {
+            return bindEditCanvas({
+                canvas: canvasRef.current!,
+                annotations,
+                clear,
+                selectedAnnotationRef,
+                onUpdate: annotationsControl.onUpdate,
+                setAnnotationOptions,
+                zoomStep,
+            });
         }
-    }, [canvasRef, mode, annotationOptions]);
+    }, [canvasRef, mode, annotationOptions, annotationsControl, annotations, page]);
 }

@@ -56,7 +56,7 @@ final readonly class RenditionBuilder
             }
         }
 
-        if ($renditionDefinition->isPickSourceFile()) {
+        if (RenditionDefinition::BUILD_MODE_PICK_SOURCE === $renditionDefinition->getBuildMode()) {
             $this->renditionManager->createOrReplaceRenditionFile(
                 $asset,
                 $renditionDefinition,

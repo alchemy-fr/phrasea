@@ -18,6 +18,7 @@ type Props<D extends DefinitionBase> = {
     onItemUpdate: (data: D) => void;
     setSubmitting: StateSetter<boolean>;
     normalizeData?: NormalizeData<D>;
+    denormalizeData?: NormalizeData<D>;
 };
 
 export default function ItemForm<D extends DefinitionBase>({
@@ -29,6 +30,7 @@ export default function ItemForm<D extends DefinitionBase>({
     onItemUpdate,
     setSubmitting,
     normalizeData,
+    denormalizeData,
 }: Props<D>) {
     const {t} = useTranslation();
     const usedFormSubmit = useFormSubmit({
@@ -36,7 +38,9 @@ export default function ItemForm<D extends DefinitionBase>({
         onSubmit: async (data: D) => {
             setSubmitting(true);
             try {
-                const newData = await onSave(data);
+                const newData = await onSave(
+                    denormalizeData ? denormalizeData(data) : data
+                );
                 const n = normalizeData ? normalizeData(newData) : newData;
                 onItemUpdate(n);
 

@@ -19,12 +19,12 @@ import {useModalFetch} from '../../../../hooks/useModalFetch.ts';
 import {useChannelRegistration} from '../../../../lib/pusher.ts';
 import {queryClient} from '../../../../lib/query.ts';
 import AssetDiscussion from '../AssetDiscussion.tsx';
-import {annotationZIndex} from '../Annotations/AssetAnnotationsOverlay.tsx';
 import {
+    AnnotationsControl,
     AssetAnnotation,
-    OnNewAnnotation,
 } from '../Annotations/annotationTypes.ts';
 import AssetViewHeader from './AssetViewHeader.tsx';
+import {annotationZIndex} from '../Annotations/AnnotateWrapper.tsx';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -52,7 +52,7 @@ export default function AssetView({modalIndex, open}: Props) {
     const [annotations, setAnnotations] = React.useState<
         AssetAnnotation[] | undefined
     >();
-    const onNewAnnotationRef = React.useRef<OnNewAnnotation>();
+    const annotationsControlRef = React.useRef<AnnotationsControl>();
 
     const queryKey = ['assets', assetId];
 
@@ -104,20 +104,30 @@ export default function AssetView({modalIndex, open}: Props) {
         };
     }, [winSize]);
 
-    const onNewAnnotation: OnNewAnnotation = useCallback(
-        annotation => {
-            onNewAnnotationRef.current?.(annotation);
-        },
-        [onNewAnnotationRef, assetId]
-    );
+    const annotationsControl = useMemo(() => {
+        return {
+            onNew: annotation => {
+                annotationsControlRef.current?.onNew(annotation);
+            },
+            onUpdate: (previous, newAnnotation) => {
+                annotationsControlRef.current?.onUpdate(previous, newAnnotation);
+            },
+        } as AnnotationsControl;
+    }, [annotationsControlRef]);
 
-    const [asset, renditions] = (
-        isSuccess ? data : previousData.current ?? []
+    const [[asset, renditions], rendition] = (
+        isSuccess
+            ? [data, data[1].find(r => r.id === renditionId)!]
+            : previousData.current ?? [[], undefined]
     ) as DataTuple;
 
     React.useEffect(() => {
+        setAnnotations(undefined);
         if (data) {
-            previousData.current = data;
+            previousData.current = [
+                data,
+                data[1].find(r => r.id === renditionId)!,
+            ];
         }
     }, [data, previousData]);
 
@@ -128,8 +138,6 @@ export default function AssetView({modalIndex, open}: Props) {
 
         return <FullPageLoader />;
     }
-
-    const rendition = renditions.find(r => r.id === renditionId);
 
     return (
         <RouteDialog>
@@ -184,7 +192,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                 (!integrationOverlay ||
                                     !integrationOverlay.replace) && (
                                     <FilePlayer
-                                        onNewAnnotation={onNewAnnotation}
+                                        annotationsControl={annotationsControl}
                                         annotations={annotations}
                                         file={rendition.file}
                                         title={asset.title}
@@ -220,7 +228,7 @@ export default function AssetView({modalIndex, open}: Props) {
                             <AssetDiscussion
                                 asset={asset}
                                 onActiveAnnotations={onActiveAnnotations}
-                                onNewAnnotationRef={onNewAnnotationRef}
+                                annotationsControlRef={annotationsControlRef}
                             />
                             {rendition?.file ? (
                                 <FileIntegrations
@@ -240,4 +248,4 @@ export default function AssetView({modalIndex, open}: Props) {
     );
 }
 
-type DataTuple = [Asset, AssetRendition[]];
+type DataTuple = [[Asset, AssetRendition[]], AssetRendition];

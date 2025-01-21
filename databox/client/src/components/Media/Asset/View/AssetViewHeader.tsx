@@ -43,7 +43,7 @@ function AssetViewHeader({
                     values={{
                         name: asset.resolvedTitle,
                     }}
-                    defaults={'Edit asset <strong>{{name}}</strong>'}
+                    defaults={'Asset <strong>{{name}}</strong>'}
                 />
             </div>
             <Select<string>

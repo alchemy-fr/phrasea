@@ -6,6 +6,12 @@ type GetOptions = {
     workspaceIds?: string[];
 };
 
+export enum RenditionBuildMode {
+    NONE = 0,
+    PICK_SOURCE = 1,
+    CUSTOM = 2,
+}
+
 export const renditionClassNS = '/rendition-classes';
 export const renditionDefinitionNS = '/rendition-definitions';
 export const renditionNS = '/renditions';

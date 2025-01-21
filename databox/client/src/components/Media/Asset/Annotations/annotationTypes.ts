@@ -8,14 +8,16 @@ export type Point = {
 export enum AnnotationType {
     Point = 'point',
     Draw = 'draw',
-    Highlight = 'highlight',
     Circle = 'circle',
     Rect = 'rect',
     Cue = 'cue',
     TimeRange = 'time_range',
 }
 
+export type AnnotationId = string;
+
 export interface AssetAnnotation {
+    id?: AnnotationId;
     type: AnnotationType;
     name?: string;
     [prop: string]: any;
@@ -34,7 +36,7 @@ export interface CircleAnnotation extends AssetAnnotation {
     type: AnnotationType.Circle;
     x: number;
     y: number;
-    radius: number;
+    r: number;
     c?: string; // Border color
     f?: string; // Fill color
     s?: number; // Stroke size
@@ -43,15 +45,16 @@ export interface CircleAnnotation extends AssetAnnotation {
 
 export type AnnotationOptions = {
     color: string;
+    fillColor?: string;
     size: number;
 };
 
 export interface RectangleAnnotation extends AssetAnnotation {
     type: AnnotationType.Rect;
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
     c?: string; // Border color
     f?: string; // Fill color
     s?: number; // Stroke size
@@ -75,5 +78,19 @@ export interface TimeRangeAnnotation extends AssetAnnotation {
     e: number; // End time in seconds
 }
 
+export type AnnotationsControl = {
+    onNew: OnNewAnnotation;
+    onUpdate: OnUpdateAnnotation;
+};
+
+export type AnnotationsControlRef = MutableRefObject<
+    AnnotationsControl | undefined
+>;
+
+export type SelectedAnnotationRef = MutableRefObject<AssetAnnotation | undefined>;
+
 export type OnNewAnnotation = (annotation: AssetAnnotation) => void;
-export type OnNewAnnotationRef = MutableRefObject<OnNewAnnotation | undefined>;
+export type OnUpdateAnnotation = (
+    id: AnnotationId,
+    newAnnotation: AssetAnnotation
+) => AssetAnnotation;

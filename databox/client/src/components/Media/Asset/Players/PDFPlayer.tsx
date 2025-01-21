@@ -27,7 +27,7 @@ export default function PDFPlayer({
     dimensions: forcedDimensions,
     onLoad,
     annotations,
-    onNewAnnotation,
+    annotationsControl,
     zoomEnabled,
 }: Props) {
     const [ratio, setRatio] = useState<number>();
@@ -56,9 +56,13 @@ export default function PDFPlayer({
     useEffect(() => {
         if (annotations && annotations.length > 0) {
             const goTo = annotations[annotations.length - 1].page;
-            goTo && setPageNumber(goTo);
+            numPages &&
+                goTo &&
+                goTo > 0 &&
+                goTo <= numPages &&
+                setPageNumber(goTo);
         }
-    }, [annotations]);
+    }, [annotations, numPages]);
 
     const pageAnnotations: AssetAnnotation[] = useMemo(
         () => annotations?.filter(a => a.page === pageNumber) ?? [],
@@ -67,8 +71,9 @@ export default function PDFPlayer({
 
     return (
         <FileToolbar
+            key={file.id}
             controls={controls}
-            onNewAnnotation={onNewAnnotation}
+            annotationsControl={annotationsControl}
             annotations={
                 renderedPageNumber === pageNumber && pageAnnotations.length > 0
                     ? pageAnnotations
@@ -107,7 +112,7 @@ export default function PDFPlayer({
                 ) : undefined
             }
         >
-            {({annotationsOverlayRef}) => (
+            {({annotationsWrapperRef, zoomStep}) => (
                 <div
                     style={{
                         maxWidth: dimensions.width,
@@ -116,13 +121,17 @@ export default function PDFPlayer({
                         backgroundColor: '#FFF',
                     }}
                 >
-                    <Document file={file.url} onLoadSuccess={onDocLoad}>
+                    <Document
+                        file={file.url}
+                        onLoadSuccess={onDocLoad}
+                    >
                         {ratio ? (
                             <>
                                 <Page
                                     {...pdfDimensions}
                                     key={pageNumber}
                                     pageNumber={pageNumber}
+                                    devicePixelRatio={window.devicePixelRatio * Math.max(zoomStep * Math.max(1, Math.ceil(ratio / 3)), 10)}
                                     loading={
                                         <div
                                             style={{
@@ -141,7 +150,7 @@ export default function PDFPlayer({
                                     }
                                     onRenderSuccess={() => {
                                         setRenderedPageNumber(pageNumber);
-                                        annotationsOverlayRef.current?.render();
+                                        annotationsWrapperRef.current?.render();
                                     }}
                                 />
                             </>

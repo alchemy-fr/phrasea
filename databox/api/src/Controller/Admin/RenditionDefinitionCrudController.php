@@ -10,12 +10,14 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
@@ -46,7 +48,9 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
             ->add(BooleanFilter::new('useAsPreview'))
             ->add(BooleanFilter::new('useAsThumbnail'))
             ->add(BooleanFilter::new('useAsThumbnailActive', 'Thumb Active'))
-            ->add(BooleanFilter::new('pickSourceFile'))
+            ->add(ChoiceFilter::new('buildMode')
+                ->setChoices(RenditionDefinition::BUILD_MODE_CHOICES)
+            )
         ;
     }
 
@@ -62,14 +66,17 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
         ;
         yield BooleanField::new('substitutable')
             ->hideOnIndex();
-        yield BooleanField::new('pickSourceFile')
-            ->hideOnIndex();
+        yield ChoiceField::new('buildMode')
+            ->setChoices(RenditionDefinition::BUILD_MODE_CHOICES);
         yield TextareaField::new('definition')
             ->setRequired(false)
             ->hideOnIndex();
-        yield BooleanField::new('useAsOriginal');
-        yield BooleanField::new('useAsPreview');
-        yield BooleanField::new('useAsThumbnail');
+        yield BooleanField::new('useAsOriginal')
+            ->hideOnIndex();
+        yield BooleanField::new('useAsPreview')
+            ->hideOnIndex();
+        yield BooleanField::new('useAsThumbnail')
+            ->hideOnIndex();
         yield Field::new('useAsThumbnailActive', 'Thumb Active')
             ->hideOnIndex();
         yield IntegerField::new('priority');

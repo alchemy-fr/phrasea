@@ -42,10 +42,10 @@ class RenditionDefinitionInput
     public $download = null;
 
     /**
-     * @var bool
+     * @var int
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
-    public $pickSourceFile = null;
+    public $buildMode = null;
 
     /**
      * @var bool

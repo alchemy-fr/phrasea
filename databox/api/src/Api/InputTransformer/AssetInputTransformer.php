@@ -8,7 +8,7 @@ use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetRelationshipInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Asset\AssetManager;
-use App\Asset\OriginalRenditionManager;
+use App\Asset\PickSourceRenditionManager;
 use App\Consumer\Handler\File\CopyFileToAsset;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRelationship;
@@ -26,7 +26,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
     final public const string CONTEXT_CREATION_MICRO_TIME = 'micro_time';
 
     public function __construct(
-        private readonly OriginalRenditionManager $originalRenditionManager,
+        private readonly PickSourceRenditionManager $originalRenditionManager,
         private readonly AttributeInputTransformer $attributeInputProcessor,
         private readonly AssetManager $assetManager,
     ) {

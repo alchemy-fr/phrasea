@@ -5,11 +5,10 @@ import {
     OnNewAnnotation,
     Point,
 } from './annotationTypes.ts';
-import {DrawAnnotationHandler} from './DrawAnnotationHandler.ts';
-import {RectAnnotationHandler} from './RectAnnotationHandler.ts';
-import {PointAnnotationHandler} from './PointAnnotationHandler.ts';
-import {CircleAnnotationHandler} from './CircleAnnotationHandler.ts';
-import {HighlightAnnotationHandler} from './HighlightAnnotationHandler.ts';
+import {DrawAnnotationHandler} from './shapes/DrawAnnotationHandler.ts';
+import {RectAnnotationHandler} from './shapes/RectAnnotationHandler.ts';
+import {PointAnnotationHandler} from './shapes/PointAnnotationHandler.ts';
+import {CircleAnnotationHandler} from './shapes/CircleAnnotationHandler.ts';
 
 export type StartingPoint = Point;
 
@@ -21,6 +20,7 @@ type BaseEvent = {
     startingPoint: StartingPoint;
     data: any;
     options: AnnotationOptions;
+    clear: Clear;
 };
 
 type OnStartDrawingEvent = {} & Point & BaseEvent;
@@ -28,24 +28,25 @@ type OnStartDrawingEvent = {} & Point & BaseEvent;
 type OnDrawMoveEvent = {
     deltaX: number;
     deltaY: number;
-    clear: Clear;
 } & Point &
     BaseEvent;
+
+type ToFunction = (n: number) => number;
 
 type OnEndDrawingEvent = {
     deltaX: number;
     deltaY: number;
     onNewAnnotation: OnNewAnnotation;
     terminate: () => void;
-    relativeX: (x: number) => number;
-    relativeY: (y: number) => number;
+    relativeX: ToFunction;
+    relativeY: ToFunction;
 } & Point &
     BaseEvent;
 
 type OnTerminateEvent = {
     onNewAnnotation: OnNewAnnotation;
-    relativeX: (x: number) => number;
-    relativeY: (y: number) => number;
+    relativeX: ToFunction;
+    relativeY: ToFunction;
 } & BaseEvent;
 
 type OnStartDrawing = (event: OnStartDrawingEvent) => void;
@@ -56,16 +57,47 @@ type OnTerminate = (event: OnTerminateEvent) => void;
 type DrawAnnotationProps = {
     annotation: AssetAnnotation;
     context: CanvasRenderingContext2D;
-    toX: (relativeX: number) => number;
-    toY: (relativeY: number) => number;
+    toX: ToFunction;
+    toY: ToFunction;
 };
+
+type PointInsideProps = {
+    annotation: AssetAnnotation;
+    x: number;
+    y: number;
+    toX: ToFunction;
+    toY: ToFunction;
+};
+
+export type OnResizeEvent = {
+    annotation: AssetAnnotation;
+    context: CanvasRenderingContext2D;
+    x: number;
+    y: number;
+    relativeX: ToFunction;
+    relativeY: ToFunction;
+};
+
+export type AnnotationResizeHandler = (event: OnResizeEvent) => AssetAnnotation;
 
 export type DrawingHandler = {
     onDrawStart: OnStartDrawing;
     onDrawMove: OnDrawMove;
     onDrawEnd: OnEndDrawing;
     onTerminate: OnTerminate;
-    drawAnnotation: (props: DrawAnnotationProps) => void;
+    drawAnnotation: (props: DrawAnnotationProps, selected?: boolean) => void;
+    isPointInside: (props: PointInsideProps) => boolean;
+    toOptions: (annotation: AssetAnnotation, helpers: {
+        toX: ToFunction,
+        toY: ToFunction,
+    }) => AnnotationOptions;
+    fromOptions: (options: AnnotationOptions, annotation: AssetAnnotation, helpers: {
+        relativeX: ToFunction;
+        relativeY: ToFunction;
+    }) => AssetAnnotation;
+    getResizeHandler: (
+        props: PointInsideProps
+    ) => AnnotationResizeHandler | undefined;
 };
 
 export const drawingHandlers: Record<AnnotationType, DrawingHandler> = {
@@ -73,5 +105,4 @@ export const drawingHandlers: Record<AnnotationType, DrawingHandler> = {
     [AnnotationType.Point]: PointAnnotationHandler,
     [AnnotationType.Rect]: RectAnnotationHandler,
     [AnnotationType.Draw]: DrawAnnotationHandler,
-    [AnnotationType.Highlight]: HighlightAnnotationHandler,
 } as Record<AnnotationType, DrawingHandler>;

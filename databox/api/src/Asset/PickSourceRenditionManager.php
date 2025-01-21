@@ -11,9 +11,9 @@ use App\Entity\Core\RenditionDefinition;
 use App\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
 
-class OriginalRenditionManager
+readonly class PickSourceRenditionManager
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly RenditionManager $renditionManager)
+    public function __construct(private EntityManagerInterface $em, private RenditionManager $renditionManager)
     {
     }
 
@@ -25,7 +25,7 @@ class OriginalRenditionManager
         $originalRenditionDefinitions = $this->em->getRepository(RenditionDefinition::class)
             ->findBy([
                 'workspace' => $file->getWorkspace()->getId(),
-                'pickSourceFile' => true,
+                'buildMode' => RenditionDefinition::BUILD_MODE_PICK_SOURCE,
             ]);
 
         $renditions = [];

@@ -19,7 +19,6 @@ type Props<P extends Record<string, any>> = {
     tabs: TabItem<P>[];
     maxWidth?: Breakpoint | false;
     title?: ReactNode;
-    minHeight?: number | undefined;
 } & P;
 
 export default function TabbedDialog<P extends Record<string, any>>({
@@ -27,7 +26,6 @@ export default function TabbedDialog<P extends Record<string, any>>({
     routeParams,
     tabs,
     maxWidth,
-    minHeight,
     title,
     ...rest
 }: Props<P>) {
@@ -54,6 +52,11 @@ export default function TabbedDialog<P extends Record<string, any>>({
                     open={open}
                     fullWidth={true}
                     maxWidth={maxWidth}
+                    PaperProps={{
+                        style: {
+                            minHeight: 550,
+                        },
+                    }}
                 >
                     <AppDialogTitle onClose={closeModal}>
                         {title}
@@ -64,7 +67,7 @@ export default function TabbedDialog<P extends Record<string, any>>({
                         onTabChange={onChange}
                         onNoTab={onNoTab}
                         onClose={closeModal}
-                        minHeight={minHeight}
+                        minHeight={200}
                         {...rest}
                     />
                 </BootstrapDialog>

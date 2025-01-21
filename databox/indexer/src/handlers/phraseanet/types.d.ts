@@ -21,25 +21,18 @@ export type FieldMap = {
     attributeDefinition: AttributeDefinition;
 };
 
-export type ConfigPhraseanetSubdefBase = {
-    useAsThumbnail?: boolean;
-    useAsPreview?: boolean;
-    useAsOriginal?: boolean;
-    useAsThumbnailActive?: boolean;
-    pickSourceFile?: boolean;
-    class: string;
-};
-
-export type ConfigPhraseanetOriginal = ConfigPhraseanetSubdefBase & {
-    from: string;
-};
-
 export type ConfigRenditionBuilder = {
     from: string;
 };
 
-export type ConfigPhraseanetSubdef = ConfigPhraseanetSubdefBase & {
-    parent: string|null;
+export type ConfigPhraseanetSubdef = {
+    useAsThumbnail?: boolean;
+    useAsPreview?: boolean;
+    useAsOriginal?: boolean;
+    useAsThumbnailActive?: boolean;
+    buildMode?: number;
+    class?: string;
+    parent?: string|null;
     builders: Record<string, ConfigRenditionBuilder>;
 };
 
@@ -53,7 +46,7 @@ export type ConfigDataboxMapping = {
     storiesCollectionPath: string;
     fieldMap: Map<string, FieldMap>;
     sourceFile?: string;
-    renditions: Record<string, ConfigPhraseanetOriginal | ConfigPhraseanetSubdef> | false;
+    renditions: Record<string, ConfigPhraseanetSubdef> | false;
 };
 
 export type PhraseanetConfig = {

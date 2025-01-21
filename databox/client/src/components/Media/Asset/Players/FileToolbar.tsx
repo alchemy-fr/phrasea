@@ -1,11 +1,10 @@
-import AssetAnnotationsOverlay, {
+import AnnotateWrapper, {
     AssetAnnotationHandle,
-} from '../Annotations/AssetAnnotationsOverlay.tsx';
-import AnnotateWrapper from '../Annotations/AnnotateWrapper.tsx';
-import {MutableRefObject, useCallback, useRef, useState} from 'react';
+} from '../Annotations/AnnotateWrapper.tsx';
+import {MutableRefObject, useCallback, useEffect, useRef, useState} from 'react';
 import {
+    AnnotationsControl,
     AssetAnnotation,
-    OnNewAnnotation,
 } from '../Annotations/annotationTypes.ts';
 import ZoomControls from './ZoomControls.tsx';
 import {TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch';
@@ -18,7 +17,7 @@ import ToolbarPaper from './ToolbarPaper.tsx';
 type Props = {
     annotationEnabled?: boolean;
     zoomEnabled?: boolean;
-    onNewAnnotation?: OnNewAnnotation | undefined;
+    annotationsControl?: AnnotationsControl | undefined;
     annotations?: AssetAnnotation[] | undefined;
     page?: number;
     controls?: boolean | undefined;
@@ -26,7 +25,8 @@ type Props = {
     forceHand?: boolean;
     children:
         | ((props: {
-              annotationsOverlayRef: MutableRefObject<AssetAnnotationHandle | null>;
+              annotationsWrapperRef: MutableRefObject<AssetAnnotationHandle | null>;
+              zoomStep: number;
           }) => JSX.Element)
         | JSX.Element;
 };
@@ -35,17 +35,26 @@ export default function FileToolbar({
     annotations,
     annotationEnabled,
     zoomEnabled,
-    onNewAnnotation,
+    annotationsControl,
     children,
     page,
     controls,
     preToolbarActions,
     forceHand,
 }: Props) {
-    const annotationsOverlayRef = useRef<AssetAnnotationHandle | null>(null);
+    const annotationsWrapperRef = useRef<AssetAnnotationHandle | null>(null);
     const [closed, setClosed] = useState(false);
     const [hand, setHand] = useState(forceHand ?? false);
     const contentRef = useRef<HTMLDivElement | null>(null);
+    const scaleStepRate = 0.05;
+    const [zoomStep, setZoomStep] = useState<number>(1);
+
+    const increaseZoomStep = useCallback((step: number): void => {
+        setZoomStep(p => Math.max(p, Math.min(Math.ceil(step), 10)));
+    }, [setZoomStep]);
+    useEffect(() => {
+        setZoomStep(1);
+    }, [contentRef]);
 
     const fitContentToWrapper = useCallback(
         (centerView: (scale: number) => void) => {
@@ -72,95 +81,98 @@ export default function FileToolbar({
     return (
         <>
             <AnnotateWrapper
-                onNewAnnotation={
-                    annotationEnabled ? onNewAnnotation : undefined
-                }
+                annotationEnabled={annotationEnabled}
+                annotations={annotations}
+                annotationsControl={annotationsControl}
                 page={page}
+                ref={annotationsWrapperRef}
+                zoomStep={zoomStep}
             >
-                {({canvas, annotationActive, toolbar}) => (
-                    <TransformWrapper
-                        disabled={
-                            !controls ||
-                            !zoomEnabled ||
-                            annotationActive ||
-                            closed ||
-                            !hand
-                        }
-                        initialScale={1}
-                        disablePadding={true}
-                        centerOnInit={true}
-                        centerZoomedOut={false}
-                        minScale={0.1}
-                    >
-                        {controls ? (
-                            <ToolbarPaper
-                                annotationActive={annotationActive}
-                                sx={theme => ({
-                                    bottom: theme.spacing(2),
-                                    left: !closed ? '50%' : theme.spacing(2),
-                                    transform: !closed
-                                        ? 'translateX(-50%)'
-                                        : undefined,
-                                })}
-                            >
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    {!closed && preToolbarActions}
-                                    {!closed && zoomEnabled && (
-                                        <ZoomControls
-                                            fitContentToWrapper={
-                                                fitContentToWrapper
-                                            }
-                                            setHand={setHand}
-                                            hand={hand}
-                                            forceHand={forceHand}
-                                        />
-                                    )}
-                                    {!closed && toolbar}
-                                    <IconButton
-                                        onClick={() => setClosed(p => !p)}
-                                    >
-                                        {closed ? (
-                                            <MenuOpenIcon />
-                                        ) : (
-                                            <CloseIcon />
-                                        )}
-                                    </IconButton>
-                                </Box>
-                            </ToolbarPaper>
-                        ) : null}
-                        <TransformComponent
-                            wrapperStyle={{
-                                width: '100%',
-                                height: '100%',
-                                userSelect: 'auto',
+                {({canvas, annotationActive, annotate, toolbar}) => {
+                    const disabled = !controls ||
+                        !zoomEnabled ||
+                        annotationActive ||
+                        annotate ||
+                        closed ||
+                        !hand;
+
+                    return (
+                        <TransformWrapper
+                            disabled={disabled}
+                            initialScale={1}
+                            disablePadding={true}
+                            centerOnInit={true}
+                            centerZoomedOut={false}
+                            minScale={0.1}
+                            maxScale={100}
+                            onTransformed={(_ref, {scale}) => {
+                                increaseZoomStep(scale * scaleStepRate);
                             }}
                         >
-                            <div
-                                ref={contentRef}
-                                style={{
-                                    cursor: hand ? 'grab' : 'auto',
+                            {controls ? (
+                                <ToolbarPaper
+                                    annotationActive={annotationActive}
+                                    sx={theme => ({
+                                        bottom: theme.spacing(2),
+                                        left: !closed ? '50%' : theme.spacing(2),
+                                        transform: !closed
+                                            ? 'translateX(-50%)'
+                                            : undefined,
+                                    })}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        {!closed && preToolbarActions}
+                                        {!closed && zoomEnabled && (
+                                            <ZoomControls
+                                                fitContentToWrapper={
+                                                    fitContentToWrapper
+                                                }
+                                                setHand={setHand}
+                                                hand={hand}
+                                                forceHand={forceHand}
+                                            />
+                                        )}
+                                        {!closed && toolbar}
+                                        <IconButton
+                                            onClick={() => setClosed(p => !p)}
+                                        >
+                                            {closed ? (
+                                                <MenuOpenIcon/>
+                                            ) : (
+                                                <CloseIcon/>
+                                            )}
+                                        </IconButton>
+                                    </Box>
+                                </ToolbarPaper>
+                            ) : null}
+                            <TransformComponent
+                                wrapperStyle={{
+                                    width: '100%',
+                                    height: '100%',
+                                    userSelect: 'auto',
                                 }}
                             >
-                                {canvas}
-                                {annotations ? (
-                                    <AssetAnnotationsOverlay
-                                        ref={annotationsOverlayRef}
-                                        annotations={annotations}
-                                    />
-                                ) : null}
-                                {typeof children === 'function'
-                                    ? children({annotationsOverlayRef})
-                                    : children}
-                            </div>
-                        </TransformComponent>
-                    </TransformWrapper>
-                )}
+                                <div
+                                    ref={contentRef}
+                                    style={{
+                                        cursor: !disabled ? 'grab' : 'auto',
+                                    }}
+                                >
+                                    {canvas}
+                                    {typeof children === 'function'
+                                        ? children({annotationsWrapperRef, zoomStep})
+                                        : children}
+                                </div>
+                            </TransformComponent>
+                        </TransformWrapper>
+                    );
+                }}
             </AnnotateWrapper>
         </>
     );
