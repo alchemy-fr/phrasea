@@ -1,7 +1,8 @@
-import {drawingHandlers} from "./events.ts";
+import {drawingHandlers, ToFunction} from "./events.ts";
 import React from "react";
 import {AssetAnnotation, SelectedAnnotationRef} from "./annotationTypes.ts";
 import {getZoomFromRef, ZoomRef} from "./common.ts";
+import {drawRectangle} from "./shapes/rectangle.ts";
 
 type Props = {
     canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
@@ -34,7 +35,10 @@ export function renderAnnotations({
         const context = canvas!.getContext('2d')!;
         context.scale(resolution, resolution);
 
-        const selected = selectedAnnotationRef?.current;
+        let selected = selectedAnnotationRef?.current;
+        if (selectedAnnotationRef && selected && !annotations?.find(a => a.id === selected!.id)) {
+            selected = selectedAnnotationRef.current = undefined;
+        }
 
         const drawContext = {
             context,
@@ -52,12 +56,31 @@ export function renderAnnotations({
                 const handler = drawingHandlers[annotation.type];
                 if (handler) {
                     context.globalAlpha = 1;
+                    const isSelected = selected && selected.id === annotation.id;
+                    const toX: ToFunction = x => x * width;
+                    const toY: ToFunction = y => y * height;
                     handler.drawAnnotation({
                         drawContext,
                         annotation,
-                        toX: x => x * width,
-                        toY: y => y * height,
-                    }, selected && selected.id === annotation.id);
+                        toX,
+                        toY,
+                    }, isSelected);
+
+                    if (isSelected) {
+                        drawRectangle(drawContext, handler.getBoundingBox({
+                            drawContext,
+                            annotation,
+                            options: handler.toOptions(annotation, {
+                                toX,
+                                toY,
+                            }),
+                            toX,
+                            toY,
+                        }), {
+                            color: 'rgba(20, 20, 20, 0.4)',
+                            size: 1 / drawContext.zoom,
+                        });
+                    }
                 }
             });
     }

@@ -1,70 +1,33 @@
-import {
-    AnnotationOptions,
-    AnnotationType,
-    DrawAnnotation,
-    Point,
-} from '../annotationTypes.ts';
-import {DrawContext, DrawingHandler} from '../events.ts';
+import {AnnotationOptions, AnnotationType, Point,} from '../annotationTypes.ts';
+import {DrawingHandler, GetBoundingBoxProps} from '../events.ts';
+import {drawDrawing, getDrawingBoundingBox} from "./draw.ts";
 
-function init(
-    drawContext: DrawContext,
-    options: AnnotationOptions,
-    applyStyle: ApplyStyle | undefined
-) {
-    const {context} = drawContext;
-    context.lineWidth = options.size;
-    context.strokeStyle = options.color;
-    context.lineJoin = 'round';
-    context.lineCap = 'round';
-    context.beginPath();
-    applyStyle?.(drawContext);
-}
-
-type ApplyStyle = (drawContext: DrawContext) => void;
 
 export function createDrawAnnotationHandler(
     annotationType: AnnotationType,
-    onPoint: (props: {
-        drawContext: DrawContext;
-        point: Point;
-        index: number;
-        options: AnnotationOptions;
-    }) => void,
-    applyStyle?: ApplyStyle
 ): DrawingHandler {
     return {
         onDrawStart: ({drawContext, x, y, data, options}) => {
-            init(drawContext, options, applyStyle);
-            onPoint({
-                drawContext,
-                point: {
-                    x,
-                    y,
-                },
-                index: 0,
-                options,
-            });
+            drawDrawing(drawContext, {
+                paths: [
+                    [{x, y}]
+                ]
+            }, options);
+
             data.points = [{x, y}];
             data.paths ??= [];
             data.paths.push(data.points);
         },
-        onDrawMove: ({drawContext, x, y, data, options}) => {
+        onDrawMove: ({drawContext: {context}, x, y, data}) => {
             if (x <= 0) {
                 x = 0;
             }
             if (y <= 0) {
                 y = 0;
             }
-            applyStyle?.(drawContext);
-            onPoint({
-                drawContext,
-                point: {
-                    x,
-                    y,
-                },
-                index: 1,
-                options,
-            });
+
+            context.lineTo(x, y);
+            context.stroke();
             data.points.push({x, y});
         },
         onDrawEnd: ({drawContext, terminate, data}) => {
@@ -100,29 +63,21 @@ export function createDrawAnnotationHandler(
                 });
             }
         },
-        drawAnnotation: ({annotation: {paths, c, s}, drawContext, toX, toY}) => {
+        drawAnnotation: ({annotation: {paths, c, s}, drawContext, toX, toY}, selected) => {
             const options = {
                 color: c,
                 size: toX(s),
             };
-            init(drawContext, options, applyStyle);
 
-            (paths as DrawAnnotation['paths']).forEach(path =>
-                path.forEach((point: Point, i) => {
-                    onPoint({
-                        drawContext,
-                        point: {
-                            x: toX(point.x),
-                            y: toY(point.y),
-                        },
-                        index: i,
-                        options: options,
-                    });
-                })
-            );
-            drawContext.context.closePath();
+            drawDrawing(drawContext, {
+                paths: paths.map((path: Point[]) =>
+                    path.map(({x, y}: Point) => ({
+                        x: toX(x),
+                        y: toY(y),
+                    }))
+                )
+            }, options, selected);
         },
-        isPointInside: ({}) => false,
         getResizeHandler: () => undefined,
         toOptions: ({c, s}, {toX}) => ({
             color: c,
@@ -133,18 +88,20 @@ export function createDrawAnnotationHandler(
             c: options.color,
             s: relativeX(options.size),
         }),
+        getBoundingBox: ({annotation, toY, toX}: GetBoundingBoxProps) => {
+            const box = getDrawingBoundingBox(annotation.paths);
+
+            return {
+                x: toX(box.x),
+                y: toY(box.y),
+                w: toX(box.w),
+                h: toY(box.h),
+            }
+        },
     };
 }
 
+
 export const DrawAnnotationHandler = createDrawAnnotationHandler(
-    AnnotationType.Draw,
-    ({drawContext, point, index}) => {
-        const {context} = drawContext;
-        if (index === 0) {
-            context.moveTo(point.x, point.y);
-        } else {
-            context.lineTo(point.x, point.y);
-        }
-        context.stroke();
-    }
+    AnnotationType.Draw
 );

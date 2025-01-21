@@ -3,6 +3,7 @@ import {DrawContext, drawingHandlers, OnResizeEvent, StartingPoint, ToFunction} 
 import {CommonAnnotationDrawProps} from "./useAnnotationDraw.ts";
 import {getZoomFromRef} from "./common.ts";
 import {MutableRefObject} from "react";
+import {isPointInRectangle} from "./shapes/RectAnnotationHandler.ts";
 
 type UnregisterFunction = () => void;
 
@@ -164,15 +165,7 @@ export function bindEditCanvas({
                 toY,
             }));
 
-            handler.drawAnnotation(
-                {
-                    drawContext,
-                    annotation,
-                    toX,
-                    toY,
-                },
-                true
-            );
+            e.preventDefault();
         }
 
         if (!selectedAnnotationRef.current) {
@@ -200,19 +193,18 @@ function getBestSelectionCandidate(
     toX: ToFunction,
     toY: ToFunction,
 ): AssetAnnotation | undefined {
-    const candidates = [];
+    const candidates: AssetAnnotation[] = [];
     for (const annotation of annotations ?? []) {
         const handler = drawingHandlers[annotation.type]!;
-        if (
-            handler.isPointInside({
-                drawContext,
-                annotation,
-                x: offsetX,
-                y: offsetY,
-                toX,
-                toY,
-            })
-        ) {
+
+        const boundingBox = handler.getBoundingBox({
+            drawContext,
+            annotation,
+            toX,
+            toY,
+            options: handler.toOptions(annotation, {toX, toY}),
+        });
+        if (isPointInRectangle(offsetX, offsetY, boundingBox)) {
             if (!previouslySelectedAnnotations.current.includes(annotation)) {
                 return annotation;
             } else {
@@ -222,7 +214,7 @@ function getBestSelectionCandidate(
     }
 
     if (candidates.length > 0) {
-        const annotation = previouslySelectedAnnotations.current[0]!;
+        const annotation = previouslySelectedAnnotations.current.filter(a => candidates.includes(a))[0]!;
         previouslySelectedAnnotations.current = [];
 
         return annotation;

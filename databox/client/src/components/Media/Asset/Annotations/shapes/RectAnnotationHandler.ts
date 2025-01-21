@@ -84,14 +84,6 @@ export const RectAnnotationHandler: DrawingHandler = {
     },
     onTerminate: () => {
     },
-    isPointInside: ({annotation, x, y, toX, toY}) => {
-        return isPointInRectangle(x, y, {
-            x: toX(annotation.x),
-            y: toY(annotation.y),
-            w: toX(annotation.w),
-            h: toY(annotation.h),
-        });
-    },
     getResizeHandler: ({drawContext, annotation, toX, toY, x, y}) => {
         for (const [cx, cy] of [
             [0, 0],
@@ -126,8 +118,8 @@ export const RectAnnotationHandler: DrawingHandler = {
         if (isPointInCircle(x, y, getMoveCircleCoordsInRectangle(drawContext, {
             x: toX(annotation.x),
             y: toY(annotation.y),
-            h: toX(annotation.h),
-            w: toY(annotation.w),
+            w: toX(annotation.w),
+            h: toY(annotation.h),
         }))) {
             return ({annotation, relativeX, relativeY, deltaX, deltaY}) => {
                 return {
@@ -147,4 +139,12 @@ export const RectAnnotationHandler: DrawingHandler = {
         c: options.color,
         s: relativeX(options.size),
     }),
+    getBoundingBox: ({annotation, toY, toX}) => {
+        return {
+            x: toX(annotation.x),
+            y: toY(annotation.y),
+            w: toX(annotation.w),
+            h: toY(annotation.h),
+        }
+    },
 };

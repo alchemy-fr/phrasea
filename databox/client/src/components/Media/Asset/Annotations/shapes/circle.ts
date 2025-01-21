@@ -53,7 +53,7 @@ export function drawCircle(
     a.arc(x, y, radius, 0, 2 * Math.PI, false);
     const {context} = drawContext;
     context.lineWidth = options.size;
-    context.strokeStyle = options.color;
+    context.strokeStyle = options.color ?? '#000';
     context.stroke(a);
     if (options.fillColor) {
         context.fillStyle = options.fillColor;

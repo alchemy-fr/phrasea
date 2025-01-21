@@ -96,13 +96,20 @@ export type OnResizeEvent = {
 
 export type AnnotationResizeHandler = (event: OnResizeEvent) => AssetAnnotation;
 
+export type GetBoundingBoxProps = {
+    drawContext: DrawContext;
+    annotation: AssetAnnotation;
+    options: AnnotationOptions;
+    toX: ToFunction;
+    toY: ToFunction;
+}
+
 export type DrawingHandler = {
     onDrawStart: OnStartDrawing;
     onDrawMove: OnDrawMove;
     onDrawEnd: OnEndDrawing;
     onTerminate: OnTerminate;
     drawAnnotation: (props: DrawAnnotationProps, selected?: boolean) => void;
-    isPointInside: (props: PointInsideProps) => boolean;
     toOptions: (annotation: AssetAnnotation, helpers: {
         toX: ToFunction,
         toY: ToFunction,
@@ -111,6 +118,12 @@ export type DrawingHandler = {
         relativeX: ToFunction;
         relativeY: ToFunction;
     }) => AssetAnnotation;
+    getBoundingBox: (props: GetBoundingBoxProps) => {
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+    },
     getResizeHandler: (
         props: PointInsideProps
     ) => AnnotationResizeHandler | undefined;

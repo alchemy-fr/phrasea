@@ -35,7 +35,7 @@ export function drawRectangle(
     const a = new Path2D();
     a.rect(x, y, w, h);
     const {context} = drawContext;
-    context.strokeStyle = options.color;
+    context.strokeStyle = options.color ?? '#000';
     context.lineWidth = options.size;
     context.stroke(a);
 

@@ -76,13 +76,6 @@ export const CircleAnnotationHandler: DrawingHandler = {
     },
     onTerminate: () => {
     },
-    isPointInside: ({annotation, x, y, toX, toY}) => {
-        return isPointInCircle(x, y, {
-            x: toX(annotation.x),
-            y: toY(annotation.y),
-            radius: toX(annotation.r),
-        });
-    },
     getResizeHandler: ({annotation, toX, toY, x, y, drawContext}) => {
         if (
             isPointInCircle(
@@ -130,4 +123,14 @@ export const CircleAnnotationHandler: DrawingHandler = {
         c: options.color,
         s: relativeX(options.size),
     }),
+    getBoundingBox: ({annotation: {x, y, r}, toX, toY}) => {
+        const radius = toX(r);
+
+        return {
+            x: toX(x) - radius,
+            y: toY(y) - radius,
+            w: 2 * radius,
+            h: 2 * radius,
+        };
+    }
 };

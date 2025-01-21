@@ -1,35 +1,12 @@
 import {AnnotationOptions, AnnotationType} from '../annotationTypes.ts';
 import {DrawingHandler} from '../events.ts';
 import {getResizeCircleCoords, isPointInCircle} from "./circle.ts";
-import {drawLine as baseDrawLine, getLineMoveCircleCoords, isPointInLine} from "./line.ts";
+import {drawLine as baseDrawLine, getLineMoveCircleCoords} from "./line.ts";
 
-export function createLineAnnotationHandler(): DrawingHandler {
-    const drawLine: typeof baseDrawLine = (drawContext, line, options, selected = false) => {
-        const {x1, y1, x2, y2} = line;
-        const openingAngle = Math.PI / 6;
-        const arrowSize = 7 * options.size;
-
-        const dx = x2 - x1;
-        const dy = y2 - y1;
-        const angle = Math.atan2(dy, dx);
-
-        baseDrawLine(drawContext, {
-            x1: x2 - arrowSize * Math.cos(angle - openingAngle),
-            y1: y2 - arrowSize * Math.sin(angle - openingAngle),
-            x2: x2,
-            y2: y2,
-        }, options);
-
-        baseDrawLine(drawContext, {
-            x1: x2 - arrowSize * Math.cos(angle + openingAngle),
-            y1: y2 - arrowSize * Math.sin(angle + openingAngle),
-            x2: x2,
-            y2: y2,
-        }, options);
-
-        baseDrawLine(drawContext, line, options, selected);
-    }
-
+export function createLineAnnotationHandler(
+    drawLine: typeof baseDrawLine,
+    annotationType: AnnotationType,
+): DrawingHandler {
     return {
         onDrawStart: ({x, y, drawContext, options}) => {
             drawLine(drawContext, {
@@ -68,7 +45,7 @@ export function createLineAnnotationHandler(): DrawingHandler {
             terminate,
         }) => {
             onNewAnnotation({
-                type: AnnotationType.Line,
+                type: annotationType,
                 x1: relativeX(x),
                 y1: relativeY(y),
                 x2: relativeX(mX),
@@ -98,14 +75,6 @@ export function createLineAnnotationHandler(): DrawingHandler {
             );
         },
         onTerminate: () => {
-        },
-        isPointInside: ({annotation, x, y, toX, toY}) => {
-            return isPointInLine(x, y, {
-                x1: toX(annotation.x1),
-                y1: toY(annotation.y1),
-                x2: toX(annotation.x2),
-                y2: toY(annotation.y2),
-            });
         },
         getResizeHandler: ({annotation, toX, toY, x, y, drawContext}) => {
             if (
@@ -176,7 +145,15 @@ export function createLineAnnotationHandler(): DrawingHandler {
             c: options.color,
             s: relativeX(options.size),
         }),
+        getBoundingBox: ({annotation: {x1, y1, x2, y2}, toX, toY}) => {
+            return {
+                x: toX(Math.min(x1, x2)),
+                y: toY(Math.min(y1, y2)),
+                w: toX(Math.abs(x1 - x2)),
+                h: toY(Math.abs(y1 - y2)),
+            };
+        }
     };
 }
 
-export const LineAnnotationHandler: DrawingHandler = createLineAnnotationHandler();
+export const LineAnnotationHandler: DrawingHandler = createLineAnnotationHandler(baseDrawLine, AnnotationType.Line);

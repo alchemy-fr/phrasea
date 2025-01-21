@@ -27,7 +27,7 @@ export function drawLine(
 ) {
     const {x1, y1, x2, y2} = line;
     const {context} = drawContext;
-    context.strokeStyle = options.color;
+    context.strokeStyle = options.color ?? '#000';
     context.lineWidth = options.size;
     context.beginPath();
     context.moveTo(x1, y1);

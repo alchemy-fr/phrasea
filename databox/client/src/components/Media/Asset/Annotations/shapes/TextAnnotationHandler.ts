@@ -1,7 +1,6 @@
 import {AnnotationOptions, AnnotationType, TextAnnotation,} from '../annotationTypes.ts';
 import {DrawingHandler} from '../events.ts';
 import {drawText, getTextDimensions} from "./text.ts";
-import {isPointInRectangle} from "./RectAnnotationHandler.ts";
 import {isPointInCircle} from "./circle.ts";
 import {getMoveCircleCoordsInRectangle} from "./rectangle.ts";
 
@@ -49,16 +48,6 @@ export const TextAnnotationHandler: DrawingHandler = {
     },
     onTerminate: () => {
     },
-    isPointInside: ({drawContext: {context}, annotation, x, y, toX, toY}) => {
-        const {width, height} = getTextDimensions(context, annotation.text, toX(annotation.s));
-
-        return isPointInRectangle(x, y, {
-            x: toX(annotation.x),
-            y: toY(annotation.y) - height,
-            w: width,
-            h: height,
-        });
-    },
     getResizeHandler: ({annotation, drawContext, x, y, toX, toY}) => {
         const {width, height} = getTextDimensions(drawContext.context, annotation.text, toX(annotation.s));
 
@@ -86,4 +75,14 @@ export const TextAnnotationHandler: DrawingHandler = {
         c: options.color,
         s: relativeX(options.size),
     }),
+    getBoundingBox: ({drawContext, annotation: {x, y, text, s}, toX, toY}) => {
+        const {width, height} = getTextDimensions(drawContext.context, text, toX(s));
+
+        return {
+            x: toX(x),
+            y: toY(y) - height,
+            w: width,
+            h: height,
+        };
+    }
 };
