@@ -5,6 +5,8 @@ import {drawCircleControl} from "./circle.ts";
 
 type Drawing = {
     paths: Point[][];
+    x?: number;
+    y?: number;
 }
 
 function init(
@@ -28,12 +30,15 @@ export function drawDrawing(
     init(drawContext, options);
     const {context} = drawContext;
 
+    const offsetX = drawing.x ?? 0;
+    const offsetY = drawing.y ?? 0;
+
     drawing.paths.forEach((path) => {
         path.forEach((point, index) => {
             if (index === 0) {
-                context.moveTo(point.x, point.y);
+                context.moveTo(offsetX + point.x, offsetY + point.y);
             } else {
-                context.lineTo(point.x, point.y);
+                context.lineTo(offsetX + point.x, offsetY + point.y);
             }
             context.stroke();
         });
@@ -43,13 +48,13 @@ export function drawDrawing(
     if (selected) {
         drawCircleControl(
             drawContext,
-            getMoveCircleCoordsInRectangle(drawContext, getDrawingBoundingBox(drawing.paths))
+            getMoveCircleCoordsInRectangle(drawContext, getDrawingBoundingBox(drawing))
         );
     }
 }
 
 
-export function getDrawingBoundingBox(paths: Point[][]) {
+export function getDrawingBoundingBox({x: offsetX, y: offsetY, paths}: Drawing) {
     const xs = paths.map(path => path.map(p => p.x));
     const ys = paths.map(path => path.map(p => p.y));
 
@@ -59,8 +64,8 @@ export function getDrawingBoundingBox(paths: Point[][]) {
     const h = Math.max(...ys.flat()) - y;
 
     return {
-        x,
-        y,
+        x: x + (offsetX ?? 0),
+        y: y + (offsetY ?? 0),
         w,
         h,
     };

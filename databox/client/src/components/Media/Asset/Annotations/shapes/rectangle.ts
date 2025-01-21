@@ -1,7 +1,7 @@
 import {AnnotationOptions} from "../annotationTypes.ts";
 import {CircleProps, drawCircleControl} from "./circle.ts";
 import {controlsSize} from "./shapeCommon.ts";
-import {DrawContext} from "../events.ts";
+import {DrawContext, ToFunction} from "../events.ts";
 
 export type RectangleProps = {
     x: number;
@@ -80,4 +80,17 @@ export function normalizeRectangleProps({x, y, w, h}: RectangleProps): Rectangle
     }
 
     return props as RectangleProps;
+}
+
+export function transformRectangleToPixels(
+    rect: RectangleProps,
+    toX: ToFunction,
+    toY: ToFunction
+) {
+    return {
+        x: toX(rect.x),
+        y: toY(rect.y),
+        w: toX(rect.w),
+        h: toY(rect.h),
+    }
 }

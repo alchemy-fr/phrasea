@@ -113,6 +113,9 @@ export default function AssetView({modalIndex, open}: Props) {
             onUpdate: (previous, newAnnotation) => {
                 annotationsControlRef.current?.onUpdate(previous, newAnnotation);
             },
+            onDelete: id => {
+                annotationsControlRef.current?.onDelete(id);
+            },
         } as AnnotationsControl;
     }, [annotationsControlRef]);
 

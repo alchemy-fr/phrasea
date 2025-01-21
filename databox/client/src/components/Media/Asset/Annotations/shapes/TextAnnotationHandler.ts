@@ -3,10 +3,11 @@ import {DrawingHandler} from '../events.ts';
 import {drawText, getTextDimensions} from "./text.ts";
 import {isPointInCircle} from "./circle.ts";
 import {getMoveCircleCoordsInRectangle} from "./rectangle.ts";
+import {getStandardMoveHandler} from "../common.ts";
 
 export const TextAnnotationHandler: DrawingHandler = {
     onDrawStart: ({x, y, drawContext, options, onNewAnnotation, relativeY, relativeX, terminate}) => {
-        const text = 'Hello World!';
+        const text = 'Text';
 
         drawText(
             drawContext,
@@ -20,6 +21,7 @@ export const TextAnnotationHandler: DrawingHandler = {
         onNewAnnotation({
             type: AnnotationType.Text,
             text,
+            name: text,
             x: relativeX(x),
             y: relativeY(y),
             s: relativeX(options.size),
@@ -83,6 +85,13 @@ export const TextAnnotationHandler: DrawingHandler = {
             y: toY(y) - height,
             w: width,
             h: height,
+        };
+    },
+    getMoveHandler: getStandardMoveHandler,
+    onRename: ({annotation, newName}) => {
+        return {
+            ...annotation,
+            text: newName,
         };
     }
 };

@@ -97,11 +97,11 @@ export default function AnnotateToolbar({
                     <div>
                         <IconButton
                             color={
-                                mode === AnnotationType.Point
+                                mode === AnnotationType.Target
                                     ? 'primary'
                                     : 'default'
                             }
-                            onClick={() => setMode(AnnotationType.Point)}
+                            onClick={() => setMode(AnnotationType.Target)}
                         >
                             <MyLocationIcon/>
                         </IconButton>
@@ -189,7 +189,7 @@ export default function AnnotateToolbar({
                                 step: options.size <= 1 ? 0.1 : 1,
                             }}
                             style={{width: 100}}
-                            value={options.size}
+                            value={Math.round(options.size * 10) / 10}
                             onChange={e => {
                                 const size = Math.max(0.001, parseFloat(e.target.value) || 1);
 

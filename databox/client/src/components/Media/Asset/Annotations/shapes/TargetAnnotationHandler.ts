@@ -1,12 +1,13 @@
 import {AnnotationOptions, AnnotationType, Point} from '../annotationTypes.ts';
 import {DrawContext, DrawingHandler} from '../events.ts';
 import {controlsSize} from "./shapeCommon.ts";
-import {drawCircle, drawCircleControl, isPointInCircle} from "./circle.ts";
+import {drawCircle, drawCircleControl} from "./circle.ts";
 import {drawLine} from "./line.ts";
+import {getStandardMoveHandler} from "../common.ts";
 
 const grow = 5;
 
-function drawPoint(
+function drawTarget(
     drawContext: DrawContext,
     {
         x,
@@ -61,9 +62,9 @@ function drawPoint(
     }
 }
 
-export const PointAnnotationHandler: DrawingHandler = {
+export const TargetAnnotationHandler: DrawingHandler = {
     onDrawStart: ({x, y, drawContext, options}) => {
-        drawPoint(
+        drawTarget(
             drawContext,
             {
                 x,
@@ -73,7 +74,7 @@ export const PointAnnotationHandler: DrawingHandler = {
     },
     onDrawMove: ({clear, drawContext, x, y, options}) => {
         clear();
-        drawPoint(
+        drawTarget(
             drawContext, {
                 x,
                 y
@@ -90,7 +91,7 @@ export const PointAnnotationHandler: DrawingHandler = {
         terminate,
     }) => {
         onNewAnnotation({
-            type: AnnotationType.Point,
+            type: AnnotationType.Target,
             x: relativeX(x),
             y: relativeY(y),
             c: options.color,
@@ -99,7 +100,7 @@ export const PointAnnotationHandler: DrawingHandler = {
         terminate();
     },
     drawAnnotation: ({annotation: {x, y, c, s}, drawContext, toX, toY}, selected) => {
-        drawPoint(drawContext,
+        drawTarget(drawContext,
             {
                 x: toX(x),
                 y: toY(y)
@@ -111,26 +112,8 @@ export const PointAnnotationHandler: DrawingHandler = {
     },
     onTerminate: () => {
     },
-    getResizeHandler: ({annotation, toX, toY, x, y}) => {
-        if (
-            isPointInCircle(
-                x,
-                y,
-                {
-                    x: toX(annotation.x),
-                    y: toY(annotation.y),
-                    radius: controlsSize,
-                }
-            )
-        ) {
-            return ({annotation, relativeX, relativeY, deltaX, deltaY}) => {
-                return {
-                    ...annotation,
-                    x: annotation.x + relativeX(deltaX),
-                    y: annotation.y + relativeY(deltaY),
-                };
-            };
-        }
+    getResizeHandler: () => {
+        return undefined;
     },
     toOptions: ({c, s}, {toX}) => ({
         color: c,
@@ -142,13 +125,14 @@ export const PointAnnotationHandler: DrawingHandler = {
         s: relativeX(options.size),
     }),
     getBoundingBox: ({annotation: {x, y}, options: {size}, toX, toY}) => {
-        const s = toX(size);
+        const radius = size * grow;
 
         return {
-            x: toX(x) - s * grow,
-            y: toY(y) - s * grow,
-            w: s * grow * 2,
-            h: s * grow * 2,
+            x: toX(x) - radius,
+            y: toY(y) - radius,
+            w: radius * 2,
+            h: radius * 2,
         };
-    }
+    },
+    getMoveHandler: getStandardMoveHandler,
 };

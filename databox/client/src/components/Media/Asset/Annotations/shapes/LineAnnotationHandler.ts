@@ -1,7 +1,7 @@
-import {AnnotationOptions, AnnotationType} from '../annotationTypes.ts';
-import {DrawingHandler} from '../events.ts';
+import {AnnotationOptions, AnnotationType, AssetAnnotation} from '../annotationTypes.ts';
+import {DrawingHandler, OnResizeEvent} from '../events.ts';
 import {getResizeCircleCoords, isPointInCircle} from "./circle.ts";
-import {drawLine as baseDrawLine, getLineMoveCircleCoords} from "./line.ts";
+import {drawLine as baseDrawLine} from "./line.ts";
 
 export function createLineAnnotationHandler(
     drawLine: typeof baseDrawLine,
@@ -113,27 +113,6 @@ export function createLineAnnotationHandler(
                         y2: relativeY(y),
                     };
                 };
-            } else if (isPointInCircle(
-                x,
-                y,
-                getLineMoveCircleCoords(drawContext, {
-                    x1: toX(annotation.x1),
-                    y1: toY(annotation.y1),
-                    x2: toX(annotation.x2),
-                    y2: toY(annotation.y2),
-                }))) {
-                return ({annotation, relativeX, relativeY, deltaX, deltaY}) => {
-                    const dX = relativeX(deltaX);
-                    const dY = relativeY(deltaY);
-
-                    return {
-                        ...annotation,
-                        x1: annotation.x1 + dX,
-                        y1: annotation.y1 + dY,
-                        x2: annotation.x2 + dX,
-                        y2: annotation.y2 + dY,
-                    };
-                };
             }
         },
         toOptions: ({c, s}, {toX}) => ({
@@ -152,7 +131,22 @@ export function createLineAnnotationHandler(
                 w: toX(Math.abs(x1 - x2)),
                 h: toY(Math.abs(y1 - y2)),
             };
-        }
+        },
+        getMoveHandler: () => ({
+            annotation,
+            deltaX,
+            deltaY,
+            relativeY,
+            relativeX,
+        }: OnResizeEvent): AssetAnnotation => {
+            return {
+                ...annotation,
+                x1: annotation.x1 + relativeX(deltaX),
+                x2: annotation.x2 + relativeX(deltaX),
+                y1: annotation.y1 + relativeY(deltaY),
+                y2: annotation.y2 + relativeY(deltaY),
+            }
+        },
     };
 }
 

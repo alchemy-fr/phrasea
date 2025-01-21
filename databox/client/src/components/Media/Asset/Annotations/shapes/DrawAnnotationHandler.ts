@@ -1,6 +1,8 @@
 import {AnnotationOptions, AnnotationType, Point,} from '../annotationTypes.ts';
 import {DrawingHandler, GetBoundingBoxProps} from '../events.ts';
 import {drawDrawing, getDrawingBoundingBox} from "./draw.ts";
+import {transformRectangleToPixels} from "./rectangle.ts";
+import {getStandardMoveHandler} from "../common.ts";
 
 
 export function createDrawAnnotationHandler(
@@ -63,13 +65,15 @@ export function createDrawAnnotationHandler(
                 });
             }
         },
-        drawAnnotation: ({annotation: {paths, c, s}, drawContext, toX, toY}, selected) => {
+        drawAnnotation: ({annotation: {paths, c, s, x, y}, drawContext, toX, toY}, selected) => {
             const options = {
                 color: c,
                 size: toX(s),
             };
 
             drawDrawing(drawContext, {
+                x: toX(x ?? 0),
+                y: toY(y ?? 0),
                 paths: paths.map((path: Point[]) =>
                     path.map(({x, y}: Point) => ({
                         x: toX(x),
@@ -78,7 +82,9 @@ export function createDrawAnnotationHandler(
                 )
             }, options, selected);
         },
-        getResizeHandler: () => undefined,
+        getResizeHandler: () => {
+            return undefined;
+        },
         toOptions: ({c, s}, {toX}) => ({
             color: c,
             size: toX(s),
@@ -89,15 +95,15 @@ export function createDrawAnnotationHandler(
             s: relativeX(options.size),
         }),
         getBoundingBox: ({annotation, toY, toX}: GetBoundingBoxProps) => {
-            const box = getDrawingBoundingBox(annotation.paths);
+            const box = getDrawingBoundingBox({
+                x: annotation.x,
+                y: annotation.y,
+                paths: annotation.paths
+            });
 
-            return {
-                x: toX(box.x),
-                y: toY(box.y),
-                w: toX(box.w),
-                h: toY(box.h),
-            }
+            return transformRectangleToPixels(box, toX, toY);
         },
+        getMoveHandler: getStandardMoveHandler,
     };
 }
 

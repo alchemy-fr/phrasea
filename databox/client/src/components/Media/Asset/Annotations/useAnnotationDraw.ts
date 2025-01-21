@@ -10,7 +10,7 @@ import {
 import {bindEditCanvas} from './editCanvas.ts';
 import {StateSetter} from "../../../../types.ts";
 import {renderAnnotations} from "./renderAnnotation.ts";
-import {getZoomFromRef, ZoomRef} from "./common.ts";
+import {getZoomFromRef, ShapeControlRef, ZoomRef} from "./common.ts";
 
 export type  CommonAnnotationDrawProps = {
     annotations: AssetAnnotation[] | undefined;
@@ -27,6 +27,7 @@ type Props = {
     annotationOptions: AnnotationOptions;
     onTerminate: () => void;
     page?: number;
+    shapeControlRef: ShapeControlRef;
 } & CommonAnnotationDrawProps;
 
 export function useAnnotationDraw({
@@ -40,6 +41,7 @@ export function useAnnotationDraw({
     annotations,
     page,
     spaceRef,
+    shapeControlRef,
     zoomRef,
 }: Props) {
     const startingPoint = useRef<StartingPoint | undefined>();
@@ -63,8 +65,9 @@ export function useAnnotationDraw({
                 canvasRef,
                 annotations,
                 page,
-                selectedAnnotationRef: selectedAnnotationRef,
+                selectedAnnotationRef,
                 zoomRef,
+                shapeControlRef,
             });
         };
 
@@ -260,6 +263,7 @@ export function useAnnotationDraw({
                 spaceRef,
                 zoomRef,
                 previouslySelectedAnnotations,
+                shapeControlRef,
             });
         }
     }, [canvasRef, mode, annotationOptions, annotationsControl, annotations, page]);

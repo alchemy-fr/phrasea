@@ -3,6 +3,7 @@ import {DrawingHandler, OnResizeEvent} from '../events.ts';
 import {drawRectangle, getMoveCircleCoordsInRectangle, normalizeRectangleProps, RectangleProps} from "./rectangle.ts";
 import {isPointInCircle} from "./circle.ts";
 import {controlsSize} from "./shapeCommon.ts";
+import {getStandardMoveHandler} from "../common.ts";
 
 
 export function isPointInRectangle(x: number, y: number, {x: rx, y: ry, w, h}: RectangleProps) {
@@ -147,4 +148,5 @@ export const RectAnnotationHandler: DrawingHandler = {
             h: toY(annotation.h),
         }
     },
+    getMoveHandler: getStandardMoveHandler,
 };

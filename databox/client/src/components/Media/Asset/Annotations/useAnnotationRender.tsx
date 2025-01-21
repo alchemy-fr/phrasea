@@ -7,7 +7,7 @@ type Props = {
     zoomStep: ZoomStepState;
 } & RenderAnnotationProps;
 
-export function useAnnotationRender({canvasRef, annotations, page, zoomStep, zoomRef, selectedAnnotationRef}: Props) {
+export function useAnnotationRender({canvasRef, shapeControlRef, annotations, page, zoomStep, zoomRef, selectedAnnotationRef}: Props) {
     const render = useCallback(() => {
         renderAnnotations({
             canvasRef,
@@ -15,8 +15,9 @@ export function useAnnotationRender({canvasRef, annotations, page, zoomStep, zoo
             page,
             zoomRef,
             selectedAnnotationRef,
+            shapeControlRef,
         });
-    }, [canvasRef, annotations, zoomStep.current, page]);
+    }, [canvasRef, annotations, selectedAnnotationRef, shapeControlRef, zoomStep.current, page]);
 
     React.useEffect(() => {
         render();

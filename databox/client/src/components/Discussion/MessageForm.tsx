@@ -73,9 +73,9 @@ export default function MessageForm({
                             'annotation.type.rectangle',
                             'Rectangle'
                         ),
-                        [AnnotationType.Point]: t(
-                            'annotation.type.point',
-                            'Point'
+                        [AnnotationType.Target]: t(
+                            'annotation.type.target',
+                            'Target'
                         ),
                         [AnnotationType.TimeRange]: t(
                             'annotation.type.timerange',
@@ -118,6 +118,11 @@ export default function MessageForm({
 
                     return newAnnotation;
                 },
+                onDelete: id => {
+                    setAttachments(p =>
+                        p.filter(a => a.type !== 'annotation' || a.data?.id !== id)
+                    );
+                }
             };
         }
     }, [annotationsControlRef, inputRef]);

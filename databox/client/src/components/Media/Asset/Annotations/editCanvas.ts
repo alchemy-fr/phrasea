@@ -1,7 +1,7 @@
 import {AssetAnnotation, OnUpdateAnnotation} from './annotationTypes.ts';
 import {DrawContext, drawingHandlers, OnResizeEvent, StartingPoint, ToFunction} from './events.ts';
 import {CommonAnnotationDrawProps} from "./useAnnotationDraw.ts";
-import {getZoomFromRef} from "./common.ts";
+import {getZoomFromRef, ShapeControlRef} from "./common.ts";
 import {MutableRefObject} from "react";
 import {isPointInRectangle} from "./shapes/RectAnnotationHandler.ts";
 
@@ -12,6 +12,7 @@ type Props = {
     onUpdate: OnUpdateAnnotation;
     previouslySelectedAnnotations: MutableRefObject<AssetAnnotation[]>;
     startingPoint: MutableRefObject<StartingPoint | undefined>;
+    shapeControlRef: ShapeControlRef;
 } & CommonAnnotationDrawProps;
 
 export function bindEditCanvas({
@@ -24,6 +25,7 @@ export function bindEditCanvas({
     spaceRef,
     zoomRef,
     startingPoint,
+    shapeControlRef,
     previouslySelectedAnnotations,
 }: Props): UnregisterFunction {
     const canvas = canvasRef.current!;
@@ -49,23 +51,28 @@ export function bindEditCanvas({
     }
 
     const onMouseDown = (e: MouseEvent) => {
-        if (!spaceRef.current) {
-            e.stopPropagation();
-        } else {
+        if (spaceRef.current) {
             return;
         }
+
+        e.preventDefault();
+        const activeElement = document.activeElement;
+        if (activeElement && activeElement instanceof HTMLElement) {
+            activeElement.blur();
+        }
+        e.stopPropagation();
 
         startingPoint.current = {
             x: e.offsetX,
             y: e.offsetY,
         };
 
-        function initMouseListeners(): boolean {
+        function initMouseListeners(allowMove: boolean): boolean {
             const annotation = annotations!.find(a => a.id === selectedAnnotationRef.current!.id!)!;
             const handler = drawingHandlers[annotation.type]!;
             let updatedAnnotation: AssetAnnotation | undefined;
 
-            const resizeHandler = handler.getResizeHandler({
+            let resizeHandler = handler.getResizeHandler({
                 drawContext,
                 annotation,
                 toX,
@@ -74,25 +81,28 @@ export function bindEditCanvas({
                 y: e.offsetY,
             });
 
-            if (resizeHandler) {
-                const toX = (x: number) => x * width;
-                const toY = (y: number) => y * height;
+            if (allowMove && !resizeHandler) {
+                const boundingBox = handler.getBoundingBox({
+                    drawContext,
+                    annotation,
+                    toX,
+                    toY,
+                    options: handler.toOptions(annotation, {toX, toY}),
+                });
+                if (isPointInRectangle(e.offsetX, e.offsetY, boundingBox)) {
+                    resizeHandler = handler.getMoveHandler();
+                }
+            }
 
+            if (resizeHandler) {
                 clear();
-                handler.drawAnnotation(
-                    {
-                        drawContext,
-                        annotation,
-                        toX,
-                        toY,
-                    },
-                    true
-                );
 
                 const mouseMove = (e: MouseEvent) => {
                     const x = e.offsetX;
                     const y = e.offsetY;
                     const st = startingPoint.current!;
+
+                    e.preventDefault();
 
                     updatedAnnotation = resizeHandler({
                         annotation,
@@ -109,6 +119,7 @@ export function bindEditCanvas({
                     clear();
                 };
                 const onMouseUp = () => {
+                    shapeControlRef.current!.style.pointerEvents = 'auto';
                     if (updatedAnnotation) {
                         selectedAnnotationRef.current = updatedAnnotation;
                         onUpdate(
@@ -124,6 +135,8 @@ export function bindEditCanvas({
                 canvas.addEventListener('mousemove', mouseMove);
                 window.addEventListener('mouseup', onMouseUp);
 
+                shapeControlRef.current!.style.pointerEvents = 'none';
+
                 return true;
             }
 
@@ -131,7 +144,7 @@ export function bindEditCanvas({
         }
 
         if (selectedAnnotationRef.current) {
-            if (initMouseListeners()) {
+            if (initMouseListeners(false)) {
                 return;
             }
 
@@ -171,7 +184,7 @@ export function bindEditCanvas({
         if (!selectedAnnotationRef.current) {
             clear();
         } else {
-            initMouseListeners();
+            initMouseListeners(true);
         }
     };
 

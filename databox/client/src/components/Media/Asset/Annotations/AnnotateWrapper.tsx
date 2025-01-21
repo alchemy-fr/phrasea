@@ -1,4 +1,13 @@
-import React, {forwardRef, memo, ReactNode, useEffect, useImperativeHandle, useRef, useState,} from 'react';
+import React, {
+    forwardRef,
+    memo,
+    ReactNode,
+    useCallback,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState,
+} from 'react';
 import {useAnnotationDraw} from './useAnnotationDraw.ts';
 import {
     AnnotationOptions,
@@ -12,6 +21,8 @@ import {useAnnotationRender} from './useAnnotationRender.tsx';
 import type {ZoomStepState} from "../Players";
 import type {AssetAnnotationHandle, ZoomRef} from "./common.ts";
 import {annotationZIndex} from "./common.ts";
+import ShapeControl from "./ShapeControl.tsx";
+import {drawingHandlers} from "./events.ts";
 
 type Props = {
     annotationsControl?: AnnotationsControl | undefined;
@@ -42,6 +53,7 @@ export default memo(
         ref
     ) {
         const selectedAnnotationRef = useRef<AssetAnnotation | undefined>();
+        const shapeControlRef = useRef<HTMLDivElement | null>(null);
         const spaceRef = useRef<boolean>(false);
         const canvasRef = useRef<HTMLCanvasElement | null>(null);
         const [mode, setMode] = useState<AnnotationType | undefined>(undefined);
@@ -91,6 +103,57 @@ export default memo(
             }
         }, [spaceRef]);
 
+        const onShapeDelete = useCallback(() => {
+            const id = selectedAnnotationRef.current?.id;
+            if (id) {
+                setAnnotations(p => p!.filter(a => a.id !== id));
+                annotationsControl?.onDelete(id);
+                selectedAnnotationRef.current = undefined;
+            }
+        }, [annotationsControl, selectedAnnotationRef]);
+
+        const onShapeDuplicate = useCallback(() => {
+            const annotation = selectedAnnotationRef.current;
+            if (annotation) {
+                onNewAnnotationHandler({
+                    ...annotation,
+                    name: undefined,
+                });
+            }
+        }, [annotationsControl, selectedAnnotationRef]);
+
+        const onRename = useCallback((newName: string) => {
+            const annotation = selectedAnnotationRef.current;
+            if (annotation) {
+                const handler = drawingHandlers[annotation.type];
+
+                const newAnnotation = {
+                    ...(handler?.onRename?.({annotation, newName}) ?? annotation),
+                    name: newName,
+                };
+
+                setAnnotations(p => {
+                    return p!.map(a => {
+                        if (a.id === annotation.id) {
+                            return newAnnotation;
+                        }
+                        return a;
+                    });
+                });
+                annotationsControl?.onUpdate(annotation.id!, newAnnotation);
+            }
+        }, [annotationsControl, selectedAnnotationRef]);
+
+        const sa = selectedAnnotationRef.current;
+        if (sa) {
+            if (annotations) {
+                if (!annotations.includes(sa)) {
+                    selectedAnnotationRef.current = annotations.find(a => a.id === sa.id);
+                }
+            } else {
+                selectedAnnotationRef.current = undefined
+            }
+        }
 
         const {render} = useAnnotationRender({
             canvasRef,
@@ -99,6 +162,7 @@ export default memo(
             zoomStep,
             zoomRef,
             selectedAnnotationRef,
+            shapeControlRef,
         });
 
         useImperativeHandle(ref, () => {
@@ -111,6 +175,7 @@ export default memo(
             ? {
                 onNew: onNewAnnotationHandler,
                 onUpdate: annotationsControl.onUpdate,
+                onDelete: annotationsControl.onDelete,
             }
             : undefined;
 
@@ -125,6 +190,7 @@ export default memo(
             annotations,
             page,
             spaceRef,
+            shapeControlRef,
             zoomRef,
         });
 
@@ -132,18 +198,26 @@ export default memo(
             <>
                 {children({
                     canvas: (
-                        <canvas
-                            ref={canvasRef}
-                            style={{
-                                cursor:
-                                    annotate && mode ? 'crosshair' : 'default',
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                zIndex: annotationZIndex + 1,
-                                pointerEvents: annotate ? undefined : 'none',
-                            }}
-                        />
+                        <>
+                            <canvas
+                                ref={canvasRef}
+                                style={{
+                                    cursor:
+                                        annotate && mode ? 'crosshair' : 'default',
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    zIndex: annotationZIndex + 1,
+                                    pointerEvents: annotate ? undefined : 'none',
+                                }}
+                            />
+                            <ShapeControl
+                                elementRef={shapeControlRef}
+                                onDelete={onShapeDelete}
+                                onDuplicate={onShapeDuplicate}
+                                onRename={onRename}
+                            />
+                        </>
                     ),
                     toolbar:
                         annotationEnabled && annotationsControl ? (

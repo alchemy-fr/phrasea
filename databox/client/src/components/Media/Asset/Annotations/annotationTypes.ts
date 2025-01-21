@@ -6,7 +6,7 @@ export type Point = {
 };
 
 export enum AnnotationType {
-    Point = 'point',
+    Target = 'target',
     Draw = 'draw',
     Circle = 'circle',
     Line = 'line',
@@ -27,7 +27,7 @@ export interface AssetAnnotation {
 }
 
 export interface PointAnnotation extends AssetAnnotation {
-    type: AnnotationType.Point;
+    type: AnnotationType.Target;
     x: number;
     y: number;
     c?: string; // Color
@@ -36,7 +36,7 @@ export interface PointAnnotation extends AssetAnnotation {
 }
 
 export interface LineAnnotation extends AssetAnnotation {
-    type: AnnotationType.Point;
+    type: AnnotationType.Target;
     x1: number;
     y1: number;
     x2: number;
@@ -77,6 +77,8 @@ export interface RectangleAnnotation extends AssetAnnotation {
 export interface DrawAnnotation extends AssetAnnotation {
     type: AnnotationType.Draw;
     paths: Point[][];
+    x: number;
+    y: number;
     c?: string; // Color
     s?: number; // Line width
 }
@@ -104,6 +106,7 @@ export interface TimeRangeAnnotation extends AssetAnnotation {
 export type AnnotationsControl = {
     onNew: OnNewAnnotation;
     onUpdate: OnUpdateAnnotation;
+    onDelete: OnDeleteAnnotation;
 };
 
 export type AnnotationsControlRef = MutableRefObject<
@@ -117,3 +120,7 @@ export type OnUpdateAnnotation = (
     id: AnnotationId,
     newAnnotation: AssetAnnotation
 ) => AssetAnnotation;
+
+export type OnDeleteAnnotation = (
+    id: AnnotationId,
+) => void;

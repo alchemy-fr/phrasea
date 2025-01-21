@@ -1,6 +1,7 @@
 import {AnnotationOptions, AnnotationType} from '../annotationTypes.ts';
 import {DrawingHandler} from '../events.ts';
 import {drawCircle, getMoveCircleCoordsInCircle, getResizeCircleCoords, isPointInCircle} from "./circle.ts";
+import {getStandardMoveHandler} from "../common.ts";
 
 function getRadius(deltaX: number, deltaY: number) {
     return Math.abs(
@@ -29,10 +30,10 @@ export const CircleAnnotationHandler: DrawingHandler = {
         clear();
         const radius = getRadius(deltaX, deltaY);
         drawCircle(drawContext, {
-            x,
-            y,
-            radius,
-        },
+                x,
+                y,
+                radius,
+            },
             options,
         );
     },
@@ -132,5 +133,6 @@ export const CircleAnnotationHandler: DrawingHandler = {
             w: 2 * radius,
             h: 2 * radius,
         };
-    }
+    },
+    getMoveHandler: getStandardMoveHandler,
 };

@@ -7,7 +7,7 @@ import {
 } from './annotationTypes.ts';
 import {DrawAnnotationHandler} from './shapes/DrawAnnotationHandler.ts';
 import {RectAnnotationHandler} from './shapes/RectAnnotationHandler.ts';
-import {PointAnnotationHandler} from './shapes/PointAnnotationHandler.ts';
+import {TargetAnnotationHandler} from './shapes/TargetAnnotationHandler.ts';
 import {CircleAnnotationHandler} from './shapes/CircleAnnotationHandler.ts';
 import {LineAnnotationHandler} from "./shapes/LineAnnotationHandler.ts";
 import {ArrowAnnotationHandler} from "./shapes/ArrowAnnotationHandler.ts";
@@ -104,6 +104,11 @@ export type GetBoundingBoxProps = {
     toY: ToFunction;
 }
 
+type OnRenameEvent = {
+    annotation: AssetAnnotation;
+    newName: string;
+}
+
 export type DrawingHandler = {
     onDrawStart: OnStartDrawing;
     onDrawMove: OnDrawMove;
@@ -127,11 +132,13 @@ export type DrawingHandler = {
     getResizeHandler: (
         props: PointInsideProps
     ) => AnnotationResizeHandler | undefined;
+    getMoveHandler: () => AnnotationResizeHandler;
+    onRename?: (props: OnRenameEvent) => AssetAnnotation;
 };
 
 export const drawingHandlers: Record<AnnotationType, DrawingHandler> = {
     [AnnotationType.Circle]: CircleAnnotationHandler,
-    [AnnotationType.Point]: PointAnnotationHandler,
+    [AnnotationType.Target]: TargetAnnotationHandler,
     [AnnotationType.Rect]: RectAnnotationHandler,
     [AnnotationType.Draw]: DrawAnnotationHandler,
     [AnnotationType.Line]: LineAnnotationHandler,

@@ -1,8 +1,9 @@
 import {drawingHandlers, ToFunction} from "./events.ts";
 import React from "react";
 import {AssetAnnotation, SelectedAnnotationRef} from "./annotationTypes.ts";
-import {getZoomFromRef, ZoomRef} from "./common.ts";
+import {getZoomFromRef, ShapeControlRef, ZoomRef} from "./common.ts";
 import {drawRectangle} from "./shapes/rectangle.ts";
+import {controlsColor} from "./shapes/shapeCommon.ts";
 
 type Props = {
     canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
@@ -10,6 +11,7 @@ type Props = {
     page?: number;
     selectedAnnotationRef?: SelectedAnnotationRef;
     zoomRef: ZoomRef;
+    shapeControlRef: ShapeControlRef;
 };
 
 export type {Props as RenderAnnotationProps};
@@ -20,6 +22,7 @@ export function renderAnnotations({
     page,
     selectedAnnotationRef,
     zoomRef,
+    shapeControlRef,
 }: Props) {
     if (canvasRef.current) {
         const canvas = canvasRef.current;
@@ -36,8 +39,8 @@ export function renderAnnotations({
         context.scale(resolution, resolution);
 
         let selected = selectedAnnotationRef?.current;
-        if (selectedAnnotationRef && selected && !annotations?.find(a => a.id === selected!.id)) {
-            selected = selectedAnnotationRef.current = undefined;
+        if (selected && !annotations?.find(a => a.id === selected!.id)) {
+            selected = undefined;
         }
 
         const drawContext = {
@@ -67,7 +70,7 @@ export function renderAnnotations({
                     }, isSelected);
 
                     if (isSelected) {
-                        drawRectangle(drawContext, handler.getBoundingBox({
+                        const boundingBox = handler.getBoundingBox({
                             drawContext,
                             annotation,
                             options: handler.toOptions(annotation, {
@@ -76,12 +79,50 @@ export function renderAnnotations({
                             }),
                             toX,
                             toY,
-                        }), {
-                            color: 'rgba(20, 20, 20, 0.4)',
-                            size: 1 / drawContext.zoom,
+                        });
+
+                        const controls = shapeControlRef.current;
+                        const unscale = 1 / drawContext.zoom;
+                        if (controls) {
+                            controls.style.transform = `scale(${unscale})`;
+                            controls.style.display = 'block';
+                            let {offsetWidth, offsetHeight} = controls;
+                            offsetWidth *= unscale;
+                            offsetHeight *= unscale;
+
+                            const padding = 10 * unscale;
+
+                            let finalX = boundingBox.x;
+                            let finalY = boundingBox.y - offsetHeight - padding;
+                            if (finalX < 0) {
+                                finalX = 0;
+                            }
+                            if (finalY < 0) {
+                                finalY = boundingBox.y + boundingBox.h + padding;
+                            }
+                            if (finalX + offsetWidth > width) {
+                                finalX = width - offsetWidth;
+                            }
+
+                            controls.style.top = finalY + 'px';
+                            controls.style.left = finalX + 'px';
+                            const selectedAnnotation = annotations!.find(a => a.id === selectedAnnotationRef!.current!.id)!;
+                            controls.querySelector('.shape-name')!.textContent = selectedAnnotation.name ?? '';
+                        }
+
+                        drawRectangle(drawContext, boundingBox, {
+                            color: controlsColor,
+                            size: unscale,
                         });
                     }
                 }
             });
+
+        if (!selected) {
+            const controls = shapeControlRef.current;
+            if (controls) {
+                controls.style.display = 'none';
+            }
+        }
     }
 }
