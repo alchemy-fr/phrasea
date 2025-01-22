@@ -68,7 +68,7 @@ export function createDrawAnnotationHandler(
         },
         drawAnnotation: (
             {annotation: {paths, c, s, x, y}, drawContext, toX, toY},
-            selected
+            {selected, editable}
         ) => {
             const options = {
                 color: c,
@@ -88,7 +88,7 @@ export function createDrawAnnotationHandler(
                     ),
                 },
                 options,
-                selected
+                selected && editable
             );
         },
         getResizeHandler: () => {

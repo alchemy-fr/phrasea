@@ -1,15 +1,12 @@
 import {Asset} from '../../../../types';
 import React, {useContext} from 'react';
-import AttributeRowUI from './AttributeRowUI';
+import AttributeRowUI, {BaseAttributeRowUIProps} from './AttributeRowUI';
 import {SxProps} from '@mui/material';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import {UserPreferencesContext} from '../../../User/Preferences/UserPreferencesContext';
 import {AttributeFormatContext} from './Format/AttributeFormatContext';
 import {buildAttributesGroupedByDefinition} from './attributeIndex.ts';
-import {
-    copyToClipBoardClass,
-    copyToClipBoardContainerClass,
-} from './CopyAttribute.tsx';
+import {copyToClipBoardClass, copyToClipBoardContainerClass,} from './CopyAttribute.tsx';
 import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
 
 export type OnActiveAnnotations = (annotations: AssetAnnotation[]) => void;
@@ -18,14 +15,13 @@ type Props = {
     asset: Asset;
     displayControls: boolean;
     pinnedOnly?: boolean;
-    onActiveAnnotations?: OnActiveAnnotations | undefined;
-};
+} & BaseAttributeRowUIProps;
 
 function Attributes({
     asset,
     displayControls,
     pinnedOnly,
-    onActiveAnnotations,
+    assetAnnotationsRef,
 }: Props) {
     const {preferences, updatePreference} = useContext(UserPreferencesContext);
     const formatContext = useContext(AttributeFormatContext);
@@ -91,7 +87,7 @@ function Attributes({
                         displayControls={displayControls}
                         pinned={pinnedAttributes.includes(g.definition.id)}
                         togglePin={asset.workspace ? togglePin : undefined}
-                        onActiveAnnotations={onActiveAnnotations}
+                        assetAnnotationsRef={assetAnnotationsRef}
                     />
                 );
             })}

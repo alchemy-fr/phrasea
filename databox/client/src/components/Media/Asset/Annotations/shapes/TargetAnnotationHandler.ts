@@ -1,7 +1,6 @@
 import {AnnotationOptions, AnnotationType, Point} from '../annotationTypes.ts';
 import {DrawContext, DrawingHandler} from '../events.ts';
-import {controlsSize} from './shapeCommon.ts';
-import {drawCircle, drawCircleControl} from './circle.ts';
+import {drawCircle} from './circle.ts';
 import {drawLine} from './line.ts';
 import {getStandardMoveHandler} from '../common.ts';
 
@@ -11,7 +10,7 @@ function drawTarget(
     drawContext: DrawContext,
     {x, y}: Point,
     options: AnnotationOptions,
-    selected: boolean = false
+    _controls: boolean = false
 ) {
     const size = options.size;
     drawCircle(
@@ -62,14 +61,6 @@ function drawTarget(
             }
         );
     }
-
-    if (selected) {
-        drawCircleControl(drawContext, {
-            x,
-            y,
-            radius: controlsSize / drawContext.zoom,
-        });
-    }
 }
 
 export const TargetAnnotationHandler: DrawingHandler = {
@@ -114,7 +105,7 @@ export const TargetAnnotationHandler: DrawingHandler = {
     },
     drawAnnotation: (
         {annotation: {x, y, c, s}, drawContext, toX, toY},
-        selected
+        {selected, editable}
     ) => {
         drawTarget(
             drawContext,
@@ -126,10 +117,11 @@ export const TargetAnnotationHandler: DrawingHandler = {
                 color: c,
                 size: toX(s),
             },
-            selected
+            selected && editable
         );
     },
-    onTerminate: () => {},
+    onTerminate: () => {
+    },
     getResizeHandler: () => {
         return undefined;
     },

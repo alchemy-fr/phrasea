@@ -1,10 +1,8 @@
 import {File} from '../../../../types.ts';
 import {PlayerProps} from './index.ts';
-import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
+import {AssetAnnotation, AnnotationsControl} from '../Annotations/annotationTypes.ts';
 import React, {useRef} from 'react';
 import FileToolbar from './FileToolbar.tsx';
-
-import {AssetAnnotationHandle} from '../Annotations/common.ts';
 
 type Props = {
     file: File;
@@ -15,13 +13,11 @@ type Props = {
 export default function ImagePlayer({
     file,
     title,
-    annotations,
     onLoad,
-    annotationsControl,
-    zoomEnabled,
     controls,
+    ...playerProps
 }: Props) {
-    const annotationsOverlayRef = useRef<AssetAnnotationHandle | null>(null);
+    const annotationsOverlayRef = useRef<AnnotationsControl | null>(null);
     const isSvg = file.type === 'image/svg+xml';
 
     const pOnLoad = React.useCallback(() => {
@@ -48,18 +44,16 @@ export default function ImagePlayer({
         />
     );
 
-    if (!annotationsControl || !annotations || !zoomEnabled) {
+    if (!playerProps.assetAnnotationsRef && !playerProps.annotations && !playerProps.zoomEnabled) {
         return img;
     }
 
     return (
         <>
             <FileToolbar
+                {...playerProps}
                 key={file.id}
                 controls={controls}
-                annotationsControl={annotationsControl}
-                annotations={annotations}
-                zoomEnabled={zoomEnabled}
                 annotationEnabled={true}
                 forceHand={true}
             >

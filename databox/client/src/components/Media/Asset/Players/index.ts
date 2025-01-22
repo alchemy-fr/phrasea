@@ -1,8 +1,8 @@
 import {File} from '../../../../types';
-import {
-    AnnotationsControl,
-    AssetAnnotation,
-} from '../Annotations/annotationTypes.ts';
+import {AssetAnnotation, AssetAnnotationRef,} from '../Annotations/annotationTypes.ts';
+import {BaseAnnotationProps} from "../Annotations/AnnotateWrapper.tsx";
+import {RefObject} from "react";
+import {ReactZoomPanPinchContentRef} from "react-zoom-pan-pinch";
 
 export type FileWithUrl = {
     url: string;
@@ -36,9 +36,9 @@ export type PlayerProps = {
     zoomEnabled?: boolean | undefined;
     title: string | undefined;
     controls?: boolean | undefined;
-    annotationsControl?: AnnotationsControl | undefined;
+    assetAnnotationsRef?: AssetAnnotationRef | undefined;
     annotations?: AssetAnnotation[] | undefined;
-};
+} & BaseAnnotationProps;
 
 export const filePlayerRelativeWrapperClassName = 'fprw';
 
@@ -46,3 +46,5 @@ export type ZoomStepState = {
     current: number;
     maxReached: number;
 };
+
+export type ZoomPanPinchContentRef = RefObject<ReactZoomPanPinchContentRef | null>;

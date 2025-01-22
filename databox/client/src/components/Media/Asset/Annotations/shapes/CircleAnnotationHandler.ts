@@ -70,7 +70,7 @@ export const CircleAnnotationHandler: DrawingHandler = {
     },
     drawAnnotation: (
         {annotation: {x, y, r, c, s}, drawContext, toX, toY},
-        selected
+        {selected, editable}
     ) => {
         drawCircle(
             drawContext,
@@ -83,7 +83,7 @@ export const CircleAnnotationHandler: DrawingHandler = {
                 color: c,
                 size: toX(s),
             },
-            selected
+            selected && editable
         );
     },
     onTerminate: () => {},

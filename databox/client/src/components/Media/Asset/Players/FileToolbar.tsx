@@ -1,53 +1,46 @@
-import AnnotateWrapper from '../Annotations/AnnotateWrapper.tsx';
-import {
-    MutableRefObject,
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
-} from 'react';
-import {
-    AnnotationsControl,
-    AssetAnnotation,
-} from '../Annotations/annotationTypes.ts';
+import AnnotateWrapper, {BaseAnnotationProps} from '../Annotations/AnnotateWrapper.tsx';
+import {useCallback, useEffect, useRef, useState,} from 'react';
+import {AssetAnnotationRef,} from '../Annotations/annotationTypes.ts';
 import ZoomControls from './ZoomControls.tsx';
-import {TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch';
+import {ReactZoomPanPinchContentRef, TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch';
 import {Box, IconButton} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
-import {filePlayerRelativeWrapperClassName, ZoomStepState} from './index.ts';
+import {filePlayerRelativeWrapperClassName, ZoomPanPinchContentRef, ZoomStepState} from './index.ts';
 import ToolbarPaper from './ToolbarPaper.tsx';
-import {AssetAnnotationHandle} from '../Annotations/common.ts';
 
 type Props = {
     annotationEnabled?: boolean;
     zoomEnabled?: boolean;
-    annotationsControl?: AnnotationsControl | undefined;
-    annotations?: AssetAnnotation[] | undefined;
+    assetAnnotationsRef?: AssetAnnotationRef;
     page?: number;
     controls?: boolean | undefined;
     preToolbarActions?: JSX.Element | undefined;
     forceHand?: boolean;
     children:
         | ((props: {
-              annotationsWrapperRef: MutableRefObject<AssetAnnotationHandle | null>;
-              zoomStep: ZoomStepState;
-          }) => JSX.Element)
+        zoomStep: ZoomStepState;
+        transformWrapperRef: ZoomPanPinchContentRef;
+    }) => JSX.Element)
         | JSX.Element;
-};
+} & BaseAnnotationProps;
 
 export default function FileToolbar({
     annotations,
     annotationEnabled,
     zoomEnabled,
-    annotationsControl,
+    assetAnnotationsRef,
     children,
     page,
     controls,
     preToolbarActions,
     forceHand,
+    ...annotateProps
 }: Props) {
-    const annotationsWrapperRef = useRef<AssetAnnotationHandle | null>(null);
+    const assetAnnotationsRefFallback: AssetAnnotationRef = useRef(null);
+    const finalAssetAnnotationsRef = assetAnnotationsRef ?? assetAnnotationsRefFallback;
+    const transformWrapperRef = useRef<ReactZoomPanPinchContentRef | null>(null);
+
     const zoomRef = useRef<number>(1);
     const [closed, setClosed] = useState(false);
     const [hand, setHand] = useState(forceHand ?? false);
@@ -109,11 +102,11 @@ export default function FileToolbar({
     return (
         <>
             <AnnotateWrapper
+                {...annotateProps}
                 annotationEnabled={annotationEnabled}
                 annotations={annotations}
-                annotationsControl={annotationsControl}
                 page={page}
-                ref={annotationsWrapperRef}
+                ref={finalAssetAnnotationsRef}
                 zoomStep={zoomStep}
                 zoomRef={zoomRef}
             >
@@ -123,6 +116,7 @@ export default function FileToolbar({
 
                     return (
                         <TransformWrapper
+                            ref={transformWrapperRef}
                             disabled={disabled}
                             initialScale={1}
                             disablePadding={true}
@@ -171,9 +165,9 @@ export default function FileToolbar({
                                             onClick={() => setClosed(p => !p)}
                                         >
                                             {closed ? (
-                                                <MenuOpenIcon />
+                                                <MenuOpenIcon/>
                                             ) : (
-                                                <CloseIcon />
+                                                <CloseIcon/>
                                             )}
                                         </IconButton>
                                     </Box>
@@ -195,9 +189,9 @@ export default function FileToolbar({
                                     {canvas}
                                     {typeof children === 'function'
                                         ? children({
-                                              annotationsWrapperRef,
-                                              zoomStep,
-                                          })
+                                            zoomStep,
+                                            transformWrapperRef,
+                                        })
                                         : children}
                                 </div>
                             </TransformComponent>

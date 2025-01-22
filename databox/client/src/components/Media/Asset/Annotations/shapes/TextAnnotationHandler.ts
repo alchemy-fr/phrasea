@@ -1,13 +1,9 @@
-import {
-    AnnotationOptions,
-    AnnotationType,
-    TextAnnotation,
-} from '../annotationTypes.ts';
-import {DrawingHandler} from '../events.ts';
-import {drawText, getTextDimensions} from './text.ts';
+import {AnnotationOptions, AnnotationType, TextAnnotation,} from '../annotationTypes.ts';
+import {drawText, getResizeTextCircleCoords, getTextDimensions, getTextSizeFromDist, growFactor} from './text.ts';
 import {isPointInCircle} from './circle.ts';
-import {getMoveCircleCoordsInRectangle} from './rectangle.ts';
 import {getStandardMoveHandler} from '../common.ts';
+import {DrawingHandler} from "../events.ts";
+import {getDefaultSize, updateLastSize} from "../defaultOptions.ts";
 
 export const TextAnnotationHandler: DrawingHandler = {
     onDrawStart: ({
@@ -15,36 +11,64 @@ export const TextAnnotationHandler: DrawingHandler = {
         y,
         drawContext,
         options,
-        onNewAnnotation,
-        relativeY,
-        relativeX,
-        terminate,
+        data,
     }) => {
-        const text = 'Text';
+        data.text = 'Text';
 
         drawText(
             drawContext,
             {
                 x,
                 y,
-                text,
+                text: data.text,
             },
-            options
+            {
+                ...options,
+                size: 0,
+            }
         );
+    },
+    onDrawMove: ({clear, drawContext, data, x, y, startingPoint, options}) => {
+        clear();
+        const size = getTextSizeFromDist(startingPoint, {
+            x, y,
+        });
+
+        drawText(
+            drawContext,
+            {
+                x: startingPoint.x,
+                y: startingPoint.y,
+                text: data.text,
+            },
+            {
+                ...options,
+                size: size,
+            }
+        );
+    },
+    onDrawEnd: ({terminate, data, onNewAnnotation, startingPoint, x, y, relativeX, relativeY, options}) => {
+        const {text} = data;
+        let size = getTextSizeFromDist(startingPoint, {x, y});
+
+        if (size <= 0) {
+            size = getDefaultSize(AnnotationType.Text);
+        } else {
+            updateLastSize(AnnotationType.Text, size);
+        }
+
         onNewAnnotation({
             type: AnnotationType.Text,
             text,
             name: text,
-            x: relativeX(x),
-            y: relativeY(y),
-            s: relativeX(options.size),
+            x: relativeX(startingPoint.x),
+            y: relativeY(startingPoint.y),
+            s: relativeX(size),
             c: options.color,
         } as TextAnnotation);
         terminate();
     },
-    onDrawMove: () => {},
-    onDrawEnd: () => {},
-    drawAnnotation: ({annotation, drawContext, toX, toY}, selected) => {
+    drawAnnotation: ({annotation, drawContext, toX, toY}, {selected, editable}) => {
         const {x, y, text, c, s} = annotation;
         drawText(
             drawContext,
@@ -57,34 +81,51 @@ export const TextAnnotationHandler: DrawingHandler = {
                 color: c,
                 size: toX(s),
             },
-            selected
+            selected && editable
         );
     },
-    onTerminate: () => {},
+    onTerminate: () => {
+    },
     getResizeHandler: ({annotation, drawContext, x, y, toX, toY}) => {
-        const {width, height} = getTextDimensions(
+        const pX = toX(annotation.x);
+        const pY = toY(annotation.y);
+        const pS = toX(annotation.s);
+        const resizeTextCircleCoords = getResizeTextCircleCoords(drawContext, {
+            x: pX,
+            y: pY,
+            text: annotation.text,
+        }, {
+            color: annotation.c,
+            size: pS,
+        });
+
+        const {width: originWidth, height: originHeight} = getTextDimensions(
             drawContext.context,
             annotation.text,
-            toX(annotation.s)
+            pS
         );
 
         if (
             isPointInCircle(
                 x,
                 y,
-                getMoveCircleCoordsInRectangle(drawContext, {
-                    x: toX(annotation.x),
-                    y: toY(annotation.y) - height,
-                    w: width,
-                    h: height,
-                })
+                resizeTextCircleCoords
             )
         ) {
-            return ({annotation, relativeX, relativeY, deltaX, deltaY}) => {
+            return ({annotation, relativeX, deltaX, deltaY}) => {
+                const size = getTextSizeFromDist({
+                    x: pX,
+                    y: pY,
+                }, {
+                    x: pX + originWidth + deltaX,
+                    y: pY + originHeight * growFactor + deltaY
+                });
+
+                updateLastSize(AnnotationType.Text, size);
+
                 return {
                     ...annotation,
-                    x: annotation.x + relativeX(deltaX),
-                    y: annotation.y + relativeY(deltaY),
+                    s: relativeX(size),
                 };
             };
         }

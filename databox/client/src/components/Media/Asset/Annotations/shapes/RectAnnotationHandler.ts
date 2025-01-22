@@ -11,7 +11,7 @@ import {
     RectangleProps,
 } from './rectangle.ts';
 import {isPointInCircle} from './circle.ts';
-import {controlsSize} from './shapeCommon.ts';
+import {controlsSize} from '../controls.ts';
 import {getStandardMoveHandler} from '../common.ts';
 
 export function isPointInRectangle(
@@ -80,7 +80,7 @@ export const RectAnnotationHandler: DrawingHandler = {
         onNewAnnotation(props as RectangleAnnotation);
         terminate();
     },
-    drawAnnotation: ({annotation, drawContext, toX, toY}, selected) => {
+    drawAnnotation: ({annotation, drawContext, toX, toY}, {selected, editable}) => {
         const {x, y, w, h, c, s} = annotation;
         drawRectangle(
             drawContext,
@@ -94,7 +94,7 @@ export const RectAnnotationHandler: DrawingHandler = {
                 color: c,
                 size: toX(s),
             },
-            selected
+            selected && editable
         );
     },
     onTerminate: () => {},

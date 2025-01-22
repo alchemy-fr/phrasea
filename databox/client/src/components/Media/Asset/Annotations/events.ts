@@ -2,6 +2,7 @@ import {
     AnnotationOptions,
     AnnotationType,
     AssetAnnotation,
+    DrawOptions,
     OnNewAnnotation,
     Point,
 } from './annotationTypes.ts';
@@ -12,6 +13,7 @@ import {CircleAnnotationHandler} from './shapes/CircleAnnotationHandler.ts';
 import {LineAnnotationHandler} from './shapes/LineAnnotationHandler.ts';
 import {ArrowAnnotationHandler} from './shapes/ArrowAnnotationHandler.ts';
 import {TextAnnotationHandler} from './shapes/TextAnnotationHandler.ts';
+import {RectangleProps} from "./shapes/rectangle.ts";
 
 export type StartingPoint = Point;
 
@@ -115,7 +117,7 @@ export type DrawingHandler = {
     onDrawMove: OnDrawMove;
     onDrawEnd: OnEndDrawing;
     onTerminate: OnTerminate;
-    drawAnnotation: (props: DrawAnnotationProps, selected?: boolean) => void;
+    drawAnnotation: (props: DrawAnnotationProps, drawOptions: DrawOptions) => void;
     toOptions: (
         annotation: AssetAnnotation,
         helpers: {
@@ -131,12 +133,7 @@ export type DrawingHandler = {
             relativeY: ToFunction;
         }
     ) => AssetAnnotation;
-    getBoundingBox: (props: GetBoundingBoxProps) => {
-        x: number;
-        y: number;
-        w: number;
-        h: number;
-    };
+    getBoundingBox: (props: GetBoundingBoxProps) => RectangleProps;
     getResizeHandler: (
         props: PointInsideProps
     ) => AnnotationResizeHandler | undefined;

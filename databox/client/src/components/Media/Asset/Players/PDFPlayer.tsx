@@ -27,8 +27,7 @@ export default function PDFPlayer({
     dimensions: forcedDimensions,
     onLoad,
     annotations,
-    annotationsControl,
-    zoomEnabled,
+    ...playerProps
 }: Props) {
     const [ratio, setRatio] = useState<number>();
     const [numPages, setNumPages] = useState<number>();
@@ -71,15 +70,14 @@ export default function PDFPlayer({
 
     return (
         <FileToolbar
+            {...playerProps}
             key={file.id}
             controls={controls}
-            annotationsControl={annotationsControl}
             annotations={
                 renderedPageNumber === pageNumber && pageAnnotations.length > 0
                     ? pageAnnotations
                     : undefined
             }
-            zoomEnabled={zoomEnabled}
             annotationEnabled={true}
             page={pageNumber}
             preToolbarActions={
@@ -112,7 +110,7 @@ export default function PDFPlayer({
                 ) : undefined
             }
         >
-            {({annotationsWrapperRef, zoomStep}) => (
+            {({zoomStep, transformWrapperRef}) => (
                 <div
                     style={{
                         maxWidth: dimensions.width,
@@ -157,7 +155,8 @@ export default function PDFPlayer({
                                     }
                                     onRenderSuccess={() => {
                                         setRenderedPageNumber(pageNumber);
-                                        annotationsWrapperRef.current?.render();
+                                        playerProps.assetAnnotationsRef?.current?.render();
+                                        transformWrapperRef.current?.centerView();
                                     }}
                                 />
                             </>

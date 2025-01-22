@@ -1,15 +1,12 @@
 import {AssetAnnotation, OnUpdateAnnotation} from './annotationTypes.ts';
-import {
-    DrawContext,
-    drawingHandlers,
-    OnResizeEvent,
-    StartingPoint,
-    ToFunction,
-} from './events.ts';
+import {DrawContext, drawingHandlers, OnResizeEvent, StartingPoint, ToFunction,} from './events.ts';
 import {CommonAnnotationDrawProps} from './useAnnotationDraw.ts';
 import {getZoomFromRef, ShapeControlRef} from './common.ts';
 import {MutableRefObject} from 'react';
 import {isPointInRectangle} from './shapes/RectAnnotationHandler.ts';
+import {getMoveCircleCoordsInRectangle} from "./shapes/rectangle.ts";
+import {isPointInCircle} from "./shapes/circle.ts";
+import {updateLastOptions} from "./defaultOptions.ts";
 
 type UnregisterFunction = () => void;
 
@@ -73,9 +70,14 @@ export function bindEditCanvas({
         };
 
         function initMouseListeners(allowMove: boolean): boolean {
-            const annotation = annotations!.find(
+            const annotation = annotations.find(
                 a => a.id === selectedAnnotationRef.current!.id!
             )!;
+
+            if (!annotation.editable) {
+                return false;
+            }
+
             const handler = drawingHandlers[annotation.type]!;
             let updatedAnnotation: AssetAnnotation | undefined;
 
@@ -88,7 +90,7 @@ export function bindEditCanvas({
                 y: e.offsetY,
             });
 
-            if (allowMove && !resizeHandler) {
+            if (!resizeHandler) {
                 const boundingBox = handler.getBoundingBox({
                     drawContext,
                     annotation,
@@ -96,7 +98,9 @@ export function bindEditCanvas({
                     toY,
                     options: handler.toOptions(annotation, {toX, toY}),
                 });
-                if (isPointInRectangle(e.offsetX, e.offsetY, boundingBox)) {
+                if (
+                    (allowMove && isPointInRectangle(e.offsetX, e.offsetY, boundingBox))
+                    || isPointInCircle(e.offsetX, e.offsetY, getMoveCircleCoordsInRectangle(drawContext, boundingBox))) {
                     resizeHandler = handler.getMoveHandler();
                 }
             }
@@ -121,6 +125,17 @@ export function bindEditCanvas({
                         deltaX: x - st.x,
                         deltaY: y - st.y,
                     } as OnResizeEvent);
+
+                    const newOptions = handler.toOptions(updatedAnnotation, {
+                        toX,
+                        toY,
+                    });
+                    updateLastOptions(updatedAnnotation.type, newOptions);
+                    if (updatedAnnotation.editable) {
+                        setAnnotationOptions(
+                            newOptions
+                        );
+                    }
 
                     selectedAnnotationRef.current = updatedAnnotation;
                     clear();
@@ -177,7 +192,7 @@ export function bindEditCanvas({
             toX,
             toY
         );
-        if (annotation) {
+        if (annotation?.id) {
             selectedAnnotationRef.current = annotation;
             clear();
 
@@ -210,7 +225,7 @@ export function bindEditCanvas({
 
 function getBestSelectionCandidate(
     drawContext: DrawContext,
-    annotations: AssetAnnotation[] | undefined,
+    annotations: AssetAnnotation[],
     previouslySelectedAnnotations: MutableRefObject<AssetAnnotation[]>,
     offsetX: number,
     offsetY: number,
@@ -218,7 +233,7 @@ function getBestSelectionCandidate(
     toY: ToFunction
 ): AssetAnnotation | undefined {
     const candidates: AssetAnnotation[] = [];
-    for (const annotation of annotations ?? []) {
+    for (const annotation of annotations) {
         const handler = drawingHandlers[annotation.type]!;
 
         const boundingBox = handler.getBoundingBox({
