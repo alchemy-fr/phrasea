@@ -264,7 +264,7 @@ export default memo(
                     name: undefined,
                 });
             }
-        }, [selectedAnnotationRef]);
+        }, [selectedAnnotationRef, onNewAnnotationHandler]);
 
         const onRename = useCallback(
             (newName: string) => {

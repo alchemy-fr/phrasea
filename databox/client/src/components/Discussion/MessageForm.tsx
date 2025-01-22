@@ -49,6 +49,9 @@ export default forwardRef<MessageFormHandle, Props>(function MessageForm(
             ({
                 addAttachment: attachment => {
                     setAttachments(p => p.concat(attachment));
+                    setTimeout(() => {
+                        inputRef.current?.focus();
+                    }, 200);
                 },
                 removeAttachment: attachmentId =>
                     setAttachments(p => p.filter(a => a.id !== attachmentId)),
@@ -59,7 +62,6 @@ export default forwardRef<MessageFormHandle, Props>(function MessageForm(
                 },
                 clearAttachments: () => setAttachments([]),
                 getAttachments: () => attachments,
-                focus: () => inputRef.current?.focus(),
             }) as MessageFormHandle,
         [setAttachments, attachments, inputRef]
     );
