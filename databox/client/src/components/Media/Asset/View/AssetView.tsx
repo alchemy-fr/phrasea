@@ -1,7 +1,7 @@
 import React, {FC, useCallback, useMemo, useRef, useState} from 'react';
 import {Asset, AssetRendition} from '../../../../types.ts';
 import {AppDialog} from '@alchemy/phrasea-ui';
-import FilePlayer from '../FilePlayer.tsx';
+import {MemoizedFilePlayer} from '../FilePlayer.tsx';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
 import {StackedModalProps, useParams} from '@alchemy/navigation';
 import {Dimensions, filePlayerRelativeWrapperClassName} from '../Players';
@@ -188,7 +188,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                 {rendition?.file &&
                                     (!integrationOverlay ||
                                         !integrationOverlay.replace) && (
-                                        <FilePlayer
+                                        <MemoizedFilePlayer
                                             assetAnnotationsRef={assetAnnotationsRef}
                                             onNewAnnotation={onNewAnnotation}
                                             onUpdateAnnotation={onUpdateAnnotation}

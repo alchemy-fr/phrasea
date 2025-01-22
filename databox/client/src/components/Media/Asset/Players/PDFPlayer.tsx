@@ -1,21 +1,16 @@
-import React, {
-    useCallback,
-    useContext,
-    useEffect,
-    useMemo,
-    useState,
-} from 'react';
+import {useCallback, useContext, useEffect, useMemo, useState,} from 'react';
 import {createStrictDimensions, PlayerProps} from './index';
-import {Document, Page, pdfjs} from 'react-pdf';
+import {pdfjs} from 'react-pdf';
 import {getRatioDimensions} from './VideoPlayer';
 import {DisplayContext} from '../../DisplayContext';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import {CircularProgress, IconButton} from '@mui/material';
+import {IconButton} from '@mui/material';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
 import FileToolbar from './FileToolbar.tsx';
+import PdfView from "./PdfView.tsx";
 
 type Props = {
     controls?: boolean | undefined;
@@ -32,9 +27,6 @@ export default function PDFPlayer({
     const [ratio, setRatio] = useState<number>();
     const [numPages, setNumPages] = useState<number>();
     const [pageNumber, setPageNumber] = useState<number>(1);
-    const [renderedPageNumber, setRenderedPageNumber] = React.useState<
-        number | undefined
-    >();
     const displayContext = useContext(DisplayContext);
     const dimensions = createStrictDimensions(
         forcedDimensions ?? {width: displayContext!.thumbSize}
@@ -56,10 +48,10 @@ export default function PDFPlayer({
         if (annotations && annotations.length > 0) {
             const goTo = annotations[annotations.length - 1].page;
             numPages &&
-                goTo &&
-                goTo > 0 &&
-                goTo <= numPages &&
-                setPageNumber(goTo);
+            goTo &&
+            goTo > 0 &&
+            goTo <= numPages &&
+            setPageNumber(goTo);
         }
     }, [annotations, numPages]);
 
@@ -73,11 +65,7 @@ export default function PDFPlayer({
             {...playerProps}
             key={file.id}
             controls={controls}
-            annotations={
-                renderedPageNumber === pageNumber && pageAnnotations.length > 0
-                    ? pageAnnotations
-                    : undefined
-            }
+            annotations={pageAnnotations}
             annotationEnabled={true}
             page={pageNumber}
             preToolbarActions={
@@ -88,7 +76,7 @@ export default function PDFPlayer({
                                 onClick={() => setPageNumber(pageNumber - 1)}
                                 disabled={pageNumber === 1}
                             >
-                                <KeyboardArrowLeftIcon />
+                                <KeyboardArrowLeftIcon/>
                             </IconButton>
                         </div>
                         <div
@@ -103,7 +91,7 @@ export default function PDFPlayer({
                                 onClick={() => setPageNumber(pageNumber + 1)}
                                 disabled={pageNumber === numPages}
                             >
-                                <KeyboardArrowRightIcon />
+                                <KeyboardArrowRightIcon/>
                             </IconButton>
                         </div>
                     </>
@@ -119,49 +107,17 @@ export default function PDFPlayer({
                         backgroundColor: '#FFF',
                     }}
                 >
-                    <Document file={file.url} onLoadSuccess={onDocLoad}>
-                        {ratio ? (
-                            <>
-                                <Page
-                                    {...pdfDimensions}
-                                    key={pageNumber}
-                                    pageNumber={pageNumber}
-                                    devicePixelRatio={
-                                        window.devicePixelRatio *
-                                        Math.min(
-                                            zoomStep.maxReached *
-                                                Math.max(
-                                                    1,
-                                                    Math.ceil(ratio / 3)
-                                                ),
-                                            8
-                                        )
-                                    }
-                                    loading={
-                                        <div
-                                            style={{
-                                                position: 'absolute',
-                                                top: 0,
-                                                left: 0,
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                height: '100%',
-                                                width: '100%',
-                                            }}
-                                        >
-                                            <CircularProgress />
-                                        </div>
-                                    }
-                                    onRenderSuccess={() => {
-                                        setRenderedPageNumber(pageNumber);
-                                        playerProps.assetAnnotationsRef?.current?.render();
-                                        transformWrapperRef.current?.centerView();
-                                    }}
-                                />
-                            </>
-                        ) : null}
-                    </Document>
+                    <PdfView
+                        file={file.url}
+                        onLoadSuccess={onDocLoad}
+                        ratio={ratio}
+                        pdfDimensions={pdfDimensions}
+                        pageNumber={pageNumber}
+                        zoomStep={zoomStep}
+                        onRenderSuccess={() => {
+                            transformWrapperRef.current?.centerView();
+                        }}
+                    />
                 </div>
             )}
         </FileToolbar>
