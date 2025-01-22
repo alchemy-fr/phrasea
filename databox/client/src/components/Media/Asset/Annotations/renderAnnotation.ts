@@ -4,7 +4,7 @@ import {AssetAnnotation, SelectedAnnotationRef} from './annotationTypes.ts';
 import {getZoomFromRef, ShapeControlRef, ZoomRef} from './common.ts';
 import {drawRectangle} from './shapes/rectangle.ts';
 import {controlsColor} from './controls.ts';
-import {drawCircleControl} from "./shapes/circle.ts";
+import {drawCircleControl} from './shapes/circle.ts';
 
 type Props = {
     canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
@@ -62,7 +62,8 @@ export function renderAnnotations({
                 if (handler) {
                     context.globalAlpha = 1;
                     const isSelected = Boolean(
-                        selected && selected.id && selected.id === annotation.id);
+                        selected && selected.id && selected.id === annotation.id
+                    );
                     const toX: ToFunction = x => x * width;
                     const toY: ToFunction = y => y * height;
                     handler.drawAnnotation(
@@ -93,8 +94,17 @@ export function renderAnnotations({
                         const controls = shapeControlRef.current;
                         const unscale = 1 / drawContext.zoom;
                         if (controls) {
-                            controls.setAttribute('data-editable', annotation.editable ? 'true' : 'false');
-                            (controls.querySelector('.edit-controls') as HTMLDivElement).style.display = annotation.editable ? 'inline-block' : 'none';
+                            controls.setAttribute(
+                                'data-editable',
+                                annotation.editable ? 'true' : 'false'
+                            );
+                            (
+                                controls.querySelector(
+                                    '.edit-controls'
+                                ) as HTMLDivElement
+                            ).style.display = annotation.editable
+                                ? 'inline-block'
+                                : 'none';
 
                             controls.style.transform = `scale(${unscale})`;
                             controls.style.display = 'block';

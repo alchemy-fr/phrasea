@@ -1,6 +1,6 @@
 import {AnnotationOptions} from '../annotationTypes.ts';
 import {DrawContext} from '../events.ts';
-import {drawCircleControl, getResizeCircleCoords,} from './circle.ts';
+import {drawCircleControl, getResizeCircleCoords} from './circle.ts';
 
 type LineProps = {
     x1: number;

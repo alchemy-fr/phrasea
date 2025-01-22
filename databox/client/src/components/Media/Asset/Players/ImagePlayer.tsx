@@ -1,6 +1,9 @@
 import {File} from '../../../../types.ts';
 import {PlayerProps} from './index.ts';
-import {AssetAnnotation, AnnotationsControl} from '../Annotations/annotationTypes.ts';
+import {
+    AssetAnnotation,
+    AnnotationsControl,
+} from '../Annotations/annotationTypes.ts';
 import React, {useRef} from 'react';
 import FileToolbar from './FileToolbar.tsx';
 
@@ -44,7 +47,11 @@ export default function ImagePlayer({
         />
     );
 
-    if (!playerProps.assetAnnotationsRef && !playerProps.annotations && !playerProps.zoomEnabled) {
+    if (
+        !playerProps.assetAnnotationsRef &&
+        !playerProps.annotations &&
+        !playerProps.zoomEnabled
+    ) {
         return img;
     }
 

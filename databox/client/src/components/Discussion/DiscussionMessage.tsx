@@ -1,5 +1,12 @@
 import {ThreadMessage} from '../../types.ts';
-import {Box, Divider, ListItemIcon, ListItemText, MenuItem, Typography,} from '@mui/material';
+import {
+    Box,
+    Divider,
+    ListItemIcon,
+    ListItemText,
+    MenuItem,
+    Typography,
+} from '@mui/material';
 import moment from 'moment';
 import Attachments from './Attachments.tsx';
 import {FlexRow, MoreActionsButton, UserAvatar} from '@alchemy/phrasea-ui';
@@ -9,7 +16,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import EditMessage from './EditMessage.tsx';
 import React from 'react';
 import nl2br from 'react-nl2br';
-import {OnAttachmentClick} from "./MessageField.tsx";
+import {OnAttachmentClick} from './MessageField.tsx';
 
 type Props = {
     message: ThreadMessage;
@@ -40,7 +47,7 @@ export default function DiscussionMessage({
                         mr: 1,
                     }}
                 >
-                    <UserAvatar size={40} username={message.author.username}/>
+                    <UserAvatar size={40} username={message.author.username} />
                 </Box>
                 <div
                     style={{
@@ -74,7 +81,7 @@ export default function DiscussionMessage({
                                             })}
                                         >
                                             <ListItemIcon>
-                                                <EditIcon/>
+                                                <EditIcon />
                                             </ListItemIcon>
                                             <ListItemText
                                                 primary={t(
@@ -94,7 +101,7 @@ export default function DiscussionMessage({
                                             })}
                                         >
                                             <ListItemIcon>
-                                                <DeleteIcon/>
+                                                <DeleteIcon />
                                             </ListItemIcon>
                                             <ListItemText
                                                 primary={t(

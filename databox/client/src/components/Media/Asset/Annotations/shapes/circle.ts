@@ -41,7 +41,7 @@ export function drawCircleControl(
 ) {
     drawCircle(
         drawContext,
-        {x, y, radius: controlsSize / drawContext.zoom,},
+        {x, y, radius: controlsSize / drawContext.zoom},
         {
             color: controlsContrastColor,
             size: Math.max(0.3, controlsStroke / drawContext.zoom),

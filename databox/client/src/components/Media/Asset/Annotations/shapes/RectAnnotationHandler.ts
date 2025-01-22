@@ -80,7 +80,10 @@ export const RectAnnotationHandler: DrawingHandler = {
         onNewAnnotation(props as RectangleAnnotation);
         terminate();
     },
-    drawAnnotation: ({annotation, drawContext, toX, toY}, {selected, editable}) => {
+    drawAnnotation: (
+        {annotation, drawContext, toX, toY},
+        {selected, editable}
+    ) => {
         const {x, y, w, h, c, s} = annotation;
         drawRectangle(
             drawContext,

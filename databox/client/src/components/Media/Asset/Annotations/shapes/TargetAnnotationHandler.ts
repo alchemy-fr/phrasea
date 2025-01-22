@@ -120,8 +120,7 @@ export const TargetAnnotationHandler: DrawingHandler = {
             selected && editable
         );
     },
-    onTerminate: () => {
-    },
+    onTerminate: () => {},
     getResizeHandler: () => {
         return undefined;
     },

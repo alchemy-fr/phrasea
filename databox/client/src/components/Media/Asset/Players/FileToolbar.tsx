@@ -1,12 +1,22 @@
-import AnnotateWrapper, {BaseAnnotationProps} from '../Annotations/AnnotateWrapper.tsx';
-import {useCallback, useEffect, useRef, useState,} from 'react';
-import {AssetAnnotationRef,} from '../Annotations/annotationTypes.ts';
+import AnnotateWrapper, {
+    BaseAnnotationProps,
+} from '../Annotations/AnnotateWrapper.tsx';
+import {useCallback, useEffect, useRef, useState} from 'react';
+import {AssetAnnotationRef} from '../Annotations/annotationTypes.ts';
 import ZoomControls from './ZoomControls.tsx';
-import {ReactZoomPanPinchContentRef, TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch';
+import {
+    ReactZoomPanPinchContentRef,
+    TransformComponent,
+    TransformWrapper,
+} from 'react-zoom-pan-pinch';
 import {Box, IconButton} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
-import {filePlayerRelativeWrapperClassName, ZoomPanPinchContentRef, ZoomStepState} from './index.ts';
+import {
+    filePlayerRelativeWrapperClassName,
+    ZoomPanPinchContentRef,
+    ZoomStepState,
+} from './index.ts';
 import ToolbarPaper from './ToolbarPaper.tsx';
 
 type Props = {
@@ -19,9 +29,9 @@ type Props = {
     forceHand?: boolean;
     children:
         | ((props: {
-        zoomStep: ZoomStepState;
-        transformWrapperRef: ZoomPanPinchContentRef;
-    }) => JSX.Element)
+              zoomStep: ZoomStepState;
+              transformWrapperRef: ZoomPanPinchContentRef;
+          }) => JSX.Element)
         | JSX.Element;
 } & BaseAnnotationProps;
 
@@ -38,8 +48,11 @@ export default function FileToolbar({
     ...annotateProps
 }: Props) {
     const assetAnnotationsRefFallback: AssetAnnotationRef = useRef(null);
-    const finalAssetAnnotationsRef = assetAnnotationsRef ?? assetAnnotationsRefFallback;
-    const transformWrapperRef = useRef<ReactZoomPanPinchContentRef | null>(null);
+    const finalAssetAnnotationsRef =
+        assetAnnotationsRef ?? assetAnnotationsRefFallback;
+    const transformWrapperRef = useRef<ReactZoomPanPinchContentRef | null>(
+        null
+    );
 
     const zoomRef = useRef<number>(1);
     const [closed, setClosed] = useState(false);
@@ -165,9 +178,9 @@ export default function FileToolbar({
                                             onClick={() => setClosed(p => !p)}
                                         >
                                             {closed ? (
-                                                <MenuOpenIcon/>
+                                                <MenuOpenIcon />
                                             ) : (
-                                                <CloseIcon/>
+                                                <CloseIcon />
                                             )}
                                         </IconButton>
                                     </Box>
@@ -189,9 +202,9 @@ export default function FileToolbar({
                                     {canvas}
                                     {typeof children === 'function'
                                         ? children({
-                                            zoomStep,
-                                            transformWrapperRef,
-                                        })
+                                              zoomStep,
+                                              transformWrapperRef,
+                                          })
                                         : children}
                                 </div>
                             </TransformComponent>

@@ -5,7 +5,7 @@ import VideoPlayer from './Players/VideoPlayer';
 import {FileWithUrl, PlayerProps} from './Players';
 import PDFPlayer from './Players/PDFPlayer';
 import ImagePlayer from './Players/ImagePlayer.tsx';
-import React from "react";
+import React from 'react';
 
 type Props = {
     file: File;
@@ -41,7 +41,6 @@ export default function FilePlayer({file, autoPlayable, ...playProps}: Props) {
 
     return <AssetFileIcon file={file} />;
 }
-
 
 export const MemoizedFilePlayer = React.memo(FilePlayer, (prev, next) => {
     return prev.file.id === next.file.id;

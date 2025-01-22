@@ -4,7 +4,11 @@ import SendIcon from '@mui/icons-material/Send';
 import React, {FocusEventHandler} from 'react';
 import RemoteErrors from '../Form/RemoteErrors.tsx';
 import Attachments from './Attachments.tsx';
-import {DeserializedMessageAttachment, StateSetter, ThreadMessage,} from '../../types.ts';
+import {
+    DeserializedMessageAttachment,
+    StateSetter,
+    ThreadMessage,
+} from '../../types.ts';
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
 import type {UseFormSubmitReturn} from '@alchemy/api';
 import {FlexRow} from '@alchemy/phrasea-ui';
@@ -12,8 +16,13 @@ import EmojiPicker from './EmojiPicker.tsx';
 
 export type MessageFormData = Pick<ThreadMessage, 'content'>;
 
-export type OnAttachmentClick = (attachment: DeserializedMessageAttachment, attachments: DeserializedMessageAttachment[]) => void;
-export type OnAttachmentRemove = (attachment: DeserializedMessageAttachment) => void;
+export type OnAttachmentClick = (
+    attachment: DeserializedMessageAttachment,
+    attachments: DeserializedMessageAttachment[]
+) => void;
+export type OnAttachmentRemove = (
+    attachment: DeserializedMessageAttachment
+) => void;
 
 export type BaseMessageFieldProps = {
     onFocus?: FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
@@ -131,16 +140,16 @@ export default function MessageField({
                                 disabled={submitting}
                                 loading={submitting}
                                 color={'primary'}
-                                endIcon={<SendIcon/>}
+                                endIcon={<SendIcon />}
                             >
                                 {submitLabel}
                             </LoadingButton>
                         </div>
                     </FlexRow>
                 </Box>
-                <FormFieldErrors field={'content'} errors={errors}/>
+                <FormFieldErrors field={'content'} errors={errors} />
             </FormRow>
-            <RemoteErrors errors={remoteErrors}/>
+            <RemoteErrors errors={remoteErrors} />
         </>
     );
 }

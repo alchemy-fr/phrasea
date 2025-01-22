@@ -4,28 +4,35 @@ import {useFormPrompt} from '@alchemy//navigation';
 import {postThreadMessage} from '../../api/discussion.ts';
 import {DeserializedMessageAttachment, ThreadMessage} from '../../types.ts';
 import React, {forwardRef, useImperativeHandle} from 'react';
-import MessageField, {BaseMessageFieldProps, MessageFormData} from './MessageField.tsx';
-import {MessageFormHandle, MessageFormRef} from "./discussion.ts";
+import MessageField, {
+    BaseMessageFieldProps,
+    MessageFormData,
+} from './MessageField.tsx';
+import {MessageFormHandle, MessageFormRef} from './discussion.ts';
 
 export type BaseMessageFormProps = {
     messageFormRef?: MessageFormRef;
-    normalizeAttachment?: (attachment: DeserializedMessageAttachment) => DeserializedMessageAttachment;
+    normalizeAttachment?: (
+        attachment: DeserializedMessageAttachment
+    ) => DeserializedMessageAttachment;
 } & BaseMessageFieldProps;
 
 type Props = {
     threadKey: string;
     threadId?: string;
     onNewMessage: (message: ThreadMessage) => void;
-} & Omit<BaseMessageFormProps, "messageFormRef">;
+} & Omit<BaseMessageFormProps, 'messageFormRef'>;
 
-
-export default forwardRef<MessageFormHandle, Props>(function MessageForm({
-    threadKey,
-    threadId,
-    onNewMessage,
-    normalizeAttachment,
-    ...messageProps
-}: Props, ref) {
+export default forwardRef<MessageFormHandle, Props>(function MessageForm(
+    {
+        threadKey,
+        threadId,
+        onNewMessage,
+        normalizeAttachment,
+        ...messageProps
+    }: Props,
+    ref
+) {
     const {t} = useTranslation();
     const inputRef = React.useRef<HTMLInputElement | null>(null);
     const [attachments, setAttachments] = React.useState<
@@ -36,21 +43,26 @@ export default forwardRef<MessageFormHandle, Props>(function MessageForm({
         setAttachments([]);
     }, [threadKey]);
 
-    useImperativeHandle(ref, () => ({
-        addAttachment: attachment => {
-            setAttachments(p => p.concat(attachment));
-        },
-        removeAttachment: attachmentId =>
-            setAttachments(p => p.filter(a => a.id !== attachmentId)),
-        updateAttachment: (attachmentId, handler) => {
-            setAttachments(p =>
-                p.map(a => (a.id === attachmentId ? handler(a) : a))
-            );
-        },
-        clearAttachments: () => setAttachments([]),
-        getAttachments: () => attachments,
-        focus: () => inputRef.current?.focus(),
-    } as MessageFormHandle), [setAttachments, attachments, inputRef]);
+    useImperativeHandle(
+        ref,
+        () =>
+            ({
+                addAttachment: attachment => {
+                    setAttachments(p => p.concat(attachment));
+                },
+                removeAttachment: attachmentId =>
+                    setAttachments(p => p.filter(a => a.id !== attachmentId)),
+                updateAttachment: (attachmentId, handler) => {
+                    setAttachments(p =>
+                        p.map(a => (a.id === attachmentId ? handler(a) : a))
+                    );
+                },
+                clearAttachments: () => setAttachments([]),
+                getAttachments: () => attachments,
+                focus: () => inputRef.current?.focus(),
+            }) as MessageFormHandle,
+        [setAttachments, attachments, inputRef]
+    );
 
     const useFormSubmitProps = useFormSubmit<MessageFormData, ThreadMessage>({
         defaultValues: {

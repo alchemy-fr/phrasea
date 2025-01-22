@@ -3,12 +3,18 @@ import {
     AssetAnnotation,
     AssetAnnotationRef,
     OnNewAnnotation,
-    OnUpdateAnnotation
-} from "../Annotations/annotationTypes.ts";
-import {AttachmentType, MessageFormRef} from "../../../Discussion/discussion.ts";
-import {useCallback} from "react";
-import {DeserializedMessageAttachment} from "../../../../types.ts";
-import {OnAttachmentClick, OnAttachmentRemove} from "../../../Discussion/MessageField.tsx";
+    OnUpdateAnnotation,
+} from '../Annotations/annotationTypes.ts';
+import {
+    AttachmentType,
+    MessageFormRef,
+} from '../../../Discussion/discussion.ts';
+import {useCallback} from 'react';
+import {DeserializedMessageAttachment} from '../../../../types.ts';
+import {
+    OnAttachmentClick,
+    OnAttachmentRemove,
+} from '../../../Discussion/MessageField.tsx';
 
 type Props = {
     assetAnnotationsRef: AssetAnnotationRef;
@@ -50,11 +56,11 @@ export function useBindAnnotationMessage({
 
     const onUpdateAnnotation: OnUpdateAnnotation = useCallback(
         (id: AnnotationId, newAnnotation: AssetAnnotation) => {
-            messageFormRef.current?.updateAttachment(id, (a) => {
-                return ({
+            messageFormRef.current?.updateAttachment(id, a => {
+                return {
                     ...a,
                     data: newAnnotation,
-                });
+                };
             });
 
             return newAnnotation;
@@ -84,15 +90,13 @@ export function useBindAnnotationMessage({
         assetAnnotationsRef.current?.replaceAnnotations(
             attachments
                 ?.filter(a => a.type === AttachmentType.Annotation)
-                .map(a => a.data as AssetAnnotation) ?? []);
+                .map(a => a.data as AssetAnnotation) ?? []
+        );
     }, [messageFormRef, assetAnnotationsRef]);
 
-    const onMessageDelete = useCallback(
-        () => {
-            assetAnnotationsRef.current?.replaceAnnotations([]);
-        },
-        [assetAnnotationsRef]
-    );
+    const onMessageDelete = useCallback(() => {
+        assetAnnotationsRef.current?.replaceAnnotations([]);
+    }, [assetAnnotationsRef]);
 
     return {
         onAttachmentClick,

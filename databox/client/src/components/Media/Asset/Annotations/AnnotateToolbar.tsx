@@ -1,5 +1,10 @@
 import {IconButton, TextField} from '@mui/material';
-import {AnnotationOptions, AnnotationsControl, AnnotationType, SelectedAnnotationRef,} from './annotationTypes.ts';
+import {
+    AnnotationOptions,
+    AnnotationsControl,
+    AnnotationType,
+    SelectedAnnotationRef,
+} from './annotationTypes.ts';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import Crop32Icon from '@mui/icons-material/Crop32';
 import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye';
@@ -13,7 +18,7 @@ import {drawingHandlers} from './events.ts';
 import React, {MutableRefObject} from 'react';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import AbcIcon from '@mui/icons-material/Abc';
-import {getDefaultOptions, updateLastOptions} from "./defaultOptions.ts";
+import {getDefaultOptions, updateLastOptions} from './defaultOptions.ts';
 
 function changeIfSelected(
     canvasRef: MutableRefObject<HTMLCanvasElement | null>,
@@ -89,7 +94,7 @@ export default function AnnotateToolbar({
                 color={annotate ? 'primary' : 'default'}
                 onClick={() => setAnnotate(p => !p)}
             >
-                <GestureIcon/>
+                <GestureIcon />
             </IconButton>
             {annotate && (
                 <ToolbarPaper
@@ -109,7 +114,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Text)}
                         >
-                            <AbcIcon/>
+                            <AbcIcon />
                         </IconButton>
                     </div>
                     <div>
@@ -121,7 +126,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Target)}
                         >
-                            <MyLocationIcon/>
+                            <MyLocationIcon />
                         </IconButton>
                     </div>
                     <div>
@@ -133,7 +138,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Rect)}
                         >
-                            <Crop32Icon/>
+                            <Crop32Icon />
                         </IconButton>
                     </div>
                     <div>
@@ -145,7 +150,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Circle)}
                         >
-                            <PanoramaFishEyeIcon/>
+                            <PanoramaFishEyeIcon />
                         </IconButton>
                     </div>
                     <div>
@@ -157,7 +162,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Arrow)}
                         >
-                            <ArrowRightAltIcon/>
+                            <ArrowRightAltIcon />
                         </IconButton>
                     </div>
                     <div>
@@ -169,7 +174,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Line)}
                         >
-                            <HorizontalRuleIcon/>
+                            <HorizontalRuleIcon />
                         </IconButton>
                     </div>
                     <div>
@@ -181,7 +186,7 @@ export default function AnnotateToolbar({
                             }
                             onClick={() => setMode(AnnotationType.Draw)}
                         >
-                            <BrushIcon/>
+                            <BrushIcon />
                         </IconButton>
                     </div>
                     <div>

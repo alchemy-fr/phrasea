@@ -6,7 +6,10 @@ import {stopPropagation} from '../../../../lib/stdFuncs';
 import {UserPreferencesContext} from '../../../User/Preferences/UserPreferencesContext';
 import {AttributeFormatContext} from './Format/AttributeFormatContext';
 import {buildAttributesGroupedByDefinition} from './attributeIndex.ts';
-import {copyToClipBoardClass, copyToClipBoardContainerClass,} from './CopyAttribute.tsx';
+import {
+    copyToClipBoardClass,
+    copyToClipBoardContainerClass,
+} from './CopyAttribute.tsx';
 import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
 
 export type OnActiveAnnotations = (annotations: AssetAnnotation[]) => void;

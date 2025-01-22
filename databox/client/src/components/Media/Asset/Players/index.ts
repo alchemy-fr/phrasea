@@ -1,8 +1,11 @@
 import {File} from '../../../../types';
-import {AssetAnnotation, AssetAnnotationRef,} from '../Annotations/annotationTypes.ts';
-import {BaseAnnotationProps} from "../Annotations/AnnotateWrapper.tsx";
-import {RefObject} from "react";
-import {ReactZoomPanPinchContentRef} from "react-zoom-pan-pinch";
+import {
+    AssetAnnotation,
+    AssetAnnotationRef,
+} from '../Annotations/annotationTypes.ts';
+import {BaseAnnotationProps} from '../Annotations/AnnotateWrapper.tsx';
+import {RefObject} from 'react';
+import {ReactZoomPanPinchContentRef} from 'react-zoom-pan-pinch';
 
 export type FileWithUrl = {
     url: string;
@@ -47,4 +50,5 @@ export type ZoomStepState = {
     maxReached: number;
 };
 
-export type ZoomPanPinchContentRef = RefObject<ReactZoomPanPinchContentRef | null>;
+export type ZoomPanPinchContentRef =
+    RefObject<ReactZoomPanPinchContentRef | null>;

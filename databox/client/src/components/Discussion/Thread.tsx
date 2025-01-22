@@ -40,18 +40,18 @@ export default function Thread({
             setMessages(p =>
                 p
                     ? {
-                        ...p,
-                        result: p.result.some(m => m.id === message.id)
-                            ? p.result.map(m =>
-                                m.id === message.id ? message : m
-                            )
-                            : p.result.concat(message),
-                        total: p.total + 1,
-                    }
+                          ...p,
+                          result: p.result.some(m => m.id === message.id)
+                              ? p.result.map(m =>
+                                    m.id === message.id ? message : m
+                                )
+                              : p.result.concat(message),
+                          total: p.total + 1,
+                      }
                     : {
-                        result: [message],
-                        total: 1,
-                    }
+                          result: [message],
+                          total: 1,
+                      }
             );
         },
         [setMessages]
@@ -62,10 +62,10 @@ export default function Thread({
             setMessages(p =>
                 p
                     ? {
-                        ...p,
-                        result: p.result.filter(m => m.id !== id),
-                        total: p.total - 1,
-                    }
+                          ...p,
+                          result: p.result.filter(m => m.id !== id),
+                          total: p.total - 1,
+                      }
                     : undefined
             );
         },
@@ -101,10 +101,10 @@ export default function Thread({
                 setMessages(p =>
                     p
                         ? {
-                            ...p,
-                            result: p.result.filter(m => m.id !== message.id),
-                            total: p.total - 1,
-                        }
+                              ...p,
+                              result: p.result.filter(m => m.id !== message.id),
+                              total: p.total - 1,
+                          }
                         : undefined
                 );
 
@@ -124,17 +124,17 @@ export default function Thread({
         setMessages(p =>
             p
                 ? {
-                    ...p,
-                    result: p.result.map(m =>
-                        m.id === message.id ? message : m
-                    ),
-                }
+                      ...p,
+                      result: p.result.map(m =>
+                          m.id === message.id ? message : m
+                      ),
+                  }
                 : undefined
         );
     };
 
     if (threadId && !messages) {
-        return <CircularProgress/>;
+        return <CircularProgress />;
     }
 
     return (

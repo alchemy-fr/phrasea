@@ -9,11 +9,11 @@ import {attributesClasses} from './Attributes';
 import {isRtlLocale} from '../../../../lib/lang';
 import {Attribute, AttributeDefinition} from '../../../../types.ts';
 import GestureIcon from '@mui/icons-material/Gesture';
-import {AssetAnnotationRef} from "../Annotations/annotationTypes.ts";
+import {AssetAnnotationRef} from '../Annotations/annotationTypes.ts';
 
 export type BaseAttributeRowUIProps = {
     assetAnnotationsRef?: AssetAnnotationRef;
-}
+};
 
 type Props = {
     definition: AttributeDefinition;
@@ -64,8 +64,8 @@ export default function AttributeRowUI({
             style={
                 isRtl
                     ? {
-                        direction: 'rtl',
-                    }
+                          direction: 'rtl',
+                      }
                     : undefined
             }
             onMouseEnter={() => setOverControls(true)}
@@ -79,7 +79,7 @@ export default function AttributeRowUI({
                             <>
                                 {formatContext.hasFormats(fieldType) && (
                                     <IconButton onClick={toggleFormat}>
-                                        <VisibilityIcon/>
+                                        <VisibilityIcon />
                                     </IconButton>
                                 )}
 
@@ -114,61 +114,61 @@ export default function AttributeRowUI({
                     <ul className={attributesClasses.list}>
                         {attribute
                             ? (attribute as Attribute[]).map((a, i: number) => {
-                                const formatProps = {
-                                    value: a.value,
-                                    highlight: a.highlight,
-                                    locale: a.locale,
-                                    format: formatContext.formats[fieldType],
-                                };
+                                  const formatProps = {
+                                      value: a.value,
+                                      highlight: a.highlight,
+                                      locale: a.locale,
+                                      format: formatContext.formats[fieldType],
+                                  };
 
-                                const isRtl = isRtlLocale(a.locale);
+                                  const isRtl = isRtlLocale(a.locale);
 
-                                return (
-                                    <li
-                                        key={i}
-                                        lang={a.locale}
-                                        style={
-                                            isRtl
-                                                ? {
-                                                    direction: 'rtl',
-                                                }
-                                                : undefined
-                                        }
-                                        className={
-                                            copyToClipBoardContainerClass
-                                        }
-                                    >
-                                        {formatter.formatValue(formatProps)}
-                                        {displayControls &&
-                                        assetAnnotationsRef?.current &&
-                                        a.assetAnnotations ? (
-                                            <IconButton
-                                                sx={{
-                                                    ml: 1,
-                                                }}
-                                                size="small"
-                                                onClick={e => {
-                                                    e.stopPropagation();
-                                                    assetAnnotationsRef!.current!.replaceAnnotations(
-                                                        a.assetAnnotations!
-                                                    );
-                                                }}
-                                            >
-                                                <GestureIcon/>
-                                            </IconButton>
-                                        ) : null}
-                                        {displayControls ? (
-                                            <CopyAttribute
-                                                value={formatter.formatValueAsString(
-                                                    formatProps
-                                                )}
-                                            />
-                                        ) : (
-                                            ''
-                                        )}
-                                    </li>
-                                );
-                            })
+                                  return (
+                                      <li
+                                          key={i}
+                                          lang={a.locale}
+                                          style={
+                                              isRtl
+                                                  ? {
+                                                        direction: 'rtl',
+                                                    }
+                                                  : undefined
+                                          }
+                                          className={
+                                              copyToClipBoardContainerClass
+                                          }
+                                      >
+                                          {formatter.formatValue(formatProps)}
+                                          {displayControls &&
+                                          assetAnnotationsRef?.current &&
+                                          a.assetAnnotations ? (
+                                              <IconButton
+                                                  sx={{
+                                                      ml: 1,
+                                                  }}
+                                                  size="small"
+                                                  onClick={e => {
+                                                      e.stopPropagation();
+                                                      assetAnnotationsRef!.current!.replaceAnnotations(
+                                                          a.assetAnnotations!
+                                                      );
+                                                  }}
+                                              >
+                                                  <GestureIcon />
+                                              </IconButton>
+                                          ) : null}
+                                          {displayControls ? (
+                                              <CopyAttribute
+                                                  value={formatter.formatValueAsString(
+                                                      formatProps
+                                                  )}
+                                              />
+                                          ) : (
+                                              ''
+                                          )}
+                                      </li>
+                                  );
+                              })
                             : null}
                     </ul>
                 ) : (

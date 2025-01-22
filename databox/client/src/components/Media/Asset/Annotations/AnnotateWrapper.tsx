@@ -5,7 +5,8 @@ import React, {
     ReactNode,
     useCallback,
     useEffect,
-    useImperativeHandle, useMemo,
+    useImperativeHandle,
+    useMemo,
     useRef,
     useState,
 } from 'react';
@@ -14,8 +15,10 @@ import {
     AnnotationOptions,
     AnnotationsControl,
     AnnotationType,
-    AssetAnnotation, OnDeleteAnnotation,
-    OnNewAnnotation, OnUpdateAnnotation,
+    AssetAnnotation,
+    OnDeleteAnnotation,
+    OnNewAnnotation,
+    OnUpdateAnnotation,
 } from './annotationTypes.ts';
 import AnnotateToolbar from './AnnotateToolbar.tsx';
 import {useAnnotationRender} from './useAnnotationRender.tsx';
@@ -30,7 +33,7 @@ export type BaseAnnotationProps = {
     onNewAnnotation?: OnNewAnnotation | undefined;
     onUpdateAnnotation?: OnUpdateAnnotation | undefined;
     onDeleteAnnotation?: OnDeleteAnnotation | undefined;
-}
+};
 
 type Props = {
     page?: number;
@@ -73,9 +76,9 @@ export default memo(
             color: '#000',
             size: 2,
         });
-        const [annotations, setAnnotations] = React.useState<
-            AssetAnnotation[]
-        >(initialAnnotations ?? []);
+        const [annotations, setAnnotations] = React.useState<AssetAnnotation[]>(
+            initialAnnotations ?? []
+        );
 
         React.useEffect(() => {
             const onKeyDown = (e: KeyboardEvent) => {
@@ -87,14 +90,14 @@ export default memo(
                 } else if (e.key === 'Delete') {
                     onShapeDelete();
                 }
-            }
+            };
             document.addEventListener('keydown', onKeyDown);
             window.addEventListener('keydown', onKeyDown);
 
             return () => {
                 document.removeEventListener('keydown', onKeyDown);
                 window.removeEventListener('keydown', onKeyDown);
-            }
+            };
         }, []);
 
         const onNewAnnotationHandler = React.useCallback<OnNewAnnotation>(
@@ -103,22 +106,10 @@ export default memo(
                 annotation.editable = true;
 
                 const annotationTypes: Record<AnnotationType, string> = {
-                    [AnnotationType.Draw]: t(
-                        'annotation.type.draw',
-                        'Draw'
-                    ),
-                    [AnnotationType.Line]: t(
-                        'annotation.type.line',
-                        'Line'
-                    ),
-                    [AnnotationType.Arrow]: t(
-                        'annotation.type.arrow',
-                        'Arrow'
-                    ),
-                    [AnnotationType.Text]: t(
-                        'annotation.type.text',
-                        'Text'
-                    ),
+                    [AnnotationType.Draw]: t('annotation.type.draw', 'Draw'),
+                    [AnnotationType.Line]: t('annotation.type.line', 'Line'),
+                    [AnnotationType.Arrow]: t('annotation.type.arrow', 'Arrow'),
+                    [AnnotationType.Text]: t('annotation.type.text', 'Text'),
                     [AnnotationType.Cue]: t('annotation.type.cue', 'Cue'),
                     [AnnotationType.Circle]: t(
                         'annotation.type.circle',
@@ -249,10 +240,11 @@ export default memo(
             onDeleteAnnotation,
             setAnnotations,
             selectedAnnotationRef,
-
         ]);
 
-        useImperativeHandle(ref, () => annotationsControl, [annotationsControl]);
+        useImperativeHandle(ref, () => annotationsControl, [
+            annotationsControl,
+        ]);
 
         const onShapeDelete = useCallback(() => {
             const selected = selectedAnnotationRef.current;
@@ -295,7 +287,10 @@ export default memo(
                         });
                     });
 
-                    annotationsControl.updateAnnotation(annotation.id!, newAnnotation);
+                    annotationsControl.updateAnnotation(
+                        annotation.id!,
+                        newAnnotation
+                    );
                 }
             },
             [annotationsControl, selectedAnnotationRef]
@@ -345,20 +340,19 @@ export default memo(
                             />
                         </>
                     ),
-                    toolbar:
-                        annotationEnabled ? (
-                            <AnnotateToolbar
-                                canvasRef={canvasRef}
-                                annotationsControl={annotationsControl}
-                                selectedAnnotationRef={selectedAnnotationRef}
-                                annotate={annotate}
-                                setAnnotate={setAnnotate}
-                                options={options}
-                                setOptions={setOptions}
-                                mode={mode}
-                                setMode={setMode}
-                            />
-                        ) : null,
+                    toolbar: annotationEnabled ? (
+                        <AnnotateToolbar
+                            canvasRef={canvasRef}
+                            annotationsControl={annotationsControl}
+                            selectedAnnotationRef={selectedAnnotationRef}
+                            annotate={annotate}
+                            setAnnotate={setAnnotate}
+                            options={options}
+                            setOptions={setOptions}
+                            mode={mode}
+                            setMode={setMode}
+                        />
+                    ) : null,
                     annotationActive: !!mode,
                     annotate,
                 })}

@@ -20,7 +20,7 @@ export enum AnnotationType {
 export type DrawOptions = {
     selected?: boolean;
     editable?: boolean;
-}
+};
 
 export type AnnotationId = string;
 

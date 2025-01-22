@@ -4,7 +4,7 @@ import {Box, IconButton, Paper, TextField} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {useTranslation} from 'react-i18next';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import {stopPropagation} from "../../../../lib/stdFuncs.ts";
+import {stopPropagation} from '../../../../lib/stdFuncs.ts';
 
 type Props = {
     elementRef: React.RefObject<HTMLDivElement>;
@@ -42,9 +42,10 @@ export default function ShapeControl({
             >
                 <div
                     style={{
-                        display: 'inline-block'
+                        display: 'inline-block',
                     }}
-                    className={'edit-controls'}>
+                    className={'edit-controls'}
+                >
                     <IconButton onClick={onDuplicate}>
                         <ContentCopyIcon />
                     </IconButton>

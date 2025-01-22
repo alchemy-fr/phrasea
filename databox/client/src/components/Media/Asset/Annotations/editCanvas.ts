@@ -1,12 +1,18 @@
 import {AssetAnnotation, OnUpdateAnnotation} from './annotationTypes.ts';
-import {DrawContext, drawingHandlers, OnResizeEvent, StartingPoint, ToFunction,} from './events.ts';
+import {
+    DrawContext,
+    drawingHandlers,
+    OnResizeEvent,
+    StartingPoint,
+    ToFunction,
+} from './events.ts';
 import {CommonAnnotationDrawProps} from './useAnnotationDraw.ts';
 import {getZoomFromRef, ShapeControlRef} from './common.ts';
 import {MutableRefObject} from 'react';
 import {isPointInRectangle} from './shapes/RectAnnotationHandler.ts';
-import {getMoveCircleCoordsInRectangle} from "./shapes/rectangle.ts";
-import {isPointInCircle} from "./shapes/circle.ts";
-import {updateLastOptions} from "./defaultOptions.ts";
+import {getMoveCircleCoordsInRectangle} from './shapes/rectangle.ts';
+import {isPointInCircle} from './shapes/circle.ts';
+import {updateLastOptions} from './defaultOptions.ts';
 
 type UnregisterFunction = () => void;
 
@@ -99,8 +105,18 @@ export function bindEditCanvas({
                     options: handler.toOptions(annotation, {toX, toY}),
                 });
                 if (
-                    (allowMove && isPointInRectangle(e.offsetX, e.offsetY, boundingBox))
-                    || isPointInCircle(e.offsetX, e.offsetY, getMoveCircleCoordsInRectangle(drawContext, boundingBox))) {
+                    (allowMove &&
+                        isPointInRectangle(
+                            e.offsetX,
+                            e.offsetY,
+                            boundingBox
+                        )) ||
+                    isPointInCircle(
+                        e.offsetX,
+                        e.offsetY,
+                        getMoveCircleCoordsInRectangle(drawContext, boundingBox)
+                    )
+                ) {
                     resizeHandler = handler.getMoveHandler();
                 }
             }
@@ -132,9 +148,7 @@ export function bindEditCanvas({
                     });
                     updateLastOptions(updatedAnnotation.type, newOptions);
                     if (updatedAnnotation.editable) {
-                        setAnnotationOptions(
-                            newOptions
-                        );
+                        setAnnotationOptions(newOptions);
                     }
 
                     selectedAnnotationRef.current = updatedAnnotation;

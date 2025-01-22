@@ -19,11 +19,17 @@ import {useModalFetch} from '../../../../hooks/useModalFetch.ts';
 import {useChannelRegistration} from '../../../../lib/pusher.ts';
 import {queryClient} from '../../../../lib/query.ts';
 import AssetDiscussion from '../AssetDiscussion.tsx';
-import {AssetAnnotation, AssetAnnotationRef,} from '../Annotations/annotationTypes.ts';
+import {
+    AssetAnnotation,
+    AssetAnnotationRef,
+} from '../Annotations/annotationTypes.ts';
 import AssetViewHeader from './AssetViewHeader.tsx';
 import {annotationZIndex} from '../Annotations/common.ts';
-import {AttachmentType, MessageFormRef} from "../../../Discussion/discussion.ts";
-import {useBindAnnotationMessage} from "./useBindAnnotationMessage.ts";
+import {
+    AttachmentType,
+    MessageFormRef,
+} from '../../../Discussion/discussion.ts';
+import {useBindAnnotationMessage} from './useBindAnnotationMessage.ts';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -131,7 +137,7 @@ export default function AssetView({modalIndex, open}: Props) {
             return null;
         }
 
-        return <FullPageLoader/>;
+        return <FullPageLoader />;
     }
 
     return (
@@ -150,128 +156,153 @@ export default function AssetView({modalIndex, open}: Props) {
                         },
                     }}
                     fullScreen={true}
-                    title={!isError ?
-                        <AssetViewHeader
-                            asset={asset}
-                            rendition={rendition}
-                            renditions={renditions}
-                            displayActions={!integrationOverlay}
-                        />
-                        : <div></div>}
+                    title={
+                        !isError ? (
+                            <AssetViewHeader
+                                asset={asset}
+                                rendition={rendition}
+                                renditions={renditions}
+                                displayActions={!integrationOverlay}
+                            />
+                        ) : (
+                            <div></div>
+                        )
+                    }
                     onClose={onClose}
                 >
-                    {!isSuccess && !isError && <FullPageLoader/>}
-                    {!isError ? <>
+                    {!isSuccess && !isError && <FullPageLoader />}
+                    {!isError ? (
+                        <>
+                            <Box
+                                sx={{
+                                    height: dimensions.height,
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <Box
+                                    className={
+                                        filePlayerRelativeWrapperClassName
+                                    }
+                                    sx={theme => ({
+                                        position: 'relative',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        overflowY: 'auto',
+                                        height: dimensions.height,
+                                        width:
+                                            dimensions.width + scrollbarWidth,
+                                        maxWidth:
+                                            dimensions.width + scrollbarWidth,
+                                        backgroundColor:
+                                            getMediaBackgroundColor(theme),
+                                    })}
+                                >
+                                    {rendition?.file &&
+                                        (!integrationOverlay ||
+                                            !integrationOverlay.replace) && (
+                                            <MemoizedFilePlayer
+                                                assetAnnotationsRef={
+                                                    assetAnnotationsRef
+                                                }
+                                                onNewAnnotation={
+                                                    onNewAnnotation
+                                                }
+                                                onUpdateAnnotation={
+                                                    onUpdateAnnotation
+                                                }
+                                                onDeleteAnnotation={
+                                                    onDeleteAnnotation
+                                                }
+                                                annotations={annotations}
+                                                file={rendition.file}
+                                                title={asset.title}
+                                                dimensions={dimensions}
+                                                autoPlayable={false}
+                                                controls={true}
+                                                zoomEnabled={true}
+                                            />
+                                        )}
+                                    {integrationOverlay &&
+                                        React.createElement(
+                                            integrationOverlay.component,
+                                            {
+                                                dimensions,
+                                                ...(integrationOverlay.props ||
+                                                    {}),
+                                            }
+                                        )}
+                                </Box>
+                                <Box
+                                    sx={theme => ({
+                                        width: menuWidth,
+                                        maxWidth: menuWidth,
+                                        borderLeft: `1px solid ${theme.palette.divider}`,
+                                        overflowY: 'auto',
+                                        height: dimensions.height,
+                                    })}
+                                >
+                                    <AssetAttributes
+                                        asset={asset}
+                                        assetAnnotationsRef={
+                                            assetAnnotationsRef
+                                        }
+                                    />
+
+                                    <AssetDiscussion
+                                        asset={asset}
+                                        onFocus={onMessageFocus}
+                                        onMessageDelete={onMessageDelete}
+                                        onAttachmentClick={onAttachmentClick}
+                                        onAttachmentRemove={onAttachmentRemove}
+                                        normalizeAttachment={a => {
+                                            if (
+                                                a.type ===
+                                                AttachmentType.Annotation
+                                            ) {
+                                                return {
+                                                    ...a,
+                                                    data: {
+                                                        ...(a.data as AssetAnnotation),
+                                                        editable: undefined,
+                                                    },
+                                                };
+                                            }
+
+                                            return a;
+                                        }}
+                                        messageFormRef={messageFormRef}
+                                    />
+                                    {rendition?.file ? (
+                                        <FileIntegrations
+                                            key={rendition.file.id}
+                                            asset={asset}
+                                            file={rendition.file}
+                                            setIntegrationOverlay={setProxy}
+                                        />
+                                    ) : (
+                                        ''
+                                    )}
+                                </Box>
+                            </Box>
+                        </>
+                    ) : (
                         <Box
                             sx={{
-                                height: dimensions.height,
                                 display: 'flex',
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                height: dimensions.height,
                             }}
                         >
-                            <Box
-                                className={filePlayerRelativeWrapperClassName}
-                                sx={theme => ({
-                                    position: 'relative',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    overflowY: 'auto',
-                                    height: dimensions.height,
-                                    width: dimensions.width + scrollbarWidth,
-                                    maxWidth: dimensions.width + scrollbarWidth,
-                                    backgroundColor: getMediaBackgroundColor(theme),
-                                })}
-                            >
-                                {rendition?.file &&
-                                    (!integrationOverlay ||
-                                        !integrationOverlay.replace) && (
-                                        <MemoizedFilePlayer
-                                            assetAnnotationsRef={assetAnnotationsRef}
-                                            onNewAnnotation={onNewAnnotation}
-                                            onUpdateAnnotation={onUpdateAnnotation}
-                                            onDeleteAnnotation={onDeleteAnnotation}
-                                            annotations={annotations}
-                                            file={rendition.file}
-                                            title={asset.title}
-                                            dimensions={dimensions}
-                                            autoPlayable={false}
-                                            controls={true}
-                                            zoomEnabled={true}
-                                        />
-                                    )}
-                                {integrationOverlay &&
-                                    React.createElement(
-                                        integrationOverlay.component,
-                                        {
-                                            dimensions,
-                                            ...(integrationOverlay.props || {}),
-                                        }
-                                    )}
-                            </Box>
-                            <Box
-                                sx={theme => ({
-                                    width: menuWidth,
-                                    maxWidth: menuWidth,
-                                    borderLeft: `1px solid ${theme.palette.divider}`,
-                                    overflowY: 'auto',
-                                    height: dimensions.height,
-                                })}
-                            >
-                                <AssetAttributes
-                                    asset={asset}
-                                    assetAnnotationsRef={assetAnnotationsRef}
-                                />
-
-                                <AssetDiscussion
-                                    asset={asset}
-                                    onFocus={onMessageFocus}
-                                    onMessageDelete={onMessageDelete}
-                                    onAttachmentClick={onAttachmentClick}
-                                    onAttachmentRemove={onAttachmentRemove}
-                                    normalizeAttachment={(a) => {
-                                        if (a.type === AttachmentType.Annotation) {
-                                            return {
-                                                ...a,
-                                                data: {
-                                                    ...a.data as AssetAnnotation,
-                                                    editable: undefined,
-                                                },
-                                            };
-                                        }
-
-                                        return a;
-                                    }}
-                                    messageFormRef={messageFormRef}
-
-                                />
-                                {rendition?.file ? (
-                                    <FileIntegrations
-                                        key={rendition.file.id}
-                                        asset={asset}
-                                        file={rendition.file}
-                                        setIntegrationOverlay={setProxy}
-                                    />
-                                ) : (
-                                    ''
-                                )}
-                            </Box>
-                        </Box></> : <Box
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            height: dimensions.height,
-                        }}
-                    >
-                        <Typography
-                            variant={'h6'}
-                        >
-                            {t('asset.not_found', 'Asset not found')}
-                        </Typography>
-                    </Box>}
+                            <Typography variant={'h6'}>
+                                {t('asset.not_found', 'Asset not found')}
+                            </Typography>
+                        </Box>
+                    )}
                 </AppDialog>
             )}
         </RouteDialog>
