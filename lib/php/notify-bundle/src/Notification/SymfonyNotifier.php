@@ -64,4 +64,15 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
     {
         $this->novuClient->removeTopicSubscribers($topicKey, $subscribers);
     }
+
+    public function getTopicSubscriptions(array $topicKeys, string $userId): array
+    {
+        $data = [];
+
+        foreach ($topicKeys as $topicKey) {
+            $data[$topicKey] = $this->novuClient->isSubscribed($topicKey, $userId);
+        }
+
+        return $data;
+    }
 }

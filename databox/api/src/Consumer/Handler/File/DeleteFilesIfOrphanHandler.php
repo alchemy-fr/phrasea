@@ -48,9 +48,9 @@ readonly class DeleteFilesIfOrphanHandler
     private function isFileReferenced(string $fileId): bool
     {
         foreach ([
-                     AssetRendition::class,
-                     AssetFileVersion::class,
-                 ] as $entityClass) {
+            AssetRendition::class,
+            AssetFileVersion::class,
+        ] as $entityClass) {
             $qb = $this->em->createQueryBuilder();
             $qb->select('1')
                 ->from($entityClass, 't')

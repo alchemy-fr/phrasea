@@ -36,6 +36,10 @@ export default function MessageForm({
     >([]);
 
     React.useEffect(() => {
+        setAttachments([]);
+    }, [threadKey]);
+
+    React.useEffect(() => {
         if (annotationsControlRef) {
             annotationsControlRef.current = {
                 onNew: (annotation: AssetAnnotation) => {
@@ -48,6 +52,18 @@ export default function MessageForm({
                             'annotation.type.draw',
                             'Draw'
                         ),
+                        [AnnotationType.Line]: t(
+                            'annotation.type.line',
+                            'Line'
+                        ),
+                        [AnnotationType.Arrow]: t(
+                            'annotation.type.arrow',
+                            'Arrow'
+                        ),
+                        [AnnotationType.Text]: t(
+                            'annotation.type.text',
+                            'Text'
+                        ),
                         [AnnotationType.Cue]: t('annotation.type.cue', 'Cue'),
                         [AnnotationType.Circle]: t(
                             'annotation.type.circle',
@@ -57,9 +73,9 @@ export default function MessageForm({
                             'annotation.type.rectangle',
                             'Rectangle'
                         ),
-                        [AnnotationType.Point]: t(
-                            'annotation.type.point',
-                            'Point'
+                        [AnnotationType.Target]: t(
+                            'annotation.type.target',
+                            'Target'
                         ),
                         [AnnotationType.TimeRange]: t(
                             'annotation.type.timerange',
@@ -69,24 +85,25 @@ export default function MessageForm({
 
                     setAttachments(p => {
                         return p.concat({
-                                type: 'annotation',
-                                data: {
-                                    ...annotation,
-                                    name:
-                                        annotation.name ??
-                                        t('form.annotation.default_name', {
-                                            defaultValue: '{{type}} #{{n}}',
-                                            type: annotationTypes[annotation.type],
-                                            n:
-                                                p.filter(a =>
+                            type: 'annotation',
+                            data: {
+                                ...annotation,
+                                name:
+                                    annotation.name ??
+                                    t('form.annotation.default_name', {
+                                        defaultValue: '{{type}} #{{n}}',
+                                        type: annotationTypes[annotation.type],
+                                        n:
+                                            p.filter(
+                                                a =>
                                                     a.type === 'annotation' &&
-                                                    a.data.type === annotation.type
-                                                ).length + 1,
-                                        }),
-                                },
-                            });
-                        }
-                    );
+                                                    a.data.type ===
+                                                        annotation.type
+                                            ).length + 1,
+                                    }),
+                            },
+                        });
+                    });
                 },
                 onUpdate: (id, newAnnotation) => {
                     setAttachments(p =>
@@ -101,6 +118,13 @@ export default function MessageForm({
                     );
 
                     return newAnnotation;
+                },
+                onDelete: id => {
+                    setAttachments(p =>
+                        p.filter(
+                            a => a.type !== 'annotation' || a.data?.id !== id
+                        )
+                    );
                 },
             };
         }

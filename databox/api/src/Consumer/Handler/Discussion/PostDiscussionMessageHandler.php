@@ -31,7 +31,7 @@ readonly class PostDiscussionMessageHandler
             return;
         }
 
-        $topicKey = $message->getThread()->getKey();
+        $topicKey = $message->getThread()->getNotificationKey();
 
         $object = $this->discussionManager->getThreadObject($message->getThread());
         $authorId = $message->getAuthorId();
@@ -39,8 +39,8 @@ readonly class PostDiscussionMessageHandler
 
         $this->notifier->addTopicSubscribers($topicKey, [$authorId]);
         $this->notifier->notifyTopic($topicKey, $authorId, 'databox-discussion-new-comment', [
-            'author' => $author ? $author['username'] : 'Deleted user',
-            'object' => $object instanceof ObjectTitleInterface ? $object->getObjectTitle() : 'Undefined object',
+            'author' => $author ? $author['username'] : 'Deleted User',
+            'object' => $object instanceof ObjectTitleInterface ? $object->getObjectTitle() : 'Undefined Object',
         ]);
     }
 }

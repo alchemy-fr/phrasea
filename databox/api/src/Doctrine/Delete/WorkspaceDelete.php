@@ -25,10 +25,10 @@ final readonly class WorkspaceDelete
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private CollectionDelete       $collectionDelete,
-        private IndexCleaner           $indexCleaner,
-        private SoftDeleteToggler      $softDeleteToggler,
-        private LoggerInterface        $logger,
+        private CollectionDelete $collectionDelete,
+        private IndexCleaner $indexCleaner,
+        private SoftDeleteToggler $softDeleteToggler,
+        private LoggerInterface $logger,
     ) {
     }
 

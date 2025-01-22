@@ -2,6 +2,8 @@ import React, {
     forwardRef,
     memo,
     ReactNode,
+    useCallback,
+    useEffect,
     useImperativeHandle,
     useRef,
     useState,
@@ -16,6 +18,11 @@ import {
 } from './annotationTypes.ts';
 import AnnotateToolbar from './AnnotateToolbar.tsx';
 import {useAnnotationRender} from './useAnnotationRender.tsx';
+import type {ZoomStepState} from '../Players';
+import type {AssetAnnotationHandle, ZoomRef} from './common.ts';
+import {annotationZIndex} from './common.ts';
+import ShapeControl from './ShapeControl.tsx';
+import {drawingHandlers} from './events.ts';
 
 type Props = {
     annotationsControl?: AnnotationsControl | undefined;
@@ -28,13 +35,8 @@ type Props = {
         annotationActive: boolean;
         annotate: boolean;
     }) => JSX.Element;
-    zoomStep: number | undefined;
-};
-
-export const annotationZIndex = 100;
-
-export type AssetAnnotationHandle = {
-    render: () => void;
+    zoomStep: ZoomStepState;
+    zoomRef: ZoomRef;
 };
 
 export default memo(
@@ -45,11 +47,14 @@ export default memo(
             page,
             children,
             zoomStep,
+            zoomRef,
             annotations: initialAnnotations,
         }: Props,
         ref
     ) {
         const selectedAnnotationRef = useRef<AssetAnnotation | undefined>();
+        const shapeControlRef = useRef<HTMLDivElement | null>(null);
+        const spaceRef = useRef<boolean>(false);
         const canvasRef = useRef<HTMLCanvasElement | null>(null);
         const [mode, setMode] = useState<AnnotationType | undefined>(undefined);
         const [annotate, setAnnotate] = useState(false);
@@ -74,11 +79,96 @@ export default memo(
             setAnnotations(initialAnnotations);
         }, [annotate, initialAnnotations]);
 
+        useEffect(() => {
+            const onSpaceDown = (e: KeyboardEvent) => {
+                if (e.key === ' ') {
+                    spaceRef.current = true;
+                    e.stopPropagation();
+                    canvasRef.current?.style.setProperty('cursor', 'grab');
+                }
+            };
+            const onSpaceUp = (e: KeyboardEvent) => {
+                if (e.key === ' ') {
+                    spaceRef.current = false;
+                    e.stopPropagation();
+                    canvasRef.current?.style.setProperty('cursor', 'default');
+                }
+            };
+            window.addEventListener('keydown', onSpaceDown);
+            window.addEventListener('keyup', onSpaceUp);
+
+            return () => {
+                window.removeEventListener('keydown', onSpaceDown);
+                window.removeEventListener('keyup', onSpaceUp);
+            };
+        }, [spaceRef]);
+
+        const onShapeDelete = useCallback(() => {
+            const id = selectedAnnotationRef.current?.id;
+            if (id) {
+                setAnnotations(p => p!.filter(a => a.id !== id));
+                annotationsControl?.onDelete(id);
+                selectedAnnotationRef.current = undefined;
+            }
+        }, [annotationsControl, selectedAnnotationRef]);
+
+        const onShapeDuplicate = useCallback(() => {
+            const annotation = selectedAnnotationRef.current;
+            if (annotation) {
+                onNewAnnotationHandler({
+                    ...annotation,
+                    name: undefined,
+                });
+            }
+        }, [annotationsControl, selectedAnnotationRef]);
+
+        const onRename = useCallback(
+            (newName: string) => {
+                const annotation = selectedAnnotationRef.current;
+                if (annotation) {
+                    const handler = drawingHandlers[annotation.type];
+
+                    const newAnnotation = {
+                        ...(handler?.onRename?.({annotation, newName}) ??
+                            annotation),
+                        name: newName,
+                    };
+
+                    setAnnotations(p => {
+                        return p!.map(a => {
+                            if (a.id === annotation.id) {
+                                return newAnnotation;
+                            }
+                            return a;
+                        });
+                    });
+                    annotationsControl?.onUpdate(annotation.id!, newAnnotation);
+                }
+            },
+            [annotationsControl, selectedAnnotationRef]
+        );
+
+        const sa = selectedAnnotationRef.current;
+        if (sa) {
+            if (annotations) {
+                if (!annotations.includes(sa)) {
+                    selectedAnnotationRef.current = annotations.find(
+                        a => a.id === sa.id
+                    );
+                }
+            } else {
+                selectedAnnotationRef.current = undefined;
+            }
+        }
+
         const {render} = useAnnotationRender({
             canvasRef,
             annotations,
             page,
             zoomStep,
+            zoomRef,
+            selectedAnnotationRef,
+            shapeControlRef,
         });
 
         useImperativeHandle(ref, () => {
@@ -87,12 +177,14 @@ export default memo(
             };
         }, [render]);
 
-        const resolvedAnnotationsControl: AnnotationsControl | undefined = annotationsControl
-            ? {
-                onNew: onNewAnnotationHandler,
-                onUpdate: annotationsControl.onUpdate,
-            }
-            : undefined;
+        const resolvedAnnotationsControl: AnnotationsControl | undefined =
+            annotationsControl
+                ? {
+                      onNew: onNewAnnotationHandler,
+                      onUpdate: annotationsControl.onUpdate,
+                      onDelete: annotationsControl.onDelete,
+                  }
+                : undefined;
 
         useAnnotationDraw({
             canvasRef,
@@ -104,24 +196,39 @@ export default memo(
             setAnnotationOptions: setOptions,
             annotations,
             page,
+            spaceRef,
+            shapeControlRef,
+            zoomRef,
         });
 
         return (
             <>
                 {children({
                     canvas: (
-                        <canvas
-                            ref={canvasRef}
-                            style={{
-                                cursor:
-                                    annotate && mode ? 'crosshair' : undefined,
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                zIndex: annotationZIndex + 1,
-                                pointerEvents: annotate ? undefined : 'none',
-                            }}
-                        />
+                        <>
+                            <canvas
+                                ref={canvasRef}
+                                style={{
+                                    cursor:
+                                        annotate && mode
+                                            ? 'crosshair'
+                                            : 'default',
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    zIndex: annotationZIndex + 1,
+                                    pointerEvents: annotate
+                                        ? undefined
+                                        : 'none',
+                                }}
+                            />
+                            <ShapeControl
+                                elementRef={shapeControlRef}
+                                onDelete={onShapeDelete}
+                                onDuplicate={onShapeDuplicate}
+                                onRename={onRename}
+                            />
+                        </>
                     ),
                     toolbar:
                         annotationEnabled && annotationsControl ? (

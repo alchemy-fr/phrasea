@@ -1,39 +1,51 @@
 import {AnnotationOptions, AnnotationType} from '../annotationTypes.ts';
 import {DrawingHandler} from '../events.ts';
-import {drawCircle, getMoveCircleCoords, getResizeCircleCoords, isPointInCircle} from "./circle.ts";
+import {
+    drawCircle,
+    getMoveCircleCoordsInCircle,
+    getResizeCircleCoords,
+    isPointInCircle,
+} from './circle.ts';
+import {getStandardMoveHandler} from '../common.ts';
 
 function getRadius(deltaX: number, deltaY: number) {
     return Math.abs(
         3 +
-        Math.max(Math.abs(deltaX), Math.abs(deltaY)) *
-        (deltaX < 0 || deltaY < 0 ? -1 : 1)
+            Math.max(Math.abs(deltaX), Math.abs(deltaY)) *
+                (deltaX < 0 || deltaY < 0 ? -1 : 1)
     );
 }
 
 export const CircleAnnotationHandler: DrawingHandler = {
-    onDrawStart: ({x, y, context, options}) => {
-        drawCircle(context, {
-            x,
-            y,
-            radius: 3,
-        }, options);
+    onDrawStart: ({x, y, drawContext, options}) => {
+        drawCircle(
+            drawContext,
+            {
+                x,
+                y,
+                radius: 3,
+            },
+            options
+        );
     },
     onDrawMove: ({
         clear,
         startingPoint: {x, y},
-        context,
+        drawContext,
         deltaX,
         deltaY,
         options,
     }) => {
         clear();
         const radius = getRadius(deltaX, deltaY);
-        drawCircle(context, {
-            x,
-            y,
-            radius,
-        },
-            options,
+        drawCircle(
+            drawContext,
+            {
+                x,
+                y,
+                radius,
+            },
+            options
         );
     },
     onDrawEnd: ({
@@ -57,11 +69,11 @@ export const CircleAnnotationHandler: DrawingHandler = {
         terminate();
     },
     drawAnnotation: (
-        {annotation: {x, y, r, c, s}, context, toX, toY},
+        {annotation: {x, y, r, c, s}, drawContext, toX, toY},
         selected
     ) => {
         drawCircle(
-            context,
+            drawContext,
             {
                 x: toX(x),
                 y: toY(y),
@@ -74,60 +86,64 @@ export const CircleAnnotationHandler: DrawingHandler = {
             selected
         );
     },
-    onTerminate: () => {
-    },
-    isPointInside: ({annotation, x, y, toX, toY}) => {
-        return isPointInCircle(x, y, {
-            x: toX(annotation.x),
-            y: toY(annotation.y),
-            radius: toX(annotation.r),
-        });
-    },
-    getResizeHandler: ({annotation, toX, toY, x, y}) => {
+    onTerminate: () => {},
+    getResizeHandler: ({annotation, toX, toY, x, y, drawContext}) => {
         if (
             isPointInCircle(
                 x,
                 y,
-                getMoveCircleCoords({
+                getMoveCircleCoordsInCircle(drawContext, {
                     x: toX(annotation.x),
                     y: toY(annotation.y),
                     radius: toX(annotation.r),
                 })
             )
         ) {
-            return ({annotation, relativeX, relativeY, x, y}) => {
+            return ({annotation, relativeX, relativeY, deltaX, deltaY}) => {
                 return {
                     ...annotation,
-                    x: relativeX(x),
-                    y: relativeY(y),
+                    x: annotation.x + relativeX(deltaX),
+                    y: annotation.y + relativeY(deltaY),
                 };
             };
         } else if (
             isPointInCircle(
                 x,
                 y,
-                getResizeCircleCoords({
+                getResizeCircleCoords(drawContext, {
                     x: toX(annotation.x),
                     y: toY(annotation.y),
                     radius: toX(annotation.r),
                 })
             )
         ) {
-            return ({annotation, relativeX, x}) => {
+            return ({annotation, relativeX, deltaX}) => {
                 return {
                     ...annotation,
-                    r: Math.max(relativeX(x) - annotation.x, relativeX(3)),
+                    r: Math.max(annotation.r + relativeX(deltaX), relativeX(3)),
                 };
             };
         }
     },
-    toOptions: ({c, s}, {toX}) => ({
-        color: c,
-        size: toX(s),
-    } as AnnotationOptions),
+    toOptions: ({c, s}, {toX}) =>
+        ({
+            color: c,
+            size: toX(s),
+        }) as AnnotationOptions,
     fromOptions: (options, annotation, {relativeX}) => ({
         ...annotation,
         c: options.color,
         s: relativeX(options.size),
     }),
+    getBoundingBox: ({annotation: {x, y, r}, toX, toY}) => {
+        const radius = toX(r);
+
+        return {
+            x: toX(x) - radius,
+            y: toY(y) - radius,
+            w: 2 * radius,
+            h: 2 * radius,
+        };
+    },
+    getMoveHandler: getStandardMoveHandler,
 };

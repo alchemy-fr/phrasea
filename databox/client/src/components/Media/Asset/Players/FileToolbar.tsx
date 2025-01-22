@@ -1,7 +1,11 @@
-import AnnotateWrapper, {
-    AssetAnnotationHandle,
-} from '../Annotations/AnnotateWrapper.tsx';
-import {MutableRefObject, useCallback, useEffect, useRef, useState} from 'react';
+import AnnotateWrapper from '../Annotations/AnnotateWrapper.tsx';
+import {
+    MutableRefObject,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 import {
     AnnotationsControl,
     AssetAnnotation,
@@ -11,8 +15,9 @@ import {TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch';
 import {Box, IconButton} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
-import {filePlayerRelativeWrapperClassName} from './index.ts';
+import {filePlayerRelativeWrapperClassName, ZoomStepState} from './index.ts';
 import ToolbarPaper from './ToolbarPaper.tsx';
+import {AssetAnnotationHandle} from '../Annotations/common.ts';
 
 type Props = {
     annotationEnabled?: boolean;
@@ -26,7 +31,7 @@ type Props = {
     children:
         | ((props: {
               annotationsWrapperRef: MutableRefObject<AssetAnnotationHandle | null>;
-              zoomStep: number;
+              zoomStep: ZoomStepState;
           }) => JSX.Element)
         | JSX.Element;
 };
@@ -43,17 +48,40 @@ export default function FileToolbar({
     forceHand,
 }: Props) {
     const annotationsWrapperRef = useRef<AssetAnnotationHandle | null>(null);
+    const zoomRef = useRef<number>(1);
     const [closed, setClosed] = useState(false);
     const [hand, setHand] = useState(forceHand ?? false);
     const contentRef = useRef<HTMLDivElement | null>(null);
-    const scaleStepRate = 0.05;
-    const [zoomStep, setZoomStep] = useState<number>(1);
+    const [zoomStep, setZoomStep] = useState<ZoomStepState>({
+        current: 1,
+        maxReached: 1,
+    });
 
-    const increaseZoomStep = useCallback((step: number): void => {
-        setZoomStep(p => Math.max(p, Math.min(Math.ceil(step), 10)));
-    }, [setZoomStep]);
+    const increaseZoomStep = useCallback(
+        (step: number): void => {
+            setZoomStep(p => {
+                const current =
+                    step < 1
+                        ? Math.ceil(step * 10) / 10
+                        : Math.min(Math.ceil(step), 10);
+                if (current === p.current) {
+                    return p;
+                }
+
+                return {
+                    current,
+                    maxReached: Math.max(p.maxReached, current),
+                };
+            });
+        },
+        [setZoomStep]
+    );
+
     useEffect(() => {
-        setZoomStep(1);
+        setZoomStep({
+            current: 1,
+            maxReached: 1,
+        });
     }, [contentRef]);
 
     const fitContentToWrapper = useCallback(
@@ -87,14 +115,11 @@ export default function FileToolbar({
                 page={page}
                 ref={annotationsWrapperRef}
                 zoomStep={zoomStep}
+                zoomRef={zoomRef}
             >
-                {({canvas, annotationActive, annotate, toolbar}) => {
-                    const disabled = !controls ||
-                        !zoomEnabled ||
-                        annotationActive ||
-                        annotate ||
-                        closed ||
-                        !hand;
+                {({canvas, annotationActive, toolbar}) => {
+                    const disabled =
+                        !controls || !zoomEnabled || closed || !hand;
 
                     return (
                         <TransformWrapper
@@ -106,7 +131,8 @@ export default function FileToolbar({
                             minScale={0.1}
                             maxScale={100}
                             onTransformed={(_ref, {scale}) => {
-                                increaseZoomStep(scale * scaleStepRate);
+                                increaseZoomStep(scale);
+                                zoomRef.current = scale;
                             }}
                         >
                             {controls ? (
@@ -114,7 +140,9 @@ export default function FileToolbar({
                                     annotationActive={annotationActive}
                                     sx={theme => ({
                                         bottom: theme.spacing(2),
-                                        left: !closed ? '50%' : theme.spacing(2),
+                                        left: !closed
+                                            ? '50%'
+                                            : theme.spacing(2),
                                         transform: !closed
                                             ? 'translateX(-50%)'
                                             : undefined,
@@ -143,9 +171,9 @@ export default function FileToolbar({
                                             onClick={() => setClosed(p => !p)}
                                         >
                                             {closed ? (
-                                                <MenuOpenIcon/>
+                                                <MenuOpenIcon />
                                             ) : (
-                                                <CloseIcon/>
+                                                <CloseIcon />
                                             )}
                                         </IconButton>
                                     </Box>
@@ -166,7 +194,10 @@ export default function FileToolbar({
                                 >
                                     {canvas}
                                     {typeof children === 'function'
-                                        ? children({annotationsWrapperRef, zoomStep})
+                                        ? children({
+                                              annotationsWrapperRef,
+                                              zoomStep,
+                                          })
                                         : children}
                                 </div>
                             </TransformComponent>

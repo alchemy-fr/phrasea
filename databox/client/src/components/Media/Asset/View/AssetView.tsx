@@ -24,7 +24,8 @@ import {
     AssetAnnotation,
 } from '../Annotations/annotationTypes.ts';
 import AssetViewHeader from './AssetViewHeader.tsx';
-import {annotationZIndex} from '../Annotations/AnnotateWrapper.tsx';
+
+import {annotationZIndex} from '../Annotations/common.ts';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -110,7 +111,13 @@ export default function AssetView({modalIndex, open}: Props) {
                 annotationsControlRef.current?.onNew(annotation);
             },
             onUpdate: (previous, newAnnotation) => {
-                annotationsControlRef.current?.onUpdate(previous, newAnnotation);
+                annotationsControlRef.current?.onUpdate(
+                    previous,
+                    newAnnotation
+                );
+            },
+            onDelete: id => {
+                annotationsControlRef.current?.onDelete(id);
             },
         } as AnnotationsControl;
     }, [annotationsControlRef]);

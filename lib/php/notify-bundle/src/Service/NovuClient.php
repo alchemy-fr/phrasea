@@ -64,4 +64,11 @@ final readonly class NovuClient
             ],
         ]);
     }
+
+    public function isSubscribed(string $topicKey, string $subscriberId): bool
+    {
+        $response = $this->client->request('GET', sprintf('/v1/topics/%s/subscribers/%s', $topicKey, $subscriberId));
+
+        return 200 === $response->getStatusCode();
+    }
 }

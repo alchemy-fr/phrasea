@@ -1,50 +1,67 @@
-import {AnnotationOptions} from "../annotationTypes.ts";
-import {drawCircleControl} from "./circle.ts";
-import {controlsSize} from "./shapeCommon.ts";
+import {AnnotationOptions} from '../annotationTypes.ts';
+import {CircleProps, drawCircleControl} from './circle.ts';
+import {controlsSize} from './shapeCommon.ts';
+import {DrawContext, ToFunction} from '../events.ts';
 
 export type RectangleProps = {
     x: number;
     y: number;
     w: number;
     h: number;
+};
+
+export function getMoveCircleCoordsInRectangle(
+    {zoom}: DrawContext,
+    {x, y, w, h}: RectangleProps
+): CircleProps {
+    return {
+        x: x + w / 2,
+        y: y + h / 2,
+        radius: controlsSize / zoom,
+    };
 }
 
 export function drawRectangle(
-    context: CanvasRenderingContext2D,
-    {
-        x,
-        y,
-        w,
-        h,
-    }: RectangleProps,
-    options: AnnotationOptions, selected: boolean = false
+    drawContext: DrawContext,
+    {x, y, w, h}: RectangleProps,
+    options: AnnotationOptions,
+    selected: boolean = false,
+    resize: boolean = true
 ) {
     const a = new Path2D();
     a.rect(x, y, w, h);
-    context.strokeStyle = options.color;
+    const {context} = drawContext;
+    context.strokeStyle = options.color ?? '#000';
     context.lineWidth = options.size;
     context.stroke(a);
 
     if (selected) {
-        drawCircleControl(context, {
+        drawCircleControl(drawContext, {
             x: x + w / 2,
             y: y + h / 2,
-            radius: controlsSize
+            radius: controlsSize / drawContext.zoom,
         });
 
-        [0, 1].forEach((i) => {
-            [0, 1].forEach((j) => {
-                drawCircleControl(context, {
-                    x: x + w * i,
-                    y: y + h * j,
-                    radius: controlsSize
+        if (resize) {
+            [0, 1].forEach(i => {
+                [0, 1].forEach(j => {
+                    drawCircleControl(drawContext, {
+                        x: x + w * i,
+                        y: y + h * j,
+                        radius: controlsSize / drawContext.zoom,
+                    });
                 });
             });
-        });
+        }
     }
 }
 
-export function normalizeRectangleProps({x, y, w, h}: RectangleProps): RectangleProps {
+export function normalizeRectangleProps({
+    x,
+    y,
+    w,
+    h,
+}: RectangleProps): RectangleProps {
     const props: Partial<RectangleProps> = {};
 
     if (w >= 0) {
@@ -64,4 +81,17 @@ export function normalizeRectangleProps({x, y, w, h}: RectangleProps): Rectangle
     }
 
     return props as RectangleProps;
+}
+
+export function transformRectangleToPixels(
+    rect: RectangleProps,
+    toX: ToFunction,
+    toY: ToFunction
+) {
+    return {
+        x: toX(rect.x),
+        y: toY(rect.y),
+        w: toX(rect.w),
+        h: toY(rect.h),
+    };
 }

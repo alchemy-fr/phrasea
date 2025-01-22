@@ -36,6 +36,7 @@ export default function AssetViewNavigation({currentId, state}: Props) {
         <Box
             sx={{
                 mr: 1,
+                flexShrink: 0,
             }}
         >
             <IconButton

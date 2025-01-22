@@ -8,21 +8,27 @@ import {
     SelectedAnnotationRef,
 } from './annotationTypes.ts';
 import {bindEditCanvas} from './editCanvas.ts';
-import {renderAnnotations} from './useAnnotationRender.tsx';
-import {StateSetter} from "../../../../types.ts";
+import {StateSetter} from '../../../../types.ts';
+import {renderAnnotations} from './renderAnnotation.ts';
+import {getZoomFromRef, ShapeControlRef, ZoomRef} from './common.ts';
+
+export type CommonAnnotationDrawProps = {
+    annotations: AssetAnnotation[] | undefined;
+    canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
+    selectedAnnotationRef: SelectedAnnotationRef;
+    setAnnotationOptions: StateSetter<AnnotationOptions>;
+    spaceRef: React.MutableRefObject<boolean>;
+    zoomRef: ZoomRef;
+};
 
 type Props = {
-    canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
     annotationsControl: AnnotationsControl | undefined;
-    selectedAnnotationRef: SelectedAnnotationRef;
     mode: AnnotationType | undefined;
     annotationOptions: AnnotationOptions;
-    setAnnotationOptions: StateSetter<AnnotationOptions>;
     onTerminate: () => void;
-    annotations: AssetAnnotation[] | undefined;
     page?: number;
-    zoomStep?: number | undefined;
-};
+    shapeControlRef: ShapeControlRef;
+} & CommonAnnotationDrawProps;
 
 export function useAnnotationDraw({
     canvasRef,
@@ -34,10 +40,13 @@ export function useAnnotationDraw({
     selectedAnnotationRef,
     annotations,
     page,
-    zoomStep,
+    spaceRef,
+    shapeControlRef,
+    zoomRef,
 }: Props) {
     const startingPoint = useRef<StartingPoint | undefined>();
     const dataRef = useRef<object | undefined>();
+    const previouslySelectedAnnotations = useRef<AssetAnnotation[]>([]);
 
     React.useEffect(() => {
         if (!annotationsControl || !canvasRef.current) {
@@ -56,8 +65,9 @@ export function useAnnotationDraw({
                 canvasRef,
                 annotations,
                 page,
-                selectedAnnotationRef: selectedAnnotationRef,
-                zoomStep,
+                selectedAnnotationRef,
+                zoomRef,
+                shapeControlRef,
             });
         };
 
@@ -83,6 +93,11 @@ export function useAnnotationDraw({
                 dataRef.current = undefined;
             };
 
+            const drawContext = {
+                context,
+                zoom: getZoomFromRef(zoomRef),
+            };
+
             const onMouseMove = (event: MouseEvent) => {
                 const x = event.offsetX;
                 const y = event.offsetY;
@@ -92,7 +107,7 @@ export function useAnnotationDraw({
                 onDrawMove({
                     options: annotationOptions,
                     data: dataRef.current!,
-                    context,
+                    drawContext,
                     canvas,
                     startingPoint: st,
                     x,
@@ -107,7 +122,7 @@ export function useAnnotationDraw({
                 onTerminate({
                     options: annotationOptions,
                     data: dataRef.current!,
-                    context,
+                    drawContext,
                     onNewAnnotation: annotationsControl.onNew,
                     canvas,
                     startingPoint: startingPoint.current!,
@@ -123,9 +138,8 @@ export function useAnnotationDraw({
                 onTerminate({
                     options: annotationOptions,
                     data: dataRef.current!,
-                    context,
-                    onNewAnnotation: () => {
-                    },
+                    drawContext,
+                    onNewAnnotation: () => {},
                     canvas,
                     startingPoint: startingPoint.current!,
                     relativeX,
@@ -146,7 +160,7 @@ export function useAnnotationDraw({
                 onDrawEnd({
                     options: annotationOptions,
                     data: dataRef.current!,
-                    context,
+                    drawContext,
                     onNewAnnotation: annotationsControl.onNew,
                     terminate: terminateHandler,
                     canvas,
@@ -169,7 +183,6 @@ export function useAnnotationDraw({
                     return;
                 }
 
-                event.preventDefault();
                 event.stopPropagation();
                 cancelHandler();
             };
@@ -182,7 +195,6 @@ export function useAnnotationDraw({
                     event.stopPropagation();
                     return;
                 }
-                event.preventDefault();
 
                 terminateHandler();
             };
@@ -197,8 +209,12 @@ export function useAnnotationDraw({
             });
 
             const onMouseDown = (event: MouseEvent) => {
-                event.preventDefault();
                 event.stopPropagation();
+
+                if (spaceRef.current) {
+                    return;
+                }
+
                 const x = event.offsetX;
                 const y = event.offsetY;
 
@@ -212,12 +228,16 @@ export function useAnnotationDraw({
                 onDrawStart({
                     options: annotationOptions,
                     data: dataRef.current!,
-                    context,
+                    drawContext,
                     canvas,
                     startingPoint: startingPoint.current!,
                     x,
                     y,
                     clear,
+                    terminate: terminateHandler,
+                    onNewAnnotation: annotationsControl.onNew,
+                    relativeY,
+                    relativeX,
                 });
 
                 canvas.addEventListener('mousemove', onMouseMove);
@@ -232,14 +252,25 @@ export function useAnnotationDraw({
             };
         } else if (!mode) {
             return bindEditCanvas({
-                canvas: canvasRef.current!,
+                canvasRef,
                 annotations,
+                startingPoint,
                 clear,
                 selectedAnnotationRef,
                 onUpdate: annotationsControl.onUpdate,
                 setAnnotationOptions,
-                zoomStep,
+                spaceRef,
+                zoomRef,
+                previouslySelectedAnnotations,
+                shapeControlRef,
             });
         }
-    }, [canvasRef, mode, annotationOptions, annotationsControl, annotations, page]);
+    }, [
+        canvasRef,
+        mode,
+        annotationOptions,
+        annotationsControl,
+        annotations,
+        page,
+    ]);
 }

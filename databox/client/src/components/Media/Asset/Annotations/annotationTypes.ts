@@ -6,9 +6,12 @@ export type Point = {
 };
 
 export enum AnnotationType {
-    Point = 'point',
+    Target = 'target',
     Draw = 'draw',
     Circle = 'circle',
+    Line = 'line',
+    Arrow = 'arrow',
+    Text = 'text',
     Rect = 'rect',
     Cue = 'cue',
     TimeRange = 'time_range',
@@ -24,9 +27,20 @@ export interface AssetAnnotation {
 }
 
 export interface PointAnnotation extends AssetAnnotation {
-    type: AnnotationType.Point;
+    type: AnnotationType.Target;
     x: number;
     y: number;
+    c?: string; // Color
+    s?: number; // Size
+    page?: number;
+}
+
+export interface LineAnnotation extends AssetAnnotation {
+    type: AnnotationType.Target;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
     c?: string; // Color
     s?: number; // Size
     page?: number;
@@ -63,8 +77,19 @@ export interface RectangleAnnotation extends AssetAnnotation {
 export interface DrawAnnotation extends AssetAnnotation {
     type: AnnotationType.Draw;
     paths: Point[][];
+    x: number;
+    y: number;
     c?: string; // Color
     s?: number; // Line width
+}
+
+export interface TextAnnotation extends AssetAnnotation {
+    type: AnnotationType.Text;
+    x: number;
+    y: number;
+    text: string;
+    c?: string; // Color
+    s?: number; // Text size
 }
 
 export interface CueAnnotation extends AssetAnnotation {
@@ -81,16 +106,21 @@ export interface TimeRangeAnnotation extends AssetAnnotation {
 export type AnnotationsControl = {
     onNew: OnNewAnnotation;
     onUpdate: OnUpdateAnnotation;
+    onDelete: OnDeleteAnnotation;
 };
 
 export type AnnotationsControlRef = MutableRefObject<
     AnnotationsControl | undefined
 >;
 
-export type SelectedAnnotationRef = MutableRefObject<AssetAnnotation | undefined>;
+export type SelectedAnnotationRef = MutableRefObject<
+    AssetAnnotation | undefined
+>;
 
 export type OnNewAnnotation = (annotation: AssetAnnotation) => void;
 export type OnUpdateAnnotation = (
     id: AnnotationId,
     newAnnotation: AssetAnnotation
 ) => AssetAnnotation;
+
+export type OnDeleteAnnotation = (id: AnnotationId) => void;

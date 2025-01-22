@@ -41,3 +41,8 @@ export type PlayerProps = {
 };
 
 export const filePlayerRelativeWrapperClassName = 'fprw';
+
+export type ZoomStepState = {
+    current: number;
+    maxReached: number;
+};

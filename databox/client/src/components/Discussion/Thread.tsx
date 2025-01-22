@@ -79,23 +79,13 @@ export default function Thread({
         }
     }, [threadId]);
 
-    useChannelRegistration(
-        `thread-${threadId}`,
-        `message`,
-        data => {
-            appendMessage(data);
-        },
-        !!threadId
-    );
+    useChannelRegistration(`thread-${threadKey}`, `message`, data => {
+        appendMessage(data);
+    });
 
-    useChannelRegistration(
-        `thread-${threadId}`,
-        `message-delete`,
-        data => {
-            deleteMessage(data.id);
-        },
-        !!threadId
-    );
+    useChannelRegistration(`thread-${threadKey}`, `message-delete`, data => {
+        deleteMessage(data.id);
+    });
 
     const onDeleteMessage = (message: ThreadMessage): void => {
         openModal(ConfirmDialog, {
