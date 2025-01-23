@@ -19,7 +19,6 @@ class ResizeFilter implements VideoFilterInterface
     /** resizes the video to fit the dimension height, no anamorphosis */
     public const RESIZEMODE_SCALE_HEIGHT = 'height';
 
-
     public function __construct(
         private Dimension $dimension,
         private string $mode = self::RESIZEMODE_FIT,
