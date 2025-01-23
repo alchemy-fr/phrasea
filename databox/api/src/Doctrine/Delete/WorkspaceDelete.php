@@ -7,6 +7,7 @@ namespace App\Doctrine\Delete;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use App\Doctrine\SoftDeleteToggler;
 use App\Elasticsearch\IndexCleaner;
+use App\Entity\Core\Asset;
 use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
@@ -76,6 +77,7 @@ final readonly class WorkspaceDelete
             $this->deleteDependencies(AssetDataTemplate::class, $workspaceId);
             $this->deleteDependencies(WorkspaceIntegration::class, $workspaceId);
             $this->deleteDependencies(WorkspaceSecret::class, $workspaceId);
+            $this->deleteDependencies(Asset::class, $workspaceId);
 
             $nFiles = $this->em->getRepository(File::class)
                 ->createQueryBuilder('t')
