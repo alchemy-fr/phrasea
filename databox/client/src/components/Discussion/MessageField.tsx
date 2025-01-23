@@ -25,6 +25,7 @@ export type OnAttachmentRemove = (
 ) => void;
 
 export type BaseMessageFieldProps = {
+    disabled?: boolean;
     onFocus?: FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
     onAttachmentClick?: OnAttachmentClick;
     onAttachmentRemove?: OnAttachmentRemove;
@@ -53,6 +54,7 @@ export default function MessageField({
     onAttachmentClick,
     onAttachmentRemove,
     onFocus,
+    disabled,
 }: Props) {
     const {
         formState: {errors},
@@ -85,7 +87,7 @@ export default function MessageField({
                         sx={{p: 1}}
                         required={true}
                         placeholder={placeholder}
-                        disabled={submitting}
+                        disabled={submitting || disabled}
                         multiline={true}
                         onFocus={onFocus}
                         fullWidth={true}
@@ -115,6 +117,7 @@ export default function MessageField({
                             }}
                         >
                             <EmojiPicker
+                                disabled={submitting || disabled}
                                 onSelect={(emoji: string) => {
                                     inputRef.current?.focus();
                                     document.execCommand(
@@ -129,7 +132,7 @@ export default function MessageField({
                         <div>
                             {onCancel ? (
                                 <Button
-                                    disabled={submitting}
+                                    disabled={submitting || disabled}
                                     onClick={onCancel}
                                 >
                                     {cancelButtonLabel!}
@@ -137,7 +140,7 @@ export default function MessageField({
                             ) : null}
                             <LoadingButton
                                 type="submit"
-                                disabled={submitting}
+                                disabled={submitting || disabled}
                                 loading={submitting}
                                 color={'primary'}
                                 endIcon={<SendIcon />}

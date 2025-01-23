@@ -3,7 +3,7 @@ import {ThreadMessage} from '../../types.ts';
 import {deleteThreadMessage, getThreadMessages} from '../../api/discussion.ts';
 import {ApiCollectionResponse} from '../../api/hydra.ts';
 import MessageForm, {BaseMessageFormProps} from './MessageForm.tsx';
-import {CircularProgress} from '@mui/material';
+import {Box, Skeleton} from '@mui/material';
 import DiscussionMessage from './DiscussionMessage.tsx';
 import {useChannelRegistration} from '../../lib/pusher.ts';
 import ConfirmDialog from '../Ui/ConfirmDialog.tsx';
@@ -79,7 +79,7 @@ export default function Thread({
                 setMessages(res);
             });
         }
-    }, [threadId]);
+    }, [threadId, threadKey]);
 
     useChannelRegistration(`thread-${threadKey}`, `message`, data => {
         appendMessage(data);
@@ -133,24 +133,34 @@ export default function Thread({
         );
     };
 
-    if (threadId && !messages) {
-        return <CircularProgress />;
-    }
+    const loadingMessages = Boolean(threadId && !messages);
 
     return (
         <>
-            {messages?.result.map(message => (
-                <DiscussionMessage
-                    key={message.id}
-                    message={message}
-                    onAttachmentClick={formProps.onAttachmentClick}
-                    onDelete={onDeleteMessage}
-                    onEdit={onEditMessage}
-                />
-            ))}
+            {loadingMessages ? (
+                <Box
+                    sx={{
+                        mb: 2,
+                    }}
+                >
+                    <Skeleton />
+                    <Skeleton />
+                </Box>
+            ) : (
+                messages?.result.map(message => (
+                    <DiscussionMessage
+                        key={message.id}
+                        message={message}
+                        onAttachmentClick={formProps.onAttachmentClick}
+                        onDelete={onDeleteMessage}
+                        onEdit={onEditMessage}
+                    />
+                ))
+            )}
 
             <MessageForm
                 {...formProps}
+                disabled={loadingMessages}
                 ref={messageFormRef}
                 threadKey={threadKey}
                 threadId={threadId}

@@ -4,7 +4,7 @@ import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
-    CircularProgress,
+    Skeleton,
     Typography,
 } from '@mui/material';
 import {
@@ -122,7 +122,11 @@ export default function FileIntegrations({
 
     return (
         <>
-            {!integrations && <CircularProgress color="inherit" />}
+            {!integrations && (
+                <div>
+                    <Skeleton height={70} />
+                </div>
+            )}
             {integrations &&
                 integrations.map(i => (
                     <IntegrationProxy
