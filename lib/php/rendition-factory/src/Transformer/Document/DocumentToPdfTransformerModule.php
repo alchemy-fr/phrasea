@@ -44,7 +44,6 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
         // @formatter:on
     }
 
-
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         if ('application/pdf' === $inputFile->getType()) {

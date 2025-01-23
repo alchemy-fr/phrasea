@@ -2,18 +2,18 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Image\Imagine;
 
-use Liip\ImagineBundle\Model\FileBinary;
-use Alchemy\RenditionFactory\DTO\FamilyEnum;
-use Alchemy\RenditionFactory\DTO\OutputFile;
-use Alchemy\RenditionFactory\DTO\InputFileInterface;
-use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\Transformer\Documentation;
-use Alchemy\RenditionFactory\MimeType\ImageFormatGuesser;
-use Symfony\Component\Config\Definition\Builder\NodeBuilder;
-use Alchemy\RenditionFactory\Transformer\BuildHashDiffInterface;
-use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
+use Alchemy\RenditionFactory\DTO\FamilyEnum;
+use Alchemy\RenditionFactory\DTO\InputFileInterface;
+use Alchemy\RenditionFactory\DTO\OutputFile;
+use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\MimeType\ImageFormatGuesser;
+use Alchemy\RenditionFactory\Transformer\BuildHashDiffInterface;
+use Alchemy\RenditionFactory\Transformer\Documentation;
+use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
+use Liip\ImagineBundle\Model\FileBinary;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 final readonly class ImagineTransformerModule implements TransformerModuleInterface, BuildHashDiffInterface
 {
@@ -32,7 +32,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
         $treeBuilder = TransformerConfigHelper::createBaseTree(self::getName());
         $this->buildConfiguration($treeBuilder->getRootNode()->children());
 
-        $doc =  new Documentation(
+        $doc = new Documentation(
             $treeBuilder,
             <<<HEADER
             Transform an image with some filter.
@@ -297,7 +297,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
                                         ->defaultValue(0)
                                     ->end()
                                     ->integerNode('size')
-                                        ->info ('font size')
+                                        ->info('font size')
                                         ->defaultValue(16)
                                     ->end()
                                     ->scalarNode('color')
