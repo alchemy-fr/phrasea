@@ -1,6 +1,6 @@
 import {AnnotationOptions} from '../annotationTypes.ts';
 import {CircleProps, drawCircleControl} from './circle.ts';
-import {controlsSize} from './shapeCommon.ts';
+import {controlsSize} from '../controls.ts';
 import {DrawContext, ToFunction} from '../events.ts';
 
 export type RectangleProps = {
@@ -36,19 +36,13 @@ export function drawRectangle(
     context.stroke(a);
 
     if (selected) {
-        drawCircleControl(drawContext, {
-            x: x + w / 2,
-            y: y + h / 2,
-            radius: controlsSize / drawContext.zoom,
-        });
-
         if (resize) {
             [0, 1].forEach(i => {
                 [0, 1].forEach(j => {
                     drawCircleControl(drawContext, {
                         x: x + w * i,
                         y: y + h * j,
-                        radius: controlsSize / drawContext.zoom,
+                        radius: 0,
                     });
                 });
             });

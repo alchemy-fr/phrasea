@@ -5,10 +5,15 @@ import {getAttributeType} from './types';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import CopyAttribute, {copyToClipBoardContainerClass} from './CopyAttribute';
 import React from 'react';
-import {attributesClasses, OnActiveAnnotations} from './Attributes';
+import {attributesClasses} from './Attributes';
 import {isRtlLocale} from '../../../../lib/lang';
 import {Attribute, AttributeDefinition} from '../../../../types.ts';
 import GestureIcon from '@mui/icons-material/Gesture';
+import {AssetAnnotationRef} from '../Annotations/annotationTypes.ts';
+
+export type BaseAttributeRowUIProps = {
+    assetAnnotationsRef?: AssetAnnotationRef;
+};
 
 type Props = {
     definition: AttributeDefinition;
@@ -17,8 +22,7 @@ type Props = {
     togglePin: undefined | ((definitionId: string) => void);
     pinned: boolean;
     formatContext: TAttributeFormatContext;
-    onActiveAnnotations?: OnActiveAnnotations | undefined;
-};
+} & BaseAttributeRowUIProps;
 
 export default function AttributeRowUI({
     definition,
@@ -27,7 +31,7 @@ export default function AttributeRowUI({
     pinned,
     displayControls,
     formatContext,
-    onActiveAnnotations,
+    assetAnnotationsRef,
 }: Props) {
     const {id, name, fieldType, multiple} = definition;
     const formatter = getAttributeType(fieldType);
@@ -136,7 +140,7 @@ export default function AttributeRowUI({
                                       >
                                           {formatter.formatValue(formatProps)}
                                           {displayControls &&
-                                          onActiveAnnotations &&
+                                          assetAnnotationsRef?.current &&
                                           a.assetAnnotations ? (
                                               <IconButton
                                                   sx={{
@@ -145,7 +149,7 @@ export default function AttributeRowUI({
                                                   size="small"
                                                   onClick={e => {
                                                       e.stopPropagation();
-                                                      onActiveAnnotations!(
+                                                      assetAnnotationsRef!.current!.replaceAnnotations(
                                                           a.assetAnnotations!
                                                       );
                                                   }}

@@ -1,3 +1,4 @@
+import {useTranslation} from 'react-i18next';
 import React, {
     forwardRef,
     memo,
@@ -5,6 +6,7 @@ import React, {
     useCallback,
     useEffect,
     useImperativeHandle,
+    useMemo,
     useRef,
     useState,
 } from 'react';
@@ -14,44 +16,56 @@ import {
     AnnotationsControl,
     AnnotationType,
     AssetAnnotation,
+    OnDeleteAnnotation,
     OnNewAnnotation,
+    OnUpdateAnnotation,
 } from './annotationTypes.ts';
 import AnnotateToolbar from './AnnotateToolbar.tsx';
 import {useAnnotationRender} from './useAnnotationRender.tsx';
 import type {ZoomStepState} from '../Players';
-import type {AssetAnnotationHandle, ZoomRef} from './common.ts';
+import type {ZoomRef} from './common.ts';
 import {annotationZIndex} from './common.ts';
 import ShapeControl from './ShapeControl.tsx';
 import {drawingHandlers} from './events.ts';
 
+export type BaseAnnotationProps = {
+    annotations?: AssetAnnotation[] | undefined;
+    onNewAnnotation?: OnNewAnnotation | undefined;
+    onUpdateAnnotation?: OnUpdateAnnotation | undefined;
+    onDeleteAnnotation?: OnDeleteAnnotation | undefined;
+};
+
 type Props = {
-    annotationsControl?: AnnotationsControl | undefined;
-    annotations: AssetAnnotation[] | undefined;
     page?: number;
     annotationEnabled?: boolean;
     children: (props: {
-        canvas: ReactNode | null;
+        canvas: ReactNode;
         toolbar: ReactNode | null;
         annotationActive: boolean;
         annotate: boolean;
     }) => JSX.Element;
     zoomStep: ZoomStepState;
     zoomRef: ZoomRef;
-};
+} & BaseAnnotationProps;
+
+let annotationIncrement = 1;
 
 export default memo(
-    forwardRef<AssetAnnotationHandle, Props>(function AnnotateWrapper(
+    forwardRef<AnnotationsControl, Props>(function AnnotateWrapper(
         {
             annotationEnabled,
-            annotationsControl,
             page,
             children,
             zoomStep,
             zoomRef,
             annotations: initialAnnotations,
+            onNewAnnotation,
+            onUpdateAnnotation,
+            onDeleteAnnotation,
         }: Props,
         ref
     ) {
+        const {t} = useTranslation();
         const selectedAnnotationRef = useRef<AssetAnnotation | undefined>();
         const shapeControlRef = useRef<HTMLDivElement | null>(null);
         const spaceRef = useRef<boolean>(false);
@@ -62,21 +76,81 @@ export default memo(
             color: '#000',
             size: 2,
         });
-        const [annotations, setAnnotations] = React.useState<
-            AssetAnnotation[] | undefined
-        >(initialAnnotations);
-
-        const onNewAnnotationHandler = React.useCallback<OnNewAnnotation>(
-            annotation => {
-                annotation.page = page;
-                setAnnotations(p => (p ?? []).concat(annotation));
-                annotationsControl?.onNew(annotation);
-            },
-            [annotationsControl]
+        const [annotations, setAnnotations] = React.useState<AssetAnnotation[]>(
+            initialAnnotations ?? []
         );
 
         React.useEffect(() => {
-            setAnnotations(initialAnnotations);
+            const onKeyDown = (e: KeyboardEvent) => {
+                if (e.key === 'Escape') {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setMode(undefined);
+                    setAnnotate(false);
+                } else if (e.key === 'Delete') {
+                    onShapeDelete();
+                }
+            };
+            document.addEventListener('keydown', onKeyDown);
+            window.addEventListener('keydown', onKeyDown);
+
+            return () => {
+                document.removeEventListener('keydown', onKeyDown);
+                window.removeEventListener('keydown', onKeyDown);
+            };
+        }, []);
+
+        const onNewAnnotationHandler = React.useCallback<OnNewAnnotation>(
+            annotation => {
+                annotation.id = `annotation-${(annotationIncrement++).toString()}`;
+                annotation.editable = true;
+
+                const annotationTypes: Record<AnnotationType, string> = {
+                    [AnnotationType.Draw]: t('annotation.type.draw', 'Draw'),
+                    [AnnotationType.Line]: t('annotation.type.line', 'Line'),
+                    [AnnotationType.Arrow]: t('annotation.type.arrow', 'Arrow'),
+                    [AnnotationType.Text]: t('annotation.type.text', 'Text'),
+                    [AnnotationType.Cue]: t('annotation.type.cue', 'Cue'),
+                    [AnnotationType.Circle]: t(
+                        'annotation.type.circle',
+                        'Circle'
+                    ),
+                    [AnnotationType.Rect]: t(
+                        'annotation.type.rectangle',
+                        'Rectangle'
+                    ),
+                    [AnnotationType.Target]: t(
+                        'annotation.type.target',
+                        'Target'
+                    ),
+                    [AnnotationType.TimeRange]: t(
+                        'annotation.type.timerange',
+                        'Time Range'
+                    ),
+                };
+
+                annotation.page = page;
+                annotation.name =
+                    annotation.name ??
+                    t('form.annotation.default_name', {
+                        defaultValue: '{{type}} #{{n}}',
+                        type: annotationTypes[annotation.type],
+                        n:
+                            annotations.filter(
+                                a =>
+                                    a.type === annotation.type &&
+                                    a.page === annotation.page
+                            ).length + 1,
+                    });
+                setAnnotations(p => (p ?? []).concat(annotation));
+
+                onNewAnnotation?.(annotation);
+            },
+            [t, onNewAnnotation, annotations]
+        );
+
+        React.useEffect(() => {
+            setAnnotations(initialAnnotations ?? []);
         }, [annotate, initialAnnotations]);
 
         useEffect(() => {
@@ -103,54 +177,9 @@ export default memo(
             };
         }, [spaceRef]);
 
-        const onShapeDelete = useCallback(() => {
-            const id = selectedAnnotationRef.current?.id;
-            if (id) {
-                setAnnotations(p => p!.filter(a => a.id !== id));
-                annotationsControl?.onDelete(id);
-                selectedAnnotationRef.current = undefined;
-            }
-        }, [annotationsControl, selectedAnnotationRef]);
-
-        const onShapeDuplicate = useCallback(() => {
-            const annotation = selectedAnnotationRef.current;
-            if (annotation) {
-                onNewAnnotationHandler({
-                    ...annotation,
-                    name: undefined,
-                });
-            }
-        }, [annotationsControl, selectedAnnotationRef]);
-
-        const onRename = useCallback(
-            (newName: string) => {
-                const annotation = selectedAnnotationRef.current;
-                if (annotation) {
-                    const handler = drawingHandlers[annotation.type];
-
-                    const newAnnotation = {
-                        ...(handler?.onRename?.({annotation, newName}) ??
-                            annotation),
-                        name: newName,
-                    };
-
-                    setAnnotations(p => {
-                        return p!.map(a => {
-                            if (a.id === annotation.id) {
-                                return newAnnotation;
-                            }
-                            return a;
-                        });
-                    });
-                    annotationsControl?.onUpdate(annotation.id!, newAnnotation);
-                }
-            },
-            [annotationsControl, selectedAnnotationRef]
-        );
-
         const sa = selectedAnnotationRef.current;
         if (sa) {
-            if (annotations) {
+            if (annotations.length > 0) {
                 if (!annotations.includes(sa)) {
                     selectedAnnotationRef.current = annotations.find(
                         a => a.id === sa.id
@@ -171,24 +200,105 @@ export default memo(
             shapeControlRef,
         });
 
-        useImperativeHandle(ref, () => {
+        const annotationsControl = useMemo<AnnotationsControl>(() => {
             return {
                 render,
-            };
-        }, [render]);
+                addAnnotation: onNewAnnotationHandler,
+                updateAnnotation: (id, newAnnotation) => {
+                    if (!newAnnotation.editable) {
+                        return newAnnotation;
+                    }
 
-        const resolvedAnnotationsControl: AnnotationsControl | undefined =
-            annotationsControl
-                ? {
-                      onNew: onNewAnnotationHandler,
-                      onUpdate: annotationsControl.onUpdate,
-                      onDelete: annotationsControl.onDelete,
-                  }
-                : undefined;
+                    setAnnotations(p => {
+                        return p!.map(a => {
+                            if (a.id === id) {
+                                return newAnnotation;
+                            }
+                            return a;
+                        });
+                    });
+
+                    onUpdateAnnotation?.(id, newAnnotation);
+
+                    return newAnnotation;
+                },
+                deleteAnnotation: id => {
+                    setAnnotations(p => p!.filter(a => a.id !== id));
+                    onDeleteAnnotation?.(id);
+                },
+                selectAnnotation: annotation => {
+                    selectedAnnotationRef.current = annotation;
+                },
+                replaceAnnotations: annotations => {
+                    setAnnotations(annotations);
+                },
+            };
+        }, [
+            render,
+            onNewAnnotationHandler,
+            onUpdateAnnotation,
+            onDeleteAnnotation,
+            setAnnotations,
+            selectedAnnotationRef,
+        ]);
+
+        useImperativeHandle(ref, () => annotationsControl, [
+            annotationsControl,
+        ]);
+
+        const onShapeDelete = useCallback(() => {
+            const selected = selectedAnnotationRef.current;
+            if (selected?.editable && selected!.id) {
+                const id = selected.id;
+                setAnnotations(p => p!.filter(a => a.id !== id));
+                annotationsControl.deleteAnnotation(id);
+                selectedAnnotationRef.current = undefined;
+            }
+        }, [annotationsControl, selectedAnnotationRef]);
+
+        const onShapeDuplicate = useCallback(() => {
+            const annotation = selectedAnnotationRef.current;
+            if (annotation) {
+                onNewAnnotationHandler({
+                    ...annotation,
+                    name: undefined,
+                });
+            }
+        }, [selectedAnnotationRef, onNewAnnotationHandler]);
+
+        const onRename = useCallback(
+            (newName: string) => {
+                const annotation = selectedAnnotationRef.current;
+                if (annotation && annotation.editable) {
+                    const handler = drawingHandlers[annotation.type];
+
+                    const newAnnotation = {
+                        ...(handler?.onRename?.({annotation, newName}) ??
+                            annotation),
+                        name: newName,
+                    };
+
+                    setAnnotations(p => {
+                        return p!.map(a => {
+                            if (a.id === annotation.id) {
+                                return newAnnotation;
+                            }
+                            return a;
+                        });
+                    });
+
+                    annotationsControl.updateAnnotation(
+                        annotation.id!,
+                        newAnnotation
+                    );
+                }
+            },
+            [annotationsControl, selectedAnnotationRef]
+        );
 
         useAnnotationDraw({
             canvasRef,
-            annotationsControl: resolvedAnnotationsControl,
+            annotationsControl,
             selectedAnnotationRef,
             onTerminate: () => setMode(undefined),
             mode,
@@ -230,20 +340,19 @@ export default memo(
                             />
                         </>
                     ),
-                    toolbar:
-                        annotationEnabled && annotationsControl ? (
-                            <AnnotateToolbar
-                                canvasRef={canvasRef}
-                                annotationsControl={resolvedAnnotationsControl}
-                                selectedAnnotationRef={selectedAnnotationRef}
-                                annotate={annotate}
-                                setAnnotate={setAnnotate}
-                                options={options}
-                                setOptions={setOptions}
-                                mode={mode}
-                                setMode={setMode}
-                            />
-                        ) : null,
+                    toolbar: annotationEnabled ? (
+                        <AnnotateToolbar
+                            canvasRef={canvasRef}
+                            annotationsControl={annotationsControl}
+                            selectedAnnotationRef={selectedAnnotationRef}
+                            annotate={annotate}
+                            setAnnotate={setAnnotate}
+                            options={options}
+                            setOptions={setOptions}
+                            mode={mode}
+                            setMode={setMode}
+                        />
+                    ) : null,
                     annotationActive: !!mode,
                     annotate,
                 })}

@@ -4,6 +4,7 @@ import {Box, IconButton, Paper, TextField} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {useTranslation} from 'react-i18next';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import {stopPropagation} from '../../../../lib/stdFuncs.ts';
 
 type Props = {
     elementRef: React.RefObject<HTMLDivElement>;
@@ -39,26 +40,33 @@ export default function ShapeControl({
                     whiteSpace: 'nowrap',
                 }}
             >
-                <IconButton onClick={onDuplicate}>
-                    <ContentCopyIcon />
-                </IconButton>
-                <IconButton
-                    onClick={() => {
-                        if (
-                            window.confirm(
-                                t(
-                                    'annotations.delete_shape.confirm',
-                                    'Are you sure you want to delete this shape?'
-                                )
-                            )
-                        ) {
-                            onDelete();
-                        }
+                <div
+                    style={{
+                        display: 'inline-block',
                     }}
-                    color={'error'}
+                    className={'edit-controls'}
                 >
-                    <DeleteIcon />
-                </IconButton>
+                    <IconButton onClick={onDuplicate}>
+                        <ContentCopyIcon />
+                    </IconButton>
+                    <IconButton
+                        onClick={() => {
+                            if (
+                                window.confirm(
+                                    t(
+                                        'annotations.delete_shape.confirm',
+                                        'Are you sure you want to delete this shape?'
+                                    )
+                                )
+                            ) {
+                                onDelete();
+                            }
+                        }}
+                        color={'error'}
+                    >
+                        <DeleteIcon />
+                    </IconButton>
+                </div>
 
                 <Box
                     sx={{
@@ -75,16 +83,11 @@ export default function ShapeControl({
                         }}
                         sx={{
                             display: name === undefined ? 'block' : 'none',
+                            cursor: 'text',
                         }}
                     />
                     {name !== undefined && (
                         <Box
-                            onClick={e => {
-                                setName(
-                                    (e.target as HTMLDivElement).textContent ??
-                                        ''
-                                );
-                            }}
                             sx={{
                                 display: 'inline-block',
                                 my: -1,
@@ -96,6 +99,7 @@ export default function ShapeControl({
                                 variant={'standard'}
                                 error={name.trim().length === 0}
                                 value={name}
+                                onMouseDown={stopPropagation}
                                 onChange={e => setName(e.target.value)}
                                 onKeyDown={e => {
                                     if (
@@ -106,6 +110,9 @@ export default function ShapeControl({
                                         onRename(
                                             (e.target as HTMLInputElement).value
                                         );
+                                        setName(undefined);
+                                    } else if (e.key === 'Escape') {
+                                        e.stopPropagation();
                                         setName(undefined);
                                     }
                                 }}

@@ -4,7 +4,7 @@ import {
     controlsContrastColor,
     controlsSize,
     controlsStroke,
-} from './shapeCommon.ts';
+} from '../controls.ts';
 import {DrawContext} from '../events.ts';
 
 export type CircleProps = {
@@ -37,11 +37,11 @@ export function getResizeCircleCoords(
 
 export function drawCircleControl(
     drawContext: DrawContext,
-    {x, y, radius}: CircleProps
+    {x, y}: CircleProps
 ) {
     drawCircle(
         drawContext,
-        {x, y, radius},
+        {x, y, radius: controlsSize / drawContext.zoom},
         {
             color: controlsContrastColor,
             size: Math.max(0.3, controlsStroke / drawContext.zoom),
@@ -68,10 +68,6 @@ export function drawCircle(
     }
 
     if (controls) {
-        drawCircleControl(
-            drawContext,
-            getMoveCircleCoordsInCircle(drawContext, {x, y, radius})
-        );
         drawCircleControl(
             drawContext,
             getResizeCircleCoords(drawContext, {x, y, radius})

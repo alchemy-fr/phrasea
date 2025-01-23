@@ -440,7 +440,7 @@ App\Entity\Core\Attribute:
         definition: '@ad_keywords'
         asset: '@a_*'
         value: '<word()>'
-        assetAnnotations: '<assetAnnotationsPoint()>'
+        assetAnnotations: '<assetAnnotationsTarget()>'
 
     at_ean_{@a_*} (extends attribute_n):
         definition: '@ad_ean'

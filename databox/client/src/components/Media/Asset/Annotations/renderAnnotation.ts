@@ -3,11 +3,12 @@ import React from 'react';
 import {AssetAnnotation, SelectedAnnotationRef} from './annotationTypes.ts';
 import {getZoomFromRef, ShapeControlRef, ZoomRef} from './common.ts';
 import {drawRectangle} from './shapes/rectangle.ts';
-import {controlsColor} from './shapes/shapeCommon.ts';
+import {controlsColor} from './controls.ts';
+import {drawCircleControl} from './shapes/circle.ts';
 
 type Props = {
     canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
-    annotations: AssetAnnotation[] | undefined;
+    annotations: AssetAnnotation[];
     page?: number;
     selectedAnnotationRef?: SelectedAnnotationRef;
     zoomRef: ZoomRef;
@@ -40,7 +41,7 @@ export function renderAnnotations({
         context.scale(resolution, resolution);
 
         let selected = selectedAnnotationRef?.current;
-        if (selected && !annotations?.find(a => a.id === selected!.id)) {
+        if (selected && !annotations.find(a => a.id === selected!.id)) {
             selected = undefined;
         }
 
@@ -49,19 +50,20 @@ export function renderAnnotations({
             zoom: getZoomFromRef(zoomRef),
         };
 
-        (annotations ?? [])
+        annotations
             .filter(
                 a =>
                     (!page || a.page === page) &&
-                    (!selected || selected.id !== a.id)
+                    (!selected || !selected.id || selected.id !== a.id)
             )
             .concat(selected ? [selected] : [])
             .forEach(annotation => {
                 const handler = drawingHandlers[annotation.type];
                 if (handler) {
                     context.globalAlpha = 1;
-                    const isSelected =
-                        selected && selected.id === annotation.id;
+                    const isSelected = Boolean(
+                        selected && selected.id && selected.id === annotation.id
+                    );
                     const toX: ToFunction = x => x * width;
                     const toY: ToFunction = y => y * height;
                     handler.drawAnnotation(
@@ -71,7 +73,10 @@ export function renderAnnotations({
                             toX,
                             toY,
                         },
-                        isSelected
+                        {
+                            selected: isSelected,
+                            editable: annotation.editable,
+                        }
                     );
 
                     if (isSelected) {
@@ -89,6 +94,18 @@ export function renderAnnotations({
                         const controls = shapeControlRef.current;
                         const unscale = 1 / drawContext.zoom;
                         if (controls) {
+                            controls.setAttribute(
+                                'data-editable',
+                                annotation.editable ? 'true' : 'false'
+                            );
+                            (
+                                controls.querySelector(
+                                    '.edit-controls'
+                                ) as HTMLDivElement
+                            ).style.display = annotation.editable
+                                ? 'inline-block'
+                                : 'none';
+
                             controls.style.transform = `scale(${unscale})`;
                             controls.style.display = 'block';
                             let {offsetWidth, offsetHeight} = controls;
@@ -106,13 +123,16 @@ export function renderAnnotations({
                                 finalY =
                                     boundingBox.y + boundingBox.h + padding;
                             }
+                            if (finalY > height - offsetHeight) {
+                                finalY = height - offsetHeight;
+                            }
                             if (finalX + offsetWidth > width) {
                                 finalX = width - offsetWidth;
                             }
 
                             controls.style.top = finalY + 'px';
                             controls.style.left = finalX + 'px';
-                            const selectedAnnotation = annotations!.find(
+                            const selectedAnnotation = annotations.find(
                                 a => a.id === selectedAnnotationRef!.current!.id
                             )!;
                             controls.querySelector('.shape-name')!.textContent =
@@ -123,6 +143,14 @@ export function renderAnnotations({
                             color: controlsColor,
                             size: unscale,
                         });
+
+                        if (annotation.editable) {
+                            drawCircleControl(drawContext, {
+                                x: boundingBox.x + boundingBox.w / 2,
+                                y: boundingBox.y + boundingBox.h / 2,
+                                radius: 0,
+                            });
+                        }
                     }
                 }
             });

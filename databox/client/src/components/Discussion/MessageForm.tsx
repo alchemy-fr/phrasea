@@ -3,32 +3,36 @@ import {useFormSubmit} from '@alchemy/api';
 import {useFormPrompt} from '@alchemy//navigation';
 import {postThreadMessage} from '../../api/discussion.ts';
 import {DeserializedMessageAttachment, ThreadMessage} from '../../types.ts';
-import React, {useCallback} from 'react';
-import {
-    AnnotationsControlRef,
-    AnnotationType,
-    AssetAnnotation,
-} from '../Media/Asset/Annotations/annotationTypes.ts';
-import {OnActiveAnnotations} from '../Media/Asset/Attribute/Attributes.tsx';
-import MessageField, {MessageFormData} from './MessageField.tsx';
+import React, {forwardRef, useImperativeHandle} from 'react';
+import MessageField, {
+    BaseMessageFieldProps,
+    MessageFormData,
+} from './MessageField.tsx';
+import {MessageFormHandle, MessageFormRef} from './discussion.ts';
+
+export type BaseMessageFormProps = {
+    messageFormRef?: MessageFormRef;
+    normalizeAttachment?: (
+        attachment: DeserializedMessageAttachment
+    ) => DeserializedMessageAttachment;
+} & BaseMessageFieldProps;
 
 type Props = {
     threadKey: string;
     threadId?: string;
     onNewMessage: (message: ThreadMessage) => void;
-    annotationsControlRef?: AnnotationsControlRef;
-    onActiveAnnotations: OnActiveAnnotations | undefined;
-};
+} & Omit<BaseMessageFormProps, 'messageFormRef'>;
 
-let annotationIncrement = 1;
-
-export default function MessageForm({
-    threadKey,
-    threadId,
-    onNewMessage,
-    annotationsControlRef,
-    onActiveAnnotations,
-}: Props) {
+export default forwardRef<MessageFormHandle, Props>(function MessageForm(
+    {
+        threadKey,
+        threadId,
+        onNewMessage,
+        normalizeAttachment,
+        ...messageProps
+    }: Props,
+    ref
+) {
     const {t} = useTranslation();
     const inputRef = React.useRef<HTMLInputElement | null>(null);
     const [attachments, setAttachments] = React.useState<
@@ -39,114 +43,28 @@ export default function MessageForm({
         setAttachments([]);
     }, [threadKey]);
 
-    React.useEffect(() => {
-        if (annotationsControlRef) {
-            annotationsControlRef.current = {
-                onNew: (annotation: AssetAnnotation) => {
-                    inputRef.current?.focus();
-
-                    annotation.id = (annotationIncrement++).toString();
-
-                    const annotationTypes: Record<AnnotationType, string> = {
-                        [AnnotationType.Draw]: t(
-                            'annotation.type.draw',
-                            'Draw'
-                        ),
-                        [AnnotationType.Line]: t(
-                            'annotation.type.line',
-                            'Line'
-                        ),
-                        [AnnotationType.Arrow]: t(
-                            'annotation.type.arrow',
-                            'Arrow'
-                        ),
-                        [AnnotationType.Text]: t(
-                            'annotation.type.text',
-                            'Text'
-                        ),
-                        [AnnotationType.Cue]: t('annotation.type.cue', 'Cue'),
-                        [AnnotationType.Circle]: t(
-                            'annotation.type.circle',
-                            'Circle'
-                        ),
-                        [AnnotationType.Rect]: t(
-                            'annotation.type.rectangle',
-                            'Rectangle'
-                        ),
-                        [AnnotationType.Target]: t(
-                            'annotation.type.target',
-                            'Target'
-                        ),
-                        [AnnotationType.TimeRange]: t(
-                            'annotation.type.timerange',
-                            'Time Range'
-                        ),
-                    };
-
-                    setAttachments(p => {
-                        return p.concat({
-                            type: 'annotation',
-                            data: {
-                                ...annotation,
-                                name:
-                                    annotation.name ??
-                                    t('form.annotation.default_name', {
-                                        defaultValue: '{{type}} #{{n}}',
-                                        type: annotationTypes[annotation.type],
-                                        n:
-                                            p.filter(
-                                                a =>
-                                                    a.type === 'annotation' &&
-                                                    a.data.type ===
-                                                        annotation.type
-                                            ).length + 1,
-                                    }),
-                            },
-                        });
-                    });
+    useImperativeHandle(
+        ref,
+        () =>
+            ({
+                addAttachment: attachment => {
+                    setAttachments(p => p.concat(attachment));
+                    setTimeout(() => {
+                        inputRef.current?.focus();
+                    }, 200);
                 },
-                onUpdate: (id, newAnnotation) => {
+                removeAttachment: attachmentId =>
+                    setAttachments(p => p.filter(a => a.id !== attachmentId)),
+                updateAttachment: (attachmentId, handler) => {
                     setAttachments(p =>
-                        p.map(a =>
-                            a.type === 'annotation' && a.data?.id === id
-                                ? {
-                                      ...a,
-                                      data: newAnnotation,
-                                  }
-                                : a
-                        )
-                    );
-
-                    return newAnnotation;
-                },
-                onDelete: id => {
-                    setAttachments(p =>
-                        p.filter(
-                            a => a.type !== 'annotation' || a.data?.id !== id
-                        )
+                        p.map(a => (a.id === attachmentId ? handler(a) : a))
                     );
                 },
-            };
-        }
-    }, [annotationsControlRef, inputRef]);
-
-    const onFocus = useCallback(() => {
-        if (onActiveAnnotations) {
-            const assetAnnotations = attachments
-                .filter(a => a.type === 'annotation')
-                .map(a => a.data as AssetAnnotation);
-            onActiveAnnotations(assetAnnotations);
-        }
-    }, [attachments, onActiveAnnotations]);
-
-    React.useEffect(() => {
-        inputRef.current?.addEventListener('focus', onFocus);
-        onFocus();
-
-        return () => {
-            inputRef.current?.removeEventListener('focus', onFocus);
-        };
-    }, [onFocus, inputRef]);
+                clearAttachments: () => setAttachments([]),
+                getAttachments: () => attachments,
+            }) as MessageFormHandle,
+        [setAttachments, attachments, inputRef]
+    );
 
     const useFormSubmitProps = useFormSubmit<MessageFormData, ThreadMessage>({
         defaultValues: {
@@ -157,13 +75,14 @@ export default function MessageForm({
                 threadId,
                 threadKey,
                 content: data.content,
-                attachments: attachments.map(({data, ...rest}) => ({
-                    ...rest,
-                    content: JSON.stringify({
-                        ...data,
-                        id: undefined,
-                    }),
-                })),
+                attachments: attachments
+                    .map(normalizeAttachment ? normalizeAttachment : a => a)
+                    .map(({data, ...rest}) => ({
+                        ...rest,
+                        content: JSON.stringify({
+                            ...data,
+                        }),
+                    })),
             });
         },
         onSuccess: (data: ThreadMessage) => {
@@ -175,14 +94,15 @@ export default function MessageForm({
 
     const {forbidNavigation, handleSubmit, reset} = useFormSubmitProps;
 
-    useFormPrompt(t, forbidNavigation);
+    useFormPrompt(t, forbidNavigation || attachments.length > 0);
 
     return (
         <form onSubmit={handleSubmit}>
             <MessageField
-                useFormSubmitProps={useFormSubmitProps}
-                attachments={attachments}
+                {...messageProps}
                 setAttachments={setAttachments}
+                attachments={attachments}
+                useFormSubmitProps={useFormSubmitProps}
                 inputRef={inputRef}
                 submitLabel={t('form.thread_message.submit.label', `Send`)}
                 placeholder={t(
@@ -192,4 +112,4 @@ export default function MessageForm({
             />
         </form>
     );
-}
+});

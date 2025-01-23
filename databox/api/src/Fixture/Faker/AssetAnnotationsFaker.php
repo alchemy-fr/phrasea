@@ -37,14 +37,14 @@ class AssetAnnotationsFaker extends BaseProvider
         ];
     }
 
-    public function assetAnnotationsPoint(): array
+    public function assetAnnotationsTarget(): array
     {
         $x = rand(0, 100) / 100;
         $y = rand(0, 100) / 100;
 
         return [
             [
-                'type' => AssetAnnotationsInterface::TYPE_POINT,
+                'type' => AssetAnnotationsInterface::TYPE_TARGET,
                 'x' => $x,
                 'y' => $y,
                 'c' => $this->randomColor(),
@@ -64,10 +64,10 @@ class AssetAnnotationsFaker extends BaseProvider
         return [
             [
                 'type' => AssetAnnotationsInterface::TYPE_RECTANGLE,
-                'x1' => $x1,
-                'y1' => $y1,
-                'x2' => $x2,
-                'y2' => $y2,
+                'x' => $x1,
+                'y' => $y1,
+                'w' => $x2 - $x1,
+                'h' => $y2 - $y1,
                 'c' => $this->randomColor(),
                 's' => $this->randomSize(),
                 'page' => 2,

@@ -6,20 +6,17 @@ import {
     Typography,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Attributes, {
-    attributesSx,
-    OnActiveAnnotations,
-} from './Attribute/Attributes.tsx';
+import Attributes, {attributesSx} from './Attribute/Attributes.tsx';
 import React, {memo} from 'react';
 import {Asset} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
+import {BaseAttributeRowUIProps} from './Attribute/AttributeRowUI.tsx';
 
 type Props = {
     asset: Asset;
-    onActiveAnnotations: OnActiveAnnotations | undefined;
-};
+} & BaseAttributeRowUIProps;
 
-function AssetAttributes({asset, onActiveAnnotations}: Props) {
+function AssetAttributes({asset, ...attributesProps}: Props) {
     const [expanded, setExpanded] = React.useState(true);
     const {t} = useTranslation();
 
@@ -37,9 +34,9 @@ function AssetAttributes({asset, onActiveAnnotations}: Props) {
             <AccordionDetails>
                 <Box sx={attributesSx()}>
                     <Attributes
+                        {...attributesProps}
                         asset={asset}
                         displayControls={true}
-                        onActiveAnnotations={onActiveAnnotations}
                     />
                 </Box>
             </AccordionDetails>

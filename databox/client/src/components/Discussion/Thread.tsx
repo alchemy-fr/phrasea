@@ -2,29 +2,31 @@ import React from 'react';
 import {ThreadMessage} from '../../types.ts';
 import {deleteThreadMessage, getThreadMessages} from '../../api/discussion.ts';
 import {ApiCollectionResponse} from '../../api/hydra.ts';
-import MessageForm from './MessageForm.tsx';
+import MessageForm, {BaseMessageFormProps} from './MessageForm.tsx';
 import {CircularProgress} from '@mui/material';
 import DiscussionMessage from './DiscussionMessage.tsx';
 import {useChannelRegistration} from '../../lib/pusher.ts';
-import {OnActiveAnnotations} from '../Media/Asset/Attribute/Attributes.tsx';
-import {AnnotationsControlRef} from '../Media/Asset/Annotations/annotationTypes.ts';
 import ConfirmDialog from '../Ui/ConfirmDialog.tsx';
 import {toast} from 'react-toastify';
 import {useModals} from '@alchemy/navigation';
 
 import {useTranslation} from 'react-i18next';
+
+export type BaseThreadProps = {
+    onMessageDelete?: (message: ThreadMessage) => void;
+} & BaseMessageFormProps;
+
 type Props = {
     threadKey: string;
     threadId?: string;
-    onActiveAnnotations: OnActiveAnnotations | undefined;
-    annotationsControlRef?: AnnotationsControlRef;
-};
+} & BaseThreadProps;
 
 export default function Thread({
     threadKey,
     threadId,
-    onActiveAnnotations,
-    annotationsControlRef,
+    messageFormRef,
+    onMessageDelete,
+    ...formProps
 }: Props) {
     const [messages, setMessages] =
         React.useState<ApiCollectionResponse<ThreadMessage>>();
@@ -106,7 +108,7 @@ export default function Thread({
                         : undefined
                 );
 
-                onActiveAnnotations?.([]);
+                onMessageDelete?.(message);
 
                 toast.success(
                     t(
@@ -141,15 +143,15 @@ export default function Thread({
                 <DiscussionMessage
                     key={message.id}
                     message={message}
-                    onActiveAnnotations={onActiveAnnotations}
+                    onAttachmentClick={formProps.onAttachmentClick}
                     onDelete={onDeleteMessage}
                     onEdit={onEditMessage}
                 />
             ))}
 
             <MessageForm
-                annotationsControlRef={annotationsControlRef}
-                onActiveAnnotations={onActiveAnnotations}
+                {...formProps}
+                ref={messageFormRef}
                 threadKey={threadKey}
                 threadId={threadId}
                 onNewMessage={message => {

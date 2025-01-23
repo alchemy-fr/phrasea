@@ -13,7 +13,7 @@ import {renderAnnotations} from './renderAnnotation.ts';
 import {getZoomFromRef, ShapeControlRef, ZoomRef} from './common.ts';
 
 export type CommonAnnotationDrawProps = {
-    annotations: AssetAnnotation[] | undefined;
+    annotations: AssetAnnotation[];
     canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
     selectedAnnotationRef: SelectedAnnotationRef;
     setAnnotationOptions: StateSetter<AnnotationOptions>;
@@ -123,7 +123,7 @@ export function useAnnotationDraw({
                     options: annotationOptions,
                     data: dataRef.current!,
                     drawContext,
-                    onNewAnnotation: annotationsControl.onNew,
+                    onNewAnnotation: annotationsControl.addAnnotation,
                     canvas,
                     startingPoint: startingPoint.current!,
                     relativeX,
@@ -161,7 +161,7 @@ export function useAnnotationDraw({
                     options: annotationOptions,
                     data: dataRef.current!,
                     drawContext,
-                    onNewAnnotation: annotationsControl.onNew,
+                    onNewAnnotation: annotationsControl.addAnnotation,
                     terminate: terminateHandler,
                     canvas,
                     startingPoint: st,
@@ -215,6 +215,12 @@ export function useAnnotationDraw({
                     return;
                 }
 
+                event.preventDefault();
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement instanceof HTMLElement) {
+                    activeElement.blur();
+                }
+
                 const x = event.offsetX;
                 const y = event.offsetY;
 
@@ -235,7 +241,7 @@ export function useAnnotationDraw({
                     y,
                     clear,
                     terminate: terminateHandler,
-                    onNewAnnotation: annotationsControl.onNew,
+                    onNewAnnotation: annotationsControl.addAnnotation,
                     relativeY,
                     relativeX,
                 });
@@ -257,7 +263,7 @@ export function useAnnotationDraw({
                 startingPoint,
                 clear,
                 selectedAnnotationRef,
-                onUpdate: annotationsControl.onUpdate,
+                onUpdate: annotationsControl.updateAnnotation,
                 setAnnotationOptions,
                 spaceRef,
                 zoomRef,

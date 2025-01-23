@@ -67,7 +67,7 @@ export function createLineAnnotationHandler(
         },
         drawAnnotation: (
             {annotation: {x1, y1, x2, y2, c, s}, drawContext, toX, toY},
-            selected
+            {selected, editable}
         ) => {
             drawLine(
                 drawContext,
@@ -81,7 +81,7 @@ export function createLineAnnotationHandler(
                     color: c,
                     size: toX(s),
                 },
-                selected
+                selected && editable
             );
         },
         onTerminate: () => {},

@@ -17,11 +17,17 @@ export enum AnnotationType {
     TimeRange = 'time_range',
 }
 
+export type DrawOptions = {
+    selected?: boolean;
+    editable?: boolean;
+};
+
 export type AnnotationId = string;
 
 export interface AssetAnnotation {
     id?: AnnotationId;
     type: AnnotationType;
+    editable?: boolean;
     name?: string;
     [prop: string]: any;
 }
@@ -103,16 +109,6 @@ export interface TimeRangeAnnotation extends AssetAnnotation {
     e: number; // End time in seconds
 }
 
-export type AnnotationsControl = {
-    onNew: OnNewAnnotation;
-    onUpdate: OnUpdateAnnotation;
-    onDelete: OnDeleteAnnotation;
-};
-
-export type AnnotationsControlRef = MutableRefObject<
-    AnnotationsControl | undefined
->;
-
 export type SelectedAnnotationRef = MutableRefObject<
     AssetAnnotation | undefined
 >;
@@ -124,3 +120,15 @@ export type OnUpdateAnnotation = (
 ) => AssetAnnotation;
 
 export type OnDeleteAnnotation = (id: AnnotationId) => void;
+export type OnSelectAnnotation = (annotation: AssetAnnotation) => void;
+
+export type AnnotationsControl = {
+    render: () => void;
+    addAnnotation: OnNewAnnotation;
+    updateAnnotation: OnUpdateAnnotation;
+    deleteAnnotation: OnDeleteAnnotation;
+    selectAnnotation: OnSelectAnnotation;
+    replaceAnnotations: (annotations: AssetAnnotation[]) => void;
+};
+
+export type AssetAnnotationRef = MutableRefObject<AnnotationsControl | null>;

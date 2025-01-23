@@ -270,6 +270,7 @@ export type MessageAttachment = {
 };
 
 export type DeserializedMessageAttachment = {
+    id?: string;
     type: string;
     data: Record<string, any>;
 };
