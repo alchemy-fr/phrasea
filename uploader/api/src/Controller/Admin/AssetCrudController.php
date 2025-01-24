@@ -2,23 +2,23 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Asset;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
+use App\Entity\Asset;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
-use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class AssetCrudController extends AbstractAdminCrudController
 {

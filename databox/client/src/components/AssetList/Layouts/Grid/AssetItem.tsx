@@ -125,7 +125,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                 <div className={assetClasses.title}>
                     {asset.titleHighlight
                         ? replaceHighlight(asset.titleHighlight)
-                        : asset.resolvedTitle ?? asset.title}
+                        : (asset.resolvedTitle ?? asset.title)}
                 </div>
                 {asset.tags && asset.tags.length > 0 && (
                     <div>

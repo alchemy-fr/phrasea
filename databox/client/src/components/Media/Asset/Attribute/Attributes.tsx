@@ -52,7 +52,7 @@ function Attributes({
     );
 
     const pinnedAttributes = asset.workspace
-        ? (preferences.pinnedAttrs ?? {})[asset.workspace.id] ?? []
+        ? ((preferences.pinnedAttrs ?? {})[asset.workspace.id] ?? [])
         : [];
 
     let attributeGroups = buildAttributesGroupedByDefinition(asset.attributes);

@@ -14,11 +14,10 @@ final readonly class NovuClient
         private string $secretKey,
         #[Autowire(service: 'novu.client')]
         HttpClientInterface $client,
-    )
-    {
+    ) {
         $this->client = $client->withOptions([
             'headers' => [
-                'Authorization' => 'ApiKey ' . $this->secretKey,
+                'Authorization' => 'ApiKey '.$this->secretKey,
             ],
         ]);
     }

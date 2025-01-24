@@ -2,20 +2,19 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Target;
-use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\GroupChoiceField;
+use Alchemy\AdminBundle\Field\IdField;
+use App\Entity\Target;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class TargetCrudController extends AbstractAdminCrudController
 {

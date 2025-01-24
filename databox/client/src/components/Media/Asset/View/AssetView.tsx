@@ -106,7 +106,7 @@ export default function AssetView({modalIndex, open}: Props) {
     const [[asset, renditions], rendition] = (
         isSuccess
             ? [data, data[1].find(r => r.id === renditionId)!]
-            : previousData.current ?? [[], undefined]
+            : (previousData.current ?? [[], undefined])
     ) as DataTuple;
 
     React.useEffect(() => {

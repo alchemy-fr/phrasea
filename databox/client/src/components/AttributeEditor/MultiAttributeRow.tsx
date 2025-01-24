@@ -132,7 +132,8 @@ export default function MultiAttributeRow<T>({
 
     const [values, setValues] = useState<MultiValueValue<T>[]>(computed ?? []);
 
-    const finalValues = definitionRef.current !== id ? computed ?? [] : values;
+    const finalValues =
+        definitionRef.current !== id ? (computed ?? []) : values;
     const finalNewValue = definitionRef.current !== id ? undefined : newValue;
     const finalSelectedValue =
         definitionRef.current !== id ? undefined : selectedValue;
