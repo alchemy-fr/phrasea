@@ -138,7 +138,6 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                 {({registerChild}) => (
                     <div
                         style={style}
-                        // @ts-expect-error Element | undefined
                         ref={registerChild}
                     >
                         {pageIndex > 0 && itemIndex === 0 ? (

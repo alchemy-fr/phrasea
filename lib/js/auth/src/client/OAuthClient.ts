@@ -178,7 +178,7 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
         } catch (e: any) {
             console.debug('e', e);
             if (axios.isAxiosError<ValidationError>(e)) {
-                if (e.response?.data?.error === 'invalid_grant') {
+                if (e.status === 401 || e.response?.data?.error === 'invalid_grant') {
                     this.sessionExpired();
                 }
             }
