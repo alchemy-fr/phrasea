@@ -58,7 +58,7 @@ export default function EditorPanel<T>({
         setValue(
             valueContainer.indeterminate[locale]
                 ? null
-                : valueContainer.values[0]?.[locale] ?? ''
+                : (valueContainer.values[0]?.[locale] ?? '')
         );
         setCurrentDefinition(definition);
     }, [definition, subSelection, inputValueInc, locale]);

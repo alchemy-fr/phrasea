@@ -2,16 +2,16 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\PublicationProfile;
 use App\Field\PublicationConfigField;
-use Alchemy\AdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
-use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 
 class PublicationProfileCrudController extends AbstractAclAdminCrudController
 {

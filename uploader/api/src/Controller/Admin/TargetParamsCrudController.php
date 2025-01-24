@@ -2,17 +2,17 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\TargetParams;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
+use App\Entity\TargetParams;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
-use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 
 class TargetParamsCrudController extends AbstractAclAdminCrudController
 {
@@ -46,7 +46,7 @@ class TargetParamsCrudController extends AbstractAclAdminCrudController
         yield JsonField::new('data')
             ->onlyOnDetail();
         yield DateTimeField::new('createdAt')
-            ->hideOnForm();    
+            ->hideOnForm();
         yield DateTimeField::new('updatedAt')
             ->onlyOnDetail();
     }
