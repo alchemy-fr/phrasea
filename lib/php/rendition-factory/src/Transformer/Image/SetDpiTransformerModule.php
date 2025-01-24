@@ -10,17 +10,16 @@ use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
-// use PHPExiftool\Driver\Metadata\Metadata;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Exiftool;
 use PHPExiftool\Writer;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
-
 final readonly class SetDpiTransformerModule implements TransformerModuleInterface
 {
-    public function __construct(private LoggerInterface $logger) {
+    public function __construct(private LoggerInterface $logger)
+    {
     }
 
     public static function getName(): string
@@ -59,20 +58,20 @@ final readonly class SetDpiTransformerModule implements TransformerModuleInterfa
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        if($inputFile->getFamily() !== FamilyEnum::Image) {
+        if (FamilyEnum::Image !== $inputFile->getFamily()) {
             throw new \InvalidArgumentException('Input file must be an image');
         }
         $dpi = $options['dpi'];
-            $this->logger->info(sprintf('Setting DPI to %s', $dpi));
-            $writer = Writer::create(
-                new Exiftool($this->logger)
-            );
-            $writer->write(
-                $inputFile->getPath(),
-                new MetadataBag([]),
-                null,
-                [$dpi, $dpi]
-            );
+        $this->logger->info(sprintf('Setting DPI to %s', $dpi));
+        $writer = Writer::create(
+            new Exiftool($this->logger)
+        );
+        $writer->write(
+            $inputFile->getPath(),
+            new MetadataBag([]),
+            null,
+            [$dpi, $dpi]
+        );
 
         return new OutputFile(
             $inputFile->getPath(),
