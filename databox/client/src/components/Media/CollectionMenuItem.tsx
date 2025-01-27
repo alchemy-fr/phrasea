@@ -88,7 +88,7 @@ export default function CollectionMenuItem({
 
         if (e.detail > 1) {
             // is double click
-            load(workspace.id, collection.id);
+            load(workspace.id, collection.id, true);
         }
     };
 

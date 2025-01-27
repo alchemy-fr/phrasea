@@ -1,6 +1,7 @@
 import {Bell, Inbox, InboxContent} from '@novu/react';
 import {IconButton, Popover} from "@mui/material";
 import React from "react";
+import {NotificationUriHandler} from "../types";
 
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
     socketUrl: string;
     apiUrl: string;
     userId: string;
+    uriHandler?: NotificationUriHandler;
 };
 
 export default function Notifications({
@@ -15,6 +17,7 @@ export default function Notifications({
     socketUrl,
     apiUrl,
     userId,
+    uriHandler,
 }: Props) {
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
@@ -34,6 +37,7 @@ export default function Notifications({
             subscriberId={userId}
             socketUrl={socketUrl}
             backendUrl={apiUrl}
+            routerPush={uriHandler}
         >
             <IconButton
                 aria-owns={open ? popoverId : undefined}

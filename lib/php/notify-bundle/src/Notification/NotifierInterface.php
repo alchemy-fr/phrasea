@@ -36,4 +36,6 @@ interface NotifierInterface
     ): void;
 
     public function getTopicSubscriptions(array $topicKeys, string $userId): array;
+
+    public function getUsername(string $userId): string;
 }

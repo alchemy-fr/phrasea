@@ -54,6 +54,10 @@ const modalRoutes = {
                 path: 'manage/:tab',
                 component: AssetDialog,
             },
+            viewGuessRendition: {
+                path: '',
+                component: AssetView,
+            },
             view: {
                 path: ':renditionId',
                 component: AssetView,
