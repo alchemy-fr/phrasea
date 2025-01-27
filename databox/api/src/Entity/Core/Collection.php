@@ -125,6 +125,10 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     final public const string GROUP_CHILDREN = 'coll:ic';
     final public const string GROUP_ABSOLUTE_TITLE = 'coll:absTitle';
 
+    final public const string EVENT_ASSET_ADD = 'asset_add';
+    final public const string EVENT_ASSET_UPDATE = 'asset_update';
+    final public const string EVENT_ASSET_REMOVED = 'asset_removed';
+
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $title = null;
 
@@ -356,6 +360,22 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     public function isObjectIndexable(): bool
     {
         return null === $this->workspace->getDeletedAt();
+    }
+
+    public function getTopicKeys(): array
+    {
+        $id = $this->getId();
+
+        return [
+            self::getTopicKey(self::EVENT_ASSET_ADD, $id),
+            self::getTopicKey(self::EVENT_ASSET_REMOVED, $id),
+            self::getTopicKey(self::EVENT_ASSET_ADD, $id),
+        ];
+    }
+
+    public static function getTopicKey(string $event, string $assetId): string
+    {
+        return 'collection:'.$assetId.':'.$event;
     }
 
     public function getObjectTitle(): string

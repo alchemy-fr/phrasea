@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifyBundle\Notification;
 
+use Alchemy\AuthBundle\Repository\UserRepository;
 use Alchemy\NotifyBundle\Service\NovuClient;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -17,6 +18,7 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
     public function __construct(
         private readonly SymfonyNotifierInterface $notifier,
         private readonly NovuClient $novuClient,
+        private UserRepository $userRepository,
     ) {
     }
 
@@ -73,5 +75,12 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
         }
 
         return $data;
+    }
+
+    public function getUsername(string $userId): string
+    {
+        $user = $this->userRepository->getUser($userId);
+
+        return $user ? $user['username'] : 'Deleted User';
     }
 }

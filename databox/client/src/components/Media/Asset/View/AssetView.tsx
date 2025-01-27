@@ -105,7 +105,7 @@ export default function AssetView({modalIndex, open}: Props) {
 
     const [[asset, renditions], rendition] = (
         isSuccess
-            ? [data, data[1].find(r => r.id === renditionId)!]
+            ? [data, renditionId ? data[1].find(r => r.id === renditionId)! : data[1][0]]
             : (previousData.current ?? [[], undefined])
     ) as DataTuple;
 
@@ -114,7 +114,7 @@ export default function AssetView({modalIndex, open}: Props) {
         if (data) {
             previousData.current = [
                 data,
-                data[1].find(r => r.id === renditionId)!,
+                renditionId ? data[1].find(r => r.id === renditionId)! : data[1][0],
             ];
         }
     }, [data, previousData]);

@@ -209,6 +209,10 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     final public const string GROUP_LIST = 'asset:index';
     final public const string GROUP_WRITE = 'asset:w';
 
+    final public const string EVENT_UPDATE = 'update';
+    final public const string EVENT_DELETE = 'delete';
+    final public const string EVENT_THREAD = 'thread';
+
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $microseconds = 0;
 
@@ -532,10 +536,15 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         $id = $this->getId();
 
         return [
-            'asset:'.$id.':update',
-            'asset:'.$id.':delete',
-            'asset:'.$id.':thread',
+            self::getTopicKey(self::EVENT_UPDATE, $id),
+            self::getTopicKey(self::EVENT_DELETE, $id),
+            self::getTopicKey(self::EVENT_THREAD, $id),
         ];
+    }
+
+    public static function getTopicKey(string $event, string $assetId): string
+    {
+        return 'asset:'.$assetId.':'.$event;
     }
 
     public function getObjectTitle(): string

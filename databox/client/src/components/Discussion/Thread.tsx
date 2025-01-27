@@ -8,7 +8,7 @@ import DiscussionMessage from './DiscussionMessage.tsx';
 import {useChannelRegistration} from '../../lib/pusher.ts';
 import ConfirmDialog from '../Ui/ConfirmDialog.tsx';
 import {toast} from 'react-toastify';
-import {useModals} from '@alchemy/navigation';
+import {useModals, useLocation} from '@alchemy/navigation';
 
 import {useTranslation} from 'react-i18next';
 
@@ -28,10 +28,32 @@ export default function Thread({
     onMessageDelete,
     ...formProps
 }: Props) {
+    const ref = React.useRef<HTMLDivElement | null>(null);
     const [messages, setMessages] =
         React.useState<ApiCollectionResponse<ThreadMessage>>();
     const {openModal} = useModals();
     const {t} = useTranslation();
+    const location = useLocation();
+    const [selected, setSelected] = React.useState<string | undefined>();
+
+    React.useEffect(() => {
+        const prefix = '#discussion-';
+        if (location.hash?.startsWith(prefix)) {
+            const mId = location.hash.substring(prefix.length);
+            setSelected(mId);
+
+            setTimeout(() => {
+                const el = ref.current?.querySelector('.message-selected');
+                if (el) {
+                    el.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'end',
+                    });
+                }
+            }, 1000);
+
+        }
+    }, [location.hash]);
 
     const appendMessage = React.useCallback(
         (message: ThreadMessage) => {
@@ -136,7 +158,7 @@ export default function Thread({
     const loadingMessages = Boolean(threadId && !messages);
 
     return (
-        <>
+        <div ref={ref}>
             {loadingMessages ? (
                 <Box
                     sx={{
@@ -150,6 +172,7 @@ export default function Thread({
                 messages?.result.map(message => (
                     <DiscussionMessage
                         key={message.id}
+                        selected={selected === message.id}
                         message={message}
                         onAttachmentClick={formProps.onAttachmentClick}
                         onDelete={onDeleteMessage}
@@ -168,6 +191,6 @@ export default function Thread({
                     appendMessage(message);
                 }}
             />
-        </>
+        </div>
     );
 }

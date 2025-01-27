@@ -1,5 +1,6 @@
 import {ThreadMessage} from '../../types.ts';
 import {
+    alpha,
     Box,
     Divider,
     ListItemIcon,
@@ -23,6 +24,7 @@ type Props = {
     onDelete: (message: ThreadMessage) => void;
     onEdit: (message: ThreadMessage) => void;
     onAttachmentClick?: OnAttachmentClick;
+    selected?: boolean;
 };
 
 export default function DiscussionMessage({
@@ -30,6 +32,7 @@ export default function DiscussionMessage({
     onDelete,
     onEdit,
     onAttachmentClick,
+    selected,
 }: Props) {
     const m = moment(message.createdAt);
     const {t} = useTranslation();
@@ -38,6 +41,12 @@ export default function DiscussionMessage({
     return (
         <>
             <FlexRow
+                className={selected ? 'message-selected' : undefined}
+                sx={theme => ({
+                    m: -2,
+                    p: 2,
+                    backgroundColor: selected ? alpha(theme.palette.success.main, 0.1) : undefined,
+                })}
                 style={{
                     alignItems: 'flex-start',
                 }}
