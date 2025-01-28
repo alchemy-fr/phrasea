@@ -224,6 +224,15 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
                         ->scalarNode('enabled')->defaultTrue()->end()
                     ->end();
             },
+            'resample_audio' => function (ArrayNodeDefinition $root): void {
+                $root
+                    ->info('Resample the audio')
+                    ->children()
+                        ->scalarNode('name')->isRequired()->defaultValue('remove_audio')->end()
+                        ->scalarNode('enabled')->defaultTrue()->end()
+                        ->scalarNode('rate')->isRequired()->defaultValue('44100')->end()
+                    ->end();
+            },
             'resize' => function (ArrayNodeDefinition $root): void {
                 $root
                     ->info('Resize the video')
@@ -368,10 +377,6 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         $context->log("Applying '".self::getName()."' module");
-
-        if (FamilyEnum::Video !== $inputFile->getFamily() && FamilyEnum::Audio !== $inputFile->getFamily()) {
-            throw new \InvalidArgumentException('Invalid input file family, should be video or audio');
-        }
 
         $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver);
 

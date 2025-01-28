@@ -103,7 +103,7 @@ class VideoTransformer
             }
 
             /* @uses self::resize(), self::rotate(), self::pad(), self::crop(), self::clip(), self::synchronize()
-             * @uses self::watermark(), self::framerate(), self::remove_audio()
+             * @uses self::watermark(), self::framerate(), self::remove_audio(), self::resample_audio()
              */
             $this->{$filter['name']}($clip, $filter, $resolverContext, $transformationContext, $isProjection);
         }
@@ -157,6 +157,16 @@ class VideoTransformer
         $customFilter = '-an';
         $transformationContext->log("  Applying 'remove_audio' filter");
         $clip->addFilter(new FFMpeg\Filters\Audio\SimpleFilter([$customFilter]));
+    }
+
+    private function resample_audio(Clip $clip, array $options, array $resolverContext, TransformationContextInterface $transformationContext, bool &$isProjection): void
+    {
+        $rate = (int) $this->optionsResolver->resolveOption($options['rate'] ?? 0, $resolverContext);
+        if ($rate <= 0) {
+            throw new \InvalidArgumentException('Invalid rate for filter "resample_audio"');
+        }
+        $transformationContext->log(sprintf("  Applying 'resample_audio' filter: rate=%d", $rate));
+        $clip->addFilter(new FFMpeg\Filters\Audio\SimpleFilter(['-ar', $rate]));
     }
 
     private function resize(Clip $clip, array $options, array $resolverContext, TransformationContextInterface $transformationContext, bool &$isProjection): void
