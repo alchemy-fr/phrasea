@@ -2,42 +2,35 @@ import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
-    Box,
     Typography,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Attributes, {attributesSx} from './Attribute/Attributes.tsx';
 import React, {memo} from 'react';
 import {Asset} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {BaseAttributeRowUIProps} from './Attribute/AttributeRowUI.tsx';
+import AssetInfoList from './AssetInfoList.tsx';
 
 type Props = {
     asset: Asset;
 } & BaseAttributeRowUIProps;
 
-function AssetAttributes({asset, ...attributesProps}: Props) {
-    const [expanded, setExpanded] = React.useState(false);
+function AssetViewInfo({asset}: Props) {
+    const [expanded, setExpanded] = React.useState(true);
     const {t} = useTranslation();
 
     return (
         <Accordion expanded={expanded} onChange={() => setExpanded(p => !p)}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography component="div">
-                    {t('asset.view.attributes', `Attributes`)}
+                    {t('asset.view.info', `Information`)}
                 </Typography>
             </AccordionSummary>
             <AccordionDetails>
-                <Box sx={attributesSx()}>
-                    <Attributes
-                        {...attributesProps}
-                        asset={asset}
-                        displayControls={true}
-                    />
-                </Box>
+                <AssetInfoList data={asset} />
             </AccordionDetails>
         </Accordion>
     );
 }
 
-export default memo(AssetAttributes);
+export default memo(AssetViewInfo);

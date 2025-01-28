@@ -22,7 +22,7 @@ import {useModals} from '@alchemy/navigation';
 import ChangeTheme from './ChangeTheme';
 import ThemeEditor from './ThemeEditor';
 import {UserMenu} from '@alchemy/phrasea-ui';
-import {useNotificationUriHandler} from "../../hooks/useNotificationUriHandler.ts";
+import {useNotificationUriHandler} from '../../hooks/useNotificationUriHandler.ts';
 
 export const menuHeight = 42;
 

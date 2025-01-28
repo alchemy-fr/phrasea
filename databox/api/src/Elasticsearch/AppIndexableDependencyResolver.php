@@ -26,24 +26,10 @@ class AppIndexableDependencyResolver implements IndexableDependenciesResolverInt
             if (Operation::Insert === $operation && null !== $object->getParent()) {
                 $this->addDependency(Collection::class, $object->getParent()->getId());
             }
-
-            $this->appendDependencyIterator(
-                Asset::class,
-                $this->em->getRepository(Asset::class)
-                    ->getCollectionAssetIdsIterator($object->getId())
-            );
         } elseif ($object instanceof CollectionAsset) {
             $this->addDependency(Asset::class, $object->getAsset()->getId());
         } elseif ($object instanceof Attribute) {
             $this->addDependency(Asset::class, $object->getAsset()->getId());
-        } elseif ($object instanceof Asset) {
-            $this->addParent($object::class, $object->getId());
-
-            $this->appendDependencyIterator(
-                Attribute::class,
-                $this->em->getRepository(Attribute::class)
-                    ->getAssetAttributeIdsIterator($object->getId())
-            );
         }
     }
 }

@@ -49,6 +49,7 @@ use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Entity\FollowableInterface;
 use App\Entity\ObjectTitleInterface;
 use App\Entity\Traits\LocaleTrait;
+use App\Entity\Traits\NotificationSettingsTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -205,13 +206,14 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     use LocaleTrait;
     use OwnerIdTrait;
     use WorkspacePrivacyTrait;
+    use NotificationSettingsTrait;
     final public const string GROUP_READ = 'asset:read';
     final public const string GROUP_LIST = 'asset:index';
     final public const string GROUP_WRITE = 'asset:w';
 
     final public const string EVENT_UPDATE = 'update';
     final public const string EVENT_DELETE = 'delete';
-    final public const string EVENT_THREAD = 'thread';
+    final public const string EVENT_NEW_COMMENT = 'new_comment';
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $microseconds = 0;
@@ -538,13 +540,13 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return [
             self::getTopicKey(self::EVENT_UPDATE, $id),
             self::getTopicKey(self::EVENT_DELETE, $id),
-            self::getTopicKey(self::EVENT_THREAD, $id),
+            self::getTopicKey(self::EVENT_NEW_COMMENT, $id),
         ];
     }
 
-    public static function getTopicKey(string $event, string $assetId): string
+    public static function getTopicKey(string $event, string $id): string
     {
-        return 'asset:'.$assetId.':'.$event;
+        return 'asset:'.$id.':'.$event;
     }
 
     public function getObjectTitle(): string

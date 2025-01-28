@@ -51,7 +51,6 @@ export default function Thread({
                     });
                 }
             }, 1000);
-
         }
     }, [location.hash]);
 

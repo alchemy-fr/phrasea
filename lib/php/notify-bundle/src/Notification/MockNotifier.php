@@ -45,6 +45,10 @@ final class MockNotifier implements NotifierInterface
     {
     }
 
+    public function createTopic(string $topicKey): void
+    {
+    }
+
     public function removeTopicSubscribers(string $topicKey, array $subscribers): void
     {
     }

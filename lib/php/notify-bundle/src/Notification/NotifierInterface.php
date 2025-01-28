@@ -30,6 +30,10 @@ interface NotifierInterface
         array $subscribers,
     ): void;
 
+    public function createTopic(
+        string $topicKey,
+    ): void;
+
     public function removeTopicSubscribers(
         string $topicKey,
         array $subscribers,

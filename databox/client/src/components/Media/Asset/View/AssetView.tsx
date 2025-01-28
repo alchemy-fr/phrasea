@@ -30,6 +30,7 @@ import {
     MessageFormRef,
 } from '../../../Discussion/discussion.ts';
 import {useBindAnnotationMessage} from './useBindAnnotationMessage.ts';
+import AssetViewInfo from '../AssetViewInfo.tsx';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -105,7 +106,12 @@ export default function AssetView({modalIndex, open}: Props) {
 
     const [[asset, renditions], rendition] = (
         isSuccess
-            ? [data, renditionId ? data[1].find(r => r.id === renditionId)! : data[1][0]]
+            ? [
+                  data,
+                  renditionId
+                      ? data[1].find(r => r.id === renditionId)!
+                      : data[1][0],
+              ]
             : (previousData.current ?? [[], undefined])
     ) as DataTuple;
 
@@ -114,7 +120,9 @@ export default function AssetView({modalIndex, open}: Props) {
         if (data) {
             previousData.current = [
                 data,
-                renditionId ? data[1].find(r => r.id === renditionId)! : data[1][0],
+                renditionId
+                    ? data[1].find(r => r.id === renditionId)!
+                    : data[1][0],
             ];
         }
     }, [data, previousData]);
@@ -251,6 +259,8 @@ export default function AssetView({modalIndex, open}: Props) {
                                             assetAnnotationsRef
                                         }
                                     />
+
+                                    <AssetViewInfo asset={asset} />
 
                                     <AssetDiscussion
                                         asset={asset}

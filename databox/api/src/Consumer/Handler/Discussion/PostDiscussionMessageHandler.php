@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Discussion;
 
-use Alchemy\AuthBundle\Repository\UserRepository;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
+use App\Asset\ObjectNotifier;
+use App\Entity\Core\Asset;
+use App\Entity\Core\Collection;
 use App\Entity\Discussion\Message;
 use App\Entity\ObjectTitleInterface;
 use App\Repository\Discussion\MessageRepository;
@@ -19,6 +21,7 @@ readonly class PostDiscussionMessageHandler
         private MessageRepository $messageRepository,
         private NotifierInterface $notifier,
         private DiscussionManager $discussionManager,
+        private ObjectNotifier $assetNotifier,
     ) {
     }
 
@@ -30,16 +33,44 @@ readonly class PostDiscussionMessageHandler
             return;
         }
 
-        $topicKey = $message->getThread()->getNotificationKey();
-
         $object = $this->discussionManager->getThreadObject($message->getThread());
         $authorId = $message->getAuthorId();
 
-        $this->notifier->addTopicSubscribers($topicKey, [$authorId]);
-        $this->notifier->notifyTopic($topicKey, $authorId, 'databox-discussion-new-comment', [
-            'author' => $this->notifier->getUsername($authorId),
+        $notificationId = 'databox-discussion-new-comment';
+        $params = [
             'object' => $object instanceof ObjectTitleInterface ? $object->getObjectTitle() : 'Undefined Object',
-            'url' => '/assets/'.$object->getId().'#discussion-'.$message->getId(),
-        ]);
+        ];
+
+        if ($object instanceof Asset) {
+            $params['url'] = '/assets/'.$object->getId().'#discussion-'.$message->getId();
+
+            $this->assetNotifier->notifyObject(
+                $object,
+                Asset::EVENT_NEW_COMMENT,
+                $notificationId,
+                $authorId,
+                $params,
+                subscribeAuthor: true,
+            );
+
+            foreach ($object->getCollections() as $assetCollection) {
+                $collection = $assetCollection->getCollection();
+                $params['collection'] = $collection->getAbsoluteTitle();
+
+                $this->assetNotifier->notifyObject(
+                    $collection,
+                    Collection::EVENT_ASSET_NEW_COMMENT,
+                    $notificationId,
+                    $authorId,
+                    $params
+                );
+            }
+        } else {
+            $topicKey = $message->getThread()->getNotificationKey();
+            $params['author'] = $this->notifier->getUsername($authorId);
+            $this->notifier->addTopicSubscribers($topicKey, [$authorId]);
+
+            $this->notifier->notifyTopic($topicKey, $authorId, $notificationId, $params);
+        }
     }
 }

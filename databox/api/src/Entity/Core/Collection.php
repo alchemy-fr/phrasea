@@ -27,9 +27,11 @@ use App\Api\Processor\MoveCollectionProcessor;
 use App\Api\Provider\CollectionProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Doctrine\Listener\SoftDeleteableInterface;
+use App\Entity\FollowableInterface;
 use App\Entity\ObjectTitleInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\LocaleTrait;
+use App\Entity\Traits\NotificationSettingsTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -110,7 +112,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: CollectionRepository::class)]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]
-class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, ESIndexableDependencyInterface, ESIndexableDeleteDependencyInterface, ESIndexableInterface, ObjectTitleInterface, \Stringable
+class Collection extends AbstractUuidEntity implements FollowableInterface, SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, ESIndexableDependencyInterface, ESIndexableDeleteDependencyInterface, ESIndexableInterface, ObjectTitleInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -119,6 +121,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     use OwnerIdTrait;
     use LocaleTrait;
     use WorkspacePrivacyTrait;
+    use NotificationSettingsTrait;
 
     final public const string GROUP_READ = 'coll:read';
     final public const string GROUP_LIST = 'coll:index';
@@ -127,6 +130,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
 
     final public const string EVENT_ASSET_ADD = 'asset_add';
     final public const string EVENT_ASSET_UPDATE = 'asset_update';
+    final public const string EVENT_ASSET_NEW_COMMENT = 'asset_new_comment';
     final public const string EVENT_ASSET_REMOVED = 'asset_removed';
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
@@ -138,7 +142,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     private ?self $parent = null;
 
     /**
-     * @var self[]
+     * @var self[]|DoctrineCollection
      */
     #[ORM\OneToMany(mappedBy: 'parent', targetEntity: Collection::class)]
     #[ORM\JoinColumn(nullable: true)]
@@ -370,12 +374,13 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
             self::getTopicKey(self::EVENT_ASSET_ADD, $id),
             self::getTopicKey(self::EVENT_ASSET_REMOVED, $id),
             self::getTopicKey(self::EVENT_ASSET_ADD, $id),
+            self::getTopicKey(self::EVENT_ASSET_NEW_COMMENT, $id),
         ];
     }
 
-    public static function getTopicKey(string $event, string $assetId): string
+    public static function getTopicKey(string $event, string $id): string
     {
-        return 'collection:'.$assetId.':'.$event;
+        return 'collection:'.$id.':'.$event;
     }
 
     public function getObjectTitle(): string

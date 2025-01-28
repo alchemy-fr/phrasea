@@ -9,8 +9,7 @@ final readonly class NotifyAssetTopic
         private string $assetId,
         private string $authorId,
         private ?string $assetTitle = null,
-    )
-    {
+    ) {
     }
 
     public function getEvent(): string

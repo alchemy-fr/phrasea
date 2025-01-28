@@ -69,6 +69,16 @@ final readonly class NovuClient
         ]);
     }
 
+    public function createTopic(string $topicKey): void
+    {
+        $this->request('POST', '/v1/topics', [
+            'json' => [
+                'key' => $topicKey,
+                'name' => $topicKey,
+            ],
+        ]);
+    }
+
     public function removeTopicSubscribers(string $topicKey, array $subscribers): void
     {
         $this->request('POST', sprintf('/v1/topics/%s/subscribers/removal', $topicKey), [

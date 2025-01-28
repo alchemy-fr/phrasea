@@ -45,7 +45,9 @@ export default function DiscussionMessage({
                 sx={theme => ({
                     m: -2,
                     p: 2,
-                    backgroundColor: selected ? alpha(theme.palette.success.main, 0.1) : undefined,
+                    backgroundColor: selected
+                        ? alpha(theme.palette.success.main, 0.1)
+                        : undefined,
                 })}
                 style={{
                     alignItems: 'flex-start',

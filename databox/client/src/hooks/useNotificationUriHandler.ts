@@ -1,6 +1,6 @@
-import {useNavigateToModal} from "../components/Routing/ModalLink.tsx";
-import {modalRoutes} from "../routes.ts";
-import type {NotificationUriHandler} from "@alchemy/notification";
+import {useNavigateToModal} from '../components/Routing/ModalLink.tsx';
+import {modalRoutes} from '../routes.ts';
+import type {NotificationUriHandler} from '@alchemy/notification';
 
 export function useNotificationUriHandler(): NotificationUriHandler {
     const navigateToModal = useNavigateToModal();
@@ -16,11 +16,10 @@ export function useNotificationUriHandler(): NotificationUriHandler {
                     id: assetId,
                 },
                 undefined,
-                hash,
+                hash
             );
 
             return;
-
         }
     };
 }
