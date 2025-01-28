@@ -23,7 +23,7 @@ class AudioTransformer
         $format = $outputFormat->getFormat();
 
         if (!method_exists($commonArgs->getOutputFormat(), 'getFFMpegFormat')) {
-            throw new \InvalidArgumentException('format %s does not declare FFMpeg format', $format);
+            throw new \InvalidArgumentException(sprintf('format %s does not declare FFMpeg format', $format));
         }
         /** @var FFMpegFormatInterface $FFMpegFormat */
         $FFMpegFormat = $commonArgs->getOutputFormat()->getFFMpegFormat();
@@ -66,7 +66,7 @@ class AudioTransformer
                 throw new \InvalidArgumentException(sprintf('Invalid filter: %s', $filter['name']));
             }
 
-            /* @uses self::clip()
+            /* @uses self::clip(), self::resample_audio()
              */
             $this->{$filter['name']}($audio, $filter, $resolverContext, $transformationContext, $isProjection);
         }
@@ -113,5 +113,15 @@ class AudioTransformer
         }
 
         $audio->addFilter(new FFMpeg\Filters\Audio\AudioClipFilter($startAsTimecode, $durationAsTimecode));
+    }
+
+    private function resample_audio(Audio $audio, array $options, array $resolverContext, TransformationContextInterface $transformationContext, bool &$isProjection): void
+    {
+        $rate = (int) $this->optionsResolver->resolveOption($options['rate'] ?? 0, $resolverContext);
+        if ($rate <= 0) {
+            throw new \InvalidArgumentException('Invalid rate for filter "resample_audio"');
+        }
+        $transformationContext->log(sprintf("  Applying 'resample_audio' filter: rate=%d", $rate));
+        $audio->addFilter(new FFMpeg\Filters\Audio\AudioResamplableFilter($rate));
     }
 }
