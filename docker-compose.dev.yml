@@ -283,7 +283,7 @@ services:
         context: ./novu
         dockerfile: studio/Dockerfile
     profiles:
-      - novu
+      - novu-studio
     environment:
       - NOVU_DASHBOARD_URL
       - NOVU_BRIDGE_URL
