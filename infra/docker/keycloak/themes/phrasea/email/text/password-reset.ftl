@@ -1,2 +1,2 @@
 <#ftl output_format="plainText">
-${msg("passwordResetBody",link, linkExpiration, realmName, linkExpirationFormatter(linkExpiration), '%dashboard_url%')}
+${msg("passwordResetBody",link, linkExpiration, realmName, linkExpirationFormatter(linkExpiration), properties["env.dashboardClientUrl"])}
