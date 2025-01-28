@@ -185,14 +185,17 @@ export default function UploadModal({
         titlePath ? (
             <>
                 <div>
-                {t('form.asset_create.title_with_parent', 'Create Asset under')}{' '}
-                <WorkspaceChip label={workspaceTitle} />
-                {titlePath.map((t: string, i: number) => (
-                    <React.Fragment key={i}>
-                        {' / '}
-                        <CollectionChip label={t} />
-                    </React.Fragment>
-                ))}
+                    {t(
+                        'form.asset_create.title_with_parent',
+                        'Create Asset under'
+                    )}{' '}
+                    <WorkspaceChip label={workspaceTitle} />
+                    {titlePath.map((t: string, i: number) => (
+                        <React.Fragment key={i}>
+                            {' / '}
+                            <CollectionChip label={t} />
+                        </React.Fragment>
+                    ))}
                 </div>
             </>
         ) : (

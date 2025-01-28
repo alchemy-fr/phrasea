@@ -3,7 +3,8 @@ import {Collection, Workspace} from '../../types';
 import {SearchContext} from './Search/SearchContext';
 import {
     CircularProgress,
-    Collapse, Divider,
+    Collapse,
+    Divider,
     IconButton,
     ListItem,
     ListItemButton,
@@ -148,8 +149,7 @@ export default function CollectionMenuItem({
                                     onClick={closeWrapper()}
                                     component={ModalLink}
                                     route={
-                                        modalRoutes.collections.routes
-                                            .manage
+                                        modalRoutes.collections.routes.manage
                                     }
                                     params={{
                                         id: collection.id,
@@ -167,7 +167,7 @@ export default function CollectionMenuItem({
                                         )}
                                     />
                                 </MenuItem>,
-                                <Divider/>,
+                                <Divider />,
                                 collection.capabilities.canEdit &&
                                 authContext!.isAuthenticated() ? (
                                     <MenuItem
@@ -212,8 +212,8 @@ export default function CollectionMenuItem({
                                                     );
                                                     expand(true);
                                                 },
-                                            }))
-                                        }
+                                            })
+                                        )}
                                         aria-label="add-child"
                                     >
                                         <ListItemIcon>
@@ -227,7 +227,7 @@ export default function CollectionMenuItem({
                                         />
                                     </MenuItem>
                                 ) : null,
-                                <Divider/>,
+                                <Divider />,
                                 collection.capabilities.canEdit ? (
                                     <MenuItem
                                         onClick={closeWrapper()}
@@ -259,8 +259,7 @@ export default function CollectionMenuItem({
                                         aria-label="delete"
                                     >
                                         <ListItemIcon>
-                                            <DeleteIcon
-                                                color={'error'} />
+                                            <DeleteIcon color={'error'} />
                                         </ListItemIcon>
                                         <ListItemText
                                             primary={t(

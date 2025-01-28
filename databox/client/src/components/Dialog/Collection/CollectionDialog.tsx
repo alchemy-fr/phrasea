@@ -14,7 +14,7 @@ import {modalRoutes} from '../../../routes';
 import {useCloseModal} from '../../Routing/ModalLink';
 import ESDocument from '../Asset/ESDocument.tsx';
 import {useAuth} from '@alchemy/react-auth';
-import CollectionNotifications from "./CollectionNotifications.tsx";
+import CollectionNotifications from './CollectionNotifications.tsx';
 
 type Props = {};
 
@@ -65,7 +65,10 @@ export default function CollectionDialog({}: Props) {
                     enabled: data.capabilities.canEdit,
                 },
                 {
-                    title: t('collection.manage.notifications.title', 'Notifications'),
+                    title: t(
+                        'collection.manage.notifications.title',
+                        'Notifications'
+                    ),
                     component: CollectionNotifications,
                     id: 'notifications',
                     props: {

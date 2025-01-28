@@ -11,7 +11,6 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Api\Model\Output\CollectionOutput;
 use App\Elasticsearch\CollectionSearch;
-use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\Voter\AbstractVoter;
@@ -129,7 +128,6 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             ]);
         }
 
-
         if ($this->hasGroup([
             Collection::GROUP_READ,
         ], $context)) {
@@ -142,7 +140,6 @@ class CollectionOutputTransformer implements OutputTransformerInterface
                 );
             }
         }
-
 
         return $output;
     }
