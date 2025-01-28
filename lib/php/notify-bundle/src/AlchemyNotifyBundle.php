@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\NotifyBundle;
 
 use Alchemy\NotifyBundle\Command\TestNotificationCommand;
+use Alchemy\NotifyBundle\Notification\MockNotifier;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use Alchemy\NotifyBundle\Notification\SymfonyNotifier;
 use Alchemy\NotifyBundle\Service\NovuClient;
@@ -21,6 +22,7 @@ class AlchemyNotifyBundle extends AbstractBundle
     {
         $definition->rootNode()
             ->children()
+                ->scalarNode('notifierService')->defaultNull()->end()
                 ->arrayNode('novu')
                     ->addDefaultsIfNotSet()
                     ->children()
@@ -75,7 +77,11 @@ class AlchemyNotifyBundle extends AbstractBundle
 
         $services->set(NovuClient::class);
         $services->set(SymfonyNotifier::class);
-        $services->alias(NotifierInterface::class, SymfonyNotifier::class);
+        $services->set(MockNotifier::class);
+
+        $isTest = 'test' === $builder->getParameter('kernel.environment');
+
+        $services->alias(NotifierInterface::class, $config['notifierService'] ?? ($isTest ? MockNotifier::class : SymfonyNotifier::class));
         $services->set(TestNotificationCommand::class);
     }
 }

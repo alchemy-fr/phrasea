@@ -11,6 +11,7 @@ use App\Entity\Workflow\WorkflowState;
 use App\Workflow\Event\AttributeUpdateWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
 readonly class AttributeChangedEventHandler
@@ -18,6 +19,7 @@ readonly class AttributeChangedEventHandler
     public function __construct(
         private WorkflowOrchestrator $workflowOrchestrator,
         private EntityManagerInterface $em,
+        private MessageBusInterface $bus,
     ) {
     }
 
@@ -25,12 +27,19 @@ readonly class AttributeChangedEventHandler
     {
         $asset = DoctrineUtil::findStrict($this->em, Asset::class, $message->getAssetId());
 
+        $authorId = $message->getUserId();
         $this->workflowOrchestrator->dispatchEvent(AttributeUpdateWorkflowEvent::createEvent(
             $message->getAttributes(),
             $asset->getId(),
             $asset->getWorkspaceId(),
         ), [
-            WorkflowState::INITIATOR_ID => $message->getUserId(),
+            WorkflowState::INITIATOR_ID => $authorId,
         ]);
+
+        $this->bus->dispatch(new NotifyAssetTopic(
+            Asset::EVENT_UPDATE,
+            $asset->getId(),
+            $authorId,
+        ));
     }
 }

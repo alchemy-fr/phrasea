@@ -18,7 +18,6 @@ readonly class PostDiscussionMessageHandler
     public function __construct(
         private MessageRepository $messageRepository,
         private NotifierInterface $notifier,
-        private UserRepository $userRepository,
         private DiscussionManager $discussionManager,
     ) {
     }
@@ -35,12 +34,12 @@ readonly class PostDiscussionMessageHandler
 
         $object = $this->discussionManager->getThreadObject($message->getThread());
         $authorId = $message->getAuthorId();
-        $author = $this->userRepository->getUser($authorId);
 
         $this->notifier->addTopicSubscribers($topicKey, [$authorId]);
         $this->notifier->notifyTopic($topicKey, $authorId, 'databox-discussion-new-comment', [
-            'author' => $author ? $author['username'] : 'Deleted User',
+            'author' => $this->notifier->getUsername($authorId),
             'object' => $object instanceof ObjectTitleInterface ? $object->getObjectTitle() : 'Undefined Object',
+            'url' => '/assets/'.$object->getId().'#discussion-'.$message->getId(),
         ]);
     }
 }
