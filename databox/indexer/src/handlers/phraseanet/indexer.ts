@@ -908,11 +908,6 @@ function translateVideoSettings_withAcodec(sd: PhraseanetSubdefStruct): object {
     if (audiokbrate > 0) {
         ffmpegModuleOptions['audio_kilobitrate'] = audiokbrate;
     }
-    // todo: audiosamplerate (not yet implemented in ffmpeg module)
-    // const audiosrate = sd.options['audiosamplerate'] ?? 0;
-    // if (audiosrate > 0) {
-    //     ffmpegModuleOptions['audio_samplerate'] = audiosrate;
-    // }
 
     return {
         transformations: [
@@ -1076,27 +1071,6 @@ function translateAudioSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
             );
     }
 
-    // return {
-    //     transformations: [
-    //         {
-    //             module: 'audio_to_album_cover', // todo: implement
-    //             options: {
-    //                 format: format,
-    //                 start: 0,
-    //             },
-    //         },
-    //         {
-    //             module: 'imagine',
-    //             options: {
-    //                 filters: {
-    //                     thumbnail: {
-    //                         size: [size, size],
-    //                     },
-    //                 },
-    //             },
-    //         },
-    //     ],
-    // };
     const size = sd.options['size'] ?? 100;
 
     return {
