@@ -88,13 +88,13 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield TextareaField::new('fallbackAll')
             ->hideOnIndex()
-            ->setHelp('e.g. Dimensions are: {{ file.width }}x{{ file.height }}');
+            ->setHelp("e.g. twig variable: {{file.type}} {{file.size}} {{file.checksum}} {{file.originalName}} {{file.extension}} {{asset.title}} {{attr.photographer}}");
         yield TextareaField::new('fallbackEN', 'Fallback value template EN')
             ->hideOnIndex()
-            ->setHelp('e.g. Dimensions are: {{ file.width }}x{{ file.height }}');
+            ->setHelp("e.g. twig variable: {{file.type}} {{file.size}} {{file.checksum}} {{file.originalName}} {{file.extension}} {{asset.title}} {{attr.photographer}}");
         yield TextareaField::new('fallbackFR', 'Fallback value template FR')
             ->hideOnIndex()
-            ->setHelp('ex. Les dimensions sont : {{ file.width }}x{{ file.height }}');
+            ->setHelp("ex variable twig: {{file.type}} {{file.size}} {{file.checksum}} {{file.originalName}} {{file.extension}} {{asset.title}} {{attr.photographer}}");
         yield Field::new('facetEnabled')
             ->hideOnIndex();
         yield ArrayField::new('fallback')

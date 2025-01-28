@@ -1,6 +1,7 @@
-import {annotationZIndex} from '../Annotations/AssetAnnotationsOverlay.tsx';
 import {Paper, PaperProps} from '@mui/material';
 import {PropsWithChildren} from 'react';
+
+import {annotationZIndex} from '../Annotations/common.ts';
 
 type Props = PropsWithChildren<{
     annotationActive: boolean;

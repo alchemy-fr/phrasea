@@ -21,6 +21,24 @@
         "test": "./vendor/bin/phpunit",
         "cs": "vendor/bin/php-cs-fixer fix"
     },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/alchemy-fr/PHPExiftool"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "exiftool/exiftool",
+                "version": "12",
+                "source": {
+                    "url": "https://github.com/exiftool/exiftool",
+                    "type": "git",
+                    "reference": "12.42"
+                }
+            }
+        }
+    ],
     "require": {
         "php": "^8.3",
         "ext-imagick": "*",
@@ -31,7 +49,8 @@
         "liip/imagine-bundle": "^2.13",
         "symfony/http-client": "^6.4.11",
         "php-ffmpeg/php-ffmpeg": "^1.2",
-        "spatie/pdf-to-image": "^3.1"
+        "spatie/pdf-to-image": "^3.1",
+        "alchemy/phpexiftool": "^4.0.1"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.17",

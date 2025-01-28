@@ -136,11 +136,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                 rowIndex={index}
             >
                 {({registerChild}) => (
-                    <div
-                        style={style}
-                        // @ts-expect-error Element | undefined
-                        ref={registerChild}
-                    >
+                    <div style={style} ref={registerChild}>
                         {pageIndex > 0 && itemIndex === 0 ? (
                             <PageDivider
                                 top={toolbarHeight}

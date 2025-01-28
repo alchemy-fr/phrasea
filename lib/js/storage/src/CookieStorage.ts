@@ -26,9 +26,8 @@ export default class CookieStorage implements IStorage {
         });
 
         if (this.getItem(key)) {
-            this.cookies.set(key, '', {
+            this.setItem(key, '', {
                 expires: -1,
-                ...this.cookiesOptions,
             });
         }
     }

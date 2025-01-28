@@ -41,7 +41,6 @@ export default function CollectionDialog({}: Props) {
             route={modalRoutes.collections.routes.manage}
             routeParams={{id}}
             maxWidth={'md'}
-            minHeight={400}
             title={t('collection.manage.title', 'Manage collection {{name}}', {
                 name: data.title,
             })}

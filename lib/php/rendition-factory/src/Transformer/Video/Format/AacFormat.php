@@ -4,10 +4,11 @@ namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\Transformer\Video\Format\Audio\Aac;
+use FFMpeg\Format\AudioInterface;
 
 class AacFormat implements FormatInterface
 {
-    private Aac $format;
+    private AudioInterface $format;
 
     public function __construct()
     {
@@ -34,7 +35,7 @@ class AacFormat implements FormatInterface
         return FamilyEnum::Audio;
     }
 
-    public function getFFMpegFormat(): Aac
+    public function getFFMpegFormat(): AudioInterface
     {
         return $this->format;
     }

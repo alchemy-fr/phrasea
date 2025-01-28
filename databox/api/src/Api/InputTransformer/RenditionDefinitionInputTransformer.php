@@ -67,8 +67,8 @@ class RenditionDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->download) {
             $object->setDownload($data->download);
         }
-        if (null !== $data->pickSourceFile) {
-            $object->setPickSourceFile($data->pickSourceFile);
+        if (null !== $data->buildMode) {
+            $object->setBuildMode($data->buildMode);
         }
         if (null !== $data->useAsOriginal) {
             $object->setUseAsOriginal($data->useAsOriginal);

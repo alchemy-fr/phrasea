@@ -17,8 +17,7 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
     public function __construct(
         private readonly SymfonyNotifierInterface $notifier,
         private readonly NovuClient $novuClient,
-    )
-    {
+    ) {
     }
 
     public function notifyUser(string $userId, string $notificationId, array $parameters = []): void
@@ -63,5 +62,16 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
     public function removeTopicSubscribers(string $topicKey, array $subscribers): void
     {
         $this->novuClient->removeTopicSubscribers($topicKey, $subscribers);
+    }
+
+    public function getTopicSubscriptions(array $topicKeys, string $userId): array
+    {
+        $data = [];
+
+        foreach ($topicKeys as $topicKey) {
+            $data[$topicKey] = $this->novuClient->isSubscribed($topicKey, $userId);
+        }
+
+        return $data;
     }
 }

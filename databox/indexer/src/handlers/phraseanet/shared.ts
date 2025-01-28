@@ -1,17 +1,11 @@
 import {Asset} from '../../indexers';
-import {FieldMap, PhraseanetSubdef} from './types';
+import {FieldMap} from './types';
 import {CPhraseanetRecord} from './CPhraseanetRecord';
-
+import {Logger} from 'winston';
 import {
     AttributeClass,
     AttributeInput,
-    RenditionInput,
 } from '../../databox/types';
-
-const renditionDefinitionMapping: Record<string, string> = {
-    document: 'original',
-};
-const renditionDefinitionBlacklist = ['original'];
 
 export type AttrDefinitionIndex = Record<
     string,
@@ -34,11 +28,11 @@ export async function createAsset(
     key: string,
     fieldMap: Map<string, FieldMap>,
     tagIndex: TagIndex,
-    shortcutIntoCollections: {id: string; path: string}[]
+    shortcutIntoCollections: {id: string; path: string}[],
+    sourceSubdefName: string|undefined,
+    subdefToRendition: Record<string, string[]>,
+    logger: Logger,
 ): Promise<Asset> {
-    const document: PhraseanetSubdef | undefined = record.subdefs.find(
-        s => s.name === 'document'
-    );
 
     const attributes: AttributeInput[] = [];
 
@@ -102,6 +96,30 @@ export async function createAsset(
         }
     }
 
+    const renditions = [];
+    let sourceFileUrl: string|undefined = undefined;
+
+    for(const sd of record.subdefs ?? []) {
+        if(sd.name === sourceSubdefName) {
+            sourceFileUrl = sd.permalink.url;
+            logger.info(`  source: (from "${sd.name}"): ${sd.permalink.url}`);
+        }
+
+        const phrName = record.phrasea_type + ':' + sd.name;
+
+        for(const name of subdefToRendition[phrName] ?? []) {
+            logger.info(`  rendition "${name}": (from "${sd.name}"): ${sd.permalink.url}`);
+            renditions.push({
+                name: name,
+                sourceFile: {
+                    url: sd.permalink.url,
+                    isPrivate: false,
+                    importFile: importFiles,
+                    type: sd.mime_type,
+                },
+            });
+        }
+    }
     return {
         workspaceId: workspaceId,
         key: key,
@@ -109,30 +127,12 @@ export async function createAsset(
         collectionKeyPrefix: collectionKeyPrefix,
         title: record.title,
         importFile: importFiles,
-        publicUrl: document?.permalink.url,
+        publicUrl: sourceFileUrl,
         isPrivate: false,
         attributes: attributes,
         tags: tags,
         generateRenditions: false,
-        renditions: (record.subdefs ?? [])
-            .map(s => {
-                const defName = renditionDefinitionMapping[s.name] || s.name;
-
-                if (renditionDefinitionBlacklist.includes(defName)) {
-                    return null;
-                }
-
-                return {
-                    name: defName,
-                    sourceFile: {
-                        url: s.permalink.url,
-                        isPrivate: false,
-                        importFile: importFiles,
-                        type: s.mime_type,
-                    },
-                };
-            })
-            .filter(s => Boolean(s)) as RenditionInput[],
+        renditions: renditions,
         shortcutIntoCollections: shortcutIntoCollections,
     };
 }

@@ -6,25 +6,47 @@ export type Point = {
 };
 
 export enum AnnotationType {
-    Point = 'point',
+    Target = 'target',
     Draw = 'draw',
-    Highlight = 'highlight',
     Circle = 'circle',
+    Line = 'line',
+    Arrow = 'arrow',
+    Text = 'text',
     Rect = 'rect',
     Cue = 'cue',
     TimeRange = 'time_range',
 }
 
+export type DrawOptions = {
+    selected?: boolean;
+    editable?: boolean;
+};
+
+export type AnnotationId = string;
+
 export interface AssetAnnotation {
+    id?: AnnotationId;
     type: AnnotationType;
+    editable?: boolean;
     name?: string;
     [prop: string]: any;
 }
 
 export interface PointAnnotation extends AssetAnnotation {
-    type: AnnotationType.Point;
+    type: AnnotationType.Target;
     x: number;
     y: number;
+    c?: string; // Color
+    s?: number; // Size
+    page?: number;
+}
+
+export interface LineAnnotation extends AssetAnnotation {
+    type: AnnotationType.Target;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
     c?: string; // Color
     s?: number; // Size
     page?: number;
@@ -34,7 +56,7 @@ export interface CircleAnnotation extends AssetAnnotation {
     type: AnnotationType.Circle;
     x: number;
     y: number;
-    radius: number;
+    r: number;
     c?: string; // Border color
     f?: string; // Fill color
     s?: number; // Stroke size
@@ -43,15 +65,16 @@ export interface CircleAnnotation extends AssetAnnotation {
 
 export type AnnotationOptions = {
     color: string;
+    fillColor?: string;
     size: number;
 };
 
 export interface RectangleAnnotation extends AssetAnnotation {
     type: AnnotationType.Rect;
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
     c?: string; // Border color
     f?: string; // Fill color
     s?: number; // Stroke size
@@ -60,8 +83,19 @@ export interface RectangleAnnotation extends AssetAnnotation {
 export interface DrawAnnotation extends AssetAnnotation {
     type: AnnotationType.Draw;
     paths: Point[][];
+    x: number;
+    y: number;
     c?: string; // Color
     s?: number; // Line width
+}
+
+export interface TextAnnotation extends AssetAnnotation {
+    type: AnnotationType.Text;
+    x: number;
+    y: number;
+    text: string;
+    c?: string; // Color
+    s?: number; // Text size
 }
 
 export interface CueAnnotation extends AssetAnnotation {
@@ -75,5 +109,26 @@ export interface TimeRangeAnnotation extends AssetAnnotation {
     e: number; // End time in seconds
 }
 
+export type SelectedAnnotationRef = MutableRefObject<
+    AssetAnnotation | undefined
+>;
+
 export type OnNewAnnotation = (annotation: AssetAnnotation) => void;
-export type OnNewAnnotationRef = MutableRefObject<OnNewAnnotation | undefined>;
+export type OnUpdateAnnotation = (
+    id: AnnotationId,
+    newAnnotation: AssetAnnotation
+) => AssetAnnotation;
+
+export type OnDeleteAnnotation = (id: AnnotationId) => void;
+export type OnSelectAnnotation = (annotation: AssetAnnotation) => void;
+
+export type AnnotationsControl = {
+    render: () => void;
+    addAnnotation: OnNewAnnotation;
+    updateAnnotation: OnUpdateAnnotation;
+    deleteAnnotation: OnDeleteAnnotation;
+    selectAnnotation: OnSelectAnnotation;
+    replaceAnnotations: (annotations: AssetAnnotation[]) => void;
+};
+
+export type AssetAnnotationRef = MutableRefObject<AnnotationsControl | null>;

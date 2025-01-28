@@ -60,7 +60,9 @@
         return false;
     }
 
-    const stackConfig = JSON.parse(require('node:fs').readFileSync('/etc/app/stack-config.json', 'utf8'));
+    const stackConfig = JSON.parse(
+        require('node:fs').readFileSync('/etc/app/stack-config.json', 'utf8')
+    );
     const customHTML = {};
     customHTML['__MUI_THEME__'] = '';
     if (stackConfig.theme) {

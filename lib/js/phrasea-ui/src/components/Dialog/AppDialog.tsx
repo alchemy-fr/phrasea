@@ -48,10 +48,8 @@ export const AppDialogTitle = (props: DialogTitleProps) => {
                     aria-label="close"
                     onClick={onClose}
                     sx={{
-                        position: 'absolute',
-                        right: 8,
-                        top: 8,
                         color: theme => theme.palette.grey[500],
+                        ml: 2,
                     }}
                 >
                     <CloseIcon />
@@ -82,6 +80,7 @@ type Props = PropsWithChildren<
         fullScreen?: boolean;
         disablePadding?: boolean | undefined;
         sx?: SxProps;
+        disableEscapeKeyDown?: boolean;
     } & StackedModalProps
 >;
 
@@ -98,6 +97,7 @@ export default function AppDialog({
     open = true,
     maxWidth = 'md',
     sx,
+    disableEscapeKeyDown,
 }: Props) {
     const progressHeight = 3;
 
@@ -114,6 +114,7 @@ export default function AppDialog({
             maxWidth={maxWidth}
             fullScreen={fullScreen}
             sx={sx}
+            disableEscapeKeyDown={disableEscapeKeyDown}
         >
             {title && (
                 <AppDialogTitle onClose={handleClose}>{title}</AppDialogTitle>

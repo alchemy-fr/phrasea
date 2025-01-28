@@ -21,7 +21,7 @@ final readonly class DiscussionPusher
         $event = $removed ? 'message-delete' : 'message';
 
         $this->bus->dispatch($this->pusherManager->createBusMessage(
-            'thread-'.$message->getThread()->getId(),
+            'thread-'.$message->getThread()->getKey(),
             $event,
             $removed ? [
                 'id' => $message->getId(),

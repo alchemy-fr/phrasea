@@ -14,11 +14,10 @@ final readonly class NovuClient
         private string $secretKey,
         #[Autowire(service: 'novu.client')]
         HttpClientInterface $client,
-    )
-    {
+    ) {
         $this->client = $client->withOptions([
             'headers' => [
-                'Authorization' => 'ApiKey ' . $this->secretKey,
+                'Authorization' => 'ApiKey '.$this->secretKey,
             ],
         ]);
     }
@@ -63,5 +62,12 @@ final readonly class NovuClient
                 'subscribers' => $subscribers,
             ],
         ]);
+    }
+
+    public function isSubscribed(string $topicKey, string $subscriberId): bool
+    {
+        $response = $this->client->request('GET', sprintf('/v1/topics/%s/subscribers/%s', $topicKey, $subscriberId));
+
+        return 200 === $response->getStatusCode();
     }
 }

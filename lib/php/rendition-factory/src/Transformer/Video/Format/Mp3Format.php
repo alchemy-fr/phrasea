@@ -4,10 +4,11 @@ namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use FFMpeg\Format\Audio\Mp3;
+use FFMpeg\Format\AudioInterface;
 
 class Mp3Format implements FormatInterface
 {
-    private Mp3 $format;
+    private AudioInterface $format;
 
     public function __construct()
     {
@@ -34,7 +35,7 @@ class Mp3Format implements FormatInterface
         return FamilyEnum::Audio;
     }
 
-    public function getFFMpegFormat(): Mp3
+    public function getFFMpegFormat(): AudioInterface
     {
         return $this->format;
     }

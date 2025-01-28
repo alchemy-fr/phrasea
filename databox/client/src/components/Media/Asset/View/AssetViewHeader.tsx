@@ -35,15 +35,24 @@ function AssetViewHeader({
     };
 
     return (
-        <FlexRow alignItems={'center'}>
+        <FlexRow
+            style={{
+                flexShrink: 1,
+            }}
+            alignItems={'center'}
+        >
             <AssetViewNavigation state={state} currentId={asset.id} />
-            <div>
+            <div
+                style={{
+                    flexShrink: 1,
+                }}
+            >
                 <Trans
                     i18nKey={'asset_view.edit_asset'}
                     values={{
                         name: asset.resolvedTitle,
                     }}
-                    defaults={'Edit asset <strong>{{name}}</strong>'}
+                    defaults={'Asset <strong>{{name}}</strong>'}
                 />
             </div>
             <Select<string>

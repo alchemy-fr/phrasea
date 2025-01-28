@@ -5,24 +5,16 @@ import {
     Typography,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import {OnActiveAnnotations} from './Attribute/Attributes.tsx';
 import React, {memo} from 'react';
 import {Asset} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
-import Thread from '../../Discussion/Thread.tsx';
-import {OnNewAnnotationRef} from './Annotations/annotationTypes.ts';
+import Thread, {BaseThreadProps} from '../../Discussion/Thread.tsx';
 
 type Props = {
     asset: Asset;
-    onActiveAnnotations?: OnActiveAnnotations | undefined;
-    onNewAnnotationRef?: OnNewAnnotationRef;
-};
+} & BaseThreadProps;
 
-function AssetDiscussion({
-    asset,
-    onActiveAnnotations,
-    onNewAnnotationRef,
-}: Props) {
+function AssetDiscussion({asset, ...threadProps}: Props) {
     const [expanded, setExpanded] = React.useState(true);
     const {t} = useTranslation();
 
@@ -39,16 +31,13 @@ function AssetDiscussion({
             </AccordionSummary>
             <AccordionDetails>
                 <Thread
+                    {...threadProps}
                     threadKey={asset.threadKey}
                     threadId={asset.thread?.id}
-                    onActiveAnnotations={onActiveAnnotations}
-                    onNewAnnotationRef={onNewAnnotationRef}
                 />
             </AccordionDetails>
         </Accordion>
     );
 }
 
-export default memo(AssetDiscussion, (a, b) => {
-    return a.asset.id === b.asset.id;
-});
+export default memo(AssetDiscussion);

@@ -26,7 +26,7 @@ final readonly class RenditionBuildHashManager
 
     public function getBuildHash(?File $source, RenditionDefinition $definition): ?string
     {
-        if ($definition->isPickSourceFile()
+        if (RenditionDefinition::BUILD_MODE_CUSTOM !== $definition->getBuildMode()
             || null === $definition->getDefinition()) {
             return null;
         }

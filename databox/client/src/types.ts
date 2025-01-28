@@ -3,6 +3,7 @@ import {AttributeType} from './api/attributes';
 import type {WithTranslations} from '@alchemy/react-form';
 import {Integration} from './components/Integration/types.ts';
 import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTypes.ts';
+import {RenditionBuildMode} from './api/rendition.ts';
 
 type AlternateUrl = {
     type: string;
@@ -81,6 +82,7 @@ export interface Asset
     pendingUploadToken?: string;
     attributesEditedAt: string;
     groupValue?: GroupValue | undefined;
+    topicSubscriptions: TopicSubscriptions;
 }
 
 type AttrValue = any;
@@ -144,7 +146,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
     class: AttributeClass | string | null;
     workspace: Workspace | string;
     definition: string;
-    pickSourceFile?: boolean;
+    buildMode?: RenditionBuildMode | string;
     useAsOriginal?: boolean;
     useAsPreview?: boolean;
     useAsThumbnail?: boolean;
@@ -268,6 +270,7 @@ export type MessageAttachment = {
 };
 
 export type DeserializedMessageAttachment = {
+    id?: string;
     type: string;
     data: Record<string, any>;
 };
@@ -359,3 +362,5 @@ export type AssetOrAssetContainer = {} & Entity;
 export interface Entity {
     id: string;
 }
+
+export type TopicSubscriptions<T extends string = string> = Record<T, boolean>;

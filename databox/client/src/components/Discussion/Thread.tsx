@@ -2,29 +2,31 @@ import React from 'react';
 import {ThreadMessage} from '../../types.ts';
 import {deleteThreadMessage, getThreadMessages} from '../../api/discussion.ts';
 import {ApiCollectionResponse} from '../../api/hydra.ts';
-import MessageForm from './MessageForm.tsx';
-import {CircularProgress} from '@mui/material';
+import MessageForm, {BaseMessageFormProps} from './MessageForm.tsx';
+import {Box, Skeleton} from '@mui/material';
 import DiscussionMessage from './DiscussionMessage.tsx';
 import {useChannelRegistration} from '../../lib/pusher.ts';
-import {OnActiveAnnotations} from '../Media/Asset/Attribute/Attributes.tsx';
-import {OnNewAnnotationRef} from '../Media/Asset/Annotations/annotationTypes.ts';
 import ConfirmDialog from '../Ui/ConfirmDialog.tsx';
 import {toast} from 'react-toastify';
 import {useModals} from '@alchemy/navigation';
 
 import {useTranslation} from 'react-i18next';
+
+export type BaseThreadProps = {
+    onMessageDelete?: (message: ThreadMessage) => void;
+} & BaseMessageFormProps;
+
 type Props = {
     threadKey: string;
     threadId?: string;
-    onActiveAnnotations: OnActiveAnnotations | undefined;
-    onNewAnnotationRef?: OnNewAnnotationRef;
-};
+} & BaseThreadProps;
 
 export default function Thread({
     threadKey,
     threadId,
-    onActiveAnnotations,
-    onNewAnnotationRef,
+    messageFormRef,
+    onMessageDelete,
+    ...formProps
 }: Props) {
     const [messages, setMessages] =
         React.useState<ApiCollectionResponse<ThreadMessage>>();
@@ -77,25 +79,15 @@ export default function Thread({
                 setMessages(res);
             });
         }
-    }, [threadId]);
+    }, [threadId, threadKey]);
 
-    useChannelRegistration(
-        `thread-${threadId}`,
-        `message`,
-        data => {
-            appendMessage(data);
-        },
-        !!threadId
-    );
+    useChannelRegistration(`thread-${threadKey}`, `message`, data => {
+        appendMessage(data);
+    });
 
-    useChannelRegistration(
-        `thread-${threadId}`,
-        `message-delete`,
-        data => {
-            deleteMessage(data.id);
-        },
-        !!threadId
-    );
+    useChannelRegistration(`thread-${threadKey}`, `message-delete`, data => {
+        deleteMessage(data.id);
+    });
 
     const onDeleteMessage = (message: ThreadMessage): void => {
         openModal(ConfirmDialog, {
@@ -116,7 +108,7 @@ export default function Thread({
                         : undefined
                 );
 
-                onActiveAnnotations?.([]);
+                onMessageDelete?.(message);
 
                 toast.success(
                     t(
@@ -141,25 +133,35 @@ export default function Thread({
         );
     };
 
-    if (threadId && !messages) {
-        return <CircularProgress />;
-    }
+    const loadingMessages = Boolean(threadId && !messages);
 
     return (
         <>
-            {messages?.result.map(message => (
-                <DiscussionMessage
-                    key={message.id}
-                    message={message}
-                    onActiveAnnotations={onActiveAnnotations}
-                    onDelete={onDeleteMessage}
-                    onEdit={onEditMessage}
-                />
-            ))}
+            {loadingMessages ? (
+                <Box
+                    sx={{
+                        mb: 2,
+                    }}
+                >
+                    <Skeleton />
+                    <Skeleton />
+                </Box>
+            ) : (
+                messages?.result.map(message => (
+                    <DiscussionMessage
+                        key={message.id}
+                        message={message}
+                        onAttachmentClick={formProps.onAttachmentClick}
+                        onDelete={onDeleteMessage}
+                        onEdit={onEditMessage}
+                    />
+                ))
+            )}
 
             <MessageForm
-                onNewAnnotationRef={onNewAnnotationRef}
-                onActiveAnnotations={onActiveAnnotations}
+                {...formProps}
+                disabled={loadingMessages}
+                ref={messageFormRef}
                 threadKey={threadKey}
                 threadId={threadId}
                 onNewMessage={message => {

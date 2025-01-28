@@ -16,6 +16,7 @@ use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Entity\Integration\WorkspaceSecret;
 use App\Entity\Template\AssetDataTemplate;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -24,10 +25,10 @@ final readonly class WorkspaceDelete
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private CollectionDelete       $collectionDelete,
-        private IndexCleaner           $indexCleaner,
-        private SoftDeleteToggler      $softDeleteToggler,
-        private LoggerInterface        $logger,
+        private CollectionDelete $collectionDelete,
+        private IndexCleaner $indexCleaner,
+        private SoftDeleteToggler $softDeleteToggler,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -74,6 +75,7 @@ final readonly class WorkspaceDelete
             $this->deleteDependencies(AttributeClass::class, $workspaceId);
             $this->deleteDependencies(AssetDataTemplate::class, $workspaceId);
             $this->deleteDependencies(WorkspaceIntegration::class, $workspaceId);
+            $this->deleteDependencies(WorkspaceSecret::class, $workspaceId);
 
             $nFiles = $this->em->getRepository(File::class)
                 ->createQueryBuilder('t')

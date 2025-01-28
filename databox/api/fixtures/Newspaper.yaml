@@ -161,13 +161,14 @@ App\Entity\Core\RenditionDefinition:
     n_rd_original (extends rendition_definition_n):
         name: original
         class: '@n_rc_public'
-        pickSourceFile: true
+        buildMode: 1
         useAsOriginal: true
     n_rd_preview (extends rendition_definition_n):
         name: preview
         class: '@n_rc_public'
         useAsPreview: true
         parent: '@n_rd_original'
+        buildMode: 2
         definition: |
             image:
                 transformations: &image_transformations
@@ -190,6 +191,7 @@ App\Entity\Core\RenditionDefinition:
         class: '@n_rc_public'
         useAsThumbnail: true
         parent: '@n_rd_preview'
+        buildMode: 2
         definition: |
             image:
                 transformations: &image_transformations
@@ -438,7 +440,7 @@ App\Entity\Core\Attribute:
         definition: '@ad_keywords'
         asset: '@a_*'
         value: '<word()>'
-        assetAnnotations: '<assetAnnotationsPoint()>'
+        assetAnnotations: '<assetAnnotationsTarget()>'
 
     at_ean_{@a_*} (extends attribute_n):
         definition: '@ad_ean'

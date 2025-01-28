@@ -27,7 +27,7 @@ export default function PasswordMethod({
         invalid_password: t('error.invalid_password', 'Invalid password'),
     };
 
-    const translatedError = error ? errors[error] ?? error : undefined;
+    const translatedError = error ? (errors[error] ?? error) : undefined;
 
     return (
         <div className={'container'}>

@@ -67,7 +67,7 @@ export default function PermissionRow({
                 {resolving ? (
                     <Skeleton width={100} />
                 ) : (
-                    userName ?? `${userType} - ${userId}`
+                    (userName ?? `${userType} - ${userId}`)
                 )}
             </td>
             {permissions.map((k: string) => {
