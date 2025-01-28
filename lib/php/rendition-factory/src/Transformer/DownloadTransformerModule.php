@@ -1,6 +1,6 @@
 <?php
 
-namespace Alchemy\RenditionFactory\Transformer\Image;
+namespace Alchemy\RenditionFactory\Transformer;
 
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
@@ -10,21 +10,14 @@ use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
-use PHPExiftool\Driver\Metadata\MetadataBag;
-use PHPExiftool\Exiftool;
-use PHPExiftool\Writer;
-use Psr\Log\LoggerInterface;
+
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
-final readonly class SetDpiTransformerModule implements TransformerModuleInterface
+final readonly class DownloadTransformerModule implements TransformerModuleInterface
 {
-    public function __construct(private LoggerInterface $logger)
-    {
-    }
-
     public static function getName(): string
     {
-        return 'set_dpi';
+        return 'download';
     }
 
     public function getDocumentation(): Documentation
@@ -35,7 +28,7 @@ final readonly class SetDpiTransformerModule implements TransformerModuleInterfa
         return new Documentation(
             $treeBuilder,
             <<<HEADER
-            Change the dpi metadata of an image (no resampling).
+            Download a file to be used as "substitution" output.
             HEADER
         );
     }
@@ -46,9 +39,12 @@ final readonly class SetDpiTransformerModule implements TransformerModuleInterfa
         $builder
             ->arrayNode('options')
                 ->children()
-                    ->integerNode('dpi')
-                        ->isRequired()
-                        ->example('72')
+                    ->scalarNode('url')
+                        ->info('url of the file to download')
+                    ->end()
+                    ->scalarNode('family')
+                        ->info('family of the output file (use "image" | "animation" | "video" | "audio" | "document" | "unknown", according of the downloaded file)')
+                        ->defaultValue('image')
                     ->end()
                 ->end()
             ->end()
@@ -58,26 +54,13 @@ final readonly class SetDpiTransformerModule implements TransformerModuleInterfa
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        if (FamilyEnum::Image !== $inputFile->getFamily()) {
-            throw new \InvalidArgumentException('Input file must be an image');
-        }
-        $dpi = $options['dpi'];
-        $this->logger->info(sprintf('Setting DPI to %s', $dpi));
-        $writer = Writer::create(
-            new Exiftool($this->logger)
-        );
-        $writer->write(
-            $inputFile->getPath(),
-            new MetadataBag([]),
-            null,
-            [$dpi, $dpi]
-        );
+        $path = $context->getRemoteFile($options['url']);
 
         return new OutputFile(
-            $inputFile->getPath(),
-            $inputFile->getType(),
-            FamilyEnum::Image,
-            true
+            $path,
+            $context->guessMimeTypeFromPath($path),
+            FamilyEnum::tryFrom($options['family']),
+            false
         );
     }
 }
