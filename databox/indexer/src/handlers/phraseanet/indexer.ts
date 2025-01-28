@@ -854,7 +854,7 @@ function translateVideoSettings_withVcodec(sd: PhraseanetSubdefStruct): object {
             break;
         case 'libx264':
         default:
-            format = 'video-mp4';
+            format = 'video-mpeg4';
             break;
     }
     const size = sd.options['size'] ?? 100;
@@ -1019,10 +1019,9 @@ function translateAudioSettings(sd: PhraseanetSubdefStruct): null|object {
         // here no vcodec: pure audio
         return translateAudioSettings_withAcodec(sd);
     }
-    // todo: icodec
-    // if (sd.options['icodec']) {
-    //     return translateAudioSettings_withIcodec(sd);
-    // }
+    if (sd.options['icodec']) {
+        return translateAudioSettings_withIcodec(sd);
+    }
     return null;
 }
 
@@ -1069,11 +1068,6 @@ function translateAudioSettings_withAcodec(sd: PhraseanetSubdefStruct): object {
     };
 }
 
-/**
- * todo: get album cover from audio
- * @param sd
- */
-/*
 function translateAudioSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
     let format: string;
     switch (sd.options['icodec'] ?? '') {
@@ -1091,20 +1085,42 @@ function translateAudioSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
                 `Unsupported image codec: ${sd.options['icodec']} for subdef video:${sd.name}`
             );
     }
+
+    // return {
+    //     transformations: [
+    //         {
+    //             module: 'audio_to_album_cover', // todo: implement
+    //             options: {
+    //                 format: format,
+    //                 start: 0,
+    //             },
+    //         },
+    //         {
+    //             module: 'imagine',
+    //             options: {
+    //                 filters: {
+    //                     thumbnail: {
+    //                         size: [size, size],
+    //                     },
+    //                 },
+    //             },
+    //         },
+    //     ],
+    // };
     const size = sd.options['size'] ?? 100;
 
     return {
         transformations: [
             {
-                module: 'audio_to_album_cover', // todo: implement
+                module: 'album_artwork',
                 options: {
                     format: format,
-                    start: 0,
                 },
             },
             {
                 module: 'imagine',
                 options: {
+                    // format: format,
                     filters: {
                         thumbnail: {
                             size: [size, size],
@@ -1115,4 +1131,4 @@ function translateAudioSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
         ],
     };
 }
-*/
+
