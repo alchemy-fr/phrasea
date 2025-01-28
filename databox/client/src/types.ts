@@ -245,6 +245,7 @@ export interface Collection extends IPermissions, Entity {
     createdAt: string;
     updatedAt: string;
     owner?: User;
+    topicSubscriptions: TopicSubscriptions;
 }
 
 export interface Basket extends IPermissions, Entity {

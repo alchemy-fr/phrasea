@@ -7,7 +7,7 @@ import {alpha, Box, CircularProgress} from '@mui/material';
 import {collectionItemClassName} from './CollectionMenuItem';
 import {useWorkspaceStore} from '../../store/workspaceStore.ts';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
-import {FlexRow} from '@alchemy/phrasea-ui';
+import {dropdownActionsOpenClassName, FlexRow} from '@alchemy/phrasea-ui';
 
 type Props = {};
 
@@ -29,8 +29,10 @@ function CollectionsPanel({}: Props) {
                     [`.${cActionClassName}`]: {
                         visibility: 'hidden',
                     },
-                    [`&:hover .${cActionClassName}`]: {
-                        visibility: 'visible',
+                    [`&:hover, &:has(.${dropdownActionsOpenClassName})`]: {
+                        [`.${cActionClassName}`]: {
+                            visibility: 'visible',
+                        },
                     },
                     '.MuiListItemSecondaryAction-root': {
                         zIndex: 1,
@@ -48,8 +50,10 @@ function CollectionsPanel({}: Props) {
                         height: '100%',
                         visibility: 'hidden',
                     },
-                    [`&:hover .${cActionClassName}`]: {
-                        visibility: 'visible',
+                    [`&:hover, &:has(.${dropdownActionsOpenClassName})`]: {
+                        [`.${cActionClassName}`]: {
+                            visibility: 'visible',
+                        },
                     },
                     [`&:hover .MuiListItemSecondaryAction-root`]: {
                         bgcolor: alpha(theme.palette.common.white, 0.85),

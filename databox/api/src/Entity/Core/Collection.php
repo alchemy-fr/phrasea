@@ -20,10 +20,13 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\CollectionInput;
+use App\Api\Model\Input\FollowInput;
 use App\Api\Model\Output\CollectionOutput;
 use App\Api\Model\Output\ESDocumentStateOutput;
+use App\Api\Processor\FollowProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveCollectionProcessor;
+use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\CollectionProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Doctrine\Listener\SoftDeleteableInterface;
@@ -95,6 +98,16 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
             uriTemplate: '/collections/{id}/es-document-sync',
             name: 'collection_sync_es_document',
             processor: ItemElasticsearchDocumentSyncProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/collections/{id}/follow',
+            input: FollowInput::class,
+            processor: FollowProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/collections/{id}/unfollow',
+            input: FollowInput::class,
+            processor: UnfollowProcessor::class,
         ),
     ],
     normalizationContext: [
@@ -373,8 +386,8 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
         return [
             self::getTopicKey(self::EVENT_ASSET_ADD, $id),
             self::getTopicKey(self::EVENT_ASSET_REMOVED, $id),
-            self::getTopicKey(self::EVENT_ASSET_ADD, $id),
             self::getTopicKey(self::EVENT_ASSET_NEW_COMMENT, $id),
+            self::getTopicKey(self::EVENT_ASSET_UPDATE, $id),
         ];
     }
 
