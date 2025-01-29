@@ -33,13 +33,13 @@ export default function CollectionNotifications({
                         ),
                     },
                     {
-                        key: `collection:${data.id}:asset_removed`,
+                        key: `collection:${data.id}:asset_remove`,
                         label: t(
-                            'notification.topics.collection.asset_removed.label',
+                            'notification.topics.collection.asset_remove.label',
                             'Asset removed'
                         ),
                         description: t(
-                            'notification.topics.collection.asset_removed.desc',
+                            'notification.topics.collection.asset_remove.desc',
                             'Get notified when an asset is removed from the collection'
                         ),
                     },
