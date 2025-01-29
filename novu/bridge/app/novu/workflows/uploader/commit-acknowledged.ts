@@ -9,8 +9,8 @@ export const uploaderCommitAcknowledged = workflow(
             const plural = n > 1 ? 's' : '';
 
             return {
-                subject: `You have ${payload.assetCount} new asset${plural}!`,
-                body: `The ${payload.assetCount} asset${plural} you uploaded were correctly handled.`,
+                subject: `You have **${payload.assetCount}** new asset${plural}!`,
+                body: `The **${payload.assetCount}** asset${plural} you uploaded were correctly handled.`,
             };
         });
     },

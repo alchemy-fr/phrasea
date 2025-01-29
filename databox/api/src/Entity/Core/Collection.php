@@ -144,7 +144,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     final public const string EVENT_ASSET_ADD = 'asset_add';
     final public const string EVENT_ASSET_UPDATE = 'asset_update';
     final public const string EVENT_ASSET_NEW_COMMENT = 'asset_new_comment';
-    final public const string EVENT_ASSET_REMOVED = 'asset_removed';
+    final public const string EVENT_ASSET_REMOVE = 'asset_remove';
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $title = null;
@@ -385,7 +385,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
 
         return [
             self::getTopicKey(self::EVENT_ASSET_ADD, $id),
-            self::getTopicKey(self::EVENT_ASSET_REMOVED, $id),
+            self::getTopicKey(self::EVENT_ASSET_REMOVE, $id),
             self::getTopicKey(self::EVENT_ASSET_NEW_COMMENT, $id),
             self::getTopicKey(self::EVENT_ASSET_UPDATE, $id),
         ];

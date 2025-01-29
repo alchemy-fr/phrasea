@@ -19,6 +19,7 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
         private readonly SymfonyNotifierInterface $notifier,
         private readonly NovuClient $novuClient,
         private UserRepository $userRepository,
+        private bool $notifyAuthor = false,
     ) {
     }
 
@@ -53,6 +54,9 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
         string $notificationId,
         array $parameters = [],
     ): void {
+        if ($this->notifyAuthor) {
+            $authorId = null;
+        }
         $this->novuClient->notifyTopic($topicKey, $authorId, $notificationId, $parameters);
     }
 

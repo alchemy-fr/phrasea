@@ -6,8 +6,8 @@ export const databoxAssetUpdate = workflow(
     async ({step, payload}) => {
         await step.inApp("In-App Step", async () => {
             return {
-                subject: `Asset ${payload.title} updated`,
-                body: `${payload.author} has updated asset ${payload.title}.`,
+                subject: `Asset **${payload.title}** updated`,
+                body: `**${payload.author}** has updated asset **${payload.title}**.`,
                 redirect: {
                     url: payload.url,
                 },
@@ -18,6 +18,7 @@ export const databoxAssetUpdate = workflow(
         payloadSchema: z.object({
             url: z
                 .string()
+                .default('/null')
                 .describe("The resource URL"),
             title: z
                 .string()
