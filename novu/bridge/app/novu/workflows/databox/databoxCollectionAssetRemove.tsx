@@ -1,13 +1,13 @@
 import {workflow} from "@novu/framework";
 import {z} from "zod";
 
-export const databoxDiscussionNewComment = workflow(
-    "databox-discussion-new-comment",
+export const databoxCollectionAssetRemove = workflow(
+    "databox-collection-asset-remove",
     async ({step, payload}) => {
         await step.inApp("In-App Step", async () => {
             return {
-                subject: `New comment on **${payload.object}**`,
-                body: `**${payload.author}** has commented on **${payload.object}**.`,
+                subject: `Asset removed from **${payload.collectionTitle}**`,
+                body: `**${payload.author}** removed Asset **${payload.assetTitle}** from Collection **${payload.collectionTitle}**.`,
                 redirect: {
                     url: payload.url,
                 },
@@ -20,9 +20,12 @@ export const databoxDiscussionNewComment = workflow(
                 .string()
                 .default('/null')
                 .describe("The resource URL"),
-            object: z
+            assetTitle: z
                 .string()
-                .describe("The object title"),
+                .describe("The Asset title"),
+            collectionTitle: z
+                .string()
+                .describe("The Collection title"),
             author: z
                 .string()
                 .describe("The author of the message"),

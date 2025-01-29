@@ -150,6 +150,7 @@ services:
       - CONFIGURATOR_S3_USE_PATH_STYLE_ENDPOINT=${S3_USE_PATH_STYLE_ENDPOINT}
       - NOVU_API_HOST
       - NOVU_SECRET_KEY
+      - NOTIFY_AUTHOR
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
