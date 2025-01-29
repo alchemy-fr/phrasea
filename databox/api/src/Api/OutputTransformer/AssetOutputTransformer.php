@@ -6,6 +6,7 @@ namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Traits\UserLocaleTrait;
@@ -45,6 +46,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         private readonly FacetRegistry $facetRegistry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
         private readonly DiscussionManager $discussionManager,
+        private readonly NotifierInterface $notifier,
     ) {
     }
 
@@ -86,6 +88,12 @@ class AssetOutputTransformer implements OutputTransformerInterface
             Asset::GROUP_READ,
         ], $context)) {
             $output->owner = $this->transformUser($data->getOwnerId());
+            if ($user instanceof JwtUser) {
+                $output->topicSubscriptions = $this->notifier->getTopicSubscriptions(
+                    $data->getTopicKeys(),
+                    $user->getId(),
+                );
+            }
         }
 
         if ($this->hasGroup([

@@ -22,6 +22,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\CopyAssetInput;
+use App\Api\Model\Input\FollowInput;
 use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Api\Model\Input\PrepareDeleteAssetsInput;
@@ -31,6 +32,7 @@ use App\Api\Model\Output\MultipleAssetOutput;
 use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
 use App\Api\Processor\CopyAssetProcessor;
+use App\Api\Processor\FollowProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\MultipleAssetCreateProcessor;
@@ -38,13 +40,16 @@ use App\Api\Processor\PrepareDeleteAssetProcessor;
 use App\Api\Processor\PrepareSubstitutionProcessor;
 use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
+use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
+use App\Entity\FollowableInterface;
 use App\Entity\ObjectTitleInterface;
 use App\Entity\Traits\LocaleTrait;
+use App\Entity\Traits\NotificationSettingsTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -172,6 +177,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
             name: 'asset_sync_es_document',
             processor: ItemElasticsearchDocumentSyncProcessor::class,
         ),
+        new Post(
+            uriTemplate: '/assets/{id}/follow',
+            input: FollowInput::class,
+            processor: FollowProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/{id}/unfollow',
+            input: FollowInput::class,
+            processor: UnfollowProcessor::class,
+        ),
     ],
     normalizationContext: [
         'groups' => [self::GROUP_LIST],
@@ -183,7 +198,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
-class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, ObjectTitleInterface, \Stringable
+class Asset extends AbstractUuidEntity implements FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, ObjectTitleInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -191,9 +206,14 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     use LocaleTrait;
     use OwnerIdTrait;
     use WorkspacePrivacyTrait;
+    use NotificationSettingsTrait;
     final public const string GROUP_READ = 'asset:read';
     final public const string GROUP_LIST = 'asset:index';
     final public const string GROUP_WRITE = 'asset:w';
+
+    final public const string EVENT_UPDATE = 'update';
+    final public const string EVENT_DELETE = 'delete';
+    final public const string EVENT_NEW_COMMENT = 'new_comment';
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $microseconds = 0;
@@ -511,6 +531,22 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public function getMicroseconds(): int
     {
         return $this->microseconds;
+    }
+
+    public function getTopicKeys(): array
+    {
+        $id = $this->getId();
+
+        return [
+            self::getTopicKey(self::EVENT_UPDATE, $id),
+            self::getTopicKey(self::EVENT_DELETE, $id),
+            self::getTopicKey(self::EVENT_NEW_COMMENT, $id),
+        ];
+    }
+
+    public static function getTopicKey(string $event, string $id): string
+    {
+        return 'asset:'.$id.':'.$event;
     }
 
     public function getObjectTitle(): string

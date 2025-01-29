@@ -82,6 +82,7 @@ export interface Asset
     pendingUploadToken?: string;
     attributesEditedAt: string;
     groupValue?: GroupValue | undefined;
+    topicSubscriptions: TopicSubscriptions;
 }
 
 type AttrValue = any;
@@ -244,6 +245,7 @@ export interface Collection extends IPermissions, Entity {
     createdAt: string;
     updatedAt: string;
     owner?: User;
+    topicSubscriptions: TopicSubscriptions;
 }
 
 export interface Basket extends IPermissions, Entity {
@@ -269,6 +271,7 @@ export type MessageAttachment = {
 };
 
 export type DeserializedMessageAttachment = {
+    id?: string;
     type: string;
     data: Record<string, any>;
 };
@@ -360,3 +363,5 @@ export type AssetOrAssetContainer = {} & Entity;
 export interface Entity {
     id: string;
 }
+
+export type TopicSubscriptions<T extends string = string> = Record<T, boolean>;

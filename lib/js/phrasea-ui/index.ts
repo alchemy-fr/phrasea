@@ -7,6 +7,7 @@ import AppDialog, {AppDialogProps, AppDialogTitle, BootstrapDialog} from "./src/
 import FlexRow from "./src/components/FlexRow";
 import UserAvatar from "./src/components/UserAvatar";
 import MoreActionsButton from "./src/components/MoreActionsButton";
+import DropdownActions, {dropdownActionsOpenClassName} from "./src/components/DropdownActions";
 
 export {
     NotFoundPage,
@@ -20,6 +21,8 @@ export {
     BootstrapDialog,
     FlexRow,
     MoreActionsButton,
+    DropdownActions,
+    dropdownActionsOpenClassName,
 };
 
 export type {

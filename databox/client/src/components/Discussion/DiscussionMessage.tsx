@@ -1,5 +1,6 @@
 import {ThreadMessage} from '../../types.ts';
 import {
+    alpha,
     Box,
     Divider,
     ListItemIcon,
@@ -8,8 +9,6 @@ import {
     Typography,
 } from '@mui/material';
 import moment from 'moment';
-import {OnActiveAnnotations} from '../Media/Asset/Attribute/Attributes.tsx';
-import {AssetAnnotation} from '../Media/Asset/Annotations/annotationTypes.ts';
 import Attachments from './Attachments.tsx';
 import {FlexRow, MoreActionsButton, UserAvatar} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
@@ -18,19 +17,22 @@ import EditIcon from '@mui/icons-material/Edit';
 import EditMessage from './EditMessage.tsx';
 import React from 'react';
 import nl2br from 'react-nl2br';
+import {OnAttachmentClick} from './MessageField.tsx';
 
 type Props = {
     message: ThreadMessage;
-    onActiveAnnotations?: OnActiveAnnotations | undefined;
     onDelete: (message: ThreadMessage) => void;
     onEdit: (message: ThreadMessage) => void;
+    onAttachmentClick?: OnAttachmentClick;
+    selected?: boolean;
 };
 
 export default function DiscussionMessage({
     message,
-    onActiveAnnotations,
     onDelete,
     onEdit,
+    onAttachmentClick,
+    selected,
 }: Props) {
     const m = moment(message.createdAt);
     const {t} = useTranslation();
@@ -39,6 +41,14 @@ export default function DiscussionMessage({
     return (
         <>
             <FlexRow
+                className={selected ? 'message-selected' : undefined}
+                sx={theme => ({
+                    m: -2,
+                    p: 2,
+                    backgroundColor: selected
+                        ? alpha(theme.palette.success.main, 0.1)
+                        : undefined,
+                })}
                 style={{
                     alignItems: 'flex-start',
                 }}
@@ -137,16 +147,7 @@ export default function DiscussionMessage({
 
                                 {message.attachments ? (
                                     <Attachments
-                                        onClick={attachment => {
-                                            if (
-                                                onActiveAnnotations &&
-                                                attachment.type === 'annotation'
-                                            ) {
-                                                onActiveAnnotations([
-                                                    attachment.data as AssetAnnotation,
-                                                ]);
-                                            }
-                                        }}
+                                        onClick={onAttachmentClick}
                                         attachments={message.attachments.map(
                                             a => ({
                                                 data: JSON.parse(a.content),

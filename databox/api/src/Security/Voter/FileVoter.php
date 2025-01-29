@@ -25,8 +25,8 @@ class FileVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        $assets = $this->em->createQueryBuilder('a')
-            ->select('a')
+        $rows = $this->em->createQueryBuilder()
+            ->select('a.id')
             ->distinct()
             ->from(Asset::class, 'a')
             ->leftJoin('a.renditions', 'r')
@@ -37,7 +37,8 @@ class FileVoter extends AbstractVoter
             ->toIterable()
         ;
 
-        foreach ($assets as $asset) {
+        foreach ($rows as $row) {
+            $asset = $this->em->find(Asset::class, $row['id']);
             if ($this->security->isGranted($attribute, $asset)) {
                 return true;
             }

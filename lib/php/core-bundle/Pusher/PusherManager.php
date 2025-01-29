@@ -19,13 +19,18 @@ final readonly class PusherManager
     {
         if ($direct) {
             if (!$this->disabled) {
-                $this->pusher->trigger($channel, $event, $payload);
+                $this->pusher->trigger($this->normalizeChannel($channel), $event, $payload);
             }
 
             return;
         }
 
         $this->bus->dispatch($this->createBusMessage($channel, $event, $payload));
+    }
+
+    private function normalizeChannel(string $channel): string
+    {
+        return preg_replace('/[^a-z0-9_\-=@,.;]/i', '.', $channel);
     }
 
     public function createBusMessage(string $channel, string $event, array $payload): PusherMessage

@@ -10,3 +10,5 @@ services:
     Alchemy\CoreBundle\Listener\LocaleListener:
         tags:
         - { name: kernel.event_subsriber }
+
+    Alchemy\CoreBundle\Listener\ClientExceptionListener: ~

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifyBundle\Notification;
 
+use Alchemy\AuthBundle\Repository\UserRepository;
 use Alchemy\NotifyBundle\Service\NovuClient;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -17,8 +18,8 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
     public function __construct(
         private readonly SymfonyNotifierInterface $notifier,
         private readonly NovuClient $novuClient,
-    )
-    {
+        private UserRepository $userRepository,
+    ) {
     }
 
     public function notifyUser(string $userId, string $notificationId, array $parameters = []): void
@@ -60,8 +61,31 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
         $this->novuClient->addTopicSubscribers($topicKey, $subscribers);
     }
 
+    public function createTopic(string $topicKey): void
+    {
+        $this->novuClient->createTopic($topicKey);
+    }
+
     public function removeTopicSubscribers(string $topicKey, array $subscribers): void
     {
         $this->novuClient->removeTopicSubscribers($topicKey, $subscribers);
+    }
+
+    public function getTopicSubscriptions(array $topicKeys, string $userId): array
+    {
+        $data = [];
+
+        foreach ($topicKeys as $topicKey) {
+            $data[$topicKey] = $this->novuClient->isSubscribed($topicKey, $userId);
+        }
+
+        return $data;
+    }
+
+    public function getUsername(string $userId): string
+    {
+        $user = $this->userRepository->getUser($userId);
+
+        return $user ? $user['username'] : 'Deleted User';
     }
 }

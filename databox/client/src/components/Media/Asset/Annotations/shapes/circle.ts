@@ -1,57 +1,66 @@
-import {AnnotationOptions} from "../annotationTypes.ts";
-import {controlsColor, controlsContrastColor, controlsSize, controlsStroke} from "./shapeCommon.ts";
+import {AnnotationOptions} from '../annotationTypes.ts';
+import {
+    controlsColor,
+    controlsContrastColor,
+    controlsSize,
+    controlsStroke,
+} from '../controls.ts';
+import {DrawContext} from '../events.ts';
 
-type CircleProps = {
+export type CircleProps = {
     x: number;
     y: number;
     radius: number;
 };
 
-export function getMoveCircleCoords({x, y}: CircleProps): CircleProps {
+export function getMoveCircleCoordsInCircle(
+    {zoom}: DrawContext,
+    {x, y}: CircleProps
+): CircleProps {
     return {
         x,
         y,
-        radius: controlsSize,
+        radius: controlsSize / zoom,
     };
 }
 
-export function getResizeCircleCoords({x, y, radius}: CircleProps): CircleProps {
+export function getResizeCircleCoords(
+    {zoom}: DrawContext,
+    {x, y, radius}: CircleProps
+): CircleProps {
     return {
         x: x + radius,
         y,
-        radius: controlsSize,
+        radius: controlsSize / zoom,
     };
 }
 
 export function drawCircleControl(
-    context: CanvasRenderingContext2D,
-    {
-        x,
-        y,
-        radius,
-    }: CircleProps,
+    drawContext: DrawContext,
+    {x, y}: CircleProps
 ) {
-    drawCircle(context, {x, y, radius}, {
-        color: controlsContrastColor,
-        size: controlsStroke,
-        fillColor: controlsColor,
-    });
+    drawCircle(
+        drawContext,
+        {x, y, radius: controlsSize / drawContext.zoom},
+        {
+            color: controlsContrastColor,
+            size: Math.max(0.3, controlsStroke / drawContext.zoom),
+            fillColor: controlsColor,
+        }
+    );
 }
 
 export function drawCircle(
-    context: CanvasRenderingContext2D,
-    {
-        x,
-        y,
-        radius,
-    }: CircleProps,
+    drawContext: DrawContext,
+    {x, y, radius}: CircleProps,
     options: AnnotationOptions,
     controls: boolean = false
 ) {
     const a = new Path2D();
     a.arc(x, y, radius, 0, 2 * Math.PI, false);
+    const {context} = drawContext;
     context.lineWidth = options.size;
-    context.strokeStyle = options.color;
+    context.strokeStyle = options.color ?? '#000';
     context.stroke(a);
     if (options.fillColor) {
         context.fillStyle = options.fillColor;
@@ -60,15 +69,8 @@ export function drawCircle(
 
     if (controls) {
         drawCircleControl(
-            context,
-            getMoveCircleCoords({x, y, radius}),
-        );
-        drawCircleControl(
-            context,
-            {
-                ...getResizeCircleCoords({x, y, radius}),
-                radius: controlsSize
-            },
+            drawContext,
+            getResizeCircleCoords(drawContext, {x, y, radius})
         );
     }
 }

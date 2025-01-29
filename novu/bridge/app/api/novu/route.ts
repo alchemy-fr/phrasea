@@ -1,5 +1,6 @@
 import { serve } from "@novu/framework/next";
 import {
+    databoxAssetUpdate,
     databoxDiscussionNewComment,
     exposeDownloadLink,
     exposeZippyDownloadLink,
@@ -13,5 +14,6 @@ export const { GET, POST, OPTIONS } = serve({
       exposeZippyDownloadLink,
       exposeDownloadLink,
       databoxDiscussionNewComment,
+      databoxAssetUpdate,
   ],
 });

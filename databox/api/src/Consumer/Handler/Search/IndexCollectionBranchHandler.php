@@ -10,6 +10,7 @@ use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Entity\Core\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
 readonly class IndexCollectionBranchHandler
@@ -17,18 +18,13 @@ readonly class IndexCollectionBranchHandler
     public function __construct(
         private SearchIndexer $searchIndexer,
         private EntityManagerInterface $em,
+        private MessageBusInterface $bus,
     ) {
     }
 
     public function __invoke(IndexCollectionBranch $message): void
     {
         $collection = DoctrineUtil::findStrict($this->em, Collection::class, $message->getCollectionId());
-
-        $parent = $collection->getParent();
-        while (null !== $parent) {
-            $this->indexCollection($parent);
-            $parent = $parent->getParent();
-        }
 
         $this->handleChildren($collection);
     }
@@ -44,5 +40,6 @@ readonly class IndexCollectionBranchHandler
     private function indexCollection(Collection $collection): void
     {
         $this->searchIndexer->scheduleObjectsIndex(Collection::class, [$collection->getId()], Operation::Upsert);
+        $this->bus->dispatch(new IndexCollectionAssets($collection->getId()));
     }
 }

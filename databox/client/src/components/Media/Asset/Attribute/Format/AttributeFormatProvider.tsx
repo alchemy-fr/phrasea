@@ -27,7 +27,8 @@ export default function AttributeFormatProvider({children}: Props) {
             const availableFormats = formatter.getAvailableFormats();
             const currentFormat = formats[type];
             const currentIndex = currentFormat
-                ? availableFormats.findIndex(f => f.name === currentFormat) ?? 0
+                ? (availableFormats.findIndex(f => f.name === currentFormat) ??
+                  0)
                 : 0;
             changeFormat(
                 type,

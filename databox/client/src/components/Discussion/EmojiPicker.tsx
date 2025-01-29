@@ -7,9 +7,10 @@ import {stopPropagation} from '../../lib/stdFuncs.ts';
 
 type Props = {
     onSelect?: (emoji: string) => void;
+    disabled?: boolean;
 };
 
-export default function EmojiPicker({onSelect}: Props) {
+export default function EmojiPicker({onSelect, disabled}: Props) {
     const [anchor, setAnchor] = React.useState<HTMLButtonElement | null>(null);
     const close = () => setAnchor(null);
 
@@ -18,6 +19,7 @@ export default function EmojiPicker({onSelect}: Props) {
     return (
         <>
             <IconButton
+                disabled={disabled}
                 onClick={e => {
                     e.stopPropagation();
                     setAnchor(p =>

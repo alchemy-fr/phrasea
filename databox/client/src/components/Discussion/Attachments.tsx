@@ -1,10 +1,11 @@
 import {DeserializedMessageAttachment} from '../../types.ts';
 import {Box, Chip} from '@mui/material';
+import {OnAttachmentClick} from './MessageField.tsx';
 
 type Props = {
     attachments: DeserializedMessageAttachment[];
     onDelete?: (attachment: DeserializedMessageAttachment) => void;
-    onClick?: (attachment: DeserializedMessageAttachment) => void;
+    onClick?: OnAttachmentClick;
 };
 
 export default function Attachments({attachments, onDelete, onClick}: Props) {
@@ -26,7 +27,9 @@ export default function Attachments({attachments, onDelete, onClick}: Props) {
                             label={attachment.data.name! ?? 'Attachment'}
                             variant="outlined"
                             onClick={
-                                onClick ? () => onClick(attachment) : undefined
+                                onClick
+                                    ? () => onClick(attachment, attachments)
+                                    : undefined
                             }
                             onDelete={
                                 onDelete

@@ -1,30 +1,43 @@
-import {AnnotationOptions, AnnotationType, RectangleAnnotation,} from '../annotationTypes.ts';
-import {DrawingHandler} from '../events.ts';
-import {drawRectangle, normalizeRectangleProps, RectangleProps} from "./rectangle.ts";
-import {isPointInCircle} from "./circle.ts";
-import {controlsSize} from "./shapeCommon.ts";
+import {
+    AnnotationOptions,
+    AnnotationType,
+    RectangleAnnotation,
+} from '../annotationTypes.ts';
+import {DrawingHandler, OnResizeEvent} from '../events.ts';
+import {
+    drawRectangle,
+    getMoveCircleCoordsInRectangle,
+    normalizeRectangleProps,
+    RectangleProps,
+} from './rectangle.ts';
+import {isPointInCircle} from './circle.ts';
+import {controlsSize} from '../controls.ts';
+import {getStandardMoveHandler} from '../common.ts';
 
-
-function isPointInRectangle(x: number, y: number, {x: rx, y: ry, w, h}: RectangleProps) {
+export function isPointInRectangle(
+    x: number,
+    y: number,
+    {x: rx, y: ry, w, h}: RectangleProps
+) {
     return x >= rx && x <= rx + w && y >= ry && y <= ry + h;
 }
 
 export const RectAnnotationHandler: DrawingHandler = {
-    onDrawStart: ({x, y, context, options}) => {
+    onDrawStart: ({x, y, drawContext, options}) => {
         drawRectangle(
-            context,
+            drawContext,
             {
                 x,
                 y,
                 w: 0,
                 h: 0,
             },
-            options,
+            options
         );
     },
     onDrawMove: ({
         clear,
-        context,
+        drawContext,
         startingPoint: {x, y},
         deltaY,
         deltaX,
@@ -32,14 +45,15 @@ export const RectAnnotationHandler: DrawingHandler = {
     }) => {
         clear();
         drawRectangle(
-            context,
+            drawContext,
             {
                 x,
                 y,
                 w: deltaX,
                 h: deltaY,
             },
-            options,);
+            options
+        );
     },
     onDrawEnd: ({
         onNewAnnotation,
@@ -66,10 +80,13 @@ export const RectAnnotationHandler: DrawingHandler = {
         onNewAnnotation(props as RectangleAnnotation);
         terminate();
     },
-    drawAnnotation: ({annotation, context, toX, toY}, selected) => {
+    drawAnnotation: (
+        {annotation, drawContext, toX, toY},
+        {selected, editable}
+    ) => {
         const {x, y, w, h, c, s} = annotation;
         drawRectangle(
-            context,
+            drawContext,
             {
                 x: toX(x),
                 y: toY(y),
@@ -78,75 +95,89 @@ export const RectAnnotationHandler: DrawingHandler = {
             },
             {
                 color: c,
-                size: toX(s)
-            }
-            , selected);
+                size: toX(s),
+            },
+            selected && editable
+        );
     },
-    onTerminate: () => {
-    },
-    isPointInside: ({annotation, x, y, toX, toY}) => {
-        return isPointInRectangle(x, y, {
-            x: toX(annotation.x),
-            y: toY(annotation.y),
-            w: toX(annotation.w),
-            h: toY(annotation.h),
-        });
-    },
-    getResizeHandler: ({annotation, toX, toY, x, y}) => {
+    onTerminate: () => {},
+    getResizeHandler: ({drawContext, annotation, toX, toY, x, y}) => {
         for (const [cx, cy] of [
             [0, 0],
             [1, 0],
             [0, 1],
             [1, 1],
         ]) {
-            if (isPointInCircle(x, y, {
-                x: toX(annotation.x + annotation.w * cx),
-                y: toY(annotation.y + annotation.h * cy),
-                radius: controlsSize,
-            })) {
-                return ({annotation, relativeX, relativeY, x, y}) => {
-                    const rX = relativeX(x);
-                    const rY = relativeY(y);
-                    const deltaX = rX - annotation.x;
-                    const deltaY = rY - annotation.y;
+            if (
+                isPointInCircle(x, y, {
+                    x: toX(annotation.x + annotation.w * cx),
+                    y: toY(annotation.y + annotation.h * cy),
+                    radius: controlsSize / drawContext.zoom,
+                })
+            ) {
+                return ({
+                    annotation,
+                    relativeX,
+                    relativeY,
+                    deltaX,
+                    deltaY,
+                }: OnResizeEvent) => {
+                    const dX = relativeX(deltaX);
+                    const dY = relativeY(deltaY);
 
                     const xywh = {
-                        x: annotation.x + deltaX * (1 - cx),
-                        y: annotation.y + deltaY * (1 - cy),
-                        w: annotation.w - deltaX * (1 - cx) + (deltaX - annotation.w) * cx,
-                        h: annotation.h - deltaY * (1 - cy) + (deltaY - annotation.h) * cy,
+                        x: annotation.x + dX * (1 - cx),
+                        y: annotation.y + dY * (1 - cy),
+                        w: annotation.w - dX * (1 - cx) + dX * cx,
+                        h: annotation.h - dY * (1 - cy) + dY * cy,
                     };
 
                     return {
                         ...annotation,
-                        ...normalizeRectangleProps(xywh)
+                        ...normalizeRectangleProps(xywh),
                     };
                 };
             }
         }
 
-        if (isPointInCircle(x, y, {
-            x: toX(annotation.x + annotation.w / 2),
-            y: toY(annotation.y + annotation.h / 2),
-            radius: controlsSize,
-        })) {
-            console.log('x, y', x, y);
-            return ({annotation, relativeX, relativeY, x, y}) => {
+        if (
+            isPointInCircle(
+                x,
+                y,
+                getMoveCircleCoordsInRectangle(drawContext, {
+                    x: toX(annotation.x),
+                    y: toY(annotation.y),
+                    w: toX(annotation.w),
+                    h: toY(annotation.h),
+                })
+            )
+        ) {
+            return ({annotation, relativeX, relativeY, deltaX, deltaY}) => {
                 return {
                     ...annotation,
-                    x: relativeX(x) - annotation.w / 2,
-                    y: relativeY(y) - annotation.h / 2,
+                    x: annotation.x + relativeX(deltaX),
+                    y: annotation.y + relativeY(deltaY),
                 };
             };
         }
     },
-    toOptions: ({c, s}, {toX}) => ({
-        color: c,
-        size: toX(s),
-    } as AnnotationOptions),
+    toOptions: ({c, s}, {toX}) =>
+        ({
+            color: c,
+            size: toX(s),
+        }) as AnnotationOptions,
     fromOptions: (options, annotation, {relativeX}) => ({
         ...annotation,
         c: options.color,
         s: relativeX(options.size),
     }),
+    getBoundingBox: ({annotation, toY, toX}) => {
+        return {
+            x: toX(annotation.x),
+            y: toY(annotation.y),
+            w: toX(annotation.w),
+            h: toY(annotation.h),
+        };
+    },
+    getMoveHandler: getStandardMoveHandler,
 };

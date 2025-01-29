@@ -1,7 +1,7 @@
 import {Box, Button, InputBase} from '@mui/material';
 import {LoadingButton} from '@mui/lab';
 import SendIcon from '@mui/icons-material/Send';
-import React from 'react';
+import React, {FocusEventHandler} from 'react';
 import RemoteErrors from '../Form/RemoteErrors.tsx';
 import Attachments from './Attachments.tsx';
 import {
@@ -16,16 +16,31 @@ import EmojiPicker from './EmojiPicker.tsx';
 
 export type MessageFormData = Pick<ThreadMessage, 'content'>;
 
+export type OnAttachmentClick = (
+    attachment: DeserializedMessageAttachment,
+    attachments: DeserializedMessageAttachment[]
+) => void;
+export type OnAttachmentRemove = (
+    attachment: DeserializedMessageAttachment
+) => void;
+
+export type BaseMessageFieldProps = {
+    disabled?: boolean;
+    onFocus?: FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+    onAttachmentClick?: OnAttachmentClick;
+    onAttachmentRemove?: OnAttachmentRemove;
+};
+
 type Props = {
     submitLabel: string;
     placeholder: string;
     inputRef: React.MutableRefObject<HTMLInputElement | null>;
-    attachments?: DeserializedMessageAttachment[];
-    setAttachments?: StateSetter<DeserializedMessageAttachment[]>;
     useFormSubmitProps: UseFormSubmitReturn<MessageFormData, ThreadMessage>;
     onCancel?: () => void;
     cancelButtonLabel?: string;
-};
+    attachments?: DeserializedMessageAttachment[];
+    setAttachments?: StateSetter<DeserializedMessageAttachment[]>;
+} & BaseMessageFieldProps;
 
 export default function MessageField({
     submitLabel,
@@ -36,6 +51,10 @@ export default function MessageField({
     placeholder,
     onCancel,
     cancelButtonLabel,
+    onAttachmentClick,
+    onAttachmentRemove,
+    onFocus,
+    disabled,
 }: Props) {
     const {
         formState: {errors},
@@ -68,8 +87,9 @@ export default function MessageField({
                         sx={{p: 1}}
                         required={true}
                         placeholder={placeholder}
-                        disabled={submitting}
+                        disabled={submitting || disabled}
                         multiline={true}
+                        onFocus={onFocus}
                         fullWidth={true}
                         {...rest}
                         inputRef={r => {
@@ -80,7 +100,10 @@ export default function MessageField({
                     {attachments ? (
                         <Attachments
                             attachments={attachments}
+                            onClick={onAttachmentClick}
                             onDelete={a => {
+                                onAttachmentRemove?.(a);
+
                                 setAttachments!(p =>
                                     p.filter(att => att !== a)
                                 );
@@ -94,6 +117,7 @@ export default function MessageField({
                             }}
                         >
                             <EmojiPicker
+                                disabled={submitting || disabled}
                                 onSelect={(emoji: string) => {
                                     inputRef.current?.focus();
                                     document.execCommand(
@@ -108,7 +132,7 @@ export default function MessageField({
                         <div>
                             {onCancel ? (
                                 <Button
-                                    disabled={submitting}
+                                    disabled={submitting || disabled}
                                     onClick={onCancel}
                                 >
                                     {cancelButtonLabel!}
@@ -116,7 +140,7 @@ export default function MessageField({
                             ) : null}
                             <LoadingButton
                                 type="submit"
-                                disabled={submitting}
+                                disabled={submitting || disabled}
                                 loading={submitting}
                                 color={'primary'}
                                 endIcon={<SendIcon />}

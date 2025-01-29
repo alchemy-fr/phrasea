@@ -187,7 +187,6 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                                     ...style,
                                     width: columnWidth,
                                 }}
-                                // @ts-expect-error Element | undefined
                                 ref={registerChild}
                             >
                                 <div

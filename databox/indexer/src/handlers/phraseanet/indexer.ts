@@ -1,8 +1,10 @@
 import {IndexIterator} from '../../indexers';
 import {
-    ConfigDataboxMapping, ConfigPhraseanetSubdef,
+    ConfigDataboxMapping,
+    ConfigPhraseanetSubdef,
     FieldMap,
-    PhraseanetConfig, PhraseanetDatabox,
+    PhraseanetConfig,
+    PhraseanetDatabox,
     PhraseanetSubdefStruct,
 } from './types';
 import {CPhraseanetRecord, CPhraseanetStory} from './CPhraseanetRecord';
@@ -56,7 +58,9 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
         }
 
         for (const dm of databoxMapping) {
-            const phraseanetDatabox = await phraseanetClient.getDatabox(dm.databox);
+            const phraseanetDatabox = await phraseanetClient.getDatabox(
+                dm.databox
+            );
             if (phraseanetDatabox === undefined) {
                 logger.info(`Unknown databox "${dm.databox}" (ignored)`);
                 continue;
@@ -107,36 +111,70 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 });
 
             logger.info(`Importing metadata structure`);
-            await importMetadataStructure(databoxClient, workspaceId, phraseanetDatabox.databox_id, phraseanetClient, dm, fieldMap, idempotencePrefixes['attributeDefinition'], attrClassIndex[defaultPublicClass]['@id'], logger);
+            await importMetadataStructure(
+                databoxClient,
+                workspaceId,
+                phraseanetDatabox.databox_id,
+                phraseanetClient,
+                dm,
+                fieldMap,
+                idempotencePrefixes['attributeDefinition'],
+                attrClassIndex[defaultPublicClass]['@id'],
+                logger
+            );
 
             logger.info(`Importing status-bits structure`);
-            const tagIndex = await importStatusBitsStructure(databoxClient, workspaceId, phraseanetDatabox.databox_id, phraseanetClient, logger);
+            const tagIndex = await importStatusBitsStructure(
+                databoxClient,
+                workspaceId,
+                phraseanetDatabox.databox_id,
+                phraseanetClient,
+                logger
+            );
 
             logger.info(`Importing subdefs structure`);
-            const subdefToRendition = await importSubdefsStructure(databoxClient, workspaceId, phraseanetDatabox.databox_id, phraseanetClient, dm, idempotencePrefixes['renditionDefinition'], logger);
+            const subdefToRendition = await importSubdefsStructure(
+                databoxClient,
+                workspaceId,
+                phraseanetDatabox.databox_id,
+                phraseanetClient,
+                dm,
+                idempotencePrefixes['renditionDefinition'],
+                logger
+            );
 
             const collectionKeyPrefix =
                 idempotencePrefixes['collection'] +
                 phraseanetDatabox.databox_id +
                 ':';
 
-            const recordsCollectionPath: string = dm.recordsCollectionPath ?? '';
-            let recordsCollectionPathTwig: Twig.Template|null = null;
-            if(recordsCollectionPath.search(/\{(\{|%)/) !== -1) {
-                recordsCollectionPathTwig = Twig.twig({data: recordsCollectionPath});
+            const recordsCollectionPath: string =
+                dm.recordsCollectionPath ?? '';
+            let recordsCollectionPathTwig: Twig.Template | null = null;
+            if (recordsCollectionPath.search(/\{(\{|%)/) !== -1) {
+                recordsCollectionPathTwig = Twig.twig({
+                    data: recordsCollectionPath,
+                });
             }
 
-            const storiesCollectionPath: string = dm.storiesCollectionPath ?? '';
+            const storiesCollectionPath: string =
+                dm.storiesCollectionPath ?? '';
             let importStories = false;
             let storiesCollectionPathTwig: Twig.Template | null = null;
-            if(dm.storiesCollectionPath !== undefined) {
-                if (storiesCollectionPath.search(/\{(\{|%)/) !== -1)  {
-                    storiesCollectionPathTwig = Twig.twig({data: storiesCollectionPath});
+            if (dm.storiesCollectionPath !== undefined) {
+                if (storiesCollectionPath.search(/\{(\{|%)/) !== -1) {
+                    storiesCollectionPathTwig = Twig.twig({
+                        data: storiesCollectionPath,
+                    });
                 }
                 importStories = true;
             }
 
-            const sourceCollections = await getSourceCollections(phraseanetDatabox, dm, logger);
+            const sourceCollections = await getSourceCollections(
+                phraseanetDatabox,
+                dm,
+                logger
+            );
             const searchParams = {
                 bases: sourceCollections, // if empty (no collections on config) : search all collections
             };
@@ -154,41 +192,46 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         ''
                     );
                     for (const s of stories) {
-
-                        const path: string = storiesCollectionPathTwig ?
-                            await storiesCollectionPathTwig.renderAsync({record: s, collection: phraseanetDatabox.collections[s.base_id]})
-                            :
-                            storiesCollectionPath;
+                        const path: string = storiesCollectionPathTwig
+                            ? await storiesCollectionPathTwig.renderAsync({
+                                  record: s,
+                                  collection:
+                                      phraseanetDatabox.collections[s.base_id],
+                              })
+                            : storiesCollectionPath;
 
                         const storyPathParts: string[] = splitPath(path);
                         const storyPath = '/' + storyPathParts.join('/');
 
                         // create the base
-                        let storyParent: string|undefined = undefined;
+                        let storyParent: string | undefined = undefined;
                         if (storyPathParts.length > 0) {
-                            storyParent = '/collections/' + await databoxClient.createCollectionTreeBranch(
-                                workspaceId,
-                                collectionKeyPrefix,
-                                storyPathParts.map(k => ({
-                                    key: k,
-                                    title: k,
-                                }))
-                            );
+                            storyParent =
+                                '/collections/' +
+                                (await databoxClient.createCollectionTreeBranch(
+                                    workspaceId,
+                                    collectionKeyPrefix,
+                                    storyPathParts.map(k => ({
+                                        key: k,
+                                        title: k,
+                                    }))
+                                ));
                         }
                         // then create the story collection
-                        const storyCollId = await databoxClient.createCollection(
-                            s.resource_id,
-                            {
-                                workspaceId: workspaceId,
-                                key:
-                                    idempotencePrefixes['collection'] +
-                                    s.databox_id +
-                                    '_' +
-                                    s.story_id,
-                                title: s.title,
-                                parent: storyParent,
-                            }
-                        );
+                        const storyCollId =
+                            await databoxClient.createCollection(
+                                s.resource_id,
+                                {
+                                    workspaceId: workspaceId,
+                                    key:
+                                        idempotencePrefixes['collection'] +
+                                        s.databox_id +
+                                        '_' +
+                                        s.story_id,
+                                    title: s.title,
+                                    parent: storyParent,
+                                }
+                            );
 
                         logger.info(
                             `  Phraseanet story "${s.title}" (#${
@@ -198,7 +241,10 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                             }" (#${s.base_id}) ==> collection (#${storyCollId})`
                         );
 
-                        for await (const child_rid of phraseanetClient.getStoryChildren(s.databox_id, s.story_id)) {
+                        for await (const child_rid of phraseanetClient.getStoryChildren(
+                            s.databox_id,
+                            s.story_id
+                        )) {
                             if (recordStories[child_rid] === undefined) {
                                 recordStories[child_rid] = [];
                             }
@@ -235,21 +281,30 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     // copy the asset to other location(s) ?
                     for (const ct of dm.copyTo ?? []) {
                         const template = Twig.twig({data: ct});
-                        const paths = (await template.renderAsync({record: record, collection: phraseanetDatabox.collections[record.base_id]}))
+                        const paths = (
+                            await template.renderAsync({
+                                record: record,
+                                collection:
+                                    phraseanetDatabox.collections[
+                                        record.base_id
+                                    ],
+                            })
+                        )
                             .split('\n')
                             .map((p: string) => p.trim())
                             .filter((p: string) => p);
 
                         for (const path of paths) {
                             const branch = splitPath(path);
-                            const collId = await databoxClient.createCollectionTreeBranch(
-                                workspaceId,
-                                collectionKeyPrefix,
-                                branch.map(k => ({
-                                    key: k,
-                                    title: k,
-                                }))
-                            );
+                            const collId =
+                                await databoxClient.createCollectionTreeBranch(
+                                    workspaceId,
+                                    collectionKeyPrefix,
+                                    branch.map(k => ({
+                                        key: k,
+                                        title: k,
+                                    }))
+                                );
                             copyTo.push({
                                 id: collId,
                                 path: path,
@@ -258,8 +313,12 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     }
 
                     let path: string = '';
-                    if(recordsCollectionPathTwig !== null) {
-                        path = await recordsCollectionPathTwig.renderAsync({record: record, collection: phraseanetDatabox.collections[record.base_id]});
+                    if (recordsCollectionPathTwig !== null) {
+                        path = await recordsCollectionPathTwig.renderAsync({
+                            record: record,
+                            collection:
+                                phraseanetDatabox.collections[record.base_id],
+                        });
                     } else {
                         // bc: dispatch in original phraseanet collection.name
                         path = `${recordsCollectionPath}/${escapeSlashes(phraseanetDatabox.collections[record.base_id].name)}`;
@@ -281,7 +340,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         copyTo,
                         dm.sourceFile,
                         subdefToRendition,
-                        logger,
+                        logger
                     );
                 }
                 offset += records.length;
@@ -332,26 +391,31 @@ async function importSubdefsStructure(
     logger: Logger
 ): Promise<Record<string, string[]>> {
     const classIndex: Record<string, string> = {};
-    const renditionClasses = await databoxClient.getRenditionClasses(workspaceId);
+    const renditionClasses =
+        await databoxClient.getRenditionClasses(workspaceId);
     renditionClasses.forEach(rc => {
         classIndex[rc.name] = rc.id;
     });
 
-    const subdefs = await phraseanetClient.getSubdefsStruct(phraseanetDataboxId);
-    const sdByName: Record<string, {
-        name: string;
-        parent: string | null;
-        buildMode: number;
-        useAsOriginal: boolean;
-        useAsPreview: boolean;
-        useAsThumbnail: boolean;
-        useAsThumbnailActive: boolean;
-        types: Record<string, PhraseanetSubdefStruct>;
-        class: string | null;
-        labels: Record<string, string>;
-    }> = {};
+    const subdefs =
+        await phraseanetClient.getSubdefsStruct(phraseanetDataboxId);
+    const sdByName: Record<
+        string,
+        {
+            name: string;
+            parent: string | null;
+            buildMode: number;
+            useAsOriginal: boolean;
+            useAsPreview: boolean;
+            useAsThumbnail: boolean;
+            useAsThumbnailActive: boolean;
+            types: Record<string, PhraseanetSubdefStruct>;
+            class: string | null;
+            labels: Record<string, string>;
+        }
+    > = {};
 
-    if(dm.renditions === false) {
+    if (dm.renditions === false) {
         // special value: do not create rendition definitions
         return {};
     }
@@ -359,18 +423,20 @@ async function importSubdefsStructure(
     if(dm.sourceFile === undefined) {
         dm.sourceFile = 'document';
     }
-    if(dm.renditions === undefined) {
+
+    if (dm.renditions === undefined) {
+
         // import all subdefs from phraseanet
         dm['renditions'] = {
-            "original": {
-                "useAsOriginal": true,
-                "buildMode": 1,
-                "class": "original",
-            } as ConfigPhraseanetSubdef
+            original: {
+                useAsOriginal: true,
+                buildMode: 1,
+                class: 'original',
+            } as ConfigPhraseanetSubdef,
         };
 
-        for(const sd of subdefs) {
-            if(!dm.renditions[sd.name]) {
+        for (const sd of subdefs) {
+            if (!dm.renditions[sd.name]) {
                 const o: any = {
                     class: sd.class,
                     buildMode: 2,
@@ -390,7 +456,7 @@ async function importSubdefsStructure(
                 dm.renditions[sd.name] = o;
             }
             dm.renditions[sd.name].builders[sd.type] = {
-                from: `${sd.type}:${sd.name}`
+                from: `${sd.type}:${sd.name}`,
             };
         }
 
@@ -406,56 +472,71 @@ async function importSubdefsStructure(
 
     const subdefToRendition = {} as Record<string, string[]>;
 
-    for(const [name, rendition] of Object.entries(dm.renditions)) {
+    for (const [name, rendition] of Object.entries(dm.renditions)) {
         if (!sdByName[name]) {
             sdByName[name] = {
                 name: name,
                 parent: rendition['parent'] ?? null,
                 useAsOriginal: rendition['useAsOriginal'] ?? false,
-                buildMode: rendition['buildMode'] ?? (rendition['builders'] ? 2 : 1),
+                buildMode:
+                    rendition['buildMode'] ?? (rendition['builders'] ? 2 : 1),
                 useAsPreview: rendition['useAsPreview'] ?? false,
                 useAsThumbnail: rendition['useAsThumbnail'] ?? false,
-                useAsThumbnailActive: rendition['useAsThumbnailActive'] ?? false,
+                useAsThumbnailActive:
+                    rendition['useAsThumbnailActive'] ?? false,
                 types: {} as Record<string, PhraseanetSubdefStruct>,
                 class: rendition['class'] ?? null,
                 labels: {},
             };
         }
 
-        for(const [family, settings] of Object.entries(rendition['builders'] ?? [])) {
-            if('build' in settings && 'from' in settings) {
-                logger.error(`  Rendition-definition "${name}" for family "${family}": Use "build" OR "from", not both. Rendition definition ignored`);
+        for (const [family, settings] of Object.entries(
+            rendition['builders'] ?? []
+        )) {
+            if ('build' in settings && 'from' in settings) {
+                logger.error(
+                    `  Rendition-definition "${name}" for family "${family}": Use "build" OR "from", not both. Rendition definition ignored`
+                );
                 continue;
             }
-            if('build' in settings) {
+            if ('build' in settings) {
                 // hardcoded
             }
-            if('from' in settings) {
+            if ('from' in settings) {
                 // find the subdef with good name and family
                 const [sdFamily, sdName] = settings['from'].split(':');
-                const sd = subdefs.find(sd => sd.name === sdName && sd.type === sdFamily);
-                if(!sd) {
+                const sd = subdefs.find(
+                    sd => sd.name === sdName && sd.type === sdFamily
+                );
+                if (!sd) {
                     logger.error(`  Subdef "${settings['from']}" not found`);
                     continue;
                 }
-                if(sdByName[name].types[sd.type]) {
-                    logger.error(`  Build "${sd.type}" for rendition "${name}" already set`);
+                if (sdByName[name].types[sd.type]) {
+                    logger.error(
+                        `  Build "${sd.type}" for rendition "${name}" already set`
+                    );
                     continue;
                 }
-                if(!subdefToRendition[settings['from']]) {
+                if (!subdefToRendition[settings['from']]) {
                     subdefToRendition[settings['from']] = [];
                 }
                 subdefToRendition[settings['from']].push(name);
                 sdByName[name].types[sd.type] = sd;
-                sdByName[name].labels = sd.labels;  // todo: check conflicts
-                if(!rendition['class']) {
+                sdByName[name].labels = sd.labels; // todo: check conflicts
+                if (!rendition['class']) {
                     // use phrnet class
                     if (sdByName[name].class === null) {
                         sdByName[name].class = sd.class;
                     }
                     // sd of same name should have the same class
-                    if (sdByName[name].class !== sd.class && sdByName[name].class !== 'mixed') {
-                        logger.info(`  Rendition "${name}" gets different class ("${sdByName[sd.name].class}" and "${sd.class}": "mixed" is used)`);
+                    if (
+                        sdByName[name].class !== sd.class &&
+                        sdByName[name].class !== 'mixed'
+                    ) {
+                        logger.info(
+                            `  Rendition "${name}" gets different class ("${sdByName[sd.name].class}" and "${sd.class}": "mixed" is used)`
+                        );
                         sdByName[name].class = 'mixed';
                     }
                 }
@@ -468,25 +549,28 @@ async function importSubdefsStructure(
     for (const sdName in sdByName) {
         const sd = sdByName[sdName];
 
-        if(!sd.class) {
-            logger.info(`  Rendition definition "${sdName}" has neither "class" or phraseanet "from": using class "public"`);
+        if (!sd.class) {
+            logger.info(
+                `  Rendition definition "${sdName}" has neither "class" or phraseanet "from": using class "public"`
+            );
             sd.class = 'public';
         }
 
         if (!classIndex[sd.class]) {
             logger.info(`  Creating rendition class "${sd.class}" `);
-            classIndex[sd.class] =
-                await databoxClient.createRenditionClass({
-                    name: sd.class,
-                    workspace: `/workspaces/${workspaceId}`,
-                    public: true,
-                });
+            classIndex[sd.class] = await databoxClient.createRenditionClass({
+                name: sd.class,
+                workspace: `/workspaces/${workspaceId}`,
+                public: true,
+            });
         }
 
         logger.info(
             `  Creating rendition definition "${sd.name}" of class "${sd.class}"`
         );
+      
         let jsConf: Record<string, object> = {};
+
         for (const family in sd.types) {
             let j = null;
             switch (family) {
@@ -508,28 +592,33 @@ async function importSubdefsStructure(
             }
         }
 
-        if(sd['parent'] && !renditionIdByName[sd['parent']]) {
-            logger.error(`    Parent rendition definition "${sd['parent']}" for "${sd.name}" not found: no parent set. Check declaration order`);
+        if (sd['parent'] && !renditionIdByName[sd['parent']]) {
+            logger.error(
+                `    Parent rendition definition "${sd['parent']}" for "${sd.name}" not found: no parent set. Check declaration order`
+            );
             sd['parent'] = null;
         }
 
-        renditionIdByName[sd.name] = await databoxClient.createRenditionDefinition({
-            name: sd.name,
-            parent: sd['parent'] ? `/rendition-definitions/${renditionIdByName[sd['parent']]}` : null,
-            key: `${idempotencePrefix}${sd.name}`,
-            class: `/rendition-classes/${classIndex[sd.class]}`,
-            buildMode: sd.buildMode,
-            useAsOriginal: sd.useAsOriginal,
-            useAsPreview: sd.useAsPreview,
-            useAsThumbnail: sd.useAsThumbnail,
-            useAsThumbnailActive: sd.name === 'thumbnailgif',
-            priority: 0,
-            workspace: `/workspaces/${workspaceId}`,
-            labels: {
-                phraseanetDefinition: sd.labels,
-            },
-            definition: Yaml.dump(jsConf, {lineWidth: 100}).trim(),
-        });
+        renditionIdByName[sd.name] =
+            await databoxClient.createRenditionDefinition({
+                name: sd.name,
+                parent: sd['parent']
+                    ? `/rendition-definitions/${renditionIdByName[sd['parent']]}`
+                    : null,
+                key: `${idempotencePrefix}${sd.name}`,
+                class: `/rendition-classes/${classIndex[sd.class]}`,
+                buildMode: sd.buildMode,
+                useAsOriginal: sd.useAsOriginal,
+                useAsPreview: sd.useAsPreview,
+                useAsThumbnail: sd.useAsThumbnail,
+                useAsThumbnailActive: sd.name === 'thumbnailgif',
+                priority: 0,
+                workspace: `/workspaces/${workspaceId}`,
+                labels: {
+                    phraseanetDefinition: sd.labels,
+                },
+                definition: Yaml.dump(jsConf, {lineWidth: 100}).trim(),
+            });
     }
 
     return subdefToRendition;
@@ -543,7 +632,9 @@ async function importStatusBitsStructure(
     logger: Logger
 ): Promise<TagIndex> {
     const tagIndex: TagIndex = {};
-    for (const sb of await phraseanetClient.getStatusBitsStruct(phraseanetDataboxId)) {
+    for (const sb of await phraseanetClient.getStatusBitsStruct(
+        phraseanetDataboxId
+    )) {
         logger.info(`  Creating "${sb.label_on}" tag`);
         const key =
             phraseanetClient.getId() +
@@ -572,7 +663,8 @@ async function importMetadataStructure(
     attrClass: string,
     logger: Logger
 ): Promise<void> {
-    const metaStructure = await phraseanetClient.getMetaStruct(phraseanetDataboxId);
+    const metaStructure =
+        await phraseanetClient.getMetaStruct(phraseanetDataboxId);
     if (!dm.fieldMap) {
         // import all fields from structure
         for (const name in metaStructure) {
@@ -580,9 +672,8 @@ async function importMetadataStructure(
                 id: metaStructure[name].id,
                 position: 0,
                 type:
-                    attributeTypesEquivalence[
-                        metaStructure[name].type
-                        ] ?? DataboxAttributeType.Text,
+                    attributeTypesEquivalence[metaStructure[name].type] ??
+                    DataboxAttributeType.Text,
                 multivalue: metaStructure[name].multivalue,
                 readonly: metaStructure[name].readonly,
                 translatable: false,
@@ -597,10 +688,7 @@ async function importMetadataStructure(
             });
         }
     }
-    const attributeDefinitionIndex: Record<
-        string,
-        AttributeDefinition
-    > = {};
+    const attributeDefinitionIndex: Record<string, AttributeDefinition> = {};
     let ufid = 0; // used to generate a unique id for fields declared in conf, but not existing in phraseanet
     let position = 1;
     for (const [name, fm] of fieldMap) {
@@ -610,14 +698,10 @@ async function importMetadataStructure(
         fm.position = position++;
         fm.multivalue =
             fm.multivalue ??
-            (metaStructure[name]
-                ? metaStructure[name].multivalue
-                : false);
+            (metaStructure[name] ? metaStructure[name].multivalue : false);
         fm.readonly =
             fm.readonly ??
-            (metaStructure[name]
-                ? metaStructure[name].readonly
-                : false);
+            (metaStructure[name] ? metaStructure[name].readonly : false);
         fm.labels =
             fm.labels ??
             (metaStructure[name] ? metaStructure[name].labels : {});
@@ -649,8 +733,7 @@ async function importMetadataStructure(
                 position: fm.position,
                 editable: !fm.readonly,
                 multiple: fm.multivalue,
-                fieldType:
-                    attributeTypesEquivalence[fm.type ?? ''] || fm.type,
+                fieldType: attributeTypesEquivalence[fm.type ?? ''] || fm.type,
                 workspace: `/workspaces/${workspaceId}`,
                 class: attrClass,
                 labels: fm.labels,
@@ -658,10 +741,7 @@ async function importMetadataStructure(
             };
             logger.info(`  Creating "${name}" attribute definition`);
             attributeDefinitionIndex[name] =
-                await databoxClient.createAttributeDefinition(
-                    fm.id,
-                    data
-                );
+                await databoxClient.createAttributeDefinition(fm.id, data);
         }
         fm.attributeDefinition = attributeDefinitionIndex[name];
     }
@@ -677,11 +757,13 @@ function translateDocumentSettings(sd: PhraseanetSubdefStruct): object {
     return translateDocumentSettings_toPdf();
 }
 
-function translateDocumentSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
+function translateDocumentSettings_withIcodec(
+    sd: PhraseanetSubdefStruct
+): object {
     return {
         transformations: [
             {
-                module: 'document_to_pdf'
+                module: 'document_to_pdf',
             },
             {
                 module: 'pdf_to_image',
@@ -689,7 +771,7 @@ function translateDocumentSettings_withIcodec(sd: PhraseanetSubdefStruct): objec
                     size: [sd.options['size'], sd.options['size']],
                     resolution: sd.options['resolution'],
                     extension: sd.options['icodec'],
-                }
+                },
             },
         ],
     };
@@ -699,7 +781,7 @@ function translateDocumentSettings_toPdf(): object {
     return {
         transformations: [
             {
-                module: 'document_to_pdf'
+                module: 'document_to_pdf',
             },
         ],
     };
@@ -731,8 +813,8 @@ function translateImageSettings(sd: PhraseanetSubdefStruct): object {
                 module: 'set_dpi',
                 options: {
                     dpi: sd.options['resolution'],
-                }
-            }
+                },
+            },
         ],
     };
 }
@@ -757,7 +839,7 @@ function translateVideoSettings(sd: PhraseanetSubdefStruct): object {
 function translateVideoSettings_withVcodec(sd: PhraseanetSubdefStruct): object {
     // todo : acodec, formats, ...
     let format: string;
-    switch(sd.options['vcodec'] ?? '') {
+    switch (sd.options['vcodec'] ?? '') {
         case 'libvpx':
             format = 'video-webm';
             break;
@@ -770,7 +852,7 @@ function translateVideoSettings_withVcodec(sd: PhraseanetSubdefStruct): object {
             break;
     }
     const size = sd.options['size'] ?? 100;
-    let ffmpegModuleOptions: any = {
+    const ffmpegModuleOptions: any = {
         format: format,
         timeout: 7200,
         filters: [
@@ -821,7 +903,7 @@ function translateVideoSettings_withAcodec(sd: PhraseanetSubdefStruct): object {
             );
     }
 
-    let ffmpegModuleOptions: any = {
+    const ffmpegModuleOptions: any = {
         format: format,
         timeout: 7200,
     };
@@ -856,7 +938,9 @@ function translateVideoSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
     }
 }
 
-function translateVideoSettings_targetImageFrame(sd: PhraseanetSubdefStruct): object {
+function translateVideoSettings_targetImageFrame(
+    sd: PhraseanetSubdefStruct
+): object {
     let format: string;
     switch (sd.options['icodec'] ?? '') {
         case 'jpeg':
@@ -898,7 +982,9 @@ function translateVideoSettings_targetImageFrame(sd: PhraseanetSubdefStruct): ob
     };
 }
 
-function translateVideoSettings_targetAnimatedGif(sd: PhraseanetSubdefStruct): object {
+function translateVideoSettings_targetAnimatedGif(
+    sd: PhraseanetSubdefStruct
+): object {
     const size = sd.options['size'] ?? 100;
     // fps from (msec)delay, with 2 decimals
     const fps = Math.round(100000.0 / sd.options['delay']) / 100;
@@ -908,12 +994,12 @@ function translateVideoSettings_targetAnimatedGif(sd: PhraseanetSubdefStruct): o
             {
                 module: 'video_to_animation',
                 options: {
-                    'format': 'animated-gif',
-                    'start': 0,
-                    'duration': 5,
-                    'fps': fps,
-                    'width': size,
-                    'height': size,
+                    format: 'animated-gif',
+                    start: 0,
+                    duration: 5,
+                    fps: fps,
+                    width: size,
+                    height: size,
                 },
             },
         ],

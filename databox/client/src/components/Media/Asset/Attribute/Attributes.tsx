@@ -1,6 +1,6 @@
 import {Asset} from '../../../../types';
 import React, {useContext} from 'react';
-import AttributeRowUI from './AttributeRowUI';
+import AttributeRowUI, {BaseAttributeRowUIProps} from './AttributeRowUI';
 import {SxProps} from '@mui/material';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import {UserPreferencesContext} from '../../../User/Preferences/UserPreferencesContext';
@@ -18,14 +18,13 @@ type Props = {
     asset: Asset;
     displayControls: boolean;
     pinnedOnly?: boolean;
-    onActiveAnnotations?: OnActiveAnnotations | undefined;
-};
+} & BaseAttributeRowUIProps;
 
 function Attributes({
     asset,
     displayControls,
     pinnedOnly,
-    onActiveAnnotations,
+    assetAnnotationsRef,
 }: Props) {
     const {preferences, updatePreference} = useContext(UserPreferencesContext);
     const formatContext = useContext(AttributeFormatContext);
@@ -53,7 +52,7 @@ function Attributes({
     );
 
     const pinnedAttributes = asset.workspace
-        ? (preferences.pinnedAttrs ?? {})[asset.workspace.id] ?? []
+        ? ((preferences.pinnedAttrs ?? {})[asset.workspace.id] ?? [])
         : [];
 
     let attributeGroups = buildAttributesGroupedByDefinition(asset.attributes);
@@ -91,7 +90,7 @@ function Attributes({
                         displayControls={displayControls}
                         pinned={pinnedAttributes.includes(g.definition.id)}
                         togglePin={asset.workspace ? togglePin : undefined}
-                        onActiveAnnotations={onActiveAnnotations}
+                        assetAnnotationsRef={assetAnnotationsRef}
                     />
                 );
             })}

@@ -65,11 +65,16 @@ export default function Dashboard({}: Props) {
                             },
                         }}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            {
-                                config.logo ? <img src={config.logo} alt={STACK_NAME}  style={{ maxHeight:48, maxWidth:150 }}/>
-                                : STACK_NAME
-                            }
+                        <div style={{display: 'flex', alignItems: 'center'}}>
+                            {config.logo ? (
+                                <img
+                                    src={config.logo}
+                                    alt={STACK_NAME}
+                                    style={{maxHeight: 48, maxWidth: 150}}
+                                />
+                            ) : (
+                                STACK_NAME
+                            )}
 
                             {user ? (
                                 <Chip
@@ -171,9 +176,14 @@ export default function Dashboard({}: Props) {
                 )}
             </Grid>
             {roles.includes('tech') && (
-                <Grid container spacing={2} marginTop={1} sx={{
-                    mb: 5
-                }}>
+                <Grid
+                    container
+                    spacing={2}
+                    marginTop={1}
+                    sx={{
+                        mb: 5,
+                    }}
+                >
                     {PGADMIN_URL && (
                         <Grid item>
                             <Link

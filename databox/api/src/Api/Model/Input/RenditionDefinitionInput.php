@@ -39,37 +39,37 @@ class RenditionDefinitionInput
      * @var bool
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
-    public $download = null;
+    public $download;
 
     /**
      * @var int
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
-    public $buildMode = null;
+    public $buildMode;
 
     /**
      * @var bool
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
-    public $useAsOriginal = null;
+    public $useAsOriginal;
 
     /**
      * @var bool
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
-    public $useAsPreview = null;
+    public $useAsPreview;
 
     /**
      * @var bool
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
-    public $useAsThumbnail = null;
+    public $useAsThumbnail;
 
     /**
      * @var bool
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
-    public $useAsThumbnailActive = null;
+    public $useAsThumbnailActive;
 
     /**
      * @var string|null

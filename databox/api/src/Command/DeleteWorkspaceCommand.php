@@ -21,8 +21,8 @@ class DeleteWorkspaceCommand extends Command
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly WorkspaceDelete        $workspaceDelete,
-        private readonly LoggerInterface        $logger)
+        private readonly WorkspaceDelete $workspaceDelete,
+        private readonly LoggerInterface $logger)
     {
         parent::__construct();
     }
@@ -46,7 +46,7 @@ class DeleteWorkspaceCommand extends Command
             throw new \InvalidArgumentException(sprintf('Workspace "%s" not found', $workspaceId));
         }
 
-        if(!$input->getOption('force')) {
+        if (!$input->getOption('force')) {
             $output->writeln(sprintf('This action will delete the workspace "%s" (%s) and all its content.', $workspace->getName(), $workspace->getId()));
             $helper = $this->getHelper('question');
             $question = new ConfirmationQuestion('Continue? (y/n) ', false);

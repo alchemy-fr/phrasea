@@ -1,4 +1,7 @@
-export function escapePath(path: string, replaceBadChars: string = '_'): string {
+export function escapePath(
+    path: string,
+    replaceBadChars: string = '_'
+): string {
     return escapeSlashes(path.replace(/[\x00-\x0F]/g, replaceBadChars));
 }
 
