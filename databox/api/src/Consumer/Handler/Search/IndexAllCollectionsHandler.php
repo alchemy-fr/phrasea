@@ -31,5 +31,8 @@ final readonly class IndexAllCollectionsHandler extends AbstractBatchHandler
     protected function flushIndexStack(array $stack): void
     {
         $this->searchIndexer->scheduleObjectsIndex(Collection::class, $stack, Operation::Upsert);
+        foreach ($stack as $collectionId) {
+            $this->bus->dispatch(new IndexCollectionBranch((string) $collectionId));
+        }
     }
 }

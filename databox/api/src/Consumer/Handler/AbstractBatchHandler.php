@@ -6,12 +6,14 @@ namespace App\Consumer\Handler;
 
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 abstract readonly class AbstractBatchHandler
 {
     public function __construct(
         protected SearchIndexer $searchIndexer,
         protected EntityManagerInterface $em,
+        protected MessageBusInterface $bus,
     ) {
     }
 
@@ -23,7 +25,7 @@ abstract readonly class AbstractBatchHandler
         $stack = [];
         $i = 0;
         foreach ($iterator as $item) {
-            $stack[] = $item['id'];
+            $stack[] = (string) $item['id'];
             if ($i++ > $batchSize) {
                 $this->flushIndexStack($stack);
                 $stack = [];

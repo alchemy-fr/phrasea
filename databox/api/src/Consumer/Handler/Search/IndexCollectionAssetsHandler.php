@@ -24,7 +24,7 @@ readonly class IndexCollectionAssetsHandler extends AbstractIndexIteratorHandler
 
         $this->indexObjects(Asset::class, $assets, function (array $ids): void {
             foreach ($ids as $id) {
-                $this->bus->dispatch(new IndexAssetAttributes($id));
+                $this->bus->dispatch(new IndexAssetAttributes((string) $id));
             }
         });
     }

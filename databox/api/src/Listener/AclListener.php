@@ -33,15 +33,15 @@ readonly class AclListener
 
     public function onAclUpsert(AclUpsertEvent $event): void
     {
-        $this->reIndexAsset($event->getObjectType(), $event->getObjectId());
+        $this->indexObject($event->getObjectType(), $event->getObjectId());
     }
 
     public function onAclDelete(AclDeleteEvent $event): void
     {
-        $this->reIndexAsset($event->getObjectType(), $event->getObjectId());
+        $this->indexObject($event->getObjectType(), $event->getObjectId());
     }
 
-    private function reIndexAsset(string $objectType, ?string $objectId = null): void
+    private function indexObject(string $objectType, ?string $objectId = null): void
     {
         $this->collectionCache->invalidateTags([CollectionOutputTransformer::COLLECTION_CACHE_NS]);
 
