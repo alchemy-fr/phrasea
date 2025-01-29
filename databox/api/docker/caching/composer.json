@@ -31,6 +31,13 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/notify-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/test-bundle",
             "options": {
                 "symlink": true
@@ -135,7 +142,7 @@
         "ext-imagick": "*",
         "ext-json": "*",
         "ext-sodium": "*",
-        "alchemy/acl-bundle": "^0.2.1",
+        "alchemy/acl-bundle": "^1.0.0",
         "api-platform/core": "^3.2.7",
         "arthem/object-reference-bundle": "dev-master",
         "beberlei/doctrineextensions": "dev-regex-replace-flags",
@@ -183,6 +190,7 @@
         "symfony/monolog-bundle": "^3.5",
         "sentry/sentry-symfony": "^4.11",
         "symfony/novu-notifier": "^6.3",
+        "symfony/notifier": "^6.4.13",
         "symfony/messenger": "^6",
         "guzzlehttp/guzzle": "^7.2",
         "aws/aws-sdk-php": "^3.325",
@@ -192,13 +200,13 @@
         "symfony/http-client": "^6.4.11",
         "php-ffmpeg/php-ffmpeg": "^1.2",
         "spatie/pdf-to-image": "^3.1",
+        "alchemy/phpexiftool": "^4.0.1",
         "ramsey/uuid": "^4.2.3",
         "oneup/flysystem-bundle": "^4.4",
         "league/flysystem-aws-s3-v3": "^3.0",
         "symfony/doctrine-messenger": "^6.4.7",
-        "easycorp/easyadmin-bundle": "^4.0",
+        "easycorp/easyadmin-bundle": "^4.0,<=4.20.2",
         "symfony/templating": "^4.4 || ^5.0 || ^6",
-        "alchemy/phpexiftool": "^4.0.1",
         "symfony/config": "^6.3"
     },
     "require-dev": {
