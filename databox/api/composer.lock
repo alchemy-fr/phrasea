@@ -59,7 +59,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -117,7 +117,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -174,7 +174,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -227,7 +227,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -288,7 +288,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -344,7 +344,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -397,7 +397,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -452,13 +452,14 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
-                "reference": "526e45c09e65c5ca6ad1890c957dac757c74f04f"
+                "reference": "710913d2f155e9811b5e6dade05e3419b2e138a1"
             },
             "require": {
+                "alchemy/auth-bundle": "*",
                 "php": "^8.3",
                 "symfony/framework-bundle": "^6.4",
                 "symfony/notifier": "^6.4.13"
@@ -575,7 +576,7 @@
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
@@ -638,7 +639,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -692,7 +693,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -747,7 +748,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -799,7 +800,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -856,7 +857,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -921,7 +922,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -14786,16 +14787,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.18.0",
+            "version": "v3.19.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "acffa88cc2b40dbe42eaf3a5025d6c0d4600cc50"
+                "reference": "d4f8c2b86374f08efc859323dbcd95c590f7124e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/acffa88cc2b40dbe42eaf3a5025d6c0d4600cc50",
-                "reference": "acffa88cc2b40dbe42eaf3a5025d6c0d4600cc50",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/d4f8c2b86374f08efc859323dbcd95c590f7124e",
+                "reference": "d4f8c2b86374f08efc859323dbcd95c590f7124e",
                 "shasum": ""
             },
             "require": {
@@ -14850,7 +14851,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.18.0"
+                "source": "https://github.com/twigphp/Twig/tree/v3.19.0"
             },
             "funding": [
                 {
@@ -14862,7 +14863,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-12-29T10:51:50+00:00"
+            "time": "2025-01-29T07:06:14+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -14982,7 +14983,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-dep-upgrade",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
