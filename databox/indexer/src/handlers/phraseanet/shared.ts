@@ -2,10 +2,7 @@ import {Asset} from '../../indexers';
 import {FieldMap} from './types';
 import {CPhraseanetRecord} from './CPhraseanetRecord';
 import {Logger} from 'winston';
-import {
-    AttributeClass,
-    AttributeInput,
-} from '../../databox/types';
+import {AttributeClass, AttributeInput} from '../../databox/types';
 
 export type AttrDefinitionIndex = Record<
     string,
@@ -29,11 +26,10 @@ export async function createAsset(
     fieldMap: Map<string, FieldMap>,
     tagIndex: TagIndex,
     shortcutIntoCollections: {id: string; path: string}[],
-    sourceSubdefName: string|undefined,
+    sourceSubdefName: string | undefined,
     subdefToRendition: Record<string, string[]>,
-    logger: Logger,
+    logger: Logger
 ): Promise<Asset> {
-
     const attributes: AttributeInput[] = [];
 
     for (const [_name, fm] of fieldMap) {
@@ -97,18 +93,20 @@ export async function createAsset(
     }
 
     const renditions = [];
-    let sourceFileUrl: string|undefined = undefined;
+    let sourceFileUrl: string | undefined = undefined;
 
-    for(const sd of record.subdefs ?? []) {
-        if(sd.name === sourceSubdefName) {
+    for (const sd of record.subdefs ?? []) {
+        if (sd.name === sourceSubdefName) {
             sourceFileUrl = sd.permalink.url;
             logger.info(`  source: (from "${sd.name}"): ${sd.permalink.url}`);
         }
 
         const phrName = record.phrasea_type + ':' + sd.name;
 
-        for(const name of subdefToRendition[phrName] ?? []) {
-            logger.info(`  rendition "${name}": (from "${sd.name}"): ${sd.permalink.url}`);
+        for (const name of subdefToRendition[phrName] ?? []) {
+            logger.info(
+                `  rendition "${name}": (from "${sd.name}"): ${sd.permalink.url}`
+            );
             renditions.push({
                 name: name,
                 sourceFile: {

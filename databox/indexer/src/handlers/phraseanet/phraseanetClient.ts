@@ -126,8 +126,7 @@ export default class PhraseanetClient {
 
         let last_error = null;
         let ttry = 0;
-        for(ttry=0; ttry<3; ttry++)
-        {
+        for (ttry = 0; ttry < 3; ttry++) {
             try {
                 console.log(`Fetching search results...`);
                 const res = await this.client.get('/api/v3/search/', {
@@ -148,53 +147,65 @@ export default class PhraseanetClient {
                 });
                 const recs: (CPhraseanetRecord | CPhraseanetStory)[] = [];
                 if (searchType === PhraseanetSearchType.Record) {
-                    res.data.response.results.records.map((r: PhraseanetRecord) => {
-                        recs.push(new CPhraseanetRecord(r, this));
-                    });
+                    res.data.response.results.records.map(
+                        (r: PhraseanetRecord) => {
+                            recs.push(new CPhraseanetRecord(r, this));
+                        }
+                    );
                 } else {
-                    res.data.response.results.stories.map((s: PhraseanetStory) => {
-                        recs.push(new CPhraseanetStory(s, this));
-                    });
+                    res.data.response.results.stories.map(
+                        (s: PhraseanetStory) => {
+                            recs.push(new CPhraseanetStory(s, this));
+                        }
+                    );
                 }
 
                 return recs;
-            }
-            catch(e)
-            {
+            } catch (e) {
                 last_error = e;
-                console.log(`Failed to fetch search results, retrying in 5s...`);
+                console.log(
+                    `Failed to fetch search results, retrying in 5s...`
+                );
                 await new Promise(resolve => setTimeout(resolve, 5000));
             }
         }
         throw last_error;
     }
 
-    async *getStoryChildren(databoxId: string, storyId: string): AsyncGenerator<string> {
+    async *getStoryChildren(
+        databoxId: string,
+        storyId: string
+    ): AsyncGenerator<string> {
         let offset = 0;
         do {
-            const res = await this.client.get(`/api/v3/stories/${databoxId}/${storyId}/children`, {
-                params: {
-                    offset: offset,
-                    limit: 50,
-                },
-            });
-            if(!Array.isArray(res.data.response) || res.data.response.length === 0) {
+            const res = await this.client.get(
+                `/api/v3/stories/${databoxId}/${storyId}/children`,
+                {
+                    params: {
+                        offset: offset,
+                        limit: 50,
+                    },
+                }
+            );
+            if (
+                !Array.isArray(res.data.response) ||
+                res.data.response.length === 0
+            ) {
                 return;
             }
-            for(const recordUri of res.data.response) {
+            for (const recordUri of res.data.response) {
                 // -- requesting a uri is the way to get record_id, but it's too slow
                 // r = this.client.get(recordUri);
                 // const recordId = r.data.response.record_id;
 
                 // -- we known that recordUri is like: "/api/v3/records/{sbas_id}/{record_id}/"
-                yield recordUri.split('/')[5];;
+                yield recordUri.split('/')[5];
             }
-            if(res.data.response.length < 50) {
+            if (res.data.response.length < 50) {
                 return;
             }
             offset += 50;
-        }
-        while(true);
+        } while (true);
     }
 
     async getMetaStruct(

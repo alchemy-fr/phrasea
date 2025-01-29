@@ -17,18 +17,14 @@ type Props = {
 } & BaseAttributeRowUIProps;
 
 function AssetAttributes({asset, ...attributesProps}: Props) {
-    const [expanded, setExpanded] = React.useState(true);
+    const [expanded, setExpanded] = React.useState(false);
     const {t} = useTranslation();
 
     return (
         <Accordion expanded={expanded} onChange={() => setExpanded(p => !p)}>
-            <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="attr-content"
-                id="attr-header"
-            >
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography component="div">
-                    {t('asset.view.attributes', `Asset Attributes`)}
+                    {t('asset.view.attributes', `Attributes`)}
                 </Typography>
             </AccordionSummary>
             <AccordionDetails>

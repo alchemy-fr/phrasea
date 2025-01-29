@@ -66,6 +66,9 @@ class CollectionOutput extends AbstractUuidOutput
     #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private $workspace;
 
+    #[Groups([Collection::GROUP_READ])]
+    public ?array $topicSubscriptions = null;
+
     public function getTitle(): ?string
     {
         return $this->title;

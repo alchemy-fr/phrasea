@@ -68,7 +68,7 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     final public const int ORIGIN_FALLBACK = 2;
     final public const int ORIGIN_INITIAL = 3;
 
-    final public const ORIGIN_LABELS = [
+    final public const array ORIGIN_LABELS = [
         self::ORIGIN_MACHINE => 'machine',
         self::ORIGIN_HUMAN => 'human',
         self::ORIGIN_FALLBACK => 'fallback',
@@ -79,7 +79,7 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     final public const int STATUS_REVIEW_PENDING = 1;
     final public const int STATUS_DECLINED = 2;
 
-    final public const STATUS_LABELS = [
+    final public const array STATUS_LABELS = [
         self::STATUS_VALID => 'valid',
         self::STATUS_REVIEW_PENDING => 'review_pending',
         self::STATUS_DECLINED => 'declined',

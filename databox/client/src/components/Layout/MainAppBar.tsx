@@ -22,6 +22,7 @@ import {useModals} from '@alchemy/navigation';
 import ChangeTheme from './ChangeTheme';
 import ThemeEditor from './ThemeEditor';
 import {UserMenu} from '@alchemy/phrasea-ui';
+import {useNotificationUriHandler} from '../../hooks/useNotificationUriHandler.ts';
 
 export const menuHeight = 42;
 
@@ -40,6 +41,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
         keycloakClient,
         autoConnectIdP: config.autoConnectIdP,
     });
+    const notificationUriHandler = useNotificationUriHandler();
     const onTitleClick = () => searchContext.reset();
 
     return (
@@ -142,6 +144,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                     userId={user.id}
                                     socketUrl={config.novuSocketUrl!}
                                     apiUrl={config.novuApiUrl!}
+                                    uriHandler={notificationUriHandler}
                                 />
                             </Box>
                         ) : null}

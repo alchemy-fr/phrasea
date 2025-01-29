@@ -6,7 +6,9 @@ namespace App\Api\OutputTransformer;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Api\Model\Output\CollectionOutput;
 use App\Elasticsearch\CollectionSearch;
 use App\Entity\Core\Collection;
@@ -27,6 +29,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         private readonly CollectionSearch $collectionSearch,
         private readonly TagAwareCacheInterface $collectionCache,
         private readonly PermissionManager $permissionManager,
+        private readonly NotifierInterface $notifier,
     ) {
     }
 
@@ -123,6 +126,19 @@ class CollectionOutputTransformer implements OutputTransformerInterface
                 'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
                 'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
             ]);
+        }
+
+        if ($this->hasGroup([
+            Collection::GROUP_READ,
+        ], $context)) {
+            $output->owner = $this->transformUser($data->getOwnerId());
+            $user = $this->getUser();
+            if ($user instanceof JwtUser) {
+                $output->topicSubscriptions = $this->notifier->getTopicSubscriptions(
+                    $data->getTopicKeys(),
+                    $user->getId(),
+                );
+            }
         }
 
         return $output;

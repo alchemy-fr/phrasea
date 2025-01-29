@@ -66,7 +66,7 @@ export default function CreateCollection({
         <>
             {t(
                 'form.collection_create.title_with_parent',
-                'Create collection under'
+                'Create Collection under'
             )}{' '}
             <WorkspaceChip label={workspaceTitle} />
             {titlePath.map((t, i) => (
@@ -78,7 +78,7 @@ export default function CreateCollection({
         </>
     ) : (
         <>
-            {t('form.collection_create.title', 'Create collection in')}{' '}
+            {t('form.collection_create.title', 'Create Collection in')}{' '}
             <WorkspaceChip label={workspaceTitle} />
         </>
     );
@@ -86,7 +86,7 @@ export default function CreateCollection({
     return (
         <FormDialog
             modalIndex={modalIndex}
-            title={title}
+            title={<div>{title}</div>}
             formId={formId}
             loading={submitting}
             errors={remoteErrors}

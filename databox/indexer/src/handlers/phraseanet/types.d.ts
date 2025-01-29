@@ -32,7 +32,7 @@ export type ConfigPhraseanetSubdef = {
     useAsThumbnailActive?: boolean;
     buildMode?: number;
     class?: string;
-    parent?: string|null;
+    parent?: string | null;
     builders: Record<string, ConfigRenditionBuilder>;
 };
 

@@ -2,8 +2,11 @@
 
 namespace Alchemy\NotifyBundle\Service;
 
+use Alchemy\CoreBundle\Listener\ClientExceptionListener;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final readonly class NovuClient
 {
@@ -14,6 +17,7 @@ final readonly class NovuClient
         private string $secretKey,
         #[Autowire(service: 'novu.client')]
         HttpClientInterface $client,
+        private ClientExceptionListener $clientExceptionListener,
     ) {
         $this->client = $client->withOptions([
             'headers' => [
@@ -41,23 +45,43 @@ final readonly class NovuClient
             $data['actor'] = ['subscriberId' => $authorId];
         }
 
-        $this->client->request('POST', '/v1/events/trigger', [
+        $this->request('POST', '/v1/events/trigger', [
             'json' => $data,
         ]);
     }
 
+    private function request(string $method, string $url, array $options = []): ResponseInterface
+    {
+        return $this->clientExceptionListener->wrapClientRequest(function () use ($method, $url, $options): ResponseInterface {
+            $response = $this->client->request($method, $url, $options);
+            $response->getHeaders(throw: true);
+
+            return $response;
+        });
+    }
+
     public function addTopicSubscribers(string $topicKey, array $subscribers): void
     {
-        $this->client->request('POST', sprintf('/v1/topics/%s/subscribers', $topicKey), [
+        $this->request('POST', sprintf('/v1/topics/%s/subscribers', $topicKey), [
             'json' => [
                 'subscribers' => $subscribers,
             ],
         ]);
     }
 
+    public function createTopic(string $topicKey): void
+    {
+        $this->request('POST', '/v1/topics', [
+            'json' => [
+                'key' => $topicKey,
+                'name' => $topicKey,
+            ],
+        ]);
+    }
+
     public function removeTopicSubscribers(string $topicKey, array $subscribers): void
     {
-        $this->client->request('POST', sprintf('/v1/topics/%s/subscribers/removal', $topicKey), [
+        $this->request('POST', sprintf('/v1/topics/%s/subscribers/removal', $topicKey), [
             'json' => [
                 'subscribers' => $subscribers,
             ],
@@ -66,7 +90,15 @@ final readonly class NovuClient
 
     public function isSubscribed(string $topicKey, string $subscriberId): bool
     {
-        $response = $this->client->request('GET', sprintf('/v1/topics/%s/subscribers/%s', $topicKey, $subscriberId));
+        try {
+            $response = $this->request('GET', sprintf('/v1/topics/%s/subscribers/%s', $topicKey, $subscriberId));
+        } catch (ClientExceptionInterface $e) {
+            if (404 === $e->getResponse()->getStatusCode()) {
+                return false;
+            }
+
+            throw $e;
+        }
 
         return 200 === $response->getStatusCode();
     }

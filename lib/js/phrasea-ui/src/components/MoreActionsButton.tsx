@@ -3,11 +3,9 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import DropdownActions from "./DropdownActions";
 import type {DropdownActionsProps} from "./DropdownActions";
 
-type Props = {
-    children: DropdownActionsProps['children'];
-};
+type Props = Omit<DropdownActionsProps, "mainButton">;
 
-export default function MoreActionsButton({children}: Props) {
+export default function MoreActionsButton(dropdownActionsProps: Props) {
     return (
         <DropdownActions
             anchorOrigin={{
@@ -19,7 +17,7 @@ export default function MoreActionsButton({children}: Props) {
             >
                 <MoreHorizIcon/>
             </IconButton>}
-            children={children}
+            {...dropdownActionsProps}
         />
     );
 }

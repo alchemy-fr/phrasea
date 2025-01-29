@@ -4,11 +4,13 @@ import {SearchContext} from './Search/SearchContext';
 import {
     CircularProgress,
     Collapse,
+    Divider,
     IconButton,
     ListItem,
     ListItemButton,
     ListItemIcon,
     ListItemText,
+    MenuItem,
 } from '@mui/material';
 import FolderIcon from '@mui/icons-material/Folder';
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
@@ -31,7 +33,9 @@ import {useAuth} from '@alchemy/react-auth';
 import {CollectionPager, useCollectionStore} from '../../store/collectionStore';
 import {deleteCollection} from '../../api/collection';
 import LoadMoreCollections from './Collection/LoadMoreCollections';
+import {MoreActionsButton} from '@alchemy/phrasea-ui';
 import {cActionClassName} from './WorkspaceMenuItem';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 
 type Props = {
     level: number;
@@ -88,7 +92,7 @@ export default function CollectionMenuItem({
 
         if (e.detail > 1) {
             // is double click
-            load(workspace.id, collection.id);
+            load(workspace.id, collection.id, true);
         }
     };
 
@@ -132,89 +136,141 @@ export default function CollectionMenuItem({
             <ListItem
                 className={collectionItemClassName}
                 secondaryAction={
-                    <>
-                        <span className={cActionClassName}>
-                            {collection.capabilities.canEdit &&
-                            authContext!.isAuthenticated() ? (
-                                <IconButton
-                                    title={t(
-                                        'collection.item.create_asset',
-                                        'Add new asset to collection'
-                                    )}
-                                    onClick={() =>
-                                        openModal(UploadModal, {
-                                            files: [],
-                                            workspaceTitle: workspace.name,
-                                            workspaceId: workspace.id,
-                                            collectionId: collection.id,
-                                            titlePath: (titlePath ?? []).concat(
-                                                collection.title
-                                            ),
-                                        })
-                                    }
-                                    aria-label="create-asset"
-                                >
-                                    <AddPhotoAlternateIcon />
-                                </IconButton>
-                            ) : (
-                                ''
-                            )}
-                            {collection.capabilities.canEdit && (
-                                <IconButton
-                                    title={t(
-                                        'collection.item.create_collection',
-                                        'Create new collection in this one'
-                                    )}
-                                    onClick={() =>
-                                        openModal(CreateCollection, {
-                                            parent: collection['@id'],
-                                            workspaceTitle: workspace.name,
-                                            titlePath: (titlePath ?? []).concat(
-                                                collection.title
-                                            ),
-                                            onCreate: coll => {
-                                                addCollection(
-                                                    coll,
-                                                    workspace.id,
-                                                    collection.id
-                                                );
-                                                expand(true);
-                                            },
-                                        })
-                                    }
-                                    aria-label="add-child"
-                                >
-                                    <CreateNewFolderIcon />
-                                </IconButton>
-                            )}
-                            {collection.capabilities.canEdit && (
-                                <IconButton
+                    <span className={cActionClassName}>
+                        <MoreActionsButton
+                            disablePortal={false}
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'left',
+                            }}
+                        >
+                            {closeWrapper => [
+                                <MenuItem
+                                    onClick={closeWrapper()}
                                     component={ModalLink}
                                     route={
                                         modalRoutes.collections.routes.manage
                                     }
                                     params={{
                                         id: collection.id,
-                                        tab: 'edit',
+                                        tab: 'notifications',
                                     }}
-                                    title={t(
-                                        'collection.item.edit',
-                                        'Edit this collection'
-                                    )}
-                                    aria-label="edit"
+                                    aria-label="notifications"
                                 >
-                                    <EditIcon />
-                                </IconButton>
-                            )}
-                            {collection.capabilities.canDelete && (
-                                <IconButton
-                                    onClick={onDelete}
-                                    aria-label="delete"
-                                >
-                                    <DeleteIcon />
-                                </IconButton>
-                            )}
-                        </span>
+                                    <ListItemIcon>
+                                        <NotificationsIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={t(
+                                            'collection.item.notifications',
+                                            'Notifications'
+                                        )}
+                                    />
+                                </MenuItem>,
+                                <Divider />,
+                                collection.capabilities.canEdit &&
+                                authContext!.isAuthenticated() ? (
+                                    <MenuItem
+                                        onClick={closeWrapper(() =>
+                                            openModal(UploadModal, {
+                                                files: [],
+                                                workspaceTitle: workspace.name,
+                                                workspaceId: workspace.id,
+                                                collectionId: collection.id,
+                                                titlePath: (
+                                                    titlePath ?? []
+                                                ).concat(collection.title),
+                                            })
+                                        )}
+                                        aria-label="create-asset"
+                                    >
+                                        <ListItemIcon>
+                                            <AddPhotoAlternateIcon />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={t(
+                                                'collection.item.create_asset',
+                                                'Add Asset to Collection'
+                                            )}
+                                        />
+                                    </MenuItem>
+                                ) : null,
+                                collection.capabilities.canEdit ? (
+                                    <MenuItem
+                                        onClick={closeWrapper(() =>
+                                            openModal(CreateCollection, {
+                                                parent: collection['@id'],
+                                                workspaceTitle: workspace.name,
+                                                titlePath: (
+                                                    titlePath ?? []
+                                                ).concat(collection.title),
+                                                onCreate: coll => {
+                                                    addCollection(
+                                                        coll,
+                                                        workspace.id,
+                                                        collection.id
+                                                    );
+                                                    expand(true);
+                                                },
+                                            })
+                                        )}
+                                        aria-label="add-child"
+                                    >
+                                        <ListItemIcon>
+                                            <CreateNewFolderIcon />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={t(
+                                                'collection.item.create_collection',
+                                                'Create sub collection'
+                                            )}
+                                        />
+                                    </MenuItem>
+                                ) : null,
+                                <Divider />,
+                                collection.capabilities.canEdit ? (
+                                    <MenuItem
+                                        onClick={closeWrapper()}
+                                        component={ModalLink}
+                                        route={
+                                            modalRoutes.collections.routes
+                                                .manage
+                                        }
+                                        params={{
+                                            id: collection.id,
+                                            tab: 'edit',
+                                        }}
+                                        aria-label="edit"
+                                    >
+                                        <ListItemIcon>
+                                            <EditIcon />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={t(
+                                                'collection.item.edit',
+                                                'Edit'
+                                            )}
+                                        />
+                                    </MenuItem>
+                                ) : null,
+                                collection.capabilities.canDelete ? (
+                                    <MenuItem
+                                        onClick={closeWrapper(onDelete)}
+                                        aria-label="delete"
+                                    >
+                                        <ListItemIcon>
+                                            <DeleteIcon color={'error'} />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={t(
+                                                'collection.item.delete',
+                                                'Delete'
+                                            )}
+                                        />
+                                    </MenuItem>
+                                ) : null,
+                            ]}
+                        </MoreActionsButton>
                         <IconButton
                             style={{
                                 visibility:
@@ -231,7 +287,7 @@ export default function CollectionMenuItem({
                                 <ExpandMoreIcon />
                             )}
                         </IconButton>
-                    </>
+                    </span>
                 }
                 disablePadding
             >

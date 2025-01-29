@@ -64,7 +64,7 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
             undefined === pager.total ||
             e.detail > 1 // is double click
         ) {
-            loadRoot(id);
+            loadRoot(id, undefined, true);
         }
     };
 
