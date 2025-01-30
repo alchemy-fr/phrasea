@@ -763,12 +763,29 @@ function translateDocumentSettings_toPdf(): object {
 function translateImageSettings(sd: PhraseanetSubdefStruct): object {
     // todo: extension ?
     const size = sd.options['size'];
+    let format: string;
+    switch (sd.options['icodec'] ?? '') {
+        case 'jpeg':
+            format = 'jpeg';
+            break;
+        case 'png':
+            format = 'png';
+            break;
+        case 'tiff':
+            format = 'tiff';
+            break;
+        default:
+            throw new Error(
+                `Unsupported image codec: ${sd.options['icodec']} for subdef image:${sd.name}`
+            );
+    }
 
     return {
         transformations: [
             {
                 module: 'imagine',
                 options: {
+                    format: format,
                     filters: {
                         auto_rotate: null,
                         background_fill: {

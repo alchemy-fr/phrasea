@@ -49,9 +49,9 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
             ->arrayNode('options')
                 ->children()
                     ->scalarNode('format')
-                        ->info('input image format')
+                        ->info('output image format')
                         ->example('jpeg')
-                    ->end()    
+                    ->end()
                     ->arrayNode('filters')
                         ->info('Filters to apply to the image')
                         ->children()
@@ -85,7 +85,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
                                                 ->example(90)
                                             ->end()
                                         ->end()
-                                    ->end()    
+                                    ->end()
                                 ->end()
                             ->end()
                             ->arrayNode('thumbnail')
@@ -101,7 +101,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
                                                 ->example(32)
                                             ->end()
                                         ->end()
-                                    ->end()    
+                                    ->end()
                                     ->scalarNode('mode')
                                         ->info('Sets the desired resize method: "outbound" crops the image as required, while "inset" performs a non-cropping relative resize.')
                                         ->example('inset')
@@ -124,7 +124,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
                                                 ->example(600)
                                             ->end()
                                         ->end()
-                                    ->end()  
+                                    ->end()
                                     ->arrayNode('start')
                                         ->info('Sets the top, left-post anchor coordinates where the crop operation starts[x, y]')
                                         ->children()
@@ -135,7 +135,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
                                                 ->example(160)
                                             ->end()
                                         ->end()
-                                    ->end()  
+                                    ->end()
                                 ->end()
                             ->end()
                             ->arrayNode('watermark')
@@ -173,11 +173,11 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
                                                 ->example(1000)
                                             ->end()
                                         ->end()
-                                    ->end()  
+                                    ->end()
                                     ->floatNode('to')
                                         ->info('Sets the "ratio multiple" which initiates a proportional scale operation computed by multiplying all image sides by this value.')
                                         ->example(1.5)
-                                    ->end()  
+                                    ->end()
                                 ->end()
                             ->end()
                             ->arrayNode('upscale')
@@ -193,11 +193,11 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
                                                 ->example(800)
                                             ->end()
                                         ->end()
-                                    ->end()  
+                                    ->end()
                                     ->floatNode('by')
                                         ->info('Sets the "ratio multiple" which initiates a proportional scale operation computed by multiplying all image sides by this value.')
                                         ->example(0.7)
-                                    ->end()  
+                                    ->end()
                                 ->end()
                             ->end()
                             ->arrayNode('downscale')
@@ -213,11 +213,11 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
                                                 ->example(1280)
                                             ->end()
                                         ->end()
-                                    ->end()  
+                                    ->end()
                                     ->floatNode('by')
                                         ->info('Sets the "ratio multiple" which initiates a proportional scale operation computed by multiplying all image sides by this value.')
                                         ->example(0.6)
-                                    ->end()  
+                                    ->end()
                                 ->end()
                             ->end()
                             ->scalarNode('auto_rotate')
@@ -268,7 +268,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
                                     ->scalarNode('tmp_dir')
                                         ->info('Sets the optional temporary work directory. This filter requires a temporary location to save out and read back in the image binary, as these operations are requires to resample an image. By default, it is set to the value of the sys_get_temp_dir() function')
                                         ->example('/my/custom/temporary/directory/path')
-                                    ->end()        
+                                    ->end()
                                 ->end()
                             ->end()
                             ->arrayNode('fixed')
@@ -325,9 +325,9 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
                             ->end()
                         ->end()
                     ->end()
-                ->end()    
+                ->end()
             ->end()
-            
+
         ;
         // @formatter:on
     }
@@ -344,7 +344,10 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
 
         $filterManager = $this->filterFactory->createFilterManager($context);
 
-        $image = new FileBinary($inputFile->getPath(), $inputFile->getType());
+        $t = explode('/', $inputFile->getType());
+        $type = (2 === count($t) && 'image' === $t[0]) ? $t[1] : null;
+
+        $image = new FileBinary($inputFile->getPath(), $inputFile->getType(), $type);
         $output = $filterManager->apply($image, $options);
 
         $extension = $output->getFormat();
