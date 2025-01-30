@@ -77,7 +77,6 @@ final readonly class WorkspaceDelete
             $this->deleteDependencies(AssetDataTemplate::class, $workspaceId);
             $this->deleteDependencies(WorkspaceIntegration::class, $workspaceId);
             $this->deleteDependencies(WorkspaceSecret::class, $workspaceId);
-            $this->deleteDependencies(Asset::class, $workspaceId);
 
             $nFiles = $this->em->getRepository(File::class)
                 ->createQueryBuilder('t')
