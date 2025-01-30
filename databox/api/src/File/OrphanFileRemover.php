@@ -15,7 +15,7 @@ final class OrphanFileRemover
     public function __construct(
         private readonly EntityManagerInterface $em,
     ) {
-     }
+    }
 
     /**
      * @return bool Whether the file was removed or not
@@ -29,9 +29,9 @@ final class OrphanFileRemover
             return false;
         }
 
+        $cnx = $this->em->getConnection();
         foreach ($columns as $table => $cols) {
             foreach ($cols as $col) {
-                $cnx = $this->em->getConnection();
                 $results = $cnx
                     ->createQueryBuilder()
                     ->addSelect('1')
