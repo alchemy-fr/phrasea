@@ -15,7 +15,7 @@ final class OrphanFileRemover
     public function __construct(
         private readonly EntityManagerInterface $em,
     ) {
-    }
+     }
 
     /**
      * @return bool Whether the file was removed or not
@@ -31,11 +31,12 @@ final class OrphanFileRemover
 
         foreach ($columns as $table => $cols) {
             foreach ($cols as $col) {
-                $results = $this->em->getConnection()
+                $cnx = $this->em->getConnection();
+                $results = $cnx
                     ->createQueryBuilder()
                     ->addSelect('1')
-                    ->from(sprintf('`%s`', $table))
-                    ->andWhere(sprintf('%s = :id', $col))
+                    ->from($cnx->quoteIdentifier($table))
+                    ->andWhere(sprintf('%s = :id', $cnx->quoteIdentifier($col)))
                     ->setParameters([
                         'id' => $fileId,
                     ])
