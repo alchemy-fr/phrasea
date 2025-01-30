@@ -79,7 +79,7 @@
         "php": "^8.3",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "alchemy/acl-bundle": "dev-main",
+        "alchemy/acl-bundle": "^1.0.0",
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/messenger-bundle": "@dev",

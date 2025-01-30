@@ -142,7 +142,7 @@
         "ext-imagick": "*",
         "ext-json": "*",
         "ext-sodium": "*",
-        "alchemy/acl-bundle": "^0.2.1",
+        "alchemy/acl-bundle": "^1.0.0",
         "alchemy/admin-bundle": "@dev",
         "alchemy/auth-bundle": "*",
         "alchemy/configurator-bundle": "@dev",

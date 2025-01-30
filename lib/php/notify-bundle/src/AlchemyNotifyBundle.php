@@ -66,6 +66,7 @@ class AlchemyNotifyBundle extends AbstractBundle
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
         $container->parameters()
+            ->set('env(NOTIFY_AUTHOR)', false)
             ->set('alchemy_notify.novu.api_host', $config['novu']['api_host'])
             ->set('alchemy_notify.novu.secret_key', $config['novu']['secret_key'])
         ;

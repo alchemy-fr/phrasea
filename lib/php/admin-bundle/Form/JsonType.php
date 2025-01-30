@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class JsonType extends AbstractType implements DataTransformerInterface
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addModelTransformer($this);
     }
@@ -26,14 +26,18 @@ class JsonType extends AbstractType implements DataTransformerInterface
 
     public function reverseTransform(mixed $value)
     {
-        if (null !== $value && false === json_validate($value)) {
+        if (null === $value) {
+            return null;
+        }
+
+        if (false === json_validate($value)) {
             return ['input-error' => 'Invalid JSON: '.json_last_error_msg()];
         }
 
         return json_decode($value, true, 512, JSON_THROW_ON_ERROR);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'attr' => [
