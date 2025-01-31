@@ -90,7 +90,7 @@
       }
     },
     "asset_actions": {
-      "copy": "Copier",
+      "copy": "Dupliquer",
       "delete": "Supprimer",
       "download": "Télécharger",
       "edit": "Modifier",
@@ -297,7 +297,7 @@
     },
     "common": {
       "cancel": "Annuler",
-      "copy": "Copier",
+      "copy": "Dupliquer",
       "databox": "Databox",
       "delete": "Supprimer",
       "item_sorted": "Ordre enregistré !",
@@ -315,14 +315,14 @@
     },
     "copy_assets": {
       "dialog": {
-        "intro": "Où voulez-vous copier les Assets sélectionnés ?",
-        "submit": "Copier",
-        "title": "Copier {{count}} Assets",
-        "title_plural": "Copier {{count}} Assets"
+        "intro": "Où voulez-vous Dupliquer les Assets sélectionnés ?",
+        "submit": "Dupliquer",
+        "title": "Dupliquer {{count}} Assets",
+        "title_plural": "Dupliquer {{count}} Assets"
       },
       "form": {
         "by_reference": {
-          "label": "Copier par référence (raccourci)"
+          "label": "Créer un raccourci (pas de duplication de fichier)"
         },
         "with_attributes": {
           "label": "Copier les attributs"
@@ -333,12 +333,12 @@
       }
     },
     "copy_assets_dialog": {
-      "assets_were_copied": "Les Assets ont été copiés"
+      "assets_were_copied": "Les Assets ont été dupliqués"
     },
     "copy_toclipboard": {
       "copied": "Copié dans le presse-papiers !"
     },
-    "danger_zone": "Zone dangereuse",
+    "danger_zone": "Actions irréversibles",
     "date_histogram_facet": {
       "clear_filter": "Effacer le filtre"
     },
@@ -723,7 +723,7 @@
     "left_panel": {
       "baskets": "Paniers",
       "facets": "Facettes",
-      "tree": "Arbre"
+      "tree": "Hierachie"
     },
     "load_more": {
       "button": {
