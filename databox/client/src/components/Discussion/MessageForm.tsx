@@ -34,7 +34,7 @@ export default forwardRef<MessageFormHandle, Props>(function MessageForm(
     ref
 ) {
     const {t} = useTranslation();
-    const inputRef = React.useRef<HTMLInputElement | null>(null);
+    const inputRef = React.useRef<HTMLTextAreaElement | null>(null);
     const [attachments, setAttachments] = React.useState<
         DeserializedMessageAttachment[]
     >([]);

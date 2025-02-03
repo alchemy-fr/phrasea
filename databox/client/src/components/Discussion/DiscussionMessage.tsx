@@ -16,8 +16,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import EditMessage from './EditMessage.tsx';
 import React from 'react';
-import nl2br from 'react-nl2br';
 import {OnAttachmentClick} from './MessageField.tsx';
+import {formatMessage} from "./formatMessage.tsx";
 
 type Props = {
     message: ThreadMessage;
@@ -142,7 +142,7 @@ export default function DiscussionMessage({
                         ) : (
                             <>
                                 <Typography>
-                                    {nl2br(message.content)}
+                                    {formatMessage(message.content)}
                                 </Typography>
 
                                 {message.attachments ? (
