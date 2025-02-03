@@ -567,24 +567,15 @@ async function importSubdefsStructure(
             `  Creating rendition definition "${sd.name}" of class "${sd.class}"`
         );
         let jsConf: Record<string, object> = {};
+        const translators: Record<string, Function> = {
+            'image': translateImageSettings,
+            'video': translateVideoSettings,
+            'audio': translateAudioSettings,
+            'document': translateDocumentSettings,
+        }
         for (const family in sd.types) {
-            let j = null;
-            switch (family) {
-                case 'image':
-                    j = translateImageSettings(sd.types['image']);
-                    break;
-                case 'video':
-                    j = translateVideoSettings(sd.types['video']);
-                    break;
-                case 'audio':
-                    j = translateAudioSettings(sd.types['audio']);
-                    break;
-                case 'document':
-                    j = translateDocumentSettings(sd.types['document']);
-                    break;
-            }
-            if(j) {
-                jsConf[family] = j;
+            if(translators[family]) {
+                jsConf[family] = translators[family](sd.types[family]);
             }
         }
 
@@ -796,23 +787,29 @@ function translateImageSettings(sd: PhraseanetSubdefStruct): object {
         throw new Error(`Unsupported image codec: ${sd.options.icodec} for subdef image:${sd.name}`);
     }
 
+    const filters: Record<string, any> = {
+        auto_rotate: null,
+    };
+
+    const bgcolor = sd.options['backgroundcolor']['0'] ?? '';
+    if(bgcolor) {
+        filters['background_fill'] = {
+            color: bgcolor,
+            opacity: 100,
+        }
+    }
+    filters['thumbnail'] = {
+        size: [size, size],
+        mode: 'inset',
+    }
+
     return {
         transformations: [
             {
                 module: 'imagine',
                 options: {
                     format,
-                    filters: {
-                        auto_rotate: null,
-                        background_fill: {
-                            color: '#FFFFFF',
-                            opacity: 100,
-                        },
-                        thumbnail: {
-                            size: [size, size],
-                            mode: 'inset',
-                        },
-                    },
+                    filters,
                 },
             },
             {
@@ -843,23 +840,23 @@ function translateVideoSettings(sd: PhraseanetSubdefStruct): object {
 }
 
 function translateVideoSettings_withVcodec(sd: PhraseanetSubdefStruct): object {
-    // todo : acodec, formats, ...
-    let format: string;
-    switch (sd.options['vcodec'] ?? '') {
-        case 'libvpx':
-            format = 'video-webm';
-            break;
-        case 'libtheora':
-            format = 'video-webm';
-            break;
-        case 'libx264':
-        default:
-            format = 'video-mpeg4';
-            break;
+    // todo : gop
+    const formatMap: Record<string, string> = {
+        'libvpx': 'video-webm',
+        'libtheora': 'video-webm',
+        'libx264': 'video-mpeg4',
     }
+    const format = formatMap[sd.options['vcodec']] ?? '';
+    if(!format) {
+        throw new Error(
+            `Unsupported video codec: ${sd.options['vcodec']} for subdef video: ${sd.name}`
+        );
+    }
+
     const size = sd.options['size'] ?? 100;
+
     const ffmpegModuleOptions: any = {
-        format: format,
+        format,
         timeout: 7200,
         filters: [
             {
@@ -875,11 +872,32 @@ function translateVideoSettings_withVcodec(sd: PhraseanetSubdefStruct): object {
     if (audiokbrate > 0) {
         ffmpegModuleOptions['audio_kilobitrate'] = audiokbrate;
     }
-    // todo: audiosamplerate (not yet implemented in ffmpeg module)
-    // const audiosrate = sd.options['audiosamplerate'] ?? 0;
-    // if (audiosrate > 0) {
-    //     ffmpegModuleOptions['audio_samplerate'] = audiosrate;
-    // }
+
+    if(null !== sd.options['acodec']) {
+        const audioCodecs = [
+            'libfaac',
+            'libvo_aacenc',
+            'libmp3lame',
+            'libvorbis',
+            'libfdk_aac',
+        ];
+        if(!audioCodecs.includes(sd.options['acodec'])) {
+            throw new Error(
+                `Unsupported audio codec: ${sd.options['acodec']} for subdef video: ${sd.name}`
+            );
+        }
+        ffmpegModuleOptions['audio_codec'] = sd.options['acodec'];
+    }
+
+    const audioSamplerate = sd.options['audiosamplerate'] ?? 0;
+    if (audioSamplerate > 0) {
+        ffmpegModuleOptions['filters'].push(
+            {
+                name: 'resample_audio',
+                rate: audioSamplerate,
+            }
+        );
+    }
 
     return {
         transformations: [
@@ -892,41 +910,7 @@ function translateVideoSettings_withVcodec(sd: PhraseanetSubdefStruct): object {
 }
 
 function translateVideoSettings_withAcodec(sd: PhraseanetSubdefStruct): object {
-    let format: string;
-    switch (sd.options['acodec'] ?? '') {
-        case 'pcm_s16le':
-            format = 'audio-wav';
-            break;
-        case 'libmp3lame':
-            format = 'audio-mp3';
-            break;
-        case 'flac':
-            format = 'audio-aac';
-            break;
-        default:
-            throw new Error(
-                `Unsupported audio codec: ${sd.options['acodec']} for subdef video:${sd.name}`
-            );
-    }
-
-    const ffmpegModuleOptions: any = {
-        format: format,
-        timeout: 7200,
-    };
-    // in phraseanet, "audiobitrate" is already in K !
-    const audiokbrate = sd.options['audiobitrate'] ?? 0;
-    if (audiokbrate > 0) {
-        ffmpegModuleOptions['audio_kilobitrate'] = audiokbrate;
-    }
-
-    return {
-        transformations: [
-            {
-                module: 'ffmpeg',
-                options: ffmpegModuleOptions,
-            },
-        ],
-    };
+    return translateAudioSettings_withAcodec(sd);
 }
 
 function translateVideoSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
@@ -942,44 +926,30 @@ function translateVideoSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
 function translateVideoSettings_targetImageFrame(
     sd: PhraseanetSubdefStruct
 ): object {
-    let format: string;
-    switch (sd.options['icodec'] ?? '') {
-        case 'jpeg':
-            format = 'image-jpeg';
-            break;
-        case 'png':
-            format = 'image-png';
-            break;
-        case 'tiff':
-            format = 'image-tiff';
-            break;
-        default:
-            throw new Error(
-                `Unsupported image codec: ${sd.options['icodec']} for subdef video:${sd.name}`
-            );
+    const formatMap: Record<string, string> = {
+        'jpeg': 'image-jpeg',
+        'png': 'image-png',
+        'tiff': 'image-tiff',
     }
-    const size = sd.options['size'] ?? 100;
+    const format = formatMap[sd.options['icodec']] ?? '';
+    if(!format) {
+        throw new Error(
+            `Unsupported image codec: ${sd.options['icodec']} for subdef video: ${sd.name}`
+        );
+    }
+
+    const transformations: Array<Object> = (translateImageSettings(sd) as any).transformations;
+
+    transformations.unshift({
+        module: 'video_to_frame',
+        options: {
+            format,
+            start: 0,
+        },
+    });
 
     return {
-        transformations: [
-            {
-                module: 'video_to_frame',
-                options: {
-                    format: format,
-                    start: 0,
-                },
-            },
-            {
-                module: 'imagine',
-                options: {
-                    filters: {
-                        thumbnail: {
-                            size: [size, size],
-                        },
-                    },
-                },
-            },
-        ],
+        transformations
     };
 }
 
@@ -1021,37 +991,38 @@ function translateAudioSettings(sd: PhraseanetSubdefStruct): null|object {
 }
 
 function translateAudioSettings_withAcodec(sd: PhraseanetSubdefStruct): object {
-    let format: string;
-    switch (sd.options['acodec'] ?? '') {
-        case 'pcm_s16le':
-            format = 'audio-wav';
-            break;
-        case 'libmp3lame':
-            format = 'audio-mp3';
-            break;
-        case 'flac':
-            format = 'audio-aac';
-            break;
-        default:
-            throw new Error(
-                `Unsupported audio codec: ${sd.options['acodec']} for subdef video:${sd.name}`
-            );
+    const formatMap: Record<string, string> = {
+        'pcm_s16le': 'audio-wav',
+        'libmp3lame': 'audio-mp3',
+        'flac': 'audio-aac',
+    }
+    const format = formatMap[sd.options['acodec']] ?? '';
+    if(!format) {
+        throw new Error(
+            `Unsupported audio codec: ${sd.options['acodec']} for subdef video: ${sd.name}`
+        );
     }
 
     let ffmpegModuleOptions: any = {
-        format: format,
+        format,
         timeout: 7200,
     };
+
     // in phraseanet, "audiobitrate" is already in K !
     const audiokbrate = sd.options['audiobitrate'] ?? 0;
     if (audiokbrate > 0) {
         ffmpegModuleOptions['audio_kilobitrate'] = audiokbrate;
     }
-    // todo: audiosamplerate (not yet implemented in ffmpeg module)
-    // const audiosrate = sd.options['audiosamplerate'] ?? 0;
-    // if (audiosrate > 0) {
-    //     ffmpegModuleOptions['audio_samplerate'] = audiosrate;
-    // }
+
+    const audioSamplerate = sd.options['audiosamplerate'] ?? 0;
+    if (audioSamplerate > 0) {
+        ffmpegModuleOptions['filters'] = [
+            {
+                name: 'resample_audio',
+                rate: audioSamplerate,
+            },
+        ]
+    }
 
     return {
         transformations: [
@@ -1064,21 +1035,11 @@ function translateAudioSettings_withAcodec(sd: PhraseanetSubdefStruct): object {
 }
 
 function translateAudioSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
-    let format: string;
-    switch (sd.options['icodec'] ?? '') {
-        case 'jpeg':
-            format = 'image-jpeg';
-            break;
-        case 'png':
-            format = 'image-png';
-            break;
-        case 'tiff':
-            format = 'image-tiff';
-            break;
-        default:
-            throw new Error(
-                `Unsupported image codec: ${sd.options['icodec']} for subdef video:${sd.name}`
-            );
+    const icodecs = ['jpeg', 'png', 'tiff'];
+    if (!icodecs.includes(sd.options['icodec'])) {
+        throw new Error(
+            `Unsupported image codec: ${sd.options['icodec']} for subdef video: ${sd.name}`
+        );
     }
 
     const size = sd.options['size'] ?? 100;
@@ -1088,13 +1049,12 @@ function translateAudioSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
             {
                 module: 'album_artwork',
                 options: {
-                    format: format,
+                    format: 'image-' + sd.options['icodec'],
                 },
             },
             {
                 module: 'imagine',
                 options: {
-                    // format: format,
                     filters: {
                         thumbnail: {
                             size: [size, size],

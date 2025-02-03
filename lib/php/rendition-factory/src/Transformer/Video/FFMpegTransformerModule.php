@@ -228,7 +228,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
                 $root
                     ->info('Resample the audio')
                     ->children()
-                        ->scalarNode('name')->isRequired()->defaultValue('remove_audio')->end()
+                        ->scalarNode('name')->isRequired()->defaultValue('resample_audio')->end()
                         ->scalarNode('enabled')->defaultTrue()->end()
                         ->scalarNode('rate')->isRequired()->defaultValue('44100')->end()
                     ->end();
