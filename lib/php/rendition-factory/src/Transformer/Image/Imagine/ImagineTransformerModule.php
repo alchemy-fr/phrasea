@@ -49,7 +49,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
             ->arrayNode('options')
                 ->children()
                     ->scalarNode('format')
-                        ->info('input image format')
+                        ->info('Output image format')
                         ->example('jpeg')
                     ->end()
                     ->arrayNode('filters')
@@ -344,7 +344,10 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
 
         $filterManager = $this->filterFactory->createFilterManager($context);
 
-        $image = new FileBinary($inputFile->getPath(), $inputFile->getType());
+        $t = explode('/', $inputFile->getType());
+        $type = (2 === count($t) && 'image' === $t[0]) ? $t[1] : null;
+
+        $image = new FileBinary($inputFile->getPath(), $inputFile->getType(), $type);
         $output = $filterManager->apply($image, $options);
 
         $extension = $output->getFormat();
