@@ -761,12 +761,12 @@ function translateDocumentSettings_toPdf(): object {
 function translateImageSettings(sd: PhraseanetSubdefStruct): object {
     // todo: extension ?
     const size = sd.options['size'];
-    const icodecFormats = {
+    const icodecFormats: Record<string, string> = {
         jpeg: 'jpeg',
         png: 'png',
         tiff: 'tiff',
     }
-    const format = icodecFormats[sd.options.icodec] ?? '';
+    const format: string = icodecFormats[sd.options.icodec] ?? '';
     if(!format) {
         throw new Error(`Unsupported image codec: ${sd.options.icodec} for subdef image:${sd.name}`);
     }
