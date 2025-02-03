@@ -29,13 +29,14 @@ final class OrphanFileRemover
             return false;
         }
 
+        $cnx = $this->em->getConnection();
         foreach ($columns as $table => $cols) {
             foreach ($cols as $col) {
-                $results = $this->em->getConnection()
+                $results = $cnx
                     ->createQueryBuilder()
                     ->addSelect('1')
-                    ->from(sprintf('`%s`', $table))
-                    ->andWhere(sprintf('%s = :id', $col))
+                    ->from($cnx->quoteIdentifier($table))
+                    ->andWhere(sprintf('%s = :id', $cnx->quoteIdentifier($col)))
                     ->setParameters([
                         'id' => $fileId,
                     ])
