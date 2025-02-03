@@ -49,7 +49,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
             ->arrayNode('options')
                 ->children()
                     ->scalarNode('format')
-                        ->info('output image format')
+                        ->info('Output image format')
                         ->example('jpeg')
                     ->end()
                     ->arrayNode('filters')

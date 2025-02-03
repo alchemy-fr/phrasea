@@ -570,8 +570,6 @@ async function importSubdefsStructure(
             sd['parent'] = null;
         }
 
-        console.log(Yaml.dump(jsConf, {lineWidth: 100}).trim());
-
         renditionIdByName[sd.name] =
             await databoxClient.createRenditionDefinition({
                 name: sd.name,
@@ -763,21 +761,14 @@ function translateDocumentSettings_toPdf(): object {
 function translateImageSettings(sd: PhraseanetSubdefStruct): object {
     // todo: extension ?
     const size = sd.options['size'];
-    let format: string;
-    switch (sd.options['icodec'] ?? '') {
-        case 'jpeg':
-            format = 'jpeg';
-            break;
-        case 'png':
-            format = 'png';
-            break;
-        case 'tiff':
-            format = 'tiff';
-            break;
-        default:
-            throw new Error(
-                `Unsupported image codec: ${sd.options['icodec']} for subdef image:${sd.name}`
-            );
+    const icodecFormats = {
+        jpeg: 'jpeg',
+        png: 'png',
+        tiff: 'tiff',
+    }
+    const format = icodecFormats[sd.options.icodec] ?? null;
+    if(!format) {
+        throw new Error(`Unsupported image codec: ${sd.options.icodec} for subdef image:${sd.name}`);
     }
 
     return {
@@ -785,7 +776,7 @@ function translateImageSettings(sd: PhraseanetSubdefStruct): object {
             {
                 module: 'imagine',
                 options: {
-                    format: format,
+                    format,
                     filters: {
                         auto_rotate: null,
                         background_fill: {
