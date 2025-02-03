@@ -766,7 +766,7 @@ function translateImageSettings(sd: PhraseanetSubdefStruct): object {
         png: 'png',
         tiff: 'tiff',
     }
-    const format = icodecFormats[sd.options.icodec] ?? null;
+    const format = icodecFormats[sd.options.icodec] ?? '';
     if(!format) {
         throw new Error(`Unsupported image codec: ${sd.options.icodec} for subdef image:${sd.name}`);
     }
