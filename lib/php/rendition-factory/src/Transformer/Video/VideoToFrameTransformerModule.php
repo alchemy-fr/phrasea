@@ -128,7 +128,7 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
 
         $frame = $video->frame($startAsTimecode);
 
-        $quality = (int)$this->optionsResolver->resolveOption($options['quality'] ?? 80, $resolverContext);
+        $quality = (int) $this->optionsResolver->resolveOption($options['quality'] ?? 80, $resolverContext);
         if ($quality < 0 || $quality > 100) {
             throw new \InvalidArgumentException('Invalid quality, must be 0...100.');
         }

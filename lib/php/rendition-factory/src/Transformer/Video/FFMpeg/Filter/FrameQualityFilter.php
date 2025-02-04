@@ -30,7 +30,7 @@ class FrameQualityFilter implements FrameFilterInterface
             '-qmin',
             '1',
             '-qscale:v',
-            $compression
+            $compression,
         ];
     }
 }

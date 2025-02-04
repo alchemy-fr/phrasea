@@ -1003,7 +1003,7 @@ function translateAudioSettings_withAcodec(sd: PhraseanetSubdefStruct): object {
         );
     }
 
-    let ffmpegModuleOptions: any = {
+    const ffmpegModuleOptions: Record<string, any> = {
         format,
         timeout: 7200,
     };

@@ -3,18 +3,18 @@
 namespace Alchemy\RenditionFactory\Transformer;
 
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
-use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\Transformer\Documentation;
-use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
-use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
-
+use Alchemy\RenditionFactory\FileFamilyGuesser;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 final readonly class DownloadTransformerModule implements TransformerModuleInterface
 {
+    public function __construct(private FileFamilyGuesser $fileFamilyGuesser)
+    {
+    }
+
     public static function getName(): string
     {
         return 'download';
@@ -28,7 +28,7 @@ final readonly class DownloadTransformerModule implements TransformerModuleInter
         return new Documentation(
             $treeBuilder,
             <<<HEADER
-            Download a file to be used as "substitution" output.
+            Download a file to be used as output.
             HEADER
         );
     }
@@ -42,10 +42,6 @@ final readonly class DownloadTransformerModule implements TransformerModuleInter
                     ->scalarNode('url')
                         ->info('url of the file to download')
                     ->end()
-                    ->scalarNode('family')
-                        ->info('family of the output file (use "image" | "animation" | "video" | "audio" | "document" | "unknown", according of the downloaded file)')
-                        ->defaultValue('image')
-                    ->end()
                 ->end()
             ->end()
         ;
@@ -55,11 +51,13 @@ final readonly class DownloadTransformerModule implements TransformerModuleInter
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         $path = $context->getRemoteFile($options['url']);
+        $mimeType = $context->guessMimeTypeFromPath($path);
+        $family = $this->fileFamilyGuesser->getFamily($path, $mimeType);
 
         return new OutputFile(
             $path,
-            $context->guessMimeTypeFromPath($path),
-            FamilyEnum::tryFrom($options['family']),
+            $mimeType,
+            $family,
             false
         );
     }
