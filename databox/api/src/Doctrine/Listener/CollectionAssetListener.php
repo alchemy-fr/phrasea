@@ -39,7 +39,6 @@ class CollectionAssetListener implements EventSubscriber
         $this->trigger(Collection::EVENT_ASSET_ADD, $entity);
     }
 
-
     public function preRemove(PreRemoveEventArgs $args): void
     {
         $entity = $args->getObject();

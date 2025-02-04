@@ -781,10 +781,12 @@ function translateImageSettings(sd: PhraseanetSubdefStruct): object {
         jpeg: 'jpeg',
         png: 'png',
         tiff: 'tiff',
-    }
+    };
     const format: string = icodecFormats[sd.options.icodec] ?? '';
-    if(!format) {
-        throw new Error(`Unsupported image codec: ${sd.options.icodec} for subdef image:${sd.name}`);
+    if (!format) {
+        throw new Error(
+            `Unsupported image codec: ${sd.options.icodec} for subdef image:${sd.name}`
+        );
     }
 
     const filters: Record<string, any> = {

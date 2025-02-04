@@ -1,4 +1,4 @@
-import React, {ReactElement, ReactNode} from "react";
+import React, {ReactElement, ReactNode} from 'react';
 
 export type FreeNode = string | ReactNode | ReactNode[];
 

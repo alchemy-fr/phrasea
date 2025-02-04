@@ -4,15 +4,19 @@ import SendIcon from '@mui/icons-material/Send';
 import React from 'react';
 import RemoteErrors from '../Form/RemoteErrors.tsx';
 import Attachments from './Attachments.tsx';
-import {DeserializedMessageAttachment, StateSetter, ThreadMessage,} from '../../types.ts';
+import {
+    DeserializedMessageAttachment,
+    StateSetter,
+    ThreadMessage,
+} from '../../types.ts';
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
 import type {UseFormSubmitReturn} from '@alchemy/api';
 import {FlexRow} from '@alchemy/phrasea-ui';
 import EmojiPicker from './EmojiPicker.tsx';
-import MentionTextarea, {BaseMessageInputProps} from "./MentionTextarea.tsx";
-import {MentionsSuggestionsStyle} from "react-mentions";
-import {createUserTagStyle} from "./formatMessage.tsx";
-import {useController} from "react-hook-form";
+import MentionTextarea, {BaseMessageInputProps} from './MentionTextarea.tsx';
+import {MentionsSuggestionsStyle} from 'react-mentions';
+import {createUserTagStyle} from './formatMessage.tsx';
+import {useController} from 'react-hook-form';
 
 export type MessageFormData = Pick<ThreadMessage, 'content'>;
 
@@ -92,9 +96,11 @@ export default function MessageField({
                     }}
                     onClick={() => inputRef.current?.focus()}
                 >
-                    <Box sx={{
-                        p: 1,
-                    }}>
+                    <Box
+                        sx={{
+                            p: 1,
+                        }}
+                    >
                         <MentionTextarea
                             {...field}
                             inputRef={(r: HTMLTextAreaElement) => {
@@ -106,36 +112,43 @@ export default function MessageField({
                                 '&multiLine': {
                                     control: {
                                         backgroundColor: '#fff',
-                                        fontSize: theme.typography.body1.fontSize,
-                                        fontFamily: theme.typography.body1.fontFamily,
+                                        fontSize:
+                                            theme.typography.body1.fontSize,
+                                        fontFamily:
+                                            theme.typography.body1.fontFamily,
                                         lineHeight,
                                     },
                                     input: {
                                         border: 'none',
                                         outline: 'none',
-                                        fontSize: theme.typography.body1.fontSize,
-                                        fontFamily: theme.typography.body1.fontFamily,
+                                        fontSize:
+                                            theme.typography.body1.fontSize,
+                                        fontFamily:
+                                            theme.typography.body1.fontFamily,
                                         lineHeight,
                                     },
                                 },
                                 'suggestions': {
                                     list: {
-                                        backgroundColor: theme.palette.background.default,
+                                        backgroundColor:
+                                            theme.palette.background.default,
                                         border: `1px solid ${theme.palette.divider}`,
                                         borderRadius: theme.shape.borderRadius,
                                         boxShadow: theme.shadows[1],
                                     },
                                     item: {
-                                        padding: theme.spacing(1),
-                                        color: theme.palette.primary.main,
-                                        backgroundColor: theme.palette.background.default,
+                                        'padding': theme.spacing(1),
+                                        'color': theme.palette.primary.main,
+                                        'backgroundColor':
+                                            theme.palette.background.default,
                                         '&focused': {
-                                            backgroundColor: theme.palette.primary.main,
-                                            color: theme.palette.primary.contrastText,
-                                        }
-                                    }
-                                } as MentionsSuggestionsStyle
-
+                                            backgroundColor:
+                                                theme.palette.primary.main,
+                                            color: theme.palette.primary
+                                                .contrastText,
+                                        },
+                                    },
+                                } as MentionsSuggestionsStyle,
                             }}
                             mentionStyle={createUserTagStyle(theme)}
                             placeholder={placeholder}
@@ -187,16 +200,16 @@ export default function MessageField({
                                 disabled={submitting || disabled}
                                 loading={submitting}
                                 color={'primary'}
-                                endIcon={<SendIcon/>}
+                                endIcon={<SendIcon />}
                             >
                                 {submitLabel}
                             </LoadingButton>
                         </div>
                     </FlexRow>
                 </Box>
-                <FormFieldErrors field={'content'} errors={errors}/>
+                <FormFieldErrors field={'content'} errors={errors} />
             </FormRow>
-            <RemoteErrors errors={remoteErrors}/>
+            <RemoteErrors errors={remoteErrors} />
         </>
     );
 }

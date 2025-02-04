@@ -8,8 +8,7 @@ final readonly class MentionExtractor
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,
-    )
-    {
+    ) {
     }
 
     public function extractMentions(string $text): array

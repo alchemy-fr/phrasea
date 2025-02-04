@@ -231,7 +231,8 @@ export default function AnnotateToolbar({
                                 );
 
                                 if (!selectedAnnotationRef.current) {
-                                    changedOptions.current.size = Math.max(size);
+                                    changedOptions.current.size =
+                                        Math.max(size);
                                 }
 
                                 return setOptions(p =>

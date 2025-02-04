@@ -4,7 +4,7 @@ import {UserPreferences} from '../components/User/Preferences/UserPreferencesCon
 
 type QueryOptions = {
     query?: string;
-}
+};
 
 export async function getUsers(options: QueryOptions = {}): Promise<User[]> {
     const res = await apiClient.get(`/permissions/users`, {

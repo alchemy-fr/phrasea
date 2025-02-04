@@ -2,7 +2,7 @@ import {useNavigateToModal} from '../components/Routing/ModalLink.tsx';
 import {modalRoutes, routes} from '../routes.ts';
 import type {NotificationUriHandler} from '@alchemy/notification';
 import {getPath, useNavigate} from '@alchemy/navigation';
-import {BuiltInFilter, queryToHash} from "../components/Media/Search/search.ts";
+import {BuiltInFilter, queryToHash} from '../components/Media/Search/search.ts';
 import {useTranslation} from 'react-i18next';
 
 export function useNotificationUriHandler(): NotificationUriHandler {
@@ -29,16 +29,23 @@ export function useNotificationUriHandler(): NotificationUriHandler {
 
                 return;
             } else if (entity === 'collections') {
-                const searchHash = queryToHash('', [{
-                    a: BuiltInFilter.Collection,
-                    t: t('search_provider.collections', `Collections`),
-                    v: [
+                const searchHash = queryToHash(
+                    '',
+                    [
                         {
-                            label: id,
-                            value: '/' + id,
+                            a: BuiltInFilter.Collection,
+                            t: t('search_provider.collections', `Collections`),
+                            v: [
+                                {
+                                    label: id,
+                                    value: '/' + id,
+                                },
+                            ],
                         },
                     ],
-                }], [], undefined);
+                    [],
+                    undefined
+                );
 
                 navigate(`${getPath(routes.app)}#${searchHash}`);
             }

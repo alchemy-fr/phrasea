@@ -2,7 +2,7 @@ import reactStringReplace from 'react-string-replace';
 import React, {PropsWithChildren} from 'react';
 import {styled} from '@mui/material/styles';
 import nl2br from 'react-nl2br';
-import {FreeNode, replaceText} from "../../../../lib/reactText.tsx";
+import {FreeNode, replaceText} from '../../../../lib/reactText.tsx';
 
 const Highlight = styled('em')(({theme}) => ({
     backgroundColor: theme.palette.warning.main,

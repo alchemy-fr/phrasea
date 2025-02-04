@@ -6,9 +6,9 @@ import {
     MentionsInputProps,
     MentionsInputStyle,
     OnChangeHandlerFunc,
-    SuggestionDataItem
-} from 'react-mentions'
-import {getUsers} from "../../api/user.ts";
+    SuggestionDataItem,
+} from 'react-mentions';
+import {getUsers} from '../../api/user.ts';
 
 export type BaseMessageInputProps = {
     disabled?: boolean;
@@ -21,12 +21,10 @@ type Props = {
     onChange: OnChangeHandlerFunc;
     mentionStyle: CSSProperties;
     preloadedUsers?: SuggestionDataItem[];
-} & Omit<MentionsInputProps, 'onChange' | 'children'> & BaseMessageInputProps;
+} & Omit<MentionsInputProps, 'onChange' | 'children'> &
+    BaseMessageInputProps;
 
 export default function MentionTextarea({
-    inputRef,
-    onChange,
-    style,
     mentionStyle,
     preloadedUsers,
     ...mentionProps
@@ -41,44 +39,26 @@ export default function MentionTextarea({
             const users = await getUsers({
                 query,
             });
-            callback(users.map((u) => ({
-                id: u.id,
-                display: u.username,
-            })) as SuggestionDataItem[]);
+            callback(
+                users.map(u => ({
+                    id: u.id,
+                    display: u.username,
+                })) as SuggestionDataItem[]
+            );
         } catch (e) {
             console.error(e);
             callback([]);
             return;
         }
-    }
-
-    const changeHandler: OnChangeHandlerFunc = (
-        event,
-        newValue,
-        newPlainTextValue,
-        mentions,
-    ) => {
-        console.log('newValue', event, newValue, newPlainTextValue, mentions);
-        onChange(
-            event,
-            newValue,
-            newPlainTextValue,
-            mentions,
-        );
     };
 
     return (
-        <MentionsInput
-            {...mentionProps}
-            onChange={changeHandler}
-            inputRef={inputRef}
-            style={style}
-        >
+        <MentionsInput {...mentionProps}>
             <Mention
                 trigger="@"
                 data={userLoader}
-                renderSuggestion={(suggestion) => {
-                    return <div>{suggestion.display}</div>
+                renderSuggestion={suggestion => {
+                    return <div>{suggestion.display}</div>;
                 }}
                 displayTransform={(_id, display) => `@${display}`}
                 appendSpaceOnAdd={true}

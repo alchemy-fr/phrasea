@@ -24,9 +24,11 @@ export default function GroupSelect<TFieldValues extends FieldValues>({
         inputValue?: string | undefined
     ): Promise<SelectOption[]> => {
         try {
-            const result = await (!inputValue && data ? data : getGroups({
-                query: inputValue,
-            }));
+            const result = await (!inputValue && data
+                ? data
+                : getGroups({
+                      query: inputValue,
+                  }));
 
             return result
                 .map((t: Group) => ({

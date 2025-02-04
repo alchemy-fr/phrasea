@@ -1,12 +1,10 @@
-import nl2br from "react-nl2br";
-import reactStringReplace from "react-string-replace";
-import {FreeNode, replaceText} from "../../lib/reactText.tsx";
-import {styled} from "@mui/material/styles";
-import {alpha, Theme} from "@mui/material";
+import nl2br from 'react-nl2br';
+import reactStringReplace from 'react-string-replace';
+import {FreeNode, replaceText} from '../../lib/reactText.tsx';
+import {styled} from '@mui/material/styles';
+import {alpha, Theme} from '@mui/material';
 
-export function formatMessage(
-    value?: string,
-): FreeNode {
+export function formatMessage(value?: string): FreeNode {
     if (!value) {
         return [];
     }
@@ -25,11 +23,17 @@ export function formatMessage(
         (m, index) => {
             const truncated = truncateUrl(m, 50);
 
-            return <a key={index}
-                        href={m}
-                        title={m}
-                        target="_blank"
-                        rel="noreferrer">{truncated}</a>;
+            return (
+                <a
+                    key={index}
+                    href={m}
+                    title={m}
+                    target="_blank"
+                    rel="noreferrer"
+                >
+                    {truncated}
+                </a>
+            );
         }
     );
 
