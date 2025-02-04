@@ -23,6 +23,7 @@ final class GroupChoiceField implements FieldInterface
             ->setProperty($propertyName)
             ->setLabel($label)
             ->setFormType(GroupChoiceType::class)
+            ->setTemplateName('crud/field/array')
             ->setHelp('If no group is selected, the target will be allowed to any user.')
         ;
     }
