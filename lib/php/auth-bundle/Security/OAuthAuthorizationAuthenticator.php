@@ -23,6 +23,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 
 class OAuthAuthorizationAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
@@ -53,7 +54,7 @@ class OAuthAuthorizationAuthenticator extends AbstractAuthenticator implements A
 
         try {
             [$accessToken, $refreshToken] = $this->oauthClient->getTokenFromAuthorizationCode($code, $this->getRedirectUri());
-        } catch (\InvalidArgumentException) {
+        } catch (\InvalidArgumentException|ClientExceptionInterface) {
             throw new CustomUserMessageAuthenticationException('Invalid authorization code.');
         }
 
