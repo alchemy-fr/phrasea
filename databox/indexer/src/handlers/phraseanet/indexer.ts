@@ -566,7 +566,7 @@ async function importSubdefsStructure(
         logger.info(
             `  Creating rendition definition "${sd.name}" of class "${sd.class}"`
         );
-        let jsConf: Record<string, object> = {};
+        const jsConf: Record<string, object> = {};
         const translators: Record<string, Function> = {
             'image': translateImageSettings,
             'video': translateVideoSettings,
@@ -791,14 +791,14 @@ function translateImageSettings(sd: PhraseanetSubdefStruct): object {
         auto_rotate: null,
     };
 
-    const bgcolor = sd.options['backgroundcolor']['0'] ?? '';
+    const bgcolor = sd.options.backgroundcolor?.['0'] ?? '';
     if(bgcolor) {
-        filters['background_fill'] = {
+        filters.background_fill = {
             color: bgcolor,
             opacity: 100,
         }
     }
-    filters['thumbnail'] = {
+    filters.thumbnail = {
         size: [size, size],
         mode: 'inset',
     }

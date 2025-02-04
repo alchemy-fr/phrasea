@@ -25,7 +25,8 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 
 final readonly class AlbumArtworkTransformerModule implements TransformerModuleInterface
 {
-    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
+    public function __construct(
+        #[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
         private OutputFormatsDocumentation $outputFormatsDocumentation,
     ) {

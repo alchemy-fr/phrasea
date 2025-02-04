@@ -7,7 +7,6 @@ namespace App\Doctrine\Delete;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use App\Doctrine\SoftDeleteToggler;
 use App\Elasticsearch\IndexCleaner;
-use App\Entity\Core\Asset;
 use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
