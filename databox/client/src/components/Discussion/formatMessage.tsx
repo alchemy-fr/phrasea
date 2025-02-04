@@ -1,5 +1,4 @@
 import nl2br from "react-nl2br";
-import React, {PropsWithChildren} from "react";
 import reactStringReplace from "react-string-replace";
 import {FreeNode, replaceText} from "../../lib/reactText.tsx";
 import {styled} from "@mui/material/styles";
@@ -39,9 +38,9 @@ export function formatMessage(
 
 export const createUserTagStyle = (theme: Theme) => ({
     backgroundColor: alpha(theme.palette.primary.main, 0.1),
-    padding: '1px 3px',
-    margin: '-1px -3px',
-    borderRadius: 3,
+    padding: '1px 1px',
+    margin: '-1px -1px',
+    borderRadius: 4,
 });
 
 const UserTag = styled('span')(({theme}) => createUserTagStyle(theme));

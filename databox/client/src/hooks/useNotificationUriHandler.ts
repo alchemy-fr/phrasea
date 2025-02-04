@@ -19,7 +19,7 @@ export function useNotificationUriHandler(): NotificationUriHandler {
 
             if (entity === 'assets') {
                 navigateToModal(
-                    modalRoutes.assets.routes.view,
+                    modalRoutes.assets.routes.viewGuessRendition,
                     {
                         id: id,
                     },

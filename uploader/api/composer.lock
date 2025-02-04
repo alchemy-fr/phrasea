@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c12b1e0f0538e989bee2ffbb75fab52c",
+    "content-hash": "88c395d9109fced08e5cabcbb33a0464",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "1.0.0",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "da03889b273416785d99e353e29e0980b4a525e2"
+                "reference": "c2f8bf95282be5e294a1991eb618423bc464c1ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/da03889b273416785d99e353e29e0980b4a525e2",
-                "reference": "da03889b273416785d99e353e29e0980b4a525e2",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/c2f8bf95282be5e294a1991eb618423bc464c1ea",
+                "reference": "c2f8bf95282be5e294a1991eb618423bc464c1ea",
                 "shasum": ""
             },
             "require": {
@@ -37,6 +37,7 @@
                 "phpunit/phpunit": "^8.4|^10.2.2",
                 "rector/rector": "^2.0.7"
             },
+            "default-branch": true,
             "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
@@ -54,13 +55,13 @@
             "homepage": "https://www.alchemy.fr/",
             "support": {
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
-                "source": "https://github.com/alchemy-fr/acl-bundle/tree/1.0.0"
+                "source": "https://github.com/alchemy-fr/acl-bundle/tree/main"
             },
-            "time": "2025-01-29T18:06:26+00:00"
+            "time": "2025-02-04T10:09:57+00:00"
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-773-mentions",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -118,7 +119,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-773-mentions",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -175,7 +176,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-773-mentions",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -228,7 +229,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-773-mentions",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -289,7 +290,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-773-mentions",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -342,7 +343,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-773-mentions",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
@@ -398,7 +399,7 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-773-mentions",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-bundle",
@@ -451,7 +452,7 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-master",
+            "version": "dev-PS-773-mentions",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-sdk",
@@ -504,7 +505,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-773-mentions",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -834,16 +835,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.339.1",
+            "version": "3.339.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "3675e58c8fa971f4b4a24e7b0bee8673bda1ba00"
+                "reference": "7ca04301a620c9400d00108fa338ad37acf19247"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/3675e58c8fa971f4b4a24e7b0bee8673bda1ba00",
-                "reference": "3675e58c8fa971f4b4a24e7b0bee8673bda1ba00",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7ca04301a620c9400d00108fa338ad37acf19247",
+                "reference": "7ca04301a620c9400d00108fa338ad37acf19247",
                 "shasum": ""
             },
             "require": {
@@ -926,9 +927,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.339.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.339.5"
             },
-            "time": "2025-01-28T19:05:47+00:00"
+            "time": "2025-02-03T19:04:31+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -2729,25 +2730,24 @@
         },
         {
             "name": "gedmo/doctrine-extensions",
-            "version": "v3.17.1",
+            "version": "v3.18.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine-extensions/DoctrineExtensions.git",
-                "reference": "eabb45018c5a4362b46c5beae3881261da89f900"
+                "reference": "964db6c4fb5b0fc8aa25cc31b17471b4963460c6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine-extensions/DoctrineExtensions/zipball/eabb45018c5a4362b46c5beae3881261da89f900",
-                "reference": "eabb45018c5a4362b46c5beae3881261da89f900",
+                "url": "https://api.github.com/repos/doctrine-extensions/DoctrineExtensions/zipball/964db6c4fb5b0fc8aa25cc31b17471b4963460c6",
+                "reference": "964db6c4fb5b0fc8aa25cc31b17471b4963460c6",
                 "shasum": ""
             },
             "require": {
                 "behat/transliterator": "^1.2",
                 "doctrine/collections": "^1.2 || ^2.0",
-                "doctrine/common": "^2.13 || ^3.0",
                 "doctrine/deprecations": "^1.0",
                 "doctrine/event-manager": "^1.2 || ^2.0",
-                "doctrine/persistence": "^2.2 || ^3.0",
+                "doctrine/persistence": "^2.2 || ^3.0 || ^4.0",
                 "php": "^7.4 || ^8.0",
                 "psr/cache": "^1 || ^2 || ^3",
                 "psr/clock": "^1",
@@ -2755,6 +2755,7 @@
             },
             "conflict": {
                 "doctrine/annotations": "<1.13 || >=3.0",
+                "doctrine/common": "<2.13 || >=4.0",
                 "doctrine/dbal": "<3.7 || >=5.0",
                 "doctrine/mongodb-odm": "<2.3 || >=3.0",
                 "doctrine/orm": "<2.14.0 || 2.16.0 || 2.16.1 || >=4.0"
@@ -2762,17 +2763,18 @@
             "require-dev": {
                 "doctrine/annotations": "^1.13 || ^2.0",
                 "doctrine/cache": "^1.11 || ^2.0",
+                "doctrine/common": "^2.13 || ^3.0",
                 "doctrine/dbal": "^3.7 || ^4.0",
                 "doctrine/doctrine-bundle": "^2.3",
                 "doctrine/mongodb-odm": "^2.3",
                 "doctrine/orm": "^2.14.0 || ^3.0",
                 "friendsofphp/php-cs-fixer": "^3.14.0",
                 "nesbot/carbon": "^2.71 || ^3.0",
-                "phpstan/phpstan": "^1.11",
-                "phpstan/phpstan-doctrine": "^1.4",
-                "phpstan/phpstan-phpunit": "^1.4",
+                "phpstan/phpstan": "^2.1.1",
+                "phpstan/phpstan-doctrine": "^2.0.1",
+                "phpstan/phpstan-phpunit": "^2.0.3",
                 "phpunit/phpunit": "^9.6",
-                "rector/rector": "^1.1",
+                "rector/rector": "^2.0.6",
                 "symfony/console": "^5.4 || ^6.0 || ^7.0",
                 "symfony/doctrine-bridge": "^5.4 || ^6.0 || ^7.0",
                 "symfony/phpunit-bridge": "^6.0 || ^7.0",
@@ -2834,7 +2836,7 @@
             "support": {
                 "email": "gediminas.morkevicius@gmail.com",
                 "issues": "https://github.com/doctrine-extensions/DoctrineExtensions/issues",
-                "source": "https://github.com/doctrine-extensions/DoctrineExtensions/tree/v3.17.1",
+                "source": "https://github.com/doctrine-extensions/DoctrineExtensions/tree/v3.18.0",
                 "wiki": "https://github.com/Atlantic18/DoctrineExtensions/tree/main/doc"
             },
             "funding": [
@@ -2855,7 +2857,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-10-07T22:30:27+00:00"
+            "time": "2025-02-01T22:28:13+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -11588,7 +11590,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-master",
+            "version": "dev-PS-773-mentions",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
@@ -12267,16 +12269,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.68.3",
+            "version": "v3.68.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "85fd31cced824749a732e697acdd1a3d657312f0"
+                "reference": "7bedb718b633355272428c60736dc97fb96daf27"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/85fd31cced824749a732e697acdd1a3d657312f0",
-                "reference": "85fd31cced824749a732e697acdd1a3d657312f0",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/7bedb718b633355272428c60736dc97fb96daf27",
+                "reference": "7bedb718b633355272428c60736dc97fb96daf27",
                 "shasum": ""
             },
             "require": {
@@ -12358,7 +12360,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.68.3"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.68.5"
             },
             "funding": [
                 {
@@ -12366,7 +12368,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-01-27T16:37:32+00:00"
+            "time": "2025-01-30T17:00:50+00:00"
         },
         {
             "name": "hautelook/alice-bundle",
@@ -15683,6 +15685,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "alchemy/acl-bundle": 20,
         "alchemy/admin-bundle": 20,
         "alchemy/core-bundle": 20,
         "alchemy/messenger-bundle": 20,

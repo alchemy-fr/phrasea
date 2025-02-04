@@ -8,5 +8,5 @@ use Alchemy\AclBundle\Repository\GroupRepositoryInterface as AclGroupRepositoryI
 
 interface GroupRepositoryInterface extends AclGroupRepositoryInterface
 {
-    public function getGroups(?int $limit = null, ?int $offset = null, ?string $accessToken = null): array;
+    public function getGroups(array $options = []): array;
 }

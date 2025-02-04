@@ -28,19 +28,27 @@ class PermissionsController extends AbstractController
     #[Route(path: '/users', name: 'users', methods: ['GET'])]
     public function getUsers(Request $request): Response
     {
-        $limit = $request->query->get('limit', 30);
-        $offset = $request->query->get('offset');
-
-        return new JsonResponse($this->userRepository->getUsers($limit, $offset, $this->getAccessToken()));
+        return new JsonResponse($this->userRepository->getUsers([
+            'limit' => $request->query->get('limit', 30),
+            'offset' => $request->query->get('offset'),
+            'access_token' => $this->getAccessToken(),
+            'query' => [
+                'search' => $request->query->get('query'),
+            ],
+        ]));
     }
 
     #[Route(path: '/groups', name: 'groups', methods: ['GET'])]
     public function getGroups(Request $request): Response
     {
-        $limit = $request->query->get('limit', 30);
-        $offset = $request->query->get('offset');
-
-        return new JsonResponse($this->groupRepository->getGroups($limit, $offset, $this->getAccessToken()));
+        return new JsonResponse($this->groupRepository->getGroups([
+            'limit' => $request->query->get('limit', 30),
+            'offset' => $request->query->get('offset'),
+            'query' => [
+                'search' => $request->query->get('query'),
+            ],
+            'access_token' => $this->getAccessToken(),
+        ]));
     }
 
     private function getAccessToken(): string

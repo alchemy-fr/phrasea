@@ -66,10 +66,11 @@ export default forwardRef<MessageFormHandle, Props>(function MessageForm(
         [setAttachments, attachments, inputRef]
     );
 
+    const defaultValues = {
+        content: '',
+    };
     const useFormSubmitProps = useFormSubmit<MessageFormData, ThreadMessage>({
-        defaultValues: {
-            content: '',
-        },
+        defaultValues,
         onSubmit: async (data: MessageFormData) => {
             return await postThreadMessage({
                 threadId,
@@ -86,9 +87,9 @@ export default forwardRef<MessageFormHandle, Props>(function MessageForm(
             });
         },
         onSuccess: (data: ThreadMessage) => {
+            reset(defaultValues);
             onNewMessage(data);
             setAttachments([]);
-            reset();
         },
     });
 

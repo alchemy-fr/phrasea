@@ -78,11 +78,17 @@ export default function AnnotateToolbar({
     selectedAnnotationRef,
     canvasRef,
 }: Props) {
+    const changedOptions = React.useRef<Partial<AnnotationOptions>>({});
+
     React.useEffect(() => {
         if (mode) {
+            const co = {...changedOptions.current};
+            changedOptions.current = {};
+
             setOptions(p => ({
                 ...p,
                 ...getDefaultOptions(mode),
+                ...co,
             }));
         }
     }, [mode]);
@@ -194,14 +200,18 @@ export default function AnnotateToolbar({
                             displayField={false}
                             color={options.color}
                             onChange={c => {
-                                setOptions(p =>
-                                    changeIfSelected(
+                                setOptions(p => {
+                                    if (!selectedAnnotationRef.current) {
+                                        changedOptions.current.color = c;
+                                    }
+
+                                    return changeIfSelected(
                                         canvasRef,
                                         annotationsControl,
                                         selectedAnnotationRef,
                                         {...p, color: c}
-                                    )
-                                );
+                                    );
+                                });
                             }}
                         />
                     </div>
@@ -219,6 +229,10 @@ export default function AnnotateToolbar({
                                     0.001,
                                     parseFloat(e.target.value) || 1
                                 );
+
+                                if (!selectedAnnotationRef.current) {
+                                    changedOptions.current.size = Math.max(size);
+                                }
 
                                 return setOptions(p =>
                                     changeIfSelected(

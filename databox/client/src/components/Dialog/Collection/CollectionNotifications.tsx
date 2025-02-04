@@ -17,7 +17,7 @@ export default function CollectionNotifications({
 
     return (
         <ContentTab onClose={onClose} minHeight={minHeight}>
-            <FollowButton
+            {data.topicSubscriptions ? <FollowButton
                 entity={'collections'}
                 id={data.id}
                 topics={[
@@ -67,7 +67,7 @@ export default function CollectionNotifications({
                     },
                 ]}
                 subscriptions={data.topicSubscriptions}
-            />
+            /> : t('notification.topics.collection.not_authenticated', 'You are not authenticated to follow this collection')}
         </ContentTab>
     );
 }

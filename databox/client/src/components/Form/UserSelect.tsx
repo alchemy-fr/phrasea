@@ -23,7 +23,9 @@ export default function UserSelect<TFieldValues extends FieldValues>({
         inputValue?: string | undefined
     ): Promise<SelectOption[]> => {
         try {
-            const result = await (!inputValue && data ? data : getUsers());
+            const result = await (!inputValue && data ? data : getUsers({
+                query: inputValue,
+            }));
 
             return result
                 .map((t: User) => ({

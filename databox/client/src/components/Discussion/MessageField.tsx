@@ -1,4 +1,4 @@
-import {alpha, Box, Button, useTheme} from '@mui/material';
+import {Box, Button, useTheme} from '@mui/material';
 import {LoadingButton} from '@mui/lab';
 import SendIcon from '@mui/icons-material/Send';
 import React from 'react';
@@ -11,8 +11,8 @@ import {FlexRow} from '@alchemy/phrasea-ui';
 import EmojiPicker from './EmojiPicker.tsx';
 import MentionTextarea, {BaseMessageInputProps} from "./MentionTextarea.tsx";
 import {MentionsSuggestionsStyle} from "react-mentions";
-import {Controller} from "react-hook-form";
 import {createUserTagStyle} from "./formatMessage.tsx";
+import {useController} from "react-hook-form";
 
 export type MessageFormData = Pick<ThreadMessage, 'content'>;
 
@@ -60,10 +60,20 @@ export default function MessageField({
         submitting,
         control,
     } = useFormSubmitProps;
+
     const theme = useTheme();
 
-    const verticalPadding = '2px';
-    const horizontalPadding = '2px';
+    const {
+        field: {ref, ...field},
+    } = useController({
+        name: 'content',
+        control,
+        rules: {
+            required: true,
+        },
+        disabled: submitting || disabled,
+    });
+
     const lineHeight = '150%';
 
     return (
@@ -85,63 +95,51 @@ export default function MessageField({
                     <Box sx={{
                         p: 1,
                     }}>
-                        <Controller
-                            disabled={submitting || disabled}
-                            rules={{required: true}}
-                            render={({field: {value, onBlur, onChange, ref}}) => {
-                            return <MentionTextarea
-                                value={value}
-                                onBlur={onBlur}
-                                onChange={onChange}
-                                inputRef={(r: HTMLTextAreaElement) => {
-                                    ref(r);
-                                    inputRef.current = r;
-                                }}
-                                style={{
-                                    '&multiLine': {
-                                        control: {
-                                            backgroundColor: '#fff',
-                                            fontSize: theme.typography.body1.fontSize,
-                                            fontFamily: theme.typography.body1.fontFamily,
-                                            lineHeight,
-                                        },
-                                        input: {
-                                            border: 'none',
-                                            outline: 'none',
-                                            fontSize: theme.typography.body1.fontSize,
-                                            fontFamily: theme.typography.body1.fontFamily,
-                                            lineHeight,
-                                        },
+                        <MentionTextarea
+                            {...field}
+                            inputRef={(r: HTMLTextAreaElement) => {
+                                ref(r);
+                                inputRef.current = r;
+                            }}
+                            onFocus={onFocus}
+                            style={{
+                                '&multiLine': {
+                                    control: {
+                                        backgroundColor: '#fff',
+                                        fontSize: theme.typography.body1.fontSize,
+                                        fontFamily: theme.typography.body1.fontFamily,
+                                        lineHeight,
                                     },
-                                    'suggestions': {
-                                        list: {
-                                            backgroundColor: theme.palette.background.default,
-                                            border: `1px solid ${theme.palette.divider}`,
-                                            borderRadius: theme.shape.borderRadius,
-                                            boxShadow: theme.shadows[1],
-                                        },
-                                        item: {
-                                            padding: theme.spacing(1),
-                                            color: theme.palette.primary.main,
-                                            backgroundColor: theme.palette.background.default,
-                                            '&focused': {
-                                                backgroundColor: theme.palette.primary.main,
-                                                color: theme.palette.primary.contrastText,
-                                            }
+                                    input: {
+                                        border: 'none',
+                                        outline: 'none',
+                                        fontSize: theme.typography.body1.fontSize,
+                                        fontFamily: theme.typography.body1.fontFamily,
+                                        lineHeight,
+                                    },
+                                },
+                                'suggestions': {
+                                    list: {
+                                        backgroundColor: theme.palette.background.default,
+                                        border: `1px solid ${theme.palette.divider}`,
+                                        borderRadius: theme.shape.borderRadius,
+                                        boxShadow: theme.shadows[1],
+                                    },
+                                    item: {
+                                        padding: theme.spacing(1),
+                                        color: theme.palette.primary.main,
+                                        backgroundColor: theme.palette.background.default,
+                                        '&focused': {
+                                            backgroundColor: theme.palette.primary.main,
+                                            color: theme.palette.primary.contrastText,
                                         }
-                                    } as MentionsSuggestionsStyle
+                                    }
+                                } as MentionsSuggestionsStyle
 
-                                }}
-                                mentionStyle={createUserTagStyle(theme)}
-                                placeholder={placeholder}
-                                disabled={submitting || disabled}
-                                onFocus={onFocus}
-                            />
-                        }}
-                        name={'content'}
-                        control={control}
-                    />
-
+                            }}
+                            mentionStyle={createUserTagStyle(theme)}
+                            placeholder={placeholder}
+                        />
                     </Box>
                     {attachments ? (
                         <Attachments

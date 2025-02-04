@@ -45,7 +45,7 @@ export default function AssetViewActions({asset, file}: Props) {
                     },
                 }}
             >
-                <FollowButton
+                {asset.topicSubscriptions ? <FollowButton
                     entity={'assets'}
                     id={asset.id}
                     subscriptions={asset.topicSubscriptions}
@@ -84,7 +84,7 @@ export default function AssetViewActions({asset, file}: Props) {
                             ),
                         },
                     ]}
-                />
+                /> : null }
                 {can.download ? (
                     <div>
                         <Button

@@ -9,31 +9,28 @@ use Alchemy\AuthBundle\Security\JwtUser;
 
 class UserRepository extends AbstractKeycloakRepository implements UserRepositoryInterface
 {
-    public function getUsers(?int $limit = null, ?int $offset = null, ?string $accessToken = null): array
+    public function getUsers(array $options = []): array
     {
+        $accessToken = $options['access_token'] ?? null;
+        unset($options['access_token']);
         if (null !== $accessToken) {
-            return $this->oauthClient->getUsers($accessToken, $limit, $offset);
+            return $this->oauthClient->getUsers($accessToken, $options);
         }
 
-        return $this->keycloakRealmCache->get('users', function () use ($limit, $offset): array {
-            return $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getUsers($accessToken, $limit, $offset));
+        return $this->keycloakRealmCache->get('users', function () use ($options): array {
+            return $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getUsers($accessToken, $options));
         });
     }
 
-    public function getUser(string $userId, ?string $accessToken = null): ?array
+    public function getUser(string $userId, array $options = []): ?array
     {
-        if (null !== $accessToken) {
-            return $this->oauthClient->getUser($accessToken, $userId);
+        if (isset($options['access_token'])) {
+            return $this->oauthClient->getUser($options['access_token'], $userId, $options);
         }
 
         return $this->keycloakRealmCache->get('users_'.$userId, function () use ($userId): ?array {
             return $this->executeWithAccessToken(fn (string $accessToken): ?array => $this->oauthClient->getUser($accessToken, $userId));
         });
-    }
-
-    public function getAclUsers(?int $limit = null, int $offset = 0): array
-    {
-        return $this->getUsers($limit, $offset);
     }
 
     /**

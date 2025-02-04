@@ -2,14 +2,22 @@ import apiClient from './api-client';
 import {Group, User} from '../types';
 import {UserPreferences} from '../components/User/Preferences/UserPreferencesContext';
 
-export async function getUsers(): Promise<User[]> {
-    const res = await apiClient.get(`/permissions/users`);
+type QueryOptions = {
+    query?: string;
+}
+
+export async function getUsers(options: QueryOptions = {}): Promise<User[]> {
+    const res = await apiClient.get(`/permissions/users`, {
+        params: options.query ? {query: options.query} : undefined,
+    });
 
     return res.data;
 }
 
-export async function getGroups(): Promise<Group[]> {
-    const res = await apiClient.get(`/permissions/groups`);
+export async function getGroups(options: QueryOptions = {}): Promise<Group[]> {
+    const res = await apiClient.get(`/permissions/groups`, {
+        params: options.query ? {query: options.query} : undefined,
+    });
 
     return res.data;
 }

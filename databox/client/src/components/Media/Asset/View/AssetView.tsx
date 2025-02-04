@@ -125,7 +125,7 @@ export default function AssetView({modalIndex, open}: Props) {
                     : data[1][0],
             ];
         }
-    }, [data, previousData]);
+    }, [data, previousData, renditionId]);
 
     const {
         onNewAnnotation,

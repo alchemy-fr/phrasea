@@ -8,7 +8,7 @@ use Alchemy\AclBundle\Repository\UserRepositoryInterface as AclUserRepositoryInt
 
 interface UserRepositoryInterface extends AclUserRepositoryInterface
 {
-    public function getUsers(?int $limit = null, ?int $offset = null, ?string $accessToken = null): array;
+    public function getUsers(array $options = []): array;
 
-    public function getUser(string $userId, ?string $accessToken = null): ?array;
+    public function getUser(string $userId, array $options = []): ?array;
 }
