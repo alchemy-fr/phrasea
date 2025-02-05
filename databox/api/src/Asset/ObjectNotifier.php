@@ -21,6 +21,7 @@ final readonly class ObjectNotifier
         string $notificationId,
         string $authorId,
         array $notificationParams,
+        array $notificationOptions = [],
     ): void {
         $notificationParams['author'] ??= $this->notifier->getUsername($authorId);
 
@@ -51,7 +52,7 @@ final readonly class ObjectNotifier
         }
 
         if ($shouldNotify) {
-            $this->notifier->notifyTopic($topicKey, $authorId, $notificationId, $notificationParams);
+            $this->notifier->notifyTopic($topicKey, $authorId, $notificationId, $notificationParams, $notificationOptions);
         }
     }
 }

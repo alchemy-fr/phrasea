@@ -53,11 +53,12 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
         ?string $authorId,
         string $notificationId,
         array $parameters = [],
+        array $options = [],
     ): void {
         if ($this->notifyAuthor) {
             $authorId = null;
         }
-        $this->novuClient->notifyTopic($topicKey, $authorId, $notificationId, $parameters);
+        $this->novuClient->notifyTopic($topicKey, $authorId, $notificationId, $parameters, $options);
     }
 
     public function addTopicSubscribers(string $topicKey, array $subscribers): void

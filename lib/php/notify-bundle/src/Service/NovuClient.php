@@ -31,6 +31,7 @@ final readonly class NovuClient
         ?string $authorId,
         string $notificationId,
         array $parameters = [],
+        array $options = [],
     ): void {
         $data = [
             'name' => $notificationId,
@@ -43,6 +44,11 @@ final readonly class NovuClient
 
         if (null !== $authorId) {
             $data['actor'] = ['subscriberId' => $authorId];
+        }
+
+        $transactionId = $options['transactionId'] ?? null;
+        if (null !== $transactionId) {
+            $data['transactionId'] = $transactionId;
         }
 
         $this->request('POST', '/v1/events/trigger', [

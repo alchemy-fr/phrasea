@@ -90,7 +90,10 @@ const AppProxy = React.memo(
         );
     },
     (a, b) => {
-        return isDrawer(a.locationSearch) === isDrawer(b.locationSearch);
+        const dA = isDrawer(a.locationSearch);
+        const dB = isDrawer(b.locationSearch);
+
+        return (dA === dB) || (!dA && dB);
     }
 );
 
