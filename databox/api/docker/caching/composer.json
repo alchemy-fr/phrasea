@@ -142,7 +142,7 @@
         "ext-imagick": "*",
         "ext-json": "*",
         "ext-sodium": "*",
-        "alchemy/acl-bundle": "^1.0.0",
+        "alchemy/acl-bundle": "dev-main",
         "api-platform/core": "^3.2.7",
         "arthem/object-reference-bundle": "dev-master",
         "beberlei/doctrineextensions": "dev-regex-replace-flags",

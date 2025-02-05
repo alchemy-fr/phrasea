@@ -14,7 +14,7 @@ type Props = {
 
 export default function EditMessage({data, onEdit, onCancel}: Props) {
     const {t} = useTranslation();
-    const inputRef = React.useRef<HTMLInputElement | null>(null);
+    const inputRef = React.useRef<HTMLTextAreaElement | null>(null);
 
     const useFormSubmitProps = useFormSubmit<MessageFormData, ThreadMessage>({
         defaultValues: data,

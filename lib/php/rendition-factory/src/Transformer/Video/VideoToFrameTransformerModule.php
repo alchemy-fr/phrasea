@@ -11,6 +11,7 @@ use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
+use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Filter\FrameQualityFilter;
 use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
 use Alchemy\RenditionFactory\Transformer\Video\Format\GifFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\JpegFormat;
@@ -80,6 +81,10 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
                         ->info('extension of the output file')
                         ->example('jpg')
                     ->end()
+                    ->scalarNode('quality')
+                        ->info('Change the quality of the output file (0-100)')
+                        ->defaultValue(80)
+                    ->end()
                     ->scalarNode('passes')
                         ->defaultValue(2)
                         ->info('Change the number of ffmpeg passes')
@@ -122,6 +127,13 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
         $context->log(sprintf('  start=%s (%.02f)', $startAsTimecode, $start));
 
         $frame = $video->frame($startAsTimecode);
+
+        $quality = (int) $this->optionsResolver->resolveOption($options['quality'] ?? 80, $resolverContext);
+        if ($quality < 0 || $quality > 100) {
+            throw new \InvalidArgumentException('Invalid quality, must be 0...100.');
+        }
+        $frame->addFilter(new FrameQualityFilter($quality));
+
         $outputPath = $context->createTmpFilePath($commonArgs->getExtension());
 
         $frame->save($outputPath);

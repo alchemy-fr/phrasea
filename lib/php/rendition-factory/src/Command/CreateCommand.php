@@ -57,13 +57,13 @@ class CreateCommand extends Command
                 if ('.' === $f || '..' === $f) {
                     continue;
                 }
-                if(false === $this->doFile($input, $output, $src.'/'.$f)) {
+                if (false === $this->doFile($input, $output, $src.'/'.$f)) {
                     $ret = Command::FAILURE;
                 }
             }
             closedir($od);
         } else {
-            if(false === $this->doFile($input, $output, $src)) {
+            if (false === $this->doFile($input, $output, $src)) {
                 $ret = Command::FAILURE;
             }
         }

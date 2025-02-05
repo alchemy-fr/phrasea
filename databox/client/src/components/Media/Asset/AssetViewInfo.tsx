@@ -16,7 +16,7 @@ type Props = {
 } & BaseAttributeRowUIProps;
 
 function AssetViewInfo({asset}: Props) {
-    const [expanded, setExpanded] = React.useState(true);
+    const [expanded, setExpanded] = React.useState(false);
     const {t} = useTranslation();
 
     return (

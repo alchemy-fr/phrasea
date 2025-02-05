@@ -37,6 +37,10 @@ services:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
 
+    Alchemy\RenditionFactory\Transformer\Video\AlbumArtworkTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
     Alchemy\RenditionFactory\Transformer\Document\DocumentToPdfTransformerModule:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
@@ -46,6 +50,10 @@ services:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
 
     Alchemy\RenditionFactory\Transformer\Image\SetDpiTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\DownloadTransformerModule:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
 

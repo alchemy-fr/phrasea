@@ -6,25 +6,25 @@ namespace Alchemy\AuthBundle\Repository;
 
 class GroupRepository extends AbstractKeycloakRepository implements GroupRepositoryInterface
 {
-    public function getGroups(?int $limit = null, ?int $offset = null, ?string $accessToken = null): array
+    public function getGroups(array $options = []): array
     {
-        if (null !== $accessToken) {
-            return $this->oauthClient->getGroups($accessToken, $limit, $offset);
+        if (isset($options['access_token'])) {
+            return $this->oauthClient->getGroups($options['access_token'], $options);
         }
 
-        return $this->keycloakRealmCache->get('groups', function () use ($limit, $offset): array {
-            return $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getGroups($accessToken, $limit, $offset));
+        return $this->keycloakRealmCache->get('groups', function () use ($options): array {
+            return $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getGroups($accessToken, $options));
         });
     }
 
-    public function getGroup(string $groupId, ?string $accessToken = null): ?array
+    public function getGroup(string $groupId, array $options = []): ?array
     {
-        if (null !== $accessToken) {
-            return $this->oauthClient->getGroup($accessToken, $groupId);
+        if (isset($options['access_token'])) {
+            return $this->oauthClient->getGroup($options['access_token'], $groupId, $options);
         }
 
-        return $this->keycloakRealmCache->get('groups_'.$groupId, function () use ($groupId): ?array {
-            return $this->executeWithAccessToken(fn (string $accessToken): ?array => $this->oauthClient->getGroup($accessToken, $groupId));
+        return $this->keycloakRealmCache->get('groups_'.$groupId, function () use ($groupId, $options): ?array {
+            return $this->executeWithAccessToken(fn (string $accessToken): ?array => $this->oauthClient->getGroup($accessToken, $groupId, $options));
         });
     }
 }

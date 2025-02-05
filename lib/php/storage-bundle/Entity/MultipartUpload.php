@@ -72,7 +72,7 @@ use Alchemy\StorageBundle\Controller\MultipartUploadCompleteAction;
         new Delete(
             controller: MultipartUploadCancelAction::class,
             openapiContext: [
-                'summary' => 'Cancel an upload', 
+                'summary' => 'Cancel an upload',
                 'description' => 'Cancel an upload.'
             ]
         ),
@@ -136,7 +136,7 @@ class MultipartUpload
         return $this->filename;
     }
 
-    public function setFilename(string $filename): void
+    public function setFilename(?string $filename): void
     {
         $this->filename = $filename;
     }
