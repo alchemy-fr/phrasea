@@ -1,23 +1,23 @@
 <?php
 
-namespace Alchemy\RenditionFactory\Transformer\Document;
+namespace Alchemy\RenditionFactory\Transformer;
 
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
-use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\Transformer\Document\Libreoffice\PdfConverter;
-use Alchemy\RenditionFactory\Transformer\Documentation;
-use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
-use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
+use Alchemy\RenditionFactory\FileFamilyGuesser;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
-final readonly class DocumentToPdfTransformerModule implements TransformerModuleInterface
+final readonly class DownloadTransformerModule implements TransformerModuleInterface
 {
+    public function __construct(private FileFamilyGuesser $fileFamilyGuesser)
+    {
+    }
+
     public static function getName(): string
     {
-        return 'document_to_pdf';
+        return 'download';
     }
 
     public function getDocumentation(): Documentation
@@ -28,7 +28,7 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
         return new Documentation(
             $treeBuilder,
             <<<HEADER
-            Convert any document to PDF format.
+            Download a file to be used as output.
             HEADER
         );
     }
@@ -38,7 +38,11 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
         // @formatter:off
         $builder
             ->arrayNode('options')
-                ->ignoreExtraKeys(false)
+                ->children()
+                    ->scalarNode('url')
+                        ->info('url of the file to download')
+                    ->end()
+                ->end()
             ->end()
         ;
         // @formatter:on
@@ -46,21 +50,15 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        if ('application/pdf' === $inputFile->getType()) {
-            return $inputFile->createOutputFile();
-        }
-
-        $newPath = $context->createTmpFilePath('pdf');
-
-        $pdfConvert = new PdfConverter();
-
-        $pdfConvert->convert($inputFile->getPath(), $newPath);
+        $path = $context->getRemoteFile($options['url']);
+        $mimeType = $context->guessMimeTypeFromPath($path);
+        $family = $this->fileFamilyGuesser->getFamily($path, $mimeType);
 
         return new OutputFile(
-            $newPath,
-            'application/pdf',
-            FamilyEnum::Document,
-            false // TODO implement projection
+            $path,
+            $mimeType,
+            $family,
+            false
         );
     }
 }
