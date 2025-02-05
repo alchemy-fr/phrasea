@@ -72,10 +72,6 @@ export default function MessageField({
     } = useController({
         name: 'content',
         control,
-        rules: {
-            required: true,
-        },
-        disabled: submitting || disabled,
     });
 
     const lineHeight = '150%';
@@ -103,6 +99,7 @@ export default function MessageField({
                     >
                         <MentionTextarea
                             {...field}
+                            required={true}
                             inputRef={(r: HTMLTextAreaElement) => {
                                 ref(r);
                                 inputRef.current = r;
