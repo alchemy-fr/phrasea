@@ -10,6 +10,7 @@ use App\Asset\RenditionBuilder;
 use App\Entity\Core\RenditionDefinition;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
+use App\Notification\IntegrationNotifyableException;
 
 final class RenditionBuildAction extends AbstractIntegrationAction implements IfActionInterface
 {
@@ -20,13 +21,17 @@ final class RenditionBuildAction extends AbstractIntegrationAction implements If
     ) {
     }
 
-    public function handle(RunContext $context): void
+    public function doHandle(RunContext $context): void
     {
         $force = $context->getInputs()['rerun'] ?? false;
         $asset = $this->getAsset($context);
         $inputs = $context->getInputs();
         $renditionDefinition = DoctrineUtil::findStrict($this->em, RenditionDefinition::class, $inputs['definition']);
 
-        $this->renditionBuilder->buildRendition($renditionDefinition, $asset, $force);
+        try {
+            $this->renditionBuilder->buildRendition($renditionDefinition, $asset, $force);
+        } catch (\Throwable $e) {
+            $this->handleException($e, $context);
+        }
     }
 }

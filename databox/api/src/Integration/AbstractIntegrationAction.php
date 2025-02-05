@@ -7,8 +7,11 @@ namespace App\Integration;
 use Alchemy\Workflow\Executor\Expression\ExpressionParser;
 use Alchemy\Workflow\Executor\JobContext;
 use Alchemy\Workflow\Executor\JobExecutionContext;
+use Alchemy\Workflow\Executor\RunContext;
 use App\Entity\Core\Asset;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Notification\IntegrationNotifyableException;
+use App\Notification\UserNotifyableException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Service\Attribute\Required;
 
@@ -74,6 +77,35 @@ abstract class AbstractIntegrationAction implements IfActionInterface
 
         return true;
     }
+
+    protected function handleException(\Throwable $e, RunContext $context): void
+    {
+        if ($e instanceof UserNotifyableException || $e instanceof \InvalidArgumentException) {
+            $workspaceIntegration = $this->getIntegrationConfig($context)->getWorkspaceIntegration();
+            $exception = new IntegrationNotifyableException(
+                $workspaceIntegration,
+                sprintf('Integration "%s" error', $workspaceIntegration->getTitle() ?? $workspaceIntegration->getIntegration()),
+                $e->getMessage(),
+                previous: $e
+            );
+            $exception->addSubscribers($e->getSubscribers());
+
+            throw $exception;
+        }
+
+        throw $e;
+    }
+
+    final public function handle(RunContext $context): void
+    {
+        try {
+            $this->doHandle($context);
+        } catch (\Throwable $e) {
+            $this->handleException($e, $context);
+        }
+    }
+
+    abstract protected function doHandle(RunContext $context): void;
 
     protected function shouldRun(Asset $asset): bool
     {

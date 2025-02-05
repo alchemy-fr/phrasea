@@ -82,6 +82,9 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $config = [];
 
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $lastErrors = null;
+
     private ?string $optionsJson = null;
     private ?string $optionsYaml = null;
 
@@ -146,6 +149,10 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
 
     public function setEnabled(bool $enabled): void
     {
+        if (!$this->enabled && $enabled) {
+            $this->setLastErrors([]);
+        }
+
         $this->enabled = $enabled;
     }
 
@@ -218,6 +225,26 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
     public function setIf(?string $if): void
     {
         $this->if = $if;
+    }
+
+    public function getLastErrors(): array
+    {
+        return $this->lastErrors ?? [];
+    }
+
+    public function appendError(array $error): void
+    {
+        $this->lastErrors[] = $error;
+    }
+
+    public function setLastErrors(array $lastErrors): void
+    {
+        $this->lastErrors = $lastErrors;
+    }
+
+    public function getErrorCount(): int
+    {
+        return count($this->lastErrors ?? []);
     }
 
     public function __toString(): string

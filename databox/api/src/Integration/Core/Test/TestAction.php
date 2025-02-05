@@ -19,7 +19,7 @@ class TestAction extends AbstractIntegrationAction implements IfActionInterface
     {
     }
 
-    public function handle(RunContext $context): void
+    public function doHandle(RunContext $context): void
     {
         $asset = $this->getAsset($context);
         $config = $this->getIntegrationConfig($context);

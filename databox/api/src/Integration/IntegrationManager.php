@@ -6,6 +6,7 @@ namespace App\Integration;
 
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Env\EnvResolver;
+use App\Notification\IntegrationNotifyableException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
@@ -18,6 +19,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 readonly class IntegrationManager
 {
+    private const int MAX_ERROR_COUNT = 3;
+
     public function __construct(
         private IntegrationRegistry $integrationRegistry,
         private EntityManagerInterface $em,
@@ -32,6 +35,24 @@ readonly class IntegrationManager
         $config = $this->getConfiguration($workspaceIntegration, $integration);
 
         call_user_func([$integration, $func], $config, $args);
+    }
+
+    public function appendError(WorkspaceIntegration $integration, IntegrationNotifyableException $exception): void
+    {
+        $integration->appendError([
+            'date' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'message' => $exception->getMessage(),
+            'code' => $exception->getCode(),
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
+        ]);
+
+        if ($integration->getErrorCount() >= self::MAX_ERROR_COUNT) {
+            $integration->setEnabled(false);
+        }
+
+        $this->em->persist($integration);
+        $this->em->flush();
     }
 
     public function handleAction(WorkspaceIntegration $workspaceIntegration, string $action, Request $request): Response
@@ -119,7 +140,7 @@ readonly class IntegrationManager
         $output = preg_replace("#\n {4}#", "\n", $output);
         $output = preg_replace("#\n\n#", "\n", $output);
 
-        return trim(preg_replace("#^\n+#", '', $output));
+        return trim(ltrim($output, "\n"));
     }
 
     private function getConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): IntegrationConfig
