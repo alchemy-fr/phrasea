@@ -12,6 +12,7 @@ use App\Entity\Discussion\Message;
 use App\Entity\ObjectTitleInterface;
 use App\Repository\Discussion\MessageRepository;
 use App\Service\DiscussionManager;
+use App\Service\MentionExtractor;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -22,6 +23,7 @@ readonly class PostDiscussionMessageHandler
         private NotifierInterface $notifier,
         private DiscussionManager $discussionManager,
         private ObjectNotifier $assetNotifier,
+        private MentionExtractor $mentionExtractor,
     ) {
     }
 
@@ -50,7 +52,6 @@ readonly class PostDiscussionMessageHandler
                 $notificationId,
                 $authorId,
                 $params,
-                subscribeAuthor: true,
             );
 
             foreach ($object->getCollections() as $assetCollection) {
@@ -65,12 +66,18 @@ readonly class PostDiscussionMessageHandler
                     $params
                 );
             }
-        } else {
-            $topicKey = $message->getThread()->getNotificationKey();
-            $params['author'] = $this->notifier->getUsername($authorId);
-            $this->notifier->addTopicSubscribers($topicKey, [$authorId]);
-
-            $this->notifier->notifyTopic($topicKey, $authorId, $notificationId, $params);
         }
+
+        $topicKey = $message->getThread()->getNotificationKey();
+
+        $newSubscribers = [$authorId];
+        $mentions = $this->mentionExtractor->extractMentions($message->getContent() ?? '');
+        foreach ($mentions as $userId => $username) {
+            $newSubscribers[] = $userId;
+        }
+        $this->notifier->addTopicSubscribers($topicKey, array_unique($newSubscribers));
+
+        $params['author'] = $this->notifier->getUsername($authorId);
+        $this->notifier->notifyTopic($topicKey, $authorId, $notificationId, $params);
     }
 }

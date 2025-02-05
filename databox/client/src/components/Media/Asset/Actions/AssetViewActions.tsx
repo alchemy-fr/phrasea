@@ -45,46 +45,48 @@ export default function AssetViewActions({asset, file}: Props) {
                     },
                 }}
             >
-                <FollowButton
-                    entity={'assets'}
-                    id={asset.id}
-                    subscriptions={asset.topicSubscriptions}
-                    topics={[
-                        {
-                            key: `asset:${asset.id}:update`,
-                            label: t(
-                                'notification.topics.asset.update.label',
-                                'Update'
-                            ),
-                            description: t(
-                                'notification.topics.asset.update.desc',
-                                'Get notified when the asset is updated'
-                            ),
-                        },
-                        {
-                            key: `asset:${asset.id}:delete`,
-                            label: t(
-                                'notification.topics.asset.delete.label',
-                                'Delete'
-                            ),
-                            description: t(
-                                'notification.topics.asset.delete.desc',
-                                'Get notified when the asset is deleted'
-                            ),
-                        },
-                        {
-                            key: `asset:${asset.id}:new_comment`,
-                            label: t(
-                                'notification.topics.asset.new_comment.label',
-                                'Discussion'
-                            ),
-                            description: t(
-                                'notification.topics.asset.new_comment.desc',
-                                'Get notified when there is a new comment on the asset'
-                            ),
-                        },
-                    ]}
-                />
+                {asset.topicSubscriptions ? (
+                    <FollowButton
+                        entity={'assets'}
+                        id={asset.id}
+                        subscriptions={asset.topicSubscriptions}
+                        topics={[
+                            {
+                                key: `asset:${asset.id}:update`,
+                                label: t(
+                                    'notification.topics.asset.update.label',
+                                    'Update'
+                                ),
+                                description: t(
+                                    'notification.topics.asset.update.desc',
+                                    'Get notified when the asset is updated'
+                                ),
+                            },
+                            {
+                                key: `asset:${asset.id}:delete`,
+                                label: t(
+                                    'notification.topics.asset.delete.label',
+                                    'Delete'
+                                ),
+                                description: t(
+                                    'notification.topics.asset.delete.desc',
+                                    'Get notified when the asset is deleted'
+                                ),
+                            },
+                            {
+                                key: `asset:${asset.id}:new_comment`,
+                                label: t(
+                                    'notification.topics.asset.new_comment.label',
+                                    'Discussion'
+                                ),
+                                description: t(
+                                    'notification.topics.asset.new_comment.desc',
+                                    'Get notified when there is a new comment on the asset'
+                                ),
+                            },
+                        ]}
+                    />
+                ) : null}
                 {can.download ? (
                     <div>
                         <Button

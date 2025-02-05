@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Client;
 
-use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class KeycloakClient
@@ -21,18 +21,15 @@ final readonly class KeycloakClient
         private CacheInterface $keycloakRealmCache,
         private string $clientId,
         private string $clientSecret,
-        private LoggerInterface $logger,
     ) {
     }
 
     public function getTokenInfo(string $accessToken): array
     {
         return $this->wrapRequest(function () use ($accessToken) {
-            return $this->keycloakClient->request('GET', $this->urlGenerator->getUserinfoUrl(), [
-                'headers' => [
-                    'Authorization' => 'Bearer '.$accessToken,
-                ],
-            ]);
+            return $this->keycloakClient->request('GET', $this->urlGenerator->getUserinfoUrl(), $this->getRequestOptions([
+                'access_token' => $accessToken,
+            ]));
         });
     }
 
@@ -68,27 +65,23 @@ final readonly class KeycloakClient
     public function logout(string $accessToken, string $refreshToken): array
     {
         return $this->wrapRequest(function () use ($accessToken, $refreshToken) {
-            return $this->keycloakClient->request('POST', $this->urlGenerator->getLogoutUrl(), [
-                'headers' => [
-                    'Authorization' => 'Bearer '.$accessToken,
-                ],
+            return $this->keycloakClient->request('POST', $this->urlGenerator->getLogoutUrl(), $this->getRequestOptions([
+                'access_token' => $accessToken,
                 'body' => [
                     'client_id' => $this->clientId,
                     'refresh_token' => $refreshToken,
                 ],
-            ]);
+            ]));
         });
     }
 
     public function createUser(array $data, string $accessToken): array
     {
         try {
-            $this->keycloakClient->request('POST', $this->urlGenerator->getUsersApiUrl(), [
-                'headers' => [
-                    'Authorization' => 'Bearer '.$accessToken,
-                ],
+            $this->keycloakClient->request('POST', $this->urlGenerator->getUsersApiUrl(), $this->getRequestOptions([
+                'access_token' => $accessToken,
                 'json' => $data,
-            ])->getStatusCode();
+            ]))->getStatusCode();
         } catch (ClientException $e) {
             $statusCode = $e->getResponse()?->getStatusCode();
             if (401 === $statusCode) {
@@ -98,7 +91,8 @@ final readonly class KeycloakClient
             }
         }
 
-        $users = $this->getUsers($accessToken, 1, null, [
+        $users = $this->getUsers($accessToken, [
+            'limit' => 1,
             'query' => [
                 'username' => $data['username'],
             ],
@@ -115,13 +109,12 @@ final readonly class KeycloakClient
     {
         try {
             return $this->wrapRequest(function () use ($userId, $accessToken, $options) {
-                return $this->keycloakClient->request('GET', sprintf('%s/%s', $this->urlGenerator->getUsersApiUrl(), $userId), array_merge([
-                    'headers' => [
-                        'Authorization' => 'Bearer '.$accessToken,
-                    ],
-                ], $options));
+                return $this->keycloakClient->request('GET', sprintf('%s/%s', $this->urlGenerator->getUsersApiUrl(), $userId), $this->getRequestOptions([
+                    ...$options,
+                    'access_token' => $accessToken,
+                ]));
             });
-        } catch (HttpException $e) {
+        } catch (HttpExceptionInterface $e) {
             if (404 === $e->getStatusCode()) {
                 return null;
             }
@@ -130,27 +123,31 @@ final readonly class KeycloakClient
         }
     }
 
-    public function getUsers(string $accessToken, ?int $limit = null, ?int $offset = null, array $options = []): array
+    public function getUsers(string $accessToken, array $options = []): array
     {
-        return $this->get($this->urlGenerator->getUsersApiUrl(), $accessToken, $limit, $offset, $options);
+        return $this->get($this->urlGenerator->getUsersApiUrl(), [
+            ...$options,
+            'access_token' => $accessToken,
+        ]);
     }
 
-    public function getGroups(string $accessToken, ?int $limit = null, ?int $offset = null): array
+    public function getGroups(string $accessToken, array $options = []): array
     {
-        return $this->get($this->urlGenerator->getGroupsApiUrl(), $accessToken, $limit, $offset);
+        return $this->get($this->urlGenerator->getGroupsApiUrl(), [
+            ...$options,
+            'access_token' => $accessToken,
+        ]);
     }
 
     public function getGroup(string $accessToken, string $groupId, array $options = []): ?array
     {
         try {
             return $this->wrapRequest(function () use ($groupId, $accessToken, $options) {
-                return $this->keycloakClient->request('GET', sprintf('%s/%s', $this->urlGenerator->getGroupsApiUrl(), $groupId), array_merge([
-                    'headers' => [
-                        'Authorization' => 'Bearer '.$accessToken,
-                    ],
-                ], $options));
+                return $this->keycloakClient->request('GET', sprintf('%s/%s', $this->urlGenerator->getGroupsApiUrl(), $groupId), $this->getRequestOptions(array_merge($options, [
+                    'access_token' => $accessToken,
+                ])));
             });
-        } catch (HttpException $e) {
+        } catch (HttpExceptionInterface $e) {
             if (404 === $e->getStatusCode()) {
                 return null;
             }
@@ -159,19 +156,44 @@ final readonly class KeycloakClient
         }
     }
 
-    private function get(string $path, string $accessToken, ?int $limit = null, ?int $offset = null, array $options = []): array
+    private function get(string $path, array $options = []): array
     {
-        return $this->wrapRequest(function () use ($path, $accessToken, $limit, $offset, $options) {
-            return $this->keycloakClient->request('GET', $path, array_merge([
-                'headers' => [
-                    'Authorization' => 'Bearer '.$accessToken,
-                ],
-                'query' => [
-                    'limit' => $limit,
-                    'offset' => $offset,
-                ],
-            ], $options));
+        return $this->wrapRequest(function () use ($path, $options) {
+            return $this->keycloakClient->request('GET', $path, $this->getRequestOptions($options));
         });
+    }
+
+    private function getRequestOptions(array $options): array
+    {
+        $requestOptions = [];
+
+        foreach ([
+            'headers',
+            'query',
+            'json',
+            'body',
+                 ] as $key) {
+            if (isset($options[$key])) {
+                $requestOptions[$key] = $options[$key];
+            }
+        }
+
+        if (isset($options['access_token'])) {
+            $requestOptions['headers'] ??= [];
+            $requestOptions['headers']['Authorization'] = 'Bearer '.$options['access_token'];
+        }
+
+        foreach ([
+            'limit',
+            'offset',
+                 ] as $key) {
+            if (isset($options[$key])) {
+                $requestOptions['query'] ??= [];
+                $requestOptions['query'][$key] = $options[$key];
+            }
+        }
+
+        return $requestOptions;
     }
 
     private function wrapRequest(callable $handler): array

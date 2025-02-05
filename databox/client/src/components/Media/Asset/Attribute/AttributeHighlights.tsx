@@ -1,51 +1,8 @@
 import reactStringReplace from 'react-string-replace';
-import React, {PropsWithChildren, ReactElement, ReactNode} from 'react';
+import React, {PropsWithChildren} from 'react';
 import {styled} from '@mui/material/styles';
 import nl2br from 'react-nl2br';
-
-type FreeNode = string | ReactNode | ReactNode[];
-
-function replaceText(
-    text: FreeNode,
-    func: (text: string) => FreeNode,
-    options: {
-        props?: {};
-        depth?: number;
-        stopTags?: string[];
-    } = {}
-): FreeNode {
-    if (typeof text === 'string') {
-        return func(text);
-    } else if (React.isValidElement(text)) {
-        if (
-            (options.stopTags ?? []).includes(
-                (text as ReactElement<object, string>).type
-            )
-        ) {
-            return text;
-        }
-
-        return React.cloneElement(
-            text,
-            options.props || {},
-            replaceText(text.props.children, func, options)
-        ) as ReactElement;
-    } else if (Array.isArray(text)) {
-        return text
-            .map((e, i) =>
-                replaceText(e, func, {
-                    ...options,
-                    depth: (options.depth ?? 0) + 1,
-                    props: {
-                        key: `${options.depth?.toString() ?? '0'}:${i}`,
-                    },
-                })
-            )
-            .flat();
-    }
-
-    return text;
-}
+import {FreeNode, replaceText} from '../../../../lib/reactText.tsx';
 
 const Highlight = styled('em')(({theme}) => ({
     backgroundColor: theme.palette.warning.main,

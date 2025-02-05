@@ -81,7 +81,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
-        "alchemy/acl-bundle": "^1.0.0",
+        "alchemy/acl-bundle": "dev-main",
         "alchemy/admin-bundle": "@dev",
         "alchemy/configurator-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
