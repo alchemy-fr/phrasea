@@ -27,12 +27,12 @@
     "collection_list": {
       "collections": "+ {{count}} collection",
       "collections_plural": "+ {{count}} collections",
-      "others": "+ {{count}} autres",
+      "others": "+ {{count}} autre",
       "others_plural": "+ {{count}} autres"
     },
     "delete": {
       "confirm": {
-        "message_many": "Êtes-vous sûr de vouloir supprimer {{count}} Assets ?",
+        "message_many": "Êtes-vous sûr de vouloir supprimer {{count}} Asset ?",
         "message_many_plural": "Êtes-vous sûr de vouloir supprimer {{count}} Assets ?",
         "message_one": "Êtes-vous sûr de vouloir supprimer cet Asset ?",
         "title": "Confirmer la suppression"
@@ -80,7 +80,7 @@
       "label": "Remplacer"
     },
     "tag_list": {
-      "others": "+ {{count}} autres",
+      "others": "+ {{count}} autre",
       "others_plural": "+ {{count}} autres",
       "tags": "+ {{count}} tag",
       "tags_plural": "+ {{count}} tags"
@@ -90,7 +90,7 @@
     }
   },
   "asset_actions": {
-    "copy": "Dupliquer",
+    "copy": "",
     "delete": "Supprimer",
     "download": "Télécharger",
     "edit": "Modifier",
@@ -297,7 +297,7 @@
   },
   "common": {
     "cancel": "Annuler",
-    "copy": "Dupliquer",
+    "copy": "",
     "databox": "Databox",
     "delete": "Supprimer",
     "item_sorted": "Ordre enregistré !",
@@ -315,14 +315,14 @@
   },
   "copy_assets": {
     "dialog": {
-      "intro": "Où voulez-vous Dupliquer les Assets sélectionnés ?",
+      "intro": "Où voulez-vous dupliquer les Assets sélectionnés ?",
       "submit": "Dupliquer",
-      "title": "Dupliquer {{count}} Assets",
+      "title": "Dupliquer {{count}} Asset",
       "title_plural": "Dupliquer {{count}} Assets"
     },
     "form": {
       "by_reference": {
-        "label": "Créer un raccourci (pas de duplication de fichier)"
+        "label": "Créer un raccourci pour l'asset d'origine (pas de duplication physique)"
       },
       "with_attributes": {
         "label": "Copier les attributs"
@@ -382,7 +382,7 @@
     "dialog": {
       "intro": "Sélectionnez les Renditions que vous voulez exporter :",
       "submit": "Exporter",
-      "title": "Exporter {{count}} Assets",
+      "title": "Exporter {{count}} Asset",
       "title_plural": "Exporter {{count}} Assets"
     }
   },
@@ -746,7 +746,7 @@
     "dialog": {
       "intro": "Où voulez-vous déplacer les Assets sélectionnés ?",
       "submit": "Déplacer",
-      "title": "Déplacer {{count}} Assets",
+      "title": "Déplacer {{count}} Asset",
       "title_plural": "Déplacer {{count}} Assets"
     }
   },
