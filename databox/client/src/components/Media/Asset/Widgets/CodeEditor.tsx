@@ -28,7 +28,7 @@ export default function CodeEditor({
         } catch (e) {
             setValue(initialValue);
         }
-    }, []);
+    }, [initialValue]);
 
     const changeHandler = React.useCallback(
         (value: string) => {

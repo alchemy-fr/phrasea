@@ -22,6 +22,8 @@ use App\Api\Provider\AttributeDefinitionCollectionProvider;
 use App\Attribute\AttributeInterface;
 use App\Attribute\Type\TextAttributeType;
 use App\Controller\Core\AttributeDefinitionSortAction;
+use App\Entity\Traits\ErrorDisableInterface;
+use App\Entity\Traits\ErrorDisableTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
@@ -78,11 +80,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_slug', columns: ['workspace_id', 'slug'])]
 #[ORM\ChangeTrackingPolicy('DEFERRED_EXPLICIT')]
 #[ORM\Entity(repositoryClass: AttributeDefinitionRepository::class)]
-class AttributeDefinition extends AbstractUuidEntity implements \Stringable
+class AttributeDefinition extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    use ErrorDisableTrait;
     final public const string GROUP_READ = 'attrdef:read';
     final public const string GROUP_LIST = 'attrdef:index';
     final public const string GROUP_WRITE = 'attrdef:w';
@@ -190,6 +193,10 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private int $position = 0;
+
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => true])]
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
+    private bool $enabled = true;
 
     public function getName(): ?string
     {
@@ -442,5 +449,24 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     public function setEntityType(?string $entityType): void
     {
         $this->entityType = $entityType;
+    }
+
+    public function disableAfterErrors(): void
+    {
+        $this->setEnabled(false);
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    public function setEnabled(bool $enabled): void
+    {
+        if (!$this->enabled && $enabled) {
+            $this->clearErrors();
+        }
+
+        $this->enabled = $enabled;
     }
 }

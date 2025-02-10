@@ -24,6 +24,9 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?Workspace $workspace = null;
 
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    public bool $enabled = true;
+
     #[Groups([AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ, AttributeDefinition::GROUP_WRITE])]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     public ?AttributeClass $class = null;

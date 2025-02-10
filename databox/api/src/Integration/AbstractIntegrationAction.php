@@ -10,7 +10,7 @@ use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Entity\Core\Asset;
 use App\Entity\Integration\WorkspaceIntegration;
-use App\Notification\IntegrationNotifyableException;
+use App\Notification\EntityDisableNotifyableException;
 use App\Notification\UserNotifyableException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -82,7 +82,7 @@ abstract class AbstractIntegrationAction implements IfActionInterface
     {
         if ($e instanceof UserNotifyableException || $e instanceof \InvalidArgumentException) {
             $workspaceIntegration = $this->getIntegrationConfig($context)->getWorkspaceIntegration();
-            $exception = new IntegrationNotifyableException(
+            $exception = new EntityDisableNotifyableException(
                 $workspaceIntegration,
                 sprintf('Integration "%s" error', $workspaceIntegration->getTitle() ?? $workspaceIntegration->getIntegration()),
                 $e->getMessage(),

@@ -15,8 +15,12 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\WorkspaceIntegrationInput;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
+use App\Api\Provider\WorkspaceIntegrationCollectionProvider;
 use App\Entity\Core\Workspace;
+use App\Entity\Traits\ErrorDisableInterface;
+use App\Entity\Traits\ErrorDisableTrait;
 use App\Entity\Traits\NullableWorkspaceTrait;
 use App\Integration\Exception\CircularReferenceException;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -41,17 +45,20 @@ use Symfony\Component\Yaml\Yaml;
     normalizationContext: [
         'groups' => [WorkspaceIntegration::GROUP_LIST],
     ],
-    output: WorkspaceIntegrationOutput::class
+    input: WorkspaceIntegrationInput::class,
+    output: WorkspaceIntegrationOutput::class,
+    provider: WorkspaceIntegrationCollectionProvider::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_integration_key', columns: ['workspace_id', 'title', 'integration'])]
 #[ORM\Entity]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
-class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
+class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use NullableWorkspaceTrait;
+    use ErrorDisableTrait;
 
     final public const string GROUP_READ = 'wi:read';
     final public const string GROUP_LIST = 'wi:index';
@@ -81,9 +88,6 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $config = [];
-
-    #[ORM\Column(type: Types::JSON, nullable: true)]
-    private ?array $lastErrors = null;
 
     private ?string $optionsJson = null;
     private ?string $optionsYaml = null;
@@ -150,7 +154,7 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
     public function setEnabled(bool $enabled): void
     {
         if (!$this->enabled && $enabled) {
-            $this->setLastErrors([]);
+            $this->clearErrors();
         }
 
         $this->enabled = $enabled;
@@ -227,24 +231,9 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
         $this->if = $if;
     }
 
-    public function getLastErrors(): array
+    public function disableAfterErrors(): void
     {
-        return $this->lastErrors ?? [];
-    }
-
-    public function appendError(array $error): void
-    {
-        $this->lastErrors[] = $error;
-    }
-
-    public function setLastErrors(array $lastErrors): void
-    {
-        $this->lastErrors = $lastErrors;
-    }
-
-    public function getErrorCount(): int
-    {
-        return count($this->lastErrors ?? []);
+        $this->enabled = false;
     }
 
     public function __toString(): string

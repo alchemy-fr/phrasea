@@ -93,7 +93,7 @@ const AppProxy = React.memo(
         const dA = isDrawer(a.locationSearch);
         const dB = isDrawer(b.locationSearch);
 
-        return (dA === dB) || (!dA && dB);
+        return dA === dB || (!dA && dB);
     }
 );
 

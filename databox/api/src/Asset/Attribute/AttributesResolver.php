@@ -10,6 +10,8 @@ use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use App\Notification\ExceptionNotifier;
+use App\Notification\UserNotifyableException;
 use App\Security\Voter\AttributeDefinitionVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -21,6 +23,7 @@ readonly class AttributesResolver
         private FieldNameResolver $fieldNameResolver,
         private FallbackResolver $fallbackResolver,
         private Security $security,
+        private ExceptionNotifier $exceptionNotifier,
     ) {
     }
 
@@ -66,7 +69,7 @@ readonly class AttributesResolver
             ->getWorkspaceFallbackDefinitions($asset->getWorkspaceId());
 
         foreach ($fbDefinitions as $definition) {
-            if ($definition->isMultiple()) {
+            if ($definition->isMultiple() || !$definition->isEnabled()) {
                 continue;
             }
             $k = $definition->getId();
@@ -75,12 +78,23 @@ readonly class AttributesResolver
             if (null !== $fallbacks) {
                 foreach ($fallbacks as $locale => $fb) {
                     if (null === $attributes->getAttribute($k, $locale)) {
-                        $attr = $this->fallbackResolver->resolveAttrFallback(
-                            $asset,
-                            $locale,
-                            $definition,
-                            $attributes
-                        );
+                        try {
+
+                            $attr = $this->fallbackResolver->resolveAttrFallback(
+                                $asset,
+                                $locale,
+                                $definition,
+                                $attributes
+                            );
+                        } catch (\Throwable $e) {
+                            if ($e instanceof UserNotifyableException) {
+                                $this->exceptionNotifier->notifyException($e);
+                                continue;
+                            }
+
+                            throw $e;
+                        }
+
                         if (null !== $attr) {
                             $attributes->addAttribute($attr);
                         }

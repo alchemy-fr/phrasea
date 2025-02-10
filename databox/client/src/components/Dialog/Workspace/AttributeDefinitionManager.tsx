@@ -28,6 +28,9 @@ import FieldTypeSelect from '../../Form/FieldTypeSelect';
 import {fieldTypesIcons} from '../../../lib/icons';
 import apiClient from '../../../api/api-client';
 import {toast} from 'react-toastify';
+import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
+import ObjectTranslationField from '../../Form/ObjectTranslationField.tsx';
+import {NO_LOCALE} from '../../Media/Asset/Attribute/AttributesEditor.tsx';
 
 function Item({
     usedFormSubmit,
@@ -44,6 +47,7 @@ function Item({
     } = usedFormSubmit;
 
     const fieldType = watch('fieldType');
+    const translatable = watch('translatable');
 
     return (
         <>
@@ -81,6 +85,17 @@ function Item({
                     />
                     <FormFieldErrors field={'fieldType'} errors={errors} />
                 </FormGroup>
+            </FormRow>
+            <FormRow>
+                <CheckboxWidget
+                    label={t(
+                        'form.attribute_definition.enabled.label',
+                        'Enabled'
+                    )}
+                    control={control}
+                    name={'enabled'}
+                    disabled={submitting}
+                />
             </FormRow>
             {fieldType === AttributeType.Entity ? (
                 <FormRow>
@@ -171,6 +186,52 @@ function Item({
                 />
                 <FormFieldErrors field={'allowInvalid'} errors={errors} />
             </FormRow>
+            <FormRow>
+                <ObjectTranslationField
+                    translatable={translatable}
+                    displayNoLocale={true}
+                    label={t(
+                        'form.attribute_definition.fallback.label',
+                        'Fallback'
+                    )}
+                    locales={workspace.enabledLocales ?? []}
+                    field={({locale}) => {
+                        return (
+                            <CodeEditorWidget
+                                control={control}
+                                name={`fallback.${locale ?? NO_LOCALE}`}
+                                disabled={submitting}
+                                mode={'twig'}
+                                height={'200px'}
+                            />
+                        );
+                    }}
+                />
+                <FormFieldErrors field={'fallback'} errors={errors} />
+            </FormRow>
+            <FormRow>
+                <ObjectTranslationField
+                    translatable={translatable}
+                    displayNoLocale={true}
+                    label={t(
+                        'form.attribute_definition.initialValues.label',
+                        'Initial Values'
+                    )}
+                    locales={workspace.enabledLocales ?? []}
+                    field={({locale}) => {
+                        return (
+                            <CodeEditorWidget
+                                control={control}
+                                name={`initialValues.${locale ?? NO_LOCALE}`}
+                                disabled={submitting}
+                                mode={'twig'}
+                                height={'200px'}
+                            />
+                        );
+                    }}
+                />
+                <FormFieldErrors field={'initialValues'} errors={errors} />
+            </FormRow>
         </>
     );
 }
@@ -184,7 +245,13 @@ function ListItem({data}: DefinitionItemProps<AttributeDefinition>) {
                         fieldTypesIcons.text
                 )}
             </ListItemIcon>
-            <ListItemText primary={data.name} secondary={data.fieldType} />
+            <ListItemText
+                primary={data.name}
+                primaryTypographyProps={{
+                    color: data.enabled ? undefined : 'error',
+                }}
+                secondary={data.fieldType}
+            />
         </>
     );
 }
@@ -206,6 +273,7 @@ function createNewItem(): Partial<AttributeDefinition> {
         suggest: false,
         fieldType: 'text',
         class: null,
+        enabled: true,
     };
 }
 

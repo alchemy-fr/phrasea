@@ -3,15 +3,14 @@
 namespace App\Notification;
 
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
-use App\Integration\IntegrationManager;
+use App\Service\ErrorDisableHandler;
 
 final readonly class ExceptionNotifier
 {
     public function __construct(
         private NotifierInterface $notifier,
-        private IntegrationManager $integrationManager,
-    )
-    {
+        private ErrorDisableHandler $errorDisableHandler,
+    ) {
     }
 
     public function notifyException(UserNotifyableException $exception): void
@@ -23,9 +22,8 @@ final readonly class ExceptionNotifier
             ]);
         }
 
-        if ($exception instanceof IntegrationNotifyableException) {
-            $this->integrationManager->appendError($exception->getIntegration(), $exception);
+        if ($exception instanceof EntityDisableNotifyableException) {
+            $this->errorDisableHandler->handleError($exception->getEntity(), $exception);
         }
     }
 }
-

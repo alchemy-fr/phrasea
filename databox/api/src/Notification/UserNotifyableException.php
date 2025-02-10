@@ -9,7 +9,7 @@ class UserNotifyableException extends \RuntimeException implements IgnoreSentryE
     private array $subscribers = [];
     private string $notificationId = 'databox-user-exception';
 
-    public function __construct(?string $userId, private readonly string $subject, string $message = "", int $code = 0, ?\Throwable $previous = null)
+    public function __construct(?string $userId, private readonly string $subject, string $message = '', int $code = 0, ?\Throwable $previous = null)
     {
         if ($userId) {
             $this->subscribers[] = $userId;

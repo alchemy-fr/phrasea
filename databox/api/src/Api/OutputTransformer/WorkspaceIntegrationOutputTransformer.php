@@ -15,6 +15,7 @@ use Arthem\ObjectReferenceBundle\Mapper\ObjectMapper;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Query;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Yaml\Yaml;
 
 class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterface
 {
@@ -46,9 +47,10 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
         $output->setTitle($data->getTitle());
         $output->setEnabled($data->isEnabled());
         $output->setIntegration($data->getIntegration());
+        $output->workspace = $data->getWorkspace();
 
-        $uri = $context['request_uri'];
-        $qs = parse_url((string) $uri, PHP_URL_QUERY);
+        $uri = $context['request_uri'] ?? '';
+        $qs = parse_url((string) $uri, PHP_URL_QUERY) ?? '';
         $filters = Query::parse($qs);
 
         $objectId = $filters['objectId'] ?? null;
@@ -74,7 +76,12 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
 
         $config = $this->integrationManager->getIntegrationConfiguration($data);
         $integration = $config->getIntegration();
+        $output->integrationTitle = $integration->getTitle();
         $output->setConfig($integration->resolveClientConfiguration($data, $config));
+
+        if ($this->isGranted(AbstractVoter::EDIT, $data)) {
+            $output->configYaml = Yaml::dump($data->getConfig(), 4);
+        }
 
         $tokens = $this->integrationTokenRepository->getValidUserTokens($data->getId(), $this->getStrictUser()->getId());
         $output->setTokens($tokens);
