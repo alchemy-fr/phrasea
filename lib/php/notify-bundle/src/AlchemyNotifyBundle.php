@@ -68,7 +68,7 @@ class AlchemyNotifyBundle extends AbstractBundle
         $container->parameters()
             ->set('env(NOTIFY_AUTHOR)', false)
             ->set('env(NOVU_SECRET_KEY)', '')
-            ->set('env(NOVU_API_HOST)', '')
+            ->set('env(NOVU_API_HOST)', 'api.novu.test')
             ->set('alchemy_notify.novu.api_host', $config['novu']['api_host'])
             ->set('alchemy_notify.novu.secret_key', $config['novu']['secret_key'])
         ;
