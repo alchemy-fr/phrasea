@@ -24,6 +24,7 @@ final readonly class ObjectNotifier
         array $notificationOptions = [],
     ): void {
         $notificationParams['author'] ??= $this->notifier->getUsername($authorId);
+        $notificationParams['authorId'] ??= $authorId;
 
         $shouldNotify = true;
 

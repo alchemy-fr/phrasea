@@ -45,6 +45,7 @@ readonly class PostDiscussionMessageHandler
         $notificationId = 'databox-discussion-new-comment';
         $params = [
             'object' => $object instanceof ObjectTitleInterface ? $object->getObjectTitle() : 'Undefined Object',
+            'objectId' => $object->getId(),
         ];
 
         if ($object instanceof Asset) {

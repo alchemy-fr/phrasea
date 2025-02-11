@@ -1,12 +1,12 @@
 import {useTranslation} from 'react-i18next';
 import {Alert, AlertTitle, Box, Typography} from '@mui/material';
-import {LastErrors} from '../../../types.ts';
+import type {LastErrors} from '../../../types.ts';
 
 type Props<T extends {lastErrors?: LastErrors}> = {
     data: T;
 };
 
-export default function LastErrors<T extends {lastErrors?: LastErrors}>({
+export default function LastErrorsList<T extends {lastErrors?: LastErrors}>({
     data,
 }: Props<T>) {
     const {t} = useTranslation();
