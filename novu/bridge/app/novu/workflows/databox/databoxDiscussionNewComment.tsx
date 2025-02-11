@@ -30,12 +30,12 @@ export const databoxDiscussionNewComment = workflow(
             const eventCount = events.length;
 
             const groups = events.reduce((acc, event) => {
-                const key = event.payload.objectId;
+                const key = event.payload.objectId as string;
                 acc[key] ??= [];
                 acc[key].push(event);
 
                 return acc;
-            }, {});
+            }, {} as Record<string, any[]>);
 
             return {
                 subject: `${eventCount} new comments`,
@@ -50,9 +50,11 @@ export const databoxDiscussionNewComment = workflow(
                         }, {});
 
                         return (
-                            <Section>
+                            <Section
+                                key={objectId}
+                            >
                                 <Text>
-                                    <strong>{author}</strong> have commented on <strong>{object}</strong>.
+                                    <strong>{Object.values(authors).join(', ')}</strong> have commented on <strong>{object}</strong>.
                                 </Text>
 
                                 <Button style={styles.button} href={url}>View</Button>

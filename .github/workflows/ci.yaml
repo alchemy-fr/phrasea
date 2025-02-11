@@ -95,6 +95,7 @@ jobs:
     secrets: inherit
     needs:
       - build_nodejs-base
+      - build_nginx-client-base
 
   build_databox_api:
     name: 'Build Databox API'
@@ -118,6 +119,7 @@ jobs:
     secrets: inherit
     needs:
       - build_nodejs-base
+      - build_nginx-client-base
 
   build_databox_indexer:
     name: 'Build Databox Indexer'
@@ -150,6 +152,7 @@ jobs:
     secrets: inherit
     needs:
       - build_nodejs-base
+      - build_nginx-client-base
 
   build_matomo_php:
     name: 'Build Matomo PHP'
@@ -197,6 +200,7 @@ jobs:
     secrets: inherit
     needs:
       - build_nodejs-base
+      - build_nginx-client-base
 
   setup:
     name: 'Setup stack'
@@ -215,6 +219,7 @@ jobs:
       - build_report_api
       - build_uploader_api
       - build_uploader_client
+      - build_novu-bridge
 
     steps:
       - name: Install mkcert
