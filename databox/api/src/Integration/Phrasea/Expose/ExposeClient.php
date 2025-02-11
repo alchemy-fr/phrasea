@@ -130,7 +130,69 @@ final readonly class ExposeClient
         $source = $asset->getSource();
 
         $fetchedFilePath = $this->fileFetcher->getFile($source);
+        $fileSize = filesize($fetchedFilePath);
+
+        // @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html
+        $partSize = 100 * 1024 * 1024; // 100Mb
+
         try {
+            $uploadsData = [
+                'filename' => $source->getOriginalName() ?? 'file',
+                'type' => $source->getType(),
+                'size' => (int) $source->getSize(),
+            ];
+
+            $resUploads = $this->create($config, $integrationToken)
+                ->request('POST', '/uploads', [
+                    'json' => $uploadsData,
+                ])
+                ->toArray()
+            ;
+
+            $mUploadId = $resUploads['id'];
+
+            $parts['Parts'] = [];
+
+            try {
+                $fd = fopen($fetchedFilePath, 'r');
+                $alreadyUploaded = 0;
+
+                $partNumber = 1;
+
+                $retryCount = 3;
+
+                while (($fileSize - $alreadyUploaded) > 0) {
+                    $resUploadPart = $this->create($config, $integrationToken)
+                        ->request('POST', '/uploads/'.$mUploadId.'/part', [
+                            'json' => ['part' => $partNumber],
+                        ])
+                        ->toArray()
+                    ;
+
+                    if (($fileSize - $alreadyUploaded) < $partSize) {
+                        $partSize = $fileSize - $alreadyUploaded;
+                    }
+
+                    $headerPutPart = $this->putPart($resUploadPart['url'], $fd, $partSize, $retryCount);
+
+                    $alreadyUploaded += $partSize;
+
+                    $parts['Parts'][$partNumber] = [
+                        'PartNumber' => $partNumber,
+                        'ETag' => current($headerPutPart['etag']),
+                    ];
+
+                    ++$partNumber;
+                }
+
+                fclose($fd);
+            } catch (\Throwable  $e) {
+                $this->create($config, $integrationToken)
+                    ->request('DELETE', '/uploads/'.$mUploadId);
+
+                throw $e;
+            }
+
             $data = array_merge([
                 'publication_id' => $publicationId,
                 'asset_id' => $asset->getId(),
