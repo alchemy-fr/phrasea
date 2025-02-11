@@ -17,6 +17,7 @@ import InfoWorkspace from './InfoWorkspace';
 import {modalRoutes} from '../../../routes';
 import {useCloseModal} from '../../Routing/ModalLink';
 import AttributeEntityManager from './AttributeEntityManager.tsx';
+import IntegrationManager from './IntegrationManager.tsx';
 
 type Props = {};
 
@@ -123,6 +124,18 @@ export default function WorkspaceDialog({}: Props) {
                     ),
                     component: AttributeDefinitionManager,
                     id: 'attribute-definitions',
+                    props: {
+                        data,
+                    },
+                    enabled: data.capabilities.canEdit,
+                },
+                {
+                    title: t(
+                        'workspace.manage.integrations.title',
+                        'Integrations'
+                    ),
+                    component: IntegrationManager,
+                    id: 'integrations',
                     props: {
                         data,
                     },

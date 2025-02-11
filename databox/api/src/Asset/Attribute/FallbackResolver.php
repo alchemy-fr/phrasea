@@ -8,6 +8,7 @@ use App\Asset\Attribute\Index\AttributeIndex;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use App\Notification\EntityDisableNotifyableException;
 use Doctrine\ORM\EntityManagerInterface;
 
 class FallbackResolver
@@ -51,22 +52,26 @@ class FallbackResolver
 
         if (!empty($fallbacks[$locale])) {
             if (null === $attributesIndex->getAttribute($definition->getId(), $locale)) {
-                $fallbackValue = $this->templateResolver->resolve($fallbacks[$locale], [
-                    'file' => $asset->getSource(),
-                    'asset' => $asset,
-                    'attr' => new DynamicAttributeBag($attributesIndex, $definitionsIndex, function (AttributeDefinition $depDef) use (
-                        $asset,
-                        $attributesIndex,
-                        $locale
-                    ): ?Attribute {
-                        return $this->resolveAttrFallback(
+                try {
+                    $fallbackValue = $this->templateResolver->resolve($fallbacks[$locale], [
+                        'file' => $asset->getSource(),
+                        'asset' => $asset,
+                        'attr' => new DynamicAttributeBag($attributesIndex, $definitionsIndex, function (AttributeDefinition $depDef) use (
                             $asset,
-                            $locale,
-                            $depDef,
-                            $attributesIndex
-                        );
-                    }, $locale),
-                ]);
+                            $attributesIndex,
+                            $locale
+                        ): ?Attribute {
+                            return $this->resolveAttrFallback(
+                                $asset,
+                                $locale,
+                                $depDef,
+                                $attributesIndex
+                            );
+                        }, $locale),
+                    ]);
+                } catch (\Throwable $e) {
+                    throw new EntityDisableNotifyableException($definition, sprintf('Error while resolving "%s" (locale=%s) attribute fallback', $definition->getName(), $locale), $e->getMessage(), previous: $e);
+                }
 
                 $attribute = new Attribute();
                 $attribute->setCreatedAt(new \DateTimeImmutable());

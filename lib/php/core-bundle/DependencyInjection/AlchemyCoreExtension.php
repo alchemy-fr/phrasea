@@ -2,6 +2,7 @@
 
 namespace Alchemy\CoreBundle\DependencyInjection;
 
+use Alchemy\CoreBundle\Exception\IgnoreSentryExceptionInterface;
 use Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker;
 use Alchemy\CoreBundle\Health\HealthCheckerInterface;
 use Alchemy\CoreBundle\Pusher\PusherFactory;
@@ -181,6 +182,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         HttpException::class,
                         MethodNotAllowedHttpException::class,
                         NotAcceptableHttpException::class,
+                        IgnoreSentryExceptionInterface::class,
                     ],
                 ],
             ];

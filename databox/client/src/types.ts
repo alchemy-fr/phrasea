@@ -4,6 +4,7 @@ import type {WithTranslations} from '@alchemy/react-form';
 import {Integration} from './components/Integration/types.ts';
 import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTypes.ts';
 import {RenditionBuildMode} from './api/rendition.ts';
+import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/DefinitionManager.tsx';
 
 type AlternateUrl = {
     type: string;
@@ -112,6 +113,7 @@ export interface AssetFileVersion extends Entity {
 export interface AttributeDefinition extends IPermissions, Entity {
     name: string;
     slug: string;
+    enabled: boolean;
     fieldType: string;
     entityType?: string | undefined;
     multiple: boolean;
@@ -126,6 +128,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     initialValues: Record<string, string>;
     workspace: Workspace | string;
     class: AttributeClass | string | null;
+    lastErrors?: LastErrors;
 }
 
 export interface AttributeClass extends ApiHydraObjectResponse, Entity {
@@ -300,6 +303,14 @@ export interface BasketAsset extends Entity {
     assetAnnotations?: AssetAnnotation[];
 }
 
+export type LastErrors = {
+    date: string;
+    message: string;
+    code: number;
+    file: string;
+    line: number;
+}[];
+
 export interface Workspace extends IPermissions, Entity {
     name: string;
     enabledLocales?: string[] | undefined;
@@ -315,12 +326,24 @@ export type IntegrationData = {
     value: any;
 } & Entity;
 
-export interface WorkspaceIntegration extends Entity {
+export interface WorkspaceIntegration extends DefinitionBase {
     title: string;
+    enabled: boolean;
     integration: Integration;
+    integrationTitle: string;
     data: IntegrationData[];
     config: object;
+    configYaml: string;
     tokens: IntegrationToken[];
+    workspace: Workspace | string;
+    lastErrors?: LastErrors;
+}
+
+export interface IntegrationType {
+    id: string;
+    title: string;
+    name: string;
+    reference: string;
 }
 
 export type IntegrationToken = {

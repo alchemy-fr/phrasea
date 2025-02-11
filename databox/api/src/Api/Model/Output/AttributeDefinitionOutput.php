@@ -24,7 +24,10 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?Workspace $workspace = null;
 
-    #[Groups([AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ, AttributeDefinition::GROUP_WRITE])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    public bool $enabled = true;
+
+    #[Groups([AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ])]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     public ?AttributeClass $class = null;
 
@@ -52,10 +55,10 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $facetEnabled = false;
 
-    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     public bool $translatable = false;
 
-    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     public bool $multiple = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
@@ -89,6 +92,9 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?bool $canEdit = null;
+
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    public ?array $lastErrors = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     public function getLocales(): ?array

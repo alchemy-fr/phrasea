@@ -7,8 +7,12 @@ namespace App\Integration;
 use Alchemy\Workflow\Executor\Expression\ExpressionParser;
 use Alchemy\Workflow\Executor\JobContext;
 use Alchemy\Workflow\Executor\JobExecutionContext;
+use Alchemy\Workflow\Executor\RunContext;
 use App\Entity\Core\Asset;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Notification\EntityDisableNotifyableException;
+use App\Notification\ExceptionNotifier;
+use App\Notification\UserNotifyableException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Service\Attribute\Required;
 
@@ -17,6 +21,7 @@ abstract class AbstractIntegrationAction implements IfActionInterface
     private IntegrationManager $integrationManager;
     protected EntityManagerInterface $em;
     private ExpressionParser $expressionParser;
+    private ExceptionNotifier $exceptionNotifier;
 
     /**
      * @return array{integration: IntegrationInterface, workspaceIntegration: WorkspaceIntegration, integrationId: string, workspaceId: string}
@@ -58,6 +63,12 @@ abstract class AbstractIntegrationAction implements IfActionInterface
         $this->expressionParser = $expressionParser;
     }
 
+    #[Required]
+    public function setExceptionNotifier(ExceptionNotifier $exceptionNotifier): void
+    {
+        $this->exceptionNotifier = $exceptionNotifier;
+    }
+
     public function evaluateIf(JobExecutionContext $context): bool
     {
         $asset = $this->getAsset($context);
@@ -74,6 +85,37 @@ abstract class AbstractIntegrationAction implements IfActionInterface
 
         return true;
     }
+
+    protected function handleException(\Throwable $e, RunContext $context): void
+    {
+        if ($e instanceof UserNotifyableException || $e instanceof \InvalidArgumentException) {
+            $workspaceIntegration = $this->getIntegrationConfig($context)->getWorkspaceIntegration();
+            $exception = new EntityDisableNotifyableException(
+                $workspaceIntegration,
+                sprintf('Integration "%s" error', $workspaceIntegration->getTitle() ?? $workspaceIntegration->getIntegration()),
+                $e->getMessage(),
+                previous: $e
+            );
+            if ($e instanceof UserNotifyableException) {
+                $exception->addSubscribers($e->getSubscribers());
+            }
+
+            $this->exceptionNotifier->notifyException($exception);
+        }
+
+        throw $e;
+    }
+
+    final public function handle(RunContext $context): void
+    {
+        try {
+            $this->doHandle($context);
+        } catch (\Throwable $e) {
+            $this->handleException($e, $context);
+        }
+    }
+
+    abstract protected function doHandle(RunContext $context): void;
 
     protected function shouldRun(Asset $asset): bool
     {

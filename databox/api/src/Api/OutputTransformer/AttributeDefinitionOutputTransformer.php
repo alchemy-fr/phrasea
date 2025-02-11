@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Entity\Core\AttributeDefinition;
+use App\Security\Voter\AbstractVoter;
 
 class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
 {
@@ -35,6 +36,7 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->fieldType = $data->getFieldType();
         $output->entityType = $data->getEntityType();
         $output->searchable = $data->isSearchable();
+        $output->enabled = $data->isEnabled();
         $output->suggest = $data->isSuggest();
         $output->facetEnabled = $data->isFacetEnabled();
         $output->translatable = $data->isTranslatable();
@@ -43,6 +45,9 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->searchBoost = $data->getSearchBoost();
         $output->fallback = $data->getFallback();
         $output->initialValues = $data->getInitialValues();
+        if ($this->isGranted(AbstractVoter::EDIT, $data)) {
+            $output->lastErrors = $data->getLastErrors();
+        }
         $output->key = $data->getKey();
         $output->labels = $data->getLabels();
         $output->canEdit = $data->getClass()->isEditable()

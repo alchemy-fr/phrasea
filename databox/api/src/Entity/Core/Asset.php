@@ -113,13 +113,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new GetCollection(),
         new Post(
+            normalizationContext: [
+                'groups' => [self::GROUP_READ, Collection::GROUP_ABSOLUTE_TITLE],
+            ],
             securityPostDenormalize: 'is_granted("CREATE", object)',
             validate: true,
         ),
         new Post(
             uriTemplate: '/assets/multiple',
             normalizationContext: [
-                'groups' => [self::GROUP_READ],
+                'groups' => [self::GROUP_READ, Collection::GROUP_ABSOLUTE_TITLE],
             ],
             input: MultipleAssetInput::class,
             output: MultipleAssetOutput::class,

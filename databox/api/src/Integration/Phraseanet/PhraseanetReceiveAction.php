@@ -12,7 +12,7 @@ final class PhraseanetReceiveAction extends AbstractIntegrationAction implements
 {
     final public const string JOB_ID = 'receive';
 
-    public function handle(RunContext $context): void
+    public function doHandle(RunContext $context): void
     {
         if ($context->getInputs()['built'] ?? null) {
             return;

@@ -20,7 +20,7 @@ final class RenditionBuildAction extends AbstractIntegrationAction implements If
     ) {
     }
 
-    public function handle(RunContext $context): void
+    public function doHandle(RunContext $context): void
     {
         $force = $context->getInputs()['rerun'] ?? false;
         $asset = $this->getAsset($context);

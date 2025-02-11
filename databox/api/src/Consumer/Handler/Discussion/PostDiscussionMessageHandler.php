@@ -35,12 +35,17 @@ readonly class PostDiscussionMessageHandler
             return;
         }
 
+        $notificationOptions = [
+            'transactionId' => $message->getId(),
+        ];
+
         $object = $this->discussionManager->getThreadObject($message->getThread());
         $authorId = $message->getAuthorId();
 
         $notificationId = 'databox-discussion-new-comment';
         $params = [
             'object' => $object instanceof ObjectTitleInterface ? $object->getObjectTitle() : 'Undefined Object',
+            'objectId' => $object->getId(),
         ];
 
         if ($object instanceof Asset) {
@@ -52,6 +57,7 @@ readonly class PostDiscussionMessageHandler
                 $notificationId,
                 $authorId,
                 $params,
+                $notificationOptions,
             );
 
             foreach ($object->getCollections() as $assetCollection) {
@@ -63,7 +69,8 @@ readonly class PostDiscussionMessageHandler
                     Collection::EVENT_ASSET_NEW_COMMENT,
                     $notificationId,
                     $authorId,
-                    $params
+                    $params,
+                    $notificationOptions,
                 );
             }
         }
@@ -78,6 +85,6 @@ readonly class PostDiscussionMessageHandler
         $this->notifier->addTopicSubscribers($topicKey, array_unique($newSubscribers));
 
         $params['author'] = $this->notifier->getUsername($authorId);
-        $this->notifier->notifyTopic($topicKey, $authorId, $notificationId, $params);
+        $this->notifier->notifyTopic($topicKey, $authorId, $notificationId, $params, $notificationOptions);
     }
 }

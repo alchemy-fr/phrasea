@@ -32,12 +32,14 @@ final class MockNotifier implements NotifierInterface
         ?string $authorId,
         string $notificationId,
         array $parameters = [],
+        array $options = [],
     ): void {
         $this->notifiedTopics[] = [
             'topicKey' => $topicKey,
             'authorId' => $authorId,
             'notificationId' => $notificationId,
             'parameters' => $parameters,
+            'options' => $parameters,
         ];
     }
 
