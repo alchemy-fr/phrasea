@@ -12,6 +12,8 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
+use App\Notification\UserNotifyableException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class TestAction extends AbstractIntegrationAction implements IfActionInterface
 {
@@ -35,12 +37,17 @@ class TestAction extends AbstractIntegrationAction implements IfActionInterface
         $i->value = sprintf('Test value coming from "%s" integration (version %s)', TestAssetOperationIntegration::getName(), TestAssetOperationIntegration::VERSION);
         $input->actions[] = $i;
 
+        try {
+
         $this->batchAttributeManager->handleBatch(
             $asset->getWorkspaceId(),
             [$asset->getId()],
             $input,
             null
         );
+        } catch (BadRequestHttpException $e) {
+            throw new \InvalidArgumentException($e->getMessage(), previous: $e);
+        }
     }
 
     protected function shouldRun(Asset $asset): bool

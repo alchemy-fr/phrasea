@@ -48,6 +48,9 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
         $output->setEnabled($data->isEnabled());
         $output->setIntegration($data->getIntegration());
         $output->workspace = $data->getWorkspace();
+        if ($this->isGranted(AbstractVoter::EDIT, $data)) {
+            $output->lastErrors = $data->getLastErrors();
+        }
 
         $uri = $context['request_uri'] ?? '';
         $qs = parse_url((string) $uri, PHP_URL_QUERY) ?? '';

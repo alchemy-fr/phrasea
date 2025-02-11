@@ -36,6 +36,9 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     private bool $enabled = true;
 
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
+    public ?array $lastErrors = null;
+
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?array $tokens = null;
 
     /**

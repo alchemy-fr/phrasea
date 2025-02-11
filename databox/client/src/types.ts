@@ -128,6 +128,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     initialValues: Record<string, string>;
     workspace: Workspace | string;
     class: AttributeClass | string | null;
+    lastErrors?: LastErrors;
 }
 
 export interface AttributeClass extends ApiHydraObjectResponse, Entity {
@@ -302,6 +303,14 @@ export interface BasketAsset extends Entity {
     assetAnnotations?: AssetAnnotation[];
 }
 
+export type LastErrors = {
+    date: string;
+    message: string;
+    code: number;
+    file: string;
+    line: number;
+}[];
+
 export interface Workspace extends IPermissions, Entity {
     name: string;
     enabledLocales?: string[] | undefined;
@@ -327,6 +336,7 @@ export interface WorkspaceIntegration extends DefinitionBase {
     configYaml: string;
     tokens: IntegrationToken[];
     workspace: Workspace | string;
+    lastErrors?: LastErrors;
 }
 
 export interface IntegrationType {

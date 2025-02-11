@@ -11,6 +11,7 @@ use Alchemy\Workflow\Executor\RunContext;
 use App\Entity\Core\Asset;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Notification\EntityDisableNotifyableException;
+use App\Notification\ExceptionNotifier;
 use App\Notification\UserNotifyableException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -20,6 +21,7 @@ abstract class AbstractIntegrationAction implements IfActionInterface
     private IntegrationManager $integrationManager;
     protected EntityManagerInterface $em;
     private ExpressionParser $expressionParser;
+    private ExceptionNotifier $exceptionNotifier;
 
     /**
      * @return array{integration: IntegrationInterface, workspaceIntegration: WorkspaceIntegration, integrationId: string, workspaceId: string}
@@ -61,6 +63,12 @@ abstract class AbstractIntegrationAction implements IfActionInterface
         $this->expressionParser = $expressionParser;
     }
 
+    #[Required]
+    public function setExceptionNotifier(ExceptionNotifier $exceptionNotifier): void
+    {
+        $this->exceptionNotifier = $exceptionNotifier;
+    }
+
     public function evaluateIf(JobExecutionContext $context): bool
     {
         $asset = $this->getAsset($context);
@@ -88,9 +96,11 @@ abstract class AbstractIntegrationAction implements IfActionInterface
                 $e->getMessage(),
                 previous: $e
             );
-            $exception->addSubscribers($e->getSubscribers());
+            if ($e instanceof UserNotifyableException) {
+                $exception->addSubscribers($e->getSubscribers());
+            }
 
-            throw $exception;
+            $this->exceptionNotifier->notifyException($exception);
         }
 
         throw $e;

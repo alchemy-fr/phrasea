@@ -30,7 +30,6 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
     shortName: 'attribute-definition',
@@ -65,7 +64,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
     ],
     normalizationContext: [
-        'groups' => [AttributeDefinition::GROUP_LIST],
+        'groups' => [self::GROUP_LIST],
     ],
     input: AttributeDefinitionInput::class,
     output: AttributeDefinitionOutput::class,
@@ -88,17 +87,14 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     use ErrorDisableTrait;
     final public const string GROUP_READ = 'attrdef:read';
     final public const string GROUP_LIST = 'attrdef:index';
-    final public const string GROUP_WRITE = 'attrdef:w';
 
     /**
      * Override trait for annotation.
      */
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'attributeDefinitions')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([AttributeDefinition::GROUP_LIST])]
     protected ?Workspace $workspace = null;
 
-    #[Groups([AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ, AttributeDefinition::GROUP_WRITE])]
     #[ORM\ManyToOne(targetEntity: AttributeClass::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: false)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
@@ -110,7 +106,6 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     #[ORM\OneToMany(mappedBy: 'definition', targetEntity: Attribute::class, cascade: ['remove'])]
     private ?DoctrineCollection $attributes = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST])]
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     private ?string $name = null;
 
@@ -122,61 +117,48 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
      * Apply this definition to files of this MIME type.
      * If null, applied to all files.
      */
-    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     private ?string $fileType = null;
 
-    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ])]
     #[ORM\Column(type: Types::STRING, length: 50, nullable: false)]
     private string $fieldType = TextAttributeType::NAME;
 
-    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ])]
     #[ORM\Column(type: Types::STRING, length: AttributeEntity::TYPE_LENGTH, nullable: true)]
     private ?string $entityType = null;
 
-    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $searchable = true;
 
-    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $facetEnabled = false;
 
-    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $sortable = false;
 
-    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $translatable = false;
 
-    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $multiple = false;
 
-    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $allowInvalid = false;
 
-    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $suggest = false;
 
-    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $searchBoost = null;
 
     /**
      * Initialize attributes after asset creation; key=locale.
      */
-    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $initialValues = null;
 
     /**
      * Resolve this template (TWIG syntax) if no user value provided.
      */
-    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $fallback = null;
 
@@ -189,13 +171,11 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $labels = null;
 
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private int $position = 0;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => true])]
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     private bool $enabled = true;
 
     public function getName(): ?string

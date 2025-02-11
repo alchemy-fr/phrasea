@@ -4,6 +4,8 @@ namespace App\Entity\Traits;
 
 interface ErrorDisableInterface
 {
+    public function getId(): string;
+
     public function getLastErrors(): array;
 
     public function appendError(array $error): void;

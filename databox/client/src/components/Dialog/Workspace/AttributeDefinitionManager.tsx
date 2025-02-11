@@ -31,10 +31,12 @@ import {toast} from 'react-toastify';
 import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
 import ObjectTranslationField from '../../Form/ObjectTranslationField.tsx';
 import {NO_LOCALE} from '../../Media/Asset/Attribute/AttributesEditor.tsx';
+import LastErrors from "./LastErrors.tsx";
 
 function Item({
     usedFormSubmit,
     workspace,
+    data,
 }: DefinitionItemFormProps<AttributeDefinition>) {
     const {t} = useTranslation();
 
@@ -51,6 +53,7 @@ function Item({
 
     return (
         <>
+            <LastErrors data={data}/>
             <FormRow>
                 <TextField
                     label={t('form.attribute_definition.name.label', 'Name')}
