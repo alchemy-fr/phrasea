@@ -12,7 +12,6 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
-use App\Notification\UserNotifyableException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class TestAction extends AbstractIntegrationAction implements IfActionInterface
@@ -38,13 +37,12 @@ class TestAction extends AbstractIntegrationAction implements IfActionInterface
         $input->actions[] = $i;
 
         try {
-
-        $this->batchAttributeManager->handleBatch(
-            $asset->getWorkspaceId(),
-            [$asset->getId()],
-            $input,
-            null
-        );
+            $this->batchAttributeManager->handleBatch(
+                $asset->getWorkspaceId(),
+                [$asset->getId()],
+                $input,
+                null
+            );
         } catch (BadRequestHttpException $e) {
             throw new \InvalidArgumentException($e->getMessage(), previous: $e);
         }

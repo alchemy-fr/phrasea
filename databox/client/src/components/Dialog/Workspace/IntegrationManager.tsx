@@ -1,6 +1,5 @@
 import {IntegrationType, Workspace, WorkspaceIntegration} from '../../../types';
 import {
-    Alert, AlertTitle,
     Button,
     FormHelperText,
     ListItemText,
@@ -25,7 +24,7 @@ import {useEffect, useState} from 'react';
 import IntegrationTypeSelect from '../../Form/IntegrationTypeSelect.tsx';
 import CodeEditor from '../../Media/Asset/Widgets/CodeEditor.tsx';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import LastErrors from "./LastErrors.tsx";
+import LastErrors from './LastErrors.tsx';
 
 function Item({
     usedFormSubmit,
@@ -63,7 +62,7 @@ function Item({
 
     return (
         <>
-            <LastErrors data={data}/>
+            <LastErrors data={data} />
             {!data.id && (
                 <FormRow>
                     <IntegrationTypeSelect

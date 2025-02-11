@@ -30,6 +30,7 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     shortName: 'attribute-definition',
@@ -64,7 +65,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
         ),
     ],
     normalizationContext: [
-        'groups' => [self::GROUP_LIST],
+        'groups' => [AttributeDefinition::GROUP_LIST],
     ],
     input: AttributeDefinitionInput::class,
     output: AttributeDefinitionOutput::class,
@@ -107,6 +108,8 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     private ?DoctrineCollection $attributes = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
+    // Keep this group for ApiPlatform "assertMatchesResourceItemJsonSchema" test
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ, Asset::GROUP_LIST])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
