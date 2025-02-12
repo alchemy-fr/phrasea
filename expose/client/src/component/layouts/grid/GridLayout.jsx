@@ -233,7 +233,7 @@ const ImageComponent = ({item: {data}, imageProps}) => {
                 <div className={'asset-title'}>
                     {getTranslatedTitle(data)}
                 </div>
-                <Description descriptionHtml={getTranslatedDescription(data)+' qsd uqsdoiu quidsudsiq dsqsqd iusduisdqyqd si dqsydq su dqsiydqs iu qdsy dqisdidqsud uud'} />
+                <Description descriptionHtml={getTranslatedDescription(data)} />
             </div>
         </div>
     );
