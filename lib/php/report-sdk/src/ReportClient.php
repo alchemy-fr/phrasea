@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace Alchemy\ReportSDK;
 
-use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class ReportClient
+class ReportClient implements ReportClientInterface
 {
     private bool $reportIsDown = false;
 
     public function __construct(
         private readonly string $appName,
         private readonly string $appId,
-        private readonly Client $client,
+        private readonly HttpClientInterface $client,
         private readonly LogValidator $logValidator = new LogValidator(),
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {
@@ -51,10 +52,10 @@ class ReportClient
         $log = $this->logValidator->validate($log);
 
         try {
-            $this->client->post('/log', [
+            $this->client->request('POST', '/log', [
                 'json' => $log,
             ]);
-        } catch (\Throwable $e) {
+        } catch (TransportExceptionInterface $e) {
             $this->reportIsDown = true;
             $this->logger->alert(sprintf(
                 'Unable to send log to report service: (%s) %s',

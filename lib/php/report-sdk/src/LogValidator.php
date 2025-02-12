@@ -9,28 +9,27 @@ use Opis\JsonSchema\Schema;
 use Opis\JsonSchema\ValidationError;
 use Opis\JsonSchema\Validator;
 
-class LogValidator
+readonly class LogValidator
 {
-    private readonly Schema $schema;
+    private Schema $schema;
 
-    private readonly Validator $validator;
-
-    public function __construct(?string $schema = null)
-    {
+    public function __construct(
+        ?string $schema = null,
+        private Validator $validator = new Validator(),
+    ) {
         $this->schema = Schema::fromJsonString($schema ?? file_get_contents(__DIR__.'/log-schema.json'));
-        $this->validator = new Validator();
     }
 
     public function validate(array $data): array
     {
-        $result = $this->validator->schemaValidation(\GuzzleHttp\json_decode(\GuzzleHttp\json_encode($data)), $this->schema);
+        $result = $this->validator->schemaValidation(json_decode(json_encode($data, flags: JSON_THROW_ON_ERROR), flags: JSON_THROW_ON_ERROR), $this->schema);
 
         if ($result->isValid()) {
             return $data;
         } else {
             /** @var ValidationError $error */
             $error = $result->getFirstError();
-            throw new InvalidLogException('Invalid log: '.$error->keyword().' '.json_encode($error->keywordArgs(), JSON_PRETTY_PRINT));
+            throw new InvalidLogException('Invalid log: '.$error->keyword().' '.json_encode($error->keywordArgs(), flags: JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
         }
     }
 }
