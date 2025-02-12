@@ -29,7 +29,7 @@ class BlurhashAction extends AbstractIntegrationAction implements IfActionInterf
     ) {
     }
 
-    public function handle(RunContext $context): void
+    public function doHandle(RunContext $context): void
     {
         $asset = $this->getAsset($context);
         $config = $this->getIntegrationConfig($context);

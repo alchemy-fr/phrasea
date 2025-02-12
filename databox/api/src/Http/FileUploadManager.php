@@ -32,7 +32,8 @@ final readonly class FileUploadManager
             $uploadedFile->getRealPath(),
             $uploadedFile->getMimeType(),
             null,
-            $uploadedFile->getClientOriginalName()
+            $uploadedFile->getClientOriginalName(),
+            removeSrc: false,
         );
     }
 }

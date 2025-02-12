@@ -1,6 +1,7 @@
 import {
     IntegrationData,
     IntegrationToken,
+    IntegrationType,
     WorkspaceIntegration,
 } from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
@@ -8,6 +9,7 @@ import apiClient from './api-client';
 import {AxiosRequestConfig} from 'axios';
 
 export const integrationNS = '/integrations';
+export const integrationTypeNS = '/integration-types';
 
 export enum IntegrationContext {
     AssetView = 'asset-view',
@@ -75,4 +77,48 @@ export async function runIntegrationAction(
             config
         )
     ).data;
+}
+
+export async function getWorkspaceIntegrations(
+    workspaceId: string
+): Promise<WorkspaceIntegration[]> {
+    const res = await apiClient.get(integrationNS, {
+        params: {
+            workspaceId,
+            limit: 100,
+        },
+    });
+
+    return res.data['hydra:member'];
+}
+
+export async function getIntegrationType(id: string): Promise<IntegrationType> {
+    return (
+        await apiClient.get(`${integrationTypeNS}/${id.replace(/\./g, '--')}`)
+    ).data;
+}
+
+export async function getIntegrationTypes(): Promise<IntegrationType[]> {
+    const res = await apiClient.get(`${integrationTypeNS}`);
+
+    return res.data['hydra:member'];
+}
+
+export async function putIntegration(
+    id: string | undefined,
+    data: Partial<WorkspaceIntegration>
+): Promise<WorkspaceIntegration> {
+    delete data.workspace;
+
+    return (await apiClient.put(`${integrationNS}/${id}`, data)).data;
+}
+
+export async function postIntegration(
+    data: WorkspaceIntegration
+): Promise<WorkspaceIntegration> {
+    return (await apiClient.post(integrationNS, data)).data;
+}
+
+export async function deleteIntegration(id: string): Promise<void> {
+    await apiClient.delete(`${integrationNS}/${id}`);
 }

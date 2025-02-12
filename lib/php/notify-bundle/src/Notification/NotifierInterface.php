@@ -23,6 +23,7 @@ interface NotifierInterface
         ?string $authorId,
         string $notificationId,
         array $parameters = [],
+        array $options = [],
     ): void;
 
     public function addTopicSubscribers(

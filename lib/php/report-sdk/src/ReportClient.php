@@ -10,21 +10,15 @@ use Psr\Log\NullLogger;
 
 class ReportClient
 {
-    private readonly LogValidator $logValidator;
-    private readonly LoggerInterface $logger;
+    private bool $reportIsDown = false;
 
     public function __construct(
         private readonly string $appName,
         private readonly string $appId,
         private readonly Client $client,
-        ?LogValidator $logValidator = null,
-        ?LoggerInterface $logger = null,
+        private readonly LogValidator $logValidator = new LogValidator(),
+        private readonly LoggerInterface $logger = new NullLogger(),
     ) {
-        if (null === $logValidator) {
-            $logValidator = new LogValidator();
-        }
-        $this->logValidator = $logValidator;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     public function pushLog(
@@ -33,6 +27,10 @@ class ReportClient
         ?string $itemId = null,
         array $payload = [],
     ): void {
+        if ($this->reportIsDown) {
+            return;
+        }
+
         $log = [
             'action' => $action,
             'appName' => $this->appName,
@@ -57,6 +55,7 @@ class ReportClient
                 'json' => $log,
             ]);
         } catch (\Throwable $e) {
+            $this->reportIsDown = true;
             $this->logger->alert(sprintf(
                 'Unable to send log to report service: (%s) %s',
                 $e->getMessage(),

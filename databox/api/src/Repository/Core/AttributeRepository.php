@@ -60,6 +60,7 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
             ->createQueryBuilder('a')
             ->select('a')
             ->andWhere('a.asset = :asset')
+            ->andWhere('d.enabled = true')
             ->setParameter('asset', $assetId)
             ->innerJoin('a.definition', 'd')
             ->addOrderBy('d.position', 'ASC')
@@ -111,6 +112,7 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
         $queryBuilder
             ->addOrderBy('t.id', 'ASC')
             ->innerJoin('t.definition', 'd')
+            ->andWhere('d.enabled = true')
             ->andWhere('d.fieldType IN (:types)')
             ->setParameter('types', $types);
 

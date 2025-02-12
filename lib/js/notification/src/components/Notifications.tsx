@@ -29,7 +29,7 @@ export default function Notifications({
         setAnchorEl(null);
     };
     const open = Boolean(anchorEl);
-    const popoverId = 'mouse-over-popover';
+    const popoverId = 'notifications-popover';
 
     return <>
         <Inbox
@@ -60,12 +60,24 @@ export default function Notifications({
                     vertical: 'bottom',
                     horizontal: 'right',
                 }}
-                keepMounted
                 transformOrigin={{
                     vertical: 'top',
                     horizontal: 'right',
                 }}
                 onClose={handlePopoverClose}
+                slotProps={{
+                    paper: {
+                        sx: {
+                            minWidth: {
+                                xs: '100vw',
+                                sm: 500,
+                            },
+                            '.novu': {
+                                width: '100%',
+                            }
+                        }
+                    }
+                }}
             >
                 <InboxContent/>
             </Popover>

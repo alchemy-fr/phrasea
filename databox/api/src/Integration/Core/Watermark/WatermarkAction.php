@@ -30,7 +30,7 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
     ) {
     }
 
-    public function handle(RunContext $context): void
+    public function doHandle(RunContext $context): void
     {
         $asset = $this->getAsset($context);
         $config = $this->getIntegrationConfig($context);
