@@ -12,12 +12,16 @@ export async function uploadMultipartFile(targetId, userId, file, onProgress) {
 
     let uploadId;
 
-    if (resumableUpload) {
+    if (resumableUpload
+        // Ensure new format
+        && resumableUpload.c.length > 0 && typeof resumableUpload.c[0] === 'object'
+    ) {
         uploadId = resumableUpload.u;
         for (let i = 0; i < resumableUpload.c.length; i++) {
+            const part = resumableUpload.c[i];
             uploadParts.push({
-                ETag: resumableUpload.c[i],
-                PartNumber: i + 1,
+                ETag: part.etag,
+                PartNumber: part.n,
             });
         }
     } else {
@@ -45,12 +49,13 @@ export async function uploadMultipartFile(targetId, userId, file, onProgress) {
         onUploadInit: ({uploadId}) => {
             uploadStateStorage.initUpload(userId, fileUID, uploadId);
         },
-        onPartUploaded: ({etag}) => {
-            uploadStateStorage.updateUpload(userId, fileUID, etag);
+        onPartUploaded: ({etag, partNumber}) => {
+            uploadStateStorage.updateUpload(userId, fileUID, etag, partNumber);
         },
         receiveAbortController: abortController => {
             file.abortController = abortController;
         },
+        fileChunkSize: 31457280, // 30MB
     });
 
     file.abortController = new AbortController();

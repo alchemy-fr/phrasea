@@ -23,7 +23,10 @@ export type MultipartUploadOptions = {
     }) => void;
     onProgress?: (event: AxiosProgressEvent) => void;
     receiveAbortController?: (abortController: AbortController) => void;
+    fileChunkSize?: number;
 }
+
+const minChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3
 
 export async function multipartUpload(apiClient: HttpClient, file: File, {
     uploadParts: initialUploadParts,
@@ -33,9 +36,13 @@ export async function multipartUpload(apiClient: HttpClient, file: File, {
     onPartUploaded,
     onProgress,
     receiveAbortController,
+    fileChunkSize = minChunkSize,
 }: MultipartUploadOptions = {}): Promise<MultipartUpload> {
-    const fileChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3;
     const parts: UploadPart[] = initialUploadParts ?? [];
+
+    if (fileChunkSize < minChunkSize) {
+        throw new Error(`fileChunkSize must be at least ${minChunkSize}`);
+    }
 
     let uploadId: string | undefined = initialUploadId;
 

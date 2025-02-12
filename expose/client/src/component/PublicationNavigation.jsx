@@ -59,7 +59,7 @@ class PublicationNavigation extends PureComponent {
                     current={publication}
                     depth={1}
                     openChildren={true}
-                    publications={parent ? parent.children : [publication]}
+                    publications={parent ? (parent.children ?? []) : [publication]}
                 />
             </div>
         );

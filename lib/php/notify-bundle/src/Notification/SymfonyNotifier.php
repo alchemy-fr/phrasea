@@ -10,6 +10,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Notifier\Bridge\Novu\NovuSubscriberRecipient;
 use Symfony\Component\Notifier\NotifierInterface as SymfonyNotifierInterface;
+use Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface;
 
 final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
 {
@@ -19,7 +20,8 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
         private readonly SymfonyNotifierInterface $notifier,
         private readonly NovuClient $novuClient,
         private UserRepository $userRepository,
-        private bool $notifyAuthor = false,
+        private readonly bool $notifyAuthor = false,
+        private bool $novuIsDown = false,
     ) {
     }
 
@@ -81,7 +83,21 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
         $data = [];
 
         foreach ($topicKeys as $topicKey) {
-            $data[$topicKey] = $this->novuClient->isSubscribed($topicKey, $userId);
+            if (!$this->novuIsDown) {
+                try {
+                    $isSubscribed = $this->novuClient->isSubscribed($topicKey, $userId);
+                } catch (TimeoutExceptionInterface $e) {
+                    $this->logger->alert('Novu is down', [
+                        'exception' => $e,
+                    ]);
+                    $isSubscribed = false;
+                    $this->novuIsDown = true;
+                }
+            } else {
+                $isSubscribed = false;
+            }
+
+            $data[$topicKey] = $isSubscribed;
         }
 
         return $data;

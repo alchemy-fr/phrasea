@@ -14,6 +14,7 @@ use App\Notification\EntityDisableNotifyableException;
 use App\Notification\ExceptionNotifier;
 use App\Notification\UserNotifyableException;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\RateLimiter\Exception\RateLimitExceededException;
 use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractIntegrationAction implements IfActionInterface
@@ -88,7 +89,10 @@ abstract class AbstractIntegrationAction implements IfActionInterface
 
     protected function handleException(\Throwable $e, RunContext $context): void
     {
-        if ($e instanceof UserNotifyableException || $e instanceof \InvalidArgumentException) {
+        if ($e instanceof UserNotifyableException
+            || $e instanceof \InvalidArgumentException
+            || $e instanceof RateLimitExceededException
+        ) {
             $workspaceIntegration = $this->getIntegrationConfig($context)->getWorkspaceIntegration();
             $exception = new EntityDisableNotifyableException(
                 $workspaceIntegration,
