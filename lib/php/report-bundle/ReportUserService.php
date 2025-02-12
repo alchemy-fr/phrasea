@@ -9,11 +9,11 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class ReportUserService
+readonly class ReportUserService
 {
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    public function __construct(private readonly ReportClient $client, private readonly Security $security, string $reportBaseUrl)
+    public function __construct(private ReportClient $client, private Security $security, string $reportBaseUrl)
     {
         $this->enabled = !empty($reportBaseUrl);
     }

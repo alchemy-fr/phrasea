@@ -15,8 +15,12 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\WorkspaceIntegrationInput;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
+use App\Api\Provider\WorkspaceIntegrationCollectionProvider;
 use App\Entity\Core\Workspace;
+use App\Entity\Traits\ErrorDisableInterface;
+use App\Entity\Traits\ErrorDisableTrait;
 use App\Entity\Traits\NullableWorkspaceTrait;
 use App\Integration\Exception\CircularReferenceException;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -41,17 +45,20 @@ use Symfony\Component\Yaml\Yaml;
     normalizationContext: [
         'groups' => [WorkspaceIntegration::GROUP_LIST],
     ],
-    output: WorkspaceIntegrationOutput::class
+    input: WorkspaceIntegrationInput::class,
+    output: WorkspaceIntegrationOutput::class,
+    provider: WorkspaceIntegrationCollectionProvider::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_integration_key', columns: ['workspace_id', 'title', 'integration'])]
 #[ORM\Entity]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
-class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
+class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use NullableWorkspaceTrait;
+    use ErrorDisableTrait;
 
     final public const string GROUP_READ = 'wi:read';
     final public const string GROUP_LIST = 'wi:index';
@@ -146,6 +153,10 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
 
     public function setEnabled(bool $enabled): void
     {
+        if (!$this->enabled && $enabled) {
+            $this->clearErrors();
+        }
+
         $this->enabled = $enabled;
     }
 
@@ -218,6 +229,11 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
     public function setIf(?string $if): void
     {
         $this->if = $if;
+    }
+
+    public function disableAfterErrors(): void
+    {
+        $this->enabled = false;
     }
 
     public function __toString(): string

@@ -24,7 +24,7 @@ final class PhraseanetGenerateAssetRenditionsAction extends AbstractIntegrationA
     ) {
     }
 
-    public function handle(RunContext $context): void
+    public function doHandle(RunContext $context): void
     {
         $config = $this->getIntegrationConfig($context);
         $asset = $this->getAsset($context);

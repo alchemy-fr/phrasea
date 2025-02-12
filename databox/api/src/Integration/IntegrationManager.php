@@ -119,7 +119,7 @@ readonly class IntegrationManager
         $output = preg_replace("#\n {4}#", "\n", $output);
         $output = preg_replace("#\n\n#", "\n", $output);
 
-        return trim(preg_replace("#^\n+#", '', $output));
+        return trim(ltrim($output, "\n"));
     }
 
     private function getConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): IntegrationConfig

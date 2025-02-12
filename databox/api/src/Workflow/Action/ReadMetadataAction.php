@@ -21,7 +21,7 @@ class ReadMetadataAction extends AbstractIntegrationAction implements IfActionIn
     ) {
     }
 
-    public function handle(RunContext $context): void
+    public function doHandle(RunContext $context): void
     {
         $asset = $this->getAsset($context);
         $file = $asset->getSource();

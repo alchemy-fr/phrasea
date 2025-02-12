@@ -19,6 +19,13 @@ export function initSentry({
             /^Network Error$/i,
             /^Request failed with status code/i,
             /^Request aborted$/i,
+            /^Failed to fetch$/i,
+            /^NetworkError when attempting to fetch resource/i,
+            /^Load failed$/i,
+            /^Non-Error promise rejection captured with value: Object Not Found/i,
+            /zaloJSV2/i,
+            /property 'javaEnabled' is a read-only/i,
+            /^timeout exceeded$/i,
         ],
         denyUrls: [
             /webkit-masked-url/i,

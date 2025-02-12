@@ -12,7 +12,7 @@ use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
 class ApiBudgetLimiter
 {
-    final public const POLICIES = [
+    final public const array POLICIES = [
         'token_bucket',
         'fixed_window',
         'sliding_window',

@@ -76,6 +76,9 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->suggest) {
             $object->setSuggest($data->suggest);
         }
+        if (null !== $data->enabled) {
+            $object->setEnabled($data->enabled);
+        }
         if (null !== $data->sortable) {
             $object->setSortable($data->sortable);
         }
