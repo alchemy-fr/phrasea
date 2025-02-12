@@ -18,6 +18,15 @@ final class MockNotifier implements NotifierInterface
         ];
     }
 
+    public function broadcast(string $notificationId, array $parameters = []): void
+    {
+        $this->sentNotifications[] = [
+            'userId' => '*',
+            'notificationId' => $notificationId,
+            'parameters' => $parameters,
+        ];
+    }
+
     public function sendEmail(string $email, string $notificationId, array $parameters = []): void
     {
         $this->sentNotifications[] = [
