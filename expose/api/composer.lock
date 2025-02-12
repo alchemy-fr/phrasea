@@ -61,16 +61,15 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
-                "reference": "1f25e2c37d21d94a8e0b19d1f342a17981f902a8"
+                "reference": "4c86cdb6b39c5422c357da8f83ab327c8bded305"
             },
             "require": {
                 "alchemy/auth-bundle": "@dev",
                 "easycorp/easyadmin-bundle": "^4.0,<=4.20.2",
-                "guzzlehttp/guzzle": "^7.2",
                 "php": "^8.3",
                 "symfony/framework-bundle": "^6"
             },
@@ -119,7 +118,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -176,7 +175,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -229,7 +228,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -290,7 +289,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -343,7 +342,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
@@ -399,11 +398,11 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-bundle",
-                "reference": "12dfd1a289dbb1decd46abb23c7a8b8f85adf237"
+                "reference": "87420d1eaf87ef97f1afb381bc47608c0c09d005"
             },
             "require": {
                 "alchemy/report-sdk": "@dev",
@@ -418,7 +417,7 @@
             "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
-                    "Alchemy\\ReportBundle\\": ""
+                    "Alchemy\\ReportBundle\\": "src"
                 },
                 "exclude-from-classmap": [
                     "/Tests/"
@@ -426,7 +425,7 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Alchemy\\ReportBundle\\Tests\\": "/Tests/"
+                    "Alchemy\\ReportBundle\\Tests\\": "tests"
                 }
             },
             "scripts": {
@@ -452,16 +451,16 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-sdk",
-                "reference": "f5f90532afe2d59af2bbac030c5ee283cf59c811"
+                "reference": "7dad5890cba8ab8d22163912a4e8821a089bf613"
             },
             "require": {
-                "guzzlehttp/guzzle": "^7.2",
                 "opis/json-schema": "^1.0",
-                "php": "^8.3"
+                "php": "^8.3",
+                "symfony/http-client": "^6"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
@@ -505,7 +504,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -835,16 +834,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.339.5",
+            "version": "3.339.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "7ca04301a620c9400d00108fa338ad37acf19247"
+                "reference": "a63e79c15a972c54bf015a16cce3f3572e0c8221"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7ca04301a620c9400d00108fa338ad37acf19247",
-                "reference": "7ca04301a620c9400d00108fa338ad37acf19247",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a63e79c15a972c54bf015a16cce3f3572e0c8221",
+                "reference": "a63e79c15a972c54bf015a16cce3f3572e0c8221",
                 "shasum": ""
             },
             "require": {
@@ -870,7 +869,6 @@
                 "ext-openssl": "*",
                 "ext-pcntl": "*",
                 "ext-sockets": "*",
-                "paragonie/random_compat": ">= 2",
                 "phpunit/phpunit": "^5.6.3 || ^8.5 || ^9.5",
                 "psr/cache": "^2.0 || ^3.0",
                 "psr/simple-cache": "^2.0 || ^3.0",
@@ -927,9 +925,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.339.5"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.339.12"
             },
-            "time": "2025-02-03T19:04:31+00:00"
+            "time": "2025-02-12T19:08:43+00:00"
         },
         {
             "name": "brick/math",
@@ -2272,16 +2270,16 @@
         },
         {
             "name": "doctrine/orm",
-            "version": "2.20.1",
+            "version": "2.20.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/orm.git",
-                "reference": "e3cabade99ebccc6ba078884c1c5f250866a494e"
+                "reference": "19912de9270fa6abb3d25a1a37784af6b818d534"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/orm/zipball/e3cabade99ebccc6ba078884c1c5f250866a494e",
-                "reference": "e3cabade99ebccc6ba078884c1c5f250866a494e",
+                "url": "https://api.github.com/repos/doctrine/orm/zipball/19912de9270fa6abb3d25a1a37784af6b818d534",
+                "reference": "19912de9270fa6abb3d25a1a37784af6b818d534",
                 "shasum": ""
             },
             "require": {
@@ -2368,9 +2366,9 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/orm/issues",
-                "source": "https://github.com/doctrine/orm/tree/2.20.1"
+                "source": "https://github.com/doctrine/orm/tree/2.20.2"
             },
-            "time": "2024-12-19T06:48:36+00:00"
+            "time": "2025-02-04T19:17:01+00:00"
         },
         {
             "name": "doctrine/persistence",
@@ -10648,16 +10646,16 @@
         },
         {
             "name": "symfony/ux-twig-component",
-            "version": "v2.22.1",
+            "version": "v2.23.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-twig-component.git",
-                "reference": "9b347f6ca2d9e18cee630787f0a6aa453982bf18"
+                "reference": "f29033b95e93aea2d498dc40eac185ed14b07800"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-twig-component/zipball/9b347f6ca2d9e18cee630787f0a6aa453982bf18",
-                "reference": "9b347f6ca2d9e18cee630787f0a6aa453982bf18",
+                "url": "https://api.github.com/repos/symfony/ux-twig-component/zipball/f29033b95e93aea2d498dc40eac185ed14b07800",
+                "reference": "f29033b95e93aea2d498dc40eac185ed14b07800",
                 "shasum": ""
             },
             "require": {
@@ -10711,7 +10709,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-twig-component/tree/v2.22.1"
+                "source": "https://github.com/symfony/ux-twig-component/tree/v2.23.0"
             },
             "funding": [
                 {
@@ -10727,7 +10725,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-12-07T18:05:50+00:00"
+            "time": "2025-01-25T02:19:26+00:00"
         },
         {
             "name": "symfony/validator",
@@ -11341,7 +11339,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
@@ -12185,16 +12183,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.12.1",
+            "version": "1.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "123267b2c49fbf30d78a7b2d333f6be754b94845"
+                "reference": "024473a478be9df5fdaca2c793f2232fe788e414"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/123267b2c49fbf30d78a7b2d333f6be754b94845",
-                "reference": "123267b2c49fbf30d78a7b2d333f6be754b94845",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/024473a478be9df5fdaca2c793f2232fe788e414",
+                "reference": "024473a478be9df5fdaca2c793f2232fe788e414",
                 "shasum": ""
             },
             "require": {
@@ -12233,7 +12231,7 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.12.1"
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.0"
             },
             "funding": [
                 {
@@ -12241,7 +12239,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-11-08T17:47:46+00:00"
+            "time": "2025-02-12T12:17:51+00:00"
         },
         {
             "name": "nelmio/alice",
@@ -12569,16 +12567,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.12.16",
+            "version": "1.12.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "e0bb5cb78545aae631220735aa706eac633a6be9"
+                "reference": "7027b3b0270bf392de0cfba12825979768d728bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e0bb5cb78545aae631220735aa706eac633a6be9",
-                "reference": "e0bb5cb78545aae631220735aa706eac633a6be9",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/7027b3b0270bf392de0cfba12825979768d728bf",
+                "reference": "7027b3b0270bf392de0cfba12825979768d728bf",
                 "shasum": ""
             },
             "require": {
@@ -12623,7 +12621,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-01-21T14:50:05+00:00"
+            "time": "2025-02-07T15:01:57+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
