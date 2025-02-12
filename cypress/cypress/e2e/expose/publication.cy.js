@@ -33,9 +33,9 @@ describe('Visit publication', () => {
                 let lastAsset;
                 assets.forEach((asset, index) => {
                     cy.getBySel('grid-gallery-item_viewport').eq(index).click();
-                    cy.contains(`Desc ${asset}`).should('be.visible');
+                    cy.get('.react-images__positioner').contains(`Desc ${asset}`).should('be.visible');
                     if (lastAsset) {
-                        cy.contains(`Desc ${lastAsset}`).should('not.be.visible');
+                        cy.get('.react-images__positioner').contains(`Desc ${lastAsset}`).should('not.be.visible');
                     }
                     cy.get('.react-images__header_button--close').click();
                     lastAsset = asset;
@@ -44,9 +44,9 @@ describe('Visit publication', () => {
                 cy.getBySel('grid-gallery-item_viewport').eq(0).click();
                 lastAsset = undefined;
                 assets.forEach((asset, index) => {
-                    cy.contains(`Desc ${asset}`).should('be.visible');
+                    cy.get('.react-images__positioner').contains(`Desc ${asset}`).should('be.visible');
                     if (lastAsset) {
-                        cy.contains(`Desc ${lastAsset}`).should('not.be.visible');
+                        cy.get('.react-images__positioner').contains(`Desc ${lastAsset}`).should('not.be.visible');
                     }
                     if (index < assets.length - 1) {
                         cy.get(`[aria-label="Show slide ${(index + 1) % 3 + 1} of 3"]`).click();
