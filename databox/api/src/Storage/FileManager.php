@@ -90,13 +90,15 @@ final readonly class FileManager
             $type = FileUtil::getTypeFromExtension($extension);
         }
 
+        $fileSize = filesize($src);
         $path = $this->storeFile($workspace, $src, $type, $extension, $originalName, $removeSrc);
+
 
         return $this->createFile(
             File::STORAGE_S3_MAIN,
             $path,
             $type,
-            filesize($src),
+            $fileSize,
             $originalName,
             $workspace
         );
