@@ -34,7 +34,7 @@ final readonly class WorkspaceTemplater
         ], JSON_PRETTY_PRINT);
     }
 
-    public function import(string $data, string $newName, string $ownerId): void
+    public function import(string $data, string $newName, ?string $slug, ?string $ownerId): void
     {
         $data = json_decode($data, true);
 
@@ -47,7 +47,7 @@ final readonly class WorkspaceTemplater
                 $ws = new Workspace();
                 $ws->setOwnerId($ownerId);
                 $ws->setName($newName);
-                $ws->setSlug($slugger->slug($newName)->toString());
+                $ws->setSlug($slug ?: $slugger->slug($newName)->toString());
             } else {
                 $this->logger->info(sprintf('Updating Workspace "%s"', $newName));
             }
@@ -74,19 +74,14 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    // ---------- Workspace
-
     private function exportWorkspace(Workspace $workspace): array
     {
         return [
-            // 'name' => $workspace->getName(),
             'public' => $workspace->isPublic(),
             'enabledLocales' => $workspace->getEnabledLocales(),
             'localeFallbacks' => $workspace->getLocaleFallbacks(),
         ];
     }
-
-    // ---------- RenditionClass
 
     private function exportRenditionClass(string $workspaceId): array
     {
@@ -131,8 +126,6 @@ final readonly class WorkspaceTemplater
             $renditionClassMap[$item['id']] = $o;
         }
     }
-
-    // ---------- RenditionDefinition
 
     private function exportRenditionDefinition(string $workspaceId): array
     {
@@ -218,8 +211,6 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    // ---------- AttributeClass
-
     private function exportAttributeClass(string $workspaceId): array
     {
         $o = [];
@@ -266,8 +257,6 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    // ---------- AttributeDefinition
-
     private function exportAttributeDefinition(string $workspaceId): array
     {
         $o = [];
@@ -284,13 +273,9 @@ final readonly class WorkspaceTemplater
                 'labels' => $item->getLabels(),
                 'entityType' => $item->getEntityType(),
                 'fallback' => $item->getFallback(),
-                'fallbackAll' => $item->getFallbackAll(),
-                'fallbackEN' => $item->getFallbackEN(),
-                'fallbackFR' => $item->getFallbackFR(),
                 'fieldType' => $item->getFieldType(),
                 'fileType' => $item->getFileType(),
                 'initialValues' => $item->getInitialValues(),
-                'initialValuesAll' => $item->getInitialValuesAll(),
                 'position' => $item->getPosition(),
                 'searchBoost' => $item->getSearchBoost(),
                 'allowInvalid' => $item->isAllowInvalid(),
@@ -325,13 +310,9 @@ final readonly class WorkspaceTemplater
             $o->setLabels($item['labels']);
             $o->setEntityType($item['entityType']);
             $o->setFallback($item['fallback']);
-            $o->setFallbackAll($item['fallbackAll']);
-            $o->setFallbackEN($item['fallbackEN']);
-            $o->setFallbackFR($item['fallbackFR']);
             $o->setFieldType($item['fieldType']);
             $o->setFileType($item['fileType']);
             $o->setInitialValues($item['initialValues']);
-            $o->setInitialValuesAll($item['initialValuesAll']);
             $o->setPosition($item['position']);
             $o->setSearchBoost($item['searchBoost']);
             $o->setAllowInvalid($item['allowInvalid']);
@@ -345,8 +326,6 @@ final readonly class WorkspaceTemplater
         }
 
     }
-
-    // ---------- Tag
 
     private function exportTag(string $workspaceId): array
     {
