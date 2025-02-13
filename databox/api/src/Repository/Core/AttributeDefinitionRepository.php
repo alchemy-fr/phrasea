@@ -176,6 +176,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->createQueryBuilder('d')
             ->andWhere('d.fallback IS NOT NULL')
             ->andWhere('d.workspace = :workspace')
+            ->andWhere('d.enabled = true')
             ->setParameter('workspace', $workspaceId)
             ->getQuery()
             ->getResult();

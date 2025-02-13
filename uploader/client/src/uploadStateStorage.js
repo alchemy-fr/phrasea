@@ -27,10 +27,13 @@ class UploadStateStorage {
         this.setData(d);
     }
 
-    updateUpload(userId, fileUID, chunkETag) {
-        console.debug('updateUpload', userId, fileUID, chunkETag);
+    updateUpload(userId, fileUID, chunkETag, partNumber) {
+        console.debug('updateUpload', userId, fileUID, chunkETag, partNumber);
         const d = this.getData();
-        d[userId][fileUID].c.push(chunkETag);
+        const list = d[userId][fileUID].c;
+        if (!list.find(({n}) => n === partNumber)) {
+            list.push({etag: chunkETag, n: partNumber});
+        }
         this.setData(d);
     }
 

@@ -43,7 +43,14 @@ final readonly class FileManager
         return $file;
     }
 
-    public function storeFile(Workspace $workspace, string $src, ?string $type, ?string $extension, ?string $originalName): string
+    public function storeFile(
+        Workspace $workspace,
+        string $src,
+        ?string $type,
+        ?string $extension,
+        ?string $originalName,
+        bool $removeSrc = true,
+    ): string
     {
         if (null === $extension) {
             $extension = FileUtil::guessExtension($type, $originalName);
@@ -55,10 +62,21 @@ final readonly class FileManager
         $this->storageManager->storeStream($path, $fd);
         fclose($fd);
 
+        if ($removeSrc) {
+            unlink($src);
+        }
+
         return $path;
     }
 
-    public function createFileFromPath(Workspace $workspace, string $src, ?string $type, ?string $extension = null, ?string $originalName = null): File
+    public function createFileFromPath(
+        Workspace $workspace,
+        string $src,
+        ?string $type,
+        ?string $extension = null,
+        ?string $originalName = null,
+        bool $removeSrc = true,
+    ): File
     {
         if (null === $extension) {
             $extension = FileUtil::guessExtension($type, $originalName ?? $src);
@@ -72,7 +90,7 @@ final readonly class FileManager
             $type = FileUtil::getTypeFromExtension($extension);
         }
 
-        $path = $this->storeFile($workspace, $src, $type, $extension, $originalName);
+        $path = $this->storeFile($workspace, $src, $type, $extension, $originalName, $removeSrc);
 
         return $this->createFile(
             File::STORAGE_S3_MAIN,

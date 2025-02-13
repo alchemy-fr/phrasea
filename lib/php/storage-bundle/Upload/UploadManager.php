@@ -62,7 +62,7 @@ final readonly class UploadManager
         return (string) $request->getUri();
     }
 
-    public function markComplete(string $uploadId, string $filename, array $parts)
+    public function markComplete(string $uploadId, string $filename, array $parts): void
     {
         $params = [
             'Bucket' => $this->uploadBucket,
@@ -73,7 +73,7 @@ final readonly class UploadManager
             'UploadId' => $uploadId,
         ];
 
-        return $this->client->completeMultipartUpload($params);
+        $this->client->completeMultipartUpload($params);
     }
 
     public function createPutObjectSignedURL(string $path, string $contentType): string

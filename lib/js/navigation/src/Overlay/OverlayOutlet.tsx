@@ -93,6 +93,6 @@ export default function OverlayOutlet({
     </OverlayContext.Provider>
 }
 
-function DefaultWrapperComponent({children}: OverlayComponentProps) {
-    return children as ReactNode;
+function DefaultWrapperComponent({children, open}: OverlayComponentProps) {
+    return open ? children as ReactNode : null;
 }

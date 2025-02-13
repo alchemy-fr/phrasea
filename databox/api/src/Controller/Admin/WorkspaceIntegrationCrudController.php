@@ -14,12 +14,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
-class IntegrationCrudController extends AbstractAdminCrudController
+class WorkspaceIntegrationCrudController extends AbstractAdminCrudController
 {
     public function __construct(private readonly IntegrationChoiceField $integrationChoiceField)
     {
@@ -66,6 +67,10 @@ class IntegrationCrudController extends AbstractAdminCrudController
             ->onlyOnForms();
         yield JsonField::new('config')
             ->onlyOnDetail();
+        yield JsonField::new('lastErrors')
+            ->onlyOnDetail();
+        yield NumberField::new('errorCount')
+            ->hideOnForm();
         yield ArrayField::new('this', 'Config info')
             ->setTemplatePath('admin/integration_config_info.html.twig')
             ->hideOnForm();
