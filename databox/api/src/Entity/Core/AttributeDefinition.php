@@ -389,7 +389,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
 
     private function normalizeInitialValues(): void
     {
-        if (empty(array_filter($this->initialValues))) {
+        if (is_array($this->initialValues) && empty(array_filter($this->initialValues))) {
             $this->initialValues = null;
         }
     }
