@@ -38,7 +38,6 @@ final readonly class WorkspaceTemplater
     {
         $data = json_decode($data, true);
 
-        $slugger = new AsciiSlugger();
         $this->em->beginTransaction();
         try {
             /** @var Workspace $ws */
@@ -47,7 +46,7 @@ final readonly class WorkspaceTemplater
                 $ws = new Workspace();
                 $ws->setOwnerId($ownerId);
                 $ws->setName($newName);
-                $ws->setSlug($slug ?: $slugger->slug($newName)->toString());
+                $ws->setSlug($slug ?: (new AsciiSlugger())->slug($newName)->toString());
             } else {
                 $this->logger->info(sprintf('Updating Workspace "%s"', $newName));
             }
@@ -56,9 +55,9 @@ final readonly class WorkspaceTemplater
             $ws->setLocaleFallbacks($data['Workspace']['localeFallbacks']);
             $this->em->persist($ws);
 
-            $AttributeClassMap = [];
-            $this->importAttributeClass($ws, $data, $AttributeClassMap);
-            $this->importAttributeDefinition($ws, $data, $AttributeClassMap);
+            $attributeClassMap = [];
+            $this->importAttributeClass($ws, $data, $attributeClassMap);
+            $this->importAttributeDefinition($ws, $data, $attributeClassMap);
 
             $renditionClassMap = [];
             $this->importRenditionClass($ws, $data, $renditionClassMap);
@@ -157,24 +156,22 @@ final readonly class WorkspaceTemplater
         return $o;
     }
 
+    private function orderByParent(array $u, array $o = []): array
+    {
+        $end = true;
+        $tu = array_filter(
+            $u,
+            function($x) use(&$o, &$end) {
+                return ($x['parent'] && !array_key_exists($x['parent'], $o)) || ($end = is_null($o[$x['id']] = $x));
+            }
+        );
+
+        return $end || empty($tu) ? $o : $this->orderByParent($tu, $o);
+    }
+
     private function importRenditionDefinition(Workspace $ws, array $data, array $renditionClassMap): void
     {
-        // order rd so parent is declared before children
-        $rdOrdered = [];
-        while (!empty($data['RenditionDefinition'])) {
-            $again = false;
-            foreach ($data['RenditionDefinition'] as $k => $o) {
-                if (!$o['parent'] || array_key_exists($o['parent'], $rdOrdered)) {
-                    $rdOrdered[$o['id']] = $o;
-                    unset($data['RenditionDefinition'][$k]);
-                    $again = true;
-                    break;
-                }
-            }
-            if (!$again) {
-                throw new \RuntimeException('RenditionDefinition parent not found');
-            }
-        }
+        $rdOrdered = $this->orderByParent($data['RenditionDefinition']);
 
         $rdMap = [];
         foreach ($rdOrdered as $id => $item) {
@@ -226,14 +223,13 @@ final readonly class WorkspaceTemplater
                 'editable' => $item->isEditable(),
                 'public' => $item->isPublic(),
                 'labels' => $item->getLabels(),
-                'aclOwnerId' => $item->getAclOwnerId(),
             ];
         }
 
         return $o;
     }
 
-    private function importAttributeClass(Workspace $ws, array $data, array &$AttributeClassMap): void
+    private function importAttributeClass(Workspace $ws, array $data, array &$attributeClassMap): void
     {
         foreach ($data['AttributeClass'] as $item) {
             /** @var AttributeClass $o */
@@ -253,7 +249,7 @@ final readonly class WorkspaceTemplater
             $o->setEditable($item['editable']);
             $this->em->persist($o);
 
-            $AttributeClassMap[$item['id']] = $o;
+            $attributeClassMap[$item['id']] = $o;
         }
     }
 
@@ -291,7 +287,7 @@ final readonly class WorkspaceTemplater
         return $o;
     }
 
-    private function importAttributeDefinition(Workspace $ws, array $data, array $AttributeClassMap): void
+    private function importAttributeDefinition(Workspace $ws, array $data, array $attributeClassMap): void
     {
         foreach ($data['AttributeDefinition'] as $item) {
             /** @var AttributeDefinition $o */
@@ -306,7 +302,7 @@ final readonly class WorkspaceTemplater
             } else {
                 $this->logger->info(sprintf('Updating AttributeDefinition "%s"', $item['name']));
             }
-            $o->setClass($AttributeClassMap[$item['class']]);
+            $o->setClass($attributeClassMap[$item['class']]);
             $o->setLabels($item['labels']);
             $o->setEntityType($item['entityType']);
             $o->setFallback($item['fallback']);
@@ -368,6 +364,5 @@ final readonly class WorkspaceTemplater
             $o->setLocale($item['locale']);
             $this->em->persist($o);
         }
-
     }
 }
