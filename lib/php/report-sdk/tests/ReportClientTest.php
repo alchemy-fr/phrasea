@@ -6,27 +6,22 @@ namespace Alchemy\ReportSDK\Tests;
 
 use Alchemy\ReportSDK\Exception\InvalidLogException;
 use Alchemy\ReportSDK\ReportClient;
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\JsonMockResponse;
 
 class ReportClientTest extends TestCase
 {
     public function testPushLogOK(): void
     {
-        $mock = new MockHandler([
-            new Response(200, ['Content-Type' => 'application/json'], 'true'),
+        $client = new MockHttpClient([
+            new JsonMockResponse(true),
         ]);
-
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
 
         $reportClient = new ReportClient('test-app', 'app-id', $client);
         $reportClient->pushLog('asset_view');
 
-        $this->assertEquals(0, $mock->count());
+        $this->assertEquals(1, $client->getRequestsCount());
     }
 
     /**
@@ -34,9 +29,7 @@ class ReportClientTest extends TestCase
      */
     public function testPushLogErrors(array $args): void
     {
-        $mock = new MockHandler([]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
+        $client = new MockHttpClient([]);
 
         $reportClient = new ReportClient('test-app', 'app-id', $client);
 

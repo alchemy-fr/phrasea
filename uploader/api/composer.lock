@@ -61,7 +61,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -119,7 +119,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -176,7 +176,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -229,7 +229,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -290,7 +290,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -343,7 +343,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
@@ -399,11 +399,11 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-bundle",
-                "reference": "12dfd1a289dbb1decd46abb23c7a8b8f85adf237"
+                "reference": "87420d1eaf87ef97f1afb381bc47608c0c09d005"
             },
             "require": {
                 "alchemy/report-sdk": "@dev",
@@ -418,7 +418,7 @@
             "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
-                    "Alchemy\\ReportBundle\\": ""
+                    "Alchemy\\ReportBundle\\": "src"
                 },
                 "exclude-from-classmap": [
                     "/Tests/"
@@ -426,7 +426,7 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Alchemy\\ReportBundle\\Tests\\": "/Tests/"
+                    "Alchemy\\ReportBundle\\Tests\\": "tests"
                 }
             },
             "scripts": {
@@ -452,16 +452,16 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-sdk",
-                "reference": "f5f90532afe2d59af2bbac030c5ee283cf59c811"
+                "reference": "7dad5890cba8ab8d22163912a4e8821a089bf613"
             },
             "require": {
-                "guzzlehttp/guzzle": "^7.2",
                 "opis/json-schema": "^1.0",
-                "php": "^8.3"
+                "php": "^8.3",
+                "symfony/http-client": "^6"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
@@ -505,7 +505,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -11590,7 +11590,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-784-report",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
