@@ -29,7 +29,7 @@ class ExportWorkspaceCommand extends Command
 
         $this
             ->setDescription('Export a workspace as a template.')
-            ->addArgument('workspace', InputOption::VALUE_REQUIRED, 'Workspace id to export')
+            ->addArgument('workspace', InputOption::VALUE_REQUIRED, 'Workspace ID to export')
         ;
     }
 
