@@ -28,7 +28,12 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
     public function notifyUser(string $userId, string $notificationId, array $parameters = []): void
     {
         $recipient = new NovuSubscriberRecipient($userId);
-        $this->sendNotification($recipient, $notificationId, $parameters, 'user');
+        $this->sendNotification($recipient, $notificationId, $parameters);
+    }
+
+    public function broadcast(string $notificationId, array $parameters = []): void
+    {
+        $this->novuClient->broadcast($notificationId, $parameters);
     }
 
     public function sendEmail(string $email, string $notificationId, array $parameters = []): void
