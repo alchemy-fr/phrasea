@@ -8,7 +8,6 @@ import {
     HttpClient,
 } from "./src/httpClient";
 import useFormSubmit from "./src/useFormSubmit";
-import {getApiResponseError} from "./src/utils";
 
 export {
     useCancelRequest,
@@ -16,9 +15,9 @@ export {
     useRequestErrorHandler,
     createHttpClient,
     useFormSubmit,
-    getApiResponseError,
 };
 export * from './src/types';
+export * from './src/utils';
 
 export type {
     HttpClient
