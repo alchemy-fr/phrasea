@@ -37,7 +37,7 @@ class ImportWorkspaceCommand extends Command
             ->setHelp(<<<'HELP'
 The template data is read from stdin.
   e.g. <info>sf app:workspace:template new_workspace  --owner 4fe7bbba-0bb3-496b-8d8c-1234567890aa < template.json</info>
-If the destination workspace does not exist, it is created (<info>--owner</info> is required); Is no <info>--slug</info> is provided, the slugified name is used.
+If the destination workspace does not exist, it is created (<info>--owner</info> is required); If no <info>--slug</info> is provided, the slugified name is used.
 If the destination workspace exists, it is updated with the template data (<info>--force</info> is required; <info>--owner</info> and <info>--slug</info> are ignored).
 HELP
             )
