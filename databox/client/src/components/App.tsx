@@ -4,7 +4,7 @@ import LeftPanel from './Media/LeftPanel';
 import ResultProvider from './Media/Search/ResultProvider';
 import SearchProvider from './Media/Search/SearchProvider';
 import AssetDropzone from './Media/Asset/AssetDropzone';
-import {ToastContainer} from 'react-toastify';
+import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {Box, Theme, useMediaQuery} from '@mui/material';
 import apiClient from '../api/api-client';
@@ -101,6 +101,7 @@ export default function App() {
     const {logout, user} = useAuth();
     const location = useLocation();
     const onError = useRequestErrorHandler({
+        onError: toast,
         logout: redirectPathAfterLogin => {
             logout({
                 redirectPathAfterLogin,

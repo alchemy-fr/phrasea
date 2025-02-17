@@ -1,5 +1,6 @@
 import {FieldValues, UseFormReturn} from "react-hook-form";
 import React from "react";
+import {AxiosError} from "axios";
 
 export type RequestMeta = {
     requestStartedAt?: number;
@@ -34,3 +35,9 @@ export type UseFormSubmitReturn<T extends FieldValues, R = T, FormData extends F
     isDirty: boolean,
     forbidNavigation: boolean,
 } & Omit<UseFormReturn<FormData>, "handleSubmit">;
+
+export type SimpleAxiosError = {
+    code: number;
+    message: string;
+    error: AxiosError;
+};
