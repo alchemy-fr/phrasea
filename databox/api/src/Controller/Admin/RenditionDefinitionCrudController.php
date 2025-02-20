@@ -34,7 +34,8 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('Rendition Definition')
             ->setEntityLabelInPlural('Rendition Definitions')
             ->setSearchFields(['id', 'name', 'definition', 'priority'])
-            ->setPaginatorPageSize(100);
+            ->setPaginatorPageSize(100)
+            ->setDefaultSort(['workspace.name' => 'ASC', 'name' => 'ASC']);
     }
 
     public function configureFilters(Filters $filters): Filters

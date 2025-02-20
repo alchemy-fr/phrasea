@@ -6,11 +6,16 @@ use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Entity\Core\Workspace;
+use App\Entity\Template\WorkspaceTemplate;
+use App\Repository\Core\WorkspaceTemplateRepository;
+use App\Workspace\WorkspaceTemplater;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
@@ -18,7 +23,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class WorkspaceCrudController extends AbstractAclAdminCrudController
 {
-    public function __construct(private readonly UserChoiceField $userChoiceField)
+    public function __construct(
+        private readonly UserChoiceField $userChoiceField,
+        private readonly WorkspaceTemplateRepository $workspaceTemplateRepository,
+        private readonly WorkspaceTemplater     $workspaceTemplater
+    )
     {
     }
 
@@ -33,7 +42,8 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
             ->setEntityLabelInSingular('Workspace')
             ->setEntityLabelInPlural('Workspaces')
             ->setSearchFields(['id', 'name', 'slug', 'ownerId', 'config', 'enabledLocales', 'localeFallbacks'])
-            ->setPaginatorPageSize(100);
+            ->setPaginatorPageSize(100)
+            ->setDefaultSort(['name' => 'ASC']);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -71,11 +81,50 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
             ->onlyOnDetail();
         yield AssociationField::new('renditionDefinitions')
             ->onlyOnDetail();
-        yield AssociationField::new('renditionDefinitions')
-            ->onlyOnDetail();
+        yield ChoiceField::new('applyWorkspaceTemplate', null,)
+            ->setFormTypeOption('mapped', false)
+            ->setChoices($this->getTemplateChoice());
         yield AssociationField::new('attributeDefinitions')
             ->onlyOnDetail();
         yield AssociationField::new('files')
         ->onlyOnDetail();
+    }
+
+    private function getTemplateChoice()
+    {
+        $templateChoices = [];
+        foreach($this->workspaceTemplateRepository->findAll() as $template) {
+            $templateChoices[$template->getName()] = $template->getId();
+        }
+
+        return $templateChoices;
+    }
+
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        parent::persistEntity($entityManager, $entityInstance);
+        $this->applyWorkspaceTemplate($entityInstance);
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        parent::updateEntity($entityManager, $entityInstance);
+        $this->applyWorkspaceTemplate($entityInstance);
+    }
+
+    private function applyWorkspaceTemplate(Workspace $workspace)
+    {
+        $templateId = ($this->getContext()->getRequest()->request->all('Workspace'))['applyWorkspaceTemplate'];
+        if($templateId) {
+            try {
+                /** @var WorkspaceTemplate $t */
+                $t = $this->workspaceTemplateRepository->findOneBy(['id' => $templateId]);
+                if($t && $t->getData()) {
+                    $this->workspaceTemplater->importToWorkspace($workspace, $t->getData());
+                }
+            } catch (\Throwable $e) {
+                $this->addFlash('warning', sprintf('Workspace template NOT applied because: %s.', $e->getMessage()));
+            }
+        }
     }
 }
