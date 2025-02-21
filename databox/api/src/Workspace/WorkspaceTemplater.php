@@ -10,6 +10,7 @@ use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
+use App\Entity\Template\WorkspaceTemplate;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\String\Slugger\AsciiSlugger;
@@ -32,6 +33,20 @@ final readonly class WorkspaceTemplater
             'AttributeDefinition' => $this->exportAttributeDefinition($workspace->getId()),
             'Tag' => $this->exportTag($workspace->getId()),
         ];
+    }
+
+    public function saveWorkspaceAsTemplate(Workspace $workspace, ?string $name = null): WorkspaceTemplate
+    {
+        if(!$name) {
+            $name = $workspace->getName();
+        }
+        $wsTemplate = new WorkspaceTemplate();
+        $wsTemplate->setName($name);
+        $wsTemplate->setData($this->export($workspace));
+        $this->em->persist($wsTemplate);
+        $this->em->flush();
+
+        return $wsTemplate;
     }
 
     public function import(array $data, string $newName, ?string $slug, ?string $ownerId): void
