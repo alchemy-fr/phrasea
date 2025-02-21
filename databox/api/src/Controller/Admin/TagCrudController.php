@@ -28,7 +28,8 @@ class TagCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('Tag')
             ->setEntityLabelInPlural('Tags')
             ->setSearchFields(['id', 'name', 'locale'])
-            ->setPaginatorPageSize(100);
+            ->setPaginatorPageSize(100)
+            ->setDefaultSort(['workspace.name' => 'ASC', 'name' => 'ASC']);
     }
 
     public function configureFilters(Filters $filters): Filters

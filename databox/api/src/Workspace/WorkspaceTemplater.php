@@ -10,6 +10,7 @@ use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
+use App\Entity\Template\WorkspaceTemplate;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\String\Slugger\AsciiSlugger;
@@ -22,22 +23,34 @@ final readonly class WorkspaceTemplater
     ) {
     }
 
-    public function export(Workspace $workspace): string
+    public function export(Workspace $workspace): array
     {
-        return json_encode([
+        return [
             'Workspace' => $this->exportWorkspace($workspace),
             'RenditionClass' => $this->exportRenditionClass($workspace->getId()),
             'RenditionDefinition' => $this->exportRenditionDefinition($workspace->getId()),
             'AttributeClass' => $this->exportAttributeClass($workspace->getId()),
             'AttributeDefinition' => $this->exportAttributeDefinition($workspace->getId()),
             'Tag' => $this->exportTag($workspace->getId()),
-        ], JSON_PRETTY_PRINT);
+        ];
     }
 
-    public function import(string $data, string $newName, ?string $slug, ?string $ownerId): void
+    public function saveWorkspaceAsTemplate(Workspace $workspace, ?string $name = null): WorkspaceTemplate
     {
-        $data = json_decode($data, true);
+        if(!$name) {
+            $name = $workspace->getName();
+        }
+        $wsTemplate = new WorkspaceTemplate();
+        $wsTemplate->setName($name);
+        $wsTemplate->setData($this->export($workspace));
+        $this->em->persist($wsTemplate);
+        $this->em->flush();
 
+        return $wsTemplate;
+    }
+
+    public function import(array $data, string $newName, ?string $slug, ?string $ownerId): void
+    {
         $this->em->beginTransaction();
         try {
             /** @var Workspace $ws */
@@ -50,25 +63,43 @@ final readonly class WorkspaceTemplater
             } else {
                 $this->logger->info(sprintf('Updating Workspace "%s"', $newName));
             }
-            $ws->setPublic($data['Workspace']['public']);
-            $ws->setEnabledLocales($data['Workspace']['enabledLocales']);
-            $ws->setLocaleFallbacks($data['Workspace']['localeFallbacks']);
-            $this->em->persist($ws);
 
-            $attributeClassMap = [];
-            $this->importAttributeClass($ws, $data, $attributeClassMap);
-            $this->importAttributeDefinition($ws, $data, $attributeClassMap);
+            $this->importToWorkspace($ws, $data, false);
 
-            $renditionClassMap = [];
-            $this->importRenditionClass($ws, $data, $renditionClassMap);
-            $this->importRenditionDefinition($ws, $data, $renditionClassMap);
-
-            $this->importTag($ws, $data);
-
-            $this->em->flush();
             $this->em->commit();
+
         } catch (\Throwable $e) {
             $this->em->rollback();
+            throw $e;
+        }
+    }
+
+    public function importToWorkspace(Workspace $ws, array $data, bool $addTransaction = true): void
+    {
+        if($addTransaction) {
+            $this->em->beginTransaction();
+        }
+        try {
+            $this->importWorkspace($ws, $data['Workspace']??[]);
+
+            $attributeClassMap = [];
+            $this->importAttributeClass($ws, $data['AttributeClass']??[], $attributeClassMap);
+            $this->importAttributeDefinition($ws, $data['AttributeDefinition']??[], $attributeClassMap);
+
+            $renditionClassMap = [];
+            $this->importRenditionClass($ws, $data['RenditionClass']??[], $renditionClassMap);
+            $this->importRenditionDefinition($ws, $data['RenditionDefinition']??[], $renditionClassMap);
+
+            $this->importTag($ws, $data['Tag']??[]);
+
+            $this->em->flush();
+            if($addTransaction) {
+                $this->em->commit();
+            }
+        } catch (\Throwable $e) {
+            if($addTransaction) {
+                $this->em->rollback();
+            }
             throw $e;
         }
     }
@@ -80,6 +111,20 @@ final readonly class WorkspaceTemplater
             'enabledLocales' => $workspace->getEnabledLocales(),
             'localeFallbacks' => $workspace->getLocaleFallbacks(),
         ];
+    }
+
+    private function importWorkspace(Workspace $ws, array $data): void
+    {
+        if(array_key_exists('public', $data)) {
+            $ws->setPublic($data['public']);
+        }
+        if(array_key_exists('enabledLocales', $data)) {
+            $ws->setEnabledLocales($data['enabledLocales']);
+        }
+        if(array_key_exists('localeFallbacks', $data)) {
+            $ws->setLocaleFallbacks($data['localeFallbacks']);
+        }
+        $this->em->persist($ws);
     }
 
     private function exportRenditionClass(string $workspaceId): array
@@ -104,7 +149,7 @@ final readonly class WorkspaceTemplater
 
     private function importRenditionClass(Workspace $ws, array $data, array &$renditionClassMap): void
     {
-        foreach ($data['RenditionClass'] as $item) {
+        foreach ($data as $item) {
             /** @var RenditionClass $o */
             if (!($o = $this->em->getRepository(RenditionClass::class)->findOneBy([
                 'workspace' => $ws,
@@ -171,7 +216,7 @@ final readonly class WorkspaceTemplater
 
     private function importRenditionDefinition(Workspace $ws, array $data, array $renditionClassMap): void
     {
-        $rdOrdered = $this->orderByParent($data['RenditionDefinition']);
+        $rdOrdered = $this->orderByParent($data);
 
         $rdMap = [];
         foreach ($rdOrdered as $id => $item) {
@@ -231,7 +276,7 @@ final readonly class WorkspaceTemplater
 
     private function importAttributeClass(Workspace $ws, array $data, array &$attributeClassMap): void
     {
-        foreach ($data['AttributeClass'] as $item) {
+        foreach ($data as $item) {
             /** @var AttributeClass $o */
             if (!($o = $this->em->getRepository(AttributeClass::class)->findOneBy([
                 'workspace' => $ws,
@@ -289,7 +334,7 @@ final readonly class WorkspaceTemplater
 
     private function importAttributeDefinition(Workspace $ws, array $data, array $attributeClassMap): void
     {
-        foreach ($data['AttributeDefinition'] as $item) {
+        foreach ($data as $item) {
             /** @var AttributeDefinition $o */
             if (!($o = $this->em->getRepository(AttributeDefinition::class)->findOneBy([
                 'workspace' => $ws,
@@ -320,7 +365,6 @@ final readonly class WorkspaceTemplater
             $o->setTranslatable($item['translatable']);
             $this->em->persist($o);
         }
-
     }
 
     private function exportTag(string $workspaceId): array
@@ -346,7 +390,7 @@ final readonly class WorkspaceTemplater
 
     private function importTag(Workspace $ws, array $data): void
     {
-        foreach ($data['Tag'] as $item) {
+        foreach ($data as $item) {
             /** @var Tag $o */
             if (!($o = $this->em->getRepository(Tag::class)->findOneBy([
                 'workspace' => $ws,

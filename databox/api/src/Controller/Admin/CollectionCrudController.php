@@ -35,7 +35,8 @@ class CollectionCrudController extends AbstractAclAdminCrudController
             ->setEntityLabelInSingular('Collection')
             ->setEntityLabelInPlural('Collections')
             ->setSearchFields(['id', 'title', 'ownerId', 'key', 'locale', 'privacy'])
-            ->setPaginatorPageSize(100);
+            ->setPaginatorPageSize(100)
+            ->setDefaultSort(['workspace.name' => 'ASC', 'title' => 'ASC']);
     }
 
     public function configureFilters(Filters $filters): Filters

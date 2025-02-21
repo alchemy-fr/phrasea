@@ -37,6 +37,7 @@ use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
+use App\Entity\Template\WorkspaceTemplate;
 use App\Entity\Workflow\WorkflowState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -92,6 +93,7 @@ class DashboardController extends AbstractAdminDashboardController
         $submenuTemplates = [
             MenuItem::linkToCrud('Asset Data Template', '', AssetDataTemplate::class),
             MenuItem::linkToCrud('Template Attribute', '', TemplateAttribute::class),
+            MenuItem::linkToCrud('Workspace Templates', '', WorkspaceTemplate::class),
         ];
 
         $submenu3 = [
