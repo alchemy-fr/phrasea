@@ -10,8 +10,11 @@ use App\Entity\Template\WorkspaceTemplate;
 use App\Repository\Core\WorkspaceTemplateRepository;
 use App\Workspace\WorkspaceTemplater;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -20,13 +23,16 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\HttpFoundation\Response;
 
 class WorkspaceCrudController extends AbstractAclAdminCrudController
 {
     public function __construct(
         private readonly UserChoiceField $userChoiceField,
         private readonly WorkspaceTemplateRepository $workspaceTemplateRepository,
-        private readonly WorkspaceTemplater     $workspaceTemplater
+        private readonly WorkspaceTemplater $workspaceTemplater,
+        private readonly AdminUrlGenerator $adminUrlGenerator
     )
     {
     }
@@ -44,6 +50,34 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
             ->setSearchFields(['id', 'name', 'slug', 'ownerId', 'config', 'enabledLocales', 'localeFallbacks'])
             ->setPaginatorPageSize(100)
             ->setDefaultSort(['name' => 'ASC']);
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $action = Action::new('saveAsTemplape', 'Save as template', 'fa fa-gear')
+            ->linkToCrudAction('saveAsTemplate');
+
+        return parent::configureActions($actions)->add(
+            Crud::PAGE_DETAIL,
+            $action
+        );
+    }
+
+    public function saveAsTemplate(AdminContext $context): Response
+    {
+        /** @var Workspace $workspace */
+        $workspace = $context->getEntity()->getInstance();
+        $wt = $this->workspaceTemplater->saveWorkspaceAsTemplate($workspace);
+
+        $url = $this->adminUrlGenerator
+            ->setController(WorkspaceTemplateCrudController::class)
+            ->setAction(Crud::PAGE_EDIT)
+            ->setEntityId($wt->getId())
+            ->generateUrl();
+
+        $this->addFlash('info', sprintf('Workspace template "%s" created.', $wt->getName()));
+
+        return $this->redirect($url);
     }
 
     public function configureFilters(Filters $filters): Filters
