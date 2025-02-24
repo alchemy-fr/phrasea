@@ -5,8 +5,6 @@ namespace Alchemy\NotifyBundle\Controller;
 use Alchemy\NotifyBundle\Form\NotifyForm;
 use Alchemy\NotifyBundle\Model\Notification;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
-use App\Entity\Core\Workspace;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,8 +16,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class NotificationController extends AbstractController
 {
     public function __construct(
-        private NotifierInterface $notifier,
-        private EntityManagerInterface $em,
+        private readonly NotifierInterface $notifier,
     )
     {
     }
@@ -27,11 +24,7 @@ class NotificationController extends AbstractController
     #[Route('/', name: 'index')]
     public function index(Request $request): Response
     {
-        $workspaces = $this->em->getRepository(Workspace::class)->findAll();
-
-        $form = $this->createForm(NotifyForm::class, null, [
-            'workspaces' => $workspaces,
-        ]);
+        $form = $this->createForm(NotifyForm::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var Notification $notification */

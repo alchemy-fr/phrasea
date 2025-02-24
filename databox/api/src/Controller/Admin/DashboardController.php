@@ -127,11 +127,9 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Template', 'fas fa-align-justify')->setSubItems($submenuTemplates);
         yield MenuItem::subMenu('Integration', 'fas fa-gear')->setSubItems($submenu4);
         yield MenuItem::subMenu('Workflow', 'fas fa-gears')->setSubItems($workflows);
-        yield $this->createDevMenu();
         yield MenuItem::subMenu('Webhook', 'fas fa-network-wired')->setSubItems($webhookSubMenu);
-
         yield MenuItem::linkToRoute('Notification', 'fas fa-bell', 'alchemy_notify_admin_index');
-
         yield MenuItem::linkToCrud('Global Config', 'fa fa-gear', ConfiguratorEntry::class);
+        yield $this->createDevMenu();
     }
 }
