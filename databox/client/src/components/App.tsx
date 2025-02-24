@@ -5,7 +5,6 @@ import ResultProvider from './Media/Search/ResultProvider';
 import SearchProvider from './Media/Search/SearchProvider';
 import AssetDropzone from './Media/Asset/AssetDropzone';
 import {toast, ToastContainer} from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import {Box, Theme, useMediaQuery} from '@mui/material';
 import apiClient from '../api/api-client';
 import DisplayProvider from './Media/DisplayProvider';
@@ -126,7 +125,7 @@ export default function App() {
 
     return (
         <>
-            <ToastContainer position={'bottom-left'} />
+            <ToastContainer position={'bottom-left'} stacked />
             <AppProxy locationSearch={location.search} />
         </>
     );

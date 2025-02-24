@@ -136,7 +136,7 @@ final readonly class ExposeClient
 
         try {
             $uploadsData = [
-                'filename' => $source->getOriginalName(),
+                'filename' => $source->getOriginalName() ?? 'file',
                 'type' => $source->getType(),
                 'size' => (int) $source->getSize(),
             ];
