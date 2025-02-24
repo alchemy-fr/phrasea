@@ -79,6 +79,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setEditedAt($data->getEditedAt());
         $output->setAttributesEditedAt($data->getAttributesEditedAt());
+        $output->setExtraMetadata($data->getExtraMetadata());
 
         $output->setSource($data->getSource());
 
@@ -173,8 +174,13 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
         $output->referenceCollection = $data->getReferenceCollection();
 
-        $output->setCollections($data->getCollections()->map(fn (CollectionAsset $collectionAsset,
-        ): Collection => $collectionAsset->getCollection())
+        $output->setCollections($data->getCollections()->map(function (CollectionAsset $collectionAsset,
+        ): Collection {
+            $collection = $collectionAsset->getCollection();
+            $collection->addExtraMetadata('relation', $collectionAsset->getExtraMetadata());
+
+            return $collection;
+        })
             ->filter(fn (Collection $collection): bool => $this->isGranted(AbstractVoter::LIST, $collection))
             ->getValues());
 

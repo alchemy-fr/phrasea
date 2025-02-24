@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace App\Api\Model\Input;
 
 use App\Api\Model\Input\Attribute\AttributeInput;
+use App\Api\Model\Output\Traits\ExtraMetadataDTOTrait;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class AssetInput extends AbstractOwnerIdInput
 {
+    use ExtraMetadataDTOTrait;
+
     public ?string $title = null;
     public ?string $key = null;
 
@@ -63,4 +67,7 @@ class AssetInput extends AbstractOwnerIdInput
      * @var AssetRenditionInput[]
      */
     public ?array $renditions = null;
+
+    #[Groups(['_'])]
+    public ?array $relationExtraMetadata = null;
 }

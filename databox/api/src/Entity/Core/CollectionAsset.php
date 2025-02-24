@@ -11,6 +11,7 @@ use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Post;
+use App\Entity\Traits\ExtraMetadataTrait;
 use App\Repository\Core\CollectionAssetRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -27,6 +28,7 @@ use Doctrine\ORM\Mapping as ORM;
 class CollectionAsset extends AbstractUuidEntity implements ESIndexableDependencyInterface, ESIndexableDeleteDependencyInterface, \Stringable
 {
     use CreatedAtTrait;
+    use ExtraMetadataTrait;
 
     #[ORM\ManyToOne(targetEntity: Collection::class, inversedBy: 'assets')]
     #[ORM\JoinColumn(nullable: false)]

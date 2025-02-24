@@ -33,6 +33,7 @@ use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\FollowableInterface;
 use App\Entity\ObjectTitleInterface;
 use App\Entity\Traits\DeletedAtTrait;
+use App\Entity\Traits\ExtraMetadataTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\NotificationSettingsTrait;
 use App\Entity\Traits\OwnerIdTrait;
@@ -135,6 +136,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     use LocaleTrait;
     use WorkspacePrivacyTrait;
     use NotificationSettingsTrait;
+    use ExtraMetadataTrait;
 
     final public const string GROUP_READ = 'coll:read';
     final public const string GROUP_LIST = 'coll:index';

@@ -7,6 +7,7 @@ namespace App\Tests\Api;
 use Alchemy\ApiTest\ApiTestCase as AlchemyApiTestCase;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Tests\AbstractSearchTestCase;
 
@@ -46,11 +47,12 @@ class AssetTest extends AbstractSearchTestCase
         $this->assertMatchesResourceCollectionJsonSchema(Asset::class);
     }
 
-    public function testCreateAsset(): void
+    public function testCreateAssetAndCopyByRef(): void
     {
         self::enableFixtures();
 
-        $response = static::createClient()->request('POST', '/assets', [
+        $client = static::createClient();
+        $response = $client->request('POST', '/assets', [
             'headers' => [
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
@@ -59,6 +61,9 @@ class AssetTest extends AbstractSearchTestCase
                 'workspace' => $this->findIriBy(Workspace::class, [
                     'slug' => 'test-workspace',
                 ]),
+                'extraMetadata' => [
+                    'foo' => 'bar',
+                ],
             ],
         ]);
 
@@ -67,9 +72,55 @@ class AssetTest extends AbstractSearchTestCase
         $this->assertJsonContains([
             '@type' => 'asset',
             'title' => 'Dummy asset',
+            'extraMetadata' => [
+                'foo' => 'bar',
+            ],
         ]);
+        $data = $response->toArray();
         $this->assertMatchesRegularExpression('~^/assets/'.AlchemyApiTestCase::UUID_REGEX.'$~', $response->toArray()['@id']);
         $this->assertMatchesResourceItemJsonSchema(Asset::class);
+
+        $client->request('POST', '/assets/copy', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'json' => [
+                'ids' => [$data['id']],
+                'destination' => $this->findIriBy(Collection::class, [
+                    'title' => 'Collection #1',
+                ]),
+                'byReference' => true,
+                'extraMetadata' => [
+                    'foo' => 'baz',
+                ],
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(204);
+
+        $client->request('GET', '/assets/'.$data['id'], [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+        ])->toArray();
+
+        $this->assertJsonContains([
+            '@type' => 'asset',
+            'title' => 'Dummy asset',
+            'extraMetadata' => [
+                'foo' => 'bar',
+            ],
+            'collections' => [
+                [
+                    'title' => 'Collection #1',
+                    'extraMetadata' => [
+                        'relation' => [
+                            'foo' => 'baz',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
     }
 
     public function testCreateAssetIsForbiddenWithoutWorkspace(): void
