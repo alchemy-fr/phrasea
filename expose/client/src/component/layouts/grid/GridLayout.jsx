@@ -37,6 +37,9 @@ const CustomView = ({data, carouselProps, currentView}) => {
                 />
             </div>
             <div className="desc">
+                <div className={'asset-title'}>
+                    {getTranslatedTitle(data)}
+                </div>
                 <Description descriptionHtml={getTranslatedDescription(data)} />
                 {data.downloadEnabled && data.downloadUrl ? (
                     <div className="download-btn">
@@ -136,13 +139,14 @@ class GridLayout extends React.Component {
                     enableImageSelection={false}
                     onClickThumbnail={this.openAsset}
                     images={this.props.data.assets.map(a => ({
+                        data: a,
                         src: a.previewUrl,
                         thumbnail:
                             a.thumbUrl || getThumbPlaceholder(a.mimeType),
                         thumbnailWidth: a.thumbWidth,
                         thumbnailHeight: a.thumbHeight,
-                        caption: getTranslatedTitle(a),
                     }))}
+                    thumbnailImageComponent={ImageComponent}
                 />
                 <ModalGateway>
                     {null !== currentAsset ? (
@@ -215,3 +219,22 @@ class GridLayout extends React.Component {
 }
 
 export default GridLayout;
+
+const ImageComponent = ({item: {data}, imageProps}) => {
+    const { src, alt, style, title } = imageProps;
+
+    return (
+        <div
+            className={'asset-thumb'}
+            style={{ ...style, textAlign: "center" }}
+        >
+            <img alt={alt} src={src} title={title || ""} style={style} />
+            <div className="asset-info-hover">
+                <div className={'asset-title'}>
+                    {getTranslatedTitle(data)}
+                </div>
+                <Description descriptionHtml={getTranslatedDescription(data)} />
+            </div>
+        </div>
+    );
+};
