@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\RemoveBg;
 
+use Alchemy\CoreBundle\Listener\ClientExceptionListener;
 use App\Asset\FileFetcher;
 use App\Entity\Core\File;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -14,6 +15,7 @@ readonly class RemoveBgClient
         private FileFetcher $fileFetcher,
         private string $cacheDir,
         private HttpClientInterface $removeBgClient,
+        private ClientExceptionListener $clientExceptionListener,
     ) {
     }
 
@@ -31,31 +33,33 @@ readonly class RemoveBgClient
             return $cacheFile;
         }
 
-        $res = $this->removeBgClient->request('POST', '/v1.0/removebg', [
-            'headers' => [
-                'X-Api-Key' => $apiKey,
-            ],
-            'body' => [
-                'image_file' => fopen($path, 'r'),
-                'size' => 'auto',
-            ],
-        ]);
+        return $this->clientExceptionListener->wrapClientRequest(function () use ($path, $apiKey, $cacheFile): string {
+            $res = $this->removeBgClient->request('POST', '/v1.0/removebg', [
+                'headers' => [
+                    'X-Api-Key' => $apiKey,
+                ],
+                'body' => [
+                    'image_file' => fopen($path, 'r'),
+                    'size' => 'auto',
+                ],
+            ]);
 
-        try {
-            $fileHandler = fopen($cacheFile, 'w');
-            foreach ($this->removeBgClient->stream($res) as $chunk) {
-                fwrite($fileHandler, $chunk->getContent());
-            }
-            fclose($fileHandler);
-        } catch (\Throwable $e) {
-            if (isset($fileHandler)) {
+            try {
+                $fileHandler = fopen($cacheFile, 'w');
+                foreach ($this->removeBgClient->stream($res) as $chunk) {
+                    fwrite($fileHandler, $chunk->getContent());
+                }
                 fclose($fileHandler);
-                @unlink($cacheFile);
+            } catch (\Throwable $e) {
+                if (isset($fileHandler)) {
+                    fclose($fileHandler);
+                    @unlink($cacheFile);
+                }
+
+                throw $e;
             }
 
-            throw $e;
-        }
-
-        return $cacheFile;
+            return $cacheFile;
+        });
     }
 }

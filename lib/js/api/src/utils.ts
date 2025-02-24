@@ -1,4 +1,7 @@
+import axios, {AxiosError} from "axios";
+import type {SimpleAxiosError} from "./types";
 
+export const hydraTitleKey = 'hydra:title';
 export const hydraDescriptionKey = 'hydra:description';
 
 export function getApiResponseError(e: any): string | undefined {
@@ -11,10 +14,41 @@ export function getApiResponseError(e: any): string | undefined {
             }) => v.message).join("\n")
         }
 
-        if (data['hydra:description']) {
-            return `${data['hydra:title']}: ${data['hydra:description']}`;
+        if (data[hydraDescriptionKey]) {
+            return `${data[hydraTitleKey]}: ${data[hydraDescriptionKey]}`;
         }
 
-        return data['hydra:title'] ?? data['error_message'] ?? data['error'] ?? 'Error';
+        return getBestErrorProp(data) ?? 'Error';
+    }
+}
+
+export function getBestErrorProp(data: any): string | undefined {
+    if (data[hydraTitleKey] && data[hydraDescriptionKey]) {
+        return `${data[hydraTitleKey]}: ${data[hydraDescriptionKey]}`;
+    }
+
+    return (
+        data['error_message'] ??
+        data['detail'] ??
+        data['message'] ??
+        data[hydraDescriptionKey] ??
+        data[hydraTitleKey] ??
+        data['title']
+    );
+}
+
+export function isErrorOfCode(e: any, codes: number[]): e is AxiosError {
+    return axios.isAxiosError(e) && codes.includes(e.response?.status ?? 0);
+}
+
+export function getAxiosError(error: any): SimpleAxiosError | undefined {
+    if (axios.isAxiosError(error)) {
+        return {
+            error,
+            code: error.response?.status ?? 0,
+            message:
+                getBestErrorProp((error as AxiosError).response?.data) ??
+                'Unknown error',
+        };
     }
 }

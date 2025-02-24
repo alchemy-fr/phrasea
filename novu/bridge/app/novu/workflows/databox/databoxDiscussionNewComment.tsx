@@ -17,11 +17,9 @@ export const databoxDiscussionNewComment = workflow(
             };
         });
 
-        const { events } = await step.digest("digest-1-hours", async () => {
+        const { events } = await step.digest("digest", async () => {
             return {
-                // unit: "hours",
-                // amount: 1,
-                unit: "seconds",
+                unit: "minutes",
                 amount: 10,
             };
         });

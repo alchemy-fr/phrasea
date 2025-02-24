@@ -27,8 +27,8 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
             ->createQueryBuilder('t')
         ;
 
-        if ($filters['workspaceId'] ?? false) {
-            $workspaceId = $filters['workspaceId'];
+        if ($filters['workspace'] ?? false) {
+            $workspaceId = str_replace('/workspaces/', '', $filters['workspace']);
             $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $workspaceId);
 
             $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $workspace);

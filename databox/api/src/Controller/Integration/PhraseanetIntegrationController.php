@@ -90,7 +90,8 @@ class PhraseanetIntegrationController extends AbstractController
             $uploadedFile->getRealPath(),
             $uploadedFile->getMimeType(),
             null,
-            $uploadedFile->getClientOriginalName()
+            $uploadedFile->getClientOriginalName(),
+            removeSrc: false,
         );
 
         $renditionManager->createOrReplaceRenditionFile(
