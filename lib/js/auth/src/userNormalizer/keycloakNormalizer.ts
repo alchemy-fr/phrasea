@@ -1,6 +1,4 @@
-import {AuthUser, KeycloakUserInfoResponse, UserNormalizer} from "../types";
-
-export type KeycloakUser = {} & AuthUser;
+import {KeycloakUser, KeycloakUserInfoResponse, UserNormalizer} from "../types";
 
 export const keycloakNormalizer: UserNormalizer<KeycloakUser, KeycloakUserInfoResponse> = (payload) => {
     return {

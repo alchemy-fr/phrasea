@@ -1,6 +1,6 @@
 import {FieldValues, UseFormReturn} from "react-hook-form";
 import React from "react";
-import {AxiosError} from "axios";
+import {AxiosError, AxiosInstance} from "axios";
 
 export type RequestMeta = {
     requestStartedAt?: number;
@@ -25,7 +25,6 @@ export type OnSubmit<T extends FieldValues, R> = (data: T) => Promise<R>;
 export type SetOnSubmit<T extends FieldValues, R = T> = (fn: OnSubmit<T, R>) => void;
 export type RemoteErrors = string[];
 
-
 export type UseFormSubmitReturn<T extends FieldValues, R = T, FormData extends FieldValues = T> = {
     handleSubmit: ((e?: React.BaseSyntheticEvent) => Promise<void>),
     setOnSubmit: SetOnSubmit<T, R>,
@@ -41,3 +40,11 @@ export type SimpleAxiosError = {
     message: string;
     error: AxiosError;
 };
+export type ErrorListener = (error: AxiosError) => void;
+
+export type HttpClient = {
+    errorListeners: ErrorListener[];
+    addErrorListener: (listener: ErrorListener) => void;
+    removeErrorListener: (listener: ErrorListener) => void;
+    setApiLocale: (locale: string) => void;
+} & AxiosInstance;

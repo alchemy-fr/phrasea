@@ -1,5 +1,5 @@
-import {HttpClient} from "./httpClient";
 import {AxiosProgressEvent} from "axios";
+import {HttpClient} from "./types";
 
 export type MultipartUpload = {
     uploadId: string;

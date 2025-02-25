@@ -3,15 +3,12 @@ import {
     AuthEventHandler,
     AuthTokens,
     AuthUser,
-    isValidSession,
     keycloakNormalizer,
     LoginEvent,
-    loginEventType,
     LogoutEvent,
-    logoutEventType,
     OAuthClient,
+    OAuthEvent,
     RefreshTokenEvent,
-    refreshTokenEventType,
     UserInfoResponse,
     UserNormalizer
 } from "@alchemy/auth";
@@ -65,14 +62,14 @@ export default function AuthenticationProvider<U extends AuthUser, UIR extends U
             }
         };
 
-        oauthClient.registerListener(loginEventType, loginListener);
-        oauthClient.registerListener(logoutEventType, logoutListener);
-        oauthClient.registerListener(refreshTokenEventType, refreshTokenListener);
+        oauthClient.registerListener(OAuthEvent.login, loginListener);
+        oauthClient.registerListener(OAuthEvent.logout, logoutListener);
+        oauthClient.registerListener(OAuthEvent.refreshToken, refreshTokenListener);
 
         return () => {
-            oauthClient.unregisterListener(loginEventType, loginListener);
-            oauthClient.unregisterListener(logoutEventType, logoutListener);
-            oauthClient.unregisterListener(refreshTokenEventType, refreshTokenListener);
+            oauthClient.unregisterListener(OAuthEvent.login, loginListener);
+            oauthClient.unregisterListener(OAuthEvent.logout, logoutListener);
+            oauthClient.unregisterListener(OAuthEvent.refreshToken, refreshTokenListener);
         }
     }, [oauthClient]);
 
@@ -124,7 +121,7 @@ export default function AuthenticationProvider<U extends AuthUser, UIR extends U
     }, [setTokens, setRedirectPath]);
 
     const isAuthenticated = (): boolean => {
-        return isValidSession(tokens);
+        return oauthClient.isValidSession(tokens);
     };
 
     return <AuthenticationContext.Provider

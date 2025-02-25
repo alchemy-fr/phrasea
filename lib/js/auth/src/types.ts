@@ -1,3 +1,7 @@
+import type {CookieStorageOptions} from '@alchemy/storage';
+import {IStorage} from "@alchemy/storage";
+import {HttpClient} from "@alchemy/api";
+
 export interface ValidationError {
     error: string;
     error_description: string;
@@ -72,14 +76,46 @@ export type AuthUser = {
     groups: string[];
 };
 
+export type KeycloakUser = {} & AuthUser;
+
 export type UserNormalizer<U extends AuthUser, UIR extends UserInfoResponse> = (payload: UIR) => U;
 
 declare module 'axios' {
     export interface AxiosRequestConfig {
         anonymous?: boolean;
+        retryAfterNewToken?: boolean;
     }
 }
 
 export type PendingAuthWindow = {
     pendingAuth?: boolean
 } & Window;
+
+export enum GrantTypeRefreshMethod {
+    refreshToken = 'getTokenFromRefreshToken',
+    clientCredentials = 'getTokenFromClientCredentials',
+}
+
+export type OAuthClientOptions = {
+    storage?: IStorage;
+    clientId: string;
+    clientSecret?: string;
+    baseUrl: string;
+    tokenStorageKey?: string;
+    httpClient?: HttpClient;
+    scope?: string | undefined;
+    cookiesOptions?: CookieStorageOptions['cookiesOptions'];
+    autoRefreshToken?: boolean;
+};
+
+
+export type KeycloakClientOptions = {
+    realm: string;
+} & OAuthClientOptions;
+
+export enum OAuthEvent {
+    login = 'login',
+    logout = 'logout',
+    refreshToken = 'refreshToken',
+    sessionExpired = 'sessionExpired',
+}

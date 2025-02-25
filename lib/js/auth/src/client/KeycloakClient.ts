@@ -1,15 +1,8 @@
-import OAuthClient, {
-    logoutEventType,
-    normalizeRedirectUri,
-    OAuthClientOptions
-} from "./OAuthClient";
-import {KeycloakUserInfoResponse, LogoutEvent, LogoutOptions} from "../types";
+import {normalizeRedirectUri, OAuthClient} from "./OAuthClient";
+import {KeycloakClientOptions, KeycloakUserInfoResponse, LogoutEvent, LogoutOptions, OAuthEvent} from "../types";
 
-type Options = {
-    realm: string;
-} & OAuthClientOptions;
 
-export default class KeycloakClient {
+export class KeycloakClient {
     private readonly baseUrl: string;
     private readonly realm: string;
     public readonly client: OAuthClient<KeycloakUserInfoResponse>;
@@ -18,7 +11,7 @@ export default class KeycloakClient {
         realm,
         baseUrl,
         ...rest
-    }: Options) {
+    }: KeycloakClientOptions) {
         this.realm = realm;
         this.baseUrl = baseUrl;
         this.client = new OAuthClient({
@@ -26,7 +19,7 @@ export default class KeycloakClient {
             ...rest,
         });
 
-        this.client.registerListener(logoutEventType, this.onLogout.bind(this), 255);
+        this.client.registerListener(OAuthEvent.logout, this.onLogout.bind(this), 255);
     }
 
     private async onLogout(event: LogoutEvent): Promise<void>

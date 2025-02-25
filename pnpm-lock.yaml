@@ -706,6 +706,15 @@ importers:
       axios:
         specifier: ^1.7.9
         version: 1.7.9
+      axios-mock-adapter:
+        specifier: ^2.1.0
+        version: 2.1.0(axios@1.7.9)
+      jest:
+        specifier: ^23.6.0
+        version: 23.6.0
+      ts-jest:
+        specifier: ^23.10.5
+        version: 23.10.5(jest@23.6.0)
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.10.9)(@types/node@10.17.60)(typescript@5.7.3)
@@ -5487,6 +5496,11 @@ packages:
   aws4@1.13.2:
     resolution: {integrity: sha512-lHe62zvbTB5eEABUVi/AwVh0ZKY9rMMDhmm+eeyuuUQbQ3+J+fONVQOZyj+DdrvD4BY33uYniyRJ4UJIaSKAfw==}
 
+  axios-mock-adapter@2.1.0:
+    resolution: {integrity: sha512-AZUe4OjECGCNNssH8SOdtneiQELsqTsat3SQQCWLPjN436/H+L9AjWfV7bF+Zg/YL9cgbhrz5671hoh+Tbn98w==}
+    peerDependencies:
+      axios: '>= 0.17.0'
+
   axios-retry@4.5.0:
     resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
     peerDependencies:
@@ -8221,6 +8235,10 @@ packages:
 
   is-buffer@1.1.6:
     resolution: {integrity: sha512-NcdALwpXkTm5Zvvbk7owOUSvVvBKDgKP5/ewfXEznmQFfs4ZRmanOeKBTjRVjka3QFoN6XJ+9F3USqfHqTaU5w==}
+
+  is-buffer@2.0.5:
+    resolution: {integrity: sha512-i2R6zNFDwgEHJyQUtJEk0XFi1i0dPFn/oqjK3/vPCcDeJvW5NQ83V8QbicfF1SupOaB0h8ntgBC2YiE7dfyctQ==}
+    engines: {node: '>=4'}
 
   is-callable@1.2.7:
     resolution: {integrity: sha512-1BC0BVFhS/p0qtw6enp8e+8OD0UrK0oFLztSjNzhcKA3WDuJxxAPXzPuPtKkjEY9UUoEWlX/8fgKeu2S8i9JTA==}
@@ -18315,6 +18333,12 @@ snapshots:
 
   aws4@1.13.2: {}
 
+  axios-mock-adapter@2.1.0(axios@1.7.9):
+    dependencies:
+      axios: 1.7.9
+      fast-deep-equal: 3.1.3
+      is-buffer: 2.0.5
+
   axios-retry@4.5.0(axios@1.7.9):
     dependencies:
       axios: 1.7.9
@@ -21665,6 +21689,8 @@ snapshots:
       has-tostringtag: 1.0.2
 
   is-buffer@1.1.6: {}
+
+  is-buffer@2.0.5: {}
 
   is-callable@1.2.7: {}
 
