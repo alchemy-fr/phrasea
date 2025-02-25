@@ -982,7 +982,7 @@ function translateVideoSettings_targetAnimatedGif(
     };
 }
 
-function translateAudioSettings(sd: PhraseanetSubdefStruct): null | object {
+function translateAudioSettings(sd: PhraseanetSubdefStruct): object {
     // too bad: phraseanet api does not provide the target "mediatype" (image, video, ...)
     // so we guess from the presence of option(s) "icodec", "acodec"
     if (sd.options['acodec']) {
@@ -992,7 +992,7 @@ function translateAudioSettings(sd: PhraseanetSubdefStruct): null | object {
     if (sd.options['icodec']) {
         return translateAudioSettings_withIcodec(sd);
     }
-    return null;
+    return {};
 }
 
 function translateAudioSettings_withAcodec(sd: PhraseanetSubdefStruct): object {
