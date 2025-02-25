@@ -1,8 +1,8 @@
 import type {Meta, StoryObj} from '@storybook/react';
-import {WorkflowStatus} from "../types";
-import {workflowSample} from "./workflowSample";
-import WorkflowHeader from "../WorkflowHeader";
-import WorkflowPlayground from "../WorkflowPlayground";
+import {WorkflowStatus} from '../types';
+import {workflowSample} from './workflowSample';
+import WorkflowHeader from '../WorkflowHeader';
+import WorkflowPlayground from '../WorkflowPlayground';
 
 const meta = {
     title: 'WorkflowHeader',
@@ -14,29 +14,31 @@ const meta = {
         layout: 'fullscreen',
     },
     decorators: [
-        (Story) => {
-            return <WorkflowPlayground
-                style={{
-                    padding: 15,
-                    backgroundColor: '#AAA',
-                }}
-            >
-                <Story/>
-            </WorkflowPlayground>
-        }
-    ]
+        Story => {
+            return (
+                <WorkflowPlayground
+                    style={{
+                        padding: 15,
+                        backgroundColor: '#AAA',
+                    }}
+                >
+                    <Story />
+                </WorkflowPlayground>
+            );
+        },
+    ],
 } satisfies Meta<typeof WorkflowHeader>;
 
 export default meta;
 type Story = StoryObj<typeof WorkflowHeader>;
 
 const refresh = async (): Promise<void> => {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(resolve => {
         setTimeout(() => {
             resolve();
         }, 1000);
     });
-}
+};
 
 export const HeaderOne: Story = {
     args: {
@@ -58,7 +60,7 @@ export const HeaderComplex: Story = {
                 results: [
                     {ID: '1', Name: 'Alice'},
                     {ID: '2', Name: 'Bob'},
-                ]
+                ],
             },
             event: {
                 name: 'trigger',
@@ -70,7 +72,7 @@ export const HeaderComplex: Story = {
             context: {
                 userId: '42424242',
                 itemId: '987-654-321',
-            }
+            },
         },
         onRefreshWorkflow: refresh,
     },

@@ -27,16 +27,12 @@ export type WindowConfig = {
     novuAppIdentifier?: Readonly<string>;
     novuSocketUrl?: Readonly<string>;
     novuApiUrl?: Readonly<string>;
-}
+};
 
-export type SentryConfig = Pick<WindowConfig,
-    "sentryDsn" |
-    "sentryEnvironment" |
-    "sentryRelease" |
-    "appId" |
-    "appName"
->
-
+export type SentryConfig = Pick<
+    WindowConfig,
+    'sentryDsn' | 'sentryEnvironment' | 'sentryRelease' | 'appId' | 'appName'
+>;
 
 export type RegisterWebSocketOptions = {
     onError: (error: any) => void;

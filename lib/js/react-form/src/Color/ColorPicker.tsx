@@ -1,7 +1,7 @@
 import React from 'react';
 import {HexColorPicker} from 'react-colorful';
 import {Popover, Stack, TextField, TextFieldProps} from '@mui/material';
-import {ColorBox} from "./ColorBox";
+import {ColorBox} from './ColorBox';
 
 type Props = {
     color: string | undefined;
@@ -33,7 +33,7 @@ export default function ColorPicker({
         React.MouseEventHandler<HTMLDivElement>
     >(e => {
         e.stopPropagation();
-        setAnchorEl(p => !p ? e.currentTarget : null);
+        setAnchorEl(p => (!p ? e.currentTarget : null));
         setTimeout(() => {
             inputRef.current?.focus();
         }, 0);
@@ -66,16 +66,18 @@ export default function ColorPicker({
                 cursor: isEditable ? 'pointer' : undefined,
             }}
         >
-            {displayField && <TextField
-                label={label}
-                value={color ?? ''}
-                inputRef={inputRef}
-                onChange={onTextChange}
-                InputProps={{
-                    readOnly,
-                }}
-                disabled={disabled}
-            />}
+            {displayField && (
+                <TextField
+                    label={label}
+                    value={color ?? ''}
+                    inputRef={inputRef}
+                    onChange={onTextChange}
+                    InputProps={{
+                        readOnly,
+                    }}
+                    disabled={disabled}
+                />
+            )}
             <ColorBox
                 color={color ?? ''}
                 onMouseDown={isEditable ? toggleOpen : undefined}
@@ -93,10 +95,7 @@ export default function ColorPicker({
                         horizontal: 'right',
                     }}
                 >
-                    <HexColorPicker
-                        color={color ?? ''}
-                        onChange={onChange}
-                    />
+                    <HexColorPicker color={color ?? ''} onChange={onChange} />
                 </Popover>
             </ColorBox>
         </Stack>

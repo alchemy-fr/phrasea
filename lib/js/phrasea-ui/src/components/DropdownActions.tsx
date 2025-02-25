@@ -1,24 +1,30 @@
 import Menu, {MenuProps} from '@mui/material/Menu';
 import React, {JSX, MouseEventHandler, ReactNode} from 'react';
-import {ButtonBaseProps} from "@mui/material";
+import {ButtonBaseProps} from '@mui/material';
 
 type CloseWrapper = (handler?: MouseEventHandler) => MouseEventHandler;
 
 type MainButtonProps = {
     open: boolean;
     className?: string;
-} & Pick<ButtonBaseProps, "onClick" | "aria-haspopup" | "aria-expanded">;
+} & Pick<ButtonBaseProps, 'onClick' | 'aria-haspopup' | 'aria-expanded'>;
 
 type Props = {
     mainButton: (props: MainButtonProps) => JSX.Element;
     children: (closeWrapper: CloseWrapper) => (ReactNode | null)[];
     onClose?: () => void;
-} & Omit<MenuProps, "open" | "onClose" | "children">;
+} & Omit<MenuProps, 'open' | 'onClose' | 'children'>;
 
 export type {Props as DropdownActionsProps};
 
-export default function DropdownActions({mainButton, onClose, children, anchorOrigin,
-    anchorPosition, ...menuProps}: Props) {
+export default function DropdownActions({
+    mainButton,
+    onClose,
+    children,
+    anchorOrigin,
+    anchorPosition,
+    ...menuProps
+}: Props) {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
     const open = Boolean(anchorEl);
@@ -31,7 +37,7 @@ export default function DropdownActions({mainButton, onClose, children, anchorOr
     };
 
     const closeWrapper: CloseWrapper = handler => {
-        return ((e) => {
+        return (e => {
             handler?.(e);
             handleClose();
         }) as MouseEventHandler;
@@ -41,10 +47,10 @@ export default function DropdownActions({mainButton, onClose, children, anchorOr
         <>
             {mainButton({
                 open,
-                onClick: handleClick,
+                'onClick': handleClick,
                 'aria-haspopup': 'true',
                 'aria-expanded': open ? 'true' : undefined,
-                className: open ? dropdownActionsOpenClassName : undefined,
+                'className': open ? dropdownActionsOpenClassName : undefined,
             })}
             <Menu
                 disablePortal={true}
@@ -52,10 +58,12 @@ export default function DropdownActions({mainButton, onClose, children, anchorOr
                     width: '100%',
                 }}
                 anchorEl={anchorEl}
-                anchorOrigin={anchorOrigin ?? {
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                }}
+                anchorOrigin={
+                    anchorOrigin ?? {
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                    }
+                }
                 anchorPosition={anchorPosition}
                 open={open}
                 onClose={handleClose}

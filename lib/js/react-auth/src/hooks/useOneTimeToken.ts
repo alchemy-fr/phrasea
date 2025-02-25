@@ -1,6 +1,6 @@
-import React from "react";
-import {HttpClient} from "@alchemy/api";
-import {getOneTimeToken} from "@alchemy/auth";
+import React from 'react';
+import {HttpClient} from '@alchemy/api';
+import {getOneTimeToken} from '@alchemy/auth';
 
 export function useOneTimeToken(client: HttpClient) {
     const [loading, setLoading] = React.useState(false);
@@ -13,10 +13,10 @@ export function useOneTimeToken(client: HttpClient) {
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     return {
         getToken,
         loading,
-    }
+    };
 }

@@ -9,16 +9,16 @@ export type Workflow = {
     outputs?: Outputs;
     event?: WorkflowEvent | undefined;
     context?: WorkflowContext;
-}
+};
 
 export type WorkflowEvent = {
     name: string;
     inputs?: Inputs;
-}
+};
 
 export type Stage = {
     jobs: Job[];
-}
+};
 
 export type JobError = string;
 
@@ -44,7 +44,7 @@ export type Job = {
     outputs?: Outputs;
     disabled: boolean;
     disabledReason?: string | undefined;
-}
+};
 
 export type NodeData = {
     onRerun: OnRerun | undefined;

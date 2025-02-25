@@ -1,12 +1,11 @@
-import {FieldValues} from "react-hook-form";
-import {useSortable} from "@dnd-kit/sortable";
-import {CSS} from "@dnd-kit/utilities";
-import {CollectionItem, CollectionItemProps} from "./CollectionItem";
+import {FieldValues} from 'react-hook-form';
+import {useSortable} from '@dnd-kit/sortable';
+import {CSS} from '@dnd-kit/utilities';
+import {CollectionItem, CollectionItemProps} from './CollectionItem';
 
-export default function SortableCollectionItem<TFieldValues extends FieldValues>({
-    id,
-    ...props
-}: { id: string } & CollectionItemProps<TFieldValues>) {
+export default function SortableCollectionItem<
+    TFieldValues extends FieldValues,
+>({id, ...props}: {id: string} & CollectionItemProps<TFieldValues>) {
     const {
         attributes,
         listeners,

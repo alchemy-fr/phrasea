@@ -1,4 +1,4 @@
-import {IStorage} from "./types";
+import {IStorage} from './types';
 
 export default class MemoryStorage implements IStorage {
     private data: Record<string, string> = {};
@@ -18,4 +18,3 @@ export default class MemoryStorage implements IStorage {
         this.data = {};
     }
 }
-

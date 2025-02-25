@@ -42,7 +42,11 @@ function createApiClient(
         headers: {Accept: 'application/ld+json'},
     });
 
-    configureClientAuthentication(client, oauthClient, GrantTypeRefreshMethod.clientCredentials);
+    configureClientAuthentication(
+        client,
+        oauthClient,
+        GrantTypeRefreshMethod.clientCredentials
+    );
     configureClientCredentials401Retry(client, oauthClient);
 
     return {

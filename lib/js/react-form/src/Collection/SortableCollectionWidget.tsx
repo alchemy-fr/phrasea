@@ -14,10 +14,10 @@ import {
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
-import {SortableContext, verticalListSortingStrategy,} from '@dnd-kit/sortable';
+import {SortableContext, verticalListSortingStrategy} from '@dnd-kit/sortable';
 import {CollectionWidgetProps} from './CollectionWidget';
-import SortableCollectionItem from "./SortableCollectionItem";
-import {CollectionItem} from "./CollectionItem";
+import SortableCollectionItem from './SortableCollectionItem';
+import {CollectionItem} from './CollectionItem';
 
 type Sortable = {};
 
@@ -52,15 +52,19 @@ export default function SortableCollectionWidget<
 
     const sensors = useSensors(
         useSensor(PointerSensor),
-        useSensor(TouchSensor),
+        useSensor(TouchSensor)
     );
 
     const {t} = useTranslation();
 
     const appendItem = () => {
-        append(typeof emptyItem === 'string' ? emptyItem : {
-            ...emptyItem,
-        } as any);
+        append(
+            typeof emptyItem === 'string'
+                ? emptyItem
+                : ({
+                      ...emptyItem,
+                  } as any)
+        );
     };
 
     function handleDragEnd(event: DragEndEvent) {
@@ -143,7 +147,7 @@ export default function SortableCollectionWidget<
             <Button
                 onClick={appendItem}
                 disabled={Boolean(max) && fields.length >= max!}
-                startIcon={<AddIcon/>}
+                startIcon={<AddIcon />}
             >
                 {addLabel || t('lib.form.collection.add', 'Add')}
             </Button>

@@ -1,8 +1,5 @@
 import {AxiosError} from 'axios';
-import {
-    UseFormGetValues,
-    UseFormSetError,
-} from 'react-hook-form';
+import {UseFormGetValues, UseFormSetError} from 'react-hook-form';
 import {FieldValues} from 'react-hook-form';
 import {Path} from 'react-hook-form';
 
@@ -31,7 +28,7 @@ export function mapApiErrors<TFieldValues extends FieldValues>(
     setRemoteErrors: (handler: (prev: string[]) => string[]) => void,
     getValues: UseFormGetValues<TFieldValues>,
     mapping: ApiErrorMapping<TFieldValues> = {},
-    normalizePath?: NormalizePath,
+    normalizePath?: NormalizePath
 ): void {
     const res = error.response;
     const status = res?.status;
@@ -68,7 +65,7 @@ export function mapApiErrors<TFieldValues extends FieldValues>(
 
 function objectHasPropertyPath(
     object: Record<string, any>,
-    path: string,
+    path: string
 ): boolean {
     const parts = path.split('.');
 

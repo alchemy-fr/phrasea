@@ -1,12 +1,10 @@
 import useCancelRequest, {
-    useCancelRequestCallback
-} from './src/useCancelRequest'
-import useRequestErrorHandler from './src/useRequestErrorHandler'
+    useCancelRequestCallback,
+} from './src/useCancelRequest';
+import useRequestErrorHandler from './src/useRequestErrorHandler';
 
-import {
-    createHttpClient,
-} from "./src/httpClient";
-import useFormSubmit from "./src/useFormSubmit";
+import {createHttpClient} from './src/httpClient';
+import useFormSubmit from './src/useFormSubmit';
 
 export {
     useCancelRequest,

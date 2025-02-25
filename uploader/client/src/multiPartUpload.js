@@ -12,9 +12,11 @@ export async function uploadMultipartFile(targetId, userId, file, onProgress) {
 
     let uploadId;
 
-    if (resumableUpload
+    if (
+        resumableUpload &&
         // Ensure new format
-        && resumableUpload.c.length > 0 && typeof resumableUpload.c[0] === 'object'
+        resumableUpload.c.length > 0 &&
+        typeof resumableUpload.c[0] === 'object'
     ) {
         uploadId = resumableUpload.u;
         for (let i = 0; i < resumableUpload.c.length; i++) {

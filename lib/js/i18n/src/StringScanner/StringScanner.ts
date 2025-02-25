@@ -1,27 +1,27 @@
-import {IndentationText, Node, Project, QuoteKind, SourceFile} from "ts-morph";
-import {normalizeKey} from "./keyNormalizer";
+import {IndentationText, Node, Project, QuoteKind, SourceFile} from 'ts-morph';
+import {normalizeKey} from './keyNormalizer';
 import {
     Rule,
     RuleConstraintType,
     SkipArgumentsRuleConstraint,
     SkipChildrenRuleConstraint,
     SubRuleRuleConstraint,
-    TextNode
-} from "./types";
-import {defaultRules} from "./ruleSet/default";
-import {removeElementsAtPositions} from "./arrayUtil";
-import {getFilteredFunctionCallArguments} from "./nodeUtils";
+    TextNode,
+} from './types';
+import {defaultRules} from './ruleSet/default';
+import {removeElementsAtPositions} from './arrayUtil';
+import {getFilteredFunctionCallArguments} from './nodeUtils';
 
 type Options = {
     debug?: boolean;
     dryRun?: boolean;
     testFile?: string;
     rules?: Rule[];
-}
+};
 
 type ResolvedOptions = {
     rules: Rule[];
-} & Omit<Options, "rules">;
+} & Omit<Options, 'rules'>;
 
 export default class StringScanner {
     options: Readonly<ResolvedOptions>;
@@ -45,7 +45,7 @@ export default class StringScanner {
         } else {
             const files = ['src/**/*{.ts,.tsx}'];
             if (this.options.testFile) {
-                files.push(`!${this.options.testFile}`)
+                files.push(`!${this.options.testFile}`);
             }
             this.project.addSourceFilesAtPaths(files);
         }
@@ -76,23 +76,28 @@ export default class StringScanner {
                     }
                 }
 
-                textNodes.forEach((textNode) => {
+                textNodes.forEach(textNode => {
                     const value = textNode.getLiteralText().trim();
                     const key = `${normalizeKey(fn.getName() ?? 'anonymous')}.${normalizeKey(value)}`;
 
-                    if (Node.isJsxText(textNode) || Node.isJsxAttribute(textNode.getParent())) {
+                    if (
+                        Node.isJsxText(textNode) ||
+                        Node.isJsxAttribute(textNode.getParent())
+                    ) {
                         textNode.replaceWithText(`{t('${key}', \`${value}\`)}`);
                     } else {
                         textNode.replaceWithText(`t('${key}', \`${value}\`)`);
                     }
-
                 });
             });
 
             if (hasTranslation) {
                 let hasImport = false;
                 for (const decl of sourceFile.getImportDeclarations()) {
-                    if (decl.getModuleSpecifier().getLiteralValue() === 'react-i18next') {
+                    if (
+                        decl.getModuleSpecifier().getLiteralValue() ===
+                        'react-i18next'
+                    ) {
                         hasImport = true;
                     }
                 }
@@ -113,9 +118,15 @@ export default class StringScanner {
         });
     }
 
-    findTextNodes(node: Node, depth: number = 0, contextRules: Rule[] = []): TextNode[] {
+    findTextNodes(
+        node: Node,
+        depth: number = 0,
+        contextRules: Rule[] = []
+    ): TextNode[] {
         if (this.options.debug) {
-            console.log(`${'  '.repeat(depth)}${node.getKindName()}${(Node.isJsxElement(node) || Node.isJsxSelfClosingElement(node)) ? ` <${node.getStructure().name}>` : ''}${Node.isJsxText(node) || Node.isStringLiteral(node) ? ` = ${node.print().trim()}` : ''}`);
+            console.log(
+                `${'  '.repeat(depth)}${node.getKindName()}${Node.isJsxElement(node) || Node.isJsxSelfClosingElement(node) ? ` <${node.getStructure().name}>` : ''}${Node.isJsxText(node) || Node.isStringLiteral(node) ? ` = ${node.print().trim()}` : ''}`
+            );
         }
         const textNodes: TextNode[] = [];
         const children = node.getChildren();
@@ -127,29 +138,51 @@ export default class StringScanner {
             return textNodes;
         }
 
-        const childrenToSkip: number[] = (constraints.filter(c => c.type === RuleConstraintType.skipChildren) as SkipChildrenRuleConstraint[])
-            .map((c) => c.positions).flat();
+        const childrenToSkip: number[] = (
+            constraints.filter(
+                c => c.type === RuleConstraintType.skipChildren
+            ) as SkipChildrenRuleConstraint[]
+        )
+            .map(c => c.positions)
+            .flat();
         if (childrenToSkip.length > 0) {
             if (this.options.debug) {
                 console.log(`Skipping children: ${childrenToSkip.join(', ')}`);
             }
         }
-        let filteredChildren = removeElementsAtPositions(childrenToSkip, children);
+        let filteredChildren = removeElementsAtPositions(
+            childrenToSkip,
+            children
+        );
 
         if (Node.isCallExpression(node)) {
-            const argsToSkip: number[] = (constraints.filter(c => c.type === RuleConstraintType.skipArguments) as SkipArgumentsRuleConstraint[])
-                .map((c) => c.arguments).flat();
+            const argsToSkip: number[] = (
+                constraints.filter(
+                    c => c.type === RuleConstraintType.skipArguments
+                ) as SkipArgumentsRuleConstraint[]
+            )
+                .map(c => c.arguments)
+                .flat();
             if (argsToSkip.length > 0) {
                 if (this.options.debug) {
                     console.log(`Skipping arguments: ${argsToSkip.join(', ')}`);
                 }
             }
-            filteredChildren = getFilteredFunctionCallArguments(node, argsToSkip);
+            filteredChildren = getFilteredFunctionCallArguments(
+                node,
+                argsToSkip
+            );
         }
 
-        const subRules = contextRules.concat((constraints
-            .filter(c => c.type === RuleConstraintType.SubRule) as SubRuleRuleConstraint[])
-            .map(c => c.rules).flat());
+        const subRules = contextRules.concat(
+            (
+                constraints.filter(
+                    c => c.type === RuleConstraintType.SubRule
+                ) as SubRuleRuleConstraint[]
+            )
+                .map(c => c.rules)
+                .flat()
+        );
 
         filteredChildren.forEach(c => {
             for (const n of this.findTextNodes(c, depth + 1, subRules)) {
@@ -158,9 +191,9 @@ export default class StringScanner {
         });
 
         if (
-            Node.isNoSubstitutionTemplateLiteral(node)
-            || Node.isStringLiteral(node)
-            || Node.isJsxText(node)
+            Node.isNoSubstitutionTemplateLiteral(node) ||
+            Node.isStringLiteral(node) ||
+            Node.isJsxText(node)
         ) {
             const v = node.getLiteralText().trim();
             if (v) {
@@ -170,5 +203,4 @@ export default class StringScanner {
 
         return textNodes;
     }
-
 }

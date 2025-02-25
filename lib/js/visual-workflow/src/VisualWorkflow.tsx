@@ -12,9 +12,9 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import './style/index.scss';
 import './style/VisualWorkflow.scss';
-import {Job, NodeData, OnRerun, Workflow} from "./types";
-import JobNode from "./Job/JobNode";
-import FlowEvents from "./FlowEvents";
+import {Job, NodeData, OnRerun, Workflow} from './types';
+import JobNode from './Job/JobNode';
+import FlowEvents from './FlowEvents';
 
 const nodeTypes: NodeTypes = {
     jobNode: JobNode,
@@ -44,11 +44,9 @@ export default function VisualWorkflow({
         const nodes: Node<NodeData>[] = [];
         const edges: Edge[] = [];
 
-        let left = 0;
         const jobIndex: Record<string, Job> = {};
 
         workflow.stages.forEach((s, sIndex) => {
-            let top = 0;
             s.jobs.forEach((j, jIndex) => {
                 const nodeData: NodeData = {
                     ...j,
@@ -61,7 +59,9 @@ export default function VisualWorkflow({
                     id: j.jobId,
                     position: {
                         x: stageXPadding * (1 + sIndex * 2) + nodeWith * sIndex,
-                        y: nodeYPadding * (1 + jIndex * 2) + nodeHeight * jIndex,
+                        y:
+                            nodeYPadding * (1 + jIndex * 2) +
+                            nodeHeight * jIndex,
                     },
                     data: nodeData,
                     className: `job-node ${nodeData.disabled ? 'job-node-disabled' : ''}`,
@@ -81,44 +81,38 @@ export default function VisualWorkflow({
                         source: n,
                         target: j.jobId,
                         className: 'job-edge',
-                    })
-                })
-
-                top += 100;
+                    });
+                });
             });
-
-            left += 200;
         });
 
         setNodes(nodes);
         setEdges(edges);
     }, [workflow]);
 
-    return <div
-        className={'visual-workflow'}
-    >
-        <ReactFlow
-            fitView={true}
-            edgesUpdatable={false}
-            nodeTypes={nodeTypes}
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-        >
-            <FlowEvents
-                setEdges={setEdges}
+    return (
+        <div className={'visual-workflow'}>
+            <ReactFlow
+                fitView={true}
+                edgesUpdatable={false}
+                nodeTypes={nodeTypes}
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
             >
-                <Controls/>
-                <MiniMap/>
-                <Background
-                    gap={12}
-                    size={1}
-                    style={{
-                        backgroundColor: '#eeeeee',
-                    }}
-                />
-            </FlowEvents>
-        </ReactFlow>
-    </div>
+                <FlowEvents setEdges={setEdges}>
+                    <Controls />
+                    <MiniMap />
+                    <Background
+                        gap={12}
+                        size={1}
+                        style={{
+                            backgroundColor: '#eeeeee',
+                        }}
+                    />
+                </FlowEvents>
+            </ReactFlow>
+        </div>
+    );
 }

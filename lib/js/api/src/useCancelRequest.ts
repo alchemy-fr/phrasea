@@ -3,15 +3,19 @@ import axios from 'axios';
 
 type UserCancelRequestHandler<P extends Record<string, any>, R = any> = (
     signal: AbortSignal,
-    props?: P | undefined,
+    props?: P | undefined
 ) => Promise<R>;
 
 export default function useCancelRequest<R = any>(
     handler: UserCancelRequestHandler<{}, R>,
     isDevEnv: boolean,
-    deps: DependencyList,
+    deps: DependencyList
 ) {
-    const {callback, controller} = useCancelRequestCallback(handler, isDevEnv, deps);
+    const {callback, controller} = useCancelRequestCallback(
+        handler,
+        isDevEnv,
+        deps
+    );
 
     useEffect(() => {
         callback();
@@ -25,7 +29,11 @@ export default function useCancelRequest<R = any>(
 export function useCancelRequestCallback<
     P extends Record<string, any>,
     R = any,
->(handler: UserCancelRequestHandler<P, R>, isDevEnv: boolean, deps: DependencyList) {
+>(
+    handler: UserCancelRequestHandler<P, R>,
+    isDevEnv: boolean,
+    deps: DependencyList
+) {
     const controller = useRef<AbortController | null>(null);
 
     const callback = useCallback(async (props?: P | undefined) => {

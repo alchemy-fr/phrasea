@@ -6,8 +6,6 @@ export type Translations = Record<string, FieldTranslations>;
 export type Translation = {
     locale: string;
     value: string;
-}
-
-export type {
-    TFunction
 };
+
+export type {TFunction};

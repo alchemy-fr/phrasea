@@ -4,22 +4,23 @@ import {
     Routes,
     RouteProxyProps,
     RouteProxyComponent,
-    TErrorBoundaryComponent, TErrorFallbackComponent, RouteWrapperProps,
-} from "./types";
-import {getFullPath, getLocationPrefix} from "./utils";
-import {Outlet, RouteObject} from "react-router-dom";
-import React from "react";
-import DefaultRouteProxy from "./proxy/DefaultRouteProxy";
-import {NotFoundPage, ErrorPage} from "@alchemy/phrasea-ui";
-import {ErrorBoundary} from "@alchemy/core";
-
+    TErrorBoundaryComponent,
+    TErrorFallbackComponent,
+    RouteWrapperProps,
+} from './types';
+import {getFullPath, getLocationPrefix} from './utils';
+import {Outlet, RouteObject} from 'react-router-dom';
+import React from 'react';
+import DefaultRouteProxy from './proxy/DefaultRouteProxy';
+import {NotFoundPage, ErrorPage} from '@alchemy/phrasea-ui';
+import {ErrorBoundary} from '@alchemy/core';
 
 export function compileRoutes(routes: Routes, rootUrl?: string): Routes {
     rootUrl ??= getLocationPrefix();
 
     const toRouteObject = (
         route: RouteDefinition,
-        parentRoute?: RouteDefinition,
+        parentRoute?: RouteDefinition
     ): RouteDefinition => {
         const compiled: RouteDefinition = {
             ...route,
@@ -56,7 +57,7 @@ export function getPath(
     options: {
         noRedirectPath?: boolean;
         absoluteUrl?: boolean;
-    } = {},
+    } = {}
 ): string {
     if (!options.noRedirectPath) {
         if (!route.component && !route.rootUrl) {
@@ -96,8 +97,8 @@ function resolvePath(uriTemplate: string, params?: RouteParameters): string {
         const hasScheme = path.includes('://');
         const dummyScheme = 'https://localhost';
 
-        const u = new URL(hasScheme ? path: dummyScheme+path);
-        queryStringKeys.map((key) => {
+        const u = new URL(hasScheme ? path : dummyScheme + path);
+        queryStringKeys.map(key => {
             u.searchParams.set(key, qs[key]);
         });
 
@@ -110,27 +111,32 @@ function resolvePath(uriTemplate: string, params?: RouteParameters): string {
     return path;
 }
 
-export function createRouteComponent(route: RouteDefinition, RouteProxyComponent: React.FC<RouteProxyProps>) {
+export function createRouteComponent(
+    route: RouteDefinition,
+    RouteProxyComponent: React.FC<RouteProxyProps>
+) {
     if (!route.component) {
         return;
     }
 
-    return () => <RouteProxyComponent
-        {...(route as RouteProxyProps)}
-        path={getFullPath(route)}
-    />
+    return () => (
+        <RouteProxyComponent
+            {...(route as RouteProxyProps)}
+            path={getFullPath(route)}
+        />
+    );
 }
 
 export type RouterProviderOptions = {
-    RouteProxyComponent?: RouteProxyComponent,
-    ErrorComponent?: TErrorFallbackComponent,
-    ErrorBoundaryComponent?: TErrorBoundaryComponent,
+    RouteProxyComponent?: RouteProxyComponent;
+    ErrorComponent?: TErrorFallbackComponent;
+    ErrorBoundaryComponent?: TErrorBoundaryComponent;
     WrapperComponent?: React.FC<RouteWrapperProps>;
-}
+};
 
 export function createRouterProviderRoutes(
     routes: Routes,
-    options: RouterProviderOptions = {},
+    options: RouterProviderOptions = {}
 ): RouteObject[] {
     const output: RouteObject[] = [];
 
@@ -138,7 +144,7 @@ export function createRouterProviderRoutes(
         RouteProxyComponent: RouteProxyComponent = DefaultRouteProxy,
         ErrorComponent = ErrorPage,
         ErrorBoundaryComponent = ErrorBoundary,
-        WrapperComponent
+        WrapperComponent,
     } = options;
 
     const toRouter = (r: RouteDefinition): RouteObject => {
@@ -147,8 +153,8 @@ export function createRouterProviderRoutes(
             Component: createRouteComponent(r, RouteProxyComponent),
             children: r.routes
                 ? Object.keys(r.routes).map(k => {
-                    return toRouter(r.routes![k]);
-                })
+                      return toRouter(r.routes![k]);
+                  })
                 : undefined,
             loader: r.loader,
             action: r.action,
@@ -162,16 +168,22 @@ export function createRouterProviderRoutes(
     output.push({
         id: 'not_found',
         path: '*',
-        Component: () => <NotFoundPage/>,
+        Component: () => <NotFoundPage />,
     });
 
     return [
         {
-            Component: () => <ErrorBoundaryComponent fallback={ErrorComponent}>
-                {WrapperComponent ? React.createElement(WrapperComponent, {
-                    children: <Outlet />
-                }) : <Outlet />}
-            </ErrorBoundaryComponent>,
+            Component: () => (
+                <ErrorBoundaryComponent fallback={ErrorComponent}>
+                    {WrapperComponent ? (
+                        React.createElement(WrapperComponent, {
+                            children: <Outlet />,
+                        })
+                    ) : (
+                        <Outlet />
+                    )}
+                </ErrorBoundaryComponent>
+            ),
             children: output,
         },
     ] as RouteObject[];

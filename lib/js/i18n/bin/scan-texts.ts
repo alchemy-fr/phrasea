@@ -1,4 +1,4 @@
-import StringScanner from "../src/StringScanner/StringScanner";
+import StringScanner from '../src/StringScanner/StringScanner';
 
 const debugEnabled = false;
 const testFile = 'src/TestMorph.tsx';

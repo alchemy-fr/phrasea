@@ -6,9 +6,6 @@ export function useDebounce() {
     return (handler: () => any, delay?: number) => {
         clearTimeout(timer.current);
 
-        timer.current = setTimeout(
-            handler,
-            delay,
-        );
-    }
+        timer.current = setTimeout(handler, delay);
+    };
 }

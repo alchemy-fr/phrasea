@@ -1,6 +1,6 @@
 export function getBestLocaleOfTranslations(
     fieldTranslations: Record<string, any> | undefined,
-    languages?: readonly string[],
+    languages?: readonly string[]
 ): string | undefined {
     if (!fieldTranslations) {
         return;
@@ -34,7 +34,7 @@ export function getBestLocaleOfTranslations(
 
 export function getBestLocale(
     locales: string[],
-    languages?: readonly string[],
+    languages?: readonly string[]
 ): string | undefined {
     if (locales.length === 0) {
         return undefined;
@@ -71,11 +71,13 @@ function normalizeLocale(l: string): string {
 }
 
 export function getBestTranslatedValue<T>(
-    translations: Readonly<Record<string, Readonly<Record<string, T>>>> | undefined,
+    translations:
+        | Readonly<Record<string, Readonly<Record<string, T>>>>
+        | undefined,
     field: string,
     fallback: T,
     fallbackLocale?: string | undefined,
-    languages?: readonly string[],
+    languages?: readonly string[]
 ): T {
     if (!translations || !translations[field]) {
         return fallback;

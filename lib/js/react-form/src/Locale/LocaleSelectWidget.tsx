@@ -9,7 +9,7 @@ type Props<TFieldValues extends FieldValues> = RSelectProps<
 >;
 
 export default function LocaleSelectWidget<TFieldValues extends FieldValues>(
-    props: Props<TFieldValues>,
+    props: Props<TFieldValues>
 ) {
     const options = React.useMemo(
         () =>
@@ -17,7 +17,7 @@ export default function LocaleSelectWidget<TFieldValues extends FieldValues>(
                 value: k,
                 label: locales[k],
             })),
-        [],
+        []
     );
 
     return <RSelectWidget {...props} options={options} />;

@@ -1,15 +1,16 @@
-import {useNavigate} from "react-router-dom";
-import {toast} from "react-toastify";
-import React from "react";
-import {useAuthorizationCode, UseAuthorizationCodeProps} from "../hooks/useAuthorizationCode";
+import {useNavigate} from 'react-router-dom';
+import {toast} from 'react-toastify';
+import React from 'react';
+import {
+    useAuthorizationCode,
+    UseAuthorizationCodeProps,
+} from '../hooks/useAuthorizationCode';
 
-type Props = Omit<UseAuthorizationCodeProps, "navigate">;
+type Props = Omit<UseAuthorizationCodeProps, 'navigate'>;
 
 export default function AuthorizationCodePage(props: Props) {
     const navigate = useNavigate();
-    const {
-        error
-    } = useAuthorizationCode({
+    const {error} = useAuthorizationCode({
         navigate: (path, options) => navigate(path, options),
         ...props,
     });
@@ -25,5 +26,5 @@ export default function AuthorizationCodePage(props: Props) {
         throw error;
     }
 
-    return <></>
+    return <></>;
 }

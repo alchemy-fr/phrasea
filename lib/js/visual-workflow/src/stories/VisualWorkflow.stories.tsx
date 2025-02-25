@@ -1,7 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react';
-import VisualWorkflow from "../VisualWorkflow";
-import {workflowSample} from "./workflowSample";
-import WorkflowPlayground from "../WorkflowPlayground";
+import VisualWorkflow from '../VisualWorkflow';
+import {workflowSample} from './workflowSample';
+import WorkflowPlayground from '../WorkflowPlayground';
 
 const meta = {
     title: 'VisualWorkflow',
@@ -13,28 +13,30 @@ const meta = {
         layout: 'fullscreen',
     },
     decorators: [
-        (Story) => {
-            return <WorkflowPlayground
-                style={{
-                    height: 500,
-                }}
-            >
-                <Story/>
-            </WorkflowPlayground>
-        }
-    ]
+        Story => {
+            return (
+                <WorkflowPlayground
+                    style={{
+                        height: 500,
+                    }}
+                >
+                    <Story />
+                </WorkflowPlayground>
+            );
+        },
+    ],
 } satisfies Meta<typeof VisualWorkflow>;
 
 export default meta;
 type Story = StoryObj<typeof VisualWorkflow>;
 
-const rerun = async (jobId: string): Promise<void> => {
-    return new Promise<void>((resolve) => {
+const rerun = async (_jobId: string): Promise<void> => {
+    return new Promise<void>(resolve => {
         setTimeout(() => {
             resolve();
         }, 1000);
     });
-}
+};
 
 export const WorkflowOne: Story = {
     args: {

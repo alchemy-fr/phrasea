@@ -1,4 +1,11 @@
-import {Control, FieldErrors, FieldValues, useFieldArray, UseFieldArrayUpdate, UseFormRegister} from 'react-hook-form';
+import {
+    Control,
+    FieldErrors,
+    FieldValues,
+    useFieldArray,
+    UseFieldArrayUpdate,
+    UseFormRegister,
+} from 'react-hook-form';
 import {Button, InputLabel} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -57,9 +64,13 @@ export default function CollectionWidget<TFieldValues extends FieldValues>({
     const {t} = useTranslation();
 
     const appendItem = () => {
-        append(typeof emptyItem === 'string' ? emptyItem : {
-            ...emptyItem,
-        } as any);
+        append(
+            typeof emptyItem === 'string'
+                ? emptyItem
+                : ({
+                      ...emptyItem,
+                  } as any)
+        );
     };
 
     if (0 === max) {
@@ -82,7 +93,7 @@ export default function CollectionWidget<TFieldValues extends FieldValues>({
                     <div className={'f-remove-item'}>
                         <Button
                             onClick={() => remove(index)}
-                            startIcon={<DeleteIcon/>}
+                            startIcon={<DeleteIcon />}
                             color={'error'}
                         >
                             {removeLabel ||
@@ -93,7 +104,7 @@ export default function CollectionWidget<TFieldValues extends FieldValues>({
             ))}
 
             {undefined === max || fields.length < max ? (
-                <Button onClick={appendItem} startIcon={<AddIcon/>}>
+                <Button onClick={appendItem} startIcon={<AddIcon />}>
                     {addLabel || t('lib.form.collection.add', 'Add')}
                 </Button>
             ) : (

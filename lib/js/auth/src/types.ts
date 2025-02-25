@@ -1,6 +1,6 @@
 import type {CookieStorageOptions} from '@alchemy/storage';
-import {IStorage} from "@alchemy/storage";
-import {HttpClient} from "@alchemy/api";
+import {IStorage} from '@alchemy/storage';
+import {HttpClient} from '@alchemy/api';
 
 export interface ValidationError {
     error: string;
@@ -9,8 +9,8 @@ export interface ValidationError {
 
 export type AuthEvent = {
     type: string;
-    preventDefault?: boolean,
-    stopPropagation?: boolean,
+    preventDefault?: boolean;
+    stopPropagation?: boolean;
 };
 
 export type LoginEvent = {
@@ -31,7 +31,9 @@ export type RefreshTokenEvent = {
     tokens: AuthTokens;
 } & AuthEvent;
 
-export type AuthEventHandler<E extends AuthEvent = AuthEvent> = (event: E) => Promise<void>;
+export type AuthEventHandler<E extends AuthEvent = AuthEvent> = (
+    event: E
+) => Promise<void>;
 
 export type TokenResponse = {
     access_token: string;
@@ -54,7 +56,7 @@ export type AuthTokens = {
     deviceTokenExpiresIn?: number;
     deviceTokenExpiresAt?: number;
     tokenType: string;
-}
+};
 
 export type TokenResponseWithTokens = {
     tokens: AuthTokens;
@@ -78,7 +80,9 @@ export type AuthUser = {
 
 export type KeycloakUser = {} & AuthUser;
 
-export type UserNormalizer<U extends AuthUser, UIR extends UserInfoResponse> = (payload: UIR) => U;
+export type UserNormalizer<U extends AuthUser, UIR extends UserInfoResponse> = (
+    payload: UIR
+) => U;
 
 declare module 'axios' {
     export interface AxiosRequestConfig {
@@ -88,7 +92,7 @@ declare module 'axios' {
 }
 
 export type PendingAuthWindow = {
-    pendingAuth?: boolean
+    pendingAuth?: boolean;
 } & Window;
 
 export enum GrantTypeRefreshMethod {
@@ -107,7 +111,6 @@ export type OAuthClientOptions = {
     cookiesOptions?: CookieStorageOptions['cookiesOptions'];
     autoRefreshToken?: boolean;
 };
-
 
 export type KeycloakClientOptions = {
     realm: string;

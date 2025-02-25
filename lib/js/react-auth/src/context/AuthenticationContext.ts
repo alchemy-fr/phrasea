@@ -1,5 +1,5 @@
 import {createContext, MutableRefObject} from 'react';
-import {AuthTokens, AuthUser, LogoutOptions} from "@alchemy/auth";
+import {AuthTokens, AuthUser, LogoutOptions} from '@alchemy/auth';
 
 export type SetTokens = (tokens: AuthTokens) => void;
 export type RefreshTokenFunction = () => Promise<AuthTokens>;

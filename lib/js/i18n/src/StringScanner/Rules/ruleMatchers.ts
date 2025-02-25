@@ -1,10 +1,9 @@
-import {FunctionDeclarationStructure, Node, SyntaxKind} from "ts-morph";
-import {resolveName} from "../nodeUtils";
-import {RuleMatcher} from "../types";
+import {FunctionDeclarationStructure, Node, SyntaxKind} from 'ts-morph';
+import {resolveName} from '../nodeUtils';
+import {RuleMatcher} from '../types';
 
 abstract class BlacklistRegexRuleMatcher implements RuleMatcher {
-    constructor(protected regexp: RegExp[]) {
-    }
+    constructor(protected regexp: RegExp[]) {}
 
     matches(node: Node): boolean {
         const name = this.getNodeValue(node);
@@ -35,8 +34,12 @@ export class ClassInstantiationNameRuleMatcher extends BlacklistRegexRuleMatcher
 
 export class FunctionCallOrClassNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
-        return new FunctionCallNameRuleMatcher(this.regexp).getNodeValue(node)
-            || new ClassInstantiationNameRuleMatcher(this.regexp).getNodeValue(node);
+        return (
+            new FunctionCallNameRuleMatcher(this.regexp).getNodeValue(node) ||
+            new ClassInstantiationNameRuleMatcher(this.regexp).getNodeValue(
+                node
+            )
+        );
     }
 }
 
@@ -83,41 +86,49 @@ export class BindingNameRuleMatcher extends BlacklistRegexRuleMatcher {
     }
 }
 
-
 export class IdentifierNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
         if (Node.isIdentifier(node)) {
             return node.getText();
         } else if (Node.isPropertyAccessExpression(node)) {
-            return new IdentifierNameRuleMatcher(this.regexp).getNodeValue(node.getChildAtIndex(2));
+            return new IdentifierNameRuleMatcher(this.regexp).getNodeValue(
+                node.getChildAtIndex(2)
+            );
         }
     }
 }
 
 export class JsxAttributeOrPropertyNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
-        return new JsxAttributeNameRuleMatcher(this.regexp).getNodeValue(node)
-            || new PropertyNameRuleMatcher(this.regexp).getNodeValue(node);
+        return (
+            new JsxAttributeNameRuleMatcher(this.regexp).getNodeValue(node) ||
+            new PropertyNameRuleMatcher(this.regexp).getNodeValue(node)
+        );
     }
 }
 
 export class JsxAttributeOrPropertyOrVariableOrBindingNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
-        return new VariableNameRuleMatcher(this.regexp).getNodeValue(node)
-            || new JsxAttributeOrPropertyNameRuleMatcher(this.regexp).getNodeValue(node)
-            || new BindingNameRuleMatcher(this.regexp).getNodeValue(node)
-        ;
+        return (
+            new VariableNameRuleMatcher(this.regexp).getNodeValue(node) ||
+            new JsxAttributeOrPropertyNameRuleMatcher(this.regexp).getNodeValue(
+                node
+            ) ||
+            new BindingNameRuleMatcher(this.regexp).getNodeValue(node)
+        );
     }
 }
 
 export class AnyNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
-        return new JsxAttributeOrPropertyOrVariableOrBindingNameRuleMatcher(this.regexp).getNodeValue(node)
-            || new VariableComparisonRuleMatcher(this.regexp).getNodeValue(node)
-        ;
+        return (
+            new JsxAttributeOrPropertyOrVariableOrBindingNameRuleMatcher(
+                this.regexp
+            ).getNodeValue(node) ||
+            new VariableComparisonRuleMatcher(this.regexp).getNodeValue(node)
+        );
     }
 }
-
 
 export class VariableNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
@@ -129,9 +140,11 @@ export class VariableNameRuleMatcher extends BlacklistRegexRuleMatcher {
 
 export class LiteralValueRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
-        if (Node.isNoSubstitutionTemplateLiteral(node)
-            || Node.isStringLiteral(node)
-            || Node.isJsxText(node)) {
+        if (
+            Node.isNoSubstitutionTemplateLiteral(node) ||
+            Node.isStringLiteral(node) ||
+            Node.isJsxText(node)
+        ) {
             return node.getLiteralText().trim();
         }
     }
@@ -146,8 +159,7 @@ export class JsxElementNameRuleMatcher extends BlacklistRegexRuleMatcher {
 }
 
 export class OneOfNodeTypeRuleMatcher implements RuleMatcher {
-    constructor(private syntaxKinds: SyntaxKind[]) {
-    }
+    constructor(private syntaxKinds: SyntaxKind[]) {}
 
     matches(node: Node): boolean {
         return this.syntaxKinds.includes(node.getKind());
@@ -156,9 +168,14 @@ export class OneOfNodeTypeRuleMatcher implements RuleMatcher {
 
 export class LiteralInBinaryExpressionRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
-        const nodeValue = new LiteralValueRuleMatcher(this.regexp).getNodeValue(node);
+        const nodeValue = new LiteralValueRuleMatcher(this.regexp).getNodeValue(
+            node
+        );
 
-        if (nodeValue && node.getParent()?.getKind() === SyntaxKind.BinaryExpression) {
+        if (
+            nodeValue &&
+            node.getParent()?.getKind() === SyntaxKind.BinaryExpression
+        ) {
             return nodeValue;
         }
     }
@@ -169,7 +186,9 @@ export class VariableComparisonRuleMatcher extends BlacklistRegexRuleMatcher {
         if (node.getKind() === SyntaxKind.BinaryExpression) {
             const first = node.getChildAtIndex(0);
             if (first) {
-                return new IdentifierNameRuleMatcher(this.regexp).getNodeValue(first);
+                return new IdentifierNameRuleMatcher(this.regexp).getNodeValue(
+                    first
+                );
             }
         }
     }
