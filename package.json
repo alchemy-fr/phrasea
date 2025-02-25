@@ -9,6 +9,9 @@
     "build": "turbo run build"
   },
   "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.18",
     "prettier": "^3.4.2",
     "turbo": "^2.3.4"
   },

@@ -6,12 +6,16 @@ export type TOverlayContext = {
 
 const contexts: Record<string, Context<TOverlayContext | undefined>> = {};
 
-export function getOverlayContext(name: string): Context<TOverlayContext | undefined> {
+export function getOverlayContext(
+    name: string
+): Context<TOverlayContext | undefined> {
     if (contexts[name]) {
         return contexts[name];
     }
 
-    return contexts[name] = createContext<TOverlayContext | undefined>(undefined);
+    return (contexts[name] = createContext<TOverlayContext | undefined>(
+        undefined
+    ));
 }
 
 export function useOverlay(name: string) {

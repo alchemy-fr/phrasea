@@ -1,10 +1,15 @@
-import {FieldErrors, FieldValues, UseFieldArrayUpdate, UseFormRegister} from "react-hook-form";
-import {ReactNode} from "react";
-import Box from "@mui/material/Box";
-import SortIcon from "@mui/icons-material/Sort";
-import {Button} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import {RenderForm} from "./CollectionWidget";
+import {
+    FieldErrors,
+    FieldValues,
+    UseFieldArrayUpdate,
+    UseFormRegister,
+} from 'react-hook-form';
+import {ReactNode} from 'react';
+import Box from '@mui/material/Box';
+import SortIcon from '@mui/icons-material/Sort';
+import {Button} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import {RenderForm} from './CollectionWidget';
 
 type ItemProps<TFieldValues extends FieldValues> = {
     renderForm: RenderForm<TFieldValues>;

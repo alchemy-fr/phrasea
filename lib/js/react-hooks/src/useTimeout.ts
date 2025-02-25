@@ -1,6 +1,9 @@
-import React from "react";
+import React from 'react';
 
-export function useTimeout(handler: () => void | undefined, delay: number | undefined) {
+export function useTimeout(
+    handler: () => void | undefined,
+    delay: number | undefined
+) {
     const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
 
     React.useEffect(() => {
@@ -16,7 +19,7 @@ export function useTimeout(handler: () => void | undefined, delay: number | unde
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current);
             }
-        }
+        };
     }, [delay, handler]);
 
     return timeoutRef;

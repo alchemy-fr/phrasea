@@ -49,7 +49,6 @@
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "@vitejs/plugin-react-swc": "^3.7.2",
-    "eslint": "^8.57.1",
     "i18next-scanner": "^4.6.0",
     "i18next-scanner-typescript": "^1.2.1",
     "react-bootstrap": "^1.0.0-beta.8",

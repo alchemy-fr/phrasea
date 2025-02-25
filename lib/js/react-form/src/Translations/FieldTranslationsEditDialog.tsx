@@ -1,19 +1,20 @@
-import TranslationsWidget, {
-    Translation,
-} from './TranslationsWidget';
+import TranslationsWidget, {Translation} from './TranslationsWidget';
 import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
 import FormHasErrorsAlert from '../FormHasErrorsAlert';
 import Button from '@mui/material/Button';
 import RemoteErrors from '../RemoteErrors';
-import {StackedModalProps, useModals, useFormPrompt} from '@alchemy/navigation'
-import {AppDialog} from '@alchemy/phrasea-ui'
-import {useFormSubmit} from '@alchemy/api'
+import {StackedModalProps, useModals, useFormPrompt} from '@alchemy/navigation';
+import {AppDialog} from '@alchemy/phrasea-ui';
+import {useFormSubmit} from '@alchemy/api';
 import {TextFieldProps} from '@mui/material/TextField/TextField';
-import {getFieldTranslationsList, getFieldTranslationsObject} from "./localeHelper";
-import {WithTranslations} from "../types";
-import {locales} from "@alchemy/i18n/src/Locale/locales";
-import LoadingButton from "../LoadingButton";
+import {
+    getFieldTranslationsList,
+    getFieldTranslationsObject,
+} from './localeHelper';
+import {WithTranslations} from '../types';
+import {locales} from '@alchemy/i18n/src/Locale/locales';
+import LoadingButton from '../LoadingButton';
 
 type Model = {
     fallback: string;
@@ -77,7 +78,7 @@ export default function FieldTranslationsEditDialog<
         onSuccess: () => {
             if (!noToast) {
                 toast.success(
-                    t('lib.form.translations.saved', 'Translations saved!'),
+                    t('lib.form.translations.saved', 'Translations saved!')
                 );
             }
             closeModal();

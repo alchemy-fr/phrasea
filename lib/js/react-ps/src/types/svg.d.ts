@@ -1,7 +1,7 @@
-declare module "*.svg" {
+declare module '*.svg' {
     const content: any;
     export default content;
-    import {ReactElement, SVGProps} from "react";
+    import {ReactElement, SVGProps} from 'react';
     const ReactComponent: (props: SVGProps<SVGElement>) => ReactElement;
-    export {ReactComponent}
+    export {ReactComponent};
 }

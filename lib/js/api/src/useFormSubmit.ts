@@ -10,8 +10,14 @@ import {
 import {useForm} from 'react-hook-form';
 import {FieldValues} from 'react-hook-form';
 import {toast} from 'react-toastify';
-import {hydraDescriptionKey} from "./utils";
-import {OnBeforeSubmit, OnSubmit, RemoteErrors, SetOnSubmit, UseFormSubmitReturn} from "./types";
+import {hydraDescriptionKey} from './utils';
+import {
+    OnBeforeSubmit,
+    OnSubmit,
+    RemoteErrors,
+    SetOnSubmit,
+    UseFormSubmitReturn,
+} from './types';
 
 type Props<T extends FieldValues, R, FormData extends FieldValues> = {
     normalize?: (data: T) => DefaultValues<FormData>;
@@ -26,7 +32,11 @@ type Props<T extends FieldValues, R, FormData extends FieldValues> = {
     };
 } & UseFormProps<FormData>;
 
-export default function useFormSubmit<T extends FieldValues, R = T, FormData extends FieldValues = T>({
+export default function useFormSubmit<
+    T extends FieldValues,
+    R = T,
+    FormData extends FieldValues = T,
+>({
     onBeforeSubmit,
     onSubmit,
     onSuccess,
@@ -51,7 +61,9 @@ export default function useFormSubmit<T extends FieldValues, R = T, FormData ext
     const doSubmit = async (data: FormData): Promise<void> => {
         try {
             setRemoteErrors([]);
-            const denormalizedData: T = denormalize ? denormalize(data) : (data as unknown as T);
+            const denormalizedData: T = denormalize
+                ? denormalize(data)
+                : (data as unknown as T);
             const res: R = await onSubmit(denormalizedData);
             setSubmitted(true);
             setSubmitting(false);
@@ -69,7 +81,7 @@ export default function useFormSubmit<T extends FieldValues, R = T, FormData ext
                         setRemoteErrors,
                         getValues,
                         apiErrors?.mapping,
-                        apiErrors?.normalizePath || normalizeApiPlatformPath,
+                        apiErrors?.normalizePath || normalizeApiPlatformPath
                     );
                 } else if (
                     e.response &&
@@ -77,8 +89,8 @@ export default function useFormSubmit<T extends FieldValues, R = T, FormData ext
                 ) {
                     setRemoteErrors(p =>
                         p.concat(
-                            e.response!.data[hydraDescriptionKey] as string,
-                        ),
+                            e.response!.data[hydraDescriptionKey] as string
+                        )
                     );
                 }
             }
@@ -97,7 +109,7 @@ export default function useFormSubmit<T extends FieldValues, R = T, FormData ext
                 },
                 () => {
                     setSubmitting(false);
-                },
+                }
             );
 
             return;
@@ -106,12 +118,12 @@ export default function useFormSubmit<T extends FieldValues, R = T, FormData ext
         await doSubmit(data);
     };
 
-    const setOnSubmit: SetOnSubmit<T, R> = (fn) => {
+    const setOnSubmit: SetOnSubmit<T, R> = fn => {
         onSubmit = fn;
     };
 
-
-    const isDirtyAlt = !!Object.keys(useFormResponse.formState.dirtyFields).length;
+    const isDirtyAlt = !!Object.keys(useFormResponse.formState.dirtyFields)
+        .length;
     const forbidNavigation = isDirtyAlt && !submitted && !submitting;
 
     return {

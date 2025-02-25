@@ -43,25 +43,25 @@ it('get best translated value', () => {
     const fieldName = 'foo';
 
     expect(
-        getBestTranslatedValue({}, fieldName, undefined, undefined, ['fr']),
+        getBestTranslatedValue({}, fieldName, undefined, undefined, ['fr'])
     ).toEqual(undefined);
     expect(
-        getBestTranslatedValue({}, fieldName, undefined, 'fr', ['fr']),
+        getBestTranslatedValue({}, fieldName, undefined, 'fr', ['fr'])
     ).toEqual(undefined);
     expect(getBestTranslatedValue({}, fieldName, 'bar', 'fr', ['fr'])).toEqual(
-        'bar',
+        'bar'
     );
     expect(getBestTranslatedValue({}, fieldName, 'bar', 'fr', [])).toEqual(
-        'bar',
+        'bar'
     );
     expect(
-        getBestTranslatedValue({}, fieldName, 'bar', 'fr', ['fr', 'en']),
+        getBestTranslatedValue({}, fieldName, 'bar', 'fr', ['fr', 'en'])
     ).toEqual('bar');
     expect(
-        getBestTranslatedValue({}, fieldName, 'bar', 'fr', ['en', 'fr']),
+        getBestTranslatedValue({}, fieldName, 'bar', 'fr', ['en', 'fr'])
     ).toEqual('bar');
     expect(
-        getBestTranslatedValue({}, fieldName, 'bar', 'fr', ['en', 'fr']),
+        getBestTranslatedValue({}, fieldName, 'bar', 'fr', ['en', 'fr'])
     ).toEqual('bar');
 
     const translations = {
@@ -77,27 +77,27 @@ it('get best translated value', () => {
         getBestTranslatedValue(translations, fieldName, 'bar', 'fr', [
             'en',
             'fr',
-        ]),
+        ])
     ).toEqual('en_US');
     expect(
-        getBestTranslatedValue(translations, fieldName, 'bar', 'zz', []),
+        getBestTranslatedValue(translations, fieldName, 'bar', 'zz', [])
     ).toEqual('bar');
     expect(
         getBestTranslatedValue(translations, fieldName, 'bar', 'zz', [
             'en',
             'fr',
-        ]),
+        ])
     ).toEqual('en_US');
     expect(
         getBestTranslatedValue(translations, fieldName, 'bar', 'zz', [
             'en',
             'zz',
-        ]),
+        ])
     ).toEqual('en_US');
     expect(
         getBestTranslatedValue(translations, fieldName, 'bar', 'zz', [
             'zz',
             'en',
-        ]),
+        ])
     ).toEqual('bar');
 });

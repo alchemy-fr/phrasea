@@ -4,12 +4,8 @@ type Props = {
     error: any;
 };
 
-export function DefaultErrorComponent({
-    error,
-}: Props) {
+export function DefaultErrorComponent({error}: Props) {
     console.trace(error);
 
-    return <ErrorPage
-        error={error}
-    />
+    return <ErrorPage error={error} />;
 }

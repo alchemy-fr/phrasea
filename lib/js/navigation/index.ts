@@ -1,20 +1,26 @@
 import {compileRoutes, getPath} from './src/Router';
-import {getCurrentPath, getRelativeUrl, getFullPath} from "./src/utils";
-import RouterProvider from "./src/RouterProvider";
-import ModalStack, {StackedModalProps, useModals} from "./src/useModalStack";
-import MatomoRouteWrapper from "./src/proxy/MatomoRouteWrapper";
-import {useFormPrompt} from "./src/useNavigationPrompt";
+import {getCurrentPath, getRelativeUrl, getFullPath} from './src/utils';
+import RouterProvider from './src/RouterProvider';
+import ModalStack, {StackedModalProps, useModals} from './src/useModalStack';
+import MatomoRouteWrapper from './src/proxy/MatomoRouteWrapper';
+import {useFormPrompt} from './src/useNavigationPrompt';
 import {
     CloseOverlayFunction,
     NavigateToOverlayFunction,
     useCloseOverlay,
-    useNavigateToOverlay
-} from "./src/useNavigateToOverlay";
-import {Link, useLocation, useNavigate, useParams, useNavigation} from "react-router-dom";
-import OverlayOutlet from "./src/Overlay/OverlayOutlet";
-import {useOverlay} from "./src/Overlay/OverlayContext";
+    useNavigateToOverlay,
+} from './src/useNavigateToOverlay';
+import {
+    Link,
+    useLocation,
+    useNavigate,
+    useParams,
+    useNavigation,
+} from 'react-router-dom';
+import OverlayOutlet from './src/Overlay/OverlayOutlet';
+import {useOverlay} from './src/Overlay/OverlayContext';
 
-export * from "./src/types";
+export * from './src/types';
 export {
     useOverlay,
     OverlayOutlet,
@@ -35,7 +41,7 @@ export {
     Link,
     useNavigate,
     useNavigation,
-}
+};
 export type {
     StackedModalProps,
     NavigateToOverlayFunction,

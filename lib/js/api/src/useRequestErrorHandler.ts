@@ -1,27 +1,21 @@
-import React from "react";
-import axios, {AxiosError} from "axios";
+import React from 'react';
+import axios, {AxiosError} from 'axios';
 import {useTranslation} from 'react-i18next';
-import {hydraDescriptionKey} from "./utils";
-import {ToastOptions} from "react-toastify";
+import {hydraDescriptionKey} from './utils';
+import {ToastOptions} from 'react-toastify';
 
 type OnError = (message: string, options: ToastOptions) => void;
 
 type Options = {
     onError: OnError;
     logout?: (redirectPathAfterLogin?: string) => void;
-}
+};
 
-export default function useRequestErrorHandler({
-    onError,
-    logout
-}: Options) {
+export default function useRequestErrorHandler({onError, logout}: Options) {
     const {t} = useTranslation();
 
     return React.useCallback((error: AxiosError<any>) => {
-        if (
-            error.config?.errorHandled ||
-            (axios.isCancel(error) as boolean)
-        ) {
+        if (error.config?.errorHandled || (axios.isCancel(error) as boolean)) {
             return;
         }
 
@@ -29,9 +23,11 @@ export default function useRequestErrorHandler({
         const data = error.response?.data;
 
         const handledStatuses = error.config?.handledErrorStatuses;
-        if (handledStatuses && handledStatuses.length > 0
-            && status
-            && handledStatuses.includes(status)
+        if (
+            handledStatuses &&
+            handledStatuses.length > 0 &&
+            status &&
+            handledStatuses.includes(status)
         ) {
             return;
         }
@@ -52,23 +48,31 @@ export default function useRequestErrorHandler({
                         toastId: 'session_expired',
                     }
                 );
-                logout && logout(window.location.href.replace(window.location.origin, ''));
+                logout &&
+                    logout(
+                        window.location.href.replace(window.location.origin, '')
+                    );
                 break;
             case 403:
                 onError(
-                    t('lib.api.error.http_unauthorized', 'Unauthorized') as string,
+                    t(
+                        'lib.api.error.http_unauthorized',
+                        'Unauthorized'
+                    ) as string,
                     defaultOptions
                 );
                 break;
             case 400:
                 onError(
-                    error.response?.data[hydraDescriptionKey] ?? t('lib.api.error.http_bad_request', 'Bad Request'),
+                    error.response?.data[hydraDescriptionKey] ??
+                        t('lib.api.error.http_bad_request', 'Bad Request'),
                     defaultOptions
                 );
                 break;
             case 404:
                 onError(
-                    error.response?.data[hydraDescriptionKey] ?? t('lib.api.error.http_not_found', 'Not Found'),
+                    error.response?.data[hydraDescriptionKey] ??
+                        t('lib.api.error.http_not_found', 'Not Found'),
                     defaultOptions
                 );
                 break;
@@ -76,11 +80,21 @@ export default function useRequestErrorHandler({
                 // Handled by form
                 break;
             case 429:
-                onError(data?.[hydraDescriptionKey] || data?.detail || t('lib.api.http_error.429', {
-                    defaultValue: 'Too many requests, you can retry in {{minutes}}min',
-                    minutes: Math.ceil(parseInt(error.response?.headers?.['retry-after'] ?? '0') / 60),
-                }),
-                    defaultOptions);
+                onError(
+                    data?.[hydraDescriptionKey] ||
+                        data?.detail ||
+                        t('lib.api.http_error.429', {
+                            defaultValue:
+                                'Too many requests, you can retry in {{minutes}}min',
+                            minutes: Math.ceil(
+                                parseInt(
+                                    error.response?.headers?.['retry-after'] ??
+                                        '0'
+                                ) / 60
+                            ),
+                        }),
+                    defaultOptions
+                );
                 break;
             default:
                 onError(

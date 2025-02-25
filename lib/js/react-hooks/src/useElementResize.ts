@@ -12,21 +12,18 @@ export function useElementResize(element: HTMLElement | null | undefined) {
             return;
         }
 
-        const resizeObserver = new ResizeObserver((entries) => {
-            const entry = (entries[0])?.target as HTMLElement | undefined;
+        const resizeObserver = new ResizeObserver(entries => {
+            const entry = entries[0]?.target as HTMLElement | undefined;
             if (entry) {
                 if (timer.current) {
                     clearTimeout(timer.current);
                 }
-                timer.current = setTimeout(
-                    () => {
-                        setSize({
-                            width: entry.clientWidth,
-                            height: entry.clientHeight,
-                        })
-                    },
-                    100,
-                );
+                timer.current = setTimeout(() => {
+                    setSize({
+                        width: entry.clientWidth,
+                        height: entry.clientHeight,
+                    });
+                }, 100);
             }
         });
 

@@ -1,4 +1,9 @@
-import {JsxText, Node, NoSubstitutionTemplateLiteral, StringLiteral} from "ts-morph";
+import {
+    JsxText,
+    Node,
+    NoSubstitutionTemplateLiteral,
+    StringLiteral,
+} from 'ts-morph';
 
 export type TextNode = JsxText | StringLiteral | NoSubstitutionTemplateLiteral;
 
@@ -7,10 +12,10 @@ export interface RuleMatcher {
 }
 
 export enum RuleConstraintType {
-    Skip = "skip",
-    skipChildren = "skip_children",
-    skipArguments = "skip_arguments",
-    SubRule = "sub_rule",
+    Skip = 'skip',
+    skipChildren = 'skip_children',
+    skipArguments = 'skip_arguments',
+    SubRule = 'sub_rule',
 }
 
 export interface RuleConstraint {

@@ -1,5 +1,5 @@
 import {Context, createContext} from 'react';
-import {RouteParameters} from "../types";
+import {RouteParameters} from '../types';
 
 export type TOverlayRouterContext = {
     path: string;
@@ -8,10 +8,14 @@ export type TOverlayRouterContext = {
 
 const contexts: Record<string, Context<TOverlayRouterContext | undefined>> = {};
 
-export function getOverlayRouterContext(name: string): Context<TOverlayRouterContext | undefined> {
+export function getOverlayRouterContext(
+    name: string
+): Context<TOverlayRouterContext | undefined> {
     if (contexts[name]) {
         return contexts[name];
     }
 
-    return contexts[name] = createContext<TOverlayRouterContext | undefined>(undefined);
+    return (contexts[name] = createContext<TOverlayRouterContext | undefined>(
+        undefined
+    ));
 }

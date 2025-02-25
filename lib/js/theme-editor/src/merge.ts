@@ -13,11 +13,11 @@ export function mergeDeep(target: object, ...sources: object[]): object {
         for (const key in source! as object) {
             const e = source[key];
             if (isObject(e)) {
-                // @ts-expect-error ?
+                // @ts-expect-error unsupported
                 if (!target[key]) {
                     Object.assign(target, {[key]: {}});
                 }
-                // @ts-expect-error ?
+                // @ts-expect-error unsupported
                 mergeDeep(target[key], e!);
             } else {
                 Object.assign(target, {[key]: e!});

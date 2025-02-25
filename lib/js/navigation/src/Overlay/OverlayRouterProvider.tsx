@@ -1,8 +1,11 @@
 import React from 'react';
-import {matchRoutes, renderMatches, RouteObject} from "react-router-dom";
-import {getOverlayRouterContext, TOverlayRouterContext} from "./OverlayRouterContext";
-import {Routes} from "../types";
-import {createRouterProviderRoutes, RouterProviderOptions} from "../Router";
+import {matchRoutes, renderMatches, RouteObject} from 'react-router-dom';
+import {
+    getOverlayRouterContext,
+    TOverlayRouterContext,
+} from './OverlayRouterContext';
+import {Routes} from '../types';
+import {createRouterProviderRoutes, RouterProviderOptions} from '../Router';
 
 type Props = {
     queryParam: string;
@@ -17,7 +20,10 @@ export default React.memo(function OverlayRouterProvider({
     path,
     options,
 }: Props) {
-    const routes: RouteObject[] = React.useMemo(() => createRouterProviderRoutes(routeDefinitions, options), []);
+    const routes: RouteObject[] = React.useMemo(
+        () => createRouterProviderRoutes(routeDefinitions, options),
+        []
+    );
 
     const matches = matchRoutes(routes, {
         pathname: path,
@@ -27,12 +33,14 @@ export default React.memo(function OverlayRouterProvider({
         return {
             path,
             params: matches ? matches[matches!.length - 1].params : {},
-        }
+        };
     }, [path]);
 
     const OverlayRouteContext = getOverlayRouterContext(queryParam);
 
-    return <OverlayRouteContext.Provider value={contextValue}>
-        {renderMatches(matches)}
-    </OverlayRouteContext.Provider>
+    return (
+        <OverlayRouteContext.Provider value={contextValue}>
+            {renderMatches(matches)}
+        </OverlayRouteContext.Provider>
+    );
 });

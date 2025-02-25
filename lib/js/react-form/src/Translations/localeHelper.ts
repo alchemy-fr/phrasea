@@ -1,9 +1,9 @@
 import type {FieldTranslations, Translations} from '@alchemy/i18n';
-import {Translation} from "../types";
+import {Translation} from '../types';
 
 export function getFieldTranslationCount(
     translations: Translations | undefined,
-    field: string,
+    field: string
 ): number {
     if (!translations) {
         return 0;
@@ -16,7 +16,7 @@ export function getFieldTranslationCount(
 
 export function getFieldTranslationsList(
     translations: Translations | undefined,
-    field: string,
+    field: string
 ): Translation[] {
     if (getFieldTranslationCount(translations, field) === 0) {
         return [];
@@ -29,7 +29,7 @@ export function getFieldTranslationsList(
 }
 
 export function getFieldTranslationsObject(
-    translations: Translation[],
+    translations: Translation[]
 ): FieldTranslations | undefined {
     const tr: FieldTranslations = {};
 

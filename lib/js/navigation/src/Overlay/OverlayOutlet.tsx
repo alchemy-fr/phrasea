@@ -1,16 +1,17 @@
 import React, {PropsWithChildren, ReactNode, useRef} from 'react';
-import {useLocation, useNavigate} from "react-router-dom";
-import OverlayRouterProvider from "./OverlayRouterProvider";
-import {getOverlayContext, TOverlayContext} from "./OverlayContext";
-import {RouteProxyComponent, Routes} from "../types";
-
+import {useLocation, useNavigate} from 'react-router-dom';
+import OverlayRouterProvider from './OverlayRouterProvider';
+import {getOverlayContext, TOverlayContext} from './OverlayContext';
+import {RouteProxyComponent, Routes} from '../types';
 
 type OverlayComponentProps = PropsWithChildren<{
     open: boolean;
     onClose: () => void;
 }>;
 
-export type OverlayComponent = (props: OverlayComponentProps) => React.ReactNode
+export type OverlayComponent = (
+    props: OverlayComponentProps
+) => React.ReactNode;
 
 type Props = {
     queryParam: string;
@@ -28,9 +29,7 @@ export default function OverlayOutlet({
     const location = useLocation();
     const timer = useRef<ReturnType<typeof setTimeout>>();
 
-    const {
-        search,
-    } = location;
+    const {search} = location;
     const navigate = useNavigate();
     const [open, setOpen] = React.useState(false);
     const [finalUrl, setFinalUrl] = React.useState<string | undefined>();
@@ -71,28 +70,31 @@ export default function OverlayOutlet({
                 setOpen(false);
                 onClose();
             },
-        }
+        };
     }, [onClose, setOpen]);
 
     const OverlayContext = getOverlayContext(queryParam);
 
-    return <OverlayContext.Provider value={contextValue}>
-        <WrapperComponent
-            open={open}
-            onClose={onClose}
-        >
-            {finalUrl ? <OverlayRouterProvider
-                path={finalUrl}
-                queryParam={queryParam}
-                routes={routes}
-                options={{
-                    RouteProxyComponent,
-                }}
-            /> : ''}
-        </WrapperComponent>
-    </OverlayContext.Provider>
+    return (
+        <OverlayContext.Provider value={contextValue}>
+            <WrapperComponent open={open} onClose={onClose}>
+                {finalUrl ? (
+                    <OverlayRouterProvider
+                        path={finalUrl}
+                        queryParam={queryParam}
+                        routes={routes}
+                        options={{
+                            RouteProxyComponent,
+                        }}
+                    />
+                ) : (
+                    ''
+                )}
+            </WrapperComponent>
+        </OverlayContext.Provider>
+    );
 }
 
 function DefaultWrapperComponent({children, open}: OverlayComponentProps) {
-    return open ? children as ReactNode : null;
+    return open ? (children as ReactNode) : null;
 }

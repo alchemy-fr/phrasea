@@ -41,7 +41,9 @@ export const AppDialogTitle = (props: DialogTitleProps) => {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-        }} {...other}>
+            }}
+            {...other}
+        >
             {children}
             {onClose ? (
                 <IconButton
@@ -68,7 +70,7 @@ type ActionArgs = {
 type StackedModalProps = {
     open?: boolean;
     modalIndex?: number;
-}
+};
 
 type Props = PropsWithChildren<
     {
@@ -122,8 +124,8 @@ export default function AppDialog({
             <DialogContent
                 dividers
                 sx={{
-                    p: disablePadding ? 0 : 2,
-                    border: disablePadding ? 0 : undefined,
+                    'p': disablePadding ? 0 : 2,
+                    'border': disablePadding ? 0 : undefined,
                     '&:empty': {
                         display: 'none',
                     },

@@ -1,4 +1,3 @@
-
 export function normalizeKey(key: string): string {
     return key
         .trim()
@@ -7,6 +6,5 @@ export function normalizeKey(key: string): string {
         .replace(/\W/g, '_')
         .replace(/_{2,}/g, '_')
         .replace(/_$/, '')
-        .replace(/^_/, '')
-        ;
+        .replace(/^_/, '');
 }

@@ -6,8 +6,8 @@ import SortableCollectionWidget from '../Collection/SortableCollectionWidget';
 import LocaleSelectWidget from '../Locale/LocaleSelectWidget';
 import {EmojiFlags} from '@mui/icons-material';
 import {TextFieldProps} from '@mui/material/TextField/TextField';
-import FormRow from "../FormRow";
-import FormFieldErrors from "../FormFieldErrors";
+import FormRow from '../FormRow';
+import FormFieldErrors from '../FormFieldErrors';
 
 export type Translation = {
     locale: string;
@@ -34,7 +34,7 @@ export default function TranslationsWidget<
                 fullWidth={true}
                 label={t(
                     'lib.form.translations.fallback.label',
-                    'Default value',
+                    'Default value'
                 )}
                 {...register(`fallback` as any)}
                 required={true}
@@ -51,7 +51,7 @@ export default function TranslationsWidget<
                     <IconFormLabel startIcon={<EmojiFlags />}>
                         {t(
                             'lib.form.translations.collection.title',
-                            'Translations',
+                            'Translations'
                         )}
                     </IconFormLabel>
                 }
@@ -59,13 +59,10 @@ export default function TranslationsWidget<
                 register={register}
                 addLabel={t(
                     'lib.form.translations.collection.add',
-                    'Add new translation',
+                    'Add new translation'
                 )}
                 removeLabel={
-                    <Trans
-                        t={t}
-                        i18nKey="form.translations.collection.remove"
-                    >
+                    <Trans t={t} i18nKey="form.translations.collection.remove">
                         Remove <Hidden smDown>this translation</Hidden>
                     </Trans>
                 }
@@ -82,7 +79,7 @@ export default function TranslationsWidget<
                                     >
                                         {t(
                                             'lib.form.translations.disabled_translation',
-                                            'This translation is disabled',
+                                            'This translation is disabled'
                                         )}
                                     </Alert>
                                 ) : (
@@ -101,7 +98,7 @@ export default function TranslationsWidget<
                                             }
                                             placeholder={t(
                                                 'lib.form.translations.locale.placeholder',
-                                                'Select locale',
+                                                'Select locale'
                                             )}
                                             required={true}
                                         />
@@ -116,11 +113,11 @@ export default function TranslationsWidget<
                                         <TextField
                                             label={t(
                                                 'lib.form.translations.value.label',
-                                                'Translation',
+                                                'Translation'
                                             )}
                                             required={true}
                                             {...register(
-                                                `${path}.${index}.value` as any,
+                                                `${path}.${index}.value` as any
                                             )}
                                             {...(inputProps ?? {})}
                                         />

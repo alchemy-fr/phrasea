@@ -1,4 +1,11 @@
-import React, {Context, useContext, useEffect, useMemo, useRef, useState} from 'react'
+import React, {
+    Context,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 
 type ClosableFunc = () => boolean;
 
@@ -10,19 +17,19 @@ export interface ModalStackValue {
         component: React.ComponentType<T>,
         props?: Omit<P, keyof StackedModalProps>,
         options?: OpenModalOptions
-    ) => any
+    ) => any;
 
     /**
      * Closes the active modal
      */
-    closeModal: (force?: boolean) => void
+    closeModal: (force?: boolean) => void;
 
-    isCloseable: (modalIndex: number) => boolean
+    isCloseable: (modalIndex: number) => boolean;
 
     /**
      * Closes all modals
      */
-    closeAllModals: () => void
+    closeAllModals: () => void;
 
     stack: Stack;
 
@@ -34,7 +41,7 @@ export interface ModalStackValue {
 type ForwardedContext<T = any> = {
     context: Context<T>;
     value: T;
-}
+};
 
 export type OpenModalOptions = {
     /**
@@ -42,7 +49,7 @@ export type OpenModalOptions = {
      */
     replace?: boolean;
     forwardedContexts?: ForwardedContext[];
-}
+};
 
 export interface StackedModalProps {
     open: boolean;
@@ -56,25 +63,30 @@ export type StackedModal = {
     closeConstraint?: ClosableFunc | undefined;
     forceClose: boolean;
     forwardedContexts?: ForwardedContext[];
-}
+};
 
 export type Stack = {
     modals: StackedModal[];
     current: number;
-}
+};
 
-const ModalStackContext = React.createContext<ModalStackValue>({} as any)
+const ModalStackContext = React.createContext<ModalStackValue>({} as any);
 
 export interface ModalStackProps {
-    renderBackdrop?: React.ComponentType<any>
-    renderModals?: React.ComponentType<ModalStackValue>
-    children?: React.ReactNode
+    renderBackdrop?: React.ComponentType<any>;
+    renderModals?: React.ComponentType<ModalStackValue>;
+    children?: React.ReactNode;
 }
 
 function decreaseState(l: number, step = 1) {
-    window.history.replaceState(l >= 1 ? {
-        modal: l - step,
-    } : {}, '');
+    window.history.replaceState(
+        l >= 1
+            ? {
+                  modal: l - step,
+              }
+            : {},
+        ''
+    );
 }
 
 export default function ModalStack({
@@ -105,7 +117,8 @@ export default function ModalStack({
             return true;
         }
 
-        const currentModal = stack.current >= 0 ? stack.modals[stack.current] : undefined;
+        const currentModal =
+            stack.current >= 0 ? stack.modals[stack.current] : undefined;
 
         function closeCurrent(force = false): void {
             if (currentModal && (force || isCloseable(stack.current))) {
@@ -114,7 +127,10 @@ export default function ModalStack({
                 if (undefined !== l) {
                     decreaseState(l);
                     setStack(prev => ({
-                        modals: l < prev.modals.length - 1 ? prev.modals.slice(0, l + 2) : prev.modals,
+                        modals:
+                            l < prev.modals.length - 1
+                                ? prev.modals.slice(0, l + 2)
+                                : prev.modals,
                         current: prev.current - 1,
                     }));
                 } else if (force) {
@@ -126,7 +142,10 @@ export default function ModalStack({
             }
         }
 
-        function setCloseConstraint(modalIndex: number, constraint: ClosableFunc | undefined): void {
+        function setCloseConstraint(
+            modalIndex: number,
+            constraint: ClosableFunc | undefined
+        ): void {
             if (!currentModal) {
                 // Ignore component trying to update closeConstraint when modal is already hidden
                 return;
@@ -144,37 +163,47 @@ export default function ModalStack({
                 return;
             }
 
-            if (currentModal
-                && (undefined === l || stack.current >= (l + 1))
-            ) {
+            if (currentModal && (undefined === l || stack.current >= l + 1)) {
                 if (!currentModal.forceClose && !isCloseable(stack.current)) {
-                    window.history.pushState({
-                        modal: l !== undefined ? l + 1 : 0,
-                    }, '');
+                    window.history.pushState(
+                        {
+                            modal: l !== undefined ? l + 1 : 0,
+                        },
+                        ''
+                    );
                 } else {
                     setStack(prev => ({
-                        modals: l !== undefined && l < prev.modals.length - 1 ? prev.modals.slice(0, l + 2) : prev.modals,
+                        modals:
+                            l !== undefined && l < prev.modals.length - 1
+                                ? prev.modals.slice(0, l + 2)
+                                : prev.modals,
                         current: prev.current - 1,
                     }));
                 }
             }
-        }
+        };
 
         return {
             setCloseConstraint,
             isCloseable,
             stack,
             openModal: (component, props, options) => {
-                setStack((prev) => {
+                setStack(prev => {
                     let newModals = prev.modals.slice(0, prev.current + 1);
                     let newCurrent = newModals.length;
                     if (options?.replace) {
-                        newModals = prev.modals.slice(0, prev.modals.length - 1);
+                        newModals = prev.modals.slice(
+                            0,
+                            prev.modals.length - 1
+                        );
                         newCurrent--;
                     } else {
-                        window.history.pushState({
-                            modal: newCurrent,
-                        }, '');
+                        window.history.pushState(
+                            {
+                                modal: newCurrent,
+                            },
+                            ''
+                        );
                     }
 
                     newModals.push({
@@ -194,7 +223,7 @@ export default function ModalStack({
             closeModal: closeCurrent,
             closeAllModals: dismissAll,
             onPopState,
-        }
+        };
     }, [stack]);
 
     useEffect(() => {
@@ -205,42 +234,49 @@ export default function ModalStack({
         };
     }, [value]);
 
-    return <ModalStackContext.Provider value={value}>
-        {children}
-        {BackdropComponent && value.stack.modals.length > 0 && <BackdropComponent/>}
-        <ModalsComponent {...value} />
-    </ModalStackContext.Provider>
+    return (
+        <ModalStackContext.Provider value={value}>
+            {children}
+            {BackdropComponent && value.stack.modals.length > 0 && (
+                <BackdropComponent />
+            )}
+            <ModalsComponent {...value} />
+        </ModalStackContext.Provider>
+    );
 }
 
 function Modals({stack}: ModalStackValue) {
-    return <>
-        {stack.modals.map((modal, index) => {
-            let contextStack = <modal.component
-                key={modal.id}
-                open={index <= stack.current}
-                modalIndex={index}
-                {...modal.props}
-            />
+    return (
+        <>
+            {stack.modals.map((modal, index) => {
+                let contextStack = (
+                    <modal.component
+                        key={modal.id}
+                        open={index <= stack.current}
+                        modalIndex={index}
+                        {...modal.props}
+                    />
+                );
 
-            if (modal.forwardedContexts) {
-                modal.forwardedContexts.forEach((fc, i) => {
-                    const C = fc.context;
-                    const prev = contextStack;
+                if (modal.forwardedContexts) {
+                    modal.forwardedContexts.forEach((fc, i) => {
+                        const C = fc.context;
+                        const prev = contextStack;
 
-                    contextStack = <C.Provider
-                        key={i}
-                        value={fc.value}
-                    >
-                        {prev}
-                    </C.Provider>
-                })
-            }
+                        contextStack = (
+                            <C.Provider key={i} value={fc.value}>
+                                {prev}
+                            </C.Provider>
+                        );
+                    });
+                }
 
-            return contextStack;
-        })}
-    </>
+                return contextStack;
+            })}
+        </>
+    );
 }
 
 export function useModals() {
-    return useContext(ModalStackContext)
+    return useContext(ModalStackContext);
 }

@@ -7,6 +7,12 @@
   "files": [
     "./src/popup.ts"
   ],
+  "scripts": {
+    "lint": "eslint src",
+    "lint:fix": "eslint --fix src",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+    "cs": "pnpm lint:fix && pnpm format"
+  },
   "main": "index.ts",
   "license": "MIT",
   "peerDependencies": {

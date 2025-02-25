@@ -1,4 +1,4 @@
-import Avatar, {AvatarProps} from "@mui/material/Avatar";
+import Avatar, {AvatarProps} from '@mui/material/Avatar';
 
 type Props = {
     size: number;
@@ -21,7 +21,6 @@ function generateHSL(name: string): string {
         return Math.floor((hash % (max - min)) + min);
     }
 
-
     const hash = getHashOfString(name);
     const h = normalizeHash(hash, 0, 360);
     const s = normalizeHash(hash, 50, 75);
@@ -42,25 +41,19 @@ function getUsernameColor(username: string | null | undefined): string {
     return cachedColors[username];
 }
 
-
-export default function UserAvatar({
-    size,
-    username,
-    ...props
-}: Props) {
-
-    return <Avatar
-        style={{
-            width: size,
-            height: size,
-            backgroundColor: getUsernameColor(username),
-            color: '#FFF',
-        }}
-        alt={username || undefined}
-        {...props}
-    >
-        {(
-            username ? username[0] : 'U'
-        ).toUpperCase()}
-    </Avatar>
+export default function UserAvatar({size, username, ...props}: Props) {
+    return (
+        <Avatar
+            style={{
+                width: size,
+                height: size,
+                backgroundColor: getUsernameColor(username),
+                color: '#FFF',
+            }}
+            alt={username || undefined}
+            {...props}
+        >
+            {(username ? username[0] : 'U').toUpperCase()}
+        </Avatar>
+    );
 }

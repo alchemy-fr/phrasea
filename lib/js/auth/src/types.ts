@@ -1,3 +1,7 @@
+import type {CookieStorageOptions} from '@alchemy/storage';
+import {IStorage} from '@alchemy/storage';
+import {HttpClient} from '@alchemy/api';
+
 export interface ValidationError {
     error: string;
     error_description: string;
@@ -5,8 +9,8 @@ export interface ValidationError {
 
 export type AuthEvent = {
     type: string;
-    preventDefault?: boolean,
-    stopPropagation?: boolean,
+    preventDefault?: boolean;
+    stopPropagation?: boolean;
 };
 
 export type LoginEvent = {
@@ -27,7 +31,9 @@ export type RefreshTokenEvent = {
     tokens: AuthTokens;
 } & AuthEvent;
 
-export type AuthEventHandler<E extends AuthEvent = AuthEvent> = (event: E) => Promise<void>;
+export type AuthEventHandler<E extends AuthEvent = AuthEvent> = (
+    event: E
+) => Promise<void>;
 
 export type TokenResponse = {
     access_token: string;
@@ -50,7 +56,7 @@ export type AuthTokens = {
     deviceTokenExpiresIn?: number;
     deviceTokenExpiresAt?: number;
     tokenType: string;
-}
+};
 
 export type TokenResponseWithTokens = {
     tokens: AuthTokens;
@@ -72,14 +78,47 @@ export type AuthUser = {
     groups: string[];
 };
 
-export type UserNormalizer<U extends AuthUser, UIR extends UserInfoResponse> = (payload: UIR) => U;
+export type KeycloakUser = {} & AuthUser;
+
+export type UserNormalizer<U extends AuthUser, UIR extends UserInfoResponse> = (
+    payload: UIR
+) => U;
 
 declare module 'axios' {
     export interface AxiosRequestConfig {
         anonymous?: boolean;
+        retryAfterNewToken?: boolean;
     }
 }
 
 export type PendingAuthWindow = {
-    pendingAuth?: boolean
+    pendingAuth?: boolean;
 } & Window;
+
+export enum GrantTypeRefreshMethod {
+    refreshToken = 'getTokenFromRefreshToken',
+    clientCredentials = 'getTokenFromClientCredentials',
+}
+
+export type OAuthClientOptions = {
+    storage?: IStorage;
+    clientId: string;
+    clientSecret?: string;
+    baseUrl: string;
+    tokenStorageKey?: string;
+    httpClient?: HttpClient;
+    scope?: string | undefined;
+    cookiesOptions?: CookieStorageOptions['cookiesOptions'];
+    autoRefreshToken?: boolean;
+};
+
+export type KeycloakClientOptions = {
+    realm: string;
+} & OAuthClientOptions;
+
+export enum OAuthEvent {
+    login = 'login',
+    logout = 'logout',
+    refreshToken = 'refreshToken',
+    sessionExpired = 'sessionExpired',
+}

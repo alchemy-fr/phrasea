@@ -6,8 +6,8 @@ import {useTranslation} from 'react-i18next';
 import FieldTranslationsEditDialog, {
     FieldTranslationsEditDialogProps,
 } from './FieldTranslationsEditDialog';
-import {getFieldTranslationCount} from "./localeHelper";
-import {WithTranslations} from "../types";
+import {getFieldTranslationCount} from './localeHelper';
+import {WithTranslations} from '../types';
 
 type Props<T extends WithTranslations> = {
     getData: (() => T) | undefined;
@@ -46,22 +46,24 @@ export default function TranslatedField<T extends WithTranslations>({
 
     return (
         <Stack direction={'row'}>
-            <div style={{
-                flexGrow: 1,
-            }}>
+            <div
+                style={{
+                    flexGrow: 1,
+                }}
+            >
                 {children}
             </div>
             <Tooltip
                 title={t(
                     'lib.form.translations.tooltip',
-                    'Manage translations',
+                    'Manage translations'
                 )}
             >
                 <Button onClick={openTitleTranslations}>
                     <Badge
                         badgeContent={getFieldTranslationCount(
                             getData()?.translations,
-                            field,
+                            field
                         )}
                         color="primary"
                     >
