@@ -7,7 +7,6 @@ namespace App\Command;
 use App\Doctrine\Delete\WorkspaceDelete;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -22,7 +21,7 @@ class DeleteWorkspaceCommand extends Command
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly WorkspaceDelete $workspaceDelete,
-        private readonly LoggerInterface $logger)
+    )
     {
         parent::__construct();
     }
@@ -59,10 +58,11 @@ class DeleteWorkspaceCommand extends Command
 
         if (null === $workspace->getDeletedAt()) {
             $workspace->setDeletedAt(new \DateTimeImmutable());
+            $this->em->persist($workspace);
             $this->em->flush();
         }
 
-        $this->workspaceDelete->deleteWorkspace($workspaceId, $this->logger);
+        $this->workspaceDelete->deleteWorkspace($workspaceId);
         $output->writeln('Done.');
 
         return 0;

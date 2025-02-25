@@ -1,114 +1,157 @@
 .layout-grid {
-  header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
 
-    > * {
-      margin: 10px;
+        > * {
+            margin: 10px;
+        }
     }
-  }
+
+    .asset-title {
+        font-size: 1.2rem;
+    }
+
+    .asset-info-hover {
+        display: none;
+        position: absolute;
+        z-index: 1;
+        left: 0;
+        bottom: 0;
+        color: #FFF;
+        background: rgba(0, 0, 0, 0.5);
+        min-width: 100%;
+        width: auto;
+        text-align: left;
+        padding: 10px;
+        pointer-events: none;
+
+        .asset-title {
+            font-size: 1rem;
+        }
+
+        .description {
+            font-size: 0.8rem;
+        }
+    }
+
+    .asset-thumb:hover {
+        .asset-info-hover {
+            display: block;
+        }
+    }
+
+    .ReactGridGallery_tile-description {
+        position: absolute;
+        bottom: 0;
+        background: transparent;
+    }
 }
 
 .react-images__dialog {
-  .desc {
-    .download-btn {
-      margin-top: 30px;
+    .asset-title {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
     }
-  }
+    .desc {
+        .download-btn {
+            margin-top: 30px;
+        }
+    }
 
-  .video-container {
-    width: 100%;
-  }
+    .video-container {
+        width: 100%;
+    }
 }
 
 .flex-magnifier {
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
 }
 
 #ReactGridGallery {
-  margin-top: 15px;
+    margin-top: 15px;
 }
 
 .lb-asset-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-  .desc {
-    color: #FFF;
+    .desc {
+        color: #FFF;
+
+        @include media-breakpoint-up($mobile-thresold-up) {
+            .description {
+                max-height: calc(90vh - 200px);
+                min-width: 300px;
+                overflow: auto;
+            }
+        }
+    }
+
+    .asset {
+        width: 600px;
+    }
 
     @include media-breakpoint-up($mobile-thresold-up) {
-      .description {
-        max-height: calc(90vh - 200px);
-        min-width: 300px;
-        overflow: auto;
-      }
-    }
-  }
+        flex-direction: row;
 
-  .asset {
-    width: 600px;
-  }
+        > div {
+            margin-left: 15px;
+            margin-right: 15px;
+        }
 
-  @include media-breakpoint-up($mobile-thresold-up) {
-    flex-direction: row;
+        .asset {
+            width: 600px;
+            max-width: 75%;
+        }
 
-    > div {
-      margin-left: 15px;
-      margin-right: 15px;
-    }
+        .desc {
+            max-width: 25%;
+        }
 
-    .asset {
-      width: 600px;
-      max-width: 75%;
+        .flex-magnifier {
+            //max-width: 50vw;
+        }
     }
 
-    .desc {
-      max-width: 25%;
-    }
+    @include media-breakpoint-down($mobile-thresold-down) {
+        flex-direction: column;
+        max-height: 100vh;
 
-    .flex-magnifier {
-      //max-width: 50vw;
-    }
-  }
+        > div {
+            max-width: 100vw;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
 
-  @include media-breakpoint-down($mobile-thresold-down) {
-    flex-direction: column;
-    max-height: 100vh;
+        .asset {
+            max-width: 100%;
+        }
 
-    > div {
-      max-width: 100vw;
-      margin-top: 15px;
-      margin-bottom: 15px;
-    }
+        .desc {
+            padding: 15px;
+            padding-bottom: 50px;
+            overflow: auto;
+        }
 
-    .asset {
-      max-width: 100%;
-    }
+        .flex-magnifier {
+            max-width: 100vw;
+        }
 
-    .desc {
-      padding: 15px;
-      padding-bottom: 50px;
-      overflow: auto;
+        .react-images__view {
+            height: auto;
+        }
     }
-
-    .flex-magnifier {
-      max-width: 100vw;
-    }
-
-    .react-images__view {
-      height: auto;
-    }
-  }
 }
 
 .react-images__track {
-  height: 100vh;
+    height: 100vh;
 }
 
 .react-images__view-wrapper {
-  max-height: 100vh;
+    max-height: 100vh;
 }

@@ -31,7 +31,7 @@ class ESRemoveIndexCommand extends Command
             ->addOption('index', 'i', InputOption::VALUE_REQUIRED)
             ->addOption('remove-olds')
             ->addOption('olds-only')
-            ->setDescription('Remove index are its aliases');
+            ->setDescription('Remove index and its aliases');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
