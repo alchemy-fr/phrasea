@@ -177,7 +177,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         $output->setCollections($data->getCollections()->map(function (CollectionAsset $collectionAsset,
         ): Collection {
             $collection = $collectionAsset->getCollection();
-            $collection->addExtraMetadata('relation', $collectionAsset->getExtraMetadata());
+            $collection->setRelationExtraMetadata($collectionAsset->getExtraMetadata());
 
             return $collection;
         })

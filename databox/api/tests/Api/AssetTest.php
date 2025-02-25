@@ -113,10 +113,8 @@ class AssetTest extends AbstractSearchTestCase
             'collections' => [
                 [
                     'title' => 'Collection #1',
-                    'extraMetadata' => [
-                        'relation' => [
-                            'foo' => 'baz',
-                        ],
+                    'relationExtraMetadata' => [
+                        'foo' => 'baz',
                     ],
                 ],
             ],

@@ -52,6 +52,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->inheritedPrivacy = $data->getInheritedPrivacy();
         $output->setWorkspace($data->getWorkspace());
         $output->setExtraMetadata($data->getExtraMetadata());
+        $output->relationExtraMetadata = $data->getRelationExtraMetadata();
 
         if ($this->hasGroup([
             Collection::GROUP_READ,
