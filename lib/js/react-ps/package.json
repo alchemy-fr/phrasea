@@ -6,7 +6,11 @@
   "license": "MIT",
   "scripts": {
     "prebuild": "pnpm run svgr",
-    "svgr": "svgr -d src/icons -- src/**/*.svg"
+    "svgr": "svgr -d src/icons -- src/**/*.svg",
+    "lint": "eslint src",
+    "lint:fix": "eslint --fix src",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+    "cs": "pnpm lint:fix && pnpm format"
   },
   "main": "./src/index.ts",
   "peerDependencies": {

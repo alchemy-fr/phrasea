@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "public": true,
   "main": "index.ts",
+  "scripts": {
+    "lint": "eslint src",
+    "lint:fix": "eslint --fix src",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+    "cs": "pnpm lint:fix && pnpm format"
+  },
   "dependencies": {
     "@types/js-cookie": "^3.0.6",
     "js-cookie": "^3.0.5"

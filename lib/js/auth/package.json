@@ -11,6 +11,10 @@
     "react": "^18.2.0"
   },
   "scripts": {
+    "lint": "eslint src",
+    "lint:fix": "eslint --fix src",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+    "cs": "pnpm lint:fix && pnpm format",
     "test": "jest"
   },
   "dependencies": {

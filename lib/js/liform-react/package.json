@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "description": "Generate forms from json-schema to use with React (and redux-form)",
   "main": "./src/index.jsx",
-  "scripts": {},
+  "scripts": {
+    "lint": "eslint src",
+    "lint:fix": "eslint --fix src",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+    "cs": "pnpm lint:fix && pnpm format"
+  },
   "keywords": [
     "react",
     "json-schema",

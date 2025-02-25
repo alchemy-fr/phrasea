@@ -6,6 +6,12 @@
   "dependencies": {
     "@novu/react": "^2.6.3"
   },
+  "scripts": {
+    "lint": "eslint src",
+    "lint:fix": "eslint --fix src",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+    "cs": "pnpm lint:fix && pnpm format"
+  },
   "peerDependencies": {
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.16.7",
