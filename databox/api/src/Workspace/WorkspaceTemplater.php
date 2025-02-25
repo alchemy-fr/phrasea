@@ -25,12 +25,15 @@ final readonly class WorkspaceTemplater
 
     public function export(Workspace $workspace): array
     {
+        $renditionClassMap = [];
+        $attributeClassMap = [];
         return [
             'Workspace' => $this->exportWorkspace($workspace),
-            'RenditionClass' => $this->exportRenditionClass($workspace->getId()),
-            'RenditionDefinition' => $this->exportRenditionDefinition($workspace->getId()),
-            'AttributeClass' => $this->exportAttributeClass($workspace->getId()),
-            'AttributeDefinition' => $this->exportAttributeDefinition($workspace->getId()),
+
+            'RenditionClass' => $this->exportRenditionClass($workspace->getId(), $renditionClassMap),
+            'RenditionDefinition' => $this->exportRenditionDefinition($workspace->getId(), $renditionClassMap),
+            'AttributeClass' => $this->exportAttributeClass($workspace->getId(), $attributeClassMap),
+            'AttributeDefinition' => $this->exportAttributeDefinition($workspace->getId(), $attributeClassMap),
             'Tag' => $this->exportTag($workspace->getId()),
         ];
     }
@@ -127,7 +130,7 @@ final readonly class WorkspaceTemplater
         $this->em->persist($ws);
     }
 
-    private function exportRenditionClass(string $workspaceId): array
+    private function exportRenditionClass(string $workspaceId, array &$renditionClassMap): array
     {
         $o = [];
 
@@ -136,8 +139,12 @@ final readonly class WorkspaceTemplater
             'workspace' => $workspaceId,
         ]);
         foreach ($items as $item) {
+            for($slugId = '#'.$item->getName(), $n=2; in_array($slugId, $renditionClassMap); $n++) {
+                $slugId = '#'.$item->getName().'_'.$n;
+            }
+            $renditionClassMap[$item->getId()] = $slugId;
             $o[] = [
-                'id' => $item->getId(),
+                'id' => $slugId,
                 'name' => $item->getName(),
                 'public' => $item->isPublic(),
                 'labels' => $item->getLabels(),
@@ -171,7 +178,7 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    private function exportRenditionDefinition(string $workspaceId): array
+    private function exportRenditionDefinition(string $workspaceId, array $renditionClassMap): array
     {
         $o = [];
 
@@ -179,11 +186,16 @@ final readonly class WorkspaceTemplater
         $items = $this->em->getRepository(RenditionDefinition::class)->findBy([
             'workspace' => $workspaceId,
         ]);
+        $renditionMap = [];
         foreach ($items as $item) {
+            for($slugId = '#'.$item->getName(), $n=2; in_array($slugId, $renditionMap); $n++) {
+                $slugId = '#'.$item->getName().'_'.$n;
+            }
+            $renditionMap[$item->getId()] = $slugId;
             $o[] = [
                 'id' => $item->getId(),
                 'name' => $item->getName(),
-                'class' => $item->getClass()->getId(),
+                'class' => $renditionClassMap[$item->getClass()->getId()]??null,
                 'parent' => $item->getParent()?->getId(),
                 'buildMode' => $item->getBuildMode(),
                 'priority' => $item->getPriority(),
@@ -196,6 +208,13 @@ final readonly class WorkspaceTemplater
                 'labels' => $item->getLabels(),
                 'definition' => $item->getDefinition(),
             ];
+        }
+        $o = array_values($this->orderByParent($o));
+        foreach($o as $k => $v) {
+            $o[$k]['id'] = $renditionMap[$v['id']]??null;
+            if($v['parent']) {
+                $o[$k]['parent'] = $renditionMap[$v['parent']]??null;
+            }
         }
 
         return $o;
@@ -253,7 +272,7 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    private function exportAttributeClass(string $workspaceId): array
+    private function exportAttributeClass(string $workspaceId, array &$attributeClassMap): array
     {
         $o = [];
 
@@ -261,9 +280,14 @@ final readonly class WorkspaceTemplater
         $items = $this->em->getRepository(AttributeClass::class)->findBy([
             'workspace' => $workspaceId,
         ]);
+
         foreach ($items as $item) {
+            for($slugId = '#'.$item->getName(), $n=2; in_array($slugId, $attributeClassMap); $n++) {
+                $slugId = '#'.$item->getName().'_'.$n;
+            }
+            $attributeClassMap[$item->getId()] = $slugId;
             $o[] = [
-                'id' => $item->getId(),
+                'id' => $slugId,
                 'name' => $item->getName(),
                 'editable' => $item->isEditable(),
                 'public' => $item->isPublic(),
@@ -298,7 +322,7 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    private function exportAttributeDefinition(string $workspaceId): array
+    private function exportAttributeDefinition(string $workspaceId, array $attributeClassMap): array
     {
         $o = [];
 
@@ -308,9 +332,8 @@ final readonly class WorkspaceTemplater
         ]);
         foreach ($items as $item) {
             $o[] = [
-                'id' => $item->getId(),
                 'name' => $item->getName(),
-                'class' => $item->getClass()->getId(),
+                'class' => $attributeClassMap[$item->getClass()->getId()]??null,
                 'labels' => $item->getLabels(),
                 'entityType' => $item->getEntityType(),
                 'fallback' => $item->getFallback(),
@@ -377,7 +400,6 @@ final readonly class WorkspaceTemplater
         ]);
         foreach ($items as $item) {
             $o[] = [
-                'id' => $item->getId(),
                 'name' => $item->getName(),
                 'color' => $item->getColor(),
                 'translations' => $item->getTranslations(),
