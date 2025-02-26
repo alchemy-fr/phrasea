@@ -103,10 +103,6 @@ services:
         arguments:
             - !tagged_iterator { tag: 'app.integration', default_index_method: 'getName' }
 
-    App\Integration\IntegrationDataProcessor:
-        arguments:
-            - !tagged_iterator { tag: 'app.integration_data_transformer' }
-
     App\Integration\RemoveBg\RemoveBgClient:
         arguments:
             $cacheDir: '%kernel.cache_dir%/integrations/remove.bg'
