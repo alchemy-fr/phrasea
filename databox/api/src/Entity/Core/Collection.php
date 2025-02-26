@@ -186,9 +186,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     #[ORM\Column(type: Types::STRING, length: 4096, nullable: true)]
     private ?string $key = null;
 
-
     #[Groups(['_'])]
-    #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $relationExtraMetadata = null;
 
     public function __construct()
