@@ -41,7 +41,9 @@ class ExportWorkspaceCommand extends Command
             throw new \InvalidArgumentException(sprintf('Workspace "%s" not found', $input->getArgument('workspace')));
         }
 
-        $output->writeln($this->workspaceTemplater->export($workspace));
+        $output->writeln(
+            json_encode($this->workspaceTemplater->export($workspace), JSON_PRETTY_PRINT)
+        );
 
         return 0;
     }
