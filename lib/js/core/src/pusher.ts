@@ -1,9 +1,9 @@
 import Pusher from 'pusher-js';
-import {PusherEventCallback, UnregisterWebSocket} from "./types";
-import type {Options} from "pusher-js";
+import {PusherEventCallback, UnregisterWebSocket} from './types';
+import type {Options} from 'pusher-js';
 
 function normalizeChannel(channel: string): string {
-    return channel.replace(/[^a-z0-9_\-=@,.;]/ig, '.');
+    return channel.replace(/[^a-z0-9_\-=@,.;]/gi, '.');
 }
 
 export function createPusher({
@@ -24,7 +24,7 @@ export function createPusher({
         disableStats: true,
         enabledTransports: ['ws'],
         cluster: '',
-        ...(options ?? {})
+        ...(options ?? {}),
     });
 
     pusher.connection.bind('error', function (err: any) {
@@ -39,7 +39,7 @@ export function registerPusherWs(
     pusher: Pusher,
     channelName: string,
     event: string,
-    callback: PusherEventCallback,
+    callback: PusherEventCallback
 ): UnregisterWebSocket {
     channelName = normalizeChannel(channelName);
     if (!(pusher as any).connecting) {

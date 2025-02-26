@@ -2,7 +2,7 @@ import React, {useRef} from 'react';
 
 export function useDebounceScroll(
     container: HTMLElement | null | undefined,
-    delay: number = 100,
+    delay: number = 100
 ): number {
     const [scrollTop, setScrollTop] = React.useState(0);
     const timer = useRef<ReturnType<typeof setTimeout>>();
@@ -23,7 +23,7 @@ export function useDebounceScroll(
 
                             return p;
                         }),
-                    delay,
+                    delay
                 );
             };
             container.addEventListener('scroll', listener);

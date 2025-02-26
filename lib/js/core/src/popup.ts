@@ -26,7 +26,8 @@ export function openPopup({
 
     const systemZoom = winWidth / window.screen.availWidth;
     const left = (winWidth - width) / 2 / systemZoom + dualScreenLeft;
-    const top = (winHeight - (height - toolbarHeight)) / 2 / systemZoom + dualScreenTop;
+    const top =
+        (winHeight - (height - toolbarHeight)) / 2 / systemZoom + dualScreenTop;
     const newWindow = window.open(
         url,
         title ?? 'popup',
@@ -36,7 +37,7 @@ export function openPopup({
       height=${height / systemZoom},
       top=${top},
       left=${left}
-      `,
+      `
     );
 
     if (!newWindow) {

@@ -1,6 +1,6 @@
-import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce'
-import React from "react";
-import {OAuthClient} from "@alchemy/auth";
+import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
+import React from 'react';
+import {OAuthClient} from '@alchemy/auth';
 
 type NavigateOptions = {
     replace?: boolean;
@@ -8,10 +8,10 @@ type NavigateOptions = {
 
 type Props = {
     navigate: (path: string, options?: NavigateOptions) => void;
-    oauthClient: OAuthClient<any>,
-    successUri?: string,
-    successHandler?: () => void,
-    errorHandler?: (e: any) => void,
+    oauthClient: OAuthClient<any>;
+    successUri?: string;
+    successHandler?: () => void;
+    errorHandler?: (e: any) => void;
 };
 
 export type {Props as UseAuthorizationCodeProps};
@@ -42,10 +42,8 @@ export function useAuthorizationCode({
 
         const state = urlParams.get('state');
 
-        oauthClient.getTokenFromAuthCode(
-            code,
-            window.location.href.split('?')[0]
-        )
+        oauthClient
+            .getTokenFromAuthCode(code, window.location.href.split('?')[0])
             .then(() => {
                 if (successHandler) {
                     successHandler();
@@ -53,7 +51,10 @@ export function useAuthorizationCode({
                     return;
                 }
 
-                const doNavigate = (uri: string, options?: NavigateOptions): void => {
+                const doNavigate = (
+                    uri: string,
+                    options?: NavigateOptions
+                ): void => {
                     if (window.opener) {
                         try {
                             if (window.opener.pendingAuth) {
@@ -93,11 +94,11 @@ export function useAuthorizationCode({
 
                 doNavigate(successUri ?? '/', {replace: true});
             })
-            .catch ((e) => {
+            .catch(e => {
                 if (errorHandler) {
                     errorHandler(e);
 
-                    return ;
+                    return;
                 }
 
                 setError(e);
@@ -107,5 +108,5 @@ export function useAuthorizationCode({
     return {
         error,
         hasCode: Boolean(code),
-    }
+    };
 }

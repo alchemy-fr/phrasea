@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react';
 import {CaptureContext} from '@sentry/types';
-import {SentryConfig} from "./types";
+import {SentryConfig} from './types';
 
 export function initSentry({
     sentryDsn,
@@ -45,28 +45,30 @@ export function initSentry({
         },
     });
 
-    Sentry.setTag("app.name", appName);
-    Sentry.setTag("app.id", appId);
+    Sentry.setTag('app.name', appName);
+    Sentry.setTag('app.id', appId);
 }
 
-export function setSentryUser(user: {
-    id: string;
-    username: string;
-} | undefined) {
+export function setSentryUser(
+    user:
+        | {
+              id: string;
+              username: string;
+          }
+        | undefined
+) {
     console.log('setSentryUser', user);
     Sentry.setUser(
         user
             ? {
-                id: user.id,
-                email: user.username,
-            }
-            : null,
+                  id: user.id,
+                  email: user.username,
+              }
+            : null
     );
 }
-
 
 export function logError(error: any, captureContext?: CaptureContext): void {
     console.error(error);
     Sentry.captureException(error, captureContext);
 }
-

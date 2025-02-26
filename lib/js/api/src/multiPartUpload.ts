@@ -1,5 +1,5 @@
-import {HttpClient} from "./httpClient";
-import {AxiosProgressEvent} from "axios";
+import {AxiosProgressEvent} from 'axios';
+import {HttpClient} from './types';
 
 export type MultipartUpload = {
     uploadId: string;
@@ -9,7 +9,7 @@ export type MultipartUpload = {
 export type UploadPart = {
     ETag: string;
     PartNumber: number;
-}
+};
 
 export type MultipartUploadOptions = {
     uploadId?: string;
@@ -24,20 +24,24 @@ export type MultipartUploadOptions = {
     onProgress?: (event: AxiosProgressEvent) => void;
     receiveAbortController?: (abortController: AbortController) => void;
     fileChunkSize?: number;
-}
+};
 
 const minChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3
 
-export async function multipartUpload(apiClient: HttpClient, file: File, {
-    uploadParts: initialUploadParts,
-    uploadId: initialUploadId,
-    uploadPath = '/uploads',
-    onUploadInit,
-    onPartUploaded,
-    onProgress,
-    receiveAbortController,
-    fileChunkSize = minChunkSize,
-}: MultipartUploadOptions = {}): Promise<MultipartUpload> {
+export async function multipartUpload(
+    apiClient: HttpClient,
+    file: File,
+    {
+        uploadParts: initialUploadParts,
+        uploadId: initialUploadId,
+        uploadPath = '/uploads',
+        onUploadInit,
+        onPartUploaded,
+        onProgress,
+        receiveAbortController,
+        fileChunkSize = minChunkSize,
+    }: MultipartUploadOptions = {}
+): Promise<MultipartUpload> {
     const parts: UploadPart[] = initialUploadParts ?? [];
 
     if (fileChunkSize < minChunkSize) {
@@ -90,9 +94,7 @@ export async function multipartUpload(apiClient: HttpClient, file: File, {
         const {url} = getUploadUrlResp.data;
 
         const blob =
-            index < numChunks
-                ? file.slice(start, end)
-                : file.slice(start);
+            index < numChunks ? file.slice(start, end) : file.slice(start);
 
         const abortControllerPut = new AbortController();
         receiveAbortController?.(abortControllerPut);
@@ -110,9 +112,11 @@ export async function multipartUpload(apiClient: HttpClient, file: File, {
             },
         });
 
-        const etag = (uploadResp.headers as {
-            etag: string;
-        }).etag;
+        const etag = (
+            uploadResp.headers as {
+                etag: string;
+            }
+        ).etag;
 
         parts.push({
             ETag: etag,

@@ -132,7 +132,7 @@ export default function RSelectWidget<
                                         : valueToOption(
                                               isMulti || false,
                                               value || undefined,
-                                              indexedOptions,
+                                              indexedOptions
                                           )
                                 }
                                 onChange={(newValue, meta) => {
@@ -140,7 +140,7 @@ export default function RSelectWidget<
                                         ? allowCreate
                                             ? newValue
                                             : (newValue as Option[]).map(
-                                                  v => v.value,
+                                                  v => v.value
                                               )
                                         : allowCreate
                                           ? newValue
@@ -157,7 +157,7 @@ export default function RSelectWidget<
                                     error,
                                     styles,
                                     inputHeight,
-                                    menuWidth,
+                                    menuWidth
                                 )}
                             />
                         </>
@@ -183,7 +183,7 @@ export default function RSelectWidget<
                 value={valueToOption(
                     isMulti || false,
                     value as any,
-                    indexedOptions,
+                    indexedOptions
                 )}
                 isClearable={!required}
                 isMulti={isMulti}
@@ -193,7 +193,7 @@ export default function RSelectWidget<
                     error,
                     styles,
                     inputHeight,
-                    menuWidth,
+                    menuWidth
                 )}
             />
         </>

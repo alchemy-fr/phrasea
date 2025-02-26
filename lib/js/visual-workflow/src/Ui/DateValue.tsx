@@ -1,4 +1,4 @@
-import moment from "moment/moment";
+import moment from 'moment/moment';
 
 type Props = {
     date: string | undefined;
@@ -7,10 +7,9 @@ type Props = {
 export default function DateValue({date}: Props) {
     const m = date ? moment(date) : undefined;
 
-    return <span
-        className={'workflow-date'}
-        title={m?.format('LL LTS')}
-    >
-        {m ? m.fromNow() : '-'}
-    </span>
+    return (
+        <span className={'workflow-date'} title={m?.format('LL LTS')}>
+            {m ? m.fromNow() : '-'}
+        </span>
+    );
 }

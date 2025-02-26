@@ -1,7 +1,6 @@
 import React from 'react';
-import VisualWorkflow from "./VisualWorkflow";
-import {OnRerun, Workflow} from "./types";
-
+import VisualWorkflow from './VisualWorkflow';
+import {OnRerun, Workflow} from './types';
 
 type Props = {
     workflow: Workflow;
@@ -22,14 +21,11 @@ export default function WorkflowUpdater({
                 ...s,
                 jobs: s.jobs.map(j => ({
                     ...j,
-                    name: `>${j.name}`
+                    name: `>${j.name}`,
                 })),
             })),
         }));
-    }
+    };
 
-    return <VisualWorkflow
-        workflow={workflow}
-        onRerunJob={rerun}
-    />
+    return <VisualWorkflow workflow={workflow} onRerunJob={rerun} />;
 }

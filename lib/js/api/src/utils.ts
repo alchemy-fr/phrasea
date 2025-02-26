@@ -1,5 +1,5 @@
-import axios, {AxiosError} from "axios";
-import type {SimpleAxiosError} from "./types";
+import axios, {AxiosError} from 'axios';
+import type {SimpleAxiosError} from './types';
 
 export const hydraTitleKey = 'hydra:title';
 export const hydraDescriptionKey = 'hydra:description';
@@ -9,9 +9,9 @@ export function getApiResponseError(e: any): string | undefined {
         const status = e.response?.status ?? 0;
         const data = e.response.data;
         if (status === 422 && data.violations) {
-            return data.violations.map((v: {
-                message: string;
-            }) => v.message).join("\n")
+            return data.violations
+                .map((v: {message: string}) => v.message)
+                .join('\n');
         }
 
         if (data[hydraDescriptionKey]) {

@@ -6,6 +6,12 @@
   "keywords": [],
   "main": "index.ts",
   "license": "MIT",
+  "scripts": {
+    "lint": "eslint src",
+    "lint:fix": "eslint --fix src",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+    "cs": "pnpm lint:fix && pnpm format"
+  },
   "peerDependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",

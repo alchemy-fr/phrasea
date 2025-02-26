@@ -7,7 +7,7 @@ namespace App\Integration;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
 
-interface WorkflowIntegrationInterface
+interface WorkflowIntegrationInterface extends IntegrationInterface
 {
     /**
      * @return Job[]

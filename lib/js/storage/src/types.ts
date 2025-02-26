@@ -1,4 +1,4 @@
-// @ts-ignore Unused Cookies
+// @ts-expect-error Unused import
 import Cookies from 'js-cookie';
 
 export type IStorage = {
@@ -9,13 +9,13 @@ export type IStorage = {
     setItem(key: string, value: string, options?: StorageSetOptions): void;
 
     clear(): void;
-}
+};
 
 export type StorageSetOptions = {
     expires?: number;
-}
+};
 
 export type CookieStorageOptions = {
     cookiesOptions?: Cookies.CookieAttributes | undefined;
-    fallback?: boolean,
+    fallback?: boolean;
 };

@@ -12,7 +12,7 @@ export function createSelectStyles<
     error?: boolean,
     styles: StylesConfig<Option, IsMulti, Group> = {},
     inputHeight: number = 56,
-    menuWidth?: number,
+    menuWidth?: number
 ): StylesConfig<Option, IsMulti, Group> {
     return {
         menuPortal: base => ({
@@ -48,17 +48,17 @@ export function createSelectStyles<
                     ? alpha(theme.palette.primary.main, 0.1)
                     : undefined,
         }),
-        input: (provided) => ({
+        input: provided => ({
             ...provided,
             margin: '0px',
         }),
 
-        multiValue: (provided) => ({
+        multiValue: provided => ({
             ...provided,
             fontSize: 20,
         }),
 
-        indicatorsContainer: (provided) => ({
+        indicatorsContainer: provided => ({
             ...provided,
             height: inputHeight,
         }),

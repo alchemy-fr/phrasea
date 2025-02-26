@@ -4,26 +4,28 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiProperty;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
+use Ramsey\Uuid\Uuid;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
-use App\Controller\CreateAssetAction;
-use App\Controller\DeleteAssetsAction;
-use App\Controller\GetAssetWithSlugAction;
-use App\Entity\Traits\ClientAnnotationsTrait;
-use App\Repository\AssetRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
+use Ramsey\Uuid\UuidInterface;
+use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
-use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
+use ApiPlatform\Metadata\ApiFilter;
+use App\Repository\AssetRepository;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use App\Controller\CreateAssetAction;
+use App\Controller\DeleteAssetsAction;
+use ApiPlatform\Metadata\GetCollection;
+use App\Controller\GetAssetWithSlugAction;
+use Doctrine\Common\Collections\Collection;
+use App\Entity\Traits\ClientAnnotationsTrait;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -282,6 +284,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
 
 )]
+#[ApiFilter(filterClass: OrderFilter::class, properties: ['title', 'position' => 'ASC', 'createdAt' => 'ASC'],  arguments: ['orderParameterName' => 'order'])]
 class Asset implements MediaInterface, \Stringable
 {
     use ClientAnnotationsTrait;

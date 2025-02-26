@@ -13,7 +13,9 @@ import {getConfig, getStrict} from '../configLoader';
 import {Logger} from 'winston';
 import {createHttpClient} from '../lib/axios';
 import {
-    configureClientCredentialsGrantType,
+    configureClientAuthentication,
+    configureClientCredentials401Retry,
+    GrantTypeRefreshMethod,
     KeycloakUserInfoResponse,
     OAuthClient,
 } from '@alchemy/auth';
@@ -40,7 +42,12 @@ function createApiClient(
         headers: {Accept: 'application/ld+json'},
     });
 
-    configureClientCredentialsGrantType(client, oauthClient);
+    configureClientAuthentication(
+        client,
+        oauthClient,
+        GrantTypeRefreshMethod.clientCredentials
+    );
+    configureClientCredentials401Retry(client, oauthClient);
 
     return {
         client,

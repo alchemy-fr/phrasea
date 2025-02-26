@@ -56,6 +56,27 @@ final readonly class NovuClient
         ]);
     }
 
+
+    public function broadcast(
+        string $notificationId,
+        array $parameters = [],
+        array $options = [],
+    ): void {
+        $data = [
+            'name' => $notificationId,
+            'payload' => empty($parameters) ? new \stdClass : $parameters,
+        ];
+
+        $transactionId = $options['transactionId'] ?? null;
+        if (null !== $transactionId) {
+            $data['transactionId'] = $transactionId;
+        }
+
+        $this->request('POST', '/v1/events/trigger/broadcast', [
+            'json' => $data,
+        ]);
+    }
+
     private function request(string $method, string $url, array $options = []): ResponseInterface
     {
         return $this->clientExceptionListener->wrapClientRequest(function () use ($method, $url, $options): ResponseInterface {

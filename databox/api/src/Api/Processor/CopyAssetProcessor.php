@@ -64,7 +64,8 @@ class CopyAssetProcessor implements ProcessorInterface
                 $asset->getId(),
                 $data->destination,
                 $symlink,
-                $options
+                $options,
+                $data->getExtraMetadata()
             ));
         }
 

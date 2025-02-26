@@ -2,19 +2,22 @@ import {
     Rule,
     RuleConstraint,
     RuleConstraintType,
-    RuleMatcher, SkipArgumentsRuleConstraint, SkipChildrenRuleConstraint,
+    RuleMatcher,
+    SkipArgumentsRuleConstraint,
+    SkipChildrenRuleConstraint,
     SkipRuleConstraint,
-    SubRuleRuleConstraint
-} from "../types";
-import {Node} from "ts-morph";
+    SubRuleRuleConstraint,
+} from '../types';
+import {Node} from 'ts-morph';
 
 export class MatcherRule implements Rule {
     constructor(
         public readonly name: string,
         private readonly matcher: RuleMatcher,
-        private readonly constraints: RuleConstraint[] = [{type: RuleConstraintType.Skip}] as SkipRuleConstraint[],
-    ) {
-    }
+        private readonly constraints: RuleConstraint[] = [
+            {type: RuleConstraintType.Skip},
+        ] as SkipRuleConstraint[]
+    ) {}
 
     getConstraints(node: Node): RuleConstraint[] {
         if (this.matcher.matches(node)) {
@@ -29,9 +32,10 @@ export class ChainedMatcherRule implements Rule {
     constructor(
         public readonly name: string,
         private readonly matchers: RuleMatcher[],
-        private readonly constraints: RuleConstraint[] = [{type: RuleConstraintType.Skip}] as SkipRuleConstraint[],
-    ) {
-    }
+        private readonly constraints: RuleConstraint[] = [
+            {type: RuleConstraintType.Skip},
+        ] as SkipRuleConstraint[]
+    ) {}
 
     getConstraints(node: Node): RuleConstraint[] {
         if (this.matchers[0].matches(node)) {
@@ -43,10 +47,10 @@ export class ChainedMatcherRule implements Rule {
                             new ChainedMatcherRule(
                                 this.name,
                                 this.matchers.slice(1),
-                                this.constraints,
-                            )
-                        ]
-                    } as SubRuleRuleConstraint
+                                this.constraints
+                            ),
+                        ],
+                    } as SubRuleRuleConstraint,
                 ];
             }
 
@@ -57,23 +61,23 @@ export class ChainedMatcherRule implements Rule {
     }
 }
 
-export function createSkipFirstChildConstraint(): SkipChildrenRuleConstraint
-{
+export function createSkipFirstChildConstraint(): SkipChildrenRuleConstraint {
     return createSkipChildrenConstraint([0]);
 }
 
-export function createSkipChildrenConstraint(positions: number[]): SkipChildrenRuleConstraint
-{
+export function createSkipChildrenConstraint(
+    positions: number[]
+): SkipChildrenRuleConstraint {
     return {type: RuleConstraintType.skipChildren, positions: positions};
 }
 
-export function createSkipFirstArgumentConstraint(): SkipArgumentsRuleConstraint
-{
+export function createSkipFirstArgumentConstraint(): SkipArgumentsRuleConstraint {
     return createSkipArgumentsConstraint([0]);
 }
 
-export function createSkipArgumentsConstraint(args: number[]): SkipArgumentsRuleConstraint
-{
+export function createSkipArgumentsConstraint(
+    args: number[]
+): SkipArgumentsRuleConstraint {
     return {type: RuleConstraintType.skipArguments, arguments: args};
 }
 

@@ -2,6 +2,12 @@
   "name": "@alchemy/react-hooks",
   "version": "1.0.0",
   "public": true,
+  "scripts": {
+    "lint": "eslint src",
+    "lint:fix": "eslint --fix src",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+    "cs": "pnpm lint:fix && pnpm format"
+  },
   "files": [
     "src/createStateSetterProxy.ts",
     "src/useDebounce.ts",

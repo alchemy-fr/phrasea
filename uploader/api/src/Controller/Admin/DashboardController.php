@@ -38,9 +38,8 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
         yield MenuItem::subMenu('Uploads', 'fas fa-folder-open')->setSubItems($submenu2);
         yield MenuItem::subMenu('Data', 'fas fa-folder-open')->setSubItems($submenu3);
-
-        yield $this->createDevMenu();
-
+        yield MenuItem::linkToRoute('Notification', 'fas fa-bell', 'alchemy_notify_admin_index');
         yield MenuItem::linkToCrud('Global Config', 'fa fa-gear', ConfiguratorEntry::class);
+        yield $this->createDevMenu();
     }
 }

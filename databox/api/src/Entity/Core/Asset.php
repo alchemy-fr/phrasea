@@ -48,6 +48,7 @@ use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Entity\FollowableInterface;
 use App\Entity\ObjectTitleInterface;
+use App\Entity\Traits\ExtraMetadataTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\NotificationSettingsTrait;
 use App\Entity\Traits\OwnerIdTrait;
@@ -210,6 +211,8 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     use OwnerIdTrait;
     use WorkspacePrivacyTrait;
     use NotificationSettingsTrait;
+    use ExtraMetadataTrait;
+
     final public const string GROUP_READ = 'asset:read';
     final public const string GROUP_LIST = 'asset:index';
     final public const string GROUP_WRITE = 'asset:w';
@@ -358,7 +361,12 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         $this->title = $title;
     }
 
-    public function addToCollection(Collection $collection, bool $checkUnique = false, bool $assignReferenceIfNull = false): CollectionAsset
+    public function addToCollection(
+        Collection $collection,
+        bool $checkUnique = false,
+        bool $assignReferenceIfNull = false,
+        ?array $extraMetadata = null,
+    ): CollectionAsset
     {
         if ($collection->getWorkspace() !== $this->getWorkspace()) {
             throw new \InvalidArgumentException('Cannot add to a collection from a different workspace');
@@ -377,6 +385,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         }
 
         $assetCollection = new CollectionAsset();
+        $assetCollection->setExtraMetadata($extraMetadata);
         $assetCollection->setAsset($this);
         $assetCollection->setCollection($collection);
 

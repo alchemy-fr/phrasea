@@ -4,3 +4,4 @@
 .vscode
 .idea
 dist
+/src/icons/Menu.js

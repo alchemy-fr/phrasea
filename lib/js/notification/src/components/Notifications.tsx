@@ -1,8 +1,7 @@
 import {Bell, Inbox, InboxContent} from '@novu/react';
-import {IconButton, Popover} from "@mui/material";
-import React from "react";
-import {NotificationUriHandler} from "../types";
-
+import {IconButton, Popover} from '@mui/material';
+import React from 'react';
+import {NotificationUriHandler} from '../types';
 
 type Props = {
     appIdentifier: string;
@@ -31,56 +30,58 @@ export default function Notifications({
     const open = Boolean(anchorEl);
     const popoverId = 'notifications-popover';
 
-    return <>
-        <Inbox
-            applicationIdentifier={appIdentifier}
-            subscriberId={userId}
-            socketUrl={socketUrl}
-            backendUrl={apiUrl}
-            routerPush={uriHandler}
-        >
-            <IconButton
-                aria-owns={open ? popoverId : undefined}
-                aria-haspopup="true"
-                onClick={handlePopoverOpen}
-                sx={{
-                    '.nt-text-foreground': {
-                        color: 'primary.contrastText',
-                    }
-                }}
+    return (
+        <>
+            <Inbox
+                applicationIdentifier={appIdentifier}
+                subscriberId={userId}
+                socketUrl={socketUrl}
+                backendUrl={apiUrl}
+                routerPush={uriHandler}
             >
-                <Bell/>
-            </IconButton>
+                <IconButton
+                    aria-owns={open ? popoverId : undefined}
+                    aria-haspopup="true"
+                    onClick={handlePopoverOpen}
+                    sx={{
+                        '.nt-text-foreground': {
+                            color: 'primary.contrastText',
+                        },
+                    }}
+                >
+                    <Bell />
+                </IconButton>
 
-            <Popover
-                id={popoverId}
-                open={open}
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'right',
-                }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}
-                onClose={handlePopoverClose}
-                slotProps={{
-                    paper: {
-                        sx: {
-                            minWidth: {
-                                xs: '100vw',
-                                sm: 500,
+                <Popover
+                    id={popoverId}
+                    open={open}
+                    anchorEl={anchorEl}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                    onClose={handlePopoverClose}
+                    slotProps={{
+                        paper: {
+                            sx: {
+                                'minWidth': {
+                                    xs: '100vw',
+                                    sm: 500,
+                                },
+                                '.novu': {
+                                    width: '100%',
+                                },
                             },
-                            '.novu': {
-                                width: '100%',
-                            }
-                        }
-                    }
-                }}
-            >
-                <InboxContent/>
-            </Popover>
-        </Inbox>
-    </>
+                        },
+                    }}
+                >
+                    <InboxContent />
+                </Popover>
+            </Inbox>
+        </>
+    );
 }

@@ -5,14 +5,14 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 type Resources = {[language: string]: ResourceLanguage};
 
 type Options = {
-    resources: Resources,
+    resources: Resources;
     defaultNS?: I18nextProviderProps['defaultNS'];
     locales?: string[];
     defaultLocale?: string;
     onLanguageChanged?: (lng: string | undefined) => void;
     initOptions?: InitOptions;
-    initReactI18next: ThirdPartyModule,
-}
+    initReactI18next: ThirdPartyModule;
+};
 
 const defaultLocales = ['en', 'fr', 'de', 'es', 'zh'];
 const rootDefaultLocale = 'en';
@@ -37,9 +37,8 @@ export function createI18N({
                 escapeValue: false, // not needed for react as it escapes by default
             },
             resources,
-            ...initOptions
+            ...initOptions,
         });
-
 
     languageChanged(i18n.language);
     i18n.on('languageChanged', (lng: string | undefined): void => {
@@ -64,7 +63,12 @@ export function languageChanged(lng: string | undefined): void {
     setHtmlLangAttr(lng);
 }
 
-export function appendNS(resources: Resources, ns: string, r: {[language: string]: ResourceLanguage}, locales = defaultLocales): void {
+export function appendNS(
+    resources: Resources,
+    ns: string,
+    r: {[language: string]: ResourceLanguage},
+    locales = defaultLocales
+): void {
     locales.forEach(l => {
         if (!resources[l]) {
             resources[l] = {[ns]: r[l]};
@@ -74,7 +78,11 @@ export function appendNS(resources: Resources, ns: string, r: {[language: string
     });
 }
 
-export function createNS(r: {[language: string]: ResourceLanguage}, ns: string = rootDefaultNs, locales = defaultLocales): Resources {
+export function createNS(
+    r: {[language: string]: ResourceLanguage},
+    ns: string = rootDefaultNs,
+    locales = defaultLocales
+): Resources {
     const resources: Resources = {};
     locales.forEach(l => {
         if (!resources[l]) {

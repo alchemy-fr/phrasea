@@ -1,5 +1,3 @@
-import DashboardMenu from "./components/DashboardMenu/DashboardMenu";
+import DashboardMenu from './components/DashboardMenu/DashboardMenu';
 
-export {
-    DashboardMenu,
-};
+export {DashboardMenu};

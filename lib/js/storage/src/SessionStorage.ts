@@ -1,5 +1,5 @@
-import MemoryStorage from "./MemoryStorage";
-import {IStorage} from "./types";
+import MemoryStorage from './MemoryStorage';
+import {IStorage} from './types';
 
 declare global {
     interface Window {
@@ -11,6 +11,9 @@ export function getSessionStorage(): IStorage {
     try {
         return window.sessionStorage;
     } catch (e) {
-        return window.sessionStorageFallback ?? (window.sessionStorageFallback = new MemoryStorage());
+        return (
+            window.sessionStorageFallback ??
+            (window.sessionStorageFallback = new MemoryStorage())
+        );
     }
 }

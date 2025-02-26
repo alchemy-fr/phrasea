@@ -6,7 +6,7 @@ namespace App\Api\Serializer;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\WebhookBundle\Normalizer\NormalizerContextBuilderInterface;
-use ApiPlatform\Serializer\SerializerContextBuilderInterface;
+use ApiPlatform\State\SerializerContextBuilderInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 
