@@ -301,7 +301,6 @@ class Asset implements MediaInterface, \Stringable
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     private UuidInterface $id;
 
-    #[ApiProperty]
     #[Groups([Publication::GROUP_READ, self::GROUP_READ])]
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $assetId = null;
@@ -313,12 +312,10 @@ class Asset implements MediaInterface, \Stringable
     #[ORM\Column(type: Types::BIGINT, options: ['unsigned' => true])]
     private ?string $size = null;
 
-    #[ApiProperty]
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $title = null;
 
-    #[ApiProperty]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $description = null;
@@ -327,17 +324,14 @@ class Asset implements MediaInterface, \Stringable
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?array $translations = null;
 
-    #[ApiProperty(iris: ['http://schema.org/name'])]
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $originalName = null;
 
-    #[ApiProperty]
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_LIST])]
     private ?string $mimeType = null;
 
-    #[ApiProperty]
     #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Groups(['publication:admin:read'])]
     private ?string $ownerId = null;
@@ -345,12 +339,10 @@ class Asset implements MediaInterface, \Stringable
     /**
      * Direct access to asset.
      */
-    #[ApiProperty]
     #[Groups([Publication::GROUP_READ, self::GROUP_READ])]
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     protected ?string $slug = null;
 
-    #[ApiProperty]
     #[ORM\Column(type: Types::SMALLINT, options: ['default' => 0])]
     protected int $position = 0;
 
@@ -372,7 +364,6 @@ class Asset implements MediaInterface, \Stringable
     /**
      * Location latitude.
      */
-    #[ApiProperty]
     #[ORM\Column(type: Types::FLOAT, nullable: true)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?float $lat = null;
@@ -380,12 +371,10 @@ class Asset implements MediaInterface, \Stringable
     /**
      * Location longitude.
      */
-    #[ApiProperty]
     #[ORM\Column(type: Types::FLOAT, nullable: true)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?float $lng = null;
 
-    #[ApiProperty]
     #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups(['asset:admin:read'])]
     #[Assert\All([
@@ -421,7 +410,6 @@ class Asset implements MediaInterface, \Stringable
     /**
      * Location altitude.
      */
-    #[ApiProperty]
     #[ORM\Column(type: Types::FLOAT, nullable: true)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?float $altitude = null;
