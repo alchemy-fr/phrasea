@@ -38,24 +38,20 @@ class DownloadRequest
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     private UuidInterface $id;
 
-    #[ApiProperty]
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $email = null;
 
     #[ORM\Column(type: Types::STRING, length: 5, nullable: true)]
     protected ?string $locale = null;
 
-    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/Publication'])]
     #[ORM\ManyToOne(targetEntity: Publication::class)]
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
     private ?Publication $publication = null;
 
-    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/Asset'])]
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?Asset $asset = null;
 
-    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/SubDefinition'])]
     #[ORM\ManyToOne(targetEntity: SubDefinition::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?SubDefinition $subDefinition = null;
