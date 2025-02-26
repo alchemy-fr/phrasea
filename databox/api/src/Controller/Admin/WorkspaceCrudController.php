@@ -7,7 +7,7 @@ use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\WorkspaceTemplate;
-use App\Repository\Core\WorkspaceTemplateRepository;
+use App\Repository\Template\WorkspaceTemplateRepository;
 use App\Workspace\WorkspaceTemplater;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -32,9 +32,8 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         private readonly UserChoiceField $userChoiceField,
         private readonly WorkspaceTemplateRepository $workspaceTemplateRepository,
         private readonly WorkspaceTemplater $workspaceTemplater,
-        private readonly AdminUrlGenerator $adminUrlGenerator
-    )
-    {
+        private readonly AdminUrlGenerator $adminUrlGenerator,
+    ) {
     }
 
     public static function getEntityFqcn(): string
@@ -115,7 +114,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
             ->onlyOnDetail();
         yield AssociationField::new('renditionDefinitions')
             ->onlyOnDetail();
-        yield ChoiceField::new('applyWorkspaceTemplate', null,)
+        yield ChoiceField::new('applyWorkspaceTemplate', null)
             ->setFormTypeOption('mapped', false)
             ->setChoices($this->getTemplateChoice());
         yield AssociationField::new('attributeDefinitions')
@@ -127,7 +126,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
     private function getTemplateChoice()
     {
         $templateChoices = [];
-        foreach($this->workspaceTemplateRepository->findAll() as $template) {
+        foreach ($this->workspaceTemplateRepository->findAll() as $template) {
             $templateChoices[$template->getName()] = $template->getId();
         }
 
@@ -148,12 +147,12 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
 
     private function applyWorkspaceTemplate(Workspace $workspace)
     {
-        $templateId = ($this->getContext()->getRequest()->request->all('Workspace'))['applyWorkspaceTemplate'];
-        if($templateId) {
+        $templateId = $this->getContext()->getRequest()->request->all('Workspace')['applyWorkspaceTemplate'];
+        if ($templateId) {
             try {
                 /** @var WorkspaceTemplate $t */
                 $t = $this->workspaceTemplateRepository->findOneBy(['id' => $templateId]);
-                if($t && $t->getData()) {
+                if ($t && $t->getData()) {
                     $this->workspaceTemplater->importToWorkspace($workspace, $t->getData());
                 }
             } catch (\Throwable $e) {

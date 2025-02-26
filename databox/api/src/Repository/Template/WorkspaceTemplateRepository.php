@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Repository\Core;
+namespace App\Repository\Template;
 
 use App\Entity\Template\WorkspaceTemplate;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
