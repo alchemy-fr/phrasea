@@ -27,6 +27,7 @@ final readonly class WorkspaceTemplater
     {
         $renditionClassMap = [];
         $attributeClassMap = [];
+
         return [
             'Workspace' => $this->exportWorkspace($workspace),
 
@@ -40,7 +41,7 @@ final readonly class WorkspaceTemplater
 
     public function saveWorkspaceAsTemplate(Workspace $workspace, ?string $name = null): WorkspaceTemplate
     {
-        if(!$name) {
+        if (!$name) {
             $name = $workspace->getName();
         }
         $wsTemplate = new WorkspaceTemplate();
@@ -79,28 +80,28 @@ final readonly class WorkspaceTemplater
 
     public function importToWorkspace(Workspace $ws, array $data, bool $addTransaction = true): void
     {
-        if($addTransaction) {
+        if ($addTransaction) {
             $this->em->beginTransaction();
         }
         try {
-            $this->importWorkspace($ws, $data['Workspace']??[]);
+            $this->importWorkspace($ws, $data['Workspace'] ?? []);
 
             $attributeClassMap = [];
-            $this->importAttributeClass($ws, $data['AttributeClass']??[], $attributeClassMap);
-            $this->importAttributeDefinition($ws, $data['AttributeDefinition']??[], $attributeClassMap);
+            $this->importAttributeClass($ws, $data['AttributeClass'] ?? [], $attributeClassMap);
+            $this->importAttributeDefinition($ws, $data['AttributeDefinition'] ?? [], $attributeClassMap);
 
             $renditionClassMap = [];
-            $this->importRenditionClass($ws, $data['RenditionClass']??[], $renditionClassMap);
-            $this->importRenditionDefinition($ws, $data['RenditionDefinition']??[], $renditionClassMap);
+            $this->importRenditionClass($ws, $data['RenditionClass'] ?? [], $renditionClassMap);
+            $this->importRenditionDefinition($ws, $data['RenditionDefinition'] ?? [], $renditionClassMap);
 
-            $this->importTag($ws, $data['Tag']??[]);
+            $this->importTag($ws, $data['Tag'] ?? []);
 
             $this->em->flush();
-            if($addTransaction) {
+            if ($addTransaction) {
                 $this->em->commit();
             }
         } catch (\Throwable $e) {
-            if($addTransaction) {
+            if ($addTransaction) {
                 $this->em->rollback();
             }
             throw $e;
@@ -118,13 +119,13 @@ final readonly class WorkspaceTemplater
 
     private function importWorkspace(Workspace $ws, array $data): void
     {
-        if(array_key_exists('public', $data)) {
+        if (array_key_exists('public', $data)) {
             $ws->setPublic($data['public']);
         }
-        if(array_key_exists('enabledLocales', $data)) {
+        if (array_key_exists('enabledLocales', $data)) {
             $ws->setEnabledLocales($data['enabledLocales']);
         }
-        if(array_key_exists('localeFallbacks', $data)) {
+        if (array_key_exists('localeFallbacks', $data)) {
             $ws->setLocaleFallbacks($data['localeFallbacks']);
         }
         $this->em->persist($ws);
@@ -139,7 +140,7 @@ final readonly class WorkspaceTemplater
             'workspace' => $workspaceId,
         ]);
         foreach ($items as $item) {
-            for($slugId = '#'.$item->getName(), $n=2; in_array($slugId, $renditionClassMap); $n++) {
+            for ($slugId = '#'.$item->getName(), $n = 2; in_array($slugId, $renditionClassMap); ++$n) {
                 $slugId = '#'.$item->getName().'_'.$n;
             }
             $renditionClassMap[$item->getId()] = $slugId;
@@ -188,14 +189,14 @@ final readonly class WorkspaceTemplater
         ]);
         $renditionMap = [];
         foreach ($items as $item) {
-            for($slugId = '#'.$item->getName(), $n=2; in_array($slugId, $renditionMap); $n++) {
+            for ($slugId = '#'.$item->getName(), $n = 2; in_array($slugId, $renditionMap); ++$n) {
                 $slugId = '#'.$item->getName().'_'.$n;
             }
             $renditionMap[$item->getId()] = $slugId;
             $o[] = [
                 'id' => $item->getId(),
                 'name' => $item->getName(),
-                'class' => $renditionClassMap[$item->getClass()->getId()]??null,
+                'class' => $renditionClassMap[$item->getClass()->getId()] ?? null,
                 'parent' => $item->getParent()?->getId(),
                 'buildMode' => $item->getBuildMode(),
                 'priority' => $item->getPriority(),
@@ -210,10 +211,10 @@ final readonly class WorkspaceTemplater
             ];
         }
         $o = array_values($this->orderByParent($o));
-        foreach($o as $k => $v) {
-            $o[$k]['id'] = $renditionMap[$v['id']]??null;
-            if($v['parent']) {
-                $o[$k]['parent'] = $renditionMap[$v['parent']]??null;
+        foreach ($o as $k => $v) {
+            $o[$k]['id'] = $renditionMap[$v['id']] ?? null;
+            if ($v['parent']) {
+                $o[$k]['parent'] = $renditionMap[$v['parent']] ?? null;
             }
         }
 
@@ -225,7 +226,7 @@ final readonly class WorkspaceTemplater
         $end = true;
         $tu = array_filter(
             $u,
-            function($x) use(&$o, &$end) {
+            function ($x) use (&$o, &$end) {
                 return ($x['parent'] && !array_key_exists($x['parent'], $o)) || ($end = is_null($o[$x['id']] = $x));
             }
         );
@@ -282,7 +283,7 @@ final readonly class WorkspaceTemplater
         ]);
 
         foreach ($items as $item) {
-            for($slugId = '#'.$item->getName(), $n=2; in_array($slugId, $attributeClassMap); $n++) {
+            for ($slugId = '#'.$item->getName(), $n = 2; in_array($slugId, $attributeClassMap); ++$n) {
                 $slugId = '#'.$item->getName().'_'.$n;
             }
             $attributeClassMap[$item->getId()] = $slugId;
@@ -333,7 +334,7 @@ final readonly class WorkspaceTemplater
         foreach ($items as $item) {
             $o[] = [
                 'name' => $item->getName(),
-                'class' => $attributeClassMap[$item->getClass()->getId()]??null,
+                'class' => $attributeClassMap[$item->getClass()->getId()] ?? null,
                 'labels' => $item->getLabels(),
                 'entityType' => $item->getEntityType(),
                 'fallback' => $item->getFallback(),
