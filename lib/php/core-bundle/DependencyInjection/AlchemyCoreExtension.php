@@ -50,6 +50,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $loader->load('services.yaml');
+        $loader->load('api.yaml');
         $loader->load('redis.yaml');
         $this->loadFixtures($container, $loader);
 
@@ -216,6 +217,23 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         'uuid' => UuidType::class,
                     ],
                 ],
+            ]);
+        }
+
+        if (isset($bundles['ApiPlatformBundle'])) {
+            $container->prependExtensionConfig('api_platform', [
+                'show_webby' => false,
+                'path_segment_name_generator' => 'api_platform.path_segment_name_generator.dash',
+                'swagger' => [
+                    'versions' => [3],
+                ],
+                'oauth' => [
+                    'clientId' => '%env(ADMIN_CLIENT_ID)%',
+                    'clientSecret' => '%env(ADMIN_CLIENT_SECRET)%',
+                    'tokenUrl' => '%env(KEYCLOAK_URL)%/realms/%env(KEYCLOAK_REALM_NAME)%/protocol/openid-connect/token',
+                    'authorizationUrl' => '%env(KEYCLOAK_URL)%/realms/%env(KEYCLOAK_REALM_NAME)%/protocol/openid-connect/auth',
+                    'flow' => 'authorizationCode'
+                ]
             ]);
         }
     }

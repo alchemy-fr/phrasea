@@ -53,7 +53,7 @@ use Alchemy\StorageBundle\Controller\MultipartUploadCompleteAction;
                     ],
                 ],
                 'responses' => [
-                    [
+                    '200' => [
                         'description' => 'An object containing signed URL for direct upload to S3',
                         'content' => [
                             'application/json' => [
