@@ -14,6 +14,7 @@ final readonly class AssetCopy
         private string $destination,
         private ?bool $link = null,
         private array $options = [],
+        private ?array $extraMetadata = null,
     ) {
 
     }
@@ -46,5 +47,10 @@ final readonly class AssetCopy
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+    public function getExtraMetadata(): ?array
+    {
+        return $this->extraMetadata;
     }
 }

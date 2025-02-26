@@ -37,6 +37,13 @@ App\Entity\Core\Asset:
     workspace: '@w_test'
     privacy: 4
 
+App\Entity\Core\Collection:
+    collection{1..2}:
+        title: 'Collection #<current()>'
+        ownerId: <{admin_user_id}>
+        workspace: '@w_test'
+        privacy: 4
+
 App\Entity\Core\AttributeClass:
   ac_public:
     name: Public attrs

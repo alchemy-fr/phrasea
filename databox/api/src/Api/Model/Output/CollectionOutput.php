@@ -7,6 +7,7 @@ namespace App\Api\Model\Output;
 use ApiPlatform\Metadata\ApiProperty;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
+use App\Api\Model\Output\Traits\ExtraMetadataDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
@@ -19,6 +20,7 @@ class CollectionOutput extends AbstractUuidOutput
     use CreatedAtDTOTrait;
     use UpdatedAtDTOTrait;
     use CapabilitiesDTOTrait;
+    use ExtraMetadataDTOTrait;
 
     #[ApiProperty(jsonSchemaContext: [
         'type' => 'object',
@@ -65,6 +67,9 @@ class CollectionOutput extends AbstractUuidOutput
     #[MaxDepth(1)]
     #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private $workspace;
+
+    #[Groups(['_'])]
+    public ?array $relationExtraMetadata = null;
 
     #[Groups([Collection::GROUP_READ])]
     public ?array $topicSubscriptions = null;

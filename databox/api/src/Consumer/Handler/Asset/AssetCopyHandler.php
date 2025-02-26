@@ -44,7 +44,7 @@ readonly class AssetCopyHandler
                 );
 
                 if (null === $collectionAsset) {
-                    $asset->addToCollection($destCollection);
+                    $asset->addToCollection($destCollection, extraMetadata: $message->getExtraMetadata());
                     $this->em->persist($asset);
                     $this->em->flush();
                 }

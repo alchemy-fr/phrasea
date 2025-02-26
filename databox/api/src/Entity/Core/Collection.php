@@ -33,6 +33,7 @@ use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\FollowableInterface;
 use App\Entity\ObjectTitleInterface;
 use App\Entity\Traits\DeletedAtTrait;
+use App\Entity\Traits\ExtraMetadataTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\NotificationSettingsTrait;
 use App\Entity\Traits\OwnerIdTrait;
@@ -48,6 +49,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ApiResource(
@@ -135,6 +137,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     use LocaleTrait;
     use WorkspacePrivacyTrait;
     use NotificationSettingsTrait;
+    use ExtraMetadataTrait;
 
     final public const string GROUP_READ = 'coll:read';
     final public const string GROUP_LIST = 'coll:index';
@@ -182,6 +185,11 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
      */
     #[ORM\Column(type: Types::STRING, length: 4096, nullable: true)]
     private ?string $key = null;
+
+
+    #[Groups(['_'])]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $relationExtraMetadata = null;
 
     public function __construct()
     {
@@ -399,5 +407,15 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     public function getObjectTitle(): string
     {
         return sprintf('Collection %s', $this->getTitle());
+    }
+
+    public function getRelationExtraMetadata(): array
+    {
+        return $this->relationExtraMetadata ?? [];
+    }
+
+    public function setRelationExtraMetadata(?array $relationExtraMetadata): void
+    {
+        $this->relationExtraMetadata = $relationExtraMetadata;
     }
 }

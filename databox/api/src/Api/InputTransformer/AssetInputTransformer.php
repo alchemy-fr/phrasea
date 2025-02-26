@@ -78,6 +78,10 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             $object->setPendingUploadToken($data->pendingUploadToken);
         }
 
+        if (null !== $data->getExtraMetadata()) {
+            $object->setExtraMetadata($data->getExtraMetadata());
+        }
+
         $this->transformPrivacy($data, $object);
 
         if ($isNew) {
@@ -94,7 +98,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
                 if (null === $object->getReferenceCollection()) {
                     $object->setReferenceCollection($data->collection);
                 }
-                $object->addToCollection($data->collection);
+                $object->addToCollection($data->collection, extraMetadata: $data->relationExtraMetadata);
             }
 
             if (!empty($data->attributes)) {

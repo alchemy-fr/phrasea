@@ -75,6 +75,10 @@ class CollectionInputTransformer extends AbstractInputTransformer
             $object->setKey($data->key);
         }
 
+        if (null !== $data->getExtraMetadata()) {
+            $object->setExtraMetadata($data->getExtraMetadata());
+        }
+
         return $this->processOwnerId($object);
     }
 }
