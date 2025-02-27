@@ -13,14 +13,13 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "allowJs": true,
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "allowUnusedLabels": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "allowJs": true,
 
     "types": [
       "vite-plugin-svgr/client",

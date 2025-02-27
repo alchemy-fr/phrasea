@@ -8,7 +8,7 @@ type A = {
     a: string;
     b: boolean;
 };
-// @ts-expect-error Unused
+
 type T = PropsWithChildren<Pick<A, 'b' | 'a'>>;
 
 export default function TestMorph({}: Props) {
@@ -28,7 +28,6 @@ export default function TestMorph({}: Props) {
         console.log('Bonjour');
     }
 
-    // @ts-expect-error Unused
     const _a = {
         'Hello': 'you!',
         'Hello2': 'you!',
@@ -43,13 +42,11 @@ export default function TestMorph({}: Props) {
         },
     };
 
-    // @ts-expect-error Unused
     const eventHandler = (_e: HTMLElementEventMap['scroll']) => {
         const data = {
             foo: 'bar',
         };
 
-        // @ts-expect-error Unused
         const otherData = {
             foo: 'bar',
         };
