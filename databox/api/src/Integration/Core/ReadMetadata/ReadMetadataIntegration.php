@@ -11,16 +11,11 @@ use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use App\Workflow\Action\InitializeAttributesAction;
 use App\Workflow\Action\ReadMetadataAction;
-use App\Workflow\Event\AssetIngestWorkflowEvent;
 
 class ReadMetadataIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
-        if(!$workflow->getOn()->hasEventName(AssetIngestWorkflowEvent::EVENT)) {
-            return [];
-        }
-
         $readMetadataJob = WorkflowHelper::createIntegrationJob(
             $config,
             ReadMetadataAction::class,
