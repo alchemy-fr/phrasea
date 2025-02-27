@@ -9,82 +9,38 @@ use App\Entity\Core\Workspace;
 
 class AttributeDefinitionInput
 {
-    /**
-     * @var Workspace
-     */
-    public $workspace;
+    public Workspace $workspace;
 
-    /**
-     * @var AttributeClass|null
-     */
-    public $class;
+    public ?AttributeClass $class;
 
     /**
      * Target definition by name. Or use $definition.
-     *
-     * @var string|null
      */
-    public $name;
+    public ?string $name;
 
-    /**
-     * @var string
-     */
-    public $fieldType;
+    public string $fieldType;
 
-    /**
-     * @var string|null
-     */
-    public $entityType;
+    public ?string $entityType;
 
-    /**
-     * @var string
-     */
-    public $fileType;
+    public string $fileType;
 
-    /**
-     * @var bool
-     */
-    public $searchable;
+    public bool $searchable;
 
-    /**
-     * @var bool
-     */
-    public $enabled;
+    public bool $enabled;
 
-    /**
-     * @var bool
-     */
-    public $suggest;
+    public bool $suggest;
 
-    /**
-     * @var bool
-     */
-    public $facetEnabled;
+    public bool $facetEnabled;
 
-    /**
-     * @var bool
-     */
-    public $sortable;
+    public bool $sortable;
 
-    /**
-     * @var bool
-     */
-    public $translatable;
+    public bool $translatable;
 
-    /**
-     * @var bool
-     */
-    public $multiple;
+    public bool $multiple;
 
-    /**
-     * @var bool
-     */
-    public $allowInvalid;
+    public bool $allowInvalid;
 
-    /**
-     * @var int
-     */
-    public $searchBoost;
+    public int $searchBoost;
 
     /**
      * Language-indexed fallbacks.
@@ -92,20 +48,16 @@ class AttributeDefinitionInput
      *
      * @var string[]
      */
-    public $fallback;
+    public array $fallback;
 
     /**
-     * @var string|null
+     * @var string[]
      */
-    public $key;
+    public array $initialValues;
 
-    /**
-     * @var array|null
-     */
-    public $labels;
+    public ?string $key;
 
-    /**
-     * @var int
-     */
-    public $position;
+    public ?array $labels;
+
+    public int $position;
 }
