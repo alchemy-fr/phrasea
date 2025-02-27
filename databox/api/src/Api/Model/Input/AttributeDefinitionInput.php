@@ -9,38 +9,82 @@ use App\Entity\Core\Workspace;
 
 class AttributeDefinitionInput
 {
-    public Workspace $workspace;
+    /**
+     * @var Workspace
+     */
+    public $workspace;
 
-    public ?AttributeClass $class;
+    /**
+     * @var AttributeClass|null
+     */
+    public $class;
 
     /**
      * Target definition by name. Or use $definition.
+     *
+     * @var string|null
      */
-    public ?string $name;
+    public $name;
 
-    public string $fieldType;
+    /**
+     * @var string
+     */
+    public $fieldType;
 
-    public ?string $entityType;
+    /**
+     * @var string|null
+     */
+    public $entityType;
 
-    public string $fileType;
+    /**
+     * @var string
+     */
+    public $fileType;
 
-    public bool $searchable;
+    /**
+     * @var bool
+     */
+    public $searchable;
 
-    public bool $enabled;
+    /**
+     * @var bool
+     */
+    public $enabled;
 
-    public bool $suggest;
+    /**
+     * @var bool
+     */
+    public $suggest;
 
-    public bool $facetEnabled;
+    /**
+     * @var bool
+     */
+    public $facetEnabled;
 
-    public bool $sortable;
+    /**
+     * @var bool
+     */
+    public $sortable;
 
-    public bool $translatable;
+    /**
+     * @var bool
+     */
+    public $translatable;
 
-    public bool $multiple;
+    /**
+     * @var bool
+     */
+    public $multiple;
 
-    public bool $allowInvalid;
+    /**
+     * @var bool
+     */
+    public $allowInvalid;
 
-    public int $searchBoost;
+    /**
+     * @var int
+     */
+    public $searchBoost;
 
     /**
      * Language-indexed fallbacks.
@@ -48,16 +92,26 @@ class AttributeDefinitionInput
      *
      * @var string[]
      */
-    public array $fallback;
+    public $fallback;
 
     /**
+     *
      * @var string[]
      */
-    public array $initialValues;
+    public $initialValues;
 
-    public ?string $key;
+    /**
+     * @var string|null
+     */
+    public $key;
 
-    public ?array $labels;
+    /**
+     * @var array|null
+     */
+    public $labels;
 
-    public int $position;
+    /**
+     * @var int
+     */
+    public $position;
 }
