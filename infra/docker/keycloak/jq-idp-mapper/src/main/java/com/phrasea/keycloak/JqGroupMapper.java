@@ -65,15 +65,15 @@ public class JqGroupMapper extends AbstractIdentityProviderMapper {
 
     @Override
     public void importNewUser(KeycloakSession session, RealmModel realm, UserModel user, IdentityProviderMapperModel mapperModel, BrokeredIdentityContext context) {
-        this.mapGroups(realm, user, mapperModel, context);
+        this.mapGroups(session, realm, user, mapperModel, context);
     }
 
     @Override
     public void updateBrokeredUser(KeycloakSession session, RealmModel realm, UserModel user, IdentityProviderMapperModel mapperModel, BrokeredIdentityContext context) {
-        this.mapGroups(realm, user, mapperModel, context);
+        this.mapGroups(session, realm, user, mapperModel, context);
     }
 
-    private void mapGroups(RealmModel realm, UserModel user, IdentityProviderMapperModel mapperModel, BrokeredIdentityContext context) {
+    private void mapGroups(KeycloakSession session, RealmModel realm, UserModel user, IdentityProviderMapperModel mapperModel, BrokeredIdentityContext context) {
         JsonNode profileJsonNode = (JsonNode)context.getContextData().get("UserInfo");
         LOG.infof("User data: %s", profileJsonNode.toString());
 
@@ -98,7 +98,7 @@ public class JqGroupMapper extends AbstractIdentityProviderMapper {
                 if (groupsNode.isArray()) {
                     for (final JsonNode gNode : groupsNode) {
                         String groupName = gNode.asText();
-                        GroupModel group = this.getGroup(realm, groupName);
+                        GroupModel group = this.getGroup(session, realm, groupName);
                         String groupId = group.getId();
                         if (!context.hasMapperAssignedGroup(groupId)) {
                             context.addMapperAssignedGroup(groupId);
@@ -106,7 +106,7 @@ public class JqGroupMapper extends AbstractIdentityProviderMapper {
                         }
                     }
 
-                    List<GroupModel> groupList = user.getGroupsStream().collect(Collectors.toList());
+                    List<GroupModel> groupList = user.getGroupsStream().toList();
                     for (GroupModel g : groupList) {
                         if (!context.hasMapperAssignedGroup(g.getId())) {
                             user.leaveGroup(g);
@@ -121,8 +121,8 @@ public class JqGroupMapper extends AbstractIdentityProviderMapper {
         }
     }
 
-    private GroupModel getGroup(RealmModel realm, String groupPath) {
-        GroupModel group = KeycloakModelUtils.findGroupByPath(realm, groupPath);
+    private GroupModel getGroup(KeycloakSession session, RealmModel realm, String groupPath) {
+        GroupModel group = KeycloakModelUtils.findGroupByPath(session, realm, groupPath);
         if (group == null) {
             LOG.infof("Creating group '%s'", groupPath);
 
