@@ -61,6 +61,9 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->fallback) {
             $object->setFallback($data->fallback);
         }
+        if (null !== $data->initialValues) {
+            $object->setInitialValues($data->initialValues);
+        }
         if (null !== $data->fieldType) {
             $object->setFieldType($data->fieldType);
         }
