@@ -10,7 +10,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 trait CreatedAtDTOTrait
 {
     #[Groups(['dates'])]
-    #[ApiProperty]
     protected \DateTimeImmutable $createdAt;
 
     public function getCreatedAt(): \DateTimeImmutable

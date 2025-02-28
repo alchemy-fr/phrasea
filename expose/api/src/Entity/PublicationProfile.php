@@ -67,7 +67,6 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     private UuidInterface $id;
 
-    #[ApiProperty]
     #[ORM\Column(type: Types::STRING, length: 150)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $name = null;
@@ -76,7 +75,6 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     #[Groups([self::GROUP_LIST, self::GROUP_READ, Publication::GROUP_READ])]
     private PublicationConfig $config;
 
-    #[ApiProperty]
     #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Groups([self::GROUP_ADMIN_READ])]
     private ?string $ownerId = null;

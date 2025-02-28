@@ -105,11 +105,9 @@ class AssetOutput extends AbstractUuidOutput
     private ?AssetRendition $thumbnailActive = null;
 
     #[Groups(['dates'])]
-    #[ApiProperty]
     private \DateTimeImmutable $editedAt;
 
     #[Groups(['dates'])]
-    #[ApiProperty]
     private \DateTimeImmutable $attributesEditedAt;
 
     #[Groups([Asset::GROUP_READ])]
