@@ -1,10 +1,9 @@
 api_platform:
-    show_webby: false
     formats:
         jsonld: [ 'application/ld+json', 'application/merge-patch+json' ]
         json: [ 'application/json', 'application/merge-patch+json' ]
         html: [ 'text/html' ]
-    version: '0.0.1'
+    version: '1.0.0'
     mapping:
         paths:
         - '%kernel.project_dir%/src/Entity'
@@ -13,12 +12,3 @@ api_platform:
         - '%kernel.project_dir%/src/Api/Model/Output'
     patch_formats:
         json: ['application/merge-patch+json']
-    swagger:
-        versions: [3]
-    oauth:
-        clientId: '%env(ADMIN_CLIENT_ID)%'
-        clientSecret: '%env(ADMIN_CLIENT_SECRET)%'
-        tokenUrl: '%env(KEYCLOAK_URL)%/realms/%env(KEYCLOAK_REALM_NAME)%/protocol/openid-connect/token'
-        authorizationUrl: '%env(KEYCLOAK_URL)%/realms/%env(KEYCLOAK_REALM_NAME)%/protocol/openid-connect/auth'
-        flow: authorizationCode
-    event_listeners_backward_compatibility_layer: false

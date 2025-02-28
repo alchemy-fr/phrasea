@@ -14,9 +14,3 @@ api_platform:
         csv:      ['text/csv']
         html:     ['text/html']
         multipart: ['multipart/form-data']
-    oauth:
-        clientId: '%env(ADMIN_CLIENT_ID)%'
-        clientSecret: '%env(ADMIN_CLIENT_SECRET)%'
-        tokenUrl: '%env(KEYCLOAK_URL)%/realms/%env(KEYCLOAK_REALM_NAME)%/protocol/openid-connect/token'
-        authorizationUrl: '%env(KEYCLOAK_URL)%/realms/%env(KEYCLOAK_REALM_NAME)%/protocol/openid-connect/auth'
-        flow: authorizationCode
