@@ -899,7 +899,7 @@ services:
       - internal
     environment:
       - DASHBOARD_CLIENT_URL
-      - KC_PROXY=edge
+      - KC_HTTP_ENABLED=true
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
       - KC_HOSTNAME=https://keycloak.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
