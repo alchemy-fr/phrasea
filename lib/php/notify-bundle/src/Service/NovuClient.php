@@ -96,6 +96,17 @@ final readonly class NovuClient
         ]);
     }
 
+    public function upsertSubscribers(array $subscribers): void
+    {
+        foreach (array_chunk($subscribers, 500) as $chunk) {
+            $this->request('POST', '/v1/subscribers/bulk', [
+                'json' => [
+                    'subscribers' => $chunk,
+                ],
+            ]);
+        }
+    }
+
     public function createTopic(string $topicKey): void
     {
         $this->request('POST', '/v1/topics', [
