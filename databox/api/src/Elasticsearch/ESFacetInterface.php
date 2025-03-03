@@ -11,4 +11,5 @@ interface ESFacetInterface
     public const string TYPE_DATE_RANGE = 'date_range';
     public const string TYPE_GEO_DISTANCE = 'geo_distance';
     public const string TYPE_TAGS = 'tags';
+    public const string TYPE_ENTITY = 'entity';
 }

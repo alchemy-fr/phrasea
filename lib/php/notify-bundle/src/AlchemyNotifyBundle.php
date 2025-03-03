@@ -7,6 +7,7 @@ namespace Alchemy\NotifyBundle;
 use Alchemy\NotifyBundle\Command\BroadcastNotificationCommand;
 use Alchemy\NotifyBundle\Command\TestNotificationCommand;
 use Alchemy\NotifyBundle\Controller\NotificationController;
+use Alchemy\NotifyBundle\Message\UpdateSubscribersHandler;
 use Alchemy\NotifyBundle\Notification\MockNotifier;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use Alchemy\NotifyBundle\Notification\SymfonyNotifier;
@@ -92,5 +93,6 @@ class AlchemyNotifyBundle extends AbstractBundle
         $services->set(BroadcastNotificationCommand::class);
         $services->set(TestNotificationCommand::class);
         $services->set(NotificationController::class);
+        $services->set(UpdateSubscribersHandler::class);
     }
 }

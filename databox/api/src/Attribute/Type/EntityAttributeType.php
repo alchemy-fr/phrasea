@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Attribute\AttributeInterface;
+use App\Elasticsearch\ESFacetInterface;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeEntityRepository;
 use Ramsey\Uuid\Uuid;
@@ -69,6 +70,31 @@ class EntityAttributeType extends TextAttributeType
         return 'value';
     }
 
+    public function normalizeBucket(array $bucket): ?array
+    {
+        $entity = $this->getEntityFromValue($bucket['key']);
+        if (null === $entity) {
+            return null;
+        }
+
+        $bucket['key'] = [
+            'value' => $bucket['key'],
+            'label' => $entity->getValue(),
+            'item' => [
+                'id' => $entity->getId(),
+                'value' => $entity->getValue(),
+                'translations' => $entity->getTranslations(),
+            ]
+        ];
+
+        return $bucket;
+    }
+
+    public function getAggregationField(): ?string
+    {
+        return 'id';
+    }
+
     public function normalizeValue($value): ?string
     {
         if (null === $value) {
@@ -124,5 +150,10 @@ class EntityAttributeType extends TextAttributeType
                 ],
             ],
         ];
+    }
+
+    public function getFacetType(): string
+    {
+        return ESFacetInterface::TYPE_ENTITY;
     }
 }

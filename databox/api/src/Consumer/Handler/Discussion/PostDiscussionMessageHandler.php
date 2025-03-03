@@ -46,6 +46,8 @@ readonly class PostDiscussionMessageHandler
         $params = [
             'object' => $object instanceof ObjectTitleInterface ? $object->getObjectTitle() : 'Undefined Object',
             'objectId' => $object->getId(),
+            'authorId' => $authorId,
+            'author' => $this->notifier->getUsername($authorId),
         ];
 
         if ($object instanceof Asset) {
@@ -84,7 +86,6 @@ readonly class PostDiscussionMessageHandler
         }
         $this->notifier->addTopicSubscribers($topicKey, array_unique($newSubscribers));
 
-        $params['author'] = $this->notifier->getUsername($authorId);
         $this->notifier->notifyTopic($topicKey, $authorId, $notificationId, $params, $notificationOptions);
     }
 }

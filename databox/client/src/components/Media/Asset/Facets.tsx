@@ -16,6 +16,7 @@ import {getAttributeType} from './Attribute/types';
 import {FilterType} from '../Search/Filter';
 import {AttributeFormat} from './Attribute/types/types';
 import TagsFacet from './Facets/TagsFacet';
+import EntitiesFacet from "./Facets/EntitiesFacet.tsx";
 
 export type BucketValue = string | number | boolean;
 
@@ -44,6 +45,7 @@ export enum FacetType {
     Boolean = 'boolean',
     DateRange = 'date_range',
     GeoDistance = 'geo_distance',
+    Entity = 'entity',
 }
 
 export type Facet = {
@@ -119,6 +121,7 @@ const facetWidgets: Record<FacetType, React.FC<FacetGroupProps>> = {
     [FacetType.Boolean]: TextFacet,
     [FacetType.DateRange]: DateHistogramFacet,
     [FacetType.GeoDistance]: GeoDistanceFacet,
+    [FacetType.Entity]: EntitiesFacet,
 };
 
 const facetWidgetsByKey: Record<string, React.FC<FacetGroupProps>> = {

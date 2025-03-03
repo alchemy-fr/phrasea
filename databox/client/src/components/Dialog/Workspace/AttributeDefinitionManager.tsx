@@ -190,6 +190,18 @@ function Item({
                 <FormFieldErrors field={'allowInvalid'} errors={errors} />
             </FormRow>
             <FormRow>
+                <CheckboxWidget
+                    label={t(
+                        'form.attribute_definition.facetEnabled.label',
+                        'Facets'
+                    )}
+                    control={control}
+                    name={'facetEnabled'}
+                    disabled={submitting}
+                />
+                <FormFieldErrors field={'facetEnabled'} errors={errors} />
+            </FormRow>
+            <FormRow>
                 <ObjectTranslationField
                     translatable={translatable}
                     displayNoLocale={true}

@@ -351,6 +351,7 @@ class AttributeSearch
 
             switch ($type->getFacetType()) {
                 case ESFacetInterface::TYPE_TEXT:
+                case ESFacetInterface::TYPE_ENTITY:
                     $agg = new Aggregation\Terms($fieldName);
                     $agg->setField($fullFieldName);
                     $agg->setSize(20);
