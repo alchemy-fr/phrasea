@@ -30,7 +30,8 @@ class AttributeClassCrudController extends AbstractAclAdminCrudController
             ->setEntityLabelInSingular('Attribute Class')
             ->setEntityLabelInPlural('Attribute Classes')
             ->setSearchFields(['id', 'name', 'key'])
-            ->setPaginatorPageSize(100);
+            ->setPaginatorPageSize(100)
+            ->setDefaultSort(['workspace.name' => 'ASC', 'name' => 'ASC']);
     }
 
     public function configureFilters(Filters $filters): Filters

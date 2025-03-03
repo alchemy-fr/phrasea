@@ -77,6 +77,7 @@ HELP
             $data .= $s;
         }
 
+        $data = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
         $this->workspaceTemplater->import($data, $name, $slug, $ownerId);
 
         return 0;
