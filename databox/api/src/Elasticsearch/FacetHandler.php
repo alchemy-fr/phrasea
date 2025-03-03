@@ -60,8 +60,8 @@ final readonly class FacetHandler
                 throw new \Exception(sprintf('Error normalizing buckets with "%s" type: %s', $facet::getKey(), $e->getMessage()), 0, $e);
             }
 
-            if ($type instanceof DateTimeAttributeType) {
-                $f['meta']['widget'] = ESFacetInterface::TYPE_DATE_RANGE;
+            if (ESFacetInterface::TYPE_TEXT !== $widget = $type->getFacetType()) {
+                $f['meta']['widget'] = $widget;
             }
 
             $mergedFacets[$k] = $f;

@@ -156,6 +156,7 @@ class AssetSearch extends AbstractSearch
         $searchTime = microtime(true) - $start;
 
         $facets = $adapter->getAggregations();
+        dump($facets);
         $facets = $this->facetHandler->normalizeBuckets($facets);
 
         $esQuery = $query->toArray();
