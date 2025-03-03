@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Alchemy\NotifyBundle\Notification;
 
 use Alchemy\AuthBundle\Repository\UserRepository;
+use Alchemy\NotifyBundle\Message\UpdateSubscribers;
 use Alchemy\NotifyBundle\Service\NovuClient;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Notifier\Bridge\Novu\NovuSubscriberRecipient;
 use Symfony\Component\Notifier\NotifierInterface as SymfonyNotifierInterface;
 use Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface;
@@ -18,6 +20,7 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
 
     public function __construct(
         private readonly SymfonyNotifierInterface $notifier,
+        private readonly MessageBusInterface $bus,
         private readonly NovuClient $novuClient,
         private UserRepository $userRepository,
         private readonly bool $notifyAuthor = false,
@@ -71,6 +74,7 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
     public function addTopicSubscribers(string $topicKey, array $subscribers): void
     {
         $this->novuClient->addTopicSubscribers($topicKey, $subscribers);
+        $this->bus->dispatch(new UpdateSubscribers($subscribers));
     }
 
     public function createTopic(string $topicKey): void
