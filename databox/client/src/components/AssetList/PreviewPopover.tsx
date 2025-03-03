@@ -87,6 +87,9 @@ export default function PreviewPopover({
                             style={{
                                 display: 'flex',
                                 justifyContent: 'center',
+                                flexFlow: 'row nowrap',
+                                alignItems: 'center',
+                                minWidth: '50%',
                                 backgroundColor: getMediaBackgroundColor(theme),
                             }}
                         >
@@ -108,9 +111,11 @@ export default function PreviewPopover({
                             <Box
                                 sx={{
                                     'maxHeight': height - spacingInt * 2,
-                                    'overflow': previewLocked
+                                    'overflowY': previewLocked
                                         ? 'auto'
-                                        : 'hidden',
+                                        : 'clip',
+                                    'overflowX': 'visible',
+                                    'overflow-clip-margin': theme.spacing(1),
                                     'paddingLeft': theme.spacing(2),
                                     '&:empty': {
                                         display: 'none',
