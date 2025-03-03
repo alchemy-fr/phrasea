@@ -1,0 +1,11 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            string $applicationName: '%alchemy_core.app_name%'
+            string $applicationId: '%alchemy_core.app_id%'
+
+    Alchemy\CoreBundle\Api\OpenApiFactory:
+        decorates: 'api_platform.openapi.factory'
+        arguments: [ '@Alchemy\CoreBundle\Api\OpenApiFactory.inner' ]
