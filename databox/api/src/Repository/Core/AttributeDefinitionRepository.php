@@ -121,10 +121,11 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
                     'w',
                     PermissionInterface::VIEW,
                     false,
-                    'w_ace'
+                    'w_ace',
+                    'w_'
                 );
                 $queryBuilder->andWhere('c.public = true OR ac_ace.id IS NOT NULL');
-                $queryBuilder->andWhere('w.public = true OR w.ownerId = :uid OR w_ace.id IS NOT NULL');
+                $queryBuilder->andWhere('w.public = true OR w.ownerId = :w_uid OR w_ace.id IS NOT NULL');
                 $queryBuilder->setParameter('uid', $userId);
             } else {
                 $queryBuilder->andWhere('c.public = true');

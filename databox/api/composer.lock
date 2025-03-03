@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "c2f8bf95282be5e294a1991eb618423bc464c1ea"
+                "reference": "ad30c2da7cf6ad44132733fa78aac784aec428da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/c2f8bf95282be5e294a1991eb618423bc464c1ea",
-                "reference": "c2f8bf95282be5e294a1991eb618423bc464c1ea",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/ad30c2da7cf6ad44132733fa78aac784aec428da",
+                "reference": "ad30c2da7cf6ad44132733fa78aac784aec428da",
                 "shasum": ""
             },
             "require": {
@@ -57,11 +57,11 @@
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
                 "source": "https://github.com/alchemy-fr/acl-bundle/tree/main"
             },
-            "time": "2025-02-04T10:09:57+00:00"
+            "time": "2025-03-03T16:05:15+00:00"
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -119,7 +119,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -176,7 +176,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -229,7 +229,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -290,7 +290,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -346,7 +346,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -399,7 +399,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -454,7 +454,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
@@ -578,7 +578,7 @@
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
@@ -641,7 +641,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -695,7 +695,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -750,7 +750,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -802,7 +802,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -859,7 +859,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -924,7 +924,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -14987,7 +14987,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-773-mentions",
+            "version": "dev-PS-801-novu-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
