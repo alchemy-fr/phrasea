@@ -40,5 +40,5 @@ echo "Migrating..."
   && helm template ${RELEASE_NAME} \
     ./phrasea-${CHART_VERSION}.tgz -f .current-values.yaml \
     --set "configurator.executeMigration=${MIGRATION_NAME}" \
-    -s templates/configurator/migration-job.yaml | kubectl -n ${NS} apply -f -
+    -s templates/configurator/migrate-job.yaml | kubectl -n ${NS} apply -f -
 )

@@ -125,7 +125,7 @@ FROM "group"');
             ],
         ], $groupMap);
 
-        $userCount = $connection->fetchOne('SELECT COUNT(*) as total FROM "user"')['total'];
+        $userCount = $connection->fetchOne('SELECT COUNT(*) as total FROM "user"');
         $users = $connection->fetchAllAssociative('SELECT
 id,
 username,
@@ -156,7 +156,7 @@ FROM "user"');
             }
             $realmRoles = array_unique($realmRoles);
 
-            if (null === $user = $this->keycloakManager->findUser($row['username'])) {
+            if (null === $this->keycloakManager->findUser($row['username'])) {
                 $user = $this->keycloakManager->createUser([
                     'createdTimestamp' => (new \DateTimeImmutable($row['created_at']))->getTimestamp(),
                     'username' => $row['username'],
@@ -233,10 +233,13 @@ FROM "saml_identity"');
         }
 
         $oauthUsers = $connection->fetchAllAssociative('SELECT
+DISTINCT ON (user_id)
 user_id,
 identifier,
 provider
-FROM "external_access_token" GROUP BY user_id');
+FROM "external_access_token" GROUP BY user_id,
+identifier,
+provider');
         foreach ($oauthUsers as $row) {
             $username = $row['identifier'];
 
