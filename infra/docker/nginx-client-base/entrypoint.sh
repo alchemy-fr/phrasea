@@ -9,6 +9,6 @@ if [ -d /docker/entrypoint.d ]; then
   unset i
 fi
 
-envsubst '${DASHBOARD_CLIENT_URL}' < /etc/nginx/tpl/default.conf > /etc/nginx/conf.d/default.conf
+envsubst '${DASHBOARD_CLIENT_URL},${ALLOWED_FRAME_ANCESTORS}' < /etc/nginx/tpl/default.conf > /etc/nginx/conf.d/default.conf
 
 exec "$@"

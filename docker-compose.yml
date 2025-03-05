@@ -268,6 +268,7 @@ services:
       - CLIENT_ID=${EXPOSE_CLIENT_ID}
       - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
       - MATOMO_SITE_ID=${EXPOSE_MATOMO_SITE_ID}
+      - ALLOWED_FRAME_ANCESTORS=${EXPOSE_ALLOWED_FRAME_ANCESTORS}
     labels:
       - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
 
