@@ -943,8 +943,13 @@
     },
     "asset": {
         "actions": {
-            "delete": "supprimer",
-            "edit": "Editer"
+            "delete": "Supprimer",
+            "edit": "Editer",
+            "open": "Ouvrir"
+        },
+        "collection_list": {
+            "collections": "+ {{count}} collection",
+            "collections_plural": "+ {{count}} collections"
         }
     }
 }
