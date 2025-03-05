@@ -943,7 +943,8 @@
     },
     "asset": {
         "actions": {
-            "delete": "supprimer"
+            "delete": "supprimer",
+            "edit": "Editer"
         }
     }
 }
