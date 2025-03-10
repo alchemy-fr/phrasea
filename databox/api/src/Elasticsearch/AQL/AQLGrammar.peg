@@ -1,0 +1,35 @@
+keyword: /[a-z_0-9-]+/
+
+field: keyword
+    function keyword( &$result, $sub) {
+        $result['data'] = ['field' => $sub['text']];
+    }
+
+int: /[0-9]+/
+
+decimal: int > "." > int
+
+quoted_string: /"[^"]*"/
+
+boolean: "true" | "false"
+
+number: int | decimal
+
+value: number | quoted_string | boolean
+
+expression: left:and_condition > ( "OR" > right:and_condition ) *
+    function and_condition( &$result, $sub ) {
+        $result['operator'] = 'OR';
+        $result['conditions'] ??= [];
+        $result['conditions'][] = $sub['left']['data'];
+        dump($result);
+    }
+
+and_condition: left:field > "=" > right:field
+    function field(&$result, $sub) {
+        $result['data'] = [
+            'operator' => 'AND',
+            'leftOperand' => $sub['left']['data'],
+            'rightOperand' => $sub['right']['data']
+        ];
+    }
