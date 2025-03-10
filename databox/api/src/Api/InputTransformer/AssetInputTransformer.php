@@ -109,7 +109,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
                 $this->handleRelationship($data->relationship, $object);
             }
 
-            if($data->storyCollection) {
+            if ($data->storyCollection) {
                 $object->setStoryCollection($data->storyCollection);
             }
         }

@@ -307,14 +307,4 @@ class AssetOutput extends AbstractUuidOutput
     {
         $this->pendingUploadToken = $pendingUploadToken;
     }
-
-//    public function getStoryCollection(): ?Collection
-//    {
-//        return $this->storyCollection;
-//    }
-//
-//    public function setStoryCollection(Collection $storyCollection): void
-//    {
-//        $this->storyCollection = $storyCollection;
-//    }
 }
