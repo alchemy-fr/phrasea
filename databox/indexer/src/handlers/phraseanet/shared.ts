@@ -1,6 +1,6 @@
 import {Asset} from '../../indexers';
-import {FieldMap} from './types';
-import {CPhraseanetRecord} from './CPhraseanetRecord';
+import {FieldMap, PhraseanetStory} from './types';
+import {CPhraseanetRecord, CPhraseanetStory} from './CPhraseanetRecord';
 import {Logger} from 'winston';
 import {AttributeClass, AttributeInput} from '../../databox/types';
 
@@ -19,7 +19,7 @@ export type AttrClassIndex = Record<string, AttributeClass>;
 export async function createAsset(
     workspaceId: string,
     importFiles: boolean,
-    record: CPhraseanetRecord,
+    record: CPhraseanetRecord | CPhraseanetStory,
     path: string,
     collectionKeyPrefix: string,
     key: string,
@@ -133,7 +133,7 @@ export async function createAsset(
         generateRenditions: false,
         renditions: renditions,
         shortcutIntoCollections: shortcutIntoCollections,
-        storyCollection: storyCollection,
+        storyCollection: storyCollection ?? undefined,
     };
 }
 

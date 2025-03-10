@@ -110,6 +110,7 @@ export class CPhraseanetRecord extends CPhraseanetRecordBase {
 
 export class CPhraseanetStory extends CPhraseanetRecordBase {
     story_id: string = '';
+    phrasea_type: string = 'story';
     constructor(s: PhraseanetStory, client: PhraseanetClient) {
         super(s, client);
         this.story_id = s.story_id;
