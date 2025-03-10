@@ -126,7 +126,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
                 );
                 $queryBuilder->andWhere('c.public = true OR ac_ace.id IS NOT NULL');
                 $queryBuilder->andWhere('w.public = true OR w.ownerId = :w_uid OR w_ace.id IS NOT NULL');
-                $queryBuilder->setParameter('uid', $userId);
+                $queryBuilder->setParameter('w_uid', $userId);
             } else {
                 $queryBuilder->andWhere('c.public = true');
                 $queryBuilder->andWhere('w.public = true');
