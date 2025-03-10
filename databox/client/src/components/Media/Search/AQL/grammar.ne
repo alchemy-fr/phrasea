@@ -10,9 +10,13 @@ expression -> and_condition (__ "OR" __ and_condition):* {%
             conditions.push(d[3]);
         });
 
+        if (conditions.length === 1) {
+            return conditions[0];
+        }
+
         return {
             operator: conditions.length > 1 ? "OR" : "AND",
-            conditions: [data[0]]
+            conditions
         };
     }
 %}
@@ -24,6 +28,10 @@ and_condition -> condition (__ "AND" __ condition):* {%
         data[1].forEach((d) => {
             conditions.push(d[3]);
         });
+
+        if (conditions.length === 1) {
+            return conditions[0];
+        }
 
         return {
             operator: "AND",
@@ -49,18 +57,21 @@ field -> builtin_field {% id %}
 boolean -> "true" {% d => true %}
     | "false" {% d => false %}
 
-criteria -> field _ operator _ value {%
+criteria -> field _ operator {%
     function(data) {
-                console.log('data', data);
         return {
-            operator: data[2],
-            leftOperand:  data[0],
-            rightOperand: data[4],
+            leftOperand: data[0],
+            ...data[2]
         };
     }
 %}
 
-operator -> "=" {% id %}
+operator -> "BETWEEN" _ number _ "AND" _ number {% (data) => ({operator: 'BETWEEN', rightOperand: [data[2], data[6]]}) %}
+    | "IS" _ "MISSING" {% () => ({operator: 'MISSING'}) %}
+    | "EXISTS" {% () => ({operator: 'EXISTS'}) %}
+    | simple_operator _ value {% (data) => ({operator: data[0], rightOperand: data[2]}) %}
+
+simple_operator -> "=" {% id %}
     | "!=" {% id %}
     | ">" {% id %}
     | "<" {% id %}
