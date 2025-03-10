@@ -146,6 +146,7 @@ export default function CollectionMenuItem({
                         >
                             {closeWrapper => [
                                 <MenuItem
+                                    key='notifications'
                                     onClick={closeWrapper()}
                                     component={ModalLink}
                                     route={
@@ -167,10 +168,11 @@ export default function CollectionMenuItem({
                                         )}
                                     />
                                 </MenuItem>,
-                                <Divider />,
+                                <Divider key='divider1' />,
                                 collection.capabilities.canEdit &&
                                 authContext!.isAuthenticated() ? (
                                     <MenuItem
+                                        key='create-asset'
                                         onClick={closeWrapper(() =>
                                             openModal(UploadModal, {
                                                 files: [],
@@ -197,6 +199,7 @@ export default function CollectionMenuItem({
                                 ) : null,
                                 collection.capabilities.canEdit ? (
                                     <MenuItem
+                                        key='create-collection'
                                         onClick={closeWrapper(() =>
                                             openModal(CreateCollection, {
                                                 parent: collection['@id'],
@@ -227,9 +230,10 @@ export default function CollectionMenuItem({
                                         />
                                     </MenuItem>
                                 ) : null,
-                                <Divider />,
+                                <Divider key='divider2' />,
                                 collection.capabilities.canEdit ? (
                                     <MenuItem
+                                        key='edit'
                                         onClick={closeWrapper()}
                                         component={ModalLink}
                                         route={
@@ -255,6 +259,7 @@ export default function CollectionMenuItem({
                                 ) : null,
                                 collection.capabilities.canDelete ? (
                                     <MenuItem
+                                        key='delete'
                                         onClick={closeWrapper(onDelete)}
                                         aria-label="delete"
                                     >
