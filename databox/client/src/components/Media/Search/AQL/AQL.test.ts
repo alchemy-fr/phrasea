@@ -9,13 +9,8 @@ it('parse AQL', function () {
                 expression: {
                     operator: 'AND',
                     conditions: [
-                        {
-                            operator: 'AND',
-                            conditions: [
-                                {leftOperand: {field: 'field1'}, operator: '=', rightOperand: {literal: 'foo'}},
-                                {leftOperand: {field: 'price'}, operator: '>', rightOperand: 42},
-                            ],
-                        }
+                        {leftOperand: {field: 'field1'}, operator: '=', rightOperand: {literal: 'foo'}},
+                        {leftOperand: {field: 'price'}, operator: '>', rightOperand: 42},
                     ],
                 },
             },
@@ -24,18 +19,18 @@ it('parse AQL', function () {
             query: '@createdAt != "foo"',
             result: {
                 expression: {
-                    operator: 'AND',
-                    conditions: [
-                        {leftOperand: {key: 'createdAt'}, operator: '!=', rightOperand: {literal: 'foo'}},
-                    ],
+                    leftOperand: {field: '@createdAt'}, operator: '!=', rightOperand: {literal: 'foo'}
                 },
             },
         },
+        {
+            query: '@createdAt BETWEEN 1 AND 2',
+            result: {
+                expression:
+                    {leftOperand: {field: '@createdAt'}, operator: 'BETWEEN', rightOperand: [1, 2]},
+            },
+        },
     ];
-
-    const query = 'field1 = "foo" AND price > 42';
-    const result = parseAQLQuery(query);
-
 
     dataSet.forEach(({query, result}) => {
         const actual = parseAQLQuery(query);
