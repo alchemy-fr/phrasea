@@ -86,6 +86,7 @@ export default class PhraseanetClient {
     async searchRecords(
         params: Record<string, any>,
         offset: number = 0,
+        limit: number = 50,
         searchQuery: string
     ): Promise<CPhraseanetRecord[]> {
         return this.search(
@@ -93,13 +94,14 @@ export default class PhraseanetClient {
             offset,
             PhraseanetSearchType.Record,
             searchQuery,
-            50
+            limit
         ) as unknown as Promise<CPhraseanetRecord[]>;
     }
 
     async searchStories(
         params: Record<string, any>,
         offset: number = 0,
+        limit: number = 20,
         searchQuery: string
     ): Promise<CPhraseanetStory[]> {
         return this.search(
@@ -107,7 +109,7 @@ export default class PhraseanetClient {
             offset,
             PhraseanetSearchType.Story,
             searchQuery,
-            20
+            limit,
         ) as unknown as Promise<CPhraseanetStory[]>;
     }
 
@@ -128,7 +130,7 @@ export default class PhraseanetClient {
         let ttry = 0;
         for (ttry = 0; ttry < 3; ttry++) {
             try {
-                console.log(`Fetching search results...`);
+                this.logger.info(`Fetching ${limit} search results...`);
                 const res = await this.client.get('/api/v3/search/', {
                     params: {
                         offset,
@@ -163,7 +165,7 @@ export default class PhraseanetClient {
                 return recs;
             } catch (e) {
                 last_error = e;
-                console.log(
+                this.logger.info(
                     `Failed to fetch search results, retrying in 5s...`
                 );
                 await new Promise(resolve => setTimeout(resolve, 5000));
