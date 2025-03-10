@@ -63,14 +63,9 @@ class AssetSearch extends AbstractSearch
             $filterQueries[] = new Query\Terms('workspaceId', $options['workspaces']);
         }
 
-        if (null !== $attrFilters = ($options['filters'] ?? null)) {
-            if (is_string($attrFilters)) {
-                $attrFilters = json_decode($attrFilters, true, 512, JSON_THROW_ON_ERROR);
-            } else {
-                $attrFilters = array_map(fn ($f): array => is_string($f) ? json_decode($f, true, 512, JSON_THROW_ON_ERROR) : $f, $attrFilters);
-            }
-            if (!empty($attrFilters)) {
-                $filterQueries[] = $this->attributeSearch->addAttributeFilters($attrFilters);
+        if (null !== $conditions = ($options['conditions'] ?? null)) {
+            foreach ($conditions as $condition) {
+                $filterQueries[] = $this->attributeSearch->buildConditionQuery($condition);
             }
         }
 

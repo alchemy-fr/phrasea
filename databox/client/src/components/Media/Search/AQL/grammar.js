@@ -1,8 +1,7 @@
 // Generated automatically by nearley, version 2.20.1
 // http://github.com/Hardmath123/nearley
-(function () {
 function id(x) { return x[0]; }
-var grammar = {
+export default {
     Lexer: undefined,
     ParserRules: [
     {"name": "_$ebnf$1", "symbols": []},
@@ -14,7 +13,7 @@ var grammar = {
     {"name": "wschar", "symbols": [/[ \t\n\v\f]/], "postprocess": id},
     {"name": "unsigned_int$ebnf$1", "symbols": [/[0-9]/]},
     {"name": "unsigned_int$ebnf$1", "symbols": ["unsigned_int$ebnf$1", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "unsigned_int", "symbols": ["unsigned_int$ebnf$1"], "postprocess": 
+    {"name": "unsigned_int", "symbols": ["unsigned_int$ebnf$1"], "postprocess":
         function(d) {
             return parseInt(d[0].join(""));
         }
@@ -25,7 +24,7 @@ var grammar = {
     {"name": "int$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "int$ebnf$2", "symbols": [/[0-9]/]},
     {"name": "int$ebnf$2", "symbols": ["int$ebnf$2", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "int", "symbols": ["int$ebnf$1", "int$ebnf$2"], "postprocess": 
+    {"name": "int", "symbols": ["int$ebnf$1", "int$ebnf$2"], "postprocess":
         function(d) {
             if (d[0]) {
                 return parseInt(d[0][0]+d[1].join(""));
@@ -41,7 +40,7 @@ var grammar = {
     {"name": "unsigned_decimal$ebnf$2$subexpression$1", "symbols": [{"literal":"."}, "unsigned_decimal$ebnf$2$subexpression$1$ebnf$1"]},
     {"name": "unsigned_decimal$ebnf$2", "symbols": ["unsigned_decimal$ebnf$2$subexpression$1"], "postprocess": id},
     {"name": "unsigned_decimal$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "unsigned_decimal", "symbols": ["unsigned_decimal$ebnf$1", "unsigned_decimal$ebnf$2"], "postprocess": 
+    {"name": "unsigned_decimal", "symbols": ["unsigned_decimal$ebnf$1", "unsigned_decimal$ebnf$2"], "postprocess":
         function(d) {
             return parseFloat(
                 d[0].join("") +
@@ -58,7 +57,7 @@ var grammar = {
     {"name": "decimal$ebnf$3$subexpression$1", "symbols": [{"literal":"."}, "decimal$ebnf$3$subexpression$1$ebnf$1"]},
     {"name": "decimal$ebnf$3", "symbols": ["decimal$ebnf$3$subexpression$1"], "postprocess": id},
     {"name": "decimal$ebnf$3", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "decimal", "symbols": ["decimal$ebnf$1", "decimal$ebnf$2", "decimal$ebnf$3"], "postprocess": 
+    {"name": "decimal", "symbols": ["decimal$ebnf$1", "decimal$ebnf$2", "decimal$ebnf$3"], "postprocess":
         function(d) {
             return parseFloat(
                 (d[0] || "") +
@@ -67,7 +66,7 @@ var grammar = {
             );
         }
         },
-    {"name": "percentage", "symbols": ["decimal", {"literal":"%"}], "postprocess": 
+    {"name": "percentage", "symbols": ["decimal", {"literal":"%"}], "postprocess":
         function(d) {
             return d[0]/100;
         }
@@ -88,7 +87,7 @@ var grammar = {
     {"name": "jsonfloat$ebnf$4$subexpression$1", "symbols": [/[eE]/, "jsonfloat$ebnf$4$subexpression$1$ebnf$1", "jsonfloat$ebnf$4$subexpression$1$ebnf$2"]},
     {"name": "jsonfloat$ebnf$4", "symbols": ["jsonfloat$ebnf$4$subexpression$1"], "postprocess": id},
     {"name": "jsonfloat$ebnf$4", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "jsonfloat", "symbols": ["jsonfloat$ebnf$1", "jsonfloat$ebnf$2", "jsonfloat$ebnf$3", "jsonfloat$ebnf$4"], "postprocess": 
+    {"name": "jsonfloat", "symbols": ["jsonfloat$ebnf$1", "jsonfloat$ebnf$2", "jsonfloat$ebnf$3", "jsonfloat$ebnf$4"], "postprocess":
         function(d) {
             return parseFloat(
                 (d[0] || "") +
@@ -103,17 +102,17 @@ var grammar = {
     {"name": "expression$ebnf$1$subexpression$1$string$1", "symbols": [{"literal":"O"}, {"literal":"R"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "expression$ebnf$1$subexpression$1", "symbols": ["__", "expression$ebnf$1$subexpression$1$string$1", "__", "and_condition"]},
     {"name": "expression$ebnf$1", "symbols": ["expression$ebnf$1", "expression$ebnf$1$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "expression", "symbols": ["and_condition", "expression$ebnf$1"], "postprocess": 
+    {"name": "expression", "symbols": ["and_condition", "expression$ebnf$1"], "postprocess":
         function(data) {
             const conditions = [data[0]];
             data[1].forEach((d) => {
                 conditions.push(d[3]);
             });
-        
+
             if (conditions.length === 1) {
                 return conditions[0];
             }
-        
+
             return {
                 operator: conditions.length > 1 ? "OR" : "AND",
                 conditions
@@ -124,18 +123,18 @@ var grammar = {
     {"name": "and_condition$ebnf$1$subexpression$1$string$1", "symbols": [{"literal":"A"}, {"literal":"N"}, {"literal":"D"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "and_condition$ebnf$1$subexpression$1", "symbols": ["__", "and_condition$ebnf$1$subexpression$1$string$1", "__", "condition"]},
     {"name": "and_condition$ebnf$1", "symbols": ["and_condition$ebnf$1", "and_condition$ebnf$1$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "and_condition", "symbols": ["condition", "and_condition$ebnf$1"], "postprocess": 
+    {"name": "and_condition", "symbols": ["condition", "and_condition$ebnf$1"], "postprocess":
         function(data) {
             const conditions = [data[0]];
-        
+
             data[1].forEach((d) => {
                 conditions.push(d[3]);
             });
-        
+
             if (conditions.length === 1) {
                 return conditions[0];
             }
-        
+
             return {
                 operator: "AND",
                 conditions,
@@ -165,7 +164,7 @@ var grammar = {
     {"name": "boolean", "symbols": ["boolean$string$1"], "postprocess": d => true},
     {"name": "boolean$string$2", "symbols": [{"literal":"f"}, {"literal":"a"}, {"literal":"l"}, {"literal":"s"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "boolean", "symbols": ["boolean$string$2"], "postprocess": d => false},
-    {"name": "criteria", "symbols": ["field", "_", "operator"], "postprocess": 
+    {"name": "criteria", "symbols": ["field", "_", "operator"], "postprocess":
         function(data) {
         console.log('operator', data);
             return {
@@ -206,9 +205,3 @@ var grammar = {
 ]
   , ParserStart: "main"
 }
-if (typeof module !== 'undefined'&& typeof module.exports !== 'undefined') {
-   module.exports = grammar;
-} else {
-   window.grammar = grammar;
-}
-})();
