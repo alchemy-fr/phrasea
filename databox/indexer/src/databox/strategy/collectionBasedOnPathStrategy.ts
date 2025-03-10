@@ -53,6 +53,7 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
             attributes: asset.attributes,
             tags: asset.tags,
             renditions: asset.renditions,
+            storyCollection: asset.storyCollection,
         });
         // also create links into collections
         for (const c of asset.shortcutIntoCollections ?? []) {

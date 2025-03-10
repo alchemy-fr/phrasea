@@ -26,6 +26,7 @@ use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Api\Processor\FollowProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveCollectionProcessor;
+use App\Api\Processor\PrepareDeleteCollectionProcessor;
 use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\CollectionProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
@@ -64,7 +65,10 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
             ],
             security: 'is_granted("'.AbstractVoter::READ.'", object)'
         ),
-        new Delete(security: 'is_granted("DELETE", object)'),
+        new Delete(
+            security: 'is_granted("DELETE", object)',
+            processor: PrepareDeleteCollectionProcessor::class
+        ),
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
         new Put(

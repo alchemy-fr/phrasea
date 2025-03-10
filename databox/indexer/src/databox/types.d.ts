@@ -24,6 +24,7 @@ export type AssetInput = {
     tags?: TagInput[];
     renditions?: RenditionInput[];
     generateRenditions?: boolean;
+    storyCollection?: string;
 };
 
 export type AssetCopyInput = {

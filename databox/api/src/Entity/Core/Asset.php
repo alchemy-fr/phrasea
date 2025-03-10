@@ -251,7 +251,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
 
     #[ORM\ManyToOne(targetEntity: Collection::class)]
     #[ORM\JoinColumn(nullable: true)]
-    private ?DoctrineCollection $storyCollection = null;
+    private ?Collection $storyCollection = null;
 
     /**
      * Asset will inherit permissions from this collection.
@@ -328,12 +328,12 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         $this->source = $source;
     }
 
-    public function getStoryCollection(): ?DoctrineCollection
+    public function getStoryCollection(): ?Collection
     {
         return $this->storyCollection;
     }
 
-    public function setStoryCollection(?DoctrineCollection $storyCollection): void
+    public function setStoryCollection(?Collection $storyCollection): void
     {
         $this->storyCollection = $storyCollection;
     }
