@@ -45,9 +45,7 @@ async function search(
     const options: GetAssetOptions = {
         query,
         url,
-        filters: JSON.stringify(
-            conditions?.filter(c => !c.disabled).map(c => c.query)
-        ),
+        conditions: conditions?.filter(c => !c.disabled).map(c => c.query),
         group: groupBy.length > 0 ? groupBy.slice(0, 1) : undefined,
         order,
     };

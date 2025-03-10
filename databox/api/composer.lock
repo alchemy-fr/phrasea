@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2b43cb347669b2f3f6c27164d24a030b",
+    "content-hash": "32a05e9a343c8ec7f1d55acfe84472ba",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -8547,6 +8547,71 @@
                 }
             ],
             "time": "2024-02-26T09:27:19+00:00"
+        },
+        {
+            "name": "smuuf/php-peg",
+            "version": "3.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/smuuf/php-peg.git",
+                "reference": "3141cd2953fb0733211504fa04d087ecab5895fd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/smuuf/php-peg/zipball/3141cd2953fb0733211504fa04d087ecab5895fd",
+                "reference": "3141cd2953fb0733211504fa04d087ecab5895fd",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0"
+            },
+            "require-dev": {
+                "nette/tester": "^2.4",
+                "phpstan/phpstan": "^1.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "hafriedlander\\Peg": "lib"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hamish Friedlander",
+                    "email": "hamish@silverstripe.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Premysl Karbula",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Johannes Künsebeck",
+                    "email": "kuensebeck@googlemail.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Dan Phillimore",
+                    "email": "dan@ovms.co",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PEG parser generator for PHP.",
+            "homepage": "https://github.com/smuuf/php-peg",
+            "keywords": [
+                "DSL",
+                "compiler",
+                "parser",
+                "peg"
+            ],
+            "support": {
+                "source": "https://github.com/smuuf/php-peg/tree/3.1.0"
+            },
+            "time": "2024-10-13T20:32:57+00:00"
         },
         {
             "name": "spatie/pdf-to-image",
@@ -17886,10 +17951,10 @@
         "alchemy/admin-bundle": 20,
         "alchemy/configurator-bundle": 20,
         "alchemy/core-bundle": 20,
-        "alchemy/notify-bundle": 20,
         "alchemy/es-bundle": 20,
         "alchemy/messenger-bundle": 20,
         "alchemy/metadata-manipulator-bundle": 20,
+        "alchemy/notify-bundle": 20,
         "alchemy/rendition-factory": 20,
         "alchemy/rendition-factory-bundle": 20,
         "alchemy/webhook-bundle": 20,

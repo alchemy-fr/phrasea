@@ -8,6 +8,7 @@ use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\TextAttributeType;
+use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
@@ -25,6 +26,7 @@ class AttributeSearch
         private readonly FieldNameResolver $fieldNameResolver,
         private readonly EntityManagerInterface $em,
         private readonly AttributeTypeRegistry $typeRegistry,
+        private readonly AQLParser $AQLParser,
     ) {
     }
 
@@ -410,5 +412,14 @@ class AttributeSearch
             $missingAgg = new Missing($fieldName.FacetHandler::MISSING_SUFFIX, $fullFieldName);
             $query->addAggregation($missingAgg);
         }
+    }
+
+    public function buildConditionQuery(string $condition): Query\AbstractQuery
+    {
+        $this->AQLParser->parse($condition);
+
+        $term = new Query\Term(['foo' => 'bar']);
+
+        return $term;
     }
 }
