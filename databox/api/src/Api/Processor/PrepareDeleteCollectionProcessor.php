@@ -32,7 +32,7 @@ class PrepareDeleteCollectionProcessor implements ProcessorInterface
     {
         $this->removeProcessor->process($data, $operation, $uriVariables, $context);
         /** @var Asset $asset */
-        foreach($this->assetRepository->findByStoryCollectionIds([$data->getId()]) as $asset) {
+        foreach ($this->assetRepository->findByStoryCollectionIds([$data->getId()]) as $asset) {
             $this->em->remove($asset);
             $this->em->flush();
         }
