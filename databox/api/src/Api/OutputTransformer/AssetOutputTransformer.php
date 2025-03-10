@@ -206,6 +206,8 @@ class AssetOutputTransformer implements OutputTransformerInterface
             $output->thread = $this->discussionManager->getThreadOfObject($data);
         }
 
+        $output->storyCollection = $data->getStoryCollection();
+
         return $output;
     }
 
