@@ -1,10 +1,5 @@
-import {FilterEntry, Filters, SortBy} from './Filter';
-import {
-    FacetType,
-    NormalizedBucketKeyValue,
-    ResolvedBucketValue,
-} from '../Asset/Facets';
-import {AttributeType} from '../../../api/attributes';
+import {SortBy} from './Filter';
+import {AQLQueries, AQLQuery} from "./AQL/query.ts";
 
 const specSep = ';';
 const arraySep = ',';
@@ -44,61 +39,9 @@ function decodeSortBy(str: string): SortBy {
     };
 }
 
-function encodeFilter(filter: FilterEntry): string {
-    return [
-        filter.a,
-        filter.w,
-        encode(filter.t),
-        encode(JSON.stringify(filter.v.map(normalizeBucketValue))),
-        filter.x === AttributeType.Text ? '' : filter.x,
-        filter.i ? '1' : '',
-    ].join(specSep);
-}
-
-function decodeFilter(str: string): FilterEntry {
-    const [a, w, t, v, x, i] = str.split(specSep);
-
-    return {
-        a,
-        x: x as AttributeType | undefined,
-        w: (w as FacetType) || undefined,
-        t: decode(t),
-        v: JSON.parse(decode(v)).map(
-            denormalizeBucketValue
-        ) as ResolvedBucketValue[],
-        i: i ? 1 : undefined,
-    };
-}
-
-function normalizeBucketValue(
-    v: ResolvedBucketValue
-): NormalizedBucketKeyValue {
-    if (v && typeof v === 'object') {
-        return {
-            v: v.value,
-            l: v.label,
-        };
-    }
-
-    return v;
-}
-
-function denormalizeBucketValue(
-    v: NormalizedBucketKeyValue
-): ResolvedBucketValue {
-    if (v && typeof v === 'object') {
-        return {
-            value: v.v,
-            label: v.l,
-        };
-    }
-
-    return v;
-}
-
 export function queryToHash(
     query: string,
-    filters: Filters,
+    conditions: AQLQueries,
     sortBy: SortBy[],
     geolocation: string | undefined
 ): string {
@@ -106,9 +49,8 @@ export function queryToHash(
     if (query) {
         hash += `q=${encodeURIComponent(query)}`;
     }
-    if (filters && filters.length > 0) {
-        const uriComponent = filters.map(encodeFilter).join(arraySep);
-        hash += `${hash ? '&' : ''}f=${encodeURIComponent(uriComponent)}`;
+    if (conditions && conditions.length > 0) {
+        hash += `${hash ? '&' : ''}${conditions.filter(q => !q.disabled).map(q => `f=${q.id}:${encodeURIComponent(q.query)}`).join('&')}`;
     }
     if (sortBy && sortBy.length > 0) {
         hash += `${hash ? '&' : ''}s=${encodeURIComponent(
@@ -124,7 +66,7 @@ export function queryToHash(
 
 export function hashToQuery(hash: string): {
     query: string;
-    filters: Filters;
+    conditions: AQLQuery[];
     sortBy: SortBy[];
     geolocation: string | undefined;
 } {
@@ -132,13 +74,21 @@ export function hashToQuery(hash: string): {
 
     return {
         query: decodeURIComponent(params.get('q') || ''),
-        filters: params.get('f')
-            ? (params.get('f') as string).split(arraySep).map(decodeFilter)
+        conditions: params.has('f')
+            ? (params.getAll('f'))
+                .map(q => {
+                    const [id, ...query] = q.split(':');
+
+                    return {
+                        query: query.join(':'),
+                        id,
+                    } as AQLQuery;
+                })
             : [],
         sortBy: params.get('s')
             ? decodeURIComponent(params.get('s') as string)
-                  .split(arraySep)
-                  .map(decodeSortBy)
+                .split(arraySep)
+                .map(decodeSortBy)
             : [],
         geolocation: params.get('l')
             ? decodeURIComponent(params.get('l') as string)

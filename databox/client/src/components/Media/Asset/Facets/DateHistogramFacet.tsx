@@ -23,11 +23,9 @@ import {useTranslation} from 'react-i18next';
 
 export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
     const {t} = useTranslation();
-    const {attrFilters, setAttrFilter, removeAttrFilter} =
+    const {conditions, updateCondition, removeCondition} =
         useContext(SearchContext)!;
-    const attrFilterIndex = attrFilters.findIndex(_f => _f.a === name);
-    const attrFilter =
-        attrFilterIndex >= 0 ? attrFilters[attrFilterIndex] : undefined;
+    const condition = conditions.find(_f => _f.id === name);
     const theme = useTheme();
     const histogramHeight = 50;
     const displayTime = Boolean(
@@ -65,12 +63,12 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
     const [value, setValue] = useState<[number, number]>([min, max]);
 
     useEffect(() => {
-        if (attrFilter) {
-            setValue(attrFilter.v as [number, number]);
+        if (condition) {
+            setValue(condition.query.split(',').map(parseInt)); // TODO
         } else {
             setValue([min, max]);
         }
-    }, [min, max, attrFilter]);
+    }, [min, max, condition]);
 
     const handleChange = useCallback(
         (_event: Event, newValue: number | number[]) => {
@@ -84,13 +82,11 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
             if (step) {
                 (newValue as [number, number])[1] += step;
             }
-            setAttrFilter(
-                name,
-                facet.meta.type,
-                newValue as [number, number],
-                facet.meta.title,
-                facet.meta.widget
-            );
+
+            updateCondition({
+                id: name,
+                query: `${name} BETWEEN ${newValue[0] as number} AND ${newValue[1] as number}`,
+            });
         },
         [facet, step]
     );
@@ -139,11 +135,11 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                 <>
                     <ListItem>
                         <ListItemText primary={getValueText(min)} />
-                        {attrFilterIndex >= 0 && (
+                        {!!condition && (
                             <ListItemSecondaryAction>
                                 <Button
                                     onClick={() =>
-                                        removeAttrFilter(attrFilterIndex)
+                                        removeCondition(condition)
                                     }
                                 >
                                     {t(

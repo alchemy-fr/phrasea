@@ -16,19 +16,20 @@ type Props = {
 } & FacetGroupProps;
 
 export default function ListFacet({facet, name, itemComponent}: Props) {
-    const {attrFilters, toggleAttrFilter} = useContext(SearchContext)!;
-    const attrFilter = attrFilters.find(_f => _f.a === name && !_f.i);
+    const {conditions, toggleCondition} = useContext(SearchContext)!;
+    const condition = conditions.find(_f => _f.id === name);
     const {type} = facet.meta;
     const {t} = useTranslation();
 
     const missingOnClick = () => {
-        toggleAttrFilter(name, 'missing', '', facet.meta.title);
+        toggleCondition({
+            id: name,
+            query: `${name} MISSING`,
+        });
     };
     const missingSelected = Boolean(
-        attrFilter &&
-            attrFilter.v.some(
-                v => extractLabelValueFromKey(v, type).value === ''
-            )
+        condition && !condition.disabled &&
+            condition.query.endsWith(' MISSING')
     );
 
     return (
@@ -39,21 +40,15 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
                     const {value: keyV} = labelValue;
 
                     const selected = Boolean(
-                        attrFilter &&
-                            attrFilter.v.some(
-                                v =>
-                                    extractLabelValueFromKey(v, type).value ===
-                                    keyV
-                            )
+                        condition && !condition.disabled &&
+                            condition.query.includes(keyV.toString())
                     );
 
                     const onClick = () =>
-                        toggleAttrFilter(
-                            name,
-                            facet.meta.type,
-                            b.key,
-                            facet.meta.title
-                        );
+                        toggleCondition({
+                            id: name,
+                            query: `${name} = "${keyV}"`,
+                        });
 
                     return React.createElement(itemComponent, {
                         key: keyV.toString(),
