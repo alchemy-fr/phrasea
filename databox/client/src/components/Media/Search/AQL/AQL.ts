@@ -16,13 +16,27 @@ type Query = {
     expression: Expression;
 }
 
-export function parseAQLQuery(queryString: string): Query {
-    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+export function parseAQLQuery(queryString: string): Query | undefined {
+    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar),
+        { keepHistory: true }
+    );
 
-    parser.feed(queryString);
-    console.log('parser.results', parser.results);
+    try {
+        parser.feed(queryString);
+    } catch (error) {
+        console.error('error', error);
+
+        return;
+    }
 
     return {
         expression: parser.results[0],
     }
+}
+
+export enum InternalKey {
+    Workspace = 'workspace',
+    Collection = 'collection',
+    CreatedAt = 'createdAt',
+    Score = 'score',
 }

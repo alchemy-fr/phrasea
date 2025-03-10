@@ -110,9 +110,13 @@ var grammar = {
                 conditions.push(d[3]);
             });
         
+            if (conditions.length === 1) {
+                return conditions[0];
+            }
+        
             return {
                 operator: conditions.length > 1 ? "OR" : "AND",
-                conditions: [data[0]]
+                conditions
             };
         }
         },
@@ -127,6 +131,10 @@ var grammar = {
             data[1].forEach((d) => {
                 conditions.push(d[3]);
             });
+        
+            if (conditions.length === 1) {
+                return conditions[0];
+            }
         
             return {
                 operator: "AND",
@@ -157,31 +165,39 @@ var grammar = {
     {"name": "boolean", "symbols": ["boolean$string$1"], "postprocess": d => true},
     {"name": "boolean$string$2", "symbols": [{"literal":"f"}, {"literal":"a"}, {"literal":"l"}, {"literal":"s"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "boolean", "symbols": ["boolean$string$2"], "postprocess": d => false},
-    {"name": "criteria", "symbols": ["field", "_", "operator", "_", "value"], "postprocess": 
+    {"name": "criteria", "symbols": ["field", "_", "operator"], "postprocess": 
         function(data) {
-                    console.log('data', data);
+        console.log('operator', data);
             return {
-                operator: data[2],
-                leftOperand:  data[0],
-                rightOperand: data[4],
+                leftOperand: data[0],
+                ...data[2]
             };
         }
         },
-    {"name": "operator", "symbols": [{"literal":"="}], "postprocess": id},
-    {"name": "operator$string$1", "symbols": [{"literal":"!"}, {"literal":"="}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "operator", "symbols": ["operator$string$1"], "postprocess": id},
-    {"name": "operator", "symbols": [{"literal":">"}], "postprocess": id},
-    {"name": "operator", "symbols": [{"literal":"<"}], "postprocess": id},
-    {"name": "operator$string$2", "symbols": [{"literal":">"}, {"literal":"="}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "operator", "symbols": ["operator$string$2"], "postprocess": id},
-    {"name": "operator$string$3", "symbols": [{"literal":"<"}, {"literal":"="}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "operator", "symbols": ["operator$string$3"], "postprocess": id},
-    {"name": "operator$string$4", "symbols": [{"literal":"c"}, {"literal":"o"}, {"literal":"n"}, {"literal":"t"}, {"literal":"a"}, {"literal":"i"}, {"literal":"n"}, {"literal":"s"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "operator", "symbols": ["operator$string$4"], "postprocess": id},
-    {"name": "operator$string$5", "symbols": [{"literal":"i"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "operator", "symbols": ["operator$string$5"], "postprocess": id},
-    {"name": "operator$string$6", "symbols": [{"literal":"n"}, {"literal":"o"}, {"literal":"t"}, {"literal":" "}, {"literal":"i"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "operator", "symbols": ["operator$string$6"], "postprocess": id},
+    {"name": "operator$string$1", "symbols": [{"literal":"B"}, {"literal":"E"}, {"literal":"T"}, {"literal":"W"}, {"literal":"E"}, {"literal":"E"}, {"literal":"N"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "operator$string$2", "symbols": [{"literal":"A"}, {"literal":"N"}, {"literal":"D"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "operator", "symbols": ["operator$string$1", "_", "number", "_", "operator$string$2", "_", "number"], "postprocess": (data) => ({operator: 'BETWEEN', rightOperand: [data[2], data[6]]})},
+    {"name": "operator$string$3", "symbols": [{"literal":"I"}, {"literal":"S"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "operator$string$4", "symbols": [{"literal":"M"}, {"literal":"I"}, {"literal":"S"}, {"literal":"S"}, {"literal":"I"}, {"literal":"N"}, {"literal":"G"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "operator", "symbols": ["operator$string$3", "_", "operator$string$4"], "postprocess": () => ({operator: 'MISSING'})},
+    {"name": "operator$string$5", "symbols": [{"literal":"E"}, {"literal":"X"}, {"literal":"I"}, {"literal":"S"}, {"literal":"T"}, {"literal":"S"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "operator", "symbols": ["operator$string$5"], "postprocess": () => ({operator: 'EXISTS'})},
+    {"name": "operator", "symbols": ["simple_operator", "_", "value"], "postprocess": (data) => ({operator: data[0], rightOperand: data[2]})},
+    {"name": "simple_operator", "symbols": [{"literal":"="}], "postprocess": id},
+    {"name": "simple_operator$string$1", "symbols": [{"literal":"!"}, {"literal":"="}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "simple_operator", "symbols": ["simple_operator$string$1"], "postprocess": id},
+    {"name": "simple_operator", "symbols": [{"literal":">"}], "postprocess": id},
+    {"name": "simple_operator", "symbols": [{"literal":"<"}], "postprocess": id},
+    {"name": "simple_operator$string$2", "symbols": [{"literal":">"}, {"literal":"="}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "simple_operator", "symbols": ["simple_operator$string$2"], "postprocess": id},
+    {"name": "simple_operator$string$3", "symbols": [{"literal":"<"}, {"literal":"="}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "simple_operator", "symbols": ["simple_operator$string$3"], "postprocess": id},
+    {"name": "simple_operator$string$4", "symbols": [{"literal":"c"}, {"literal":"o"}, {"literal":"n"}, {"literal":"t"}, {"literal":"a"}, {"literal":"i"}, {"literal":"n"}, {"literal":"s"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "simple_operator", "symbols": ["simple_operator$string$4"], "postprocess": id},
+    {"name": "simple_operator$string$5", "symbols": [{"literal":"i"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "simple_operator", "symbols": ["simple_operator$string$5"], "postprocess": id},
+    {"name": "simple_operator$string$6", "symbols": [{"literal":"n"}, {"literal":"o"}, {"literal":"t"}, {"literal":" "}, {"literal":"i"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "simple_operator", "symbols": ["simple_operator$string$6"], "postprocess": id},
     {"name": "number", "symbols": ["int"], "postprocess": id},
     {"name": "number", "symbols": ["decimal"], "postprocess": id},
     {"name": "value", "symbols": ["number"], "postprocess": id},

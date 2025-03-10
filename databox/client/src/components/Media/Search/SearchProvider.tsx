@@ -1,29 +1,25 @@
 import React, {PropsWithChildren, useCallback, useState} from 'react';
 import {SearchContext, TSearchContext} from './SearchContext';
-import {
-    extractLabelValueFromKey,
-    FacetType,
-    LabelledBucketValue,
-    ResolvedBucketValue,
-} from '../Asset/Facets';
-import {FilterEntry, Filters, FilterType, SortBy} from './Filter';
+import {SortBy} from './Filter';
 import {BuiltInFilter, hashToQuery, queryToHash} from './search';
 import useHash from '../../../lib/useHash';
 import {useTranslation} from 'react-i18next';
 import type {TFunction} from '@alchemy/i18n';
+import {AQLQuery, AQLQueries} from "./AQL/query.ts";
+import {InternalKey} from "./AQL/AQL.ts";
 
 export function getResolvedSortBy(sortBy: SortBy[], t: TFunction): SortBy[] {
     return sortBy.length > 0
         ? sortBy
         : [
               {
-                  a: BuiltInFilter.Score,
+                  a: InternalKey.Score,
                   t: t('get_resolved_sort_by.relevance', `Relevance`),
                   w: 1,
                   g: false,
               },
               {
-                  a: BuiltInFilter.CreatedAt,
+                  a: InternalKey.CreatedAt,
                   t: t('get_resolved_sort_by.date_added', `Date Added`),
                   w: 1,
                   g: false,
@@ -35,7 +31,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
     const {t} = useTranslation();
     const [hash, setHash] = useHash();
     const [reloadInc, setReloadInc] = useState(0);
-    const {query, filters, sortBy, geolocation} = hashToQuery(hash);
+    const {query, conditions, sortBy, geolocation} = hashToQuery(hash);
     const inputQuery = React.useRef<string>('');
 
     const setInputQuery = React.useCallback(
@@ -51,105 +47,79 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         setInputQuery(query);
     }, [query]);
 
-    const setAttrFilters = useCallback(
-        (handler: (prev: Filters) => Filters, newQuery?: string): boolean => {
+    const setConditions = useCallback(
+        (handler: (prev: AQLQueries) => AQLQueries, newQuery?: string): boolean => {
             return setHash(
                 queryToHash(
                     newQuery ?? inputQuery.current ?? query,
-                    handler(filters),
+                    handler(conditions),
                     sortBy,
                     geolocation
                 )
             );
         },
-        [setHash, query, filters, sortBy, geolocation]
+        [setHash, query, conditions, sortBy, geolocation]
     );
 
     const reset = useCallback((): boolean => {
         return setHash('');
-    }, [setHash, query, filters, sortBy, geolocation]);
+    }, [setHash, query, conditions, sortBy, geolocation]);
+
+    function replaceConditionHelper(conditions: AQLQueries, condition: AQLQuery): AQLQueries {
+        return conditions.map(c => c.id === condition.id ? condition : c);
+    }
+
+    function removeConditionHelper(conditions: AQLQueries, id: string): AQLQueries {
+        return conditions.filter(c => c.id !== id);
+    }
 
     const selectWorkspace = useCallback<TSearchContext['selectWorkspace']>(
-        (workspaceId, title, forceReload): void => {
+        (workspaceId, _title, forceReload): void => {
             if (
-                !setAttrFilters(p => {
-                    const next = p.filter(
-                        f =>
-                            !(
-                                [
-                                    BuiltInFilter.Workspace,
-                                    BuiltInFilter.Collection,
-                                ] as string[]
-                            ).includes(f.a)
-                    );
+                !setConditions(p => {
                     if (!workspaceId) {
-                        return next;
+                        return removeConditionHelper(p, InternalKey.Workspace);
                     }
 
-                    return next.concat([
-                        {
-                            a: BuiltInFilter.Workspace,
-                            t: t('search_provider.workspaces', `Workspaces`),
-                            v: [
-                                {
-                                    label: title!,
-                                    value: workspaceId,
-                                },
-                            ],
-                        },
-                    ]);
+                    return replaceConditionHelper(p, {
+                        id: InternalKey.Workspace,
+                        query: `@${InternalKey.Workspace} = ${workspaceId}`,
+                    });
                 }) &&
                 forceReload
             ) {
                 setReloadInc(p => p + 1);
             }
         },
-        [setAttrFilters]
+        [setConditions]
     );
 
     const selectCollection = useCallback<TSearchContext['selectCollection']>(
-        (absolutePath, title, forceReload): void => {
+        (absolutePath, _title, forceReload): void => {
             if (
-                !setAttrFilters(p => {
-                    const next = p.filter(
-                        f =>
-                            !(
-                                [
-                                    BuiltInFilter.Workspace,
-                                    BuiltInFilter.Collection,
-                                ] as string[]
-                            ).includes(f.a)
-                    );
+                !setConditions(p => {
                     if (!absolutePath) {
-                        return next;
+                        return removeConditionHelper(p, InternalKey.Collection);
                     }
 
-                    return next.concat([
-                        {
-                            a: BuiltInFilter.Collection,
-                            t: t('search_provider.collections', `Collections`),
-                            v: [
-                                {
-                                    label: title!,
-                                    value: '/' + absolutePath,
-                                },
-                            ],
-                        },
-                    ]);
+                    return replaceConditionHelper(p, {
+                        id: InternalKey.Collection,
+                        query: `@${InternalKey.Collection} = ${absolutePath}`,
+                    });
                 }) &&
                 forceReload
             ) {
                 setReloadInc(p => p + 1);
             }
         },
-        [setAttrFilters]
+        [setConditions]
     );
 
     const setSortBy = useCallback<TSearchContext['setSortBy']>(
         (newValue): void => {
-            setHash(queryToHash(query, filters, newValue, geolocation));
+            setHash(queryToHash(query, conditions, newValue, geolocation));
         },
-        [setHash, query, filters, geolocation]
+        [setHash, query, conditions, geolocation]
     );
 
     const setQuery = useCallback(
@@ -158,7 +128,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 !setHash(
                     queryToHash(
                         typeof handler === 'string' ? handler : handler(query),
-                        filters,
+                        conditions,
                         sortBy,
                         geolocation
                     )
@@ -167,124 +137,53 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 setReloadInc(p => p + 1);
             }
         },
-        [setHash, query, filters, sortBy, geolocation]
+        [setHash, query, conditions, sortBy, geolocation]
     );
 
     const setGeoLocation = React.useCallback(
         (position: string | undefined) => {
-            setHash(queryToHash(query, filters, sortBy, position));
+            setHash(queryToHash(query, conditions, sortBy, position));
         },
-        [setHash, query, filters, sortBy, geolocation]
+        [setHash, query, conditions, sortBy, geolocation]
     );
 
-    const removeAttrFilter = (key: number): void => {
-        setAttrFilters(prev => {
-            const f = [...prev];
-            f.splice(key, 1);
-
-            return f;
-        });
+    const removeCondition = (condition: AQLQuery): void => {
+        setConditions(prev => prev.filter(c => c.id !== condition.id));
     };
 
-    const invertAttrFilter = (key: number): void => {
-        setAttrFilters(prev => {
-            const f = [...prev];
-
-            if (f[key].i) {
-                delete f[key].i;
-            } else {
-                f[key].i = 1;
-            }
-
-            return f;
-        });
+    const updateCondition = (condition: AQLQuery): void => {
+        setConditions(prev => prev.map(c => c.id === condition.id ? condition : c));
     };
 
-    const toggleAttrFilter = (
-        attrName: string,
-        type: FilterType | undefined,
-        keyValue: ResolvedBucketValue,
-        attrTitle: string
+    const workspaces = conditions
+        .filter(q => !q.disabled)
+        .filter(q => q.query.startsWith(`@${InternalKey.Workspace} = `))
+        .map(q => q.query) as string[];
+
+
+    const collections = conditions
+        .filter(q => !q.disabled)
+        .filter(q => q.query.startsWith(`@${InternalKey.Collection} = `))
+        .map(q => q.query) as string[];
+
+    const toggleCondition = (
+        condition: AQLQuery
     ): void => {
-        setAttrFilters(prev => {
+        setConditions(prev => {
             const f = [...prev];
 
-            const key = f.findIndex(_f => _f.a === attrName && !_f.i);
+            const key = f.findIndex(_f => _f.id === condition.id);
 
             if (key >= 0) {
-                const {value} = extractLabelValueFromKey(keyValue, type);
-
-                const tf = f[key];
-                if (
-                    tf.v.find(
-                        v => extractLabelValueFromKey(v, type).value === value
-                    )
-                ) {
-                    if (tf.v.length === 1) {
-                        f.splice(key, 1);
-                    } else {
-                        tf.v = tf.v.filter(
-                            v =>
-                                extractLabelValueFromKey(v, type).value !==
-                                value
-                        );
-                    }
-                } else {
-                    tf.v = tf.v.concat(keyValue);
-                }
+                f[key] = condition;
+                delete f[key].disabled;
             } else {
-                f.push({
-                    t: attrTitle,
-                    a: attrName,
-                    v: [keyValue],
-                    x: type,
-                });
+                f.push(condition);
             }
 
             return f;
         });
     };
-
-    const setAttrFilter = (
-        attrName: string,
-        type: FilterType | undefined,
-        values: ResolvedBucketValue[],
-        attrTitle: string,
-        widget?: FacetType
-    ): void => {
-        setAttrFilters(prev => {
-            const f = [...prev];
-
-            const key = f.findIndex(_f => _f.a === attrName);
-
-            if (key >= 0) {
-                f[key].v = values;
-            } else {
-                const items: FilterEntry = {
-                    t: attrTitle,
-                    a: attrName,
-                    v: values,
-                    w: widget,
-                    x: type,
-                };
-                f.push(items);
-            }
-
-            return f;
-        });
-    };
-
-    const collections = filters
-        .filter(f => f.a === BuiltInFilter.Collection && !f.i)
-        .map(f => f.v as LabelledBucketValue[])
-        .flat()
-        .map((v: LabelledBucketValue) => v.value) as string[];
-
-    const workspaces = filters
-        .filter(f => f.a === BuiltInFilter.Workspace && !f.i)
-        .map(f => f.v as LabelledBucketValue[])
-        .flat()
-        .map((v: LabelledBucketValue) => v.value) as string[];
 
     return (
         <SearchContext.Provider
@@ -293,18 +192,17 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 selectCollection,
                 collections,
                 workspaces,
-                toggleAttrFilter,
-                setAttrFilter,
-                invertAttrFilter,
-                removeAttrFilter,
-                attrFilters: filters,
+                removeCondition,
+                updateCondition,
+                conditions,
                 query,
                 setQuery,
                 inputQuery,
                 setInputQuery,
+                toggleCondition,
                 searchChecksum: JSON.stringify({
                     query,
-                    filters,
+                    conditions,
                     sortBy: resolvedSortBy,
                     geolocation,
                 }),

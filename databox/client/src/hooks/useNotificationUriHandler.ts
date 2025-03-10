@@ -33,14 +33,8 @@ export function useNotificationUriHandler(): NotificationUriHandler {
                     '',
                     [
                         {
-                            a: BuiltInFilter.Collection,
-                            t: t('search_provider.collections', `Collections`),
-                            v: [
-                                {
-                                    label: id,
-                                    value: '/' + id,
-                                },
-                            ],
+                            id: 'collection',
+                            query: `@collection = "${id}"`,
                         },
                     ],
                     [],

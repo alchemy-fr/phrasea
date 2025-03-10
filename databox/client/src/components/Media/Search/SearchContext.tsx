@@ -1,6 +1,7 @@
 import {FacetType, ResolvedBucketValue} from '../Asset/Facets';
 import {Filters, FilterType, SortBy} from './Filter';
 import React, {RefObject} from 'react';
+import {AQLQueries, AQLQuery} from "./AQL/query.ts";
 
 export type TSearchContext = {
     workspaceId?: string;
@@ -22,23 +23,11 @@ export type TSearchContext = {
     setInputQuery: (query: string) => void;
     geolocation?: string | undefined;
     setGeoLocation: (position: string | undefined) => void;
-    setAttrFilter: (
-        attrName: string,
-        type: FilterType | undefined,
-        values: ResolvedBucketValue[],
-        attrTitle: string,
-        widget?: FacetType | undefined
-    ) => void;
-    toggleAttrFilter: (
-        attrName: string,
-        type: FilterType | undefined,
-        value: ResolvedBucketValue,
-        attrTitle: string
-    ) => void;
-    removeAttrFilter: (key: number) => void;
-    invertAttrFilter: (key: number) => void;
     reset: () => void;
-    attrFilters: Filters;
+    conditions: AQLQueries;
+    toggleCondition: (query: AQLQuery) => void;
+    updateCondition: (query: AQLQuery) => void;
+    removeCondition: (query: AQLQuery) => void;
     sortBy: SortBy[];
     setSortBy: (newSortBy: SortBy[]) => void;
     searchChecksum?: string;

@@ -28,13 +28,6 @@ export type LabelledBucketValue = {
 
 export type ResolvedBucketValue = BucketValue | LabelledBucketValue;
 
-export type NormalizedBucketKeyValue =
-    | BucketValue
-    | {
-          l: string;
-          v: BucketValue;
-      };
-
 export type Bucket = {
     key: BucketValue;
     doc_count: number;
