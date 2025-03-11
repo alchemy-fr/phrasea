@@ -44,8 +44,14 @@ condition -> ("(" expression ")") {% (data) => ({operator: "AND", conditions: [d
     | "NOT" __ expression {% (data) => ({operator: "NOT", conditions: [data[3]]}) %}
     | criteria {% id %}
 
-quoted_string -> "\"" [^"]:* "\"" {% d => ({literal: d[1].join('')}) %}
-    | "'" [^']:* "'" {% d => ({literal: d[1].join('')}) %}
+criteria -> field _ operator {%
+    function(data) {
+        return {
+            leftOperand: data[0],
+            ...data[2]
+        };
+    }
+%}
 
 builtin_field -> "@" [a-zA-Z0-9_]:+ {% d => ({field: "@"+d[1].join('')}) %}
 
@@ -57,18 +63,9 @@ field -> builtin_field {% id %}
 boolean -> "true" {% d => true %}
     | "false" {% d => false %}
 
-criteria -> field _ operator {%
-    function(data) {
-        return {
-            leftOperand: data[0],
-            ...data[2]
-        };
-    }
-%}
-
-operator -> "BETWEEN" _ number _ "AND" _ number {% (data) => ({operator: 'BETWEEN', rightOperand: [data[2], data[6]]}) %}
-    | "IS" _ "MISSING" {% () => ({operator: 'MISSING'}) %}
-    | "EXISTS" {% () => ({operator: 'EXISTS'}) %}
+operator -> __ "BETWEEN" __ number __ "AND" __ number {% (data) => ({operator: 'BETWEEN', rightOperand: [data[2], data[6]]}) %}
+    | __ "IS" __ "MISSING" {% () => ({operator: 'MISSING'}) %}
+    | __ "EXISTS" {% () => ({operator: 'EXISTS'}) %}
     | simple_operator _ value {% (data) => ({operator: data[0], rightOperand: data[2]}) %}
 
 simple_operator -> "=" {% id %}
@@ -77,9 +74,9 @@ simple_operator -> "=" {% id %}
     | "<" {% id %}
     | ">=" {% id %}
     | "<=" {% id %}
-    | "contains" {% id %}
-    | "in" {% id %}
-    | "not in" {% id %}
+    | __ "contains" {% id %}
+    | __ "in" {% id %}
+    | __ "not in" {% id %}
 
 number -> int {% id %}
     | decimal {% id %}
@@ -87,3 +84,6 @@ number -> int {% id %}
 value -> number {% id %}
     | quoted_string {% id %}
     | boolean {% id %}
+
+quoted_string -> "\"" [^"]:* "\"" {% d => ({literal: d[1].join('')}) %}
+    | "'" [^']:* "'" {% d => ({literal: d[1].join('')}) %}
