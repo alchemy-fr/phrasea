@@ -73,7 +73,7 @@ not_expression: "NOT" __ e:expression
         unset($result['e']);
     }
 
-criteria: field:field > op:operator
+criteria: field:field op:operator
     function __finalise(&$result) {
         $result['data'] = [
             'type' => 'criteria',
@@ -104,7 +104,7 @@ boolean: "true" | "false"
         $result['data'] = $result['text'] === 'true';
     }
 
-operator: op:between_operator | op:simple_operator
+operator: op:between_operator | > op:simple_operator
     function __finalise(&$result) {
         $result['data'] = $result['op']['data'];
         unset($result['op']);
@@ -119,7 +119,7 @@ between_operator: ] "BETWEEN" ] left:value ] "AND" ] right:value
         unset($result['left'], $result['right']);
     }
 
-simple_operator: op:/(=|!=|>|<|>=|<=)/ > v:value
+simple_operator: op:/([<>]?=|!=|[<>])/ > v:value
     function __finalise(&$result) {
         $result['data'] = [
             'operator' => $result['op']['text'],

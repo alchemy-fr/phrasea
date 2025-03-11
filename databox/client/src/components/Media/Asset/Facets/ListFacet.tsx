@@ -24,12 +24,12 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
     const missingOnClick = () => {
         toggleCondition({
             id: name,
-            query: `${name} MISSING`,
+            query: `${name} IS MISSING`,
         });
     };
     const missingSelected = Boolean(
         condition && !condition.disabled &&
-            condition.query.endsWith(' MISSING')
+            condition.query.endsWith(' IS MISSING')
     );
 
     return (

@@ -52,7 +52,7 @@ final class TagFacet extends AbstractEntityFacet
 
     public static function getKey(): string
     {
-        return 't';
+        return '@tag';
     }
 
     public function getValueFromAsset(Asset $asset)

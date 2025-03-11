@@ -1,5 +1,5 @@
 import nearley from "nearley";
-import grammar from "./grammar.js";
+import grammar from "./grammar.ts";
 
 type Condition = {
     field: string;
