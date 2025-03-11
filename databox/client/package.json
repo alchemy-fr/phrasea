@@ -88,7 +88,7 @@
     "cs": "pnpm lint:fix && pnpm format",
     "preview": "vite preview",
     "translate": "i18next-scanner --config ../../lib/js/i18n/i18next-scanner.config.js",
-    "compile-grammar": "nearleyc src/components/Media/Search/AQL/grammar.ne -o src/components/Media/Search/AQL/grammar.js",
+    "compile-grammar": "nearleyc src/components/Media/Search/AQL/grammar.ne -o src/components/Media/Search/AQL/grammar.ts && echo '// @ts-nocheck' | cat - src/components/Media/Search/AQL/grammar.ts > temp && mv temp src/components/Media/Search/AQL/grammar.ts",
     "test": "jest"
   },
   "devDependencies": {
