@@ -71,7 +71,7 @@ final class CollectionFacet extends AbstractFacet
 
     public static function getKey(): string
     {
-        return 'c';
+        return '@collection';
     }
 
     public function getValueFromAsset(Asset $asset)

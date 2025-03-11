@@ -21,6 +21,7 @@ import {SearchContext} from '../../Search/SearchContext';
 import {AttributeType} from '../../../../api/attributes';
 import {useTranslation} from 'react-i18next';
 
+type NumberTuple = [number, number];
 export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
     const {t} = useTranslation();
     const {conditions, updateCondition, removeCondition} =
@@ -60,11 +61,11 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
         [displayTime]
     );
 
-    const [value, setValue] = useState<[number, number]>([min, max]);
+    const [value, setValue] = useState<NumberTuple>([min, max]);
 
     useEffect(() => {
         if (condition) {
-            setValue(condition.query.split(',').map(parseInt)); // TODO
+            setValue(condition.query.replace(/^.+ BETWEEN\s+/, '').split(' AND ').map(parseInt) as NumberTuple);
         } else {
             setValue([min, max]);
         }
@@ -72,7 +73,7 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
 
     const handleChange = useCallback(
         (_event: Event, newValue: number | number[]) => {
-            setValue(newValue as [number, number]);
+            setValue(newValue as NumberTuple);
         },
         [setValue]
     );
@@ -80,12 +81,17 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
     const handleChangeCommitted = useCallback(
         (_event: React.SyntheticEvent | Event, newValue: number | number[]) => {
             if (step) {
-                (newValue as [number, number])[1] += step;
+                (newValue as NumberTuple)[1] += step;
             }
+
+            console.log('ok', {
+                id: name,
+                query: `${name} BETWEEN ${(newValue as NumberTuple)[0]} AND ${(newValue as NumberTuple)[1]}`,
+            });
 
             updateCondition({
                 id: name,
-                query: `${name} BETWEEN ${newValue[0] as number} AND ${newValue[1] as number}`,
+                query: `${name} BETWEEN ${(newValue as NumberTuple)[0]} AND ${(newValue as NumberTuple)[1]}`,
             });
         },
         [facet, step]

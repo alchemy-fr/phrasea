@@ -4,8 +4,8 @@ import {PropsWithChildren, useContext, useEffect, useState} from 'react';
 import {ESDebug, GetAssetOptions, getAssets} from '../../../api/asset';
 import {Asset} from '../../../types';
 import {SearchContext} from './SearchContext';
-import {extractLabelValueFromKey, TFacets} from '../Asset/Facets';
-import {Filters, SortBy} from './Filter';
+import {TFacets} from '../Asset/Facets';
+import {SortBy} from './Filter';
 import axios from 'axios';
 import {getResolvedSortBy} from './SearchProvider';
 import {AQLQueries} from "./AQL/query.ts";
@@ -146,8 +146,8 @@ export default function ResultProvider({children}: Props) {
                 debug: state.debug,
                 loadMore: state.next
                     ? async () => {
-                          await doSearch(state.next!);
-                      }
+                        await doSearch(state.next!);
+                    }
                     : undefined,
                 reload: doSearch,
             }}

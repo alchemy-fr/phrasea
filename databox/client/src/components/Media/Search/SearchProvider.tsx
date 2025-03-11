@@ -13,13 +13,13 @@ export function getResolvedSortBy(sortBy: SortBy[], t: TFunction): SortBy[] {
         ? sortBy
         : [
               {
-                  a: InternalKey.Score,
+                  a: `@${InternalKey.Score}`,
                   t: t('get_resolved_sort_by.relevance', `Relevance`),
                   w: 1,
                   g: false,
               },
               {
-                  a: InternalKey.CreatedAt,
+                  a: `@${InternalKey.CreatedAt}`,
                   t: t('get_resolved_sort_by.date_added', `Date Added`),
                   w: 1,
                   g: false,
@@ -152,7 +152,18 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
     };
 
     const updateCondition = (condition: AQLQuery): void => {
-        setConditions(prev => prev.map(c => c.id === condition.id ? condition : c));
+        setConditions(prev => {
+            const f = [...prev];
+            const key = f.findIndex(_f => _f.id === condition.id);
+
+            if (key >= 0) {
+                f[key] = condition;
+            } else {
+                f.push(condition);
+            }
+
+            return f;
+        });
     };
 
     const workspaces = conditions

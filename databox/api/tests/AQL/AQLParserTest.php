@@ -74,6 +74,18 @@ class AQLParserTest extends TestCase
                     ],
                 ],
             ]],
+            ['@createdAt <= "2025-01-16"', [
+                'type' => 'criteria',
+                'operator' => '<=',
+                'leftOperand' => ['field' => '@createdAt'],
+                'rightOperand' => ['literal' => '2025-01-16'],
+            ]],
+            ['@createdAt BETWEEN "2020-01-01" AND "2025-12-31"', [
+                'type' => 'criteria',
+                'operator' => 'BETWEEN',
+                'leftOperand' => ['field' => '@createdAt'],
+                'rightOperand' => [['literal' => '2020-01-01'], ['literal' => '2025-12-31']],
+            ]],
         ];
     }
 }

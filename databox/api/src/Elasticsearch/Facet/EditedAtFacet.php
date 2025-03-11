@@ -15,7 +15,7 @@ class EditedAtFacet extends AbstractDateTimeFacet
 
     public static function getKey(): string
     {
-        return 'editedAt';
+        return '@editedAt';
     }
 
     public function getFieldName(): string

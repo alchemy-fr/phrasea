@@ -9,6 +9,7 @@ use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AQL\AQLParser;
+use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
@@ -16,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;
 use Elastica\Aggregation\Missing;
 use Elastica\Query;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AttributeSearch
 {
@@ -27,6 +29,7 @@ class AttributeSearch
         private readonly EntityManagerInterface $em,
         private readonly AttributeTypeRegistry $typeRegistry,
         private readonly AQLParser $AQLParser,
+        private readonly AQLToESQuery $AQLToESQuery,
     ) {
     }
 
@@ -416,10 +419,11 @@ class AttributeSearch
 
     public function buildConditionQuery(string $condition): Query\AbstractQuery
     {
-        $this->AQLParser->parse($condition);
+        $ast = $this->AQLParser->parse($condition);
+        if (null === $ast) {
+            throw new BadRequestHttpException(sprintf('Invalid condition: %s', $condition));
+        }
 
-        $term = new Query\Term(['foo' => 'bar']);
-
-        return $term;
+        return $this->AQLToESQuery->createQuery($ast['data']);
     }
 }

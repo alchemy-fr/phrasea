@@ -1,3 +1,4 @@
+@preprocessor typescript
 @builtin "whitespace.ne"
 @builtin "number.ne"
 
@@ -6,7 +7,7 @@ main -> expression {% id %}
 expression -> and_condition (__ "OR" __ and_condition):* {%
     function(data) {
         const conditions = [data[0]];
-        data[1].forEach((d) => {
+        data[1].forEach((d: any[]) => {
             conditions.push(d[3]);
         });
 
@@ -25,7 +26,7 @@ and_condition -> condition (__ "AND" __ condition):* {%
     function(data) {
         const conditions = [data[0]];
 
-        data[1].forEach((d) => {
+        data[1].forEach((d: any[]) => {
             conditions.push(d[3]);
         });
 
@@ -60,8 +61,8 @@ field_name -> [a-zA-Z_] [a-zA-Z0-9_-]:* {% d => ({field: d[0]+d[1].join('')}) %}
 field -> builtin_field {% id %}
     | field_name {% id %}
 
-boolean -> "true" {% d => true %}
-    | "false" {% d => false %}
+boolean -> "true" {% () => true %}
+    | "false" {% () => false %}
 
 operator -> __ "BETWEEN" __ number __ "AND" __ number {% (data) => ({operator: 'BETWEEN', rightOperand: [data[2], data[6]]}) %}
     | __ "IS" __ "MISSING" {% () => ({operator: 'MISSING'}) %}
