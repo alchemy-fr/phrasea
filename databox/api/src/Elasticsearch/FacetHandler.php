@@ -34,7 +34,7 @@ final readonly class FacetHandler
         $missing = [];
         $mergedFacets = [];
         foreach ($facets as $k => $f) {
-            if (1 === preg_match('#'.preg_quote(self::MISSING_SUFFIX, '#').'$#', $k)) {
+            if (str_ends_with($k, self::MISSING_SUFFIX)) {
                 $k = substr($k, 0, -strlen(self::MISSING_SUFFIX));
 
                 $missing[$k] = $f['doc_count'];
