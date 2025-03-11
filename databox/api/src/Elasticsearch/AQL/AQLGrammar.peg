@@ -1,35 +1,161 @@
-keyword: /[a-z_0-9-]+/
 
-field: keyword
-    function keyword( &$result, $sub) {
-        $result['data'] = ['field' => $sub['text']];
+main: e:expression
+    function __finalise(&$result) {
+        $result['data'] = $result['e']['data'];
+        unset($result['e']);
+    }
+
+expression: left:and_expression (] "OR" ] right:and_expression ) *
+    function __finalise(&$result) {
+        $result['operator'] = 'OR';
+        $conditions = [$result['left']['data']];
+
+        if (isset($result['right']['_matchrule'])) {
+            $conditions[] = $result['right']['data'];
+        } else {
+            foreach ($result['right'] ?? [] as $right) {
+                $conditions[] = $right['data'];
+            }
+        }
+        unset($result['left'], $result['right']);
+
+        if (count($conditions) === 1) {
+            $result['data'] = $conditions[0];
+            return;
+        }
+
+        $result['data'] = [
+            'type' => 'expression',
+            'operator' => 'OR',
+            'conditions' => $conditions,
+        ];
+    }
+
+and_expression: left:condition (] "AND" ] right:condition ) *
+    function __finalise(&$result) {
+        $conditions = [$result['left']['data']];
+        if (isset($result['right']['_matchrule'])) {
+            $conditions[] = $result['right']['data'];
+        } else {
+            foreach ($result['right'] ?? [] as $right) {
+                $conditions[] = $right['data'];
+            }
+        }
+        unset($result['left'], $result['right']);
+
+        if (count($conditions) === 1) {
+            $result['data'] = $conditions[0];
+            return;
+        }
+
+        $result['data'] = [
+            'type' => 'expression',
+            'operator' => 'AND',
+            'conditions' => $conditions,
+        ];
+    }
+
+condition: "(" e:expression ")"
+    | e:not_expression
+    | e:criteria
+    function __finalise(&$result) {
+        $result['data'] = $result['e']['data'];
+        unset($result['e']);
+    }
+
+not_expression: "NOT" __ e:expression
+    function __finalise(&$result) {
+        $result['data'] = [
+            'type' => 'expression',
+            'operator' => 'NOT',
+            'conditions' => [$result['e']['data']],
+        ];
+        unset($result['e']);
+    }
+
+criteria: field:field > op:operator
+    function __finalise(&$result) {
+        $result['data'] = [
+            'type' => 'criteria',
+            'leftOperand' => $result['field']['data'],
+            ...$result['op']['data'],
+        ];
+        unset($result['field'], $result['op']);
+    }
+
+builtin_field: "@" keyword
+    function __finalise(&$result) {
+        $result['data'] = ['field' => $result['text']];
+    }
+
+field_name: keyword
+    function __finalise(&$result) {
+        $result['data'] = ['field' => $result['text']];
+    }
+
+field: f:builtin_field | f:field_name
+    function __finalise(&$result) {
+        $result['data'] = $result['f']['data'];
+        unset($result['f']);
+    }
+
+boolean: "true" | "false"
+    function __finalise(&$result) {
+        $result['data'] = $result['text'] === 'true';
+    }
+
+operator: op:between_operator | op:simple_operator
+    function __finalise(&$result) {
+        $result['data'] = $result['op']['data'];
+        unset($result['op']);
+    }
+
+between_operator: ] "BETWEEN" ] left:value ] "AND" ] right:value
+    function __finalise(&$result) {
+        $result['data'] = [
+            'operator' => 'BETWEEN',
+            'rightOperand' => [$result['left']['data'], $result['right']['data']],
+        ];
+        unset($result['left'], $result['right']);
+    }
+
+simple_operator: op:/(=|!=|>|<|>=|<=)/ > v:value
+    function __finalise(&$result) {
+        $result['data'] = [
+            'operator' => $result['op']['text'],
+            'rightOperand' => $result['v']['data'],
+        ];
+        unset($result['op'], $result['v']);
+    }
+
+value: v:number | v:quoted_string | v:boolean | v:field
+    function __finalise(&$result) {
+        $result['data'] = $result['v']['data'];
+        unset($result['v']);
     }
 
 int: /[0-9]+/
+    function __finalise(&$result) {
+        $result['data'] = (int) $result['text'];
+    }
 
-decimal: int > "." > int
+decimal: int? "." int
+    function __finalise(&$result) {
+        $result['data'] = (float) $result['text'];
+    }
 
 quoted_string: /"[^"]*"/
-
-boolean: "true" | "false"
-
-number: int | decimal
-
-value: number | quoted_string | boolean
-
-expression: left:and_condition > ( "OR" > right:and_condition ) *
-    function and_condition( &$result, $sub ) {
-        $result['operator'] = 'OR';
-        $result['conditions'] ??= [];
-        $result['conditions'][] = $sub['left']['data'];
-        dump($result);
+    function __finalise(&$result) {
+        $result['data'] = ['literal' => substr($result['text'], 1, -1)];
     }
 
-and_condition: left:field > "=" > right:field
-    function field(&$result, $sub) {
-        $result['data'] = [
-            'operator' => 'AND',
-            'leftOperand' => $sub['left']['data'],
-            'rightOperand' => $sub['right']['data']
-        ];
+number: v:int | v:decimal
+    function __finalise(&$result) {
+        $result['data'] = $result['v']['data'];
+        unset($result['v']);
     }
+
+alpha: /[a-zA-Z_]/
+alphanum: /[a-zA-Z_0-9-]/
+
+keyword: alpha alphanum*
