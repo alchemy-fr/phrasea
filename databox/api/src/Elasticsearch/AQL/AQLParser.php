@@ -14,13 +14,16 @@ readonly class AQLParser
     {
     }
 
-    public function parse(string $condition): void
+    public function parse(string $condition): ?array
     {
         $this->compile();
 
-        $result = (new AQLGrammar($condition))->match_expression();
+        $result = (new AQLGrammar($condition))->match_main();
+        if ($result === false) {
+            return null;
+        }
 
-        dump($result);
+        return $result;
     }
 
     private function compile(): void
