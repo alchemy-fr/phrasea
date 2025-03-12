@@ -149,10 +149,10 @@ in_operator: not:("NOT" ] )? "IN" > "(" > first:value (> "," > others:value)* > 
         unset($result['first'], $result['others']);
     }
 
-simple_operator: op:/([<>]?=|!=|[<>]|CONTAINS|MATCHES)/ > v:value
+simple_operator: op:/([<>]?=|!=|[<>]|CONTAINS|MATCHES|STARTS\s+WITH)/ > v:value
     function __finalise(&$result) {
         $result['data'] = [
-            'operator' => $result['op']['text'],
+            'operator' => preg_replace('#\s+#', '_', $result['op']['text']),
             'rightOperand' => $result['v']['data'],
         ];
         unset($result['op'], $result['v']);

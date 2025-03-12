@@ -64,16 +64,16 @@ field -> builtin_field {% id %}
 boolean -> "true" {% () => true %}
     | "false" {% () => false %}
 
-operator -> __ "BETWEEN" __ number __ "AND" __ number {% (data) => ({operator: 'BETWEEN', rightOperand: [data[3], data[7]]}) %}
+operator -> __ ("NOT" __):? "BETWEEN" __ number __ "AND" __ number {% (data) => ({operator: data[1] ? 'NOT_BETWEEN' : 'BETWEEN', rightOperand: [data[4], data[8]]}) %}
     | __ "IS" __ "MISSING" {% () => ({operator: 'MISSING'}) %}
     | __ "EXISTS" {% () => ({operator: 'EXISTS'}) %}
     | simple_operator _ value {% (data) => ({operator: data[0], rightOperand: data[2]}) %}
     | in_operator {% id %}
 
-in_operator -> __ "IN" _ "(" _ value (_ "," _ value):* _ ")" {% (data) => {
+in_operator -> __ ("NOT" __):? "IN" _ "(" _ value (_ "," _ value):* _ ")" {% (data) => {
     return {
-        operator: 'IN',
-        rightOperand: [data[5]].concat(data[6].map(d => d[3])),
+        operator: data[1] ? 'NOT_IN' : 'IN',
+        rightOperand: [data[6]].concat(data[7].map(d => d[3])),
     };
  } %}
 
@@ -83,10 +83,9 @@ simple_operator -> "=" {% id %}
     | "<" {% id %}
     | ">=" {% id %}
     | "<=" {% id %}
-    | __ "contains" {% id %}
-    | __ "matches" {% id %}
-    | __ "in" {% id %}
-    | __ "not in" {% id %}
+    | __ "CONTAINS" {% id %}
+    | __ "MATCHES" {% id %}
+    | __ "STARTS_WITH" {% id %}
 
 number -> int {% id %}
     | decimal {% id %}

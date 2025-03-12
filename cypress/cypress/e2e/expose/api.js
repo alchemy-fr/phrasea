@@ -22,7 +22,6 @@ export function createAsset(data, src) {
                 formData.append('file', blob, basename(src));
                 Object.entries(data).forEach(([k, v]) => {
                     formData.append(k, v);
-                    console.log('x', k, v);
                 });
 
                 cy.request({
