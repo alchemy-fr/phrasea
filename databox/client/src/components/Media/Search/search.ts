@@ -50,7 +50,8 @@ export function queryToHash(
         hash += `q=${encodeURIComponent(query)}`;
     }
     if (conditions && conditions.length > 0) {
-        hash += `${hash ? '&' : ''}${conditions.filter(q => !q.disabled).map(q => `f=${q.id}:${encodeURIComponent(q.query)}`).join('&')}`;
+        hash += `${hash ? '&' : ''}${conditions
+            .map(q => `f=${q.id}${q.disabled ? '!' : ''}:${encodeURIComponent(q.query)}`).join('&')}`;
     }
     if (sortBy && sortBy.length > 0) {
         hash += `${hash ? '&' : ''}s=${encodeURIComponent(
@@ -81,7 +82,8 @@ export function hashToQuery(hash: string): {
 
                     return {
                         query: query.join(':'),
-                        id,
+                        id: id.replace(/!$/, ''),
+                        disabled: id.endsWith('!'),
                     } as AQLQuery;
                 })
             : [],
