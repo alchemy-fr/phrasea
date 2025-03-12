@@ -86,6 +86,88 @@ class AQLParserTest extends TestCase
                 'leftOperand' => ['field' => '@createdAt'],
                 'rightOperand' => [['literal' => '2020-01-01'], ['literal' => '2025-12-31']],
             ]],
+            ['my_field IN ("2020-01-01")', [
+                'type' => 'criteria',
+                'operator' => 'IN',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => [['literal' => '2020-01-01']],
+            ]],
+            ['my_field IN ("2020-01-01", true, 42)', [
+                'type' => 'criteria',
+                'operator' => 'IN',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => [['literal' => '2020-01-01'], true, 42],
+            ]],
+            ['my_field IN ()', null],
+            ['my_field NOT IN ()', null],
+            ['my_field NOTIN ()', null],
+            ['my_field NOTIN (1)', null],
+            ['my_field IN (true) AND second_field IN (false)', [
+                'type' => 'expression',
+                'operator' => 'AND',
+                'conditions' => [
+                    [
+                        'type' => 'criteria',
+                        'operator' => 'IN',
+                        'leftOperand' => ['field' => 'my_field'],
+                        'rightOperand' => [true],
+                    ],
+                    [
+                        'type' => 'criteria',
+                        'operator' => 'IN',
+                        'leftOperand' => ['field' => 'second_field'],
+                        'rightOperand' => [false],
+                    ]
+                ]
+            ]],
+            ['my_field NOT IN (true) AND second_field IN (false)', [
+                'type' => 'expression',
+                'operator' => 'AND',
+                'conditions' => [
+                    [
+                        'type' => 'criteria',
+                        'operator' => 'NOT_IN',
+                        'leftOperand' => ['field' => 'my_field'],
+                        'rightOperand' => [true],
+                    ],
+                    [
+                        'type' => 'criteria',
+                        'operator' => 'IN',
+                        'leftOperand' => ['field' => 'second_field'],
+                        'rightOperand' => [false],
+                    ]
+                ]
+            ]],
+            ['my_field ISMISSING', null],
+            ['my_field IS MISSING', [
+                'type' => 'criteria',
+                'operator' => 'MISSING',
+                'leftOperand' => ['field' => 'my_field'],
+            ]],
+            ['my_field CONTAINS "."', [
+                'type' => 'criteria',
+                'operator' => 'CONTAINS',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => ['literal' => '.'],
+            ]],
+            ['my_field MATCHES "."', [
+                'type' => 'criteria',
+                'operator' => 'MATCHES',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => ['literal' => '.'],
+            ]],
+            ['@tag IN ("c333940d-9e5c-4f3c-b16a-77f8daabca87", "6ee44526-3e8e-4412-8a9b-44b82fdce6bc")', [
+                'type' => 'criteria',
+                'operator' => 'IN',
+                'leftOperand' => ['field' => '@tag'],
+                'rightOperand' => [['literal' => 'c333940d-9e5c-4f3c-b16a-77f8daabca87'], ['literal' => '6ee44526-3e8e-4412-8a9b-44b82fdce6bc']],
+            ]],
+            ['@tag IN ( "c333940d-9e5c-4f3c-b16a-77f8daabca87","6ee44526-3e8e-4412-8a9b-44b82fdce6bc" )', [
+                'type' => 'criteria',
+                'operator' => 'IN',
+                'leftOperand' => ['field' => '@tag'],
+                'rightOperand' => [['literal' => 'c333940d-9e5c-4f3c-b16a-77f8daabca87'], ['literal' => '6ee44526-3e8e-4412-8a9b-44b82fdce6bc']],
+            ]],
         ];
     }
 }

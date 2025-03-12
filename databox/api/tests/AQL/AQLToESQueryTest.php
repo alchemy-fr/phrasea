@@ -34,6 +34,11 @@ class AQLToESQueryTest extends TestCase
                     'lte' => '2025-01-16',
                 ]],
             ]],
+            ['field IN (true, false)', [
+                'terms' => ['attrs.*.field' => [
+                   true, false,
+                ]],
+            ]],
         ];
     }
 }

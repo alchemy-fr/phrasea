@@ -25,6 +25,7 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
     const {t} = useTranslation();
 
     const queryBuilder = AQLConditionBuilder.fromQuery(name, condition ? parseAQLQuery(condition.query) : undefined);
+    console.log('queryBuilder', queryBuilder);
 
     const missingOnClick = () => {
         toggleCondition({
@@ -32,7 +33,7 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
             query: `${name} IS MISSING`,
         });
     };
-    const missingSelected = condition && !condition.disabled && queryBuilder.includeMissing;
+    const missingSelected = Boolean(condition && !condition.disabled && queryBuilder.includeMissing);
 
     return (
         <>
@@ -43,14 +44,15 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
 
                     const selected = Boolean(
                         condition && !condition.disabled &&
-                        queryBuilder.getValues().includes(keyV.toString())
+                        queryBuilder.hasValue(keyV)
                     );
 
-                    const onClick = () =>
+                    const onClick = () => {
                         toggleCondition({
                             id: name,
-                            query: `${name} = "${keyV}"`,
+                            query: queryBuilder.toggleValue(keyV).toString(),
                         });
+                    }
 
                     return React.createElement(itemComponent, {
                         key: keyV.toString(),

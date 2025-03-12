@@ -64,10 +64,18 @@ field -> builtin_field {% id %}
 boolean -> "true" {% () => true %}
     | "false" {% () => false %}
 
-operator -> __ "BETWEEN" __ number __ "AND" __ number {% (data) => ({operator: 'BETWEEN', rightOperand: [data[2], data[6]]}) %}
+operator -> __ "BETWEEN" __ number __ "AND" __ number {% (data) => ({operator: 'BETWEEN', rightOperand: [data[3], data[7]]}) %}
     | __ "IS" __ "MISSING" {% () => ({operator: 'MISSING'}) %}
     | __ "EXISTS" {% () => ({operator: 'EXISTS'}) %}
     | simple_operator _ value {% (data) => ({operator: data[0], rightOperand: data[2]}) %}
+    | in_operator {% id %}
+
+in_operator -> __ "IN" _ "(" _ value (_ "," _ value):* _ ")" {% (data) => {
+    return {
+        operator: 'IN',
+        rightOperand: [data[5]].concat(data[6].map(d => d[3])),
+    };
+ } %}
 
 simple_operator -> "=" {% id %}
     | "!=" {% id %}
