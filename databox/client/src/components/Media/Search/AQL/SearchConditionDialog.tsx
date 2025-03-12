@@ -1,32 +1,60 @@
 import {AQLQuery} from "./query.ts";
-import {Button} from "@mui/material";
-import {LoadingButton} from "@mui/lab";
+import {Alert, Button} from "@mui/material";
 import {useTranslation} from 'react-i18next';
 import CheckIcon from "@mui/icons-material/Check";
 import {StackedModalProps, useModals} from "@alchemy/navigation";
 import React from "react";
 import AqlField from "./AQLField.tsx";
 import {AppDialog} from '@alchemy/phrasea-ui';
+import {parseAQLQuery} from "./AQL.ts";
+import nl2br from "react-nl2br";
 
 type Props = {
     condition: AQLQuery;
-    onUpdate: (condition: AQLQuery) => void;
+    onUpsert: (condition: AQLQuery) => void;
 } & StackedModalProps;
 
 export default function SearchConditionDialog({
     condition,
     open,
     modalIndex,
-    onUpdate,
+    onUpsert,
 }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
-    const [query, setQuery] = React.useState(condition.query);
+    const [query, __setQuery] = React.useState(condition.query);
+    const [error, setError] = React.useState<string | undefined>();
 
-    return  <AppDialog
+    const setQuery = (q: string) => {
+        if (error) {
+            validate(q);
+        }
+        __setQuery(q);
+    }
+
+    const isNew = !condition.query;
+
+    const validate = (q: string): boolean => {
+        try {
+            parseAQLQuery(q, true);
+            setError(undefined);
+
+            return true;
+        } catch (e: any) {
+            const error = e.message;
+            setError(t('search_condition.dialog.error.invalid_query', {
+                defaultValue: 'Invalid query: {{error}}',
+                error,
+            }));
+        }
+
+        return false;
+    }
+
+    return <AppDialog
         maxWidth={'md'}
         onClose={closeModal}
-        title={t('search_condition.dialog.edit_condition', 'Edit Condition')}
+        title={isNew ? t('search_condition.dialog.edit_condition', 'Edit Condition') : t('search_condition.dialog.add_condition', 'Add Condition')}
         open={open}
         modalIndex={modalIndex}
         actions={({onClose}) => (
@@ -34,20 +62,30 @@ export default function SearchConditionDialog({
                 <Button onClick={onClose}>
                     {t('dialog.cancel', 'Cancel')}
                 </Button>
-                <LoadingButton
-                    startIcon={<CheckIcon />}
-                    onClick={() => onUpdate({
-                        ...condition,
-                        query,
-                    })}
+                <Button
+                    startIcon={<CheckIcon/>}
+                    onClick={() => {
+                        if (validate(query)) {
+                            closeModal();
+                            onUpsert({
+                                ...condition,
+                                query,
+                            });
+                        }
+                    }}
                     color={'primary'}
                     variant={'contained'}
                 >
-                    {t('search_condition.dialog.submit', 'Update')}
-                </LoadingButton>
+                    {isNew ? t('search_condition.dialog.submit_add', 'Add') : t('search_condition.dialog.submit_update', 'Update')}
+                </Button>
             </>
         )}
     >
-        <AqlField value={query} onChange={setQuery}/>
+        <AqlField
+            error={error}
+            value={query}
+            onChange={setQuery}
+        />
+        {error ? <Alert severity={'error'}>{nl2br(error)}</Alert> : null}
     </AppDialog>
 }

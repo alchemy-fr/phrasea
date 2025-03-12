@@ -7,6 +7,7 @@ const arraySep = ',';
 export enum BuiltInFilter {
     Collection = '@collection',
     Workspace = '@workspace',
+    Tag = '@tag',
     CreatedAt = '@createdAt',
     Score = '@score',
 }
@@ -39,6 +40,11 @@ function decodeSortBy(str: string): SortBy {
     };
 }
 
+enum Flag {
+    Inversed = '!',
+    Disabled = '_',
+}
+
 export function queryToHash(
     query: string,
     conditions: AQLQueries,
@@ -51,7 +57,7 @@ export function queryToHash(
     }
     if (conditions && conditions.length > 0) {
         hash += `${hash ? '&' : ''}${conditions
-            .map(q => `f=${q.id}${q.disabled ? '!' : ''}:${encodeURIComponent(q.query)}`).join('&')}`;
+            .map(q => `f=${q.id}${q.inversed ? Flag.Inversed : ''}${q.disabled ? Flag.Disabled : ''}:${encodeURIComponent(q.query)}`).join('&')}`;
     }
     if (sortBy && sortBy.length > 0) {
         hash += `${hash ? '&' : ''}s=${encodeURIComponent(
@@ -79,11 +85,14 @@ export function hashToQuery(hash: string): {
             ? (params.getAll('f'))
                 .map(q => {
                     const [id, ...query] = q.split(':');
+                    const field = id.replace(/[!_]$/, '');
+                    const flags = id.substring(field.length);
 
                     return {
                         query: query.join(':'),
-                        id: id.replace(/!$/, ''),
-                        disabled: id.endsWith('!'),
+                        id: id.replace(/[!_]$/, ''),
+                        disabled: flags.includes(Flag.Disabled),
+                        inversed: flags.includes(Flag.Inversed),
                     } as AQLQuery;
                 })
             : [],

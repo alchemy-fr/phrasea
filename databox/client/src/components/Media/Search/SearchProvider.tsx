@@ -147,37 +147,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         [setHash, query, conditions, sortBy, geolocation]
     );
 
-    const removeCondition = (condition: AQLQuery): void => {
-        setConditions(prev => prev.filter(c => c.id !== condition.id));
-    };
-
-    const updateCondition = (condition: AQLQuery): void => {
-        setConditions(prev => {
-            const f = [...prev];
-            const key = f.findIndex(_f => _f.id === condition.id);
-
-            if (key >= 0) {
-                f[key] = condition;
-            } else {
-                f.push(condition);
-            }
-
-            return f;
-        });
-    };
-
-    const workspaces = conditions
-        .filter(q => !q.disabled)
-        .filter(q => q.query.startsWith(`@${InternalKey.Workspace} = `))
-        .map(q => q.query) as string[];
-
-
-    const collections = conditions
-        .filter(q => !q.disabled)
-        .filter(q => q.query.startsWith(`@${InternalKey.Collection} = `))
-        .map(q => q.query) as string[];
-
-    const toggleCondition = (
+    const upsertCondition = (
         condition: AQLQuery
     ): void => {
         setConditions(prev => {
@@ -195,6 +165,21 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         });
     };
 
+    const removeCondition = (condition: AQLQuery): void => {
+        setConditions(prev => prev.filter(c => c.id !== condition.id));
+    };
+
+    const workspaces = conditions
+        .filter(q => !q.disabled)
+        .filter(q => q.query.startsWith(`@${InternalKey.Workspace} = `))
+        .map(q => q.query) as string[];
+
+
+    const collections = conditions
+        .filter(q => !q.disabled)
+        .filter(q => q.query.startsWith(`@${InternalKey.Collection} = `))
+        .map(q => q.query) as string[];
+
     return (
         <SearchContext.Provider
             value={{
@@ -203,13 +188,12 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 collections,
                 workspaces,
                 removeCondition,
-                updateCondition,
+                upsertCondition,
                 conditions,
                 query,
                 setQuery,
                 inputQuery,
                 setInputQuery,
-                toggleCondition,
                 searchChecksum: JSON.stringify({
                     query,
                     conditions,
