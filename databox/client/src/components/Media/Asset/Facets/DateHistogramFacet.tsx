@@ -84,11 +84,6 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                 (newValue as NumberTuple)[1] += step;
             }
 
-            console.log('ok', {
-                id: name,
-                query: `${name} BETWEEN ${(newValue as NumberTuple)[0]} AND ${(newValue as NumberTuple)[1]}`,
-            });
-
             updateCondition({
                 id: name,
                 query: `${name} BETWEEN ${(newValue as NumberTuple)[0]} AND ${(newValue as NumberTuple)[1]}`,

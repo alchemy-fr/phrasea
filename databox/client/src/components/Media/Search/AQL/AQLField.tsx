@@ -16,7 +16,6 @@ export default function AqlField({
             fullWidth={true}
             value={value}
             onChange={(e) => {
-                console.log('parseAQLQuery', parseAQLQuery(e.target.value));
                 onChange(e.target.value);
             }}
         />

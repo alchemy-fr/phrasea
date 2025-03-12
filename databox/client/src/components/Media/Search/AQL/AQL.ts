@@ -15,6 +15,10 @@ export function parseAQLQuery(queryString: string): AQLQueryAST | undefined {
         return;
     }
 
+    if (!parser.results[0]) {
+        return;
+    }
+
     return {
         expression: parser.results[0],
     }

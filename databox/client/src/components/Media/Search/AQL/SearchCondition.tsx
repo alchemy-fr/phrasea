@@ -40,8 +40,9 @@ export default function SearchCondition({
         <Chip
             sx={{
                 mr: 1,
-                color: condition.disabled ? 'default.contrastText' : 'primary.contrastText',
-                bgcolor: condition.disabled ? 'default.main' : 'primary.main',
+                color: condition.disabled ? 'warning.contrastText' : 'primary.contrastText',
+                bgcolor: condition.disabled ? 'warning.main' : 'primary.main',
+                fontFamily: 'Courier New'
             }}
             label={condition.query}
             onClick={edit}

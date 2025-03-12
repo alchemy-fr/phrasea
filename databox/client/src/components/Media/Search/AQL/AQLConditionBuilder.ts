@@ -19,32 +19,46 @@ export class AQLConditionBuilder {
         this.includeMissing = includeMissing || false;
     }
 
-    public addValue(value: ScalarValue): void {
+    public addValue(value: ScalarValue) {
         this.values.push(value);
+
+        return this;
+    }
+
+    public removeValue(value: ScalarValue) {
+        this.values = this.values.filter(v => v ! === value);
+
+        return this;
+    }
+
+    public toggleValue(value: ScalarValue) {
+        return this.hasValue(value) ? this.removeValue(value) : this.addValue(value);
     }
 
     public getValues(): ScalarValue[] {
         return this.values;
     }
 
-    public removeValue(value: ScalarValue): void {
-        this.values = this.values.filter(v => v ! === value);
+    public hasValue(value: ScalarValue): boolean {
+        return this.values.includes(value);
     }
 
     public toString(): string {
         const conditions: string[] = [];
 
-        if (this.values.length === 0) {
-            conditions.push(`${this.field} ${this.values.length > 1 ? 'IN' : '='} ${this.values.map(v => {
+        if (this.values.length > 0) {
+            conditions.push(`${this.field} ${this.values.length > 1 ? 'IN (' : '= '}${this.values.map(v => {
                 return typeof v === 'string' ? `"${v}"` : v;
-            }).join(', ')}`);
+            }).join(', ')}${this.values.length > 1 ? ')' : ''}`);
         }
 
         if (this.includeMissing) {
             conditions.push(`${this.field} IS MISSING`);
         }
+        const output = conditions.join(' OR ');
+        console.trace('toString', output);
 
-        return conditions.join(' OR ');
+        return output;
     }
 
     public static fromQuery(field: string, query: AQLQueryAST | undefined) {
@@ -66,8 +80,6 @@ export class AQLConditionBuilder {
             return value;
         }
 
-        console.log('query', query);
-
         if (query) {
             let conditions: AQLCondition[];
             if (hasProp<AQLAndOrExpression>(query.expression, 'conditions')) {
@@ -75,7 +87,8 @@ export class AQLConditionBuilder {
             } else if (hasProp<AQLCondition>(query.expression, 'leftOperand')) {
                 conditions = [query.expression];
             } else {
-                throw new Error('Unsupported expression');
+                console.debug('expression', query.expression);
+                throw new Error(`Unsupported expression`);
             }
             const condition = conditions[0];
             if (condition) {

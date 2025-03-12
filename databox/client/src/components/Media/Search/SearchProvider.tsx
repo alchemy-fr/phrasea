@@ -187,7 +187,6 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
 
             if (key >= 0) {
                 f[key] = condition;
-                delete f[key].disabled;
             } else {
                 f.push(condition);
             }
