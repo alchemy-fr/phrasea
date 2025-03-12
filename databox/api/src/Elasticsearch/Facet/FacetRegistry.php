@@ -18,7 +18,6 @@ final readonly class FacetRegistry
 
     public function getFacet(string $key): ?FacetInterface
     {
-        dump(array_keys($this->facets));
         return $this->facets[$key] ?? null;
     }
 
