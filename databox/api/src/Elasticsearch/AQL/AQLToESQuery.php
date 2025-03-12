@@ -60,14 +60,13 @@ final readonly class AQLToESQuery
         }
 
         return match ($data['operator']) {
-            'BETWEEN' => new Query\Range($fieldName, [
+            'BETWEEN', 'NOT_BETWEEN' => $this->wrapInNotQuery(new Query\Range($fieldName, [
                 'gte' => $value[0],
                 'lte' => $value[1],
                 'format' => 'epoch_second'
-            ]),
-            'MISSING' => $this->wrapInNotQuery(new Query\Exists($fieldName)),
-            'EXISTS' => new Query\Exists($fieldName),
-            'IN' => new Query\Terms($fieldName, $value),
+            ]), $data['operator'] === 'NOT_BETWEEN'),
+            'MISSING', 'EXISTS' => $this->wrapInNotQuery(new Query\Exists($fieldName), $data['operator'] === 'MISSING'),
+            'IN', 'NOT_IN' => $this->wrapInNotQuery(new Query\Terms($fieldName, $value), $data['operator'] === 'NOT_IN'),
             '=' => new Query\Term([$fieldName => $value]),
             '!=' => $this->wrapInNotQuery(new Query\Term([$fieldName => $value])),
             '<' => new Query\Range($fieldName, [
@@ -82,12 +81,19 @@ final readonly class AQLToESQuery
             '>' => new Query\Range($fieldName, [
                 'gt' => $value,
             ]),
+            'MATCHES' => new Query\MatchQuery($fieldName, $value),
+            'CONTAINS' => new Query\MatchPhrase($fieldName, sprintf('*%s*', $value)),
+            'STARTS_WITH' => new Query\Prefix([$fieldName => $value]),
             default => throw new BadRequestHttpException(sprintf('Invalid operator "%s"', $data['operator'])),
         };
     }
 
-    private function wrapInNotQuery(Query\AbstractQuery $query): Query\BoolQuery
+    private function wrapInNotQuery(Query\AbstractQuery $query, bool $condition = true): Query\AbstractQuery
     {
+        if (!$condition) {
+            return $query;
+        }
+
         $not = new Query\BoolQuery();
         $not->addMustNot($query);
 
