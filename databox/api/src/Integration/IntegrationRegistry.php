@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+
 class IntegrationRegistry
 {
     /**
@@ -11,7 +13,10 @@ class IntegrationRegistry
      */
     private array $integrations;
 
-    public function __construct(iterable $integrations)
+    public function __construct(
+        #[TaggedIterator(tag: 'app.integration', defaultIndexMethod: 'getName')]
+        iterable $integrations
+    )
     {
         $this->integrations = $integrations instanceof \Traversable ? iterator_to_array($integrations) : $integrations;
     }

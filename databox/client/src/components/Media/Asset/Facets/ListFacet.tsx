@@ -1,17 +1,10 @@
 import React, {useContext} from 'react';
-import {
-    Checkbox,
-    List,
-    ListItemButton,
-    ListItemSecondaryAction,
-    ListItemText,
-} from '@mui/material';
+import {Checkbox, List, ListItemButton, ListItemSecondaryAction, ListItemText,} from '@mui/material';
 import {extractLabelValueFromKey, FacetGroupProps} from '../Facets';
 import {SearchContext} from '../../Search/SearchContext';
 import {ListFacetItemProps} from './TextFacetItem';
 import {useTranslation} from 'react-i18next';
 import {AQLConditionBuilder} from "../../Search/AQL/AQLConditionBuilder.ts";
-import {QueryBuilder} from "@mui/icons-material";
 import {parseAQLQuery} from "../../Search/AQL/AQL.ts";
 
 type Props = {
@@ -19,7 +12,7 @@ type Props = {
 } & FacetGroupProps;
 
 export default function ListFacet({facet, name, itemComponent}: Props) {
-    const {conditions, toggleCondition} = useContext(SearchContext)!;
+    const {conditions, upsertCondition} = useContext(SearchContext)!;
     const condition = conditions.find(_f => _f.id === name);
     const {type} = facet.meta;
     const {t} = useTranslation();
@@ -28,7 +21,7 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
     console.log('queryBuilder', queryBuilder);
 
     const missingOnClick = () => {
-        toggleCondition({
+        upsertCondition({
             id: name,
             query: `${name} IS MISSING`,
         });
@@ -46,9 +39,8 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
                         condition && !condition.disabled &&
                         queryBuilder.hasValue(keyV)
                     );
-
                     const onClick = () => {
-                        toggleCondition({
+                        upsertCondition({
                             id: name,
                             query: queryBuilder.toggleValue(keyV).toString(),
                         });

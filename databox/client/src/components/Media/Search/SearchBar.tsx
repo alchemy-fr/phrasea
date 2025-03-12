@@ -49,7 +49,7 @@ export default function SearchBar({}: Props) {
                 >
                     <SearchConditions
                         onDelete={search.removeCondition}
-                        onUpdate={search.updateCondition}
+                        onUpsert={search.upsertCondition}
                         conditions={search.conditions}
                     />
                 </Box>
