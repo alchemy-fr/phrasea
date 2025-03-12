@@ -3,11 +3,18 @@
 namespace App\Elasticsearch\AQL;
 
 use App\Attribute\AttributeInterface;
+use App\Elasticsearch\Facet\FacetRegistry;
 use Elastica\Query;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final readonly class AQLToESQuery
 {
+    public function __construct(
+        private FacetRegistry $facetRegistry,
+    )
+    {
+    }
+
     public function createQuery(array $data): Query\AbstractQuery
     {
         return $this->visitNode($data);
@@ -52,6 +59,7 @@ final readonly class AQLToESQuery
                 return new Query\Range($fieldName, [
                     'gte' => $value[0],
                     'lte' => $value[1],
+                    'format' => 'epoch_second'
                 ]);
             case 'IN':
                 return new Query\Terms($fieldName, $value);
@@ -113,17 +121,16 @@ final readonly class AQLToESQuery
     private function getFieldName(string $field): string
     {
         if (str_starts_with($field, '@')) {
-            $key = substr($field, 1);
+            $facet = $this->facetRegistry->getFacet($field);
+            if (null !== $facet) {
+                return $facet->getFieldName();
+            } else {
+                $key = substr($field, 1);
 
-            return match ($key) {
-                'id' => '_id',
-                'createdAt' => 'createdAt',
-                'updatedAt' => 'updatedAt',
-                'workspace' => 'workspaceId',
-                'collection' => 'collectionPaths',
-                'score' => '_score',
-                'tag' => 'tags',
-            };
+                return match ($key) {
+                    'id' => '_id',
+                };
+            }
         }
 
         return sprintf('%s.*.%s', AttributeInterface::ATTRIBUTES_FIELD, $field);

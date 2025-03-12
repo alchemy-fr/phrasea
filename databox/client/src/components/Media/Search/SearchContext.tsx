@@ -25,8 +25,7 @@ export type TSearchContext = {
     setGeoLocation: (position: string | undefined) => void;
     reset: () => void;
     conditions: AQLQueries;
-    toggleCondition: (query: AQLQuery) => void;
-    updateCondition: (query: AQLQuery) => void;
+    upsertCondition: (query: AQLQuery) => void;
     removeCondition: (query: AQLQuery) => void;
     sortBy: SortBy[];
     setSortBy: (newSortBy: SortBy[]) => void;
