@@ -21,7 +21,7 @@ export interface GetAssetOptions {
     workspaces?: string[];
     ids?: string[];
     parents?: string[];
-    filters?: any;
+    conditions?: string[];
     order?: Record<string, 'asc' | 'desc'>;
     group?: string[] | undefined;
     context?:

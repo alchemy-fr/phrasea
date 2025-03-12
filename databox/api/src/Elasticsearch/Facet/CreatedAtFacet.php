@@ -15,7 +15,7 @@ class CreatedAtFacet extends AbstractDateTimeFacet
 
     public static function getKey(): string
     {
-        return 'createdAt';
+        return '@createdAt';
     }
 
     public function getFieldName(): string
