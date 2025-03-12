@@ -47,43 +47,51 @@ final readonly class AQLToESQuery
 
     private function visitCriteria(array $data): Query\AbstractQuery
     {
-        $value = $data['rightOperand'];
-        if ($value['field'] ?? false) {
-            return $this->visitCriteriaWithScripting($data);
+        $fieldName = $this->getFieldName($data['leftOperand']['field']);
+        if (isset($data['rightOperand'])) {
+            $value = $data['rightOperand'];
+            if ($value['field'] ?? false) {
+                return $this->visitCriteriaWithScripting($data);
+            }
+
+            $value = $this->resolveValue($value);
+        } else {
+            $value = null;
         }
 
-        $fieldName = $this->getFieldName($data['leftOperand']['field']);
-        $value = $this->resolveValue($value);
-        switch ($data['operator']) {
-            case 'BETWEEN':
-                return new Query\Range($fieldName, [
-                    'gte' => $value[0],
-                    'lte' => $value[1],
-                    'format' => 'epoch_second'
-                ]);
-            case 'IN':
-                return new Query\Terms($fieldName, $value);
-            case '=':
-                return new Query\Term([$fieldName => $value]);
-            case '<':
-                return new Query\Range($fieldName, [
-                    'lt' => $value,
-                ]);
-            case '<=':
-                return new Query\Range($fieldName, [
-                    'lte' => $value,
-                ]);
-            case '>=':
-                return new Query\Range($fieldName, [
-                    'gte' => $value,
-                ]);
-            case '>':
-                return new Query\Range($fieldName, [
-                    'gt' => $value,
-                ]);
-            default:
-                throw new BadRequestHttpException(sprintf('Invalid operator "%s"', $data['operator']));
-        }
+        return match ($data['operator']) {
+            'BETWEEN' => new Query\Range($fieldName, [
+                'gte' => $value[0],
+                'lte' => $value[1],
+                'format' => 'epoch_second'
+            ]),
+            'MISSING' => $this->wrapInNotQuery(new Query\Exists($fieldName)),
+            'EXISTS' => new Query\Exists($fieldName),
+            'IN' => new Query\Terms($fieldName, $value),
+            '=' => new Query\Term([$fieldName => $value]),
+            '!=' => $this->wrapInNotQuery(new Query\Term([$fieldName => $value])),
+            '<' => new Query\Range($fieldName, [
+                'lt' => $value,
+            ]),
+            '<=' => new Query\Range($fieldName, [
+                'lte' => $value,
+            ]),
+            '>=' => new Query\Range($fieldName, [
+                'gte' => $value,
+            ]),
+            '>' => new Query\Range($fieldName, [
+                'gt' => $value,
+            ]),
+            default => throw new BadRequestHttpException(sprintf('Invalid operator "%s"', $data['operator'])),
+        };
+    }
+
+    private function wrapInNotQuery(Query\AbstractQuery $query): Query\BoolQuery
+    {
+        $not = new Query\BoolQuery();
+        $not->addMustNot($query);
+
+        return $not;
     }
 
     private function visitCriteriaWithScripting(array $data): Query\AbstractQuery

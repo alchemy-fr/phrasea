@@ -37,14 +37,11 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
     const buckets = facet.buckets;
     const min = buckets[0].key as number;
     const max = buckets[buckets.length - 1].key as number;
-    console.log('min-max', min, max);
     const step =
         buckets.length >= 2
             ? (buckets[1].key as number) -
               (buckets[0].key as number)
             : undefined;
-
-    console.log('step', step);
 
     const getValueText = React.useCallback(
         (value: number): ReactNode => {
@@ -71,8 +68,7 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
         if (condition) {
             const match = condition.query.match(/^.+\s+BETWEEN\s+(\d+)\s+AND\s+(\d+)/);
             if (match) {
-                console.log('match', match);
-                setValue([match[1]!, match[2]!].map(parseInt) as NumberTuple);
+                setValue([parseInt(match[1]!), parseInt(match[2]!)]);
                 return;
             }
         }
@@ -100,7 +96,7 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                 query: `${name} BETWEEN ${left} AND ${right}`,
             });
         },
-        [facet, step]
+        [step, name]
     );
 
     const hasRange = max > min;
