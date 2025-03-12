@@ -120,6 +120,7 @@ final readonly class AQLToESQuery
                 'workspace' => 'workspaceId',
                 'collection' => 'collectionPaths',
                 'score' => '_score',
+                'tag' => 'tags',
             };
         }
 

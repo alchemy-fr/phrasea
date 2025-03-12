@@ -22,7 +22,7 @@ export function parseAQLQuery(queryString: string): Query | undefined {
     );
 
     try {
-        parser.feed(queryString);
+        parser.feed(queryString.trim());
     } catch (error) {
         console.error('error', error);
 
