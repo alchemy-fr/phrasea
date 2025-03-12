@@ -10,6 +10,9 @@ import {extractLabelValueFromKey, FacetGroupProps} from '../Facets';
 import {SearchContext} from '../../Search/SearchContext';
 import {ListFacetItemProps} from './TextFacetItem';
 import {useTranslation} from 'react-i18next';
+import {AQLConditionBuilder} from "../../Search/AQL/AQLConditionBuilder.ts";
+import {QueryBuilder} from "@mui/icons-material";
+import {parseAQLQuery} from "../../Search/AQL/AQL.ts";
 
 type Props = {
     itemComponent: React.FC<ListFacetItemProps>;
@@ -21,16 +24,15 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
     const {type} = facet.meta;
     const {t} = useTranslation();
 
+    const queryBuilder = AQLConditionBuilder.fromQuery(name, condition ? parseAQLQuery(condition.query) : undefined);
+
     const missingOnClick = () => {
         toggleCondition({
             id: name,
             query: `${name} IS MISSING`,
         });
     };
-    const missingSelected = Boolean(
-        condition && !condition.disabled &&
-            condition.query.endsWith(' IS MISSING')
-    );
+    const missingSelected = condition && !condition.disabled && queryBuilder.includeMissing;
 
     return (
         <>
@@ -41,7 +43,7 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
 
                     const selected = Boolean(
                         condition && !condition.disabled &&
-                            condition.query.includes(keyV.toString())
+                        queryBuilder.getValues().includes(keyV.toString())
                     );
 
                     const onClick = () =>
