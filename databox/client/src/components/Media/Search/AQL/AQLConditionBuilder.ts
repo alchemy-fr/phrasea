@@ -26,7 +26,7 @@ export class AQLConditionBuilder {
     }
 
     public removeValue(value: ScalarValue) {
-        this.values = this.values.filter(v => v ! === value);
+        this.values = this.values.filter(v => v !== value);
 
         return this;
     }

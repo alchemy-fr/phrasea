@@ -32,7 +32,7 @@ export default function SearchCondition({
     const edit = () => {
         openModal(SearchConditionDialog, {
             condition,
-            onUpdate,
+            onUpsert: onUpdate,
         });
     }
 

@@ -84,6 +84,7 @@ simple_operator -> "=" {% id %}
     | ">=" {% id %}
     | "<=" {% id %}
     | __ "contains" {% id %}
+    | __ "matches" {% id %}
     | __ "in" {% id %}
     | __ "not in" {% id %}
 

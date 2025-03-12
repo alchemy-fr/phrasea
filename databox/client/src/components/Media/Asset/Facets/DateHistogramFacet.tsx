@@ -24,7 +24,7 @@ import {useTranslation} from 'react-i18next';
 type NumberTuple = [number, number];
 export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
     const {t} = useTranslation();
-    const {conditions, updateCondition, removeCondition} =
+    const {conditions, upsertCondition, removeCondition} =
         useContext(SearchContext)!;
     const condition = conditions.find(_f => _f.id === name);
     const theme = useTheme();
@@ -34,13 +34,17 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
             /^\d+[hms]$/.test(facet.interval ?? '')
     );
 
-    const min = facet.buckets[0].key as number;
-    const max = facet.buckets[facet.buckets.length - 1].key as number;
+    const buckets = facet.buckets;
+    const min = buckets[0].key as number;
+    const max = buckets[buckets.length - 1].key as number;
+    console.log('min-max', min, max);
     const step =
-        facet.buckets.length >= 2
-            ? (facet.buckets[1].key as number) -
-              (facet.buckets[0].key as number)
+        buckets.length >= 2
+            ? (buckets[1].key as number) -
+              (buckets[0].key as number)
             : undefined;
+
+    console.log('step', step);
 
     const getValueText = React.useCallback(
         (value: number): ReactNode => {
@@ -65,10 +69,15 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
 
     useEffect(() => {
         if (condition) {
-            setValue(condition.query.replace(/^.+ BETWEEN\s+/, '').split(' AND ').map(parseInt) as NumberTuple);
-        } else {
-            setValue([min, max]);
+            const match = condition.query.match(/^.+\s+BETWEEN\s+(\d+)\s+AND\s+(\d+)/);
+            if (match) {
+                console.log('match', match);
+                setValue([match[1]!, match[2]!].map(parseInt) as NumberTuple);
+                return;
+            }
         }
+
+        setValue([min, max]);
     }, [min, max, condition]);
 
     const handleChange = useCallback(
@@ -84,9 +93,11 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                 (newValue as NumberTuple)[1] += step;
             }
 
-            updateCondition({
+            const [left, right] = newValue as NumberTuple;
+
+            upsertCondition({
                 id: name,
-                query: `${name} BETWEEN ${(newValue as NumberTuple)[0]} AND ${(newValue as NumberTuple)[1]}`,
+                query: `${name} BETWEEN ${left} AND ${right}`,
             });
         },
         [facet, step]
@@ -98,12 +109,12 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
     const greyInactive = theme.palette.grey[500];
 
     const marks = useMemo(() => {
-        const maxCount = facet.buckets.reduce(function (prev, curr) {
+        const maxCount = buckets.reduce(function (prev, curr) {
             return prev.doc_count > curr.doc_count ? prev : curr;
         }).doc_count;
         const ratio = histogramHeight / maxCount;
 
-        return facet.buckets.map(b => ({
+        return buckets.map(b => ({
             value: b.key as number,
             label: (
                 <div
@@ -124,7 +135,7 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                 />
             ),
         }));
-    }, [facet.buckets, colorActive, greyInactive, value]);
+    }, [buckets, colorActive, greyInactive, value]);
 
     return (
         <Box

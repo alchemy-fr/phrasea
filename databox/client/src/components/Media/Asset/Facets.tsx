@@ -17,6 +17,7 @@ import {FilterType} from '../Search/Filter';
 import {AttributeFormat} from './Attribute/types/types';
 import TagsFacet from './Facets/TagsFacet';
 import EntitiesFacet from "./Facets/EntitiesFacet.tsx";
+import {BuiltInFilter} from "../Search/search.ts";
 
 export type BucketValue = string | number | boolean;
 
@@ -118,7 +119,7 @@ const facetWidgets: Record<FacetType, React.FC<FacetGroupProps>> = {
 };
 
 const facetWidgetsByKey: Record<string, React.FC<FacetGroupProps>> = {
-    t: TagsFacet,
+    [BuiltInFilter.Tag]: TagsFacet,
 };
 
 function FacetGroup({facet, name}: FacetGroupProps) {
