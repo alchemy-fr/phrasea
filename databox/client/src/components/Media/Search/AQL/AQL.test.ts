@@ -31,6 +31,13 @@ it('parse AQL', function () {
             },
         },
         {
+            query: '@createdAt NOT  BETWEEN 1 AND 2',
+            result: {
+                expression:
+                    {leftOperand: {field: '@createdAt'}, operator: 'NOT_BETWEEN', rightOperand: [1, 2]},
+            },
+        },
+        {
             query: '@tag IN ( "c333940d-9e5c-4f3c-b16a-77f8daabca87","6ee44526-3e8e-4412-8a9b-44b82fdce6bc" )',
             result: {
                 expression:
@@ -51,11 +58,17 @@ it('parse AQL', function () {
                     {leftOperand: {field: '@tag'}, operator: 'IN', rightOperand: [true]},
             },
         },
+        {
+            query: '@tag NOT IN (true)',
+            result: {
+                expression:
+                    {leftOperand: {field: '@tag'}, operator: 'NOT_IN', rightOperand: [true]},
+            },
+        },
     ];
 
     dataSet.forEach(({query, result}) => {
         const actual = parseAQLQuery(query);
-        console.log(util.inspect(actual, {showHidden: false, depth: null, colors: true}))
         expect(actual).toEqual(result);
     });
 });

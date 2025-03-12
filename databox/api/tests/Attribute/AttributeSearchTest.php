@@ -5,6 +5,8 @@ namespace App\Tests\Attribute;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
+use App\Elasticsearch\AQL\AQLParser;
+use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AttributeSearch;
 use App\Elasticsearch\Facet\FacetRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
@@ -29,10 +31,15 @@ class AttributeSearchTest extends TestCase
             $facetRegistry
         );
 
+        $aqlParser = new AQLParser();
+        $aqlToESQuery = new AQLToESQuery(new FacetRegistry([]));
+
         $as = new AttributeSearch(
             $fieldNameResolver,
             $this->createMock(EntityManagerInterface::class),
             $attributeTypeRegistry,
+            $aqlParser,
+            $aqlToESQuery
         );
 
         $clusters = $as->createClustersFromDefinitions($definitions);

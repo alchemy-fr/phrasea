@@ -139,6 +139,15 @@ class AQLParserTest extends TestCase
                 ]
             ]],
             ['my_field ISMISSING', null],
+            ['my_field STARTSWITH', null],
+            ['my_field STARTS WITH', null],
+            ['my_field STARTSWITH "s"', null],
+            ['my_field STARTS WITH "s"', [
+                'type' => 'criteria',
+                'operator' => 'STARTS_WITH',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => ['literal' => 's'],
+            ]],
             ['my_field IS MISSING', [
                 'type' => 'criteria',
                 'operator' => 'MISSING',

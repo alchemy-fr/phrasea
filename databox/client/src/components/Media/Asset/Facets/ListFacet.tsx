@@ -18,7 +18,6 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
     const {t} = useTranslation();
 
     const queryBuilder = AQLConditionBuilder.fromQuery(name, condition ? parseAQLQuery(condition.query) : undefined);
-    console.log('queryBuilder', queryBuilder);
 
     const missingOnClick = () => {
         upsertCondition({
