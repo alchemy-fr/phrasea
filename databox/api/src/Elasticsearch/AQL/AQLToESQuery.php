@@ -52,7 +52,9 @@ final readonly class AQLToESQuery
                 return new Query\Range($fieldName, [
                     'gte' => $value[0],
                     'lte' => $value[1],
-                ]);;
+                ]);
+            case 'IN':
+                return new Query\Terms($fieldName, $value);
             case '=':
                 return new Query\Term([$fieldName => $value]);
             case '<':
