@@ -82,7 +82,7 @@ export default function SearchConditionDialog({
         )}
     >
         <AqlField
-            error={error}
+            error={!!error}
             value={query}
             onChange={setQuery}
         />
