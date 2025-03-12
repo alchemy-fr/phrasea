@@ -16,14 +16,12 @@ export default function SearchConditions({
     onDelete,
     onUpdate,
 }: Props) {
-
     return (
         <Box
             sx={{
                 mr: -1,
             }}
         >
-            <AqlField/>
             {conditions.map((condition: AQLQuery) => {
                 return (
                     <SearchCondition
