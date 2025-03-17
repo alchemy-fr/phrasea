@@ -4,20 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\WebhookBundle;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class AlchemyWebhookBundle extends AbstractBundle
+class AlchemyWebhookBundle extends Bundle
 {
-    public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
-    {
-        $builder->prependExtensionConfig('framework', [
-            'http_client' => [
-                'default_options' => [
-                    'max_redirects' => 0,
-                ],
-            ],
-        ]);
-    }
 }
