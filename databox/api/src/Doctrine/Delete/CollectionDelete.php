@@ -11,6 +11,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Template\AssetDataTemplate;
+use App\Repository\Core\AssetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class CollectionDelete
@@ -73,6 +74,23 @@ final readonly class CollectionDelete
         foreach ($children as $c) {
             $this->doDelete((string) $c['id']);
             $this->em->clear();
+        }
+
+        /** @var Collection $collection */
+        $collection = $this->em->find(Collection::class, $collectionId);
+        if (!$collection instanceof Collection) {
+            throw new \InvalidArgumentException(sprintf('Collection "%s" not found for deletion', $collectionId));
+        }
+
+        if($collection->getStoryAsset() !== null) {
+            /** @var AssetRepository $assetRepository */
+            $assetRepository = $this->em->getRepository(Asset::class);
+            foreach($assetRepository->findByStoryCollectionIds([$collectionId]) as $storyAsset) {
+                $storyAsset->setStoryCollection(null);
+                $this->em->remove($storyAsset);
+            }
+            $collection->setStoryAsset(null);
+            $this->em->flush();
         }
 
         $assets = $this->em->getRepository(Asset::class)

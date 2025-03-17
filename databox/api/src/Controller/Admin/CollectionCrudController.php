@@ -53,6 +53,8 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         yield IdField::new();
         yield TextField::new('title');
         yield AssociationField::new('parent');
+        yield AssociationField::new('storyAsset')
+            ->hideOnForm();
         yield AssociationField::new('workspace');
         yield $this->privacyField->create('privacy');
         yield TextField::new('ownerId')

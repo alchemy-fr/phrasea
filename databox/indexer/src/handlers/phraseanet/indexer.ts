@@ -245,14 +245,13 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                             }" (#${s.base_id}) ==> collection (#${storyCollId})`
                         );
 
-                        logger.info(`creating story asset for story ${storyPath + '/' + escapeSlashes(s.original_name)}`);
+                        const story_title = escapeSlashes((s.title ?? "story_" + s.databox_id + '_' + s.story_id).trim().substring(0, 50));
+                        logger.info(`creating story asset for story ${storyPath + '/' + story_title}`);
                         yield createAsset(
                             workspaceId,
                             importFiles,
                             s,
-                            storyPath + '/' + escapeSlashes(s.original_name ?? "story_" + s.databox_id +
-                                '_' +
-                                s.story_id),
+                            storyPath + '/' + story_title,
                             collectionKeyPrefix,
                             idempotencePrefixes['asset'] +
                                 s.databox_id +
