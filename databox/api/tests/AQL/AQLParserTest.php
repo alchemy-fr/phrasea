@@ -177,6 +177,12 @@ class AQLParserTest extends TestCase
                 'leftOperand' => ['field' => '@tag'],
                 'rightOperand' => [['literal' => 'c333940d-9e5c-4f3c-b16a-77f8daabca87'], ['literal' => '6ee44526-3e8e-4412-8a9b-44b82fdce6bc']],
             ]],
+            ['number > other_number', [
+                'type' => 'criteria',
+                'operator' => '>',
+                'leftOperand' => ['field' => 'number'],
+                'rightOperand' => ['field' => 'other_number'],
+            ]],
         ];
     }
 }

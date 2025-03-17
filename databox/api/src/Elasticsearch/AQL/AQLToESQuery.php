@@ -15,43 +15,80 @@ final readonly class AQLToESQuery
     {
     }
 
-    public function createQuery(array $data): Query\AbstractQuery
+    public function createQuery(array $fieldClusters, array $data, array $options): Query\AbstractQuery
     {
-        return $this->visitNode($data);
+        return $this->visitNode($fieldClusters, $data, $options);
     }
 
-    private function visitNode(array $data): Query\AbstractQuery
+    private function visitNode(array $fieldClusters, array $data, array $options): Query\AbstractQuery
     {
         switch ($data['type']) {
             case 'expression':
-                return $this->visitExpression($data);
+                return $this->visitExpression($fieldClusters, $data, $options);
             case 'criteria':
-                return $this->visitCriteria($data);
+                return $this->visitCriteria($fieldClusters, $data, $options);
             default:
                 throw new \Exception(sprintf('Unsupported node type "%s"', $data['type']));
         }
     }
 
-    private function visitExpression(array $data): Query\AbstractQuery
+    private function visitExpression(array $fieldClusters, array $data, array $options): Query\AbstractQuery
     {
         $boolQuery = new Query\BoolQuery();
         $method = $data['operator'] === 'and' ? 'addMust' : 'addShould';
 
         foreach ($data['conditions'] as $condition) {
             $boolQuery->$method($condition);
-            $this->visitNode($condition);
+            $this->visitNode($fieldClusters, $condition, $options);
         }
 
         return $boolQuery;
     }
 
-    private function visitCriteria(array $data): Query\AbstractQuery
+    private function visitCriteria(array $fieldClusters, array $data, array $options): Query\AbstractQuery
     {
-        $fieldName = $this->getFieldName($data['leftOperand']['field']);
+        $language = $options['locale'] ?? '*';
+        $queries = [];
+        $fields = $this->getFieldNames($fieldClusters, $data['leftOperand']['field']);
+        foreach ($fields as $field) {
+            $query = $this->createCriteria($fieldClusters, str_replace('{l}', $language, $field['field']), $data);
+
+            if ($field['w'] ?? false) {
+                $boolQuery = new Query\BoolQuery();
+                $boolQuery->addMust($query);
+                $boolQuery->addMust(new Query\Term(['workspaceId' => $field['w']]));
+                $query = $boolQuery;
+            }
+
+            if (1 !== ($field['b'] ?? 1)) {
+                $query->setParam('boost', $field['b']);
+            }
+            $queries[] = $query;
+        }
+
+        if (empty($queries)) {
+            throw new BadRequestHttpException(sprintf('Field "%s" not found', $data['leftOperand']['field']));
+        }
+
+        if (count($queries) === 1) {
+            return $queries[0];
+        }
+
+        $boolQuery = new Query\BoolQuery();
+
+        foreach ($queries as $query) {
+            $boolQuery->addShould($query);
+        }
+
+        return $boolQuery;
+    }
+
+    private function createCriteria(array $fieldClusters, string $fieldName, array $data): Query\AbstractQuery
+    {
         if (isset($data['rightOperand'])) {
             $value = $data['rightOperand'];
             if ($value['field'] ?? false) {
-                return $this->visitCriteriaWithScripting($data);
+                return $this->visitCriteriaWithScripting($fieldClusters, $fieldName, $data);
             }
 
             $value = $this->resolveValue($value);
@@ -81,9 +118,9 @@ final readonly class AQLToESQuery
             '>' => new Query\Range($fieldName, [
                 'gt' => $value,
             ]),
-            'MATCHES' => new Query\MatchQuery($fieldName, $value),
-            'CONTAINS' => new Query\MatchPhrase($fieldName, sprintf('*%s*', $value)),
-            'STARTS_WITH' => new Query\Prefix([$fieldName => $value]),
+            'MATCHES' => (new Query\MultiMatch())->setQuery($value)->setFields([$fieldName]),
+            'CONTAINS' => (new Query\MultiMatch())->setType('phrase')->setQuery(sprintf('*%s*', $value))->setFields([$fieldName]),
+            'STARTS_WITH' => (new Query\MultiMatch())->setType('phrase_prefix')->setQuery($value)->setFields([$fieldName]),
             default => throw new BadRequestHttpException(sprintf('Invalid operator "%s"', $data['operator'])),
         };
     }
@@ -100,23 +137,50 @@ final readonly class AQLToESQuery
         return $not;
     }
 
-    private function visitCriteriaWithScripting(array $data): Query\AbstractQuery
+    private function visitCriteriaWithScripting(array $fieldClusters, string $leftFieldName, array $data): Query\AbstractQuery
     {
-        switch ($data['operator']) {
-            case '=':
-            case '<':
-            case '<=':
-            case '>=':
-            case '>':
-                return new Query\Script(sprintf(
-                    'doc["%s"].value %s %s',
-                    $this->getFieldName($data['leftOperand']['field']),
+        $queries = [];
+        $rightFieldSlug = $data['rightOperand']['field'];
+        $fields = $this->getFieldNames($fieldClusters, $rightFieldSlug);
+        foreach ($fields as $rightField) {
+            $query = match ($data['operator']) {
+                '=', '<', '<=', '>=', '>' => new Query\Script(sprintf(
+                    'doc["%s"].value %s doc["%s"].value',
+                    $leftFieldName,
                     $data['operator'],
-                    $data['rightOperand']['field']
-                ));
-            default:
-                throw new BadRequestHttpException(sprintf('Invalid operator "%s"', $data['operator']));
+                    $rightField['field']
+                )),
+                default => throw new BadRequestHttpException(sprintf('Unsupported operator "%s"', $data['operator'])),
+            };
+
+            if ($rightField['w'] ?? false) {
+                $boolQuery = new Query\BoolQuery();
+                $boolQuery->addMust($query);
+                $boolQuery->addMust(new Query\Term(['workspaceId' => $rightField['w']]));
+                $query = $boolQuery;
+            }
+
+            if (1 !== ($rightField['b'] ?? 1)) {
+                $query->setParam('boost', $rightField['b']);
+            }
+            $queries[] = $query;
         }
+
+        if (empty($queries)) {
+            throw new BadRequestHttpException(sprintf('Field "%s" not found', $rightFieldSlug));
+        }
+
+        if (count($queries) === 1) {
+            return $queries[0];
+        }
+
+        $boolQuery = new Query\BoolQuery();
+
+        foreach ($queries as $query) {
+            $boolQuery->addShould($query);
+        }
+
+        return $boolQuery;
     }
 
     private function resolveValue(mixed $data): mixed
@@ -132,21 +196,39 @@ final readonly class AQLToESQuery
         return $data;
     }
 
-    private function getFieldName(string $field): string
+    private function getFieldNames(array $fieldClusters, string $fieldSlug): array
     {
-        if (str_starts_with($field, '@')) {
-            $facet = $this->facetRegistry->getFacet($field);
+        if (str_starts_with($fieldSlug, '@')) {
+            $facet = $this->facetRegistry->getFacet($fieldSlug);
             if (null !== $facet) {
-                return $facet->getFieldName();
+                return [['field' => $facet->getFieldName()]];
             } else {
-                $key = substr($field, 1);
+                $key = substr($fieldSlug, 1);
 
-                return match ($key) {
+                return [['field' => match ($key) {
                     'id' => '_id',
-                };
+                }]];
             }
         }
 
-        return sprintf('%s.*.%s', AttributeInterface::ATTRIBUTES_FIELD, $field);
+        $nameCandidates = [
+            sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, '_', $fieldSlug),
+            sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, '{l}', $fieldSlug),
+        ];
+        $fields = [];
+        foreach ($fieldClusters as $cluster) {
+            foreach ($cluster['fields'] as $cField => $fieldConf) {
+                foreach ($nameCandidates as $nameCandidate) {
+                    if (str_starts_with($cField, $nameCandidate)) {
+                        $fields[] = [
+                            'field' => $cField,
+                            'w' => $cluster['w'],
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $fields;
     }
 }

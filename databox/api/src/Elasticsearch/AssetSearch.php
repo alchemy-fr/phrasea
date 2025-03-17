@@ -63,12 +63,6 @@ class AssetSearch extends AbstractSearch
             $filterQueries[] = new Query\Terms('workspaceId', $options['workspaces']);
         }
 
-        if (null !== $conditions = ($options['conditions'] ?? null)) {
-            foreach ($conditions as $condition) {
-                $filterQueries[] = $this->attributeSearch->buildConditionQuery($condition);
-            }
-        }
-
         if (isset($options['tags_must']) || isset($options['tags_must_not'])) {
             $tagsBoolQuery = new Query\BoolQuery();
             $filterQueries[] = $tagsBoolQuery;
@@ -91,6 +85,13 @@ class AssetSearch extends AbstractSearch
             $limit = $maxLimit;
         }
 
+        $attributeDefinitionGroups = $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds);
+        if (null !== $conditions = ($options['conditions'] ?? null)) {
+            foreach ($conditions as $condition) {
+                $filterQueries[] = $this->attributeSearch->buildConditionQuery($attributeDefinitionGroups, $condition, $options);
+            }
+        }
+
         $filterQuery = new Query\BoolQuery();
         foreach ($filterQueries as $query) {
             $filterQuery->addFilter($query);
@@ -103,7 +104,6 @@ class AssetSearch extends AbstractSearch
         $queryString = trim($options['query'] ?? '');
         $parsed = $this->queryStringParser->parseQuery($queryString);
 
-        $attributeDefinitionGroups = $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds);
 
         if (!empty($parsed['should'])) {
             $multiMatch = $this->attributeSearch->buildAttributeQuery($attributeDefinitionGroups, $parsed['should'], $options);

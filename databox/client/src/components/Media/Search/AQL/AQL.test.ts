@@ -65,6 +65,20 @@ it('parse AQL', function () {
                     {leftOperand: {field: '@tag'}, operator: 'NOT_IN', rightOperand: [true]},
             },
         },
+        {
+            query: 'description CONTAINS "foo"',
+            result: {
+                expression:
+                    {leftOperand: {field: 'description'}, operator: 'CONTAINS', rightOperand: {literal: 'foo'}},
+            },
+        },
+        {
+            query: 'number > other_number',
+            result: {
+                expression:
+                    {leftOperand: {field: 'number'}, operator: '>', rightOperand: {field: 'other_number'}},
+            },
+        },
     ];
 
     dataSet.forEach(({query, result}) => {
