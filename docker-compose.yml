@@ -1121,6 +1121,7 @@ services:
       - ws-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - mailhog.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   novu-ws:
     image: ghcr.io/novuhq/novu/ws:${NOVU_VERSION}
@@ -1186,10 +1187,13 @@ services:
       - NOVU_SECRET_KEY
       - NOVU_API_URL
       - NOVU_BRIDGE_URL
-      - NEXT_PUBLIC_NOVU_SECRET_KEY=${NOVU_SECRET_KEY}
       - NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER=${NOVU_APPLICATION_IDENTIFIER}
       - NEXT_PUBLIC_NOVU_SUBSCRIBER_ID=${NOVU_SUBSCRIBER_ID}
       - NEXT_PUBLIC_NOVU_API_URL=${NOVU_API_URL}
+      - DATABOX_CLIENT_URL=${DATABOX_CLIENT_URL}
+      - EXPOSE_CLIENT_URL=${EXPOSE_CLIENT_URL}
+      - UPLOADER_CLIENT_URL=${UPLOADER_CLIENT_URL}
+      - DASHBOARD_CLIENT_URL=${DASHBOARD_CLIENT_URL}
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -1200,6 +1204,7 @@ services:
       - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - mailhog.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
 volumes:
   db:
