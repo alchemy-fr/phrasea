@@ -25,7 +25,21 @@ class AQLToESQueryTest extends TestCase
             '@workspace' => new WorkspaceFacet($em),
             '@createdAt' => new CreatedAtFacet(),
         ]));
-        $query = $esQueryConverter->createQuery($result['data'])->toArray();
+
+        $fieldClusters = [
+            [
+                'fields' => [
+                    'attrs.{l}.foo' => [],
+                    'attrs.{l}.field' => [],
+                    'attrs._.number' => [],
+                    'attrs._.other_number' => [],
+                ],
+                'w' => null
+            ]
+
+        ];
+
+        $query = $esQueryConverter->createQuery($fieldClusters, $result['data'], [])->toArray();
         $this->assertEquals($expectedQuery, $query);
     }
 
@@ -47,6 +61,13 @@ class AQLToESQueryTest extends TestCase
                 'terms' => ['attrs.*.field' => [
                    true, false,
                 ]],
+            ]],
+            ['number > other_number', [
+                'script' => [
+                    'script' => [
+                       'source' => 'doc["attrs._.number"].value > doc["attrs._.other_number"].value'
+                    ],
+                ],
             ]],
         ];
     }

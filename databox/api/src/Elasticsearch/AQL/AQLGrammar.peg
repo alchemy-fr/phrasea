@@ -149,13 +149,19 @@ in_operator: not:("NOT" ] )? "IN" > "(" > first:value (> "," > others:value)* > 
         unset($result['first'], $result['others']);
     }
 
-simple_operator: op:/([<>]?=|!=|[<>]|CONTAINS|MATCHES|STARTS\s+WITH)/ > v:value
+simple_operator: op:/([<>]?=|!=|[<>]|CONTAINS|MATCHES|STARTS\s+WITH)/ > v:field_or_value
     function __finalise(&$result) {
         $result['data'] = [
             'operator' => preg_replace('#\s+#', '_', $result['op']['text']),
             'rightOperand' => $result['v']['data'],
         ];
         unset($result['op'], $result['v']);
+    }
+
+field_or_value: v:field | v:value
+    function __finalise(&$result) {
+        $result['data'] = $result['v']['data'];
+        unset($result['v']);
     }
 
 value: v:number | v:quoted_string | v:boolean | v:field

@@ -10,13 +10,13 @@ import {useTranslation} from 'react-i18next';
 type Props = {
     condition: AQLQuery;
     onDelete: (condition: AQLQuery) => void;
-    onUpdate: (condition: AQLQuery) => void;
+    onUpsert: (condition: AQLQuery) => void;
 };
 
 export default function SearchCondition({
     condition,
     onDelete,
-    onUpdate,
+    onUpsert,
 }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
@@ -32,7 +32,7 @@ export default function SearchCondition({
     const edit = () => {
         openModal(SearchConditionDialog, {
             condition,
-            onUpsert: onUpdate,
+            onUpsert,
         });
     }
 
@@ -66,7 +66,7 @@ export default function SearchCondition({
             }}
         >
             <MenuItem onClick={() => {
-                onUpdate({
+                onUpsert({
                     ...condition,
                     disabled: !condition.disabled,
                 });

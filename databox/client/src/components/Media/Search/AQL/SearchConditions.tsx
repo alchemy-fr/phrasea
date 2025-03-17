@@ -31,7 +31,7 @@ export default function SearchConditions({
                         key={condition.id}
                         condition={condition}
                         onDelete={onDelete}
-                        onUpdate={onUpsert}
+                        onUpsert={onUpsert}
                     />
                 );
             })}
