@@ -64,9 +64,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
             ],
             security: 'is_granted("'.AbstractVoter::READ.'", object)'
         ),
-        new Delete(
-            security: 'is_granted("DELETE", object)',
-        ),
+        new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
         new Put(
