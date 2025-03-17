@@ -7,7 +7,6 @@ namespace App\Doctrine\Delete;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use App\Doctrine\SoftDeleteToggler;
 use App\Elasticsearch\IndexCleaner;
-use App\Entity\Core\Asset;
 use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
@@ -55,8 +54,6 @@ final readonly class WorkspaceDelete
         $sqlLogger = $configuration->getSQLLogger();
         $configuration->setSQLLogger();
         try {
-            $this->deleteDependencies(Asset::class, $workspaceId);
-
             $collections = $this->em->getRepository(Collection::class)
                 ->createQueryBuilder('t')
                 ->select('t.id, t.title')

@@ -26,7 +26,6 @@ use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Api\Processor\FollowProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveCollectionProcessor;
-use App\Api\Processor\PrepareDeleteCollectionProcessor;
 use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\CollectionProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
@@ -67,7 +66,6 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
         ),
         new Delete(
             security: 'is_granted("DELETE", object)',
-            processor: PrepareDeleteCollectionProcessor::class
         ),
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
@@ -179,6 +177,9 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
 
     #[ORM\OneToMany(mappedBy: 'referenceCollection', targetEntity: Asset::class)]
     private ?DoctrineCollection $referenceAssets = null;
+
+    #[ORM\OneToOne(targetEntity: Asset::class, inversedBy: 'storyCollection')]
+    private ?Asset $storyAsset = null;
 
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'collections')]
     #[ORM\JoinColumn(nullable: false)]
@@ -419,5 +420,15 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     public function setRelationExtraMetadata(?array $relationExtraMetadata): void
     {
         $this->relationExtraMetadata = $relationExtraMetadata;
+    }
+
+    public function getStoryAsset(): ?Asset
+    {
+        return $this->storyAsset;
+    }
+
+    public function setStoryAsset(?Asset $storyAsset): void
+    {
+        $this->storyAsset = $storyAsset;
     }
 }

@@ -97,6 +97,8 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield TextField::new('title')
             ->hideOnForm();
         yield AssociationField::new('workspace');
+        yield AssociationField::new('storyCollection')
+            ->hideOnForm();
         yield $this->userChoiceField->create('ownerId', 'Owner')
             ->hideOnIndex();
         yield $this->privacyField->create('privacy');
@@ -115,8 +117,6 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield TextField::new('locale')
             ->onlyOnDetail();
         yield AssociationField::new('collections')
-            ->onlyOnDetail();
-        yield AssociationField::new('storyCollection')
             ->onlyOnDetail();
         yield AssociationField::new('referenceCollection')
             ->onlyOnDetail()

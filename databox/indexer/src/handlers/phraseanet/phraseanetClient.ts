@@ -165,7 +165,7 @@ export default class PhraseanetClient {
                 return recs;
             } catch (e) {
                 last_error = e;
-                this.logger.info(
+                this.logger.warn(
                     `Failed to fetch search results, retrying in 5s...`
                 );
                 await new Promise(resolve => setTimeout(resolve, 5000));
