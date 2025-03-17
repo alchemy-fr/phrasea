@@ -238,41 +238,6 @@ class AttributeSearch
         }
     }
 
-    public function addAttributeFilters(array $filters): Query\BoolQuery
-    {
-        $bool = new Query\BoolQuery();
-        foreach ($filters as $filter) {
-            $attr = $filter['a'];
-            $xType = $filter['x'] ?? null;
-            $values = $filter['v'];
-            $inverted = (bool) ($filter['i'] ?? false);
-
-            $esFieldInfo = $this->getESFieldInfo($attr);
-
-            if ('missing' === $xType) {
-                $existQuery = new Query\Exists($esFieldInfo['name']);
-                if ($inverted) {
-                    $bool->addMust($existQuery);
-                } else {
-                    $bool->addMustNot($existQuery);
-                }
-                continue;
-            }
-
-            if (!empty($values)) {
-                $filterQuery = $esFieldInfo['type']->createFilterQuery($esFieldInfo['name'], $values);
-
-                if ($inverted) {
-                    $bool->addMustNot($filterQuery);
-                } else {
-                    $bool->addMust($filterQuery);
-                }
-            }
-        }
-
-        return $bool;
-    }
-
     /**
      * @return array{name: string, type: AttributeTypeInterface}
      */
@@ -417,13 +382,17 @@ class AttributeSearch
         }
     }
 
-    public function buildConditionQuery(string $condition): Query\AbstractQuery
+    public function buildConditionQuery(
+        array $fieldClusters,
+        string $condition,
+        array $options
+    ): Query\AbstractQuery
     {
         $ast = $this->AQLParser->parse($condition);
         if (null === $ast) {
             throw new BadRequestHttpException(sprintf('Invalid condition: %s', $condition));
         }
 
-        return $this->AQLToESQuery->createQuery($ast['data']);
+        return $this->AQLToESQuery->createQuery($fieldClusters, $ast['data'], $options);
     }
 }
