@@ -61,16 +61,15 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
-                "reference": "1f25e2c37d21d94a8e0b19d1f342a17981f902a8"
+                "reference": "4c86cdb6b39c5422c357da8f83ab327c8bded305"
             },
             "require": {
                 "alchemy/auth-bundle": "@dev",
                 "easycorp/easyadmin-bundle": "^4.0,<=4.20.2",
-                "guzzlehttp/guzzle": "^7.2",
                 "php": "^8.3",
                 "symfony/framework-bundle": "^6"
             },
@@ -119,7 +118,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -176,7 +175,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -229,7 +228,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -290,7 +289,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -346,7 +345,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -399,7 +398,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -454,7 +453,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
@@ -578,7 +577,7 @@
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
@@ -641,7 +640,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -695,7 +694,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -750,7 +749,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -802,17 +801,17 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
-                "reference": "9a19c4fa453eb29296a58996960d1a05d4e89ae5"
+                "reference": "0ac3fc16c43aa0698193a0efa119b708ee64ed10"
             },
             "require": {
-                "guzzlehttp/guzzle": "^7.2",
                 "php": "^8.3",
                 "ramsey/uuid-doctrine": "^1.5",
                 "symfony/framework-bundle": "^6",
+                "symfony/http-client": "^6",
                 "symfony/messenger": "^6"
             },
             "require-dev": {
@@ -859,7 +858,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -924,7 +923,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -14987,7 +14986,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-801-novu-fixes",
+            "version": "dev-PS-787-remove-guzzlehttp",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
