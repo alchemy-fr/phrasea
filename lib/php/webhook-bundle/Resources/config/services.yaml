@@ -4,7 +4,7 @@ services:
         autoconfigure: true
 
     alchemy.webhook_client:
-        class: GuzzleHttp\Client
+        class: Symfony\Contracts\HttpClient\HttpClientInterface
 
     Alchemy\WebhookBundle\Form\EventsChoiceType:
         arguments:

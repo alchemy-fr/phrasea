@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace Alchemy\WebhookBundle\Consumer;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
-use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\RequestOptions;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 
 #[AsMessageHandler]
 final readonly class WebhookTriggerHandler
 {
     public function __construct(
-        private Client $client,
+        private HttpClientInterface $client,
         private EntityManagerInterface $em,
     ) {
     }
@@ -39,16 +38,16 @@ final readonly class WebhookTriggerHandler
         $uri = $webhook->getUrl();
 
         try {
-            $this->client->post($uri, [
-                RequestOptions::ALLOW_REDIRECTS => false,
-                RequestOptions::VERIFY => $webhook->isVerifySSL(),
-                RequestOptions::TIMEOUT => $webhook->getTimeout(),
+            $this->client->request('POST', $uri, [
+                'max_redirects' => 0,
+                'verify_peer' => $webhook->isVerifySSL(),
+                'timeout' => $webhook->getTimeout(),
                 'json' => [
                     'event' => $event,
                     'payload' => $payload,
                 ],
             ]);
-        } catch (RequestException $e) {
+        } catch (HttpExceptionInterface $e) {
             $log = new WebhookLog();
             $response = $e->getResponse();
 
@@ -56,11 +55,11 @@ final readonly class WebhookTriggerHandler
                 $log->setResponse($e->getMessage());
             } else {
                 $res = '';
-                foreach (array_keys($response->getHeaders()) as $h) {
-                    $res .= $h.': '.$response->getHeaderLine($h)."\n";
+                foreach ($response->getHeaders() as $h => $v) {
+                    $res .= $h.': '. implode(',', $v) ."\n";
                 }
                 $res .= "\n\n";
-                $res .= $response->getBody()->getContents();
+                $res .= $response->getContent();
                 $log->setResponse($res);
             }
 
