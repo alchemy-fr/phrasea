@@ -14,10 +14,8 @@ class AlchemyWebhookBundle extends AbstractBundle
     {
         $builder->prependExtensionConfig('framework', [
             'http_client' => [
-                'scoped_clients' => [
-                    'webhook.client' => [
-                        
-                    ],
+                'default_options' => [
+                    'max_redirects' => 0,
                 ],
             ],
         ]);
