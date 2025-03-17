@@ -329,20 +329,13 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
 
     public function getStoryCollection(): ?Collection
     {
-        file_put_contents("/srv/app/public/debug.log", sprintf("%s[%d] \n", __FILE__, __LINE__), FILE_APPEND);
         return $this->storyCollection;
     }
 
     public function setStoryCollection(?Collection $storyCollection): void
     {
-        file_put_contents("/srv/app/public/debug.log", sprintf("%s[%d] \n", __FILE__, __LINE__), FILE_APPEND);
-
-        // not-ok
         $this->storyCollection = $storyCollection;
-
-        // ok
         if($storyCollection) {
-            file_put_contents("/srv/app/public/debug.log", sprintf("%s[%d] %s \n", __FILE__, __LINE__, $storyCollection->getId()), FILE_APPEND);
             $storyCollection->setStoryAsset($this);
         }
     }
