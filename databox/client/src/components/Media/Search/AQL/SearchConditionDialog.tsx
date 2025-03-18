@@ -1,13 +1,18 @@
 import {AQLQuery} from "./query.ts";
-import {Alert, Button} from "@mui/material";
+import {Alert, Button, CircularProgress} from "@mui/material";
 import {useTranslation} from 'react-i18next';
 import CheckIcon from "@mui/icons-material/Check";
 import {StackedModalProps, useModals} from "@alchemy/navigation";
-import React from "react";
+import React, {useMemo} from "react";
 import AqlField from "./AQLField.tsx";
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {parseAQLQuery} from "./AQL.ts";
 import nl2br from "react-nl2br";
+import ConditionsBuilder from "./Builder/ConditionsBuilder.tsx";
+import {useAttributeDefinitionStore} from "../../../../store/attributeDeifnitionStore.ts";
+import {AttributeDefinition} from "../../../../types.ts";
+import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
+import {validateQuery} from "./validation.ts";
 
 type Props = {
     condition: AQLQuery;
@@ -34,9 +39,27 @@ export default function SearchConditionDialog({
 
     const isNew = !condition.query;
 
+    const {load, definitions, loaded} = useAttributeDefinitionStore();
+
+    useEffectOnce(() => {
+        load();
+    }, [load]);
+
+    const definitionsIndex: Record<string, AttributeDefinition> = useMemo(() => {
+        const index: Record<string, AttributeDefinition> = {};
+
+        for (const def of definitions) {
+            index[def.slug] = def;
+        }
+
+        return index;
+    }, [definitions]);
+
     const validate = (q: string): boolean => {
         try {
-            parseAQLQuery(q, true);
+            const result = parseAQLQuery(q, true)!;
+            console.debug('result', result);
+            validateQuery(result, definitionsIndex);
             setError(undefined);
 
             return true;
@@ -81,11 +104,15 @@ export default function SearchConditionDialog({
             </>
         )}
     >
-        <AqlField
-            error={!!error}
-            value={query}
-            onChange={setQuery}
-        />
-        {error ? <Alert severity={'error'}>{nl2br(error)}</Alert> : null}
+        {loaded ? <>
+            <AqlField
+                error={!!error}
+                value={query}
+                onChange={setQuery}
+            />
+            {error ? <Alert severity={'error'}>{nl2br(error)}</Alert> : null}
+
+            <ConditionsBuilder definitionsIndex={definitionsIndex}/>
+        </> : <CircularProgress/>}
     </AppDialog>
 }

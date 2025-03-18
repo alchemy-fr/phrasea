@@ -59,7 +59,7 @@ export const useBasketStore = create<State>((set, getState) => ({
                 nextUrl: data.next || undefined,
             }));
         } catch (e: any) {
-            set({loading: true});
+            set({loading: false});
             throw e;
         }
     },
