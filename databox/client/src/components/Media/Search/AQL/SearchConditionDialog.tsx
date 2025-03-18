@@ -56,6 +56,10 @@ export default function SearchConditionDialog({
     }, [definitions]);
 
     const validate = (q: string): boolean => {
+        if (!q) {
+            setError(t('search_condition.dialog.error.empty_query', 'Empty query'));
+            return false;
+        }
         try {
             const result = parseAQLQuery(q, true)!;
             console.debug('result', result);
