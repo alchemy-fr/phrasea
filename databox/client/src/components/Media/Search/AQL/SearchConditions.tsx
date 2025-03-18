@@ -1,5 +1,6 @@
 import {AQLQueries, AQLQuery} from "./query.ts";
-import {Box, IconButton} from "@mui/material";
+import {Box, Button} from "@mui/material";
+import {useTranslation} from 'react-i18next';
 import React from "react";
 import SearchCondition from "./SearchCondition.tsx";
 import {useModals} from "@alchemy/navigation";
@@ -17,6 +18,7 @@ export default function SearchConditions({
     onDelete,
     onUpsert,
 }: Props) {
+    const {t} = useTranslation();
     const {openModal} = useModals();
 
     return (
@@ -35,7 +37,8 @@ export default function SearchConditions({
                     />
                 );
             })}
-            <IconButton
+            <Button
+                startIcon={<AddIcon />}
                 onClick={() => {
                     openModal(SearchConditionDialog, {
                         onUpsert,
@@ -46,8 +49,8 @@ export default function SearchConditions({
                     });
                 }}
             >
-                <AddIcon />
-            </IconButton>
+                {t('search_condition.add_condition', 'Add Condition')}
+            </Button>
         </Box>
     );
 }

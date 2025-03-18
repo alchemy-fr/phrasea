@@ -78,6 +78,17 @@ export async function getWorkspaceAttributeDefinitions(
     return res.data['hydra:member'];
 }
 
+
+export async function getAttributeDefinitions(): Promise<AttributeDefinition[]> {
+    const res = await apiClient.get(attributeDefinitionNS, {
+        params: {
+            limit: 1000,
+        },
+    });
+
+    return res.data['hydra:member'];
+}
+
 export async function deleteAttributeDefinition(id: string): Promise<void> {
     await apiClient.delete(`${attributeDefinitionNS}/${id}`);
 }
