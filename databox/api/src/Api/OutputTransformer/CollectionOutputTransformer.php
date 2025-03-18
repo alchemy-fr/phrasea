@@ -53,6 +53,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->setWorkspace($data->getWorkspace());
         $output->setExtraMetadata($data->getExtraMetadata());
         $output->relationExtraMetadata = $data->getRelationExtraMetadata();
+        $output->setStoryAsset($data->getStoryAsset());
 
         if ($this->hasGroup([
             Collection::GROUP_READ,

@@ -68,6 +68,9 @@ class CollectionOutput extends AbstractUuidOutput
     #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private $workspace;
 
+    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    private ?Asset $storyAsset;
+
     #[Groups(['_'])]
     public ?array $relationExtraMetadata = null;
 
@@ -132,5 +135,15 @@ class CollectionOutput extends AbstractUuidOutput
     public function setWorkspace($workspace): void
     {
         $this->workspace = $workspace;
+    }
+
+    public function getStoryAsset(): ?Asset
+    {
+        return $this->storyAsset;
+    }
+
+    public function setStoryAsset(?Asset $storyAsset): void
+    {
+        $this->storyAsset = $storyAsset;
     }
 }
