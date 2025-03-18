@@ -1,12 +1,11 @@
-import {RSelectWidget} from '@alchemy/react-form';
 import React from "react";
 import {FlexRow} from '@alchemy/phrasea-ui';
 import {AttributeDefinitionIndex} from "../../../../AttributeEditor/types.ts";
 import {useTranslation} from 'react-i18next';
-import {IconButton, TextField} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import {IconButton} from "@mui/material";
 import ConditionBuilder from "./ConditionBuilder.tsx";
-import {AQLCondition} from "../aqlTypes.ts";
+import AddIcon from "@mui/icons-material/Add";
+import {QBCondition} from "./builderTypes.ts";
 
 type Props = {
     definitionsIndex: AttributeDefinitionIndex;
@@ -14,14 +13,16 @@ type Props = {
 
 export default function ConditionsBuilder({definitionsIndex}: Props) {
     const {t} = useTranslation();
-    const [conditions, setConditions] = React.useState<AQLCondition[]>([
-        {
-            leftOperand: {
-                field: '',
-            },
-            operator: '',
-            rightOperand: '',
-        }
+    const emptyCondition: QBCondition = {
+        leftOperand: {
+            field: '',
+        },
+        operator: '',
+        rightOperand: {literal: ''},
+    };
+
+    const [conditions, setConditions] = React.useState<QBCondition[]>([
+        emptyCondition
     ]);
 
     const operators = [
@@ -59,22 +60,48 @@ export default function ConditionsBuilder({definitionsIndex}: Props) {
         },
     ];
 
-    return conditions.map((c, index) => {
-        return <ConditionBuilder
-            key={index}
-            operators={operators}
-            definitionsIndex={definitionsIndex}
-            condition={c}
-            onChange={(handler) => {
-                setConditions(p => {
-                    return p.map((c2, i2) => {
-                        if (i2 === index) {
-                            return handler(c);
-                        }
-                        return c2;
+    const onRemove = (condition: QBCondition) => {
+        setConditions(p => {
+            return p.filter(c2 => c2 !== condition);
+        });
+
+    };
+
+    return <>
+        {conditions.map((c, index) => {
+            return <ConditionBuilder
+                key={index}
+                operators={operators}
+                definitionsIndex={definitionsIndex}
+                condition={c}
+                onChange={(handler) => {
+                    setConditions(p => {
+                        return p.map((c2, i2) => {
+                            if (i2 === index) {
+                                return handler(c);
+                            }
+                            return c2;
+                        });
                     });
-                });
-            }}
-        />
-    })
+                }}
+                onRemove={onRemove}
+            />
+        })}
+        <FlexRow>
+            <IconButton
+                onClick={() => {
+                    setConditions(p => {
+                        return [
+                            ...p,
+                            {
+                                ...emptyCondition,
+                            }
+                        ];
+                    });
+                }}
+            >
+                <AddIcon/>
+            </IconButton>
+        </FlexRow>
+    </>
 }
