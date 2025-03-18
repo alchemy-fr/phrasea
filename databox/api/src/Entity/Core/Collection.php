@@ -176,7 +176,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     #[ORM\OneToMany(mappedBy: 'referenceCollection', targetEntity: Asset::class)]
     private ?DoctrineCollection $referenceAssets = null;
 
-    #[ORM\OneToOne(targetEntity: Asset::class, inversedBy: 'storyCollection')]
+    #[ORM\OneToOne(targetEntity: Asset::class, mappedBy: 'storyCollection')]
     private ?Asset $storyAsset = null;
 
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'collections')]
