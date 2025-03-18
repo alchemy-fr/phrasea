@@ -35,11 +35,10 @@ final readonly class AQLToESQuery
     private function visitExpression(array $fieldClusters, array $data, array $options): Query\AbstractQuery
     {
         $boolQuery = new Query\BoolQuery();
-        $method = $data['operator'] === 'and' ? 'addMust' : 'addShould';
+        $method = strtoupper($data['operator']) === 'AND' ? 'addMust' : 'addShould';
 
         foreach ($data['conditions'] as $condition) {
-            $boolQuery->$method($condition);
-            $this->visitNode($fieldClusters, $condition, $options);
+            $boolQuery->$method($this->visitNode($fieldClusters, $condition, $options));
         }
 
         return $boolQuery;
@@ -144,12 +143,12 @@ final readonly class AQLToESQuery
         $fields = $this->getFieldNames($fieldClusters, $rightFieldSlug);
         foreach ($fields as $rightField) {
             $query = match ($data['operator']) {
-                '=', '<', '<=', '>=', '>' => new Query\Script(sprintf(
-                    'doc["%s"].value %s doc["%s"].value',
+                '=', '!=', '<', '<=', '>=', '>' => (new Query\Script(sprintf(
+                    '!doc["%1$s"].empty && !doc["%3$s"].empty && doc["%1$s"].value %2$s doc["%3$s"].value',
                     $leftFieldName,
                     $data['operator'],
                     $rightField['field']
-                )),
+                ))),
                 default => throw new BadRequestHttpException(sprintf('Unsupported operator "%s"', $data['operator'])),
             };
 
