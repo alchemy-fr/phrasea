@@ -59,14 +59,6 @@ class AlchemyWebhookExtension extends Extension implements PrependExtensionInter
     {
         $bundles = $container->getParameter('kernel.bundles');
 
-        $container->prependExtensionConfig('framework', [
-            'http_client' => [
-                'default_options' => [
-                    'max_redirects' => 0,
-                ],
-            ],
-        ]);
-
         if (isset($bundles['TwigBundle'])) {
             $container->prependExtensionConfig('twig', [
                 'paths' => [
