@@ -249,7 +249,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     #[ORM\ManyToMany(targetEntity: Tag::class)]
     private ?DoctrineCollection $tags = null;
 
-    #[ORM\OneToOne(mappedBy: 'storyAsset', targetEntity: Collection::class, cascade: ['remove'])]
+    #[ORM\OneToOne(targetEntity: Collection::class, inversedBy: 'storyAsset', cascade: ['remove'])]
     private ?Collection $storyCollection = null;
 
     /**
