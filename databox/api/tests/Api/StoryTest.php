@@ -22,7 +22,7 @@ class StoryTest extends AbstractSearchTestCase
         $assetId = "";
         $this->createStory($client,$collectionId, $assetId);
 
-        $client->request('GET', '/collections/' . urlencode($collectionId), [
+        $response = $client->request('GET', '/collections/' . urlencode($collectionId), [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],
@@ -30,14 +30,16 @@ class StoryTest extends AbstractSearchTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains([
             '@type' => 'collection',
-            'title' => 'Dummy story-collection',
             'storyAsset' => [
                 '@type' => 'asset',
                 'id' => $assetId,
             ],
         ]);
+        // a storyCollection has (null) title
+        // because apiPlatform is set to skip null values, we check it's not there
+        $this->assertArrayNotHasKey('title', $response->toArray());
 
-        $client->request('GET', '/assets/' . urlencode($assetId), [
+        $response = $client->request('GET', '/assets/' . urlencode($assetId), [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],
@@ -49,9 +51,9 @@ class StoryTest extends AbstractSearchTestCase
             'storyCollection' => [
                 '@type' => 'collection',
                 'id' => $collectionId,
-                'title' => 'Dummy story-collection',
             ],
         ]);
+        $this->assertArrayNotHasKey('title', $response->toArray()['storyCollection']);
     }
 
     public function testRemoveStoryByCollection(): void
@@ -127,6 +129,7 @@ class StoryTest extends AbstractSearchTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
+                // this title should become null when the collection becomes a storyCollection
                 'title' => 'Dummy story-collection',
                 'workspace' => $this->findIriBy(Workspace::class, [
                     'slug' => 'test-workspace',
