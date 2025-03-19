@@ -8,6 +8,8 @@ use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\TextAttributeType;
+use App\Elasticsearch\AQL\AQLParser;
+use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
@@ -15,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;
 use Elastica\Aggregation\Missing;
 use Elastica\Query;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AttributeSearch
 {
@@ -25,6 +28,8 @@ class AttributeSearch
         private readonly FieldNameResolver $fieldNameResolver,
         private readonly EntityManagerInterface $em,
         private readonly AttributeTypeRegistry $typeRegistry,
+        private readonly AQLParser $AQLParser,
+        private readonly AQLToESQuery $AQLToESQuery,
     ) {
     }
 
@@ -233,41 +238,6 @@ class AttributeSearch
         }
     }
 
-    public function addAttributeFilters(array $filters): Query\BoolQuery
-    {
-        $bool = new Query\BoolQuery();
-        foreach ($filters as $filter) {
-            $attr = $filter['a'];
-            $xType = $filter['x'] ?? null;
-            $values = $filter['v'];
-            $inverted = (bool) ($filter['i'] ?? false);
-
-            $esFieldInfo = $this->getESFieldInfo($attr);
-
-            if ('missing' === $xType) {
-                $existQuery = new Query\Exists($esFieldInfo['name']);
-                if ($inverted) {
-                    $bool->addMust($existQuery);
-                } else {
-                    $bool->addMustNot($existQuery);
-                }
-                continue;
-            }
-
-            if (!empty($values)) {
-                $filterQuery = $esFieldInfo['type']->createFilterQuery($esFieldInfo['name'], $values);
-
-                if ($inverted) {
-                    $bool->addMustNot($filterQuery);
-                } else {
-                    $bool->addMust($filterQuery);
-                }
-            }
-        }
-
-        return $bool;
-    }
-
     /**
      * @return array{name: string, type: AttributeTypeInterface}
      */
@@ -410,5 +380,19 @@ class AttributeSearch
             $missingAgg = new Missing($fieldName.FacetHandler::MISSING_SUFFIX, $fullFieldName);
             $query->addAggregation($missingAgg);
         }
+    }
+
+    public function buildConditionQuery(
+        array $fieldClusters,
+        string $condition,
+        array $options
+    ): Query\AbstractQuery
+    {
+        $ast = $this->AQLParser->parse($condition);
+        if (null === $ast) {
+            throw new BadRequestHttpException(sprintf('Invalid condition: %s', $condition));
+        }
+
+        return $this->AQLToESQuery->createQuery($fieldClusters, $ast['data'], $options);
     }
 }
