@@ -1,6 +1,6 @@
 import {
     AQLAndOrExpression,
-    AQLCondition,
+    AQLCondition, AQLExpression,
     AQLField,
     AQLLiteral,
     AQLOperator,
@@ -33,11 +33,17 @@ export function astToString(ast: object | null | undefined): string {
     }
     const expr = ast.expression;
 
-    if (hasProp<AQLAndOrExpression>(expr, 'conditions')) {
-        return expr.conditions.map(conditionToQuery).join(` ${expr.operator} `);
+    return expressionToString(expr);
+}
+
+function expressionToString(expression: AQLExpression, isSubExpression?: boolean): string {
+    if (hasProp<AQLAndOrExpression>(expression, 'conditions')) {
+        const r = expression.conditions.map(e => expressionToString(e, true)).join(` ${expression.operator} `);
+
+        return isSubExpression ? `(${r})` : r;
     }
 
-    return conditionToQuery(expr);
+    return conditionToQuery(expression);
 }
 
 function conditionToQuery(condition: AQLCondition): string {

@@ -41,7 +41,7 @@ and_condition -> condition (__ "AND" __ condition):* {%
     }
 %}
 
-condition -> ("(" expression ")") {% (data) => ({operator: "AND", conditions: [data[1]]}) %}
+condition -> "(" expression ")" {% (data) => data[1] %}
     | "NOT" __ expression {% (data) => ({operator: "NOT", conditions: [data[3]]}) %}
     | criteria {% id %}
 

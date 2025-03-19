@@ -12,9 +12,11 @@ import ConditionsBuilder from "./Builder/ConditionsBuilder.tsx";
 import {useAttributeDefinitionStore} from "../../../../store/attributeDeifnitionStore.ts";
 import {AttributeDefinition} from "../../../../types.ts";
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
-import {validateQuery} from "./validation.ts";
-import {QBCondition, QBExpression} from "./Builder/builderTypes.ts";
+import {validateQueryAST} from "./validation.ts";
+import {QBExpression} from "./Builder/builderTypes.ts";
 import {emptyCondition} from "./Builder/builder.ts";
+import {boolean} from "zod";
+import {AQLQueryAST} from "./aqlTypes.ts";
 
 type Props = {
     condition: AQLQuery;
@@ -32,36 +34,32 @@ export default function SearchConditionDialog({
     const [query, __setQuery] = React.useState(condition.query);
     const [textQueryMode, setTextQueryMode] = React.useState(false);
 
-    const [expression, setExpression] = React.useState<QBExpression>(
-        emptyCondition
-    );
+    const [expression, setExpression] = React.useState<QBExpression>({...emptyCondition});
+
+    const setQuery = (q: string) => {
+        if (error) {
+            validateQuery(q);
+        }
+        __setQuery(q);
+    }
 
     React.useEffect(() => {
         try {
-
-        if (textQueryMode) {
-            __setQuery(astToString({
-                expression: {
-                    operator: 'AND',
-                    conditions: expression,
-                }
-            }));
-        } else {
-            setExpression(emptyCondition);
-        }
+            if (textQueryMode) {
+                __setQuery(astToString({
+                    expression
+                }));
+            } else {
+                const result = parseAQLQuery(query, true);
+                console.log('result', query, result);
+                setExpression((result?.expression || {...emptyCondition}) as QBExpression);
+            }
         } catch (e) {
             console.log('error', e);
         }
     }, [textQueryMode]);
 
     const [error, setError] = React.useState<string | undefined>();
-
-    const setQuery = (q: string) => {
-        if (error) {
-            validate(q);
-        }
-        __setQuery(q);
-    }
 
     const isNew = !condition.query;
 
@@ -81,15 +79,10 @@ export default function SearchConditionDialog({
         return index;
     }, [definitions]);
 
-    const validate = (q: string): boolean => {
-        if (!q) {
-            setError(t('search_condition.dialog.error.empty_query', 'Empty query'));
-            return false;
-        }
+
+    const wrapValidate = (handler: () => void) => {
         try {
-            const result = parseAQLQuery(q, true)!;
-            console.debug('result', result);
-            validateQuery(result, definitionsIndex);
+            handler();
             setError(undefined);
 
             return true;
@@ -103,6 +96,20 @@ export default function SearchConditionDialog({
 
         return false;
     }
+
+    const validateAST = (ast: AQLQueryAST) => wrapValidate(() => {
+        validateQueryAST(ast, definitionsIndex);
+    });
+
+    const validateQuery = (q: string) => wrapValidate(() => {
+        if (!q) {
+            setError(t('search_condition.dialog.error.empty_query', 'Empty query'));
+            return false;
+        }
+
+        const result = parseAQLQuery(q, true)!;
+        validateQueryAST(result, definitionsIndex);
+    })
 
     return <AppDialog
         maxWidth={'md'}
@@ -118,7 +125,7 @@ export default function SearchConditionDialog({
                 <Button
                     startIcon={<CheckIcon/>}
                     onClick={() => {
-                        if (validate(query)) {
+                        if (validateQuery(query)) {
                             closeModal();
                             onUpsert({
                                 ...condition,
@@ -136,7 +143,9 @@ export default function SearchConditionDialog({
     >
         {loaded ? <>
             <div>
-                <Button
+                <Button sx={{
+                    mb: 2,
+                }}
                     onClick={() => setTextQueryMode(!textQueryMode)}
                     variant={'contained'}
                     color={textQueryMode ? 'secondary' : 'primary'}
@@ -158,7 +167,7 @@ export default function SearchConditionDialog({
                     expression={expression}
                     setExpression={setExpression}
                 />
-        }
+            }
         </> : <CircularProgress/>}
     </AppDialog>
 }

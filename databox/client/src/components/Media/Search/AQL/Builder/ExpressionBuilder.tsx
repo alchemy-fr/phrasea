@@ -3,11 +3,10 @@ import {BaseBuilderProps, QBAndOrExpression, QBCondition, QBExpression} from "./
 import {hasProp} from "../../../../../lib/utils.ts";
 import AndOrOrExpressionBuilder from "./AndOrOrExpressionBuilder.tsx";
 import ConditionBuilder from "./ConditionBuilder.tsx";
-import {removeExpression} from "./builder.ts";
 import {StateSetter} from "../../../../../types.ts";
 
 type Props = {
-    onRemove?: BaseBuilderProps<QBExpression>['onRemove'];
+    onRemove: BaseBuilderProps<QBExpression>['onRemove'];
 } & Omit<BaseBuilderProps<QBExpression>, 'onRemove'>;
 
 export default function ExpressionBuilder({
@@ -15,14 +14,8 @@ export default function ExpressionBuilder({
     operators,
     expression,
     setExpression,
-    onRemove: removeParent,
+    onRemove,
 }: Props) {
-    const onRemove = (expr: QBExpression) => {
-        setExpression((p) => {
-            return removeExpression(p, expr, removeParent ? () => removeParent!(expression) : undefined);
-        })
-    }
-
     if (hasProp<QBAndOrExpression>(expression, 'conditions')) {
         return <AndOrOrExpressionBuilder
             definitionsIndex={definitionsIndex}

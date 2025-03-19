@@ -1,24 +1,48 @@
 import React from "react";
 import {FlexRow} from '@alchemy/phrasea-ui';
 import {Box, IconButton} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import {BaseBuilderProps, QBAndOrExpression, QBExpression, RemoveExpressionHandler} from "./builderTypes.ts";
-import {addExpression, removeExpression} from "./builder.ts";
+import {BaseBuilderProps, QBAndOrExpression, QBExpression} from "./builderTypes.ts";
+import {emptyCondition, removeExpression} from "./builder.ts";
 import ExpressionBuilder from "./ExpressionBuilder.tsx";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AddExpressionRow from "./AddExpressionRow.tsx";
+import {StateSetterHandler} from "../../../../../types.ts";
+import {RSelectWidget} from '@alchemy/react-form';
 
 export default function AndOrOrExpressionBuilder({
     definitionsIndex, expression, setExpression, onRemove,
     operators
 }: BaseBuilderProps<QBAndOrExpression>) {
-    return <Box sx={{
-        border: `1px solid #ccc`,
+
+
+    return <Box sx={theme => ({
+        border: `1px solid ${theme.palette.divider}`,
         p: 2,
         my: 1,
-    }}>
+    })}>
         <FlexRow>
             <div>
-                AndOrOrExpressionBuilder <b>{expression.operator}</b>
+                <RSelectWidget
+                    name={'operator'}
+                    required={true}
+                    onChange={newValue => {
+                        setExpression(p => ({
+                            ...p,
+                            operator: (newValue?.value ?? 'AND') as QBAndOrExpression['operator'],
+                        }));
+                    }}
+                    value={expression.operator as any}
+                    options={[
+                        {
+                            value: 'OR',
+                            label: 'OR',
+                        },
+                        {
+                            value: 'AND',
+                            label: 'AND',
+                        },
+                    ]}
+                />
             </div>
             <IconButton
                 onClick={() => {
@@ -43,25 +67,15 @@ export default function AndOrOrExpressionBuilder({
                                 return handler(c);
                             }
                             return c2;
-                        }),
+                        }).filter(c => null !== c),
                     }));
                 })}
                 onRemove={(expr) => {
-                    setExpression(p => removeExpression(p, expr, onRemove as RemoveExpressionHandler<QBExpression>) as QBAndOrExpression);
+                    setExpression(p => (removeExpression(p, expr) || {...emptyCondition}) as any)
                 }}
             />
         })}
 
-        <FlexRow>
-            <IconButton
-                onClick={() => {
-                    setExpression(p => {
-                        return addExpression(p);
-                    });
-                }}
-            >
-                <AddIcon/>
-            </IconButton>
-        </FlexRow>
+        <AddExpressionRow setExpression={setExpression as StateSetterHandler<QBExpression>}/>
     </Box>
 }

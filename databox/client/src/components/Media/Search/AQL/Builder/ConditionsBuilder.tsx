@@ -2,17 +2,19 @@ import React from "react";
 import {FlexRow} from '@alchemy/phrasea-ui';
 import {AttributeDefinitionIndex} from "../../../../AttributeEditor/types.ts";
 import {useTranslation} from 'react-i18next';
-import {IconButton} from "@mui/material";
+import {Button, IconButton} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import {QBExpression} from "./builderTypes.ts";
-import {StateSetter} from "../../../../../types.ts";
-import {addExpression, removeExpression} from "./builder.ts";
+import {StateSetterHandler} from "../../../../../types.ts";
+import {addExpression, emptyCondition, removeExpression} from "./builder.ts";
 import ExpressionBuilder from "./ExpressionBuilder.tsx";
+import {hasProp} from "../../../../../lib/utils.ts";
+import AddExpressionRow from "./AddExpressionRow.tsx";
 
 type Props = {
     definitionsIndex: AttributeDefinitionIndex;
     expression: QBExpression;
-    setExpression: StateSetter<QBExpression>;
+    setExpression: StateSetterHandler<QBExpression>;
 };
 
 export default function ConditionsBuilder({definitionsIndex, expression, setExpression}: Props) {
@@ -59,17 +61,13 @@ export default function ConditionsBuilder({definitionsIndex, expression, setExpr
             expression={expression}
             operators={operators}
             definitionsIndex={definitionsIndex}
+            onRemove={expr => {
+                return setExpression(p => {
+                    return removeExpression(p, expr) || {...emptyCondition};
+                });
+            }}
         />
-        <FlexRow>
-            <IconButton
-                onClick={() => {
-                    setExpression(p => {
-                        return addExpression(p);
-                    });
-                }}
-            >
-                <AddIcon/>
-            </IconButton>
-        </FlexRow>
+
+        <AddExpressionRow setExpression={setExpression}/>
     </>
 }
