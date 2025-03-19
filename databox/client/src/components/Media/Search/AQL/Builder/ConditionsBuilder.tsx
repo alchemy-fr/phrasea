@@ -3,27 +3,20 @@ import {FlexRow} from '@alchemy/phrasea-ui';
 import {AttributeDefinitionIndex} from "../../../../AttributeEditor/types.ts";
 import {useTranslation} from 'react-i18next';
 import {IconButton} from "@mui/material";
-import ConditionBuilder from "./ConditionBuilder.tsx";
 import AddIcon from "@mui/icons-material/Add";
-import {QBCondition} from "./builderTypes.ts";
+import {QBExpression} from "./builderTypes.ts";
+import {StateSetter} from "../../../../../types.ts";
+import {addExpression, removeExpression} from "./builder.ts";
+import ExpressionBuilder from "./ExpressionBuilder.tsx";
 
 type Props = {
     definitionsIndex: AttributeDefinitionIndex;
+    expression: QBExpression;
+    setExpression: StateSetter<QBExpression>;
 };
 
-export default function ConditionsBuilder({definitionsIndex}: Props) {
+export default function ConditionsBuilder({definitionsIndex, expression, setExpression}: Props) {
     const {t} = useTranslation();
-    const emptyCondition: QBCondition = {
-        leftOperand: {
-            field: '',
-        },
-        operator: '',
-        rightOperand: {literal: ''},
-    };
-
-    const [conditions, setConditions] = React.useState<QBCondition[]>([
-        emptyCondition
-    ]);
 
     const operators = [
         {
@@ -60,43 +53,18 @@ export default function ConditionsBuilder({definitionsIndex}: Props) {
         },
     ];
 
-    const onRemove = (condition: QBCondition) => {
-        setConditions(p => {
-            return p.filter(c2 => c2 !== condition);
-        });
-
-    };
-
     return <>
-        {conditions.map((c, index) => {
-            return <ConditionBuilder
-                key={index}
-                operators={operators}
-                definitionsIndex={definitionsIndex}
-                condition={c}
-                onChange={(handler) => {
-                    setConditions(p => {
-                        return p.map((c2, i2) => {
-                            if (i2 === index) {
-                                return handler(c);
-                            }
-                            return c2;
-                        });
-                    });
-                }}
-                onRemove={onRemove}
-            />
-        })}
+        <ExpressionBuilder
+            setExpression={setExpression}
+            expression={expression}
+            operators={operators}
+            definitionsIndex={definitionsIndex}
+        />
         <FlexRow>
             <IconButton
                 onClick={() => {
-                    setConditions(p => {
-                        return [
-                            ...p,
-                            {
-                                ...emptyCondition,
-                            }
-                        ];
+                    setExpression(p => {
+                        return addExpression(p);
                     });
                 }}
             >

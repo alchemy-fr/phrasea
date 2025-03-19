@@ -381,6 +381,7 @@ export type Ace = (
 } & Entity;
 
 export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;
+export type StateSetterHandler<T> = (handler: ((prev: T) => T)) => void;
 
 export type AssetOrAssetContainer = {} & Entity;
 

@@ -1,29 +1,20 @@
 import {RSelectWidget} from '@alchemy/react-form';
 import React from "react";
 import {FlexRow} from '@alchemy/phrasea-ui';
-import {AttributeDefinitionIndex} from "../../../../AttributeEditor/types.ts";
 import {useTranslation} from 'react-i18next';
 import {IconButton, TextField} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import {AQLField} from "../aqlTypes.ts";
 import {resolveValue} from "../query.ts";
-import {QBCondition} from "./builderTypes.ts";
-
-type Props = {
-    definitionsIndex: AttributeDefinitionIndex;
-    onChange: (handler: (prev: QBCondition) => QBCondition) => void;
-    onRemove: (condition: QBCondition) => void;
-    condition: QBCondition;
-    operators: { value: string, label: string }[];
-};
+import {BaseBuilderProps, QBCondition} from "./builderTypes.ts";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function ConditionBuilder({
     definitionsIndex,
-    onChange,
+    setExpression,
     operators,
-    condition,
+    expression,
     onRemove,
-}: Props) {
+}: BaseBuilderProps<QBCondition>) {
     const {t} = useTranslation();
 
     return <FlexRow sx={{
@@ -34,14 +25,14 @@ export default function ConditionBuilder({
                 placeholder={t('search_condition.builder.field', 'Field')}
                 name={'field'}
                 onChange={newValue => {
-                    onChange(p => ({
+                    setExpression(p => ({
                         ...p,
                         leftOperand: {
                             field: newValue?.value ?? '',
                         }
                     }));
                 }}
-                value={(condition.leftOperand as AQLField).field as any}
+                value={(expression.leftOperand as AQLField).field as any}
                 options={Object.entries(definitionsIndex).map(([_slug, def]) => ({
                     value: def.slug,
                     label: def.name,
@@ -53,9 +44,9 @@ export default function ConditionBuilder({
                 placeholder={t('search_condition.builder.operator', 'Operator')}
                 name={'operator'}
                 options={operators}
-                value={condition.operator as any}
+                value={expression.operator as any}
                 onChange={newValue => {
-                    onChange(p => ({
+                    setExpression(p => ({
                         ...p,
                         operator: newValue?.value ?? '',
                     }));
@@ -66,14 +57,14 @@ export default function ConditionBuilder({
             <TextField
                 placeholder={t('search_condition.builder.value', 'Value')}
                 name={'value'}
-                value={resolveValue(condition.rightOperand)}
+                value={resolveValue(expression.rightOperand)}
                 onChange={e => {
                     const num = parseInt(e.target.value, 10);
                     const v = isNaN(num) ? {
                         literal: e.target.value,
                     } : num; // TODO handle boolean
 
-                    onChange(p => ({
+                    setExpression(p => ({
                         ...p,
                         rightOperand: v
                     }));
@@ -83,10 +74,10 @@ export default function ConditionBuilder({
         <div>
             <IconButton
                 onClick={() => {
-                    onRemove(condition);
+                    onRemove(expression);
                 }}
             >
-                <CloseIcon/>
+                <DeleteIcon/>
             </IconButton>
         </div>
     </FlexRow>
