@@ -1,4 +1,4 @@
-import {AQLQuery} from "./query.ts";
+import {AQLQuery, astToString} from "./query.ts";
 import {Alert, Button, CircularProgress} from "@mui/material";
 import {useTranslation} from 'react-i18next';
 import CheckIcon from "@mui/icons-material/Check";
@@ -13,6 +13,8 @@ import {useAttributeDefinitionStore} from "../../../../store/attributeDeifnition
 import {AttributeDefinition} from "../../../../types.ts";
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 import {validateQuery} from "./validation.ts";
+import {QBCondition, QBExpression} from "./Builder/builderTypes.ts";
+import {emptyCondition} from "./Builder/builder.ts";
 
 type Props = {
     condition: AQLQuery;
@@ -28,6 +30,30 @@ export default function SearchConditionDialog({
     const {t} = useTranslation();
     const {closeModal} = useModals();
     const [query, __setQuery] = React.useState(condition.query);
+    const [textQueryMode, setTextQueryMode] = React.useState(false);
+
+    const [expression, setExpression] = React.useState<QBExpression>(
+        emptyCondition
+    );
+
+    React.useEffect(() => {
+        try {
+
+        if (textQueryMode) {
+            __setQuery(astToString({
+                expression: {
+                    operator: 'AND',
+                    conditions: expression,
+                }
+            }));
+        } else {
+            setExpression(emptyCondition);
+        }
+        } catch (e) {
+            console.log('error', e);
+        }
+    }, [textQueryMode]);
+
     const [error, setError] = React.useState<string | undefined>();
 
     const setQuery = (q: string) => {
@@ -109,14 +135,30 @@ export default function SearchConditionDialog({
         )}
     >
         {loaded ? <>
-            <AqlField
-                error={!!error}
-                value={query}
-                onChange={setQuery}
-            />
-            {error ? <Alert severity={'error'}>{nl2br(error)}</Alert> : null}
+            <div>
+                <Button
+                    onClick={() => setTextQueryMode(!textQueryMode)}
+                    variant={'contained'}
+                    color={textQueryMode ? 'secondary' : 'primary'}
+                >
+                    {textQueryMode ? t('search_condition.dialog.switch_to_builder', 'Switch to Builder') : t('search_condition.dialog.switch_to_text', 'Switch to Text')}
+                </Button>
+            </div>
+            {textQueryMode ? <>
+                    <AqlField
+                        error={!!error}
+                        value={query}
+                        onChange={setQuery}
+                    />
+                    {error ? <Alert severity={'error'}>{nl2br(error)}</Alert> : null}
+                </> :
 
-            <ConditionsBuilder definitionsIndex={definitionsIndex}/>
+                <ConditionsBuilder
+                    definitionsIndex={definitionsIndex}
+                    expression={expression}
+                    setExpression={setExpression}
+                />
+        }
         </> : <CircularProgress/>}
     </AppDialog>
 }

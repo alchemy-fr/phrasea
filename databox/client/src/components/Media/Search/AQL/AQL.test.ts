@@ -1,5 +1,7 @@
 import {parseAQLQuery} from "./AQL.ts";
 import util from "util";
+import {astToString} from "./query.ts";
+import {AQLQueryAST} from "./aqlTypes.ts";
 
 it('parse AQL', function () {
     const dataSet = [
@@ -32,6 +34,7 @@ it('parse AQL', function () {
         },
         {
             query: '@createdAt NOT  BETWEEN 1 AND 2',
+            formattedQuery: '@createdAt NOT BETWEEN 1 AND 2',
             result: {
                 expression:
                     {leftOperand: {field: '@createdAt'}, operator: 'NOT_BETWEEN', rightOperand: [1, 2]},
@@ -39,6 +42,7 @@ it('parse AQL', function () {
         },
         {
             query: '@tag IN ( "c333940d-9e5c-4f3c-b16a-77f8daabca87","6ee44526-3e8e-4412-8a9b-44b82fdce6bc" )',
+            formattedQuery: '@tag IN ("c333940d-9e5c-4f3c-b16a-77f8daabca87", "6ee44526-3e8e-4412-8a9b-44b82fdce6bc")',
             result: {
                 expression:
                     {leftOperand: {field: '@tag'}, operator: 'IN', rightOperand: [{literal: "c333940d-9e5c-4f3c-b16a-77f8daabca87"}, {literal: "6ee44526-3e8e-4412-8a9b-44b82fdce6bc"}]},
@@ -81,8 +85,9 @@ it('parse AQL', function () {
         },
     ];
 
-    dataSet.forEach(({query, result}) => {
+    dataSet.forEach(({query, result, formattedQuery}) => {
         const actual = parseAQLQuery(query);
         expect(actual).toEqual(result);
+        expect(astToString(result as AQLQueryAST)).toEqual(formattedQuery ?? query);
     });
 });
