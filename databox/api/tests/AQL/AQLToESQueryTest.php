@@ -65,7 +65,7 @@ class AQLToESQueryTest extends TestCase
             ['number > other_number', [
                 'script' => [
                     'script' => [
-                       'source' => 'doc["attrs._.number"].value > doc["attrs._.other_number"].value'
+                       'source' => '!doc["attrs._.number"].empty && !doc["attrs._.other_number"].empty && doc["attrs._.number"].value > doc["attrs._.other_number"].value'
                     ],
                 ],
             ]],
