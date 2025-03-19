@@ -336,6 +336,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     {
         $this->storyCollection = $storyCollection;
         if($storyCollection) {
+            $storyCollection->setTitle(null);
             $storyCollection->setStoryAsset($this);
         }
     }

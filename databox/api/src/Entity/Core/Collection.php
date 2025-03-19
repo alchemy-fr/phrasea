@@ -333,7 +333,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
 
     public function getAbsoluteTitle(): string
     {
-        $path = $this->getTitle();
+        $path = $this->getTitle() ?: '(null)';
         if (null !== $this->parent) {
             return $this->parent->getAbsoluteTitle().' / '.$path;
         }
@@ -428,5 +428,8 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     public function setStoryAsset(?Asset $storyAsset): void
     {
         $this->storyAsset = $storyAsset;
+        if($storyAsset) {
+            $this->setTitle(null);
+        }
     }
 }
