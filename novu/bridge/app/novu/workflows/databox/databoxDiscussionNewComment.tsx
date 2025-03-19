@@ -35,11 +35,13 @@ export const databoxDiscussionNewComment = workflow(
                 return acc;
             }, {} as Record<string, any[]>);
 
+            const absoluteUrl = `${process.env.DATABOX_CLIENT_URL}?notifications=open`;
+
             return {
                 subject: `${eventCount} new comments`,
                 body: render(<DefaultEmail>
                     {Object.entries(groups).map(([objectId, events]) => {
-                        const { object, author, url } = events[0].payload;
+                        const { object } = events[0].payload;
 
                         const authors = events.reduce((acc, event) => {
                             acc[event.payload.authorId] = event.payload.author;
@@ -55,7 +57,7 @@ export const databoxDiscussionNewComment = workflow(
                                     <strong>{Object.values(authors).join(', ')}</strong> have commented on <strong>{object}</strong>.
                                 </Text>
 
-                                <Button style={styles.button} href={url}>View</Button>
+                                <Button style={styles.button} href={absoluteUrl}>View</Button>
                             </Section>
                         );
                     })}
