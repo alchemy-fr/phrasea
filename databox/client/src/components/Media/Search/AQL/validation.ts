@@ -2,7 +2,7 @@ import {AttributeDefinitionIndex} from "../../../AttributeEditor/types.ts";
 import {AQLField, AQLQueryAST} from "./aqlTypes.ts";
 import {hasProp} from "../../../../lib/utils.ts";
 
-export function validateQuery(query: AQLQueryAST, definitionsIndex: AttributeDefinitionIndex): void
+export function validateQueryAST(query: AQLQueryAST, definitionsIndex: AttributeDefinitionIndex): void
 {
     function visitNode(node: any): void {
         if (typeof node === 'object') {

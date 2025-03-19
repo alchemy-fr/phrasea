@@ -1,5 +1,4 @@
 import {parseAQLQuery} from "./AQL.ts";
-import util from "util";
 import {astToString} from "./query.ts";
 import {AQLQueryAST} from "./aqlTypes.ts";
 
@@ -45,7 +44,11 @@ it('parse AQL', function () {
             formattedQuery: '@tag IN ("c333940d-9e5c-4f3c-b16a-77f8daabca87", "6ee44526-3e8e-4412-8a9b-44b82fdce6bc")',
             result: {
                 expression:
-                    {leftOperand: {field: '@tag'}, operator: 'IN', rightOperand: [{literal: "c333940d-9e5c-4f3c-b16a-77f8daabca87"}, {literal: "6ee44526-3e8e-4412-8a9b-44b82fdce6bc"}]},
+                    {
+                        leftOperand: {field: '@tag'},
+                        operator: 'IN',
+                        rightOperand: [{literal: "c333940d-9e5c-4f3c-b16a-77f8daabca87"}, {literal: "6ee44526-3e8e-4412-8a9b-44b82fdce6bc"}]
+                    },
             },
         },
         {
@@ -81,6 +84,96 @@ it('parse AQL', function () {
             result: {
                 expression:
                     {leftOperand: {field: 'number'}, operator: '>', rightOperand: {field: 'other_number'}},
+            },
+        },
+        {
+            query: '(f1 = "1" AND f2 != "2") AND f3 != "3"',
+            result: {
+                expression: {
+                    operator: 'AND',
+                    conditions: [
+                        {
+                            operator: 'AND',
+                            conditions: [
+                                {leftOperand: {field: 'f1'}, operator: '=', rightOperand: {literal: '1'}},
+                                {leftOperand: {field: 'f2'}, operator: '!=', rightOperand: {literal: '2'}},
+                            ],
+                        },
+                        {leftOperand: {field: 'f3'}, operator: '!=', rightOperand: {literal: '3'}},
+                    ]
+                },
+            },
+        },
+        {
+            query: '(f1 = "1" AND f2 != "2") OR f3 != "3"',
+            result: {
+                expression: {
+                    operator: 'OR',
+                    conditions: [
+                        {
+                            operator: 'AND',
+                            conditions: [
+                                {leftOperand: {field: 'f1'}, operator: '=', rightOperand: {literal: '1'}},
+                                {leftOperand: {field: 'f2'}, operator: '!=', rightOperand: {literal: '2'}},
+                            ],
+                        },
+                        {leftOperand: {field: 'f3'}, operator: '!=', rightOperand: {literal: '3'}},
+                    ]
+                },
+            },
+        },
+        {
+            query: 'f1 = "1" AND (f2 != "2" AND f3 != "3")',
+            result: {
+                expression: {
+                    operator: 'AND',
+                    conditions: [
+                        {leftOperand: {field: 'f1'}, operator: '=', rightOperand: {literal: '1'}},
+                        {
+                            operator: 'AND',
+                            conditions: [
+                                {leftOperand: {field: 'f2'}, operator: '!=', rightOperand: {literal: '2'}},
+                                {leftOperand: {field: 'f3'}, operator: '!=', rightOperand: {literal: '3'}},
+                            ],
+                        },
+                    ]
+                },
+            },
+        },
+        {
+            query: 'f1 = "1" AND (f2 != "2" OR f3 != "3")',
+            result: {
+                expression: {
+                    operator: 'AND',
+                    conditions: [
+                        {leftOperand: {field: 'f1'}, operator: '=', rightOperand: {literal: '1'}},
+                        {
+                            operator: 'OR',
+                            conditions: [
+                                {leftOperand: {field: 'f2'}, operator: '!=', rightOperand: {literal: '2'}},
+                                {leftOperand: {field: 'f3'}, operator: '!=', rightOperand: {literal: '3'}},
+                            ],
+                        },
+                    ]
+                },
+            },
+        },
+        {
+            query: 'f1 = "1" OR (f2 != "2" AND f3 != "3")',
+            result: {
+                expression: {
+                    operator: 'OR',
+                    conditions: [
+                        {leftOperand: {field: 'f1'}, operator: '=', rightOperand: {literal: '1'}},
+                        {
+                            operator: 'AND',
+                            conditions: [
+                                {leftOperand: {field: 'f2'}, operator: '!=', rightOperand: {literal: '2'}},
+                                {leftOperand: {field: 'f3'}, operator: '!=', rightOperand: {literal: '3'}},
+                            ],
+                        },
+                    ]
+                },
             },
         },
     ];

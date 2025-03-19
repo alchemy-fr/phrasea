@@ -172,8 +172,7 @@ const grammar: Grammar = {
             };
         }
         },
-    {"name": "condition$subexpression$1", "symbols": [{"literal":"("}, "expression", {"literal":")"}]},
-    {"name": "condition", "symbols": ["condition$subexpression$1"], "postprocess": (data) => ({operator: "AND", conditions: [data[1]]})},
+    {"name": "condition", "symbols": [{"literal":"("}, "expression", {"literal":")"}], "postprocess": (data) => data[1]},
     {"name": "condition$string$1", "symbols": [{"literal":"N"}, {"literal":"O"}, {"literal":"T"}], "postprocess": (d) => d.join('')},
     {"name": "condition", "symbols": ["condition$string$1", "__", "expression"], "postprocess": (data) => ({operator: "NOT", conditions: [data[3]]})},
     {"name": "condition", "symbols": ["criteria"], "postprocess": id},
