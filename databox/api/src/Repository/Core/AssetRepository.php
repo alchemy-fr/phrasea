@@ -73,21 +73,6 @@ class AssetRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * @return Asset[]
-     */
-    public function findByStoryCollectionIds(array $collectionIds): array
-    {
-        return $this->createQueryBuilder('a')
-            ->select('a')
-            ->innerJoin('a.storyCollection', 'c')
-            ->andWhere('c.id IN (:ids)')
-            ->setParameter('ids', $collectionIds)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
     public function getESQueryBuilder(): QueryBuilder
     {
         return $this
