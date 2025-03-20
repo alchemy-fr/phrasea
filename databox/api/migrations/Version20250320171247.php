@@ -7,7 +7,7 @@ namespace DoctrineMigrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-final class Version20250318094304 extends AbstractMigration
+final class Version20250320171247 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -18,14 +18,11 @@ final class Version20250318094304 extends AbstractMigration
     {
         $this->addSql('DROP INDEX idx_2af5a5c717dfdc8');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_2AF5A5C717DFDC8 ON asset (story_collection_id)');
-        $this->addSql('ALTER TABLE collection DROP story_asset_id');
     }
 
     public function down(Schema $schema): void
     {
         $this->addSql('DROP INDEX UNIQ_2AF5A5C717DFDC8');
         $this->addSql('CREATE INDEX idx_2af5a5c717dfdc8 ON asset (story_collection_id)');
-        $this->addSql('ALTER TABLE collection ADD story_asset_id UUID DEFAULT NULL');
-        $this->addSql('COMMENT ON COLUMN collection.story_asset_id IS \'(DC2Type:uuid)\'');
     }
 }
