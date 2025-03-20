@@ -385,7 +385,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
 
     public function isObjectIndexable(): bool
     {
-        return null === $this->workspace->getDeletedAt();
+        return null === $this->workspace->getDeletedAt() && !$this->isStory();
     }
 
     public function getTopicKeys(): array
@@ -418,6 +418,11 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     public function setRelationExtraMetadata(?array $relationExtraMetadata): void
     {
         $this->relationExtraMetadata = $relationExtraMetadata;
+    }
+
+    public function isStory(): bool
+    {
+        return (bool)$this->storyAsset;
     }
 
     public function getStoryAsset(): ?Asset
