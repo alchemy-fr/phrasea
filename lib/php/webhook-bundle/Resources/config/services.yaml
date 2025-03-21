@@ -3,16 +3,13 @@ services:
         autowire: true
         autoconfigure: true
 
-    alchemy.webhook_client:
-        alias: Symfony\Contracts\HttpClient\HttpClientInterface
-
     Alchemy\WebhookBundle\Form\EventsChoiceType:
         arguments:
             $events: '%alchemy_webhook.events%'
 
-    Alchemy\WebhookBundle\Consumer\WebhookTriggerHandler:
-        arguments:
-            $client: '@alchemy.webhook_client'
+    Alchemy\WebhookBundle\Webhook\WebhookApiClientFactory: ~
+    
+    Alchemy\WebhookBundle\Consumer\WebhookTriggerHandler: ~
 
     Alchemy\WebhookBundle\Consumer\SerializeObjectHandler: ~
 

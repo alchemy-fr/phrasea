@@ -7,7 +7,7 @@ namespace Alchemy\WebhookBundle\Consumer;
 use Doctrine\ORM\EntityManagerInterface;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Alchemy\WebhookBundle\Webhook\WebhookApiClientFactory;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 
@@ -15,7 +15,7 @@ use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 final readonly class WebhookTriggerHandler
 {
     public function __construct(
-        private HttpClientInterface $client,
+        private WebhookApiClientFactory $clientFactory,
         private EntityManagerInterface $em,
     ) {
     }
@@ -38,8 +38,9 @@ final readonly class WebhookTriggerHandler
         $uri = $webhook->getUrl();
 
         try {
-            $this->client->request('POST', $uri, [
-                'max_redirects' => 0,
+            $client = $this->clientFactory->create();
+
+            $client->request('POST', $uri, [
                 'verify_peer' => $webhook->isVerifySSL(),
                 'timeout' => $webhook->getTimeout(),
                 'json' => [
