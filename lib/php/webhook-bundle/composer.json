@@ -9,10 +9,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "symfony/messenger": "^6",
-        "guzzlehttp/guzzle": "^7.2",
         "ramsey/uuid-doctrine": "^1.5",
-        "symfony/framework-bundle": "^6"
+        "symfony/framework-bundle": "^6",
+        "symfony/http-client": "^6",
+        "symfony/messenger": "^6"
     },
     "config": {
         "sort-packages": true
