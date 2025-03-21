@@ -189,7 +189,6 @@ export class DataboxClient {
         workspaceId: string,
         keyPrefix: string,
         data: CollectionInput[],
-        privacy: number,
     ): Promise<string> {
         let parentId: string | undefined = undefined;
         let key = keyPrefix;

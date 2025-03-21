@@ -160,9 +160,12 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 });
             }
 
-            const storiesCollectionPath: string =
-                dm.storiesCollectionPath ?? '';
-            let importStories = false;
+            let importStories = dm.importStories;
+
+            // create phraseanet stories as databox stories (storyAsset + hidden collections)
+            let storiesAsStories = true;
+
+            const storiesCollectionPath: string = dm.storiesCollectionPath ?? '';
             let storiesCollectionPathTwig: Twig.Template | null = null;
             if (dm.storiesCollectionPath !== undefined) {
                 if (storiesCollectionPath.search(/\{(\{|%)/) !== -1) {
@@ -170,9 +173,13 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         data: storiesCollectionPath,
                     });
                 }
-                importStories = true;
+                if(importStories !== false) {
+                    importStories = true;
+                }
+                storiesAsStories = false;
             }
 
+console.log("importStories: ", importStories, " ; storiesAsStories: ", storiesAsStories);
             const sourceCollections = await getSourceCollections(
                 phraseanetDatabox,
                 dm,
@@ -196,16 +203,26 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         ''
                     );
                     for (const s of stories) {
-                        const storyPathParts: string[] = splitPath(
-                            storiesCollectionPathTwig
-                            ? await storiesCollectionPathTwig.renderAsync({
-                                record: s,
-                                collection: phraseanetDatabox.collections[s.base_id],
-                            })
-                            : storiesCollectionPath
-                        );
 
-                        const storyPath = '/' + storyPathParts.join('/');
+                        const story_title = escapeSlashes((s.title ?? "story_" + s.databox_id + '_' + s.story_id).trim().substring(0, 50));
+console.log("story_title: ", story_title);
+                        var storyPath = '';
+                        var storyPathParts: string[] = [];
+
+                        if(!storiesAsStories) {
+                            storyPathParts = splitPath(
+                                storiesCollectionPathTwig
+                                    ? await storiesCollectionPathTwig.renderAsync({
+                                        record: s,
+                                        collection: phraseanetDatabox.collections[s.base_id],
+                                    })
+                                    : storiesCollectionPath
+                            );
+                            storyPath = storyPathParts.join('/');
+                        }
+                        else {
+                            storyPathParts = [];
+                        }
 
                         // create the base
                         let storyParent: string | undefined = undefined;
@@ -232,7 +249,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                         s.databox_id +
                                         '_' +
                                         s.story_id,
-                                    title: s.title,
+                                    title: story_title,
                                     parent: storyParent,
                                 }
                             );
@@ -245,26 +262,29 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                             }" (#${s.base_id}) ==> collection (#${storyCollId})`
                         );
 
-                        const story_title = escapeSlashes((s.title ?? "story_" + s.databox_id + '_' + s.story_id).trim().substring(0, 50));
-                        logger.info(`creating story asset for story ${storyPath + '/' + story_title}`);
-                        yield createAsset(
-                            workspaceId,
-                            importFiles,
-                            s,
-                            storyPath + '/' + story_title,
-                            collectionKeyPrefix,
-                            idempotencePrefixes['asset'] +
-                                s.databox_id +
-                                '_' +
-                                s.story_id,
-                            '/collections/' + storyCollId,
-                            fieldMap,
-                            tagIndex,
-                            [],
-                            dm.sourceFile,
-                            subdefToRendition,
-                            logger
-                        );
+                        const assetStoryPath = '/' + storyPath + (storyPath ? '/' : '') + story_title;
+                        console.log("assetStoryPath: ", assetStoryPath);
+                        if(storiesAsStories) {
+                            logger.info(`creating story asset for story ${assetStoryPath}`);
+                            yield createAsset(
+                                workspaceId,
+                                importFiles,
+                                s,
+                                assetStoryPath,
+                                collectionKeyPrefix,
+                                idempotencePrefixes['asset'] +
+                                    s.databox_id +
+                                    '_' +
+                                    s.story_id,
+                                '/collections/' + storyCollId,
+                                fieldMap,
+                                tagIndex,
+                                [],
+                                dm.sourceFile,
+                                subdefToRendition,
+                                logger
+                            );
+                        }
 
                         for await (const child_rid of phraseanetClient.getStoryChildren(
                             s.databox_id,
