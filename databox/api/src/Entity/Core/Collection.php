@@ -176,6 +176,9 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     #[ORM\OneToMany(mappedBy: 'referenceCollection', targetEntity: Asset::class)]
     private ?DoctrineCollection $referenceAssets = null;
 
+    #[ORM\OneToOne(targetEntity: Asset::class, mappedBy: 'storyCollection')]
+    private ?Asset $storyAsset = null;
+
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'collections')]
     #[ORM\JoinColumn(nullable: false)]
     protected ?Workspace $workspace = null;
@@ -330,7 +333,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
 
     public function getAbsoluteTitle(): string
     {
-        $path = $this->getTitle();
+        $path = $this->getTitle() ?: '(null)';
         if (null !== $this->parent) {
             return $this->parent->getAbsoluteTitle().' / '.$path;
         }
@@ -382,7 +385,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
 
     public function isObjectIndexable(): bool
     {
-        return null === $this->workspace->getDeletedAt();
+        return null === $this->workspace->getDeletedAt() && !$this->isStory();
     }
 
     public function getTopicKeys(): array
@@ -415,5 +418,23 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     public function setRelationExtraMetadata(?array $relationExtraMetadata): void
     {
         $this->relationExtraMetadata = $relationExtraMetadata;
+    }
+
+    public function isStory(): bool
+    {
+        return (bool)$this->storyAsset;
+    }
+
+    public function getStoryAsset(): ?Asset
+    {
+        return $this->storyAsset;
+    }
+
+    public function setStoryAsset(?Asset $storyAsset): void
+    {
+        $this->storyAsset = $storyAsset;
+        if($storyAsset) {
+            $this->setTitle(null);
+        }
     }
 }

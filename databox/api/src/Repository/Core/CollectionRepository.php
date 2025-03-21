@@ -36,6 +36,8 @@ class CollectionRepository extends EntityRepository
     {
         return $this
             ->createQueryBuilder('t')
+            ->leftJoin('t.storyAsset', 'asset')
+            ->andWhere('asset.id IS NULL')
             ->addOrderBy('t.createdAt', 'DESC')
             ->addOrderBy('t.id', 'ASC')
         ;
