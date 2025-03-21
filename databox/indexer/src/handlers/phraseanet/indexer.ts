@@ -219,7 +219,6 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                         key: k,
                                         title: k,
                                     })),
-                                    databoxClient.PRIVACY_PUBLIC,
                         ));
                         }
                         // then create the story collection
