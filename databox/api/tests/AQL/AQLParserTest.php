@@ -62,7 +62,31 @@ class AQLParserTest extends TestCase
                     $fooEquals42,
                 ],
             ]],
-            ['foo = bar AND (foo = bar OR foo = 42)', [
+            [' foo = bar AND (foo = bar OR foo = 42)', [
+                'type' => 'expression',
+                'operator' => 'AND',
+                'conditions' => [
+                    $fooEqualsBar,
+                    [
+                        'type' => 'expression',
+                        'operator' => 'OR',
+                        'conditions' => [$fooEqualsBar, $fooEquals42],
+                    ],
+                ],
+            ]],
+            ['foo = bar AND ((foo = bar OR foo = 42))', [
+                'type' => 'expression',
+                'operator' => 'AND',
+                'conditions' => [
+                    $fooEqualsBar,
+                    [
+                        'type' => 'expression',
+                        'operator' => 'OR',
+                        'conditions' => [$fooEqualsBar, $fooEquals42],
+                    ],
+                ],
+            ]],
+            ['(  ( foo = bar) AND (( foo = bar OR  foo =  42)))', [
                 'type' => 'expression',
                 'operator' => 'AND',
                 'conditions' => [

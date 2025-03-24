@@ -1,10 +1,21 @@
+export const aqlOperators = [
+    '=',
+    '!=',
+    '>'
+    , '<',
+    '>='
+    , '<=', 'IN', 'NOT_IN', 'MISSING', 'EXISTS',
+    'MATCHES',
+    'NOT_MATCHES',
+    'NOT_CONTAINS',
+    'BETWEEN'
+    , 'BETWEEN'
+    , 'NOT_BETWEEN',
+] as const
 
-export type AQLOperator = '=' | '!=' | '>' | '<' | '>=' | '<=' | 'IN' | 'NOT_IN' | 'MISSING' | 'EXISTS'
-    | 'BETWEEN'
-    | 'NOT_BETWEEN'
-    ;
-export type AQLField = {field: string};
-export type AQLLiteral = {literal: string};
+export type AQLOperator = typeof aqlOperators[number];
+export type AQLField = { field: string };
+export type AQLLiteral = { literal: string };
 export type AQLValue = AQLLiteral | boolean | number;
 export type AQLOperand = AQLField | AQLValue;
 export type RightOperand = AQLOperand | AQLOperand[];

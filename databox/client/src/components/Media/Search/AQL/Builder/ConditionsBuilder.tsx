@@ -1,14 +1,10 @@
 import React from "react";
-import {FlexRow} from '@alchemy/phrasea-ui';
 import {AttributeDefinitionIndex} from "../../../../AttributeEditor/types.ts";
 import {useTranslation} from 'react-i18next';
-import {Button, IconButton} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 import {QBExpression} from "./builderTypes.ts";
 import {StateSetterHandler} from "../../../../../types.ts";
-import {addExpression, emptyCondition, removeExpression} from "./builder.ts";
+import {emptyCondition, removeExpression} from "./builder.ts";
 import ExpressionBuilder from "./ExpressionBuilder.tsx";
-import {hasProp} from "../../../../../lib/utils.ts";
 import AddExpressionRow from "./AddExpressionRow.tsx";
 
 type Props = {
