@@ -341,11 +341,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         }
     }
 
-    public function hasChildren(): bool
-    {
-        return null !== $this->storyCollection;
-    }
-
     /**
      * @return CollectionAsset[]
      */

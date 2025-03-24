@@ -120,14 +120,43 @@ the backward compatibility applies, so the phraseanet collection name will be us
     --> `/MyPhraseanetCollection/IMG_1234.jpg`
 
 
-## `storiesCollectionPath`
-Collection-path where to import stories. If unset: do not import stories.
+## `importStories` & `storiesCollectionPath`
 
-Each story becomes a collection, and each contained record (= "main" asset) is **copied / aliased** to this collection.
+`storiesCollectionPath` and `storiesCollectionPath` define how to import Phraseanet stories, with 3 combinations:
 
-The name of the collection will be the same as the name of the story.
+### - Do not import stories.
 
-- The `storiesCollectionPath` can be a **[Twig](#About-Twig)** expression, allowing to dispatch the stories into a tree of collections.
+```yaml
+importStories: false
+```
+ 
+### - Import stories as Phrasea stories
+
+```yaml
+importStories: true
+```
+
+A "storyAsset" is created at root of the workspace, and "points" to a collection **invisible / noname / not-indexed** "storyCollection".
+
+Each contained record (imported elsewhere as an asset) is copied / aliased to this (invisible) collection.
+
+The title of the storyAsset will be the same as the title of the story.
+
+### - import stories as Phrasea collections
+
+```yaml
+importStories: true                 # or unset, for bc
+storiesCollectionPath: "/Stories"   # where to import stories
+```
+
+Each story becomes a collection, and each contained record (imported elsewhere as an asset) is **copied / aliased** to this collection.
+
+The name of the collection will be the same as the title of the story.
+
+/!\ There is **no** "storyAsset" created, the Phraseanet "story-record" is **not** imported.
+
+The `storiesCollectionPath` can be a **[Twig](#About-Twig)** expression, allowing to dispatch the stories into a tree of collections.
+
 
 
 e.g. 1: Import all stories in the same collection:
