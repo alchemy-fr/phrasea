@@ -203,7 +203,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     public function getTitle(): ?string
     {
         if (null !== $this->deletedAt) {
-            return sprintf('(being deleted...) %s', $this->title);
+            return sprintf('(being deleted...) %s', $this->title ?: $this->getId());
         }
 
         return $this->title;
@@ -407,7 +407,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
 
     public function getObjectTitle(): string
     {
-        return sprintf('Collection %s', $this->getTitle());
+        return sprintf('Collection %s', $this->getTitle() ?: $this->getId());
     }
 
     public function getRelationExtraMetadata(): array

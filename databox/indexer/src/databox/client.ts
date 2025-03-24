@@ -172,7 +172,7 @@ export class DataboxClient {
         } else if (!data.workspace) {
             throw new Error(`Error creating collection: missing workspace`);
         }
-        console.log(data);
+
         const r = await lockPromise(key, async () => {
             return (
                 await this.client.post(`/collections`, {
