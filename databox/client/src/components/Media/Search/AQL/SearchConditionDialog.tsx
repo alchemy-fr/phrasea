@@ -10,13 +10,12 @@ import {parseAQLQuery} from "./AQL.ts";
 import nl2br from "react-nl2br";
 import ConditionsBuilder from "./Builder/ConditionsBuilder.tsx";
 import {useAttributeDefinitionStore} from "../../../../store/attributeDeifnitionStore.ts";
-import {AttributeDefinition} from "../../../../types.ts";
+import {AttributeDefinition, StateSetterHandler} from "../../../../types.ts";
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 import {validateQueryAST} from "./validation.ts";
 import {QBExpression} from "./Builder/builderTypes.ts";
 import {emptyCondition} from "./Builder/builder.ts";
-import {boolean} from "zod";
-import {AQLQueryAST} from "./aqlTypes.ts";
+import {AQLExpression, AQLQueryAST} from "./aqlTypes.ts";
 
 type Props = {
     condition: AQLQuery;
@@ -34,13 +33,25 @@ export default function SearchConditionDialog({
     const [query, __setQuery] = React.useState(condition.query);
     const [textQueryMode, setTextQueryMode] = React.useState(false);
 
-    const [expression, setExpression] = React.useState<QBExpression>({...emptyCondition});
+    const [expression, __setExpression] = React.useState<QBExpression>({...emptyCondition});
 
     const setQuery = (q: string) => {
         if (error) {
             validateQuery(q);
         }
         __setQuery(q);
+    }
+
+    const setExpression: StateSetterHandler<QBExpression> = (handler) => {
+        __setExpression(p => {
+            const newExpression = handler(p);
+
+            if (error) {
+                validateAST({expression: newExpression as AQLExpression});
+            }
+
+            return newExpression;
+        });
     }
 
     React.useEffect(() => {
@@ -51,8 +62,8 @@ export default function SearchConditionDialog({
                 }));
             } else {
                 const result = parseAQLQuery(query, true);
-                console.log('result', query, result);
-                setExpression((result?.expression || {...emptyCondition}) as QBExpression);
+                console.debug('result', query, result);
+                __setExpression((result?.expression || {...emptyCondition}) as QBExpression);
             }
         } catch (e) {
             console.log('error', e);
@@ -125,11 +136,14 @@ export default function SearchConditionDialog({
                 <Button
                     startIcon={<CheckIcon/>}
                     onClick={() => {
-                        if (validateQuery(query)) {
+                        const finalQuery: string = textQueryMode ? query : astToString({
+                            expression
+                        });
+                        if (validateQuery(finalQuery)) {
                             closeModal();
                             onUpsert({
                                 ...condition,
-                                query,
+                                query: finalQuery,
                             });
                         }
                     }}
@@ -159,7 +173,6 @@ export default function SearchConditionDialog({
                         value={query}
                         onChange={setQuery}
                     />
-                    {error ? <Alert severity={'error'}>{nl2br(error)}</Alert> : null}
                 </> :
 
                 <ConditionsBuilder
@@ -168,6 +181,8 @@ export default function SearchConditionDialog({
                     setExpression={setExpression}
                 />
             }
+
+            {error ? <Alert severity={'error'}>{nl2br(error)}</Alert> : null}
         </> : <CircularProgress/>}
     </AppDialog>
 }
