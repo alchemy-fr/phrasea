@@ -247,7 +247,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                         story.databox_id +
                                         '_' +
                                         story.story_id,
-                                    title: storiesAsStories ? null : storyTitle,
+                                    title: storiesAsStories ? undefined : storyTitle,
                                     parent: storyParent,
                                 }
                             );
