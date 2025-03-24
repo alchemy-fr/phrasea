@@ -247,7 +247,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                         story.databox_id +
                                         '_' +
                                         story.story_id,
-                                    title: storyTitle,
+                                    title: storiesAsStories ? null : storyTitle,
                                     parent: storyParent,
                                 }
                             );
@@ -261,7 +261,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         );
 
                         if(storiesAsStories) {
-                            logger.info(`creating story asset for story ${storyTitle}`);
+                            logger.info(`creating story asset for story "${storyTitle}"`);
 
                             let path: string = '';
                             if (recordsCollectionPathTwig !== null) {
