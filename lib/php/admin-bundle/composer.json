@@ -20,6 +20,7 @@
         "php": "^8.3",
         "alchemy/auth-bundle": "@dev",
         "easycorp/easyadmin-bundle": "^4.0,<=4.20.2",
+        "php-amqplib/php-amqplib": "^3.7",
         "symfony/framework-bundle": "^6"
     },
     "config": {
