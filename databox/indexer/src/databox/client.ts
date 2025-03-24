@@ -200,7 +200,6 @@ export class DataboxClient {
                 workspaceId: workspaceId,
                 key: key,
                 parent: parentId,
-                privacy: privacy,
             });
             parentId = `/collections/${id}`;
         }
