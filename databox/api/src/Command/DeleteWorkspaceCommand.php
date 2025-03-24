@@ -21,8 +21,7 @@ class DeleteWorkspaceCommand extends Command
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly WorkspaceDelete $workspaceDelete,
-    )
-    {
+    ) {
         parent::__construct();
     }
 

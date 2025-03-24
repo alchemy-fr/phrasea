@@ -179,7 +179,6 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 storiesAsStories = false;
             }
 
-console.log("importStories: ", importStories, " ; storiesAsStories: ", storiesAsStories);
             const sourceCollections = await getSourceCollections(
                 phraseanetDatabox,
                 dm,
@@ -202,10 +201,9 @@ console.log("importStories: ", importStories, " ; storiesAsStories: ", storiesAs
                         20,
                         ''
                     );
-                    for (const s of stories) {
+                    for (const story of stories) {
 
-                        const story_title = escapeSlashes((s.title ?? "story_" + s.databox_id + '_' + s.story_id).trim().substring(0, 50));
-console.log("story_title: ", story_title);
+                        const storyTitle = escapeSlashes((story.title ?? "story_" + story.databox_id + '_' + story.story_id).trim());
                         var storyPath = '';
                         var storyPathParts: string[] = [];
 
@@ -213,8 +211,8 @@ console.log("story_title: ", story_title);
                             storyPathParts = splitPath(
                                 storiesCollectionPathTwig
                                     ? await storiesCollectionPathTwig.renderAsync({
-                                        record: s,
-                                        collection: phraseanetDatabox.collections[s.base_id],
+                                        record: story,
+                                        collection: phraseanetDatabox.collections[story.base_id],
                                     })
                                     : storiesCollectionPath
                             );
@@ -241,41 +239,53 @@ console.log("story_title: ", story_title);
                         // then create the story collection
                         const storyCollId =
                             await databoxClient.createCollection(
-                                s.resource_id,
+                                story.resource_id,
                                 {
                                     workspaceId: workspaceId,
                                     key:
                                         idempotencePrefixes['collection'] +
-                                        s.databox_id +
+                                        story.databox_id +
                                         '_' +
-                                        s.story_id,
-                                    title: story_title,
+                                        story.story_id,
+                                    title: storyTitle,
                                     parent: storyParent,
                                 }
                             );
 
                         logger.info(
-                            `  Phraseanet story "${s.title}" (#${
-                                s.story_id
+                            `  Phraseanet story "${story.title}" (#${
+                                story.story_id
                             }) from base "${
-                                phraseanetDatabox.collections[s.base_id].name
-                            }" (#${s.base_id}) ==> collection (#${storyCollId})`
+                                phraseanetDatabox.collections[story.base_id].name
+                            }" (#${story.base_id}) ==> collection (#${storyCollId})`
                         );
 
-                        const assetStoryPath = '/' + storyPath + (storyPath ? '/' : '') + story_title;
-                        console.log("assetStoryPath: ", assetStoryPath);
                         if(storiesAsStories) {
-                            logger.info(`creating story asset for story ${assetStoryPath}`);
+                            logger.info(`creating story asset for story ${storyTitle}`);
+
+                            let path: string = '';
+                            if (recordsCollectionPathTwig !== null) {
+                                path = await recordsCollectionPathTwig.renderAsync({
+                                    record: story,
+                                    collection:
+                                        phraseanetDatabox.collections[story.base_id],
+                                });
+                            } else {
+                                // bc: dispatch in original phraseanet collection.name
+                                path = `${recordsCollectionPath}/${escapeSlashes(phraseanetDatabox.collections[story.base_id].name)}`;
+                            }
+                            path += '/' + escapeSlashes(story.title);
+
                             yield createAsset(
                                 workspaceId,
                                 importFiles,
-                                s,
-                                assetStoryPath,
+                                story,
+                                path,
                                 collectionKeyPrefix,
                                 idempotencePrefixes['asset'] +
-                                    s.databox_id +
+                                    story.databox_id +
                                     '_' +
-                                    s.story_id,
+                                    story.story_id,
                                 '/collections/' + storyCollId,
                                 fieldMap,
                                 tagIndex,
@@ -287,15 +297,15 @@ console.log("story_title: ", story_title);
                         }
 
                         for await (const child_rid of phraseanetClient.getStoryChildren(
-                            s.databox_id,
-                            s.story_id
+                            story.databox_id,
+                            story.story_id
                         )) {
                             if (recordStories[child_rid] === undefined) {
                                 recordStories[child_rid] = [];
                             }
                             recordStories[child_rid].push({
                                 id: storyCollId,
-                                path: storyPath + '/' + s.title,
+                                path: storyPath + '/' + story.title,
                             });
                         }
                     }

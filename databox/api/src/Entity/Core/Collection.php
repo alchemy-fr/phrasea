@@ -331,9 +331,9 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
         return $this->privacy >= WorkspaceItemPrivacyInterface::PRIVATE;
     }
 
-    public function getAbsoluteTitle(): string
+    public function getAbsoluteTitle(): ?string
     {
-        $path = $this->getTitle() ?: '(null)';
+        $path = $this->getTitle();
         if (null !== $this->parent) {
             return $this->parent->getAbsoluteTitle().' / '.$path;
         }
