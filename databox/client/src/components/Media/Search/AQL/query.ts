@@ -43,10 +43,10 @@ function expressionToString(expression: AQLExpression, isSubExpression?: boolean
         return isSubExpression ? `(${r})` : r;
     }
 
-    return conditionToQuery(expression);
+    return conditionToString(expression);
 }
 
-function conditionToQuery(condition: AQLCondition): string {
+function conditionToString(condition: AQLCondition): string {
     const left = operandToString(condition.leftOperand);
     const right = operandToString(condition.rightOperand, condition.operator);
 
@@ -84,7 +84,7 @@ function operatorToString(operator: AQLOperator): string {
     }
 }
 
-function valueToString(value: AQLValue): string {
+export function valueToString(value: AQLValue): string {
     if (typeof value === 'object' && hasProp<AQLLiteral>(value, 'literal')) {
         return `"${value.literal.replace(/"/g, '\\"')}"`;
     }

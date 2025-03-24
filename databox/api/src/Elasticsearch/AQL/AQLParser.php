@@ -18,7 +18,7 @@ readonly class AQLParser
     {
         $this->compile();
 
-        $result = (new AQLGrammar($condition))->match_main();
+        $result = (new AQLGrammar(trim($condition)))->match_main();
         if ($result === false) {
             return null;
         }
