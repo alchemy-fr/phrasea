@@ -40,6 +40,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->addSelect('w.public AS wPublic')
             ->addSelect('c.public AS cPublic')
             ->addSelect('w.id AS workspaceId')
+            ->addSelect('w.enabledLocales AS enabledLocales')
             ->andWhere('t.searchable = true')
             ->innerJoin('t.class', 'c')
             ->innerJoin('t.workspace', 'w')

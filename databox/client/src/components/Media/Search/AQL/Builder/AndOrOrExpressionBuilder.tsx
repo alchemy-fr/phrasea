@@ -20,7 +20,7 @@ export default function AndOrOrExpressionBuilder({
         p: 2,
         my: 1,
     })}>
-        <FlexRow>
+        <FlexRow sx={{mb: 2,}}>
             <div>
                 <RSelectWidget
                     name={'operator'}
@@ -45,6 +45,9 @@ export default function AndOrOrExpressionBuilder({
                 />
             </div>
             <IconButton
+                sx={{
+                    ml: 1,
+                }}
                 onClick={() => {
                     onRemove(expression);
                 }}

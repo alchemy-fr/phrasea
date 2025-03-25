@@ -15,7 +15,7 @@ class AQLToESQueryTest extends TestCase
     /**
      * @dataProvider getCases
      */
-    public function testAQLToQuery(string $expression, array $expectedQuery): void
+    public function testAQLToQuery(string $expression, array $expectedQuery, ?string $locale = null): void
     {
         $parser = new AQLParser();
         $result = $parser->parse($expression);
@@ -29,17 +29,28 @@ class AQLToESQueryTest extends TestCase
         $fieldClusters = [
             [
                 'fields' => [
-                    'attrs.{l}.foo' => [],
-                    'attrs.{l}.field' => [],
-                    'attrs._.number' => [],
-                    'attrs._.other_number' => [],
+                    'attrs.{l}.foo_text_s' => [
+                        'raw' => null,
+                    ],
+                    'attrs.{l}.field_text_s' => [
+                        'raw' => null,
+                    ],
+                    'attrs._.number_number_s' => [
+                        'raw' => null,
+                    ],
+                    'attrs._.othernumber_number_s' => [
+                        'raw' => null,
+                    ],
                 ],
-                'w' => null
+                'w' => null,
+                'locales' => ['it', 'de'],
             ]
 
         ];
 
-        $query = $esQueryConverter->createQuery($fieldClusters, $result['data'], [])->toArray();
+        $query = $esQueryConverter->createQuery($fieldClusters, $result['data'], [
+            'locale' => $locale,
+        ])->toArray();
         $this->assertEquals($expectedQuery, $query);
     }
 
@@ -47,8 +58,16 @@ class AQLToESQueryTest extends TestCase
     {
         return [
             ['foo="bar"', [
-                'term' => ['attrs.*.foo' => 'bar'],
+                'multi_match' => [
+                    'query' => 'bar',
+                    'fields' => ['attrs.*.foo_text_s'],
+                ],
             ]],
+            ['foo="bar"', [
+                'term' => [
+                    'attrs.fr.foo_text_s' => 'bar',
+                ],
+            ], 'fr'],
             ['@workspace="42"', [
                 'term' => ['workspaceId' => '42'],
             ]],
@@ -58,14 +77,18 @@ class AQLToESQueryTest extends TestCase
                 ]],
             ]],
             ['field IN (true, false)', [
-                'terms' => ['attrs.*.field' => [
-                   true, false,
-                ]],
+                'bool' => [
+                    'should' => [
+                        ['terms' => ['attrs.it.field_text_s' => [true, false]]],
+                        ['terms' => ['attrs.de.field_text_s' => [true, false]]],
+                        ['terms' => ['attrs._.field_text_s' => [true, false]]],
+                    ]
+                ],
             ]],
-            ['number > other_number', [
+            ['number > othernumber', [
                 'script' => [
                     'script' => [
-                       'source' => '!doc["attrs._.number"].empty && !doc["attrs._.other_number"].empty && doc["attrs._.number"].value > doc["attrs._.other_number"].value'
+                       'source' => '!doc["attrs._.number_number_s"].empty && !doc["attrs._.othernumber_number_s"].empty && doc["attrs._.number_number_s"].value > doc["attrs._.othernumber_number_s"].value'
                     ],
                 ],
             ]],

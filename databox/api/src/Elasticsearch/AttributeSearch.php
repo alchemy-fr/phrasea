@@ -44,7 +44,13 @@ class AttributeSearch
     public function createClustersFromDefinitions(iterable $definitions): array
     {
         $groups = [];
+        $localesIndex = [];
+        $locales = [];
         foreach ($definitions as $d) {
+            foreach ($d['enabledLocales'] as $locale) {
+                $localesIndex[(string) $d['workspaceId']][$locale] = true;
+                $locales[$locale] = true;
+            }
             $fieldName = $this->fieldNameResolver->getFieldName(
                 $d['slug'],
                 $d['fieldType'],
@@ -115,6 +121,13 @@ class AttributeSearch
                                 'w' => $wsSt,
                                 'b' => $boost,
                                 'fields' => [],
+                                'locales' => array_merge(...array_map(function (string $workspaceId) use ($localesIndex): array {
+                                    if (isset($localesIndex[$workspaceId])) {
+                                        return array_keys($localesIndex[$workspaceId]);
+                                    }
+
+                                    return [];
+                                }, $wsSt)),
                             ];
                             $fieldName = sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, $tr ? '{l}' : '_', $f);
                             $clusters[$uk]['fields'][$fieldName] = [
@@ -134,6 +147,7 @@ class AttributeSearch
             'b' => 1,
             'fields' => [],
         ];
+        $clusters[self::GROUP_ALL]['locales'] = array_keys($locales);
         $clusters[self::GROUP_ALL]['fields']['title'] = [
             'st' => SearchType::Match->value,
             'b' => 1,
