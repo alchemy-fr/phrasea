@@ -4,6 +4,7 @@ import {
     AQLExpression,
     AQLField,
     AQLLiteral,
+    AQLOperand,
     AQLOperator,
     AQLQueryAST,
     AQLValue,
@@ -33,7 +34,7 @@ function expressionToString(expression: AQLExpression, isSubExpression?: boolean
     if (hasProp<AQLAndOrExpression>(expression, 'conditions')) {
         const r = expression.conditions
             .filter(c => {
-                if (typeof c.leftOperand === 'object' && hasProp<AQLField>(c.leftOperand, 'field')) {
+                if (typeof c.leftOperand === 'object' && isAQLField(c.leftOperand)) {
                     return !!c.leftOperand.field;
                 }
 
@@ -63,8 +64,8 @@ function operandToString(operand: RightOperand, operator?: AQLOperator): string 
                 return operand.map(o => operandToString(o)).join(' AND ');
             }
         } else {
-            if (hasProp<AQLField>(operand, 'field')) {
-                return operand.field;
+            if (isAQLField(operand as AQLOperand)) {
+                return (operand as AQLField).field;
             }
         }
     }
@@ -92,3 +93,29 @@ export function valueToString(value: AQLValue): string {
 
     return value.toString();
 }
+
+export function isAQLCondition(expression: AQLExpression): expression is AQLCondition {
+    return hasProp<AQLCondition>(expression, 'leftOperand');
+}
+
+
+export function isAQLField(operand: AQLOperand): operand is AQLField {
+    return hasProp<AQLField>(operand, 'field');
+}
+
+export function resolveAQLValue(value: AQLOperand, throwExceptionOnField = false): ScalarValue {
+    if (hasProp<AQLLiteral>(value, 'literal')) {
+        return value.literal;
+    }
+    if (isAQLField(value)) {
+        if (throwExceptionOnField) {
+            throw new Error('Unsupported field operand');
+        } else {
+            return null;
+        }
+    }
+
+    return value;
+}
+
+export type ScalarValue = string | boolean | number | null;
