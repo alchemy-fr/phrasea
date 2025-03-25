@@ -5,7 +5,7 @@ export const emptyCondition: QBCondition = {
     leftOperand: {
         field: '',
     },
-    operator: '',
+    operator: '=',
     rightOperand: {literal: ''},
 };
 
@@ -41,4 +41,16 @@ export function removeExpression(prev: QBExpression, expressionToRemove: QBExpre
     } else {
         return null;
     }
+}
+
+export function matchesNumber(value: string): boolean {
+    return value.match(/^\d+([.,]\d+)?$/) !== null;
+}
+
+export function matchesInt(value: string): boolean {
+    return value.match(/^\d+$/) !== null;
+}
+
+export function matchesFloat(value: string): boolean {
+    return value.match(/^\d+([.,]\d+)?$/) !== null;
 }

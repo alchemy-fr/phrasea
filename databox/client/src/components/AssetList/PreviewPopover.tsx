@@ -37,7 +37,7 @@ export default function PreviewPopover({
     return (
         <Popper
             keepMounted={true}
-            open={Boolean(anchor && asset)}
+            open={Boolean(anchor && asset && anchor === anchorEl)}
             placement="bottom"
             anchorEl={anchor || null}
             sx={{

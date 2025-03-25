@@ -124,6 +124,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     allowInvalid: boolean;
     facetEnabled: boolean;
     canEdit: boolean;
+    builtIn?: boolean;
     searchBoost: number;
     fallback: Record<string, string>;
     initialValues: Record<string, string>;

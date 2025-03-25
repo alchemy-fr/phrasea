@@ -20,11 +20,13 @@ interface FacetInterface
 
     public function isSortable(): bool;
 
-    public function getValueFromAsset(Asset $asset);
+    public function getValueFromAsset(Asset $asset): mixed;
 
     public function buildFacet(Query $query): void;
 
     public function getType(): string;
 
     public function includesMissing(): bool;
+
+    public function normalizeValueForSearch(mixed $value): mixed;
 }

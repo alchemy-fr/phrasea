@@ -23,7 +23,8 @@ final class ScoreFacet extends AbstractFacet
         return '@score';
     }
 
-    public function getValueFromAsset(Asset $asset)
+    public function getValueFromAsset(Asset $asset): mixed
     {
+        return null;
     }
 }
