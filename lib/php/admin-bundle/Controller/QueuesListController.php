@@ -19,6 +19,7 @@ class QueuesListController extends AbstractController
     #[Route(path: '/admin/queues/list', name: 'queues_list')]
     public function __invoke(): Response
     {
+        // TODO retrieve dynamically the queues
         $Q = [
             'databox' => ['p1', 'p2'],
             'expose'  => ['p1'],

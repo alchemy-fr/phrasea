@@ -3,18 +3,14 @@
 
 
 {% block content_title %}
-    Queues
-{% endblock %}
-
-{% block body_javascript %}
-    {{ parent() }}
+    Worker Queues
 {% endblock %}
 
 {% block main %}
      <table class="table datagrid">
         <thead>
             <tr>
-                <th>name</th>
+                <th>Name</th>
                 <th>Message count</th>
                 <th>Consumer count</th>
             </tr>
