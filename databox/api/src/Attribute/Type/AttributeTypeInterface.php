@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 interface AttributeTypeInterface
 {
     final public const string TAG = 'app.attribute_type';
+    final public const string RAW_PROP = 'raw';
 
     public static function getName(): string;
 
@@ -21,6 +22,8 @@ interface AttributeTypeInterface
     public function getElasticSearchSubField(): ?string;
 
     public function getElasticSearchSearchType(): ?SearchType;
+
+    public function getElasticSearchRawField(): ?string;
 
     public function supportsElasticSearchFuzziness(): bool;
 

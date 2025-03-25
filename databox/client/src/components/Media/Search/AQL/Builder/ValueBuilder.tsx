@@ -25,7 +25,7 @@ export default function ValueBuilder({
         setExpression(p => ({
             ...p,
             rightOperand: [
-                ...(Array.isArray(p.rightOperand) ? p.rightOperand : [p.rightOperand]),
+                ...(Array.isArray(p.rightOperand) ? p.rightOperand : [p.rightOperand ?? {literal: ''}]),
                 {literal: ''},
             ]
         }));
@@ -58,8 +58,9 @@ export default function ValueBuilder({
     }
 
     const fields: TextFieldProps[] = [];
+    const manyArgsDefined = typeof manyArgs === 'number' || manyArgs === true;
 
-    if (!manyArgs) {
+    if (!manyArgsDefined) {
         fields.push({
             value: resolveValue(expression.rightOperand as AQLValue),
             name: 'value',
@@ -74,7 +75,7 @@ export default function ValueBuilder({
             },
         });
     } else {
-        const argCount = (expression.rightOperand as AQLValue[]).length;
+        const argCount = ((expression.rightOperand ?? []) as AQLValue[]).length;
         for (let i = 0; i < argCount; i++) {
             fields.push({
                 value: resolveValue((expression.rightOperand as AQLValue[])[i]),
