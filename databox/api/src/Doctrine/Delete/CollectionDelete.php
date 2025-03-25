@@ -11,7 +11,6 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Template\AssetDataTemplate;
-use App\Repository\Core\AssetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class CollectionDelete
