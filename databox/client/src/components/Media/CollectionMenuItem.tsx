@@ -120,7 +120,7 @@ export default function CollectionMenuItem({
     const selected = searchContext.collections.includes('/' + absolutePath);
     const onClick = () => {
         searchContext.selectCollection(
-            absolutePath,
+            collection.id,
             (titlePath ?? []).concat(collection.title).join(` / `),
             selected
         );
