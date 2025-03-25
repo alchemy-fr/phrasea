@@ -59,6 +59,7 @@ export default function CodeEditor({
                     enableSnippets: true,
                     showLineNumbers: true,
                     tabSize: 2,
+                    useWorker: false,
                 }}
                 width={'100%'}
                 height={'300px'}

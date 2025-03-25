@@ -20,10 +20,11 @@ final class ScoreFacet extends AbstractFacet
 
     public static function getKey(): string
     {
-        return 'score';
+        return '@score';
     }
 
-    public function getValueFromAsset(Asset $asset)
+    public function getValueFromAsset(Asset $asset): mixed
     {
+        return null;
     }
 }

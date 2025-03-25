@@ -8,6 +8,8 @@ use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\TextAttributeType;
+use App\Elasticsearch\AQL\AQLParser;
+use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
@@ -15,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;
 use Elastica\Aggregation\Missing;
 use Elastica\Query;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AttributeSearch
 {
@@ -25,6 +28,8 @@ class AttributeSearch
         private readonly FieldNameResolver $fieldNameResolver,
         private readonly EntityManagerInterface $em,
         private readonly AttributeTypeRegistry $typeRegistry,
+        private readonly AQLParser $AQLParser,
+        private readonly AQLToESQuery $AQLToESQuery,
     ) {
     }
 
@@ -39,7 +44,13 @@ class AttributeSearch
     public function createClustersFromDefinitions(iterable $definitions): array
     {
         $groups = [];
+        $localesIndex = [];
+        $locales = [];
         foreach ($definitions as $d) {
+            foreach ($d['enabledLocales'] as $locale) {
+                $localesIndex[(string) $d['workspaceId']][$locale] = true;
+                $locales[$locale] = true;
+            }
             $fieldName = $this->fieldNameResolver->getFieldName(
                 $d['slug'],
                 $d['fieldType'],
@@ -59,6 +70,7 @@ class AttributeSearch
             $groups[$fieldName] ??= [
                 'w' => [],
                 'fz' => $type->supportsElasticSearchFuzziness(),
+                'raw' => $type->getElasticSearchRawField(),
             ];
 
             $boost = $d['searchBoost'] ?? 1;
@@ -96,6 +108,7 @@ class AttributeSearch
                     'st' => $st,
                     'b' => $firstBoost,
                     'fz' => $group['fz'],
+                    'raw' => $group['raw'],
                 ];
             } else {
                 foreach ($group['w'] as $boost => $wsB) {
@@ -108,12 +121,20 @@ class AttributeSearch
                                 'w' => $wsSt,
                                 'b' => $boost,
                                 'fields' => [],
+                                'locales' => array_merge(...array_map(function (string $workspaceId) use ($localesIndex): array {
+                                    if (isset($localesIndex[$workspaceId])) {
+                                        return array_keys($localesIndex[$workspaceId]);
+                                    }
+
+                                    return [];
+                                }, $wsSt)),
                             ];
                             $fieldName = sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, $tr ? '{l}' : '_', $f);
                             $clusters[$uk]['fields'][$fieldName] = [
                                 'st' => $st,
                                 'b' => $boost,
                                 'fz' => $group['fz'],
+                                'raw' => $group['raw'],
                             ];
                         }
                     }
@@ -126,6 +147,7 @@ class AttributeSearch
             'b' => 1,
             'fields' => [],
         ];
+        $clusters[self::GROUP_ALL]['locales'] = array_keys($locales);
         $clusters[self::GROUP_ALL]['fields']['title'] = [
             'st' => SearchType::Match->value,
             'b' => 1,
@@ -231,41 +253,6 @@ class AttributeSearch
         if (1 === preg_match('#([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})#', $queryString, $uuid)) {
             $parentQuery->addShould(new Query\Term(['_id' => $uuid[1]]));
         }
-    }
-
-    public function addAttributeFilters(array $filters): Query\BoolQuery
-    {
-        $bool = new Query\BoolQuery();
-        foreach ($filters as $filter) {
-            $attr = $filter['a'];
-            $xType = $filter['x'] ?? null;
-            $values = $filter['v'];
-            $inverted = (bool) ($filter['i'] ?? false);
-
-            $esFieldInfo = $this->getESFieldInfo($attr);
-
-            if ('missing' === $xType) {
-                $existQuery = new Query\Exists($esFieldInfo['name']);
-                if ($inverted) {
-                    $bool->addMust($existQuery);
-                } else {
-                    $bool->addMustNot($existQuery);
-                }
-                continue;
-            }
-
-            if (!empty($values)) {
-                $filterQuery = $esFieldInfo['type']->createFilterQuery($esFieldInfo['name'], $values);
-
-                if ($inverted) {
-                    $bool->addMustNot($filterQuery);
-                } else {
-                    $bool->addMust($filterQuery);
-                }
-            }
-        }
-
-        return $bool;
     }
 
     /**
@@ -410,5 +397,19 @@ class AttributeSearch
             $missingAgg = new Missing($fieldName.FacetHandler::MISSING_SUFFIX, $fullFieldName);
             $query->addAggregation($missingAgg);
         }
+    }
+
+    public function buildConditionQuery(
+        array $fieldClusters,
+        string $condition,
+        array $options
+    ): Query\AbstractQuery
+    {
+        $ast = $this->AQLParser->parse($condition);
+        if (null === $ast) {
+            throw new BadRequestHttpException(sprintf('Invalid condition: %s', $condition));
+        }
+
+        return $this->AQLToESQuery->createQuery($fieldClusters, $ast['data'], $options);
     }
 }
