@@ -84,9 +84,9 @@ final readonly class AQLToESQuery
 
     private function createCriteria(array $fieldClusters, array $field, array $data, ?FacetInterface $facet, array $options): Query\AbstractQuery
     {
-        $language = $options['locale'] ?? '*';
-        $fieldName = str_replace('{l}', $language, $field['field']);
-        if (($field['raw'] ?? false) && in_array($data['operator'], ['=', '!='], true)) {
+        $locale = $options['locale'] ?? '*';
+        $fieldName = str_replace('{l}', $locale, $field['field']);
+        if (($field['raw'] ?? false) && in_array($data['operator'], ['=', '!=', 'IN', 'NOT_IN'], true)) {
             $fieldName .= '.'.$field['raw'];
         }
 
@@ -107,9 +107,13 @@ final readonly class AQLToESQuery
                 'lte' => $value[1],
                 'format' => 'epoch_second'
             ]), $data['operator'] === 'NOT_BETWEEN'),
-            'MISSING', 'EXISTS' => $this->wrapInNotQuery(new Query\Exists($fieldName), $data['operator'] === 'MISSING'),
-            'IN', 'NOT_IN' => $this->wrapInNotQuery(new Query\Terms($fieldName, $value), $data['operator'] === 'NOT_IN'),
-            '=', 'MATCHES', '!=', 'NOT_MATCHES' => $this->wrapInNotQuery((new Query\MultiMatch())->setQuery($value)->setFields([$fieldName]), in_array($data['operator'], ['!=', 'NOT_MATCHES'], true)),
+            'MISSING', 'EXISTS' => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], function (string $fn) {
+                return new Query\Exists($fn);
+            }), $data['operator'] === 'MISSING'),
+            'IN', 'NOT_IN' => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], function (string $fn) use ($value) {
+                return new Query\Terms($fn, $value);
+            }), $data['operator'] === 'NOT_IN'),
+            '=', 'MATCHES', '!=', 'NOT_MATCHES' => $this->wrapInNotQuery($this->createTermQuery($fieldName, $value), in_array($data['operator'], ['!=', 'NOT_MATCHES'], true)),
             '<' => new Query\Range($fieldName, [
                 'lt' => $value,
             ]),
@@ -126,6 +130,30 @@ final readonly class AQLToESQuery
             'STARTS_WITH', 'NOT_STARTS_WITH' => $this->wrapInNotQuery((new Query\MultiMatch())->setType('phrase_prefix')->setQuery($value)->setFields([$fieldName]), $data['operator'] === 'NOT_STARTS_WITH'),
             default => throw new BadRequestHttpException(sprintf('Invalid operator "%s"', $data['operator'])),
         };
+    }
+
+    private function yieldShouldQuery(string $fieldName, array $locales, \Closure $createQuery): Query\AbstractQuery
+    {
+        if (!str_contains($fieldName, '*')) {
+            return $createQuery($fieldName);
+        }
+
+        $locales[] = AttributeInterface::NO_LOCALE;
+        $boolQuery = new Query\BoolQuery();
+        foreach ($locales as $locale) {
+            $boolQuery->addShould($createQuery(str_replace('*', $locale, $fieldName)));
+        }
+
+        return $boolQuery;
+    }
+
+    private function createTermQuery(string $fieldName, mixed $value): Query\AbstractQuery
+    {
+        if (str_contains($fieldName, '*')) {
+            return (new Query\MultiMatch())->setQuery($value)->setFields([$fieldName]);
+        }
+
+        return new Query\Term([$fieldName => $value]);
     }
 
     private function wrapInNotQuery(Query\AbstractQuery $query, bool $condition = true): Query\AbstractQuery
@@ -229,6 +257,7 @@ final readonly class AQLToESQuery
         ];
         $fields = [];
         foreach ($fieldClusters as $cluster) {
+            $locales = $cluster['locales'] ?? [];
             foreach ($cluster['fields'] as $cField => $fieldConf) {
                 foreach ($nameCandidates as $nameCandidate) {
                     if (str_starts_with($cField, $nameCandidate.'_')) {
@@ -236,6 +265,7 @@ final readonly class AQLToESQuery
                             'field' => $cField,
                             'w' => $cluster['w'],
                             'raw' => $fieldConf['raw'],
+                            'locales' => $locales,
                         ];
                     }
                 }
