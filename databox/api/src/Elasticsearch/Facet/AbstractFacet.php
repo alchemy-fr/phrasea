@@ -114,4 +114,9 @@ abstract class AbstractFacet implements FacetInterface
     }
 
     abstract protected function getAggregationTitle(): string;
+
+    public function normalizeValueForSearch(mixed $value): mixed
+    {
+        return $value;
+    }
 }

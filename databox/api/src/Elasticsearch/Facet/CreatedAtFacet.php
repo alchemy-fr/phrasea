@@ -23,7 +23,7 @@ class CreatedAtFacet extends AbstractDateTimeFacet
         return 'createdAt';
     }
 
-    public function getValueFromAsset(Asset $asset)
+    public function getValueFromAsset(Asset $asset): mixed
     {
         return $asset->getCreatedAt();
     }

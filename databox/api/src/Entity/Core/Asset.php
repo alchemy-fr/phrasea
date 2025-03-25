@@ -19,6 +19,7 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\CopyAssetInput;
@@ -112,7 +113,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
             provider: AssetCollectionProvider::class,
             processor: PrepareSubstitutionProcessor::class,
         ),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'collection' => new QueryParameter(),
+                'conditions' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Use AQL condition to filter assets',
+                ),
+            ]
+        ),
         new Post(
             normalizationContext: [
                 'groups' => [self::GROUP_READ, Collection::GROUP_ABSOLUTE_TITLE],

@@ -248,11 +248,20 @@ const grammar: Grammar = {
     {"name": "value", "symbols": ["quoted_string"], "postprocess": id},
     {"name": "value", "symbols": ["boolean"], "postprocess": id},
     {"name": "quoted_string$ebnf$1", "symbols": []},
-    {"name": "quoted_string$ebnf$1", "symbols": ["quoted_string$ebnf$1", /[^"]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "quoted_string$ebnf$1$subexpression$1", "symbols": ["escape_double"]},
+    {"name": "quoted_string$ebnf$1$subexpression$1", "symbols": [/[^"]/]},
+    {"name": "quoted_string$ebnf$1", "symbols": ["quoted_string$ebnf$1", "quoted_string$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "quoted_string", "symbols": [{"literal":"\""}, "quoted_string$ebnf$1", {"literal":"\""}], "postprocess": d => ({literal: d[1].join('')})},
     {"name": "quoted_string$ebnf$2", "symbols": []},
-    {"name": "quoted_string$ebnf$2", "symbols": ["quoted_string$ebnf$2", /[^']/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "quoted_string", "symbols": [{"literal":"'"}, "quoted_string$ebnf$2", {"literal":"'"}], "postprocess": d => ({literal: d[1].join('')})}
+    {"name": "quoted_string$ebnf$2$subexpression$1", "symbols": ["escape_single"]},
+    {"name": "quoted_string$ebnf$2$subexpression$1", "symbols": [/[^']/]},
+    {"name": "quoted_string$ebnf$2", "symbols": ["quoted_string$ebnf$2", "quoted_string$ebnf$2$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "quoted_string", "symbols": [{"literal":"'"}, "quoted_string$ebnf$2", {"literal":"'"}], "postprocess": d => ({literal: d[1].join('')})},
+    {"name": "escape_double", "symbols": [{"literal":"\\"}, /["]/], "postprocess": () => '"'},
+    {"name": "escape_double", "symbols": ["escape_backslash"], "postprocess": id},
+    {"name": "escape_single", "symbols": [{"literal":"\\"}, /["]/], "postprocess": () => '"'},
+    {"name": "escape_single", "symbols": ["escape_backslash"], "postprocess": id},
+    {"name": "escape_backslash", "symbols": [{"literal":"\\"}, {"literal":"\\"}], "postprocess": () => '\\'}
   ],
   ParserStart: "main",
 };

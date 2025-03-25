@@ -29,7 +29,7 @@ final class WorkspaceFacet extends AbstractEntityFacet
         return '@workspace';
     }
 
-    public function getValueFromAsset(Asset $asset)
+    public function getValueFromAsset(Asset $asset): mixed
     {
         return $asset->getWorkspace();
     }

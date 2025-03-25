@@ -5,6 +5,8 @@ export const aqlOperators = [
     , '<',
     '>='
     , '<=', 'IN', 'NOT_IN', 'MISSING', 'EXISTS',
+    'CONTAINS',
+    'NOT_CONTAINS',
     'MATCHES',
     'NOT_MATCHES',
     'NOT_CONTAINS',
@@ -34,3 +36,4 @@ export type AQLAndOrExpression = {
 export type AQLQueryAST = {
     expression: AQLExpression;
 }
+export type ManyArgs = number | true | undefined;

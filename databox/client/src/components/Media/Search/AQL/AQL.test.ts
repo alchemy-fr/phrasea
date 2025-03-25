@@ -25,6 +25,26 @@ it('parse AQL', function () {
             },
         },
         {
+            query: '@createdAt != "f\\"oo"',
+            result: {
+                expression: {
+                    leftOperand: {field: '@createdAt'}, operator: '!=', rightOperand: {literal: 'f"oo'}
+                },
+            },
+        },
+        {
+            query: '@createdAt != "f\\"oo\\""',
+            result: {
+                expression: {
+                    leftOperand: {field: '@createdAt'}, operator: '!=', rightOperand: {literal: 'f"oo"'}
+                },
+            },
+        },
+        {
+            query: '@createdAt != "fo"o"',
+            result: undefined,
+        },
+        {
             query: '@createdAt BETWEEN 1 AND 2',
             result: {
                 expression:
@@ -33,6 +53,14 @@ it('parse AQL', function () {
         },
         {
             query: '@createdAt NOT  BETWEEN 1 AND 2',
+            formattedQuery: '@createdAt NOT BETWEEN 1 AND 2',
+            result: {
+                expression:
+                    {leftOperand: {field: '@createdAt'}, operator: 'NOT_BETWEEN', rightOperand: [1, 2]},
+            },
+        },
+        {
+            query: ' @createdAt NOT  BETWEEN 1 AND 2 ',
             formattedQuery: '@createdAt NOT BETWEEN 1 AND 2',
             result: {
                 expression:
@@ -181,6 +209,8 @@ it('parse AQL', function () {
     dataSet.forEach(({query, result, formattedQuery}) => {
         const actual = parseAQLQuery(query);
         expect(actual).toEqual(result);
-        expect(astToString(result as AQLQueryAST)).toEqual(formattedQuery ?? query);
+        if (result !== undefined) {
+            expect(astToString(result as AQLQueryAST)).toEqual(formattedQuery ?? query);
+        }
     });
 });

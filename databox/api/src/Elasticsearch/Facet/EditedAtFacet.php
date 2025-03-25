@@ -23,7 +23,7 @@ class EditedAtFacet extends AbstractDateTimeFacet
         return 'editedAt';
     }
 
-    public function getValueFromAsset(Asset $asset)
+    public function getValueFromAsset(Asset $asset): mixed
     {
         return $asset->getEditedAt();
     }

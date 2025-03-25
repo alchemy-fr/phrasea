@@ -3,6 +3,7 @@
 namespace App\Elasticsearch\AQL;
 
 use App\Attribute\AttributeInterface;
+use App\Elasticsearch\Facet\FacetInterface;
 use App\Elasticsearch\Facet\FacetRegistry;
 use Elastica\Query;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -50,7 +51,7 @@ final readonly class AQLToESQuery
         $queries = [];
         $fields = $this->getFieldNames($fieldClusters, $data['leftOperand']['field']);
         foreach ($fields as $field) {
-            $query = $this->createCriteria($fieldClusters, str_replace('{l}', $language, $field['field']), $data);
+            $query = $this->createCriteria($fieldClusters, str_replace('{l}', $language, $field['field']), $data, $field['facet'] ?? null);
 
             if ($field['w'] ?? false) {
                 $boolQuery = new Query\BoolQuery();
@@ -82,7 +83,7 @@ final readonly class AQLToESQuery
         return $boolQuery;
     }
 
-    private function createCriteria(array $fieldClusters, string $fieldName, array $data): Query\AbstractQuery
+    private function createCriteria(array $fieldClusters, string $fieldName, array $data, ?FacetInterface $facet): Query\AbstractQuery
     {
         if (isset($data['rightOperand'])) {
             $value = $data['rightOperand'];
@@ -90,7 +91,7 @@ final readonly class AQLToESQuery
                 return $this->visitCriteriaWithScripting($fieldClusters, $fieldName, $data);
             }
 
-            $value = $this->resolveValue($value);
+            $value = $this->resolveValue($value, $facet);
         } else {
             $value = null;
         }
@@ -182,17 +183,21 @@ final readonly class AQLToESQuery
         return $boolQuery;
     }
 
-    private function resolveValue(mixed $data): mixed
+    private function resolveValue(mixed $data, ?FacetInterface $facet): mixed
     {
-        if ($data['literal'] ?? false) {
-            return $data['literal'];
-        }
-
         if (is_array($data) && isset($data[0])) {
-            return array_map([$this, 'resolveValue'], $data);
+            return array_map(function (mixed $data) use ($facet) {
+                return $this->resolveValue($data, $facet);
+            }, $data);
         }
 
-        return $data;
+        $v = $data['literal'] ?? $data;
+
+        if (null !== $facet) {
+            $v = $facet->normalizeValueForSearch($v);
+        }
+
+        return $v;
     }
 
     private function getFieldNames(array $fieldClusters, string $fieldSlug): array
@@ -200,7 +205,12 @@ final readonly class AQLToESQuery
         if (str_starts_with($fieldSlug, '@')) {
             $facet = $this->facetRegistry->getFacet($fieldSlug);
             if (null !== $facet) {
-                return [['field' => $facet->getFieldName()]];
+                return [
+                    [
+                        'field' => $facet->getFieldName(),
+                        'facet' => $facet,
+                    ]
+                ];
             } else {
                 $key = substr($fieldSlug, 1);
 
