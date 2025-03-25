@@ -80,7 +80,9 @@ function validateConditionType(node: AQLCondition, definitionsIndex: AttributeDe
                 throw new Error(`Field "${attributeDefinition.slug}" is not of type number`);
             }
 
-            validateOfType(node.rightOperand, rawType!, definitionsIndex);
+            if (!['MISSING', 'EXISTS'].includes(op)) {
+                validateOfType(node.rightOperand, rawType!, definitionsIndex);
+            }
         }
     }
 }

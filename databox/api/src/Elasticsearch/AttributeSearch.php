@@ -64,6 +64,7 @@ class AttributeSearch
             $groups[$fieldName] ??= [
                 'w' => [],
                 'fz' => $type->supportsElasticSearchFuzziness(),
+                'raw' => $type->getElasticSearchRawField(),
             ];
 
             $boost = $d['searchBoost'] ?? 1;
@@ -101,6 +102,7 @@ class AttributeSearch
                     'st' => $st,
                     'b' => $firstBoost,
                     'fz' => $group['fz'],
+                    'raw' => $group['raw'],
                 ];
             } else {
                 foreach ($group['w'] as $boost => $wsB) {
@@ -119,6 +121,7 @@ class AttributeSearch
                                 'st' => $st,
                                 'b' => $boost,
                                 'fz' => $group['fz'],
+                                'raw' => $group['raw'],
                             ];
                         }
                     }

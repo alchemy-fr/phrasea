@@ -20,7 +20,7 @@ export type AQLField = { field: string };
 export type AQLLiteral = { literal: string };
 export type AQLValue = AQLLiteral | boolean | number;
 export type AQLOperand = AQLField | AQLValue;
-export type RightOperand = AQLOperand | AQLOperand[];
+export type RightOperand = AQLOperand | AQLOperand[] | undefined;
 export type AQLCondition = {
     leftOperand: AQLOperand;
     rightOperand: RightOperand;

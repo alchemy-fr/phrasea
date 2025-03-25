@@ -22,7 +22,7 @@ class NumberAttributeType extends AbstractAttributeType
     {
         return [
             'fields' => [
-                'raw' => [
+                AttributeTypeInterface::RAW_PROP => [
                     'type' => 'keyword',
                 ],
             ],

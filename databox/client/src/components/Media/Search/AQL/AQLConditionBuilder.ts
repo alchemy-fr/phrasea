@@ -93,13 +93,13 @@ export class AQLConditionBuilder {
                 }
 
                 const rightOperand = condition.rightOperand;
-                if (Array.isArray(rightOperand)) {
-                    values = rightOperand.map(resolveValue);
-                } else {
-                    values = [resolveValue(rightOperand)];
+                if (rightOperand) {
+                    if (Array.isArray(rightOperand)) {
+                        values = rightOperand.map(resolveValue);
+                    } else {
+                        values = [resolveValue(rightOperand)];
+                    }
                 }
-
-                // TODO handle IS MISSING
             }
         }
 

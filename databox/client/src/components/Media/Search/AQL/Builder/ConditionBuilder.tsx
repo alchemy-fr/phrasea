@@ -2,7 +2,7 @@ import {RSelectWidget, SelectOption} from '@alchemy/react-form';
 import React from "react";
 import {useTranslation} from 'react-i18next';
 import {IconButton, useTheme} from "@mui/material";
-import {AQLField, AQLOperator, AQLValue, ManyArgs} from "../aqlTypes.ts";
+import {AQLField, AQLOperand, AQLOperator, AQLValue, ManyArgs} from "../aqlTypes.ts";
 import {BaseBuilderProps, QBCondition} from "./builderTypes.ts";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ValueBuilder from "./ValueBuilder.tsx";
@@ -72,25 +72,27 @@ export default function ConditionBuilder({
                     setExpression(p => {
                         const op = (newValue?.value ?? '') as AQLOperator;
                         const manyArgs = op && operators.find(o => o.value === op)?.manyArgs;
-                        let rightOperand = p.rightOperand;
+                        const manyArgsDefined = typeof manyArgs === 'number' || manyArgs === true;
 
-                        if (manyArgs && !Array.isArray(p.rightOperand)) {
+                        let rightOperand = p.rightOperand ?? {literal: ''};
+
+                        if (manyArgsDefined && !Array.isArray(rightOperand!)) {
                             rightOperand = [rightOperand as AQLValue];
-                        } else if (!manyArgs && Array.isArray(p.rightOperand)) {
+                        } else if (!manyArgsDefined && Array.isArray(rightOperand!)) {
                             rightOperand = (rightOperand as AQLValue[])[0];
                         }
 
                         if (typeof manyArgs === 'number') {
                             rightOperand = (rightOperand as AQLValue[]).slice(0, manyArgs);
                             if (rightOperand.length < manyArgs) {
-                                rightOperand = rightOperand.concat(new Array(manyArgs - rightOperand.length).fill({literal : ''}));
+                                rightOperand = rightOperand.concat(new Array(manyArgs - rightOperand!.length).fill({literal : ''}));
                             }
                         }
 
                         return ({
                             ...p,
                             operator: op,
-                            rightOperand,
+                            rightOperand: Array.isArray(rightOperand) && rightOperand.length === 0 ? undefined : rightOperand,
                         });
                     });
                 }}

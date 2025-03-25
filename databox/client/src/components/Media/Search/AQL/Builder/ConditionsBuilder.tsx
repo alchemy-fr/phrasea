@@ -84,6 +84,16 @@ export default function ConditionsBuilder({definitionsIndex, expression, setExpr
             label: t('search_condition.builder.operator.not_between', 'Not Between'),
             manyArgs: 2,
         },
+        {
+            value: 'EXISTS',
+            label: t('search_condition.builder.operator.exists', 'Exists'),
+            manyArgs: 0,
+        },
+        {
+            value: 'MISSING',
+            label: t('search_condition.builder.operator.missing', 'Missing'),
+            manyArgs: 0,
+        },
     ];
 
     return <>
