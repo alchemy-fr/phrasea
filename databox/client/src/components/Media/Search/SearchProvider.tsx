@@ -184,26 +184,20 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
     const conditionsAst = (conditions
         .filter(q => !q.disabled)
         .map(c => parseAQLQuery(c.query))
-        .filter(q => {
-            return q && isAQLCondition(q.expression);
-        }) as AQLQueryAST[])
-        .map(q => {
-
-            console.log('q', q);
-            return q.expression;
-        }) as AQLCondition[];
-
+        .filter(q => q && isAQLCondition(q.expression)) as AQLQueryAST[])
+        .map(q => q.expression) as AQLCondition[];
 
     function filterOfType(type: InternalKey): string[] {
         return conditionsAst
-            .filter(c => {
-                return isAQLField(c.leftOperand) && c.leftOperand.field === `@${type}`;
-            })
+            .filter(c =>
+                isAQLField(c.leftOperand)
+                && c.leftOperand.field === `@${type}`
+                && c.rightOperand)
             .map(c => {
                 if (Array.isArray(c.rightOperand)) {
                     return c.rightOperand.map(o => resolveAQLValue(o));
                 } else {
-                    return [resolveAQLValue(c.rightOperand)];
+                    return [resolveAQLValue(c.rightOperand!)];
                 }
             })
             .flat() as string[];

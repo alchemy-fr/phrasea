@@ -52,10 +52,14 @@ function conditionToString(condition: AQLCondition): string {
     const left = operandToString(condition.leftOperand);
     const right = operandToString(condition.rightOperand, condition.operator);
 
-    return `${left} ${operatorToString(condition.operator)} ${right}`;
+    return `${left} ${operatorToString(condition.operator)} ${right}`.trim();
 }
 
 function operandToString(operand: RightOperand, operator?: AQLOperator): string {
+    if (undefined === operand) {
+        return '';
+    }
+
     if (typeof operand === 'object') {
         if (operator && Array.isArray(operand)) {
             if (['IN', 'NOT_IN'].includes(operator)) {

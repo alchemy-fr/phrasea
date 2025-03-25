@@ -10,7 +10,7 @@ export type QBAndOrExpression = {
 
 export type QBCondition = {
     operator: AQLOperator;
-    rightOperand: AQLValue | AQLValue[];
+    rightOperand: AQLValue | AQLValue[] | undefined;
 } & Omit<AQLCondition, 'operator' | 'rightOperand'>;
 
 export type OperatorChoice = {

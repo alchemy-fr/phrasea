@@ -44,7 +44,7 @@ class TextAttributeType extends AbstractAttributeType
     {
         $mapping = [
             'fields' => [
-                'raw' => [
+                AttributeTypeInterface::RAW_PROP => [
                     'type' => 'keyword',
                     'ignore_above' => 256,
                 ],
@@ -91,11 +91,16 @@ class TextAttributeType extends AbstractAttributeType
 
     public function getAggregationField(): ?string
     {
-        return 'raw';
+        return AttributeTypeInterface::RAW_PROP;
     }
 
     public function supportsAggregation(): bool
     {
         return true;
+    }
+
+    public function getElasticSearchRawField(): ?string
+    {
+        return AttributeTypeInterface::RAW_PROP;
     }
 }

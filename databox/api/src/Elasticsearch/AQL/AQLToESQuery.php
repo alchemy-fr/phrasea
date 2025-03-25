@@ -47,11 +47,10 @@ final readonly class AQLToESQuery
 
     private function visitCriteria(array $fieldClusters, array $data, array $options): Query\AbstractQuery
     {
-        $language = $options['locale'] ?? '*';
         $queries = [];
         $fields = $this->getFieldNames($fieldClusters, $data['leftOperand']['field']);
         foreach ($fields as $field) {
-            $query = $this->createCriteria($fieldClusters, str_replace('{l}', $language, $field['field']), $data, $field['facet'] ?? null);
+            $query = $this->createCriteria($fieldClusters, $field, $data, $field['facet'] ?? null, $options);
 
             if ($field['w'] ?? false) {
                 $boolQuery = new Query\BoolQuery();
@@ -83,8 +82,14 @@ final readonly class AQLToESQuery
         return $boolQuery;
     }
 
-    private function createCriteria(array $fieldClusters, string $fieldName, array $data, ?FacetInterface $facet): Query\AbstractQuery
+    private function createCriteria(array $fieldClusters, array $field, array $data, ?FacetInterface $facet, array $options): Query\AbstractQuery
     {
+        $language = $options['locale'] ?? '*';
+        $fieldName = str_replace('{l}', $language, $field['field']);
+        if (($field['raw'] ?? false) && in_array($data['operator'], ['=', '!='], true)) {
+            $fieldName .= '.'.$field['raw'];
+        }
+
         if (isset($data['rightOperand'])) {
             $value = $data['rightOperand'];
             if ($value['field'] ?? false) {
@@ -104,8 +109,7 @@ final readonly class AQLToESQuery
             ]), $data['operator'] === 'NOT_BETWEEN'),
             'MISSING', 'EXISTS' => $this->wrapInNotQuery(new Query\Exists($fieldName), $data['operator'] === 'MISSING'),
             'IN', 'NOT_IN' => $this->wrapInNotQuery(new Query\Terms($fieldName, $value), $data['operator'] === 'NOT_IN'),
-            '=' => new Query\Term([$fieldName => $value]),
-            '!=' => $this->wrapInNotQuery(new Query\Term([$fieldName => $value])),
+            '=', 'MATCHES', '!=', 'NOT_MATCHES' => $this->wrapInNotQuery((new Query\MultiMatch())->setQuery($value)->setFields([$fieldName]), in_array($data['operator'], ['!=', 'NOT_MATCHES'], true)),
             '<' => new Query\Range($fieldName, [
                 'lt' => $value,
             ]),
@@ -118,9 +122,8 @@ final readonly class AQLToESQuery
             '>' => new Query\Range($fieldName, [
                 'gt' => $value,
             ]),
-            'MATCHES' => (new Query\MultiMatch())->setQuery($value)->setFields([$fieldName]),
-            'CONTAINS' => (new Query\MultiMatch())->setType('phrase')->setQuery(sprintf('*%s*', $value))->setFields([$fieldName]),
-            'STARTS_WITH' => (new Query\MultiMatch())->setType('phrase_prefix')->setQuery($value)->setFields([$fieldName]),
+            'CONTAINS', 'NOT_CONTAINS' => $this->wrapInNotQuery((new Query\MultiMatch())->setType('phrase')->setQuery(sprintf('*%s*', $value))->setFields([$fieldName]), $data['operator'] === 'NOT_CONTAINS'),
+            'STARTS_WITH', 'NOT_STARTS_WITH' => $this->wrapInNotQuery((new Query\MultiMatch())->setType('phrase_prefix')->setQuery($value)->setFields([$fieldName]), $data['operator'] === 'NOT_STARTS_WITH'),
             default => throw new BadRequestHttpException(sprintf('Invalid operator "%s"', $data['operator'])),
         };
     }
@@ -228,10 +231,11 @@ final readonly class AQLToESQuery
         foreach ($fieldClusters as $cluster) {
             foreach ($cluster['fields'] as $cField => $fieldConf) {
                 foreach ($nameCandidates as $nameCandidate) {
-                    if (str_starts_with($cField, $nameCandidate)) {
+                    if (str_starts_with($cField, $nameCandidate.'_')) {
                         $fields[] = [
                             'field' => $cField,
                             'w' => $cluster['w'],
+                            'raw' => $fieldConf['raw'],
                         ];
                     }
                 }

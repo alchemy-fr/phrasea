@@ -130,6 +130,7 @@ export default function SearchConditionDialog({
 
             return true;
         } catch (e: any) {
+            console.trace(e);
             const error = e.message;
             setError(t('search_condition.dialog.error.invalid_query', {
                 defaultValue: 'Invalid query: {{error}}',
