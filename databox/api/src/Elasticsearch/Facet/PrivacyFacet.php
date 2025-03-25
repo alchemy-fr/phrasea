@@ -37,7 +37,7 @@ final class PrivacyFacet extends AbstractLabelledFacet
         return '@privacy';
     }
 
-    public function getValueFromAsset(Asset $asset)
+    public function getValueFromAsset(Asset $asset): mixed
     {
         return $asset->getPrivacy();
     }

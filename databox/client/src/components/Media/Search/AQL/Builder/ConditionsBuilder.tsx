@@ -6,6 +6,7 @@ import {StateSetterHandler} from "../../../../../types.ts";
 import {emptyCondition, removeExpression} from "./builder.ts";
 import ExpressionBuilder from "./ExpressionBuilder.tsx";
 import AddExpressionRow from "./AddExpressionRow.tsx";
+import {AQLOperator, ManyArgs} from "../aqlTypes.ts";
 
 type Props = {
     definitionsIndex: AttributeDefinitionIndex;
@@ -13,41 +14,75 @@ type Props = {
     setExpression: StateSetterHandler<QBExpression>;
 };
 
+type OperatorChoice = {
+    value: AQLOperator;
+    label: string;
+    manyArgs?: ManyArgs;
+};
+
 export default function ConditionsBuilder({definitionsIndex, expression, setExpression}: Props) {
     const {t} = useTranslation();
 
-    const operators = [
+    const operators: OperatorChoice[] = [
         {
             value: '=',
-            label: t('search_condition.builder.operator.equals', 'Equals (=)'),
+            label: t('search_condition.builder.operator.equals', '= (Equals)'),
         },
         {
             value: '!=',
-            label: t('search_condition.builder.operator.not_equals', 'Not equals (!=)'),
+            label: t('search_condition.builder.operator.not_equals', '!= (Not equals)'),
         },
         {
             value: '>',
-            label: t('search_condition.builder.operator.greater_than', 'Greater than (>)'),
+            label: t('search_condition.builder.operator.greater_than', '> (Greater than)'),
         },
         {
             value: '>=',
-            label: t('search_condition.builder.operator.greater_than_or_equals', 'Greater than or equals (>=)'),
+            label: t('search_condition.builder.operator.greater_than_or_equals', '>= (Greater than or equals)'),
         },
         {
             value: '<',
-            label: t('search_condition.builder.operator.less_than', 'Less than (<)'),
+            label: t('search_condition.builder.operator.less_than', '< (Less than)'),
         },
         {
             value: '<=',
-            label: t('search_condition.builder.operator.less_than_or_equals', 'Less than or equals (<=)'),
+            label: t('search_condition.builder.operator.less_than_or_equals', '<= (Less than or equals)'),
         },
         {
             value: 'CONTAINS',
             label: t('search_condition.builder.operator.contains', 'Contains'),
         },
         {
+            value: 'NOT_CONTAINS',
+            label: t('search_condition.builder.operator.not_contains',  `Doesn't Contain`),
+        },
+        {
             value: 'MATCHES',
             label: t('search_condition.builder.operator.matches', 'Matches'),
+        },
+        {
+            value: 'NOT_MATCHES',
+            label: t('search_condition.builder.operator.not_matches', `Doesn't Match`),
+        },
+        {
+            value: 'IN',
+            label: t('search_condition.builder.operator.in', 'In'),
+            manyArgs: true,
+        },
+        {
+            value: 'NOT_IN',
+            label: t('search_condition.builder.operator.not_in', 'Not In'),
+            manyArgs: true,
+        },
+        {
+            value: 'BETWEEN',
+            label: t('search_condition.builder.operator.between', 'Between'),
+            manyArgs: 2,
+        },
+        {
+            value: 'NOT_BETWEEN',
+            label: t('search_condition.builder.operator.not_between', 'Not Between'),
+            manyArgs: 2,
         },
     ];
 

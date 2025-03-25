@@ -97,5 +97,13 @@ value -> number {% id %}
     | quoted_string {% id %}
     | boolean {% id %}
 
-quoted_string -> "\"" [^"]:* "\"" {% d => ({literal: d[1].join('')}) %}
-    | "'" [^']:* "'" {% d => ({literal: d[1].join('')}) %}
+quoted_string -> "\"" (escape_double | [^"]):* "\"" {% d => ({literal: d[1].join('')}) %}
+    | "'" (escape_single | [^']):* "'" {% d => ({literal: d[1].join('')}) %}
+
+escape_double -> "\\" ["] {% () => '"' %}
+    | escape_backslash {% id %}
+
+escape_single -> "\\" ["] {% () => '"' %}
+    | escape_backslash {% id %}
+
+escape_backslash -> "\\" "\\" {% () => '\\' %}

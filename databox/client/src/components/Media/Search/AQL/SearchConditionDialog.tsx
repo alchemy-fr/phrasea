@@ -1,5 +1,5 @@
 import {AQLQuery, astToString} from "./query.ts";
-import {Alert, Button, CircularProgress} from "@mui/material";
+import {Alert, Button, CircularProgress, FormControlLabel, Switch} from "@mui/material";
 import {useTranslation} from 'react-i18next';
 import CheckIcon from "@mui/icons-material/Check";
 import {StackedModalProps, useModals} from "@alchemy/navigation";
@@ -16,6 +16,7 @@ import {validateQueryAST} from "./validation.ts";
 import {QBExpression} from "./Builder/builderTypes.ts";
 import {emptyCondition} from "./Builder/builder.ts";
 import {AQLExpression, AQLQueryAST} from "./aqlTypes.ts";
+import {BuiltInFilter} from "../search.ts";
 
 type Props = {
     condition: AQLQuery;
@@ -62,7 +63,6 @@ export default function SearchConditionDialog({
                 }));
             } else {
                 const result = parseAQLQuery(query, true);
-                console.debug('result', query, result);
                 __setExpression((result?.expression || {...emptyCondition}) as QBExpression);
             }
         } catch (e) {
@@ -85,6 +85,38 @@ export default function SearchConditionDialog({
 
         for (const def of definitions) {
             index[def.slug] = def;
+        }
+
+        const builtInFilters = [
+            {
+                slug: BuiltInFilter.Collection,
+                fieldType: 'text',
+                name: t('built_in_attr.collection', 'Collection'),
+            },
+            {
+                slug: BuiltInFilter.Workspace,
+                fieldType: 'text',
+                name: t('built_in_attr.workspace', 'Workspace'),
+            },
+            {
+                slug: BuiltInFilter.Tag,
+                fieldType: 'text',
+                name: t('built_in_attr.tag', 'Tag'),
+            },
+            {
+                slug: BuiltInFilter.CreatedAt,
+                fieldType: 'text',
+                name: t('built_in_attr.createdAt', 'Created At'),
+            },
+        ];
+
+        for (let bf of builtInFilters) {
+            index[bf.slug] = {
+                ...bf,
+                id: bf.slug,
+                enabled: true,
+                builtIn: true,
+            } as AttributeDefinition;
         }
 
         return index;
@@ -123,13 +155,24 @@ export default function SearchConditionDialog({
     })
 
     return <AppDialog
-        maxWidth={'md'}
+        maxWidth={'lg'}
         onClose={closeModal}
         title={isNew ? t('search_condition.dialog.edit_condition', 'Edit Condition') : t('search_condition.dialog.add_condition', 'Add Condition')}
         open={open}
         modalIndex={modalIndex}
         actions={({onClose}) => (
             <>
+                <div style={{
+                    flexGrow: 1,
+                }}>
+                    <FormControlLabel
+                        control={<Switch
+                            checked={textQueryMode}
+                            onChange={(_e, checked) => setTextQueryMode(checked)}
+
+                        />} label={textQueryMode ? t('search_condition.dialog.switch_to_builder', 'Switch to Builder') : t('search_condition.dialog.switch_to_text', 'Switch to Text')} />
+                </div>
+                <div>
                 <Button onClick={onClose}>
                     {t('dialog.cancel', 'Cancel')}
                 </Button>
@@ -152,21 +195,11 @@ export default function SearchConditionDialog({
                 >
                     {isNew ? t('search_condition.dialog.submit_add', 'Add') : t('search_condition.dialog.submit_update', 'Update')}
                 </Button>
+                </div>
             </>
         )}
     >
         {loaded ? <>
-            <div>
-                <Button sx={{
-                    mb: 2,
-                }}
-                    onClick={() => setTextQueryMode(!textQueryMode)}
-                    variant={'contained'}
-                    color={textQueryMode ? 'secondary' : 'primary'}
-                >
-                    {textQueryMode ? t('search_condition.dialog.switch_to_builder', 'Switch to Builder') : t('search_condition.dialog.switch_to_text', 'Switch to Text')}
-                </Button>
-            </div>
             {textQueryMode ? <>
                     <AqlField
                         error={!!error}
