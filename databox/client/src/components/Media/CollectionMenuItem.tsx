@@ -117,7 +117,7 @@ export default function CollectionMenuItem({
         });
     };
 
-    const selected = searchContext.collections.includes('/' + absolutePath);
+    const selected = searchContext.collections.includes(collection.id);
     const onClick = () => {
         searchContext.selectCollection(
             collection.id,
