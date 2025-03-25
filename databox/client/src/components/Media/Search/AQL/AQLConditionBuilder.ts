@@ -1,12 +1,11 @@
-import {AQLAndOrExpression, AQLCondition, AQLField, AQLLiteral, AQLOperand, AQLQueryAST} from "./aqlTypes.ts";
+import {AQLAndOrExpression, AQLCondition, AQLLiteral, AQLOperand, AQLQueryAST} from "./aqlTypes.ts";
+import {isAQLField, resolveAQLValue, ScalarValue} from "./query.ts";
 
 type Props = {
     field: string;
     values?: ScalarValue[];
     includeMissing?: boolean;
 }
-
-type ScalarValue = string | boolean | number;
 
 export class AQLConditionBuilder {
     private readonly field: string;
@@ -70,14 +69,7 @@ export class AQLConditionBuilder {
         }
 
         function resolveValue(value: AQLOperand): ScalarValue {
-            if (hasProp<AQLLiteral>(value, 'literal')) {
-                return value.literal;
-            }
-            if (hasProp<AQLField>(value, 'field')) {
-                throw new Error('Unsupported field operant');
-            }
-
-            return value;
+            return resolveAQLValue(value, true);
         }
 
         if (query) {
@@ -92,7 +84,7 @@ export class AQLConditionBuilder {
             }
             const condition = conditions[0];
             if (condition) {
-                if (hasProp<AQLField>(condition.leftOperand, 'field')) {
+                if (isAQLField(condition.leftOperand)) {
                     if (field !== condition.leftOperand.field) {
                         throw new Error('Field mismatch');
                     }

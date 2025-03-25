@@ -2,7 +2,7 @@ import {AttributeDefinitionIndex} from "../../../AttributeEditor/types.ts";
 import {AQLCondition, AQLField, AQLLiteral, AQLOperator, aqlOperators, AQLQueryAST} from "./aqlTypes.ts";
 import {hasProp} from "../../../../lib/utils.ts";
 import {AttributeDefinition} from "../../../../types.ts";
-import {valueToString} from "./query.ts";
+import {isAQLCondition, isAQLField, valueToString} from "./query.ts";
 
 enum RawType {
     STRING = 'string',
@@ -30,7 +30,7 @@ const typeMap: Record<string, RawType> = {
 export function validateQueryAST(query: AQLQueryAST, definitionsIndex: AttributeDefinitionIndex): void {
     function visitNode(node: any): void {
         if (typeof node === 'object') {
-            if (hasProp<AQLCondition>(node, 'leftOperand')) {
+            if (isAQLCondition(node)) {
                 validateConditionType(node, definitionsIndex);
             }
 
@@ -87,7 +87,7 @@ function validateConditionType(node: AQLCondition, definitionsIndex: AttributeDe
 
 function validateOfType(node: any, type: RawType, definitionsIndex: AttributeDefinitionIndex): void {
     if (typeof node === 'object') {
-        if (hasProp<AQLField>(node, 'field')) {
+        if (isAQLField(node)) {
             const f = validateField(node, definitionsIndex);
             if (f && typeMap[f.fieldType] !== type) {
                 throw new Error(`Field "${f.slug}" is not of type ${type}`);
@@ -109,7 +109,7 @@ function validateOfType(node: any, type: RawType, definitionsIndex: AttributeDef
 }
 
 function validateField(node: any, definitionsIndex: AttributeDefinitionIndex): AttributeDefinition | undefined {
-    if (hasProp<AQLField>(node, 'field')) {
+    if (isAQLField(node)) {
         const field = node.field;
 
         if (!definitionsIndex[field]) {
