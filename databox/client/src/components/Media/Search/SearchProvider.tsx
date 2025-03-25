@@ -85,11 +85,13 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         (workspaceId, _title, forceReload): void => {
             if (
                 !setConditions(p => {
+                    const newConditions = removeConditionHelper(p, InternalKey.Collection);
+
                     if (!workspaceId) {
-                        return removeConditionHelper(p, InternalKey.Workspace);
+                        return removeConditionHelper(newConditions, InternalKey.Workspace);
                     }
 
-                    return replaceConditionHelper(p, {
+                    return replaceConditionHelper(newConditions, {
                         id: InternalKey.Workspace,
                         query: `@${InternalKey.Workspace} = "${workspaceId}"`,
                     });
@@ -106,11 +108,13 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         (collectionId, _title, forceReload): void => {
             if (
                 !setConditions(p => {
+                    const newConditions = removeConditionHelper(p, InternalKey.Workspace);
+
                     if (!collectionId) {
-                        return removeConditionHelper(p, InternalKey.Collection);
+                        return removeConditionHelper(newConditions, InternalKey.Collection);
                     }
 
-                    return replaceConditionHelper(p, {
+                    return replaceConditionHelper(newConditions, {
                         id: InternalKey.Collection,
                         query: `@${InternalKey.Collection} = "${collectionId}"`,
                     });
@@ -180,27 +184,33 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
     const conditionsAst = (conditions
         .filter(q => !q.disabled)
         .map(c => parseAQLQuery(c.query))
-        .filter(q => q && isAQLCondition(q.expression)) as AQLQueryAST[])
-        .map(q => q.expression) as AQLCondition[];
+        .filter(q => {
+            return q && isAQLCondition(q.expression);
+        }) as AQLQueryAST[])
+        .map(q => {
 
-    const workspaces = conditionsAst
-        .filter(c => {
-            return isAQLField(c.leftOperand) && c.leftOperand.field === InternalKey.Workspace;
-        })
-        .map(c => {
-            if (Array.isArray(c.rightOperand)) {
-                return c.rightOperand.map(o => resolveAQLValue(o));
-            } else {
-                return [resolveAQLValue(c.rightOperand)];
-            }
-        })
-        .flat() as string[];
+            console.log('q', q);
+            return q.expression;
+        }) as AQLCondition[];
 
 
-    const collections = conditions
-        .filter(q => !q.disabled)
-        .filter(q => q.query.startsWith(`@${InternalKey.Collection} `))
-        .map(q => q.query) as string[];
+    function filterOfType(type: InternalKey): string[] {
+        return conditionsAst
+            .filter(c => {
+                return isAQLField(c.leftOperand) && c.leftOperand.field === `@${type}`;
+            })
+            .map(c => {
+                if (Array.isArray(c.rightOperand)) {
+                    return c.rightOperand.map(o => resolveAQLValue(o));
+                } else {
+                    return [resolveAQLValue(c.rightOperand)];
+                }
+            })
+            .flat() as string[];
+    }
+
+    const workspaces = filterOfType(InternalKey.Workspace);
+    const collections = filterOfType(InternalKey.Collection);
 
     return (
         <SearchContext.Provider
