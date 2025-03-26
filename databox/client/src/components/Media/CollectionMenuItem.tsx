@@ -168,7 +168,7 @@ export default function CollectionMenuItem({
                                         )}
                                     />
                                 </MenuItem>,
-                                <Divider key='divider1' />,
+                                collection.capabilities.canEdit ? <Divider key='divider1' /> : null,
                                 collection.capabilities.canEdit &&
                                 authContext!.isAuthenticated() ? (
                                     <MenuItem
@@ -230,7 +230,7 @@ export default function CollectionMenuItem({
                                         />
                                     </MenuItem>
                                 ) : null,
-                                <Divider key='divider2' />,
+                                collection.capabilities.canEdit || collection.capabilities.canDelete ? <Divider key='divider2' /> : null,
                                 collection.capabilities.canEdit ? (
                                     <MenuItem
                                         key='edit'
