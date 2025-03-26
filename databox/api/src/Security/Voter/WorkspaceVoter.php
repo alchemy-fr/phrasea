@@ -12,9 +12,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class WorkspaceVoter extends AbstractVoter
 {
     public static function getScopePrefix(): string
-{
-    return 'workspace:';
-}
+    {
+        return 'workspace:';
+    }
     private array $cache = [];
 
     protected function supports(string $attribute, $subject): bool

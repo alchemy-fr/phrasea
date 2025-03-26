@@ -13,9 +13,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class RenditionRuleVoter extends AbstractVoter
 {
     public static function getScopePrefix(): string
-{
-    return 'rendition-rule:';
-}
+    {
+        return 'rendition-rule:';
+    }
 
     protected function supports(string $attribute, $subject): bool
     {

@@ -12,9 +12,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class BasketVoter extends AbstractVoter
 {
     public static function getScopePrefix(): string
-{
-    return 'basket:';
-}
+    {
+        return 'basket:';
+    }
     final public const string SHARE = 'SHARE';
 
     protected function supports(string $attribute, $subject): bool

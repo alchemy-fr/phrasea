@@ -84,7 +84,7 @@ class EntityAttributeType extends TextAttributeType
                 'id' => $entity->getId(),
                 'value' => $entity->getValue(),
                 'translations' => $entity->getTranslations(),
-            ]
+            ],
         ];
 
         return $bucket;

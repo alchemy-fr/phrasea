@@ -366,8 +366,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         bool $checkUnique = false,
         bool $assignReferenceIfNull = false,
         ?array $extraMetadata = null,
-    ): CollectionAsset
-    {
+    ): CollectionAsset {
         if ($collection->getWorkspace() !== $this->getWorkspace()) {
             throw new \InvalidArgumentException('Cannot add to a collection from a different workspace');
         }

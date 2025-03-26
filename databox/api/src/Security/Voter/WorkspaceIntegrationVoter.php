@@ -10,9 +10,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class WorkspaceIntegrationVoter extends AbstractVoter
 {
     public static function getScopePrefix(): string
-{
-    return 'integration:';
-}
+    {
+        return 'integration:';
+    }
 
     protected function supports(string $attribute, $subject): bool
     {

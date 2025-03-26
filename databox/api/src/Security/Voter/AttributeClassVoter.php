@@ -12,9 +12,9 @@ class AttributeClassVoter extends AbstractVoter
     final public const string READ_ADMIN = 'READ_ADMIN';
 
     public static function getScopePrefix(): string
-{
-    return 'attribute-class:';
-}
+    {
+        return 'attribute-class:';
+    }
 
     protected function supports(string $attribute, $subject): bool
     {

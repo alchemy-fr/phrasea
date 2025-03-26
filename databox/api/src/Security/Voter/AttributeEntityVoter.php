@@ -10,9 +10,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class AttributeEntityVoter extends AbstractVoter
 {
     public static function getScopePrefix(): string
-{
-    return 'attribute-entity:';
-}
+    {
+        return 'attribute-entity:';
+    }
 
     protected function supports(string $attribute, $subject): bool
     {

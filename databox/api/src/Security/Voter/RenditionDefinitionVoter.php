@@ -10,10 +10,11 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class RenditionDefinitionVoter extends AbstractVoter
 {
     final public const string READ_ADMIN = 'READ_ADMIN';
+
     public static function getScopePrefix(): string
-{
-    return 'rendition-definition:';
-}
+    {
+        return 'rendition-definition:';
+    }
 
     protected function supports(string $attribute, $subject): bool
     {

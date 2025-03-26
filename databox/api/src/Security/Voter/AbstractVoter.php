@@ -68,7 +68,7 @@ abstract class AbstractVoter extends Voter
         $scopes = $applyHierarchy ? $this->getScopesFromHierarchy($scope) : [$scope];
 
         $scopePrefix ??= static::getScopePrefix();
-        $scopes = array_map(fn (string $scope): string => $scopePrefix . strtolower($scope), $scopes);
+        $scopes = array_map(fn (string $scope): string => $scopePrefix.strtolower($scope), $scopes);
 
         return !empty(array_intersect($scopes, $tokenScopes));
     }
@@ -119,6 +119,6 @@ abstract class AbstractVoter extends Voter
 
     public static function getScopePrefix(): string
     {
-        throw new \RuntimeException(sprintf('%s does not implement %s', static::class, __FUNCTION__));;
+        throw new \RuntimeException(sprintf('%s does not implement %s', static::class, __FUNCTION__));
     }
 }

@@ -13,9 +13,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class CollectionVoter extends AbstractVoter
 {
     public static function getScopePrefix(): string
-{
-    return 'collection:';
-}
+    {
+        return 'collection:';
+    }
     private array $cache = [];
 
     protected function supports(string $attribute, $subject): bool

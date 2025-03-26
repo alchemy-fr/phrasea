@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Api;
 
-use Alchemy\ApiTest\ApiTestCase as AlchemyApiTestCase;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
-use App\Entity\Core\Workspace;
 use App\Tests\AbstractSearchTestCase;
 
 class CollectionTest extends AbstractSearchTestCase

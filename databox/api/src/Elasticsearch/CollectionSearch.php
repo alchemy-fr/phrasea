@@ -53,9 +53,8 @@ class CollectionSearch extends AbstractSearch
         Query\BoolQuery $boolQuery,
         ?string $userId,
         array $groupIds,
-        array $options = []
-    ): void
-    {
+        array $options = [],
+    ): void {
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
 
         if (null !== $aclBoolQuery) {
