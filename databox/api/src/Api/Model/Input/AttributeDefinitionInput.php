@@ -95,7 +95,6 @@ class AttributeDefinitionInput
     public $fallback;
 
     /**
-     *
      * @var string[]
      */
     public $initialValues;

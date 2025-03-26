@@ -64,6 +64,32 @@ class KeycloakClientTestMock implements HttpClientInterface
         return $token->toString();
     }
 
+    public static function getClientCredentialJwt(string $scope = ''): string
+    {
+        $configuration = Configuration::forAsymmetricSigner(
+            new Sha256(),
+            InMemory::file(__DIR__.'/key.pem'),
+            InMemory::file(__DIR__.'/key.pub'),
+        );
+
+        $now = new \DateTimeImmutable();
+        $token = $configuration
+            ->builder()
+            ->issuedBy(getenv('KEYCLOAK_URL').'/realms/phrasea')
+            // Configures the time that the token was issue (iat claim)
+            ->issuedAt($now)
+            // Configures the time that the token can be used (nbf claim)
+            ->canOnlyBeUsedAfter($now->modify('+1 minute'))
+            ->withClaim('client_id', 'machine_client')
+            ->expiresAt($now->modify('+1 hour'))
+            ->withClaim('azp', 'test')
+            ->withClaim('roles', [])
+            ->withClaim('scope', $scope)
+            ->getToken(new Sha256(), InMemory::file(__DIR__.'/key.pem'));
+
+        return $token->toString();
+    }
+
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
         $args = [$method, $url, $options];

@@ -18,7 +18,7 @@ class ImportWorkspaceCommand extends Command
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly WorkspaceTemplater     $workspaceTemplater,
+        private readonly WorkspaceTemplater $workspaceTemplater,
     ) {
         parent::__construct();
     }
@@ -53,7 +53,7 @@ HELP
         /** @var Workspace $ws */
         $ws = $this->em->getRepository(Workspace::class)->findOneBy(['name' => $name]);
         if ($ws instanceof Workspace) {
-            if(!$input->getOption('force')) {
+            if (!$input->getOption('force')) {
                 throw new \InvalidArgumentException('Workspace already exists, use --force to update it.');
             }
             $ownerId = $slug = null;
@@ -67,10 +67,8 @@ HELP
 
         $stat = fstat(STDIN);
         $mode = $stat['mode'] & 0170000; // S_IFMT
-        if ($mode !== 0010000 && $mode !== 0100000) {
-            throw new \InvalidArgumentException(
-                'send template to stdin, e.g. `sf app:workspace:import new_workspace < template.json`'
-            );
+        if (0010000 !== $mode && 0100000 !== $mode) {
+            throw new \InvalidArgumentException('send template to stdin, e.g. `sf app:workspace:import new_workspace < template.json`');
         }
         $data = '';
         while ($s = fread(STDIN, 1024)) {

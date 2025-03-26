@@ -9,7 +9,10 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AttributeEntityVoter extends AbstractVoter
 {
-    final public const string SCOPE_PREFIX = 'ROLE_ATTRIBUTE-ENTITY:';
+    public static function getScopePrefix(): string
+    {
+        return 'attribute-entity:';
+    }
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -27,12 +30,13 @@ class AttributeEntityVoter extends AbstractVoter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $workspaceEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $subject->getWorkspace());
+        $workspaceReader = fn (): bool => $this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE => $workspaceEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'CREATE'),
-            self::EDIT => $workspaceEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT'),
-            self::DELETE => $workspaceEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE'),
-            self::READ => true,
+            self::CREATE => $workspaceEditor() || $this->hasScope($token, $attribute),
+            self::EDIT => $workspaceEditor() || $this->hasScope($token, $attribute),
+            self::DELETE => $workspaceEditor() || $this->hasScope($token, $attribute),
+            self::READ => $workspaceReader() || $this->hasScope($token, $attribute),
             default => false,
         };
     }

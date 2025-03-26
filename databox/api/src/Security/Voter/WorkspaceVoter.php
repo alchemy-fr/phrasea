@@ -11,7 +11,10 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class WorkspaceVoter extends AbstractVoter
 {
-    final public const string SCOPE_PREFIX = 'ROLE_WORKSPACE:';
+    public static function getScopePrefix(): string
+    {
+        return 'workspace:';
+    }
     private array $cache = [];
 
     protected function supports(string $attribute, $subject): bool
@@ -47,28 +50,27 @@ class WorkspaceVoter extends AbstractVoter
 
         return match ($attribute) {
             self::CREATE => $this->isAdmin()
-                || $this->security->isGranted(self::SCOPE_PREFIX.'CREATE'),
+                || $this->hasScope($token, $attribute),
             self::READ => $isOwner()
                 || $subject->isPublic()
-                || $this->security->isGranted(self::SCOPE_PREFIX.'READ')
+                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                 || $this->isAdmin(),
             self::EDIT => $isOwner()
-                || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
+                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
                 || $this->isAdmin(),
             self::DELETE => $isOwner()
-                || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE')
+                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
                 || $this->isAdmin(),
-            self::EDIT_PERMISSIONS => $isOwner()
+            self::EDIT_PERMISSIONS, self::OWNER => $isOwner()
+                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                 || $this->isAdmin(),
             self::OPERATOR => $isOwner()
+                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token),
-            self::OWNER => $isOwner()
-                || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
-                || $this->isAdmin(),
 
             default => false,
         };

@@ -19,7 +19,7 @@ final class JwtValidator implements JwtValidatorInterface
     private ?string $publicKey = null;
 
     public function __construct(
-        private readonly KeycloakClient $authServiceClient,
+        private readonly KeycloakClient $keycloakClient,
         private readonly KeycloakUrlGenerator $keycloakUrlGenerator,
     ) {
         $this->validator = new Validator();
@@ -46,7 +46,7 @@ final class JwtValidator implements JwtValidatorInterface
         if (null == $this->publicKey) {
             $this->publicKey = sprintf('-----BEGIN PUBLIC KEY-----
 %s
------END PUBLIC KEY-----', trim($this->authServiceClient->getJwtPublicKey()));
+-----END PUBLIC KEY-----', trim($this->keycloakClient->getJwtPublicKey()));
         }
 
         return $this->publicKey;

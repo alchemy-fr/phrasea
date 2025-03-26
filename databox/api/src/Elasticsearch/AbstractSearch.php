@@ -26,8 +26,14 @@ abstract class AbstractSearch
             return null;
         }
 
+        if (null !== $adminScope = $this->getAdminScope()) {
+            if ($this->hasScope($adminScope)) {
+                return null;
+            }
+        }
+
         $aclBoolQuery = new Query\BoolQuery();
-        $shoulds = [];
+        $should = [];
 
         $publicWorkspaceIds = $this->getPublicWorkspaceIds();
         if (null !== $userId) {
@@ -37,7 +43,7 @@ abstract class AbstractSearch
                 $publicWorkspaceBoolQuery->addMust(new Query\Range('privacy', [
                     'gte' => WorkspaceItemPrivacyInterface::PRIVATE,
                 ]));
-                $shoulds[] = $publicWorkspaceBoolQuery;
+                $should[] = $publicWorkspaceBoolQuery;
             }
 
             $allowedWorkspaceIds = $this->getAllowedWorkspaceIds($userId, $groupIds);
@@ -49,13 +55,13 @@ abstract class AbstractSearch
                     'gte' => WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
                 ]));
 
-                $shoulds[] = $workspaceBoolQuery;
+                $should[] = $workspaceBoolQuery;
             }
 
-            $shoulds[] = new Query\Term(['ownerId' => $userId]);
-            $shoulds[] = new Query\Term(['users' => $userId]);
+            $should[] = new Query\Term(['ownerId' => $userId]);
+            $should[] = new Query\Term(['users' => $userId]);
             if (!empty($groupIds)) {
-                $shoulds[] = new Query\Terms('groups', $groupIds);
+                $should[] = new Query\Terms('groups', $groupIds);
             }
         } else {
             if (!empty($publicWorkspaceIds)) {
@@ -64,12 +70,12 @@ abstract class AbstractSearch
                 $publicWorkspaceBoolQuery->addMust(new Query\Range('privacy', [
                     'gte' => WorkspaceItemPrivacyInterface::PUBLIC,
                 ]));
-                $shoulds[] = $publicWorkspaceBoolQuery;
+                $should[] = $publicWorkspaceBoolQuery;
             }
         }
 
-        if (!empty($shoulds)) {
-            foreach ($shoulds as $query) {
+        if (!empty($should)) {
+            foreach ($should as $query) {
                 $aclBoolQuery->addShould($query);
             }
         } else {
@@ -77,6 +83,11 @@ abstract class AbstractSearch
         }
 
         return $aclBoolQuery;
+    }
+
+    protected function getAdminScope(): ?string
+    {
+        return null;
     }
 
     protected function getAllowedWorkspaceIds(string $userId, array $groupIds): array

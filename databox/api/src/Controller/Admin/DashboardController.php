@@ -4,9 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
-use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntry;
-use Alchemy\NotifyBundle\Model\Notification;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;

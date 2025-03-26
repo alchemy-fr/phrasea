@@ -18,7 +18,7 @@ class ExportWorkspaceCommand extends Command
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly WorkspaceTemplater     $workspaceTemplater,
+        private readonly WorkspaceTemplater $workspaceTemplater,
     ) {
         parent::__construct();
     }

@@ -50,8 +50,7 @@ final readonly class FileManager
         ?string $extension,
         ?string $originalName,
         bool $removeSrc = true,
-    ): string
-    {
+    ): string {
         if (null === $extension) {
             $extension = FileUtil::guessExtension($type, $originalName);
         }
@@ -76,8 +75,7 @@ final readonly class FileManager
         ?string $extension = null,
         ?string $originalName = null,
         bool $removeSrc = true,
-    ): File
-    {
+    ): File {
         if (null === $extension) {
             $extension = FileUtil::guessExtension($type, $originalName ?? $src);
 
@@ -92,7 +90,6 @@ final readonly class FileManager
 
         $fileSize = filesize($src);
         $path = $this->storeFile($workspace, $src, $type, $extension, $originalName, $removeSrc);
-
 
         return $this->createFile(
             File::STORAGE_S3_MAIN,

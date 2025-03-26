@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\AuthBundle\Security\Traits;
 
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Token\JwtToken;
 use Alchemy\AuthBundle\Security\Voter\SuperAdminVoter;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -77,5 +78,15 @@ trait SecurityAwareTrait
         if (!$this->isGranted($attributes, $subject)) {
             throw new AccessDeniedException($message ?? 'Access denied.');
         }
+    }
+
+    public function hasScope(string $scope): bool
+    {
+        $token = $this->security->getToken();
+        if (!$token instanceof JwtToken) {
+            return false;
+        }
+
+        return $token->hasScope($scope);
     }
 }

@@ -7,6 +7,9 @@ namespace Alchemy\AuthBundle\Security\Voter;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+/**
+ * @deprecated User SecurityAwareTrait instead
+ */
 final class ScopeVoter extends Voter
 {
     use ScopeVoterTrait;
