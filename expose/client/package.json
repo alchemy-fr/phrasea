@@ -25,7 +25,7 @@
     "@mikecousins/react-pdf": "^5.5.1",
     "@mui/icons-material": "^5.16.14",
     "@mui/material": "^5.16.14",
-    "axios": "^1.7.9",
+    "axios": "^1.8.2",
     "bootstrap": "^4.6.2",
     "flow-bin": "^0.126.1",
     "mapbox-gl": "^1.13.3",
