@@ -79,17 +79,17 @@ export function CollectionTreeItem<IsMulti extends boolean = false>({
         [setNewCollectionPath, setExpanded, nodeId]
     );
 
+    const selectable = isSelectable ? isSelectable(collection) : true;
+
     return (
         <TreeItem
-            disabled={
-                (disabledBranches &&
-                    disabledBranches.some(b => nodeId.startsWith(b))) ||
-                (isSelectable && !isSelectable(collection))
-            }
+            disabled={disabledBranches?.some(b => nodeId.startsWith(b))}
             onClick={load}
             nodeId={nodeId}
+            className={!selectable ? 'not-selectable' : ''}
             label={
                 <Stack direction={'row'} alignItems={'center'}>
+                    {!selectable && '🚫 '}
                     {collection.title}
                     {allowNew && collection.capabilities.canEdit && (
                         <IconButton
