@@ -75,6 +75,20 @@ final readonly class CollectionDelete
             $this->em->clear();
         }
 
+        /** @var Collection $collection */
+        $collection = $this->em->find(Collection::class, $collectionId);
+        if (!$collection instanceof Collection) {
+            throw new \InvalidArgumentException(sprintf('Collection "%s" not found for deletion', $collectionId));
+        }
+
+        if($collection->isStory()) {
+            $storyAsset = $collection->getStoryAsset();
+            $storyAsset->setStoryCollection(null);
+            $this->em->remove($storyAsset);
+            $collection->setStoryAsset(null);
+            $this->em->flush();
+        }
+
         $assets = $this->em->getRepository(Asset::class)
             ->createQueryBuilder('t')
             ->select('t.id')

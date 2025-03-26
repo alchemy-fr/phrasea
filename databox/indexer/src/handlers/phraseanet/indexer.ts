@@ -24,6 +24,9 @@ import {Logger} from 'winston';
 import {DataboxClient} from '../../databox/client';
 import Yaml from 'js-yaml';
 import util from 'util';
+import p from 'path';
+import {collectionBasedOnPathStrategy} from '../../databox/strategy/collectionBasedOnPathStrategy.ts';
+import {getAlternateUrls} from '../../alternateUrl.ts';
 
 export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
     async function* (location, logger, databoxClient, options) {
@@ -157,9 +160,12 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 });
             }
 
-            const storiesCollectionPath: string =
-                dm.storiesCollectionPath ?? '';
-            let importStories = false;
+            let importStories = dm.importStories;
+
+            // create phraseanet stories as databox stories (storyAsset + hidden collections)
+            let storiesAsStories = true;
+
+            const storiesCollectionPath: string = dm.storiesCollectionPath ?? '';
             let storiesCollectionPathTwig: Twig.Template | null = null;
             if (dm.storiesCollectionPath !== undefined) {
                 if (storiesCollectionPath.search(/\{(\{|%)/) !== -1) {
@@ -167,7 +173,10 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         data: storiesCollectionPath,
                     });
                 }
-                importStories = true;
+                if(importStories !== false) {
+                    importStories = true;
+                }
+                storiesAsStories = false;
             }
 
             const sourceCollections = await getSourceCollections(
@@ -189,19 +198,29 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     stories = await phraseanetClient.searchStories(
                         searchParams,
                         offset,
+                        20,
                         ''
                     );
-                    for (const s of stories) {
-                        const path: string = storiesCollectionPathTwig
-                            ? await storiesCollectionPathTwig.renderAsync({
-                                  record: s,
-                                  collection:
-                                      phraseanetDatabox.collections[s.base_id],
-                              })
-                            : storiesCollectionPath;
+                    for (const story of stories) {
 
-                        const storyPathParts: string[] = splitPath(path);
-                        const storyPath = '/' + storyPathParts.join('/');
+                        const storyTitle = escapeSlashes((story.title ?? "story_" + story.databox_id + '_' + story.story_id).trim());
+                        var storyPath = '';
+                        var storyPathParts: string[] = [];
+
+                        if(!storiesAsStories) {
+                            storyPathParts = splitPath(
+                                storiesCollectionPathTwig
+                                    ? await storiesCollectionPathTwig.renderAsync({
+                                        record: story,
+                                        collection: phraseanetDatabox.collections[story.base_id],
+                                    })
+                                    : storiesCollectionPath
+                            );
+                            storyPath = storyPathParts.join('/');
+                        }
+                        else {
+                            storyPathParts = [];
+                        }
 
                         // create the base
                         let storyParent: string | undefined = undefined;
@@ -214,48 +233,84 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                     storyPathParts.map(k => ({
                                         key: k,
                                         title: k,
-                                    }))
-                                ));
+                                    })),
+                        ));
                         }
                         // then create the story collection
                         const storyCollId =
                             await databoxClient.createCollection(
-                                s.resource_id,
+                                story.resource_id,
                                 {
                                     workspaceId: workspaceId,
                                     key:
                                         idempotencePrefixes['collection'] +
-                                        s.databox_id +
+                                        story.databox_id +
                                         '_' +
-                                        s.story_id,
-                                    title: s.title,
+                                        story.story_id,
+                                    title: storiesAsStories ? undefined : storyTitle,
                                     parent: storyParent,
                                 }
                             );
 
                         logger.info(
-                            `  Phraseanet story "${s.title}" (#${
-                                s.story_id
+                            `  Phraseanet story "${story.title}" (#${
+                                story.story_id
                             }) from base "${
-                                phraseanetDatabox.collections[s.base_id].name
-                            }" (#${s.base_id}) ==> collection (#${storyCollId})`
+                                phraseanetDatabox.collections[story.base_id].name
+                            }" (#${story.base_id}) ==> collection (#${storyCollId})`
                         );
 
+                        if(storiesAsStories) {
+                            logger.info(`creating story asset for story "${storyTitle}"`);
+
+                            let path: string = '';
+                            if (recordsCollectionPathTwig !== null) {
+                                path = await recordsCollectionPathTwig.renderAsync({
+                                    record: story,
+                                    collection:
+                                        phraseanetDatabox.collections[story.base_id],
+                                });
+                            } else {
+                                // bc: dispatch in original phraseanet collection.name
+                                path = `${recordsCollectionPath}/${escapeSlashes(phraseanetDatabox.collections[story.base_id].name)}`;
+                            }
+                            path += '/' + escapeSlashes(story.title);
+
+                            yield createAsset(
+                                workspaceId,
+                                importFiles,
+                                story,
+                                path,
+                                collectionKeyPrefix,
+                                idempotencePrefixes['asset'] +
+                                    story.databox_id +
+                                    '_' +
+                                    story.story_id,
+                                '/collections/' + storyCollId,
+                                fieldMap,
+                                tagIndex,
+                                [],
+                                dm.sourceFile,
+                                subdefToRendition,
+                                logger
+                            );
+                        }
+
                         for await (const child_rid of phraseanetClient.getStoryChildren(
-                            s.databox_id,
-                            s.story_id
+                            story.databox_id,
+                            story.story_id
                         )) {
                             if (recordStories[child_rid] === undefined) {
                                 recordStories[child_rid] = [];
                             }
                             recordStories[child_rid].push({
                                 id: storyCollId,
-                                path: storyPath + '/' + s.title,
+                                path: storyPath + '/' + story.title,
                             });
                         }
                     }
                     offset += stories.length;
-                } while (stories.length > 0);
+                } while (stories.length == 20);
             }
 
             logger.info(`Importing records`);
@@ -265,6 +320,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 records = await phraseanetClient.searchRecords(
                     searchParams,
                     offset,
+                    50,
                     dm.searchQuery ?? ''
                 );
                 for (const record of records) {
@@ -335,6 +391,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                             record.databox_id +
                             '_' +
                             record.record_id,
+                        null,
                         fieldMap,
                         tagIndex,
                         copyTo,
@@ -344,7 +401,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     );
                 }
                 offset += records.length;
-            } while (records.length > 0);
+            } while (records.length == 50);
         }
     };
 
