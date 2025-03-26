@@ -6,7 +6,7 @@ import {Grid} from '@mui/material';
 import {FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import {DisplayedPermissions, OnPermissionDelete} from './permissions';
-import PermissionTable from './PermissionTable';
+import PermissionTable, {PermissionHelpers} from './PermissionTable';
 
 type Props = {
     displayedPermissions?: DisplayedPermissions;
@@ -21,14 +21,15 @@ type Props = {
         userId: string | null
     ) => Promise<void>;
     onListChanged?: (permissions: Ace[]) => void;
+    permissionHelper?: PermissionHelpers;
 };
 
 export default function PermissionList({
-    displayedPermissions,
     loadPermissions,
     updatePermission,
     deletePermission,
     onListChanged,
+    ...rest
 }: Props) {
     const [permissions, setPermissions] = React.useState<Ace[]>();
     const {t} = useTranslation();
@@ -150,8 +151,8 @@ export default function PermissionList({
                 </Grid>
             </Grid>
             <PermissionTable
+                {...rest}
                 permissions={permissions}
-                displayedPermissions={displayedPermissions}
                 onMaskChange={updatePermission}
                 onDelete={onDelete}
             />

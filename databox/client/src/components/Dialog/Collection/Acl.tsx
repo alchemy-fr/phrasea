@@ -3,12 +3,15 @@ import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import AclForm from '../../Acl/AclForm';
 import ContentTab from '../Tabbed/ContentTab';
 import {PermissionObject} from '../../Permissions/permissions';
+import {AclPermission} from "../../Acl/acl.ts";
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     data: Collection;
 } & DialogTabProps;
 
 export default function Acl({data, onClose, minHeight}: Props) {
+    const {t} = useTranslation();
     return (
         <ContentTab
             onClose={onClose}
@@ -18,6 +21,14 @@ export default function Acl({data, onClose, minHeight}: Props) {
             <AclForm
                 objectId={data.id}
                 objectType={PermissionObject.Collection}
+                permissionHelper={{
+                    [AclPermission.EDIT]: {
+                        label: t('acl.permission.manage_collection', 'Manage'),
+                    },
+                    [AclPermission.OPERATOR]: {
+                        label: AclPermission.EDIT,
+                    },
+                }}
             />
         </ContentTab>
     );
