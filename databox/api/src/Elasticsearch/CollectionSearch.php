@@ -6,6 +6,8 @@ namespace App\Elasticsearch;
 
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\CollectionVoter;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use Pagerfanta\Pagerfanta;
@@ -51,7 +53,8 @@ class CollectionSearch extends AbstractSearch
         Query\BoolQuery $boolQuery,
         ?string $userId,
         array $groupIds,
-        array $options = []): void
+        array $options = []
+    ): void
     {
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
 
@@ -123,5 +126,10 @@ class CollectionSearch extends AbstractSearch
     private function findCollections(array $ids): array
     {
         return $this->findEntityByIds(Collection::class, $ids);
+    }
+
+    protected function getAdminScope(): ?string
+    {
+        return CollectionVoter::getScopePrefix().AbstractVoter::LIST;
     }
 }

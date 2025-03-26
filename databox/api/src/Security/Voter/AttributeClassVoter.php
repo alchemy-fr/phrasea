@@ -11,7 +11,10 @@ class AttributeClassVoter extends AbstractVoter
 {
     final public const string READ_ADMIN = 'READ_ADMIN';
 
-    final public const string SCOPE_PREFIX = 'ROLE_ATTRIBUTE-CLASS:';
+    public static function getScopePrefix(): string
+{
+    return 'attribute-class:';
+}
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -29,13 +32,12 @@ class AttributeClassVoter extends AbstractVoter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $workspaceEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $subject->getWorkspace());
+        $workspaceReader = fn (): bool => $this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE => $workspaceEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'CREATE'),
-            self::EDIT => $workspaceEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT'),
-            self::DELETE => $workspaceEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE'),
-            self::READ_ADMIN => $workspaceEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'READ'),
-            self::READ => true,
+            self::CREATE, self::EDIT, self::DELETE => $workspaceEditor() || $this->hasScope($token, $attribute),
+            self::READ_ADMIN => $workspaceEditor() || $this->hasScope($token, 'read'),
+            self::READ => $workspaceReader() || $this->hasScope($token, $attribute),
             default => false,
         };
     }

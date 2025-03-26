@@ -101,6 +101,7 @@ services:
       - XDEBUG_SESSION
       - XDEBUG_CLIENT_HOST=${PS_GATEWAY_IP}
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}databox
+      - PHP_MEMORY_LIMIT=${DEV_PHP_MEMORY_LIMIT}
     volumes:
       - ./databox/api:/srv/app
       - ./lib/php:/lib/php

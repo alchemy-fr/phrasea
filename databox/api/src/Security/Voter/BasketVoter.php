@@ -11,7 +11,10 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class BasketVoter extends AbstractVoter
 {
-    final public const string SCOPE_PREFIX = 'ROLE_BASKET:';
+    public static function getScopePrefix(): string
+{
+    return 'basket:';
+}
     final public const string SHARE = 'SHARE';
 
     protected function supports(string $attribute, $subject): bool
@@ -36,19 +39,19 @@ class BasketVoter extends AbstractVoter
         return match ($attribute) {
             self::CREATE => $this->isAuthenticated(),
             self::READ => $isOwner()
-                || $this->security->isGranted(self::SCOPE_PREFIX.'READ')
+                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
             self::EDIT => $isOwner()
-                || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
+                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             self::SHARE => $isOwner()
-                || $this->security->isGranted(self::SCOPE_PREFIX.'SHARE')
+                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::SHARE, $subject, $token),
             self::DELETE => $isOwner()
-                || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE')
+                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
             self::EDIT_PERMISSIONS => $isOwner()
-                || $this->security->isGranted(self::SCOPE_PREFIX.'OWNER')
+                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
             default => false,
         };
