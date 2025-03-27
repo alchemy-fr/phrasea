@@ -66,9 +66,14 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
     );
 
     const handleSelect = (
-        _event: React.ChangeEvent<{}>,
+        event: React.ChangeEvent<{}>,
         nodeIds: IsMulti extends true ? string[] : string
     ) => {
+        if ((event.target as HTMLElement).closest('.MuiTreeItem-root')?.classList.contains('not-selectable')) {
+            event.preventDefault();
+            return;
+        }
+
         if (disabled) {
             return;
         }
@@ -142,6 +147,9 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
     return (
         <TreeView
             sx={theme => ({
+                '.not-selectable > .MuiTreeItem-content .MuiTreeItem-label': {
+                    opacity: 0.7,
+                },
                 'flexGrow': 1,
                 '.MuiTreeItem-content': {
                     borderRadius: theme.shape.borderRadius,

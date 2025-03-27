@@ -9,7 +9,10 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class WorkspaceIntegrationVoter extends AbstractVoter
 {
-    final public const string SCOPE_PREFIX = 'ROLE_INTEGRATION:';
+    public static function getScopePrefix(): string
+    {
+        return 'integration:';
+    }
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -26,13 +29,12 @@ class WorkspaceIntegrationVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        $workspaceEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $subject->getWorkspace());
+        $workspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace());
+        $workspaceReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE => $workspaceEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'CREATE'),
-            self::EDIT => $workspaceEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT'),
-            self::DELETE => $workspaceEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE'),
-            self::READ => true,
+            self::CREATE, self::DELETE, self::EDIT => $workspaceEditor() || $this->hasScope($token, $attribute),
+            self::READ => $workspaceReader(),
             default => false,
         };
     }

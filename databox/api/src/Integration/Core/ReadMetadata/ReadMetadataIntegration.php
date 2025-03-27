@@ -17,7 +17,7 @@ class ReadMetadataIntegration extends AbstractIntegration implements WorkflowInt
 {
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
-        if(!$workflow->getOn()->hasEventName(AssetIngestWorkflowEvent::EVENT)) {
+        if (!$workflow->getOn()->hasEventName(AssetIngestWorkflowEvent::EVENT)) {
             return [];
         }
 

@@ -34,6 +34,6 @@ class JwtToken extends AbstractToken
 
     public function hasScope(string $scope): bool
     {
-        return in_array($scope, $this->scopes);
+        return in_array(strtolower($scope), $this->scopes);
     }
 }

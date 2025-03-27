@@ -12,10 +12,17 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssetVoter extends AbstractVoter
 {
-    final public const string SCOPE_PREFIX = 'ROLE_ASSET:';
     final public const string EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
     final public const string EDIT_RENDITIONS = 'EDIT_RENDITIONS';
     final public const string SHARE = 'SHARE';
+
+    protected function getScopeHierarchy(): array
+    {
+        return array_merge(parent::getScopeHierarchy(), [
+            self::EDIT_ATTRIBUTES => [self::EDIT],
+            self::EDIT_RENDITIONS => [self::OWNER],
+        ]);
+    }
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -45,9 +52,9 @@ class AssetVoter extends AbstractVoter
                 return $this->security->isGranted(AbstractVoter::EDIT, $subject->getWorkspace());
             case self::READ:
                 return $isOwner()
-                    || $this->security->isGranted(self::SCOPE_PREFIX.'READ')
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
+                    || $this->hasScope($token, $attribute)
                     || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
                     || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                     || $this->collectionGrantsAccess($subject)
@@ -55,27 +62,27 @@ class AssetVoter extends AbstractVoter
             case self::EDIT_RENDITIONS:
             case self::EDIT:
                 return $isOwner()
-                    || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
+                    || $this->hasScope($token, $attribute)
                     || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
                     || $this->voteOnContainer($subject, AbstractVoter::OPERATOR);
             case self::EDIT_ATTRIBUTES:
                 return $isOwner()
-                    || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
+                    || $this->hasScope($token, $attribute)
                     || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
                     || $this->voteOnContainer($subject, AbstractVoter::EDIT);
             case self::SHARE:
                 return $isOwner()
-                    || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
+                    || $this->hasScope($token, $attribute)
                     || $this->hasAcl(PermissionInterface::SHARE, $subject, $token)
                     || $this->voteOnContainer($subject, AbstractVoter::EDIT);
             case self::DELETE:
                 return $isOwner()
-                    || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE')
+                    || $this->hasScope($token, $attribute)
                     || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
                     || $this->voteOnContainer($subject, AbstractVoter::DELETE);
             case self::EDIT_PERMISSIONS:
                 return $isOwner()
-                    || $this->security->isGranted(self::SCOPE_PREFIX.'OWNER')
+                    || $this->hasScope($token, $attribute)
                     || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                     || $this->voteOnContainer($subject, AbstractVoter::OWNER);
         }
@@ -101,5 +108,10 @@ class AssetVoter extends AbstractVoter
         }
 
         return false;
+    }
+
+    public static function getScopePrefix(): string
+    {
+        return 'asset:';
     }
 }

@@ -61,11 +61,19 @@
         },
         {
             "name": "alchemy/admin-bundle",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
                 "reference": "5bfeebb1f366d344263d808daf6d195e399ec36e"
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+            "dist": {
+                "type": "path",
+                "url": "../../lib/php/admin-bundle",
+                "reference": "4c86cdb6b39c5422c357da8f83ab327c8bded305"
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             },
             "require": {
                 "alchemy/auth-bundle": "@dev",
@@ -119,7 +127,11 @@
         },
         {
             "name": "alchemy/auth-bundle",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -176,7 +188,11 @@
         },
         {
             "name": "alchemy/configurator-bundle",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -229,7 +245,11 @@
         },
         {
             "name": "alchemy/core-bundle",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -290,7 +310,11 @@
         },
         {
             "name": "alchemy/es-bundle",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -346,7 +370,11 @@
         },
         {
             "name": "alchemy/messenger-bundle",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -399,7 +427,11 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -454,7 +486,11 @@
         },
         {
             "name": "alchemy/notify-bundle",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
@@ -578,7 +614,11 @@
         },
         {
             "name": "alchemy/rendition-factory",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
@@ -641,7 +681,11 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -695,7 +739,11 @@
         },
         {
             "name": "alchemy/storage-bundle",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -750,7 +798,11 @@
         },
         {
             "name": "alchemy/test-bundle",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -802,17 +854,21 @@
         },
         {
             "name": "alchemy/webhook-bundle",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
-                "reference": "9a19c4fa453eb29296a58996960d1a05d4e89ae5"
+                "reference": "0ac3fc16c43aa0698193a0efa119b708ee64ed10"
             },
             "require": {
-                "guzzlehttp/guzzle": "^7.2",
                 "php": "^8.3",
                 "ramsey/uuid-doctrine": "^1.5",
                 "symfony/framework-bundle": "^6",
+                "symfony/http-client": "^6",
                 "symfony/messenger": "^6"
             },
             "require-dev": {
@@ -859,7 +915,11 @@
         },
         {
             "name": "alchemy/workflow",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -924,7 +984,11 @@
         },
         {
             "name": "alchemy/workflow-bundle",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -15245,7 +15309,11 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
+<<<<<<< HEAD
             "version": "dev-PS-820-admin-Q-message-count",
+=======
+            "version": "dev-PS-787-remove-guzzlehttp",
+>>>>>>> 7139f75378450bff572830da43f4cae641112e14
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",

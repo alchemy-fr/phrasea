@@ -9,20 +9,30 @@ import {AclPermission, aclPermissions} from '../Acl/acl';
 import {Box} from '@mui/material';
 import PermissionRow from './PermissionRow';
 import type {TFunction} from '@alchemy/i18n';
-
 import PermissionRowSkeleton from './PermissionRowSkeleton';
+
+export type PermissionHelpers = {
+    [perm: string]: {
+        label?: string;
+        description?: string;
+    }
+};
+
+type Props = {
+    permissions: Ace[] | undefined;
+    onMaskChange: OnMaskChange;
+    onDelete: OnPermissionDelete;
+    displayedPermissions?: DisplayedPermissions;
+    permissionHelper?: PermissionHelpers;
+};
 
 export default function PermissionTable({
     permissions,
     onMaskChange,
     onDelete,
     displayedPermissions,
-}: {
-    permissions: Ace[] | undefined;
-    onMaskChange: OnMaskChange;
-    onDelete: OnPermissionDelete;
-    displayedPermissions?: DisplayedPermissions;
-}) {
+    permissionHelper,
+}: Props) {
     const {t} = useTranslation();
 
     const columns = displayedPermissions
@@ -90,7 +100,7 @@ export default function PermissionTable({
                     {allColumns.map(k => {
                         return (
                             <th key={k} className={'p'}>
-                                <span>{k}</span>
+                                <span>{permissionHelper?.[k]?.label ?? k}</span>
                             </th>
                         );
                     })}

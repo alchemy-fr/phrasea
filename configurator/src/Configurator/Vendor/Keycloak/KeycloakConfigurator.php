@@ -170,9 +170,12 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 'super-admin',
             ], ...array_map(fn (string $ns): array => array_map(fn (string $p): string => $ns.':'.$p, [
                 'create',
+                'list',
                 'read',
                 'edit',
                 'delete',
+                'operator',
+                'owner',
             ]), [
                 'asset',
                 'collection',

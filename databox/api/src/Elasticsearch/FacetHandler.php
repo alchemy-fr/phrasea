@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Attribute\AttributeTypeRegistry;
-use App\Attribute\Type\DateTimeAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Facet\FacetRegistry;
 use Elastica\Aggregation\Missing;

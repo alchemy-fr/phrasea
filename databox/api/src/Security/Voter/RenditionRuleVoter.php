@@ -12,7 +12,10 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class RenditionRuleVoter extends AbstractVoter
 {
-    final public const string SCOPE_PREFIX = 'ROLE_RENDITION-RULE:';
+    public static function getScopePrefix(): string
+    {
+        return 'rendition-rule:';
+    }
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -34,12 +37,11 @@ class RenditionRuleVoter extends AbstractVoter
             RenditionRule::TYPE_COLLECTION => DoctrineUtil::findStrict($this->em, Collection::class, $subject->getObjectId()),
         };
         $objectEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $object);
+        $objectReader = fn (): bool => $this->security->isGranted(AbstractVoter::READ, $object);
 
         return match ($attribute) {
-            self::CREATE => $objectEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'CREATE'),
-            self::EDIT => $objectEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT'),
-            self::DELETE => $objectEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE'),
-            self::READ => true,
+            self::CREATE, self::DELETE, self::EDIT => $objectEditor() || $this->hasScope($token, $attribute),
+            self::READ => $objectReader(),
             default => false,
         };
     }
