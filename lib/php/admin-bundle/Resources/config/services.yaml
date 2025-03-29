@@ -13,6 +13,11 @@ services:
     resource: '../../Controller/*.php'
     tags: [ 'controller.service_arguments' ]
 
+  Alchemy\AdminBundle\Controller\QueuesListController: 
+    arguments:
+      $queueConfig: '%alchemy_admin.worker_queue%'
+      $rabbitConfig: '%alchemy_admin.worker_rabbit%' 
+
   Alchemy\AdminBundle\Twig\AdminExtension:
     tags:
       - { name: twig.extension }
