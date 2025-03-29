@@ -12,46 +12,39 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class QueuesListController extends AbstractController
 {
-    public function __construct()
+    public function __construct(private array $queueConfig, private array $rabbitConfig)
     {
     }
 
     #[Route(path: '/admin/queues/list', name: 'queues_list')]
     public function __invoke(): Response
-    {
-        // TODO retrieve dynamically the queues
-        $Q = [
-            'databox' => ['p1', 'p2'],
-            'expose'  => ['p1'],
-            'uploader'=> ['p1', 'p2', 'p3']
-        ];
-
+    {     
         $isSsl = in_array(strtolower(getenv('RABBITMQ_SSL') ?: ''), [
             '1', 'y', 'true', 'on',
         ], true);
 
         if ($isSsl) {
             $connection = new AMQPSSLConnection(
-                getenv('RABBITMQ_HOST'),
-                getenv('RABBITMQ_PORT'),
-                getenv('RABBITMQ_USER'),
-                getenv('RABBITMQ_PASSWORD'),
-                getenv('RABBITMQ_VHOST')
+                $this->rabbitConfig['host'],
+                $this->rabbitConfig['port'],
+                $this->rabbitConfig['user'],
+                $this->rabbitConfig['password'],
+                $this->rabbitConfig['vhost']
             );
         } else {
             $connection = new AMQPStreamConnection(
-                getenv('RABBITMQ_HOST'),
-                getenv('RABBITMQ_PORT'),
-                getenv('RABBITMQ_USER'),
-                getenv('RABBITMQ_PASSWORD'),
-                getenv('RABBITMQ_VHOST')
+                $this->rabbitConfig['host'],
+                $this->rabbitConfig['port'],
+                $this->rabbitConfig['user'],
+                $this->rabbitConfig['password'],
+                $this->rabbitConfig['vhost'],
             );
         }
 
         $channel = $connection->channel();
         $queuesStatus = [];
         
-        foreach ($Q[getenv('RABBITMQ_VHOST')] as $queueName) {
+        foreach ($this->queueConfig as $queueName) {
             list($queueName, $messageCount, $consumerCount) = $channel->queue_declare($queueName, true);
             $queuesStatus[$queueName] = [
                 'queueName'     => $queueName,
