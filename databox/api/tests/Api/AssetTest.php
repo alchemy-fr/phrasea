@@ -47,6 +47,40 @@ class AssetTest extends AbstractSearchTestCase
         $this->assertMatchesResourceCollectionJsonSchema(Asset::class);
     }
 
+    public function testGetAssetCollectionWithClientScope(): void
+    {
+        $limit = 10;
+        self::enableFixtures();
+        $response = static::createClient()->request('GET', '/assets?limit='.$limit, [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getClientCredentialJwt('asset:list asset:read'),
+            ],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertJsonContains([
+            '@context' => '/contexts/asset',
+            '@id' => '/assets',
+            '@type' => 'hydra:Collection',
+            'hydra:totalItems' => 62,
+            'hydra:view' => [
+                '@id' => '/assets?limit='.$limit.'&page=1',
+                '@type' => 'hydra:PartialCollectionView',
+                'hydra:first' => '/assets?limit='.$limit.'&page=1',
+                'hydra:last' => '/assets?limit='.$limit.'&page=7',
+                'hydra:next' => '/assets?limit='.$limit.'&page=2',
+            ],
+        ]);
+
+        // Because test fixtures are automatically loaded between each test, you can assert on them
+        $this->assertCount($limit, $response->toArray()['hydra:member']);
+
+        // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
+        // This generated JSON Schema is also used in the OpenAPI spec!
+        $this->assertMatchesResourceCollectionJsonSchema(Asset::class);
+    }
+
     public function testCreateAssetAndCopyByRef(): void
     {
         self::enableFixtures();
