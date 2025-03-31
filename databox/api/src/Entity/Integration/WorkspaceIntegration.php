@@ -9,6 +9,7 @@ use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -23,6 +24,7 @@ use App\Entity\Traits\ErrorDisableInterface;
 use App\Entity\Traits\ErrorDisableTrait;
 use App\Entity\Traits\NullableWorkspaceTrait;
 use App\Integration\Exception\CircularReferenceException;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -86,6 +88,7 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private bool $enabled = true;
 
+    #[ApiProperty(security: 'is_granted("'.AbstractVoter::EDIT.'", object.workspace)')]
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $config = [];
 

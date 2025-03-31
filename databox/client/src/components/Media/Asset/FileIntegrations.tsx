@@ -110,6 +110,7 @@ export default function FileIntegrations({
             {
                 objectType: ObjectType.File,
                 objectId: file.id,
+                enabled: true,
             }
         ).then(r => setIntegrations(r.result));
     }, [file.id]);

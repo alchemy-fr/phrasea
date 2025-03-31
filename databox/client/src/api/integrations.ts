@@ -84,7 +84,7 @@ export async function getWorkspaceIntegrations(
 ): Promise<WorkspaceIntegration[]> {
     const res = await apiClient.get(integrationNS, {
         params: {
-            workspaceId,
+            workspace: workspaceId,
             limit: 100,
         },
     });
