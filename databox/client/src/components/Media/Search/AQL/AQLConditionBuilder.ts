@@ -1,5 +1,6 @@
 import {AQLAndOrExpression, AQLCondition, AQLLiteral, AQLOperand, AQLQueryAST} from "./aqlTypes.ts";
 import {isAQLField, resolveAQLValue, ScalarValue} from "./query.ts";
+import {hasProp} from "../../../../lib/utils.ts";
 
 type Props = {
     field: string;
@@ -63,10 +64,6 @@ export class AQLConditionBuilder {
     public static fromQuery(field: string, query: AQLQueryAST | undefined) {
         let values: ScalarValue[] | undefined = undefined;
         let includeMissing: boolean = false;
-
-        function hasProp<T>(object: any, key: string): object is T {
-            return typeof object === 'object' && Object.prototype.hasOwnProperty.call(object, key);
-        }
 
         function resolveValue(value: AQLOperand): ScalarValue {
             return resolveAQLValue(value, true);
