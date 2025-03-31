@@ -1,4 +1,4 @@
-import React, {CSSProperties, FocusEventHandler} from 'react';
+import React, {CSSProperties, FocusEventHandler, useRef} from 'react';
 import {
     DataFunc,
     Mention,
@@ -9,6 +9,7 @@ import {
     SuggestionDataItem,
 } from 'react-mentions';
 import {getUsers} from '../../api/user.ts';
+import {isErrorOfCode} from '@alchemy/api';
 
 export type BaseMessageInputProps = {
     disabled?: boolean;
@@ -29,15 +30,19 @@ export default function MentionTextarea({
     preloadedUsers,
     ...mentionProps
 }: Props) {
+    const userApiUnauthorized = useRef(false);
     const userLoader: DataFunc = async (query, callback) => {
-        if (!query) {
+        if (!query || userApiUnauthorized.current) {
             callback(preloadedUsers || []);
             return;
         }
 
+        const handledErrorStatuses = [401, 403];
         try {
             const users = await getUsers({
                 query,
+            }, {
+                handledErrorStatuses,
             });
             callback(
                 users.map(u => ({
@@ -46,6 +51,9 @@ export default function MentionTextarea({
                 })) as SuggestionDataItem[]
             );
         } catch (e) {
+            if (isErrorOfCode(e, handledErrorStatuses)) {
+                userApiUnauthorized.current = true;
+            }
             console.error(e);
             callback([]);
             return;
