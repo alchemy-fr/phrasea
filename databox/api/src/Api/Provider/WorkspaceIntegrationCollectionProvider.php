@@ -27,11 +27,17 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
             ->createQueryBuilder('t')
         ;
 
+        if (null !== ($filters['enabled'] ?? null)) {
+            $queryBuilder
+                ->andWhere('t.enabled = :enabled')
+                ->setParameter('enabled', $filters['enabled']);
+        }
+
         if ($filters['workspace'] ?? false) {
             $workspaceId = str_replace('/workspaces/', '', $filters['workspace']);
             $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $workspaceId);
 
-            $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $workspace);
+            $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace);
 
             $queryBuilder
                 ->andWhere('t.workspace = :ws')
