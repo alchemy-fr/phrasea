@@ -24,7 +24,7 @@ export type AssetInput = {
     tags?: TagInput[];
     renditions?: RenditionInput[];
     generateRenditions?: boolean;
-    storyCollection?: string;
+    isStory?: boolean;
 };
 
 export type AssetCopyInput = {
@@ -101,3 +101,12 @@ export type AttributeClass = {
     public: boolean;
     workspace: string;
 };
+
+export type CollectionOutput = {
+    id: string;
+}
+
+export type AssetOutput = {
+    id: string;
+    storyCollection?: CollectionOutput;
+}

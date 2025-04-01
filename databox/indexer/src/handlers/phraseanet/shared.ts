@@ -23,7 +23,7 @@ export async function createAsset(
     path: string,
     collectionKeyPrefix: string,
     key: string,
-    storyCollection: string | null,
+    isStory: boolean,
     fieldMap: Map<string, FieldMap>,
     tagIndex: TagIndex,
     shortcutIntoCollections: {id: string; path: string}[],
@@ -133,7 +133,7 @@ export async function createAsset(
         generateRenditions: false,
         renditions: renditions,
         shortcutIntoCollections: shortcutIntoCollections,
-        storyCollection: storyCollection ?? undefined,
+        isStory: isStory,
     };
 }
 

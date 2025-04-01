@@ -15,45 +15,13 @@ class StoryTest extends AbstractSearchTestCase
     {
         self::enableFixtures();
 
-        $adminAuthorization = 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID);
-
         $client = static::createClient();
         $collectionId = "";
         $assetId = "";
-        $this->createStory($client,$collectionId, $assetId);
 
-        $response = $client->request('GET', '/collections/' . urlencode($collectionId), [
-            'headers' => [
-                'Authorization' => $adminAuthorization,
-            ],
-        ]);
-        $this->assertResponseStatusCodeSame(200);
-        $this->assertJsonContains([
-            '@type' => 'collection',
-            'storyAsset' => [
-                '@type' => 'asset',
-                'id' => $assetId,
-            ],
-        ]);
-        // a storyCollection has (null) title
-        // because apiPlatform is set to skip null values, we check it's not there
-        $this->assertArrayNotHasKey('title', $response->toArray());
+        $this->createStory($client, $assetId,$collectionId);
 
-        $response = $client->request('GET', '/assets/' . urlencode($assetId), [
-            'headers' => [
-                'Authorization' => $adminAuthorization,
-            ],
-        ]);
-        $this->assertResponseStatusCodeSame(200);
-        $this->assertJsonContains([
-            '@type' => 'asset',
-            'title' => 'Dummy story-asset',
-            'storyCollection' => [
-                '@type' => 'collection',
-                'id' => $collectionId,
-            ],
-        ]);
-        $this->assertArrayNotHasKey('title', $response->toArray()['storyCollection']);
+        $this->checkRelation($client, $assetId, $collectionId);
     }
 
     public function testRemoveStoryByCollection(): void
@@ -65,7 +33,7 @@ class StoryTest extends AbstractSearchTestCase
         $client = static::createClient();
         $collectionId = "";
         $assetId = "";
-        $this->createStory($client,$collectionId, $assetId);
+        $this->createStory($client, $assetId,$collectionId);
 
         $client->request('DELETE', '/collections/' . urlencode($collectionId), [
             'headers' => [
@@ -98,7 +66,7 @@ class StoryTest extends AbstractSearchTestCase
         $client = static::createClient();
         $collectionId = "";
         $assetId = "";
-        $this->createStory($client,$collectionId, $assetId);
+        $this->createStory($client, $assetId,$collectionId);
 
         $client->request('DELETE', '/assets/' . urlencode($assetId), [
             'headers' => [
@@ -122,8 +90,10 @@ class StoryTest extends AbstractSearchTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-    private function createStory(Client $client, string &$collectionId, string &$assetId): void
+    public function testCreateStoryManualLink(): void
     {
+        $client = static::createClient();
+
         $response = $client->request('POST', '/collections', [
             'headers' => [
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
@@ -155,5 +125,69 @@ class StoryTest extends AbstractSearchTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
         $assetId = $response->toArray()['id'];
+
+        $this->checkRelation($client, $assetId, $collectionId);
+    }
+
+    private function createStory(Client $client, string &$assetId, string &$collectionId): void
+    {
+        $response = $client->request('POST', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'json' => [
+                'title' => 'Dummy story-asset',
+                'workspace' => $this->findIriBy(Workspace::class, [
+                    'slug' => 'test-workspace',
+                ]),
+                'isStory' => true,
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $data = $response->toArray();
+        $this->assertArrayHasKey('storyCollection', $data);
+        $this->assertIsArray($data['storyCollection']);
+        // dump($response->toArray());
+
+        $assetId = $data['id'];
+        $collectionId = $data['storyCollection']['id'];
+    }
+
+    private function checkRelation(Client $client, string $assetId, string $collectionId): void
+    {
+        $adminAuthorization = 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID);
+        $response = $client->request('GET', '/collections/' . urlencode($collectionId), [
+            'headers' => [
+                'Authorization' => $adminAuthorization,
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            '@type' => 'collection',
+            'storyAsset' => [
+                '@type' => 'asset',
+                'id' => $assetId,
+            ],
+        ]);
+        // a storyCollection has (null) title
+        // because apiPlatform is set to skip null values, we check it's not there
+        $this->assertArrayNotHasKey('title', $response->toArray());
+
+        $response = $client->request('GET', '/assets/' . urlencode($assetId), [
+            'headers' => [
+                'Authorization' => $adminAuthorization,
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            '@type' => 'asset',
+            'title' => 'Dummy story-asset',
+            'storyCollection' => [
+                '@type' => 'collection',
+                'id' => $collectionId,
+            ],
+        ]);
+        $this->assertArrayNotHasKey('title', $response->toArray()['storyCollection']);
     }
 }

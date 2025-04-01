@@ -22,7 +22,7 @@ export type Asset = {
     tags?: TagInput[];
     renditions?: RenditionInput[];
     shortcutIntoCollections?: {id: string; path: string}[];
-    storyCollection?: string;
+    isStory: boolean;
 };
 
 export type IndexIterator<T extends Record<string, any> = any> = (

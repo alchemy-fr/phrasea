@@ -1,7 +1,7 @@
 import {AxiosInstance} from 'axios';
 import {
     AssetCopyInput,
-    AssetInput,
+    AssetInput, AssetOutput,
     AttributeClass,
     AttributeDefinition,
     CollectionInput,
@@ -111,7 +111,7 @@ export class DataboxClient {
         this.logger = logger;
     }
 
-    async createAsset(data: AssetInput): Promise<string> {
+    async createAsset(data: AssetInput): Promise<AssetOutput> {
         if (data.workspaceId) {
             data.workspace = `/workspaces/${data.workspaceId}`;
             delete data.workspaceId;
@@ -131,7 +131,7 @@ export class DataboxClient {
             ...data,
         });
 
-        return a.data.id;
+        return a.data;
     }
 
     async copyAsset(data: AssetCopyInput): Promise<void> {

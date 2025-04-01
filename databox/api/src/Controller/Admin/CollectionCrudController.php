@@ -34,12 +34,12 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         return Collection::class;
     }
 
-    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
-    {
-        return parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters)
-            ->leftJoin('entity.storyAsset', 'asset')
-            ->andWhere('asset.id IS NULL');
-    }
+//    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
+//    {
+//        return parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters)
+//            ->leftJoin('entity.storyAsset', 'asset')
+//            ->andWhere('asset.id IS NULL');
+//    }
 
     public function configureCrud(Crud $crud): Crud
     {
@@ -65,6 +65,8 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         yield IdField::new();
         yield TextField::new('title');
         yield AssociationField::new('parent');
+        yield AssociationField::new('storyAsset')
+            ->hideOnForm();
         yield AssociationField::new('workspace');
         yield $this->privacyField->create('privacy');
         yield TextField::new('ownerId')
