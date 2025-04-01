@@ -14,6 +14,7 @@ use App\Integration\IntegrationContext;
 use App\Integration\UserActionsIntegrationInterface;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
+use App\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -106,6 +107,10 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
 
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
+        if(!$workflow->getOn()->hasEventName(AssetIngestWorkflowEvent::EVENT)) {
+            return [];
+        }
+
         foreach (self::CATEGORIES as $category => $action) {
             if ($config[$category]['enabled'] && $config[$category]['processIncoming']) {
                 yield WorkflowHelper::createIntegrationJob(
