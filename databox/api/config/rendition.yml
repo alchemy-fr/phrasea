@@ -1,0 +1,29 @@
+# rendition: thumbnail
+image:
+    normalization: ~
+    transformations:
+        -
+            description: reduce the image size
+            module: ThumbnailImage
+            options:
+                mime_type: image/jpeg
+                quality: 80
+                width: 223
+                height: 223
+                mode: inset
+
+document:
+    normalization: ~
+    transformations:
+        -
+            description: document to pdf
+            module: document_to_pdf
+        - 
+            description: pdf to image
+            module: pdf_to_image
+            options:
+                extension: png    
+                resolution: 300  # resolution in dpi
+                quality: 100     # value from 0 to 100
+                size: [ 1000, 1000 ] # [width, height]
+            

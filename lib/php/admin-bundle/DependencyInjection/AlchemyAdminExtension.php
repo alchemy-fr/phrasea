@@ -81,8 +81,8 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
         $config = $this->processConfiguration(new Configuration(), $configs);
         $this->loadExternalConfig($container, $config['service']);
 
-        $container->setParameter('alchemy_admin.worker_queue', $config['worker']['queue']);
-        $container->setParameter('alchemy_admin.worker_rabbit', $config['worker']['rabbit']);
+        $container->setParameter('alchemy_admin.worker_queues', $config['worker']['queues']);
+        $container->setParameter('alchemy_admin.worker_rabbitmq', $config['worker']['rabbitmq']);
 
         $container->prependExtensionConfig('easy_admin', [
             'site_name' => '%easy_admin.site_title%',

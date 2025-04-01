@@ -3,8 +3,8 @@ alchemy_admin:
     title: Uploader
     name: uploader
   worker:
-    queue: [p1, p2, p3]
-    rabbit:
+    queues: [p1, p2, p3]
+    rabbitmq:
       host: '%env(RABBITMQ_HOST)%'
       port: '%env(RABBITMQ_PORT)%'
       user: '%env(RABBITMQ_USER)%'

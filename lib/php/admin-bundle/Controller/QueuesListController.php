@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class QueuesListController extends AbstractController
 {
-    public function __construct(private array $queueConfig, private array $rabbitConfig)
+    public function __construct(private array $queues, private array $rabbitmqConfig)
     {
     }
 
@@ -25,26 +25,26 @@ class QueuesListController extends AbstractController
 
         if ($isSsl) {
             $connection = new AMQPSSLConnection(
-                $this->rabbitConfig['host'],
-                $this->rabbitConfig['port'],
-                $this->rabbitConfig['user'],
-                $this->rabbitConfig['password'],
-                $this->rabbitConfig['vhost']
+                $this->rabbitmqConfig['host'],
+                $this->rabbitmqConfig['port'],
+                $this->rabbitmqConfig['user'],
+                $this->rabbitmqConfig['password'],
+                $this->rabbitmqConfig['vhost']
             );
         } else {
             $connection = new AMQPStreamConnection(
-                $this->rabbitConfig['host'],
-                $this->rabbitConfig['port'],
-                $this->rabbitConfig['user'],
-                $this->rabbitConfig['password'],
-                $this->rabbitConfig['vhost'],
+                $this->rabbitmqConfig['host'],
+                $this->rabbitmqConfig['port'],
+                $this->rabbitmqConfig['user'],
+                $this->rabbitmqConfig['password'],
+                $this->rabbitmqConfig['vhost'],
             );
         }
 
         $channel = $connection->channel();
         $queuesStatus = [];
         
-        foreach ($this->queueConfig as $queueName) {
+        foreach ($this->queues as $queueName) {
             list($queueName, $messageCount, $consumerCount) = $channel->queue_declare($queueName, true);
             $queuesStatus[$queueName] = [
                 'queueName'     => $queueName,

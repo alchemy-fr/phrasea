@@ -3,8 +3,8 @@ alchemy_admin:
     title: Databox
     name: databox
   worker:
-    queue: [p1, p2]
-    rabbit:
+    queues: [p1, p2]
+    rabbitmq:
       host: '%env(RABBITMQ_HOST)%'
       port: '%env(RABBITMQ_PORT)%'
       user: '%env(RABBITMQ_USER)%'

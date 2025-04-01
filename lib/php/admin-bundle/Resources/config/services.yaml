@@ -15,8 +15,8 @@ services:
 
   Alchemy\AdminBundle\Controller\QueuesListController: 
     arguments:
-      $queueConfig: '%alchemy_admin.worker_queue%'
-      $rabbitConfig: '%alchemy_admin.worker_rabbit%' 
+      $queues: '%alchemy_admin.worker_queues%'
+      $rabbitmqConfig: '%alchemy_admin.worker_rabbitmq%' 
 
   Alchemy\AdminBundle\Twig\AdminExtension:
     tags:
