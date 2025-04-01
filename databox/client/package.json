@@ -116,7 +116,7 @@
     "ts-jest": "^23.10.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
-    "vite": "^5.4.15",
+    "vite": "^5.4.16",
     "vite-plugin-checker": "^0.6.4",
     "vite-plugin-svgr": "^4.3.0"
   }
