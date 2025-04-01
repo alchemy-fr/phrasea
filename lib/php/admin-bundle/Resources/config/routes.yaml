@@ -1,3 +1,7 @@
 alchemy_admin_phpinfo:
   name_prefix: alchemy_admin_
   resource: 'Alchemy\AdminBundle\Controller\PhpInfoController'
+
+alchemy_admin_queues_list:
+  name_prefix: alchemy_admin_
+  resource: 'Alchemy\AdminBundle\Controller\QueuesListController'

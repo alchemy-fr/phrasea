@@ -62,7 +62,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
                     self::GROUP_ABSOLUTE_TITLE,
                 ],
             ],
-            security: 'is_granted("'.AbstractVoter::LIST.'", object)'
+            security: 'is_granted("'.AbstractVoter::READ.'", object)'
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),

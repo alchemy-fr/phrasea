@@ -1,0 +1,28 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+{% set _request_parameters = app.request.query.all %}
+
+
+{% block content_title %}
+    Worker Queues
+{% endblock %}
+
+{% block main %}
+     <table class="table datagrid">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Message count</th>
+                <th>Consumer count</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for qs in queuesStatus %}
+            <tr>
+                <td>{{ qs.queueName }}</td>
+                <td>{{ qs.messageCount }}</td>
+                <td>{{ qs.consumerCount }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

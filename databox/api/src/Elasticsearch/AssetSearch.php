@@ -10,6 +10,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\TagFilterManager;
 use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\AssetVoter;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
@@ -289,5 +290,10 @@ class AssetSearch extends AbstractSearch
     private function findCollection(string $id): ?Collection
     {
         return $this->em->find(Collection::class, $id);
+    }
+
+    protected function getAdminScope(): ?string
+    {
+        return AssetVoter::getScopePrefix().AbstractVoter::LIST;
     }
 }
