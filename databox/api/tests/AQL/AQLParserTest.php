@@ -38,6 +38,13 @@ class AQLParserTest extends TestCase
             'rightOperand' => 42,
         ];
 
+        $sum42PlusOne = [
+            'type' => 'criteria',
+            'operator' => '=',
+            'leftOperand' => ['field' => 'foo'],
+            'rightOperand' => 43,
+        ];
+
         return [
             ['foo', null],
             ['foo =', null],
@@ -50,6 +57,62 @@ class AQLParserTest extends TestCase
             ['foo= 42', $fooEquals42],
             ['foo =42', $fooEquals42],
             ['foo = 42', $fooEquals42],
+            ['foo = (42)', $fooEquals42],
+            ['foo = 42 + 1', $sum42PlusOne],
+            ['foo = (42 + 1)', $sum42PlusOne],
+            ['foo = (42 + (1))', $sum42PlusOne],
+            ['foo = 2 * 4 * 2 - 1', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => 15,
+            ]],
+            ['foo = 1+2+3', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => 6,
+            ]],
+            ['foo = 10-8', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => 2,
+            ]],
+            ['foo = (number * 42)', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => [
+                    'type' => 'value_expression',
+                    'operator' => '*',
+                    'leftOperand' => ['field' => 'number'],
+                    'rightOperand' => 42,
+                ],
+            ]],
+            ['foo = (42 - 1)', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => 41,
+            ]],
+            ['foo = (42 - 1 + field)', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => [
+                    'type' => 'value_expression',
+                    'operator' => '+',
+                    'leftOperand' => 41,
+                    'rightOperand' => ['field' => 'field'],
+                ],
+            ]],
+            ['foo = (42 - 1 - 42)', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => -1,
+            ]],
             ['foo = bar AND foo = bar OR foo = 42', [
                 'type' => 'expression',
                 'operator' => 'OR',
@@ -107,6 +170,12 @@ class AQLParserTest extends TestCase
             ['@createdAt BETWEEN "2020-01-01" AND "2025-12-31"', [
                 'type' => 'criteria',
                 'operator' => 'BETWEEN',
+                'leftOperand' => ['field' => '@createdAt'],
+                'rightOperand' => [['literal' => '2020-01-01'], ['literal' => '2025-12-31']],
+            ]],
+            ['@createdAt NOT BETWEEN "2020-01-01" AND "2025-12-31"', [
+                'type' => 'criteria',
+                'operator' => 'NOT_BETWEEN',
                 'leftOperand' => ['field' => '@createdAt'],
                 'rightOperand' => [['literal' => '2020-01-01'], ['literal' => '2025-12-31']],
             ]],
@@ -172,6 +241,12 @@ class AQLParserTest extends TestCase
                 'leftOperand' => ['field' => 'my_field'],
                 'rightOperand' => ['literal' => 's'],
             ]],
+            ['my_field DOES NOT START WITH "s"', [
+                'type' => 'criteria',
+                'operator' => 'NOT_STARTS_WITH',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => ['literal' => 's'],
+            ]],
             ['my_field IS MISSING', [
                 'type' => 'criteria',
                 'operator' => 'MISSING',
@@ -183,9 +258,27 @@ class AQLParserTest extends TestCase
                 'leftOperand' => ['field' => 'my_field'],
                 'rightOperand' => ['literal' => '.'],
             ]],
+            ['my_field DOES NOT CONTAIN "."', [
+                'type' => 'criteria',
+                'operator' => 'NOT_CONTAINS',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => ['literal' => '.'],
+            ]],
             ['my_field MATCHES "."', [
                 'type' => 'criteria',
                 'operator' => 'MATCHES',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => ['literal' => '.'],
+            ]],
+            ['my_field DOES NOT MATCHES "."', [
+                'type' => 'criteria',
+                'operator' => 'NOT_MATCHES',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => ['literal' => '.'],
+            ]],
+            ['my_field DO NOT MATCH "."', [
+                'type' => 'criteria',
+                'operator' => 'NOT_MATCHES',
                 'leftOperand' => ['field' => 'my_field'],
                 'rightOperand' => ['literal' => '.'],
             ]],

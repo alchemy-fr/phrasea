@@ -104,8 +104,13 @@ export default function SearchConditionDialog({
                 name: t('built_in_attr.tag', 'Tag'),
             },
             {
+                slug: BuiltInFilter.EditedAt,
+                fieldType: 'date_time',
+                name: t('built_in_attr.editedAt', 'Edited At'),
+            },
+            {
                 slug: BuiltInFilter.CreatedAt,
-                fieldType: 'text',
+                fieldType: 'date_time',
                 name: t('built_in_attr.createdAt', 'Created At'),
             },
         ];
@@ -178,6 +183,9 @@ export default function SearchConditionDialog({
                     {t('dialog.cancel', 'Cancel')}
                 </Button>
                 <Button
+                    sx={{
+                        ml: 1,
+                    }}
                     startIcon={<CheckIcon/>}
                     onClick={() => {
                         const finalQuery: string = textQueryMode ? query : astToString({

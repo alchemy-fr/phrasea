@@ -9,6 +9,7 @@ export enum BuiltInFilter {
     Workspace = '@workspace',
     Tag = '@tag',
     CreatedAt = '@createdAt',
+    EditedAt = '@editedAt',
     Score = '@score',
 }
 

@@ -43,8 +43,8 @@ abstract class AbstractIntegration implements IntegrationInterface
 
     protected function createBudgetLimitConfigNode(
         bool $defaultEnabled = false,
-        int $limit = 1000,
-        string $interval = '1 year',
+        int $limit = 10,
+        string $interval = '1 day',
     ): NodeDefinition {
         $treeBuilder = new TreeBuilder('budgetLimit');
 

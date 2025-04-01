@@ -9,7 +9,8 @@ export const aqlOperators = [
     'NOT_CONTAINS',
     'MATCHES',
     'NOT_MATCHES',
-    'NOT_CONTAINS',
+    'STARTS_WITH',
+    'NOT_STARTS_WITH',
     'BETWEEN'
     , 'BETWEEN'
     , 'NOT_BETWEEN',
@@ -37,3 +38,10 @@ export type AQLQueryAST = {
     expression: AQLExpression;
 }
 export type ManyArgs = number | true | undefined;
+
+export enum RawType {
+    String = 'string',
+    Number = 'number',
+    Date = 'date',
+    Boolean = 'boolean',
+}

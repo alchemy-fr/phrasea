@@ -105,7 +105,7 @@ final readonly class AQLToESQuery
             'BETWEEN', 'NOT_BETWEEN' => $this->wrapInNotQuery(new Query\Range($fieldName, [
                 'gte' => $value[0],
                 'lte' => $value[1],
-                'format' => 'epoch_second'
+                'format' => is_numeric($value[0]) ? 'epoch_second' : 'date_optional_time',
             ]), $data['operator'] === 'NOT_BETWEEN'),
             'MISSING', 'EXISTS' => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], function (string $fn) {
                 return new Query\Exists($fn);
