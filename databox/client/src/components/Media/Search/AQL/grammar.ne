@@ -67,11 +67,11 @@ field -> builtin_field {% id %}
 boolean -> "true" {% () => true %}
     | "false" {% () => false %}
 
-operator -> __ ("NOT" __):? "BETWEEN" __ number __ "AND" __ number {% (data) => ({operator: data[1] ? 'NOT_BETWEEN' : 'BETWEEN', rightOperand: [data[4], data[8]]}) %}
+operator -> __ ("NOT" __):? "BETWEEN" __ value __ "AND" __ value {% (data) => ({operator: data[1] ? 'NOT_BETWEEN' : 'BETWEEN', rightOperand: [data[4], data[8]]}) %}
     | __ "IS" __ "MISSING" {% () => ({operator: 'MISSING'}) %}
     | __ "EXISTS" {% () => ({operator: 'EXISTS'}) %}
-    | simple_operator _ field_or_value {% (data) => ({operator: data[0], rightOperand: data[2]}) %}
     | in_operator {% id %}
+    | simple_operator _ field_or_value {% (data) => ({operator: data[0], rightOperand: data[2]}) %}
 
 in_operator -> __ ("NOT" __):? "IN" _ "(" _ value (_ "," _ value):* _ ")" {% (data) => {
     return {
@@ -87,8 +87,11 @@ simple_operator -> "=" {% id %}
     | ">=" {% id %}
     | "<=" {% id %}
     | __ "CONTAINS" {% d => d[1] %}
+    | "DOES" __ "NOT" __ "CONTAIN" {% d => 'NOT_CONTAINS' %}
     | __ "MATCHES" {% d => d[1] %}
+    | "DOES" __ "NOT" __ "MATCH" {% d => 'NOT_MATCHES' %}
     | __ "STARTS" __ "WITH" {% () => 'STARTS_WITH' %}
+    | "DOES" __ "NOT" __ "START" __ "WITH" {% d => 'NOT_STARTS_WITH' %}
 
 number -> int {% id %}
     | decimal {% id %}

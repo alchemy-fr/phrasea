@@ -1,30 +1,23 @@
 import {AttributeDefinitionIndex} from "../../../AttributeEditor/types.ts";
-import {AQLCondition, AQLField, AQLLiteral, AQLOperator, aqlOperators, AQLQueryAST} from "./aqlTypes.ts";
+import {AQLCondition, AQLLiteral, AQLOperator, aqlOperators, AQLQueryAST, RawType} from "./aqlTypes.ts";
 import {hasProp} from "../../../../lib/utils.ts";
 import {AttributeDefinition} from "../../../../types.ts";
 import {isAQLCondition, isAQLField, valueToString} from "./query.ts";
 
-enum RawType {
-    STRING = 'string',
-    NUMBER = 'number',
-    DATE = 'date',
-    BOOLEAN = 'boolean',
-}
-
-const typeMap: Record<string, RawType> = {
-    boolean: RawType.BOOLEAN,
-    code: RawType.STRING,
-    collection_path: RawType.STRING,
-    color: RawType.STRING,
-    date: RawType.DATE,
-    date_time: RawType.DATE,
-    entity: RawType.STRING,
-    html: RawType.STRING,
-    ip: RawType.STRING,
-    keyword: RawType.STRING,
-    number: RawType.NUMBER,
-    textarea: RawType.STRING,
-    text: RawType.STRING,
+export const typeMap: Record<string, RawType> = {
+    boolean: RawType.Boolean,
+    code: RawType.String,
+    collection_path: RawType.String,
+    color: RawType.String,
+    date: RawType.Date,
+    date_time: RawType.Date,
+    entity: RawType.String,
+    html: RawType.String,
+    ip: RawType.String,
+    keyword: RawType.String,
+    number: RawType.Number,
+    textarea: RawType.String,
+    text: RawType.String,
 }
 
 export function validateQueryAST(query: AQLQueryAST, definitionsIndex: AttributeDefinitionIndex): void {
@@ -67,7 +60,7 @@ function validateConditionType(node: AQLCondition, definitionsIndex: AttributeDe
             if ([
                 'CONTAINS',
                 'MATCHES',
-            ].includes(op) && rawType !== RawType.STRING) {
+            ].includes(op) && rawType !== RawType.String) {
                 throw new Error(`Field "${attributeDefinition.slug}" is not of type string`);
             }
 
@@ -76,7 +69,10 @@ function validateConditionType(node: AQLCondition, definitionsIndex: AttributeDe
                 '>=',
                 '<',
                 '<=',
-            ].includes(op) && rawType !== RawType.NUMBER) {
+            ].includes(op) && ![
+                RawType.Number,
+                RawType.Date,
+            ].includes(rawType)) {
                 throw new Error(`Field "${attributeDefinition.slug}" is not of type number`);
             }
 
@@ -101,11 +97,11 @@ function validateOfType(node: any, type: RawType, definitionsIndex: AttributeDef
 
     if (Array.isArray(node)) {
         node.map(n => validateOfType(n, type, definitionsIndex));
-    } else if (type === RawType.STRING && !hasProp<AQLLiteral>(node, 'literal')) {
+    } else if (type === RawType.String && !hasProp<AQLLiteral>(node, 'literal')) {
         throw new Error(`Value ${valueToString(node)} is not of type string`);
-    } else if (type === RawType.NUMBER && typeof node !== 'number') {
+    } else if (type === RawType.Number && typeof node !== 'number') {
         throw new Error(`Value ${valueToString(node)} is not of type number`);
-    } else if (type === RawType.BOOLEAN && typeof node !== 'boolean') {
+    } else if (type === RawType.Boolean && typeof node !== 'boolean') {
         throw new Error(`Value ${valueToString(node)} is not of type boolean`);
     }
 }

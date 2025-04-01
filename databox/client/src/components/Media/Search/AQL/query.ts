@@ -11,6 +11,8 @@ import {
     RightOperand
 } from "./aqlTypes.ts";
 import {hasProp} from "../../../../lib/utils.ts";
+import {AttributeDefinitionIndex} from "../../../AttributeEditor/types.ts";
+import {AttributeDefinition} from "../../../../types.ts";
 
 export type AQLQuery = {
     id: string;
@@ -85,6 +87,12 @@ function operatorToString(operator: AQLOperator): string {
             return 'IS MISSING';
         case 'NOT_BETWEEN':
             return 'NOT BETWEEN';
+        case 'NOT_CONTAINS':
+            return 'DOES NOT CONTAIN';
+        case 'NOT_MATCHES':
+            return 'DOES NOT MATCH';
+        case 'NOT_STARTS_WITH':
+            return 'DOES NOT START WITH';
         default:
             return operator;
     }
@@ -123,3 +131,11 @@ export function resolveAQLValue(value: AQLOperand, throwExceptionOnField = false
 }
 
 export type ScalarValue = string | boolean | number | null;
+
+export function getFieldDefinition(node: any, definitionsIndex: AttributeDefinitionIndex): AttributeDefinition | undefined {
+    if (isAQLField(node)) {
+        const field = node.field;
+
+        return definitionsIndex[field];
+    }
+}

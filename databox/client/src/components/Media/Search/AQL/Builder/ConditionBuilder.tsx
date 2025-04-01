@@ -2,13 +2,15 @@ import {RSelectWidget, SelectOption} from '@alchemy/react-form';
 import React from "react";
 import {useTranslation} from 'react-i18next';
 import {IconButton, useTheme} from "@mui/material";
-import {AQLField, AQLOperand, AQLOperator, AQLValue, ManyArgs} from "../aqlTypes.ts";
-import {BaseBuilderProps, QBCondition} from "./builderTypes.ts";
+import {AQLField, AQLOperator, AQLValue, ManyArgs, RawType} from "../aqlTypes.ts";
+import {BaseBuilderProps, OperatorChoice, QBCondition} from "./builderTypes.ts";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ValueBuilder from "./ValueBuilder.tsx";
 import Grid from "@mui/material/Unstable_Grid2";
 import {alpha} from "@mui/material/styles";
 import {StylesConfig} from "react-select";
+import {typeMap} from "../validation.ts";
+import {getFieldDefinition} from "../query.ts";
 
 
 export default function ConditionBuilder({
@@ -39,6 +41,9 @@ export default function ConditionBuilder({
 
     const manyArgs: ManyArgs = operators.find(o => o.value === expression.operator)?.manyArgs;
 
+    const field = getFieldDefinition(expression.leftOperand, definitionsIndex);
+    const rawType: RawType | undefined = field ? typeMap[field.fieldType] : undefined;
+
     return <Grid container spacing={1}>
         <Grid xs={4}>
             <RSelectWidget
@@ -66,7 +71,9 @@ export default function ConditionBuilder({
                 required={true}
                 placeholder={t('search_condition.builder.operator', 'Operator')}
                 name={'operator'}
-                options={operators}
+                options={operators.filter(({supportedTypes}: OperatorChoice)=> {
+                    return !supportedTypes || supportedTypes.includes(rawType!);
+                })}
                 value={expression.operator as any}
                 onChange={newValue => {
                     setExpression(p => {
@@ -100,6 +107,7 @@ export default function ConditionBuilder({
         </Grid>
         <Grid xs={4}>
             <ValueBuilder
+                rawType={rawType}
                 manyArgs={manyArgs}
                 expression={expression}
                 setExpression={setExpression}

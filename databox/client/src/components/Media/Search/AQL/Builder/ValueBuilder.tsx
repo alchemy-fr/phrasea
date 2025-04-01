@@ -2,22 +2,25 @@ import {Box, IconButton, TextField, TextFieldProps} from "@mui/material";
 import React, {ChangeEvent} from "react";
 import {useTranslation} from "react-i18next";
 import {BaseBuilderProps, QBCondition} from "./builderTypes.ts";
-import {AQLLiteral, AQLValue, ManyArgs} from "../aqlTypes.ts";
+import {AQLLiteral, AQLOperator, AQLValue, ManyArgs, RawType} from "../aqlTypes.ts";
 import {hasProp} from "../../../../../lib/utils.ts";
 import {matchesFloat, matchesNumber} from "./builder.ts";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import FieldBuilder, {FieldBuilderProps} from "./FieldBuilder.tsx";
 
 type Props = {
     expression: BaseBuilderProps<QBCondition>['expression'];
     setExpression: BaseBuilderProps<QBCondition>['setExpression'];
     manyArgs: ManyArgs;
+    rawType: RawType | undefined;
 };
 
 export default function ValueBuilder({
     manyArgs,
     expression,
     setExpression,
+    rawType,
 }: Props) {
     const {t} = useTranslation();
 
@@ -38,9 +41,8 @@ export default function ValueBuilder({
         }));
     }
 
-    const normValue = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const normValue = (value: string) => {
         let num: number | undefined = NaN;
-        const value = e.target.value;
         if (matchesNumber(value)) {
             num = parseInt(value, 10);
         } else if (matchesFloat(value)) {
@@ -57,14 +59,14 @@ export default function ValueBuilder({
         } : num;
     }
 
-    const fields: TextFieldProps[] = [];
+    const fields: Omit<FieldBuilderProps, "rawType">[] = [];
     const manyArgsDefined = typeof manyArgs === 'number' || manyArgs === true;
 
     if (!manyArgsDefined) {
         fields.push({
             value: resolveValue(expression.rightOperand as AQLValue),
             name: 'value',
-            placeholder: t('search_condition.builder.value', 'Value'),
+            label: t('search_condition.builder.value', 'Value'),
             onChange: e => {
                 const v = normValue(e);
 
@@ -80,7 +82,7 @@ export default function ValueBuilder({
             fields.push({
                 value: resolveValue((expression.rightOperand as AQLValue[])[i]),
                 name: `value-${i}`,
-                placeholder: `${t('search_condition.builder.value', 'Value')} #${i + 1}`,
+                label: `${t('search_condition.builder.value', 'Value')} #${i + 1}`,
                 onChange: e => {
                     const v = normValue(e);
 
@@ -107,9 +109,9 @@ export default function ValueBuilder({
                 alignItems: 'center',
             }}
         >
-            <TextField
+            <FieldBuilder
                 {...f}
-                fullWidth={true}
+                rawType={rawType}
             />
             {manyArgs === true && <div><IconButton
                 onClick={() => removeValue(index)}
