@@ -15,9 +15,8 @@ class IntegrationRegistry
 
     public function __construct(
         #[TaggedIterator(tag: 'app.integration', defaultIndexMethod: 'getName')]
-        iterable $integrations
-    )
-    {
+        iterable $integrations,
+    ) {
         $this->integrations = $integrations instanceof \Traversable ? iterator_to_array($integrations) : $integrations;
     }
 

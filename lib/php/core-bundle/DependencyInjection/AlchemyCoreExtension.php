@@ -229,6 +229,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                 'swagger' => [
                     'versions' => [3],
                 ],
+                'enable_swagger_ui' => false,
                 'oauth' => [
                     'clientId' => '%env(ADMIN_CLIENT_ID)%',
                     'clientSecret' => '%env(ADMIN_CLIENT_SECRET)%',

@@ -12,8 +12,7 @@ final readonly class AQLToESQuery
 {
     public function __construct(
         private FacetRegistry $facetRegistry,
-    )
-    {
+    ) {
     }
 
     public function createQuery(array $fieldClusters, array $data, array $options): Query\AbstractQuery
@@ -23,20 +22,17 @@ final readonly class AQLToESQuery
 
     private function visitNode(array $fieldClusters, array $data, array $options): Query\AbstractQuery
     {
-        switch ($data['type']) {
-            case 'expression':
-                return $this->visitExpression($fieldClusters, $data, $options);
-            case 'criteria':
-                return $this->visitCriteria($fieldClusters, $data, $options);
-            default:
-                throw new \Exception(sprintf('Unsupported node type "%s"', $data['type']));
-        }
+        return match ($data['type']) {
+            'expression' => $this->visitExpression($fieldClusters, $data, $options),
+            'criteria' => $this->visitCriteria($fieldClusters, $data, $options),
+            default => throw new \Exception(sprintf('Unsupported node type "%s"', $data['type'])),
+        };
     }
 
     private function visitExpression(array $fieldClusters, array $data, array $options): Query\AbstractQuery
     {
         $boolQuery = new Query\BoolQuery();
-        $method = strtoupper($data['operator']) === 'AND' ? 'addMust' : 'addShould';
+        $method = 'AND' === strtoupper($data['operator']) ? 'addMust' : 'addShould';
 
         foreach ($data['conditions'] as $condition) {
             $boolQuery->$method($this->visitNode($fieldClusters, $condition, $options));
@@ -69,7 +65,7 @@ final readonly class AQLToESQuery
             throw new BadRequestHttpException(sprintf('Field "%s" not found', $data['leftOperand']['field']));
         }
 
-        if (count($queries) === 1) {
+        if (1 === count($queries)) {
             return $queries[0];
         }
 
@@ -92,8 +88,8 @@ final readonly class AQLToESQuery
 
         if (isset($data['rightOperand'])) {
             $value = $data['rightOperand'];
-            if ($value['field'] ?? false) {
-                return $this->visitCriteriaWithScripting($fieldClusters, $fieldName, $data);
+            if (!$this->isValue($value)) {
+                return $this->visitCriteriaWithScripting($fieldClusters, $data);
             }
 
             $value = $this->resolveValue($value, $facet);
@@ -106,13 +102,13 @@ final readonly class AQLToESQuery
                 'gte' => $value[0],
                 'lte' => $value[1],
                 'format' => is_numeric($value[0]) ? 'epoch_second' : 'date_optional_time',
-            ]), $data['operator'] === 'NOT_BETWEEN'),
+            ]), 'NOT_BETWEEN' === $data['operator']),
             'MISSING', 'EXISTS' => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], function (string $fn) {
                 return new Query\Exists($fn);
-            }), $data['operator'] === 'MISSING'),
+            }), 'MISSING' === $data['operator']),
             'IN', 'NOT_IN' => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], function (string $fn) use ($value) {
                 return new Query\Terms($fn, $value);
-            }), $data['operator'] === 'NOT_IN'),
+            }), 'NOT_IN' === $data['operator']),
             '=', 'MATCHES', '!=', 'NOT_MATCHES' => $this->wrapInNotQuery($this->createTermQuery($fieldName, $value), in_array($data['operator'], ['!=', 'NOT_MATCHES'], true)),
             '<' => new Query\Range($fieldName, [
                 'lt' => $value,
@@ -126,10 +122,24 @@ final readonly class AQLToESQuery
             '>' => new Query\Range($fieldName, [
                 'gt' => $value,
             ]),
-            'CONTAINS', 'NOT_CONTAINS' => $this->wrapInNotQuery((new Query\MultiMatch())->setType('phrase')->setQuery(sprintf('*%s*', $value))->setFields([$fieldName]), $data['operator'] === 'NOT_CONTAINS'),
-            'STARTS_WITH', 'NOT_STARTS_WITH' => $this->wrapInNotQuery((new Query\MultiMatch())->setType('phrase_prefix')->setQuery($value)->setFields([$fieldName]), $data['operator'] === 'NOT_STARTS_WITH'),
+            'CONTAINS', 'NOT_CONTAINS' => $this->wrapInNotQuery((new Query\MultiMatch())->setType('phrase')->setQuery(sprintf('*%s*', $value))->setFields([$fieldName]), 'NOT_CONTAINS' === $data['operator']),
+            'STARTS_WITH', 'NOT_STARTS_WITH' => $this->wrapInNotQuery((new Query\MultiMatch())->setType('phrase_prefix')->setQuery($value)->setFields([$fieldName]), 'NOT_STARTS_WITH' === $data['operator']),
             default => throw new BadRequestHttpException(sprintf('Invalid operator "%s"', $data['operator'])),
         };
+    }
+
+    private function isValue(mixed $node): bool
+    {
+        if (is_array($node)) {
+            return isset($node['literal'])
+                || (!isset($node['field']) && !array_any($node, fn ($m) => !$this->isValue($m)))
+            ;
+        }
+
+        return null === $node
+            || is_numeric($node)
+            || is_bool($node)
+        ;
     }
 
     private function yieldShouldQuery(string $fieldName, array $locales, \Closure $createQuery): Query\AbstractQuery
@@ -168,40 +178,16 @@ final readonly class AQLToESQuery
         return $not;
     }
 
-    private function visitCriteriaWithScripting(array $fieldClusters, string $leftFieldName, array $data): Query\AbstractQuery
+    private function visitCriteriaWithScripting(array $fieldClusters, array $data): Query\AbstractQuery
     {
-        $queries = [];
-        $rightFieldSlug = $data['rightOperand']['field'];
-        $fields = $this->getFieldNames($fieldClusters, $rightFieldSlug);
-        foreach ($fields as $rightField) {
-            $query = match ($data['operator']) {
-                '=', '!=', '<', '<=', '>=', '>' => (new Query\Script(sprintf(
-                    '!doc["%1$s"].empty && !doc["%3$s"].empty && doc["%1$s"].value %2$s doc["%3$s"].value',
-                    $leftFieldName,
-                    $data['operator'],
-                    $rightField['field']
-                ))),
-                default => throw new BadRequestHttpException(sprintf('Unsupported operator "%s"', $data['operator'])),
-            };
+        $queries = $this->expressionToScript($data, $fieldClusters);
 
-            if ($rightField['w'] ?? false) {
-                $boolQuery = new Query\BoolQuery();
-                $boolQuery->addMust($query);
-                $boolQuery->addMust(new Query\Term(['workspaceId' => $rightField['w']]));
-                $query = $boolQuery;
-            }
+        $queries = array_map(
+            fn (string $q) => new Query\Script($q),
+            $queries
+        );
 
-            if (1 !== ($rightField['b'] ?? 1)) {
-                $query->setParam('boost', $rightField['b']);
-            }
-            $queries[] = $query;
-        }
-
-        if (empty($queries)) {
-            throw new BadRequestHttpException(sprintf('Field "%s" not found', $rightFieldSlug));
-        }
-
-        if (count($queries) === 1) {
+        if (1 === count($queries)) {
             return $queries[0];
         }
 
@@ -212,6 +198,80 @@ final readonly class AQLToESQuery
         }
 
         return $boolQuery;
+    }
+
+    private function expressionToScript(mixed $node, array $fieldClusters): array
+    {
+        $scripts = [];
+
+        if (is_array($node)) {
+            $type = $node['type'] ?? null;
+            if (null !== $type) {
+                switch ($type) {
+                    case 'criteria':
+                        if (!in_array($node['operator'], [
+                            '=', '!=', '<', '<=', '>=', '>',
+                        ], true)) {
+                            throw new BadRequestHttpException(sprintf('Unsupported operator "%s" in script conditions', $node['operator']));
+                        }
+                        $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters);
+                        $rights = $this->expressionToScript($node['rightOperand'], $fieldClusters);
+
+                        foreach ($lefts as $left) {
+                            foreach ($rights as $right) {
+                                $scripts[] = sprintf('%s %s %s',
+                                    $left,
+                                    $node['operator'],
+                                    $right,
+                                );
+                            }
+                        }
+                        break;
+                    case 'value_expression':
+                        $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters);
+                        $rights = $this->expressionToScript($node['rightOperand'], $fieldClusters);
+                        foreach ($lefts as $left) {
+                            foreach ($rights as $right) {
+                                // TODO handle clustered fields (workspace)
+                                //            if ($rightField['w'] ?? false) {
+                                //                $boolQuery = new Query\BoolQuery();
+                                //                $boolQuery->addMust($query);
+                                //                $boolQuery->addMust(new Query\Term(['workspaceId' => $rightField['w']]));
+                                //                $query = $boolQuery;
+                                //            }
+                                //
+                                //            if (1 !== ($rightField['b'] ?? 1)) {
+                                //                $query->setParam('boost', $rightField['b']);
+                                //            }
+
+                                $scripts[] = sprintf('(%s %s %s)',
+                                    $left,
+                                    $node['operator'],
+                                    $right,
+                                );
+                            }
+                        }
+                        break;
+                    default:
+                        throw new \RuntimeException(sprintf('Unsupported node type "%s"', $type));
+                }
+            } elseif (isset($node['field'])) {
+                $fields = $this->getFieldNames($fieldClusters, $node['field']);
+                if (empty($fields)) {
+                    throw new BadRequestHttpException(sprintf('Field "%s" not found', $node['field']));
+                }
+
+                foreach ($fields as $field) {
+                    $scripts[] = sprintf('(!doc["%1$s"].empty ? doc["%1$s"].value : null)', $field['field']);
+                }
+            } else {
+                throw new \RuntimeException(sprintf('Unsupported node "%s"', print_r($node, true)));
+            }
+        } else {
+            $scripts[] = (string) $node;
+        }
+
+        return $scripts;
     }
 
     private function resolveValue(mixed $data, ?FacetInterface $facet): mixed
@@ -240,7 +300,7 @@ final readonly class AQLToESQuery
                     [
                         'field' => $facet->getFieldName(),
                         'facet' => $facet,
-                    ]
+                    ],
                 ];
             } else {
                 $key = substr($fieldSlug, 1);

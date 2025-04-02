@@ -117,8 +117,28 @@ use Symfony\Component\Serializer\Annotation\Groups;
             parameters: [
                 'collection' => new QueryParameter(),
                 'conditions' => new QueryParameter(
-                    schema: ['type' => 'string'],
+                    schema: ['type' => 'array<string>'],
                     description: 'Use AQL condition to filter assets',
+                ),
+                'ids' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Assets ID',
+                ),
+                'workspaces' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Workspaces ID',
+                ),
+                'parents' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Parent collections',
+                ),
+                'parent' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Parent collection',
+                ),
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Search query',
                 ),
             ]
         ),

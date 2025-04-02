@@ -15,9 +15,8 @@ final readonly class FacetRegistry
 
     public function __construct(
         #[TaggedIterator(tag: 'app.search.facet', defaultIndexMethod: 'getKey')]
-        iterable $facets
-    )
-    {
+        iterable $facets,
+    ) {
         $this->facets = $facets instanceof \Traversable ? iterator_to_array($facets) : $facets;
     }
 

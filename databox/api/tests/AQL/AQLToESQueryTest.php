@@ -15,7 +15,7 @@ class AQLToESQueryTest extends TestCase
     /**
      * @dataProvider getCases
      */
-    public function testAQLToQuery(string $expression, array $expectedQuery, ?string $locale = null): void
+    public function testAQLToQuery(string $expression, string|array $expectedQuery, ?string $locale = null): void
     {
         $parser = new AQLParser();
         $result = $parser->parse($expression);
@@ -41,12 +41,28 @@ class AQLToESQueryTest extends TestCase
                     'attrs._.othernumber_number_s' => [
                         'raw' => null,
                     ],
+                    'attrs._.n0_number_s' => [
+                        'raw' => null,
+                    ],
+                    'attrs._.n1_number_s' => [
+                        'raw' => null,
+                    ],
+                    'attrs._.n2_number_s' => [
+                        'raw' => null,
+                    ],
+                    'attrs._.n3_number_s' => [
+                        'raw' => null,
+                    ],
                 ],
                 'w' => null,
                 'locales' => ['it', 'de'],
-            ]
+            ],
 
         ];
+
+        if (is_string($expectedQuery)) {
+            $this->expectExceptionMessage($expectedQuery);
+        }
 
         $query = $esQueryConverter->createQuery($fieldClusters, $result['data'], [
             'locale' => $locale,
@@ -82,13 +98,42 @@ class AQLToESQueryTest extends TestCase
                         ['terms' => ['attrs.it.field_text_s' => [true, false]]],
                         ['terms' => ['attrs.de.field_text_s' => [true, false]]],
                         ['terms' => ['attrs._.field_text_s' => [true, false]]],
-                    ]
+                    ],
                 ],
             ]],
+            ['field IN (true, n1)', 'Unsupported operator "IN" in script conditions'],
             ['number > othernumber', [
                 'script' => [
                     'script' => [
-                       'source' => '!doc["attrs._.number_number_s"].empty && !doc["attrs._.othernumber_number_s"].empty && doc["attrs._.number_number_s"].value > doc["attrs._.othernumber_number_s"].value'
+                        'source' => '(!doc["attrs._.number_number_s"].empty ? doc["attrs._.number_number_s"].value : null) > (!doc["attrs._.othernumber_number_s"].empty ? doc["attrs._.othernumber_number_s"].value : null)',
+                    ],
+                ],
+            ]],
+            ['number > othernumber * 2', [
+                'script' => [
+                    'script' => [
+                        'source' => '(!doc["attrs._.number_number_s"].empty ? doc["attrs._.number_number_s"].value : null) > ((!doc["attrs._.othernumber_number_s"].empty ? doc["attrs._.othernumber_number_s"].value : null) * 2)',
+                    ],
+                ],
+            ]],
+            ['number > othernumber * (2 + 1)', [
+                'script' => [
+                    'script' => [
+                        'source' => '(!doc["attrs._.number_number_s"].empty ? doc["attrs._.number_number_s"].value : null) > ((!doc["attrs._.othernumber_number_s"].empty ? doc["attrs._.othernumber_number_s"].value : null) * 3)',
+                    ],
+                ],
+            ]],
+            ['n0 > n1 * (n2 + n3)', [
+                'script' => [
+                    'script' => [
+                        'source' => '(!doc["attrs._.n0_number_s"].empty ? doc["attrs._.n0_number_s"].value : null) > ((!doc["attrs._.n1_number_s"].empty ? doc["attrs._.n1_number_s"].value : null) * ((!doc["attrs._.n2_number_s"].empty ? doc["attrs._.n2_number_s"].value : null) + (!doc["attrs._.n3_number_s"].empty ? doc["attrs._.n3_number_s"].value : null)))',
+                    ],
+                ],
+            ]],
+            ['n0 > n1 * (n2 + n3)', [
+                'script' => [
+                    'script' => [
+                        'source' => '(!doc["attrs._.n0_number_s"].empty ? doc["attrs._.n0_number_s"].value : null) > ((!doc["attrs._.n1_number_s"].empty ? doc["attrs._.n1_number_s"].value : null) * ((!doc["attrs._.n2_number_s"].empty ? doc["attrs._.n2_number_s"].value : null) + (!doc["attrs._.n3_number_s"].empty ? doc["attrs._.n3_number_s"].value : null)))',
                     ],
                 ],
             ]],

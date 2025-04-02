@@ -13,12 +13,6 @@ export type QBCondition = {
     rightOperand: AQLValue | AQLValue[] | undefined;
 } & Omit<AQLCondition, 'operator' | 'rightOperand'>;
 
-export type OperatorChoice = {
-    value: AQLOperator;
-    label: string;
-    manyArgs?: ManyArgs;
-}
-
 export type BaseBuilderProps<T> = {
     operators: OperatorChoice[];
     definitionsIndex: AttributeDefinitionIndex;

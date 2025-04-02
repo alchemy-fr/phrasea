@@ -19,6 +19,7 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\CollectionInput;
 use App\Api\Model\Input\FollowInput;
 use App\Api\Model\Output\CollectionOutput;
@@ -88,7 +89,22 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
             name: 'put_move',
             processor: MoveCollectionProcessor::class
         ),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'workspaces' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Workspaces ID',
+                ),
+                'parents' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Parent collections',
+                ),
+                'parent' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Parent collection',
+                ),
+            ]
+        ),
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
         new Get(
             uriTemplate: '/collections/{id}/es-document',
