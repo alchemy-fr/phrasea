@@ -23,6 +23,7 @@
                     "collections": "",
                     "workspaceSlug": "phnet",
                     "searchQuery": "",
+                    "importStories": true,
                     "recordsCollectionPath": "/Records/{{ collection.name | escapePath }}/{{ record.getMetadata('Country', '_').value | escapePath }}/{{ record.getMetadata('City', '_').value | escapePath }}",
                     "storiesCollectionPath": "/Stories/{{ collection.name | escapePath }}/{{ record.getMetadata('Country', '_').value | escapePath }}/{{ record.getMetadata('City', '_').value | escapePath }}",
                     "copyTo": [
@@ -120,30 +121,72 @@ the backward compatibility applies, so the phraseanet collection name will be us
     --> `/MyPhraseanetCollection/IMG_1234.jpg`
 
 
-## `storiesCollectionPath`
-Collection-path where to import stories. If unset: do not import stories.
+## `importStories` & `storiesCollectionPath`
 
-Each story becomes a collection, and each contained record (= "main" asset) is **copied / aliased** to this collection.
+`storiesCollectionPath` and `storiesCollectionPath` define how to import Phraseanet stories, with 3 combinations:
 
-The name of the collection will be the same as the name of the story.
+### - Do not import stories.
 
-- The `storiesCollectionPath` can be a **[Twig](#About-Twig)** expression, allowing to dispatch the stories into a tree of collections.
+```yaml
+importStories: false
+```
+ 
+### - Import stories as Phrasea stories
+
+```yaml
+importStories: true
+```
+
+A "storyAsset" is created at root of the workspace, and "points" to a collection **invisible / noname / not-indexed** "storyCollection".
+
+Each contained record (imported elsewhere as an asset) is copied / aliased to this (invisible) collection.
+
+The title of the storyAsset will be the same as the title of the story.
+
+### - import stories as Phrasea collections
+
+```yaml
+importStories: true                 # or unset, for bc
+storiesCollectionPath: "/Stories"   # where to import stories
+```
+
+Each story becomes a collection, and each contained record (imported elsewhere as an asset) is **copied / aliased** to this collection.
+
+The name of the collection will be the same as the title of the story.
+
+/!\ There is **no** "storyAsset" created, the Phraseanet "story-record" is **not** imported.
+
+The `storiesCollectionPath` can be a **[Twig](#About-Twig)** expression, allowing to dispatch the stories into a tree of collections.
 
 
-e.g. 1: Import all stories in the same collection:
+
+e.g. 1: Import all stories, **as Phrasea stories**:
 
 ```json lines
 ...
+"recordsCollectionPath": "/Collections", # where to import records AND stories
+"importStories": true,
+...
+```
+--> `/Stories/JO-2024` where "JO-2024" is the name of a phraseanet story.
+
+
+e.g. 2: Import all stories in the same collection, **as Phrasea collections**:
+
+```json lines
+...
+"importStories": true,
 "storiesCollectionPath": "/Stories",
 ...
 ```
 --> `/Stories/JO-2024` where "JO-2024" is the name of a phraseanet story.
 
 
-e.g. 2: Dispatch by phraseanet collection name, then country and city:
+e.g. 3: Dispatch by phraseanet collection name, then country and city:
         
 ```json lines
 ...
+"importStories": true,
 "storiesCollectionPath": "/Stories/{{ collection.name | escapePath }}/{{ record.getMetadata('Country', '_').value | escapePath }}/{{ record.getMetadata('City', '_').value | escapePath }}",
 ...
 ```
