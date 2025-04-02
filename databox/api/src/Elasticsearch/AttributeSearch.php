@@ -402,9 +402,8 @@ class AttributeSearch
     public function buildConditionQuery(
         array $fieldClusters,
         string $condition,
-        array $options
-    ): Query\AbstractQuery
-    {
+        array $options,
+    ): Query\AbstractQuery {
         $ast = $this->AQLParser->parse($condition);
         if (null === $ast) {
             throw new BadRequestHttpException(sprintf('Invalid condition: %s', $condition));

@@ -104,7 +104,6 @@ class AssetSearch extends AbstractSearch
         $queryString = trim($options['query'] ?? '');
         $parsed = $this->queryStringParser->parseQuery($queryString);
 
-
         if (!empty($parsed['should'])) {
             $multiMatch = $this->attributeSearch->buildAttributeQuery($attributeDefinitionGroups, $parsed['should'], $options);
             $filterQuery->addMust($multiMatch);

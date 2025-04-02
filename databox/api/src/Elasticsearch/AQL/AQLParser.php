@@ -9,9 +9,8 @@ readonly class AQLParser
 {
     public function __construct(
         #[Autowire(param: 'app.debug')]
-        private bool $debug = false
-    )
-    {
+        private bool $debug = false,
+    ) {
     }
 
     public function parse(string $condition): ?array
@@ -19,7 +18,7 @@ readonly class AQLParser
         $this->compile();
 
         $result = (new AQLGrammar(trim($condition)))->match_main();
-        if ($result === false) {
+        if (false === $result) {
             return null;
         }
 

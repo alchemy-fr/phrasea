@@ -10,7 +10,7 @@ class AQLParserTest extends TestCase
     /**
      * @dataProvider getCases
      */
-    public function testParse(string $expression, array|null $expectedData): void
+    public function testParse(string $expression, ?array $expectedData): void
     {
         $parser = new AQLParser(true);
         $result = $parser->parse($expression);
@@ -105,6 +105,17 @@ class AQLParserTest extends TestCase
                     'operator' => '+',
                     'leftOperand' => 41,
                     'rightOperand' => ['field' => 'field'],
+                ],
+            ]],
+            ['foo = (field1 - field2)', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => [
+                    'type' => 'value_expression',
+                    'operator' => '-',
+                    'leftOperand' => ['field' => 'field1'],
+                    'rightOperand' => ['field' => 'field2'],
                 ],
             ]],
             ['foo = (42 - 1 - 42)', [
@@ -210,8 +221,8 @@ class AQLParserTest extends TestCase
                         'operator' => 'IN',
                         'leftOperand' => ['field' => 'second_field'],
                         'rightOperand' => [false],
-                    ]
-                ]
+                    ],
+                ],
             ]],
             ['my_field NOT IN (true) AND second_field IN (false)', [
                 'type' => 'expression',
@@ -228,8 +239,8 @@ class AQLParserTest extends TestCase
                         'operator' => 'IN',
                         'leftOperand' => ['field' => 'second_field'],
                         'rightOperand' => [false],
-                    ]
-                ]
+                    ],
+                ],
             ]],
             ['my_field ISMISSING', null],
             ['my_field STARTSWITH', null],
