@@ -1,7 +1,9 @@
 import {AxiosInstance} from 'axios';
 import {
     AssetCopyInput,
-    AssetInput, AssetOutput,
+    AssetInput,
+    AssetOutput,
+    StoryAssetOutput,
     AttributeClass,
     AttributeDefinition,
     CollectionInput,
@@ -111,7 +113,7 @@ export class DataboxClient {
         this.logger = logger;
     }
 
-    async createAsset(data: AssetInput): Promise<AssetOutput> {
+    async createAsset(data: AssetInput): Promise<AssetOutput | StoryAssetOutput> {
         if (data.workspaceId) {
             data.workspace = `/workspaces/${data.workspaceId}`;
             delete data.workspaceId;
@@ -132,6 +134,10 @@ export class DataboxClient {
         });
 
         return a.data;
+    }
+
+    async createStoryAsset(data: AssetInput): Promise<StoryAssetOutput> {
+        return this.createAsset(data) as any;
     }
 
     async copyAsset(data: AssetCopyInput): Promise<void> {

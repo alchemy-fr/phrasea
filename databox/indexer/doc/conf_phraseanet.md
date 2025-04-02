@@ -23,6 +23,7 @@
                     "collections": "",
                     "workspaceSlug": "phnet",
                     "searchQuery": "",
+                    "importStories": true,
                     "recordsCollectionPath": "/Records/{{ collection.name | escapePath }}/{{ record.getMetadata('Country', '_').value | escapePath }}/{{ record.getMetadata('City', '_').value | escapePath }}",
                     "storiesCollectionPath": "/Stories/{{ collection.name | escapePath }}/{{ record.getMetadata('Country', '_').value | escapePath }}/{{ record.getMetadata('City', '_').value | escapePath }}",
                     "copyTo": [
@@ -159,20 +160,33 @@ The `storiesCollectionPath` can be a **[Twig](#About-Twig)** expression, allowin
 
 
 
-e.g. 1: Import all stories in the same collection:
+e.g. 1: Import all stories, **as Phrasea stories**:
 
 ```json lines
 ...
+"recordsCollectionPath": "/Collections", # where to import records AND stories
+"importStories": true,
+...
+```
+--> `/Stories/JO-2024` where "JO-2024" is the name of a phraseanet story.
+
+
+e.g. 2: Import all stories in the same collection, **as Phrasea collections**:
+
+```json lines
+...
+"importStories": true,
 "storiesCollectionPath": "/Stories",
 ...
 ```
 --> `/Stories/JO-2024` where "JO-2024" is the name of a phraseanet story.
 
 
-e.g. 2: Dispatch by phraseanet collection name, then country and city:
+e.g. 3: Dispatch by phraseanet collection name, then country and city:
         
 ```json lines
 ...
+"importStories": true,
 "storiesCollectionPath": "/Stories/{{ collection.name | escapePath }}/{{ record.getMetadata('Country', '_').value | escapePath }}/{{ record.getMetadata('City', '_').value | escapePath }}",
 ...
 ```

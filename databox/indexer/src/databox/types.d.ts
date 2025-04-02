@@ -108,5 +108,9 @@ export type CollectionOutput = {
 
 export type AssetOutput = {
     id: string;
-    storyCollection?: CollectionOutput;
+}
+
+export type StoryAssetOutput = {
+    id: string;
+    storyCollection: CollectionOutput;
 }

@@ -175,8 +175,6 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             let importStories = dm.importStories;
 
             if(importStories !== false) {
-
-
                 let storiesAsCollections = false;
 
                 const storiesCollectionPath: string = dm.storiesCollectionPath ?? '';
@@ -208,7 +206,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         var storyCollectionBasePath = '';
                         var storyCollectionFullPath = '';
                         var storyCollectionBasePathParts: string[] = [];
-                        var storyCollectionId: string|null = null;
+                        var storyCollectionId: string;
 
                         if (storiesAsCollections) {
                             //
@@ -254,21 +252,11 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                 );
                             storyCollectionFullPath = (storyCollectionBasePath ?? '') + '/' + storyTitle;
 
-                            logger.info(
-                                `  Phraseanet story "${story.title}" (#${
-                                    story.story_id
-                                }) from base "${
-                                    phraseanetDatabox.collections[story.base_id].name
-                                }" (#${story.base_id}) ==> collection (#${storyCollectionId})`
-                            );
-
-
                         } else {
 
                             //
                             // create phraseanet story as phrasea story (storyAsset + hidden collection)
                             //
-                            //   storyPathParts = [];
                             let storyAssetBasePath: string = '';
                             let storyAssetFullPath: string = '';
                             if (recordsCollectionPathTwig !== null) {
@@ -282,8 +270,6 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                 storyAssetBasePath = `${recordsCollectionPath}/${escapeSlashes(phraseanetDatabox.collections[story.base_id].name)}`;
                             }
                             storyAssetFullPath = concatPath(storyAssetBasePath, escapeSlashes(story.title));
-
-console.log(`===================== ${storyAssetBasePath} ==========`);
 
                             const branch = splitPath(storyAssetBasePath);
                             let collId: string;
@@ -303,8 +289,6 @@ console.log(`===================== ${storyAssetBasePath} ==========`);
                                 throw e;
                             }
 
-console.log(`===================== ${collId} ==========`);
-
                             const storyAsset = await createAsset(
                                 workspaceId,
                                 importFiles,
@@ -323,10 +307,9 @@ console.log(`===================== ${collId} ==========`);
                                 subdefToRendition,
                                 logger
                             );
-console.log(storyAsset);
 
                             const alternateUrls = getAlternateUrls(storyAsset, location);
-                            const storyAssetOutput = await databoxClient.createAsset({
+                            const storyAssetOutput = await databoxClient.createStoryAsset({
                                 workspaceId: storyAsset.workspaceId,
                                 sourceFile: storyAsset.publicUrl
                                     ? {
@@ -346,58 +329,12 @@ console.log(storyAsset);
                                 isStory: storyAsset.isStory,
                             });
 
-console.log(storyAssetOutput);
                             const assetId = storyAssetOutput.id;
-                            storyCollectionId = storyAssetOutput.storyCollection?.id;
+                            storyCollectionId = storyAssetOutput.storyCollection.id;
                             storyCollectionFullPath = '';
-
-console.log(`===================== storyCollId = ${storyCollectionId} ==========`);
-
-//*******************************************
-
-
-                            // const assetId = await databoxClient.createAsset({
-                            //     workspaceId: storyAsset.workspaceId,
-                            //     sourceFile: storyAsset.publicUrl
-                            //         ? {
-                            //             url: storyAsset.publicUrl,
-                            //             isPrivate: storyAsset.isPrivate,
-                            //             alternateUrls,
-                            //             importFile: storyAsset.importFile,
-                            //         }
-                            //         : undefined,
-                            //     collection: collId ? '/collections/' + collId : undefined,
-                            //     generateRenditions: storyAsset.generateRenditions,
-                            //     key: storyAsset.key,
-                            //     title: storyAsset.title || p.basename(path),
-                            //     attributes: storyAsset.attributes,
-                            //     tags: storyAsset.tags,
-                            //     renditions: storyAsset.renditions,
-                            //     storyCollection: storyAsset.storyCollection,
-                            // });
-
-
                         }
 
-
-                        // if (!storiesAsCollections) {
-                        //     logger.info(`creating story asset for story "${storyTitle}"`);
-                        //
-                        //     let path: string = '';
-                        //     if (recordsCollectionPathTwig !== null) {
-                        //         path = await recordsCollectionPathTwig.renderAsync({
-                        //             record: story,
-                        //             collection:
-                        //                 phraseanetDatabox.collections[story.base_id],
-                        //         });
-                        //     } else {
-                        //         // bc: dispatch in original phraseanet collection.name
-                        //         path = `${recordsCollectionPath}/${escapeSlashes(phraseanetDatabox.collections[story.base_id].name)}`;
-                        //     }
-                        //     path += '/' + escapeSlashes(story.title);
-                        //
-                        // }
-
+                        var nChildren = 0;
                         for await (const child_rid of phraseanetClient.getStoryChildren(
                             story.databox_id,
                             story.story_id
@@ -410,15 +347,22 @@ console.log(`===================== storyCollId = ${storyCollectionId} ==========
                                 path: storyCollectionFullPath,
                                // path: '',
                             });
+                            nChildren++;
                         }
+
+                        logger.info(
+                            `  Phraseanet story "${story.title}" (#${
+                                story.story_id
+                            }) from base "${
+                                phraseanetDatabox.collections[story.base_id].name
+                            }" (#${story.base_id}), containing ${nChildren} children ==> collection "${storyCollectionFullPath}" (#${storyCollectionId})`
+                        );
+
                     }
                     offset += stories.length;
                 } while (stories.length == 20);
-
             }
-            console.log("############################# recordStories #############################");
-            console.log(recordStories);
-// return;
+
             logger.info(`Importing records`);
             let records: CPhraseanetRecord[];
             let offset = 0;
