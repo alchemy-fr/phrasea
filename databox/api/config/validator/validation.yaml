@@ -11,6 +11,7 @@ App\Entity\Core\Asset:
 App\Entity\Core\Collection:
   properties:
     title:
+      - NotBlank: ~
       - Length:
           max: 255
     workspace:
