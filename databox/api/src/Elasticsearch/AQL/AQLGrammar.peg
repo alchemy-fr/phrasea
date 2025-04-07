@@ -83,12 +83,12 @@ criteria: field:field op:operator
         unset($result['field'], $result['op']);
     }
 
-builtin_field: "@" keyword
+builtin_field: "@" identifier
     function __finalise(&$result) {
         $result['data'] = ['field' => $result['text']];
     }
 
-field_name: keyword
+field_name: identifier
     function __finalise(&$result) {
         $result['data'] = ['field' => $result['text']];
     }
@@ -176,6 +176,11 @@ op_keyword: not:/(DO(ES)?\s+NOT\s+)/? key:/(CONTAINS?|MATCH(ES)?|STARTS?\s+WITH)
             'STARTS_WITH', 'START_WITH' => 'STARTS_WITH',
         };
         unset($result['not'], $result['key']);
+    }
+
+function_call: f:identifier > "(" > first:value_expression? (> "," > others:value_expression)* > ")"
+    function __finalise(&$result) {
+        \App\Elasticsearch\AQL\AQLFunctionHandler::parseFunction($result);
     }
 
 value_expression: v:value_sum
@@ -267,7 +272,7 @@ value_or_expr: v:value | '(' > v:value_expression > ')'
         unset($result['v']);
     }
 
-value: v:number | v:quoted_string | v:boolean | v:field
+value: v:function_call | v:number | v:quoted_string | v:boolean | v:field
     function __finalise(&$result) {
         $result['data'] = $result['v']['data'];
         unset($result['v']);
@@ -297,4 +302,4 @@ number: v:int | v:decimal
 alpha: /[a-zA-Z_]/
 alphanum: /[a-zA-Z_0-9-]/
 
-keyword: alpha alphanum*
+identifier: alpha alphanum*

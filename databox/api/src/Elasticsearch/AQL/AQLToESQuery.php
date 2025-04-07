@@ -3,6 +3,10 @@
 namespace App\Elasticsearch\AQL;
 
 use App\Attribute\AttributeInterface;
+use App\Elasticsearch\AQL\Function\AQLFunctionInterface;
+use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
+use App\Elasticsearch\AQL\Function\Argument;
+use App\Elasticsearch\AQL\Function\TypeEnum;
 use App\Elasticsearch\Facet\FacetInterface;
 use App\Elasticsearch\Facet\FacetRegistry;
 use Elastica\Query;
@@ -12,6 +16,7 @@ final readonly class AQLToESQuery
 {
     public function __construct(
         private FacetRegistry $facetRegistry,
+        private AQLFunctionRegistry $functionRegistry,
     ) {
     }
 
@@ -44,25 +49,24 @@ final readonly class AQLToESQuery
     private function visitCriteria(array $fieldClusters, array $data, array $options): Query\AbstractQuery
     {
         $queries = [];
-        $fields = $this->getFieldNames($fieldClusters, $data['leftOperand']['field']);
-        foreach ($fields as $field) {
-            $query = $this->createCriteria($fieldClusters, $field, $data, $field['facet'] ?? null, $options);
+        $leftOperand = $data['leftOperand'];
+        if (!isset($leftOperand['field'])
+            || (isset($data['rightOperand']) && !$this->isResolvableValue($data['rightOperand']))
+        ) {
+            return $this->visitCriteriaWithScripting($fieldClusters, $data);
+        }
 
-            if ($field['w'] ?? false) {
-                $boolQuery = new Query\BoolQuery();
-                $boolQuery->addMust($query);
-                $boolQuery->addMust(new Query\Term(['workspaceId' => $field['w']]));
-                $query = $boolQuery;
-            }
+        $fields = $this->getFieldNames($fieldClusters, $leftOperand['field']);
+        foreach ($fields as $fieldGroup) {
+            $field = $fieldGroup->getItem();
+            $field['locales'] = $fieldGroup->getLocales();
+            $query = $this->createCriteria($field, $data, $options);
 
-            if (1 !== ($field['b'] ?? 1)) {
-                $query->setParam('boost', $field['b']);
-            }
-            $queries[] = $query;
+            $queries[] = $this->wrapCluster($query, $fieldGroup);
         }
 
         if (empty($queries)) {
-            throw new BadRequestHttpException(sprintf('Field "%s" not found', $data['leftOperand']['field']));
+            throw new BadRequestHttpException(sprintf('Field "%s" not found', $leftOperand['field']));
         }
 
         if (1 === count($queries)) {
@@ -78,21 +82,29 @@ final readonly class AQLToESQuery
         return $boolQuery;
     }
 
-    private function createCriteria(array $fieldClusters, array $field, array $data, ?FacetInterface $facet, array $options): Query\AbstractQuery
+    private function wrapCluster(Query\AbstractQuery $query, ClusterGroup $group): Query\AbstractQuery
+    {
+        if (null !== $group->getWorkspaceId()) {
+            $boolQuery = new Query\BoolQuery();
+            $boolQuery->addMust($query);
+            $boolQuery->addMust(new Query\Term(['workspaceId' => $group->getWorkspaceId()]));
+            $query = $boolQuery;
+        }
+
+        return $query;
+    }
+
+    private function createCriteria(array $field, array $data, array $options): Query\AbstractQuery
     {
         $locale = $options['locale'] ?? '*';
+        $facet = $field['facet'] ?? null;
         $fieldName = str_replace('{l}', $locale, $field['field']);
         if (($field['raw'] ?? false) && in_array($data['operator'], ['=', '!=', 'IN', 'NOT_IN'], true)) {
             $fieldName .= '.'.$field['raw'];
         }
 
         if (isset($data['rightOperand'])) {
-            $value = $data['rightOperand'];
-            if (!$this->isValue($value)) {
-                return $this->visitCriteriaWithScripting($fieldClusters, $data);
-            }
-
-            $value = $this->resolveValue($value, $facet);
+            $value = $this->resolveValue($data['rightOperand'], $facet);
         } else {
             $value = null;
         }
@@ -128,11 +140,19 @@ final readonly class AQLToESQuery
         };
     }
 
-    private function isValue(mixed $node): bool
+    private function isResolvableValue(mixed $node): bool
     {
         if (is_array($node)) {
+            $type = $node['type'] ?? null;
+            if ('function_call' === $type) {
+                return $this->hasResolvableArguments($node);
+            } elseif ('value_expression' === $type) {
+                return $this->isResolvableValue($node['leftOperand'])
+                    && $this->isResolvableValue($node['rightOperand']);
+            }
+
             return isset($node['literal'])
-                || (!isset($node['field']) && !array_any($node, fn ($m) => !$this->isValue($m)))
+                || (!isset($node['field']) && !array_any($node, fn ($m) => !$this->isResolvableValue($m)))
             ;
         }
 
@@ -140,6 +160,75 @@ final readonly class AQLToESQuery
             || is_numeric($node)
             || is_bool($node)
         ;
+    }
+
+    function resolveFunctionValue(array $functionNode): mixed
+    {
+        $functionHandle = $this->getFunctionHandle($functionNode['function']);
+        $args = $functionNode['arguments'] ?? [];
+
+        $argCount = count($args);
+        $functionArguments = $functionHandle->getArguments();
+        $requiredArgs = array_filter($functionArguments, fn (Argument $arg) => $arg->isRequired());
+        if ($argCount < count($requiredArgs)) {
+            throw new BadRequestHttpException(sprintf('Function "%s" requires at least %d argument(s)', $functionNode['function'], count($requiredArgs)));
+        }
+        if ($argCount > count($functionArguments)) {
+            throw new BadRequestHttpException(sprintf('Function "%s" expects maximum %d argument(s), got %d', $functionNode['function'], count($functionArguments), $argCount));
+        }
+
+        $args = array_map(
+            fn (mixed $arg) => $this->resolveValue($arg),
+            $args
+        );
+
+        $result = $functionHandle->resolve($args);
+        if (is_string($result)) {
+            return ['literal' => $result];
+        }
+
+        return $result;
+    }
+
+    function resolveValueExpression(array $exprNode): mixed
+    {
+        $operator = strtolower($exprNode['operator']);
+        $left = $this->resolveValue($exprNode['leftOperand']);
+        $right = $this->resolveValue($exprNode['rightOperand']);
+
+        switch ($operator) {
+            case '+':
+                return $left + $right;
+            case '-':
+                return $left - $right;
+            case '*':
+                return $left * $right;
+            case '/':
+                return $left / $right;
+            default:
+                throw new BadRequestHttpException(sprintf('Unsupported operator "%s"', $operator));
+        }
+    }
+
+    private function getFunctionHandle(string $functionName): AQLFunctionInterface
+    {
+        $functionHandle = $this->functionRegistry->getFunction(strtolower($functionName));
+        if (null === $functionHandle) {
+            throw new BadRequestHttpException(sprintf('Function "%s" not found', $functionName));
+        }
+
+        return $functionHandle;
+    }
+
+    private function hasResolvableArguments(array $functionNode): bool
+    {
+        foreach ($functionNode['arguments'] as $arg) {
+            if (!$this->isResolvableValue($arg)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function yieldShouldQuery(string $fieldName, array $locales, \Closure $createQuery): Query\AbstractQuery
@@ -183,7 +272,11 @@ final readonly class AQLToESQuery
         $queries = $this->expressionToScript($data, $fieldClusters);
 
         $queries = array_map(
-            fn (string $q) => new Query\Script($q),
+            function (ClusterGroup $q): Query\AbstractQuery {
+                $script = new Query\Script($q->getItem());
+
+                return $this->wrapCluster($script, $q);
+            },
             $queries
         );
 
@@ -192,7 +285,7 @@ final readonly class AQLToESQuery
         }
 
         $boolQuery = new Query\BoolQuery();
-
+        $boolQuery->setMinimumShouldMatch(1);
         foreach ($queries as $query) {
             $boolQuery->addShould($query);
         }
@@ -217,39 +310,36 @@ final readonly class AQLToESQuery
                         $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters);
                         $rights = $this->expressionToScript($node['rightOperand'], $fieldClusters);
 
-                        foreach ($lefts as $left) {
-                            foreach ($rights as $right) {
-                                $scripts[] = sprintf('%s %s %s',
-                                    $left,
-                                    $node['operator'],
-                                    $right,
-                                );
-                            }
-                        }
+                        $scripts = ClusterGroup::mix(
+                            $lefts,
+                            $rights,
+                            fn (string $l, string $r) => sprintf('%s %s %s', $l, $node['operator'], $r)
+                        );
                         break;
                     case 'value_expression':
                         $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters);
                         $rights = $this->expressionToScript($node['rightOperand'], $fieldClusters);
-                        foreach ($lefts as $left) {
-                            foreach ($rights as $right) {
-                                // TODO handle clustered fields (workspace)
-                                //            if ($rightField['w'] ?? false) {
-                                //                $boolQuery = new Query\BoolQuery();
-                                //                $boolQuery->addMust($query);
-                                //                $boolQuery->addMust(new Query\Term(['workspaceId' => $rightField['w']]));
-                                //                $query = $boolQuery;
-                                //            }
-                                //
-                                //            if (1 !== ($rightField['b'] ?? 1)) {
-                                //                $query->setParam('boost', $rightField['b']);
-                                //            }
 
-                                $scripts[] = sprintf('(%s %s %s)',
-                                    $left,
-                                    $node['operator'],
-                                    $right,
-                                );
-                            }
+                        $scripts = ClusterGroup::mix(
+                            $lefts,
+                            $rights,
+                            fn (string $l, string $r): string => sprintf('(%s %s %s)', $l, $node['operator'], $r)
+                        );
+                        break;
+                    case 'function_call':
+                        $functionHandle = $this->getFunctionHandle($node['function']);
+                        $args = array_map(fn (mixed $arg) => $this->expressionToScript($arg, $fieldClusters), $node['arguments']);
+
+                        $mixedArguments = [new ClusterGroup([], true)];
+                        foreach ($args as $arg) {
+                            $arg = array_map(fn (ClusterGroup $a): ClusterGroup => $a->convert([$a->getItem()]), $arg);
+                            $mixedArguments = ClusterGroup::mix($mixedArguments, $arg, function (array $l, array $r): array {
+                                return array_merge($l, $r);
+                            });
+                        }
+
+                        foreach ($mixedArguments as $args) {
+                            $scripts[] = $args->convert($functionHandle->getScript($args->getItem()));
                         }
                         break;
                     default:
@@ -262,24 +352,35 @@ final readonly class AQLToESQuery
                 }
 
                 foreach ($fields as $field) {
-                    $scripts[] = sprintf('(!doc["%1$s"].empty ? doc["%1$s"].value : null)', $field['field']);
+                    $scripts[] = $field->convert(sprintf('(!doc["%1$s"].empty ? doc["%1$s"].value : null)', $field->getItem()['field']));
                 }
             } else {
                 throw new \RuntimeException(sprintf('Unsupported node "%s"', print_r($node, true)));
             }
         } else {
-            $scripts[] = (string) $node;
+            $scripts[] = new ClusterGroup((string) $node, true);
         }
 
         return $scripts;
     }
 
-    private function resolveValue(mixed $data, ?FacetInterface $facet): mixed
+    private function resolveValue(mixed $data, ?FacetInterface $facet = null): mixed
     {
-        if (is_array($data) && isset($data[0])) {
-            return array_map(function (mixed $data) use ($facet) {
-                return $this->resolveValue($data, $facet);
-            }, $data);
+        if (is_array($data)) {
+            $type = $data['type'] ?? null;
+            if ('function_call' === $type) {
+                $data = $this->resolveFunctionValue($data);
+            } elseif ('value_expression' === $type) {
+                $data = $this->resolveValueExpression($data);
+            } elseif (isset($data[0])) {
+                return array_map(function (mixed $data) use ($facet) {
+                    return $this->resolveValue($data, $facet);
+                }, $data);
+            }
+        }
+
+        if ($data instanceof \DateTimeInterface) {
+            return $data->getTimestamp();
         }
 
         $v = $data['literal'] ?? $data;
@@ -291,23 +392,30 @@ final readonly class AQLToESQuery
         return $v;
     }
 
+    /**
+     * @return ClusterGroup[]
+     */
     private function getFieldNames(array $fieldClusters, string $fieldSlug): array
     {
         if (str_starts_with($fieldSlug, '@')) {
             $facet = $this->facetRegistry->getFacet($fieldSlug);
             if (null !== $facet) {
                 return [
-                    [
+                    new ClusterGroup([
                         'field' => $facet->getFieldName(),
                         'facet' => $facet,
-                    ],
+                    ], true)
                 ];
             } else {
                 $key = substr($fieldSlug, 1);
 
-                return [['field' => match ($key) {
-                    'id' => '_id',
-                }]];
+                return [
+                    new ClusterGroup([
+                        'field' => match ($key) {
+                            'id' => '_id',
+                        },
+                    ], true)
+                ];
             }
         }
 
@@ -317,16 +425,18 @@ final readonly class AQLToESQuery
         ];
         $fields = [];
         foreach ($fieldClusters as $cluster) {
-            $locales = $cluster['locales'] ?? [];
             foreach ($cluster['fields'] as $cField => $fieldConf) {
                 foreach ($nameCandidates as $nameCandidate) {
                     if (str_starts_with($cField, $nameCandidate.'_')) {
-                        $fields[] = [
-                            'field' => $cField,
-                            'w' => $cluster['w'],
-                            'raw' => $fieldConf['raw'],
-                            'locales' => $locales,
-                        ];
+                        $fields[] = new ClusterGroup(
+                            [
+                                'field' => $cField,
+                                'raw' => $fieldConf['raw'],
+                            ],
+                            false,
+                            $cluster['w'] ?? null,
+                            $cluster['locales'] ?? null
+                        );
                     }
                 }
             }

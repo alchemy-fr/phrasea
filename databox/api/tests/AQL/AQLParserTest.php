@@ -311,6 +311,51 @@ class AQLParserTest extends TestCase
                 'leftOperand' => ['field' => 'number'],
                 'rightOperand' => ['field' => 'other_number'],
             ]],
+            ['number > NOW()', [
+                'type' => 'criteria',
+                'operator' => '>',
+                'leftOperand' => ['field' => 'number'],
+                'rightOperand' => [
+                    'type' => 'function_call',
+                    'function' => 'NOW',
+                    'arguments' => [],
+                ],
+            ]],
+            ['my_field = SUBSTRING(my_field, 42 - 2, number / 5, NOW())', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => [
+                    'type' => 'function_call',
+                    'function' => 'SUBSTRING',
+                    'arguments' => [
+                        ['field' => 'my_field'],
+                        40,
+                        [
+                            'type' => 'value_expression',
+                            'operator' => '/',
+                            'leftOperand' => ['field' => 'number'],
+                            'rightOperand' => 5,
+                        ],
+                        ['type' => 'function_call', 'function' => 'NOW', 'arguments' => []],
+                    ]
+                ],
+            ]],
+            ['my_field = now() * 2', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => [
+                    'type' => 'value_expression',
+                    'operator' => '*',
+                    'leftOperand' => [
+                        'type' => 'function_call',
+                        'function' => 'now',
+                        'arguments' => [],
+                    ],
+                    'rightOperand' => 2,
+                ],
+            ]],
         ];
     }
 }

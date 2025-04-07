@@ -4,6 +4,7 @@ namespace App\Tests\AQL;
 
 use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
+use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\Facet\CreatedAtFacet;
 use App\Elasticsearch\Facet\FacetRegistry;
 use App\Elasticsearch\Facet\WorkspaceFacet;
@@ -21,10 +22,13 @@ class AQLToESQueryTest extends TestCase
         $result = $parser->parse($expression);
         $em = $this->createMock(EntityManagerInterface::class);
 
+        $functionRegistry = new AQLFunctionRegistry();
+        $functionRegistry->register(new MockNowFunction());
+
         $esQueryConverter = new AQLToESQuery(new FacetRegistry([
             '@workspace' => new WorkspaceFacet($em),
             '@createdAt' => new CreatedAtFacet(),
-        ]));
+        ]), $functionRegistry);
 
         $fieldClusters = [
             [
@@ -53,11 +57,25 @@ class AQLToESQueryTest extends TestCase
                     'attrs._.n3_number_s' => [
                         'raw' => null,
                     ],
+                    'attrs.{l}.hybrid_text_s' => [
+                        'raw' => null,
+                    ],
                 ],
                 'w' => null,
                 'locales' => ['it', 'de'],
             ],
-
+            [
+                'fields' => [
+                    'attrs.{l}.www_text_s' => [
+                        'raw' => null,
+                    ],
+                    'attrs.{l}.hybrid_number_s' => [
+                        'raw' => null,
+                    ],
+                ],
+                'w' => '4242',
+                'locales' => ['fr'],
+            ],
         ];
 
         if (is_string($expectedQuery)) {
@@ -134,6 +152,143 @@ class AQLToESQueryTest extends TestCase
                 'script' => [
                     'script' => [
                         'source' => '(!doc["attrs._.n0_number_s"].empty ? doc["attrs._.n0_number_s"].value : null) > ((!doc["attrs._.n1_number_s"].empty ? doc["attrs._.n1_number_s"].value : null) * ((!doc["attrs._.n2_number_s"].empty ? doc["attrs._.n2_number_s"].value : null) + (!doc["attrs._.n3_number_s"].empty ? doc["attrs._.n3_number_s"].value : null)))',
+                    ],
+                ],
+            ]],
+            ['@createdAt > now() * 8 - 3', [
+                'range' => ['createdAt' => [
+                    'gt' => MockNowFunction::VALUE * 8 - 3,
+                ]],
+            ]],
+            ['foo MATCHES SUBSTRING("hello", 1, 2)', [
+                'multi_match' => [
+                    'query' => 'el',
+                    'fields' => ['attrs.*.foo_text_s'],
+                ],
+            ]],
+            ['@createdAt > DATE_ADD(NOW(), "PT1H")', [
+                'range' => ['createdAt' => [
+                    'gt' => MockNowFunction::VALUE + 3600,
+                ]],
+            ]],
+            ['@createdAt > DATE_SUB(NOW(), "PT1M")', [
+                'range' => ['createdAt' => [
+                    'gt' => MockNowFunction::VALUE - 60,
+                ]],
+            ]],
+            ['foo = SUBSTRING(foo, 1, 2)', [
+                'script' => [
+                    'script' => ['source' => '(!doc["attrs.{l}.foo_text_s"].empty ? doc["attrs.{l}.foo_text_s"].value : null) = (!doc["attrs.{l}.foo_text_s"].empty ? doc["attrs.{l}.foo_text_s"].value : null).Substring(1, 2)'],
+                ],
+            ]],
+            ['www = SUBSTRING(foo, 1, 2)', [
+                'bool' => [
+                    'must' => [
+                        [
+                            'script' => [
+                                'script' => ['source' => '(!doc["attrs.{l}.www_text_s"].empty ? doc["attrs.{l}.www_text_s"].value : null) = (!doc["attrs.{l}.foo_text_s"].empty ? doc["attrs.{l}.foo_text_s"].value : null).Substring(1, 2)'],
+                            ],
+                        ],
+                        [
+                            'term' => [
+                                'workspaceId' => '4242',
+                            ],
+                        ],
+                    ],
+                ],
+            ]],
+            ['www = SUBSTRING(hybrid, 1, 2)', [
+                'bool' => [
+                    'minimum_should_match' => 1,
+                    'should' => [
+                        [
+                            'bool' => [
+                                'must' => [
+                                    [
+                                        'script' => [
+                                            'script' => ['source' => '(!doc["attrs.{l}.www_text_s"].empty ? doc["attrs.{l}.www_text_s"].value : null) = (!doc["attrs.{l}.hybrid_text_s"].empty ? doc["attrs.{l}.hybrid_text_s"].value : null).Substring(1, 2)'],
+                                        ],
+                                    ],
+                                    [
+                                        'term' => [
+                                            'workspaceId' => '4242',
+                                        ],
+                                    ],
+                                ]
+                            ]
+                        ],
+                        [
+                            'bool' => [
+                                'must' => [
+                                    [
+                                        'script' => [
+                                            'script' => ['source' => '(!doc["attrs.{l}.www_text_s"].empty ? doc["attrs.{l}.www_text_s"].value : null) = (!doc["attrs.{l}.hybrid_number_s"].empty ? doc["attrs.{l}.hybrid_number_s"].value : null).Substring(1, 2)'],
+                                        ],
+                                    ],
+                                    [
+                                        'term' => [
+                                            'workspaceId' => '4242',
+                                        ],
+                                    ],
+                                ]
+                            ]
+                        ]
+                    ],
+                ],
+            ]],
+            ['foo = SUBSTRING(hybrid, 1, 2)', [
+                'bool' => [
+                    'minimum_should_match' => 1,
+                    'should' => [
+                        [
+                            'script' => [
+                                'script' => ['source' => '(!doc["attrs.{l}.foo_text_s"].empty ? doc["attrs.{l}.foo_text_s"].value : null) = (!doc["attrs.{l}.hybrid_text_s"].empty ? doc["attrs.{l}.hybrid_text_s"].value : null).Substring(1, 2)'],
+                            ],
+                        ],
+                        [
+                            'bool' => [
+                                'must' => [
+                                    [
+                                        'script' => [
+                                            'script' => ['source' => '(!doc["attrs.{l}.foo_text_s"].empty ? doc["attrs.{l}.foo_text_s"].value : null) = (!doc["attrs.{l}.hybrid_number_s"].empty ? doc["attrs.{l}.hybrid_number_s"].value : null).Substring(1, 2)'],
+                                        ],
+                                    ],
+                                    [
+                                        'term' => [
+                                            'workspaceId' => '4242',
+                                        ],
+                                    ],
+                                ]
+                            ]
+                        ]
+                    ],
+                ],
+            ]],
+            ['hybrid = SUBSTRING(foo, 1, 2)', [
+                'bool' => [
+                    'minimum_should_match' => 1,
+                    'should' => [
+                        [
+                            'script' => [
+                                'script' => ['source' => '(!doc["attrs.{l}.hybrid_text_s"].empty ? doc["attrs.{l}.hybrid_text_s"].value : null) = (!doc["attrs.{l}.foo_text_s"].empty ? doc["attrs.{l}.foo_text_s"].value : null).Substring(1, 2)'],
+                            ],
+                        ],
+                        [
+                            'bool' => [
+                                'must' => [
+                                    [
+                                        'script' => [
+                                            'script' => ['source' => '(!doc["attrs.{l}.hybrid_number_s"].empty ? doc["attrs.{l}.hybrid_number_s"].value : null) = (!doc["attrs.{l}.foo_text_s"].empty ? doc["attrs.{l}.foo_text_s"].value : null).Substring(1, 2)'],
+                                        ],
+                                    ],
+                                    [
+                                        'term' => [
+                                            'workspaceId' => '4242',
+                                        ],
+                                    ],
+                                ]
+                            ]
+                        ]
                     ],
                 ],
             ]],
