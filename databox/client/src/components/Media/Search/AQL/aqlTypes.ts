@@ -1,4 +1,3 @@
-
 export enum AQLOperator {
     EQ = '=',
     NEQ = '!=',
@@ -22,10 +21,10 @@ export enum AQLOperator {
     WITHIN_RECTANGLE = 'WITHIN_RECTANGLE',
 }
 
-export type AQLField = { field: string };
+export type AQLField = {field: string};
 export type AQLFunctionCall = {
     type: 'function_call';
-    function: string
+    function: string;
     arguments: AQLValueOrExpression[];
 };
 
@@ -35,16 +34,19 @@ export type AQLValueExpression = {
     operator: '+' | '-' | '*' | '/';
     leftOperand: AQLValueOrExpression;
     rightOperand: AQLValueOrExpression;
-}
+};
 
 export type AQLParentheses = {
     type: 'parentheses';
     expression: AQLValueOrExpression;
-}
+};
 
-export type AQLValueOrExpression = AQLParentheses | AQLValueExpression | AQLValue;
+export type AQLValueOrExpression =
+    | AQLParentheses
+    | AQLValueExpression
+    | AQLValue;
 
-export type AQLLiteral = { literal: string };
+export type AQLLiteral = {literal: string};
 
 export type AQLValue = AQLFunctionCall | AQLScalarValue;
 
@@ -56,7 +58,7 @@ export type AQLCondition = {
     leftOperand: AQLOperand;
     rightOperand: RightOperand;
     operator: AQLOperator;
-}
+};
 export type AQLExpression = AQLAndOrExpression | AQLCondition;
 
 export enum AQLAndOrOperator {
@@ -67,11 +69,11 @@ export enum AQLAndOrOperator {
 export type AQLAndOrExpression = {
     operator?: AQLAndOrOperator;
     conditions: AQLCondition[];
-}
+};
 
 export type AQLQueryAST = {
     expression: AQLExpression;
-}
+};
 export type ManyArgs = number | true | undefined;
 export type ArgNames = string[] | undefined;
 

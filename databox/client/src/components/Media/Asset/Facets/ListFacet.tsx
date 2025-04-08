@@ -1,11 +1,17 @@
 import React, {useContext} from 'react';
-import {Checkbox, List, ListItemButton, ListItemSecondaryAction, ListItemText,} from '@mui/material';
+import {
+    Checkbox,
+    List,
+    ListItemButton,
+    ListItemSecondaryAction,
+    ListItemText,
+} from '@mui/material';
 import {extractLabelValueFromKey, FacetGroupProps} from '../Facets';
 import {SearchContext} from '../../Search/SearchContext';
 import {ListFacetItemProps} from './TextFacetItem';
 import {useTranslation} from 'react-i18next';
-import {AQLConditionBuilder} from "../../Search/AQL/AQLConditionBuilder.ts";
-import {parseAQLQuery} from "../../Search/AQL/AQL.ts";
+import {AQLConditionBuilder} from '../../Search/AQL/AQLConditionBuilder.ts';
+import {parseAQLQuery} from '../../Search/AQL/AQL.ts';
 
 type Props = {
     itemComponent: React.FC<ListFacetItemProps>;
@@ -17,7 +23,10 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
     const {type} = facet.meta;
     const {t} = useTranslation();
 
-    const queryBuilder = AQLConditionBuilder.fromQuery(name, condition ? parseAQLQuery(condition.query) : undefined);
+    const queryBuilder = AQLConditionBuilder.fromQuery(
+        name,
+        condition ? parseAQLQuery(condition.query) : undefined
+    );
 
     const missingOnClick = () => {
         upsertCondition({
@@ -25,7 +34,9 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
             query: `${name} IS MISSING`,
         });
     };
-    const missingSelected = Boolean(condition && !condition.disabled && queryBuilder.includeMissing);
+    const missingSelected = Boolean(
+        condition && !condition.disabled && queryBuilder.includeMissing
+    );
 
     return (
         <>
@@ -35,15 +46,16 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
                     const {value: keyV} = labelValue;
 
                     const selected = Boolean(
-                        condition && !condition.disabled &&
-                        queryBuilder.hasValue(keyV)
+                        condition &&
+                            !condition.disabled &&
+                            queryBuilder.hasValue(keyV)
                     );
                     const onClick = () => {
                         upsertCondition({
                             id: name,
                             query: queryBuilder.toggleValue(keyV).toString(),
                         });
-                    }
+                    };
 
                     return React.createElement(itemComponent, {
                         key: keyV.toString(),

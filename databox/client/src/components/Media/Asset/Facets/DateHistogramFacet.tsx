@@ -39,8 +39,7 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
     const max = buckets[buckets.length - 1].key as number;
     const step =
         buckets.length >= 2
-            ? (buckets[1].key as number) -
-              (buckets[0].key as number)
+            ? (buckets[1].key as number) - (buckets[0].key as number)
             : undefined;
 
     const getValueText = React.useCallback(
@@ -66,7 +65,9 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
 
     useEffect(() => {
         if (condition) {
-            const match = condition.query.match(/^.+\s+BETWEEN\s+(\d+)\s+AND\s+(\d+)/);
+            const match = condition.query.match(
+                /^.+\s+BETWEEN\s+(\d+)\s+AND\s+(\d+)/
+            );
             if (match) {
                 setValue([parseInt(match[1]!), parseInt(match[2]!)]);
                 return;
@@ -146,9 +147,7 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                         {!!condition && (
                             <ListItemSecondaryAction>
                                 <Button
-                                    onClick={() =>
-                                        removeCondition(condition)
-                                    }
+                                    onClick={() => removeCondition(condition)}
                                 >
                                     {t(
                                         'date_histogram_facet.clear_filter',

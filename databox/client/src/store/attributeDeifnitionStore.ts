@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 import {AttributeDefinition} from '../types';
-import {getAttributeDefinitions} from "../api/attributes.ts";
+import {getAttributeDefinitions} from '../api/attributes.ts';
 
 type State = {
     definitions: AttributeDefinition[];
@@ -14,7 +14,7 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
     loading: false,
     definitions: [],
 
-    load: async (force) => {
+    load: async force => {
         if (getState().loaded && !force) {
             return;
         }

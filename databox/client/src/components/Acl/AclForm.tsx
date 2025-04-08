@@ -3,7 +3,7 @@ import PermissionList from '../Permissions/PermissionList';
 import {deleteAce, getAces, putAce} from '../../api/acl';
 import {OnPermissionDelete, PermissionObject} from '../Permissions/permissions';
 import {UserType} from '../../types';
-import {PermissionHelpers} from "../Permissions/PermissionTable.tsx";
+import {PermissionHelpers} from '../Permissions/PermissionTable.tsx';
 
 type Props = {
     objectType: PermissionObject;
@@ -12,11 +12,7 @@ type Props = {
     permissionHelper?: PermissionHelpers;
 };
 
-export default function AclForm({
-    objectType,
-    objectId,
-    ...rest
-}: Props) {
+export default function AclForm({objectType, objectId, ...rest}: Props) {
     const loadPermissions = useCallback(async () => {
         return getAces(objectType, objectId);
     }, [objectType, objectId]);

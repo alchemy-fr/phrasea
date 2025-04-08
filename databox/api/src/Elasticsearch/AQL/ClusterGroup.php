@@ -9,8 +9,7 @@ final class ClusterGroup
         private readonly bool $isConstant = false,
         private readonly ?string $workspaceId = null,
         private readonly ?array $locales = null,
-    )
-    {
+    ) {
     }
 
     public function convert(mixed $item): self
@@ -37,8 +36,8 @@ final class ClusterGroup
     }
 
     /**
-     * @param self[]    $left
-     * @param self[]    $right
+     * @param self[] $left
+     * @param self[] $right
      *
      * @return self[]
      */

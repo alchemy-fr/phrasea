@@ -2,8 +2,6 @@
 
 namespace App\Elasticsearch\AQL\Function;
 
-use App\Elasticsearch\Facet\FacetInterface;
-
 abstract readonly class AbstractDateFunction implements AQLFunctionInterface
 {
     protected function normalizeDate(mixed $date): \DateTimeImmutable
@@ -13,7 +11,7 @@ abstract readonly class AbstractDateFunction implements AQLFunctionInterface
         }
 
         if (is_int($date)) {
-            return new \DateTimeImmutable('@' . $date);
+            return new \DateTimeImmutable('@'.$date);
         } elseif (is_string($date)) {
             return new \DateTimeImmutable($date);
         }

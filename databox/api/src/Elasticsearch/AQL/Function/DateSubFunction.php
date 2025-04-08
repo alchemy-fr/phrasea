@@ -6,7 +6,7 @@ final readonly class DateSubFunction extends AbstractDateFunction
 {
     public function resolve(array $arguments): mixed
     {
-        return $this->normalizeDate($arguments[0])->sub( new \DateInterval($arguments[1]));
+        return $this->normalizeDate($arguments[0])->sub(new \DateInterval($arguments[1]));
     }
 
     public static function getName(): string

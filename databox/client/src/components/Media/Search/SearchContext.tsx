@@ -1,7 +1,6 @@
-import {FacetType, ResolvedBucketValue} from '../Asset/Facets';
-import {Filters, FilterType, SortBy} from './Filter';
+import {SortBy} from './Filter';
 import React, {RefObject} from 'react';
-import {AQLQueries, AQLQuery} from "./AQL/query.ts";
+import {AQLQueries, AQLQuery} from './AQL/query.ts';
 
 export type TSearchContext = {
     workspaceId?: string;

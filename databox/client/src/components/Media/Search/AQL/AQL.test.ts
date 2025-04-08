@@ -1,34 +1,36 @@
-import {parseAQLQuery} from "./AQL.ts";
-import {astToString} from "./query.ts";
-import {AQLQueryAST} from "./aqlTypes.ts";
+import {parseAQLQuery} from './AQL.ts';
+import {astToString} from './query.ts';
+import {AQLQueryAST} from './aqlTypes.ts';
 
 it('parse AQL', function () {
     const dataSet = [
         {
             query: '@tag = true',
             result: {
-                expression:
-                    {leftOperand: {field: '@tag'}, operator: '=', rightOperand: true},
+                expression: {
+                    leftOperand: {field: '@tag'},
+                    operator: '=',
+                    rightOperand: true,
+                },
             },
         },
         {
             query: '@tag = (1 + 2 )',
             formattedQuery: '@tag = (1 + 2)',
             result: {
-                expression:
-                    {
-                        leftOperand: {field: '@tag'},
-                        operator: '=',
-                        rightOperand: {
-                            type: 'parentheses',
-                            expression: {
-                                type: 'value_expression',
-                                operator: '+',
-                                leftOperand: 1,
-                                rightOperand: 2,
-                            },
-                        }
+                expression: {
+                    leftOperand: {field: '@tag'},
+                    operator: '=',
+                    rightOperand: {
+                        type: 'parentheses',
+                        expression: {
+                            type: 'value_expression',
+                            operator: '+',
+                            leftOperand: 1,
+                            rightOperand: 2,
+                        },
                     },
+                },
             },
         },
         {
@@ -41,7 +43,7 @@ it('parse AQL', function () {
                         type: 'function_call',
                         function: 'NOW',
                         arguments: [],
-                    }
+                    },
                 },
             },
         },
@@ -63,13 +65,9 @@ it('parse AQL', function () {
                         rightOperand: {
                             type: 'function_call',
                             function: 'SUBSTRING',
-                            arguments: [
-                                {literal: 'foo'},
-                                1,
-                                2,
-                            ],
+                            arguments: [{literal: 'foo'}, 1, 2],
                         },
-                    }
+                    },
                 },
             },
         },
@@ -79,8 +77,16 @@ it('parse AQL', function () {
                 expression: {
                     operator: 'AND',
                     conditions: [
-                        {leftOperand: {field: 'field1'}, operator: '=', rightOperand: {literal: 'foo'}},
-                        {leftOperand: {field: 'price'}, operator: '>', rightOperand: 42},
+                        {
+                            leftOperand: {field: 'field1'},
+                            operator: '=',
+                            rightOperand: {literal: 'foo'},
+                        },
+                        {
+                            leftOperand: {field: 'price'},
+                            operator: '>',
+                            rightOperand: 42,
+                        },
                     ],
                 },
             },
@@ -89,7 +95,9 @@ it('parse AQL', function () {
             query: '@createdAt != "foo"',
             result: {
                 expression: {
-                    leftOperand: {field: '@createdAt'}, operator: '!=', rightOperand: {literal: 'foo'}
+                    leftOperand: {field: '@createdAt'},
+                    operator: '!=',
+                    rightOperand: {literal: 'foo'},
                 },
             },
         },
@@ -97,7 +105,9 @@ it('parse AQL', function () {
             query: '@createdAt != "f\\"oo"',
             result: {
                 expression: {
-                    leftOperand: {field: '@createdAt'}, operator: '!=', rightOperand: {literal: 'f"oo'}
+                    leftOperand: {field: '@createdAt'},
+                    operator: '!=',
+                    rightOperand: {literal: 'f"oo'},
                 },
             },
         },
@@ -105,7 +115,9 @@ it('parse AQL', function () {
             query: '@createdAt != "f\\"oo\\""',
             result: {
                 expression: {
-                    leftOperand: {field: '@createdAt'}, operator: '!=', rightOperand: {literal: 'f"oo"'}
+                    leftOperand: {field: '@createdAt'},
+                    operator: '!=',
+                    rightOperand: {literal: 'f"oo"'},
                 },
             },
         },
@@ -116,64 +128,88 @@ it('parse AQL', function () {
         {
             query: '@createdAt BETWEEN 1 AND 2',
             result: {
-                expression:
-                    {leftOperand: {field: '@createdAt'}, operator: 'BETWEEN', rightOperand: [1, 2]},
+                expression: {
+                    leftOperand: {field: '@createdAt'},
+                    operator: 'BETWEEN',
+                    rightOperand: [1, 2],
+                },
             },
         },
         {
             query: '@createdAt NOT  BETWEEN 1 AND 2',
             formattedQuery: '@createdAt NOT BETWEEN 1 AND 2',
             result: {
-                expression:
-                    {leftOperand: {field: '@createdAt'}, operator: 'NOT_BETWEEN', rightOperand: [1, 2]},
+                expression: {
+                    leftOperand: {field: '@createdAt'},
+                    operator: 'NOT_BETWEEN',
+                    rightOperand: [1, 2],
+                },
             },
         },
         {
             query: ' @createdAt NOT  BETWEEN 1 AND 2 ',
             formattedQuery: '@createdAt NOT BETWEEN 1 AND 2',
             result: {
-                expression:
-                    {leftOperand: {field: '@createdAt'}, operator: 'NOT_BETWEEN', rightOperand: [1, 2]},
+                expression: {
+                    leftOperand: {field: '@createdAt'},
+                    operator: 'NOT_BETWEEN',
+                    rightOperand: [1, 2],
+                },
             },
         },
         {
             query: '@tag IN ( "c333940d-9e5c-4f3c-b16a-77f8daabca87","6ee44526-3e8e-4412-8a9b-44b82fdce6bc" )',
-            formattedQuery: '@tag IN ("c333940d-9e5c-4f3c-b16a-77f8daabca87", "6ee44526-3e8e-4412-8a9b-44b82fdce6bc")',
+            formattedQuery:
+                '@tag IN ("c333940d-9e5c-4f3c-b16a-77f8daabca87", "6ee44526-3e8e-4412-8a9b-44b82fdce6bc")',
             result: {
-                expression:
-                    {
-                        leftOperand: {field: '@tag'},
-                        operator: 'IN',
-                        rightOperand: [{literal: "c333940d-9e5c-4f3c-b16a-77f8daabca87"}, {literal: "6ee44526-3e8e-4412-8a9b-44b82fdce6bc"}]
-                    },
+                expression: {
+                    leftOperand: {field: '@tag'},
+                    operator: 'IN',
+                    rightOperand: [
+                        {literal: 'c333940d-9e5c-4f3c-b16a-77f8daabca87'},
+                        {literal: '6ee44526-3e8e-4412-8a9b-44b82fdce6bc'},
+                    ],
+                },
             },
         },
         {
             query: '@tag IN (3, 2, 1)',
             result: {
-                expression:
-                    {leftOperand: {field: '@tag'}, operator: 'IN', rightOperand: [3, 2, 1]},
+                expression: {
+                    leftOperand: {field: '@tag'},
+                    operator: 'IN',
+                    rightOperand: [3, 2, 1],
+                },
             },
         },
         {
             query: '@tag NOT IN (true)',
             result: {
-                expression:
-                    {leftOperand: {field: '@tag'}, operator: 'NOT_IN', rightOperand: [true]},
+                expression: {
+                    leftOperand: {field: '@tag'},
+                    operator: 'NOT_IN',
+                    rightOperand: [true],
+                },
             },
         },
         {
             query: 'description CONTAINS "foo"',
             result: {
-                expression:
-                    {leftOperand: {field: 'description'}, operator: 'CONTAINS', rightOperand: {literal: 'foo'}},
+                expression: {
+                    leftOperand: {field: 'description'},
+                    operator: 'CONTAINS',
+                    rightOperand: {literal: 'foo'},
+                },
             },
         },
         {
             query: 'number > other_number',
             result: {
-                expression:
-                    {leftOperand: {field: 'number'}, operator: '>', rightOperand: {field: 'other_number'}},
+                expression: {
+                    leftOperand: {field: 'number'},
+                    operator: '>',
+                    rightOperand: {field: 'other_number'},
+                },
             },
         },
         {
@@ -185,12 +221,24 @@ it('parse AQL', function () {
                         {
                             operator: 'AND',
                             conditions: [
-                                {leftOperand: {field: 'f1'}, operator: '=', rightOperand: {literal: '1'}},
-                                {leftOperand: {field: 'f2'}, operator: '!=', rightOperand: {literal: '2'}},
+                                {
+                                    leftOperand: {field: 'f1'},
+                                    operator: '=',
+                                    rightOperand: {literal: '1'},
+                                },
+                                {
+                                    leftOperand: {field: 'f2'},
+                                    operator: '!=',
+                                    rightOperand: {literal: '2'},
+                                },
                             ],
                         },
-                        {leftOperand: {field: 'f3'}, operator: '!=', rightOperand: {literal: '3'}},
-                    ]
+                        {
+                            leftOperand: {field: 'f3'},
+                            operator: '!=',
+                            rightOperand: {literal: '3'},
+                        },
+                    ],
                 },
             },
         },
@@ -203,12 +251,24 @@ it('parse AQL', function () {
                         {
                             operator: 'AND',
                             conditions: [
-                                {leftOperand: {field: 'f1'}, operator: '=', rightOperand: {literal: '1'}},
-                                {leftOperand: {field: 'f2'}, operator: '!=', rightOperand: {literal: '2'}},
+                                {
+                                    leftOperand: {field: 'f1'},
+                                    operator: '=',
+                                    rightOperand: {literal: '1'},
+                                },
+                                {
+                                    leftOperand: {field: 'f2'},
+                                    operator: '!=',
+                                    rightOperand: {literal: '2'},
+                                },
                             ],
                         },
-                        {leftOperand: {field: 'f3'}, operator: '!=', rightOperand: {literal: '3'}},
-                    ]
+                        {
+                            leftOperand: {field: 'f3'},
+                            operator: '!=',
+                            rightOperand: {literal: '3'},
+                        },
+                    ],
                 },
             },
         },
@@ -218,15 +278,27 @@ it('parse AQL', function () {
                 expression: {
                     operator: 'AND',
                     conditions: [
-                        {leftOperand: {field: 'f1'}, operator: '=', rightOperand: {literal: '1'}},
+                        {
+                            leftOperand: {field: 'f1'},
+                            operator: '=',
+                            rightOperand: {literal: '1'},
+                        },
                         {
                             operator: 'AND',
                             conditions: [
-                                {leftOperand: {field: 'f2'}, operator: '!=', rightOperand: {literal: '2'}},
-                                {leftOperand: {field: 'f3'}, operator: '!=', rightOperand: {literal: '3'}},
+                                {
+                                    leftOperand: {field: 'f2'},
+                                    operator: '!=',
+                                    rightOperand: {literal: '2'},
+                                },
+                                {
+                                    leftOperand: {field: 'f3'},
+                                    operator: '!=',
+                                    rightOperand: {literal: '3'},
+                                },
                             ],
                         },
-                    ]
+                    ],
                 },
             },
         },
@@ -236,15 +308,27 @@ it('parse AQL', function () {
                 expression: {
                     operator: 'AND',
                     conditions: [
-                        {leftOperand: {field: 'f1'}, operator: '=', rightOperand: {literal: '1'}},
+                        {
+                            leftOperand: {field: 'f1'},
+                            operator: '=',
+                            rightOperand: {literal: '1'},
+                        },
                         {
                             operator: 'OR',
                             conditions: [
-                                {leftOperand: {field: 'f2'}, operator: '!=', rightOperand: {literal: '2'}},
-                                {leftOperand: {field: 'f3'}, operator: '!=', rightOperand: {literal: '3'}},
+                                {
+                                    leftOperand: {field: 'f2'},
+                                    operator: '!=',
+                                    rightOperand: {literal: '2'},
+                                },
+                                {
+                                    leftOperand: {field: 'f3'},
+                                    operator: '!=',
+                                    rightOperand: {literal: '3'},
+                                },
                             ],
                         },
-                    ]
+                    ],
                 },
             },
         },
@@ -254,15 +338,27 @@ it('parse AQL', function () {
                 expression: {
                     operator: 'OR',
                     conditions: [
-                        {leftOperand: {field: 'f1'}, operator: '=', rightOperand: {literal: '1'}},
+                        {
+                            leftOperand: {field: 'f1'},
+                            operator: '=',
+                            rightOperand: {literal: '1'},
+                        },
                         {
                             operator: 'AND',
                             conditions: [
-                                {leftOperand: {field: 'f2'}, operator: '!=', rightOperand: {literal: '2'}},
-                                {leftOperand: {field: 'f3'}, operator: '!=', rightOperand: {literal: '3'}},
+                                {
+                                    leftOperand: {field: 'f2'},
+                                    operator: '!=',
+                                    rightOperand: {literal: '2'},
+                                },
+                                {
+                                    leftOperand: {field: 'f3'},
+                                    operator: '!=',
+                                    rightOperand: {literal: '3'},
+                                },
                             ],
                         },
-                    ]
+                    ],
                 },
             },
         },
@@ -272,11 +368,7 @@ it('parse AQL', function () {
                 expression: {
                     leftOperand: {field: 'location'},
                     operator: 'WITHIN_CIRCLE',
-                    rightOperand: [
-                        48.8,
-                        2.32,
-                        {literal: '10km'},
-                    ],
+                    rightOperand: [48.8, 2.32, {literal: '10km'}],
                 },
             },
         },
@@ -286,7 +378,9 @@ it('parse AQL', function () {
         const actual = parseAQLQuery(query);
         expect(actual).toEqual(result);
         if (result !== undefined) {
-            expect(astToString(result as AQLQueryAST)).toEqual(formattedQuery ?? query);
+            expect(astToString(result as AQLQueryAST)).toEqual(
+                formattedQuery ?? query
+            );
         }
     });
 });

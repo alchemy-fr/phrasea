@@ -5,7 +5,7 @@ import {
     ListItemText,
 } from '@mui/material';
 import {LabelledBucketValue} from '../Facets';
-import {stopPropagation} from "../../../../lib/stdFuncs.ts";
+import {stopPropagation} from '../../../../lib/stdFuncs.ts';
 
 type Props = {
     onClick: () => void;

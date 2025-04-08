@@ -78,8 +78,9 @@ export async function getWorkspaceAttributeDefinitions(
     return res.data['hydra:member'];
 }
 
-
-export async function getAttributeDefinitions(): Promise<AttributeDefinition[]> {
+export async function getAttributeDefinitions(): Promise<
+    AttributeDefinition[]
+> {
     const res = await apiClient.get(attributeDefinitionNS, {
         params: {
             limit: 1000,

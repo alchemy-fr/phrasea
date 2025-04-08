@@ -57,7 +57,6 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
 
     React.useLayoutEffect(() => {
         listRef.current?.scrollToRow(0);
-
     }, [pages[0], listRef]);
 
     const cellMeasurer = React.useMemo(() => {

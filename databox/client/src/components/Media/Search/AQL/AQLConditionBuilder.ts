@@ -1,12 +1,17 @@
-import {AQLAndOrExpression, AQLCondition, AQLLiteral, AQLOperand, AQLQueryAST} from "./aqlTypes.ts";
-import {isAQLField, resolveAQLValue, ScalarValue} from "./query.ts";
-import {hasProp} from "../../../../lib/utils.ts";
+import {
+    AQLAndOrExpression,
+    AQLCondition,
+    AQLOperand,
+    AQLQueryAST,
+} from './aqlTypes.ts';
+import {isAQLField, resolveAQLValue, ScalarValue} from './query.ts';
+import {hasProp} from '../../../../lib/utils.ts';
 
 type Props = {
     field: string;
     values?: ScalarValue[];
     includeMissing?: boolean;
-}
+};
 
 export class AQLConditionBuilder {
     private readonly field: string;
@@ -32,7 +37,9 @@ export class AQLConditionBuilder {
     }
 
     public toggleValue(value: ScalarValue) {
-        return this.hasValue(value) ? this.removeValue(value) : this.addValue(value);
+        return this.hasValue(value)
+            ? this.removeValue(value)
+            : this.addValue(value);
     }
 
     public getValues(): ScalarValue[] {
@@ -47,9 +54,13 @@ export class AQLConditionBuilder {
         const conditions: string[] = [];
 
         if (this.values.length > 0) {
-            conditions.push(`${this.field} ${this.values.length > 1 ? 'IN (' : '= '}${this.values.map(v => {
-                return typeof v === 'string' ? `"${v}"` : v;
-            }).join(', ')}${this.values.length > 1 ? ')' : ''}`);
+            conditions.push(
+                `${this.field} ${this.values.length > 1 ? 'IN (' : '= '}${this.values
+                    .map(v => {
+                        return typeof v === 'string' ? `"${v}"` : v;
+                    })
+                    .join(', ')}${this.values.length > 1 ? ')' : ''}`
+            );
         }
 
         if (this.includeMissing) {
@@ -63,7 +74,7 @@ export class AQLConditionBuilder {
 
     public static fromQuery(field: string, query: AQLQueryAST | undefined) {
         let values: ScalarValue[] | undefined = undefined;
-        let includeMissing: boolean = false;
+        const includeMissing: boolean = false;
 
         function resolveValue(value: AQLOperand): ScalarValue {
             return resolveAQLValue(value, true);
@@ -104,6 +115,6 @@ export class AQLConditionBuilder {
             field,
             values,
             includeMissing,
-        })
+        });
     }
 }

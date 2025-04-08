@@ -9,8 +9,7 @@ final readonly class Argument
         private TypeEnum $type,
         private ?string $description = null,
         private bool $required = true,
-    )
-    {
+    ) {
     }
 
     public function getName(): string

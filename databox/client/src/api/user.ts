@@ -1,13 +1,16 @@
 import apiClient from './api-client';
 import {Group, User} from '../types';
 import {UserPreferences} from '../components/User/Preferences/UserPreferencesContext';
-import {AxiosRequestConfig} from "axios";
+import {AxiosRequestConfig} from 'axios';
 
 type QueryOptions = {
     query?: string;
 };
 
-export async function getUsers(options: QueryOptions = {}, config: AxiosRequestConfig = {}): Promise<User[]> {
+export async function getUsers(
+    options: QueryOptions = {},
+    config: AxiosRequestConfig = {}
+): Promise<User[]> {
     const res = await apiClient.get(`/permissions/users`, {
         params: options.query ? {query: options.query} : undefined,
         ...config,

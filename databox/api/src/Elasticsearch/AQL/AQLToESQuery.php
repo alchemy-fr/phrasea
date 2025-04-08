@@ -6,7 +6,6 @@ use App\Attribute\AttributeInterface;
 use App\Elasticsearch\AQL\Function\AQLFunctionInterface;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AQL\Function\Argument;
-use App\Elasticsearch\AQL\Function\TypeEnum;
 use App\Elasticsearch\Facet\FacetInterface;
 use App\Elasticsearch\Facet\FacetRegistry;
 use Elastica\Query;
@@ -163,7 +162,7 @@ final readonly class AQLToESQuery
                 'value_expression' => $this->isResolvableValue($node['leftOperand'])
                     && $this->isResolvableValue($node['rightOperand']),
                 default => isset($node['literal'])
-                    || (!isset($node['field']) && !array_any($node, fn ($m) => !$this->isResolvableValue($m)))
+                    || (!isset($node['field']) && !array_any($node, fn ($m) => !$this->isResolvableValue($m))),
             };
         }
 
@@ -201,7 +200,7 @@ final readonly class AQLToESQuery
         return $result;
     }
 
-    function resolveValueExpression(array $exprNode): mixed
+    public function resolveValueExpression(array $exprNode): mixed
     {
         $operator = strtolower($exprNode['operator']);
         $left = $this->resolveValue($exprNode['leftOperand']);
@@ -430,7 +429,7 @@ final readonly class AQLToESQuery
                         'field' => $facet->getFieldName(),
                         'facet' => $facet,
                         'locales' => [],
-                    ], true)
+                    ], true),
                 ];
             } else {
                 $key = substr($fieldSlug, 1);
@@ -445,7 +444,7 @@ final readonly class AQLToESQuery
                             'filename' => 'fileName',
                         },
                         'locales' => [],
-                    ], true)
+                    ], true),
                 ];
             }
         }

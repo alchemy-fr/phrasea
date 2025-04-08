@@ -1,6 +1,6 @@
-import {QBAndOrExpression, QBCondition, QBExpression} from "./builderTypes.ts";
-import {hasProp} from "../../../../../lib/utils.ts";
-import {AQLAndOrOperator, AQLOperator} from "../aqlTypes.ts";
+import {QBAndOrExpression, QBCondition, QBExpression} from './builderTypes.ts';
+import {hasProp} from '../../../../../lib/utils.ts';
+import {AQLAndOrOperator, AQLOperator} from '../aqlTypes.ts';
 
 export const emptyCondition: QBCondition = {
     leftOperand: {
@@ -10,26 +10,39 @@ export const emptyCondition: QBCondition = {
     rightOperand: {literal: ''},
 };
 
-export function addExpression(prev: QBExpression, group: boolean): QBAndOrExpression {
-    const newExpression: QBAndOrExpression = hasProp<QBAndOrExpression>(prev, 'conditions') ? {
-        ...prev,
-        conditions: [...prev.conditions],
-    } : {
-        operator: AQLAndOrOperator.AND,
-        conditions: [prev]
-    };
+export function addExpression(
+    prev: QBExpression,
+    group: boolean
+): QBAndOrExpression {
+    const newExpression: QBAndOrExpression = hasProp<QBAndOrExpression>(
+        prev,
+        'conditions'
+    )
+        ? {
+              ...prev,
+              conditions: [...prev.conditions],
+          }
+        : {
+              operator: AQLAndOrOperator.AND,
+              conditions: [prev],
+          };
 
-    newExpression.conditions.push(group ? {
-        operator: AQLAndOrOperator.AND,
-        conditions: [
-            {...emptyCondition},
-        ]
-    } : {...emptyCondition});
+    newExpression.conditions.push(
+        group
+            ? {
+                  operator: AQLAndOrOperator.AND,
+                  conditions: [{...emptyCondition}],
+              }
+            : {...emptyCondition}
+    );
 
     return newExpression;
 }
 
-export function removeExpression(prev: QBExpression, expressionToRemove: QBExpression): QBExpression | null {
+export function removeExpression(
+    prev: QBExpression,
+    expressionToRemove: QBExpression
+): QBExpression | null {
     if (hasProp<QBAndOrExpression>(prev, 'conditions')) {
         if (prev.conditions.length === 1) {
             return null;

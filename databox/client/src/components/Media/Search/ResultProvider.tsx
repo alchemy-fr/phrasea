@@ -8,7 +8,7 @@ import {TFacets} from '../Asset/Facets';
 import {SortBy} from './Filter';
 import axios from 'axios';
 import {getResolvedSortBy} from './SearchProvider';
-import {AQLQueries} from "./AQL/query.ts";
+import {AQLQueries} from './AQL/query.ts';
 
 type UserSearchContext = {
     position?: string | undefined;
@@ -146,8 +146,8 @@ export default function ResultProvider({children}: Props) {
                 debug: state.debug,
                 loadMore: state.next
                     ? async () => {
-                        await doSearch(state.next!);
-                    }
+                          await doSearch(state.next!);
+                      }
                     : undefined,
                 reload: doSearch,
             }}

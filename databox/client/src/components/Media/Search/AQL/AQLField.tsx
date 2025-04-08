@@ -1,6 +1,5 @@
-import {TextField} from "@mui/material";
-import React from "react";
-import {parseAQLQuery} from "./AQL.ts";
+import {TextField} from '@mui/material';
+import React from 'react';
 
 type Props = {
     value: string;
@@ -8,25 +7,23 @@ type Props = {
     error?: boolean;
 };
 
-export default function AqlField({
-    value,
-    onChange,
-    error,
-}: Props) {
-    return <>
-        <TextField
-            fullWidth={true}
-            value={value}
-            error={error}
-            inputProps={{
-                style: {
-                    fontFamily: 'Courier New',
-                },
-                spellCheck: false,
-            }}
-            onChange={(e) => {
-                onChange(e.target.value);
-            }}
-        />
-    </>
+export default function AqlField({value, onChange, error}: Props) {
+    return (
+        <>
+            <TextField
+                fullWidth={true}
+                value={value}
+                error={error}
+                inputProps={{
+                    style: {
+                        fontFamily: 'Courier New',
+                    },
+                    spellCheck: false,
+                }}
+                onChange={e => {
+                    onChange(e.target.value);
+                }}
+            />
+        </>
+    );
 }

@@ -1,13 +1,13 @@
-import {RawType} from "../aqlTypes.ts";
-import {TextField} from "@mui/material";
-import React from "react";
+import {RawType} from '../aqlTypes.ts';
+import {TextField} from '@mui/material';
+import React from 'react';
 
 type Props = {
-    rawType: RawType | undefined,
-    value: string,
-    name: string,
-    label: string,
-    onChange: (value: string) => void,
+    rawType: RawType | undefined;
+    value: string;
+    name: string;
+    label: string;
+    onChange: (value: string) => void;
 };
 
 export type {Props as FieldBuilderProps};
@@ -25,15 +25,17 @@ export default function FieldBuilder({
         setValue(initialValue);
     }, [initialValue]);
 
-    return <TextField
-        type={rawType === RawType.Date ? 'datetime-local' : 'text'}
+    return (
+        <TextField
+            type={rawType === RawType.Date ? 'datetime-local' : 'text'}
             name={name}
             value={value}
             onBlur={() => onChange(value)}
-            onChange={(e) => {
+            onChange={e => {
                 setValue(e.target.value);
             }}
             fullWidth={true}
             placeholder={label}
         />
+    );
 }

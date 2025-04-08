@@ -34,7 +34,7 @@ class AttributeSearch
         private readonly AttributeTypeRegistry $typeRegistry,
         private readonly AQLParser $AQLParser,
         private readonly AQLToESQuery $AQLToESQuery,
-        TemporaryCacheFactory $cacheFactory
+        TemporaryCacheFactory $cacheFactory,
     ) {
         $this->cache = $cacheFactory->createCache();
     }

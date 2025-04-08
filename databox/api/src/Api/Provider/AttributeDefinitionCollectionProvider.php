@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
-use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
-use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;

@@ -594,9 +594,8 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return sprintf('Asset %s', $this->getTitle() ?? $this->getId());
     }
 
-
     /**
-     * Used by ES
+     * Used by ES.
      */
     public function getSourceFileSize(): ?int
     {
@@ -609,7 +608,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     }
 
     /**
-     * Used by ES
+     * Used by ES.
      */
     public function getSourceFilename(): ?string
     {
@@ -617,7 +616,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     }
 
     /**
-     * Used by ES
+     * Used by ES.
      */
     public function getSourceFileType(): ?string
     {
@@ -625,7 +624,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     }
 
     /**
-     * Used by ES
+     * Used by ES.
      */
     public function getSourceFileMimeType(): ?string
     {

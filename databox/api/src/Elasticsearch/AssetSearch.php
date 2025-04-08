@@ -109,16 +109,14 @@ class AssetSearch extends AbstractSearch
 
         if (!empty($parsed['should'])) {
             $multiMatch = $this->attributeSearch->buildAttributeQuery(
-                $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds)
-                , $parsed['should'], $options);
+                $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds), $parsed['should'], $options);
             $filterQuery->addMust($multiMatch);
         }
         foreach ($parsed['must'] as $must) {
             $multiMatch = $this->attributeSearch->buildAttributeQuery(
-                $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds)
-                , $must, array_merge($options, [
-                AttributeSearch::OPT_STRICT_PHRASE => true,
-            ]));
+                $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds), $must, array_merge($options, [
+                    AttributeSearch::OPT_STRICT_PHRASE => true,
+                ]));
             $filterQuery->addMust($multiMatch);
         }
 

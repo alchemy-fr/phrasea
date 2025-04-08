@@ -227,8 +227,8 @@ class AQLToESQueryTest extends TestCase
                                             'workspaceId' => '4242',
                                         ],
                                     ],
-                                ]
-                            ]
+                                ],
+                            ],
                         ],
                         [
                             'bool' => [
@@ -243,9 +243,9 @@ class AQLToESQueryTest extends TestCase
                                             'workspaceId' => '4242',
                                         ],
                                     ],
-                                ]
-                            ]
-                        ]
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ]],
@@ -271,9 +271,9 @@ class AQLToESQueryTest extends TestCase
                                             'workspaceId' => '4242',
                                         ],
                                     ],
-                                ]
-                            ]
-                        ]
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ]],
@@ -299,9 +299,9 @@ class AQLToESQueryTest extends TestCase
                                             'workspaceId' => '4242',
                                         ],
                                     ],
-                                ]
-                            ]
-                        ]
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ]],

@@ -16,8 +16,8 @@ import {getAttributeType} from './Attribute/types';
 import {FilterType} from '../Search/Filter';
 import {AttributeFormat} from './Attribute/types/types';
 import TagsFacet from './Facets/TagsFacet';
-import EntitiesFacet from "./Facets/EntitiesFacet.tsx";
-import {BuiltInFilter} from "../Search/search.ts";
+import EntitiesFacet from './Facets/EntitiesFacet.tsx';
+import {BuiltInFilter} from '../Search/search.ts';
 
 export type BucketValue = string | number | boolean;
 

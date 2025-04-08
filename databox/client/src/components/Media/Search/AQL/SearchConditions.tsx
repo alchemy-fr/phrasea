@@ -1,11 +1,11 @@
-import {AQLQueries, AQLQuery} from "./query.ts";
-import {Box, Button} from "@mui/material";
+import {AQLQueries, AQLQuery} from './query.ts';
+import {Box, Button} from '@mui/material';
 import {useTranslation} from 'react-i18next';
-import React from "react";
-import SearchCondition from "./SearchCondition.tsx";
-import {useModals} from "@alchemy/navigation";
-import SearchConditionDialog from "./SearchConditionDialog.tsx";
-import AddIcon from "@mui/icons-material/Add";
+import React from 'react';
+import SearchCondition from './SearchCondition.tsx';
+import {useModals} from '@alchemy/navigation';
+import SearchConditionDialog from './SearchConditionDialog.tsx';
+import AddIcon from '@mui/icons-material/Add';
 
 type Props = {
     conditions: AQLQueries;
@@ -45,7 +45,7 @@ export default function SearchConditions({
                         condition: {
                             id: Math.random().toString(36).substring(7),
                             query: '',
-                        }
+                        },
                     });
                 }}
             >

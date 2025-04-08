@@ -103,11 +103,11 @@ simple_operator -> "=" {% id %}
     | ">=" {% id %}
     | "<=" {% id %}
     | __ "CONTAINS" {% d => d[1] %}
-    | "DOES" __ "NOT" __ "CONTAIN" {% d => 'NOT_CONTAINS' %}
+    | "DOES" __ "NOT" __ "CONTAIN" {% () => 'NOT_CONTAINS' %}
     | __ "MATCHES" {% d => d[1] %}
-    | "DOES" __ "NOT" __ "MATCH" {% d => 'NOT_MATCHES' %}
+    | "DOES" __ "NOT" __ "MATCH" {% () => 'NOT_MATCHES' %}
     | __ "STARTS" __ "WITH" {% () => 'STARTS_WITH' %}
-    | "DOES" __ "NOT" __ "START" __ "WITH" {% d => 'NOT_STARTS_WITH' %}
+    | "DOES" __ "NOT" __ "START" __ "WITH" {% () => 'NOT_STARTS_WITH' %}
 
 function_call -> identifier "(" _ value_expression:? (_ "," _ value_expression):* _ ")" {% (data) => {
     const args = [];

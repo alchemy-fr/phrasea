@@ -3,7 +3,7 @@ import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import AclForm from '../../Acl/AclForm';
 import ContentTab from '../Tabbed/ContentTab';
 import {PermissionObject} from '../../Permissions/permissions';
-import {AclPermission} from "../../Acl/acl.ts";
+import {AclPermission} from '../../Acl/acl.ts';
 import {useTranslation} from 'react-i18next';
 
 type Props = {

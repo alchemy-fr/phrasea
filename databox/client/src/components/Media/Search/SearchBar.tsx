@@ -6,7 +6,7 @@ import {ZIndex} from '../../../themes/zIndex';
 import GeoPointFilter from './GeoPointFilter';
 import SearchAutoComplete from './SearchAutoComplete.tsx';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import SearchConditions from "./AQL/SearchConditions.tsx";
+import SearchConditions from './AQL/SearchConditions.tsx';
 
 type Props = {};
 

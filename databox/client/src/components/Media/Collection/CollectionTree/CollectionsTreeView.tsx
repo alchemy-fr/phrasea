@@ -69,7 +69,11 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
         event: React.ChangeEvent<{}>,
         nodeIds: IsMulti extends true ? string[] : string
     ) => {
-        if ((event.target as HTMLElement).closest('.MuiTreeItem-root')?.classList.contains('not-selectable')) {
+        if (
+            (event.target as HTMLElement)
+                .closest('.MuiTreeItem-root')
+                ?.classList.contains('not-selectable')
+        ) {
             event.preventDefault();
             return;
         }

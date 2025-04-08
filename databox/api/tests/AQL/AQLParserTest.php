@@ -464,7 +464,7 @@ class AQLParserTest extends TestCase
                             'rightOperand' => 5,
                         ],
                         ['type' => 'function_call', 'function' => 'NOW', 'arguments' => []],
-                    ]
+                    ],
                 ],
             ]],
             ['my_field = now() * 2', [
@@ -507,7 +507,7 @@ class AQLParserTest extends TestCase
                 'rightOperand' => [
                     48.8,
                     2.32,
-                    ['literal' => '10km']
+                    ['literal' => '10km'],
                 ],
             ]],
             ['my_field WITHIN RECTANGLE (1.1, 1.2, 2.1, 2.2)', [

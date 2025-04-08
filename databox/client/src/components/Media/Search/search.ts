@@ -1,5 +1,5 @@
 import {SortBy} from './Filter';
-import {AQLQueries, AQLQuery} from "./AQL/query.ts";
+import {AQLQueries, AQLQuery} from './AQL/query.ts';
 
 const specSep = ';';
 const arraySep = ',';
@@ -62,7 +62,11 @@ export function queryToHash(
     }
     if (conditions && conditions.length > 0) {
         hash += `${hash ? '&' : ''}${conditions
-            .map(q => `f=${q.id}${q.inversed ? Flag.Inversed : ''}${q.disabled ? Flag.Disabled : ''}:${encodeURIComponent(q.query)}`).join('&')}`;
+            .map(
+                q =>
+                    `f=${q.id}${q.inversed ? Flag.Inversed : ''}${q.disabled ? Flag.Disabled : ''}:${encodeURIComponent(q.query)}`
+            )
+            .join('&')}`;
     }
     if (sortBy && sortBy.length > 0) {
         hash += `${hash ? '&' : ''}s=${encodeURIComponent(
@@ -87,24 +91,23 @@ export function hashToQuery(hash: string): {
     return {
         query: decodeURIComponent(params.get('q') || ''),
         conditions: params.has('f')
-            ? (params.getAll('f'))
-                .map(q => {
-                    const [id, ...query] = q.split(':');
-                    const field = id.replace(/[!_]$/, '');
-                    const flags = id.substring(field.length);
+            ? params.getAll('f').map(q => {
+                  const [id, ...query] = q.split(':');
+                  const field = id.replace(/[!_]$/, '');
+                  const flags = id.substring(field.length);
 
-                    return {
-                        query: query.join(':'),
-                        id: id.replace(/[!_]$/, ''),
-                        disabled: flags.includes(Flag.Disabled),
-                        inversed: flags.includes(Flag.Inversed),
-                    } as AQLQuery;
-                })
+                  return {
+                      query: query.join(':'),
+                      id: id.replace(/[!_]$/, ''),
+                      disabled: flags.includes(Flag.Disabled),
+                      inversed: flags.includes(Flag.Inversed),
+                  } as AQLQuery;
+              })
             : [],
         sortBy: params.get('s')
             ? decodeURIComponent(params.get('s') as string)
-                .split(arraySep)
-                .map(decodeSortBy)
+                  .split(arraySep)
+                  .map(decodeSortBy)
             : [],
         geolocation: params.get('l')
             ? decodeURIComponent(params.get('l') as string)

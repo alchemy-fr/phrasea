@@ -1,14 +1,19 @@
 import React, {PropsWithChildren, useCallback, useState} from 'react';
 import {SearchContext, TSearchContext} from './SearchContext';
 import {SortBy} from './Filter';
-import {BuiltInFilter, hashToQuery, queryToHash} from './search';
+import {hashToQuery, queryToHash} from './search';
 import useHash from '../../../lib/useHash';
 import {useTranslation} from 'react-i18next';
 import type {TFunction} from '@alchemy/i18n';
-import {AQLQuery, AQLQueries, isAQLCondition, isAQLField, resolveAQLValue} from "./AQL/query.ts";
-import {InternalKey, parseAQLQuery} from "./AQL/AQL.ts";
-import {AQLCondition, AQLQueryAST} from "./AQL/aqlTypes.ts";
-import {hasProp} from "../../../lib/utils.ts";
+import {
+    AQLQuery,
+    AQLQueries,
+    isAQLCondition,
+    isAQLField,
+    resolveAQLValue,
+} from './AQL/query.ts';
+import {InternalKey, parseAQLQuery} from './AQL/AQL.ts';
+import {AQLCondition, AQLQueryAST} from './AQL/aqlTypes.ts';
 
 export function getResolvedSortBy(sortBy: SortBy[], t: TFunction): SortBy[] {
     return sortBy.length > 0
@@ -50,7 +55,10 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
     }, [query]);
 
     const setConditions = useCallback(
-        (handler: (prev: AQLQueries) => AQLQueries, newQuery?: string): boolean => {
+        (
+            handler: (prev: AQLQueries) => AQLQueries,
+            newQuery?: string
+        ): boolean => {
             return setHash(
                 queryToHash(
                     newQuery ?? inputQuery.current ?? query,
@@ -67,8 +75,13 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         return setHash('');
     }, [setHash, query, conditions, sortBy, geolocation]);
 
-    function replaceConditionHelper(conditions: AQLQueries, condition: AQLQuery): AQLQueries {
-        const expr = conditions.map(c => c.id === condition.id ? condition : c);
+    function replaceConditionHelper(
+        conditions: AQLQueries,
+        condition: AQLQuery
+    ): AQLQueries {
+        const expr = conditions.map(c =>
+            c.id === condition.id ? condition : c
+        );
 
         if (!expr.some(c => c.id === condition.id)) {
             expr.push(condition);
@@ -77,7 +90,10 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         return expr;
     }
 
-    function removeConditionHelper(conditions: AQLQueries, id: string): AQLQueries {
+    function removeConditionHelper(
+        conditions: AQLQueries,
+        id: string
+    ): AQLQueries {
         return conditions.filter(c => c.id !== id);
     }
 
@@ -85,10 +101,16 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         (workspaceId, _title, forceReload): void => {
             if (
                 !setConditions(p => {
-                    const newConditions = removeConditionHelper(p, InternalKey.Collection);
+                    const newConditions = removeConditionHelper(
+                        p,
+                        InternalKey.Collection
+                    );
 
                     if (!workspaceId) {
-                        return removeConditionHelper(newConditions, InternalKey.Workspace);
+                        return removeConditionHelper(
+                            newConditions,
+                            InternalKey.Workspace
+                        );
                     }
 
                     return replaceConditionHelper(newConditions, {
@@ -108,10 +130,16 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         (collectionId, _title, forceReload): void => {
             if (
                 !setConditions(p => {
-                    const newConditions = removeConditionHelper(p, InternalKey.Workspace);
+                    const newConditions = removeConditionHelper(
+                        p,
+                        InternalKey.Workspace
+                    );
 
                     if (!collectionId) {
-                        return removeConditionHelper(newConditions, InternalKey.Collection);
+                        return removeConditionHelper(
+                            newConditions,
+                            InternalKey.Collection
+                        );
                     }
 
                     return replaceConditionHelper(newConditions, {
@@ -159,9 +187,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         [setHash, query, conditions, sortBy, geolocation]
     );
 
-    const upsertCondition = (
-        condition: AQLQuery
-    ): void => {
+    const upsertCondition = (condition: AQLQuery): void => {
         setConditions(prev => {
             const f = [...prev];
 
@@ -181,18 +207,21 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         setConditions(prev => prev.filter(c => c.id !== condition.id));
     };
 
-    const conditionsAst = (conditions
-        .filter(q => !q.disabled)
-        .map(c => parseAQLQuery(c.query))
-        .filter(q => q && isAQLCondition(q.expression)) as AQLQueryAST[])
-        .map(q => q.expression) as AQLCondition[];
+    const conditionsAst = (
+        conditions
+            .filter(q => !q.disabled)
+            .map(c => parseAQLQuery(c.query))
+            .filter(q => q && isAQLCondition(q.expression)) as AQLQueryAST[]
+    ).map(q => q.expression) as AQLCondition[];
 
     function filterOfType(type: InternalKey): string[] {
         return conditionsAst
-            .filter(c =>
-                isAQLField(c.leftOperand)
-                && c.leftOperand.field === `@${type}`
-                && c.rightOperand)
+            .filter(
+                c =>
+                    isAQLField(c.leftOperand) &&
+                    c.leftOperand.field === `@${type}` &&
+                    c.rightOperand
+            )
             .map(c => {
                 if (Array.isArray(c.rightOperand)) {
                     return c.rightOperand.map(o => resolveAQLValue(o));

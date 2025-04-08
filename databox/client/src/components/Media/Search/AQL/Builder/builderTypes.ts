@@ -2,20 +2,19 @@ import {
     AQLAndOrOperator,
     AQLCondition,
     AQLOperator,
-    AQLValue,
     AQLValueOrExpression,
     ArgNames,
     ManyArgs,
-    RawType
-} from "../aqlTypes.ts";
-import {AttributeDefinitionIndex} from "../../../../AttributeEditor/types.ts";
+    RawType,
+} from '../aqlTypes.ts';
+import {AttributeDefinitionIndex} from '../../../../AttributeEditor/types.ts';
 
 export type QBExpression = QBAndOrExpression | QBCondition;
 
 export type QBAndOrExpression = {
     operator?: AQLAndOrOperator;
     conditions: QBExpression[];
-}
+};
 
 export type QBCondition = {
     operator: AQLOperator;
@@ -28,7 +27,7 @@ export type BaseBuilderProps<T> = {
     setExpression: (handler: (prev: T) => T) => void;
     expression: T;
     onRemove: RemoveExpressionHandler<T>;
-}
+};
 
 export type RemoveExpressionHandler<T> = (expression: T) => void;
 

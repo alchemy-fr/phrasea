@@ -12,11 +12,11 @@ import {
     AQLValue,
     AQLValueExpression,
     AQLValueOrExpression,
-    RightOperand
-} from "./aqlTypes.ts";
-import {hasProp} from "../../../../lib/utils.ts";
-import {AttributeDefinitionIndex} from "../../../AttributeEditor/types.ts";
-import {AttributeDefinition} from "../../../../types.ts";
+    RightOperand,
+} from './aqlTypes.ts';
+import {hasProp} from '../../../../lib/utils.ts';
+import {AttributeDefinitionIndex} from '../../../AttributeEditor/types.ts';
+import {AttributeDefinition} from '../../../../types.ts';
 
 export type AQLQuery = {
     id: string;
@@ -36,17 +36,24 @@ export function astToString(ast: object | null | undefined): string {
     return expressionToString(expr);
 }
 
-function expressionToString(expression: AQLExpression, isSubExpression?: boolean): string {
+function expressionToString(
+    expression: AQLExpression,
+    isSubExpression?: boolean
+): string {
     if (hasProp<AQLAndOrExpression>(expression, 'conditions')) {
         const r = expression.conditions
             .filter(c => {
-                if (typeof c.leftOperand === 'object' && isAQLField(c.leftOperand)) {
+                if (
+                    typeof c.leftOperand === 'object' &&
+                    isAQLField(c.leftOperand)
+                ) {
                     return !!c.leftOperand.field;
                 }
 
                 return true;
             })
-            .map(e => expressionToString(e, true)).join(` ${expression.operator} `);
+            .map(e => expressionToString(e, true))
+            .join(` ${expression.operator} `);
 
         return isSubExpression ? `(${r})` : r;
     }
@@ -54,13 +61,13 @@ function expressionToString(expression: AQLExpression, isSubExpression?: boolean
     return conditionToString(expression);
 }
 
-
 function functionCallToString(expression: AQLFunctionCall): string {
     return `${expression.function}(${expression.arguments.map(a => operandToString(a)).join(', ')})`;
 }
 
-
-export function valueExpressionToString(expression: AQLValueExpression): string {
+export function valueExpressionToString(
+    expression: AQLValueExpression
+): string {
     const left = operandToString(expression.leftOperand);
     const right = operandToString(expression.rightOperand);
 
@@ -74,7 +81,10 @@ function conditionToString(condition: AQLCondition): string {
     return `${left} ${operatorToString(condition.operator)} ${right}`.trim();
 }
 
-function operandToString(operand: RightOperand, operator?: AQLOperator): string {
+function operandToString(
+    operand: RightOperand,
+    operator?: AQLOperator
+): string {
     if (undefined === operand) {
         return '';
     }
@@ -83,9 +93,18 @@ function operandToString(operand: RightOperand, operator?: AQLOperator): string 
         if (operator && Array.isArray(operand)) {
             if ([AQLOperator.IN, AQLOperator.NOT_IN].includes(operator)) {
                 return `(${operand.map(o => operandToString(o)).join(', ')})`;
-            } else if ([AQLOperator.BETWEEN, AQLOperator.NOT_BETWEEN].includes(operator)) {
+            } else if (
+                [AQLOperator.BETWEEN, AQLOperator.NOT_BETWEEN].includes(
+                    operator
+                )
+            ) {
                 return operand.map(o => operandToString(o)).join(' AND ');
-            } else if ([AQLOperator.WITHIN_CIRCLE, AQLOperator.WITHIN_RECTANGLE].includes(operator)) {
+            } else if (
+                [
+                    AQLOperator.WITHIN_CIRCLE,
+                    AQLOperator.WITHIN_RECTANGLE,
+                ].includes(operator)
+            ) {
                 return `(${operand.map(o => operandToString(o)).join(', ')})`;
             }
         } else {
@@ -118,8 +137,8 @@ function operatorToString(operator: AQLOperator): string {
         'NOT_STARTS_WITH': 'DOES NOT START WITH',
         'BETWEEN': 'BETWEEN',
         'NOT_BETWEEN': 'NOT BETWEEN',
-        WITHIN_CIRCLE: 'WITHIN CIRCLE',
-        WITHIN_RECTANGLE: 'WITHIN RECTANGLE',
+        'WITHIN_CIRCLE': 'WITHIN CIRCLE',
+        'WITHIN_RECTANGLE': 'WITHIN RECTANGLE',
     };
 
     return map[operator] || operator;
@@ -143,7 +162,9 @@ export function valueToString(value: AQLValueOrExpression): string {
     return value.toString();
 }
 
-export function isAQLCondition(expression: AQLExpression): expression is AQLCondition {
+export function isAQLCondition(
+    expression: AQLExpression
+): expression is AQLCondition {
     return hasProp<AQLCondition>(expression, 'leftOperand');
 }
 
@@ -151,19 +172,37 @@ export function isAQLField(operand: AQLOperand): operand is AQLField {
     return hasProp<AQLField>(operand, 'field');
 }
 
-export function isAQLValueExpression(operand: AQLOperand): operand is AQLValueExpression {
-    return hasProp<AQLValueExpression>(operand, 'type') && operand.type === 'value_expression';
+export function isAQLValueExpression(
+    operand: AQLOperand
+): operand is AQLValueExpression {
+    return (
+        hasProp<AQLValueExpression>(operand, 'type') &&
+        operand.type === 'value_expression'
+    );
 }
 
-export function isAQLFunctionCall(operand: AQLOperand): operand is AQLFunctionCall {
-    return hasProp<AQLFunctionCall>(operand, 'type') && operand.type === 'function_call';
+export function isAQLFunctionCall(
+    operand: AQLOperand
+): operand is AQLFunctionCall {
+    return (
+        hasProp<AQLFunctionCall>(operand, 'type') &&
+        operand.type === 'function_call'
+    );
 }
 
-export function isAQLParentheses(operand: AQLOperand): operand is AQLParentheses {
-    return hasProp<AQLParentheses>(operand, 'type') && operand.type === 'parentheses';
+export function isAQLParentheses(
+    operand: AQLOperand
+): operand is AQLParentheses {
+    return (
+        hasProp<AQLParentheses>(operand, 'type') &&
+        operand.type === 'parentheses'
+    );
 }
 
-export function resolveAQLValue(value: AQLOperand, throwExceptionOnField = false): ScalarValue {
+export function resolveAQLValue(
+    value: AQLOperand,
+    throwExceptionOnField = false
+): ScalarValue {
     if (hasProp<AQLLiteral>(value, 'literal')) {
         return value.literal;
     } else if (isAQLField(value)) {
@@ -185,7 +224,10 @@ export function resolveAQLValue(value: AQLOperand, throwExceptionOnField = false
 
 export type ScalarValue = string | boolean | number | null;
 
-export function getFieldDefinition(node: any, definitionsIndex: AttributeDefinitionIndex): AttributeDefinition | undefined {
+export function getFieldDefinition(
+    node: any,
+    definitionsIndex: AttributeDefinitionIndex
+): AttributeDefinition | undefined {
     if (isAQLField(node)) {
         const field = node.field;
 
