@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use Alchemy\CoreBundle\Util\DoctrineUtil;
-use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Entity\Asset;
 use App\Entity\Commit;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Alchemy\NotifyBundle\Notification\NotifierInterface;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final readonly class CommitAcknowledgeHandler
+final class CommitAcknowledgeHandler
 {
+    use SecurityAwareTrait;
+
     public function __construct(
         private MessageBusInterface $bus,
         private NotifierInterface $notifier,
@@ -62,6 +66,17 @@ final readonly class CommitAcknowledgeHandler
                     'assetCount' => $commit->getAssets()->count(),
                 ]
             );
+          
+            $user = $this->getUser();
+            if ($user instanceof JwtUser) {
+                $this->notifier->sendEmail(
+                    $user->getEmail(),
+                    'uploader-commit-acknowledged',
+                    [
+                        'assetCount' => $commit->getAssets()->count(),
+                    ]
+                );
+            } 
         }
     }
 }

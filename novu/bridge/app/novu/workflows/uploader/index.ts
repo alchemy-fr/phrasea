@@ -1,1 +1,1 @@
-export * from "./commit-acknowledged";
+export * from "./commitAcknowledged";
