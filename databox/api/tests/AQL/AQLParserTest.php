@@ -38,13 +38,6 @@ class AQLParserTest extends TestCase
             'rightOperand' => 42,
         ];
 
-        $sum42PlusOne = [
-            'type' => 'criteria',
-            'operator' => '=',
-            'leftOperand' => ['field' => 'foo'],
-            'rightOperand' => 43,
-        ];
-
         return [
             ['foo', null],
             ['foo =', null],
@@ -57,54 +50,166 @@ class AQLParserTest extends TestCase
             ['foo= 42', $fooEquals42],
             ['foo =42', $fooEquals42],
             ['foo = 42', $fooEquals42],
-            ['foo = (42)', $fooEquals42],
-            ['foo = 42 + 1', $sum42PlusOne],
-            ['foo = (42 + 1)', $sum42PlusOne],
-            ['foo = (42 + (1))', $sum42PlusOne],
-            ['foo = 2 * 4 * 2 - 1', [
-                'type' => 'criteria',
-                'operator' => '=',
-                'leftOperand' => ['field' => 'foo'],
-                'rightOperand' => 15,
-            ]],
-            ['foo = 1+2+3', [
-                'type' => 'criteria',
-                'operator' => '=',
-                'leftOperand' => ['field' => 'foo'],
-                'rightOperand' => 6,
-            ]],
-            ['foo = 10-8', [
-                'type' => 'criteria',
-                'operator' => '=',
-                'leftOperand' => ['field' => 'foo'],
-                'rightOperand' => 2,
-            ]],
-            ['foo = (number * 42)', [
+            ['foo = (42)', [
                 'type' => 'criteria',
                 'operator' => '=',
                 'leftOperand' => ['field' => 'foo'],
                 'rightOperand' => [
-                    'type' => 'value_expression',
-                    'operator' => '*',
-                    'leftOperand' => ['field' => 'number'],
-                    'rightOperand' => 42,
+                    'type' => 'parentheses',
+                    'expression' => 42,
                 ],
             ]],
-            ['foo = (42 - 1)', [
-                'type' => 'criteria',
-                'operator' => '=',
-                'leftOperand' => ['field' => 'foo'],
-                'rightOperand' => 41,
-            ]],
-            ['foo = (42 - 1 + field)', [
+            ['foo = 42 + 1', [
                 'type' => 'criteria',
                 'operator' => '=',
                 'leftOperand' => ['field' => 'foo'],
                 'rightOperand' => [
                     'type' => 'value_expression',
                     'operator' => '+',
-                    'leftOperand' => 41,
-                    'rightOperand' => ['field' => 'field'],
+                    'leftOperand' => 42,
+                    'rightOperand' => 1,
+                ],
+            ]],
+            ['foo = (42 + 1)', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => [
+                    'type' => 'parentheses',
+                    'expression' => [
+                        'type' => 'value_expression',
+                        'operator' => '+',
+                        'leftOperand' => 42,
+                        'rightOperand' => 1,
+                    ],
+                ],
+            ]],
+            ['foo = (42 + (1))', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => [
+                    'type' => 'parentheses',
+                    'expression' => [
+                        'type' => 'value_expression',
+                        'operator' => '+',
+                        'leftOperand' => 42,
+                        'rightOperand' => [
+                            'type' => 'parentheses',
+                            'expression' => 1,
+                        ],
+                    ],
+                ],
+            ]],
+            ['foo = 2 * 4 * 2 - 1', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => [
+                    'type' => 'value_expression',
+                    'operator' => '-',
+                    'leftOperand' => [
+                        'type' => 'value_expression',
+                        'operator' => '*',
+                        'leftOperand' => [
+                            'type' => 'value_expression',
+                            'operator' => '*',
+                            'leftOperand' => 2,
+                            'rightOperand' => 4,
+                        ],
+                        'rightOperand' => 2,
+                    ],
+                    'rightOperand' => 1,
+                ],
+            ]],
+            ['foo = 3-2-1', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => [
+                    'type' => 'value_expression',
+                    'operator' => '-',
+                    'leftOperand' => [
+                        'type' => 'value_expression',
+                        'operator' => '-',
+                        'leftOperand' => 3,
+                        'rightOperand' => 2,
+                    ],
+                    'rightOperand' => 1,
+                ],
+            ]],
+            ['foo = 1+2+3', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => [
+                    'type' => 'value_expression',
+                    'operator' => '+',
+                    'leftOperand' => [
+                        'type' => 'value_expression',
+                        'operator' => '+',
+                        'leftOperand' => 1,
+                        'rightOperand' => 2,
+                    ],
+                    'rightOperand' => 3,
+                ],
+            ]],
+            ['foo = 10-8', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => [
+                    'type' => 'value_expression',
+                    'operator' => '-',
+                    'leftOperand' => 10,
+                    'rightOperand' => 8,
+                ],
+            ]],
+            ['foo = (number * 42)', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => [
+                    'type' => 'parentheses',
+                    'expression' => [
+                        'type' => 'value_expression',
+                        'operator' => '*',
+                        'leftOperand' => ['field' => 'number'],
+                        'rightOperand' => 42,
+                    ],
+                ],
+            ]],
+            ['foo = (42 - 1)', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => [
+                    'type' => 'parentheses',
+                    'expression' => [
+                        'type' => 'value_expression',
+                        'operator' => '-',
+                        'leftOperand' => 42,
+                        'rightOperand' => 1,
+                    ],
+                ],
+            ]],
+            ['foo = (42 - 1 + field)', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => [
+                    'type' => 'parentheses',
+                    'expression' => [
+                        'type' => 'value_expression',
+                        'operator' => '+',
+                        'leftOperand' => [
+                            'type' => 'value_expression',
+                            'operator' => '-',
+                            'leftOperand' => 42,
+                            'rightOperand' => 1,
+                        ],
+                        'rightOperand' => ['field' => 'field'],
+                    ],
                 ],
             ]],
             ['foo = (field1 - field2)', [
@@ -112,17 +217,33 @@ class AQLParserTest extends TestCase
                 'operator' => '=',
                 'leftOperand' => ['field' => 'foo'],
                 'rightOperand' => [
-                    'type' => 'value_expression',
-                    'operator' => '-',
-                    'leftOperand' => ['field' => 'field1'],
-                    'rightOperand' => ['field' => 'field2'],
+                    'type' => 'parentheses',
+                    'expression' => [
+                        'type' => 'value_expression',
+                        'operator' => '-',
+                        'leftOperand' => ['field' => 'field1'],
+                        'rightOperand' => ['field' => 'field2'],
+                    ],
                 ],
             ]],
             ['foo = (42 - 1 - 42)', [
                 'type' => 'criteria',
                 'operator' => '=',
                 'leftOperand' => ['field' => 'foo'],
-                'rightOperand' => -1,
+                'rightOperand' => [
+                    'type' => 'parentheses',
+                    'expression' => [
+                        'type' => 'value_expression',
+                        'operator' => '-',
+                        'leftOperand' => [
+                            'type' => 'value_expression',
+                            'operator' => '-',
+                            'leftOperand' => 42,
+                            'rightOperand' => 1,
+                        ],
+                        'rightOperand' => 42,
+                    ],
+                ],
             ]],
             ['foo = bar AND foo = bar OR foo = 42', [
                 'type' => 'expression',
@@ -330,7 +451,12 @@ class AQLParserTest extends TestCase
                     'function' => 'SUBSTRING',
                     'arguments' => [
                         ['field' => 'my_field'],
-                        40,
+                        [
+                            'type' => 'value_expression',
+                            'operator' => '-',
+                            'leftOperand' => 42,
+                            'rightOperand' => 2,
+                        ],
                         [
                             'type' => 'value_expression',
                             'operator' => '/',
@@ -354,6 +480,24 @@ class AQLParserTest extends TestCase
                         'arguments' => [],
                     ],
                     'rightOperand' => 2,
+                ],
+            ]],
+            ['my_field = (now() * 2)', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => [
+                    'type' => 'parentheses',
+                    'expression' => [
+                        'type' => 'value_expression',
+                        'operator' => '*',
+                        'leftOperand' => [
+                            'type' => 'function_call',
+                            'function' => 'now',
+                            'arguments' => [],
+                        ],
+                        'rightOperand' => 2,
+                    ],
                 ],
             ]],
         ];

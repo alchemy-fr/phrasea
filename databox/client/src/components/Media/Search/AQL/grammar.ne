@@ -4,7 +4,7 @@
 
 main -> expression {% id %}
 
-expression -> and_condition (__ "OR" __ and_condition):* {%
+expression -> and_expression (__ "OR" __ and_expression):* {%
     function(data) {
         const conditions = [data[0]];
         data[1].forEach((d: any[]) => {
@@ -22,7 +22,7 @@ expression -> and_condition (__ "OR" __ and_condition):* {%
     }
 %}
 
-and_condition -> condition (__ "AND" __ condition):* {%
+and_expression -> condition (__ "AND" __ condition):* {%
     function(data) {
         const conditions = [data[0]];
 
@@ -54,26 +54,13 @@ criteria -> field _ operator {%
     }
 %}
 
-builtin_field -> "@" [a-zA-Z0-9_]:+ {% d => ({field: "@"+d[1].join('')}) %}
-
-field_name -> [a-zA-Z_] [a-zA-Z0-9_-]:* {% d => ({field: d[0]+d[1].join('')}) %}
-
-field_or_value -> field {% id %}
-    | value {% id %}
-
-field -> builtin_field {% id %}
-    | field_name {% id %}
-
-boolean -> "true" {% () => true %}
-    | "false" {% () => false %}
-
-operator -> __ ("NOT" __):? "BETWEEN" __ value __ "AND" __ value {% (data) => ({operator: data[1] ? 'NOT_BETWEEN' : 'BETWEEN', rightOperand: [data[4], data[8]]}) %}
+operator -> __ ("NOT" __):? "BETWEEN" __ value_expression __ "AND" __ value_expression {% (data) => ({operator: data[1] ? 'NOT_BETWEEN' : 'BETWEEN', rightOperand: [data[4], data[8]]}) %}
     | __ "IS" __ "MISSING" {% () => ({operator: 'MISSING'}) %}
     | __ "EXISTS" {% () => ({operator: 'EXISTS'}) %}
     | in_operator {% id %}
-    | simple_operator _ field_or_value {% (data) => ({operator: data[0], rightOperand: data[2]}) %}
+    | simple_operator _ value_expression {% (data) => ({operator: data[0], rightOperand: data[2]}) %}
 
-in_operator -> __ ("NOT" __):? "IN" _ "(" _ value (_ "," _ value):* _ ")" {% (data) => {
+in_operator -> __ ("NOT" __):? "IN" _ "(" _ value_expression (_ "," _ value_expression):* _ ")" {% (data) => {
     return {
         operator: data[1] ? 'NOT_IN' : 'IN',
         rightOperand: [data[6]].concat(data[7].map(d => d[3])),
@@ -93,15 +80,89 @@ simple_operator -> "=" {% id %}
     | __ "STARTS" __ "WITH" {% () => 'STARTS_WITH' %}
     | "DOES" __ "NOT" __ "START" __ "WITH" {% d => 'NOT_STARTS_WITH' %}
 
+function_call -> identifier "(" _ value_expression:? (_ "," _ value_expression):* _ ")" {% (data) => {
+    const args = [];
+    if (data[3]) {
+        args.push(data[3]);
+    }
+    data[4].forEach((d) => {
+        args.push(d[3]);
+    });
+
+    return {
+        type: 'function_call',
+        function: data[0],
+        arguments: args,
+    };
+} %}
+
+value_expression -> value_sum {% id %}
+
+value_product -> value_or_expr (_ ("/" | "*") _ value_or_expr):* {% (data) => {
+    function handleOperator(l, r, operator) {
+        return {
+            type: 'value_expression',
+            operator,
+            leftOperand: l,
+            rightOperand: r,
+        };
+    }
+
+    let result = data[0];
+
+    data[1].forEach(([, operator, , rightOperand]) => {
+        result = handleOperator(result, rightOperand, operator[0]);
+    });
+
+    return result;
+} %}
+
+value_sum -> value_product ( _ ("+" | "-") _ value_product):* {% (data) => {
+    function handleOperator(l, r, operator) {
+        return {
+            type: 'value_expression',
+            operator,
+            leftOperand: l,
+            rightOperand: r
+        };
+    }
+
+    let result = data[0];
+
+    data[1].forEach(([, operator, , rightOperand]) => {
+        result = handleOperator(result, rightOperand, operator[0]);
+    });
+
+    return result;
+} %}
+
+value_or_expr -> value {% id %}
+    | "(" _ value_expression _ ")" {% (data) => ({
+        type: 'parentheses',
+        expression: data[2],
+    }) %}
+
 number -> int {% id %}
     | decimal {% id %}
 
-value -> number {% id %}
+value -> function_call {% id %}
+    | number {% id %}
     | quoted_string {% id %}
     | boolean {% id %}
+    | field {% id %}
+
+boolean -> "true" {% () => true %}
+    | "false" {% () => false %}
 
 quoted_string -> "\"" (escape_double | [^"]):* "\"" {% d => ({literal: d[1].join('')}) %}
     | "'" (escape_single | [^']):* "'" {% d => ({literal: d[1].join('')}) %}
+
+identifier -> [a-zA-Z_] [a-zA-Z0-9_-]:* {% d => d[0]+d[1].join('') %}
+
+builtin_field -> "@" identifier {% d => ({field: "@"+d[1]}) %}
+
+field -> builtin_field {% id %}
+    | identifier {% d => ({field: d[0]}) %}
 
 escape_double -> "\\" ["] {% () => '"' %}
     | escape_backslash {% id %}

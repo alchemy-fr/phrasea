@@ -5,6 +5,75 @@ import {AQLQueryAST} from "./aqlTypes.ts";
 it('parse AQL', function () {
     const dataSet = [
         {
+            query: '@tag = true',
+            result: {
+                expression:
+                    {leftOperand: {field: '@tag'}, operator: '=', rightOperand: true},
+            },
+        },
+        {
+            query: '@tag = (1 + 2 )',
+            formattedQuery: '@tag = (1 + 2)',
+            result: {
+                expression:
+                    {
+                        leftOperand: {field: '@tag'},
+                        operator: '=',
+                        rightOperand: {
+                            type: 'parentheses',
+                            expression: {
+                                type: 'value_expression',
+                                operator: '+',
+                                leftOperand: 1,
+                                rightOperand: 2,
+                            },
+                        }
+                    },
+            },
+        },
+        {
+            query: 'field1 > NOW()',
+            result: {
+                expression: {
+                    leftOperand: {field: 'field1'},
+                    operator: '>',
+                    rightOperand: {
+                        type: 'function_call',
+                        function: 'NOW',
+                        arguments: [],
+                    }
+                },
+            },
+        },
+        {
+            query: 'field1 > 4 + 8 - SUBSTRING("foo", 1, 2)',
+            result: {
+                expression: {
+                    leftOperand: {field: 'field1'},
+                    operator: '>',
+                    rightOperand: {
+                        type: 'value_expression',
+                        operator: '-',
+                        leftOperand: {
+                            type: 'value_expression',
+                            operator: '+',
+                            leftOperand: 4,
+                            rightOperand: 8,
+                        },
+                        rightOperand: {
+                            type: 'function_call',
+                            function: 'SUBSTRING',
+                            arguments: [
+                                {literal: 'foo'},
+                                1,
+                                2,
+                            ],
+                        },
+                    }
+                },
+            },
+        },
+        {
             query: 'field1 = "foo" AND price > 42',
             result: {
                 expression: {
@@ -84,13 +153,6 @@ it('parse AQL', function () {
             result: {
                 expression:
                     {leftOperand: {field: '@tag'}, operator: 'IN', rightOperand: [3, 2, 1]},
-            },
-        },
-        {
-            query: '@tag IN (true)',
-            result: {
-                expression:
-                    {leftOperand: {field: '@tag'}, operator: 'IN', rightOperand: [true]},
             },
         },
         {

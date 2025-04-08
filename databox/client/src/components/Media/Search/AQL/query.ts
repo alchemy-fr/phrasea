@@ -3,11 +3,15 @@ import {
     AQLCondition,
     AQLExpression,
     AQLField,
+    AQLFunctionCall,
     AQLLiteral,
     AQLOperand,
     AQLOperator,
+    AQLParentheses,
     AQLQueryAST,
     AQLValue,
+    AQLValueExpression,
+    AQLValueOrExpression,
     RightOperand
 } from "./aqlTypes.ts";
 import {hasProp} from "../../../../lib/utils.ts";
@@ -48,6 +52,19 @@ function expressionToString(expression: AQLExpression, isSubExpression?: boolean
     }
 
     return conditionToString(expression);
+}
+
+
+function functionCallToString(expression: AQLFunctionCall): string {
+    return `${expression.function}(${expression.arguments.map(a => operandToString(a)).join(', ')})`;
+}
+
+
+export function valueExpressionToString(expression: AQLValueExpression): string {
+    const left = operandToString(expression.leftOperand);
+    const right = operandToString(expression.rightOperand);
+
+    return `${left} ${expression.operator} ${right}`;
 }
 
 function conditionToString(condition: AQLCondition): string {
@@ -98,9 +115,19 @@ function operatorToString(operator: AQLOperator): string {
     }
 }
 
-export function valueToString(value: AQLValue): string {
-    if (typeof value === 'object' && hasProp<AQLLiteral>(value, 'literal')) {
-        return `"${value.literal.replace(/"/g, '\\"')}"`;
+export function valueToString(value: AQLValueOrExpression): string {
+    if (typeof value === 'object') {
+        if (hasProp<AQLLiteral>(value, 'literal')) {
+            return `"${value.literal.replace(/"/g, '\\"')}"`;
+        } else if (isAQLParentheses(value)) {
+            return `(${valueToString(value.expression)})`;
+        } else if (isAQLValueExpression(value)) {
+            return valueExpressionToString(value);
+        } else if (isAQLFunctionCall(value)) {
+            return functionCallToString(value);
+        } else if (isAQLField(value)) {
+            return value.field;
+        }
     }
 
     return value.toString();
@@ -110,21 +137,37 @@ export function isAQLCondition(expression: AQLExpression): expression is AQLCond
     return hasProp<AQLCondition>(expression, 'leftOperand');
 }
 
-
 export function isAQLField(operand: AQLOperand): operand is AQLField {
     return hasProp<AQLField>(operand, 'field');
+}
+
+export function isAQLValueExpression(operand: AQLOperand): operand is AQLValueExpression {
+    return hasProp<AQLValueExpression>(operand, 'type') && operand.type === 'value_expression';
+}
+
+export function isAQLFunctionCall(operand: AQLOperand): operand is AQLFunctionCall {
+    return hasProp<AQLFunctionCall>(operand, 'type') && operand.type === 'function_call';
+}
+
+export function isAQLParentheses(operand: AQLOperand): operand is AQLParentheses {
+    return hasProp<AQLParentheses>(operand, 'type') && operand.type === 'parentheses';
 }
 
 export function resolveAQLValue(value: AQLOperand, throwExceptionOnField = false): ScalarValue {
     if (hasProp<AQLLiteral>(value, 'literal')) {
         return value.literal;
-    }
-    if (isAQLField(value)) {
+    } else if (isAQLField(value)) {
         if (throwExceptionOnField) {
             throw new Error('Unsupported field operand');
         } else {
             return null;
         }
+    } else if (isAQLParentheses(value)) {
+        throw new Error('Cannot resolve value from parentheses');
+    } else if (isAQLValueExpression(value)) {
+        throw new Error('Cannot resolve value from expression');
+    } else if (isAQLFunctionCall(value)) {
+        throw new Error('Cannot resolve value from function call');
     }
 
     return value;

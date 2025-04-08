@@ -105,9 +105,17 @@ class AQLToESQueryTest extends TestCase
             ['@workspace="42"', [
                 'term' => ['workspaceId' => '42'],
             ]],
+            ['@workspace=SUBSTRING("42aa", 0, 2)', [
+                'term' => ['workspaceId' => '42'],
+            ]],
             ['@createdAt<="2025-01-16"', [
                 'range' => ['createdAt' => [
                     'lte' => '2025-01-16',
+                ]],
+            ]],
+            ['@createdAt<= (42) - 5 - 5', [
+                'range' => ['createdAt' => [
+                    'lte' => 42 - 5 - 5,
                 ]],
             ]],
             ['field IN (true, false)', [

@@ -143,16 +143,15 @@ final readonly class AQLToESQuery
     {
         if (is_array($node)) {
             $type = $node['type'] ?? null;
-            if ('function_call' === $type) {
-                return $this->hasResolvableArguments($node);
-            } elseif ('value_expression' === $type) {
-                return $this->isResolvableValue($node['leftOperand'])
-                    && $this->isResolvableValue($node['rightOperand']);
-            }
 
-            return isset($node['literal'])
-                || (!isset($node['field']) && !array_any($node, fn ($m) => !$this->isResolvableValue($m)))
-            ;
+            return match ($type) {
+                'parentheses' => $this->isResolvableValue($node['expression']),
+                'function_call' => $this->hasResolvableArguments($node),
+                'value_expression' => $this->isResolvableValue($node['leftOperand'])
+                    && $this->isResolvableValue($node['rightOperand']),
+                default => isset($node['literal'])
+                    || (!isset($node['field']) && !array_any($node, fn ($m) => !$this->isResolvableValue($m)))
+            };
         }
 
         return null === $node
@@ -161,7 +160,7 @@ final readonly class AQLToESQuery
         ;
     }
 
-    function resolveFunctionValue(array $functionNode): mixed
+    private function resolveFunctionValue(array $functionNode): mixed
     {
         $functionHandle = $this->getFunctionHandle($functionNode['function']);
         $args = $functionNode['arguments'] ?? [];
@@ -316,14 +315,22 @@ final readonly class AQLToESQuery
                         );
                         break;
                     case 'value_expression':
-                        $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters);
-                        $rights = $this->expressionToScript($node['rightOperand'], $fieldClusters);
+                        if (
+                            in_array($node['operator'], ['+', '-', '*', '/'], true)
+                            && $this->isResolvableValue($node['leftOperand'])
+                            && $this->isResolvableValue($node['rightOperand'])
+                        ) {
+                            $scripts = [new ClusterGroup($this->resolveValueExpression($node), true)];
+                        } else {
+                            $lefts = $this->expressionToScript($node['leftOperand'], $fieldClusters);
+                            $rights = $this->expressionToScript($node['rightOperand'], $fieldClusters);
 
-                        $scripts = ClusterGroup::mix(
-                            $lefts,
-                            $rights,
-                            fn (string $l, string $r): string => sprintf('(%s %s %s)', $l, $node['operator'], $r)
-                        );
+                            $scripts = ClusterGroup::mix(
+                                $lefts,
+                                $rights,
+                                fn (string $l, string $r): string => sprintf('(%s %s %s)', $l, $node['operator'], $r)
+                            );
+                        }
                         break;
                     case 'function_call':
                         $functionHandle = $this->getFunctionHandle($node['function']);
@@ -340,6 +347,9 @@ final readonly class AQLToESQuery
                         foreach ($mixedArguments as $args) {
                             $scripts[] = $args->convert($functionHandle->getScript($args->getItem()));
                         }
+                        break;
+                    case 'parentheses':
+                        $scripts = $this->expressionToScript($node['expression'], $fieldClusters);
                         break;
                     default:
                         throw new \RuntimeException(sprintf('Unsupported node type "%s"', $type));
@@ -367,8 +377,11 @@ final readonly class AQLToESQuery
     {
         if (is_array($data)) {
             $type = $data['type'] ?? null;
+
             if ('function_call' === $type) {
                 $data = $this->resolveFunctionValue($data);
+            } elseif ('parentheses' === $type) {
+                $data = $this->resolveValue($data['expression']);
             } elseif ('value_expression' === $type) {
                 $data = $this->resolveValueExpression($data);
             } elseif (isset($data[0])) {

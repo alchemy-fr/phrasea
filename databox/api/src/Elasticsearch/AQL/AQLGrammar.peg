@@ -55,7 +55,7 @@ and_expression: left:condition (] "AND" ] right:condition ) *
         ];
     }
 
-condition: "(" > e:expression > ")"
+condition: '(' > e:expression > ')'
     | e:not_expression
     | e:criteria
     function __finalise(&$result) {
@@ -130,7 +130,7 @@ ending_operator: ("IS" ] "MISSING") | "EXISTS"
         ];
     }
 
-in_operator: not:("NOT" ] )? "IN" > "(" > first:value_expression (> "," > others:value_expression)* > ")"
+in_operator: not:("NOT" ] )? "IN" > '(' > first:value_expression (> ',' > others:value_expression)* > ')'
     function __finalise(&$result) {
         $values = [$result['first']['data']];
 
@@ -191,13 +191,6 @@ value_expression: v:value_sum
 
 value_product: v:value_or_expr ( > sign:('/' | '*') > right:value_or_expr ) *
     function handleOperator(mixed $l, mixed $r, string $operator): array|int|float {
-        if (is_int($l) && is_int($r)) {
-            return match ($operator) {
-                '*' => $l * $r,
-                '/' => $l / $r,
-            };
-        }
-
         return [
             'type' => 'value_expression',
             'operator' => $operator,
@@ -230,13 +223,6 @@ value_product: v:value_or_expr ( > sign:('/' | '*') > right:value_or_expr ) *
 
 value_sum: v:value_product ( > sign:('+' | '-') > right:value_product ) *
     function handleOperator(mixed $l, mixed $r, string $operator): array|int|float {
-        if (is_int($l) && is_int($r)) {
-            return match ($operator) {
-                '+' => $l + $r,
-                '-' => $l - $r,
-            };
-        }
-
         return [
             'type' => 'value_expression',
             'operator' => $operator,
@@ -266,8 +252,17 @@ value_sum: v:value_product ( > sign:('+' | '-') > right:value_product ) *
         unset($result['v']);
     }
 
-value_or_expr: v:value | '(' > v:value_expression > ')'
+value_or_expr: v:value | ('(' > p:value_expression > ')')
     function __finalise(&$result) {
+        if (isset($result['p'])) {
+            $result['data'] = [
+                'type' => 'parentheses',
+                'expression' => $result['p']['data'],
+            ];
+            unset($result['p']);
+            return;
+        }
+
         $result['data'] = $result['v']['data'];
         unset($result['v']);
     }

@@ -2,12 +2,23 @@ import {Box, IconButton, TextField, TextFieldProps} from "@mui/material";
 import React, {ChangeEvent} from "react";
 import {useTranslation} from "react-i18next";
 import {BaseBuilderProps, QBCondition} from "./builderTypes.ts";
-import {AQLLiteral, AQLOperator, AQLValue, ManyArgs, RawType} from "../aqlTypes.ts";
+import {
+    AQLCondition,
+    AQLLiteral,
+    AQLOperator,
+    AQLValue,
+    AQLValueExpression,
+    AQLValueOrExpression,
+    ManyArgs,
+    RawType
+} from "../aqlTypes.ts";
 import {hasProp} from "../../../../../lib/utils.ts";
 import {matchesFloat, matchesNumber} from "./builder.ts";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FieldBuilder, {FieldBuilderProps} from "./FieldBuilder.tsx";
+import {parseAQLQuery} from "../AQL.ts";
+import {isAQLField, isAQLValueExpression, valueExpressionToString, valueToString} from "../query.ts";
 
 type Props = {
     expression: BaseBuilderProps<QBCondition>['expression'];
@@ -41,7 +52,15 @@ export default function ValueBuilder({
         }));
     }
 
-    const normValue = (value: string) => {
+    const normValue = (value: string): AQLValueOrExpression => {
+        if (value.startsWith('=')) {
+            const result = parseAQLQuery(`f = ${value.slice(1)}`);
+            if (!result) {
+                return value as any;
+            }
+            return (result.expression as AQLCondition).rightOperand as AQLValueOrExpression;
+        }
+
         let num: number | undefined = NaN;
         if (matchesNumber(value)) {
             num = parseInt(value, 10);
@@ -64,7 +83,7 @@ export default function ValueBuilder({
 
     if (!manyArgsDefined) {
         fields.push({
-            value: resolveValue(expression.rightOperand as AQLValue),
+            value: resolveValue(expression.rightOperand as AQLValueOrExpression),
             name: 'value',
             label: t('search_condition.builder.value', 'Value'),
             onChange: e => {
@@ -77,10 +96,10 @@ export default function ValueBuilder({
             },
         });
     } else {
-        const argCount = ((expression.rightOperand ?? []) as AQLValue[]).length;
+        const argCount = ((expression.rightOperand ?? []) as AQLValueOrExpression[]).length;
         for (let i = 0; i < argCount; i++) {
             fields.push({
-                value: resolveValue((expression.rightOperand as AQLValue[])[i]),
+                value: resolveValue((expression.rightOperand as AQLValueOrExpression[])[i]),
                 name: `value-${i}`,
                 label: `${t('search_condition.builder.value', 'Value')} #${i + 1}`,
                 onChange: e => {
@@ -129,13 +148,17 @@ export default function ValueBuilder({
     </>
 }
 
-function resolveValue(value: AQLValue): string {
-    if (typeof value === 'object' && hasProp<AQLLiteral>(value, 'literal')) {
-        if (matchesNumber(value.literal)) {
-            return `"${value.literal}"`;
-        }
+function resolveValue(value: AQLValueOrExpression): string {
+    if (typeof value === 'object') {
+        if (hasProp<AQLLiteral>(value, 'literal')) {
+            if (matchesNumber(value.literal)) {
+                return `"${value.literal}"`;
+            }
 
-        return value.literal;
+            return value.literal;
+        } else {
+            return `=${valueToString(value)}`;
+        }
     }
 
     if (!value) {

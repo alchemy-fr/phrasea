@@ -1,4 +1,4 @@
-import {AQLCondition, AQLOperator, AQLValue, ManyArgs, RawType} from "../aqlTypes.ts";
+import {AQLCondition, AQLOperator, AQLValue, AQLValueOrExpression, ManyArgs, RawType} from "../aqlTypes.ts";
 import {AttributeDefinitionIndex} from "../../../../AttributeEditor/types.ts";
 
 export type QBExpression = QBAndOrExpression | QBCondition;
@@ -10,7 +10,7 @@ export type QBAndOrExpression = {
 
 export type QBCondition = {
     operator: AQLOperator;
-    rightOperand: AQLValue | AQLValue[] | undefined;
+    rightOperand: AQLValueOrExpression | AQLValueOrExpression[] | undefined;
 } & Omit<AQLCondition, 'operator' | 'rightOperand'>;
 
 export type BaseBuilderProps<T> = {

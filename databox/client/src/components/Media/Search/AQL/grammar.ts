@@ -131,9 +131,9 @@ const grammar: Grammar = {
     {"name": "main", "symbols": ["expression"], "postprocess": id},
     {"name": "expression$ebnf$1", "symbols": []},
     {"name": "expression$ebnf$1$subexpression$1$string$1", "symbols": [{"literal":"O"}, {"literal":"R"}], "postprocess": (d) => d.join('')},
-    {"name": "expression$ebnf$1$subexpression$1", "symbols": ["__", "expression$ebnf$1$subexpression$1$string$1", "__", "and_condition"]},
+    {"name": "expression$ebnf$1$subexpression$1", "symbols": ["__", "expression$ebnf$1$subexpression$1$string$1", "__", "and_expression"]},
     {"name": "expression$ebnf$1", "symbols": ["expression$ebnf$1", "expression$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "expression", "symbols": ["and_condition", "expression$ebnf$1"], "postprocess": 
+    {"name": "expression", "symbols": ["and_expression", "expression$ebnf$1"], "postprocess": 
         function(data) {
             const conditions = [data[0]];
             data[1].forEach((d: any[]) => {
@@ -150,11 +150,11 @@ const grammar: Grammar = {
             };
         }
         },
-    {"name": "and_condition$ebnf$1", "symbols": []},
-    {"name": "and_condition$ebnf$1$subexpression$1$string$1", "symbols": [{"literal":"A"}, {"literal":"N"}, {"literal":"D"}], "postprocess": (d) => d.join('')},
-    {"name": "and_condition$ebnf$1$subexpression$1", "symbols": ["__", "and_condition$ebnf$1$subexpression$1$string$1", "__", "condition"]},
-    {"name": "and_condition$ebnf$1", "symbols": ["and_condition$ebnf$1", "and_condition$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "and_condition", "symbols": ["condition", "and_condition$ebnf$1"], "postprocess": 
+    {"name": "and_expression$ebnf$1", "symbols": []},
+    {"name": "and_expression$ebnf$1$subexpression$1$string$1", "symbols": [{"literal":"A"}, {"literal":"N"}, {"literal":"D"}], "postprocess": (d) => d.join('')},
+    {"name": "and_expression$ebnf$1$subexpression$1", "symbols": ["__", "and_expression$ebnf$1$subexpression$1$string$1", "__", "condition"]},
+    {"name": "and_expression$ebnf$1", "symbols": ["and_expression$ebnf$1", "and_expression$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "and_expression", "symbols": ["condition", "and_expression$ebnf$1"], "postprocess": 
         function(data) {
             const conditions = [data[0]];
         
@@ -184,43 +184,29 @@ const grammar: Grammar = {
             };
         }
         },
-    {"name": "builtin_field$ebnf$1", "symbols": [/[a-zA-Z0-9_]/]},
-    {"name": "builtin_field$ebnf$1", "symbols": ["builtin_field$ebnf$1", /[a-zA-Z0-9_]/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "builtin_field", "symbols": [{"literal":"@"}, "builtin_field$ebnf$1"], "postprocess": d => ({field: "@"+d[1].join('')})},
-    {"name": "field_name$ebnf$1", "symbols": []},
-    {"name": "field_name$ebnf$1", "symbols": ["field_name$ebnf$1", /[a-zA-Z0-9_-]/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "field_name", "symbols": [/[a-zA-Z_]/, "field_name$ebnf$1"], "postprocess": d => ({field: d[0]+d[1].join('')})},
-    {"name": "field_or_value", "symbols": ["field"], "postprocess": id},
-    {"name": "field_or_value", "symbols": ["value"], "postprocess": id},
-    {"name": "field", "symbols": ["builtin_field"], "postprocess": id},
-    {"name": "field", "symbols": ["field_name"], "postprocess": id},
-    {"name": "boolean$string$1", "symbols": [{"literal":"t"}, {"literal":"r"}, {"literal":"u"}, {"literal":"e"}], "postprocess": (d) => d.join('')},
-    {"name": "boolean", "symbols": ["boolean$string$1"], "postprocess": () => true},
-    {"name": "boolean$string$2", "symbols": [{"literal":"f"}, {"literal":"a"}, {"literal":"l"}, {"literal":"s"}, {"literal":"e"}], "postprocess": (d) => d.join('')},
-    {"name": "boolean", "symbols": ["boolean$string$2"], "postprocess": () => false},
     {"name": "operator$ebnf$1$subexpression$1$string$1", "symbols": [{"literal":"N"}, {"literal":"O"}, {"literal":"T"}], "postprocess": (d) => d.join('')},
     {"name": "operator$ebnf$1$subexpression$1", "symbols": ["operator$ebnf$1$subexpression$1$string$1", "__"]},
     {"name": "operator$ebnf$1", "symbols": ["operator$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "operator$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "operator$string$1", "symbols": [{"literal":"B"}, {"literal":"E"}, {"literal":"T"}, {"literal":"W"}, {"literal":"E"}, {"literal":"E"}, {"literal":"N"}], "postprocess": (d) => d.join('')},
     {"name": "operator$string$2", "symbols": [{"literal":"A"}, {"literal":"N"}, {"literal":"D"}], "postprocess": (d) => d.join('')},
-    {"name": "operator", "symbols": ["__", "operator$ebnf$1", "operator$string$1", "__", "value", "__", "operator$string$2", "__", "value"], "postprocess": (data) => ({operator: data[1] ? 'NOT_BETWEEN' : 'BETWEEN', rightOperand: [data[4], data[8]]})},
+    {"name": "operator", "symbols": ["__", "operator$ebnf$1", "operator$string$1", "__", "value_expression", "__", "operator$string$2", "__", "value_expression"], "postprocess": (data) => ({operator: data[1] ? 'NOT_BETWEEN' : 'BETWEEN', rightOperand: [data[4], data[8]]})},
     {"name": "operator$string$3", "symbols": [{"literal":"I"}, {"literal":"S"}], "postprocess": (d) => d.join('')},
     {"name": "operator$string$4", "symbols": [{"literal":"M"}, {"literal":"I"}, {"literal":"S"}, {"literal":"S"}, {"literal":"I"}, {"literal":"N"}, {"literal":"G"}], "postprocess": (d) => d.join('')},
     {"name": "operator", "symbols": ["__", "operator$string$3", "__", "operator$string$4"], "postprocess": () => ({operator: 'MISSING'})},
     {"name": "operator$string$5", "symbols": [{"literal":"E"}, {"literal":"X"}, {"literal":"I"}, {"literal":"S"}, {"literal":"T"}, {"literal":"S"}], "postprocess": (d) => d.join('')},
     {"name": "operator", "symbols": ["__", "operator$string$5"], "postprocess": () => ({operator: 'EXISTS'})},
     {"name": "operator", "symbols": ["in_operator"], "postprocess": id},
-    {"name": "operator", "symbols": ["simple_operator", "_", "field_or_value"], "postprocess": (data) => ({operator: data[0], rightOperand: data[2]})},
+    {"name": "operator", "symbols": ["simple_operator", "_", "value_expression"], "postprocess": (data) => ({operator: data[0], rightOperand: data[2]})},
     {"name": "in_operator$ebnf$1$subexpression$1$string$1", "symbols": [{"literal":"N"}, {"literal":"O"}, {"literal":"T"}], "postprocess": (d) => d.join('')},
     {"name": "in_operator$ebnf$1$subexpression$1", "symbols": ["in_operator$ebnf$1$subexpression$1$string$1", "__"]},
     {"name": "in_operator$ebnf$1", "symbols": ["in_operator$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "in_operator$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "in_operator$string$1", "symbols": [{"literal":"I"}, {"literal":"N"}], "postprocess": (d) => d.join('')},
     {"name": "in_operator$ebnf$2", "symbols": []},
-    {"name": "in_operator$ebnf$2$subexpression$1", "symbols": ["_", {"literal":","}, "_", "value"]},
+    {"name": "in_operator$ebnf$2$subexpression$1", "symbols": ["_", {"literal":","}, "_", "value_expression"]},
     {"name": "in_operator$ebnf$2", "symbols": ["in_operator$ebnf$2", "in_operator$ebnf$2$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "in_operator", "symbols": ["__", "in_operator$ebnf$1", "in_operator$string$1", "_", {"literal":"("}, "_", "value", "in_operator$ebnf$2", "_", {"literal":")"}], "postprocess": (data) => {
+    {"name": "in_operator", "symbols": ["__", "in_operator$ebnf$1", "in_operator$string$1", "_", {"literal":"("}, "_", "value_expression", "in_operator$ebnf$2", "_", {"literal":")"}], "postprocess": (data) => {
            return {
                operator: data[1] ? 'NOT_IN' : 'IN',
                rightOperand: [data[6]].concat(data[7].map(d => d[3])),
@@ -255,11 +241,89 @@ const grammar: Grammar = {
     {"name": "simple_operator$string$16", "symbols": [{"literal":"S"}, {"literal":"T"}, {"literal":"A"}, {"literal":"R"}, {"literal":"T"}], "postprocess": (d) => d.join('')},
     {"name": "simple_operator$string$17", "symbols": [{"literal":"W"}, {"literal":"I"}, {"literal":"T"}, {"literal":"H"}], "postprocess": (d) => d.join('')},
     {"name": "simple_operator", "symbols": ["simple_operator$string$14", "__", "simple_operator$string$15", "__", "simple_operator$string$16", "__", "simple_operator$string$17"], "postprocess": d => 'NOT_STARTS_WITH'},
+    {"name": "function_call$ebnf$1", "symbols": ["value_expression"], "postprocess": id},
+    {"name": "function_call$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "function_call$ebnf$2", "symbols": []},
+    {"name": "function_call$ebnf$2$subexpression$1", "symbols": ["_", {"literal":","}, "_", "value_expression"]},
+    {"name": "function_call$ebnf$2", "symbols": ["function_call$ebnf$2", "function_call$ebnf$2$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "function_call", "symbols": ["identifier", {"literal":"("}, "_", "function_call$ebnf$1", "function_call$ebnf$2", "_", {"literal":")"}], "postprocess":  (data) => {
+            const args = [];
+            if (data[3]) {
+                args.push(data[3]);
+            }
+            data[4].forEach((d) => {
+                args.push(d[3]);
+            });
+        
+            return {
+                type: 'function_call',
+                function: data[0],
+                arguments: args,
+            };
+        } },
+    {"name": "value_expression", "symbols": ["value_sum"], "postprocess": id},
+    {"name": "value_product$ebnf$1", "symbols": []},
+    {"name": "value_product$ebnf$1$subexpression$1$subexpression$1", "symbols": [{"literal":"/"}]},
+    {"name": "value_product$ebnf$1$subexpression$1$subexpression$1", "symbols": [{"literal":"*"}]},
+    {"name": "value_product$ebnf$1$subexpression$1", "symbols": ["_", "value_product$ebnf$1$subexpression$1$subexpression$1", "_", "value_or_expr"]},
+    {"name": "value_product$ebnf$1", "symbols": ["value_product$ebnf$1", "value_product$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "value_product", "symbols": ["value_or_expr", "value_product$ebnf$1"], "postprocess":  (data) => {
+            function handleOperator(l, r, operator) {
+                return {
+                    type: 'value_expression',
+                    operator,
+                    leftOperand: l,
+                    rightOperand: r,
+                };
+            }
+        
+            let result = data[0];
+        
+            data[1].forEach(([, operator, , rightOperand]) => {
+                result = handleOperator(result, rightOperand, operator[0]);
+            });
+        
+            return result;
+        } },
+    {"name": "value_sum$ebnf$1", "symbols": []},
+    {"name": "value_sum$ebnf$1$subexpression$1$subexpression$1", "symbols": [{"literal":"+"}]},
+    {"name": "value_sum$ebnf$1$subexpression$1$subexpression$1", "symbols": [{"literal":"-"}]},
+    {"name": "value_sum$ebnf$1$subexpression$1", "symbols": ["_", "value_sum$ebnf$1$subexpression$1$subexpression$1", "_", "value_product"]},
+    {"name": "value_sum$ebnf$1", "symbols": ["value_sum$ebnf$1", "value_sum$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "value_sum", "symbols": ["value_product", "value_sum$ebnf$1"], "postprocess":  (data) => {
+            function handleOperator(l, r, operator) {
+                return {
+                    type: 'value_expression',
+                    operator,
+                    leftOperand: l,
+                    rightOperand: r
+                };
+            }
+        
+            let result = data[0];
+        
+            data[1].forEach(([, operator, , rightOperand]) => {
+                result = handleOperator(result, rightOperand, operator[0]);
+            });
+        
+            return result;
+        } },
+    {"name": "value_or_expr", "symbols": ["value"], "postprocess": id},
+    {"name": "value_or_expr", "symbols": [{"literal":"("}, "_", "value_expression", "_", {"literal":")"}], "postprocess":  (data) => ({
+            type: 'parentheses',
+            expression: data[2],
+        }) },
     {"name": "number", "symbols": ["int"], "postprocess": id},
     {"name": "number", "symbols": ["decimal"], "postprocess": id},
+    {"name": "value", "symbols": ["function_call"], "postprocess": id},
     {"name": "value", "symbols": ["number"], "postprocess": id},
     {"name": "value", "symbols": ["quoted_string"], "postprocess": id},
     {"name": "value", "symbols": ["boolean"], "postprocess": id},
+    {"name": "value", "symbols": ["field"], "postprocess": id},
+    {"name": "boolean$string$1", "symbols": [{"literal":"t"}, {"literal":"r"}, {"literal":"u"}, {"literal":"e"}], "postprocess": (d) => d.join('')},
+    {"name": "boolean", "symbols": ["boolean$string$1"], "postprocess": () => true},
+    {"name": "boolean$string$2", "symbols": [{"literal":"f"}, {"literal":"a"}, {"literal":"l"}, {"literal":"s"}, {"literal":"e"}], "postprocess": (d) => d.join('')},
+    {"name": "boolean", "symbols": ["boolean$string$2"], "postprocess": () => false},
     {"name": "quoted_string$ebnf$1", "symbols": []},
     {"name": "quoted_string$ebnf$1$subexpression$1", "symbols": ["escape_double"]},
     {"name": "quoted_string$ebnf$1$subexpression$1", "symbols": [/[^"]/]},
@@ -270,6 +334,12 @@ const grammar: Grammar = {
     {"name": "quoted_string$ebnf$2$subexpression$1", "symbols": [/[^']/]},
     {"name": "quoted_string$ebnf$2", "symbols": ["quoted_string$ebnf$2", "quoted_string$ebnf$2$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "quoted_string", "symbols": [{"literal":"'"}, "quoted_string$ebnf$2", {"literal":"'"}], "postprocess": d => ({literal: d[1].join('')})},
+    {"name": "identifier$ebnf$1", "symbols": []},
+    {"name": "identifier$ebnf$1", "symbols": ["identifier$ebnf$1", /[a-zA-Z0-9_-]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "identifier", "symbols": [/[a-zA-Z_]/, "identifier$ebnf$1"], "postprocess": d => d[0]+d[1].join('')},
+    {"name": "builtin_field", "symbols": [{"literal":"@"}, "identifier"], "postprocess": d => ({field: "@"+d[1]})},
+    {"name": "field", "symbols": ["builtin_field"], "postprocess": id},
+    {"name": "field", "symbols": ["identifier"], "postprocess": d => ({field: d[0]})},
     {"name": "escape_double", "symbols": [{"literal":"\\"}, /["]/], "postprocess": () => '"'},
     {"name": "escape_double", "symbols": ["escape_backslash"], "postprocess": id},
     {"name": "escape_single", "symbols": [{"literal":"\\"}, /["]/], "postprocess": () => '"'},
