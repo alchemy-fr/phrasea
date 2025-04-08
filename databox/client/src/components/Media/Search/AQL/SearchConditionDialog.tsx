@@ -113,6 +113,26 @@ export default function SearchConditionDialog({
                 fieldType: 'date_time',
                 name: t('built_in_attr.createdAt', 'Created At'),
             },
+            {
+                slug: BuiltInFilter.FileType,
+                fieldType: 'text',
+                name: t('built_in_attr.fileType', 'File Type'),
+            },
+            {
+                slug: BuiltInFilter.FileMimeType,
+                fieldType: 'text',
+                name: t('built_in_attr.fileMimeType', 'File MIME Type'),
+            },
+            {
+                slug: BuiltInFilter.FileSize,
+                fieldType: 'number',
+                name: t('built_in_attr.fileSize', 'File Size'),
+            },
+            {
+                slug: BuiltInFilter.FileName,
+                fieldType: 'text',
+                name: t('built_in_attr.filename', 'File Name'),
+            },
         ];
 
         for (let bf of builtInFilters) {

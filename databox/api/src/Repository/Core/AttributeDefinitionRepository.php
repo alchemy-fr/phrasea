@@ -10,6 +10,7 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 class AttributeDefinitionRepository extends ServiceEntityRepository
@@ -25,26 +26,12 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
         parent::__construct($registry, AttributeDefinition::class);
     }
 
-    /**
-     * @return AttributeDefinition[]
-     */
-    public function getSearchableAttributesWithPermission(?string $userId, array $groupIds): iterable
+    public function createQueryBuilderAcl(?string $userId, array $groupIds, bool $withConditions = true): QueryBuilder
     {
         $queryBuilder = $this
             ->createQueryBuilder('t')
-            ->select('t.fieldType')
-            ->addSelect('t.slug')
-            ->addSelect('t.multiple')
-            ->addSelect('t.searchBoost')
-            ->addSelect('t.translatable')
-            ->addSelect('w.public AS wPublic')
-            ->addSelect('c.public AS cPublic')
-            ->addSelect('w.id AS workspaceId')
-            ->addSelect('w.enabledLocales AS enabledLocales')
-            ->andWhere('t.searchable = true')
             ->innerJoin('t.class', 'c')
-            ->innerJoin('t.workspace', 'w')
-        ;
+            ->innerJoin('t.workspace', 'w');
 
         if (null !== $userId) {
             AccessControlEntryRepository::joinAcl(
@@ -65,12 +52,47 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
                 'w',
                 PermissionInterface::VIEW,
                 false,
-                'w_ace'
+                'w_ace',
+                paramPrefix: 'w',
             );
+            $queryBuilder->setParameter('uid', $userId);
+            if ($withConditions) {
+                $queryBuilder->andWhere('c.public = true OR ac_ace.id IS NOT NULL');
+                $queryBuilder->andWhere('w.public = true OR w.ownerId = :uid OR w_ace.id IS NOT NULL');
+            }
+        } else {
+            if ($withConditions) {
+                $queryBuilder->andWhere('c.public = true');
+                $queryBuilder->andWhere('w.public = true');
+            }
+        }
+
+        return $queryBuilder;
+    }
+
+    /**
+     * @return AttributeDefinition[]
+     */
+    public function getSearchableAttributesWithPermission(?string $userId, array $groupIds): iterable
+    {
+        $queryBuilder = $this
+            ->createQueryBuilderAcl($userId, $groupIds, withConditions: false)
+            ->select('t.fieldType')
+            ->addSelect('t.slug')
+            ->addSelect('t.multiple')
+            ->addSelect('t.searchBoost')
+            ->addSelect('t.translatable')
+            ->addSelect('w.public AS wPublic')
+            ->addSelect('c.public AS cPublic')
+            ->addSelect('w.id AS workspaceId')
+            ->addSelect('w.enabledLocales AS enabledLocales')
+            ->andWhere('t.searchable = true')
+        ;
+
+        if (null !== $userId) {
             $queryBuilder->addSelect('w.ownerId AS w_ownerId');
             $queryBuilder->addSelect('w_ace.id AS w_aceId');
             $queryBuilder->addSelect('ac_ace.id AS ac_aceId');
-            $queryBuilder->setParameter('uid', $userId);
         }
 
         foreach ($queryBuilder
@@ -96,43 +118,9 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     public function getSearchableAttributes(?string $userId, array $groupIds, array $options = []): array
     {
         $queryBuilder = $this
-            ->createQueryBuilder('t')
+            ->createQueryBuilderAcl($userId, $groupIds)
             ->andWhere('t.searchable = true')
-            ->innerJoin('t.class', 'c')
-            ->innerJoin('t.workspace', 'w')
         ;
-
-        if (!$this->isSuperAdmin()) {
-            if (null !== $userId) {
-                AccessControlEntryRepository::joinAcl(
-                    $queryBuilder,
-                    $userId,
-                    $groupIds,
-                    'attribute_class',
-                    'c',
-                    PermissionInterface::VIEW,
-                    false,
-                    'ac_ace'
-                );
-                AccessControlEntryRepository::joinAcl(
-                    $queryBuilder,
-                    $userId,
-                    $groupIds,
-                    'workspace',
-                    'w',
-                    PermissionInterface::VIEW,
-                    false,
-                    'w_ace',
-                    'w_'
-                );
-                $queryBuilder->andWhere('c.public = true OR ac_ace.id IS NOT NULL');
-                $queryBuilder->andWhere('w.public = true OR w.ownerId = :w_uid OR w_ace.id IS NOT NULL');
-                $queryBuilder->setParameter('w_uid', $userId);
-            } else {
-                $queryBuilder->andWhere('c.public = true');
-                $queryBuilder->andWhere('w.public = true');
-            }
-        }
 
         if ($options[self::OPT_TYPES] ?? null) {
             $queryBuilder

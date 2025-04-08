@@ -22,9 +22,12 @@ class AttributeDefinitionCollectionProvider extends AbstractCollectionProvider
     ): array|object {
         $filters = $context['filters'] ?? [];
 
+        $user = $this->security->getUser();
+        $userId = $user instanceof JwtUser ? $user->getId() : null;
+        $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
+
         $queryBuilder = $this->em->getRepository(AttributeDefinition::class)
-            ->createQueryBuilder('t')
-            ->innerJoin('t.class', 'ac')
+            ->createQueryBuilderAcl($userId, $groupIds)
         ;
 
         if ($filters['workspaceId'] ?? false) {
@@ -33,27 +36,13 @@ class AttributeDefinitionCollectionProvider extends AbstractCollectionProvider
                 ->setParameter('ws', $filters['workspaceId']);
         }
 
-        if (!$this->isAdmin()) {
-            $user = $this->security->getUser();
-
-            if ($user instanceof JwtUser) {
-                AccessControlEntryRepository::joinAcl(
-                    $queryBuilder,
-                    $user->getId(),
-                    $user->getGroups(),
-                    'attribute_class',
-                    'ac',
-                    PermissionInterface::VIEW,
-                    false
-                );
-                $queryBuilder->andWhere('ac.public = true OR ace.id IS NOT NULL');
-            } else {
-                $queryBuilder->andWhere('ac.public = true');
-            }
+        if ($filters['searchable'] ?? false) {
+            $queryBuilder->andWhere('t.searchable = true');
         }
 
         return $queryBuilder
             ->addOrderBy('t.position', 'ASC')
+            ->addOrderBy('t.name', 'ASC')
             ->getQuery()
             ->getResult();
     }

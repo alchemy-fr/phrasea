@@ -11,6 +11,10 @@ export enum BuiltInFilter {
     CreatedAt = '@createdAt',
     EditedAt = '@editedAt',
     Score = '@score',
+    FileType = '@type',
+    FileMimeType = '@mimetype',
+    FileSize = '@size',
+    FileName = '@filename',
 }
 
 function encode(str: string): string {

@@ -100,6 +100,18 @@ fos_elastica:
                 tags:
                     property_path: tagIds
                     type: keyword
+                fileSize:
+                    type: long
+                    property_path: getSourceFileSize
+                fileName:
+                    type: text
+                    property_path: getSourceFilename
+                fileType:
+                    type: keyword
+                    property_path: getSourceFileType
+                fileMimeType:
+                    type: keyword
+                    property_path: getSourceFileMimeType
                 microseconds:
                     type: integer
                 sequence:

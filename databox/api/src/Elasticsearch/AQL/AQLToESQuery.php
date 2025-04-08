@@ -59,7 +59,6 @@ final readonly class AQLToESQuery
         $fields = $this->getFieldNames($fieldClusters, $leftOperand['field']);
         foreach ($fields as $fieldGroup) {
             $field = $fieldGroup->getItem();
-            $field['locales'] = $fieldGroup->getLocales();
             $query = $this->createCriteria($field, $data, $options);
 
             $queries[] = $this->wrapCluster($query, $fieldGroup);
@@ -404,6 +403,7 @@ final readonly class AQLToESQuery
                     new ClusterGroup([
                         'field' => $facet->getFieldName(),
                         'facet' => $facet,
+                        'locales' => [],
                     ], true)
                 ];
             } else {
@@ -413,7 +413,12 @@ final readonly class AQLToESQuery
                     new ClusterGroup([
                         'field' => match ($key) {
                             'id' => '_id',
+                            'size' => 'fileSize',
+                            'type' => 'fileType',
+                            'mimetype' => 'fileMimeType',
+                            'filename' => 'fileName',
                         },
+                        'locales' => [],
                     ], true)
                 ];
             }
@@ -425,6 +430,7 @@ final readonly class AQLToESQuery
         ];
         $fields = [];
         foreach ($fieldClusters as $cluster) {
+            $locales = $cluster['locales'] ?? [];
             foreach ($cluster['fields'] as $cField => $fieldConf) {
                 foreach ($nameCandidates as $nameCandidate) {
                     if (str_starts_with($cField, $nameCandidate.'_')) {
@@ -432,6 +438,7 @@ final readonly class AQLToESQuery
                             [
                                 'field' => $cField,
                                 'raw' => $fieldConf['raw'],
+                                'locales' => $locales,
                             ],
                             false,
                             $cluster['w'] ?? null,

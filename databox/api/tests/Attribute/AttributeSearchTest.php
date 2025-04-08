@@ -2,12 +2,14 @@
 
 namespace App\Tests\Attribute;
 
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
+use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AttributeSearch;
 use App\Elasticsearch\Facet\FacetRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
@@ -33,14 +35,15 @@ class AttributeSearchTest extends TestCase
         );
 
         $aqlParser = new AQLParser();
-        $aqlToESQuery = new AQLToESQuery(new FacetRegistry([]));
+        $aqlToESQuery = new AQLToESQuery(new FacetRegistry([]), new AQLFunctionRegistry());
 
         $as = new AttributeSearch(
             $fieldNameResolver,
             $this->createMock(EntityManagerInterface::class),
             $attributeTypeRegistry,
             $aqlParser,
-            $aqlToESQuery
+            $aqlToESQuery,
+            new TemporaryCacheFactory(),
         );
 
         $clusters = $as->createClustersFromDefinitions($definitions);

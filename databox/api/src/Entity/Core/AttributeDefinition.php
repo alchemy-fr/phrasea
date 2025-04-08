@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Api\Provider\AttributeDefinitionCollectionProvider;
@@ -39,7 +40,17 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'searchable' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'Filter searchable attributes',
+                ),
+                'workspaceId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                ),
+            ]
+        ),
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
         new Post(
             uriTemplate: '/attribute-definitions/sort',

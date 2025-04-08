@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
@@ -18,11 +19,14 @@ use Elastica\Aggregation;
 use Elastica\Aggregation\Missing;
 use Elastica\Query;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class AttributeSearch
 {
     final public const string OPT_STRICT_PHRASE = 'strict';
     final public const string GROUP_ALL = '*';
+
+    private CacheInterface $cache;
 
     public function __construct(
         private readonly FieldNameResolver $fieldNameResolver,
@@ -30,15 +34,19 @@ class AttributeSearch
         private readonly AttributeTypeRegistry $typeRegistry,
         private readonly AQLParser $AQLParser,
         private readonly AQLToESQuery $AQLToESQuery,
+        TemporaryCacheFactory $cacheFactory
     ) {
+        $this->cache = $cacheFactory->createCache();
     }
 
     public function buildSearchableAttributeDefinitionsGroups(?string $userId, array $groupIds): array
     {
-        $definitions = $this->em->getRepository(AttributeDefinition::class)
-            ->getSearchableAttributesWithPermission($userId, $groupIds);
+        return $this->cache->get('sa:'.$userId.'-'.implode(':', $groupIds), function () use ($userId, $groupIds) {
+            $definitions = $this->em->getRepository(AttributeDefinition::class)
+                ->getSearchableAttributesWithPermission($userId, $groupIds);
 
-        return $this->createClustersFromDefinitions($definitions);
+            return $this->createClustersFromDefinitions($definitions);
+        });
     }
 
     public function createClustersFromDefinitions(iterable $definitions): array

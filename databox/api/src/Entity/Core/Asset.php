@@ -593,4 +593,42 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     {
         return sprintf('Asset %s', $this->getTitle() ?? $this->getId());
     }
+
+
+    /**
+     * Used by ES
+     */
+    public function getSourceFileSize(): ?int
+    {
+        $size = $this->source?->getSize();
+        if (is_string($size)) {
+            return (int) $size;
+        }
+
+        return $size;
+    }
+
+    /**
+     * Used by ES
+     */
+    public function getSourceFilename(): ?string
+    {
+        return $this->source?->getFilename();
+    }
+
+    /**
+     * Used by ES
+     */
+    public function getSourceFileType(): ?string
+    {
+        return $this->source?->getType();
+    }
+
+    /**
+     * Used by ES
+     */
+    public function getSourceFileMimeType(): ?string
+    {
+        return $this->source?->getType();
+    }
 }
