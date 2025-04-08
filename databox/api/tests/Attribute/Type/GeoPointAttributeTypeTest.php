@@ -17,7 +17,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
     public function getNormalizationCases(): array
     {
         return [
-            [['lat' => 48.8, 'lng' => 2.32], '2.32,48.8'],
+            [['lat' => 48.8, 'lng' => 2.32], '48.8,2.32'],
             ['2.32, 48.8', '2.32,48.8'],
             ['2.32  ,  48.8', '2.32,48.8'],
             ['2.32,48.8', '2.32,48.8'],
@@ -33,7 +33,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
     public function getDenormalizationCases(): array
     {
         return [
-            ['2.32,48.8', ['lat' => 48.8, 'lng' => 2.32]],
+            ['48.8,2.32', ['lat' => 48.8, 'lng' => 2.32]],
             [null, null],
             ['', null],
             [' ', null],

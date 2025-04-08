@@ -41,7 +41,7 @@ class AttributeSearch
 
     public function buildSearchableAttributeDefinitionsGroups(?string $userId, array $groupIds): array
     {
-        return $this->cache->get('sa:'.$userId.'-'.implode(':', $groupIds), function () use ($userId, $groupIds) {
+        return $this->cache->get('sa_'.$userId.'-'.implode(':', $groupIds), function () use ($userId, $groupIds) {
             $definitions = $this->em->getRepository(AttributeDefinition::class)
                 ->getSearchableAttributesWithPermission($userId, $groupIds);
 
