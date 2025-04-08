@@ -1,11 +1,12 @@
 import {QBAndOrExpression, QBCondition, QBExpression} from "./builderTypes.ts";
 import {hasProp} from "../../../../../lib/utils.ts";
+import {AQLAndOrOperator, AQLOperator} from "../aqlTypes.ts";
 
 export const emptyCondition: QBCondition = {
     leftOperand: {
         field: '',
     },
-    operator: '=',
+    operator: AQLOperator.EQ,
     rightOperand: {literal: ''},
 };
 
@@ -14,12 +15,12 @@ export function addExpression(prev: QBExpression, group: boolean): QBAndOrExpres
         ...prev,
         conditions: [...prev.conditions],
     } : {
-        operator: 'AND',
+        operator: AQLAndOrOperator.AND,
         conditions: [prev]
     };
 
     newExpression.conditions.push(group ? {
-        operator: 'AND',
+        operator: AQLAndOrOperator.AND,
         conditions: [
             {...emptyCondition},
         ]

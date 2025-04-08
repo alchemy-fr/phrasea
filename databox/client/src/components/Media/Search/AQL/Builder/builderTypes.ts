@@ -1,10 +1,19 @@
-import {AQLCondition, AQLOperator, AQLValue, AQLValueOrExpression, ManyArgs, RawType} from "../aqlTypes.ts";
+import {
+    AQLAndOrOperator,
+    AQLCondition,
+    AQLOperator,
+    AQLValue,
+    AQLValueOrExpression,
+    ArgNames,
+    ManyArgs,
+    RawType
+} from "../aqlTypes.ts";
 import {AttributeDefinitionIndex} from "../../../../AttributeEditor/types.ts";
 
 export type QBExpression = QBAndOrExpression | QBCondition;
 
 export type QBAndOrExpression = {
-    operator?: 'AND' | 'OR';
+    operator?: AQLAndOrOperator;
     conditions: QBExpression[];
 }
 
@@ -27,5 +36,6 @@ export type OperatorChoice = {
     value: AQLOperator;
     label: string;
     manyArgs?: ManyArgs;
+    argNames?: ArgNames;
     supportedTypes?: RawType[];
 };

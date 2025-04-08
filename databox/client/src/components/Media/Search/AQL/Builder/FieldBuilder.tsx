@@ -14,16 +14,25 @@ export type {Props as FieldBuilderProps};
 
 export default function FieldBuilder({
     rawType,
-    value,
+    value: initialValue,
     onChange,
     name,
     label,
 }: Props) {
+    const [value, setValue] = React.useState(initialValue);
+
+    React.useEffect(() => {
+        setValue(initialValue);
+    }, [initialValue]);
+
     return <TextField
         type={rawType === RawType.Date ? 'datetime-local' : 'text'}
             name={name}
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onBlur={() => onChange(value)}
+            onChange={(e) => {
+                setValue(e.target.value);
+            }}
             fullWidth={true}
             placeholder={label}
         />

@@ -58,7 +58,36 @@ operator -> __ ("NOT" __):? "BETWEEN" __ value_expression __ "AND" __ value_expr
     | __ "IS" __ "MISSING" {% () => ({operator: 'MISSING'}) %}
     | __ "EXISTS" {% () => ({operator: 'EXISTS'}) %}
     | in_operator {% id %}
+    | geo_operator {% id %}
     | simple_operator _ value_expression {% (data) => ({operator: data[0], rightOperand: data[2]}) %}
+
+
+geo_operator -> "WITHIN" __ (within_circle_operator | within_rectangle_operator) {% (data) => {
+    return data[2][0];
+} %}
+
+within_circle_operator -> "CIRCLE" _ "(" _ value_expression _ "," _ value_expression _ "," _ value_expression _ ")" {% (data) => {
+    return {
+        operator: 'WITHIN_CIRCLE',
+        rightOperand: [
+            data[4],
+            data[8],
+            data[12],
+        ],
+    };
+} %}
+
+within_rectangle_operator -> "RECTANGLE" _ "(" _ value_expression _ "," _ value_expression _ "," _ value_expression _ "," _ value_expression _ ")" {% (data) => {
+    return {
+        operator: 'WITHIN_RECTANGLE',
+        rightOperand: [
+            data[4],
+            data[8],
+            data[12],
+            data[16],
+        ],
+    };
+} %}
 
 in_operator -> __ ("NOT" __):? "IN" _ "(" _ value_expression (_ "," _ value_expression):* _ ")" {% (data) => {
     return {

@@ -1,22 +1,27 @@
-export const aqlOperators = [
-    '=',
-    '!=',
-    '>'
-    , '<',
-    '>='
-    , '<=', 'IN', 'NOT_IN', 'MISSING', 'EXISTS',
-    'CONTAINS',
-    'NOT_CONTAINS',
-    'MATCHES',
-    'NOT_MATCHES',
-    'STARTS_WITH',
-    'NOT_STARTS_WITH',
-    'BETWEEN'
-    , 'BETWEEN'
-    , 'NOT_BETWEEN',
-] as const
 
-export type AQLOperator = typeof aqlOperators[number];
+export enum AQLOperator {
+    EQ = '=',
+    NEQ = '!=',
+    GT = '>',
+    LT = '<',
+    GTE = '>=',
+    LTE = '<=',
+    IN = 'IN',
+    NOT_IN = 'NOT_IN',
+    MISSING = 'MISSING',
+    EXISTS = 'EXISTS',
+    CONTAINS = 'CONTAINS',
+    NOT_CONTAINS = 'NOT_CONTAINS',
+    MATCHES = 'MATCHES',
+    NOT_MATCHES = 'NOT_MATCHES',
+    STARTS_WITH = 'STARTS_WITH',
+    NOT_STARTS_WITH = 'NOT_STARTS_WITH',
+    BETWEEN = 'BETWEEN',
+    NOT_BETWEEN = 'NOT_BETWEEN',
+    WITHIN_CIRCLE = 'WITHIN_CIRCLE',
+    WITHIN_RECTANGLE = 'WITHIN_RECTANGLE',
+}
+
 export type AQLField = { field: string };
 export type AQLFunctionCall = {
     type: 'function_call';
@@ -54,8 +59,13 @@ export type AQLCondition = {
 }
 export type AQLExpression = AQLAndOrExpression | AQLCondition;
 
+export enum AQLAndOrOperator {
+    AND = 'AND',
+    OR = 'OR',
+}
+
 export type AQLAndOrExpression = {
-    operator?: 'AND' | 'OR';
+    operator?: AQLAndOrOperator;
     conditions: AQLCondition[];
 }
 
@@ -63,10 +73,12 @@ export type AQLQueryAST = {
     expression: AQLExpression;
 }
 export type ManyArgs = number | true | undefined;
+export type ArgNames = string[] | undefined;
 
 export enum RawType {
     String = 'string',
     Number = 'number',
     Date = 'date',
     Boolean = 'boolean',
+    GeoPoint = 'geo_point',
 }

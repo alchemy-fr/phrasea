@@ -16,7 +16,7 @@ class AQLParserTest extends TestCase
         $result = $parser->parse($expression);
 
         if (null !== $expectedData) {
-            $this->assertNotNull($result);
+            $this->assertNotNull($result, 'Parse error');
             $this->assertEquals($expectedData, $result['data']);
         } else {
             $this->assertNull($result);
@@ -498,6 +498,27 @@ class AQLParserTest extends TestCase
                         ],
                         'rightOperand' => 2,
                     ],
+                ],
+            ]],
+            ['my_field WITHIN CIRCLE (48.8, 2.32, "10km")', [
+                'type' => 'criteria',
+                'operator' => 'WITHIN_CIRCLE',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => [
+                    48.8,
+                    2.32,
+                    ['literal' => '10km']
+                ],
+            ]],
+            ['my_field WITHIN RECTANGLE (1.1, 1.2, 2.1, 2.2)', [
+                'type' => 'criteria',
+                'operator' => 'WITHIN_RECTANGLE',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => [
+                    1.1,
+                    1.2,
+                    2.1,
+                    2.2,
                 ],
             ]],
         ];

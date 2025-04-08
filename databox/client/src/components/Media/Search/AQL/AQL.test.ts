@@ -266,6 +266,20 @@ it('parse AQL', function () {
                 },
             },
         },
+        {
+            query: 'location WITHIN CIRCLE (48.8, 2.32, "10km")',
+            result: {
+                expression: {
+                    leftOperand: {field: 'location'},
+                    operator: 'WITHIN_CIRCLE',
+                    rightOperand: [
+                        48.8,
+                        2.32,
+                        {literal: '10km'},
+                    ],
+                },
+            },
+        },
     ];
 
     dataSet.forEach(({query, result, formattedQuery}) => {

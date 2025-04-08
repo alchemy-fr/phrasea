@@ -81,10 +81,12 @@ function operandToString(operand: RightOperand, operator?: AQLOperator): string 
 
     if (typeof operand === 'object') {
         if (operator && Array.isArray(operand)) {
-            if (['IN', 'NOT_IN'].includes(operator)) {
+            if ([AQLOperator.IN, AQLOperator.NOT_IN].includes(operator)) {
                 return `(${operand.map(o => operandToString(o)).join(', ')})`;
-            } else if (['BETWEEN', 'NOT_BETWEEN'].includes(operator)) {
+            } else if ([AQLOperator.BETWEEN, AQLOperator.NOT_BETWEEN].includes(operator)) {
                 return operand.map(o => operandToString(o)).join(' AND ');
+            } else if ([AQLOperator.WITHIN_CIRCLE, AQLOperator.WITHIN_RECTANGLE].includes(operator)) {
+                return `(${operand.map(o => operandToString(o)).join(', ')})`;
             }
         } else {
             if (isAQLField(operand as AQLOperand)) {
@@ -97,22 +99,30 @@ function operandToString(operand: RightOperand, operator?: AQLOperator): string 
 }
 
 function operatorToString(operator: AQLOperator): string {
-    switch (operator) {
-        case 'NOT_IN':
-            return 'NOT IN';
-        case 'MISSING':
-            return 'IS MISSING';
-        case 'NOT_BETWEEN':
-            return 'NOT BETWEEN';
-        case 'NOT_CONTAINS':
-            return 'DOES NOT CONTAIN';
-        case 'NOT_MATCHES':
-            return 'DOES NOT MATCH';
-        case 'NOT_STARTS_WITH':
-            return 'DOES NOT START WITH';
-        default:
-            return operator;
-    }
+    const map: Record<AQLOperator, string> = {
+        '=': '=',
+        '!=': '!=',
+        '>': '>',
+        '<': '<',
+        '>=': '>=',
+        '<=': '<=',
+        'IN': 'IN',
+        'NOT_IN': 'NOT IN',
+        'MISSING': 'IS MISSING',
+        'EXISTS': 'EXISTS',
+        'CONTAINS': 'CONTAINS',
+        'NOT_CONTAINS': 'DOES NOT CONTAIN',
+        'MATCHES': 'MATCHES',
+        'NOT_MATCHES': 'DOES NOT MATCH',
+        'STARTS_WITH': 'STARTS WITH',
+        'NOT_STARTS_WITH': 'DOES NOT START WITH',
+        'BETWEEN': 'BETWEEN',
+        'NOT_BETWEEN': 'NOT BETWEEN',
+        WITHIN_CIRCLE: 'WITHIN CIRCLE',
+        WITHIN_RECTANGLE: 'WITHIN RECTANGLE',
+    };
+
+    return map[operator] || operator;
 }
 
 export function valueToString(value: AQLValueOrExpression): string {

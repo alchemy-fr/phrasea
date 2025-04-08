@@ -104,10 +104,43 @@ boolean: "true" | "false"
         $result['data'] = $result['text'] === 'true';
     }
 
-operator: ] op:between_operator | ] op:in_operator | ] op:ending_operator | > op:simple_operator | > op:keyword_operator
+operator: ] op:between_operator | ] op:in_operator | ] op:geo_operator | ] op:ending_operator | > op:simple_operator | > op:keyword_operator
     function __finalise(&$result) {
         $result['data'] = $result['op']['data'];
         unset($result['op']);
+    }
+
+geo_operator: "WITHIN" ] (v:within_circle_operator | v:within_rectangle_operator)
+    function __finalise(&$result) {
+        $result['data'] = $result['v']['data'];
+        unset($result['v']);
+    }
+
+within_circle_operator: "CIRCLE" > "(" > lat:value_expression > "," > lng:value_expression > "," > radius:value_expression > ")"
+    function __finalise(&$result) {
+        $result['data'] = [
+            'operator' => 'WITHIN_CIRCLE',
+            'rightOperand' => [
+                $result['lat']['data'],
+                $result['lng']['data'],
+                $result['radius']['data'],
+            ],
+        ];
+        unset($result['lat'], $result['lng'], $result['radius']);
+    }
+
+within_rectangle_operator: "RECTANGLE" > "(" > topLeftLat:value_expression > "," > topLeftLng:value_expression > "," > bottomRightLat:value_expression > "," > bottomRightLng:value_expression > ")"
+    function __finalise(&$result) {
+        $result['data'] = [
+            'operator' => 'WITHIN_RECTANGLE',
+            'rightOperand' => [
+                $result['topLeftLat']['data'],
+                $result['topLeftLng']['data'],
+                $result['bottomRightLat']['data'],
+                $result['bottomRightLng']['data'],
+            ],
+        ];
+        unset($result['topLeftLat'], $result['topLeftLng'], $result['bottomRightLat'], $result['bottomRightLng']);
     }
 
 between_operator: not:("NOT" ])? "BETWEEN" ] left:value_expression ] "AND" ] right:value_expression
@@ -288,7 +321,7 @@ quoted_string: /"[^"]*"/
         $result['data'] = ['literal' => substr($result['text'], 1, -1)];
     }
 
-number: v:int | v:decimal
+number: v:decimal | v:int
     function __finalise(&$result) {
         $result['data'] = $result['v']['data'];
         unset($result['v']);

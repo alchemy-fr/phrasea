@@ -12,6 +12,7 @@ final class AQLFunctionRegistry
         $this->register(new DateAddFunction());
         $this->register(new DateSubFunction());
         $this->register(new SubstringFunction());
+        $this->register(new ConcatFunction());
     }
 
     public function register(AQLFunctionInterface $function): void

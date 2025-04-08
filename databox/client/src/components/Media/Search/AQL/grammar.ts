@@ -197,7 +197,37 @@ const grammar: Grammar = {
     {"name": "operator$string$5", "symbols": [{"literal":"E"}, {"literal":"X"}, {"literal":"I"}, {"literal":"S"}, {"literal":"T"}, {"literal":"S"}], "postprocess": (d) => d.join('')},
     {"name": "operator", "symbols": ["__", "operator$string$5"], "postprocess": () => ({operator: 'EXISTS'})},
     {"name": "operator", "symbols": ["in_operator"], "postprocess": id},
+    {"name": "operator", "symbols": ["geo_operator"], "postprocess": id},
     {"name": "operator", "symbols": ["simple_operator", "_", "value_expression"], "postprocess": (data) => ({operator: data[0], rightOperand: data[2]})},
+    {"name": "geo_operator$string$1", "symbols": [{"literal":"W"}, {"literal":"I"}, {"literal":"T"}, {"literal":"H"}, {"literal":"I"}, {"literal":"N"}], "postprocess": (d) => d.join('')},
+    {"name": "geo_operator$subexpression$1", "symbols": ["within_circle_operator"]},
+    {"name": "geo_operator$subexpression$1", "symbols": ["within_rectangle_operator"]},
+    {"name": "geo_operator", "symbols": ["geo_operator$string$1", "__", "geo_operator$subexpression$1"], "postprocess":  (data) => {
+            return data[2][0];
+        } },
+    {"name": "within_circle_operator$string$1", "symbols": [{"literal":"C"}, {"literal":"I"}, {"literal":"R"}, {"literal":"C"}, {"literal":"L"}, {"literal":"E"}], "postprocess": (d) => d.join('')},
+    {"name": "within_circle_operator", "symbols": ["within_circle_operator$string$1", "_", {"literal":"("}, "_", "value_expression", "_", {"literal":","}, "_", "value_expression", "_", {"literal":","}, "_", "value_expression", "_", {"literal":")"}], "postprocess":  (data) => {
+            return {
+                operator: 'WITHIN_CIRCLE',
+                rightOperand: [
+                    data[4],
+                    data[8],
+                    data[12],
+                ],
+            };
+        } },
+    {"name": "within_rectangle_operator$string$1", "symbols": [{"literal":"R"}, {"literal":"E"}, {"literal":"C"}, {"literal":"T"}, {"literal":"A"}, {"literal":"N"}, {"literal":"G"}, {"literal":"L"}, {"literal":"E"}], "postprocess": (d) => d.join('')},
+    {"name": "within_rectangle_operator", "symbols": ["within_rectangle_operator$string$1", "_", {"literal":"("}, "_", "value_expression", "_", {"literal":","}, "_", "value_expression", "_", {"literal":","}, "_", "value_expression", "_", {"literal":","}, "_", "value_expression", "_", {"literal":")"}], "postprocess":  (data) => {
+            return {
+                operator: 'WITHIN_RECTANGLE',
+                rightOperand: [
+                    data[4],
+                    data[8],
+                    data[12],
+                    data[16],
+                ],
+            };
+        } },
     {"name": "in_operator$ebnf$1$subexpression$1$string$1", "symbols": [{"literal":"N"}, {"literal":"O"}, {"literal":"T"}], "postprocess": (d) => d.join('')},
     {"name": "in_operator$ebnf$1$subexpression$1", "symbols": ["in_operator$ebnf$1$subexpression$1$string$1", "__"]},
     {"name": "in_operator$ebnf$1", "symbols": ["in_operator$ebnf$1$subexpression$1"], "postprocess": id},

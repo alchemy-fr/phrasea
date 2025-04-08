@@ -1,5 +1,5 @@
 import {AttributeDefinitionIndex} from "../../../AttributeEditor/types.ts";
-import {AQLCondition, AQLLiteral, AQLOperator, aqlOperators, AQLQueryAST, RawType} from "./aqlTypes.ts";
+import {AQLCondition, AQLLiteral, AQLOperator, AQLQueryAST, RawType} from "./aqlTypes.ts";
 import {hasProp} from "../../../../lib/utils.ts";
 import {AttributeDefinition} from "../../../../types.ts";
 import {isAQLCondition, isAQLField, valueToString} from "./query.ts";
@@ -18,6 +18,7 @@ export const typeMap: Record<string, RawType> = {
     number: RawType.Number,
     textarea: RawType.String,
     text: RawType.String,
+    geo_point: RawType.GeoPoint,
 }
 
 export function validateQueryAST(query: AQLQueryAST, definitionsIndex: AttributeDefinitionIndex): void {
@@ -48,7 +49,7 @@ function validateConditionType(node: AQLCondition, definitionsIndex: AttributeDe
     const op = node.operator as AQLOperator;
     const leftOperand = node.leftOperand;
 
-    if (aqlOperators.includes(op)) {
+    if (Object.values(AQLOperator).includes(op)) {
         const attributeDefinition = validateField(leftOperand, definitionsIndex);
         if (attributeDefinition) {
             const type = attributeDefinition.fieldType;
@@ -65,10 +66,17 @@ function validateConditionType(node: AQLCondition, definitionsIndex: AttributeDe
             }
 
             if ([
-                '>',
-                '>=',
-                '<',
-                '<=',
+                'WITHIN_CIRCLE',
+                'WITHIN_RECTANGLE',
+            ].includes(op) && rawType !== RawType.GeoPoint) {
+                throw new Error(`Field "${attributeDefinition.slug}" is not of type Geo Point`);
+            }
+
+            if ([
+                AQLOperator.GT,
+                AQLOperator.GTE,
+                AQLOperator.LT,
+                AQLOperator.LTE,
             ].includes(op) && ![
                 RawType.Number,
                 RawType.Date,

@@ -67,9 +67,7 @@ class AttributeSearch
 
             $type = $this->typeRegistry->getStrictType($d['fieldType']);
 
-            if (null === $searchType = $type->getElasticSearchSearchType()) {
-                continue;
-            }
+            $searchType = $type->getElasticSearchSearchType() ?? SearchType::Other;
 
             if (null !== $subField = $type->getElasticSearchSubField()) {
                 $fieldName .= '.'.$subField;
@@ -220,7 +218,7 @@ class AttributeSearch
                     if ($conf['fz']) {
                         $weightsFuzzy[$fieldName] = $conf['b'];
                     }
-                } else {
+                } elseif (SearchType::Keyword->value === $conf['st']) {
                     $term = new Query\Term([$fieldName => $queryString]);
                     if (1 !== $conf['b']) {
                         $term->setParam('boost', $conf['b']);

@@ -6,7 +6,7 @@ import {StateSetterHandler} from "../../../../../types.ts";
 import {emptyCondition, removeExpression} from "./builder.ts";
 import ExpressionBuilder from "./ExpressionBuilder.tsx";
 import AddExpressionRow from "./AddExpressionRow.tsx";
-import {AQLOperator, ManyArgs, RawType} from "../aqlTypes.ts";
+import {AQLOperator, RawType} from "../aqlTypes.ts";
 
 type Props = {
     definitionsIndex: AttributeDefinitionIndex;
@@ -19,90 +19,113 @@ export default function ConditionsBuilder({definitionsIndex, expression, setExpr
 
     const operators: OperatorChoice[] = [
         {
-            value: '=',
+            value: AQLOperator.EQ,
             label: t('search_condition.builder.operator.equals', '= (Equals)'),
         },
         {
-            value: '!=',
+            value: AQLOperator.NEQ,
             label: t('search_condition.builder.operator.not_equals', '!= (Not equals)'),
         },
         {
-            value: '>',
+            value: AQLOperator.GT,
             label: t('search_condition.builder.operator.greater_than', '> (Greater than)'),
         },
         {
-            value: '>=',
+            value: AQLOperator.GTE,
             label: t('search_condition.builder.operator.greater_than_or_equals', '>= (Greater than or equals)'),
         },
         {
-            value: '<',
+            value: AQLOperator.LT,
             label: t('search_condition.builder.operator.less_than', '< (Less than)'),
         },
         {
-            value: '<=',
+            value: AQLOperator.LTE,
             label: t('search_condition.builder.operator.less_than_or_equals', '<= (Less than or equals)'),
         },
         {
-            value: 'CONTAINS',
+            value: AQLOperator.CONTAINS,
             label: t('search_condition.builder.operator.contains', 'Contains'),
             supportedTypes: [RawType.String],
         },
         {
-            value: 'NOT_CONTAINS',
+            value: AQLOperator.NOT_CONTAINS,
             label: t('search_condition.builder.operator.not_contains',  `Doesn't Contain`),
             supportedTypes: [RawType.String],
         },
         {
-            value: 'MATCHES',
+            value: AQLOperator.MATCHES,
             label: t('search_condition.builder.operator.matches', 'Matches'),
             supportedTypes: [RawType.String],
         },
         {
-            value: 'NOT_MATCHES',
+            value: AQLOperator.NOT_MATCHES,
             label: t('search_condition.builder.operator.not_matches', `Doesn't Match`),
             supportedTypes: [RawType.String],
         },
         {
-            value: 'STARTS_WITH',
+            value: AQLOperator.STARTS_WITH,
             label: t('search_condition.builder.operator.starts_with', 'Starts With'),
             supportedTypes: [RawType.String],
         },
         {
-            value: 'NOT_STARTS_WITH',
+            value: AQLOperator.NOT_STARTS_WITH,
             label: t('search_condition.builder.operator.not_starts_with', `Doesn't Start With`),
             supportedTypes: [RawType.String],
         },
         {
-            value: 'IN',
+            value: AQLOperator.IN,
             label: t('search_condition.builder.operator.in', 'In'),
             manyArgs: true,
         },
         {
-            value: 'NOT_IN',
+            value: AQLOperator.NOT_IN,
             label: t('search_condition.builder.operator.not_in', 'Not In'),
             manyArgs: true,
         },
         {
-            value: 'BETWEEN',
+            value: AQLOperator.BETWEEN,
             label: t('search_condition.builder.operator.between', 'Between'),
             manyArgs: 2,
             supportedTypes: [RawType.Number, RawType.Date],
         },
         {
-            value: 'NOT_BETWEEN',
+            value: AQLOperator.NOT_BETWEEN,
             label: t('search_condition.builder.operator.not_between', 'Not Between'),
             manyArgs: 2,
             supportedTypes: [RawType.Number, RawType.Date],
         },
         {
-            value: 'EXISTS',
+            value: AQLOperator.EXISTS,
             label: t('search_condition.builder.operator.exists', 'Exists'),
             manyArgs: 0,
         },
         {
-            value: 'MISSING',
+            value: AQLOperator.MISSING,
             label: t('search_condition.builder.operator.missing', 'Missing'),
             manyArgs: 0,
+        },
+        {
+            value: AQLOperator.WITHIN_CIRCLE,
+            label: t('search_condition.builder.operator.within_circle', 'Within Circle'),
+            manyArgs: 3,
+            argNames: [
+                t('search_condition.builder.operator.within_circle_latitude', 'Latitude'),
+                t('search_condition.builder.operator.within_circle_longitude', 'Longitude'),
+                t('search_condition.builder.operator.within_circle_radius', 'Radius'),
+            ],
+            supportedTypes: [RawType.GeoPoint],
+        },
+        {
+            value: AQLOperator.WITHIN_RECTANGLE,
+            label: t('search_condition.builder.operator.within_rectangle', 'Within Rectangle'),
+            manyArgs: 4,
+            argNames: [
+                t('search_condition.builder.operator.within_rectangle_top_left_latitude', 'Top Left Latitude'),
+                t('search_condition.builder.operator.within_rectangle_top_left_longitude', 'Top Left Longitude'),
+                t('search_condition.builder.operator.within_rectangle_bottom_right_latitude', 'Bottom Right Latitude'),
+                t('search_condition.builder.operator.within_rectangle_bottom_right_longitude', 'Bottom Right Longitude'),
+            ],
+            supportedTypes: [RawType.GeoPoint],
         },
     ];
 

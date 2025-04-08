@@ -60,6 +60,9 @@ class AQLToESQueryTest extends TestCase
                     'attrs.{l}.hybrid_text_s' => [
                         'raw' => null,
                     ],
+                    'attrs._.location_geo-point_s' => [
+                        'raw' => null,
+                    ],
                 ],
                 'w' => null,
                 'locales' => ['it', 'de'],
@@ -80,6 +83,8 @@ class AQLToESQueryTest extends TestCase
 
         if (is_string($expectedQuery)) {
             $this->expectExceptionMessage($expectedQuery);
+        } else {
+            $this->assertIsArray($result, 'Parse error');
         }
 
         $query = $esQueryConverter->createQuery($fieldClusters, $result['data'], [
@@ -300,6 +305,29 @@ class AQLToESQueryTest extends TestCase
                     ],
                 ],
             ]],
+            [
+                'location WITHIN CIRCLE (48.8, 2.32, "10km")',
+                [
+                    'geo_distance' => [
+                        'distance' => '10km',
+                        'attrs._.location_geo-point_s' => [
+                            'lat' => 48.8,
+                            'lon' => 2.32,
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'location WITHIN RECTANGLE (1.1, 1.2, 2.1, 2.2)',
+                [
+                    'geo_bounding_box' => [
+                        'attrs._.location_geo-point_s' => [
+                            'top_left' => ['lat' => 1.1, 'lon' => 1.2],
+                            'bottom_right' => ['lat' => 2.1, 'lon' => 2.2],
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 }

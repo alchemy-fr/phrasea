@@ -2,7 +2,7 @@ import {RSelectWidget, SelectOption} from '@alchemy/react-form';
 import React from "react";
 import {useTranslation} from 'react-i18next';
 import {IconButton, useTheme} from "@mui/material";
-import {AQLField, AQLOperator, AQLValue, ManyArgs, RawType} from "../aqlTypes.ts";
+import {AQLField, AQLOperator, AQLValue, ArgNames, ManyArgs, RawType} from "../aqlTypes.ts";
 import {BaseBuilderProps, OperatorChoice, QBCondition} from "./builderTypes.ts";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ValueBuilder from "./ValueBuilder.tsx";
@@ -39,7 +39,9 @@ export default function ConditionBuilder({
         }),
     };
 
-    const manyArgs: ManyArgs = operators.find(o => o.value === expression.operator)?.manyArgs;
+    const op = operators.find(o => o.value === expression.operator);
+    const manyArgs: ManyArgs = op?.manyArgs;
+    const argNames: ArgNames = op?.argNames;
 
     const field = getFieldDefinition(expression.leftOperand, definitionsIndex);
     const rawType: RawType | undefined = field ? typeMap[field.fieldType] : undefined;
@@ -109,6 +111,7 @@ export default function ConditionBuilder({
             <ValueBuilder
                 rawType={rawType}
                 manyArgs={manyArgs}
+                argNames={argNames}
                 expression={expression}
                 setExpression={setExpression}
             />

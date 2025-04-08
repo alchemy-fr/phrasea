@@ -8,12 +8,14 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddExpressionRow from "./AddExpressionRow.tsx";
 import {StateSetterHandler} from "../../../../../types.ts";
 import {RSelectWidget} from '@alchemy/react-form';
+import {AQLAndOrOperator} from "../aqlTypes.ts";
+import {useTranslation} from 'react-i18next';
 
 export default function AndOrOrExpressionBuilder({
     definitionsIndex, expression, setExpression, onRemove,
     operators
 }: BaseBuilderProps<QBAndOrExpression>) {
-
+    const {t} = useTranslation();
 
     return <Box sx={theme => ({
         border: `1px solid ${theme.palette.divider}`,
@@ -28,18 +30,18 @@ export default function AndOrOrExpressionBuilder({
                     onChange={newValue => {
                         setExpression(p => ({
                             ...p,
-                            operator: (newValue?.value ?? 'AND') as QBAndOrExpression['operator'],
+                            operator: (newValue?.value ?? AQLAndOrOperator.AND) as QBAndOrExpression['operator'],
                         }));
                     }}
                     value={expression.operator as any}
                     options={[
                         {
-                            value: 'OR',
-                            label: 'OR',
+                            value: AQLAndOrOperator.OR,
+                            label: t('search_condition.builder.operator.or', 'OR'),
                         },
                         {
-                            value: 'AND',
-                            label: 'AND',
+                            value: AQLAndOrOperator.OR,
+                            label: t('search_condition.builder.operator.and', 'AND'),
                         },
                     ]}
                 />

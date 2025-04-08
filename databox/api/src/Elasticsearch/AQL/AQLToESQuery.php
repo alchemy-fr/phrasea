@@ -133,10 +133,23 @@ final readonly class AQLToESQuery
             '>' => new Query\Range($fieldName, [
                 'gt' => $value,
             ]),
+            'WITHIN_CIRCLE' => (new Query\GeoDistance($fieldName, $this->createPoint($value[0], $value[1]), $value[2])),
+            'WITHIN_RECTANGLE' => (new Query\GeoBoundingBox($fieldName, [
+                $this->createPoint($value[0], $value[1]),
+                $this->createPoint($value[2], $value[3]),
+            ])),
             'CONTAINS', 'NOT_CONTAINS' => $this->wrapInNotQuery((new Query\MultiMatch())->setType('phrase')->setQuery(sprintf('*%s*', $value))->setFields([$fieldName]), 'NOT_CONTAINS' === $data['operator']),
             'STARTS_WITH', 'NOT_STARTS_WITH' => $this->wrapInNotQuery((new Query\MultiMatch())->setType('phrase_prefix')->setQuery($value)->setFields([$fieldName]), 'NOT_STARTS_WITH' === $data['operator']),
             default => throw new BadRequestHttpException(sprintf('Invalid operator "%s"', $data['operator'])),
         };
+    }
+
+    private function createPoint(int|float $lat, int|float $lon): array
+    {
+        return [
+            'lat' => $lat,
+            'lon' => $lon,
+        ];
     }
 
     private function isResolvableValue(mixed $node): bool

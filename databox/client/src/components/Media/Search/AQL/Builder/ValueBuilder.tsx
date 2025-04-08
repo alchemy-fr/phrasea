@@ -1,34 +1,27 @@
-import {Box, IconButton, TextField, TextFieldProps} from "@mui/material";
-import React, {ChangeEvent} from "react";
+import {Box, IconButton} from "@mui/material";
+import React from "react";
 import {useTranslation} from "react-i18next";
 import {BaseBuilderProps, QBCondition} from "./builderTypes.ts";
-import {
-    AQLCondition,
-    AQLLiteral,
-    AQLOperator,
-    AQLValue,
-    AQLValueExpression,
-    AQLValueOrExpression,
-    ManyArgs,
-    RawType
-} from "../aqlTypes.ts";
+import {AQLCondition, AQLLiteral, AQLValue, AQLValueOrExpression, ArgNames, ManyArgs, RawType} from "../aqlTypes.ts";
 import {hasProp} from "../../../../../lib/utils.ts";
 import {matchesFloat, matchesNumber} from "./builder.ts";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FieldBuilder, {FieldBuilderProps} from "./FieldBuilder.tsx";
 import {parseAQLQuery} from "../AQL.ts";
-import {isAQLField, isAQLValueExpression, valueExpressionToString, valueToString} from "../query.ts";
+import {valueToString} from "../query.ts";
 
 type Props = {
     expression: BaseBuilderProps<QBCondition>['expression'];
     setExpression: BaseBuilderProps<QBCondition>['setExpression'];
     manyArgs: ManyArgs;
+    argNames: ArgNames;
     rawType: RawType | undefined;
 };
 
 export default function ValueBuilder({
     manyArgs,
+    argNames,
     expression,
     setExpression,
     rawType,
@@ -85,7 +78,7 @@ export default function ValueBuilder({
         fields.push({
             value: resolveValue(expression.rightOperand as AQLValueOrExpression),
             name: 'value',
-            label: t('search_condition.builder.value', 'Value'),
+            label: argNames?.[0] ?? t('search_condition.builder.value', 'Value'),
             onChange: e => {
                 const v = normValue(e);
 
@@ -101,7 +94,7 @@ export default function ValueBuilder({
             fields.push({
                 value: resolveValue((expression.rightOperand as AQLValueOrExpression[])[i]),
                 name: `value-${i}`,
-                label: `${t('search_condition.builder.value', 'Value')} #${i + 1}`,
+                label: argNames?.[i] ?? `${t('search_condition.builder.value', 'Value')} #${i + 1}`,
                 onChange: e => {
                     const v = normValue(e);
 
