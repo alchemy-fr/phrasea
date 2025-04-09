@@ -29,15 +29,27 @@ use Doctrine\ORM\Mapping as ORM;
 #[ApiResource(
     shortName: 'rendition-definition',
     operations: [
-        new Get(security: 'is_granted("READ", object)'),
+        new Get(
+            normalizationContext: [
+                'groups' => [RenditionDefinition::GROUP_READ],
+            ],
+            security: 'is_granted("READ", object)'
+        ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(
+            normalizationContext: [
+                'groups' => [RenditionDefinition::GROUP_READ],
+            ],
             security: 'is_granted("EDIT", object)',
             input: RenditionDefinitionInput::class,
         ),
         new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Post(
+            normalizationContext: [
+                'groups' => [RenditionDefinition::GROUP_READ],
+            ],
+            securityPostDenormalize: 'is_granted("CREATE", object)'),
         new Post(
             uriTemplate: '/rendition-definitions/sort',
             controller: RenditionDefinitionSortAction::class,

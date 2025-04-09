@@ -16,7 +16,7 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
     use CreatedAtDTOTrait;
     use UpdatedAtDTOTrait;
 
-    #[Groups([RenditionDefinition::GROUP_LIST])]
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public ?Workspace $workspace = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
@@ -38,25 +38,25 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
     public ?array $labels = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
-    public int $buildMode;
+    public ?int $buildMode;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
-    public bool $useAsOriginal = false;
+    public ?bool $useAsOriginal = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
-    public bool $useAsPreview = false;
+    public ?bool $useAsPreview = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
-    public bool $useAsThumbnail = false;
+    public ?bool $useAsThumbnail = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
-    public bool $useAsThumbnailActive = false;
+    public ?bool $useAsThumbnailActive = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public ?string $definition = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
-    public int $priority = 0;
+    public ?int $priority = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public ?string $nameTranslated = null;
