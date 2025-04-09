@@ -27,7 +27,7 @@ export function Rendition({
     title,
     asset,
     dimensions,
-    rendition: {name, file, dirty, substituted, projection, locked},
+    rendition: {nameTranslated, file, dirty, substituted, projection, locked},
     onDelete,
 }: Props) {
     const {t} = useTranslation();
@@ -56,7 +56,7 @@ export function Rendition({
                         },
                     }}
                 >
-                    <div>{name}</div>
+                    <div>{nameTranslated}</div>
                     {locked && (
                         <Tooltip
                             title={t(

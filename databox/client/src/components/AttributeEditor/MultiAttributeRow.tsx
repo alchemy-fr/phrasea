@@ -44,7 +44,7 @@ export default function MultiAttributeRow<T>({
     selectedValue,
     setSelectedValue,
 }: Props<T>) {
-    const {id, name, fieldType: type} = attributeDefinition;
+    const {id, nameTranslated, fieldType: type} = attributeDefinition;
 
     const inputRef = React.useRef<HTMLInputElement | null>(null);
     const {t} = useTranslation();
@@ -174,7 +174,7 @@ export default function MultiAttributeRow<T>({
             <AttributeWidget<T>
                 id={id}
                 key={id}
-                name={name}
+                name={nameTranslated}
                 inputRef={inputRef}
                 type={type}
                 isRtl={false}
@@ -194,7 +194,7 @@ export default function MultiAttributeRow<T>({
                 onClick={addHandler}
             >
                 {t('form.attribute.collection.item_add', 'Add {{name}}', {
-                    name,
+                    name: nameTranslated,
                 })}
             </Button>
 

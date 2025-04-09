@@ -19,7 +19,7 @@ export default function AssetCollectionList({workspace, collections}: Props) {
     }
 
     const r = (c: Collection) => (
-        <CollectionChip size={'small'} key={c.id} label={c.title} />
+        <CollectionChip size={'small'} key={c.id} label={c.titleTranslated} />
     );
 
     const rest = collections.length - (collectionsLimit - 1);
@@ -44,7 +44,7 @@ export default function AssetCollectionList({workspace, collections}: Props) {
                           label={others}
                           title={collections
                               .slice(collectionsLimit - 1)
-                              .map(c => c.title)
+                              .map(c => c.titleTranslated)
                               .join('\n')}
                       />,
                   ],
@@ -53,7 +53,10 @@ export default function AssetCollectionList({workspace, collections}: Props) {
     return (
         <div className={assetClasses.collectionList}>
             {workspace && (
-                <WorkspaceChip size={'small'} label={workspace.name} />
+                <WorkspaceChip
+                    size={'small'}
+                    label={workspace.nameTranslated}
+                />
             )}
             {chips}
         </div>

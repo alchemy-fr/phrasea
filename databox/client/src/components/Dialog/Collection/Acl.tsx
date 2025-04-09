@@ -1,14 +1,12 @@
 import {Collection} from '../../../types';
-import {DialogTabProps} from '../Tabbed/TabbedDialog';
+import {DataTabProps} from '../Tabbed/TabbedDialog';
 import AclForm from '../../Acl/AclForm';
 import ContentTab from '../Tabbed/ContentTab';
 import {PermissionObject} from '../../Permissions/permissions';
 import {AclPermission} from '../../Acl/acl.ts';
 import {useTranslation} from 'react-i18next';
 
-type Props = {
-    data: Collection;
-} & DialogTabProps;
+type Props = DataTabProps<Collection>;
 
 export default function Acl({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();

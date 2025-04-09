@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
+use ApiPlatform\Metadata\ApiProperty;
 use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
@@ -11,6 +12,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 class RenditionDefinitionInput
 {
+    private const string GRANT_ADMIN_PROP = "object ? is_granted('READ_ADMIN', object) : true";
+
     /**
      * @var Workspace|null
      */
@@ -45,42 +48,49 @@ class RenditionDefinitionInput
      * @var int
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     public $buildMode;
 
     /**
      * @var bool
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     public $useAsOriginal;
 
     /**
      * @var bool
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     public $useAsPreview;
 
     /**
      * @var bool
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     public $useAsThumbnail;
 
     /**
      * @var bool
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     public $useAsThumbnailActive;
 
     /**
      * @var string|null
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     public $definition = '';
 
     /**
      * @var int|null
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     public $priority;
 
     /**
@@ -94,4 +104,7 @@ class RenditionDefinitionInput
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
     public $labels;
+
+    #[Groups([RenditionDefinition::GROUP_WRITE])]
+    public ?array $translations = null;
 }

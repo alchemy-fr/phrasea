@@ -6,7 +6,12 @@ import {
     ListItemText,
     TextField,
 } from '@mui/material';
-import {FormFieldErrors, FormRow, RSelectWidget} from '@alchemy/react-form';
+import {
+    FormFieldErrors,
+    FormRow,
+    RSelectWidget,
+    TranslatedField,
+} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
@@ -27,22 +32,39 @@ import React from 'react';
 import RenditionDefinitionSelect from '../../Form/RenditionDefinitionSelect.tsx';
 import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
 import UseAsWidget from '../../Form/UseAsWidget.tsx';
+import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
+import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';
 
 function Item({
     data,
+    onSave,
+    onItemUpdate,
     usedFormSubmit: {
         submitting,
         register,
         control,
         reset,
         watch,
-        getValues,
         setValue,
+        getValues,
         formState: {errors},
     },
     workspace,
 }: DefinitionItemFormProps<RenditionDefinition>) {
     const {t} = useTranslation();
+    const createSaveTranslations = useCreateSaveTranslations({
+        data,
+        setValue,
+        putFn: async (id, d) => {
+            const r = await onSave({
+                id,
+                ...d,
+            } as RenditionDefinition);
+            onItemUpdate(r);
+
+            return r;
+        },
+    });
 
     React.useEffect(() => {
         reset(normalizeData(data));
@@ -53,11 +75,26 @@ function Item({
     return (
         <>
             <FormRow>
-                <TextField
-                    label={t('form.rendition_definition.name.label', 'Name')}
-                    {...register('name')}
-                    disabled={submitting}
-                />
+                <TranslatedField<RenditionDefinition>
+                    field={'name'}
+                    getData={getValues}
+                    title={t(
+                        'form.rendition_definition.name.translate.title',
+                        'Translate Name'
+                    )}
+                    onUpdate={createSaveTranslations('name')}
+                >
+                    <TextField
+                        label={t(
+                            'form.rendition_definition.name.label',
+                            'Name'
+                        )}
+                        disabled={submitting}
+                        {...register('name', {
+                            required: true,
+                        })}
+                    />
+                </TranslatedField>
                 <FormFieldErrors field={'name'} errors={errors} />
             </FormRow>
             <FormRow>
@@ -160,14 +197,8 @@ function Item({
 }
 
 function ListItem({data}: DefinitionItemProps<RenditionDefinition>) {
-    return <ListItemText primary={data.name} />;
+    return <ListItemText primary={data.nameTranslated} />;
 }
-
-type Props = {
-    data: Workspace;
-    onClose: () => void;
-    minHeight?: number | undefined;
-};
 
 function createNewItem(): Partial<RenditionDefinition> {
     return {
@@ -180,6 +211,8 @@ function createNewItem(): Partial<RenditionDefinition> {
         class: null,
     };
 }
+
+type Props = DataTabProps<Workspace>;
 
 export default function RenditionDefinitionManager({
     data: workspace,

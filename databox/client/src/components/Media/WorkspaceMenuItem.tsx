@@ -33,7 +33,7 @@ export const workspaceItemClassName = 'ws-item';
 export const cActionClassName = 'c-action';
 
 export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
-    const {id, name, capabilities} = data;
+    const {id, nameTranslated, capabilities} = data;
 
     const {t} = useTranslation();
     const searchContext = useContext(SearchContext)!;
@@ -69,7 +69,7 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
     };
 
     const onClick = () => {
-        searchContext.selectWorkspace(id, name, selected);
+        searchContext.selectWorkspace(id, nameTranslated, selected);
         expand(true);
     };
 
@@ -90,7 +90,7 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
                                     onClick={() =>
                                         openModal(CreateCollection, {
                                             workspaceId: id,
-                                            workspaceTitle: name,
+                                            workspaceTitle: nameTranslated,
                                             onCreate: coll =>
                                                 addCollection(coll, id),
                                         })
@@ -144,7 +144,7 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
                         <ListItemIcon>
                             <BusinessIcon />
                         </ListItemIcon>
-                        <ListItemText primary={name} />
+                        <ListItemText primary={nameTranslated} />
                     </ListItemButton>
                 </ListItem>
             </ListSubheader>

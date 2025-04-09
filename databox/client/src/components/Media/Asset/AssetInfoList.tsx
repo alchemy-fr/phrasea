@@ -61,7 +61,7 @@ export default function AssetInfoList({data}: Props) {
                 <InfoRow
                     icon={<BusinessIcon />}
                     label={t('asset.info.workspace', `Workspace`)}
-                    value={data.workspace.name}
+                    value={data.workspace.nameTranslated}
                     copyValue={data.workspace.id}
                     onClick={() => {
                         navigateToModal(modalRoutes.workspaces.routes.manage, {
@@ -74,7 +74,7 @@ export default function AssetInfoList({data}: Props) {
                     icon={<FolderIcon />}
                     label={t('asset.info.collection', `Collection`)}
                     value={
-                        data.referenceCollection?.absoluteTitle ??
+                        data.referenceCollection?.absoluteTitleTranslated ??
                         t('asset.info.collection.none', 'None')
                     }
                     copyValue={data.referenceCollection?.id}

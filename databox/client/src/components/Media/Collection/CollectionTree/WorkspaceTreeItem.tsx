@@ -61,7 +61,7 @@ export default function WorkspaceTreeItem<IsMulti extends boolean = false>({
                                     flexGrow: 1,
                                 }}
                             >
-                                {workspace.name}
+                                {workspace.nameTranslated}
                             </Typography>
                             <Typography
                                 variant="caption"

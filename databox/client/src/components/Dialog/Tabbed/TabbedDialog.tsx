@@ -13,6 +13,11 @@ export type DialogTabProps = {
     minHeight?: number | undefined;
 };
 
+export type DataTabProps<T> = {
+    data: T;
+    setData?: (data: T) => void;
+} & DialogTabProps;
+
 type Props<P extends Record<string, any>> = {
     route: RouteDefinition;
     routeParams?: RouteParameters;

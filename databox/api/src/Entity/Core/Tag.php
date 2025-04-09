@@ -19,6 +19,7 @@ use App\Api\Model\Input\TagInput;
 use App\Api\Model\Output\TagOutput;
 use App\Api\Provider\TagCollectionProvider;
 use App\Entity\Traits\LocaleTrait;
+use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use App\Repository\Core\TagRepository;
@@ -74,15 +75,14 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringab
     use UpdatedAtTrait;
     use LocaleTrait;
     use WorkspaceTrait;
+    use TranslationsTrait;
+
     final public const string GROUP_READ = 'tag:read';
     final public const string GROUP_LIST = 'tag:index';
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     #[Length(max: 100)]
     private string $name;
-
-    #[ORM\Column(type: Types::JSON, nullable: true)]
-    private ?array $translations = null;
 
     #[ORM\Column(type: Types::STRING, length: 6, nullable: true)]
     private ?string $color = null;
@@ -126,15 +126,5 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringab
         }
 
         $this->color = $color;
-    }
-
-    public function getTranslations(): ?array
-    {
-        return $this->translations;
-    }
-
-    public function setTranslations(?array $translations): void
-    {
-        $this->translations = $translations;
     }
 }

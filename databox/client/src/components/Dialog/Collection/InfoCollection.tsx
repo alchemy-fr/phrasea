@@ -1,5 +1,5 @@
 import {Collection} from '../../../types';
-import {DialogTabProps} from '../Tabbed/TabbedDialog';
+import {DataTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import {Divider, MenuList} from '@mui/material';
 import KeyIcon from '@mui/icons-material/Key';
@@ -12,10 +12,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 import {modalRoutes} from '../../../routes.ts';
 
-type Props = {
-    id: string;
-    data: Collection;
-} & DialogTabProps;
+type Props = DataTabProps<Collection>;
 
 export default function InfoCollection({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
@@ -52,7 +49,7 @@ export default function InfoCollection({data, onClose, minHeight}: Props) {
                 <InfoRow
                     icon={<BusinessIcon />}
                     label={t('collection.info.workspace', `Workspace`)}
-                    value={data.workspace.name}
+                    value={`${data.workspace.nameTranslated}${data.workspace.nameTranslated !== data.workspace.name ? ` (${data.workspace.name})` : ''}`}
                     copyValue={data.workspace.id}
                     onClick={() => {
                         navigateToModal(modalRoutes.workspaces.routes.manage, {
@@ -64,7 +61,7 @@ export default function InfoCollection({data, onClose, minHeight}: Props) {
                 <InfoRow
                     icon={<FolderIcon />}
                     label={t('collection.info.absolute_path', `Absolute Path`)}
-                    value={data.absoluteTitle}
+                    value={data.absoluteTitleTranslated}
                 />
             </MenuList>
         </ContentTab>

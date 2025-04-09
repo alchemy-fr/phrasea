@@ -112,7 +112,7 @@ export default function DeleteAssetsConfirm({
                                     <Trans
                                         i18nKey="asset.delete.remove_from_collection"
                                         values={{
-                                            name: collection.absoluteTitle,
+                                            name: collection.absoluteTitleTranslated,
                                         }}
                                         defaults={`Remove from collection <strong>{{name}}</strong>`}
                                         components={{

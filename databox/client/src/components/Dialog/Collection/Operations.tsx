@@ -1,5 +1,5 @@
 import {Collection} from '../../../types';
-import {DialogTabProps} from '../Tabbed/TabbedDialog';
+import {DataTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import CollectionMoveSection from '../../Media/Collection/CollectionMoveSection';
 import {FormSection} from '@alchemy/react-form';
@@ -9,9 +9,7 @@ import {deleteCollection} from '../../../api/collection';
 import ConfirmDialog from '../../Ui/ConfirmDialog';
 import {useModals} from '@alchemy/navigation';
 
-type Props = {
-    data: Collection;
-} & DialogTabProps;
+type Props = DataTabProps<Collection>;
 
 export default function Operations({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
@@ -19,7 +17,7 @@ export default function Operations({data, onClose, minHeight}: Props) {
 
     const deleteConfirmCollection = async () => {
         openModal(ConfirmDialog, {
-            textToType: data.title,
+            textToType: data.titleTranslated,
             title: t(
                 'collection_delete.confirm',
                 'Are you sure you want to delete this collection?'

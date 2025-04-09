@@ -36,6 +36,9 @@ class CollectionOutput extends AbstractUuidOutput
     #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private ?string $title = null;
 
+    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    public ?string $titleTranslated = null;
+
     #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private ?string $ownerId = null;
 
@@ -57,6 +60,9 @@ class CollectionOutput extends AbstractUuidOutput
     #[Groups([Collection::GROUP_ABSOLUTE_TITLE])]
     public ?string $absoluteTitle = null;
 
+    #[Groups([Collection::GROUP_ABSOLUTE_TITLE])]
+    public ?string $absoluteTitleTranslated = null;
+
     #[Groups(['collection:parent'])]
     private ?self $parent = null;
 
@@ -73,6 +79,9 @@ class CollectionOutput extends AbstractUuidOutput
 
     #[Groups([Collection::GROUP_READ])]
     public ?array $topicSubscriptions = null;
+
+    #[Groups([Collection::GROUP_READ])]
+    public ?array $translations = null;
 
     public function getTitle(): ?string
     {

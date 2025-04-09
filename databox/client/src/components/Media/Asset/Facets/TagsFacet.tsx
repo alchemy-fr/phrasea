@@ -9,6 +9,7 @@ import {FacetGroupProps} from '../Facets';
 import {ListFacetItemProps} from './TextFacetItem';
 import ListFacet from './ListFacet';
 import {stopPropagation} from '../../../../lib/stdFuncs.ts';
+import {Tag} from '../../../../types.ts';
 
 function TagFacetItem({
     onClick,
@@ -16,7 +17,7 @@ function TagFacetItem({
     labelValue,
     count,
 }: ListFacetItemProps) {
-    const {item, label, value} = labelValue;
+    const {item, value} = labelValue;
 
     return (
         <ListItemButton onClick={onClick}>
@@ -30,7 +31,9 @@ function TagFacetItem({
                     borderRadius: theme.shape.borderRadius,
                 })}
             />
-            <ListItemText secondary={`${label} (${count})`} />
+            <ListItemText
+                secondary={`${(item as Tag).nameTranslated} (${count})`}
+            />
             <ListItemSecondaryAction>
                 <Checkbox
                     edge="end"

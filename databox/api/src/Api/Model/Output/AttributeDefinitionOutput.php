@@ -13,6 +13,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Share;
+use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -33,6 +34,9 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     public ?string $name = null;
+
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
+    public ?string $nameTranslated = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST])]
     public ?string $slug = null;
@@ -105,4 +109,7 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
 
         return null;
     }
+
+    #[Groups([AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ])]
+    public ?array $translations = null;
 }

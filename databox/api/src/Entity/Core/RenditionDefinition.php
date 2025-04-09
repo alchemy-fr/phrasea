@@ -7,7 +7,6 @@ namespace App\Entity\Core;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
-use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -16,15 +15,16 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\RenditionDefinitionInput;
+use App\Api\Model\Output\RenditionDefinitionOutput;
 use App\Api\Provider\RenditionDefinitionCollectionProvider;
 use App\Controller\Core\RenditionDefinitionSortAction;
+use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Validator as CustomAssert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
     shortName: 'rendition-definition',
@@ -70,6 +70,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         'groups' => [RenditionDefinition::GROUP_WRITE],
     ],
     input: RenditionDefinitionInput::class,
+    output: RenditionDefinitionOutput::class,
     order: ['priority' => 'DESC'],
     provider: RenditionDefinitionCollectionProvider::class,
 )]
@@ -83,6 +84,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    use TranslationsTrait;
 
     final public const int BUILD_MODE_NONE = 0;
     final public const int BUILD_MODE_PICK_SOURCE = 1;
@@ -104,12 +106,10 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
      */
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'renditionDefinitions')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
     #[ORM\ManyToOne(targetEntity: self::class)]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     protected ?self $parent = null;
 
     /**
@@ -118,62 +118,43 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 150, nullable: true)]
     private ?string $key = null;
 
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::STRING, length: 80)]
     private ?string $name = null;
 
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\ManyToOne(targetEntity: RenditionClass::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: false)]
     protected ?RenditionClass $class = null;
 
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $download = true;
 
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $substitutable = true;
 
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::SMALLINT)]
-    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     private int $buildMode = self::BUILD_MODE_NONE;
 
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN)]
-    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     private bool $useAsOriginal = false;
 
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN)]
-    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     private bool $useAsPreview = false;
 
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN)]
-    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     private bool $useAsThumbnail = false;
 
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN)]
-    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     private bool $useAsThumbnailActive = false;
 
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     #[CustomAssert\ValidRenditionDefinitionConstraint]
     private ?string $definition = null;
 
-    #[Groups([RenditionDefinition::GROUP_READ])]
+    #[ORM\Column(type: Types::SMALLINT, nullable: false)]
+    private int $priority = 0;
+
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $labels = null;
-
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
-    #[ORM\Column(type: Types::SMALLINT, nullable: false)]
-    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
-    private int $priority = 0;
 
     /**
      * @var AssetRendition[]

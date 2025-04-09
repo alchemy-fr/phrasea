@@ -7,12 +7,14 @@ namespace App\Api\OutputTransformer;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AttributeDefinitionOutput;
+use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\AttributeDefinition;
 use App\Security\Voter\AbstractVoter;
 
 class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
+    use UserLocaleTrait;
 
     public function supports(string $outputClass, object $data): bool
     {
@@ -28,6 +30,7 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
+        $output->nameTranslated = $data->getTranslatedField('name', $this->getPreferredLocales($data->getWorkspace()), $data->getName());
         $output->workspace = $data->getWorkspace();
         $output->class = $data->getClass();
         $output->name = $data->getName();
@@ -45,6 +48,7 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->searchBoost = $data->getSearchBoost();
         $output->fallback = $data->getFallback();
         $output->initialValues = $data->getInitialValues();
+        $output->translations = $data->getTranslations();
         if ($this->isGranted(AbstractVoter::EDIT, $data)) {
             $output->lastErrors = $data->getLastErrors();
         }

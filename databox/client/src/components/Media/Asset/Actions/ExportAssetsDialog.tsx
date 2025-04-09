@@ -146,7 +146,7 @@ export default function ExportAssetsDialog({assets, open, modalIndex}: Props) {
                                                     value={rd.id}
                                                 />
                                             }
-                                            label={rd.name}
+                                            label={rd.nameTranslated}
                                         />
                                         <FormFieldErrors
                                             field={'renditions[]'}

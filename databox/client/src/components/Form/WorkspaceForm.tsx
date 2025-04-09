@@ -1,8 +1,8 @@
 import {Hidden, TextField} from '@mui/material';
-import {FC} from 'react';
+import React, {FC} from 'react';
 import {Trans, useTranslation} from 'react-i18next';
 import {Workspace} from '../../types';
-import {FormFieldErrors} from '@alchemy/react-form';
+import {FormFieldErrors, TranslatedField} from '@alchemy/react-form';
 import {FormRow} from '@alchemy/react-form';
 import {FormProps} from './types';
 import FlagIcon from '@mui/icons-material/Flag';
@@ -12,22 +12,35 @@ import {SortableCollectionWidget} from '@alchemy/react-form';
 import Flag from '../Ui/Flag';
 import {useDirtyFormPrompt} from '../Dialog/Tabbed/FormTab';
 import {CheckboxWidget} from '@alchemy/react-form';
+import {useCreateSaveTranslations} from '../../hooks/useCreateSaveTranslations.ts';
+import {putWorkspace} from '../../api/collection.ts';
 
 const emptyLocaleItem = '';
 
 export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
     formId,
+    data,
+    setData,
     usedFormSubmit: {
         register,
         control,
         handleSubmit,
         watch,
         submitting,
+        getValues,
+        setValue,
         forbidNavigation,
         formState: {errors},
     },
 }) {
     const {t} = useTranslation();
+
+    const createSaveTranslations = useCreateSaveTranslations({
+        data,
+        setValue,
+        putFn: putWorkspace,
+        setData,
+    });
 
     useDirtyFormPrompt(forbidNavigation);
 
@@ -37,15 +50,24 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
         <>
             <form id={formId} onSubmit={handleSubmit}>
                 <FormRow>
-                    <TextField
-                        autoFocus
-                        required={true}
-                        label={t('form.workspace.title.label', 'Title')}
-                        disabled={submitting}
-                        {...register('name', {
-                            required: true,
-                        })}
-                    />
+                    <TranslatedField<Workspace>
+                        field={'name'}
+                        getData={getValues}
+                        title={t(
+                            'form.workspace.title.translate.title',
+                            'Translate Title'
+                        )}
+                        onUpdate={createSaveTranslations('name')}
+                    >
+                        <TextField
+                            autoFocus
+                            label={t('form.workspace.title.label', 'Title')}
+                            disabled={submitting}
+                            {...register('name', {
+                                required: true,
+                            })}
+                        />
+                    </TranslatedField>
                     <FormFieldErrors field={'name'} errors={errors} />
                 </FormRow>
                 <FormRow>

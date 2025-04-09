@@ -10,6 +10,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Api\Model\Output\CollectionOutput;
+use App\Api\Traits\UserLocaleTrait;
 use App\Elasticsearch\CollectionSearch;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
@@ -23,6 +24,8 @@ class CollectionOutputTransformer implements OutputTransformerInterface
     use GroupsHelperTrait;
     use UserOutputTransformerTrait;
     use SecurityAwareTrait;
+    use UserLocaleTrait;
+
     final public const string COLLECTION_CACHE_NS = 'coll_visibility';
 
     public function __construct(
@@ -48,11 +51,14 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
         $output->setTitle($data->getTitle());
+        $preferredLocales = $this->getPreferredLocales($data->getWorkspace());
+        $output->titleTranslated = $data->getTranslatedField('title', $preferredLocales, $data->getTitle());
         $output->setPrivacy($data->getPrivacy());
         $output->inheritedPrivacy = $data->getInheritedPrivacy();
         $output->setWorkspace($data->getWorkspace());
         $output->setExtraMetadata($data->getExtraMetadata());
         $output->relationExtraMetadata = $data->getRelationExtraMetadata();
+        $output->translations = $data->getTranslations();
 
         if ($this->hasGroup([
             Collection::GROUP_READ,
@@ -62,6 +68,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
 
         if ($this->hasGroup([Collection::GROUP_ABSOLUTE_TITLE], $context)) {
             $output->absoluteTitle = $data->getAbsoluteTitle();
+            $output->absoluteTitleTranslated = $this->getAbsoluteTitleTranslated($data, $preferredLocales);
         }
 
         if ($this->hasGroup(Collection::GROUP_CHILDREN, $context)) {
@@ -144,5 +151,18 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         }
 
         return $output;
+    }
+
+    public function getAbsoluteTitleTranslated(Collection $collection, array $preferredLocales): ?string
+    {
+        $ptr = $collection;
+        $path = $ptr->getTranslatedField('title', $preferredLocales, $ptr->getTitle());
+        $ptr = $ptr->getParent();
+        while ($ptr) {
+            $path = $ptr->getTranslatedField('title', $preferredLocales, $ptr->getTitle()).' / '.$path;
+            $ptr = $ptr->getParent();
+        }
+
+        return $path;
     }
 }

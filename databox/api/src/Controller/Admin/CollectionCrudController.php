@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Admin\Field\PrivacyField;
 use App\Entity\Core\Collection;
@@ -52,6 +53,8 @@ class CollectionCrudController extends AbstractAclAdminCrudController
     {
         yield IdField::new();
         yield TextField::new('title');
+        yield JsonField::new('translations')
+            ->hideOnIndex();
         yield AssociationField::new('parent');
         yield AssociationField::new('workspace');
         yield $this->privacyField->create('privacy');

@@ -90,7 +90,7 @@ export function CollectionTreeItem<IsMulti extends boolean = false>({
             label={
                 <Stack direction={'row'} alignItems={'center'}>
                     {!selectable && '🚫 '}
-                    {collection.title}
+                    {collection.titleTranslated}
                     {allowNew && collection.capabilities.canEdit && (
                         <IconButton
                             sx={{ml: 1}}

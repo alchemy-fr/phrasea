@@ -61,6 +61,8 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         yield IdField::new();
         yield BooleanField::new('enabled');
         yield TextField::new('name');
+        yield JsonField::new('translations')
+            ->hideOnIndex();
         yield TextField::new('slug');
         yield AssociationField::new('workspace');
         yield AssociationField::new('class');

@@ -5,14 +5,16 @@ import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
 import {WorkspaceForm} from '../../Form/WorkspaceForm';
 import FormTab from '../Tabbed/FormTab';
-import {DialogTabProps} from '../Tabbed/TabbedDialog';
+import {DataTabProps} from '../Tabbed/TabbedDialog';
 
-type Props = {
-    id: string;
-    data: Workspace;
-} & DialogTabProps;
+type Props = DataTabProps<Workspace>;
 
-export default function EditWorkspace({data, onClose, minHeight}: Props) {
+export default function EditWorkspace({
+    data,
+    setData,
+    onClose,
+    minHeight,
+}: Props) {
     const {t} = useTranslation();
 
     const usedFormSubmit = useFormSubmit<Workspace>({
@@ -20,11 +22,11 @@ export default function EditWorkspace({data, onClose, minHeight}: Props) {
         onSubmit: async data => {
             return await putWorkspace(data.id, data);
         },
-        onSuccess: () => {
+        onSuccess: data => {
             toast.success(
                 t('form.workspace_edit.success', 'Workspace edited!') as string
             );
-            onClose();
+            setData?.(data);
         },
     });
 
@@ -40,7 +42,12 @@ export default function EditWorkspace({data, onClose, minHeight}: Props) {
             errors={remoteErrors}
             minHeight={minHeight}
         >
-            <WorkspaceForm usedFormSubmit={usedFormSubmit} formId={formId} />
+            <WorkspaceForm
+                usedFormSubmit={usedFormSubmit}
+                formId={formId}
+                data={data}
+                setData={setData}
+            />
         </FormTab>
     );
 }

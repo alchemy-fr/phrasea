@@ -17,6 +17,7 @@ import DefinitionManager, {
 } from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import Flag from '../../Ui/Flag.tsx';
+import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 
 let lastType = '';
 
@@ -92,11 +93,7 @@ function createNewItem(): Partial<AttributeEntity> {
     };
 }
 
-type Props = {
-    data: Workspace;
-    onClose: () => void;
-    minHeight?: number | undefined;
-};
+type Props = DataTabProps<Workspace>;
 
 export default function AttributeEntityManager({
     data: workspace,

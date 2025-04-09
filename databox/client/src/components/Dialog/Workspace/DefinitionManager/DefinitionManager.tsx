@@ -39,6 +39,8 @@ export type DefinitionItemProps<D extends DefinitionBase> = {
 };
 
 export type DefinitionItemFormProps<D extends DefinitionBase> = {
+    onSave: (data: D) => Promise<D>;
+    onItemUpdate: (data: D) => void;
     usedFormSubmit: UseFormSubmitReturn<D>;
     workspace: Workspace;
 } & DefinitionItemProps<D>;

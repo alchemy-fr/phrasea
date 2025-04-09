@@ -22,6 +22,7 @@ use App\Controller\Core\GetWorkspaceBySlugAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
+use App\Entity\Traits\TranslationsTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\WorkspaceRepository;
 use App\Security\Voter\AbstractVoter;
@@ -89,6 +90,8 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     use UpdatedAtTrait;
     use OwnerIdTrait;
     use DeletedAtTrait;
+    use TranslationsTrait;
+
     final public const string GROUP_READ = 'workspace:read';
     final public const string GROUP_LIST = 'workspace:index';
 
