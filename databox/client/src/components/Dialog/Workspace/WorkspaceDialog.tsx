@@ -45,7 +45,7 @@ export default function WorkspaceDialog({}: Props) {
             routeParams={{id}}
             maxWidth={'md'}
             title={t('workspace.manage.title', 'Manage workspace {{name}}', {
-                name: data.name,
+                name: data.nameTranslated,
             })}
             tabs={[
                 {
@@ -63,6 +63,7 @@ export default function WorkspaceDialog({}: Props) {
                     id: 'edit',
                     props: {
                         data,
+                        setData,
                     },
                     enabled: data.capabilities.canEdit,
                 },

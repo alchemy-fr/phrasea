@@ -11,6 +11,8 @@ import {FormFieldErrors} from '@alchemy/react-form';
 import {deleteTag, getTag, getTags, postTag, putTag} from '../../../api/tag';
 import {ColorPicker} from '@alchemy/react-form';
 import React from 'react';
+import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';
+import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 
 function Item({
     data,
@@ -25,27 +27,11 @@ function Item({
 }: DefinitionItemFormProps<Tag>) {
     const {t} = useTranslation();
 
-    const createSaveTranslations = React.useCallback(
-        (field: keyof Tag) => {
-            if (data?.id) {
-                return async (d: Partial<Tag>) => {
-                    const r = await putTag(data!.id, d);
-                    setValue(field, r[field]);
-                    setValue('translations', r.translations);
-
-                    return r;
-                };
-            }
-
-            return async (d: Partial<Tag>) => {
-                setValue(field, d[field]!);
-                setValue('translations', d.translations!);
-
-                return d as Tag;
-            };
-        },
-        [data?.id, setValue]
-    );
+    const createSaveTranslations = useCreateSaveTranslations({
+        data,
+        setValue,
+        putFn: putTag,
+    });
 
     return (
         <>
@@ -54,10 +40,7 @@ function Item({
                     noToast={!data?.id}
                     field={'name'}
                     getData={getValues}
-                    title={t(
-                        'form.profile.firstName.translate.title',
-                        'Translate Tag'
-                    )}
+                    title={t('form.tag.translate.name', 'Translate Name')}
                     onUpdate={createSaveTranslations('name')}
                 >
                     <TextField
@@ -109,11 +92,7 @@ function ListItem({data}: DefinitionItemProps<Tag>) {
     );
 }
 
-type Props = {
-    data: Workspace;
-    onClose: () => void;
-    minHeight?: number | undefined;
-};
+type Props = DataTabProps<Workspace>;
 
 function createNewItem(): Partial<Tag> {
     return {

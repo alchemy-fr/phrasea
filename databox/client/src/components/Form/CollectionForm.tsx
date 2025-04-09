@@ -1,37 +1,58 @@
 import {TextField} from '@mui/material';
-import {FC} from 'react';
+import React, {FC} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Collection} from '../../types';
-import {FormFieldErrors} from '@alchemy/react-form';
+import {FormFieldErrors, TranslatedField} from '@alchemy/react-form';
 import PrivacyField from '../Ui/PrivacyField';
 import {FormRow} from '@alchemy/react-form';
 import {FormProps} from './types';
+import {useCreateSaveTranslations} from '../../hooks/useCreateSaveTranslations.ts';
+import {putCollection} from '../../api/collection.ts';
 
 export const CollectionForm: FC<FormProps<Collection>> = function ({
     formId,
     data,
+    setData,
     usedFormSubmit: {
         handleSubmit,
         submitting,
         register,
         control,
+        setValue,
+        getValues,
         formState: {errors},
     },
 }) {
     const {t} = useTranslation();
 
+    const createSaveTranslations = useCreateSaveTranslations({
+        data,
+        setValue,
+        putFn: putCollection,
+        setData,
+    });
+
     return (
         <form id={formId} onSubmit={handleSubmit}>
             <FormRow>
-                <TextField
-                    autoFocus
-                    required={true}
-                    label={t('form.collection.title.label', 'Title')}
-                    disabled={submitting}
-                    {...register('title', {
-                        required: true,
-                    })}
-                />
+                <TranslatedField<Collection>
+                    field={'title'}
+                    getData={getValues}
+                    title={t(
+                        'form.collection.title.translate.title',
+                        'Translate Title'
+                    )}
+                    onUpdate={createSaveTranslations('title')}
+                >
+                    <TextField
+                        autoFocus
+                        label={t('form.collection.title.label', 'Title')}
+                        disabled={submitting}
+                        {...register('title', {
+                            required: true,
+                        })}
+                    />
+                </TranslatedField>
                 <FormFieldErrors field={'title'} errors={errors} />
             </FormRow>
             <FormRow>

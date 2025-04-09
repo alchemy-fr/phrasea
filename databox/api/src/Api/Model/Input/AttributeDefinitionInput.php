@@ -113,4 +113,6 @@ class AttributeDefinitionInput
      * @var int
      */
     public $position;
+
+    public ?array $translations = null;
 }

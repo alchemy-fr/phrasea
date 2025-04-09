@@ -1,12 +1,10 @@
 import {Collection} from '../../../types';
-import {DialogTabProps} from '../Tabbed/TabbedDialog';
+import {DataTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import {useTranslation} from 'react-i18next';
 import FollowButton from '../../Ui/FollowButton.tsx';
 
-type Props = {
-    data: Collection;
-} & DialogTabProps;
+type Props = DataTabProps<Collection>;
 
 export default function CollectionNotifications({
     data,

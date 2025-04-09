@@ -121,7 +121,7 @@ export default function CollectionMenuItem({
     const onClick = () => {
         searchContext.selectCollection(
             collection.id,
-            (titlePath ?? []).concat(collection.title).join(` / `),
+            (titlePath ?? []).concat(collection.titleTranslated).join(` / `),
             selected
         );
         expand(true);
@@ -178,12 +178,15 @@ export default function CollectionMenuItem({
                                         onClick={closeWrapper(() =>
                                             openModal(UploadModal, {
                                                 files: [],
-                                                workspaceTitle: workspace.name,
+                                                workspaceTitle:
+                                                    workspace.nameTranslated,
                                                 workspaceId: workspace.id,
                                                 collectionId: collection.id,
                                                 titlePath: (
                                                     titlePath ?? []
-                                                ).concat(collection.title),
+                                                ).concat(
+                                                    collection.titleTranslated
+                                                ),
                                             })
                                         )}
                                         aria-label="create-asset"
@@ -205,10 +208,13 @@ export default function CollectionMenuItem({
                                         onClick={closeWrapper(() =>
                                             openModal(CreateCollection, {
                                                 parent: collection['@id'],
-                                                workspaceTitle: workspace.name,
+                                                workspaceTitle:
+                                                    workspace.nameTranslated,
                                                 titlePath: (
                                                     titlePath ?? []
-                                                ).concat(collection.title),
+                                                ).concat(
+                                                    collection.titleTranslated
+                                                ),
                                                 onCreate: coll => {
                                                     addCollection(
                                                         coll,
@@ -316,7 +322,7 @@ export default function CollectionMenuItem({
                             <FolderIcon />
                         )}
                     </ListItemIcon>
-                    <ListItemText primary={collection.title} />
+                    <ListItemText primary={collection.titleTranslated} />
                 </ListItemButton>
             </ListItem>
 

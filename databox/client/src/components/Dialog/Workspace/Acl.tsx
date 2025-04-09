@@ -1,13 +1,11 @@
 import {Workspace} from '../../../types';
-import {DialogTabProps} from '../Tabbed/TabbedDialog';
+import {DataTabProps} from '../Tabbed/TabbedDialog';
 import AclForm from '../../Acl/AclForm';
 import ContentTab from '../Tabbed/ContentTab';
 import {PermissionObject} from '../../Permissions/permissions';
 import {AclPermission, aclPermissions} from '../../Acl/acl.ts';
 
-type Props = {
-    data: Workspace;
-} & DialogTabProps;
+type Props = DataTabProps<Workspace>;
 
 export default function Acl({data, onClose, minHeight}: Props) {
     return (

@@ -1,11 +1,9 @@
 import {Workspace} from '../../../types';
-import {DialogTabProps} from '../Tabbed/TabbedDialog';
+import {DataTabProps} from '../Tabbed/TabbedDialog';
 import TagRules from '../../Media/TagFilterRule/TagRules';
 import ContentTab from '../Tabbed/ContentTab';
 
-type Props = {
-    data: Workspace;
-} & DialogTabProps;
+type Props = DataTabProps<Workspace>;
 
 export default function TagRulesTab({data, onClose, minHeight}: Props) {
     return (

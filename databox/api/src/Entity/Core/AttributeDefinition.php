@@ -25,6 +25,7 @@ use App\Attribute\Type\TextAttributeType;
 use App\Controller\Core\AttributeDefinitionSortAction;
 use App\Entity\Traits\ErrorDisableInterface;
 use App\Entity\Traits\ErrorDisableTrait;
+use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
@@ -38,7 +39,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
     operations: [
         new Get(),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
+        new Put(
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            security: 'is_granted("EDIT", object)'
+        ),
         new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(
             parameters: [
@@ -51,7 +57,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
                 ),
             ]
         ),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Post(
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            securityPostDenormalize: 'is_granted("CREATE", object)'
+        ),
         new Post(
             uriTemplate: '/attribute-definitions/sort',
             controller: AttributeDefinitionSortAction::class,
@@ -97,6 +108,8 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     use UpdatedAtTrait;
     use WorkspaceTrait;
     use ErrorDisableTrait;
+    use TranslationsTrait;
+
     final public const string GROUP_READ = 'attrdef:read';
     final public const string GROUP_LIST = 'attrdef:index';
 

@@ -68,7 +68,7 @@ export default function AttributeType({
         return (
             <>
                 <FormRow>
-                    <FormLabel>{definition.name}</FormLabel>
+                    <FormLabel>{definition.nameTranslated}</FormLabel>
                     <TranslatableAttributeTabs
                         currentLocale={currentLocale}
                         onLocaleChange={onLocaleChange}
@@ -93,7 +93,7 @@ export default function AttributeType({
                     isRtl={false}
                     disabled={disabled}
                     type={definition.fieldType}
-                    name={definition.name}
+                    name={definition.nameTranslated}
                     values={
                         (extractNoLocaleOrDefinedLocaleValue(attributes) ||
                             []) as AttrValue<string | number>[]
@@ -115,7 +115,7 @@ export default function AttributeType({
                     }
                     required={false}
                     disabled={disabled}
-                    name={definition.name}
+                    name={definition.nameTranslated}
                     type={definition.fieldType}
                     onChange={v => changeHandler(NO_LOCALE, v)}
                     id={definition.id}

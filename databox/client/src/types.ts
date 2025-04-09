@@ -112,6 +112,7 @@ export interface AssetFileVersion extends Entity {
 
 export interface AttributeDefinition extends IPermissions, Entity {
     name: string;
+    nameTranslated: string;
     slug: string;
     enabled: boolean;
     fieldType: string;
@@ -147,6 +148,7 @@ export interface FieldType extends ApiHydraObjectResponse {
 
 export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
     name: string;
+    nameTranslated: string;
     parent?: RenditionDefinition | string | undefined | null;
     class: AttributeClass | string | null;
     workspace: Workspace | string;
@@ -161,6 +163,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
 
 export interface AssetRendition extends ApiHydraObjectResponse, Entity {
     name: string;
+    nameTranslated: string;
     file: File | undefined;
     ready: boolean;
     dirty?: boolean;
@@ -240,7 +243,9 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
 
 export interface Collection extends IPermissions, Entity {
     title: string;
+    titleTranslated: string;
     absoluteTitle?: string;
+    absoluteTitleTranslated?: string;
     children?: CollectionOptionalWorkspace[];
     workspace: Workspace;
     public: boolean;
@@ -315,6 +320,7 @@ export type LastErrors = {
 
 export interface Workspace extends IPermissions, Entity {
     name: string;
+    nameTranslated: string;
     enabledLocales?: string[] | undefined;
     localeFallbacks?: string[] | undefined;
     createdAt: string;

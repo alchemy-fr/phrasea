@@ -65,8 +65,9 @@ export default function OperationsAsset({
                             i18nKey={'asset_collections.reference_collection'}
                             values={{
                                 collection:
-                                    data.referenceCollection.absoluteTitle,
-                                workspace: data.workspace.name,
+                                    data.referenceCollection
+                                        .absoluteTitleTranslated,
+                                workspace: data.workspace.nameTranslated,
                             }}
                             components={{
                                 strong: <CollectionChip />,
@@ -80,7 +81,7 @@ export default function OperationsAsset({
                         <Trans
                             i18nKey={'asset_collections.reference_workspace'}
                             values={{
-                                workspace: data.workspace.name,
+                                workspace: data.workspace.nameTranslated,
                             }}
                             components={{
                                 strong: <WorkspaceChip />,
@@ -113,7 +114,7 @@ export default function OperationsAsset({
                                             <ShortcutIcon />
                                         </ListItemIcon>
                                         <CollectionChip
-                                            label={c.absoluteTitle}
+                                            label={c.absoluteTitleTranslated}
                                         />
 
                                         <ListItemSecondaryAction>

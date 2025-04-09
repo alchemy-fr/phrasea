@@ -27,7 +27,7 @@ export default function RenditionDefinitionSelect<
             return data.result
                 .map((t: RenditionDefinition) => ({
                     value: `${renditionDefinitionNS}/${t.id}`,
-                    label: t.name,
+                    label: t.nameTranslated,
                 }))
                 .filter(i =>
                     i.label

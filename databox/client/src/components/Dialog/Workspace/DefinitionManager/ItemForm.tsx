@@ -65,6 +65,8 @@ export default function ItemForm<D extends DefinitionBase>({
             <form id={formId} onSubmit={usedFormSubmit.handleSubmit}>
                 {React.createElement(itemComponent, {
                     data: item,
+                    onSave,
+                    onItemUpdate,
                     usedFormSubmit,
                     workspace,
                 })}

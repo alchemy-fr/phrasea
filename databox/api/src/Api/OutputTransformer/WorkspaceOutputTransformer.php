@@ -6,6 +6,7 @@ namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\WorkspaceOutput;
+use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
@@ -14,6 +15,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
     use GroupsHelperTrait;
+    use UserLocaleTrait;
 
     private array $capCache = [];
 
@@ -30,11 +32,13 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
         $output = new WorkspaceOutput();
         $output->setId($data->getId());
         $output->setName($data->getName());
+        $output->nameTranslated = $data->getTranslatedField('name', $this->getPreferredLocales($data), $data->getName());
         $output->setSlug($data->getSlug());
         $output->setEnabledLocales($data->getEnabledLocales());
         $output->setLocaleFallbacks($data->getLocaleFallbacks());
         $output->setPublic($data->isPublic());
         $output->setCreatedAt($data->getCreatedAt());
+        $output->translations = $data->getTranslations();
 
         $k = $data->getId().$this->getUserCacheId();
         if (!isset($this->capCache[$k])) {

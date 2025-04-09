@@ -49,9 +49,17 @@ class RenditionDefinitionTest extends AbstractSearchTestCase
         ]);
         $this->assertArrayNotHasKey('useAsThumbnail', $response->toArray());
 
+        $response = $client->request('GET', $iri, [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getClientCredentialJwt(),
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertArrayNotHasKey('useAsThumbnail', $response->toArray());
+
         $client->request('GET', $iri, [
             'headers' => [
-                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getClientCredentialJwt('rendition-definition:read'),
             ],
         ]);
         $this->assertResponseIsSuccessful();

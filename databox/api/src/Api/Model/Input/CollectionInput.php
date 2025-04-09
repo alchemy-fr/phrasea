@@ -32,4 +32,6 @@ class CollectionInput extends AbstractOwnerIdInput
     public $workspace;
 
     public ?Collection $parent = null;
+
+    public ?array $translations = null;
 }

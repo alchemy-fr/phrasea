@@ -6,6 +6,7 @@ namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AssetRenditionOutput;
+use App\Api\Traits\UserLocaleTrait;
 use App\Asset\RenditionBuildHashManager;
 use App\Entity\Core\AssetRendition;
 
@@ -13,6 +14,7 @@ final class AssetRenditionOutputTransformer implements OutputTransformerInterfac
 {
     use GroupsHelperTrait;
     use SecurityAwareTrait;
+    use UserLocaleTrait;
 
     public function __construct(
         private readonly RenditionBuildHashManager $renditionBuildHashManager,
@@ -39,6 +41,7 @@ final class AssetRenditionOutputTransformer implements OutputTransformerInterfac
         $output->definition = $definition;
         $output->file = $data->getFile();
         $output->name = $data->getName();
+        $output->nameTranslated = $definition->getTranslatedField('name', $this->getPreferredLocales($definition->getWorkspace()), $definition->getName());
         $output->projection = $data->getProjection();
         $output->locked = $data->isLocked();
         $output->substituted = $data->isSubstituted();

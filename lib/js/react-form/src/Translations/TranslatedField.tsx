@@ -46,11 +46,7 @@ export default function TranslatedField<T extends WithTranslations>({
 
     return (
         <Stack direction={'row'}>
-            <div
-                style={{
-                    flexGrow: 1,
-                }}
-            >
+            <div>
                 {children}
             </div>
             <Tooltip

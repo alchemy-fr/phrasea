@@ -1,5 +1,5 @@
 import {Workspace} from '../../../types';
-import {DialogTabProps} from '../Tabbed/TabbedDialog';
+import {DataTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import {Divider, MenuList} from '@mui/material';
 import KeyIcon from '@mui/icons-material/Key';
@@ -7,10 +7,7 @@ import EventIcon from '@mui/icons-material/Event';
 import InfoRow from '../Info/InfoRow';
 import {useTranslation} from 'react-i18next';
 
-type Props = {
-    id: string;
-    data: Workspace;
-} & DialogTabProps;
+type Props = DataTabProps<Workspace>;
 
 export default function InfoWorkspace({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();

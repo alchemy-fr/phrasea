@@ -4,7 +4,11 @@ $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__)
     ->exclude('var')
     ->exclude('src/Migrations')
-    ->exclude('vendor');
+    ->exclude('vendor')
+    ->notPath([
+        'src/Elasticsearch/AQL/AQLGrammar.php',
+    ])
+;
 
 $config = new PhpCsFixer\Config();
 

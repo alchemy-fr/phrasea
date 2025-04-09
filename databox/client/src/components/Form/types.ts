@@ -5,4 +5,5 @@ export type FormProps<T extends FieldValues, D extends object = T> = {
     formId: string;
     usedFormSubmit: UseFormSubmitReturn<T, D>;
     data?: D | undefined;
+    setData?: (data: D) => void;
 };

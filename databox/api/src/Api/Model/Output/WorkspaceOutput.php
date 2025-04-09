@@ -39,6 +39,18 @@ class WorkspaceOutput extends AbstractUuidOutput
     ])]
     private string $name;
 
+    #[Groups([
+        Workspace::GROUP_LIST,
+        Workspace::GROUP_READ,
+        Collection::GROUP_LIST,
+        Collection::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        WebhookSerializationInterface::DEFAULT_GROUP,
+        RenditionDefinition::GROUP_LIST,
+    ])]
+    public ?string $nameTranslated;
+
     #[Groups([Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private string $slug;
 
@@ -50,6 +62,9 @@ class WorkspaceOutput extends AbstractUuidOutput
 
     #[Groups([Workspace::GROUP_READ])]
     private ?array $localeFallbacks = null;
+
+    #[Groups([Workspace::GROUP_READ])]
+    public ?array $translations = null;
 
     public function getName(): string
     {

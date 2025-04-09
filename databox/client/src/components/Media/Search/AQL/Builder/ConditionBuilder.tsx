@@ -76,7 +76,7 @@ export default function ConditionBuilder({
                     options={Object.entries(definitionsIndex)
                         .map(([_slug, def]) => ({
                             value: def.slug,
-                            label: def.name,
+                            label: def.nameTranslated,
                             builtIn: def.builtIn,
                         }))
                         .sort(

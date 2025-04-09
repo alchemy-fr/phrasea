@@ -25,6 +25,7 @@ import IntegrationTypeSelect from '../../Form/IntegrationTypeSelect.tsx';
 import CodeEditor from '../../Media/Asset/Widgets/CodeEditor.tsx';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LastErrorsList from './LastErrorsList.tsx';
+import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 
 function Item({
     usedFormSubmit,
@@ -152,12 +153,6 @@ function ListItem({data}: DefinitionItemProps<WorkspaceIntegration>) {
     );
 }
 
-type Props = {
-    data: Workspace;
-    onClose: () => void;
-    minHeight?: number | undefined;
-};
-
 function createNewItem(): Partial<WorkspaceIntegration> {
     return {
         title: '',
@@ -165,6 +160,8 @@ function createNewItem(): Partial<WorkspaceIntegration> {
         enabled: true,
     };
 }
+
+type Props = DataTabProps<Workspace>;
 
 export default function IntegrationManager({
     data: workspace,

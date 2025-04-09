@@ -15,6 +15,7 @@ import {
 } from '../../../api/rendition';
 import {CheckboxWidget} from '@alchemy/react-form';
 import RenditionClassPermissions from './RenditionClassPermissions';
+import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 
 function Item({
     data,
@@ -68,18 +69,14 @@ function ListItem({data}: DefinitionItemProps<RenditionClass>) {
     return <ListItemText primary={data.name} />;
 }
 
-type Props = {
-    data: Workspace;
-    onClose: () => void;
-    minHeight?: number | undefined;
-};
-
 function createNewItem(): Partial<RenditionClass> {
     return {
         name: '',
         public: true,
     };
 }
+
+type Props = DataTabProps<Workspace>;
 
 export default function RenditionClassManager({
     data: workspace,

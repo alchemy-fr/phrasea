@@ -38,6 +38,7 @@ use App\Entity\Traits\ExtraMetadataTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\NotificationSettingsTrait;
 use App\Entity\Traits\OwnerIdTrait;
+use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
@@ -66,7 +67,12 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
             security: 'is_granted("'.AbstractVoter::READ.'", object)'
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
+        new Put(
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            security: 'is_granted("EDIT", object)',
+        ),
         new Patch(security: 'is_granted("EDIT", object)'),
         new Put(
             uriTemplate: '/collections/{id}/move/{dest}',
@@ -105,7 +111,12 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
                 ),
             ]
         ),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Post(
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            securityPostDenormalize: 'is_granted("CREATE", object)'
+        ),
         new Get(
             uriTemplate: '/collections/{id}/es-document',
             output: ESDocumentStateOutput::class,
@@ -154,6 +165,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     use WorkspacePrivacyTrait;
     use NotificationSettingsTrait;
     use ExtraMetadataTrait;
+    use TranslationsTrait;
 
     final public const string GROUP_READ = 'coll:read';
     final public const string GROUP_LIST = 'coll:index';

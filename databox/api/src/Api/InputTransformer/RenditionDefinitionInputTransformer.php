@@ -91,6 +91,9 @@ class RenditionDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->labels) {
             $object->setLabels($data->labels);
         }
+        if (null !== $data->translations) {
+            $object->setTranslations($data->translations);
+        }
 
         return $object;
     }

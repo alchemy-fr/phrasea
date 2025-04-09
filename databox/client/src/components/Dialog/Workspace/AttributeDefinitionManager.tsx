@@ -14,7 +14,7 @@ import {
     ListItemText,
     TextField,
 } from '@mui/material';
-import {FormRow} from '@alchemy/react-form';
+import {FormRow, TranslatedField} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
@@ -32,11 +32,15 @@ import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
 import ObjectTranslationField from '../../Form/ObjectTranslationField.tsx';
 import {NO_LOCALE} from '../../Media/Asset/Attribute/AttributesEditor.tsx';
 import LastErrorsList from './LastErrorsList.tsx';
+import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
+import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';
 
 function Item({
     usedFormSubmit,
     workspace,
     data,
+    onSave,
+    onItemUpdate,
 }: DefinitionItemFormProps<AttributeDefinition>) {
     const {t} = useTranslation();
 
@@ -45,8 +49,23 @@ function Item({
         submitting,
         control,
         watch,
+        setValue,
+        getValues,
         formState: {errors},
     } = usedFormSubmit;
+    const createSaveTranslations = useCreateSaveTranslations({
+        data,
+        setValue,
+        putFn: async (id, d) => {
+            const r = await onSave({
+                id,
+                ...d,
+            } as AttributeDefinition);
+            onItemUpdate(r);
+
+            return r;
+        },
+    });
 
     const fieldType = watch('fieldType');
     const translatable = watch('translatable');
@@ -55,11 +74,26 @@ function Item({
         <>
             <LastErrorsList data={data} />
             <FormRow>
-                <TextField
-                    label={t('form.attribute_definition.name.label', 'Name')}
-                    {...register('name')}
-                    disabled={submitting}
-                />
+                <TranslatedField<AttributeDefinition>
+                    field={'name'}
+                    getData={getValues}
+                    title={t(
+                        'form.attribute_definition.name.translate.title',
+                        'Translate Name'
+                    )}
+                    onUpdate={createSaveTranslations('name')}
+                >
+                    <TextField
+                        label={t(
+                            'form.attribute_definition.name.label',
+                            'Name'
+                        )}
+                        disabled={submitting}
+                        {...register('name', {
+                            required: true,
+                        })}
+                    />
+                </TranslatedField>
                 <FormFieldErrors field={'name'} errors={errors} />
             </FormRow>
             <FormRow>
@@ -261,7 +295,7 @@ function ListItem({data}: DefinitionItemProps<AttributeDefinition>) {
                 )}
             </ListItemIcon>
             <ListItemText
-                primary={data.name}
+                primary={data.nameTranslated}
                 primaryTypographyProps={{
                     color: data.enabled ? undefined : 'error',
                 }}
@@ -270,12 +304,6 @@ function ListItem({data}: DefinitionItemProps<AttributeDefinition>) {
         </>
     );
 }
-
-type Props = {
-    data: Workspace;
-    onClose: () => void;
-    minHeight?: number | undefined;
-};
 
 function createNewItem(): Partial<AttributeDefinition> {
     return {
@@ -291,6 +319,8 @@ function createNewItem(): Partial<AttributeDefinition> {
         enabled: true,
     };
 }
+
+type Props = DataTabProps<Workspace>;
 
 export default function AttributeDefinitionManager({
     data: workspace,

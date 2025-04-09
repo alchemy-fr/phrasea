@@ -31,6 +31,9 @@ export default function TranslationsWidget<
     return (
         <>
             <TextField
+                sx={{
+                    mb: 2,
+                }}
                 fullWidth={true}
                 label={t(
                     'lib.form.translations.fallback.label',

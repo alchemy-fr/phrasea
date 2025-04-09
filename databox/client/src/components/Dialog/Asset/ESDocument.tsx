@@ -1,5 +1,5 @@
 import {Entity, ESDocumentState} from '../../../types';
-import {DialogTabProps} from '../Tabbed/TabbedDialog';
+import {DataTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import {getESDocument, syncESDocument} from '../../../api/asset';
 import {useTranslation} from 'react-i18next';
@@ -9,9 +9,8 @@ import {Alert, Button} from '@mui/material';
 import {LoadingButton} from '@mui/lab';
 
 type Props<T extends Entity> = {
-    data: T;
     entity: string;
-} & DialogTabProps;
+} & DataTabProps<T>;
 
 export default function ESDocument<T extends Entity>({
     data,

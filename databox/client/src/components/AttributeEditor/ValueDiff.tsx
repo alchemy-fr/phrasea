@@ -53,7 +53,7 @@ export default function ValueDiff({actions, definitionIndex}: Props) {
                 return (
                     <ListItem key={defId} alignItems="flex-start">
                         <ListItemText
-                            primary={definition.name}
+                            primary={definition.nameTranslated}
                             secondaryTypographyProps={{
                                 component: 'div',
                             }}

@@ -17,6 +17,7 @@ import {CheckboxWidget} from '@alchemy/react-form';
 import AclForm from '../../Acl/AclForm';
 import {AclPermission} from '../../Acl/acl';
 import {PermissionObject} from '../../Permissions/permissions';
+import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 
 function Item({
     data,
@@ -121,12 +122,6 @@ function ListItem({data}: DefinitionItemProps<AttributeClass>) {
     );
 }
 
-type Props = {
-    data: Workspace;
-    onClose: () => void;
-    minHeight?: number | undefined;
-};
-
 function createNewItem(): Partial<AttributeClass> {
     return {
         name: '',
@@ -134,6 +129,8 @@ function createNewItem(): Partial<AttributeClass> {
         editable: true,
     };
 }
+
+type Props = DataTabProps<Workspace>;
 
 export default function AttributeClassManager({
     data: workspace,

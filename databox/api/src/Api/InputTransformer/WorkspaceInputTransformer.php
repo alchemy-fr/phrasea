@@ -36,6 +36,9 @@ class WorkspaceInputTransformer extends AbstractInputTransformer
         if (null !== $data->localeFallbacks) {
             $object->setLocaleFallbacks(array_values($data->localeFallbacks));
         }
+        if (null !== $data->translations) {
+            $object->setTranslations($data->translations);
+        }
 
         if ($isNew) {
             if ($data->getOwnerId()) {

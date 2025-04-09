@@ -74,9 +74,11 @@ class CollectionInputTransformer extends AbstractInputTransformer
         if (null !== $data->key) {
             $object->setKey($data->key);
         }
-
         if (null !== $data->getExtraMetadata()) {
             $object->setExtraMetadata($data->getExtraMetadata());
+        }
+        if (null !== $data->translations) {
+            $object->setTranslations($data->translations);
         }
 
         return $this->processOwnerId($object);

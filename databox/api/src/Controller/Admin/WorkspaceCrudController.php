@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\WorkspaceTemplate;
@@ -92,6 +93,8 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         yield IdField::new()
             ->hideOnForm();
         yield TextField::new('name');
+        yield JsonField::new('translations')
+            ->hideOnIndex();
         yield TextField::new('slug');
         yield TextField::new('ownerId')
             ->onlyOndetail();
