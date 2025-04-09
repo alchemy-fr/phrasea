@@ -13,6 +13,7 @@ use App\Api\Model\Output\Traits\ExtraMetadataDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Share;
 use App\Entity\Discussion\Thread;
@@ -76,6 +77,9 @@ class AssetOutput extends AbstractUuidOutput
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     private $workspace;
+
+    #[Groups([Asset::GROUP_READ])]
+    public ?Collection $storyCollection = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private array $tags;
