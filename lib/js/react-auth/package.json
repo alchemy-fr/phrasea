@@ -39,7 +39,7 @@
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^10.17.60",
     "@types/react": "^18.3.18",
-    "axios": "^1.7.9",
+    "axios": "^1.8.2",
     "i18next-scanner": "^4.6.0",
     "i18next-scanner-typescript": "^1.2.1",
     "react-i18next": "^14.1.3",

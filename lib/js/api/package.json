@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@types/react": "^18.3.18",
-    "axios": "^1.7.9",
+    "axios": "^1.8.2",
     "i18next-scanner": "^4.6.0",
     "i18next-scanner-typescript": "^1.2.1",
     "react": "^18.3.1",
