@@ -20,9 +20,16 @@ import moment from 'moment';
 import {SearchContext} from '../../Search/SearchContext';
 import {AttributeType} from '../../../../api/attributes';
 import {useTranslation} from 'react-i18next';
+import {
+    dateToStringDate,
+    dateToTimestamp,
+    getDate,
+} from '../../../../lib/date.ts';
 
-type NumberTuple = [number, number];
+type DateTuple = [number, number];
 export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
+    const [value, setValue] = useState<DateTuple>([0, 0]);
+    const [commitedValue, setCommitedValue] = React.useState<DateTuple>([0, 0]);
     const {t} = useTranslation();
     const {conditions, upsertCondition, removeCondition} =
         useContext(SearchContext)!;
@@ -44,7 +51,7 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
 
     const getValueText = React.useCallback(
         (value: number): ReactNode => {
-            const m = moment(value * 1000);
+            const m = moment(getDate(value));
 
             return (
                 <>
@@ -61,43 +68,49 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
         [displayTime]
     );
 
-    const [value, setValue] = useState<NumberTuple>([min, max]);
-
     useEffect(() => {
         if (condition) {
-            const match = condition.query.match(
-                /^.+\s+BETWEEN\s+(\d+)\s+AND\s+(\d+)/
-            );
+            const match =
+                condition.query.match(
+                    /^.+\s+BETWEEN\s+"([^"]+)"\s+AND\s+"([^"]+)"/
+                ) ||
+                condition.query.match(/^.+\s+BETWEEN\s+(\d+)\s+AND\s+(\d+)/);
             if (match) {
-                setValue([parseInt(match[1]!), parseInt(match[2]!)]);
+                const v: DateTuple = [
+                    dateToTimestamp(match[1]!)!,
+                    dateToTimestamp(match[2]!)!,
+                ];
+                setValue(v);
+                setCommitedValue(v);
                 return;
             }
         }
 
-        setValue([min, max]);
+        if (value[0] === 0 && value[1] === 0) {
+            const v: DateTuple = [min, max];
+            setValue(v);
+            setCommitedValue(v);
+        }
     }, [min, max, condition]);
 
     const handleChange = useCallback(
         (_event: Event, newValue: number | number[]) => {
-            setValue(newValue as NumberTuple);
+            setValue(newValue as DateTuple);
         },
         [setValue]
     );
 
     const handleChangeCommitted = useCallback(
         (_event: React.SyntheticEvent | Event, newValue: number | number[]) => {
-            if (step) {
-                (newValue as NumberTuple)[1] += step;
-            }
-
-            const [left, right] = newValue as NumberTuple;
+            const [left, right] = newValue as DateTuple;
 
             upsertCondition({
                 id: name,
-                query: `${name} BETWEEN ${left} AND ${right}`,
+                query: `${name} BETWEEN "${dateToStringDate(left)}" AND "${dateToStringDate(right)}"`,
             });
+            setCommitedValue(newValue as DateTuple);
         },
-        [step, name]
+        [step, name, setCommitedValue]
     );
 
     const hasRange = max > min;
@@ -111,7 +124,7 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
         }).doc_count;
         const ratio = histogramHeight / maxCount;
 
-        return buckets.map(b => ({
+        const marks = buckets.map(b => ({
             value: b.key as number,
             label: (
                 <div
@@ -132,7 +145,30 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                 />
             ),
         }));
-    }, [buckets, colorActive, greyInactive, value]);
+
+        if (marks.length === 0 || marks[0].value > commitedValue[0]) {
+            marks.unshift({
+                value: commitedValue[0],
+                label: <div />,
+            });
+        }
+
+        if (marks[marks.length - 1].value < commitedValue[1]) {
+            marks.push({
+                value: commitedValue[1],
+                label: <div />,
+            });
+        }
+
+        return marks;
+    }, [buckets, colorActive, greyInactive, value, commitedValue]);
+
+    const finalValue: DateTuple =
+        value[0] === 0 && value[1] === 0 ? [min, max] : value;
+    const finalCommittedValue: DateTuple =
+        commitedValue[0] === 0 && commitedValue[1] === 0
+            ? [min, max]
+            : commitedValue;
 
     return (
         <Box
@@ -170,13 +206,13 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                 >
                     <Slider
                         getAriaLabel={() => 'Date range'}
-                        value={value}
+                        value={finalValue}
                         onChangeCommitted={handleChangeCommitted}
                         onChange={handleChange}
                         valueLabelFormat={getValueText}
                         step={null}
-                        min={min}
-                        max={max}
+                        min={Math.min(finalCommittedValue[0], min)}
+                        max={Math.max(max, finalCommittedValue[1])}
                         marks={marks}
                         valueLabelDisplay={'on'}
                         disableSwap
