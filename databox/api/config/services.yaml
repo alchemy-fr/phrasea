@@ -95,18 +95,6 @@ services:
         arguments: [ '@App\Api\Serializer\GroupNormalizerContextBuilder.inner' ]
         autoconfigure: false
 
-    App\Elasticsearch\Facet\FacetRegistry:
-        arguments:
-            - !tagged_iterator { tag: 'app.search.facet', default_index_method: 'getKey' }
-
-    App\Integration\IntegrationRegistry:
-        arguments:
-            - !tagged_iterator { tag: 'app.integration', default_index_method: 'getName' }
-
-    App\Integration\IntegrationDataProcessor:
-        arguments:
-            - !tagged_iterator { tag: 'app.integration_data_transformer' }
-
     App\Integration\RemoveBg\RemoveBgClient:
         arguments:
             $cacheDir: '%kernel.cache_dir%/integrations/remove.bg'

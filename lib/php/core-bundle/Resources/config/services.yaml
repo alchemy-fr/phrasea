@@ -12,3 +12,5 @@ services:
         - { name: kernel.event_subsriber }
 
     Alchemy\CoreBundle\Listener\ClientExceptionListener: ~
+
+    Alchemy\CoreBundle\Cache\TemporaryCacheFactory: ~

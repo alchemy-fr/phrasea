@@ -1,0 +1,333 @@
+
+main: e:expression
+    function __finalise(&$result) {
+        $result['data'] = $result['e']['data'];
+        unset($result['e']);
+    }
+
+expression: left:and_expression (] "OR" ] right:and_expression ) *
+    function __finalise(&$result) {
+        $result['operator'] = 'OR';
+        $conditions = [$result['left']['data']];
+
+        if (isset($result['right']['_matchrule'])) {
+            $conditions[] = $result['right']['data'];
+        } else {
+            foreach ($result['right'] ?? [] as $right) {
+                $conditions[] = $right['data'];
+            }
+        }
+        unset($result['left'], $result['right']);
+
+        if (count($conditions) === 1) {
+            $result['data'] = $conditions[0];
+            return;
+        }
+
+        $result['data'] = [
+            'type' => 'expression',
+            'operator' => 'OR',
+            'conditions' => $conditions,
+        ];
+    }
+
+and_expression: left:condition (] "AND" ] right:condition ) *
+    function __finalise(&$result) {
+        $conditions = [$result['left']['data']];
+        if (isset($result['right']['_matchrule'])) {
+            $conditions[] = $result['right']['data'];
+        } else {
+            foreach ($result['right'] ?? [] as $right) {
+                $conditions[] = $right['data'];
+            }
+        }
+        unset($result['left'], $result['right']);
+
+        if (count($conditions) === 1) {
+            $result['data'] = $conditions[0];
+            return;
+        }
+
+        $result['data'] = [
+            'type' => 'expression',
+            'operator' => 'AND',
+            'conditions' => $conditions,
+        ];
+    }
+
+condition: '(' > e:expression > ')'
+    | e:not_expression
+    | e:criteria
+    function __finalise(&$result) {
+        $result['data'] = $result['e']['data'];
+        unset($result['e']);
+    }
+
+not_expression: "NOT" __ e:expression
+    function __finalise(&$result) {
+        $result['data'] = [
+            'type' => 'expression',
+            'operator' => 'NOT',
+            'conditions' => [$result['e']['data']],
+        ];
+        unset($result['e']);
+    }
+
+criteria: field:field op:operator
+    function __finalise(&$result) {
+        $result['data'] = [
+            'type' => 'criteria',
+            'leftOperand' => $result['field']['data'],
+            ...$result['op']['data'],
+        ];
+        unset($result['field'], $result['op']);
+    }
+
+builtin_field: "@" identifier
+    function __finalise(&$result) {
+        $result['data'] = ['field' => $result['text']];
+    }
+
+field_name: identifier
+    function __finalise(&$result) {
+        $result['data'] = ['field' => $result['text']];
+    }
+
+field: f:builtin_field | f:field_name
+    function __finalise(&$result) {
+        $result['data'] = $result['f']['data'];
+        unset($result['f']);
+    }
+
+boolean: "true" | "false"
+    function __finalise(&$result) {
+        $result['data'] = $result['text'] === 'true';
+    }
+
+operator: ] op:between_operator | ] op:in_operator | ] op:geo_operator | ] op:ending_operator | > op:simple_operator | > op:keyword_operator
+    function __finalise(&$result) {
+        $result['data'] = $result['op']['data'];
+        unset($result['op']);
+    }
+
+geo_operator: "WITHIN" ] (v:within_circle_operator | v:within_rectangle_operator)
+    function __finalise(&$result) {
+        $result['data'] = $result['v']['data'];
+        unset($result['v']);
+    }
+
+within_circle_operator: "CIRCLE" > "(" > lat:value_expression > "," > lng:value_expression > "," > radius:value_expression > ")"
+    function __finalise(&$result) {
+        $result['data'] = [
+            'operator' => 'WITHIN_CIRCLE',
+            'rightOperand' => [
+                $result['lat']['data'],
+                $result['lng']['data'],
+                $result['radius']['data'],
+            ],
+        ];
+        unset($result['lat'], $result['lng'], $result['radius']);
+    }
+
+within_rectangle_operator: "RECTANGLE" > "(" > topLeftLat:value_expression > "," > topLeftLng:value_expression > "," > bottomRightLat:value_expression > "," > bottomRightLng:value_expression > ")"
+    function __finalise(&$result) {
+        $result['data'] = [
+            'operator' => 'WITHIN_RECTANGLE',
+            'rightOperand' => [
+                $result['topLeftLat']['data'],
+                $result['topLeftLng']['data'],
+                $result['bottomRightLat']['data'],
+                $result['bottomRightLng']['data'],
+            ],
+        ];
+        unset($result['topLeftLat'], $result['topLeftLng'], $result['bottomRightLat'], $result['bottomRightLng']);
+    }
+
+between_operator: not:("NOT" ])? "BETWEEN" ] left:value_expression ] "AND" ] right:value_expression
+    function __finalise(&$result) {
+        $result['data'] = [
+            'operator' => isset($result['not']) ? 'NOT_BETWEEN' : 'BETWEEN',
+            'rightOperand' => [$result['left']['data'], $result['right']['data']],
+        ];
+        unset($result['left'], $result['right']);
+    }
+
+ending_operator: ("IS" ] "MISSING") | "EXISTS"
+    function __finalise(&$result) {
+        $assoc = [
+            'IS_MISSING' => 'MISSING',
+            'EXISTS' => 'EXISTS',
+        ];
+        $result['data'] = [
+            'operator' => $assoc[preg_replace('#\s+#', '_', $result['text'])],
+        ];
+    }
+
+in_operator: not:("NOT" ] )? "IN" > '(' > first:value_expression (> ',' > others:value_expression)* > ')'
+    function __finalise(&$result) {
+        $values = [$result['first']['data']];
+
+        if (isset($result['others']['_matchrule'])) {
+            $values[] = $result['others']['data'];
+        } else {
+            foreach ($result['others'] ?? [] as $v) {
+                $values[] = $v['data'];
+            }
+        }
+
+        $result['data'] = [
+            'operator' => isset($result['not']) ? 'NOT_IN' : 'IN',
+            'rightOperand' => $values,
+        ];
+        unset($result['first'], $result['others']);
+    }
+
+simple_operator: op:/([<>]?=|!=|[<>])/ > v:value_expression
+    function __finalise(&$result) {
+        $result['data'] = [
+            'operator' => preg_replace('#\s+#', '_', $result['op']['text']),
+            'rightOperand' => $result['v']['data'],
+        ];
+        unset($result['op'], $result['v']);
+    }
+
+keyword_operator: op:op_keyword ] v:value_expression
+    function __finalise(&$result) {
+        $result['data'] = [
+            'operator' => $result['op']['data'],
+            'rightOperand' => $result['v']['data'],
+        ];
+        unset($result['op'], $result['v']);
+    }
+
+op_keyword: not:/(DO(ES)?\s+NOT\s+)/? key:/(CONTAINS?|MATCH(ES)?|STARTS?\s+WITH)/
+    function __finalise(&$result) {
+        $key = preg_replace('#\s+#', '_', $result['key']['text']);
+        $result['data'] = (isset($result['not']) ? 'NOT_' : '').match ($key) {
+            'CONTAINS', 'CONTAIN' => 'CONTAINS',
+            'MATCHES', 'MATCH' => 'MATCHES',
+            'STARTS_WITH', 'START_WITH' => 'STARTS_WITH',
+        };
+        unset($result['not'], $result['key']);
+    }
+
+function_call: f:identifier > "(" > first:value_expression? (> "," > others:value_expression)* > ")"
+    function __finalise(&$result) {
+        \App\Elasticsearch\AQL\AQLFunctionHandler::parseFunction($result);
+    }
+
+value_expression: v:value_sum
+    function __finalise(&$result) {
+        $result['data'] = $result['v']['data'];
+        unset($result['v']);
+    }
+
+value_product: v:value_or_expr ( > sign:('/' | '*') > right:value_or_expr ) *
+    function handleOperator(mixed $l, mixed $r, string $operator): array|int|float {
+        return [
+            'type' => 'value_expression',
+            'operator' => $operator,
+            'leftOperand' => $l,
+            'rightOperand' => $r,
+        ];
+    }
+
+    function __finalise(&$result) {
+        $l = $result['v']['data'];
+        if (isset($result['sign'])) {
+            if (isset($result['right']['_matchrule'])) {
+                $result['data'] = $this->value_product_handleOperator($l, $result['right']['data'], $result['sign']['text']);
+            } else {
+                foreach ($result['right'] ?? [] as $k => $right) {
+                    $l = $this->value_product_handleOperator($l, $right['data'], $result['sign'][$k]['text']);
+                }
+                $result['data'] = $l;
+            }
+
+            unset($result['sign'], $result['v'], $result['right']);
+
+            return;
+        }
+
+        $result['data'] = $l;
+        unset($result['v']);
+    }
+
+
+value_sum: v:value_product ( > sign:('+' | '-') > right:value_product ) *
+    function handleOperator(mixed $l, mixed $r, string $operator): array|int|float {
+        return [
+            'type' => 'value_expression',
+            'operator' => $operator,
+            'leftOperand' => $l,
+            'rightOperand' => $r,
+        ];
+    }
+
+    function __finalise(&$result) {
+        $l = $result['v']['data'];
+        if (isset($result['sign'])) {
+            if (isset($result['right']['_matchrule'])) {
+                $result['data'] = $this->value_sum_handleOperator($l, $result['right']['data'], $result['sign']['text']);
+            } else {
+                foreach ($result['right'] ?? [] as $k => $right) {
+                    $l = $this->value_sum_handleOperator($l, $right['data'], $result['sign'][$k]['text']);
+                }
+                $result['data'] = $l;
+            }
+
+            unset($result['sign'], $result['v'], $result['right']);
+
+            return;
+        }
+
+        $result['data'] = $l;
+        unset($result['v']);
+    }
+
+value_or_expr: v:value | ('(' > p:value_expression > ')')
+    function __finalise(&$result) {
+        if (isset($result['p'])) {
+            $result['data'] = [
+                'type' => 'parentheses',
+                'expression' => $result['p']['data'],
+            ];
+            unset($result['p']);
+            return;
+        }
+
+        $result['data'] = $result['v']['data'];
+        unset($result['v']);
+    }
+
+value: v:function_call | v:number | v:quoted_string | v:boolean | v:field
+    function __finalise(&$result) {
+        $result['data'] = $result['v']['data'];
+        unset($result['v']);
+    }
+
+int: /[0-9]+/
+    function __finalise(&$result) {
+        $result['data'] = (int) $result['text'];
+    }
+
+decimal: int? "." int
+    function __finalise(&$result) {
+        $result['data'] = (float) $result['text'];
+    }
+
+quoted_string: /"[^"]*"/
+    function __finalise(&$result) {
+        $result['data'] = ['literal' => substr($result['text'], 1, -1)];
+    }
+
+number: v:decimal | v:int
+    function __finalise(&$result) {
+        $result['data'] = $result['v']['data'];
+        unset($result['v']);
+    }
+
+alpha: /[a-zA-Z_]/
+alphanum: /[a-zA-Z_0-9-]/
+
+identifier: alpha alphanum*

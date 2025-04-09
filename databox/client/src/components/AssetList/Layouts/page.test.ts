@@ -3,7 +3,7 @@ import {getPage} from './page.ts';
 test('getPage', () => {
     const pages: {id: string}[][] = [
         [{id: '1.1'}, {id: '1.2'}],
-        [{id: '1.1'}, {id: '1.2'}, {id: '1.3'}],
+        [{id: '2.1'}, {id: '2.2'}, {id: '2.3'}],
     ];
 
     expect(getPage(pages, 0)).toEqual({

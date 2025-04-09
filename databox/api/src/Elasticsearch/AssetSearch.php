@@ -63,17 +63,6 @@ class AssetSearch extends AbstractSearch
             $filterQueries[] = new Query\Terms('workspaceId', $options['workspaces']);
         }
 
-        if (null !== $attrFilters = ($options['filters'] ?? null)) {
-            if (is_string($attrFilters)) {
-                $attrFilters = json_decode($attrFilters, true, 512, JSON_THROW_ON_ERROR);
-            } else {
-                $attrFilters = array_map(fn ($f): array => is_string($f) ? json_decode($f, true, 512, JSON_THROW_ON_ERROR) : $f, $attrFilters);
-            }
-            if (!empty($attrFilters)) {
-                $filterQueries[] = $this->attributeSearch->addAttributeFilters($attrFilters);
-            }
-        }
-
         if (isset($options['tags_must']) || isset($options['tags_must_not'])) {
             $tagsBoolQuery = new Query\BoolQuery();
             $filterQueries[] = $tagsBoolQuery;
@@ -96,6 +85,16 @@ class AssetSearch extends AbstractSearch
             $limit = $maxLimit;
         }
 
+        if (null !== $conditions = ($options['conditions'] ?? null)) {
+            foreach ($conditions as $condition) {
+                $filterQueries[] = $this->attributeSearch->buildConditionQuery(
+                    $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds),
+                    $condition,
+                    $options
+                );
+            }
+        }
+
         $filterQuery = new Query\BoolQuery();
         foreach ($filterQueries as $query) {
             $filterQuery->addFilter($query);
@@ -108,16 +107,16 @@ class AssetSearch extends AbstractSearch
         $queryString = trim($options['query'] ?? '');
         $parsed = $this->queryStringParser->parseQuery($queryString);
 
-        $attributeDefinitionGroups = $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds);
-
         if (!empty($parsed['should'])) {
-            $multiMatch = $this->attributeSearch->buildAttributeQuery($attributeDefinitionGroups, $parsed['should'], $options);
+            $multiMatch = $this->attributeSearch->buildAttributeQuery(
+                $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds), $parsed['should'], $options);
             $filterQuery->addMust($multiMatch);
         }
         foreach ($parsed['must'] as $must) {
-            $multiMatch = $this->attributeSearch->buildAttributeQuery($attributeDefinitionGroups, $must, array_merge($options, [
-                AttributeSearch::OPT_STRICT_PHRASE => true,
-            ]));
+            $multiMatch = $this->attributeSearch->buildAttributeQuery(
+                $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds), $must, array_merge($options, [
+                    AttributeSearch::OPT_STRICT_PHRASE => true,
+                ]));
             $filterQuery->addMust($multiMatch);
         }
 

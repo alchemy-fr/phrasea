@@ -1,5 +1,4 @@
 import {
-    Box,
     Checkbox,
     ListItemButton,
     ListItemSecondaryAction,
@@ -9,6 +8,7 @@ import {FacetGroupProps} from '../Facets';
 import {ListFacetItemProps} from './TextFacetItem';
 import ListFacet from './ListFacet';
 import {getBestLocaleOfTranslations} from '@alchemy/i18n/src/Locale/localeHelper';
+import {stopPropagation} from '../../../../lib/stdFuncs.ts';
 
 function EntityFacetItem({
     onClick,
@@ -28,6 +28,7 @@ function EntityFacetItem({
                 <Checkbox
                     edge="end"
                     onChange={onClick}
+                    onClick={stopPropagation}
                     checked={selected}
                     inputProps={{'aria-labelledby': value.toString()}}
                 />

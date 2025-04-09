@@ -72,8 +72,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                 'summary' => 'Check whether a slug is available or not.',
                 'description' => 'Check whether a slug is available or not.',
                 'responses' => [
-                    [
-                        'description' => 'OK',
+                    '200' => [
                         'content' => [
                             'application/json' => [
                                 'schema' => ['type' => 'boolean'],
@@ -87,7 +86,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                         'name' => 'slug',
                         'type' => 'string',
                         'required' => true,
-                        'description' => 'The slug to verify'],
+                        'description' => 'The slug to verify'
+                    ],
                 ],
             ],
             paginationEnabled: false,
@@ -128,12 +128,10 @@ class Publication implements AclObjectInterface, \Stringable
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     private string $id;
 
-    #[ApiProperty]
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
     private ?string $title = null;
 
-    #[ApiProperty]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
     private ?string $description = null;
@@ -145,61 +143,47 @@ class Publication implements AclObjectInterface, \Stringable
     /**
      * @var Asset[]|Collection
      */
-    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/Asset'])]
-    /**
-     * @var Asset[]|Collection
-     */
     #[Groups([self::GROUP_READ])]
     #[MaxDepth(1)]
     #[ORM\OneToMany(mappedBy: 'publication', targetEntity: Asset::class, cascade: ['remove'])]
     #[ORM\OrderBy(['position' => 'ASC', 'createdAt' => 'ASC'])]
     private Collection $assets;
 
-    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/PublicationProfile'])]
     #[ORM\ManyToOne(targetEntity: PublicationProfile::class)]
     #[Groups([self::GROUP_READ, self::GROUP_ADMIN_READ])]
     private ?PublicationProfile $profile = null;
 
-    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/Asset'])]
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?Asset $package = null;
 
-    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/Asset'])]
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     #[Groups([self::GROUP_ADMIN_READ, self::GROUP_LIST, self::GROUP_READ])]
     private ?Asset $cover = null;
 
-    #[ApiProperty]
     #[Groups([self::GROUP_READ])]
     private ?string $packageUrl = null;
 
-    #[ApiProperty]
     #[Groups([self::GROUP_READ])]
     private ?string $archiveDownloadUrl = null;
 
-    #[ApiProperty]
     #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Groups([self::GROUP_ADMIN_READ])]
     private ?string $ownerId = null;
 
-    #[ApiProperty]
     #[Groups(['_', self::GROUP_LIST, self::GROUP_READ, Asset::GROUP_READ])]
     private bool $authorized = false;
 
     /**
      * Password identifier for the current publication branch.
      */
-    #[ApiProperty]
     #[Groups(['_', self::GROUP_LIST, self::GROUP_READ, Asset::GROUP_READ])]
     private ?string $securityContainerId = null;
 
-    #[ApiProperty]
     #[Groups(['_', self::GROUP_LIST, Asset::GROUP_READ])]
     private ?string $authorizationError = null;
 
-    #[ApiProperty(readableLink: true, openapiContext: ['$ref' => '#/definitions/Publication'])]
     #[Groups([self::GROUP_READ])]
     #[MaxDepth(1)]
     #[ORM\ManyToOne(targetEntity: Publication::class, inversedBy: 'children')]
@@ -209,7 +193,6 @@ class Publication implements AclObjectInterface, \Stringable
     /**
      * @var Publication[]|Collection
      */
-    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/Publication'])]
     #[ORM\JoinTable(name: 'publication_children')]
     #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id')]
     #[ORM\InverseJoinColumn(name: 'child_id', referencedColumnName: 'id')]
@@ -228,14 +211,12 @@ class Publication implements AclObjectInterface, \Stringable
      *
      * @deprecated
      */
-    #[ApiProperty]
     #[Groups(['publication:write'])]
     private ?string $parentId = null;
 
     /**
      * URL slug.
      */
-    #[ApiProperty]
     #[Groups(['_', self::GROUP_LIST, self::GROUP_READ, self::GROUP_READ])]
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true, unique: true)]
     protected ?string $slug = null;

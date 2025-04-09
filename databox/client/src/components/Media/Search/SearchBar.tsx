@@ -1,16 +1,18 @@
-import {useContext} from 'react';
-import {Box} from '@mui/material';
-import SearchFilters from './SearchFilters';
+import React, {useContext} from 'react';
+import {Box, IconButton} from '@mui/material';
 import {SearchContext} from './SearchContext';
 import SortBy from './Sorting/SortBy';
 import {ZIndex} from '../../../themes/zIndex';
 import GeoPointFilter from './GeoPointFilter';
 import SearchAutoComplete from './SearchAutoComplete.tsx';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import SearchConditions from './AQL/SearchConditions.tsx';
 
 type Props = {};
 
 export default function SearchBar({}: Props) {
     const search = useContext(SearchContext)!;
+    const [filtersEnabled, setFiltersEnabled] = React.useState(false);
 
     return (
         <Box
@@ -27,19 +29,28 @@ export default function SearchBar({}: Props) {
                 }}
             >
                 <SearchAutoComplete />
+                <IconButton
+                    onClick={() => setFiltersEnabled(!filtersEnabled)}
+                    color={filtersEnabled ? 'primary' : 'inherit'}
+                    sx={{
+                        ml: 1,
+                    }}
+                >
+                    <FilterAltIcon />
+                </IconButton>
                 <GeoPointFilter />
                 <SortBy />
             </Box>
-            {search.attrFilters.length > 0 && (
+            {(filtersEnabled || search.conditions.length > 0) && (
                 <Box
                     sx={{
                         px: 1,
                     }}
                 >
-                    <SearchFilters
-                        onDelete={search.removeAttrFilter}
-                        onInvert={search.invertAttrFilter}
-                        filters={search.attrFilters}
+                    <SearchConditions
+                        onDelete={search.removeCondition}
+                        onUpsert={search.upsertCondition}
+                        conditions={search.conditions}
                     />
                 </Box>
             )}

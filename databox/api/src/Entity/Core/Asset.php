@@ -19,6 +19,7 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\CopyAssetInput;
@@ -112,7 +113,35 @@ use Symfony\Component\Serializer\Annotation\Groups;
             provider: AssetCollectionProvider::class,
             processor: PrepareSubstitutionProcessor::class,
         ),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'collection' => new QueryParameter(),
+                'conditions' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Use AQL condition to filter assets',
+                ),
+                'ids' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Assets ID',
+                ),
+                'workspaces' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Workspaces ID',
+                ),
+                'parents' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Parent collections',
+                ),
+                'parent' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Parent collection',
+                ),
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Search query',
+                ),
+            ]
+        ),
         new Post(
             normalizationContext: [
                 'groups' => [self::GROUP_READ, Collection::GROUP_ABSOLUTE_TITLE],
@@ -563,5 +592,42 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     public function getObjectTitle(): string
     {
         return sprintf('Asset %s', $this->getTitle() ?? $this->getId());
+    }
+
+    /**
+     * Used by ES.
+     */
+    public function getSourceFileSize(): ?int
+    {
+        $size = $this->source?->getSize();
+        if (is_string($size)) {
+            return (int) $size;
+        }
+
+        return $size;
+    }
+
+    /**
+     * Used by ES.
+     */
+    public function getSourceFilename(): ?string
+    {
+        return $this->source?->getFilename();
+    }
+
+    /**
+     * Used by ES.
+     */
+    public function getSourceFileType(): ?string
+    {
+        return $this->source?->getType();
+    }
+
+    /**
+     * Used by ES.
+     */
+    public function getSourceFileMimeType(): ?string
+    {
+        return $this->source?->getType();
     }
 }

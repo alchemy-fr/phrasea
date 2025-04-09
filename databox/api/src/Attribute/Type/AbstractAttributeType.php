@@ -119,4 +119,9 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
     {
         return true;
     }
+
+    public function getElasticSearchRawField(): ?string
+    {
+        return null;
+    }
 }

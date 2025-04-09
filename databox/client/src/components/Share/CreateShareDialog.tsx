@@ -7,7 +7,7 @@ import {StackedModalProps, useModals, useFormPrompt} from '@alchemy/navigation';
 import {createAssetShare} from '../../api/asset.ts';
 import {useFormSubmit} from '@alchemy/api';
 import RemoteErrors from '../Form/RemoteErrors.tsx';
-import {normalizeDate} from '../../lib/date.ts';
+import {dateToStringDate} from '../../lib/date.ts';
 
 type Props = {
     asset: Asset;
@@ -39,8 +39,8 @@ export default function CreateShareDialog({
         onSubmit: async data => {
             return await createAssetShare(asset.id, {
                 ...data,
-                startsAt: normalizeDate(data.startsAt || null),
-                expiresAt: normalizeDate(data.expiresAt || null),
+                startsAt: dateToStringDate(data.startsAt || null),
+                expiresAt: dateToStringDate(data.expiresAt || null),
             });
         },
         onSuccess: (d: Share) => {

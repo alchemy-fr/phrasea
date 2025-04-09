@@ -124,6 +124,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     allowInvalid: boolean;
     facetEnabled: boolean;
     canEdit: boolean;
+    builtIn?: boolean;
     searchBoost: number;
     fallback: Record<string, string>;
     initialValues: Record<string, string>;
@@ -381,6 +382,7 @@ export type Ace = (
 } & Entity;
 
 export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;
+export type StateSetterHandler<T> = (handler: (prev: T) => T) => void;
 
 export type AssetOrAssetContainer = {} & Entity;
 

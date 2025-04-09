@@ -20,14 +20,20 @@ import moment from 'moment';
 import {SearchContext} from '../../Search/SearchContext';
 import {AttributeType} from '../../../../api/attributes';
 import {useTranslation} from 'react-i18next';
+import {
+    dateToStringDate,
+    dateToTimestamp,
+    getDate,
+} from '../../../../lib/date.ts';
 
+type DateTuple = [number, number];
 export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
+    const [value, setValue] = useState<DateTuple>([0, 0]);
+    const [commitedValue, setCommitedValue] = React.useState<DateTuple>([0, 0]);
     const {t} = useTranslation();
-    const {attrFilters, setAttrFilter, removeAttrFilter} =
+    const {conditions, upsertCondition, removeCondition} =
         useContext(SearchContext)!;
-    const attrFilterIndex = attrFilters.findIndex(_f => _f.a === name);
-    const attrFilter =
-        attrFilterIndex >= 0 ? attrFilters[attrFilterIndex] : undefined;
+    const condition = conditions.find(_f => _f.id === name);
     const theme = useTheme();
     const histogramHeight = 50;
     const displayTime = Boolean(
@@ -35,17 +41,17 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
             /^\d+[hms]$/.test(facet.interval ?? '')
     );
 
-    const min = facet.buckets[0].key as number;
-    const max = facet.buckets[facet.buckets.length - 1].key as number;
+    const buckets = facet.buckets;
+    const min = buckets[0].key as number;
+    const max = buckets[buckets.length - 1].key as number;
     const step =
-        facet.buckets.length >= 2
-            ? (facet.buckets[1].key as number) -
-              (facet.buckets[0].key as number)
+        buckets.length >= 2
+            ? (buckets[1].key as number) - (buckets[0].key as number)
             : undefined;
 
     const getValueText = React.useCallback(
         (value: number): ReactNode => {
-            const m = moment(value * 1000);
+            const m = moment(getDate(value));
 
             return (
                 <>
@@ -62,37 +68,49 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
         [displayTime]
     );
 
-    const [value, setValue] = useState<[number, number]>([min, max]);
-
     useEffect(() => {
-        if (attrFilter) {
-            setValue(attrFilter.v as [number, number]);
-        } else {
-            setValue([min, max]);
+        if (condition) {
+            const match =
+                condition.query.match(
+                    /^.+\s+BETWEEN\s+"([^"]+)"\s+AND\s+"([^"]+)"/
+                ) ||
+                condition.query.match(/^.+\s+BETWEEN\s+(\d+)\s+AND\s+(\d+)/);
+            if (match) {
+                const v: DateTuple = [
+                    dateToTimestamp(match[1]!)!,
+                    dateToTimestamp(match[2]!)!,
+                ];
+                setValue(v);
+                setCommitedValue(v);
+                return;
+            }
         }
-    }, [min, max, attrFilter]);
+
+        if (value[0] === 0 && value[1] === 0) {
+            const v: DateTuple = [min, max];
+            setValue(v);
+            setCommitedValue(v);
+        }
+    }, [min, max, condition]);
 
     const handleChange = useCallback(
         (_event: Event, newValue: number | number[]) => {
-            setValue(newValue as [number, number]);
+            setValue(newValue as DateTuple);
         },
         [setValue]
     );
 
     const handleChangeCommitted = useCallback(
         (_event: React.SyntheticEvent | Event, newValue: number | number[]) => {
-            if (step) {
-                (newValue as [number, number])[1] += step;
-            }
-            setAttrFilter(
-                name,
-                facet.meta.type,
-                newValue as [number, number],
-                facet.meta.title,
-                facet.meta.widget
-            );
+            const [left, right] = newValue as DateTuple;
+
+            upsertCondition({
+                id: name,
+                query: `${name} BETWEEN "${dateToStringDate(left)}" AND "${dateToStringDate(right)}"`,
+            });
+            setCommitedValue(newValue as DateTuple);
         },
-        [facet, step]
+        [step, name, setCommitedValue]
     );
 
     const hasRange = max > min;
@@ -101,12 +119,12 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
     const greyInactive = theme.palette.grey[500];
 
     const marks = useMemo(() => {
-        const maxCount = facet.buckets.reduce(function (prev, curr) {
+        const maxCount = buckets.reduce(function (prev, curr) {
             return prev.doc_count > curr.doc_count ? prev : curr;
         }).doc_count;
         const ratio = histogramHeight / maxCount;
 
-        return facet.buckets.map(b => ({
+        const marks = buckets.map(b => ({
             value: b.key as number,
             label: (
                 <div
@@ -127,7 +145,30 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                 />
             ),
         }));
-    }, [facet.buckets, colorActive, greyInactive, value]);
+
+        if (marks.length === 0 || marks[0].value > commitedValue[0]) {
+            marks.unshift({
+                value: commitedValue[0],
+                label: <div />,
+            });
+        }
+
+        if (marks[marks.length - 1].value < commitedValue[1]) {
+            marks.push({
+                value: commitedValue[1],
+                label: <div />,
+            });
+        }
+
+        return marks;
+    }, [buckets, colorActive, greyInactive, value, commitedValue]);
+
+    const finalValue: DateTuple =
+        value[0] === 0 && value[1] === 0 ? [min, max] : value;
+    const finalCommittedValue: DateTuple =
+        commitedValue[0] === 0 && commitedValue[1] === 0
+            ? [min, max]
+            : commitedValue;
 
     return (
         <Box
@@ -139,12 +180,10 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                 <>
                     <ListItem>
                         <ListItemText primary={getValueText(min)} />
-                        {attrFilterIndex >= 0 && (
+                        {!!condition && (
                             <ListItemSecondaryAction>
                                 <Button
-                                    onClick={() =>
-                                        removeAttrFilter(attrFilterIndex)
-                                    }
+                                    onClick={() => removeCondition(condition)}
                                 >
                                     {t(
                                         'date_histogram_facet.clear_filter',
@@ -167,13 +206,13 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                 >
                     <Slider
                         getAriaLabel={() => 'Date range'}
-                        value={value}
+                        value={finalValue}
                         onChangeCommitted={handleChangeCommitted}
                         onChange={handleChange}
                         valueLabelFormat={getValueText}
                         step={null}
-                        min={min}
-                        max={max}
+                        min={Math.min(finalCommittedValue[0], min)}
+                        max={Math.max(max, finalCommittedValue[1])}
                         marks={marks}
                         valueLabelDisplay={'on'}
                         disableSwap

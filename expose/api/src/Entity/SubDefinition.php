@@ -194,7 +194,6 @@ class SubDefinition implements MediaInterface
     #[ORM\JoinColumn(nullable: false)]
     protected ?Asset $asset = null;
 
-    #[ApiProperty]
     #[Groups([Asset::GROUP_READ, Publication::GROUP_READ, self::GROUP_READ])]
     #[ORM\Column(type: Types::STRING, length: 30)]
     private ?string $name = null;
@@ -206,25 +205,20 @@ class SubDefinition implements MediaInterface
     #[ORM\Column(type: Types::BIGINT, options: ['unsigned' => true])]
     private ?string $size = null;
 
-    #[ApiProperty]
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     private ?string $mimeType = null;
 
-    #[ApiProperty]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups([self::GROUP_READ])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ApiProperty]
     #[Groups([self::GROUP_READ, Asset::GROUP_READ, Publication::GROUP_READ])]
     private ?string $url = null;
 
-    #[ApiProperty]
     #[Groups([self::GROUP_READ, Asset::GROUP_READ, Publication::GROUP_READ])]
     private ?string $downloadUrl = null;
 
-    #[ApiProperty]
     #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     private ?string $uploadURL = null;
 

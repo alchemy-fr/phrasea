@@ -6,7 +6,12 @@ module.exports = {
         'plugin:@typescript-eslint/recommended',
         'plugin:react-hooks/recommended',
     ],
-    ignorePatterns: ['dist', '.eslintrc.cjs', 'src/TestMorph.tsx'],
+    ignorePatterns: [
+        'dist',
+        '.eslintrc.cjs',
+        'src/TestMorph.tsx',
+        'src/components/Media/Search/AQL/grammar.ts',
+    ],
     parser: '@typescript-eslint/parser',
     plugins: ['react-refresh', 'unused-imports'],
     rules: {

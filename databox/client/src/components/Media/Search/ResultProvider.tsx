@@ -4,10 +4,11 @@ import {PropsWithChildren, useContext, useEffect, useState} from 'react';
 import {ESDebug, GetAssetOptions, getAssets} from '../../../api/asset';
 import {Asset} from '../../../types';
 import {SearchContext} from './SearchContext';
-import {extractLabelValueFromKey, TFacets} from '../Asset/Facets';
-import {Filters, SortBy} from './Filter';
+import {TFacets} from '../Asset/Facets';
+import {SortBy} from './Filter';
 import axios from 'axios';
 import {getResolvedSortBy} from './SearchProvider';
+import {AQLQueries} from './AQL/query.ts';
 
 type UserSearchContext = {
     position?: string | undefined;
@@ -19,7 +20,7 @@ async function search(
     query: string,
     sortBy: SortBy[],
     url?: string,
-    attrFilters?: Filters,
+    conditions?: AQLQueries,
     searchContext?: UserSearchContext
 ): Promise<{
     result: Asset[];
@@ -44,13 +45,7 @@ async function search(
     const options: GetAssetOptions = {
         query,
         url,
-        filters: JSON.stringify(
-            attrFilters?.map(f => ({
-                ...f,
-                v: f.v.map(v => extractLabelValueFromKey(v, f.x).value),
-                t: undefined,
-            }))
-        ),
+        conditions: conditions?.filter(c => !c.disabled).map(c => c.query),
         group: groupBy.length > 0 ? groupBy.slice(0, 1) : undefined,
         order,
     };
@@ -109,7 +104,7 @@ export default function ResultProvider({children}: Props) {
                 searchContext.query,
                 getResolvedSortBy(searchContext.sortBy, t),
                 nextUrl,
-                searchContext.attrFilters,
+                searchContext.conditions,
                 {
                     position: searchContext.geolocation,
                 }

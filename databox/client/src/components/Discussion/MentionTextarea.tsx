@@ -39,11 +39,14 @@ export default function MentionTextarea({
 
         const handledErrorStatuses = [401, 403];
         try {
-            const users = await getUsers({
-                query,
-            }, {
-                handledErrorStatuses,
-            });
+            const users = await getUsers(
+                {
+                    query,
+                },
+                {
+                    handledErrorStatuses,
+                }
+            );
             callback(
                 users.map(u => ({
                     id: u.id,

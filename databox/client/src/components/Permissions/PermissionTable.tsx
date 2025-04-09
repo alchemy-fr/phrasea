@@ -15,7 +15,7 @@ export type PermissionHelpers = {
     [perm: string]: {
         label?: string;
         description?: string;
-    }
+    };
 };
 
 type Props = {

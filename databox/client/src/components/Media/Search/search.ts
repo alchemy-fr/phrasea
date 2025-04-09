@@ -1,19 +1,20 @@
-import {FilterEntry, Filters, SortBy} from './Filter';
-import {
-    FacetType,
-    NormalizedBucketKeyValue,
-    ResolvedBucketValue,
-} from '../Asset/Facets';
-import {AttributeType} from '../../../api/attributes';
+import {SortBy} from './Filter';
+import {AQLQueries, AQLQuery} from './AQL/query.ts';
 
 const specSep = ';';
 const arraySep = ',';
 
 export enum BuiltInFilter {
-    Collection = 'c',
-    Workspace = 'w',
-    CreatedAt = 'createdAt',
-    Score = 'score',
+    Collection = '@collection',
+    Workspace = '@workspace',
+    Tag = '@tag',
+    CreatedAt = '@createdAt',
+    EditedAt = '@editedAt',
+    Score = '@score',
+    FileType = '@type',
+    FileMimeType = '@mimetype',
+    FileSize = '@size',
+    FileName = '@filename',
 }
 
 function encode(str: string): string {
@@ -44,61 +45,14 @@ function decodeSortBy(str: string): SortBy {
     };
 }
 
-function encodeFilter(filter: FilterEntry): string {
-    return [
-        filter.a,
-        filter.w,
-        encode(filter.t),
-        encode(JSON.stringify(filter.v.map(normalizeBucketValue))),
-        filter.x === AttributeType.Text ? '' : filter.x,
-        filter.i ? '1' : '',
-    ].join(specSep);
-}
-
-function decodeFilter(str: string): FilterEntry {
-    const [a, w, t, v, x, i] = str.split(specSep);
-
-    return {
-        a,
-        x: x as AttributeType | undefined,
-        w: (w as FacetType) || undefined,
-        t: decode(t),
-        v: JSON.parse(decode(v)).map(
-            denormalizeBucketValue
-        ) as ResolvedBucketValue[],
-        i: i ? 1 : undefined,
-    };
-}
-
-function normalizeBucketValue(
-    v: ResolvedBucketValue
-): NormalizedBucketKeyValue {
-    if (v && typeof v === 'object') {
-        return {
-            v: v.value,
-            l: v.label,
-        };
-    }
-
-    return v;
-}
-
-function denormalizeBucketValue(
-    v: NormalizedBucketKeyValue
-): ResolvedBucketValue {
-    if (v && typeof v === 'object') {
-        return {
-            value: v.v,
-            label: v.l,
-        };
-    }
-
-    return v;
+enum Flag {
+    Inversed = '!',
+    Disabled = '_',
 }
 
 export function queryToHash(
     query: string,
-    filters: Filters,
+    conditions: AQLQueries,
     sortBy: SortBy[],
     geolocation: string | undefined
 ): string {
@@ -106,9 +60,13 @@ export function queryToHash(
     if (query) {
         hash += `q=${encodeURIComponent(query)}`;
     }
-    if (filters && filters.length > 0) {
-        const uriComponent = filters.map(encodeFilter).join(arraySep);
-        hash += `${hash ? '&' : ''}f=${encodeURIComponent(uriComponent)}`;
+    if (conditions && conditions.length > 0) {
+        hash += `${hash ? '&' : ''}${conditions
+            .map(
+                q =>
+                    `f=${q.id}${q.inversed ? Flag.Inversed : ''}${q.disabled ? Flag.Disabled : ''}:${encodeURIComponent(q.query)}`
+            )
+            .join('&')}`;
     }
     if (sortBy && sortBy.length > 0) {
         hash += `${hash ? '&' : ''}s=${encodeURIComponent(
@@ -124,7 +82,7 @@ export function queryToHash(
 
 export function hashToQuery(hash: string): {
     query: string;
-    filters: Filters;
+    conditions: AQLQuery[];
     sortBy: SortBy[];
     geolocation: string | undefined;
 } {
@@ -132,8 +90,19 @@ export function hashToQuery(hash: string): {
 
     return {
         query: decodeURIComponent(params.get('q') || ''),
-        filters: params.get('f')
-            ? (params.get('f') as string).split(arraySep).map(decodeFilter)
+        conditions: params.has('f')
+            ? params.getAll('f').map(q => {
+                  const [id, ...query] = q.split(':');
+                  const field = id.replace(/[!_]$/, '');
+                  const flags = id.substring(field.length);
+
+                  return {
+                      query: query.join(':'),
+                      id: id.replace(/[!_]$/, ''),
+                      disabled: flags.includes(Flag.Disabled),
+                      inversed: flags.includes(Flag.Inversed),
+                  } as AQLQuery;
+              })
             : [],
         sortBy: params.get('s')
             ? decodeURIComponent(params.get('s') as string)

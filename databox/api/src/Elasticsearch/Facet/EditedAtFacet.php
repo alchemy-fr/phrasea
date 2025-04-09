@@ -15,7 +15,7 @@ class EditedAtFacet extends AbstractDateTimeFacet
 
     public static function getKey(): string
     {
-        return 'editedAt';
+        return '@editedAt';
     }
 
     public function getFieldName(): string
@@ -23,7 +23,7 @@ class EditedAtFacet extends AbstractDateTimeFacet
         return 'editedAt';
     }
 
-    public function getValueFromAsset(Asset $asset)
+    public function getValueFromAsset(Asset $asset): mixed
     {
         return $asset->getEditedAt();
     }

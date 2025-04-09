@@ -16,7 +16,8 @@ import {getAttributeType} from './Attribute/types';
 import {FilterType} from '../Search/Filter';
 import {AttributeFormat} from './Attribute/types/types';
 import TagsFacet from './Facets/TagsFacet';
-import EntitiesFacet from "./Facets/EntitiesFacet.tsx";
+import EntitiesFacet from './Facets/EntitiesFacet.tsx';
+import {BuiltInFilter} from '../Search/search.ts';
 
 export type BucketValue = string | number | boolean;
 
@@ -27,13 +28,6 @@ export type LabelledBucketValue = {
 };
 
 export type ResolvedBucketValue = BucketValue | LabelledBucketValue;
-
-export type NormalizedBucketKeyValue =
-    | BucketValue
-    | {
-          l: string;
-          v: BucketValue;
-      };
 
 export type Bucket = {
     key: BucketValue;
@@ -125,7 +119,7 @@ const facetWidgets: Record<FacetType, React.FC<FacetGroupProps>> = {
 };
 
 const facetWidgetsByKey: Record<string, React.FC<FacetGroupProps>> = {
-    t: TagsFacet,
+    [BuiltInFilter.Tag]: TagsFacet,
 };
 
 function FacetGroup({facet, name}: FacetGroupProps) {

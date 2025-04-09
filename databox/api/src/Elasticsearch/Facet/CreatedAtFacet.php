@@ -15,7 +15,7 @@ class CreatedAtFacet extends AbstractDateTimeFacet
 
     public static function getKey(): string
     {
-        return 'createdAt';
+        return '@createdAt';
     }
 
     public function getFieldName(): string
@@ -23,7 +23,7 @@ class CreatedAtFacet extends AbstractDateTimeFacet
         return 'createdAt';
     }
 
-    public function getValueFromAsset(Asset $asset)
+    public function getValueFromAsset(Asset $asset): mixed
     {
         return $asset->getCreatedAt();
     }

@@ -26,10 +26,10 @@ final class WorkspaceFacet extends AbstractEntityFacet
 
     public static function getKey(): string
     {
-        return 'w';
+        return '@workspace';
     }
 
-    public function getValueFromAsset(Asset $asset)
+    public function getValueFromAsset(Asset $asset): mixed
     {
         return $asset->getWorkspace();
     }

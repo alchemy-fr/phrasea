@@ -36,7 +36,7 @@ class GeoPointAttributeType extends AbstractAttributeType
     {
         if (is_array($value)) {
             if (isset($value['lat'], $value['lng'])) {
-                return sprintf('%g,%g', $value['lng'], $value['lat']);
+                return sprintf('%g,%g', $value['lat'], $value['lng']);
             } elseif (isset($value[0], $value[1])) {
                 return sprintf('%g,%g', $value[0], $value[1]);
             } else {
@@ -61,11 +61,11 @@ class GeoPointAttributeType extends AbstractAttributeType
             return null;
         }
 
-        [$lng, $lat] = explode(',', $value);
+        [$lat, $lng] = explode(',', $value);
 
         return [
-            'lng' => (float) trim($lng),
             'lat' => (float) trim($lat),
+            'lng' => (float) trim($lng),
         ];
     }
 

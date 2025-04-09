@@ -23,6 +23,10 @@ export function getApiResponseError(e: any): string | undefined {
 }
 
 export function getBestErrorProp(data: any): string | undefined {
+    if (!data) {
+        return;
+    }
+
     if (data[hydraTitleKey] && data[hydraDescriptionKey]) {
         return `${data[hydraTitleKey]}: ${data[hydraDescriptionKey]}`;
     }

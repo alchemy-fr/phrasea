@@ -32,8 +32,10 @@ final class CollectionFacet extends AbstractFacet
             return null;
         }
 
+        $parts = explode('/', $bucket['key']);
+
         $bucket['key'] = [
-            'value' => $bucket['key'],
+            'value' => $parts[array_key_last($parts)],
             'label' => $label,
         ];
 
@@ -71,10 +73,10 @@ final class CollectionFacet extends AbstractFacet
 
     public static function getKey(): string
     {
-        return 'c';
+        return '@collection';
     }
 
-    public function getValueFromAsset(Asset $asset)
+    public function getValueFromAsset(Asset $asset): mixed
     {
         return $asset->getCollections();
     }
@@ -92,7 +94,9 @@ final class CollectionFacet extends AbstractFacet
     private function normalizeCollectionPath(string $path): ?string
     {
         $ids = explode('/', $path);
-        $collection = $this->em->find(Collection::class, end($ids));
+        $id = $ids[array_key_last($ids)];
+
+        $collection = $this->em->find(Collection::class, $id);
         $levels = [];
         $pColl = $collection;
         while ($pColl) {
@@ -109,5 +113,10 @@ final class CollectionFacet extends AbstractFacet
         }
 
         return implode(' / ', array_reverse($levels));
+    }
+
+    public function normalizeValueForSearch(mixed $value): mixed
+    {
+        return $this->em->find(Collection::class, $value)?->getAbsolutePath();
     }
 }

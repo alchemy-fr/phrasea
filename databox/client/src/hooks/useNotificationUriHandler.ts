@@ -2,13 +2,11 @@ import {useNavigateToModal} from '../components/Routing/ModalLink.tsx';
 import {modalRoutes, routes} from '../routes.ts';
 import type {NotificationUriHandler} from '@alchemy/notification';
 import {getPath, useNavigate} from '@alchemy/navigation';
-import {BuiltInFilter, queryToHash} from '../components/Media/Search/search.ts';
-import {useTranslation} from 'react-i18next';
+import {queryToHash} from '../components/Media/Search/search.ts';
 
 export function useNotificationUriHandler(): NotificationUriHandler {
     const navigateToModal = useNavigateToModal();
     const navigate = useNavigate();
-    const {t} = useTranslation();
 
     return (uri: string) => {
         const groups = uri.match(/^\/([^/#]+)\/([^/#]+)(?:#(.+))?$/);
@@ -33,14 +31,8 @@ export function useNotificationUriHandler(): NotificationUriHandler {
                     '',
                     [
                         {
-                            a: BuiltInFilter.Collection,
-                            t: t('search_provider.collections', `Collections`),
-                            v: [
-                                {
-                                    label: id,
-                                    value: '/' + id,
-                                },
-                            ],
+                            id: 'collection',
+                            query: `@collection = "${id}"`,
                         },
                     ],
                     [],

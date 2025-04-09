@@ -8,6 +8,7 @@ import {
 import {FacetGroupProps} from '../Facets';
 import {ListFacetItemProps} from './TextFacetItem';
 import ListFacet from './ListFacet';
+import {stopPropagation} from '../../../../lib/stdFuncs.ts';
 
 function TagFacetItem({
     onClick,
@@ -34,6 +35,7 @@ function TagFacetItem({
                 <Checkbox
                     edge="end"
                     onChange={onClick}
+                    onClick={stopPropagation}
                     checked={selected}
                     inputProps={{'aria-labelledby': value.toString()}}
                 />

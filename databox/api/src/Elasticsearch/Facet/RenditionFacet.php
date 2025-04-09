@@ -29,7 +29,7 @@ final class RenditionFacet extends AbstractEntityFacet
 
     public static function getKey(): string
     {
-        return 'r';
+        return '@rendition';
     }
 
     public function getValueFromAsset(Asset $asset): never

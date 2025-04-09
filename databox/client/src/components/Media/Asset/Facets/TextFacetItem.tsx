@@ -5,6 +5,7 @@ import {
     ListItemText,
 } from '@mui/material';
 import {LabelledBucketValue} from '../Facets';
+import {stopPropagation} from '../../../../lib/stdFuncs.ts';
 
 type Props = {
     onClick: () => void;
@@ -30,6 +31,7 @@ export default function TextFacetItem({
                 <Checkbox
                     edge="end"
                     onChange={onClick}
+                    onClick={stopPropagation}
                     checked={selected}
                     inputProps={{'aria-labelledby': value.toString()}}
                 />
