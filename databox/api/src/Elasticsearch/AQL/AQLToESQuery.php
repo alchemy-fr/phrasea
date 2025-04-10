@@ -502,7 +502,7 @@ final readonly class AQLToESQuery
                                 'locales' => $locales,
                             ],
                             false,
-                            $cluster['w'] ?? null,
+                            $cluster['w'] ?? [],
                             $cluster['locales'] ?? null
                         );
                     }

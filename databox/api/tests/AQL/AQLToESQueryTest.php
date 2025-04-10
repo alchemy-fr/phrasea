@@ -70,7 +70,7 @@ class AQLToESQueryTest extends TestCase
                         'type' => $attributeTypeRegistry->getStrictType(GeoPointAttributeType::NAME),
                     ],
                 ],
-                'w' => null,
+                'w' => [],
                 'locales' => ['it', 'de'],
             ],
             [
@@ -82,7 +82,7 @@ class AQLToESQueryTest extends TestCase
                         'type' => $attributeTypeRegistry->getStrictType(NumberAttributeType::NAME),
                     ],
                 ],
-                'w' => '4242',
+                'w' => ['4242'],
                 'locales' => ['fr'],
             ],
         ];
@@ -209,8 +209,8 @@ class AQLToESQueryTest extends TestCase
                             ],
                         ],
                         [
-                            'term' => [
-                                'workspaceId' => '4242',
+                            'terms' => [
+                                'workspaceId' => ['4242'],
                             ],
                         ],
                     ],
@@ -229,8 +229,8 @@ class AQLToESQueryTest extends TestCase
                                         ],
                                     ],
                                     [
-                                        'term' => [
-                                            'workspaceId' => '4242',
+                                        'terms' => [
+                                            'workspaceId' => ['4242'],
                                         ],
                                     ],
                                 ],
@@ -245,8 +245,8 @@ class AQLToESQueryTest extends TestCase
                                         ],
                                     ],
                                     [
-                                        'term' => [
-                                            'workspaceId' => '4242',
+                                        'terms' => [
+                                            'workspaceId' => ['4242'],
                                         ],
                                     ],
                                 ],
@@ -273,8 +273,8 @@ class AQLToESQueryTest extends TestCase
                                         ],
                                     ],
                                     [
-                                        'term' => [
-                                            'workspaceId' => '4242',
+                                        'terms' => [
+                                            'workspaceId' => ['4242'],
                                         ],
                                     ],
                                 ],
@@ -301,8 +301,8 @@ class AQLToESQueryTest extends TestCase
                                         ],
                                     ],
                                     [
-                                        'term' => [
-                                            'workspaceId' => '4242',
+                                        'terms' => [
+                                            'workspaceId' => ['4242'],
                                         ],
                                     ],
                                 ],
