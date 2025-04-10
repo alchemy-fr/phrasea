@@ -123,7 +123,7 @@ export default function TranslatableAttributeTabs({
             </Box>
 
             {locales.map(locale => {
-                const label = `${definition.nameTranslated} ${humanLocale(locale)}`;
+                const label = `${definition.nameTranslated ?? definition.name} ${humanLocale(locale)}`;
 
                 return (
                     <TabPanel

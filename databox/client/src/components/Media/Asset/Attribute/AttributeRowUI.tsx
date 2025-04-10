@@ -33,7 +33,7 @@ export default function AttributeRowUI({
     formatContext,
     assetAnnotationsRef,
 }: Props) {
-    const {id, nameTranslated, fieldType, multiple} = definition;
+    const {id, nameTranslated, name, fieldType, multiple} = definition;
     const formatter = getAttributeType(fieldType);
     const [overControls, setOverControls] = React.useState(false);
 
@@ -72,7 +72,7 @@ export default function AttributeRowUI({
             onMouseLeave={() => setOverControls(false)}
         >
             <div className={attributesClasses.name}>
-                {nameTranslated}
+                {nameTranslated ?? name}
                 {displayControls ? (
                     <div className={attributesClasses.controls}>
                         {overControls ? (

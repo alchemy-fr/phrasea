@@ -295,7 +295,7 @@ function ListItem({data}: DefinitionItemProps<AttributeDefinition>) {
                 )}
             </ListItemIcon>
             <ListItemText
-                primary={data.nameTranslated}
+                primary={data.nameTranslated ?? data.name}
                 primaryTypographyProps={{
                     color: data.enabled ? undefined : 'error',
                 }}
