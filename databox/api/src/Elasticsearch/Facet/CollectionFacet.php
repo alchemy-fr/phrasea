@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Facet;
 
+use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\Type\CollectionPathAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
@@ -14,6 +15,8 @@ use Symfony\Bundle\SecurityBundle\Security;
 
 final class CollectionFacet extends AbstractFacet
 {
+    use UserLocaleTrait;
+
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly Security $security,
@@ -97,6 +100,7 @@ final class CollectionFacet extends AbstractFacet
         $id = $ids[array_key_last($ids)];
 
         $collection = $this->em->find(Collection::class, $id);
+        $preferredLocales = $this->getPreferredLocales($collection->getWorkspace());
         $levels = [];
         $pColl = $collection;
         while ($pColl) {
@@ -104,7 +108,7 @@ final class CollectionFacet extends AbstractFacet
                 break;
             }
 
-            $levels[] = $pColl->getTitle() ?? $pColl->getId();
+            $levels[] = $pColl->getTranslatedField('title', $preferredLocales, $pColl->getTitle()) ?? $pColl->getId();
             $pColl = $pColl->getParent();
         }
 

@@ -7,15 +7,7 @@ import React, {
     useState,
 } from 'react';
 import {FacetGroupProps} from '../Facets';
-import {
-    Box,
-    Button,
-    ListItem,
-    ListItemSecondaryAction,
-    ListItemText,
-    Slider,
-    useTheme,
-} from '@mui/material';
+import {Box, Button, Slider, useTheme} from '@mui/material';
 import moment from 'moment';
 import {SearchContext} from '../../Search/SearchContext';
 import {AttributeType} from '../../../../api/attributes';
@@ -25,9 +17,13 @@ import {
     dateToTimestamp,
     getDate,
 } from '../../../../lib/date.ts';
+import {AQLConditionBuilder} from '../../Search/AQL/AQLConditionBuilder.ts';
+import {parseAQLQuery} from '../../Search/AQL/AQL.ts';
+import {extractField} from './attributeUtils.ts';
 
 type DateTuple = [number, number];
 export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
+    const fieldName = extractField(name);
     const [value, setValue] = useState<DateTuple>([0, 0]);
     const [commitedValue, setCommitedValue] = React.useState<DateTuple>([0, 0]);
     const {t} = useTranslation();
@@ -70,15 +66,16 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
 
     useEffect(() => {
         if (condition) {
-            const match =
-                condition.query.match(
-                    /^.+\s+BETWEEN\s+"([^"]+)"\s+AND\s+"([^"]+)"/
-                ) ||
-                condition.query.match(/^.+\s+BETWEEN\s+(\d+)\s+AND\s+(\d+)/);
-            if (match) {
+            const queryBuilder = AQLConditionBuilder.fromQuery(
+                fieldName,
+                condition ? parseAQLQuery(condition.query) : undefined
+            );
+
+            const values = queryBuilder.getValues();
+            if (values.length === 2) {
                 const v: DateTuple = [
-                    dateToTimestamp(match[1]!)!,
-                    dateToTimestamp(match[2]!)!,
+                    dateToTimestamp(values[0] as number | string)!,
+                    dateToTimestamp(values[1] as number | string)!,
                 ];
                 setValue(v);
                 setCommitedValue(v);
@@ -106,14 +103,12 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
 
             upsertCondition({
                 id: name,
-                query: `${name} BETWEEN "${dateToStringDate(left)}" AND "${dateToStringDate(right)}"`,
+                query: `${fieldName} BETWEEN "${dateToStringDate(left)}" AND "${dateToStringDate(right)}"`,
             });
             setCommitedValue(newValue as DateTuple);
         },
         [step, name, setCommitedValue]
     );
-
-    const hasRange = max > min;
 
     const colorActive = theme.palette.secondary.main;
     const greyInactive = theme.palette.grey[500];
@@ -176,49 +171,35 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                 overflow: 'hidden',
             }}
         >
-            {!hasRange && (
-                <>
-                    <ListItem>
-                        <ListItemText primary={getValueText(min)} />
-                        {!!condition && (
-                            <ListItemSecondaryAction>
-                                <Button
-                                    onClick={() => removeCondition(condition)}
-                                >
-                                    {t(
-                                        'date_histogram_facet.clear_filter',
-                                        `Clear filter`
-                                    )}
-                                </Button>
-                            </ListItemSecondaryAction>
-                        )}
-                    </ListItem>
-                </>
-            )}
-
-            {hasRange && (
-                <Box
-                    sx={{
-                        px: 6,
-                        py: 1,
-                        marginTop: `${histogramHeight}px`,
-                    }}
-                >
-                    <Slider
-                        getAriaLabel={() => 'Date range'}
-                        value={finalValue}
-                        onChangeCommitted={handleChangeCommitted}
-                        onChange={handleChange}
-                        valueLabelFormat={getValueText}
-                        step={null}
-                        min={Math.min(finalCommittedValue[0], min)}
-                        max={Math.max(max, finalCommittedValue[1])}
-                        marks={marks}
-                        valueLabelDisplay={'on'}
-                        disableSwap
-                    />
-                </Box>
-            )}
+            <Box
+                sx={{
+                    px: 6,
+                    py: 1,
+                    marginTop: `${histogramHeight}px`,
+                }}
+            >
+                <Slider
+                    getAriaLabel={() => 'Date range'}
+                    value={finalValue}
+                    onChangeCommitted={handleChangeCommitted}
+                    onChange={handleChange}
+                    valueLabelFormat={getValueText}
+                    step={null}
+                    min={Math.min(finalCommittedValue[0], min)}
+                    max={Math.max(max, finalCommittedValue[1])}
+                    marks={marks}
+                    valueLabelDisplay={'on'}
+                    disableSwap
+                />
+                {!!condition && (
+                    <Button
+                        onClick={() => removeCondition(condition)}
+                        size={'small'}
+                    >
+                        {t('date_histogram_facet.clear_filter', `Clear filter`)}
+                    </Button>
+                )}
+            </Box>
         </Box>
     );
 }

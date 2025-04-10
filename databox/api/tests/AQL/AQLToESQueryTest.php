@@ -2,12 +2,16 @@
 
 namespace App\Tests\AQL;
 
+use App\Attribute\Type\GeoPointAttributeType;
+use App\Attribute\Type\NumberAttributeType;
+use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\Facet\CreatedAtFacet;
 use App\Elasticsearch\Facet\FacetRegistry;
 use App\Elasticsearch\Facet\WorkspaceFacet;
+use App\Tests\Attribute\Type\AttributeTypeRegistyTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -25,43 +29,45 @@ class AQLToESQueryTest extends TestCase
         $functionRegistry = new AQLFunctionRegistry();
         $functionRegistry->register(new MockNowFunction());
 
+        $attributeTypeRegistry = AttributeTypeRegistyTestFactory::create();
+
         $esQueryConverter = new AQLToESQuery(new FacetRegistry([
             '@workspace' => new WorkspaceFacet($em),
             '@createdAt' => new CreatedAtFacet(),
-        ]), $functionRegistry);
+        ]), $functionRegistry, $attributeTypeRegistry);
 
         $fieldClusters = [
             [
                 'fields' => [
                     'attrs.{l}.foo_text_s' => [
-                        'raw' => null,
+                        'type' => $attributeTypeRegistry->getStrictType(TextAttributeType::NAME),
                     ],
                     'attrs.{l}.field_text_s' => [
-                        'raw' => null,
+                        'type' => $attributeTypeRegistry->getStrictType(TextAttributeType::NAME),
                     ],
                     'attrs._.number_number_s' => [
-                        'raw' => null,
+                        'type' => $attributeTypeRegistry->getStrictType(NumberAttributeType::NAME),
                     ],
                     'attrs._.othernumber_number_s' => [
-                        'raw' => null,
+                        'type' => $attributeTypeRegistry->getStrictType(NumberAttributeType::NAME),
                     ],
                     'attrs._.n0_number_s' => [
-                        'raw' => null,
+                        'type' => $attributeTypeRegistry->getStrictType(NumberAttributeType::NAME),
                     ],
                     'attrs._.n1_number_s' => [
-                        'raw' => null,
+                        'type' => $attributeTypeRegistry->getStrictType(NumberAttributeType::NAME),
                     ],
                     'attrs._.n2_number_s' => [
-                        'raw' => null,
+                        'type' => $attributeTypeRegistry->getStrictType(NumberAttributeType::NAME),
                     ],
                     'attrs._.n3_number_s' => [
-                        'raw' => null,
+                        'type' => $attributeTypeRegistry->getStrictType(NumberAttributeType::NAME),
                     ],
                     'attrs.{l}.hybrid_text_s' => [
-                        'raw' => null,
+                        'type' => $attributeTypeRegistry->getStrictType(TextAttributeType::NAME),
                     ],
                     'attrs._.location_geo-point_s' => [
-                        'raw' => null,
+                        'type' => $attributeTypeRegistry->getStrictType(GeoPointAttributeType::NAME),
                     ],
                 ],
                 'w' => null,
@@ -70,10 +76,10 @@ class AQLToESQueryTest extends TestCase
             [
                 'fields' => [
                     'attrs.{l}.www_text_s' => [
-                        'raw' => null,
+                        'type' => $attributeTypeRegistry->getStrictType(TextAttributeType::NAME),
                     ],
                     'attrs.{l}.hybrid_number_s' => [
-                        'raw' => null,
+                        'type' => $attributeTypeRegistry->getStrictType(NumberAttributeType::NAME),
                     ],
                 ],
                 'w' => '4242',
@@ -99,12 +105,12 @@ class AQLToESQueryTest extends TestCase
             ['foo="bar"', [
                 'multi_match' => [
                     'query' => 'bar',
-                    'fields' => ['attrs.*.foo_text_s'],
+                    'fields' => ['attrs.*.foo_text_s.raw'],
                 ],
             ]],
             ['foo="bar"', [
                 'term' => [
-                    'attrs.fr.foo_text_s' => 'bar',
+                    'attrs.fr.foo_text_s.raw' => 'bar',
                 ],
             ], 'fr'],
             ['@workspace="42"', [
@@ -126,9 +132,9 @@ class AQLToESQueryTest extends TestCase
             ['field IN (true, false)', [
                 'bool' => [
                     'should' => [
-                        ['terms' => ['attrs.it.field_text_s' => [true, false]]],
-                        ['terms' => ['attrs.de.field_text_s' => [true, false]]],
-                        ['terms' => ['attrs._.field_text_s' => [true, false]]],
+                        ['terms' => ['attrs.it.field_text_s.raw' => [true, false]]],
+                        ['terms' => ['attrs.de.field_text_s.raw' => [true, false]]],
+                        ['terms' => ['attrs._.field_text_s.raw' => [true, false]]],
                     ],
                 ],
             ]],

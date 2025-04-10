@@ -3,6 +3,10 @@
 namespace App\Elasticsearch\AQL;
 
 use App\Attribute\AttributeInterface;
+use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\AttributeTypeInterface;
+use App\Attribute\Type\DateTimeAttributeType;
+use App\Attribute\Type\KeywordAttributeType;
 use App\Elasticsearch\AQL\Function\AQLFunctionInterface;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AQL\Function\Argument;
@@ -16,6 +20,7 @@ final readonly class AQLToESQuery
     public function __construct(
         private FacetRegistry $facetRegistry,
         private AQLFunctionRegistry $functionRegistry,
+        private AttributeTypeRegistry $attributeTypeRegistry,
     ) {
     }
 
@@ -97,8 +102,21 @@ final readonly class AQLToESQuery
         $locale = $options['locale'] ?? '*';
         $facet = $field['facet'] ?? null;
         $fieldName = str_replace('{l}', $locale, $field['field']);
-        if (($field['raw'] ?? false) && in_array($data['operator'], ['=', '!=', 'IN', 'NOT_IN'], true)) {
-            $fieldName .= '.'.$field['raw'];
+
+        /** @var AttributeTypeInterface $type */
+        $type = $field['type'];
+        $strictOperators = ['=', '!=', 'IN', 'NOT_IN'];
+        if (null !== $type->getElasticSearchRawField() && in_array($data['operator'], $strictOperators, true)) {
+            $fieldName .= '.'.$type->getElasticSearchRawField();
+        } elseif (null !== $type->getElasticSearchTextSubField() && in_array($data['operator'], $strictOperators + [
+            'MATCHES',
+            'NOT_MATCHES',
+            'CONTAINS',
+            'NOT_CONTAINS',
+            'STARTS_WITH',
+            'NOT_STARTS_WITH',
+        ], true)) {
+            $fieldName .= '.'.$type->getElasticSearchTextSubField();
         }
 
         if (isset($data['rightOperand'])) {
@@ -108,11 +126,7 @@ final readonly class AQLToESQuery
         }
 
         return match ($data['operator']) {
-            'BETWEEN', 'NOT_BETWEEN' => $this->wrapInNotQuery(new Query\Range($fieldName, [
-                'gte' => $value[0],
-                'lte' => $value[1],
-                'format' => is_numeric($value[0]) ? 'epoch_second' : 'date_optional_time',
-            ]), 'NOT_BETWEEN' === $data['operator']),
+            'BETWEEN', 'NOT_BETWEEN' => $this->wrapInNotQuery(new Query\Range($fieldName, $this->createRangeParams($value, $type)), 'NOT_BETWEEN' === $data['operator']),
             'MISSING', 'EXISTS' => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], function (string $fn) {
                 return new Query\Exists($fn);
             }), 'MISSING' === $data['operator']),
@@ -141,6 +155,26 @@ final readonly class AQLToESQuery
             'STARTS_WITH', 'NOT_STARTS_WITH' => $this->wrapInNotQuery((new Query\MultiMatch())->setType('phrase_prefix')->setQuery($value)->setFields([$fieldName]), 'NOT_STARTS_WITH' === $data['operator']),
             default => throw new BadRequestHttpException(sprintf('Invalid operator "%s"', $data['operator'])),
         };
+    }
+
+    private function createRangeParams(array $values, AttributeTypeInterface $attributeType): array
+    {
+        $range = [
+            'gte' => $values[0],
+            'lte' => $values[1],
+        ];
+
+        if ($attributeType instanceof DateTimeAttributeType) {
+            $range = array_map(function (mixed $value): string {
+                $date = (is_int($value) || is_numeric($value)) ? new \DateTimeImmutable('@'.$value)
+                    : new \DateTimeImmutable($value);
+
+                return $date->format('Y-m-d\TH:i:s').'.000Z';
+            }, $range);
+            $range['format'] = 'strict_date_time';
+        }
+
+        return $range;
     }
 
     private function createPoint(int|float $lat, int|float $lon): array
@@ -428,6 +462,7 @@ final readonly class AQLToESQuery
                     new ClusterGroup([
                         'field' => $facet->getFieldName(),
                         'facet' => $facet,
+                        'type' => $this->attributeTypeRegistry->getStrictType($facet->getType()),
                         'locales' => [],
                     ], true),
                 ];
@@ -443,6 +478,7 @@ final readonly class AQLToESQuery
                             'mimetype' => 'fileMimeType',
                             'filename' => 'fileName',
                         },
+                        'type' => $this->attributeTypeRegistry->getStrictType(KeywordAttributeType::NAME),
                         'locales' => [],
                     ], true),
                 ];
@@ -462,7 +498,7 @@ final readonly class AQLToESQuery
                         $fields[] = new ClusterGroup(
                             [
                                 'field' => $cField,
-                                'raw' => $fieldConf['raw'],
+                                'type' => $fieldConf['type'],
                                 'locales' => $locales,
                             ],
                             false,

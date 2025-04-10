@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use App\Entity\Core\Collection;
 use Doctrine\ORM\EntityManagerInterface;
-use Elastica\Query;
-use Elastica\Query\AbstractQuery;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class CollectionPathAttributeType extends AbstractAttributeType
@@ -27,32 +24,6 @@ class CollectionPathAttributeType extends AbstractAttributeType
     public function getElasticSearchType(): string
     {
         return 'text';
-    }
-
-    public function createFilterQuery(string $field, $value): AbstractQuery
-    {
-        if (is_array($value)) {
-            $value = array_map(function (string $v): string {
-                $ids = explode('/', preg_replace('#^/#', '', $v));
-                // Retrieve parents IDs if filter is sent from user who has access to a sub hierarchy only
-                $firstColl = array_shift($ids);
-                $collection = $this->em->find(Collection::class, $firstColl);
-                if ($collection instanceof Collection) {
-                    $parents = [];
-                    $pColl = $collection;
-                    while ($pColl) {
-                        $parents[] = $pColl->getId();
-                        $pColl = $pColl->getParent();
-                    }
-
-                    return '/'.implode('/', array_merge(array_reverse($parents), $ids));
-                }
-
-                return $v;
-            }, $value);
-        }
-
-        return new Query\Terms($field, $value);
     }
 
     public function getElasticSearchMapping(string $locale): ?array
