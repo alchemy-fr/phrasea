@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Elasticsearch\SearchType;
-use Elastica\Query;
-use Elastica\Query\AbstractQuery;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class KeywordAttributeType extends AbstractAttributeType
@@ -26,11 +24,6 @@ class KeywordAttributeType extends AbstractAttributeType
     public function getElasticSearchSearchType(): ?SearchType
     {
         return SearchType::Keyword;
-    }
-
-    public function createFilterQuery(string $field, $value): AbstractQuery
-    {
-        return new Query\Terms($field, $value);
     }
 
     public function isLocaleAware(): bool

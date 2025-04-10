@@ -74,8 +74,8 @@ function validateConditionType(
             }
 
             if (
-                ['CONTAINS', 'MATCHES'].includes(op) &&
-                rawType !== RawType.String
+                [AQLOperator.CONTAINS, AQLOperator.MATCHES].includes(op) &&
+                ![RawType.String, RawType.Date].includes(rawType)
             ) {
                 throw new Error(
                     `Field "${attributeDefinition.slug}" is not of type string`
@@ -83,7 +83,10 @@ function validateConditionType(
             }
 
             if (
-                ['WITHIN_CIRCLE', 'WITHIN_RECTANGLE'].includes(op) &&
+                [
+                    AQLOperator.WITHIN_CIRCLE,
+                    AQLOperator.WITHIN_RECTANGLE,
+                ].includes(op) &&
                 rawType !== RawType.GeoPoint
             ) {
                 throw new Error(
@@ -105,7 +108,7 @@ function validateConditionType(
                 );
             }
 
-            if (!['MISSING', 'EXISTS'].includes(op)) {
+            if (![AQLOperator.MISSING, AQLOperator.EXISTS].includes(op)) {
                 validateOfType(node.rightOperand, rawType!, definitionsIndex);
             }
         }

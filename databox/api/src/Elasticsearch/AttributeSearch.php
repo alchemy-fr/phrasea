@@ -69,14 +69,9 @@ class AttributeSearch
 
             $searchType = $type->getElasticSearchSearchType() ?? SearchType::Other;
 
-            if (null !== $subField = $type->getElasticSearchSubField()) {
-                $fieldName .= '.'.$subField;
-            }
-
             $groups[$fieldName] ??= [
                 'w' => [],
-                'fz' => $type->supportsElasticSearchFuzziness(),
-                'raw' => $type->getElasticSearchRawField(),
+                'type' => $type,
             ];
 
             $boost = $d['searchBoost'] ?? 1;
@@ -98,6 +93,7 @@ class AttributeSearch
         $clusters = [];
 
         foreach ($groups as $f => $group) {
+            $type = $group['type'];
             if (!$this->hasDiversity($group)) {
                 $firstBoost = array_keys($group['w'])[0];
 
@@ -107,14 +103,11 @@ class AttributeSearch
                     'fields' => [],
                 ];
                 $trKey = array_keys($group['w'][$firstBoost])[0];
-                $st = array_keys($group['w'][$firstBoost][$trKey])[0];
                 $fieldName = sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, $trKey ? '{l}' : '_', $f);
 
                 $clusters[self::GROUP_ALL]['fields'][$fieldName] = [
-                    'st' => $st,
                     'b' => $firstBoost,
-                    'fz' => $group['fz'],
-                    'raw' => $group['raw'],
+                    'type' => $type,
                 ];
             } else {
                 foreach ($group['w'] as $boost => $wsB) {
@@ -137,10 +130,8 @@ class AttributeSearch
                             ];
                             $fieldName = sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, $tr ? '{l}' : '_', $f);
                             $clusters[$uk]['fields'][$fieldName] = [
-                                'st' => $st,
                                 'b' => $boost,
-                                'fz' => $group['fz'],
-                                'raw' => $group['raw'],
+                                'type' => $type,
                             ];
                         }
                     }
@@ -155,9 +146,8 @@ class AttributeSearch
         ];
         $clusters[self::GROUP_ALL]['locales'] = array_keys($locales);
         $clusters[self::GROUP_ALL]['fields']['title'] = [
-            'st' => SearchType::Match->value,
             'b' => 1,
-            'fz' => true,
+            'type' => $this->typeRegistry->getStrictType(TextAttributeType::NAME),
         ];
 
         return array_values($clusters);
@@ -211,14 +201,20 @@ class AttributeSearch
             $weightsFuzzy = [];
 
             foreach ($cluster['fields'] as $fieldName => $conf) {
+                /** @var AttributeTypeInterface $type */
+                $type = $conf['type'];
                 $fieldName = str_replace('{l}', $language, $fieldName);
+                if ($type->getElasticSearchTextSubField()) {
+                    $fieldName .= '.'.$type->getElasticSearchTextSubField();
+                }
 
-                if (SearchType::Match->value === $conf['st']) {
+                $searchType = $type->getElasticSearchSearchType();
+                if (SearchType::Match === $searchType) {
                     $weights[$fieldName] = $conf['b'];
-                    if ($conf['fz']) {
+                    if ($type->supportsElasticSearchFuzziness()) {
                         $weightsFuzzy[$fieldName] = $conf['b'];
                     }
-                } elseif (SearchType::Keyword->value === $conf['st']) {
+                } elseif (SearchType::Keyword === $searchType) {
                     $term = new Query\Term([$fieldName => $queryString]);
                     if (1 !== $conf['b']) {
                         $term->setParam('boost', $conf['b']);

@@ -28,6 +28,10 @@ export function getDate(date: AnyDate): Date | undefined {
             return getDate(parseInt(date));
         }
 
+        if (!date.endsWith('Z')) {
+            date += 'Z';
+        }
+
         return new Date(date);
     } else if (typeof date === 'number') {
         if (isNaN(date)) {

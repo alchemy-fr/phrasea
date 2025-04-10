@@ -1,4 +1,9 @@
-import {AQLAndOrExpression, AQLCondition, AQLOperand, AQLQueryAST,} from './aqlTypes.ts';
+import {
+    AQLAndOrExpression,
+    AQLCondition,
+    AQLOperand,
+    AQLQueryAST,
+} from './aqlTypes.ts';
 import {isAQLField, resolveAQLValue, ScalarValue} from './query.ts';
 import {hasProp} from '../../../../lib/utils.ts';
 

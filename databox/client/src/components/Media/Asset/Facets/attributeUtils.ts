@@ -1,5 +1,5 @@
 export function extractField(slug: string): string {
-    if (slug.startsWith("@")) {
+    if (slug.startsWith('@')) {
         return slug;
     }
 

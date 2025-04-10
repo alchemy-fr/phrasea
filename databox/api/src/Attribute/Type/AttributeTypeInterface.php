@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Elasticsearch\SearchType;
-use Elastica\Query\AbstractQuery;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -19,7 +18,7 @@ interface AttributeTypeInterface
 
     public function getElasticSearchType(): string;
 
-    public function getElasticSearchSubField(): ?string;
+    public function getElasticSearchTextSubField(): ?string;
 
     public function getElasticSearchSearchType(): ?SearchType;
 
@@ -28,8 +27,6 @@ interface AttributeTypeInterface
     public function supportsElasticSearchFuzziness(): bool;
 
     public function getFacetType(): string;
-
-    public function createFilterQuery(string $field, $value): AbstractQuery;
 
     public function supportsAggregation(): bool;
 

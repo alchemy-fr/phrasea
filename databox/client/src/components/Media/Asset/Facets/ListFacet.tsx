@@ -12,14 +12,15 @@ import {ListFacetItemProps} from './TextFacetItem';
 import {useTranslation} from 'react-i18next';
 import {AQLConditionBuilder} from '../../Search/AQL/AQLConditionBuilder.ts';
 import {parseAQLQuery} from '../../Search/AQL/AQL.ts';
-import {extractField} from "./attributeUtils.ts";
+import {extractField} from './attributeUtils.ts';
 
 type Props = {
     itemComponent: React.FC<ListFacetItemProps>;
 } & FacetGroupProps;
 
 export default function ListFacet({facet, name, itemComponent}: Props) {
-    const {conditions, upsertCondition, removeCondition} = useContext(SearchContext)!;
+    const {conditions, upsertCondition, removeCondition} =
+        useContext(SearchContext)!;
     const condition = conditions.find(_f => _f.id === name);
     const {type} = facet.meta;
     const {t} = useTranslation();

@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use Elastica\Query;
-use Elastica\Query\AbstractQuery;
-
 class IpAttributeType extends AbstractAttributeType
 {
     final public const string NAME = 'ip';
@@ -29,10 +26,5 @@ class IpAttributeType extends AbstractAttributeType
     public function supportsSuggest(): bool
     {
         return true;
-    }
-
-    public function createFilterQuery(string $field, $value): AbstractQuery
-    {
-        return new Query\Terms($field, $value);
     }
 }

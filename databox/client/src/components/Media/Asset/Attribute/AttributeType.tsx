@@ -68,7 +68,9 @@ export default function AttributeType({
         return (
             <>
                 <FormRow>
-                    <FormLabel>{definition.nameTranslated ?? definition.name}</FormLabel>
+                    <FormLabel>
+                        {definition.nameTranslated ?? definition.name}
+                    </FormLabel>
                     <TranslatableAttributeTabs
                         currentLocale={currentLocale}
                         onLocaleChange={onLocaleChange}
