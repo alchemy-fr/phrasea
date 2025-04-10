@@ -1,9 +1,4 @@
-import {
-    AQLAndOrExpression,
-    AQLCondition,
-    AQLOperand,
-    AQLQueryAST,
-} from './aqlTypes.ts';
+import {AQLAndOrExpression, AQLCondition, AQLOperand, AQLQueryAST,} from './aqlTypes.ts';
 import {isAQLField, resolveAQLValue, ScalarValue} from './query.ts';
 import {hasProp} from '../../../../lib/utils.ts';
 
@@ -66,10 +61,12 @@ export class AQLConditionBuilder {
         if (this.includeMissing) {
             conditions.push(`${this.field} IS MISSING`);
         }
-        const output = conditions.join(' OR ');
-        console.trace('toString', output);
 
-        return output;
+        if (conditions.length === 0) {
+            return '';
+        }
+
+        return conditions.join(' OR ');
     }
 
     public static fromQuery(field: string, query: AQLQueryAST | undefined) {
@@ -101,7 +98,7 @@ export class AQLConditionBuilder {
                 }
 
                 const rightOperand = condition.rightOperand;
-                if (rightOperand) {
+                if (undefined !== rightOperand) {
                     if (Array.isArray(rightOperand)) {
                         values = rightOperand.map(resolveValue);
                     } else {

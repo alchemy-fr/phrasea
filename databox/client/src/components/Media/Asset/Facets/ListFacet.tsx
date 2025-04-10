@@ -12,26 +12,28 @@ import {ListFacetItemProps} from './TextFacetItem';
 import {useTranslation} from 'react-i18next';
 import {AQLConditionBuilder} from '../../Search/AQL/AQLConditionBuilder.ts';
 import {parseAQLQuery} from '../../Search/AQL/AQL.ts';
+import {extractField} from "./attributeUtils.ts";
 
 type Props = {
     itemComponent: React.FC<ListFacetItemProps>;
 } & FacetGroupProps;
 
 export default function ListFacet({facet, name, itemComponent}: Props) {
-    const {conditions, upsertCondition} = useContext(SearchContext)!;
+    const {conditions, upsertCondition, removeCondition} = useContext(SearchContext)!;
     const condition = conditions.find(_f => _f.id === name);
     const {type} = facet.meta;
     const {t} = useTranslation();
+    const fieldName = extractField(name);
 
     const queryBuilder = AQLConditionBuilder.fromQuery(
-        name,
+        fieldName,
         condition ? parseAQLQuery(condition.query) : undefined
     );
 
     const missingOnClick = () => {
         upsertCondition({
             id: name,
-            query: `${name} IS MISSING`,
+            query: `${fieldName} IS MISSING`,
         });
     };
     const missingSelected = Boolean(
@@ -51,9 +53,19 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
                             queryBuilder.hasValue(keyV)
                     );
                     const onClick = () => {
+                        const query = queryBuilder.toggleValue(keyV).toString();
+                        if (query === '') {
+                            removeCondition({
+                                id: name,
+                                query,
+                            });
+
+                            return;
+                        }
+
                         upsertCondition({
                             id: name,
-                            query: queryBuilder.toggleValue(keyV).toString(),
+                            query,
                         });
                     };
 
