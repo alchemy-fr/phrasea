@@ -7,7 +7,7 @@ final class ClusterGroup
     public function __construct(
         private mixed $item,
         private readonly bool $isConstant = false,
-        private readonly ?string $workspaceId = null,
+        private readonly array $workspaceIds = [],
         private readonly ?array $locales = null,
     ) {
     }
@@ -25,9 +25,15 @@ final class ClusterGroup
         return $this->item;
     }
 
-    public function getWorkspaceId(): ?string
+    public function getWorkspaceIds(): array
     {
-        return $this->workspaceId;
+        return $this->workspaceIds;
+    }
+
+    public function hasSameWorkspaceIds(self $other): bool
+    {
+        return empty(array_diff($this->workspaceIds, $other->workspaceIds))
+            && empty(array_diff($other->workspaceIds, $this->workspaceIds));
     }
 
     public function getLocales(): ?array
@@ -50,11 +56,11 @@ final class ClusterGroup
                 if (
                     $l->isConstant
                     || $r->isConstant
-                    || null === $l->getWorkspaceId()
-                    || null === $r->getWorkspaceId()
-                    || $l->getWorkspaceId() === $r->getWorkspaceId()
+                    || empty($l->getWorkspaceIds())
+                    || empty($r->getWorkspaceIds())
+                    || $l->hasSameWorkspaceIds($r)
                 ) {
-                    $ref = $l->isConstant ? $r : ($l->getWorkspaceId() ? $l : $r);
+                    $ref = $l->isConstant ? $r : (!empty($l->getWorkspaceIds()) ? $l : $r);
                     $groups[] = $ref->convert($merge($l->getItem(), $r->getItem()));
                 }
             }

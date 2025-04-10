@@ -238,7 +238,7 @@ class AttributeSearch
                 $clusterQuery->setBoost($cluster['b']);
             }
 
-            if (null !== $cluster['w']) {
+            if (!empty($cluster['w'])) {
                 $clusterQuery->addMust(new Query\Terms('workspaceId', $cluster['w']));
             }
 

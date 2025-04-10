@@ -87,10 +87,10 @@ final readonly class AQLToESQuery
 
     private function wrapCluster(Query\AbstractQuery $query, ClusterGroup $group): Query\AbstractQuery
     {
-        if (null !== $group->getWorkspaceId()) {
+        if (!empty($group->getWorkspaceIds())) {
             $boolQuery = new Query\BoolQuery();
             $boolQuery->addMust($query);
-            $boolQuery->addMust(new Query\Term(['workspaceId' => $group->getWorkspaceId()]));
+            $boolQuery->addMust(new Query\Terms('workspaceId', $group->getWorkspaceIds()));
             $query = $boolQuery;
         }
 
