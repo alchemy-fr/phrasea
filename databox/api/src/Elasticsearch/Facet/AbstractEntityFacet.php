@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Facet;
 
+use App\Attribute\Type\KeywordAttributeType;
 use Doctrine\ORM\EntityManagerInterface;
 
 abstract class AbstractEntityFacet extends AbstractFacet
 {
     public function __construct(private readonly EntityManagerInterface $em)
     {
+    }
+
+    public function getType(): string
+    {
+        return KeywordAttributeType::NAME;
     }
 
     public function normalizeBucket(array $bucket): ?array

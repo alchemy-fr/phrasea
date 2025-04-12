@@ -65,7 +65,7 @@ export default function Attributes({
                             ) : (
                                 ''
                             )}
-                            <strong>{def.nameTranslated}</strong>
+                            <strong>{def.nameTranslated ?? def.name}</strong>
                             <div>
                                 {defValue.indeterminate.g ? (
                                     <span className={indeterminateClassName}>

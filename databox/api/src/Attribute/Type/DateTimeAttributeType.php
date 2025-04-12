@@ -6,8 +6,6 @@ namespace App\Attribute\Type;
 
 use App\Elasticsearch\ESFacetInterface;
 use App\Elasticsearch\SearchType;
-use Elastica\Query\AbstractQuery;
-use Elastica\Query\Range;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DateTimeAttributeType extends AbstractAttributeType
@@ -41,24 +39,6 @@ class DateTimeAttributeType extends AbstractAttributeType
         return parent::getGroupValueLabel($value);
     }
 
-    public function createFilterQuery(string $field, $value): AbstractQuery
-    {
-        $criteria = [];
-        if (null !== $value[0]) {
-            $criteria['gte'] = (new \DateTimeImmutable())
-                ->setTimestamp((int) $value[0])
-                    ->getTimestamp() * 1000;
-        }
-
-        if (null !== $value[1]) {
-            $criteria['lte'] = (new \DateTimeImmutable())
-                ->setTimestamp((int) $value[1])
-                    ->getTimestamp() * 1000;
-        }
-
-        return new Range($field, $criteria);
-    }
-
     public function getFacetType(): string
     {
         return ESFacetInterface::TYPE_DATE_RANGE;
@@ -80,7 +60,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         ];
     }
 
-    public function getElasticSearchSubField(): ?string
+    public function getElasticSearchTextSubField(): ?string
     {
         return 'text';
     }

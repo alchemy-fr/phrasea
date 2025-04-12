@@ -7,8 +7,6 @@ namespace App\Attribute\Type;
 use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Attribute\AttributeLocaleInterface;
 use App\Elasticsearch\SearchType;
-use Elastica\Query;
-use Elastica\Query\AbstractQuery;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class TextAttributeType extends AbstractAttributeType
@@ -33,11 +31,6 @@ class TextAttributeType extends AbstractAttributeType
     public function supportsElasticSearchFuzziness(): bool
     {
         return true;
-    }
-
-    public function createFilterQuery(string $field, $value): AbstractQuery
-    {
-        return new Query\Terms($field, $value);
     }
 
     public function getElasticSearchMapping(string $locale): ?array

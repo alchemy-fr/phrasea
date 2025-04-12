@@ -4,8 +4,6 @@ namespace App\Tests\Attribute;
 
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Attribute\AttributeInterface;
-use App\Attribute\AttributeTypeRegistry;
-use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
@@ -13,7 +11,7 @@ use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AttributeSearch;
 use App\Elasticsearch\Facet\FacetRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
-use App\Elasticsearch\SearchType;
+use App\Tests\Attribute\Type\AttributeTypeRegistyTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -24,9 +22,7 @@ class AttributeSearchTest extends TestCase
      */
     public function testAttributeClustering(array $definitions, array $expectedClusters): void
     {
-        $attributeTypeRegistry = new AttributeTypeRegistry([
-            TextAttributeType::NAME => new TextAttributeType(),
-        ]);
+        $attributeTypeRegistry = AttributeTypeRegistyTestFactory::create();
         $facetRegistry = new FacetRegistry([]);
 
         $fieldNameResolver = new FieldNameResolver(
@@ -35,7 +31,11 @@ class AttributeSearchTest extends TestCase
         );
 
         $aqlParser = new AQLParser();
-        $aqlToESQuery = new AQLToESQuery(new FacetRegistry([]), new AQLFunctionRegistry());
+        $aqlToESQuery = new AQLToESQuery(
+            new FacetRegistry([]),
+            new AQLFunctionRegistry(),
+            $attributeTypeRegistry,
+        );
 
         $as = new AttributeSearch(
             $fieldNameResolver,
@@ -47,6 +47,17 @@ class AttributeSearchTest extends TestCase
         );
 
         $clusters = $as->createClustersFromDefinitions($definitions);
+
+        foreach ($expectedClusters as &$expectedCluster) {
+            if (isset($expectedCluster['fields'])) {
+                foreach ($expectedCluster['fields'] as &$field) {
+                    if (isset($field['type'])) {
+                        $field['type'] = $attributeTypeRegistry->getStrictType($field['type']);
+                    }
+                }
+            }
+        }
+
         $this->assertEquals($expectedClusters, $clusters);
     }
 
@@ -76,9 +87,8 @@ class AttributeSearchTest extends TestCase
         $defaultTitleCluster = [
             'fields' => [
                 'title' => [
-                    'st' => SearchType::Match->value,
+                    'type' => TextAttributeType::NAME,
                     'b' => 1,
-                    'fz' => true,
                 ],
             ],
             'w' => null,
@@ -102,15 +112,12 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                             'title' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
                             ],
                         ],
                         'w' => null,
@@ -128,10 +135,8 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 42,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                         ],
                         'w' => ['w1'],
@@ -141,9 +146,8 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'title' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
                             ],
                         ],
                         'w' => null,
@@ -182,21 +186,16 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                             AttributeInterface::ATTRIBUTES_FIELD.'._.desc_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                             'title' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
                             ],
                         ],
                         'w' => null,
@@ -217,15 +216,12 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                             'title' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
                             ],
                         ],
                         'w' => null,
@@ -235,10 +231,8 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.desc_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                         ],
                         'w' => ['w1'],
@@ -248,10 +242,8 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.desc_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 2,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                         ],
                         'w' => ['w2'],
@@ -272,15 +264,12 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                             'title' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
                             ],
                         ],
                         'w' => null,
@@ -290,10 +279,8 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.desc_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                         ],
                         'w' => ['w2'],
@@ -314,15 +301,12 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                             'title' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
                             ],
                         ],
                         'w' => null,
@@ -332,10 +316,8 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.desc_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                         ],
                         'w' => ['w1'],
@@ -356,16 +338,12 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                             AttributeInterface::ATTRIBUTES_FIELD.'._.desc_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                         ],
                         'w' => ['w1'],
@@ -389,10 +367,8 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                         ],
                         'w' => ['w1', 'w2'],
@@ -402,10 +378,8 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 3,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                         ],
                         'w' => ['w4'],
@@ -415,10 +389,8 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.desc_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 1,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                         ],
                         'w' => ['w1'],
@@ -428,10 +400,8 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             AttributeInterface::ATTRIBUTES_FIELD.'._.desc_text_s' => [
-                                'st' => SearchType::Match->value,
+                                'type' => TextAttributeType::NAME,
                                 'b' => 2,
-                                'fz' => true,
-                                'raw' => AttributeTypeInterface::RAW_PROP,
                             ],
                         ],
                         'w' => ['w2', 'w3'],

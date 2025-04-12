@@ -7,6 +7,7 @@ namespace App\Elasticsearch\Mapping;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
+use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Facet\FacetRegistry;
 use App\Entity\Core\AttributeDefinition;
 
@@ -44,6 +45,13 @@ final readonly class FieldNameResolver
      */
     public function getFieldFromName(string $name): array
     {
+        if ('title' === $name) {
+            return [
+                'field' => $name,
+                'type' => $this->attributeTypeRegistry->getStrictType(TextAttributeType::NAME),
+            ];
+        }
+
         $facet = $this->facetRegistry->getFacet($name);
         if (null !== $facet) {
             $type = $this->attributeTypeRegistry->getStrictType($facet->getType());
@@ -71,7 +79,7 @@ final readonly class FieldNameResolver
         if (1 === preg_match('#^(.+)_([^_]+)_([sm])$#', $fieldName, $matches)) {
             return [
                 'name' => $matches[1],
-                'field' => sprintf('%s_%s_%s', $matches[1], $matches[2], $matches[3]),
+                'field' => $fieldName,
                 'type' => $this->attributeTypeRegistry->getStrictType(str_replace('-', '_', $matches[2])),
                 'multiple' => 'm' === $matches[3],
             ];

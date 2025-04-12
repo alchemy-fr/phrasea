@@ -100,7 +100,7 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return $bucket;
     }
 
-    public function getElasticSearchSubField(): ?string
+    public function getElasticSearchTextSubField(): ?string
     {
         return null;
     }

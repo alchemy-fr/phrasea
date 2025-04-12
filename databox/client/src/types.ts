@@ -112,7 +112,7 @@ export interface AssetFileVersion extends Entity {
 
 export interface AttributeDefinition extends IPermissions, Entity {
     name: string;
-    nameTranslated: string;
+    nameTranslated?: string;
     slug: string;
     enabled: boolean;
     fieldType: string;

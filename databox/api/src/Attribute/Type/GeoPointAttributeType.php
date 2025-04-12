@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Elasticsearch\ESFacetInterface;
-use Elastica\Query;
-use Elastica\Query\AbstractQuery;
 
 class GeoPointAttributeType extends AbstractAttributeType
 {
@@ -67,10 +65,5 @@ class GeoPointAttributeType extends AbstractAttributeType
             'lat' => (float) trim($lat),
             'lng' => (float) trim($lng),
         ];
-    }
-
-    public function createFilterQuery(string $field, $value): AbstractQuery
-    {
-        return new Query\GeoDistance($field, $value, '200m');
     }
 }

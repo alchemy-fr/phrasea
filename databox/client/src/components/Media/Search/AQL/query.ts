@@ -119,26 +119,26 @@ function operandToString(
 
 function operatorToString(operator: AQLOperator): string {
     const map: Record<AQLOperator, string> = {
-        '=': '=',
-        '!=': '!=',
-        '>': '>',
-        '<': '<',
-        '>=': '>=',
-        '<=': '<=',
-        'IN': 'IN',
-        'NOT_IN': 'NOT IN',
-        'MISSING': 'IS MISSING',
-        'EXISTS': 'EXISTS',
-        'CONTAINS': 'CONTAINS',
-        'NOT_CONTAINS': 'DOES NOT CONTAIN',
-        'MATCHES': 'MATCHES',
-        'NOT_MATCHES': 'DOES NOT MATCH',
-        'STARTS_WITH': 'STARTS WITH',
-        'NOT_STARTS_WITH': 'DOES NOT START WITH',
-        'BETWEEN': 'BETWEEN',
-        'NOT_BETWEEN': 'NOT BETWEEN',
-        'WITHIN_CIRCLE': 'WITHIN CIRCLE',
-        'WITHIN_RECTANGLE': 'WITHIN RECTANGLE',
+        [AQLOperator.EQ]: '=',
+        [AQLOperator.NEQ]: '!=',
+        [AQLOperator.GT]: '>',
+        [AQLOperator.LT]: '<',
+        [AQLOperator.GTE]: '>=',
+        [AQLOperator.LTE]: '<=',
+        [AQLOperator.IN]: 'IN',
+        [AQLOperator.NOT_IN]: 'NOT IN',
+        [AQLOperator.MISSING]: 'IS MISSING',
+        [AQLOperator.EXISTS]: 'EXISTS',
+        [AQLOperator.CONTAINS]: 'CONTAINS',
+        [AQLOperator.NOT_CONTAINS]: 'DOES NOT CONTAIN',
+        [AQLOperator.MATCHES]: 'MATCHES',
+        [AQLOperator.NOT_MATCHES]: 'DOES NOT MATCH',
+        [AQLOperator.STARTS_WITH]: 'STARTS WITH',
+        [AQLOperator.NOT_STARTS_WITH]: 'DOES NOT START WITH',
+        [AQLOperator.BETWEEN]: 'BETWEEN',
+        [AQLOperator.NOT_BETWEEN]: 'NOT BETWEEN',
+        [AQLOperator.WITHIN_CIRCLE]: 'WITHIN CIRCLE',
+        [AQLOperator.WITHIN_RECTANGLE]: 'WITHIN RECTANGLE',
     };
 
     return map[operator] || operator;
@@ -172,6 +172,10 @@ export function isAQLField(operand: AQLOperand): operand is AQLField {
     return hasProp<AQLField>(operand, 'field');
 }
 
+export function isAQLLiteral(value: AQLOperand): value is AQLLiteral {
+    return hasProp<AQLLiteral>(value, 'literal');
+}
+
 export function isAQLValueExpression(
     operand: AQLOperand
 ): operand is AQLValueExpression {
@@ -203,7 +207,7 @@ export function resolveAQLValue(
     value: AQLOperand,
     throwExceptionOnField = false
 ): ScalarValue {
-    if (hasProp<AQLLiteral>(value, 'literal')) {
+    if (isAQLLiteral(value)) {
         return value.literal;
     } else if (isAQLField(value)) {
         if (throwExceptionOnField) {

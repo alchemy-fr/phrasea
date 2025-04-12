@@ -65,7 +65,7 @@ class EntityAttributeType extends TextAttributeType
         return null;
     }
 
-    public function getElasticSearchSubField(): ?string
+    public function getElasticSearchTextSubField(): ?string
     {
         return 'value';
     }
