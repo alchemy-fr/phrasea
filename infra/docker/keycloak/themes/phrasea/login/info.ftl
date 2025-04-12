@@ -22,9 +22,9 @@
         <#if message.summary == "Your account has been updated.">
             <p>Redirecting ...</p>
             <script>
-                var redirectUrl = '${properties["env.keycloakRedirectUrl"]}'; 
+                var redirectUrl = '${client.getAttribute("redirectAfterPasswordUpdate")!}';
                 if (!redirectUrl) {
-                    redirectUrl = '${properties["env.dashboardClientUrl"]}';
+                    redirectUrl = '${properties['env.keycloakRedirectUrl']}'; // Default value
                 }
                 setTimeout(function() {
                     window.location.replace(redirectUrl);

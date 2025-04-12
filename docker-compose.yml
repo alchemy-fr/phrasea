@@ -900,7 +900,6 @@ services:
       - internal
     environment:
       - DASHBOARD_CLIENT_URL
-      - KEYCLOAK_PASSWORD_CHANGE_REDIRECT_URL
       - KC_HTTP_ENABLED=true
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
@@ -928,7 +927,6 @@ services:
       - openid
     environment:
       - DASHBOARD_CLIENT_URL
-      - KEYCLOAK_PASSWORD_CHANGE_REDIRECT_URL
       - KC_PROXY=edge
       - KEYCLOAK_ADMIN=${KEYCLOAK2_ADMIN}
       - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK2_ADMIN_PASSWORD}
