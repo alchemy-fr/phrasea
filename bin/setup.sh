@@ -21,7 +21,11 @@ create_db "${REPORT_DB_NAME}"
 create_db "${KEYCLOAK_DB_NAME}"
 create_db "${KEYCLOAK2_DB_NAME}"
 
+docker compose restart keycloak
+docker compose run --rm dockerize -wait http://keycloak:9000/health/ready -timeout 200s
+
 run_container_as configurator "bin/setup.sh" app
+
 ## Create minio bucket
 COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
@@ -107,9 +111,6 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
     && mc admin service restart minio/ \
     && (mc event add minio/${INDEXER_BUCKET_NAME} arn:minio:sqs::primary:amqp || echo ok)
 "
-
-docker compose restart keycloak
-docker compose run --rm dockerize -wait http://keycloak:9000/health/ready -timeout 200s
 
 PRESETS=""
 for p in $@; do

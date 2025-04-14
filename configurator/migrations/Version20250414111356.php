@@ -47,7 +47,6 @@ final class Version20250414111356 extends AbstractMigration implements Migration
 
             $this->keycloakManager->updateClientByClientId(
                 $clientId,
-                $realm,
                 [
                     'attributes' => [
                         'redirectAfterPasswordUpdate' =>  $rootUrl .'/admin'
@@ -63,7 +62,6 @@ final class Version20250414111356 extends AbstractMigration implements Migration
 
             $this->keycloakManager->updateClientByClientId(
                 $clientId,
-                $realm,
                 [
                     'attributes' => [
                         'redirectAfterPasswordUpdate' => $rootUrl

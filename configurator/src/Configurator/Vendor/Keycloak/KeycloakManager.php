@@ -315,13 +315,13 @@ final class KeycloakManager
         return $client;
     }
 
-    public function updateClientByClientId(string $clientId, ?string $realm = null, array $data = []):void
+    public function updateClientByClientId(string $clientId, array $data = []):void
     {
         $client = $this->getClientByClientId($clientId);
 
         $this->getAuthenticatedClient()
             ->request('PUT', UriTemplate::resolve('{realm}/clients/{id}', [
-                'realm' => $realm ?? $this->keycloakRealm,
+                'realm' => $this->keycloakRealm,
                 'id' => $client['id'],
             ]), [
                 'json' => $data,
