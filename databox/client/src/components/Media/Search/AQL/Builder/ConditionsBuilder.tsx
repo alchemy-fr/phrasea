@@ -39,6 +39,10 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.greater_than',
                 '> (Greater than)'
             ),
+            supportedTypes: [
+                RawType.Number,
+                RawType.Date,
+            ]
         },
         {
             value: AQLOperator.GTE,
@@ -46,6 +50,10 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.greater_than_or_equals',
                 '>= (Greater than or equals)'
             ),
+            supportedTypes: [
+                RawType.Number,
+                RawType.Date,
+            ]
         },
         {
             value: AQLOperator.LT,
@@ -53,6 +61,10 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.less_than',
                 '< (Less than)'
             ),
+            supportedTypes: [
+                RawType.Number,
+                RawType.Date,
+            ]
         },
         {
             value: AQLOperator.LTE,
@@ -60,6 +72,10 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.less_than_or_equals',
                 '<= (Less than or equals)'
             ),
+            supportedTypes: [
+                RawType.Number,
+                RawType.Date,
+            ]
         },
         {
             value: AQLOperator.CONTAINS,
