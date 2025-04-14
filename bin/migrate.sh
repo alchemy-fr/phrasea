@@ -23,4 +23,4 @@ for app in ${APPS}; do
     exec_container $app "bin/migrate.sh"
 done
 
-docker compose run --rm configurator bin/console configure -v
+docker compose run --rm configurator bin/migrate.sh
