@@ -156,4 +156,9 @@ class EntityAttributeType extends TextAttributeType
     {
         return ESFacetInterface::TYPE_ENTITY;
     }
+
+    public function getElasticSearchRawField(): ?string
+    {
+        return 'id';
+    }
 }
