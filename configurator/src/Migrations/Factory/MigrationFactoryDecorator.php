@@ -9,7 +9,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\Migrations\AbstractMigration;
 use Doctrine\Migrations\Version\MigrationFactory;
 use App\Configurator\Vendor\Keycloak\KeycloakManager;
-use App\Migrations\Interface\MigrationKeycloakInterface;
+use App\Configurator\Vendor\Keycloak\Migrations\MigrationKeycloakInterface;
 
 class MigrationFactoryDecorator implements MigrationFactory
 {

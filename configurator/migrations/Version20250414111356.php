@@ -7,7 +7,7 @@ namespace DoctrineMigrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 use App\Configurator\Vendor\Keycloak\KeycloakManager;
-use App\Migrations\Interface\MigrationKeycloakInterface;
+use App\Configurator\Vendor\Keycloak\Migrations\MigrationKeycloakInterface;
 
 /**
  * Auto-generated Migration: Please modify to your needs!

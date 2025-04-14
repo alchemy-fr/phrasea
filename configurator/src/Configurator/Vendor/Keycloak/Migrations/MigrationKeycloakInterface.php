@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Migrations\Interface;
+namespace App\Configurator\Vendor\Keycloak\Migrations;
 
 use App\Configurator\Vendor\Keycloak\KeycloakManager;
 
