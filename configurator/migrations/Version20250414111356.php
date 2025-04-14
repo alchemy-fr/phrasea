@@ -43,9 +43,11 @@ final class Version20250414111356 extends AbstractMigration implements Migration
         foreach ($this->symfonyApplications as $app) {
             $clientId = getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app)));
             $rootUrl = getenv(sprintf('%s_API_URL', strtoupper($app)));
+            $realm = getenv('KEYCLOAK_REALM_NAME');
 
             $this->keycloakManager->updateClientByClientId(
                 $clientId,
+                $realm,
                 [
                     'attributes' => [
                         'redirectAfterPasswordUpdate' =>  $rootUrl .'/admin'
@@ -57,9 +59,11 @@ final class Version20250414111356 extends AbstractMigration implements Migration
        foreach ($this->frontendApplications as $app) {
             $clientId = getenv(sprintf('%s_CLIENT_ID', strtoupper($app)));
             $rootUrl = getenv(sprintf('%s_CLIENT_URL', strtoupper($app)));
+            $realm = getenv('KEYCLOAK_REALM_NAME');
 
             $this->keycloakManager->updateClientByClientId(
                 $clientId,
+                $realm,
                 [
                     'attributes' => [
                         'redirectAfterPasswordUpdate' => $rootUrl
