@@ -6,4 +6,4 @@ doctrine_migrations:
             table_name: 'doctrine_migration_versions'
     em: configurator
     services:
-         'Doctrine\Migrations\Version\MigrationFactory': 'App\Configurator\Vendor\Keycloak\Migrations\Factory\MigrationFactoryDecorator'
+         'Doctrine\Migrations\Version\MigrationFactory': 'App\Migrations\Factory\MigrationFactoryDecorator'

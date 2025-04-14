@@ -7,7 +7,7 @@ namespace DoctrineMigrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 use App\Configurator\Vendor\Keycloak\KeycloakManager;
-use App\Configurator\Vendor\Keycloak\Migrations\Interface\MigrationKeycloakInterface;
+use App\Migrations\Interface\MigrationKeycloakInterface;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
@@ -48,7 +48,7 @@ final class Version20250414111356 extends AbstractMigration implements Migration
                 $clientId,
                 [
                     'attributes' => [
-                        'redirectAfterPasswordUpdate' => str_contains($clientId, 'admin') ? $rootUrl .'/admin' : $rootUrl
+                        'redirectAfterPasswordUpdate' =>  $rootUrl .'/admin'
                     ],
                 ]
             );
@@ -62,7 +62,7 @@ final class Version20250414111356 extends AbstractMigration implements Migration
                 $clientId,
                 [
                     'attributes' => [
-                        'redirectAfterPasswordUpdate' => str_contains($clientId, 'admin') ? $rootUrl .'/admin' : $rootUrl
+                        'redirectAfterPasswordUpdate' => $rootUrl
                     ],
                 ]
             );
@@ -70,31 +70,6 @@ final class Version20250414111356 extends AbstractMigration implements Migration
     }
 
     public function down(Schema $schema): void
-    {
-        foreach ($this->symfonyApplications as $app) {
-            $clientId = getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app)));
-
-            $this->keycloakManager->updateClientByClientId(
-                $clientId,
-                [
-                    'attributes' => [
-                        'redirectAfterPasswordUpdate' => null,
-                    ],
-                ]
-            );
-       }
-
-       foreach ($this->frontendApplications as $app) {
-            $clientId = getenv(sprintf('%s_CLIENT_ID', strtoupper($app)));
-
-            $this->keycloakManager->updateClientByClientId(
-                $clientId,
-                [
-                    'attributes' => [
-                        'redirectAfterPasswordUpdate' => null,
-                    ],
-                ]
-            );
-       }
+    {   
     }
 }

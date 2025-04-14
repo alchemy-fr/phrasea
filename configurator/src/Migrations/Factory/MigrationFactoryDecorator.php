@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Configurator\Vendor\Keycloak\Migrations\Factory;
+namespace App\Migrations\Factory;
 
 use Psr\Log\LoggerInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\Migrations\AbstractMigration;
 use Doctrine\Migrations\Version\MigrationFactory;
 use App\Configurator\Vendor\Keycloak\KeycloakManager;
-use App\Configurator\Vendor\Keycloak\Migrations\Interface\MigrationKeycloakInterface;
+use App\Migrations\Interface\MigrationKeycloakInterface;
 
 class MigrationFactoryDecorator implements MigrationFactory
 {
