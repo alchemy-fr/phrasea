@@ -10,4 +10,7 @@ fi
 
 "${BASEDIR}/console" doctrine:database:create --if-not-exists
 "${BASEDIR}/console" doctrine:migrations:sync-metadata-storage
+
+"${BASEDIR}/console" configure -vvv$1
+
 "${BASEDIR}/console" doctrine:migrations:migrate --no-interaction
