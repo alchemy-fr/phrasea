@@ -110,11 +110,6 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
 docker compose restart keycloak
 docker compose run --rm dockerize -wait http://keycloak:9000/health/ready -timeout 200s
 
-PRESETS=""
-for p in $@; do
-  PRESETS="${PRESETS} --preset $p"
-done
-
-run_container_as configurator "bin/setup.sh ${PRESETS}" app
+run_container_as configurator "bin/setup.sh $@" app
 
 echo "Done."

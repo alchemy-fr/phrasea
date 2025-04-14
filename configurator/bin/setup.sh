@@ -11,6 +11,11 @@ fi
 "${BASEDIR}/console" doctrine:database:create --if-not-exists
 "${BASEDIR}/console" doctrine:migrations:sync-metadata-storage
 
-"${BASEDIR}/console" configure -vvv$1
+PRESETS=""
+for p in $@; do
+  PRESETS="${PRESETS} --preset $p"
+done
+
+"${BASEDIR}/console" configure -vvv$PRESETS
 
 "${BASEDIR}/console" doctrine:migrations:migrate --no-interaction
