@@ -9,6 +9,7 @@ use Alchemy\CoreBundle\Pusher\PusherFactory;
 use Alchemy\CoreBundle\Pusher\PusherManager;
 use ApiPlatform\Symfony\Security\Exception\AccessDeniedException;
 use ApiPlatform\Symfony\Validator\Exception\ValidationException;
+use Doctrine\DBAL\Types\ConversionException;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Pusher\Pusher;
 use Ramsey\Uuid\Doctrine\UuidType;
@@ -153,6 +154,12 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                 'session' => [
                     'handler_id' => RedisSessionHandler::class,
                 ],
+                'exceptions' => [
+                    ConversionException::class => [
+                        'status_code' => 404,
+                        'log_level' => 'debug',
+                    ]
+                ]
             ]);
         }
 
@@ -186,6 +193,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         MethodNotAllowedHttpException::class,
                         NotAcceptableHttpException::class,
                         IgnoreSentryExceptionInterface::class,
+                        ConversionException::class,
                     ],
                 ],
             ];

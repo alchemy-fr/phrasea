@@ -6,9 +6,11 @@ namespace App\Attribute\Type;
 
 class DateAttributeType extends DateTimeAttributeType
 {
+    public const string NAME = 'date';
+
     public static function getName(): string
     {
-        return 'date';
+        return self::NAME;
     }
 
     public function getGroupValueLabel($value): ?string

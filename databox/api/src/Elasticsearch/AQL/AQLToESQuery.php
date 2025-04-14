@@ -125,6 +125,10 @@ final readonly class AQLToESQuery
             $value = null;
         }
 
+        if ($type instanceof DateTimeAttributeType && null !== $value) {
+            $this->validateDate($value);
+        }
+
         return match ($data['operator']) {
             'BETWEEN', 'NOT_BETWEEN' => $this->wrapInNotQuery(new Query\Range($fieldName, $this->createRangeParams($value, $type)), 'NOT_BETWEEN' === $data['operator']),
             'MISSING', 'EXISTS' => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], function (string $fn) {
@@ -155,6 +159,28 @@ final readonly class AQLToESQuery
             'STARTS_WITH', 'NOT_STARTS_WITH' => $this->wrapInNotQuery((new Query\MultiMatch())->setType('phrase_prefix')->setQuery($value)->setFields([$fieldName]), 'NOT_STARTS_WITH' === $data['operator']),
             default => throw new BadRequestHttpException(sprintf('Invalid operator "%s"', $data['operator'])),
         };
+    }
+
+    private function validateDate($value): void
+    {
+        if (is_int($value)) {
+            return;
+        }
+
+        if (is_string($value)) {
+            if (is_numeric($value)) {
+                return;
+            }
+            if (strlen($value) === 10) {
+                if (false === \DateTimeImmutable::createFromFormat('Y-m-d', $value)) {
+                    throw new BadRequestHttpException(sprintf('Invalid date value "%s"', $value));
+                }
+            } elseif (false === \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.uO', $value)) {
+                throw new BadRequestHttpException(sprintf('Invalid date time value "%s"', $value));
+            }
+        } else {
+            throw new BadRequestHttpException(sprintf('Invalid date type "%s"', get_debug_type($value)));
+        }
     }
 
     private function createRangeParams(array $values, AttributeTypeInterface $attributeType): array

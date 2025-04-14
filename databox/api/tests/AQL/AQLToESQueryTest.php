@@ -2,6 +2,7 @@
 
 namespace App\Tests\AQL;
 
+use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\GeoPointAttributeType;
 use App\Attribute\Type\NumberAttributeType;
 use App\Attribute\Type\TextAttributeType;
@@ -69,6 +70,9 @@ class AQLToESQueryTest extends TestCase
                     'attrs._.location_geo-point_s' => [
                         'type' => $attributeTypeRegistry->getStrictType(GeoPointAttributeType::NAME),
                     ],
+                    'attrs._.date_date_s' => [
+                        'type' => $attributeTypeRegistry->getStrictType(DateAttributeType::NAME),
+                    ],
                 ],
                 'w' => [],
                 'locales' => ['it', 'de'],
@@ -96,12 +100,26 @@ class AQLToESQueryTest extends TestCase
         $query = $esQueryConverter->createQuery($fieldClusters, $result['data'], [
             'locale' => $locale,
         ])->toArray();
-        $this->assertEquals($expectedQuery, $query);
+        if (!is_string($expectedQuery)) {
+            $this->assertEquals($expectedQuery, $query);
+        }
     }
 
     public function getCases(): array
     {
         return [
+            ['date < "YYYY-88-88"', 'Invalid date value "YYYY-88-88"'],
+            ['date < "9999-88-88"', [
+                'range' => [
+                    'attrs._.date_date_s' => ['lt' => '9999-88-88'],
+                ]
+            ]],
+            ['date < ""', 'Invalid date time value ""'],
+            ['date < "2015"', [
+                'range' => [
+                    'attrs._.date_date_s' => ['lt' => 2015],
+                ]
+            ]],
             ['foo="bar"', [
                 'multi_match' => [
                     'query' => 'bar',
