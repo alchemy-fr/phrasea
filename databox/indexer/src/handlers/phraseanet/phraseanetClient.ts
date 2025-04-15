@@ -30,9 +30,13 @@ export function createPhraseanetClient(options: PhraseanetConfig) {
     });
 }
 
+export const ORDER_ASC = 'asc';
+export const ORDER_DESC = 'desc';
+
 export default class PhraseanetClient {
     private readonly client: AxiosInstance;
-    private readonly searchOrder?: string;
+    private readonly sortField: string;
+    private readonly sortOrder: string;
     private readonly id: string; // not the phraseanet conf.instanceId
     private readonly logger: winston.Logger;
     private _databoxIndexSet: boolean = false;
@@ -40,10 +44,21 @@ export default class PhraseanetClient {
 
     constructor(options: PhraseanetConfig, logger: winston.Logger) {
         this.client = createPhraseanetClient(options);
-        this.searchOrder = options.searchOrder;
+        const [f, o] = (options.searchOrder??'').split(',');
+
+        this.sortField = f ?? 'record_id';
+        this.sortOrder = (o ?? 'asc').toLowerCase()
+
+        if(this.sortField != 'record_id' || (this.sortOrder != ORDER_ASC && this.sortOrder != ORDER_DESC)) {
+            throw new Error(`searchOrder must be 'record_id,asc' or 'record_id,desc', got '${options.searchOrder}'`);
+        }
         this.id = btoa(options.url);
         this.logger = logger;
         this.databoxIndex = {};
+    }
+
+    public getSortOrder(): string {
+        return this.sortOrder.toLowerCase();
     }
 
     async getDatabox(nameOrId: string) {
@@ -86,6 +101,7 @@ export default class PhraseanetClient {
     async searchRecords(
         params: Record<string, any>,
         offset: number = 0,
+        limit: number = 50,
         searchQuery: string
     ): Promise<CPhraseanetRecord[]> {
         return this.search(
@@ -93,13 +109,14 @@ export default class PhraseanetClient {
             offset,
             PhraseanetSearchType.Record,
             searchQuery,
-            50
+            limit
         ) as unknown as Promise<CPhraseanetRecord[]>;
     }
 
     async searchStories(
         params: Record<string, any>,
         offset: number = 0,
+        limit: number = 20,
         searchQuery: string
     ): Promise<CPhraseanetStory[]> {
         return this.search(
@@ -107,7 +124,7 @@ export default class PhraseanetClient {
             offset,
             PhraseanetSearchType.Story,
             searchQuery,
-            20
+            limit,
         ) as unknown as Promise<CPhraseanetStory[]>;
     }
 
@@ -118,17 +135,12 @@ export default class PhraseanetClient {
         searchQuery: string,
         limit: number = 100
     ): Promise<(CPhraseanetRecord | CPhraseanetStory)[]> {
-        if (this.searchOrder) {
-            const [col, way] = this.searchOrder.split(',');
-            params.sort = col;
-            params.ord = way || 'asc';
-        }
 
         let last_error = null;
         let ttry = 0;
         for (ttry = 0; ttry < 3; ttry++) {
             try {
-                console.log(`Fetching search results...`);
+                this.logger.info(`Fetching search results...`);
                 const res = await this.client.get('/api/v3/search/', {
                     params: {
                         offset,
@@ -142,9 +154,12 @@ export default class PhraseanetClient {
                             'results.stories.metadata',
                             'results.stories.status',
                         ],
+                        sort: this.sortField,
+                        ord: this.sortOrder,
                         ...params,
                     },
                 });
+
                 const recs: (CPhraseanetRecord | CPhraseanetStory)[] = [];
                 if (searchType === PhraseanetSearchType.Record) {
                     res.data.response.results.records.map(
@@ -163,7 +178,7 @@ export default class PhraseanetClient {
                 return recs;
             } catch (e) {
                 last_error = e;
-                console.log(
+                this.logger.warn(
                     `Failed to fetch search results, retrying in 5s...`
                 );
                 await new Promise(resolve => setTimeout(resolve, 5000));
