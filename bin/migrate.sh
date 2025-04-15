@@ -22,3 +22,5 @@ uploader-api-php
 for app in ${APPS}; do
     exec_container $app "bin/migrate.sh"
 done
+
+docker compose run --rm configurator bin/migrate.sh

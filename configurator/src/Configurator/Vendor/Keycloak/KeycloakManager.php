@@ -289,6 +289,9 @@ final class KeycloakManager
             'redirectUris' => $redirectUris ?? ($rootUrl ? [
                 $rootUrl.'/*',
             ] : null),
+            'attributes' => [
+                'redirectAfterPasswordUpdate' => str_contains($clientId, 'admin') ? $rootUrl .'/admin' : $rootUrl
+            ]
         ], $data);
 
         if (null !== $client) {
@@ -310,6 +313,19 @@ final class KeycloakManager
         }
 
         return $client;
+    }
+
+    public function updateClientByClientId(string $clientId, array $data = []):void
+    {
+        $client = $this->getClientByClientId($clientId);
+
+        $this->getAuthenticatedClient()
+            ->request('PUT', UriTemplate::resolve('{realm}/clients/{id}', [
+                'realm' => $this->keycloakRealm,
+                'id' => $client['id'],
+            ]), [
+                'json' => $data,
+            ]);
     }
 
     public function configureClientClaim(
