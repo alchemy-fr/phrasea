@@ -230,7 +230,6 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     private function configureRealm(): void
     {
         $from = getenv('MAIL_FROM') ?: 'noreply@phrasea.io';
-        $mailer = parse_url(getenv('MAILER_DSN'));
 
         $this->keycloakManager->createRealm();
 
@@ -240,16 +239,16 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'resetPasswordAllowed' => true,
             'rememberMe' => true,
             'smtpServer' => [
-                'auth' => isset($mailer['user']) ? 'true' : '',
+                'auth' => getenv('EMAIL_USER') ? 'true' : '',
                 'from' => $from,
                 'fromDisplayName' => 'Phrasea',
-                'host' => $mailer['host'],
-                'port' => $mailer['port'] ?? '587',
+                'host' => getenv('EMAIL_HOST_RELAY'),
+                'port' => getenv('EMAIL_HOST_PORT') ?? '587',
                 'replyTo' => '',
                 'ssl' => 'false',
                 'starttls' => 'false',
-                'user' => $mailer['user'] ?? null,
-                'password' => $mailer['pass'] ?? null,
+                'user' => getenv('EMAIL_USER') ?? null,
+                'password' => getenv('EMAIL_SECRET') ?? null,
             ],
         ]);
     }
