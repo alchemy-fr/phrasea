@@ -58,7 +58,7 @@ export default class PhraseanetClient {
     }
 
     public getSortOrder(): string {
-        return this.sortOrder.toLowerCase();
+        return this.sortOrder;
     }
 
     async getDatabox(nameOrId: string) {
