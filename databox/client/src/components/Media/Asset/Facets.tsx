@@ -30,7 +30,7 @@ export type LabelledBucketValue = {
 export type ResolvedBucketValue = BucketValue | LabelledBucketValue;
 
 export type Bucket = {
-    key: BucketValue;
+    key: BucketValue | LabelledBucketValue;
     doc_count: number;
 };
 

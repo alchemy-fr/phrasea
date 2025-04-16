@@ -66,6 +66,12 @@ class WorkspaceOutput extends AbstractUuidOutput
     #[Groups([Workspace::GROUP_READ])]
     public ?array $translations = null;
 
+    #[Groups([Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    public ?string $ownerId = null;
+
+    #[Groups([Workspace::GROUP_READ])]
+    public ?UserOutput $owner = null;
+
     public function getName(): string
     {
         return $this->name;

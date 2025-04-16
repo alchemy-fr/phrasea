@@ -38,9 +38,14 @@ class WorkspaceRepository extends EntityRepository
         );
     }
 
-    private function createAllowedWorkspacesQueryBuilder(string $userId, ?array $groupIds = null): QueryBuilder
+    private function createAllowedWorkspacesQueryBuilder(?string $userId, ?array $groupIds = null): QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('w');
+
+        if (null === $userId) {
+            return $queryBuilder
+                ->andWhere('w.public = true');
+        }
 
         AccessControlEntryRepository::joinAcl(
             $queryBuilder,
@@ -48,8 +53,11 @@ class WorkspaceRepository extends EntityRepository
             $groupIds,
             'workspace',
             'w',
-            PermissionInterface::VIEW
+            PermissionInterface::VIEW,
+            false,
         );
+
+        $queryBuilder->andWhere('w.public = true OR ace.id IS NOT NULL OR w.ownerId = :uid');
 
         return $queryBuilder;
     }

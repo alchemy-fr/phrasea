@@ -23,7 +23,7 @@ class TagTest extends AbstractSearchTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
         ]);
-        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseStatusCodeSame(200);
 
         $response = $client->request('GET', '/tags?limit='.$limit, [
             'query' => [
