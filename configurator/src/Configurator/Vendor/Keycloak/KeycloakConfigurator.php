@@ -234,10 +234,22 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         $this->keycloakManager->createRealm();
 
         $this->keycloakManager->putRealm([
-            'displayName' => 'Phrasea Auth',
-            'displayNameHtml' => '<div class="kc-logo-text"><span>Phrasea Auth</span></div>',
-            'resetPasswordAllowed' => true,
-            'rememberMe' => true,
+            'displayName'               => 'Phrasea Auth',
+            'displayNameHtml'           => '<div class="kc-logo-text"><span>Phrasea Auth</span></div>',
+            'registrationAllowed'       => $this->getBooleanEnv('LOGIN_REGISTRATION_ALLOWED', false),
+            'resetPasswordAllowed'      => $this->getBooleanEnv('LOGIN_RESET_PASSWORD_ALLOWED', true),
+            'rememberMe'                => $this->getBooleanEnv('LOGIN_REMEMBER_ME_ALLOWED', true),
+            'loginWithEmailAllowed'     => $this->getBooleanEnv('LOGIN_WITH_EMAIL_ALLOWED', true),
+            'verifyEmail'               => $this->getBooleanEnv('LOGIN_VERIFY_EMAIL_ALLOWED', false),
+            'registrationEmailAsUsername' => $this->getBooleanEnv('LOGIN_EMAIL_AS_USERNAME', false),
+            'editUsernameAllowed'       => $this->getBooleanEnv('LOGIN_EDIT_USERNAME', false),
+            'bruteForceProtected'       => $this->getBooleanEnv('SECURITY_DETECTION_BRUTE_FORCE_ENABLED', false),
+            'ssoSessionIdleTimeout'     => getenv('SSO_SESSION_IDLE_TIMEOUT') ?: '1800',
+            'clientSessionIdleTimeout'  => getenv('CLIENT_SESSION_IDLE_TIMEOUT') ?: '1800',
+            'offlineSessionIdleTimeout' => getenv('OFFLINE_SESSION_IDLE_TIMEOUT') ?: '2592000',
+            'internationalizationEnabled' => $this->getBooleanEnv('LOCALISATION_ENABLED', true),
+            'supportedLocales'          => (getenv('SUPPORTED_LOCALES') != null) ? explode(',', getenv('SUPPORTED_LOCALES')) : ['en'],
+            'defaultLocale'             => getenv('DEFAULT_LOCALE') ?: 'en',
             'smtpServer' => [
                 'auth' => getenv('EMAIL_USER') ? 'true' : '',
                 'from' => $from,
@@ -251,6 +263,21 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 'password' => getenv('EMAIL_SECRET') ?? null,
             ],
         ]);
+    }
+
+    private function getBooleanEnv(string $name, bool $defaultValue= false): bool
+    {
+        switch (getenv($name)) {
+            case 'true':
+                return true;
+                break;
+            case 'false':
+                return false;
+                break;
+            default:
+                return $defaultValue;
+                break;    
+        }
     }
 
     private function configureDefaultClientScopes(): void
