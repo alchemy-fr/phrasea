@@ -8,8 +8,13 @@ use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Admin\Field\PrivacyField;
 use App\Entity\Core\Collection;
+use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -29,6 +34,13 @@ class CollectionCrudController extends AbstractAclAdminCrudController
     {
         return Collection::class;
     }
+
+//    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
+//    {
+//        return parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters)
+//            ->leftJoin('entity.storyAsset', 'asset')
+//            ->andWhere('asset.id IS NULL');
+//    }
 
     public function configureCrud(Crud $crud): Crud
     {
@@ -56,6 +68,8 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         yield JsonField::new('translations')
             ->hideOnIndex();
         yield AssociationField::new('parent');
+        yield AssociationField::new('storyAsset')
+            ->hideOnForm();
         yield AssociationField::new('workspace');
         yield $this->privacyField->create('privacy');
         yield TextField::new('ownerId')
