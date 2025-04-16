@@ -11,7 +11,6 @@ use App\Api\Traits\CollectionProviderAwareTrait;
 use App\Elasticsearch\TagSearch;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class TagCollectionProvider extends AbstractCollectionProvider
 {

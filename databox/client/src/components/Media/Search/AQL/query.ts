@@ -1,6 +1,7 @@
 import {
     AQLAndOrExpression,
-    AQLCondition, AQLEntity,
+    AQLCondition,
+    AQLEntity,
     AQLExpression,
     AQLField,
     AQLFunctionCall,
@@ -17,8 +18,8 @@ import {
 import {hasProp} from '../../../../lib/utils.ts';
 import {AttributeDefinitionIndex} from '../../../AttributeEditor/types.ts';
 import {AttributeDefinition} from '../../../../types.ts';
-import {LabelledBucketValue, TFacets} from "../../Asset/Facets.tsx";
-import {writeEntity} from "./entities.tsx";
+import {LabelledBucketValue, TFacets} from '../../Asset/Facets.tsx';
+import {writeEntity} from './entities.tsx';
 
 export type AQLQuery = {
     id: string;
@@ -250,10 +251,16 @@ export function getFieldDefinition(
     }
 }
 
-function searchInFacets(field: string, id: string|number|boolean, facets: TFacets) {
+function searchInFacets(
+    field: string,
+    id: string | number | boolean,
+    facets: TFacets
+) {
     for (const k in facets) {
         if (k.startsWith(field)) {
-            const bucket = facets[k].buckets.find((b) => (b.key as LabelledBucketValue).value === id);
+            const bucket = facets[k].buckets.find(
+                b => (b.key as LabelledBucketValue).value === id
+            );
             if (bucket) {
                 return bucket;
             }
@@ -261,9 +268,15 @@ function searchInFacets(field: string, id: string|number|boolean, facets: TFacet
     }
 }
 
-export function replaceIdFromFacets(ast: AQLQueryAST, facets: TFacets): AQLQueryAST {
+export function replaceIdFromFacets(
+    ast: AQLQueryAST,
+    facets: TFacets
+): AQLQueryAST {
     const replaceCriteria = (expression: AQLExpression): AQLExpression => {
-        const replaceField = (field: string, operand: AQLOperand|AQLOperand[]): AQLOperand|AQLOperand[] => {
+        const replaceField = (
+            field: string,
+            operand: AQLOperand | AQLOperand[]
+        ): AQLOperand | AQLOperand[] => {
             if (Array.isArray(operand)) {
                 return (operand as AQLOperand[]).map((v: AQLOperand) => {
                     return replaceField(field, v) as AQLOperand;
@@ -283,14 +296,17 @@ export function replaceIdFromFacets(ast: AQLQueryAST, facets: TFacets): AQLQuery
             }
 
             return operand;
-        }
+        };
 
         if (isAQLCondition(expression)) {
             if (isAQLField(expression.leftOperand)) {
                 const field = expression.leftOperand.field;
 
                 if (expression.rightOperand) {
-                    expression.rightOperand = replaceField(field, expression.rightOperand);
+                    expression.rightOperand = replaceField(
+                        field,
+                        expression.rightOperand
+                    );
                 }
             }
         }

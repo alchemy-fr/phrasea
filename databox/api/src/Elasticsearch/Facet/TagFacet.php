@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Facet;
 
-use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\Type\TagAttributeType;
 use App\Entity\Core\Asset;

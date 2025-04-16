@@ -6,7 +6,7 @@ import SearchCondition from './SearchCondition.tsx';
 import {useModals} from '@alchemy/navigation';
 import SearchConditionDialog from './SearchConditionDialog.tsx';
 import AddIcon from '@mui/icons-material/Add';
-import {TResultContext} from "../ResultContext.tsx";
+import {TResultContext} from '../ResultContext.tsx';
 
 type Props = {
     conditions: AQLQueries;

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Doctrine;
 
+use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Metadata\CollectionOperationInterface;
+use ApiPlatform\Metadata\Operation;
 use App\Entity\Asset;
 use Doctrine\ORM\QueryBuilder;
-use ApiPlatform\Metadata\Operation;
-use ApiPlatform\Metadata\CollectionOperationInterface;
-use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
-use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 
 #[AutoconfigureTag(
     name: 'api_platform.doctrine.orm.query_extension.collection',

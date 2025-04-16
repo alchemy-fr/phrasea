@@ -18,7 +18,12 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
 export default function TagSelect<
     TFieldValues extends FieldValues,
     IsMulti extends boolean,
->({workspaceId: wsId, useIRI = true, multiple, ...rest}: Props<TFieldValues, IsMulti>) {
+>({
+    workspaceId: wsId,
+    useIRI = true,
+    multiple,
+    ...rest
+}: Props<TFieldValues, IsMulti>) {
     const workspaceContext = React.useContext(WorkspaceContext);
 
     const workspaceId = wsId ?? workspaceContext?.workspaceId;

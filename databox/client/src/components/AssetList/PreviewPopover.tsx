@@ -115,7 +115,7 @@ export default function PreviewPopover({
                                         ? 'auto'
                                         : 'clip',
                                     'overflowX': 'visible',
-                                    overflowClipMargin: theme.spacing(1),
+                                    'overflowClipMargin': theme.spacing(1),
                                     'paddingLeft': theme.spacing(2),
                                     '&:empty': {
                                         display: 'none',

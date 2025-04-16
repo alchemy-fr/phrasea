@@ -10,7 +10,8 @@ import {
     AQLQueries,
     isAQLCondition,
     isAQLField,
-    resolveAQLValue, generateQueryId,
+    resolveAQLValue,
+    generateQueryId,
 } from './AQL/query.ts';
 import {InternalKey, parseAQLQuery} from './AQL/AQL.ts';
 import {AQLCondition, AQLQueryAST} from './AQL/aqlTypes.ts';

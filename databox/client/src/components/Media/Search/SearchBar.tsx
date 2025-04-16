@@ -7,7 +7,7 @@ import GeoPointFilter from './GeoPointFilter';
 import SearchAutoComplete from './SearchAutoComplete.tsx';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import SearchConditions from './AQL/SearchConditions.tsx';
-import {ResultContext} from "./ResultContext.tsx";
+import {ResultContext} from './ResultContext.tsx';
 
 type Props = {};
 

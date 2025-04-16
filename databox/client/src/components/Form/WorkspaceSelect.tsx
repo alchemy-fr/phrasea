@@ -1,10 +1,17 @@
 import {useCallback} from 'react';
 import {Workspace} from '../../types';
 import {FieldValues} from 'react-hook-form';
-import {AsyncRSelectProps, AsyncRSelectWidget, SelectOption,} from '@alchemy/react-form';
-import {getWorkspaces} from "../../api/workspace.ts";
+import {
+    AsyncRSelectProps,
+    AsyncRSelectWidget,
+    SelectOption,
+} from '@alchemy/react-form';
+import {getWorkspaces} from '../../api/workspace.ts';
 
-type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<TFieldValues, false>;
+type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<
+    TFieldValues,
+    false
+>;
 
 export default function WorkspaceSelect<TFieldValues extends FieldValues>({
     ...rest

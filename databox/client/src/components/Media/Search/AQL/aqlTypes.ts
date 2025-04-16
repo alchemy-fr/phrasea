@@ -47,11 +47,16 @@ export type AQLValueOrExpression =
     | AQLValue;
 
 export type AQLLiteral = {literal: string};
-export type AQLEntity = {type: 'entity', id: string, label: string};
+export type AQLEntity = {type: 'entity'; id: string; label: string};
 
 export type AQLValue = AQLFunctionCall | AQLScalarValue;
 
-export type AQLScalarValue = AQLLiteral | AQLEntity | boolean | number | AQLField;
+export type AQLScalarValue =
+    | AQLLiteral
+    | AQLEntity
+    | boolean
+    | number
+    | AQLField;
 
 export type AQLOperand = AQLValueOrExpression;
 export type RightOperand = AQLOperand | AQLOperand[] | undefined;

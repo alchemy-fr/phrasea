@@ -171,7 +171,7 @@ final readonly class AQLToESQuery
             if (is_numeric($value)) {
                 return;
             }
-            if (strlen($value) === 10) {
+            if (10 === strlen($value)) {
                 if (false === \DateTimeImmutable::createFromFormat('Y-m-d', $value)) {
                     throw new BadRequestHttpException(sprintf('Invalid date value "%s"', $value));
                 }

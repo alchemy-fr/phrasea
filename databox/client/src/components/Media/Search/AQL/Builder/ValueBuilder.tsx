@@ -18,7 +18,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FieldBuilder, {FieldBuilderProps} from './FieldBuilder.tsx';
 import {parseAQLQuery} from '../AQL.ts';
 import {valueToString} from '../query.ts';
-import {FieldWidget} from "../../../../../types.ts";
+import {FieldWidget} from '../../../../../types.ts';
 
 type Props = {
     expression: BaseBuilderProps<QBCondition>['expression'];
@@ -60,7 +60,9 @@ export default function ValueBuilder({
         }));
     };
 
-    const normValue = (value: string|number|boolean): AQLValueOrExpression => {
+    const normValue = (
+        value: string | number | boolean
+    ): AQLValueOrExpression => {
         if (typeof value === 'string') {
             if (value.startsWith('=')) {
                 const result = parseAQLQuery(`f = ${value.slice(1)}`);
@@ -89,8 +91,8 @@ export default function ValueBuilder({
 
             return isNaN(num)
                 ? {
-                    literal: value,
-                }
+                      literal: value,
+                  }
                 : num;
         }
 
@@ -160,11 +162,7 @@ export default function ValueBuilder({
                         alignItems: 'center',
                     }}
                 >
-                    <FieldBuilder
-                        {...f}
-                        widget={widget}
-                        rawType={rawType}
-                    />
+                    <FieldBuilder {...f} widget={widget} rawType={rawType} />
                     {manyArgs === true && (
                         <div>
                             <IconButton onClick={() => removeValue(index)}>

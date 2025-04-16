@@ -1,4 +1,4 @@
-import {AQLQuery, astToString, generateQueryId} from './query.ts';
+import {AQLQuery, astToString} from './query.ts';
 import {
     Alert,
     Button,
@@ -23,10 +23,9 @@ import {QBExpression} from './Builder/builderTypes.ts';
 import {emptyCondition} from './Builder/builder.ts';
 import {AQLExpression, AQLQueryAST} from './aqlTypes.ts';
 import {BuiltInFilter} from '../search.ts';
-import WorkspaceSelect from "../../../Form/WorkspaceSelect.tsx";
-import TagSelect from "../../../Form/TagSelect.tsx";
-import PrivacyField from "../../../Ui/PrivacyField.tsx";
-import PrivacyWidget from "../../../Form/PrivacyWidget.tsx";
+import WorkspaceSelect from '../../../Form/WorkspaceSelect.tsx';
+import TagSelect from '../../../Form/TagSelect.tsx';
+import PrivacyWidget from '../../../Form/PrivacyWidget.tsx';
 
 type Props = {
     condition: AQLQuery;
@@ -115,7 +114,7 @@ export default function SearchConditionDialog({
                     fieldType: 'text',
                     name: t('built_in_attr.workspace', 'Workspace'),
                     widget: {
-                        component: WorkspaceSelect
+                        component: WorkspaceSelect,
                     },
                 },
                 {
@@ -134,7 +133,7 @@ export default function SearchConditionDialog({
                         component: TagSelect,
                         props: {
                             useIRI: false,
-                        }
+                        },
                     },
                 },
                 {

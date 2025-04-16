@@ -86,7 +86,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                         'name' => 'slug',
                         'type' => 'string',
                         'required' => true,
-                        'description' => 'The slug to verify'
+                        'description' => 'The slug to verify',
                     ],
                 ],
             ],

@@ -5,7 +5,7 @@ import {Integration} from './components/Integration/types.ts';
 import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTypes.ts';
 import {RenditionBuildMode} from './api/rendition.ts';
 import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/DefinitionManager.tsx';
-import React from "react";
+import React from 'react';
 
 type AlternateUrl = {
     type: string;

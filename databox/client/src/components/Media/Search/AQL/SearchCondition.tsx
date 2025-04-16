@@ -5,9 +5,9 @@ import SearchConditionDialog from './SearchConditionDialog.tsx';
 import React from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {useTranslation} from 'react-i18next';
-import {TResultContext} from "../ResultContext.tsx";
-import {parseAQLQuery} from "./AQL.ts";
-import {replaceEntities} from "./entities.tsx";
+import {TResultContext} from '../ResultContext.tsx';
+import {parseAQLQuery} from './AQL.ts';
+import {replaceEntities} from './entities.tsx';
 
 type Props = {
     condition: AQLQuery;
@@ -41,26 +41,31 @@ export default function SearchCondition({
     };
 
     const ast = parseAQLQuery(condition.query);
-    const facetBucket = ast && result?.facets ? replaceIdFromFacets(ast, result.facets!) : undefined;
-    const query = facetBucket ? replaceEntities(astToString(ast)) : condition.query;
+    const facetBucket =
+        ast && result?.facets
+            ? replaceIdFromFacets(ast, result.facets!)
+            : undefined;
+    const query = facetBucket
+        ? replaceEntities(astToString(ast))
+        : condition.query;
 
     return (
         <>
             <Chip
                 sx={theme => ({
-                    mr: 1,
-                    color: condition.disabled
+                    'mr': 1,
+                    'color': condition.disabled
                         ? 'warning.contrastText'
                         : 'primary.contrastText',
-                    bgcolor: condition.disabled
+                    'bgcolor': condition.disabled
                         ? 'warning.main'
                         : 'primary.main',
-                    fontFamily: 'Courier New',
+                    'fontFamily': 'Courier New',
                     '.entity': {
                         border: `1px solid ${theme.palette.primary.contrastText}`,
                         p: 0.5,
                         borderRadius: 2,
-                    }
+                    },
                 })}
                 label={query}
                 onClick={edit}

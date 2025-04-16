@@ -56,7 +56,6 @@ final readonly class NovuClient
         ]);
     }
 
-
     public function broadcast(
         string $notificationId,
         array $parameters = [],
@@ -64,7 +63,7 @@ final readonly class NovuClient
     ): void {
         $data = [
             'name' => $notificationId,
-            'payload' => empty($parameters) ? new \stdClass : $parameters,
+            'payload' => empty($parameters) ? new \stdClass() : $parameters,
         ];
 
         $transactionId = $options['transactionId'] ?? null;

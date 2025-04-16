@@ -17,8 +17,7 @@ class NotificationController extends AbstractController
 {
     public function __construct(
         private readonly NotifierInterface $notifier,
-    )
-    {
+    ) {
     }
 
     #[Route('/', name: 'index')]

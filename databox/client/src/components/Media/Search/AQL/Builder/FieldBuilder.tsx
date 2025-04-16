@@ -1,8 +1,8 @@
 import {RawType} from '../aqlTypes.ts';
 import {TextField} from '@mui/material';
 import React from 'react';
-import {FieldWidget} from "../../../../../types.ts";
-import {hasProp} from "../../../../../lib/utils.ts";
+import {FieldWidget} from '../../../../../types.ts';
+import {hasProp} from '../../../../../lib/utils.ts';
 
 type Props = {
     widget?: FieldWidget;
@@ -37,7 +37,10 @@ export default function FieldBuilder({
             onChange: (v: any) => {
                 console.log('v', v);
                 setValue(v);
-                if (typeof v === 'object' && hasProp<{value: string}>(v, 'value')) {
+                if (
+                    typeof v === 'object' &&
+                    hasProp<{value: string}>(v, 'value')
+                ) {
                     onChange(v.value);
                 } else {
                     onChange(v);

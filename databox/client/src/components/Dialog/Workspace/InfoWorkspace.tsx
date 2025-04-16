@@ -6,7 +6,7 @@ import KeyIcon from '@mui/icons-material/Key';
 import EventIcon from '@mui/icons-material/Event';
 import InfoRow from '../Info/InfoRow';
 import {useTranslation} from 'react-i18next';
-import PersonIcon from "@mui/icons-material/Person";
+import PersonIcon from '@mui/icons-material/Person';
 
 type Props = DataTabProps<Workspace>;
 
