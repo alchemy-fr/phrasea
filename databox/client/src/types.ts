@@ -5,6 +5,7 @@ import {Integration} from './components/Integration/types.ts';
 import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTypes.ts';
 import {RenditionBuildMode} from './api/rendition.ts';
 import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/DefinitionManager.tsx';
+import React from "react";
 
 type AlternateUrl = {
     type: string;
@@ -126,6 +127,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     facetEnabled: boolean;
     canEdit: boolean;
     builtIn?: boolean;
+    widget?: FieldWidget;
     searchBoost: number;
     fallback: Record<string, string>;
     initialValues: Record<string, string>;
@@ -133,6 +135,13 @@ export interface AttributeDefinition extends IPermissions, Entity {
     class: AttributeClass | string | null;
     lastErrors?: LastErrors;
 }
+
+export type FieldWidget = React.FC<{
+    name: string;
+    value: string;
+    onChange: (value: string) => void;
+    placeholder?: string;
+}>;
 
 export interface AttributeClass extends ApiHydraObjectResponse, Entity {
     name: string;

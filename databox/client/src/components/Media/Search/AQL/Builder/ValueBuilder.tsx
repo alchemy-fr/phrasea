@@ -18,6 +18,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FieldBuilder, {FieldBuilderProps} from './FieldBuilder.tsx';
 import {parseAQLQuery} from '../AQL.ts';
 import {valueToString} from '../query.ts';
+import {FieldWidget} from "../../../../../types.ts";
 
 type Props = {
     expression: BaseBuilderProps<QBCondition>['expression'];
@@ -25,9 +26,11 @@ type Props = {
     manyArgs: ManyArgs;
     argNames: ArgNames;
     rawType: RawType | undefined;
+    widget?: FieldWidget;
 };
 
 export default function ValueBuilder({
+    widget,
     manyArgs,
     argNames,
     expression,
@@ -153,7 +156,7 @@ export default function ValueBuilder({
                         alignItems: 'center',
                     }}
                 >
-                    <FieldBuilder {...f} rawType={rawType} />
+                    <FieldBuilder {...f} widget={widget} rawType={rawType} />
                     {manyArgs === true && (
                         <div>
                             <IconButton onClick={() => removeValue(index)}>

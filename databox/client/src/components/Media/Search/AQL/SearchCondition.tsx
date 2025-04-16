@@ -1,21 +1,26 @@
-import {AQLQuery} from './query.ts';
+import {AQLQuery, astToString, replaceIdFromFacets} from './query.ts';
 import {Chip, Menu, MenuItem} from '@mui/material';
 import {useModals} from '@alchemy/navigation';
 import SearchConditionDialog from './SearchConditionDialog.tsx';
 import React from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {useTranslation} from 'react-i18next';
+import {TResultContext} from "../ResultContext.tsx";
+import {parseAQLQuery} from "./AQL.ts";
+import {replaceEntities} from "./entities.tsx";
 
 type Props = {
     condition: AQLQuery;
     onDelete: (condition: AQLQuery) => void;
     onUpsert: (condition: AQLQuery) => void;
+    result: TResultContext;
 };
 
 export default function SearchCondition({
     condition,
     onDelete,
     onUpsert,
+    result,
 }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
@@ -35,10 +40,14 @@ export default function SearchCondition({
         });
     };
 
+    const ast = parseAQLQuery(condition.query);
+    const facetBucket = ast && result?.facets ? replaceIdFromFacets(ast, result.facets!) : undefined;
+    const query = facetBucket ? replaceEntities(astToString(ast)) : condition.query;
+
     return (
         <>
             <Chip
-                sx={{
+                sx={theme => ({
                     mr: 1,
                     color: condition.disabled
                         ? 'warning.contrastText'
@@ -47,8 +56,13 @@ export default function SearchCondition({
                         ? 'warning.main'
                         : 'primary.main',
                     fontFamily: 'Courier New',
-                }}
-                label={condition.query}
+                    '.entity': {
+                        border: `1px solid ${theme.palette.primary.contrastText}`,
+                        p: 0.5,
+                        borderRadius: 2,
+                    }
+                })}
+                label={query}
                 onClick={edit}
                 onDelete={onContextMenu}
                 onContextMenu={onContextMenu}

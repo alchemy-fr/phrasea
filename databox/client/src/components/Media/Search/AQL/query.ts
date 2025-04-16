@@ -1,6 +1,6 @@
 import {
     AQLAndOrExpression,
-    AQLCondition,
+    AQLCondition, AQLEntity,
     AQLExpression,
     AQLField,
     AQLFunctionCall,
@@ -17,6 +17,8 @@ import {
 import {hasProp} from '../../../../lib/utils.ts';
 import {AttributeDefinitionIndex} from '../../../AttributeEditor/types.ts';
 import {AttributeDefinition} from '../../../../types.ts';
+import {LabelledBucketValue, TFacets} from "../../Asset/Facets.tsx";
+import {writeEntity} from "./entities.tsx";
 
 export type AQLQuery = {
     id: string;
@@ -146,8 +148,10 @@ function operatorToString(operator: AQLOperator): string {
 
 export function valueToString(value: AQLValueOrExpression): string {
     if (typeof value === 'object') {
-        if (hasProp<AQLLiteral>(value, 'literal')) {
+        if (isAQLLiteral(value)) {
             return `"${value.literal.replace(/"/g, '\\"')}"`;
+        } else if (isAQLEntity(value)) {
+            return writeEntity(value.id, value.label);
         } else if (isAQLParentheses(value)) {
             return `(${valueToString(value.expression)})`;
         } else if (isAQLValueExpression(value)) {
@@ -174,6 +178,10 @@ export function isAQLField(operand: AQLOperand): operand is AQLField {
 
 export function isAQLLiteral(value: AQLOperand): value is AQLLiteral {
     return hasProp<AQLLiteral>(value, 'literal');
+}
+
+export function isAQLEntity(value: AQLOperand): value is AQLEntity {
+    return hasProp<AQLEntity>(value, 'type') && value.type === 'entity';
 }
 
 export function isAQLValueExpression(
@@ -209,6 +217,8 @@ export function resolveAQLValue(
 ): ScalarValue {
     if (isAQLLiteral(value)) {
         return value.literal;
+    } else if (isAQLEntity(value)) {
+        return writeEntity(value.id, value.label);
     } else if (isAQLField(value)) {
         if (throwExceptionOnField) {
             throw new Error('Unsupported field operand');
@@ -237,4 +247,55 @@ export function getFieldDefinition(
 
         return definitionsIndex[field];
     }
+}
+
+
+function searchInFacets(field: string, id: string, facets: TFacets) {
+    for (const k in facets) {
+        if (k.startsWith(field)) {
+            const bucket = facets[k].buckets.find((b) => (b.key as LabelledBucketValue).value === id);
+            if (bucket) {
+                return bucket;
+            }
+        }
+    }
+}
+
+export function replaceIdFromFacets(ast: AQLQueryAST, facets: TFacets): AQLQueryAST {
+    const replaceCriteria = (expression: AQLExpression): AQLExpression => {
+        const replaceField = (field: string, operand: AQLOperand|AQLOperand[]): AQLOperand|AQLOperand[] => {
+            if (Array.isArray(operand)) {
+                return (operand as AQLOperand[]).map((v: AQLOperand) => {
+                    return replaceField(field, v) as AQLOperand;
+                });
+            } else if (isAQLLiteral(operand)) {
+                const bucket = searchInFacets(field, operand.literal, facets);
+                if (bucket) {
+                    return {
+                        type: 'entity',
+                        id: operand.literal,
+                        label: (bucket.key as LabelledBucketValue).label,
+                    } as AQLEntity;
+                }
+            }
+
+            return operand;
+        }
+
+        if (isAQLCondition(expression)) {
+            if (isAQLField(expression.leftOperand)) {
+                const field = expression.leftOperand.field;
+
+                if (expression.rightOperand) {
+                    expression.rightOperand = replaceField(field, expression.rightOperand);
+                }
+            }
+        }
+
+        return expression;
+    };
+
+    ast.expression = replaceCriteria(ast.expression);
+
+    return ast;
 }

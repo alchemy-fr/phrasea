@@ -23,6 +23,8 @@ import {QBExpression} from './Builder/builderTypes.ts';
 import {emptyCondition} from './Builder/builder.ts';
 import {AQLExpression, AQLQueryAST} from './aqlTypes.ts';
 import {BuiltInFilter} from '../search.ts';
+import WorkspaceSelect from "../../../Form/WorkspaceSelect.tsx";
+import TagSelect from "../../../Form/TagSelect.tsx";
 
 type Props = {
     condition: AQLQuery;
@@ -110,6 +112,7 @@ export default function SearchConditionDialog({
                     slug: BuiltInFilter.Workspace,
                     fieldType: 'text',
                     name: t('built_in_attr.workspace', 'Workspace'),
+                    widget: WorkspaceSelect,
                 },
                 {
                     slug: BuiltInFilter.Tag,

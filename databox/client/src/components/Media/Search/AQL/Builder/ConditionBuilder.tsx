@@ -156,6 +156,7 @@ export default function ConditionBuilder({
             </Grid>
             <Grid xs={4}>
                 <ValueBuilder
+                    widget={field?.widget}
                     rawType={rawType}
                     manyArgs={manyArgs}
                     argNames={argNames}
