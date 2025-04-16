@@ -60,37 +60,41 @@ export default function ValueBuilder({
         }));
     };
 
-    const normValue = (value: string): AQLValueOrExpression => {
-        if (value.startsWith('=')) {
-            const result = parseAQLQuery(`f = ${value.slice(1)}`);
-            if (!result) {
-                return value as any;
+    const normValue = (value: string|number|boolean): AQLValueOrExpression => {
+        if (typeof value === 'string') {
+            if (value.startsWith('=')) {
+                const result = parseAQLQuery(`f = ${value.slice(1)}`);
+                if (!result) {
+                    return value as any;
+                }
+                return (result.expression as AQLCondition)
+                    .rightOperand as AQLValueOrExpression;
             }
-            return (result.expression as AQLCondition)
-                .rightOperand as AQLValueOrExpression;
+
+            let num: number | undefined = NaN;
+            if (matchesNumber(value)) {
+                num = parseInt(value, 10);
+            } else if (matchesFloat(value)) {
+                num = parseFloat(value);
+            } else if (
+                value.length >= 2 &&
+                value[0] === '"' &&
+                value[value.length - 1] === '"'
+            ) {
+                // User casted string
+                return {
+                    literal: value.slice(1, value.length - 1),
+                };
+            }
+
+            return isNaN(num)
+                ? {
+                    literal: value,
+                }
+                : num;
         }
 
-        let num: number | undefined = NaN;
-        if (matchesNumber(value)) {
-            num = parseInt(value, 10);
-        } else if (matchesFloat(value)) {
-            num = parseFloat(value);
-        } else if (
-            value.length >= 2 &&
-            value[0] === '"' &&
-            value[value.length - 1] === '"'
-        ) {
-            // User casted string
-            return {
-                literal: value.slice(1, value.length - 1),
-            };
-        }
-
-        return isNaN(num)
-            ? {
-                  literal: value,
-              }
-            : num;
+        return value;
     };
 
     const fields: Omit<FieldBuilderProps, 'rawType'>[] = [];
@@ -156,7 +160,11 @@ export default function ValueBuilder({
                         alignItems: 'center',
                     }}
                 >
-                    <FieldBuilder {...f} widget={widget} rawType={rawType} />
+                    <FieldBuilder
+                        {...f}
+                        widget={widget}
+                        rawType={rawType}
+                    />
                     {manyArgs === true && (
                         <div>
                             <IconButton onClick={() => removeValue(index)}>

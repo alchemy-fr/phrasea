@@ -128,6 +128,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     canEdit: boolean;
     builtIn?: boolean;
     widget?: FieldWidget;
+    widgetProps?: Record<string, any>;
     searchBoost: number;
     fallback: Record<string, string>;
     initialValues: Record<string, string>;
@@ -136,12 +137,10 @@ export interface AttributeDefinition extends IPermissions, Entity {
     lastErrors?: LastErrors;
 }
 
-export type FieldWidget = React.FC<{
-    name: string;
-    value: string;
-    onChange: (value: string) => void;
-    placeholder?: string;
-}>;
+export type FieldWidget<P extends {} = any> = {
+    component: React.FC<P>;
+    props?: Partial<P>;
+};
 
 export interface AttributeClass extends ApiHydraObjectResponse, Entity {
     name: string;
@@ -332,6 +331,7 @@ export interface Workspace extends IPermissions, Entity {
     nameTranslated: string;
     enabledLocales?: string[] | undefined;
     localeFallbacks?: string[] | undefined;
+    owner?: User;
     createdAt: string;
     public: boolean;
 }

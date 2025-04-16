@@ -1,4 +1,4 @@
-import {AQLQuery, astToString} from './query.ts';
+import {AQLQuery, astToString, generateQueryId} from './query.ts';
 import {
     Alert,
     Button,
@@ -25,6 +25,8 @@ import {AQLExpression, AQLQueryAST} from './aqlTypes.ts';
 import {BuiltInFilter} from '../search.ts';
 import WorkspaceSelect from "../../../Form/WorkspaceSelect.tsx";
 import TagSelect from "../../../Form/TagSelect.tsx";
+import PrivacyField from "../../../Ui/PrivacyField.tsx";
+import PrivacyWidget from "../../../Form/PrivacyWidget.tsx";
 
 type Props = {
     condition: AQLQuery;
@@ -112,12 +114,28 @@ export default function SearchConditionDialog({
                     slug: BuiltInFilter.Workspace,
                     fieldType: 'text',
                     name: t('built_in_attr.workspace', 'Workspace'),
-                    widget: WorkspaceSelect,
+                    widget: {
+                        component: WorkspaceSelect
+                    },
+                },
+                {
+                    slug: BuiltInFilter.Privacy,
+                    fieldType: 'number',
+                    name: t('built_in_attr.privacy', 'Privacy'),
+                    widget: {
+                        component: PrivacyWidget,
+                    },
                 },
                 {
                     slug: BuiltInFilter.Tag,
                     fieldType: 'text',
                     name: t('built_in_attr.tag', 'Tag'),
+                    widget: {
+                        component: TagSelect,
+                        props: {
+                            useIRI: false,
+                        }
+                    },
                 },
                 {
                     slug: BuiltInFilter.EditedAt,
@@ -270,6 +288,7 @@ export default function SearchConditionDialog({
                                     onUpsert({
                                         ...condition,
                                         query: finalQuery,
+                                        renewId: true,
                                     });
                                 }
                             }}

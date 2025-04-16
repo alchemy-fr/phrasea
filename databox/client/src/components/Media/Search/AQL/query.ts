@@ -22,6 +22,7 @@ import {writeEntity} from "./entities.tsx";
 
 export type AQLQuery = {
     id: string;
+    renewId?: true;
     query: string;
     disabled?: boolean;
     inversed?: boolean;
@@ -249,8 +250,7 @@ export function getFieldDefinition(
     }
 }
 
-
-function searchInFacets(field: string, id: string, facets: TFacets) {
+function searchInFacets(field: string, id: string|number|boolean, facets: TFacets) {
     for (const k in facets) {
         if (k.startsWith(field)) {
             const bucket = facets[k].buckets.find((b) => (b.key as LabelledBucketValue).value === id);
@@ -268,14 +268,17 @@ export function replaceIdFromFacets(ast: AQLQueryAST, facets: TFacets): AQLQuery
                 return (operand as AQLOperand[]).map((v: AQLOperand) => {
                     return replaceField(field, v) as AQLOperand;
                 });
-            } else if (isAQLLiteral(operand)) {
-                const bucket = searchInFacets(field, operand.literal, facets);
-                if (bucket) {
-                    return {
-                        type: 'entity',
-                        id: operand.literal,
-                        label: (bucket.key as LabelledBucketValue).label,
-                    } as AQLEntity;
+            } else {
+                const v = resolveAQLValue(operand);
+                if (v) {
+                    const bucket = searchInFacets(field, v, facets);
+                    if (bucket) {
+                        return {
+                            type: 'entity',
+                            id: v?.toString(),
+                            label: (bucket.key as LabelledBucketValue).label,
+                        } as AQLEntity;
+                    }
                 }
             }
 
@@ -298,4 +301,8 @@ export function replaceIdFromFacets(ast: AQLQueryAST, facets: TFacets): AQLQuery
     ast.expression = replaceCriteria(ast.expression);
 
     return ast;
+}
+
+export function generateQueryId(): string {
+    return Math.random().toString(36).substring(7);
 }

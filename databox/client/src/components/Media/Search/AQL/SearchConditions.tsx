@@ -1,4 +1,4 @@
-import {AQLQueries, AQLQuery} from './query.ts';
+import {AQLQueries, AQLQuery, generateQueryId} from './query.ts';
 import {Box, Button} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import React from 'react';
@@ -47,7 +47,7 @@ export default function SearchConditions({
                     openModal(SearchConditionDialog, {
                         onUpsert,
                         condition: {
-                            id: Math.random().toString(36).substring(7),
+                            id: generateQueryId(),
                             query: '',
                         },
                     });

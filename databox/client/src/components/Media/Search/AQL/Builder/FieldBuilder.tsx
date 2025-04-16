@@ -30,10 +30,12 @@ export default function FieldBuilder({
     }, [initialValue]);
 
     if (widget) {
-        return React.createElement(widget, {
+        return React.createElement(widget.component, {
+            ...(widget.props ?? {}),
             name,
             value,
             onChange: (v: any) => {
+                console.log('v', v);
                 setValue(v);
                 if (typeof v === 'object' && hasProp<{value: string}>(v, 'value')) {
                     onChange(v.value);

@@ -31,20 +31,14 @@ final class TagFacet extends AbstractEntityFacet
      */
     protected function resolveLabel($value): string
     {
-        return $value->getName();
+        return $this->resolveTranslatedLabel($value);
     }
 
     protected function resolveTranslatedLabel(Tag $value): string
     {
         $preferredLocales = $this->getPreferredLocales($value->getWorkspace());
 
-        $translations = $value->getTranslations()['name'] ?? [];
-        $key = LocaleUtil::getBestLocale(array_keys($translations), $preferredLocales);
-        if (null !== $key) {
-            return $translations[$key];
-        }
-
-        return $value->getName();
+        return $value->getTranslatedField('name', $preferredLocales, $value->getName());
     }
 
     protected function getEntityClass(): string

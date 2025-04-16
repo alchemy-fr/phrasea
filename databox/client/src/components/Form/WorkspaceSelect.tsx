@@ -16,7 +16,7 @@ export default function WorkspaceSelect<TFieldValues extends FieldValues>({
             return data
                 .map((t: Workspace) => ({
                     value: t.id,
-                    label: t.name,
+                    label: t.nameTranslated ?? t.name,
                 }))
                 .filter(i =>
                     i.label

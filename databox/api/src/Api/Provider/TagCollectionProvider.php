@@ -27,17 +27,25 @@ final class TagCollectionProvider extends AbstractCollectionProvider
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array|object
     {
         $workspaceId = $context['filters']['workspace'] ?? null;
-        if (empty($workspaceId)) {
-            throw new BadRequestHttpException('Missing workspace');
+        if (!$workspaceId) {
+            $user = $this->getUser();
+            $workspaces = $this->em->getRepository(Workspace::class)->getAllowedWorkspaceIds($user?->getId(), $user?->getGroups() ?? []);
+        } else {
+            $workspace = $this->entityIriConverter->getItemFromIri(Workspace::class, $workspaceId);
+            $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace);
+            $workspaces = [$workspaceId];
         }
-
-        $workspace = $this->entityIriConverter->getItemFromIri(Workspace::class, $workspaceId);
-        $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace);
 
         $queryString = $context['filters']['query'] ?? null;
 
+        if (empty($workspaces)) {
+            return [];
+        }
+
+        $context['filters']['workspace'] = $workspaces;
+
         if (!empty($queryString)) {
-            return $this->tagSearch->search($workspaceId, $context['filters'] ?? []);
+            return $this->tagSearch->search($workspaces, $context['filters']);
         }
 
         return $this->collectionProvider->provide($operation, $uriVariables, $context);
