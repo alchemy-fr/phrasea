@@ -278,7 +278,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     #[ORM\ManyToMany(targetEntity: Tag::class)]
     private ?DoctrineCollection $tags = null;
 
-    #[ORM\OneToOne(targetEntity: Collection::class, inversedBy: 'storyAsset', cascade: ['remove'])]
+    #[ORM\OneToOne(targetEntity: Collection::class)]
     private ?Collection $storyCollection = null;
 
     /**
@@ -365,9 +365,16 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     {
         $this->storyCollection = $storyCollection;
         if($storyCollection) {
-            $storyCollection->setTitle(null);
+            if (null !== $storyCollection->getTitle()) {
+                throw new \LogicException('Story collection should not have a title');
+            }
             $storyCollection->setStoryAsset($this);
         }
+    }
+
+    public function isStory(): bool
+    {
+        return (bool)$this->storyCollection;
     }
 
     /**

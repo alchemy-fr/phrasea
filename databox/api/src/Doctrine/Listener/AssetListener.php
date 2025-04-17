@@ -12,10 +12,12 @@ use App\Entity\Core\File;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
+use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::onFlush)]
 #[AsDoctrineListener(Events::postUpdate)]
+#[AsDoctrineListener(Events::preRemove)]
 class AssetListener
 {
     use ChangeFieldListenerTrait;
@@ -23,6 +25,23 @@ class AssetListener
     public function __construct(
         private readonly PostFlushStack $postFlushStack,
     ) {
+    }
+
+    public function preRemove(PreRemoveEventArgs $args): void
+    {
+        $entity = $args->getObject();
+
+        if (!$entity instanceof Asset) {
+            return;
+        }
+
+        if (null !== ($storyCollection = $entity->getStoryCollection())) {
+            $em = $args->getObjectManager();
+            $storyCollection->setStoryAsset(null);
+            $em->persist($storyCollection);
+            $em->flush();
+            $em->remove($storyCollection);
+        }
     }
 
     public function onFlush(OnFlushEventArgs $args): void

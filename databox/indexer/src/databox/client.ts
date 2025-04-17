@@ -76,19 +76,6 @@ export class DataboxClient {
     private readonly logger: Logger;
     private readonly ownerId: string;
 
-    // Completely secret, only owner or granted users can view the item
-    PRIVACY_SECRET: number = 0;
-    // Item is listed for users allowed in the workspace but content is not accessible
-    PRIVACY_PRIVATE_IN_WORKSPACE: number = 1;
-    // Open to users allowed in the workspace
-    PRIVACY_PUBLIC_IN_WORKSPACE: number = 2;
-    // Item is listed to every user, but content is not accessible
-    PRIVACY_PRIVATE: number = 3;
-    // Public to every authenticated users
-    PRIVACY_PUBLIC_FOR_USERS: number = 4;
-    // Public to everyone
-    PRIVACY_PUBLIC: number = 5;
-
     constructor(
         {
             apiUrl,
@@ -287,7 +274,6 @@ export class DataboxClient {
                 await this.client.post(`/workspaces`, {
                     name: slug,
                     slug: slug,
-                    public: true,
                     enabledLocales: locales,
                     localeFallbacks: [],
                     ownerId: getStrict('databox.ownerId'),

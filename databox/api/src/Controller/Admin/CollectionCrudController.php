@@ -35,12 +35,11 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         return Collection::class;
     }
 
-//    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
-//    {
-//        return parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters)
-//            ->leftJoin('entity.storyAsset', 'asset')
-//            ->andWhere('asset.id IS NULL');
-//    }
+    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
+    {
+        return parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters)
+            ->andWhere('entity.storyAsset IS NULL');
+    }
 
     public function configureCrud(Crud $crud): Crud
     {

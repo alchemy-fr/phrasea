@@ -24,8 +24,7 @@ final readonly class IndexAllCollectionsHandler extends AbstractBatchHandler
             ->createQueryBuilder()
             ->select('c.id')
             ->from(Collection::class, 'c')
-            ->leftJoin('c.storyAsset', 'asset')
-            ->andWhere('asset.id IS NULL')
+            ->where('c.story_asse_id IS NULL')
             ->getQuery()
             ->toIterable();
     }
