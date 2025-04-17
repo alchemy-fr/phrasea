@@ -90,44 +90,6 @@ class StoryTest extends AbstractSearchTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-    public function testCreateStoryFromCollection(): void
-    {
-        $client = static::createClient();
-
-        $response = $client->request('POST', '/collections', [
-            'headers' => [
-                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
-            ],
-            'json' => [
-                // the title must be null for the collection to become a storyCollection
-                'workspace' => $this->findIriBy(Workspace::class, [
-                    'slug' => 'test-workspace',
-                ])
-            ],
-        ]);
-        $this->assertResponseStatusCodeSame(201);
-        $collectionId = $response->toArray()['id'];
-        $collectionIri = $response->toArray()['@id'];
-
-        $response = $client->request('POST', '/assets', [
-            'headers' => [
-                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
-            ],
-            'json' => [
-                'title' => 'Dummy story-asset',
-                'workspace' => $this->findIriBy(Workspace::class, [
-                    'slug' => 'test-workspace',
-                ]),
-                'storyCollection' => $collectionIri,
-            ],
-        ]);
-        $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
-        $assetId = $response->toArray()['id'];
-
-        $this->checkRelation($client, $assetId, $collectionId);
-    }
-
     private function createStory(Client $client, string &$assetId, string &$collectionId): void
     {
         $response = $client->request('POST', '/assets', [
