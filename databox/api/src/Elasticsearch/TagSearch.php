@@ -18,12 +18,12 @@ class TagSearch extends AbstractSearch
     }
 
     public function search(
-        string $workspaceId,
+        array $workspaceIds,
         array $options = [],
     ): Pagerfanta {
         $maxLimit = 50;
         $filterQuery = new Query\BoolQuery();
-        $filterQuery->addFilter(new Query\Term(['workspaceId' => $workspaceId]));
+        $filterQuery->addFilter(new Query\Terms('workspaceId', $workspaceIds));
 
         $queryString = trim($options['query'] ?? '');
         if (!empty($queryString)) {

@@ -11,6 +11,7 @@ import {
     isAQLCondition,
     isAQLField,
     resolveAQLValue,
+    generateQueryId,
 } from './AQL/query.ts';
 import {InternalKey, parseAQLQuery} from './AQL/AQL.ts';
 import {AQLCondition, AQLQueryAST} from './AQL/aqlTypes.ts';
@@ -192,6 +193,11 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
             const f = [...prev];
 
             const key = f.findIndex(_f => _f.id === condition.id);
+
+            if (condition.renewId) {
+                condition.id = generateQueryId();
+                delete condition.renewId;
+            }
 
             if (key >= 0) {
                 f[key] = condition;

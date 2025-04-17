@@ -14,8 +14,7 @@ readonly class UpdateSubscribersHandler
     public function __construct(
         private NovuClient $novuClient,
         private UserRepository $userRepository,
-    )
-    {
+    ) {
     }
 
     public function __invoke(UpdateSubscribers $message): void
@@ -39,6 +38,5 @@ readonly class UpdateSubscribersHandler
         }, $message->getSubscribers());
 
         $this->novuClient->upsertSubscribers($subscribers);
-
     }
 }

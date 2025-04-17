@@ -46,9 +46,7 @@ export default function TranslatedField<T extends WithTranslations>({
 
     return (
         <Stack direction={'row'}>
-            <div>
-                {children}
-            </div>
+            <div>{children}</div>
             <Tooltip
                 title={t(
                     'lib.form.translations.tooltip',

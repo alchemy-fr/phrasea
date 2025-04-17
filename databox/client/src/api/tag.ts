@@ -6,7 +6,7 @@ export const tagNS = '/tags';
 
 type TagOptions = {
     query?: string;
-    workspace: string;
+    workspace?: string;
 };
 
 export async function getTags(

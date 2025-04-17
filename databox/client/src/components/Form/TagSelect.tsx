@@ -11,19 +11,22 @@ import React from 'react';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
+    useIRI?: boolean;
     multiple: IsMulti;
 } & AsyncRSelectProps<TFieldValues, IsMulti>;
 
 export default function TagSelect<
     TFieldValues extends FieldValues,
     IsMulti extends boolean,
->({workspaceId: wsId, multiple, ...rest}: Props<TFieldValues, IsMulti>) {
+>({
+    workspaceId: wsId,
+    useIRI = true,
+    multiple,
+    ...rest
+}: Props<TFieldValues, IsMulti>) {
     const workspaceContext = React.useContext(WorkspaceContext);
 
     const workspaceId = wsId ?? workspaceContext?.workspaceId;
-    if (!workspaceId) {
-        throw new Error('Missing workspace context');
-    }
 
     const load = async (inputValue: string): Promise<SelectOption[]> => {
         const data = (
@@ -37,7 +40,7 @@ export default function TagSelect<
             .map(
                 (t: Tag) =>
                     ({
-                        value: `${tagNS}/${t.id}`,
+                        value: useIRI ? `${tagNS}/${t.id}` : t.id,
                         label: t.nameTranslated,
                         item: t,
                     }) as TagOptions

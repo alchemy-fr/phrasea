@@ -44,13 +44,18 @@ export default class PhraseanetClient {
 
     constructor(options: PhraseanetConfig, logger: winston.Logger) {
         this.client = createPhraseanetClient(options);
-        const [f, o] = (options.searchOrder??'').split(',');
+        const [f, o] = (options.searchOrder ?? '').split(',');
 
         this.sortField = f ?? 'record_id';
-        this.sortOrder = (o ?? 'asc').toLowerCase()
+        this.sortOrder = (o ?? 'asc').toLowerCase();
 
-        if(this.sortField != 'record_id' || (this.sortOrder != ORDER_ASC && this.sortOrder != ORDER_DESC)) {
-            throw new Error(`searchOrder must be 'record_id,asc' or 'record_id,desc', got '${options.searchOrder}'`);
+        if (
+            this.sortField != 'record_id' ||
+            (this.sortOrder != ORDER_ASC && this.sortOrder != ORDER_DESC)
+        ) {
+            throw new Error(
+                `searchOrder must be 'record_id,asc' or 'record_id,desc', got '${options.searchOrder}'`
+            );
         }
         this.id = btoa(options.url);
         this.logger = logger;
@@ -124,7 +129,7 @@ export default class PhraseanetClient {
             offset,
             PhraseanetSearchType.Story,
             searchQuery,
-            limit,
+            limit
         ) as unknown as Promise<CPhraseanetStory[]>;
     }
 
@@ -135,7 +140,6 @@ export default class PhraseanetClient {
         searchQuery: string,
         limit: number = 100
     ): Promise<(CPhraseanetRecord | CPhraseanetStory)[]> {
-
         let last_error = null;
         let ttry = 0;
         for (ttry = 0; ttry < 3; ttry++) {

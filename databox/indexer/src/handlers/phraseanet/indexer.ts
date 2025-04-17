@@ -184,13 +184,14 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             if (importStories) {
                 logger.info(`>>> Importing stories`);
                 let stories: CPhraseanetStory[] = [];
-                let lastRecordId: undefined|string = undefined;
-                const ridOperator = phraseanetClient.getSortOrder() === ORDER_ASC ? '>' : '<';
+                let lastRecordId: undefined | string = undefined;
+                const ridOperator =
+                    phraseanetClient.getSortOrder() === ORDER_ASC ? '>' : '<';
                 const PAGESIZE = 20;
                 let nRecords = 0;
                 do {
                     let query = '';
-                    if(lastRecordId !== undefined) {
+                    if (lastRecordId !== undefined) {
                         query = `recordid ${ridOperator} ${lastRecordId}`;
                     }
                     logger.info(`search query: ${query}`);
@@ -275,14 +276,15 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
 
             logger.info(`>>> Importing records`);
             let records: CPhraseanetRecord[];
-            let lastRecordId: undefined|string = undefined;
-            const ridOperator = phraseanetClient.getSortOrder() === ORDER_ASC ? '>' : '<';
+            let lastRecordId: undefined | string = undefined;
+            const ridOperator =
+                phraseanetClient.getSortOrder() === ORDER_ASC ? '>' : '<';
             const PAGESIZE = 50;
             let nRecords = 0;
             do {
                 let query = dm.searchQuery ?? '';
-                if(lastRecordId !== undefined) {
-                    if(query) {
+                if (lastRecordId !== undefined) {
+                    if (query) {
                         query = `(${query}) AND `;
                     }
                     query += `recordid ${ridOperator} ${lastRecordId}`;
@@ -290,7 +292,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 logger.info(`search query: ${query}`);
                 records = await phraseanetClient.searchRecords(
                     searchParams,
-                    0,      // offset
+                    0, // offset
                     PAGESIZE,
                     query
                 );

@@ -112,13 +112,13 @@ class AQLToESQueryTest extends TestCase
             ['date < "9999-88-88"', [
                 'range' => [
                     'attrs._.date_date_s' => ['lt' => '9999-88-88'],
-                ]
+                ],
             ]],
             ['date < ""', 'Invalid date time value ""'],
             ['date < "2015"', [
                 'range' => [
                     'attrs._.date_date_s' => ['lt' => 2015],
-                ]
+                ],
             ]],
             ['foo="bar"', [
                 'multi_match' => [

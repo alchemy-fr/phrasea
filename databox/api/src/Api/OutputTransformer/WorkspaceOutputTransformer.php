@@ -16,6 +16,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
     use SecurityAwareTrait;
     use GroupsHelperTrait;
     use UserLocaleTrait;
+    use UserOutputTransformerTrait;
 
     private array $capCache = [];
 
@@ -39,6 +40,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
         $output->setPublic($data->isPublic());
         $output->setCreatedAt($data->getCreatedAt());
         $output->translations = $data->getTranslations();
+        $output->ownerId = $data->getOwnerId();
 
         $k = $data->getId().$this->getUserCacheId();
         if (!isset($this->capCache[$k])) {
@@ -47,6 +49,12 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
                 'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
                 'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
             ];
+        }
+
+        if ($this->hasGroup([
+            Workspace::GROUP_READ,
+        ], $context)) {
+            $output->owner = $this->transformUser($data->getOwnerId());
         }
 
         if ($this->hasGroup([
