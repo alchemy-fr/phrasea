@@ -204,7 +204,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     #[ORM\OneToMany(mappedBy: 'referenceCollection', targetEntity: Asset::class)]
     private ?DoctrineCollection $referenceAssets = null;
 
-    #[ORM\OneToOne(targetEntity: Asset::class, mappedBy: 'storyCollection')]
+    #[ORM\OneToOne(targetEntity: Asset::class)]
     private ?Asset $storyAsset = null;
 
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'collections')]
@@ -462,7 +462,9 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     {
         $this->storyAsset = $storyAsset;
         if($storyAsset) {
-            $this->setTitle(null);
+            if (null !== $this->getTitle()) {
+                throw new \LogicException('Story collection should not have a title');
+            }
         }
     }
 }

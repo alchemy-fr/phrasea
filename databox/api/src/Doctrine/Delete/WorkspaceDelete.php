@@ -57,16 +57,15 @@ final readonly class WorkspaceDelete
             // first, delete story collections to avoid "collection not found" later
             $storyCollections = $this->em->getRepository(Collection::class)
                 ->createQueryBuilder('c')
-                ->select('c.id, c.title')
-                ->leftJoin('c.storyAsset', 'asset')
+                ->select('c.id')
                 ->andWhere('c.workspace = :ws')
-                ->andWhere('asset.id IS NOT NULL')
+                ->andWhere('c.storyAsset IS NOT NULL')
                 ->setParameter('ws', $workspaceId)
                 ->getQuery()
                 ->toIterable();
 
             foreach ($storyCollections as $c) {
-                $this->logger->debug(sprintf('Deleting story collection "%s" (%s).', $c['title'] ?: '', $c['id']));
+                $this->logger->debug(sprintf('Deleting story collection (%s).', $c['id']));
                 $this->collectionDelete->deleteCollection((string) $c['id'], true);
             }
 

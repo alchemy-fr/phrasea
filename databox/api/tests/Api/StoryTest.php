@@ -90,7 +90,7 @@ class StoryTest extends AbstractSearchTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-    public function testCreateStoryManualLink(): void
+    public function testCreateStoryFromCollection(): void
     {
         $client = static::createClient();
 
@@ -99,8 +99,7 @@ class StoryTest extends AbstractSearchTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
-                // this title should become null when the collection becomes a storyCollection
-                'title' => 'Dummy story-collection',
+                // the title must be null for the collection to become a storyCollection
                 'workspace' => $this->findIriBy(Workspace::class, [
                     'slug' => 'test-workspace',
                 ])
@@ -148,7 +147,6 @@ class StoryTest extends AbstractSearchTestCase
         $data = $response->toArray();
         $this->assertArrayHasKey('storyCollection', $data);
         $this->assertIsArray($data['storyCollection']);
-        // dump($response->toArray());
 
         $assetId = $data['id'];
         $collectionId = $data['storyCollection']['id'];

@@ -60,7 +60,6 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
         // also create links into collections
         for (const c of asset.shortcutIntoCollections ?? []) {
             logger.info(`  copy to:  "${c.path}"  (#${c.id})`);
-            //          logger.info(`  copy to: (#${c.id})`);
             await databoxClient.copyAsset({
                 destination: '/collections/' + c.id,
                 ids: [assetId],
