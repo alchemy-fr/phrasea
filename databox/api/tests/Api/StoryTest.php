@@ -16,10 +16,7 @@ class StoryTest extends AbstractSearchTestCase
         self::enableFixtures();
 
         $client = static::createClient();
-        $collectionId = "";
-        $assetId = "";
-
-        $this->createStory($client, $assetId,$collectionId);
+        list($collectionId, $assetId) = $this->createStory($client);
 
         $this->checkRelation($client, $assetId, $collectionId);
     }
@@ -31,9 +28,7 @@ class StoryTest extends AbstractSearchTestCase
         $adminAuthorization = 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID);
 
         $client = static::createClient();
-        $collectionId = "";
-        $assetId = "";
-        $this->createStory($client, $assetId,$collectionId);
+        list($collectionId, $assetId) = $this->createStory($client);
 
         $client->request('DELETE', '/collections/' . urlencode($collectionId), [
             'headers' => [
@@ -64,9 +59,7 @@ class StoryTest extends AbstractSearchTestCase
         $adminAuthorization = 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID);
 
         $client = static::createClient();
-        $collectionId = "";
-        $assetId = "";
-        $this->createStory($client, $assetId,$collectionId);
+        list($collectionId, $assetId) = $this->createStory($client);
 
         $client->request('DELETE', '/assets/' . urlencode($assetId), [
             'headers' => [
@@ -90,7 +83,7 @@ class StoryTest extends AbstractSearchTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-    private function createStory(Client $client, string &$assetId, string &$collectionId): void
+    private function createStory(Client $client): array
     {
         $response = $client->request('POST', '/assets', [
             'headers' => [
@@ -110,8 +103,7 @@ class StoryTest extends AbstractSearchTestCase
         $this->assertArrayHasKey('storyCollection', $data);
         $this->assertIsArray($data['storyCollection']);
 
-        $assetId = $data['id'];
-        $collectionId = $data['storyCollection']['id'];
+        return [$data['storyCollection']['id'], $data['id']];
     }
 
     private function checkRelation(Client $client, string $assetId, string $collectionId): void
