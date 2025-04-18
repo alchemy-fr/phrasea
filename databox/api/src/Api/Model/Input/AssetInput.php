@@ -39,6 +39,8 @@ class AssetInput extends AbstractOwnerIdInput
 
     public ?Collection $collection = null;
 
+    public ?Collection $storyCollection = null;
+
     public ?array $destinations = null;
 
     /**
@@ -70,4 +72,6 @@ class AssetInput extends AbstractOwnerIdInput
 
     #[Groups(['_'])]
     public ?array $relationExtraMetadata = null;
+
+    public ?bool $isStory = null;
 }

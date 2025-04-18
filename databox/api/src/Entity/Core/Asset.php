@@ -278,9 +278,8 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     #[ORM\ManyToMany(targetEntity: Tag::class)]
     private ?DoctrineCollection $tags = null;
 
-    #[ORM\ManyToOne(targetEntity: Collection::class)]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?DoctrineCollection $storyCollection = null;
+    #[ORM\OneToOne(targetEntity: Collection::class)]
+    private ?Collection $storyCollection = null;
 
     /**
      * Asset will inherit permissions from this collection.
@@ -357,19 +356,25 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         $this->source = $source;
     }
 
-    public function getStoryCollection(): ?DoctrineCollection
+    public function getStoryCollection(): ?Collection
     {
         return $this->storyCollection;
     }
 
-    public function setStoryCollection(?DoctrineCollection $storyCollection): void
+    public function setStoryCollection(?Collection $storyCollection): void
     {
         $this->storyCollection = $storyCollection;
+        if($storyCollection) {
+            if (null !== $storyCollection->getTitle()) {
+                throw new \LogicException('Story collection should not have a title');
+            }
+            $storyCollection->setStoryAsset($this);
+        }
     }
 
-    public function hasChildren(): bool
+    public function isStory(): bool
     {
-        return null !== $this->storyCollection;
+        return (bool)$this->storyCollection;
     }
 
     /**

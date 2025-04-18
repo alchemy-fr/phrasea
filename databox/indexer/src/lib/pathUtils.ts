@@ -19,3 +19,7 @@ export function splitPath(path: string): string[] {
         .filter(x => x) // remove empty segments (/a//b/c/ => [a,b,c])
         .map(stripSlashes);
 }
+
+export function concatPath(path1: string, path2: string): string {
+    return splitPath(path1 + '/' + path2).join('/');
+}

@@ -10,20 +10,38 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\File;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
+use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::onFlush)]
 #[AsDoctrineListener(Events::postUpdate)]
-class AssetListener implements EventSubscriber
+#[AsDoctrineListener(Events::preRemove)]
+class AssetListener
 {
     use ChangeFieldListenerTrait;
 
     public function __construct(
         private readonly PostFlushStack $postFlushStack,
     ) {
+    }
+
+    public function preRemove(PreRemoveEventArgs $args): void
+    {
+        $entity = $args->getObject();
+
+        if (!$entity instanceof Asset) {
+            return;
+        }
+
+        if (null !== ($storyCollection = $entity->getStoryCollection())) {
+            $em = $args->getObjectManager();
+            $storyCollection->setStoryAsset(null);
+            $em->persist($storyCollection);
+            $em->flush();
+            $em->remove($storyCollection);
+        }
     }
 
     public function onFlush(OnFlushEventArgs $args): void
@@ -65,13 +83,5 @@ class AssetListener implements EventSubscriber
         }
 
         $this->postFlushStack->addBusMessage(new IndexAssetAttributes($entity->getId()));
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::onFlush,
-            Events::postUpdate,
-        ];
     }
 }

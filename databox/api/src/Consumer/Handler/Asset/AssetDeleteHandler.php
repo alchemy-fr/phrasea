@@ -34,7 +34,11 @@ readonly class AssetDeleteHandler
         }
 
         $assets = DoctrineUtil::iterateIds($this->em->getRepository(Asset::class), $message->getIds());
+        /** @var Asset $asset */
         foreach ($assets as $asset) {
+            if($asset->getStoryCollection()) {
+                $this->em->remove($asset->getStoryCollection());
+            }
             $this->em->remove($asset);
         }
         $this->em->flush();
