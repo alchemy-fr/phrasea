@@ -8,7 +8,7 @@ import {
     PhraseanetSubdefStruct,
 } from './types';
 import {CPhraseanetRecord, CPhraseanetStory} from './CPhraseanetRecord';
-import PhraseanetClient from './phraseanetClient';
+import PhraseanetClient, {ORDER_ASC} from './phraseanetClient';
 import {
     AttrClassIndex,
     attributeTypesEquivalence,
@@ -182,14 +182,25 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             const recordStories: Record<string, {id: string; path: string}[]> =
                 {}; // key: record_id ; values: story_id's
             if (importStories) {
-                logger.info(`Importing stories`);
+                logger.info(`>>> Importing stories`);
                 let stories: CPhraseanetStory[] = [];
-                let offset = 0;
+                let lastRecordId: undefined | string = undefined;
+                const ridOperator =
+                    phraseanetClient.getSortOrder() === ORDER_ASC ? '>' : '<';
+                const PAGESIZE = 20;
+                let nRecords = 0;
                 do {
+                    let query = '';
+                    if (lastRecordId !== undefined) {
+                        query = `recordid ${ridOperator} ${lastRecordId}`;
+                    }
+                    logger.info(`search query: ${query}`);
+
                     stories = await phraseanetClient.searchStories(
                         searchParams,
-                        offset,
-                        ''
+                        0, // offset,
+                        PAGESIZE,
+                        query
                     );
                     for (const s of stories) {
                         const path: string = storiesCollectionPathTwig
@@ -253,19 +264,37 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                 path: storyPath + '/' + s.title,
                             });
                         }
+                        lastRecordId = s.story_id;
+                        nRecords++;
                     }
-                    offset += stories.length;
-                } while (stories.length > 0);
+                } while (stories.length == PAGESIZE);
+
+                logger.info(
+                    `<<< End importing ${nRecords} stories of databox "${phraseanetDatabox.name}" (#${phraseanetDatabox.databox_id})`
+                );
             }
 
-            logger.info(`Importing records`);
+            logger.info(`>>> Importing records`);
             let records: CPhraseanetRecord[];
-            let offset = 0;
+            let lastRecordId: undefined | string = undefined;
+            const ridOperator =
+                phraseanetClient.getSortOrder() === ORDER_ASC ? '>' : '<';
+            const PAGESIZE = 50;
+            let nRecords = 0;
             do {
+                let query = dm.searchQuery ?? '';
+                if (lastRecordId !== undefined) {
+                    if (query) {
+                        query = `(${query}) AND `;
+                    }
+                    query += `recordid ${ridOperator} ${lastRecordId}`;
+                }
+                logger.info(`search query: ${query}`);
                 records = await phraseanetClient.searchRecords(
                     searchParams,
-                    offset,
-                    dm.searchQuery ?? ''
+                    0, // offset
+                    PAGESIZE,
+                    query
                 );
                 for (const record of records) {
                     logger.info(
@@ -342,9 +371,13 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         subdefToRendition,
                         logger
                     );
+                    lastRecordId = record.record_id;
+                    nRecords++;
                 }
-                offset += records.length;
-            } while (records.length > 0);
+            } while (records.length == PAGESIZE);
+            logger.info(
+                `<<< End importing ${nRecords} records of databox "${phraseanetDatabox.name}" (#${phraseanetDatabox.databox_id})`
+            );
         }
     };
 
