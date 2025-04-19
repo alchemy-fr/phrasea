@@ -227,40 +227,49 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         return $clientData;
     }
 
-    private function configureRealm(): void
+    public function configureRealm(): void
     {
-        $from = getenv('MAIL_FROM') ?: 'noreply@phrasea.io';
-
-        $this->keycloakManager->createRealm();
-
         $this->keycloakManager->putRealm([
             'displayName'               => 'Phrasea Auth',
             'displayNameHtml'           => '<div class="kc-logo-text"><span>Phrasea Auth</span></div>',
-            'registrationAllowed'       => $this->getBooleanEnv('KEYCLOAK_LOGIN_REGISTRATION_ALLOWED', false),
-            'resetPasswordAllowed'      => $this->getBooleanEnv('KEYCLOAK_LOGIN_RESET_PASSWORD_ALLOWED', true),
-            'rememberMe'                => $this->getBooleanEnv('KEYCLOAK_LOGIN_REMEMBER_ME_ALLOWED', true),
-            'loginWithEmailAllowed'     => $this->getBooleanEnv('KEYCLOAK_LOGIN_WITH_EMAIL_ALLOWED', true),
-            'verifyEmail'               => $this->getBooleanEnv('KEYCLOAK_LOGIN_VERIFY_EMAIL_ALLOWED', false),
-            'registrationEmailAsUsername' => $this->getBooleanEnv('KEYCLOAK_LOGIN_EMAIL_AS_USERNAME', false),
-            'editUsernameAllowed'       => $this->getBooleanEnv('KEYCLOAK_LOGIN_EDIT_USERNAME', false),
-            'bruteForceProtected'       => $this->getBooleanEnv('KEYCLOAK_SECURITY_DETECTION_BRUTE_FORCE_ENABLED', false),
-            'ssoSessionIdleTimeout'     => getenv('KEYCLOAK_SSO_SESSION_IDLE_TIMEOUT') ?: '1800',
-            'clientSessionIdleTimeout'  => getenv('KEYCLOAK_CLIENT_SESSION_IDLE_TIMEOUT') ?: '1800',
-            'offlineSessionIdleTimeout' => getenv('KEYCLOAK_OFFLINE_SESSION_IDLE_TIMEOUT') ?: '2592000',
-            'internationalizationEnabled' => $this->getBooleanEnv('KEYCLOAK_LOCALISATION_ENABLED', true),
-            'supportedLocales'          => (getenv('KEYCLOAK_SUPPORTED_LOCALES') != null) ? explode(',', getenv('KEYCLOAK_SUPPORTED_LOCALES')) : ['en'],
-            'defaultLocale'             => getenv('KEYCLOAK_DEFAULT_LOCALE') ?: 'en',
+            'registrationAllowed'       => $this->getBooleanEnv('KC_REALM_LOGIN_REGISTRATION_ALLOWED', false),
+            'resetPasswordAllowed'      => $this->getBooleanEnv('KC_REALM_LOGIN_RESET_PASSWORD_ALLOWED', true),
+            'rememberMe'                => $this->getBooleanEnv('KC_REALM_LOGIN_REMEMBER_ME_ALLOWED', true),
+            'loginWithEmailAllowed'     => $this->getBooleanEnv('KC_REALM_LOGIN_WITH_EMAIL_ALLOWED', true),
+            'verifyEmail'               => $this->getBooleanEnv('KC_REALM_LOGIN_VERIFY_EMAIL_ALLOWED', false),
+            'registrationEmailAsUsername' => $this->getBooleanEnv('KC_REALM_LOGIN_EMAIL_AS_USERNAME', false),
+            'editUsernameAllowed'       => $this->getBooleanEnv('KC_REALM_LOGIN_EDIT_USERNAME', false),            
+             'bruteForceProtected'       => true,
+            'failureFactor'             => '30',   
+            'bruteForceStrategy'        => 'MULTIPLE',
+            'permanentLockout'          => false,
+            'waitIncrementSeconds'      => '60',
+            'maxFailureWaitSeconds'     => '900',
+            'maxDeltaTimeSeconds'       => '43200',
+            'quickLoginCheckMilliSeconds' => '1000',
+            'minimumQuickLoginWaitSeconds' => '60',
+            'eventsEnabled'                 => $this->getBooleanEnv('KC_REALM_USER_EVENT_ENABLED', false),
+            'eventsExpiration'              => getenv('KC_REALM_USER_EVENT_EXPIRATION') ?: '604800',
+            'eventsListeners'               => ['jboss-logging'],
+            'adminEventsEnabled'           => $this->getBooleanEnv('KC_REALM_ADMIN_EVENT_ENABLED', false),
+            'adminEventsDetailsEnabled'    => true,      
+            'ssoSessionIdleTimeout'     => getenv('KC_REALM_SSO_SESSION_IDLE_TIMEOUT') ?: '1800',
+            'clientSessionIdleTimeout'  => getenv('KC_REALM_CLIENT_SESSION_IDLE_TIMEOUT') ?: '1800',
+            'offlineSessionIdleTimeout' => getenv('KC_REALM_OFFLINE_SESSION_IDLE_TIMEOUT') ?: '2592000',
+            'internationalizationEnabled' => true,
+            'supportedLocales'          => (getenv('KC_REALM_SUPPORTED_LOCALES') != null) ? explode(',', getenv('KC_REALM_SUPPORTED_LOCALES')) : ['en'],
+            'defaultLocale'             => getenv('KC_REALM_DEFAULT_LOCALE') ?: 'en',
             'smtpServer' => [
                 'auth' => getenv('EMAIL_USER') ? 'true' : '',
-                'from' => $from,
+                'from' => getenv('MAIL_FROM') ?: 'noreply@phrasea.io',
                 'fromDisplayName' => 'Phrasea',
-                'host' => getenv('EMAIL_HOST_RELAY'),
-                'port' => getenv('EMAIL_HOST_PORT') ?? '587',
+                'host' => getenv('MAILER_HOST'),
+                'port' => getenv('MAILER_PORT') ?? '587',
                 'replyTo' => '',
                 'ssl' => 'false',
                 'starttls' => 'false',
-                'user' => getenv('EMAIL_USER') ?? null,
-                'password' => getenv('EMAIL_SECRET') ?? null,
+                'user' => getenv('MAILER_USER') ?? null,
+                'password' => getenv('MAILER_PASSWORD') ?? null,
             ],
         ]);
     }
