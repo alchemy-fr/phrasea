@@ -24,17 +24,12 @@ final readonly class QuietContextMiddleware implements MiddlewareInterface
     {
         if (!$envelope->last(ConsumedByWorkerStamp::class) || !$contextStamp = $envelope->last(QuietContextStamp::class)) {
             $request = $this->requestStack->getCurrentRequest();
-            if (!$request) {
-                return $envelope;
+            if (null !== $request) {
+                $envelope = $envelope->with(new QuietContextStamp(
+                    $request->headers->has('X-Webhook-Disabled'),
+                    $request->headers->has('X-Notification-Disabled')
+                ));
             }
-
-            $isNoWebhook = $request->headers->has('X-Webhook-Disabled');
-            $isNoNotification = $request->headers->has('X-Notification-Disabled');
-
-            $envelope = $envelope->with(new QuietContextStamp(
-                $isNoWebhook,
-                $isNoNotification
-            ));
 
             return $stack->next()->handle($envelope, $stack);
         }
