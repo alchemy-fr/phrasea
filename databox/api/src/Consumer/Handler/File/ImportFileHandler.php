@@ -83,7 +83,9 @@ readonly class ImportFileHandler
             $this->em->persist($file);
             $this->em->flush();
         } finally {
-            unlink($src);
+            if (file_exists($src)) {
+                unlink($src);
+            }
         }
     }
 }

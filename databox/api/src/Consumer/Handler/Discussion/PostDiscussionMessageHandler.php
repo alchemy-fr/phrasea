@@ -22,13 +22,17 @@ readonly class PostDiscussionMessageHandler
         private MessageRepository $messageRepository,
         private NotifierInterface $notifier,
         private DiscussionManager $discussionManager,
-        private ObjectNotifier $assetNotifier,
+        private ObjectNotifier $objectNotifier,
         private MentionExtractor $mentionExtractor,
     ) {
     }
 
     public function __invoke(PostDiscussionMessage $message): void
     {
+        if (!$this->objectNotifier->isEnabled()) {
+            return;
+        }
+
         /** @var Message $message */
         $message = $this->messageRepository->find($message->getId());
         if (!$message) {
@@ -53,7 +57,7 @@ readonly class PostDiscussionMessageHandler
         if ($object instanceof Asset) {
             $params['url'] = '/assets/'.$object->getId().'#discussion-'.$message->getId();
 
-            $this->assetNotifier->notifyObject(
+            $this->objectNotifier->notifyObject(
                 $object,
                 Asset::EVENT_NEW_COMMENT,
                 $notificationId,
@@ -66,7 +70,7 @@ readonly class PostDiscussionMessageHandler
                 $collection = $assetCollection->getCollection();
                 $params['collection'] = $collection->getAbsoluteTitle();
 
-                $this->assetNotifier->notifyObject(
+                $this->objectNotifier->notifyObject(
                     $collection,
                     Collection::EVENT_ASSET_NEW_COMMENT,
                     $notificationId,

@@ -15,7 +15,12 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
     definitions: [],
 
     load: async force => {
-        if (getState().loaded && !force) {
+        const state = getState();
+        if (state.loaded && !force) {
+            return;
+        }
+
+        if (state.loading) {
             return;
         }
 
@@ -31,9 +36,8 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
                 loading: false,
                 loaded: true,
             });
-        } catch (e: any) {
+        } finally {
             set({loading: false});
-            throw e;
         }
     },
 }));

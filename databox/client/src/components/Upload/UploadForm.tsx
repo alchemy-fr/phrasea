@@ -1,6 +1,6 @@
 import React, {FC} from 'react';
 import {useTranslation} from 'react-i18next';
-import {FormRow, SelectOption} from '@alchemy/react-form';
+import {FormRow, SelectOption, SwitchWidget} from '@alchemy/react-form';
 import {FormFieldErrors} from '@alchemy/react-form';
 import CollectionTreeWidget from '../Form/CollectionTreeWidget';
 import PrivacyField from '../Ui/PrivacyField';
@@ -29,6 +29,7 @@ export type UploadData = {
     destination: Collection;
     privacy: Privacy;
     tags: Tag[];
+    quiet?: boolean;
 };
 
 export type FormUploadData = {
@@ -268,6 +269,14 @@ export const UploadForm: FC<{
                     />
                 </WorkspaceContext.Provider>
             )}
+
+            <FormRow>
+                <SwitchWidget
+                    control={control}
+                    name={'quiet'}
+                    label={t('form.upload.quiet.label', 'Quiet (no notification, no webhook)')}
+                />
+            </FormRow>
 
             <SaveAsTemplateForm
                 templateId={templateId}

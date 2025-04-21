@@ -21,6 +21,10 @@ readonly class NotifyCollectionTopicHandler
 
     public function __invoke(NotifyCollectionTopic $message): void
     {
+        if (!$this->objectNotifier->isEnabled()) {
+            return;
+        }
+
         $collectionId = $message->getCollectionId();
         $collection = $this->em->find(Collection::class, $collectionId);
 

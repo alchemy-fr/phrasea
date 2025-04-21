@@ -1,5 +1,10 @@
 framework:
     messenger:
+        buses:
+            command_bus:
+                middleware:
+                    - doctrine_ping_connection
+                    - App\Consumer\Middleware\QuietContextMiddleware
         transports:
             p1:
                 dsn: '%alchemy_messenger.amqp_transport_dsn%/p1'
