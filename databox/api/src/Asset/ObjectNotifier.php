@@ -23,6 +23,10 @@ final readonly class ObjectNotifier
         array $notificationParams,
         array $notificationOptions = [],
     ): void {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
         $notificationParams['author'] ??= $this->notifier->getUsername($authorId);
         $notificationParams['authorId'] ??= $authorId;
 
@@ -41,7 +45,6 @@ final readonly class ObjectNotifier
                     $this->notifier->addTopicSubscribers($topicKey, [$object->getOwnerId()]);
                     $shouldNotify = true;
                 } else {
-                    $this->notifier->createTopic($topicKey);
                     $shouldNotify = false;
                 }
 
@@ -55,5 +58,10 @@ final readonly class ObjectNotifier
         if ($shouldNotify) {
             $this->notifier->notifyTopic($topicKey, $authorId, $notificationId, $notificationParams, $notificationOptions);
         }
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->notifier->isEnabled();
     }
 }

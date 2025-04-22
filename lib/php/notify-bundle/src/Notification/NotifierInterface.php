@@ -48,4 +48,8 @@ interface NotifierInterface
     public function getTopicSubscriptions(array $topicKeys, string $userId): array;
 
     public function getUsername(string $userId): string;
+
+    public function isEnabled(): bool;
+
+    public function setEnabled(bool $enabled): void;
 }

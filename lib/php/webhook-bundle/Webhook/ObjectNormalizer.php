@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace Alchemy\WebhookBundle\Webhook;
 
 use Alchemy\WebhookBundle\Normalizer\NormalizerContextBuilderInterface;
-use Symfony\Component\Security\Core\Authentication\Token\NullToken;
+use Alchemy\WebhookBundle\Security\WebhookToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class ObjectNormalizer
+readonly class ObjectNormalizer
 {
-    private readonly NormalizerInterface $normalizer;
-    private readonly TokenStorageInterface $tokenStorage;
+    private NormalizerInterface $normalizer;
+    private TokenStorageInterface $tokenStorage;
 
     public function __construct(
         NormalizerInterface $normalizer,
-        private readonly NormalizerContextBuilderInterface $normalizerContextBuilder,
+        private NormalizerContextBuilderInterface $normalizerContextBuilder,
         TokenStorageInterface $tokenStorage,
-        private readonly ?array $normalizerRoles = null,
+        private ?array $normalizerRoles = null,
     ) {
         $this->normalizer = $normalizer;
         $this->tokenStorage = $tokenStorage;
@@ -27,7 +27,7 @@ class ObjectNormalizer
     public function normalize(object $object, array $groups): array
     {
         $previousToken = $this->tokenStorage->getToken();
-        $token = new NullToken('', 'normalizer.', $this->normalizerRoles);
+        $token = new WebhookToken($this->normalizerRoles);
         $this->tokenStorage->setToken($token);
 
         $context = $this->normalizerContextBuilder->buildContext([

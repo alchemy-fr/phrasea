@@ -9,6 +9,7 @@ use Alchemy\NotifyBundle\Message\UpdateSubscribers;
 use Alchemy\NotifyBundle\Service\NovuClient;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Notifier\Bridge\Novu\NovuSubscriberRecipient;
 use Symfony\Component\Notifier\NotifierInterface as SymfonyNotifierInterface;
@@ -18,11 +19,14 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
+    private bool $enabled = true;
+
     public function __construct(
         private readonly SymfonyNotifierInterface $notifier,
         private readonly MessageBusInterface $bus,
         private readonly NovuClient $novuClient,
         private UserRepository $userRepository,
+        private RequestStack $requestStack,
         private readonly bool $notifyAuthor = false,
         private bool $novuIsDown = false,
     ) {
@@ -117,5 +121,15 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
         $user = $this->userRepository->getUser($userId);
 
         return $user ? $user['username'] : 'Deleted User';
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->enabled && !$this->requestStack->getCurrentRequest()?->headers->get('X-Notification-Disabled');
+    }
+
+    public function setEnabled(bool $enabled): void
+    {
+        $this->enabled = $enabled;
     }
 }
