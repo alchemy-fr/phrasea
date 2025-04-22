@@ -1,4 +1,4 @@
-import {AQLQuery, astToString, replaceIdFromFacets} from './query.ts';
+import {AQLQuery, astToString, replaceFieldFromDefinitions, replaceIdFromFacets} from './query.ts';
 import {Chip, Menu, MenuItem} from '@mui/material';
 import {useModals} from '@alchemy/navigation';
 import SearchConditionDialog from './SearchConditionDialog.tsx';
@@ -8,6 +8,11 @@ import {useTranslation} from 'react-i18next';
 import {TResultContext} from '../ResultContext.tsx';
 import {parseAQLQuery} from './AQL.ts';
 import {replaceEntities} from './entities.tsx';
+import {
+    getIndexBySearchSlug,
+    getIndexBySlug,
+    useAttributeDefinitionStore
+} from "../../../../store/attributeDeifnitionStore.ts";
 
 type Props = {
     condition: AQLQuery;
@@ -24,6 +29,8 @@ export default function SearchCondition({
 }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
+    const {load, loaded} = useAttributeDefinitionStore();
+    const definitionsIndex = getIndexBySlug();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const onContextMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -33,6 +40,10 @@ export default function SearchCondition({
         setAnchorEl(null);
     };
 
+    React.useEffect(() => {
+        load(t)
+    }, [load, t]);
+
     const edit = () => {
         openModal(SearchConditionDialog, {
             condition,
@@ -40,7 +51,11 @@ export default function SearchCondition({
         });
     };
 
-    const ast = parseAQLQuery(condition.query);
+    let ast = parseAQLQuery(condition.query);
+    if (ast && loaded) {
+        ast = replaceFieldFromDefinitions(ast, definitionsIndex);
+    }
+
     const facetBucket =
         ast && result?.facets
             ? replaceIdFromFacets(ast, result.facets!)

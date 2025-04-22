@@ -6,14 +6,15 @@ import EditSortBy from './EditSortBy';
 import {SearchContext} from '../SearchContext';
 import {ResultContext} from '../ResultContext';
 import {useTranslation} from 'react-i18next';
-import {useAttributeDefinitionStore} from "../../../../store/attributeDeifnitionStore.ts";
+import {getIndexBySearchSlug, useAttributeDefinitionStore} from "../../../../store/attributeDeifnitionStore.ts";
 
 type Props = {};
 
 export default function SortBy({}: Props) {
     const {t} = useTranslation();
     const search = useContext(SearchContext)!;
-    const {load, definitions, definitionsIndex, loaded} = useAttributeDefinitionStore();
+    const {load, definitions, loaded} = useAttributeDefinitionStore();
+    const definitionsIndex = getIndexBySearchSlug();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const menuOpen = Boolean(anchorEl);
 

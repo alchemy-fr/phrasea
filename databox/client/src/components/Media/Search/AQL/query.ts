@@ -169,25 +169,29 @@ export function valueToString(value: AQLValueOrExpression): string {
 }
 
 export function isAQLCondition(
-    expression: AQLExpression
+    expression: any
 ): expression is AQLCondition {
     return hasProp<AQLCondition>(expression, 'leftOperand');
 }
 
-export function isAQLField(operand: AQLOperand): operand is AQLField {
+export function isAQLField(operand: any): operand is AQLField {
     return hasProp<AQLField>(operand, 'field');
 }
 
-export function isAQLLiteral(value: AQLOperand): value is AQLLiteral {
+export function isAQLLiteral(value: any): value is AQLLiteral {
     return hasProp<AQLLiteral>(value, 'literal');
 }
 
-export function isAQLEntity(value: AQLOperand): value is AQLEntity {
+export function isAQLEntity(value: any): value is AQLEntity {
     return hasProp<AQLEntity>(value, 'type') && value.type === 'entity';
 }
 
+export function isAQLAndOrExpression(expression: any): expression is AQLAndOrExpression {
+    return hasProp<AQLAndOrExpression>(expression, 'conditions');
+}
+
 export function isAQLValueExpression(
-    operand: AQLOperand
+    operand: any
 ): operand is AQLValueExpression {
     return (
         hasProp<AQLValueExpression>(operand, 'type') &&
@@ -196,7 +200,7 @@ export function isAQLValueExpression(
 }
 
 export function isAQLFunctionCall(
-    operand: AQLOperand
+    operand: any
 ): operand is AQLFunctionCall {
     return (
         hasProp<AQLFunctionCall>(operand, 'type') &&
@@ -205,7 +209,7 @@ export function isAQLFunctionCall(
 }
 
 export function isAQLParentheses(
-    operand: AQLOperand
+    operand: any
 ): operand is AQLParentheses {
     return (
         hasProp<AQLParentheses>(operand, 'type') &&
@@ -315,6 +319,39 @@ export function replaceIdFromFacets(
     };
 
     ast.expression = replaceCriteria(ast.expression);
+
+    return ast;
+}
+
+export function replaceFieldFromDefinitions(
+    ast: AQLQueryAST,
+    definitionsIndex: AttributeDefinitionIndex
+): AQLQueryAST {
+    const replace = <T = any>(expression: T): T => {
+        if (isAQLCondition(expression)) {
+            replace(expression.leftOperand);
+            replace(expression.rightOperand);
+        } else if (isAQLParentheses(expression)) {
+            replace(expression);
+        } else if (isAQLValueExpression(expression)) {
+            replace(expression);
+        } else if (isAQLField(expression)) {
+            const def = definitionsIndex[expression.field];
+            if (def) {
+                expression.field = def.nameTranslated ?? def.name;
+            }
+        } else if (isAQLAndOrExpression(expression)) {
+            expression.conditions.forEach(c => replace(c));
+        } else if (isAQLFunctionCall(expression)) {
+            expression.arguments.forEach(arg => {
+                return replace(arg);
+            });
+        }
+
+        return expression;
+    };
+
+    ast.expression = replace(ast.expression);
 
     return ast;
 }

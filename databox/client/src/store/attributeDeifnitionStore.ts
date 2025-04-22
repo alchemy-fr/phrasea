@@ -150,3 +150,23 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
         builtIn: true,
     } as AttributeDefinition));
 }
+
+export function getIndexBySlug(): AttributeDefinitionsIndex
+{
+    return getIndexByKey('slug');
+}
+export function getIndexBySearchSlug(): AttributeDefinitionsIndex
+{
+    return getIndexByKey('searchSlug');
+}
+
+function getIndexByKey(key: keyof AttributeDefinition): AttributeDefinitionsIndex
+{
+    const definitions = useAttributeDefinitionStore(s => s.definitions);
+    const index: AttributeDefinitionsIndex = {};
+    for (const def of definitions) {
+        index[def[key] as string] = def;
+    }
+
+    return index;
+}

@@ -15,7 +15,11 @@ import {AppDialog} from '@alchemy/phrasea-ui';
 import {parseAQLQuery} from './AQL.ts';
 import nl2br from 'react-nl2br';
 import ConditionsBuilder from './Builder/ConditionsBuilder.tsx';
-import {useAttributeDefinitionStore} from '../../../../store/attributeDeifnitionStore.ts';
+import {
+    getIndexBySearchSlug,
+    getIndexBySlug,
+    useAttributeDefinitionStore
+} from '../../../../store/attributeDeifnitionStore.ts';
 import {AttributeDefinition, StateSetterHandler} from '../../../../types.ts';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 import {validateQueryAST} from './validation.ts';
@@ -89,7 +93,8 @@ export default function SearchConditionDialog({
 
     const isNew = !condition.query;
 
-    const {load, definitionsIndex, loaded} = useAttributeDefinitionStore();
+    const {load, loaded} = useAttributeDefinitionStore();
+    const definitionsIndex = getIndexBySlug();
 
     useEffectOnce(() => {
         load(t);
