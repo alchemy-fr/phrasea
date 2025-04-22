@@ -78,6 +78,8 @@ class CollectionCrudController extends AbstractAclAdminCrudController
             ->onlyOnDetail();
         yield AssociationField::new('referenceAssets')
             ->onlyOnDetail();
+        yield JsonField::new('notificationSettings')
+            ->hideOnIndex();
 
     }
 }

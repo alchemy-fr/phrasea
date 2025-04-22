@@ -16,6 +16,7 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 #[AsDoctrineListener(Events::onFlush)]
 class EntityListener implements EventSubscriber
@@ -24,28 +25,23 @@ class EntityListener implements EventSubscriber
     final public const EVENT_UPDATE = 'update';
     final public const EVENT_DELETE = 'delete';
     private array $changes = [];
-    private static bool $enabled = true;
-
-    public static function enable(): void
-    {
-        self::$enabled = true;
-    }
-
-    public static function disable(): void
-    {
-        self::$enabled = false;
-    }
+    public static bool $enabled = true;
 
     public function __construct(
         private readonly EntitySerializer $entitySerializer,
         private readonly EntityRegistry $entityRegistry,
         private readonly TerminateStackListener $terminateStackListener,
         private readonly WebhookTrigger $webhookTrigger,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
     public function onFlush(OnFlushEventArgs $args): void
     {
+        if ($this->requestStack->getCurrentRequest()?->headers->has('X-Webhook-Disabled')) {
+            return;
+        }
+
         if (!self::$enabled || !$this->webhookTrigger->hasWebhooks()) {
             return;
         }

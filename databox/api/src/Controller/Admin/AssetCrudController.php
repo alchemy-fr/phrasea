@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use Alchemy\AuthBundle\Security\JwtUser;
@@ -132,6 +133,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
             ->onlyOnDetail();
         yield TextField::new('pendingUploadToken')
             ->onlyOnDetail();
-
+        yield JsonField::new('notificationSettings')
+            ->hideOnIndex();
     }
 }

@@ -28,6 +28,7 @@ class WebhookCrudController extends AbstractAdminCrudController
     {
         return parent::configureCrud($crud)
             ->setSearchFields(['id', 'url', 'events', 'options'])
+            ->setHelp('index', 'Add <code>X-Webhook-Disabled</code> header to your request to disable webhooks')
             ->showEntityActionsInlined()
             ->setDefaultSort([
                 'createdAt' => 'DESC',

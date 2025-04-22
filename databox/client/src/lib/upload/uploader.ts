@@ -12,6 +12,7 @@ import {
     NewCollectionPath,
     treeViewPathSeparator,
 } from '../../components/Media/Collection/CollectionTree/collectionTree.ts';
+import {AxiosRequestConfig} from "axios";
 
 type InputFile = {
     title?: string;
@@ -28,8 +29,8 @@ type UploadInput = {
     files: InputFile[];
 };
 
-export async function submitFiles(data: UploadInput): Promise<Asset[]> {
-    const assets = await createAssets(data);
+export async function submitFiles(data: UploadInput, config?: AxiosRequestConfig): Promise<Asset[]> {
+    const assets = await createAssets(data, config);
 
     UploadFiles(
         data.files.map(f => {
@@ -51,7 +52,7 @@ export async function submitFiles(data: UploadInput): Promise<Asset[]> {
     return assets;
 }
 
-async function createAssets({files}: UploadInput): Promise<Asset[]> {
+async function createAssets({files}: UploadInput, config?: AxiosRequestConfig): Promise<Asset[]> {
     const indexedFiles: Record<string, InputFile> = {};
     files.forEach(f => {
         const uploadToken = uuidv4();
@@ -78,7 +79,8 @@ async function createAssets({files}: UploadInput): Promise<Asset[]> {
             }
 
             return data;
-        })
+        }),
+        config
     ).then(assets => {
         return assets.map(a => {
             indexedFiles[a.pendingUploadToken!].assetId = a.id;
