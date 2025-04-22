@@ -275,18 +275,13 @@ function searchInFacets(
 export function replaceIdFromFacets(
     ast: AQLQueryAST,
     facets: TFacets
-): AQLQueryAST {
-    const replaceCriteria = (expression: AQLExpression): AQLExpression => {
-        const replaceField = (
-            field: string,
-            operand: AQLOperand | AQLOperand[]
-        ): AQLOperand | AQLOperand[] => {
-            if (Array.isArray(operand)) {
-                return (operand as AQLOperand[]).map((v: AQLOperand) => {
-                    return replaceField(field, v) as AQLOperand;
-                });
-            } else {
-                const v = resolveAQLValue(operand);
+): void {
+    const replace = (expression: any, field?: string): any => {
+        if (Array.isArray(expression)) {
+            return expression.map((v: any) => replace(v, field));
+        } else if (isAQLLiteral(expression)) {
+            if (field) {
+                const v = expression.literal;
                 if (v) {
                     const bucket = searchInFacets(field, v, facets);
                     if (bucket) {
@@ -299,35 +294,35 @@ export function replaceIdFromFacets(
                 }
             }
 
-            return operand;
-        };
-
-        if (isAQLCondition(expression)) {
+            return expression;
+        } else if (isAQLCondition(expression)) {
             if (isAQLField(expression.leftOperand)) {
-                const field = expression.leftOperand.field;
-
                 if (expression.rightOperand) {
-                    expression.rightOperand = replaceField(
-                        field,
-                        expression.rightOperand
-                    );
+                    expression.rightOperand = replace(expression.rightOperand, expression.leftOperand.field);
                 }
             }
+        } else if (isAQLParentheses(expression)) {
+            expression.expression = replace(expression.expression);
+        } else if (isAQLValueExpression(expression)) {
+            expression.leftOperand = replace(expression.leftOperand, field);
+            expression.rightOperand = replace(expression.rightOperand, field);
+        } else if (isAQLAndOrExpression(expression)) {
+            expression.conditions = expression.conditions.map(c => replace(c));
+        } else if (isAQLFunctionCall(expression)) {
+            expression.arguments = expression.arguments.map(arg => replace(arg));
         }
 
         return expression;
     };
 
-    ast.expression = replaceCriteria(ast.expression);
-
-    return ast;
+    replace(ast.expression);
 }
 
 export function replaceFieldFromDefinitions(
     ast: AQLQueryAST,
     definitionsIndex: AttributeDefinitionIndex
-): AQLQueryAST {
-    const replace = <T = any>(expression: T): T => {
+): void {
+    const replace = <T = any>(expression: T): void => {
         if (isAQLCondition(expression)) {
             replace(expression.leftOperand);
             replace(expression.rightOperand);
@@ -344,16 +339,12 @@ export function replaceFieldFromDefinitions(
             expression.conditions.forEach(c => replace(c));
         } else if (isAQLFunctionCall(expression)) {
             expression.arguments.forEach(arg => {
-                return replace(arg);
+                replace(arg);
             });
         }
-
-        return expression;
     };
 
-    ast.expression = replace(ast.expression);
-
-    return ast;
+    replace(ast.expression);
 }
 
 export function generateQueryId(): string {

@@ -7,22 +7,14 @@ import {
     postAttributeDefinition,
     putAttributeDefinition,
 } from '../../../api/attributes';
-import {
-    FormGroup,
-    FormLabel,
-    ListItemIcon,
-    ListItemText,
-    TextField,
-} from '@mui/material';
-import {FormRow, TranslatedField} from '@alchemy/react-form';
+import {FormGroup, FormLabel, ListItemIcon, ListItemText, TextField,} from '@mui/material';
+import {CheckboxWidget, FormFieldErrors, FormRow, TranslatedField} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
     OnSort,
 } from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
-import {FormFieldErrors} from '@alchemy/react-form';
-import {CheckboxWidget} from '@alchemy/react-form';
 import AttributeClassSelect from '../../Form/AttributeClassSelect';
 import FieldTypeSelect from '../../Form/FieldTypeSelect';
 import {fieldTypesIcons} from '../../../lib/icons';
@@ -290,7 +282,7 @@ function ListItem({data}: DefinitionItemProps<AttributeDefinition>) {
         <>
             <ListItemIcon>
                 {React.createElement(
-                    fieldTypesIcons[data.fieldType || 'text'] ??
+                    fieldTypesIcons[data.fieldType || AttributeType.Text] ??
                         fieldTypesIcons.text
                 )}
             </ListItemIcon>
@@ -314,7 +306,7 @@ function createNewItem(): Partial<AttributeDefinition> {
         allowInvalid: false,
         searchable: true,
         suggest: false,
-        fieldType: 'text',
+        fieldType: AttributeType.Text,
         class: null,
         enabled: true,
     };

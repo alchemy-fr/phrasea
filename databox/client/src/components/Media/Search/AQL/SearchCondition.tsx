@@ -51,16 +51,17 @@ export default function SearchCondition({
         });
     };
 
-    let ast = parseAQLQuery(condition.query);
-    if (ast && loaded) {
-        ast = replaceFieldFromDefinitions(ast, definitionsIndex);
+    const ast = parseAQLQuery(condition.query);
+    if (ast) {
+        if (result?.facets) {
+            replaceIdFromFacets(ast, result.facets!)
+        }
+        if (loaded) {
+            replaceFieldFromDefinitions(ast, definitionsIndex);
+        }
     }
 
-    const facetBucket =
-        ast && result?.facets
-            ? replaceIdFromFacets(ast, result.facets!)
-            : undefined;
-    const query = facetBucket
+    const query = ast
         ? replaceEntities(astToString(ast))
         : condition.query;
 

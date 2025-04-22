@@ -1,11 +1,12 @@
 import {create} from 'zustand';
 import {AttributeDefinition} from '../types';
-import {getAttributeDefinitions} from '../api/attributes.ts';
+import {AttributeType, getAttributeDefinitions} from '../api/attributes.ts';
 import {TFunction} from '@alchemy/i18n'
 import {BuiltInFilter} from "../components/Media/Search/search.ts";
 import WorkspaceSelect from "../components/Form/WorkspaceSelect.tsx";
 import PrivacyWidget from "../components/Form/PrivacyWidget.tsx";
 import TagSelect from "../components/Form/TagSelect.tsx";
+import AttributeEntitySelect from "../components/Form/AttributeEntitySelect.tsx";
 
 export type AttributeDefinitionsIndex = Record<string, AttributeDefinition>;
 
@@ -38,7 +39,20 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
         });
 
         try {
-            const data = getBuiltInFilters(t).concat(await getAttributeDefinitions());
+            const data = getBuiltInFilters(t)
+                .concat(
+                    (await getAttributeDefinitions())
+                        .map(d => (d.fieldType === AttributeType.Entity ? {
+                            ...d,
+                            widget: {
+                                component: AttributeEntitySelect,
+                                props: {
+                                    type: d.entityType,
+                                },
+                            },
+                        } : d)
+                    )
+                );
             const index: AttributeDefinitionsIndex = {};
 
             for (const def of data) {
@@ -61,7 +75,7 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
     return [
         {
             slug: BuiltInFilter.Score,
-            fieldType: 'text',
+            fieldType: AttributeType.Text,
             sortable: true,
             searchable: false,
             name: t('built_in_attr.collection', 'Collection'),
@@ -69,12 +83,12 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
         {
             slug: BuiltInFilter.Collection,
             searchable: true,
-            fieldType: 'text',
+            fieldType: AttributeType.Text,
             name: t('built_in_attr.collection', 'Collection'),
         },
         {
             slug: BuiltInFilter.Workspace,
-            fieldType: 'text',
+            fieldType: AttributeType.Text,
             searchable: true,
             name: t('built_in_attr.workspace', 'Workspace'),
             widget: {
@@ -83,7 +97,7 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
         },
         {
             slug: BuiltInFilter.Privacy,
-            fieldType: 'number',
+            fieldType: AttributeType.Number,
             searchable: true,
             sortable: true,
             name: t('built_in_attr.privacy', 'Privacy'),
@@ -93,7 +107,7 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
         },
         {
             slug: BuiltInFilter.Tag,
-            fieldType: 'text',
+            fieldType: AttributeType.Text,
             searchable: true,
             sortable: true,
             name: t('built_in_attr.tag', 'Tag'),
@@ -106,39 +120,39 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
         },
         {
             slug: BuiltInFilter.EditedAt,
-            fieldType: 'date_time',
+            fieldType: AttributeType.DateTime,
             searchable: true,
             sortable: true,
             name: t('built_in_attr.editedAt', 'Edited At'),
         },
         {
             slug: BuiltInFilter.CreatedAt,
-            fieldType: 'date_time',
+            fieldType: AttributeType.DateTime,
             searchable: true,
             sortable: true,
             name: t('built_in_attr.createdAt', 'Created At'),
         },
         {
             slug: BuiltInFilter.FileType,
-            fieldType: 'text',
+            fieldType: AttributeType.Text,
             searchable: true,
             name: t('built_in_attr.fileType', 'File Type'),
         },
         {
             slug: BuiltInFilter.FileMimeType,
-            fieldType: 'text',
+            fieldType: AttributeType.Text,
             searchable: true,
             name: t('built_in_attr.fileMimeType', 'File MIME Type'),
         },
         {
             slug: BuiltInFilter.FileSize,
-            fieldType: 'number',
+            fieldType: AttributeType.Number,
             searchable: true,
             name: t('built_in_attr.fileSize', 'File Size'),
         },
         {
             slug: BuiltInFilter.FileName,
-            fieldType: 'text',
+            fieldType: AttributeType.Text,
             searchable: true,
             name: t('built_in_attr.filename', 'File Name'),
         },
