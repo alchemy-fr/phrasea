@@ -115,11 +115,13 @@ export interface AttributeDefinition extends IPermissions, Entity {
     name: string;
     nameTranslated?: string;
     slug: string;
+    searchSlug: string;
     enabled: boolean;
     fieldType: string;
     entityType?: string | undefined;
     multiple: boolean;
     searchable: boolean;
+    sortable: boolean;
     suggest: boolean;
     translatable: boolean;
     locales?: string[];

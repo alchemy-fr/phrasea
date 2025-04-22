@@ -6,6 +6,7 @@ import {CSS} from '@dnd-kit/utilities';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 import {grey} from '@mui/material/colors';
 import {useTranslation} from 'react-i18next';
+import {AttributeDefinition} from "../../../../types.ts";
 
 export type OnChangeHandler = (
     sortBy: SortBy,
@@ -16,13 +17,18 @@ export type OnChangeHandler = (
 
 type Props = {
     enabled: boolean;
+    definition: AttributeDefinition;
     onChange: OnChangeHandler;
     sortBy: TogglableSortBy;
 };
 
-export default function SortByRow({sortBy, onChange}: Props) {
+export default function SortByRow({sortBy, definition, onChange}: Props) {
     const {t} = useTranslation();
     const isDesc = sortBy.w === 1;
+
+    if (!definition) {
+        throw new Error(`Missing definition for ${sortBy.a}`);
+    }
 
     const {
         attributes,
@@ -57,7 +63,7 @@ export default function SortByRow({sortBy, onChange}: Props) {
                 }}
                 onClick={() => onChange(sortBy, !sortBy.enabled)}
             >
-                {sortBy.t}
+                {definition.nameTranslated ?? definition.name}
             </td>
             <td>
                 <ToggleWay

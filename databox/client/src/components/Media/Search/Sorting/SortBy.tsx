@@ -6,15 +6,21 @@ import EditSortBy from './EditSortBy';
 import {SearchContext} from '../SearchContext';
 import {ResultContext} from '../ResultContext';
 import {useTranslation} from 'react-i18next';
+import {useAttributeDefinitionStore} from "../../../../store/attributeDeifnitionStore.ts";
 
 type Props = {};
 
 export default function SortBy({}: Props) {
     const {t} = useTranslation();
     const search = useContext(SearchContext)!;
-    const resultContext = useContext(ResultContext);
+    const {load, definitions, definitionsIndex, loaded} = useAttributeDefinitionStore();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const menuOpen = Boolean(anchorEl);
+
+    React.useEffect(() => {
+        load(t)
+    }, [load, t]);
+
     const handleOpen = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -26,7 +32,7 @@ export default function SortBy({}: Props) {
         <>
             <Chip
                 onClick={handleOpen}
-                disabled={resultContext.loading}
+                disabled={!loaded}
                 label={
                     <>
                         <ImportExportIcon
@@ -35,11 +41,14 @@ export default function SortBy({}: Props) {
                             }}
                         />
                         {t('sort_by.sort_by', `Sort by`)}
-                        <>
+                        {loaded ? <>
                             {search.sortBy.map((o, i) => (
-                                <SortByChip key={i} {...o} />
+                                <SortByChip key={i}
+                                    definition={definitionsIndex[o.a]!}
+                                    sortBy={o}
+                                />
                             ))}
-                        </>
+                        </> : null}
                     </>
                 }
                 sx={{
@@ -47,7 +56,11 @@ export default function SortBy({}: Props) {
                 }}
             />
             <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleClose}>
-                <EditSortBy onClose={handleClose} />
+                <EditSortBy
+                    definitionsIndex={definitionsIndex}
+                    definitions={definitions}
+                    onClose={handleClose}
+                />
             </Menu>
         </>
     );
