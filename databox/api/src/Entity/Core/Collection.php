@@ -205,6 +205,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     private ?DoctrineCollection $referenceAssets = null;
 
     #[ORM\OneToOne(targetEntity: Asset::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Asset $storyAsset = null;
 
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'collections')]
@@ -458,16 +459,14 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
         return $this->storyAsset;
     }
 
+    /*
+     * @internal Call setStoryCollection only
+     */
     public function setStoryAsset(?Asset $storyAsset): void
     {
-        if($this->storyAsset === $storyAsset) {
-            // prevent infinite recursivity with Asset::setStoryCollection(...)
-            return;
-        }
         if($storyAsset && null !== $this->getTitle()) {
             throw new \LogicException('Story collection should not have a title');
         }
         $this->storyAsset = $storyAsset;
-        $storyAsset?->setStoryCollection($this);
     }
 }
