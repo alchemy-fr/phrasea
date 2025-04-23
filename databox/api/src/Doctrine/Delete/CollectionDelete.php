@@ -86,6 +86,7 @@ final readonly class CollectionDelete
             $storyAsset->setStoryCollection(null);
             $this->em->remove($storyAsset);
             $collection->setStoryAsset(null);
+            $this->em->persist($collection);
             $this->em->flush();
         }
 
