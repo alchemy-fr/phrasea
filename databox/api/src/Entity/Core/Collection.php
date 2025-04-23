@@ -450,7 +450,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
 
     public function isStory(): bool
     {
-        return (bool)$this->storyAsset;
+        return null !== $this->storyAsset;
     }
 
     public function getStoryAsset(): ?Asset
@@ -461,10 +461,8 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     public function setStoryAsset(?Asset $storyAsset): void
     {
         $this->storyAsset = $storyAsset;
-        if($storyAsset) {
-            if (null !== $this->getTitle()) {
-                throw new \LogicException('Story collection should not have a title');
-            }
+        if($storyAsset && null !== $this->getTitle()) {
+            throw new \LogicException('Story collection should not have a title');
         }
     }
 }

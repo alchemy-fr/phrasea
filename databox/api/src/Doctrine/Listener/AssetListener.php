@@ -17,7 +17,6 @@ use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::onFlush)]
 #[AsDoctrineListener(Events::postUpdate)]
-#[AsDoctrineListener(Events::preRemove)]
 class AssetListener
 {
     use ChangeFieldListenerTrait;
@@ -27,27 +26,21 @@ class AssetListener
     ) {
     }
 
-    public function preRemove(PreRemoveEventArgs $args): void
-    {
-        $entity = $args->getObject();
-
-        if (!$entity instanceof Asset) {
-            return;
-        }
-
-        if (null !== ($storyCollection = $entity->getStoryCollection())) {
-            $em = $args->getObjectManager();
-            $storyCollection->setStoryAsset(null);
-            $em->persist($storyCollection);
-            $em->flush();
-            $em->remove($storyCollection);
-        }
-    }
-
     public function onFlush(OnFlushEventArgs $args): void
     {
         $em = $args->getObjectManager();
         $uow = $em->getUnitOfWork();
+
+        foreach($uow->getScheduledEntityDeletions() as $entityDelete) {
+            if ($entityDelete instanceof Asset) {
+                if(null !== ($storyCollection = $entityDelete->getStoryCollection())) {
+                    $storyCollection->setStoryAsset(null);
+                    $em->persist($storyCollection);
+                    $em->remove($storyCollection);
+                }
+            }
+        }
+
         foreach ($uow->getScheduledEntityUpdates() as $entityUpdate) {
             if ($entityUpdate instanceof Asset && !$entityUpdate->isNoFileVersion()) {
                 $changeSet = $uow->getEntityChangeSet($entityUpdate);

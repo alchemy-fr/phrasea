@@ -374,7 +374,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
 
     public function isStory(): bool
     {
-        return (bool)$this->storyCollection;
+        return null !== $this->storyCollection;
     }
 
     /**
