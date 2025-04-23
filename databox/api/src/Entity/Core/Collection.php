@@ -460,9 +460,14 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
 
     public function setStoryAsset(?Asset $storyAsset): void
     {
-        $this->storyAsset = $storyAsset;
+        if($this->storyAsset === $storyAsset) {
+            // prevent infinite recursivity with Asset::setStoryCollection(...)
+            return;
+        }
         if($storyAsset && null !== $this->getTitle()) {
             throw new \LogicException('Story collection should not have a title');
         }
+        $this->storyAsset = $storyAsset;
+        $storyAsset?->setStoryCollection($this);
     }
 }
