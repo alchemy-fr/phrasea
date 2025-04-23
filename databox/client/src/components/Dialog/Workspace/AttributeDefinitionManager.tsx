@@ -7,8 +7,19 @@ import {
     postAttributeDefinition,
     putAttributeDefinition,
 } from '../../../api/attributes';
-import {FormGroup, FormLabel, ListItemIcon, ListItemText, TextField,} from '@mui/material';
-import {CheckboxWidget, FormFieldErrors, FormRow, TranslatedField} from '@alchemy/react-form';
+import {
+    FormGroup,
+    FormLabel,
+    ListItemIcon,
+    ListItemText,
+    TextField,
+} from '@mui/material';
+import {
+    CheckboxWidget,
+    FormFieldErrors,
+    FormRow,
+    TranslatedField,
+} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,

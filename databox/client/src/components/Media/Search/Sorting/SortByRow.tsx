@@ -6,7 +6,7 @@ import {CSS} from '@dnd-kit/utilities';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 import {grey} from '@mui/material/colors';
 import {useTranslation} from 'react-i18next';
-import {AttributeDefinition} from "../../../../types.ts";
+import {AttributeDefinition} from '../../../../types.ts';
 
 export type OnChangeHandler = (
     sortBy: SortBy,

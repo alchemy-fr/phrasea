@@ -18,7 +18,7 @@ import ConditionsBuilder from './Builder/ConditionsBuilder.tsx';
 import {
     getIndexBySearchSlug,
     getIndexBySlug,
-    useAttributeDefinitionStore
+    useAttributeDefinitionStore,
 } from '../../../../store/attributeDeifnitionStore.ts';
 import {AttributeDefinition, StateSetterHandler} from '../../../../types.ts';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';

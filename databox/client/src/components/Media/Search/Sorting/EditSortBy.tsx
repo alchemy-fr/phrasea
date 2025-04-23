@@ -35,8 +35,8 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {BuiltInFilter} from '../search';
-import {AttributeDefinition} from "../../../../types.ts";
-import {AttributeDefinitionsIndex} from "../../../../store/attributeDeifnitionStore.ts";
+import {AttributeDefinition} from '../../../../types.ts';
+import {AttributeDefinitionsIndex} from '../../../../store/attributeDeifnitionStore.ts';
 
 export type TogglableSortBy = {
     enabled: boolean;
@@ -49,7 +49,11 @@ type Props = {
     onClose: () => void;
 };
 
-export default function EditSortBy({onClose, definitions, definitionsIndex}: Props) {
+export default function EditSortBy({
+    onClose,
+    definitions,
+    definitionsIndex,
+}: Props) {
     const {sortBy, setSortBy} = useContext(SearchContext)!;
     const {t} = useTranslation();
     const [grouped, setGrouped] = React.useState(
@@ -74,14 +78,14 @@ export default function EditSortBy({onClose, definitions, definitionsIndex}: Pro
                         return;
                     }
 
-                l.push({
-                    id: d.searchSlug,
-                    a: d.searchSlug,
-                    w: 0,
-                    g: false,
-                    enabled: false,
+                    l.push({
+                        id: d.searchSlug,
+                        a: d.searchSlug,
+                        w: 0,
+                        g: false,
+                        enabled: false,
+                    });
                 });
-            });
         }
 
         return l;

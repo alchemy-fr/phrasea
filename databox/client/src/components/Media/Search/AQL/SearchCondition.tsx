@@ -1,36 +1,26 @@
-import {AQLQuery, astToString, replaceFieldFromDefinitions, replaceIdFromFacets} from './query.ts';
+import {AQLQuery} from './query.ts';
 import {Chip, Menu, MenuItem} from '@mui/material';
 import {useModals} from '@alchemy/navigation';
 import SearchConditionDialog from './SearchConditionDialog.tsx';
 import React from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {useTranslation} from 'react-i18next';
-import {TResultContext} from '../ResultContext.tsx';
-import {parseAQLQuery} from './AQL.ts';
-import {replaceEntities} from './entities.tsx';
-import {
-    getIndexBySearchSlug,
-    getIndexBySlug,
-    useAttributeDefinitionStore
-} from "../../../../store/attributeDeifnitionStore.ts";
 
 type Props = {
     condition: AQLQuery;
+    query: string;
     onDelete: (condition: AQLQuery) => void;
     onUpsert: (condition: AQLQuery) => void;
-    result: TResultContext;
 };
 
 export default function SearchCondition({
     condition,
+    query,
     onDelete,
     onUpsert,
-    result,
 }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
-    const {load, loaded} = useAttributeDefinitionStore();
-    const definitionsIndex = getIndexBySlug();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const onContextMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -40,30 +30,12 @@ export default function SearchCondition({
         setAnchorEl(null);
     };
 
-    React.useEffect(() => {
-        load(t)
-    }, [load, t]);
-
     const edit = () => {
         openModal(SearchConditionDialog, {
             condition,
             onUpsert,
         });
     };
-
-    const ast = parseAQLQuery(condition.query);
-    if (ast) {
-        if (result?.facets) {
-            replaceIdFromFacets(ast, result.facets!)
-        }
-        if (loaded) {
-            replaceFieldFromDefinitions(ast, definitionsIndex);
-        }
-    }
-
-    const query = ast
-        ? replaceEntities(astToString(ast))
-        : condition.query;
 
     return (
         <>

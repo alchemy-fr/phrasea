@@ -1,12 +1,18 @@
 import {create} from 'zustand';
-import {AttributeDefinition} from '../types';
+import {
+    AttributeDefinition,
+    AttributeEntity,
+    Collection,
+    Tag,
+    Workspace,
+} from '../types';
 import {AttributeType, getAttributeDefinitions} from '../api/attributes.ts';
-import {TFunction} from '@alchemy/i18n'
-import {BuiltInFilter} from "../components/Media/Search/search.ts";
-import WorkspaceSelect from "../components/Form/WorkspaceSelect.tsx";
-import PrivacyWidget from "../components/Form/PrivacyWidget.tsx";
-import TagSelect from "../components/Form/TagSelect.tsx";
-import AttributeEntitySelect from "../components/Form/AttributeEntitySelect.tsx";
+import {TFunction} from '@alchemy/i18n';
+import {BuiltInFilter} from '../components/Media/Search/search.ts';
+import WorkspaceSelect from '../components/Form/WorkspaceSelect.tsx';
+import PrivacyWidget from '../components/Form/PrivacyWidget.tsx';
+import TagSelect from '../components/Form/TagSelect.tsx';
+import AttributeEntitySelect from '../components/Form/AttributeEntitySelect.tsx';
 
 export type AttributeDefinitionsIndex = Record<string, AttributeDefinition>;
 
@@ -39,20 +45,24 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
         });
 
         try {
-            const data = getBuiltInFilters(t)
-                .concat(
-                    (await getAttributeDefinitions())
-                        .map(d => (d.fieldType === AttributeType.Entity ? {
-                            ...d,
-                            widget: {
-                                component: AttributeEntitySelect,
-                                props: {
-                                    type: d.entityType,
-                                },
-                            },
-                        } : d)
-                    )
-                );
+            const data = getBuiltInFilters(t).concat(
+                (await getAttributeDefinitions()).map(d =>
+                    d.fieldType === AttributeType.Entity
+                        ? {
+                              ...d,
+                              entityIri: 'attribute-entities',
+                              resolveLabel: entity =>
+                                  (entity as AttributeEntity).value,
+                              widget: {
+                                  component: AttributeEntitySelect,
+                                  props: {
+                                      type: d.entityType,
+                                  },
+                              },
+                          }
+                        : d
+                )
+            );
             const index: AttributeDefinitionsIndex = {};
 
             for (const def of data) {
@@ -75,13 +85,16 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
     return [
         {
             slug: BuiltInFilter.Score,
-            fieldType: AttributeType.Text,
+            fieldType: AttributeType.Number,
             sortable: true,
             searchable: false,
-            name: t('built_in_attr.collection', 'Collection'),
+            name: t('built_in_attr.score', 'Score'),
         },
         {
             slug: BuiltInFilter.Collection,
+            entityIri: 'collections',
+            resolveLabel: (entity: Collection) =>
+                entity.titleTranslated ?? entity.title ?? '',
             searchable: true,
             fieldType: AttributeType.Text,
             name: t('built_in_attr.collection', 'Collection'),
@@ -89,6 +102,9 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
         {
             slug: BuiltInFilter.Workspace,
             fieldType: AttributeType.Text,
+            resolveLabel: (entity: Workspace) =>
+                entity.nameTranslated ?? entity.name ?? '',
+            entityIri: 'workspaces',
             searchable: true,
             name: t('built_in_attr.workspace', 'Workspace'),
             widget: {
@@ -108,6 +124,9 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
         {
             slug: BuiltInFilter.Tag,
             fieldType: AttributeType.Text,
+            entityIri: 'tags',
+            resolveLabel: (entity: Tag) =>
+                entity.nameTranslated ?? entity.name ?? '',
             searchable: true,
             sortable: true,
             name: t('built_in_attr.tag', 'Tag'),
@@ -156,26 +175,28 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
             searchable: true,
             name: t('built_in_attr.filename', 'File Name'),
         },
-    ].map(d => ({
-        ...d,
-        id: d.slug,
-        searchSlug: d.slug,
-        enabled: true,
-        builtIn: true,
-    } as AttributeDefinition));
+    ].map(
+        d =>
+            ({
+                ...d,
+                id: d.slug,
+                searchSlug: d.slug,
+                enabled: true,
+                builtIn: true,
+            }) as AttributeDefinition
+    );
 }
 
-export function getIndexBySlug(): AttributeDefinitionsIndex
-{
+export function getIndexBySlug(): AttributeDefinitionsIndex {
     return getIndexByKey('slug');
 }
-export function getIndexBySearchSlug(): AttributeDefinitionsIndex
-{
+export function getIndexBySearchSlug(): AttributeDefinitionsIndex {
     return getIndexByKey('searchSlug');
 }
 
-function getIndexByKey(key: keyof AttributeDefinition): AttributeDefinitionsIndex
-{
+function getIndexByKey(
+    key: keyof AttributeDefinition
+): AttributeDefinitionsIndex {
     const definitions = useAttributeDefinitionStore(s => s.definitions);
     const index: AttributeDefinitionsIndex = {};
     for (const def of definitions) {

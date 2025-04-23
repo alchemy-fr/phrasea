@@ -19,11 +19,7 @@ export enum BuiltInFilter {
 }
 
 function encodeSortBy(sortBy: SortBy): string {
-    return [
-        sortBy.a,
-        sortBy.w.toString(),
-        sortBy.g ? '1' : '',
-    ].join(specSep);
+    return [sortBy.a, sortBy.w.toString(), sortBy.g ? '1' : ''].join(specSep);
 }
 
 function decodeSortBy(str: string): SortBy {

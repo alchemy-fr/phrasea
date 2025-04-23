@@ -6,7 +6,10 @@ import EditSortBy from './EditSortBy';
 import {SearchContext} from '../SearchContext';
 import {ResultContext} from '../ResultContext';
 import {useTranslation} from 'react-i18next';
-import {getIndexBySearchSlug, useAttributeDefinitionStore} from "../../../../store/attributeDeifnitionStore.ts";
+import {
+    getIndexBySearchSlug,
+    useAttributeDefinitionStore,
+} from '../../../../store/attributeDeifnitionStore.ts';
 
 type Props = {};
 
@@ -19,7 +22,7 @@ export default function SortBy({}: Props) {
     const menuOpen = Boolean(anchorEl);
 
     React.useEffect(() => {
-        load(t)
+        load(t);
     }, [load, t]);
 
     const handleOpen = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -42,14 +45,17 @@ export default function SortBy({}: Props) {
                             }}
                         />
                         {t('sort_by.sort_by', `Sort by`)}
-                        {loaded ? <>
-                            {search.sortBy.map((o, i) => (
-                                <SortByChip key={i}
-                                    definition={definitionsIndex[o.a]!}
-                                    sortBy={o}
-                                />
-                            ))}
-                        </> : null}
+                        {loaded ? (
+                            <>
+                                {search.sortBy.map((o, i) => (
+                                    <SortByChip
+                                        key={i}
+                                        definition={definitionsIndex[o.a]!}
+                                        sortBy={o}
+                                    />
+                                ))}
+                            </>
+                        ) : null}
                     </>
                 }
                 sx={{
