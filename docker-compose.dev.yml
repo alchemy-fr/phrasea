@@ -231,6 +231,7 @@ services:
       - KC_REALM_USER_EVENT_ENABLED
       - KC_REALM_USER_EVENT_EXPIRATION
       - KC_REALM_ADMIN_EVENT_ENABLED
+      - KC_REALM_ADMIN_EVENT_EXPIRATION
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

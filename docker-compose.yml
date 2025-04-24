@@ -1012,6 +1012,7 @@ services:
       - KC_REALM_USER_EVENT_ENABLED
       - KC_REALM_USER_EVENT_EXPIRATION
       - KC_REALM_ADMIN_EVENT_ENABLED
+      - KC_REALM_ADMIN_EVENT_EXPIRATION
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     volumes:

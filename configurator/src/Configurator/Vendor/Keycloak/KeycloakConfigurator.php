@@ -229,6 +229,8 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
     public function configureRealm(): void
     {
+        $this->keycloakManager->createRealm();
+
         $this->keycloakManager->putRealm([
             'displayName'               => 'Phrasea Auth',
             'displayNameHtml'           => '<div class="kc-logo-text"><span>Phrasea Auth</span></div>',
@@ -271,6 +273,9 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 'user' => getenv('MAILER_USER') ?? null,
                 'password' => getenv('MAILER_PASSWORD') ?? null,
             ],
+            'attributes' => [
+                'adminEventsExpiration' => getenv('KC_REALM_ADMIN_EVENT_EXPIRATION') ?: '604800',
+            ]
         ]);
     }
 

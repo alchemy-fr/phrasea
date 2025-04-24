@@ -83,6 +83,9 @@ final class Version20250415153255 extends AbstractMigration implements Migration
                 'user' => getenv('MAILER_USER') ?? null,
                 'password' => getenv('MAILER_PASSWORD') ?? null,
             ],
+            'attributes' => [
+                'adminEventsExpiration' => getenv('KC_REALM_ADMIN_EVENT_EXPIRATION') ?: '604800',
+            ]
         ]);
     }
 
