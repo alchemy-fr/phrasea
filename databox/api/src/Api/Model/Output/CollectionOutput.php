@@ -33,10 +33,26 @@ class CollectionOutput extends AbstractUuidOutput
     #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     protected array $capabilities = [];
 
-    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    #[Groups([
+        Collection::GROUP_LIST,
+        Collection::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        Workspace::GROUP_LIST,
+        Workspace::GROUP_READ,
+        ResolveEntitiesOutput::GROUP_READ,
+    ])]
     private ?string $title = null;
 
-    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    #[Groups([
+        Collection::GROUP_LIST,
+        Collection::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        Workspace::GROUP_LIST,
+        Workspace::GROUP_READ,
+        ResolveEntitiesOutput::GROUP_READ,
+    ])]
     public ?string $titleTranslated = null;
 
     #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]

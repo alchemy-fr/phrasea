@@ -18,8 +18,8 @@ import {
 import {hasProp} from '../../../../lib/utils.ts';
 import {AttributeDefinitionIndex} from '../../../AttributeEditor/types.ts';
 import {AttributeDefinition} from '../../../../types.ts';
-import {LabelledBucketValue, TFacets} from '../../Asset/Facets.tsx';
 import {writeEntity} from './entities.tsx';
+import {GetOrRequestEntity} from '../../../../store/entitiesStore.ts';
 
 export type AQLQuery = {
     id: string;
@@ -168,26 +168,30 @@ export function valueToString(value: AQLValueOrExpression): string {
     return value.toString();
 }
 
-export function isAQLCondition(
-    expression: AQLExpression
-): expression is AQLCondition {
+export function isAQLCondition(expression: any): expression is AQLCondition {
     return hasProp<AQLCondition>(expression, 'leftOperand');
 }
 
-export function isAQLField(operand: AQLOperand): operand is AQLField {
+export function isAQLField(operand: any): operand is AQLField {
     return hasProp<AQLField>(operand, 'field');
 }
 
-export function isAQLLiteral(value: AQLOperand): value is AQLLiteral {
+export function isAQLLiteral(value: any): value is AQLLiteral {
     return hasProp<AQLLiteral>(value, 'literal');
 }
 
-export function isAQLEntity(value: AQLOperand): value is AQLEntity {
+export function isAQLEntity(value: any): value is AQLEntity {
     return hasProp<AQLEntity>(value, 'type') && value.type === 'entity';
 }
 
+export function isAQLAndOrExpression(
+    expression: any
+): expression is AQLAndOrExpression {
+    return hasProp<AQLAndOrExpression>(expression, 'conditions');
+}
+
 export function isAQLValueExpression(
-    operand: AQLOperand
+    operand: any
 ): operand is AQLValueExpression {
     return (
         hasProp<AQLValueExpression>(operand, 'type') &&
@@ -195,18 +199,14 @@ export function isAQLValueExpression(
     );
 }
 
-export function isAQLFunctionCall(
-    operand: AQLOperand
-): operand is AQLFunctionCall {
+export function isAQLFunctionCall(operand: any): operand is AQLFunctionCall {
     return (
         hasProp<AQLFunctionCall>(operand, 'type') &&
         operand.type === 'function_call'
     );
 }
 
-export function isAQLParentheses(
-    operand: AQLOperand
-): operand is AQLParentheses {
+export function isAQLParentheses(operand: any): operand is AQLParentheses {
     return (
         hasProp<AQLParentheses>(operand, 'type') &&
         operand.type === 'parentheses'
@@ -251,72 +251,109 @@ export function getFieldDefinition(
     }
 }
 
-function searchInFacets(
+function searchInEntities(
     field: string,
-    id: string | number | boolean,
-    facets: TFacets
-) {
-    for (const k in facets) {
-        if (k.startsWith(field)) {
-            const bucket = facets[k].buckets.find(
-                b => (b.key as LabelledBucketValue).value === id
-            );
-            if (bucket) {
-                return bucket;
+    id: string,
+    definitionsIndex: AttributeDefinitionIndex,
+    getEntity: GetOrRequestEntity
+): string | undefined {
+    for (const def of Object.values(definitionsIndex)) {
+        if (def.slug === field && def.entityIri && def.resolveLabel) {
+            const iri = `/${def.entityIri}/${id}`;
+            if (iri) {
+                const entity = getEntity(iri);
+                if (typeof entity === 'object') {
+                    return def.resolveLabel(entity);
+                }
             }
         }
     }
 }
 
-export function replaceIdFromFacets(
+export function replaceIdFromEntities(
     ast: AQLQueryAST,
-    facets: TFacets
-): AQLQueryAST {
-    const replaceCriteria = (expression: AQLExpression): AQLExpression => {
-        const replaceField = (
-            field: string,
-            operand: AQLOperand | AQLOperand[]
-        ): AQLOperand | AQLOperand[] => {
-            if (Array.isArray(operand)) {
-                return (operand as AQLOperand[]).map((v: AQLOperand) => {
-                    return replaceField(field, v) as AQLOperand;
-                });
-            } else {
-                const v = resolveAQLValue(operand);
-                if (v) {
-                    const bucket = searchInFacets(field, v, facets);
-                    if (bucket) {
+    definitionsIndex: AttributeDefinitionIndex,
+    getEntity: GetOrRequestEntity
+): void {
+    const replace = (expression: any, field?: string): any => {
+        if (Array.isArray(expression)) {
+            return expression.map((v: any) => replace(v, field));
+        } else if (isAQLLiteral(expression)) {
+            if (field) {
+                const v = expression.literal;
+                if (typeof v === 'string') {
+                    const label = searchInEntities(
+                        field,
+                        v,
+                        definitionsIndex,
+                        getEntity
+                    );
+                    if (label) {
                         return {
                             type: 'entity',
-                            id: v?.toString(),
-                            label: (bucket.key as LabelledBucketValue).label,
+                            id: v,
+                            label,
                         } as AQLEntity;
                     }
                 }
             }
 
-            return operand;
-        };
-
-        if (isAQLCondition(expression)) {
+            return expression;
+        } else if (isAQLCondition(expression)) {
             if (isAQLField(expression.leftOperand)) {
-                const field = expression.leftOperand.field;
-
                 if (expression.rightOperand) {
-                    expression.rightOperand = replaceField(
-                        field,
-                        expression.rightOperand
+                    expression.rightOperand = replace(
+                        expression.rightOperand,
+                        expression.leftOperand.field
                     );
                 }
             }
+        } else if (isAQLParentheses(expression)) {
+            expression.expression = replace(expression.expression);
+        } else if (isAQLValueExpression(expression)) {
+            expression.leftOperand = replace(expression.leftOperand, field);
+            expression.rightOperand = replace(expression.rightOperand, field);
+        } else if (isAQLAndOrExpression(expression)) {
+            expression.conditions = expression.conditions.map(c => replace(c));
+        } else if (isAQLFunctionCall(expression)) {
+            expression.arguments = expression.arguments.map(arg =>
+                replace(arg)
+            );
         }
 
         return expression;
     };
 
-    ast.expression = replaceCriteria(ast.expression);
+    replace(ast.expression);
+}
 
-    return ast;
+export function replaceFieldFromDefinitions(
+    ast: AQLQueryAST,
+    definitionsIndex: AttributeDefinitionIndex
+): void {
+    const replace = <T = any>(expression: T): void => {
+        if (isAQLCondition(expression)) {
+            replace(expression.leftOperand);
+            replace(expression.rightOperand);
+        } else if (isAQLParentheses(expression)) {
+            replace(expression);
+        } else if (isAQLValueExpression(expression)) {
+            replace(expression);
+        } else if (isAQLField(expression)) {
+            const def = definitionsIndex[expression.field];
+            if (def) {
+                expression.field = def.nameTranslated ?? def.name;
+            }
+        } else if (isAQLAndOrExpression(expression)) {
+            expression.conditions.forEach(c => replace(c));
+        } else if (isAQLFunctionCall(expression)) {
+            expression.arguments.forEach(arg => {
+                replace(arg);
+            });
+        }
+    };
+
+    replace(ast.expression);
 }
 
 export function generateQueryId(): string {

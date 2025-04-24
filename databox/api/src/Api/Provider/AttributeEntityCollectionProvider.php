@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use App\Api\EntityIriConverter;
 use App\Api\Traits\CollectionProviderAwareTrait;
+use App\Api\Traits\WorkspaceCollectionTrait;
 use App\Elasticsearch\AttributeEntitySearch;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
@@ -17,6 +18,7 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
 {
     use CollectionProviderAwareTrait;
     use SecurityAwareTrait;
+    use WorkspaceCollectionTrait;
 
     public function __construct(
         private readonly AttributeEntitySearch $search,
@@ -26,18 +28,15 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
 
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array|object
     {
-        $workspaceId = $context['filters']['workspace'] ?? null;
-        if (empty($workspaceId)) {
-            throw new BadRequestHttpException('Missing workspace');
+        $workspaces = $this->resolveAllowedWorkspaces($context);
+        if (empty($workspaces)) {
+            return [];
         }
-
-        $workspace = $this->entityIriConverter->getItemFromIri(Workspace::class, $workspaceId);
-        $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace);
 
         $queryString = $context['filters']['query'] ?? null;
 
         if (!empty($queryString)) {
-            return $this->search->search($workspaceId, $context['filters'] ?? []);
+            return $this->search->search($workspaces, $context['filters'] ?? []);
         }
 
         return $this->collectionProvider->provide($operation, $uriVariables, $context);

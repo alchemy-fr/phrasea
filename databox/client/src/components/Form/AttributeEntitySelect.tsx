@@ -31,28 +31,25 @@ export default function AttributeEntitySelect<
 }: Props<TFieldValues, IsMulti>) {
     const {openModal} = useModals();
     const workspaceContext = React.useContext(WorkspaceContext);
-
     const workspaceId = wsId ?? workspaceContext?.workspaceId;
-    if (!workspaceId) {
-        throw new Error('Missing workspace context');
-    }
 
-    const onCreate: RSelectOnCreate | undefined = allowNew
-        ? (inputValue, onCreate) => {
-              openModal(CreateAttributeEntityDialog, {
-                  value: inputValue,
-                  type,
-                  workspaceId,
-                  onCreate: (d: AttributeEntity) => {
-                      onCreate({
-                          label: d.value,
-                          value: d.id,
-                          item: d,
-                      });
-                  },
-              });
-          }
-        : undefined;
+    const onCreate: RSelectOnCreate | undefined =
+        allowNew && workspaceId
+            ? (inputValue, onCreate) => {
+                  openModal(CreateAttributeEntityDialog, {
+                      value: inputValue,
+                      type,
+                      workspaceId,
+                      onCreate: (d: AttributeEntity) => {
+                          onCreate({
+                              label: d.value,
+                              value: d.id,
+                              item: d,
+                          });
+                      },
+                  });
+              }
+            : undefined;
 
     const load = async (inputValue: string): Promise<SelectOption[]> => {
         const data = (

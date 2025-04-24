@@ -207,6 +207,9 @@ importers:
       country-locale-map:
         specifier: ^1.9.9
         version: 1.9.9
+      deepmerge:
+        specifier: ^2.2.1
+        version: 2.2.1
       emoji-mart:
         specifier: ^5.6.0
         version: 5.6.0

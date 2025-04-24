@@ -133,26 +133,31 @@ export default function UploadModal({
                 }
             }
 
-            return await submitFiles({
-                files: files.map(f => ({
-                    file: f.file,
-                    tags: data.tags as unknown as string[],
-                    title:
-                        f.file.name === 'image.png'
-                            ? createPastedImageTitle(t)
-                            : f.file.name.replace(/\.[^/.]+$/, ''),
-                    destination: collectionId
-                        ? `/collections/${collectionId}`
-                        : (data.destination as CollectionId),
-                    privacy: data.privacy,
-                    attributes,
-                })),
-            }, quiet ? {
-                headers: {
-                    'X-Webhook-Disabled': 'true',
-                    'X-Notification-Disabled': 'true',
+            return await submitFiles(
+                {
+                    files: files.map(f => ({
+                        file: f.file,
+                        tags: data.tags as unknown as string[],
+                        title:
+                            f.file.name === 'image.png'
+                                ? createPastedImageTitle(t)
+                                : f.file.name.replace(/\.[^/.]+$/, ''),
+                        destination: collectionId
+                            ? `/collections/${collectionId}`
+                            : (data.destination as CollectionId),
+                        privacy: data.privacy,
+                        attributes,
+                    })),
                 },
-            } : undefined);
+                quiet
+                    ? {
+                          headers: {
+                              'X-Webhook-Disabled': 'true',
+                              'X-Notification-Disabled': 'true',
+                          },
+                      }
+                    : undefined
+            );
         },
         onSuccess: () => {
             toast.success(

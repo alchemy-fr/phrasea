@@ -7,6 +7,12 @@ import {useModals} from '@alchemy/navigation';
 import SearchConditionDialog from './SearchConditionDialog.tsx';
 import AddIcon from '@mui/icons-material/Add';
 import {TResultContext} from '../ResultContext.tsx';
+import {useResolveASTs} from './useResolveASTs.ts';
+import {
+    getIndexBySearchSlug,
+    getIndexBySlug,
+    useAttributeDefinitionStore,
+} from '../../../../store/attributeDeifnitionStore.ts';
 
 type Props = {
     conditions: AQLQueries;
@@ -16,13 +22,28 @@ type Props = {
 };
 
 export default function SearchConditions({
-    result,
     conditions,
     onDelete,
     onUpsert,
 }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
+    const {load, loaded} = useAttributeDefinitionStore();
+    const definitionsIndexBySlug = getIndexBySlug();
+    const definitionsIndexBySearchSlug = getIndexBySearchSlug();
+
+    React.useEffect(() => {
+        if (!loaded) {
+            load(t);
+        }
+    }, [loaded, t, load]);
+
+    const asts = useResolveASTs({
+        conditions,
+        loaded,
+        definitionsIndexBySlug,
+        definitionsIndexBySearchSlug,
+    });
 
     return (
         <Box
@@ -30,12 +51,12 @@ export default function SearchConditions({
                 mr: -1,
             }}
         >
-            {conditions.map((condition: AQLQuery) => {
+            {asts.map(resolvedAst => {
                 return (
                     <SearchCondition
-                        key={condition.id}
-                        result={result}
-                        condition={condition}
+                        key={resolvedAst.condition.id}
+                        condition={resolvedAst.condition}
+                        query={resolvedAst.query}
                         onDelete={onDelete}
                         onUpsert={onUpsert}
                     />
