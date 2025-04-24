@@ -274,7 +274,10 @@ export const UploadForm: FC<{
                 <SwitchWidget
                     control={control}
                     name={'quiet'}
-                    label={t('form.upload.quiet.label', 'Quiet (no notification, no webhook)')}
+                    label={t(
+                        'form.upload.quiet.label',
+                        'Quiet (no notification, no webhook)'
+                    )}
                 />
             </FormRow>
 

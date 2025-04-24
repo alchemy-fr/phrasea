@@ -15,7 +15,11 @@ import {AppDialog} from '@alchemy/phrasea-ui';
 import {parseAQLQuery} from './AQL.ts';
 import nl2br from 'react-nl2br';
 import ConditionsBuilder from './Builder/ConditionsBuilder.tsx';
-import {useAttributeDefinitionStore} from '../../../../store/attributeDeifnitionStore.ts';
+import {
+    getIndexBySearchSlug,
+    getIndexBySlug,
+    useAttributeDefinitionStore,
+} from '../../../../store/attributeDeifnitionStore.ts';
 import {AttributeDefinition, StateSetterHandler} from '../../../../types.ts';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 import {validateQueryAST} from './validation.ts';
@@ -89,96 +93,12 @@ export default function SearchConditionDialog({
 
     const isNew = !condition.query;
 
-    const {load, definitions, loaded} = useAttributeDefinitionStore();
+    const {load, loaded} = useAttributeDefinitionStore();
+    const definitionsIndex = getIndexBySlug();
 
     useEffectOnce(() => {
-        load();
-    }, [load]);
-
-    const definitionsIndex: Record<string, AttributeDefinition> =
-        useMemo(() => {
-            const index: Record<string, AttributeDefinition> = {};
-
-            for (const def of definitions) {
-                index[def.slug] = def;
-            }
-
-            const builtInFilters = [
-                {
-                    slug: BuiltInFilter.Collection,
-                    fieldType: 'text',
-                    name: t('built_in_attr.collection', 'Collection'),
-                },
-                {
-                    slug: BuiltInFilter.Workspace,
-                    fieldType: 'text',
-                    name: t('built_in_attr.workspace', 'Workspace'),
-                    widget: {
-                        component: WorkspaceSelect,
-                    },
-                },
-                {
-                    slug: BuiltInFilter.Privacy,
-                    fieldType: 'number',
-                    name: t('built_in_attr.privacy', 'Privacy'),
-                    widget: {
-                        component: PrivacyWidget,
-                    },
-                },
-                {
-                    slug: BuiltInFilter.Tag,
-                    fieldType: 'text',
-                    name: t('built_in_attr.tag', 'Tag'),
-                    widget: {
-                        component: TagSelect,
-                        props: {
-                            useIRI: false,
-                        },
-                    },
-                },
-                {
-                    slug: BuiltInFilter.EditedAt,
-                    fieldType: 'date_time',
-                    name: t('built_in_attr.editedAt', 'Edited At'),
-                },
-                {
-                    slug: BuiltInFilter.CreatedAt,
-                    fieldType: 'date_time',
-                    name: t('built_in_attr.createdAt', 'Created At'),
-                },
-                {
-                    slug: BuiltInFilter.FileType,
-                    fieldType: 'text',
-                    name: t('built_in_attr.fileType', 'File Type'),
-                },
-                {
-                    slug: BuiltInFilter.FileMimeType,
-                    fieldType: 'text',
-                    name: t('built_in_attr.fileMimeType', 'File MIME Type'),
-                },
-                {
-                    slug: BuiltInFilter.FileSize,
-                    fieldType: 'number',
-                    name: t('built_in_attr.fileSize', 'File Size'),
-                },
-                {
-                    slug: BuiltInFilter.FileName,
-                    fieldType: 'text',
-                    name: t('built_in_attr.filename', 'File Name'),
-                },
-            ];
-
-            for (const bf of builtInFilters) {
-                index[bf.slug] = {
-                    ...bf,
-                    id: bf.slug,
-                    enabled: true,
-                    builtIn: true,
-                } as AttributeDefinition;
-            }
-
-            return index;
-        }, [definitions]);
+        load(t);
+    }, [load, t]);
 
     const wrapValidate = (handler: () => void) => {
         try {

@@ -12,7 +12,7 @@ import {
     NewCollectionPath,
     treeViewPathSeparator,
 } from '../../components/Media/Collection/CollectionTree/collectionTree.ts';
-import {AxiosRequestConfig} from "axios";
+import {AxiosRequestConfig} from 'axios';
 
 type InputFile = {
     title?: string;
@@ -29,7 +29,10 @@ type UploadInput = {
     files: InputFile[];
 };
 
-export async function submitFiles(data: UploadInput, config?: AxiosRequestConfig): Promise<Asset[]> {
+export async function submitFiles(
+    data: UploadInput,
+    config?: AxiosRequestConfig
+): Promise<Asset[]> {
     const assets = await createAssets(data, config);
 
     UploadFiles(
@@ -52,7 +55,10 @@ export async function submitFiles(data: UploadInput, config?: AxiosRequestConfig
     return assets;
 }
 
-async function createAssets({files}: UploadInput, config?: AxiosRequestConfig): Promise<Asset[]> {
+async function createAssets(
+    {files}: UploadInput,
+    config?: AxiosRequestConfig
+): Promise<Asset[]> {
     const indexedFiles: Record<string, InputFile> = {};
     files.forEach(f => {
         const uploadToken = uuidv4();

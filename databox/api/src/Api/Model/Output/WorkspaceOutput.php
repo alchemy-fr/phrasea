@@ -36,6 +36,7 @@ class WorkspaceOutput extends AbstractUuidOutput
         Asset::GROUP_READ,
         WebhookSerializationInterface::DEFAULT_GROUP,
         RenditionDefinition::GROUP_LIST,
+        ResolveEntitiesOutput::GROUP_READ,
     ])]
     private string $name;
 
@@ -48,6 +49,7 @@ class WorkspaceOutput extends AbstractUuidOutput
         Asset::GROUP_READ,
         WebhookSerializationInterface::DEFAULT_GROUP,
         RenditionDefinition::GROUP_LIST,
+        ResolveEntitiesOutput::GROUP_READ,
     ])]
     public ?string $nameTranslated;
 
