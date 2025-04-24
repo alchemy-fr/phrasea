@@ -348,11 +348,12 @@ export async function postAsset(data: NewAssetPostType): Promise<Asset> {
 }
 
 export async function postMultipleAssets(
-    assets: NewAssetPostType[]
+    assets: NewAssetPostType[],
+    config?: AxiosRequestConfig
 ): Promise<Asset[]> {
     const res = await apiClient.post(`/assets/multiple`, {
         assets,
-    });
+    }, config);
 
     return res.data.assets;
 }

@@ -46,6 +46,9 @@ final class SearchIndexer
         return $this->indexPersister->hasObjectPersisterFor($class);
     }
 
+    /**
+     * @param array<string, EntityGroup> $parents
+     */
     public function scheduleIndex(array $objects, int $depth = 1, array $parents = []): void
     {
         if (!$this->direct) {
@@ -61,7 +64,10 @@ final class SearchIndexer
         $this->index($objects, $depth, $parents);
     }
 
-    public function scheduleObjectsIndex(string $class, array $ids, Operation $operation): void
+    /**
+     * @param array<string, EntityGroup> $parents
+     */
+    public function scheduleObjectsIndex(string $class, array $ids, Operation $operation, array $parents = []): void
     {
         $objects = [
             $class => [
@@ -69,7 +75,7 @@ final class SearchIndexer
             ],
         ];
 
-        $this->scheduleIndex($objects);
+        $this->scheduleIndex($objects, 1, $parents);
     }
 
     /**

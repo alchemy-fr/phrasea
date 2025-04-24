@@ -83,4 +83,14 @@ final class MockNotifier implements NotifierInterface
     {
         return $this->notifiedTopics;
     }
+
+    public function isEnabled(): bool
+    {
+        return true;
+    }
+
+    public function setEnabled(bool $enabled): void
+    {
+        throw new \LogicException('Should not be called');
+    }
 }

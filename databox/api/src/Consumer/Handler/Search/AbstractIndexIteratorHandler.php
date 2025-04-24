@@ -2,6 +2,7 @@
 
 namespace App\Consumer\Handler\Search;
 
+use Alchemy\ESBundle\Indexer\EntityGroup;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,24 +17,28 @@ abstract readonly class AbstractIndexIteratorHandler
     ) {
     }
 
-    protected function indexObjects(string $class, iterable $iterator, ?\Closure $onFlush = null): void
+    /**
+     * @param array<string, EntityGroup> $parents
+     */
+    protected function indexObjects(string $class, iterable $iterator, ?\Closure $onFlush = null, array $parents = []): void
     {
         $chunkSize = 1000;
         $i = 0;
         $ids = [];
         foreach ($iterator as $row) {
-            if ($i++ > $chunkSize) {
+            $ids[] = $row['id'];
+
+            if (++$i > $chunkSize) {
                 $this->searchIndexer->flush();
                 $i = 0;
-                $this->searchIndexer->scheduleObjectsIndex($class, $ids, Operation::Upsert);
+                $this->searchIndexer->scheduleObjectsIndex($class, $ids, Operation::Upsert, $parents);
                 $onFlush && $onFlush($ids);
                 $ids = [];
             }
-            $ids[] = $row['id'];
         }
 
         if (!empty($ids)) {
-            $this->searchIndexer->scheduleObjectsIndex($class, $ids, Operation::Upsert);
+            $this->searchIndexer->scheduleObjectsIndex($class, $ids, Operation::Upsert, $parents);
             $onFlush && $onFlush($ids);
         }
     }
