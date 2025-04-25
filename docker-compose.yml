@@ -898,6 +898,8 @@ services:
       - '--optimized'
     networks:
       - internal
+    volumes:
+      - ./infra/docker/keycloak/themes/customer:/opt/keycloak/themes/customer
     environment:
       - DASHBOARD_CLIENT_URL
       - KC_HTTP_ENABLED=true
