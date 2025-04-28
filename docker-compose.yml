@@ -988,7 +988,7 @@ services:
       - UPLOADER_DB_NAME
       - MAIL_FROM
       - MAIL_FROM_DISPLAY_NAME
-      - MAIL_REPLAY_TO
+      - MAIL_REPLY_TO
       - MAILER_DSN
       - MAILER_HOST
       - MAILER_PORT
