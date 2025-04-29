@@ -36,7 +36,6 @@ class CollectionRepository extends EntityRepository
     {
         return $this
             ->createQueryBuilder('t')
-            ->andWhere('t.storyAsset IS NULL')
             ->addOrderBy('t.createdAt', 'DESC')
             ->addOrderBy('t.id', 'ASC')
         ;

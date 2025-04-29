@@ -24,7 +24,6 @@ final readonly class IndexAllCollectionsHandler extends AbstractBatchHandler
             ->createQueryBuilder()
             ->select('c.id')
             ->from(Collection::class, 'c')
-            ->where('c.storyAsset IS NULL')
             ->getQuery()
             ->toIterable();
     }

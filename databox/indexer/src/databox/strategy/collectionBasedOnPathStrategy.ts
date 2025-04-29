@@ -37,26 +37,23 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
     try {
         // create real asset
         logger.info(`  original: "${collPath}"  (#${collId})`);
-        const assetOputput = await databoxClient.createAsset({
-            workspaceId: asset.workspaceId,
+        const assetId = await databoxClient.createAsset({
             sourceFile: asset.publicUrl
                 ? {
-                    url: asset.publicUrl,
-                    isPrivate: asset.isPrivate,
-                    alternateUrls,
-                    importFile: asset.importFile,
-                }
+                      url: asset.publicUrl,
+                      isPrivate: asset.isPrivate,
+                      alternateUrls,
+                      importFile: asset.importFile,
+                  }
                 : undefined,
-            collection: collId ? '/collections/' + collId : undefined,
+            collection: '/collections/' + collId,
             generateRenditions: asset.generateRenditions,
             key: asset.key,
             title: asset.title || p.basename(path),
             attributes: asset.attributes,
             tags: asset.tags,
             renditions: asset.renditions,
-            isStory: asset.isStory,
         });
-        const assetId = assetOputput.id;
         // also create links into collections
         for (const c of asset.shortcutIntoCollections ?? []) {
             logger.info(`  copy to:  "${c.path}"  (#${c.id})`);
