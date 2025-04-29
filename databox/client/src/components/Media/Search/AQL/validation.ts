@@ -18,7 +18,7 @@ export const typeMap: Record<AttributeType, RawType> = {
     [AttributeType.CollectionPath]: RawType.String,
     [AttributeType.Color]: RawType.String,
     [AttributeType.Date]: RawType.Date,
-    [AttributeType.DateTime]: RawType.Date,
+    [AttributeType.DateTime]: RawType.DateTime,
     [AttributeType.Entity]: RawType.String,
     [AttributeType.Html]: RawType.String,
     [AttributeType.Ip]: RawType.String,
@@ -96,7 +96,7 @@ function validateConditionType(
                     AQLOperator.STARTS_WITH,
                     AQLOperator.NOT_STARTS_WITH,
                 ].includes(op) &&
-                ![RawType.Keyword, RawType.String, RawType.Date].includes(rawType)
+                ![RawType.Keyword, RawType.String, RawType.Date, RawType.DateTime].includes(rawType)
             ) {
                 if (rawType === RawType.Id) {
                     throwTypeError('ID');
@@ -110,7 +110,7 @@ function validateConditionType(
                     AQLOperator.MATCHES,
                     AQLOperator.NOT_MATCHES,
                 ].includes(op) &&
-                ![RawType.String, RawType.Date].includes(rawType)
+                ![RawType.String, RawType.Date, RawType.DateTime].includes(rawType)
             ) {
                 if (rawType === RawType.Id) {
                     throwTypeError('ID');
@@ -139,7 +139,7 @@ function validateConditionType(
                     AQLOperator.LT,
                     AQLOperator.LTE,
                 ].includes(op) &&
-                ![RawType.Number, RawType.Date].includes(rawType)
+                ![RawType.Number, RawType.Date, RawType.DateTime].includes(rawType)
             ) {
                 throwNotOfTypeError('number');
             }

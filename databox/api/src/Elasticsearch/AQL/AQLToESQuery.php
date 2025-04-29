@@ -21,6 +21,7 @@ final readonly class AQLToESQuery
         private FacetRegistry $facetRegistry,
         private AQLFunctionRegistry $functionRegistry,
         private AttributeTypeRegistry $attributeTypeRegistry,
+        private DateNormalizer $dateNormalizer,
     ) {
     }
 
@@ -133,7 +134,7 @@ final readonly class AQLToESQuery
         }
 
         if ($type instanceof DateTimeAttributeType && null !== $value) {
-            $value = $this->normalizeDate($value);
+            $value = $this->dateNormalizer->normalizeDate($value);
         }
 
         return match ($operator) {
@@ -166,58 +167,6 @@ final readonly class AQLToESQuery
             ConditionOperatorEnum::STARTS_WITH, ConditionOperatorEnum::NOT_STARTS_WITH => $this->wrapInNotQuery((new Query\Prefix())->setPrefix($fieldRaw, $value), ConditionOperatorEnum::NOT_STARTS_WITH === $operator),
             default => throw new BadRequestHttpException(sprintf('Operator "%s" not implemented', $operator->value)),
         };
-    }
-
-    private function normalizeDate($value)
-    {
-        if (is_array($value)) {
-            return array_map(function ($v) {
-                return $this->normalizeDate($v);
-            }, $value);
-        }
-
-        if (is_int($value)) {
-            return $value;
-        }
-
-        if (is_string($value)) {
-            $value = trim($value);
-            if (is_numeric($value)) {
-                return (int) $value;
-            }
-
-            if (str_contains($value, 'T')) {
-                if (str_contains($value, '.')) {
-                    $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.uO', $value);
-                } else {
-                    $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:sO', $value);
-                }
-                if (false === $date) {
-                    $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.u', $value);
-                    if (false === $date) {
-                        $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $value);
-                        if (false === $date) {
-                            $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i', $value);
-                        }
-                    }
-                }
-            } else {
-                $date = \DateTimeImmutable::createFromFormat('Y-m-d', $value);
-                if (false === $date) {
-                    throw new BadRequestHttpException(sprintf('Invalid date value "%s"', $value));
-                }
-
-                return $date->format('Y-m-d');
-            }
-
-            if (false === $date) {
-                throw new BadRequestHttpException(sprintf('Invalid date value "%s"', $value));
-            }
-
-            return $date->format('Y-m-d\TH:i:s').'.000Z';
-        }
-
-        throw new BadRequestHttpException(sprintf('Invalid date type "%s"', get_debug_type($value)));
     }
 
     private function createRangeParams(array $values, AttributeTypeInterface $attributeType): array

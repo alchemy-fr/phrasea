@@ -89,6 +89,7 @@ export enum RawType {
     Keyword = 'keyword',
     Number = 'number',
     Date = 'date',
+    DateTime = 'date_time',
     Boolean = 'boolean',
     GeoPoint = 'geo_point',
 }

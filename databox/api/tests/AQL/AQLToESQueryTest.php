@@ -8,6 +8,7 @@ use App\Attribute\Type\NumberAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
+use App\Elasticsearch\AQL\DateNormalizer;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\Facet\CreatedAtFacet;
 use App\Elasticsearch\Facet\FacetRegistry;
@@ -32,10 +33,11 @@ class AQLToESQueryTest extends TestCase
 
         $attributeTypeRegistry = AttributeTypeRegistyTestFactory::create();
 
-        $esQueryConverter = new AQLToESQuery(new FacetRegistry([
+        $esQueryConverter = new AQLToESQuery(
+            new FacetRegistry([
             '@workspace' => new WorkspaceFacet($em),
             '@createdAt' => new CreatedAtFacet(),
-        ]), $functionRegistry, $attributeTypeRegistry);
+        ]), $functionRegistry, $attributeTypeRegistry, new DateNormalizer());
 
         $fieldClusters = [
             [
@@ -118,12 +120,6 @@ class AQLToESQueryTest extends TestCase
             ['date < "2015"', [
                 'range' => [
                     'attrs._.date_date_s' => ['lt' => 2015],
-                ],
-            ]],
-            ['foo="bar"', [
-                'multi_match' => [
-                    'query' => 'bar',
-                    'fields' => ['attrs.*.foo_text_s.raw'],
                 ],
             ]],
             ['foo="bar"', [
