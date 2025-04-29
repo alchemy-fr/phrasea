@@ -23,7 +23,6 @@
                     "collections": "",
                     "workspaceSlug": "phnet",
                     "searchQuery": "",
-                    "importStories": true,
                     "recordsCollectionPath": "/Records/{{ collection.name | escapePath }}/{{ record.getMetadata('Country', '_').value | escapePath }}/{{ record.getMetadata('City', '_').value | escapePath }}",
                     "storiesCollectionPath": "/Stories/{{ collection.name | escapePath }}/{{ record.getMetadata('Country', '_').value | escapePath }}/{{ record.getMetadata('City', '_').value | escapePath }}",
                     "copyTo": [
@@ -78,7 +77,7 @@
 ...
 ```
 
-## `databox`
+## `databox` 
 The name or id of the Phraseanet databox to import.
 
 ## `collections`
@@ -87,7 +86,7 @@ A list/filter of Phraseanet collections (id or name, delimited by `,`) to import
 ## `searchQuery`
 The Phraseanet query to search for records to import. If empty: import all.
 
-## `workspaceSlug`
+## `workspaceSlug` 
 The Databox workspace where to import (created if not exists).
 
 ## `recordsCollectionPath`
@@ -95,18 +94,18 @@ Collection-path where to import records as "**main**" assets. The asset name wil
 
 - The `recordsCollectionPath` can be a **[Twig](#About-Twig)** expression (see [About Twig](#About-Twig)), allowing to dispatch the assets into a tree of collections.
 
-  e.g.: Dispatch by phraseanet collection name, then country and city:
-
+    e.g.: Dispatch by phraseanet collection name, then country and city:
+        
     ```json lines
     ...
     "recordsCollectionPath": "/Collections/{{ collection.name | escapePath }}/{{ record.getMetadata('Country', '_').value | escapePath }}/{{ record.getMetadata('City', '_').value | escapePath }}",
     ...
     ```
-  --> `/Collections/MyPhraseanetCollection/France/Paris/IMG_1234.jpg`
-
+    --> `/Collections/MyPhraseanetCollection/France/Paris/IMG_1234.jpg`
+    
 
 - /!\ For backward compatibility: If the `recordsCollectionPath` is a simple string (no twig tags), it will be used as a root path
-  **and completd with phraseanet collection name**
+**and completd with phraseanet collection name**
     ```json lines
     ...
     "recordsCollectionPath": "/Collections",
@@ -116,77 +115,35 @@ Collection-path where to import records as "**main**" assets. The asset name wil
 
 
 - `recordsCollectionPath` **can** be empty string (or not set): Since this is a simple (empty) string,
-  the backward compatibility applies, so the phraseanet collection name will be used as first-level collection.
-
-  --> `/MyPhraseanetCollection/IMG_1234.jpg`
-
-
-## `importStories` & `storiesCollectionPath`
-
-`storiesCollectionPath` and `storiesCollectionPath` define how to import Phraseanet stories, with 3 combinations:
-
-### - Do not import stories.
-
-```yaml
-importStories: false
-```
-
-### - Import stories as Phrasea stories
-
-```yaml
-importStories: true
-```
-
-A "storyAsset" is created at root of the workspace, and "points" to a collection **invisible / noname / not-indexed** "storyCollection".
-
-Each contained record (imported elsewhere as an asset) is copied / aliased to this (invisible) collection.
-
-The title of the storyAsset will be the same as the title of the story.
-
-### - import stories as Phrasea collections
-
-```yaml
-importStories: true                 # or unset, for bc
-storiesCollectionPath: "/Stories"   # where to import stories
-```
-
-Each story becomes a collection, and each contained record (imported elsewhere as an asset) is **copied / aliased** to this collection.
-
-The name of the collection will be the same as the title of the story.
-
-/!\ There is **no** "storyAsset" created, the Phraseanet "story-record" is **not** imported.
-
-The `storiesCollectionPath` can be a **[Twig](#About-Twig)** expression, allowing to dispatch the stories into a tree of collections.
+the backward compatibility applies, so the phraseanet collection name will be used as first-level collection.
+  
+    --> `/MyPhraseanetCollection/IMG_1234.jpg`
 
 
+## `storiesCollectionPath`
+Collection-path where to import stories. If unset: do not import stories.
 
-e.g. 1: Import all stories, **as Phrasea stories**:
+Each story becomes a collection, and each contained record (= "main" asset) is **copied / aliased** to this collection.
+
+The name of the collection will be the same as the name of the story.
+
+- The `storiesCollectionPath` can be a **[Twig](#About-Twig)** expression, allowing to dispatch the stories into a tree of collections.
+
+
+e.g. 1: Import all stories in the same collection:
 
 ```json lines
 ...
-"recordsCollectionPath": "/Collections", # where to import records AND stories
-"importStories": true,
-...
-```
---> `/Stories/JO-2024` where "JO-2024" is the name of a phraseanet story.
-
-
-e.g. 2: Import all stories in the same collection, **as Phrasea collections**:
-
-```json lines
-...
-"importStories": true,
 "storiesCollectionPath": "/Stories",
 ...
 ```
 --> `/Stories/JO-2024` where "JO-2024" is the name of a phraseanet story.
 
 
-e.g. 3: Dispatch by phraseanet collection name, then country and city:
-
+e.g. 2: Dispatch by phraseanet collection name, then country and city:
+        
 ```json lines
 ...
-"importStories": true,
 "storiesCollectionPath": "/Stories/{{ collection.name | escapePath }}/{{ record.getMetadata('Country', '_').value | escapePath }}/{{ record.getMetadata('City', '_').value | escapePath }}",
 ...
 ```
@@ -201,9 +158,9 @@ Each path is a **[Twig](#About-Twig)** expressions that must generate databox pa
 
 If the asset is to be copied in many places (paths), the twig must generate **one line per path**.
 
-
+    
 - e.g. 1: Two levels dispatch with unique destination (mono-value fields):
-
+        
     ```json lines
     ...
     "copyTo": [
@@ -239,7 +196,7 @@ If the asset is to be copied in many places (paths), the twig must generate **on
     ...
     ```
 
-## `fieldMap`
+## `fieldMap` 
 Map (key=AttributeDefinition name) of attributes to create / import.
 
 ### AttributeDefinition settings:
@@ -250,18 +207,18 @@ Map (key=AttributeDefinition name) of attributes to create / import.
 - `labels`: map, e.g. `{"fr": "Titre", "en": "Title"}`
 - `values`: Array of objects to declare initial metadata value(s).
 
-  #### values:
+    #### values:
     - `locale`: e.g. "fr"
     - `type`: how to evaluate the `value` ("metadata", "template", "text" ; default: "text")
     - `value`: value expression, as metadata (=phraseanet field name), template (twig) code or simple text
 
-  **text** type: The value is the immediate value for the attribute.
+    **text** type: The value is the immediate value for the attribute.
 
-  **metadata** type: The value is the name of a Phraseanet field, like "Title".
+    **metadata** type: The value is the name of a Phraseanet field, like "Title".
 
-  **template** type: The value is a Twig code, to compose complex value(s)
+    **template** type: The value is a Twig code, to compose complex value(s)
 
-
+    
 For the **template** type, the Attribute value(s) is the result of the **[Twig](#About-Twig)** expression,
 which must generate **one item per line** for multi-values.
 The Twig context is the same as `copyTo`
@@ -306,7 +263,7 @@ A Phrasea rendition-definition is declared by its **name** and **build settings*
 - If `renditions` is not set, the indexer will import **all** phraseanet subdefs.
 
 - To **not** import / create any rendition / rendition-definition: set **both** `"sourceFile":false`
-  **and** `"renditions": false`
+**and** `"renditions": false`
 
 - It is possible to declare a rendition with no `from`: not imported from Phraseanet, but created in Phrasea.
 
@@ -388,40 +345,40 @@ The build settings will be generated from the phraseanet to match the subdef.
 When using twig expressions in the configuration, the context is the following:
 
 - `record`: record object
-    - `record.record_id` : string
-    - `record.resource_id` : string
-    - `record.databox_id` : string
-    - `record.base_id` : string
-    - `record.uuid` : string
-    - `record.title` : string
-    - `record.original_name` : string
-    - `record.mime_type` : string
-    - `record.created_on` : string
-    - `record.updated_on` : string
-    - `record.status` : status[] ***use `getStatus()` method***
-    - `record.getStatus(<bit> [, <valueIfTrue> [, <valueIfFalse>]])` : boolean ; Value of sb <bit> (4...63).
-      Boolean value can be replaced by string value(s) `valueIf...`
-    - `record.subdef` : subdef[] ***use `getSubdef()` method***
-    - `record.getSubdef(<name>)` : subdef object
-        - `record.getSubdef(...).height` : number
-        - `record.getSubdef(...).width` : number
-        - `record.getSubdef(...).filesize` : number
-        - `record.getSubdef(...).player_type` : string
-        - `record.getSubdef(...).mime_type` : number
-        - `record.getSubdef(...).created_on` : string
-        - `record.getSubdef(...).updated_on` : string
-        - `record.getSubdef(...).url` : string
-        - `record.getSubdef(...).permalink` : permalink object
-            - `record.getSubdef(...).permalink.url` : string
-    - `record.metadata` : metata[] ***use `getMetadata()` method***
-    - `record.getMetadata(<fieldName> [,<default>])` : metadata object, with default value(s) if the field is not set for this record.
-        - `record.getMetadata(...).value` : The mono-value (if the field is multi-value : concat values with " ; ").
-        - `record.getMetadata(...).values` : The multi-values as array (if the field is mono-value : array with a single value).
+  - `record.record_id` : string
+  - `record.resource_id` : string
+  - `record.databox_id` : string
+  - `record.base_id` : string
+  - `record.uuid` : string
+  - `record.title` : string
+  - `record.original_name` : string
+  - `record.mime_type` : string
+  - `record.created_on` : string
+  - `record.updated_on` : string
+  - `record.status` : status[] ***use `getStatus()` method***
+  - `record.getStatus(<bit> [, <valueIfTrue> [, <valueIfFalse>]])` : boolean ; Value of sb <bit> (4...63).
+    Boolean value can be replaced by string value(s) `valueIf...` 
+  - `record.subdef` : subdef[] ***use `getSubdef()` method***
+  - `record.getSubdef(<name>)` : subdef object
+    - `record.getSubdef(...).height` : number
+    - `record.getSubdef(...).width` : number
+    - `record.getSubdef(...).filesize` : number
+    - `record.getSubdef(...).player_type` : string
+    - `record.getSubdef(...).mime_type` : number
+    - `record.getSubdef(...).created_on` : string
+    - `record.getSubdef(...).updated_on` : string
+    - `record.getSubdef(...).url` : string
+    - `record.getSubdef(...).permalink` : permalink object
+      - `record.getSubdef(...).permalink.url` : string
+  - `record.metadata` : metata[] ***use `getMetadata()` method***
+  - `record.getMetadata(<fieldName> [,<default>])` : metadata object, with default value(s) if the field is not set for this record.
+    - `record.getMetadata(...).value` : The mono-value (if the field is multi-value : concat values with " ; ").
+    - `record.getMetadata(...).values` : The multi-values as array (if the field is mono-value : array with a single value).
 - `collection`: collection object (of the record)
-    - `collection.databox_id`: string (same as `record.databox_id`)
-    - `collection.base_id`: string (same as `record.base_id`)
-    - `collection.collection_id`: number
-    - `collection.name`: string
+  - `collection.databox_id`: string (same as `record.databox_id`)
+  - `collection.base_id`: string (same as `record.base_id`)
+  - `collection.collection_id`: number
+  - `collection.name`: string
 
 ## Twig context technical note:
 

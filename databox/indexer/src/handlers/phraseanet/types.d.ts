@@ -43,7 +43,6 @@ export type ConfigDataboxMapping = {
     workspaceSlug: string;
     recordsCollectionPath: string;
     copyTo: string;
-    importStories?: boolean;
     storiesCollectionPath: string;
     fieldMap: Map<string, FieldMap>;
     sourceFile?: string;
