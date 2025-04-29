@@ -12,7 +12,7 @@ import {
     replaceFieldFromDefinitions,
     replaceIdFromEntities,
 } from './query.ts';
-import {AttributeDefinitionsIndex} from '../../../../store/attributeDeifnitionStore.ts';
+import {AttributeDefinitionsIndex} from '../../../../store/attributeDefinitionStore.ts';
 import {AQLQueryAST} from './aqlTypes.ts';
 import deepmerge from 'deepmerge';
 import {replaceEntities} from './entities.tsx';

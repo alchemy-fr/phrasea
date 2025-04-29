@@ -12,7 +12,7 @@ import {
     getIndexBySearchSlug,
     getIndexBySlug,
     useAttributeDefinitionStore,
-} from '../../../../store/attributeDeifnitionStore.ts';
+} from '../../../../store/attributeDefinitionStore.ts';
 
 type Props = {
     conditions: AQLQueries;

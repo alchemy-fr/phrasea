@@ -19,7 +19,7 @@ import {
     getIndexBySearchSlug,
     getIndexBySlug,
     useAttributeDefinitionStore,
-} from '../../../../store/attributeDeifnitionStore.ts';
+} from '../../../../store/attributeDefinitionStore.ts';
 import {AttributeDefinition, StateSetterHandler} from '../../../../types.ts';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 import {validateQueryAST} from './validation.ts';

@@ -9,7 +9,7 @@ import {useTranslation} from 'react-i18next';
 import {
     getIndexBySearchSlug,
     useAttributeDefinitionStore,
-} from '../../../../store/attributeDeifnitionStore.ts';
+} from '../../../../store/attributeDefinitionStore.ts';
 
 type Props = {};
 

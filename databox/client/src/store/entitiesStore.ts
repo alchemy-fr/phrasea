@@ -3,7 +3,7 @@ import {resolveEntities} from '../api/asset.ts';
 
 export type EntityCached = {
     id: string;
-    label: string;
+    [key: string]: any;
 };
 
 export enum ResolveStatus {

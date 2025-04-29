@@ -101,6 +101,8 @@ export async function deleteAttributeClass(id: string): Promise<void> {
 export enum AttributeType {
     Boolean = 'boolean',
     Code = 'code',
+    CollectionPath = 'collection_path',
+    Id = 'id',
     Keyword = 'keyword',
     Color = 'color',
     Date = 'date',

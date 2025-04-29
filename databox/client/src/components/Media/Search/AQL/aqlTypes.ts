@@ -85,8 +85,11 @@ export type ArgNames = string[] | undefined;
 
 export enum RawType {
     String = 'string',
+    Id = 'id',
+    Keyword = 'keyword',
     Number = 'number',
     Date = 'date',
+    DateTime = 'date_time',
     Boolean = 'boolean',
     GeoPoint = 'geo_point',
 }

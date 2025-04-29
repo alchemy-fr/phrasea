@@ -281,7 +281,7 @@ export function replaceIdFromEntities(
         } else if (isAQLLiteral(expression)) {
             if (field) {
                 const v = expression.literal;
-                if (typeof v === 'string') {
+                if (typeof v === 'string' && v) {
                     const label = searchInEntities(
                         field,
                         v,
