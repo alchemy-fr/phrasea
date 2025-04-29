@@ -41,7 +41,7 @@ final readonly class AQLToESQuery
     private function visitExpression(array $fieldClusters, array $data, array $options): Query\AbstractQuery
     {
         $boolQuery = new Query\BoolQuery();
-        $method = 'AND' === strtoupper($data['operator']) ? 'addMust' : 'addShould';
+        $method = LogicOperatorEnum::AND->value === strtoupper($data['operator']) ? 'addMust' : 'addShould';
 
         foreach ($data['conditions'] as $condition) {
             $boolQuery->$method($this->visitNode($fieldClusters, $condition, $options));
@@ -102,19 +102,26 @@ final readonly class AQLToESQuery
         $locale = $options['locale'] ?? '*';
         $facet = $field['facet'] ?? null;
         $fieldName = str_replace('{l}', $locale, $field['field']);
-
         /** @var AttributeTypeInterface $type */
         $type = $field['type'];
-        $strictOperators = ['=', '!=', 'IN', 'NOT_IN'];
-        if (null !== $type->getElasticSearchRawField() && in_array($data['operator'], $strictOperators, true)) {
+        $fieldRaw = $fieldName.($type->getElasticSearchRawField() ? '.'.$type->getElasticSearchRawField() : '');
+
+        $strictOperators = [ConditionOperatorEnum::EQUALS, ConditionOperatorEnum::NOT_EQUALS, ConditionOperatorEnum::IN, ConditionOperatorEnum::NOT_IN];
+
+        $operator = ConditionOperatorEnum::tryFrom($data['operator']);
+        if (null === $operator) {
+            throw new BadRequestHttpException(sprintf('Unsupported operator "%s"', $data['operator']));
+        }
+
+        if (null !== $type->getElasticSearchRawField() && in_array($operator, $strictOperators, true)) {
             $fieldName .= '.'.$type->getElasticSearchRawField();
-        } elseif (null !== $type->getElasticSearchTextSubField() && in_array($data['operator'], $strictOperators + [
-            'MATCHES',
-            'NOT_MATCHES',
-            'CONTAINS',
-            'NOT_CONTAINS',
-            'STARTS_WITH',
-            'NOT_STARTS_WITH',
+        } elseif (null !== $type->getElasticSearchTextSubField() && in_array($operator, $strictOperators + [
+            ConditionOperatorEnum::MATCHES,
+            ConditionOperatorEnum::NOT_MATCHES,
+            ConditionOperatorEnum::CONTAINS,
+            ConditionOperatorEnum::NOT_CONTAINS,
+            ConditionOperatorEnum::STARTS_WITH,
+            ConditionOperatorEnum::NOT_STARTS_WITH,
         ], true)) {
             $fieldName .= '.'.$type->getElasticSearchTextSubField();
         }
@@ -126,61 +133,91 @@ final readonly class AQLToESQuery
         }
 
         if ($type instanceof DateTimeAttributeType && null !== $value) {
-            $this->validateDate($value);
+            $value = $this->normalizeDate($value);
         }
 
-        return match ($data['operator']) {
-            'BETWEEN', 'NOT_BETWEEN' => $this->wrapInNotQuery(new Query\Range($fieldName, $this->createRangeParams($value, $type)), 'NOT_BETWEEN' === $data['operator']),
-            'MISSING', 'EXISTS' => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], function (string $fn) {
+        return match ($operator) {
+            ConditionOperatorEnum::BETWEEN, ConditionOperatorEnum::NOT_BETWEEN => $this->wrapInNotQuery(new Query\Range($fieldName, $this->createRangeParams($value, $type)), ConditionOperatorEnum::NOT_BETWEEN === $operator),
+            ConditionOperatorEnum::MISSING, ConditionOperatorEnum::EXISTS => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], function (string $fn) {
                 return new Query\Exists($fn);
-            }), 'MISSING' === $data['operator']),
-            'IN', 'NOT_IN' => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], function (string $fn) use ($value) {
+            }), ConditionOperatorEnum::MISSING === $operator),
+            ConditionOperatorEnum::IN, ConditionOperatorEnum::NOT_IN => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], function (string $fn) use ($value) {
                 return new Query\Terms($fn, $value);
-            }), 'NOT_IN' === $data['operator']),
-            '=', 'MATCHES', '!=', 'NOT_MATCHES' => $this->wrapInNotQuery($this->createTermQuery($fieldName, $value), in_array($data['operator'], ['!=', 'NOT_MATCHES'], true)),
-            '<' => new Query\Range($fieldName, [
+            }), ConditionOperatorEnum::NOT_IN === $operator),
+            ConditionOperatorEnum::EQUALS, ConditionOperatorEnum::MATCHES, ConditionOperatorEnum::NOT_EQUALS, ConditionOperatorEnum::NOT_MATCHES => $this->wrapInNotQuery($this->createTermQuery($fieldName, $value), in_array($operator, [ConditionOperatorEnum::NOT_EQUALS, ConditionOperatorEnum::NOT_MATCHES], true)),
+            ConditionOperatorEnum::LT => new Query\Range($fieldName, [
                 'lt' => $value,
             ]),
-            '<=' => new Query\Range($fieldName, [
+            ConditionOperatorEnum::LTE => new Query\Range($fieldName, [
                 'lte' => $value,
             ]),
-            '>=' => new Query\Range($fieldName, [
-                'gte' => $value,
-            ]),
-            '>' => new Query\Range($fieldName, [
+            ConditionOperatorEnum::GT => new Query\Range($fieldName, [
                 'gt' => $value,
             ]),
-            'WITHIN_CIRCLE' => (new Query\GeoDistance($fieldName, $this->createPoint($value[0], $value[1]), $value[2])),
-            'WITHIN_RECTANGLE' => (new Query\GeoBoundingBox($fieldName, [
+            ConditionOperatorEnum::GTE => new Query\Range($fieldName, [
+                'gte' => $value,
+            ]),
+            ConditionOperatorEnum::WITHIN_CIRCLE => (new Query\GeoDistance($fieldName, $this->createPoint($value[0], $value[1]), $value[2])),
+            ConditionOperatorEnum::WITHIN_RECTANGLE => (new Query\GeoBoundingBox($fieldName, [
                 $this->createPoint($value[0], $value[1]),
                 $this->createPoint($value[2], $value[3]),
             ])),
-            'CONTAINS', 'NOT_CONTAINS' => $this->wrapInNotQuery((new Query\MultiMatch())->setType('phrase')->setQuery(sprintf('*%s*', $value))->setFields([$fieldName]), 'NOT_CONTAINS' === $data['operator']),
-            'STARTS_WITH', 'NOT_STARTS_WITH' => $this->wrapInNotQuery((new Query\MultiMatch())->setType('phrase_prefix')->setQuery($value)->setFields([$fieldName]), 'NOT_STARTS_WITH' === $data['operator']),
-            default => throw new BadRequestHttpException(sprintf('Invalid operator "%s"', $data['operator'])),
+            ConditionOperatorEnum::CONTAINS, ConditionOperatorEnum::NOT_CONTAINS => $this->wrapInNotQuery((new Query\Wildcard($fieldRaw, sprintf('*%s*', $value))), ConditionOperatorEnum::NOT_CONTAINS === $operator),
+            ConditionOperatorEnum::STARTS_WITH, ConditionOperatorEnum::NOT_STARTS_WITH => $this->wrapInNotQuery((new Query\Prefix())->setPrefix($fieldRaw, $value), ConditionOperatorEnum::NOT_STARTS_WITH === $operator),
+            default => throw new BadRequestHttpException(sprintf('Operator "%s" not implemented', $operator->value)),
         };
     }
 
-    private function validateDate($value): void
+    private function normalizeDate($value)
     {
+        if (is_array($value)) {
+            return array_map(function ($v) {
+                return $this->normalizeDate($v);
+            }, $value);
+        }
+
         if (is_int($value)) {
-            return;
+            return $value;
         }
 
         if (is_string($value)) {
+            $value = trim($value);
             if (is_numeric($value)) {
-                return;
+                return (int) $value;
             }
-            if (10 === strlen($value)) {
-                if (false === \DateTimeImmutable::createFromFormat('Y-m-d', $value)) {
+
+            if (str_contains($value, 'T')) {
+                if (str_contains($value, '.')) {
+                    $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.uO', $value);
+                } else {
+                    $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:sO', $value);
+                }
+                if (false === $date) {
+                    $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.u', $value);
+                    if (false === $date) {
+                        $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $value);
+                        if (false === $date) {
+                            $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i', $value);
+                        }
+                    }
+                }
+            } else {
+                $date = \DateTimeImmutable::createFromFormat('Y-m-d', $value);
+                if (false === $date) {
                     throw new BadRequestHttpException(sprintf('Invalid date value "%s"', $value));
                 }
-            } elseif (false === \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.uO', $value)) {
-                throw new BadRequestHttpException(sprintf('Invalid date time value "%s"', $value));
+
+                return $date->format('Y-m-d');
             }
-        } else {
-            throw new BadRequestHttpException(sprintf('Invalid date type "%s"', get_debug_type($value)));
+
+            if (false === $date) {
+                throw new BadRequestHttpException(sprintf('Invalid date value "%s"', $value));
+            }
+
+            return $date->format('Y-m-d\TH:i:s').'.000Z';
         }
+
+        throw new BadRequestHttpException(sprintf('Invalid date type "%s"', get_debug_type($value)));
     }
 
     private function createRangeParams(array $values, AttributeTypeInterface $attributeType): array
@@ -191,12 +228,6 @@ final readonly class AQLToESQuery
         ];
 
         if ($attributeType instanceof DateTimeAttributeType) {
-            $range = array_map(function (mixed $value): string {
-                $date = (is_int($value) || is_numeric($value)) ? new \DateTimeImmutable('@'.$value)
-                    : new \DateTimeImmutable($value);
-
-                return $date->format('Y-m-d\TH:i:s').'.000Z';
-            }, $range);
             $range['format'] = 'strict_date_time';
         }
 
@@ -262,22 +293,19 @@ final readonly class AQLToESQuery
 
     public function resolveValueExpression(array $exprNode): mixed
     {
-        $operator = strtolower($exprNode['operator']);
+        $operator = ExpressionOperatorEnum::tryFrom($exprNode['operator']);
+        if (null === $operator) {
+            throw new BadRequestHttpException(sprintf('Unsupported operator "%s"', $exprNode['operator']));
+        }
         $left = $this->resolveValue($exprNode['leftOperand']);
         $right = $this->resolveValue($exprNode['rightOperand']);
 
-        switch ($operator) {
-            case '+':
-                return $left + $right;
-            case '-':
-                return $left - $right;
-            case '*':
-                return $left * $right;
-            case '/':
-                return $left / $right;
-            default:
-                throw new BadRequestHttpException(sprintf('Unsupported operator "%s"', $operator));
-        }
+        return match ($operator) {
+            ExpressionOperatorEnum::PLUS => $left + $right,
+            ExpressionOperatorEnum::MINUS => $left - $right,
+            ExpressionOperatorEnum::MULTIPLY => $left * $right,
+            ExpressionOperatorEnum::DIVIDE => $left / $right,
+        };
     }
 
     private function getFunctionHandle(string $functionName): AQLFunctionInterface
@@ -373,7 +401,12 @@ final readonly class AQLToESQuery
                 switch ($type) {
                     case 'criteria':
                         if (!in_array($node['operator'], [
-                            '=', '!=', '<', '<=', '>=', '>',
+                            ConditionOperatorEnum::EQUALS->value,
+                            ConditionOperatorEnum::NOT_EQUALS->value,
+                            ConditionOperatorEnum::GT->value,
+                            ConditionOperatorEnum::GTE->value,
+                            ConditionOperatorEnum::LT->value,
+                            ConditionOperatorEnum::LTE->value,
                         ], true)) {
                             throw new BadRequestHttpException(sprintf('Unsupported operator "%s" in script conditions', $node['operator']));
                         }
@@ -388,7 +421,7 @@ final readonly class AQLToESQuery
                         break;
                     case 'value_expression':
                         if (
-                            in_array($node['operator'], ['+', '-', '*', '/'], true)
+                            null !== ExpressionOperatorEnum::tryFrom($node['operator'])
                             && $this->isResolvableValue($node['leftOperand'])
                             && $this->isResolvableValue($node['rightOperand'])
                         ) {

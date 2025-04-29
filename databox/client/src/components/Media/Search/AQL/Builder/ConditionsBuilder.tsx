@@ -68,7 +68,7 @@ export default function ConditionsBuilder({
         {
             value: AQLOperator.CONTAINS,
             label: t('search_condition.builder.operator.contains', 'Contains'),
-            supportedTypes: [RawType.String, RawType.Date],
+            supportedTypes: [RawType.Keyword, RawType.String, RawType.Date],
         },
         {
             value: AQLOperator.NOT_CONTAINS,
@@ -76,7 +76,7 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.not_contains',
                 `Doesn't Contain`
             ),
-            supportedTypes: [RawType.String, RawType.Date],
+            supportedTypes: [RawType.Keyword, RawType.String, RawType.Date],
         },
         {
             value: AQLOperator.MATCHES,
@@ -97,7 +97,7 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.starts_with',
                 'Starts With'
             ),
-            supportedTypes: [RawType.String, RawType.Date],
+            supportedTypes: [RawType.Keyword, RawType.String, RawType.Date],
         },
         {
             value: AQLOperator.NOT_STARTS_WITH,
@@ -105,7 +105,7 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.not_starts_with',
                 `Doesn't Start With`
             ),
-            supportedTypes: [RawType.String, RawType.Date],
+            supportedTypes: [RawType.Keyword, RawType.String, RawType.Date],
         },
         {
             value: AQLOperator.IN,

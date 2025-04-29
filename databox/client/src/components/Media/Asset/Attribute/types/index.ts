@@ -13,7 +13,9 @@ import DateTimeType from './DateTimeType';
 import TagsType from './TagsType.tsx';
 import AttributeEntityType from './AttributeEntityType.tsx';
 
-export const types: Record<string, AttributeTypeClass> = {
+export const types: {
+    [key in AttributeType]?: AttributeTypeClass;
+} = {
     [AttributeType.Boolean]: BooleanType,
     [AttributeType.Code]: CodeType,
     [AttributeType.Color]: ColorType,
@@ -30,7 +32,7 @@ export const types: Record<string, AttributeTypeClass> = {
 };
 
 export function getAttributeType(type: string): AttributeTypeInstance<any> {
-    const t = types[type] ?? types[AttributeType.Text];
+    const t = types[type as AttributeType] ?? types[AttributeType.Text]!;
 
     return new t();
 }

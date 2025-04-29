@@ -96,12 +96,12 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
             resolveLabel: (entity: Collection) =>
                 entity.titleTranslated ?? entity.title ?? '',
             searchable: true,
-            fieldType: AttributeType.Text,
+            fieldType: AttributeType.CollectionPath,
             name: t('built_in_attr.collection', 'Collection'),
         },
         {
             slug: BuiltInFilter.Workspace,
-            fieldType: AttributeType.Text,
+            fieldType: AttributeType.Id,
             resolveLabel: (entity: Workspace) =>
                 entity.nameTranslated ?? entity.name ?? '',
             entityIri: 'workspaces',
@@ -123,7 +123,7 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
         },
         {
             slug: BuiltInFilter.Tag,
-            fieldType: AttributeType.Text,
+            fieldType: AttributeType.Tag,
             entityIri: 'tags',
             resolveLabel: (entity: Tag) =>
                 entity.nameTranslated ?? entity.name ?? '',
@@ -153,13 +153,13 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
         },
         {
             slug: BuiltInFilter.FileType,
-            fieldType: AttributeType.Text,
+            fieldType: AttributeType.Keyword,
             searchable: true,
             name: t('built_in_attr.fileType', 'File Type'),
         },
         {
             slug: BuiltInFilter.FileMimeType,
-            fieldType: AttributeType.Text,
+            fieldType: AttributeType.Keyword,
             searchable: true,
             name: t('built_in_attr.fileMimeType', 'File MIME Type'),
         },
