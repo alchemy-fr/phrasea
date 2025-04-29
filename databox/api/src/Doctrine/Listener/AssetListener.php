@@ -10,14 +10,14 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\File;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
+use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::onFlush)]
 #[AsDoctrineListener(Events::postUpdate)]
-class AssetListener implements EventSubscriber
+class AssetListener
 {
     use ChangeFieldListenerTrait;
 
@@ -30,6 +30,17 @@ class AssetListener implements EventSubscriber
     {
         $em = $args->getObjectManager();
         $uow = $em->getUnitOfWork();
+
+        foreach($uow->getScheduledEntityDeletions() as $entityDelete) {
+            if ($entityDelete instanceof Asset) {
+                if(null !== ($storyCollection = $entityDelete->getStoryCollection())) {
+                    $storyCollection->setStoryAsset(null);
+                    $em->persist($storyCollection);
+                    $em->remove($storyCollection);
+                }
+            }
+        }
+
         foreach ($uow->getScheduledEntityUpdates() as $entityUpdate) {
             if ($entityUpdate instanceof Asset && !$entityUpdate->isNoFileVersion()) {
                 $changeSet = $uow->getEntityChangeSet($entityUpdate);
@@ -65,13 +76,5 @@ class AssetListener implements EventSubscriber
         }
 
         $this->postFlushStack->addBusMessage(new IndexAssetAttributes($entity->getId()));
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::onFlush,
-            Events::postUpdate,
-        ];
     }
 }
