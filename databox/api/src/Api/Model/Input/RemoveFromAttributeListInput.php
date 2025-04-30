@@ -12,5 +12,5 @@ class RemoveFromAttributeListInput
      * @var string[]
      */
     #[Assert\NotNull]
-    public ?array $items = null;
+    public ?array $definitions = null;
 }

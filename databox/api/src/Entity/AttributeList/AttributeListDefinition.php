@@ -29,6 +29,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     ],
     order: ['position' => 'ASC'],
 )]
+#[ORM\UniqueConstraint(name: 'list_def_uniq', columns: ['list_id', 'definition_id'])]
 class AttributeListDefinition extends AbstractUuidEntity
 {
     public const string GROUP_LIST = 'attrlist-def:l';
