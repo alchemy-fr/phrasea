@@ -128,5 +128,52 @@ class AttributeListTest extends AbstractDataboxTestCase
             ],
         ]);
         $this->assertMatchesResourceItemJsonSchema(AttributeList::class);
+
+        $client->request('POST', '/attribute-lists/'.$id.'/definitions', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'json' => [
+                'definitions' => [
+                    $def2->getId(),
+                ],
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            'id' => $id,
+            '@type' => 'attribute-list',
+            'title' => 'Foo renamed',
+            'description' => 'Foo description',
+            'public' => true,
+            'definitions' => [
+                $def1->getId(),
+                $def2->getId(),
+            ],
+        ]);
+        $this->assertMatchesResourceItemJsonSchema(AttributeList::class);
+
+        $client->request('POST', '/attribute-lists/'.$id.'/remove', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'json' => [
+                'definitions' => [
+                    $def1->getId(),
+                ],
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            'id' => $id,
+            '@type' => 'attribute-list',
+            'title' => 'Foo renamed',
+            'description' => 'Foo description',
+            'public' => true,
+            'definitions' => [
+                $def2->getId(),
+            ],
+        ]);
+        $this->assertMatchesResourceItemJsonSchema(AttributeList::class);
     }
 }

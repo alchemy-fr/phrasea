@@ -71,6 +71,10 @@ class AddToAttributeListProcessor implements ProcessorInterface
 
         foreach ($definitions as $definition) {
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $definition);
+            if ($this->attributeListRepository->hasDefinition($attributeList->getId(), $definition->getId())) {
+                continue;
+            }
+
             $item = new AttributeListDefinition();
             $item->setList($attributeList);
             $item->setDefinition($definition);
