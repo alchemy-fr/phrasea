@@ -140,7 +140,7 @@ export default class PhraseanetClient {
         searchQuery: string,
         limit: number = 100
     ): Promise<(CPhraseanetRecord | CPhraseanetStory)[]> {
-        let last_error = null;
+        let last_error:any = null;
         for (let ttry = 1; ttry <= 3; ttry++) {
             try {
                 this.logger.info(`Fetching search results...`);
@@ -179,9 +179,10 @@ export default class PhraseanetClient {
                 }
 
                 return recs;
-            } catch (last_error) {
+            } catch (e: any) {
+                last_error = e;
                 this.logger.warn(
-                    `Failed ${ttry}/3 to fetch search results (${last_error.message})`
+                    `Failed ${ttry}/3 to fetch search results (${e.message})`
                 );
                 await new Promise(resolve => setTimeout(resolve, 1000*ttry));
             }
@@ -195,8 +196,8 @@ export default class PhraseanetClient {
     ): AsyncGenerator<string> {
         let offset = 0;
         do {
-            let res: AxiosResponse<any,any>;
-            let last_error = null;
+            let res: any;
+            let last_error:any = null;
             for (let ttry = 1; ttry <= 3; ttry++) {
                 try {
                     this.logger.info(`Fetching story children`);
@@ -211,9 +212,10 @@ export default class PhraseanetClient {
                     );
                     last_error = null;
                     break;
-                } catch (last_error: any) {
+                } catch (e: any) {
+                    last_error = e;
                     this.logger.warn(
-                        `Failed ${ttry}/3 to fetch story children (${last_error.message})`
+                        `Failed ${ttry}/3 to fetch story children (${e.message})`
                     );
                     await new Promise(resolve => setTimeout(resolve, 1000*ttry));
                 }
