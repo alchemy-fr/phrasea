@@ -281,6 +281,14 @@ export interface Basket extends IPermissions, Entity {
     owner?: User;
 }
 
+export interface AttributeList extends IPermissions, Entity {
+    title: string;
+    definitions?: string[];
+    createdAt: string;
+    updatedAt: string;
+    owner?: User;
+}
+
 export interface Thread extends Entity {
     id: string;
     key: string;

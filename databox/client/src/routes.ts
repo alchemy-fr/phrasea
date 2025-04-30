@@ -46,6 +46,16 @@ const modalRoutes = {
             },
         },
     },
+    attributeList: {
+        public: false,
+        path: '/attribute-lists/:id',
+        routes: {
+            manage: {
+                path: 'manage/:tab',
+                component: BasketDialog,
+            },
+        },
+    },
     assets: {
         public: false,
         path: '/assets/:id',

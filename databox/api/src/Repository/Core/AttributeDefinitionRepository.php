@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Attribute\Type\EntityAttributeType;
+use App\Entity\Core\Asset;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -212,6 +213,18 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->setParameter('workspace', $workspaceId)
             ->setParameter('t', EntityAttributeType::getName())
             ->setParameter('etype', $entityType)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return AttributeDefinition[]
+     */
+    public function findByIds(array $ids): array
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.id IN (:ids)')
+            ->setParameter('ids', $ids)
             ->getQuery()
             ->getResult();
     }
