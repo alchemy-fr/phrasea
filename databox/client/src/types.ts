@@ -115,11 +115,13 @@ export interface AttributeDefinition extends IPermissions, Entity {
     name: string;
     nameTranslated?: string;
     slug: string;
+    searchSlug: string;
     enabled: boolean;
-    fieldType: string;
+    fieldType: AttributeType;
     entityType?: string | undefined;
     multiple: boolean;
     searchable: boolean;
+    sortable: boolean;
     suggest: boolean;
     translatable: boolean;
     locales?: string[];
@@ -135,6 +137,8 @@ export interface AttributeDefinition extends IPermissions, Entity {
     workspace: Workspace | string;
     class: AttributeClass | string | null;
     lastErrors?: LastErrors;
+    entityIri?: string | undefined;
+    resolveLabel?: (entity: object) => string;
 }
 
 export type FieldWidget<P extends {} = any> = {

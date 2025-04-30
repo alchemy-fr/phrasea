@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Api\Traits\UserLocaleTrait;
+use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\AttributeDefinition;
 use App\Security\Voter\AbstractVoter;
 
@@ -15,6 +16,10 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
     use UserLocaleTrait;
+
+    public function __construct(private readonly FieldNameResolver $fieldNameResolver)
+    {
+    }
 
     public function supports(string $outputClass, object $data): bool
     {
@@ -35,10 +40,12 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->class = $data->getClass();
         $output->name = $data->getName();
         $output->slug = $data->getSlug();
+        $output->searchSlug = $this->fieldNameResolver->getFieldNameFromDefinition($data);
         $output->fileType = $data->getFileType();
         $output->fieldType = $data->getFieldType();
         $output->entityType = $data->getEntityType();
         $output->searchable = $data->isSearchable();
+        $output->sortable = $data->isSortable();
         $output->enabled = $data->isEnabled();
         $output->suggest = $data->isSuggest();
         $output->facetEnabled = $data->isFacetEnabled();

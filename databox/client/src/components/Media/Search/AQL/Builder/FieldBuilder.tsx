@@ -50,9 +50,16 @@ export default function FieldBuilder({
         });
     }
 
+    let fieldType = 'text';
+    if (rawType === RawType.Date) {
+        fieldType = 'date';
+    } else if (rawType === RawType.DateTime) {
+        fieldType = 'datetime-local';
+    }
+
     return (
         <TextField
-            type={rawType === RawType.Date ? 'datetime-local' : 'text'}
+            type={fieldType}
             name={name}
             label={label}
             value={value}

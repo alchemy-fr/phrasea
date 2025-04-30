@@ -7,6 +7,7 @@ import {
     SelectOption,
 } from '@alchemy/react-form';
 import {getWorkspaces} from '../../api/workspace.ts';
+import {useEntitiesStore} from "../../store/entitiesStore.ts";
 
 type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<
     TFieldValues,
@@ -16,15 +17,21 @@ type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<
 export default function WorkspaceSelect<TFieldValues extends FieldValues>({
     ...rest
 }: Props<TFieldValues>) {
+    const store = useEntitiesStore(s => s.store);
+
     const load = useCallback(
         async (inputValue: string): Promise<SelectOption[]> => {
             const data = (await getWorkspaces()).result;
 
             return data
-                .map((t: Workspace) => ({
-                    value: t.id,
-                    label: t.nameTranslated ?? t.name,
-                }))
+                .map((t: Workspace) => {
+                    store(t['@id'], t);
+
+                    return ({
+                        value: t.id,
+                        label: t.nameTranslated ?? t.name,
+                    });
+                })
                 .filter(i =>
                     i.label
                         .toLowerCase()

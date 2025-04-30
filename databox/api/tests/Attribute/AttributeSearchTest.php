@@ -7,6 +7,7 @@ use App\Attribute\AttributeInterface;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
+use App\Elasticsearch\AQL\DateNormalizer;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AttributeSearch;
 use App\Elasticsearch\Facet\FacetRegistry;
@@ -35,6 +36,7 @@ class AttributeSearchTest extends TestCase
             new FacetRegistry([]),
             new AQLFunctionRegistry(),
             $attributeTypeRegistry,
+            new DateNormalizer(),
         );
 
         $as = new AttributeSearch(

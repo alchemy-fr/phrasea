@@ -18,30 +18,16 @@ export enum BuiltInFilter {
     FileName = '@filename',
 }
 
-function encode(str: string): string {
-    return str.replace(/%/g, '%9').replace(/,/g, '%1').replace(/;/g, '%2');
-}
-
-function decode(str: string): string {
-    return str.replace(/%1/g, ',').replace(/%2/g, ';').replace(/%9/g, '%');
-}
-
 function encodeSortBy(sortBy: SortBy): string {
-    return [
-        sortBy.a,
-        sortBy.w.toString(),
-        sortBy.g ? '1' : '',
-        encode(sortBy.t),
-    ].join(specSep);
+    return [sortBy.a, sortBy.w.toString(), sortBy.g ? '1' : ''].join(specSep);
 }
 
 function decodeSortBy(str: string): SortBy {
-    const [a, w, g, t] = str.split(specSep);
+    const [a, w, g] = str.split(specSep);
 
     return {
         a,
         w: parseInt(w) as 0 | 1,
-        t: decode(t),
         g: g === '1',
     };
 }

@@ -27,10 +27,12 @@ use App\Api\Model\Input\FollowInput;
 use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Api\Model\Input\PrepareDeleteAssetsInput;
+use App\Api\Model\Input\ResolveEntitiesInput;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
 use App\Api\Model\Output\PrepareDeleteAssetsOutput;
+use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
 use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\FollowProcessor;
@@ -40,6 +42,7 @@ use App\Api\Processor\MultipleAssetCreateProcessor;
 use App\Api\Processor\PrepareDeleteAssetProcessor;
 use App\Api\Processor\PrepareSubstitutionProcessor;
 use App\Api\Processor\RemoveAssetFromCollectionProcessor;
+use App\Api\Processor\ResolveEntitiesProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
@@ -79,6 +82,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
                 'groups' => [self::GROUP_READ, Collection::GROUP_ABSOLUTE_TITLE],
             ],
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
+        ),
+        new Post(
+            uriTemplate: '/assets/entities',
+            normalizationContext: [
+                'groups' => [
+                    ResolveEntitiesOutput::GROUP_READ,
+                ],
+            ],
+            input: ResolveEntitiesInput::class,
+            output: ResolveEntitiesOutput::class,
+            name: 'resolve_entities',
+            processor: ResolveEntitiesProcessor::class
         ),
         new Delete(
             uriTemplate: '/assets/{id}/collections/{collectionId}',

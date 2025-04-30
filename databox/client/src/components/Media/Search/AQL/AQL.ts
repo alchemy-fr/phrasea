@@ -30,10 +30,3 @@ export function parseAQLQuery(
         expression: parser.results[0],
     };
 }
-
-export enum InternalKey {
-    Workspace = 'workspace',
-    Collection = 'collection',
-    CreatedAt = 'createdAt',
-    Score = 'score',
-}
