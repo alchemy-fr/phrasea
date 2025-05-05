@@ -9,4 +9,9 @@ class AttributeListInput extends AbstractOwnerIdInput
     public ?string $title = null;
     public ?string $description = null;
     public ?bool $public = null;
+
+    /**
+     * @var array|string[]
+     */
+    public ?array $definitions = null;
 }

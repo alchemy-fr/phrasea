@@ -2,11 +2,10 @@ import {create} from 'zustand';
 import {AttributeList} from '../types';
 import {
     addToAttributeList,
-    AttributeListAssetInput,
     deleteAttributeList,
     getAttributeList,
     GetAttributeListOptions,
-    getAttributeLists,
+    getAttributeLists, putAttributeList,
     removeFromAttributeList,
 } from '../api/attributeList';
 
@@ -22,11 +21,14 @@ type State = {
     hasMore: () => boolean;
     load: (params?: GetAttributeListOptions, force?: boolean) => Promise<void>;
     loadMore: () => Promise<void>;
-    addAttributeList: (basket: AttributeList) => void;
+    addAttributeList: (list: AttributeList) => void;
     updateAttributeList: (data: AttributeList) => void;
     deleteAttributeList: (id: string) => void;
-    addToCurrent: (assets: AttributeListAssetInput[]) => void;
-    removeFromAttributeList: (basketId: string, itemIds: string[]) => void;
+    addToCurrent: (definitions: string[]) => void;
+    addToList: (listId: string | undefined, definitions: string[]) => void;
+    replaceList: (listId: string, definitions: string[]) => void;
+    toggleDefinition: (definition: string) => void;
+    removeFromAttributeList: (listId: string, definitions: string[]) => void;
     setCurrent: (data: AttributeList | undefined) => Promise<void>;
     shouldSelectAttributeList: () => boolean;
 };
@@ -55,6 +57,7 @@ export const useAttributeListStore = create<State>((set, getState) => ({
                 lists: data.result,
                 total: data.total,
                 loading: false,
+                loaded: true,
                 current: data.total === 1 ? data.result[0] : state.current,
                 nextUrl: data.next || undefined,
             }));
@@ -84,9 +87,9 @@ export const useAttributeListStore = create<State>((set, getState) => ({
         });
 
         try {
-            const basket = await getAttributeList(data.id);
+            const list = await getAttributeList(data.id);
             set({
-                current: basket,
+                current: list,
                 loadingCurrent: false,
             });
         } catch (e: any) {
@@ -149,9 +152,9 @@ export const useAttributeListStore = create<State>((set, getState) => ({
         }
     },
 
-    addAttributeList(basket) {
+    addAttributeList(list) {
         set(state => ({
-            lists: [basket].concat(state.lists),
+            lists: [list].concat(state.lists),
         }));
     },
 
@@ -164,44 +167,42 @@ export const useAttributeListStore = create<State>((set, getState) => ({
         }));
     },
 
-    addToCurrent: async assets => {
-        const current = getState().current;
+    toggleDefinition: definition => {
+        const state = getState();
+        const current = state.current;
 
-        const currentId = current?.id;
-        const count = assets.length;
+        if (current) {
+            if (current.definitions!.slice().includes(definition)) {
+                state.removeFromAttributeList(current.id, [definition]);
 
-        if (current && current.assetCount !== undefined) {
-            set({
-                current: {
-                    ...current,
-                    assetCount: current.assetCount + count,
-                },
-            });
+                return;
+            }
         }
 
+        state.addToCurrent([definition]);
+    },
+
+    addToList: async (listId, definitions) => {
         try {
-            const basket = await addToAttributeList(currentId, {
-                assets,
+            const list = await addToAttributeList(listId, {
+                definitions,
             });
             set(state => ({
-                current: basket,
-                lists: state.lists.some(b => b.id === basket.id)
+                current: list,
+                lists: state.lists.some(b => b.id === list.id)
                     ? state.lists
-                    : state.lists.concat([basket]),
+                    : state.lists.concat([list]),
             }));
         } catch (e: any) {
-            if (current) {
+            if (listId) {
                 set(state => {
-                    if (state.current?.id === current.id) {
+                    if (state.current?.id === listId) {
                         const curr = state.current!;
 
                         return {
                             current: {
                                 ...curr,
-                                assetCount:
-                                    curr.assetCount !== undefined
-                                        ? Math.max(0, curr.assetCount! - count)
-                                        : undefined,
+                                definitions: curr.definitions,
                             },
                         };
                     }
@@ -212,28 +213,51 @@ export const useAttributeListStore = create<State>((set, getState) => ({
         }
     },
 
-    removeFromAttributeList: async (basketId, itemIds) => {
+    addToCurrent: async definitions => {
+        const state = getState();
+        state.addToList(state.current?.id, definitions);
+    },
+
+    replaceList: async (listId, definitions) => {
+        const list = await putAttributeList(listId, {
+            definitions,
+        });
+
+        set(p => ({
+            lists: p.lists.map(b => {
+                if (b.id === listId) {
+                    return list;
+                }
+
+                return b;
+            }),
+            current: p.current?.id === listId ? list : p.current,
+        }));
+    },
+
+    removeFromAttributeList: async (listId, definitions) => {
         let current: AttributeList | undefined = getState().current;
-        if (current && current.id !== basketId) {
+        if (current && current.id !== listId) {
             current = undefined;
         }
-        const count = itemIds.length;
 
-        if (current && current.assetCount !== undefined) {
+        if (current && current.definitions !== undefined) {
             set({
                 current: {
                     ...current,
-                    assetCount: Math.max(0, current.assetCount - count),
+                    definitions: current.definitions.filter(
+                        d => !definitions.includes(d)
+                    ),
                 },
             });
         }
 
         try {
-            const basket = await removeFromAttributeList(basketId, itemIds);
+            const list = await removeFromAttributeList(listId, definitions);
             set(state => ({
-                lists: state.lists.some(b => b.id === basket.id)
+                lists: state.lists.some(b => b.id === list.id)
                     ? state.lists
-                    : state.lists.concat([basket]),
+                    : state.lists.concat([list]),
             }));
         } catch (e: any) {
             if (current) {
@@ -244,10 +268,9 @@ export const useAttributeListStore = create<State>((set, getState) => ({
                         return {
                             current: {
                                 ...curr,
-                                assetCount:
-                                    curr.assetCount !== undefined
-                                        ? curr.assetCount! + count
-                                        : undefined,
+                                definitions: curr.definitions
+                                    ? curr.definitions.concat(definitions)
+                                    : [],
                             },
                         };
                     }

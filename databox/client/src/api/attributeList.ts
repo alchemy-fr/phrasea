@@ -2,7 +2,7 @@ import apiClient from './api-client';
 import {AttributeList} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 
-const entityType = 'attribute-list';
+const entityType = 'attribute-lists';
 
 export type GetAttributeListOptions = {
     query?: string;
@@ -55,7 +55,7 @@ export async function addToAttributeList(
     data: AddToAttributeListInput
 ): Promise<AttributeList> {
     return (
-        await apiClient.post(`/attribute-lists/${listId ?? 'default'}`, data)
+        await apiClient.post(`/attribute-lists/${listId ?? 'default'}/definitions`, data)
     ).data;
 }
 

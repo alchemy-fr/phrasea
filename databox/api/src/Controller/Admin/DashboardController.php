@@ -11,6 +11,7 @@ use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
 use App\Entity\Admin\ESIndexState;
 use App\Entity\Admin\PopulatePass;
+use App\Entity\AttributeList\AttributeListDefinition;
 use App\Entity\Basket\Basket;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\AlternateUrl;
@@ -76,7 +77,6 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Asset Title Attribute', '', AssetTitleAttribute::class),
             MenuItem::linkToCrud('Attribute Definition', '', AttributeDefinition::class),
             MenuItem::linkToCrud('Attribute Class', '', AttributeClass::class),
-            MenuItem::linkToCrud('Attribute List', '', AttributeList::class),
             MenuItem::linkToCrud('Tag', '', Tag::class),
             MenuItem::linkToCrud('Tag Filter Rule', '', TagFilterRule::class),
             MenuItem::linkToCrud('Asset Rendition', '', AssetRendition::class),
@@ -90,6 +90,11 @@ class DashboardController extends AbstractAdminDashboardController
         $basket = [
             MenuItem::linkToCrud('Basket', '', Basket::class),
             MenuItem::linkToCrud('Basket Assets', '', BasketAsset::class),
+        ];
+
+        $attributeList = [
+            MenuItem::linkToCrud('Attribute Lists', '', AttributeList::class),
+            MenuItem::linkToCrud('Lists Definitions', '', AttributeListDefinition::class),
         ];
 
         $submenuTemplates = [
@@ -125,6 +130,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Permission', 'fas fa-lock')->setSubItems($submenu1);
         yield MenuItem::subMenu('Core', 'fas fa-database')->setSubItems($submenu2);
         yield MenuItem::subMenu('Basket', 'fas fa-basket-shopping')->setSubItems($basket);
+        yield MenuItem::subMenu('Attribute List', 'fas fa-list')->setSubItems($attributeList);
         yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenu3);
         yield MenuItem::subMenu('Template', 'fas fa-align-justify')->setSubItems($submenuTemplates);
         yield MenuItem::subMenu('Integration', 'fas fa-gear')->setSubItems($submenu4);
