@@ -12,6 +12,8 @@ use App\Entity\Core\AttributeDefinition;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ApiResource(
@@ -29,7 +31,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     ],
     order: ['position' => 'ASC'],
 )]
-#[ORM\UniqueConstraint(name: 'list_def_uniq', columns: ['list_id', 'definition_id'])]
+#[ORM\UniqueConstraint(name: 'list_def_uniq', columns: ['list_id', 'definition_id', 'built_in'])]
 class AttributeListDefinition extends AbstractUuidEntity
 {
     public const string GROUP_LIST = 'attrlist-def:l';
@@ -39,9 +41,13 @@ class AttributeListDefinition extends AbstractUuidEntity
     private ?AttributeList $list = null;
 
     #[ORM\ManyToOne(targetEntity: AttributeDefinition::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     #[Groups([self::GROUP_LIST])]
     private ?AttributeDefinition $definition = null;
+
+    #[ORM\Column(type: Types::STRING, length: 30, nullable: true)]
+    #[Groups([self::GROUP_LIST])]
+    private ?string $builtIn = null;
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     #[Groups([self::GROUP_LIST])]
@@ -75,5 +81,29 @@ class AttributeListDefinition extends AbstractUuidEntity
     public function setDefinition(?AttributeDefinition $definition): void
     {
         $this->definition = $definition;
+    }
+
+    public function getBuiltIn(): ?string
+    {
+        return $this->builtIn;
+    }
+
+    public function setBuiltIn(?string $builtIn): void
+    {
+        $this->builtIn = $builtIn;
+    }
+
+    #[Assert\Callback]
+    public function validate(ExecutionContextInterface $context): void
+    {
+        if (null !== $this->getBuiltIn() && null !== $this->getDefinition()) {
+            $context->buildViolation('The definition cannot be set when built-in is set.')
+                ->atPath('builtIn')
+                ->addViolation();
+        } else if (null === $this->getBuiltIn() && null === $this->getDefinition()) {
+            $context->buildViolation('Either built-in or definition must be set.')
+                ->atPath('builtIn')
+                ->addViolation();
+        }
     }
 }

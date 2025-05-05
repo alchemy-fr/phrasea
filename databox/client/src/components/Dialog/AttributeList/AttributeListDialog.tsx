@@ -9,6 +9,7 @@ import {modalRoutes} from '../../../routes';
 import {useCloseModal} from '../../Routing/ModalLink';
 import EditAttributeList from './EditAttributeList';
 import {getAttributeList} from "../../../api/attributeList.ts";
+import OrganizeAttributeList from "./OrganizeAttributeList.tsx";
 
 type Props = {};
 
@@ -36,9 +37,18 @@ export default function AttributeListDialog({}: Props) {
             routeParams={{id}}
             maxWidth={'md'}
             title={t('attribute_list.manage.title', 'Manage Attribute List {{name}}', {
-                name: data.name,
+                name: data.title,
             })}
             tabs={[
+                {
+                    title: t('attribute_list.manage.organize.title', 'Organize'),
+                    component: OrganizeAttributeList,
+                    id: 'organize',
+                    props: {
+                        data,
+                    },
+                    enabled: data.capabilities.canEdit,
+                },
                 {
                     title: t('attribute_list.manage.edit.title', 'Edit'),
                     component: EditAttributeList,

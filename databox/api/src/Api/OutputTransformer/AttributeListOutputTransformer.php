@@ -47,15 +47,10 @@ class AttributeListOutputTransformer implements OutputTransformerInterface
         ], $context)) {
             $output->owner = $this->transformUser($data->getOwnerId());
 
-            $output->definitions = [];
             $definitions = $this->em->getRepository(AttributeList::class)
                 ->getDefinitionIdsIterator($data->getId());
-            $total = 0;
-            foreach ($definitions as $definition) {
-                $output->definitions[] = $definition['id'];
-                ++$total;
-            }
-            $output->definitionCount = $total;
+
+            $output->definitions = array_map(fn (array $definition) => $definition['builtIn'] ?? $definition['id'], iterator_to_array($definitions));
         }
 
         if ($this->hasGroup([AttributeList::GROUP_LIST, AttributeList::GROUP_READ], $context)) {

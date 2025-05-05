@@ -61,8 +61,9 @@ class AttributeListRepository extends ServiceEntityRepository
     {
         return $this->_em->createQueryBuilder()
             ->select('d.id')
+            ->addSelect('t.builtIn')
             ->from(AttributeListDefinition::class, 't')
-            ->innerJoin('t.definition', 'd')
+            ->leftJoin('t.definition', 'd')
             ->andWhere('t.list = :l')
             ->setParameter('l', $listId)
             ->addOrderBy('t.position', 'ASC')

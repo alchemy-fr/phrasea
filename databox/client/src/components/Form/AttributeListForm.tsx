@@ -2,7 +2,7 @@ import {TextField} from '@mui/material';
 import {FC} from 'react';
 import {useTranslation} from 'react-i18next';
 import {AttributeList, Basket} from '../../types';
-import {FormFieldErrors, FormRow} from '@alchemy/react-form';
+import {FormFieldErrors, FormRow, SwitchWidget} from '@alchemy/react-form';
 import {FormProps} from './types';
 
 export const AttributeListForm: FC<FormProps<AttributeList>> = function ({
@@ -11,6 +11,7 @@ export const AttributeListForm: FC<FormProps<AttributeList>> = function ({
         handleSubmit,
         submitting,
         register,
+        control,
         formState: {errors},
     },
 }) {
@@ -40,6 +41,16 @@ export const AttributeListForm: FC<FormProps<AttributeList>> = function ({
                     {...register('description')}
                 />
                 <FormFieldErrors field={'description'} errors={errors} />
+            </FormRow>
+            <FormRow>
+                <SwitchWidget
+                    control={control}
+                    name={'public'}
+                    label={t(
+                        'form.attribute_list.public.label',
+                        'Public'
+                    )}
+                />
             </FormRow>
         </form>
     );

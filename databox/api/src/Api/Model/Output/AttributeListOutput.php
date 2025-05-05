@@ -44,9 +44,6 @@ class AttributeListOutput extends AbstractUuidOutput
     #[Groups([AttributeList::GROUP_LIST, WebhookSerializationInterface::DEFAULT_GROUP])]
     public ?bool $public = null;
 
-    #[Groups([AttributeList::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
-    public ?int $definitionCount = null;
-
     #[Groups([AttributeList::GROUP_READ])]
     public ?UserOutput $owner = null;
 }

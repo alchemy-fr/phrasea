@@ -283,7 +283,9 @@ export interface Basket extends IPermissions, Entity {
 
 export interface AttributeList extends IPermissions, Entity {
     title: string;
+    description?: string;
     definitions?: string[];
+    public?: boolean;
     createdAt: string;
     updatedAt: string;
     owner?: User;

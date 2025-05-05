@@ -15,6 +15,7 @@ import {DisplayContext} from '../../Media/DisplayContext';
 import {debounce} from '../../../lib/debounce';
 import ToggleWithLimit from '../../Media/Search/ToggleWithLimit';
 import ThumbSizeWidget from './ThumbSizeWidget';
+import AttributeListSwitcher from "../../AttributeList/AttributeListSwitcher.tsx";
 
 type Props = {};
 
@@ -160,6 +161,8 @@ export default function DisplayOptionsMenu({}: Props) {
                             />
                         </FormGroup>
                     )}
+
+                    <AttributeListSwitcher/>
                 </Box>
             </Menu>
         </>
