@@ -288,7 +288,7 @@ export enum AttributeListItemType {
 }
 
 export type AttributeListItem = {
-    id?: string;
+    id: string;
     type: AttributeListItemType;
     key?: string;
     definition?: string;

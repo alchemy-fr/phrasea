@@ -5,7 +5,7 @@ import {
     deleteAttributeList,
     getAttributeList,
     GetAttributeListOptions,
-    getAttributeLists, putAttributeList,
+    getAttributeLists,
     removeFromAttributeList, sortAttributeList,
 } from '../api/attributeList';
 
@@ -200,6 +200,7 @@ export const useAttributeListStore = create<State>((set, getState) => ({
     addToList: async (listId, items) => {
         try {
             const list = await addToAttributeList(listId, {
+                // @ts-expect-error id cannot be undefined
                 items: items.map(i => ({
                     ...i,
                     id: i.id?.startsWith(tmpIdPrefix) ? undefined : i.id,
@@ -235,18 +236,18 @@ export const useAttributeListStore = create<State>((set, getState) => ({
     },
 
     sortList: async (listId, items) => {
-        const list = await sortAttributeList(listId, items);
-
         set(p => ({
             lists: p.lists.map(b => {
-                if (b.id === listId) {
-                    return list;
+                if (b.id === listId && b.items) {
+                    return getReorderedListItems(b, items);
                 }
 
                 return b;
             }),
-            current: p.current?.id === listId ? list : p.current,
+            current: p.current?.id === listId ? getReorderedListItems(p.current, items) : p.current,
         }));
+
+        await sortAttributeList(listId, items);
     },
 
     removeFromList: async (listId, items) => {
@@ -296,8 +297,31 @@ export function attributeDefinitionToItem(
     };
 }
 
+let inc = 1;
+
+export function createDivider(
+    title: string,
+): AttributeListItem {
+    return {
+        id: tmpIdPrefix + (inc++).toString(),
+        type: AttributeListItemType.Divider,
+        key: title,
+    };
+}
+
 const tmpIdPrefix = '_tmp_';
 
 export function hasDefinitionInItems(items: AttributeListItem[], id: string): boolean {
     return items.some(i => i.definition === id || i.key === id);
+}
+
+function getReorderedListItems(list: AttributeList, order: string[]): AttributeList {
+    if (!list.items) {
+        return list;
+    }
+
+    return {
+        ...list,
+        items: order.map(id => list.items!.find(i => i.id === id)).filter(i => !!i),
+    }
 }

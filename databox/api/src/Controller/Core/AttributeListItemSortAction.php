@@ -15,9 +15,12 @@ class AttributeListItemSortAction extends AbstractSortAction
 {
     public function __invoke(Request $request): Response
     {
-        return $this->sort($request, AttributeListItem::class, 'priority', true);
+        return $this->sort($request, AttributeListItem::class, 'position');
     }
 
+    /**
+     * @param AttributeListItem       $firstItem
+     */
     protected function buildQuery(QueryBuilder $queryBuilder, object $firstItem): array
     {
         if (!method_exists($firstItem, 'getList')) {

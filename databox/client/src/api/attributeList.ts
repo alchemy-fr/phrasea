@@ -35,13 +35,11 @@ export async function putAttributeList(
 export async function sortAttributeList(
     id: string,
     data: string[]
-): Promise<AttributeList> {
-    const res = await apiClient.post(
+): Promise<void> {
+    await apiClient.post(
         `/${entityType}/${id}/sort`,
         data
     );
-
-    return res.data;
 }
 
 export async function postAttributeList(data: Partial<AttributeList>): Promise<AttributeList> {
