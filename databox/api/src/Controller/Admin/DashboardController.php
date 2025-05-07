@@ -11,7 +11,7 @@ use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
 use App\Entity\Admin\ESIndexState;
 use App\Entity\Admin\PopulatePass;
-use App\Entity\AttributeList\AttributeListDefinition;
+use App\Entity\AttributeList\AttributeListItem;
 use App\Entity\Basket\Basket;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\AlternateUrl;
@@ -94,7 +94,7 @@ class DashboardController extends AbstractAdminDashboardController
 
         $attributeList = [
             MenuItem::linkToCrud('Attribute Lists', '', AttributeList::class),
-            MenuItem::linkToCrud('Lists Definitions', '', AttributeListDefinition::class),
+            MenuItem::linkToCrud('Lists Definitions', '', AttributeListItem::class),
         ];
 
         $submenuTemplates = [
