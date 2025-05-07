@@ -19,7 +19,7 @@ type Props = {
     definition: AttributeDefinition;
     attribute: Attribute | Attribute[];
     displayControls: boolean;
-    togglePin: undefined | ((definitionId: string) => void);
+    togglePin: undefined | ((definition: AttributeDefinition) => void);
     pinned: boolean;
     formatContext: TAttributeFormatContext;
 } & BaseAttributeRowUIProps;
@@ -33,7 +33,7 @@ export default function AttributeRowUI({
     formatContext,
     assetAnnotationsRef,
 }: Props) {
-    const {id, nameTranslated, name, fieldType, multiple} = definition;
+    const {nameTranslated, name, fieldType, multiple} = definition;
     const formatter = getAttributeType(fieldType);
     const [overControls, setOverControls] = React.useState(false);
 
@@ -90,7 +90,7 @@ export default function AttributeRowUI({
                                 />
 
                                 {togglePin ? (
-                                    <IconButton onClick={() => togglePin(id)}>
+                                    <IconButton onClick={() => togglePin(definition)}>
                                         <PushPinIcon
                                             color={
                                                 pinned ? 'success' : undefined

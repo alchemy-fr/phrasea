@@ -1,12 +1,12 @@
 import {create} from 'zustand';
-import {AttributeList} from '../types';
+import {AttributeDefinition, AttributeList, AttributeListItem, AttributeListItemType} from '../types';
 import {
     addToAttributeList,
     deleteAttributeList,
     getAttributeList,
     GetAttributeListOptions,
     getAttributeLists, putAttributeList,
-    removeFromAttributeList,
+    removeFromAttributeList, sortAttributeList,
 } from '../api/attributeList';
 
 type State = {
@@ -22,13 +22,14 @@ type State = {
     load: (params?: GetAttributeListOptions, force?: boolean) => Promise<void>;
     loadMore: () => Promise<void>;
     addAttributeList: (list: AttributeList) => void;
+    loadList: (id: string) => Promise<AttributeList>;
     updateAttributeList: (data: AttributeList) => void;
     deleteAttributeList: (id: string) => void;
-    addToCurrent: (definitions: string[]) => void;
-    addToList: (listId: string | undefined, definitions: string[]) => void;
-    replaceList: (listId: string, definitions: string[]) => void;
-    toggleDefinition: (definition: string) => void;
-    removeFromAttributeList: (listId: string, definitions: string[]) => void;
+    addToCurrent: (items: AttributeListItem[]) => void;
+    addToList: (listId: string | undefined, items: AttributeListItem[]) => void;
+    sortList: (listId: string, items: string[]) => void;
+    toggleDefinition: (definition: AttributeDefinition) => void;
+    removeFromList: (listId: string, ids: string[]) => void;
     setCurrent: (data: AttributeList | undefined) => Promise<void>;
     shouldSelectAttributeList: () => boolean;
 };
@@ -170,28 +171,43 @@ export const useAttributeListStore = create<State>((set, getState) => ({
     toggleDefinition: definition => {
         const state = getState();
         const current = state.current;
+        const defId = definition.id;
 
         if (current) {
-            if (current.definitions!.slice().includes(definition)) {
-                state.removeFromAttributeList(current.id, [definition]);
+            const item = current.items!.find(i => i.definition === defId || i.key === defId);
+            if (item?.id) {
+                state.removeFromList(current.id, [item.id]);
 
                 return;
             }
         }
 
-        state.addToCurrent([definition]);
+        state.addToCurrent([attributeDefinitionToItem(definition)]);
     },
 
-    addToList: async (listId, definitions) => {
+    loadList: async (id: string) => {
+        const list = await getAttributeList(id!);
+        set(state => {
+            return ({
+                current: state.current?.id === list.id ? list : state.current,
+                lists: replaceList(state.lists, list),
+            });
+        });
+
+        return list;
+    },
+
+    addToList: async (listId, items) => {
         try {
             const list = await addToAttributeList(listId, {
-                definitions,
+                items: items.map(i => ({
+                    ...i,
+                    id: i.id?.startsWith(tmpIdPrefix) ? undefined : i.id,
+                })),
             });
             set(state => ({
                 current: list,
-                lists: state.lists.some(b => b.id === list.id)
-                    ? state.lists
-                    : state.lists.concat([list]),
+                lists: replaceList(state.lists, list),
             }));
         } catch (e: any) {
             if (listId) {
@@ -202,7 +218,7 @@ export const useAttributeListStore = create<State>((set, getState) => ({
                         return {
                             current: {
                                 ...curr,
-                                definitions: curr.definitions,
+                                items: curr.items,
                             },
                         };
                     }
@@ -213,15 +229,13 @@ export const useAttributeListStore = create<State>((set, getState) => ({
         }
     },
 
-    addToCurrent: async definitions => {
+    addToCurrent: async items => {
         const state = getState();
-        state.addToList(state.current?.id, definitions);
+        state.addToList(state.current?.id, items);
     },
 
-    replaceList: async (listId, definitions) => {
-        const list = await putAttributeList(listId, {
-            definitions,
-        });
+    sortList: async (listId, items) => {
+        const list = await sortAttributeList(listId, items);
 
         set(p => ({
             lists: p.lists.map(b => {
@@ -235,49 +249,55 @@ export const useAttributeListStore = create<State>((set, getState) => ({
         }));
     },
 
-    removeFromAttributeList: async (listId, definitions) => {
+    removeFromList: async (listId, items) => {
         let current: AttributeList | undefined = getState().current;
         if (current && current.id !== listId) {
             current = undefined;
         }
 
-        if (current && current.definitions !== undefined) {
+        if (current && current.items !== undefined) {
             set({
                 current: {
                     ...current,
-                    definitions: current.definitions.filter(
-                        d => !definitions.includes(d)
+                    items: current.items.filter(
+                        d => !items.some(i => i === d.id)
                     ),
                 },
             });
         }
 
-        try {
-            const list = await removeFromAttributeList(listId, definitions);
+        const itemsToRemove = items.filter(i => !i.startsWith(tmpIdPrefix));
+        if (itemsToRemove.length > 0) {
+            const list = await removeFromAttributeList(listId, itemsToRemove);
             set(state => ({
-                lists: state.lists.some(b => b.id === list.id)
-                    ? state.lists
-                    : state.lists.concat([list]),
+                lists: replaceList(state.lists, list),
             }));
-        } catch (e: any) {
-            if (current) {
-                set(state => {
-                    if (state.current?.id === current!.id) {
-                        const curr = state.current!;
-
-                        return {
-                            current: {
-                                ...curr,
-                                definitions: curr.definitions
-                                    ? curr.definitions.concat(definitions)
-                                    : [],
-                            },
-                        };
-                    }
-
-                    return state;
-                });
-            }
         }
     },
 }));
+
+function replaceList(prev: AttributeList[], list: AttributeList): AttributeList[] {
+    return prev.some(l => l.id === list.id) ? prev.map(l => l.id === list.id ? list : l)
+        : prev.concat([list])
+}
+
+export function attributeDefinitionToItem(
+    definition: AttributeDefinition
+): AttributeListItem {
+    const isBI = definition.builtIn;
+
+    return {
+        id: tmpIdPrefix +definition.id,
+        type: isBI
+            ? AttributeListItemType.BuiltIn
+            : AttributeListItemType.Definition,
+        definition: isBI ? undefined : definition.id,
+        key: isBI ? definition.id : undefined,
+    };
+}
+
+const tmpIdPrefix = '_tmp_';
+
+export function hasDefinitionInItems(items: AttributeListItem[], id: string): boolean {
+    return items.some(i => i.definition === id || i.key === id);
+}

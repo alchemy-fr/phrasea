@@ -30,7 +30,15 @@ export default function OrganizeAttributeList({data, onClose, minHeight}: Props)
     }));
     const definitionsIndex = getIndexById();
 
-    const replaceList = useAttributeListStore(state => state.replaceList);
+    const {
+        sortList,
+        removeFromList,
+        addToList,
+    } = useAttributeListStore(state => ({
+        sortList: state.sortList,
+        removeFromList: state.removeFromList,
+        addToList: state.addToList,
+    }));
 
     if (!loaded) {
         return <FullPageLoader/>;
@@ -48,9 +56,15 @@ export default function OrganizeAttributeList({data, onClose, minHeight}: Props)
                     <AttributeDefinitionTransferList
                         definitions={definitions}
                         definitionsIndex={definitionsIndex}
-                        list={data.definitions!}
-                        onChange={(definitions) => {
-                            replaceList(data.id, definitions);
+                        list={data.items!}
+                        onSort={(items) => {
+                            sortList(data.id, items);
+                        }}
+                        onAdd={(items) => {
+                            addToList(data.id, items);
+                        }}
+                        onRemove={(items) => {
+                            removeFromList(data.id, items);
                         }}
                     />
                 </Container>

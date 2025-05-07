@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use App\Api\Model\Output\AttributeListItemOutput;
 use App\Api\Model\Output\AttributeListOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\AttributeList\AttributeList;
@@ -50,7 +51,15 @@ class AttributeListOutputTransformer implements OutputTransformerInterface
             $definitions = $this->em->getRepository(AttributeList::class)
                 ->getDefinitionIdsIterator($data->getId());
 
-            $output->definitions = array_map(fn (array $definition) => $definition['builtIn'] ?? $definition['id'], iterator_to_array($definitions));
+            $output->items = [];
+            foreach ($definitions as $definition) {
+                $output->items[] = new AttributeListItemOutput(
+                    id: (string) $definition['id'],
+                    definition: $definition['definition'],
+                    key: $definition['key'],
+                    type: $definition['type'],
+                );
+            }
         }
 
         if ($this->hasGroup([AttributeList::GROUP_LIST, AttributeList::GROUP_READ], $context)) {

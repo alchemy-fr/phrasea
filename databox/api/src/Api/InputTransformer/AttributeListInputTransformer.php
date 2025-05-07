@@ -7,7 +7,7 @@ namespace App\Api\InputTransformer;
 use App\Api\Model\Input\AttributeListInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\AttributeList\AttributeList;
-use App\Entity\AttributeList\AttributeListDefinition;
+use App\Entity\AttributeList\AttributeListItem;
 use App\Entity\Core\AttributeDefinition;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
@@ -41,11 +41,11 @@ class AttributeListInputTransformer extends AbstractFileInputTransformer
             $object->setDescription($data->description);
         }
 
-        if (null !== $data->definitions) {
-            $definitions = $object->getDefinitions();
+        if (null !== $data->items) {
+            $definitions = $object->getItems();
             if (!$isNew) {
                 $definitions->clear();
-                $repository = $this->em->getRepository(AttributeListDefinition::class);
+                $repository = $this->em->getRepository(AttributeListItem::class);
                 $repository->createQueryBuilder('a')
                     ->delete()
                     ->where('a.list = :list')
@@ -54,10 +54,10 @@ class AttributeListInputTransformer extends AbstractFileInputTransformer
                     ->execute();
             }
 
-            foreach ($data->definitions as $definition) {
+            foreach ($data->items as $definition) {
                 $defId = is_string($definition) ? $definition : $definition['id'] ?? null;
                 if ($defId) {
-                    $newDefinition = new AttributeListDefinition();
+                    $newDefinition = new AttributeListItem();
                     $newDefinition->setList($object);
                     $newDefinition->setPosition($definition['position'] ?? 0);
                     if (str_starts_with($defId, '@')) {

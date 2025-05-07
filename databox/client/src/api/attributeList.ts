@@ -1,5 +1,5 @@
 import apiClient from './api-client';
-import {AttributeList} from '../types';
+import {AttributeList, AttributeListItem} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 
 const entityType = 'attribute-lists';
@@ -32,6 +32,18 @@ export async function putAttributeList(
     return res.data;
 }
 
+export async function sortAttributeList(
+    id: string,
+    data: string[]
+): Promise<AttributeList> {
+    const res = await apiClient.post(
+        `/${entityType}/${id}/sort`,
+        data
+    );
+
+    return res.data;
+}
+
 export async function postAttributeList(data: Partial<AttributeList>): Promise<AttributeList> {
     const res = await apiClient.post(`/${entityType}`, data);
 
@@ -47,7 +59,7 @@ export async function deleteAttributeList(id: string): Promise<void> {
 }
 
 type AddToAttributeListInput = {
-    definitions: string[];
+    items: AttributeListItem[];
 };
 
 export async function addToAttributeList(
@@ -55,7 +67,7 @@ export async function addToAttributeList(
     data: AddToAttributeListInput
 ): Promise<AttributeList> {
     return (
-        await apiClient.post(`/attribute-lists/${listId ?? 'default'}/definitions`, data)
+        await apiClient.post(`/attribute-lists/${listId ?? 'default'}/items`, data)
     ).data;
 }
 

@@ -5,26 +5,27 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
-use App\Entity\AttributeList\AttributeListDefinition;
+use App\Entity\AttributeList\AttributeListItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class AttributeListDefinitionCrudController extends AbstractAdminCrudController
+class AttributeListItemCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return AttributeListDefinition::class;
+        return AttributeListItem::class;
     }
 
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('Attribute List Definition')
-            ->setEntityLabelInPlural('Attribute List Definitions')
-            ->setSearchFields(['id', 'definition', 'list'])
+            ->setEntityLabelInSingular('Attribute List Item')
+            ->setEntityLabelInPlural('Attribute List Items')
+            ->setSearchFields(['id', 'definition', 'list', 'key'])
             ->setPaginatorPageSize(100)
             ->setDefaultSort(['list' => 'ASC', 'position' => 'ASC']);
     }
@@ -34,7 +35,9 @@ class AttributeListDefinitionCrudController extends AbstractAdminCrudController
         return $filters
             ->add(AssociationIdentifierFilter::new('list'))
             ->add(AssociationIdentifierFilter::new('definition'))
-            ->add('builtIn');
+            ->add('key')
+            ->add('type')
+            ;
     }
 
     public function configureFields(string $pageName): iterable
@@ -43,7 +46,9 @@ class AttributeListDefinitionCrudController extends AbstractAdminCrudController
             ->hideOnForm();
         yield AssociationField::new('list');
         yield AssociationField::new('definition');
-        yield TextField::new('builtIn');
+        yield ChoiceField::new('type')
+            ->setChoices(AttributeListItem::TYPES);;
+        yield TextField::new('key');
         yield NumberField::new('position');
     }
 }

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
+use App\Entity\AttributeList\AttributeListItem;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 final class AttributeListItemInput
 {
@@ -13,5 +15,24 @@ final class AttributeListItemInput
     public ?string $key = null;
 
     #[Assert\NotNull]
+    #[Assert\Choice(choices: AttributeListItem::TYPES)]
     public ?int $type = null;
+
+    #[Assert\Callback]
+    public function validate(ExecutionContextInterface $context): void
+    {
+        if ($this->type === AttributeListItem::TYPE_ATTR_DEF) {
+            if (null === $this->definition) {
+                $context->buildViolation('The definition must be set.')
+                    ->atPath('definition')
+                    ->addViolation();
+            }
+        } else {
+            if (empty($this->key)) {
+                $context->buildViolation('The key must be set and not empty.')
+                    ->atPath('key')
+                    ->addViolation();
+            }
+        }
+    }
 }

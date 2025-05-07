@@ -21,6 +21,8 @@ use App\Api\Model\Input\RemoveFromAttributeListInput;
 use App\Api\Model\Output\AttributeListOutput;
 use App\Api\Processor\AddToAttributeListProcessor;
 use App\Api\Processor\RemoveFromAttributeListProcessor;
+use App\Controller\Core\AttributeListItemSortAction;
+use App\Controller\Core\RenditionDefinitionSortAction;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\AttributeList\AttributeListRepository;
@@ -42,6 +44,31 @@ use Symfony\Component\Validator\Constraints as Assert;
             ]
         ),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
+        new Post(
+            uriTemplate: '/attribute-lists/{id}/sort',
+            controller: AttributeListItemSortAction::class,
+            openapiContext: [
+                'summary' => 'Reorder items',
+                'description' => 'Reorder items',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'description' => 'Ordered list of IDs',
+                                'type' => 'array',
+                                'items' => ['type' => 'string'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            input: false,
+            output: false,
+            read: false,
+            name: 'attr_list_item_post_sort',
+            provider: null
+        ),
         new Put(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
@@ -55,7 +82,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             securityPostValidation: 'is_granted("'.AbstractVoter::CREATE.'", object)'
         ),
         new Post(
-            uriTemplate: '/attribute-lists/default/definitions',
+            uriTemplate: '/attribute-lists/default/items',
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
@@ -64,7 +91,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             processor: AddToAttributeListProcessor::class,
         ),
         new Post(
-            uriTemplate: '/attribute-lists/{id}/definitions',
+            uriTemplate: '/attribute-lists/{id}/items',
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
@@ -111,14 +138,14 @@ class AttributeList extends AbstractUuidEntity implements WithOwnerIdInterface, 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $public = false;
 
-    #[ORM\OneToMany(mappedBy: 'list', targetEntity: AttributeListDefinition::class)]
+    #[ORM\OneToMany(mappedBy: 'list', targetEntity: AttributeListItem::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Collection $definitions = null;
+    private ?Collection $items = null;
 
     public function __construct(UuidInterface|string|null $id = null)
     {
         parent::__construct($id);
-        $this->definitions = new ArrayCollection();
+        $this->items = new ArrayCollection();
     }
 
     public function getTitle(): ?string
@@ -142,11 +169,11 @@ class AttributeList extends AbstractUuidEntity implements WithOwnerIdInterface, 
     }
 
     /**
-     * @return AttributeListDefinition[]|Collection
+     * @return AttributeListItem[]|Collection
      */
-    public function getDefinitions(): Collection
+    public function getItems(): Collection
     {
-        return $this->definitions;
+        return $this->items;
     }
 
     public function getAclOwnerId(): string

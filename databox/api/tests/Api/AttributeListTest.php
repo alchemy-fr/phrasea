@@ -6,6 +6,7 @@ namespace Api;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\AttributeList\AttributeList;
+use App\Entity\AttributeList\AttributeListItem;
 use App\Tests\AbstractDataboxTestCase;
 
 class AttributeListTest extends AbstractDataboxTestCase
@@ -54,7 +55,7 @@ class AttributeListTest extends AbstractDataboxTestCase
 
         static::getEntityManager()->clear();
 
-        $client->request('POST', '/attribute-lists/default/definitions', [
+        $client->request('POST', '/attribute-lists/default/items', [
             'headers' => [
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
@@ -82,13 +83,16 @@ class AttributeListTest extends AbstractDataboxTestCase
             'workspace' => $this->getOrCreateDefaultWorkspace(),
         ]);
 
-        $client->request('POST', '/attribute-lists/default/definitions', [
+        $client->request('POST', '/attribute-lists/default/items', [
             'headers' => [
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
                 'definitions' => [
-                    'id' => $def1->getId(),
+                    [
+                        'type' => AttributeListItem::TYPE_ATTR_DEF,
+                        'definition' => $def1->getId(),
+                    ],
                 ],
             ],
         ]);
@@ -100,7 +104,10 @@ class AttributeListTest extends AbstractDataboxTestCase
             'description' => 'Foo description',
             'public' => true,
             'definitions' => [
-                $def1->getId(),
+                [
+                    'type' => AttributeListItem::TYPE_ATTR_DEF,
+                    'definition' => $def1->getId(),
+                ],
             ],
         ]);
         $this->assertMatchesResourceItemJsonSchema(AttributeList::class);
@@ -111,7 +118,10 @@ class AttributeListTest extends AbstractDataboxTestCase
             ],
             'json' => [
                 'definitions' => [
-                    $def2->getId(),
+                    [
+                        'type' => AttributeListItem::TYPE_ATTR_DEF,
+                        'definition' => $def2->getId(),
+                    ]
                 ],
             ],
         ]);
@@ -123,19 +133,28 @@ class AttributeListTest extends AbstractDataboxTestCase
             'description' => 'Foo description',
             'public' => true,
             'definitions' => [
-                $def1->getId(),
-                $def2->getId(),
+                [
+                    'definition' => $def1->getId(),
+                    'type' => AttributeListItem::TYPE_ATTR_DEF,
+                ],
+                [
+                    'definition' => $def2->getId(),
+                    'type' => AttributeListItem::TYPE_ATTR_DEF,
+                ]
             ],
         ]);
         $this->assertMatchesResourceItemJsonSchema(AttributeList::class);
 
-        $client->request('POST', '/attribute-lists/'.$id.'/definitions', [
+        $client->request('POST', '/attribute-lists/'.$id.'/items', [
             'headers' => [
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
                 'definitions' => [
-                    $def2->getId(),
+                    [
+                    'type' => AttributeListItem::TYPE_ATTR_DEF,
+                    'definition' => $def2->getId(),
+                    ]
                 ],
             ],
         ]);
@@ -147,8 +166,14 @@ class AttributeListTest extends AbstractDataboxTestCase
             'description' => 'Foo description',
             'public' => true,
             'definitions' => [
-                $def1->getId(),
-                $def2->getId(),
+                [
+                    'type' => AttributeListItem::TYPE_ATTR_DEF,
+                    'definition' => $def1->getId(),
+                ],
+                [
+                    'type' => AttributeListItem::TYPE_ATTR_DEF,
+                    'definition' => $def2->getId(),
+                ],
             ],
         ]);
         $this->assertMatchesResourceItemJsonSchema(AttributeList::class);
@@ -159,7 +184,10 @@ class AttributeListTest extends AbstractDataboxTestCase
             ],
             'json' => [
                 'definitions' => [
-                    $def1->getId(),
+                    [
+                        'type' => AttributeListItem::TYPE_ATTR_DEF,
+                        'definition' => $def1->getId(),
+                    ],
                 ],
             ],
         ]);
@@ -171,7 +199,10 @@ class AttributeListTest extends AbstractDataboxTestCase
             'description' => 'Foo description',
             'public' => true,
             'definitions' => [
-                $def2->getId(),
+                [
+                    'type' => AttributeListItem::TYPE_ATTR_DEF,
+                    'definition' => $def2->getId(),
+                ],
             ],
         ]);
         $this->assertMatchesResourceItemJsonSchema(AttributeList::class);

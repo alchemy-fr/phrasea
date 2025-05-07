@@ -94,7 +94,7 @@ class DashboardController extends AbstractAdminDashboardController
 
         $attributeList = [
             MenuItem::linkToCrud('Attribute Lists', '', AttributeList::class),
-            MenuItem::linkToCrud('Lists Definitions', '', AttributeListItem::class),
+            MenuItem::linkToCrud('Lists Items', '', AttributeListItem::class),
         ];
 
         $submenuTemplates = [

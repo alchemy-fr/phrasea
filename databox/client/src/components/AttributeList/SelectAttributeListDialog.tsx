@@ -13,7 +13,7 @@ import {modalRoutes} from "../../routes.ts";
 
 type Props = {} & StackedModalProps;
 
-export default function AttributeListListDialog({modalIndex, open}: Props) {
+export default function SelectAttributeListDialog({modalIndex, open}: Props) {
     const {t} = useTranslation();
     const {openModal, closeModal} = useModals();
     const navigateToModal = useNavigateToModal();
@@ -38,7 +38,7 @@ export default function AttributeListListDialog({modalIndex, open}: Props) {
         closeModal();
         navigateToModal(modalRoutes.attributeList.routes.manage, {
             id,
-            tab: 'edit',
+            tab: 'organize',
         });
     };
 

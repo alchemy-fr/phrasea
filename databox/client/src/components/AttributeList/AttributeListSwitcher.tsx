@@ -5,7 +5,7 @@ import {useModals} from '@alchemy/navigation';
 import {useTranslation} from 'react-i18next';
 import {LoadingButton} from '@alchemy/react-form';
 import React from 'react';
-import AttributeListsDialog from "./AttributeListsDialog.tsx";
+import SelectAttributeListDialog from "./SelectAttributeListDialog.tsx";
 
 type Props = {};
 
@@ -16,7 +16,7 @@ export default function AttributeListSwitcher({}: Props) {
     const {openModal} = useModals();
 
     const openList = () => {
-        openModal(AttributeListsDialog, {});
+        openModal(SelectAttributeListDialog, {});
     };
 
     return (

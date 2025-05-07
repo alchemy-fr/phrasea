@@ -9,9 +9,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 class AddToAttributeListInput
 {
     /**
-     * @var string[]|DefinitionToAttributeListInput[]
+     * @var AttributeListItemInput[]
      */
     #[Assert\NotNull]
     #[Assert\Valid]
-    public ?array $definitions = null;
+    public ?array $items = null;
 }
