@@ -12,6 +12,7 @@ use App\Asset\PickSourceRenditionManager;
 use App\Consumer\Handler\File\CopyFileToAsset;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRelationship;
+use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -152,7 +153,17 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             }
         }
 
-        return $this->processOwnerId($object);
+        $object = $this->processOwnerId($object);
+
+        if($data->isStory) {
+            $storyCollection = new Collection();
+            $storyCollection->setWorkspace($workspace);
+            $storyCollection->setOwnerId($object->getOwnerId());
+            $this->em->persist($storyCollection);
+            $object->setStoryCollection($storyCollection);
+        }
+
+        return $object;
     }
 
     private function handleFile(AssetInput $data, Asset $asset): ?File

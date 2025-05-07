@@ -70,4 +70,6 @@ class AssetInput extends AbstractOwnerIdInput
 
     #[Groups(['_'])]
     public ?array $relationExtraMetadata = null;
+
+    public ?bool $isStory = null;
 }

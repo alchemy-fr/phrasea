@@ -1,5 +1,21 @@
 import {DataboxAttributeType} from '../handlers/phraseanet/shared';
 
+// see: databox/api ; App\Entity\Core\WorkspaceItemPrivacyInterface
+export enum Privacy {
+    // Completely secret, only owner or granted users can view the item
+    SECRET = 0,
+    // Item is listed for users allowed in the workspace but content is not accessible
+    PRIVATE_IN_WORKSPACE = 1,
+    // Open to users allowed in the workspace
+    PUBLIC_IN_WORKSPACE = 2,
+    // Item is listed to every user, but content is not accessible
+    PRIVATE = 3,
+    // Public to every authenticated users
+    PUBLIC_FOR_USERS = 4,
+    // Public to everyone
+    PUBLIC = 5,
+}
+
 type AlternateUrl = {
     type: string;
     url: string;
@@ -24,6 +40,7 @@ export type AssetInput = {
     tags?: TagInput[];
     renditions?: RenditionInput[];
     generateRenditions?: boolean;
+    isStory?: boolean;
 };
 
 export type AssetCopyInput = {
@@ -40,6 +57,7 @@ export type CollectionInput = {
     title?: string;
     parent?: string;
     key?: string;
+    privacy?: Privacy;
 };
 
 export type AttributeInput = ({value: any} | {values: any[]}) & {
@@ -99,3 +117,16 @@ export type AttributeClass = {
     public: boolean;
     workspace: string;
 };
+
+export type CollectionOutput = {
+    id: string;
+}
+
+export type AssetOutput = {
+    id: string;
+}
+
+export type StoryAssetOutput = {
+    id: string;
+    storyCollection: CollectionOutput;
+}
