@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {ReactNode} from 'react';
 import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -7,16 +8,17 @@ import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
-import {AttributeDefinition, AttributeListItem, AttributeListItemType} from "../../../types.ts";
-import {AttributeDefinitionsIndex} from "../../../store/attributeDefinitionStore.ts";
-import {ReactNode} from "react";
-import AttributeDefinitionLabel from "./AttributeDefinitionLabel.tsx";
+import {AttributeDefinition, AttributeListItem, AttributeListItemType} from "../../../../types.ts";
+import {AttributeDefinitionsIndex} from "../../../../store/attributeDefinitionStore.ts";
+import AttributeDefinitionLabel from "../AttributeDefinitionLabel.tsx";
 import {IconButton, ListItemSecondaryAction, TextField} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {attributeDefinitionToItem, hasDefinitionInItems} from "../../../store/attributeListStore.ts";
-import {stopPropagation} from "../../../lib/stdFuncs.ts";
+import {attributeDefinitionToItem, createDivider, hasDefinitionInItems} from "../../../../store/attributeListStore.ts";
+import {stopPropagation} from "../../../../lib/stdFuncs.ts";
 import {FlexRow} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
+import SortableList from "../../../Ui/Sortable/SortableList.tsx";
+import Item from "./Item.tsx";
 
 type Props = {
     definitions: AttributeDefinition[];
@@ -68,12 +70,20 @@ export default function AttributeDefinitionTransferList({definitions, definition
         const addedItems = getDefinitionsNotPresent(items, definitions.map(d => d.id));
         onAdd(addedItems);
         setItems(items.concat(addedItems));
+    };
 
+    const handleAddDivider = () => {
+        const key = window.prompt(`What name?`);
+        if (key) {
+            const addedItems = [createDivider(key)];
 
+            onAdd(addedItems);
+            setItems(items.concat(addedItems));
+        }
     };
     const handleClear = () => {
         setItems([]);
-        onRemove(items.map(i => i.id!));
+        onRemove(items.map(i => i.id));
     };
 
     const toggleAll = () => {
@@ -93,8 +103,7 @@ export default function AttributeDefinitionTransferList({definitions, definition
         setChecked([]);
     };
 
-    const removeItem = (id: string) => (e: any) => {
-        e.stopPropagation();
+    const removeItem = (id: string) => {
         onRemove([id]);
         setItems(p => p.filter(i => i.id !== id));
     };
@@ -138,36 +147,18 @@ export default function AttributeDefinitionTransferList({definitions, definition
         );
     })}</>);
 
-    const rightList = customList(<>{items.map((item: AttributeListItem) => {
-        const labelId = `d-${item.id}-label`;
-        let def: AttributeDefinition | undefined;
-        if (item.type === AttributeListItemType.Definition) {
-            def = definitionsIndex[item.definition!];
-        } else if (item.type === AttributeListItemType.BuiltIn) {
-            def = definitionsIndex[item.key!];
-        }
-
-        return (
-            <ListItemButton
-                key={item.id}
-                role="listitem"
-            >
-                <ListItemText
-                    id={labelId}
-                    primary={def ? <AttributeDefinitionLabel data={def}/> : item.key}
-                    secondary={item.id}
-                />
-                <ListItemSecondaryAction>
-                    <IconButton
-                        onMouseDown={stopPropagation}
-                        onClick={removeItem(item.id!)}
-                    >
-                        <DeleteIcon/>
-                    </IconButton>
-                </ListItemSecondaryAction>
-            </ListItemButton>
-        );
-    })}</>);
+    const rightList = customList(<SortableList
+        onOrderChange={items => {
+            setItems(items);
+            onSort(items.map(i => i.id));
+        }}
+        list={items}
+        itemProps={{
+            removeItem,
+            definitionsIndex,
+        }}
+        itemComponent={Item}
+    />);
 
 
     return (
@@ -231,7 +222,16 @@ export default function AttributeDefinitionTransferList({definitions, definition
                     </Button>
                 </Grid>
             </Grid>
-            <Grid>{rightList}</Grid>
+            <Grid>
+                <div>
+                    <Button
+                        onClick={handleAddDivider}
+                    >
+                        {t('attribute_list.organize.add_divider', 'Add divider')}
+                    </Button>
+                </div>
+                {rightList}
+            </Grid>
         </Grid>
     );
 }

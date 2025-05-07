@@ -2,7 +2,7 @@ import {AttributeList} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {useAttributeListStore} from "../../../store/attributeListStore.ts";
 import React from "react";
-import AttributeDefinitionTransferList from "./AttributeDefinitionTransferList.tsx";
+import AttributeDefinitionTransferList from "./Transfer/AttributeDefinitionTransferList.tsx";
 import {getIndexById, useAttributeDefinitionStore} from "../../../store/attributeDefinitionStore.ts";
 import {useTranslation} from 'react-i18next';
 import FullPageLoader from "../../Ui/FullPageLoader.tsx";
@@ -40,7 +40,7 @@ export default function OrganizeAttributeList({data, onClose, minHeight}: Props)
         addToList: state.addToList,
     }));
 
-    if (!loaded) {
+    if (!loaded || !data.items) {
         return <FullPageLoader/>;
     }
 

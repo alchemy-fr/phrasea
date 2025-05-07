@@ -62,7 +62,6 @@ use Symfony\Component\Validator\Constraints as Assert;
                     ],
                 ],
             ],
-            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
             input: false,
             output: false,
             read: false,
