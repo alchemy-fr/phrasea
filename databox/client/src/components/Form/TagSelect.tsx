@@ -8,6 +8,7 @@ import {
 } from '@alchemy/react-form';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
 import React from 'react';
+import {useEntitiesStore} from "../../store/entitiesStore.ts";
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
@@ -25,6 +26,7 @@ export default function TagSelect<
     ...rest
 }: Props<TFieldValues, IsMulti>) {
     const workspaceContext = React.useContext(WorkspaceContext);
+    const store = useEntitiesStore(s => s.store);
 
     const workspaceId = wsId ?? workspaceContext?.workspaceId;
 
@@ -38,12 +40,15 @@ export default function TagSelect<
 
         return data
             .map(
-                (t: Tag) =>
-                    ({
+                (t: Tag) => {
+                    store(t['@id'], t);
+
+                    return ({
                         value: useIRI ? `${tagNS}/${t.id}` : t.id,
                         label: t.nameTranslated,
                         item: t,
-                    }) as TagOptions
+                    }) as TagOptions;
+                }
             )
             .filter(i =>
                 i.label.toLowerCase().includes((inputValue || '').toLowerCase())

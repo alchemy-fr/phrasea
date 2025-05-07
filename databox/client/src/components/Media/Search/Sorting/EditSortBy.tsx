@@ -36,7 +36,7 @@ import {
 } from '@dnd-kit/sortable';
 import {BuiltInFilter} from '../search';
 import {AttributeDefinition} from '../../../../types.ts';
-import {AttributeDefinitionsIndex} from '../../../../store/attributeDeifnitionStore.ts';
+import {AttributeDefinitionsIndex} from '../../../../store/attributeDefinitionStore.ts';
 
 export type TogglableSortBy = {
     enabled: boolean;

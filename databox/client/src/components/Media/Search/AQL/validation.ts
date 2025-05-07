@@ -9,22 +9,27 @@ import {
 import {hasProp} from '../../../../lib/utils.ts';
 import {AttributeDefinition} from '../../../../types.ts';
 import {isAQLCondition, isAQLField, valueToString} from './query.ts';
+import {AttributeType} from "../../../../api/attributes.ts";
 
-export const typeMap: Record<string, RawType> = {
-    boolean: RawType.Boolean,
-    code: RawType.String,
-    collection_path: RawType.String,
-    color: RawType.String,
-    date: RawType.Date,
-    date_time: RawType.Date,
-    entity: RawType.String,
-    html: RawType.String,
-    ip: RawType.String,
-    keyword: RawType.String,
-    number: RawType.Number,
-    textarea: RawType.String,
-    text: RawType.String,
-    geo_point: RawType.GeoPoint,
+export const typeMap: Record<AttributeType, RawType> = {
+    [AttributeType.Id]: RawType.Id,
+    [AttributeType.Boolean]: RawType.Boolean,
+    [AttributeType.Code]: RawType.String,
+    [AttributeType.CollectionPath]: RawType.String,
+    [AttributeType.Color]: RawType.String,
+    [AttributeType.Date]: RawType.Date,
+    [AttributeType.DateTime]: RawType.DateTime,
+    [AttributeType.Entity]: RawType.String,
+    [AttributeType.Html]: RawType.String,
+    [AttributeType.Ip]: RawType.String,
+    [AttributeType.Keyword]: RawType.Keyword,
+    [AttributeType.Number]: RawType.Number,
+    [AttributeType.Textarea]: RawType.String,
+    [AttributeType.Text]: RawType.String,
+    [AttributeType.GeoPoint]: RawType.GeoPoint,
+    [AttributeType.Tag]: RawType.Id,
+    [AttributeType.WebVtt]: RawType.String,
+    [AttributeType.Json]: RawType.String,
 };
 
 export function validateQueryAST(
@@ -73,13 +78,48 @@ function validateConditionType(
                 return;
             }
 
-            if (
-                [AQLOperator.CONTAINS, AQLOperator.MATCHES].includes(op) &&
-                ![RawType.String, RawType.Date].includes(rawType)
-            ) {
+            const throwTypeError = (type: string) => {
                 throw new Error(
-                    `Field "${attributeDefinition.slug}" is not of type string`
+                    `Field "${attributeDefinition.name}" is of type ${type} and cannot be used with "${op}" operator.`
                 );
+            };
+            const throwNotOfTypeError = (type: string) => {
+                throw new Error(
+                    `Field "${attributeDefinition.name}" is not of type ${type}`
+                );
+            }
+
+            if (
+                [
+                    AQLOperator.CONTAINS,
+                    AQLOperator.NOT_CONTAINS,
+                    AQLOperator.STARTS_WITH,
+                    AQLOperator.NOT_STARTS_WITH,
+                ].includes(op) &&
+                ![RawType.Keyword, RawType.String, RawType.Date, RawType.DateTime].includes(rawType)
+            ) {
+                if (rawType === RawType.Id) {
+                    throwTypeError('ID');
+                }
+
+                throwNotOfTypeError('string');
+            }
+
+            if (
+                [
+                    AQLOperator.MATCHES,
+                    AQLOperator.NOT_MATCHES,
+                ].includes(op) &&
+                ![RawType.String, RawType.Date, RawType.DateTime].includes(rawType)
+            ) {
+                if (rawType === RawType.Id) {
+                    throwTypeError('ID');
+                }
+                if (rawType === RawType.Keyword) {
+                    throwTypeError('keyword');
+                }
+
+                throwNotOfTypeError('string');
             }
 
             if (
@@ -89,9 +129,7 @@ function validateConditionType(
                 ].includes(op) &&
                 rawType !== RawType.GeoPoint
             ) {
-                throw new Error(
-                    `Field "${attributeDefinition.slug}" is not of type Geo Point`
-                );
+                throwNotOfTypeError('Geo Point');
             }
 
             if (
@@ -101,11 +139,9 @@ function validateConditionType(
                     AQLOperator.LT,
                     AQLOperator.LTE,
                 ].includes(op) &&
-                ![RawType.Number, RawType.Date].includes(rawType)
+                ![RawType.Number, RawType.Date, RawType.DateTime].includes(rawType)
             ) {
-                throw new Error(
-                    `Field "${attributeDefinition.slug}" is not of type number`
-                );
+                throwNotOfTypeError('number');
             }
 
             if (![AQLOperator.MISSING, AQLOperator.EXISTS].includes(op)) {
@@ -124,7 +160,7 @@ function validateOfType(
         if (isAQLField(node)) {
             const f = validateField(node, definitionsIndex);
             if (f && typeMap[f.fieldType] !== type) {
-                throw new Error(`Field "${f.slug}" is not of type ${type}`);
+                throw new Error(`Field "${f.name}" is not of type ${type}`);
             }
 
             return;
