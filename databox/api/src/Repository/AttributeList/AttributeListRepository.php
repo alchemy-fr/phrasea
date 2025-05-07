@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository\AttributeList;
 
-use App\Entity\AttributeList\AttributeListDefinition;
+use App\Entity\AttributeList\AttributeListItem;
 use App\Entity\AttributeList\AttributeList;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -17,16 +17,16 @@ class AttributeListRepository extends ServiceEntityRepository
         parent::__construct($registry, AttributeList::class);
     }
 
-    public function removeFromList(string $listId, array $definitionIds): void
+    public function removeFromList(string $listId, array $itemIds): void
     {
         $this->_em->createQueryBuilder('t')
             ->delete()
-            ->from(AttributeListDefinition::class, 't')
+            ->from(AttributeListItem::class, 't')
             ->andWhere('t.list = :lid')
-            ->andWhere('t.definition IN (:ids)')
+            ->andWhere('t.id IN (:ids)')
             ->setParameters([
                 'lid' => $listId,
-                'ids' => $definitionIds,
+                'ids' => $itemIds,
             ])
             ->getQuery()
             ->execute();
@@ -36,7 +36,7 @@ class AttributeListRepository extends ServiceEntityRepository
     {
         return $this->_em->createQueryBuilder()
             ->select('MAX(t.position) as m')
-            ->from(AttributeListDefinition::class, 't')
+            ->from(AttributeListItem::class, 't')
             ->andWhere('t.list = :l')
             ->setParameter('l', $listId)
             ->getQuery()
@@ -48,7 +48,7 @@ class AttributeListRepository extends ServiceEntityRepository
         return $this->_em->createQueryBuilder()
             ->select('1')
             ->setMaxResults(1)
-            ->from(AttributeListDefinition::class, 't')
+            ->from(AttributeListItem::class, 't')
             ->andWhere('t.list = :l')
             ->andWhere('t.definition = :d')
             ->setParameter('l', $listId)
@@ -60,10 +60,11 @@ class AttributeListRepository extends ServiceEntityRepository
     public function getDefinitionIdsIterator(string $listId): iterable
     {
         return $this->_em->createQueryBuilder()
-            ->select('d.id')
-            ->addSelect('t.builtIn')
-            ->from(AttributeListDefinition::class, 't')
-            ->leftJoin('t.definition', 'd')
+            ->select('t.id')
+            ->addSelect('t.type')
+            ->addSelect('t.key')
+            ->addSelect('IDENTITY(t.definition) AS definition')
+            ->from(AttributeListItem::class, 't')
             ->andWhere('t.list = :l')
             ->setParameter('l', $listId)
             ->addOrderBy('t.position', 'ASC')

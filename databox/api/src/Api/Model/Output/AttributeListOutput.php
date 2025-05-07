@@ -33,7 +33,7 @@ class AttributeListOutput extends AbstractUuidOutput
      * @var string[]
      */
     #[Groups([AttributeList::GROUP_READ])]
-    public ?array $definitions = null;
+    public ?array $items = null;
 
     #[Groups([AttributeList::GROUP_LIST, AttributeList::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     public ?string $title = null;

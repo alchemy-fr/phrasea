@@ -49,7 +49,7 @@ export default function AttributeListMenuItem({
                         }}
                     />
                     <ListItemSecondaryAction>
-                        <IconButton
+                        {data.capabilities.canEdit && <IconButton
                             onMouseDown={e => e.stopPropagation()}
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -57,8 +57,8 @@ export default function AttributeListMenuItem({
                             }}
                         >
                             <EditIcon />
-                        </IconButton>
-                        <IconButton
+                        </IconButton>}
+                        {data.capabilities.canDelete && <IconButton
                             onMouseDown={e => e.stopPropagation()}
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -68,7 +68,7 @@ export default function AttributeListMenuItem({
                             }}
                         >
                             <DeleteIcon />
-                        </IconButton>
+                        </IconButton>}
                     </ListItemSecondaryAction>
                 </ListItemButton>
             </ListItem>

@@ -281,10 +281,23 @@ export interface Basket extends IPermissions, Entity {
     owner?: User;
 }
 
+export enum AttributeListItemType {
+    Definition = 0,
+    BuiltIn = 1,
+    Divider = 2,
+}
+
+export type AttributeListItem = {
+    id?: string;
+    type: AttributeListItemType;
+    key?: string;
+    definition?: string;
+}
+
 export interface AttributeList extends IPermissions, Entity {
     title: string;
     description?: string;
-    definitions?: string[];
+    items?: AttributeListItem[];
     public?: boolean;
     createdAt: string;
     updatedAt: string;

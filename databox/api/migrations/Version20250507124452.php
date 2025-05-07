@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250505124613 extends AbstractMigration
+final class Version20250507124452 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -33,31 +33,31 @@ final class Version20250505124613 extends AbstractMigration
             COMMENT ON COLUMN attribute_list.updated_at IS '(DC2Type:datetime_immutable)'
         SQL);
         $this->addSql(<<<'SQL'
-            CREATE TABLE attribute_list_definition (id UUID NOT NULL, list_id UUID NOT NULL, definition_id UUID NOT NULL, position INT NOT NULL, PRIMARY KEY(id))
+            CREATE TABLE attribute_list_item (id UUID NOT NULL, list_id UUID NOT NULL, definition_id UUID DEFAULT NULL, type SMALLINT NOT NULL, key VARCHAR(150) DEFAULT NULL, position INT NOT NULL, format VARCHAR(50) DEFAULT NULL, PRIMARY KEY(id))
         SQL);
         $this->addSql(<<<'SQL'
-            CREATE INDEX IDX_562EE9163DAE168B ON attribute_list_definition (list_id)
+            CREATE INDEX IDX_E7F48A713DAE168B ON attribute_list_item (list_id)
         SQL);
         $this->addSql(<<<'SQL'
-            CREATE INDEX IDX_562EE916D11EA911 ON attribute_list_definition (definition_id)
+            CREATE INDEX IDX_E7F48A71D11EA911 ON attribute_list_item (definition_id)
         SQL);
         $this->addSql(<<<'SQL'
-            CREATE UNIQUE INDEX list_def_uniq ON attribute_list_definition (list_id, definition_id)
+            CREATE UNIQUE INDEX list_def_uniq ON attribute_list_item (list_id, definition_id, key, type)
         SQL);
         $this->addSql(<<<'SQL'
-            COMMENT ON COLUMN attribute_list_definition.id IS '(DC2Type:uuid)'
+            COMMENT ON COLUMN attribute_list_item.id IS '(DC2Type:uuid)'
         SQL);
         $this->addSql(<<<'SQL'
-            COMMENT ON COLUMN attribute_list_definition.list_id IS '(DC2Type:uuid)'
+            COMMENT ON COLUMN attribute_list_item.list_id IS '(DC2Type:uuid)'
         SQL);
         $this->addSql(<<<'SQL'
-            COMMENT ON COLUMN attribute_list_definition.definition_id IS '(DC2Type:uuid)'
+            COMMENT ON COLUMN attribute_list_item.definition_id IS '(DC2Type:uuid)'
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE attribute_list_definition ADD CONSTRAINT FK_562EE9163DAE168B FOREIGN KEY (list_id) REFERENCES attribute_list (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE
+            ALTER TABLE attribute_list_item ADD CONSTRAINT FK_E7F48A713DAE168B FOREIGN KEY (list_id) REFERENCES attribute_list (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE attribute_list_definition ADD CONSTRAINT FK_562EE916D11EA911 FOREIGN KEY (definition_id) REFERENCES attribute_definition (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE
+            ALTER TABLE attribute_list_item ADD CONSTRAINT FK_E7F48A71D11EA911 FOREIGN KEY (definition_id) REFERENCES attribute_definition (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE
         SQL);
     }
 
@@ -68,16 +68,16 @@ final class Version20250505124613 extends AbstractMigration
             CREATE SCHEMA public
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE attribute_list_definition DROP CONSTRAINT FK_562EE9163DAE168B
+            ALTER TABLE attribute_list_item DROP CONSTRAINT FK_E7F48A713DAE168B
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE attribute_list_definition DROP CONSTRAINT FK_562EE916D11EA911
+            ALTER TABLE attribute_list_item DROP CONSTRAINT FK_E7F48A71D11EA911
         SQL);
         $this->addSql(<<<'SQL'
             DROP TABLE attribute_list
         SQL);
         $this->addSql(<<<'SQL'
-            DROP TABLE attribute_list_definition
+            DROP TABLE attribute_list_item
         SQL);
     }
 }

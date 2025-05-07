@@ -46,7 +46,7 @@ class AttributeListItem extends AbstractUuidEntity
 
     public const string GROUP_LIST = 'attrlist-def:l';
 
-    #[ORM\ManyToOne(targetEntity: AttributeList::class, inversedBy: 'definitions')]
+    #[ORM\ManyToOne(targetEntity: AttributeList::class, inversedBy: 'items')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?AttributeList $list = null;
 

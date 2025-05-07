@@ -10,22 +10,25 @@ import {useCloseModal} from '../../Routing/ModalLink';
 import EditAttributeList from './EditAttributeList';
 import {getAttributeList} from "../../../api/attributeList.ts";
 import OrganizeAttributeList from "./OrganizeAttributeList.tsx";
+import {useAttributeListStore} from "../../../store/attributeListStore.ts";
 
 type Props = {};
 
 export default function AttributeListDialog({}: Props) {
     const {t} = useTranslation();
     const {id} = useParams();
-    const [data, setData] = useState<AttributeList>();
     const closeModal = useCloseModal();
 
+    const loadList = useAttributeListStore(state => state.loadList)
+    const lists = useAttributeListStore(state => state.lists);
+    const data = lists.find(l => l.id === id);
+
     useEffect(() => {
-        getAttributeList(id!)
-            .then(c => setData(c))
+        loadList(id!)
             .catch(() => {
                 closeModal();
             });
-    }, [id]);
+    }, [loadList, id]);
 
     if (!data) {
         return <FullPageLoader />;

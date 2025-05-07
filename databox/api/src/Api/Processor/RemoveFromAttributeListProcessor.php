@@ -35,7 +35,7 @@ class RemoveFromAttributeListProcessor implements ProcessorInterface
         $list = DoctrineUtil::findStrictByRepo($this->repository, $id);
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $list);
 
-        $this->repository->removeFromList($id, $data->definitions);
+        $this->repository->removeFromList($id, $data->items);
 
         return $list;
     }

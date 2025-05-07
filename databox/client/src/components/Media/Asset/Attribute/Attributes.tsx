@@ -11,7 +11,7 @@ import {
     copyToClipBoardContainerClass,
 } from './CopyAttribute.tsx';
 import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
-import {useAttributeListStore} from "../../../../store/attributeListStore.ts";
+import {hasDefinitionInItems, useAttributeListStore} from "../../../../store/attributeListStore.ts";
 
 export type OnActiveAnnotations = (annotations: AssetAnnotation[]) => void;
 
@@ -31,20 +31,20 @@ function Attributes({
     const toggleDefinition = useAttributeListStore(s => s.toggleDefinition)
     const current = useAttributeListStore(s => s.current)
 
-    const pinnedAttributes = current?.definitions ?? [];
+    const pinnedAttributes = current?.items ?? [];
 
     let attributeGroups = buildAttributesGroupedByDefinition(asset.attributes);
 
     attributeGroups.sort((a, b) => {
-        const aa = pinnedAttributes.includes(a.definition.id) ? 1 : 0;
-        const bb = pinnedAttributes.includes(b.definition.id) ? 1 : 0;
+        const aa = hasDefinitionInItems(pinnedAttributes, a.definition.id) ? 1 : 0;
+        const bb = hasDefinitionInItems(pinnedAttributes, b.definition.id) ? 1 : 0;
 
         return bb - aa;
     });
 
     if (pinnedOnly) {
         attributeGroups = attributeGroups.filter(g =>
-            pinnedAttributes.includes(g.definition.id)
+            hasDefinitionInItems(pinnedAttributes, g.definition.id)
         );
     }
 
@@ -66,7 +66,7 @@ function Attributes({
                         attribute={g.attribute}
                         definition={g.definition}
                         displayControls={displayControls}
-                        pinned={pinnedAttributes.includes(g.definition.id)}
+                        pinned={hasDefinitionInItems(pinnedAttributes, g.definition.id)}
                         togglePin={toggleDefinition}
                         assetAnnotationsRef={assetAnnotationsRef}
                     />

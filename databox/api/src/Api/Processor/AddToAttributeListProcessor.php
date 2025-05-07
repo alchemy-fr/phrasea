@@ -10,11 +10,12 @@ use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\AddToAttributeListInput;
-use App\Api\Model\Input\DefinitionToAttributeListInput;
-use App\Entity\AttributeList\AttributeListDefinition;
+use App\Api\Model\Input\AttributeListItemInput;
+use App\Entity\AttributeList\AttributeListItem;
 use App\Entity\AttributeList\AttributeList;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\AttributeList\AttributeListRepository;
+use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -25,6 +26,7 @@ class AddToAttributeListProcessor implements ProcessorInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
+        private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly AttributeListRepository $attributeListRepository,
         private readonly IriConverterInterface $iriConverter,
         private readonly MessageBusInterface $bus,
@@ -58,27 +60,29 @@ class AddToAttributeListProcessor implements ProcessorInterface
             $position = $this->attributeListRepository->getMaxPosition($attributeList->getId()) + 1;
         }
 
-        $ids = array_map(function (DefinitionToAttributeListInput|string $input): string {
-            if (is_string($input)) {
-                return $input;
-            }
 
-            return $input->id;
-        }, $data->definitions);
-
-        $definitions = $this->em->getRepository(AttributeDefinition::class)
-            ->findByIds($ids);
-
-        foreach ($definitions as $definition) {
-            $this->denyAccessUnlessGranted(AbstractVoter::READ, $definition);
-            if ($this->attributeListRepository->hasDefinition($attributeList->getId(), $definition->getId())) {
-                continue;
-            }
-
-            $item = new AttributeListDefinition();
+        foreach ($data->items as $i) {
+            $item = new AttributeListItem();
             $item->setList($attributeList);
-            $item->setDefinition($definition);
+            $item->setType($i->type);
             $item->setPosition($position++);
+
+            switch ($i->type) {
+                case AttributeListItem::TYPE_ATTR_DEF:
+                    $definition = DoctrineUtil::findStrictByRepo($this->attributeDefinitionRepository, $i->definition);
+                    $this->denyAccessUnlessGranted(AbstractVoter::READ, $definition);
+                    $item->setDefinition($definition);
+                    if ($this->attributeListRepository->hasDefinition($attributeList->getId(), $definition->getId())) {
+                        continue;
+                    }
+                    break;
+                case AttributeListItem::TYPE_DIVIDER:
+                case AttributeListItem::TYPE_BUILT_IN:
+                    $item->setKey($i->key);
+                    break;
+                default:
+                    throw new \InvalidArgumentException(sprintf('Unsupported type "%d"', $i->type));
+            }
             $this->em->persist($item);
         }
 

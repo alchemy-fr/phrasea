@@ -7,37 +7,35 @@ import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
-import {AttributeDefinition} from "../../../types.ts";
+import {AttributeDefinition, AttributeListItem, AttributeListItemType} from "../../../types.ts";
 import {AttributeDefinitionsIndex} from "../../../store/attributeDefinitionStore.ts";
-
-function not(a: string[], b: string[]) {
-    return a.filter((value) => !b.includes(value));
-}
-
-function intersection(a: string[], b: string[]) {
-    return a.filter((value) => b.includes(value));
-}
+import {ReactNode} from "react";
+import AttributeDefinitionLabel from "./AttributeDefinitionLabel.tsx";
+import {IconButton, ListItemSecondaryAction, TextField} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import {attributeDefinitionToItem, hasDefinitionInItems} from "../../../store/attributeListStore.ts";
+import {stopPropagation} from "../../../lib/stdFuncs.ts";
+import {FlexRow} from '@alchemy/phrasea-ui';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     definitions: AttributeDefinition[];
     definitionsIndex: AttributeDefinitionsIndex;
-    list: string[];
-    onChange: (definitions: string[]) => void;
+    list: AttributeListItem[];
+    onSort: (items: string[]) => void;
+    onAdd: (items: AttributeListItem[]) => void;
+    onRemove: (items: string[]) => void;
 };
 
-export default function AttributeDefinitionTransferList({definitions, definitionsIndex, list, onChange}: Props) {
+export default function AttributeDefinitionTransferList({definitions, definitionsIndex, list, onSort, onAdd, onRemove}: Props) {
     const [checked, setChecked] = React.useState<string[]>([]);
-    const [left, setLeft] = React.useState<string[]>(not(definitions.map(d => d.id), list));
-    const [right, setRight] = React.useState<string[]>(list);
+    const [items, setItems] = React.useState<AttributeListItem[]>(list);
+    const [query, setQuery] = React.useState('');
+    const {t} = useTranslation();
 
     React.useEffect(() => {
-        if (list !== right) {
-            onChange(right);
-        }
-    }, [right, list]);
-
-    const leftChecked = intersection(checked, left);
-    const rightChecked = intersection(checked, right);
+        setItems(list);
+    }, [list]);
 
     const handleToggle = (value: string) => () => {
         const currentIndex = checked.indexOf(value);
@@ -52,63 +50,125 @@ export default function AttributeDefinitionTransferList({definitions, definition
         setChecked(newChecked);
     };
 
-    const handleAllRight = () => {
-        setRight(right.concat(left));
-        setLeft([]);
+    const getDefinitionsNotPresent = (items: AttributeListItem[], definitions: string[]): AttributeListItem[] => {
+        return definitions.map((id: string) => {
+            if (hasDefinitionInItems(items, id)) {
+                return undefined;
+            }
+            const def = definitionsIndex[id];
+            if (!def || hasDefinitionInItems(items, id)) {
+                return undefined;
+            }
+
+            return attributeDefinitionToItem(def);
+        }).filter(i => !!i) as AttributeListItem[];
+    }
+
+    const handleAddAll = () => {
+        const addedItems = getDefinitionsNotPresent(items, definitions.map(d => d.id));
+        onAdd(addedItems);
+        setItems(items.concat(addedItems));
+
+
+    };
+    const handleClear = () => {
+        setItems([]);
+        onRemove(items.map(i => i.id!));
     };
 
-    const handleCheckedRight = () => {
-        setRight(right.concat(leftChecked));
-        setLeft(not(left, leftChecked));
-        setChecked(not(checked, leftChecked));
+    const toggleAll = () => {
+        setChecked(p => {
+            if (p.length === 0) {
+                return left.map(d => d.id);
+            }
+
+            return [];
+        });
     };
 
-    const handleCheckedLeft = () => {
-        setLeft(left.concat(rightChecked));
-        setRight(not(right, rightChecked));
-        setChecked(not(checked, rightChecked));
+    const handleAddChecked = () => {
+        const addedItems = getDefinitionsNotPresent(items, checked);
+        setItems(items.concat(addedItems));
+        onAdd(addedItems);
+        setChecked([]);
     };
 
-    const handleAllLeft = () => {
-        setLeft(left.concat(right));
-        setRight([]);
+    const removeItem = (id: string) => (e: any) => {
+        e.stopPropagation();
+        onRemove([id]);
+        setItems(p => p.filter(i => i.id !== id));
     };
 
-    const customList = (items: string[]) => (
+    const customList = (children: ReactNode) => (
         <Paper sx={{ width: 300, height: 450, overflow: 'auto' }}>
             <List dense component="div" role="list">
-                {items.map((value: string) => {
-                    const labelId = `d-${value}-label`;
-                    const def = definitionsIndex[value];
-
-                    return (
-                        <ListItemButton
-                            key={value}
-                            role="listitem"
-                            onClick={handleToggle(value)}
-                        >
-                            <ListItemIcon>
-                                <Checkbox
-                                    checked={checked.includes(value)}
-                                    tabIndex={-1}
-                                    disableRipple
-                                    inputProps={{
-                                        'aria-labelledby': labelId,
-                                    }}
-                                />
-                            </ListItemIcon>
-                            <ListItemText
-                                id={labelId}
-                                primary={def.builtIn ? <strong>
-                                    {def.nameTranslated ?? def.name}
-                                </strong> : def.nameTranslated ?? def.name}
-                            />
-                        </ListItemButton>
-                    );
-                })}
+                {children}
             </List>
         </Paper>
     );
+
+    const left = definitions.filter(d => !hasDefinitionInItems(items, d.id));
+
+    const leftList = customList(<>{left
+        .filter(d => !query || d.name.toLowerCase().includes(query.toLowerCase()))
+        .map((definition: AttributeDefinition) => {
+        const labelId = `d-${definition.id}-label`;
+
+        return (
+            <ListItemButton
+                key={definition.id}
+                role="listitem"
+                onClick={handleToggle(definition.id)}
+            >
+                <ListItemIcon>
+                    <Checkbox
+                        checked={checked.includes(definition.id)}
+                        tabIndex={-1}
+                        disableRipple
+                        inputProps={{
+                            'aria-labelledby': labelId,
+                        }}
+                    />
+                </ListItemIcon>
+                <ListItemText
+                    id={labelId}
+                    primary={<AttributeDefinitionLabel data={definition}/>}
+                />
+            </ListItemButton>
+        );
+    })}</>);
+
+    const rightList = customList(<>{items.map((item: AttributeListItem) => {
+        const labelId = `d-${item.id}-label`;
+        let def: AttributeDefinition | undefined;
+        if (item.type === AttributeListItemType.Definition) {
+            def = definitionsIndex[item.definition!];
+        } else if (item.type === AttributeListItemType.BuiltIn) {
+            def = definitionsIndex[item.key!];
+        }
+
+        return (
+            <ListItemButton
+                key={item.id}
+                role="listitem"
+            >
+                <ListItemText
+                    id={labelId}
+                    primary={def ? <AttributeDefinitionLabel data={def}/> : item.key}
+                    secondary={item.id}
+                />
+                <ListItemSecondaryAction>
+                    <IconButton
+                        onMouseDown={stopPropagation}
+                        onClick={removeItem(item.id!)}
+                    >
+                        <DeleteIcon/>
+                    </IconButton>
+                </ListItemSecondaryAction>
+            </ListItemButton>
+        );
+    })}</>);
+
 
     return (
         <Grid
@@ -116,14 +176,34 @@ export default function AttributeDefinitionTransferList({definitions, definition
             spacing={2}
             sx={{ justifyContent: 'center', alignItems: 'center' }}
         >
-            <Grid>{customList(left)}</Grid>
+            <Grid>
+                <FlexRow>
+                    <Checkbox
+                        checked={checked.length === left.length && left.length > 0}
+                        tabIndex={-1}
+                        disableRipple
+                        onChange={toggleAll}
+                        inputProps={{
+                            'aria-labelledby': 'checkall',
+                        }}
+                    />
+                    <TextField
+                        type={'search'}
+                        variant={'standard'}
+                        placeholder={t('dialog.search', 'Search')}
+                        value={query}
+                        onChange={e => setQuery(e.target.value)}
+                    />
+                </FlexRow>
+                {leftList}
+            </Grid>
             <Grid>
                 <Grid container direction="column" sx={{ alignItems: 'center' }}>
                     <Button
                         sx={{ my: 0.5 }}
                         variant="outlined"
                         size="small"
-                        onClick={handleAllRight}
+                        onClick={handleAddAll}
                         disabled={left.length === 0}
                         aria-label="move all right"
                     >
@@ -133,8 +213,8 @@ export default function AttributeDefinitionTransferList({definitions, definition
                         sx={{ my: 0.5 }}
                         variant="outlined"
                         size="small"
-                        onClick={handleCheckedRight}
-                        disabled={leftChecked.length === 0}
+                        onClick={handleAddChecked}
+                        disabled={checked.length === 0}
                         aria-label="move selected right"
                     >
                         &gt;
@@ -143,25 +223,15 @@ export default function AttributeDefinitionTransferList({definitions, definition
                         sx={{ my: 0.5 }}
                         variant="outlined"
                         size="small"
-                        onClick={handleCheckedLeft}
-                        disabled={rightChecked.length === 0}
-                        aria-label="move selected left"
-                    >
-                        &lt;
-                    </Button>
-                    <Button
-                        sx={{ my: 0.5 }}
-                        variant="outlined"
-                        size="small"
-                        onClick={handleAllLeft}
-                        disabled={right.length === 0}
-                        aria-label="move all left"
+                        onClick={handleClear}
+                        disabled={items.length === 0}
+                        aria-label="clear list"
                     >
                         ≪
                     </Button>
                 </Grid>
             </Grid>
-            <Grid>{customList(right)}</Grid>
+            <Grid>{rightList}</Grid>
         </Grid>
     );
 }
