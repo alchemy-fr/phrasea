@@ -73,7 +73,7 @@ class AddToAttributeListProcessor implements ProcessorInterface
                     $this->denyAccessUnlessGranted(AbstractVoter::READ, $definition);
                     $item->setDefinition($definition);
                     if ($this->attributeListRepository->hasDefinition($attributeList->getId(), $definition->getId())) {
-                        continue;
+                        continue 2;
                     }
                     break;
                 case AttributeListItem::TYPE_DIVIDER:
