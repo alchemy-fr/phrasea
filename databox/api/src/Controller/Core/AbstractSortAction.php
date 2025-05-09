@@ -42,7 +42,7 @@ abstract class AbstractSortAction extends AbstractController
                 ->update($class, 't')
                 ->set('t.'.$positionField, ':p')
                 ->andWhere('t.id = :id');
-            $params = $this->buildQuery($queryBuilder, $firstItem, $class);
+            $params = $this->buildQuery($queryBuilder, $firstItem);
 
             $query = $queryBuilder
                 ->getQuery();
@@ -63,10 +63,10 @@ abstract class AbstractSortAction extends AbstractController
         return new Response();
     }
 
-    protected function buildQuery(QueryBuilder $queryBuilder, object $firstItem, string $class): array
+    protected function buildQuery(QueryBuilder $queryBuilder, object $firstItem): array
     {
         if (!method_exists($firstItem, 'getWorkspace')) {
-            throw new \RuntimeException(sprintf('Class %s must implement getWorkspace method to be sortable', $class));
+            throw new \RuntimeException(sprintf('Class %s must implement getWorkspace method to be sortable', $firstItem::class));
         }
 
         /** @var Workspace $workspace */
