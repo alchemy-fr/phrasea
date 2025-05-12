@@ -30,7 +30,7 @@ class AttributeListOutput extends AbstractUuidOutput
     protected array $capabilities = [];
 
     /**
-     * @var string[]
+     * @var AttributeListItemOutput[]
      */
     #[Groups([AttributeList::GROUP_READ])]
     public ?array $items = null;
