@@ -17,22 +17,22 @@ framework:
         routing:
             Alchemy\ESBundle\Message\ESIndex: p1
             Alchemy\CoreBundle\Message\PusherMessage: p1
-            Alchemy\Workflow\Message\JobConsumer: p1
+            Alchemy\Workflow\Message\JobConsumer: p2
             Alchemy\WebhookBundle\Consumer\WebhookTriggerMessage: p2
             Alchemy\WebhookBundle\Consumer\WebhookEvent: p2
             Alchemy\ConfiguratorBundle\Message\DeployConfig: p2
             Alchemy\CoreBundle\Message\Debug\SentryDebug: p1
 
-#when@dev:
-#    framework:
-#        messenger:
-#            transports:
-#                p1: 'sync://'
-#                p2: 'sync://'
-#
-#when@test:
-#    framework:
-#        messenger:
-#            transports:
-#                p1: 'test://'
-#                p2: 'test://'
+when@dev:
+    framework:
+        messenger:
+            transports:
+                p1: 'sync://'
+                p2: 'sync://'
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                p1: 'test://'
+                p2: 'test://'

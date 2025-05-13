@@ -2,6 +2,7 @@
 
 namespace Alchemy\Workflow\Message;
 
+use Alchemy\Workflow\Date\MicroDateTime;
 use Alchemy\Workflow\Executor\JobStateManager;
 use Alchemy\Workflow\Runner\RunnerInterface;
 use Alchemy\Workflow\State\JobState;
@@ -21,27 +22,35 @@ final readonly class JobConsumerHandler
 
     public function __invoke(JobConsumer $message, int $retryCount): void
     {
+        $workflowId = $message->getWorkflowId();
+        $jobStateId = $message->getJobStateId();
+
         if ($retryCount > 0) {
             // Messenger retry logic: mark the job as failed as it should have been interrupted
-            $this->jobStateManager->acquireJobLock($message->getWorkflowId(), $message->getJobStateId());
-            $state = $this->jobStateManager->getJobState($message->getWorkflowId(), $message->getJobStateId());
-            if (null === $state) {
-                throw new \RuntimeException(sprintf('Job state "%s" not found after retry', $message->getJobStateId()));
-            }
+            $this->jobStateManager->wrapInTransaction(function () use ($workflowId, $jobStateId): void {
+                $this->jobStateManager->acquireJobLock($workflowId, $jobStateId);
+                $state = $this->jobStateManager->getJobState($workflowId, $jobStateId);
+                if (null === $state) {
+                    throw new \RuntimeException(sprintf('Job state "%s" not found after retry', $jobStateId));
+                }
 
-            $state->setStatus(JobState::STATUS_FAILURE);
-            $state->addError('Job timeout error');
-            $this->jobStateManager->persistJobState($state);
+                $state->setStatus(JobState::STATUS_FAILURE);
+                $state->setEndedAt(new MicroDateTime());
+                $state->addError('Job timeout error');
+                $this->jobStateManager->persistJobState($state);
+            });
+
+            $this->jobStateManager->flushEvents();
 
             return;
         }
 
         $this->runner->run(new JobTrigger(
-            $message->getWorkflowId(),
+            $workflowId,
             $message->getJobId(),
-            $message->getJobStateId(),
+            $jobStateId,
         ));
 
-        $this->orchestrator->continueWorkflow($message->getWorkflowId());
+        $this->orchestrator->continueWorkflow($workflowId);
     }
 }

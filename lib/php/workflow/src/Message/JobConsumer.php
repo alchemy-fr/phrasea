@@ -8,7 +8,6 @@ if (!interface_exists(RetryCountSupportInterface::class)) {
     require __DIR__ . '/RetryCountSupportInterface.php';
 }
 
-
 final readonly class JobConsumer implements RetryCountSupportInterface
 {
     public function __construct(
