@@ -5,6 +5,7 @@ framework:
                 middleware:
                     - doctrine_ping_connection
                     - App\Consumer\Middleware\QuietContextMiddleware
+                    - Alchemy\MessengerBundle\Middleware\RetryCountMiddleware
         transports:
             p1:
                 dsn: '%alchemy_messenger.amqp_transport_dsn%/p1'
@@ -22,16 +23,16 @@ framework:
             Alchemy\ConfiguratorBundle\Message\DeployConfig: p2
             Alchemy\CoreBundle\Message\Debug\SentryDebug: p1
 
-when@dev:
-    framework:
-        messenger:
-            transports:
-                p1: 'sync://'
-                p2: 'sync://'
-
-when@test:
-    framework:
-        messenger:
-            transports:
-                p1: 'test://'
-                p2: 'test://'
+#when@dev:
+#    framework:
+#        messenger:
+#            transports:
+#                p1: 'sync://'
+#                p2: 'sync://'
+#
+#when@test:
+#    framework:
+#        messenger:
+#            transports:
+#                p1: 'test://'
+#                p2: 'test://'

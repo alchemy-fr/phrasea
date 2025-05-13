@@ -335,6 +335,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         $inputFormat = ImageFormatGuesser::getFormat($inputFile->getType());
+        dump($inputFormat);
         if ('svg' === $inputFormat) {
             return $inputFile->createOutputFile();
         }
@@ -348,6 +349,8 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
         $type = (2 === count($t) && 'image' === $t[0]) ? $t[1] : null;
 
         $image = new FileBinary($inputFile->getPath(), $inputFile->getType(), $type);
+        dump($image);
+        dump($options);
         $output = $filterManager->apply($image, $options);
 
         $extension = $output->getFormat();
