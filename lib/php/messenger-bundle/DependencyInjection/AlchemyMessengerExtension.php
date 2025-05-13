@@ -3,6 +3,7 @@
 namespace Alchemy\MessengerBundle\DependencyInjection;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
+use Alchemy\MessengerBundle\Middleware\RetryCountMiddleware;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -102,7 +103,8 @@ class AlchemyMessengerExtension extends Extension implements PrependExtensionInt
                 'buses' => [
                     'command_bus' => [
                         'middleware' => [
-                            'doctrine_ping_connection'
+                            'doctrine_ping_connection',
+                            RetryCountMiddleware::class,
                         ]
                     ]
                 ],

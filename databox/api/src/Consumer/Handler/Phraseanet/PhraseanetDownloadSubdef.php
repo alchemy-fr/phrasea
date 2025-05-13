@@ -4,7 +4,7 @@ namespace App\Consumer\Handler\Phraseanet;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p1')]
+#[MessengerMessage('p2')]
 final readonly class PhraseanetDownloadSubdef
 {
     public function __construct(

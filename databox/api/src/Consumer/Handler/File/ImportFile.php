@@ -4,7 +4,7 @@ namespace App\Consumer\Handler\File;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p1')]
+#[MessengerMessage('p2')]
 final readonly class ImportFile
 {
     public function __construct(

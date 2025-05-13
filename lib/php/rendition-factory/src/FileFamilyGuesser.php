@@ -38,11 +38,19 @@ final readonly class FileFamilyGuesser
         }
 
         return match ($mimeType) {
-            'application/pdf', 'text/rtf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/pdf',
+            'text/rtf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'application/vnd.oasis.opendocument.spreadsheet' => FamilyEnum::Document,
 
             'application/mxf', 'application/ogg' => FamilyEnum::Video,
+
+            'application/x-photoshop',
+            'application/photoshop',
+            'application/psd' => FamilyEnum::Image,
 
             default => FamilyEnum::Unknown,
         };

@@ -29,7 +29,8 @@ class AwsTranscribeEventTest extends ApiTestCase
         $apiClient = static::createClient();
         $apiClient->disableReboot();
 
-        $inMemoryTransport = $this->interceptMessengerEvents();
+        $queueName = 'p2';
+        $inMemoryTransport = $this->interceptMessengerEvents($queueName);
 
         $wsIntegration = $this->createIntegration();
 
@@ -53,7 +54,7 @@ EOL;
 
         $envelope = $inMemoryTransport->getSent()[0];
         self::assertInstanceOf(AwsTranscribeEvent::class, $envelope->getMessage());
-        $this->consumeEvent($envelope);
+        $this->consumeEvent($envelope, $queueName);
 
         $this->assertHasData($wsIntegration->getId(), AwsTranscribeEventHandler::DATA_EVENT_MESSAGE, 1);
     }
@@ -118,7 +119,8 @@ EOL;
     {
         self::enableFixtures();
 
-        $inMemoryTransport = $this->interceptMessengerEvents();
+        $queueName = 'p2';
+        $inMemoryTransport = $this->interceptMessengerEvents($queueName);
 
         $apiClient = static::createClient();
         $apiClient->disableReboot();
@@ -144,7 +146,7 @@ EOL;
 
         $envelope = $inMemoryTransport->get()[0];
         self::assertInstanceOf(AwsTranscribeEvent::class, $envelope->getMessage());
-        $this->consumeEvent($envelope);
+        $this->consumeEvent($envelope, $queueName);
 
         $this->assertHasData($wsIntegration->getId(), AwsTranscribeEventHandler::DATA_EVENT_MESSAGE, 1);
     }

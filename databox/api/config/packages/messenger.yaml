@@ -5,6 +5,7 @@ framework:
                 middleware:
                     - doctrine_ping_connection
                     - App\Consumer\Middleware\QuietContextMiddleware
+                    - Alchemy\MessengerBundle\Middleware\RetryCountMiddleware
         transports:
             p1:
                 dsn: '%alchemy_messenger.amqp_transport_dsn%/p1'
@@ -16,7 +17,7 @@ framework:
         routing:
             Alchemy\ESBundle\Message\ESIndex: p1
             Alchemy\CoreBundle\Message\PusherMessage: p1
-            Alchemy\Workflow\Message\JobConsumer: p1
+            Alchemy\Workflow\Message\JobConsumer: p2
             Alchemy\WebhookBundle\Consumer\WebhookTriggerMessage: p2
             Alchemy\WebhookBundle\Consumer\WebhookEvent: p2
             Alchemy\ConfiguratorBundle\Message\DeployConfig: p2
