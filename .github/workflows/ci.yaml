@@ -261,7 +261,7 @@ jobs:
       - name: Run Cypress tests
         if: "!contains(github.event.head_commit.message, '[skip test]') && !contains(github.event.head_commit.message, '[skip cypress]')"
         run: |
-          docker compose up -d --wait expose-api-php
+          docker compose up -d --wait expose-api-php --wait-timeout 200
           docker compose run --rm cypress
 
       - name: Extract Cypress output

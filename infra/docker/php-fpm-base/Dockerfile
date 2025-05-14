@@ -1,6 +1,7 @@
 FROM php:8.3.11-fpm-alpine3.20
 
 RUN apk add --no-cache --virtual .persistent-deps \
+        fcgi \
 		git \
 		icu-libs \
 		libzip \
