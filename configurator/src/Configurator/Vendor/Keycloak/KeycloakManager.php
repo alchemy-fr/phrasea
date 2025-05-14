@@ -25,11 +25,18 @@ final class KeycloakManager
 
     private function getAuthenticatedClient(): HttpClientInterface
     {
+        $verifySsl = false;
+        if (getenv('VERIFY_SSL') == 'true') {
+            $verifySsl = true;
+        }
+
         return $this->keycloakClient
             ->withOptions([
                 'headers' => [
                     'Authorization' => 'Bearer '.$this->getToken(),
                 ],
+                'verify_peer' => $verifySsl,
+                'verify_host' => $verifySsl,
             ]);
     }
 
