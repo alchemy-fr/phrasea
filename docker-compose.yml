@@ -960,6 +960,7 @@ services:
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
       - VERIFY_SSL
+      - VERIFY_HOST
       - DATABOX_API_URL
       - EXPOSE_API_URL
       - UPLOADER_API_URL
