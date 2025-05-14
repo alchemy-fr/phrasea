@@ -10,12 +10,11 @@ use App\Consumer\Handler\Workspace\DeleteWorkspace;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Gedmo\SoftDeleteable\SoftDeleteableListener;
 
 #[AsDoctrineListener(SoftDeleteableListener::PRE_SOFT_DELETE)]
-readonly class SoftDeleteListener implements EventSubscriber
+readonly class SoftDeleteListener
 {
     public function __construct(private PostFlushStack $postFlushStack)
     {
@@ -37,12 +36,5 @@ readonly class SoftDeleteListener implements EventSubscriber
                 $this->postFlushStack->addBusMessage(new DeleteWorkspace($entity->getId()));
             }
         }
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            SoftDeleteableListener::PRE_SOFT_DELETE,
-        ];
     }
 }

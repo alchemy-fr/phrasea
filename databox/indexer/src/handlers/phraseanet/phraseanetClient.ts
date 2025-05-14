@@ -1,4 +1,4 @@
-import {AxiosInstance} from 'axios';
+import {AxiosInstance, AxiosResponse} from 'axios';
 import {getConfig, getStrict} from '../../configLoader';
 import {
     PhraseanetCollection,
@@ -140,9 +140,8 @@ export default class PhraseanetClient {
         searchQuery: string,
         limit: number = 100
     ): Promise<(CPhraseanetRecord | CPhraseanetStory)[]> {
-        let last_error = null;
-        let ttry = 0;
-        for (ttry = 0; ttry < 3; ttry++) {
+        let last_error:any = null;
+        for (let ttry = 1; ttry <= 3; ttry++) {
             try {
                 this.logger.info(`Fetching search results...`);
                 const res = await this.client.get('/api/v3/search/', {
@@ -180,12 +179,12 @@ export default class PhraseanetClient {
                 }
 
                 return recs;
-            } catch (e) {
+            } catch (e: any) {
                 last_error = e;
                 this.logger.warn(
-                    `Failed to fetch search results, retrying in 5s...`
+                    `Failed ${ttry}/3 to fetch search results (${e.message})`
                 );
-                await new Promise(resolve => setTimeout(resolve, 5000));
+                await new Promise(resolve => setTimeout(resolve, 1000*ttry));
             }
         }
         throw last_error;
@@ -197,15 +196,33 @@ export default class PhraseanetClient {
     ): AsyncGenerator<string> {
         let offset = 0;
         do {
-            const res = await this.client.get(
-                `/api/v3/stories/${databoxId}/${storyId}/children`,
-                {
-                    params: {
-                        offset: offset,
-                        limit: 50,
-                    },
+            let res: any;
+            let last_error:any = null;
+            for (let ttry = 1; ttry <= 3; ttry++) {
+                try {
+                    this.logger.info(`Fetching story children`);
+                    res = await this.client.get(
+                        `/api/v3/stories/${databoxId}/${storyId}/children`,
+                        {
+                            params: {
+                                offset: offset,
+                                limit: 50,
+                            },
+                        }
+                    );
+                    last_error = null;
+                    break;
+                } catch (e: any) {
+                    last_error = e;
+                    this.logger.warn(
+                        `Failed ${ttry}/3 to fetch story children (${e.message})`
+                    );
+                    await new Promise(resolve => setTimeout(resolve, 1000*ttry));
                 }
-            );
+            }
+            if (last_error) {
+                throw last_error;
+            }
             if (
                 !Array.isArray(res.data.response) ||
                 res.data.response.length === 0

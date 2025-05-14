@@ -1,9 +1,6 @@
-ARG NGINX_VERSION=1.20.1
+ARG NGINX_VERSION=1.27.1
 
-FROM nginx:${NGINX_VERSION}-alpine AS builder
-
-# nginx:alpine contains NGINX_VERSION environment variable, like so:
-# ENV NGINX_VERSION=1.15.0
+FROM nginx:${NGINX_VERSION}-alpine3.20 AS builder
 
 ENV PURGE_CACHE_VERSION=2.3
 
@@ -39,12 +36,10 @@ RUN cd /usr/src \
     && sh -c "./configure --with-compat $CONFARGS --add-dynamic-module=$PURGE_CACHEDIR" \
     && make modules
 
-FROM nginx:${NGINX_VERSION}-alpine AS nginx
+FROM nginx:${NGINX_VERSION}-alpine3.20 AS nginx
 
 COPY --from=builder /usr/src/nginx-${NGINX_VERSION}/objs/*_module.so /etc/nginx/modules/
 
 RUN echo "load_module /etc/nginx/modules/ngx_http_cache_purge_module.so;" | cat - /etc/nginx/nginx.conf > /tmp/out && mv /tmp/out /etc/nginx/nginx.conf
-
-STOPSIGNAL SIGTERM
 
 CMD ["nginx", "-g", "daemon off;"]
