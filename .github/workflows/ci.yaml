@@ -271,6 +271,7 @@ jobs:
           docker run -d --rm --name dummy -v ${COMPOSE_PROJECT_NAME}_cypress_output:/cypress/output alpine:3.14.8 tail -f /dev/null
           docker cp dummy:/cypress/output ./cypress-output/
           docker stop dummy
+          docker compose logs
           docker compose down --volumes
 
       - name: Upload Cypress output
