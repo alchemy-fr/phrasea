@@ -262,7 +262,10 @@ jobs:
         if: "!contains(github.event.head_commit.message, '[skip test]') && !contains(github.event.head_commit.message, '[skip cypress]')"
         run: |
           docker compose up -d
-          docker compose run --rm dockerize -wait http://expose-api-nginx/ -timeout 60s
+          docker compose run --rm dockerize \
+            -wait http://expose-api-nginx/ \
+            -wait http://databox-client/ \
+            -timeout 200s
           docker compose run --rm cypress
 
       - name: Extract Cypress output
