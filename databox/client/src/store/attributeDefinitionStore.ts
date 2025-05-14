@@ -193,6 +193,9 @@ export function getIndexBySlug(): AttributeDefinitionsIndex {
 export function getIndexBySearchSlug(): AttributeDefinitionsIndex {
     return getIndexByKey('searchSlug');
 }
+export function getIndexById(): AttributeDefinitionsIndex {
+    return getIndexByKey('id');
+}
 
 function getIndexByKey(
     key: keyof AttributeDefinition

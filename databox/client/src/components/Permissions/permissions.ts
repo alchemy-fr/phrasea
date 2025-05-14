@@ -17,6 +17,7 @@ export enum PermissionObject {
     Workspace = 'workspace',
     Basket = 'basket',
     AttributeClass = 'attribute_class',
+    AttributeList = 'attribute_list',
 }
 
 export type DisplayedPermissions = string[] | undefined;
