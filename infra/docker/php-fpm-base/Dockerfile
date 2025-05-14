@@ -1,6 +1,7 @@
 FROM php:8.3.11-fpm-alpine3.20
 
 RUN apk add --no-cache --virtual .persistent-deps \
+        fcgi \
 		git \
 		icu-libs \
 		libzip \
@@ -74,13 +75,25 @@ RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
     && printf "\nuser = app\ngroup = app\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
     && wget -O /usr/local/bin/php-fpm-healthcheck https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/v0.5.0/php-fpm-healthcheck \
     && chmod +x /usr/local/bin/php-fpm-healthcheck \
-    && printf "pm.status_path = /status\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf
+    && printf "pm.status_path = /status\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
+    && mkdir -p /docker/entrypoint.d \
+      /docker/app/conf.d \
+      /etc/supervisor.d \
+      /docker/worker
+
+COPY conf.d/* /docker/app/conf.d/
+COPY entrypoint.sh /docker/entrypoint.sh
+COPY entrypoint.d/*.sh /docker/entrypoint.d/
+COPY supervisor/* /etc/supervisor.d/
+COPY worker/* /docker/worker/
 
 WORKDIR /srv/app
 
 RUN chown -R app:app .
 
-CMD ["true"]
+ENTRYPOINT ["/docker/entrypoint.sh"]
+
+CMD ["php-fpm"]
 
 HEALTHCHECK --start-interval=2s --start-period=30s --retries=50 --interval=60s --timeout=3s \
     CMD php-fpm-healthcheck || exit 1
