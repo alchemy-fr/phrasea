@@ -278,7 +278,7 @@ If the name does not match a Phraseanet field, those settings can be set in conf
 
 _note 2:_
 
-**If the `FieldMap` setting is not set**: All Phraseanet fields are imported
+If `FieldMap` **is not set**: Phraseanet full equivalent configuration is dumped.
 
 
 _note 3:_
@@ -303,7 +303,8 @@ A Phraseanet subdef is identified by it **type** (image, video, audio, document,
 
 A Phrasea rendition-definition is declared by its **name** and **build settings** (sections image, video, ...).
 
-- If `renditions` is not set, the indexer will import **all** phraseanet subdefs.
+_note:_
+- If `renditions` **is not set**, Phraseanet full equivalent configuration is dumped.
 
 - To **not** import / create any rendition / rendition-definition: set **both** `"sourceFile":false`
   **and** `"renditions": false`
