@@ -241,7 +241,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'verifyEmail'               => $this->getBooleanEnv('KC_REALM_LOGIN_VERIFY_EMAIL_ALLOWED', false),
             'registrationEmailAsUsername' => $this->getBooleanEnv('KC_REALM_LOGIN_EMAIL_AS_USERNAME', false),
             'editUsernameAllowed'       => $this->getBooleanEnv('KC_REALM_LOGIN_EDIT_USERNAME', false),            
-             'bruteForceProtected'       => true,
+            'bruteForceProtected'       => true,
             'failureFactor'             => '30',   
             'bruteForceStrategy'        => 'MULTIPLE',
             'permanentLockout'          => false,
@@ -262,7 +262,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'supportedLocales'          => (getenv('KC_REALM_SUPPORTED_LOCALES') != null) ? explode(',', getenv('KC_REALM_SUPPORTED_LOCALES')) : ['en'],
             'defaultLocale'             => getenv('KC_REALM_DEFAULT_LOCALE') ?: 'en',
             'smtpServer' => [
-                'auth' => getenv('EMAIL_USER') ? 'true' : '',
+                'auth' => getenv('MAILER_USER') ? true : false,
                 'from' => getenv('MAIL_FROM') ?: 'noreply@phrasea.io',
                 'fromDisplayName' => getenv('MAIL_FROM_DISPLAY_NAME') ?: 'Phrasea',         
                 'replyTo' => getenv('MAIL_REPLAY_TO') ?: '',

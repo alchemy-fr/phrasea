@@ -72,7 +72,7 @@ final class Version20250415153255 extends AbstractMigration implements Migration
             'supportedLocales'          => (getenv('KC_REALM_SUPPORTED_LOCALES') != null) ? explode(',', getenv('KC_REALM_SUPPORTED_LOCALES')) : ['en'],
             'defaultLocale'             => getenv('KC_REALM_DEFAULT_LOCALE') ?: 'en',
             'smtpServer' => [
-                'auth' => getenv('EMAIL_USER') ? 'true' : '',
+                'auth' => getenv('MAILER_USER') ? true : false,
                 'from' => getenv('MAIL_FROM') ?: 'noreply@phrasea.io',
                 'fromDisplayName' => getenv('MAIL_FROM_DISPLAY_NAME') ?: 'Phrasea',         
                 'replyTo' => getenv('MAIL_REPLAY_TO') ?: '',
