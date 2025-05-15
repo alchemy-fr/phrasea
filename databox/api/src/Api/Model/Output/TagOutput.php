@@ -10,16 +10,34 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 class TagOutput extends AbstractUuidOutput
 {
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Tag::GROUP_LIST, Tag::GROUP_READ])]
+    #[Groups([
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        Tag::GROUP_LIST,
+        Tag::GROUP_READ,
+        ResolveEntitiesOutput::GROUP_READ,
+    ])]
     private string $name;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Tag::GROUP_LIST, Tag::GROUP_READ])]
+    #[Groups([
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        Tag::GROUP_LIST,
+        Tag::GROUP_READ,
+        ResolveEntitiesOutput::GROUP_READ,
+    ])]
     public string $nameTranslated;
 
     #[Groups([Tag::GROUP_READ])]
     public ?array $translations = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Tag::GROUP_LIST, Tag::GROUP_READ])]
+    #[Groups([
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        Tag::GROUP_LIST,
+        Tag::GROUP_READ,
+        ResolveEntitiesOutput::GROUP_READ,
+    ])]
     private ?string $color = null;
 
     public function getName(): string

@@ -259,6 +259,7 @@ services:
       - DISPLAY=unix${DISPLAY}
     volumes:
       - ./cypress/cypress:/cypress/cypress
+      - ./cypress/output:/cypress/output
       - ./cypress/cypress.config.js:/cypress/cypress.config.js
       - /tmp/.X11-unix:/tmp/.X11-unix
 

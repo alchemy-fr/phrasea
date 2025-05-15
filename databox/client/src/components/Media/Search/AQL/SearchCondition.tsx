@@ -1,26 +1,23 @@
-import {AQLQuery, astToString, replaceIdFromFacets} from './query.ts';
+import {AQLQuery} from './query.ts';
 import {Chip, Menu, MenuItem} from '@mui/material';
 import {useModals} from '@alchemy/navigation';
 import SearchConditionDialog from './SearchConditionDialog.tsx';
 import React from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {useTranslation} from 'react-i18next';
-import {TResultContext} from '../ResultContext.tsx';
-import {parseAQLQuery} from './AQL.ts';
-import {replaceEntities} from './entities.tsx';
 
 type Props = {
     condition: AQLQuery;
+    query: string;
     onDelete: (condition: AQLQuery) => void;
     onUpsert: (condition: AQLQuery) => void;
-    result: TResultContext;
 };
 
 export default function SearchCondition({
     condition,
+    query,
     onDelete,
     onUpsert,
-    result,
 }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
@@ -39,15 +36,6 @@ export default function SearchCondition({
             onUpsert,
         });
     };
-
-    const ast = parseAQLQuery(condition.query);
-    const facetBucket =
-        ast && result?.facets
-            ? replaceIdFromFacets(ast, result.facets!)
-            : undefined;
-    const query = facetBucket
-        ? replaceEntities(astToString(ast))
-        : condition.query;
 
     return (
         <>

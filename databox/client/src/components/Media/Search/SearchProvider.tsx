@@ -1,10 +1,8 @@
 import React, {PropsWithChildren, useCallback, useState} from 'react';
 import {SearchContext, TSearchContext} from './SearchContext';
 import {SortBy} from './Filter';
-import {hashToQuery, queryToHash} from './search';
+import {BuiltInFilter, hashToQuery, queryToHash} from './search';
 import useHash from '../../../lib/useHash';
-import {useTranslation} from 'react-i18next';
-import type {TFunction} from '@alchemy/i18n';
 import {
     AQLQuery,
     AQLQueries,
@@ -13,22 +11,20 @@ import {
     resolveAQLValue,
     generateQueryId,
 } from './AQL/query.ts';
-import {InternalKey, parseAQLQuery} from './AQL/AQL.ts';
+import {parseAQLQuery} from './AQL/AQL.ts';
 import {AQLCondition, AQLQueryAST} from './AQL/aqlTypes.ts';
 
-export function getResolvedSortBy(sortBy: SortBy[], t: TFunction): SortBy[] {
+export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
     return sortBy.length > 0
         ? sortBy
         : [
               {
-                  a: `@${InternalKey.Score}`,
-                  t: t('get_resolved_sort_by.relevance', `Relevance`),
+                  a: BuiltInFilter.Score,
                   w: 1,
                   g: false,
               },
               {
-                  a: `@${InternalKey.CreatedAt}`,
-                  t: t('get_resolved_sort_by.date_added', `Date Added`),
+                  a: BuiltInFilter.CreatedAt,
                   w: 1,
                   g: false,
               },
@@ -36,7 +32,6 @@ export function getResolvedSortBy(sortBy: SortBy[], t: TFunction): SortBy[] {
 }
 
 export default function SearchProvider({children}: PropsWithChildren<{}>) {
-    const {t} = useTranslation();
     const [hash, setHash] = useHash();
     const [reloadInc, setReloadInc] = useState(0);
     const {query, conditions, sortBy, geolocation} = hashToQuery(hash);
@@ -49,7 +44,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         [inputQuery]
     );
 
-    const resolvedSortBy = getResolvedSortBy(sortBy, t);
+    const resolvedSortBy = getResolvedSortBy(sortBy);
 
     React.useEffect(() => {
         setInputQuery(query);
@@ -104,19 +99,19 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 !setConditions(p => {
                     const newConditions = removeConditionHelper(
                         p,
-                        InternalKey.Collection
+                        BuiltInFilter.Collection
                     );
 
                     if (!workspaceId) {
                         return removeConditionHelper(
                             newConditions,
-                            InternalKey.Workspace
+                            BuiltInFilter.Workspace
                         );
                     }
 
                     return replaceConditionHelper(newConditions, {
-                        id: InternalKey.Workspace,
-                        query: `@${InternalKey.Workspace} = "${workspaceId}"`,
+                        id: BuiltInFilter.Workspace,
+                        query: `${BuiltInFilter.Workspace} = "${workspaceId}"`,
                     });
                 }) &&
                 forceReload
@@ -133,19 +128,19 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 !setConditions(p => {
                     const newConditions = removeConditionHelper(
                         p,
-                        InternalKey.Workspace
+                        BuiltInFilter.Workspace
                     );
 
                     if (!collectionId) {
                         return removeConditionHelper(
                             newConditions,
-                            InternalKey.Collection
+                            BuiltInFilter.Collection
                         );
                     }
 
                     return replaceConditionHelper(newConditions, {
-                        id: InternalKey.Collection,
-                        query: `@${InternalKey.Collection} = "${collectionId}"`,
+                        id: BuiltInFilter.Collection,
+                        query: `${BuiltInFilter.Collection} = "${collectionId}"`,
                     });
                 }) &&
                 forceReload
@@ -220,12 +215,12 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
             .filter(q => q && isAQLCondition(q.expression)) as AQLQueryAST[]
     ).map(q => q.expression) as AQLCondition[];
 
-    function filterOfType(type: InternalKey): string[] {
+    function filterOfType(type: BuiltInFilter): string[] {
         return conditionsAst
             .filter(
                 c =>
                     isAQLField(c.leftOperand) &&
-                    c.leftOperand.field === `@${type}` &&
+                    c.leftOperand.field === `${type}` &&
                     c.rightOperand
             )
             .map(c => {
@@ -238,8 +233,8 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
             .flat() as string[];
     }
 
-    const workspaces = filterOfType(InternalKey.Workspace);
-    const collections = filterOfType(InternalKey.Collection);
+    const workspaces = filterOfType(BuiltInFilter.Workspace);
+    const collections = filterOfType(BuiltInFilter.Collection);
 
     return (
         <SearchContext.Provider

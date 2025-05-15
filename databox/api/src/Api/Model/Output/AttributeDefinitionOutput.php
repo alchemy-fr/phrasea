@@ -41,6 +41,9 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST])]
     public ?string $slug = null;
 
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST])]
+    public ?string $searchSlug = null;
+
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?string $fileType = null;
 
@@ -52,6 +55,9 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $searchable = true;
+
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    public bool $sortable = true;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $suggest = false;

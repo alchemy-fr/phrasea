@@ -1,5 +1,4 @@
 import {ResultContext} from './ResultContext';
-import {useTranslation} from 'react-i18next';
 import {PropsWithChildren, useContext, useEffect, useState} from 'react';
 import {ESDebug, GetAssetOptions, getAssets} from '../../../api/asset';
 import {Asset} from '../../../types';
@@ -83,7 +82,6 @@ type Props = PropsWithChildren<{}>;
 
 export default function ResultProvider({children}: Props) {
     const searchContext = useContext(SearchContext)!;
-    const {t} = useTranslation();
 
     const [state, setState] = useState<State>({
         pages: [],
@@ -102,7 +100,7 @@ export default function ResultProvider({children}: Props) {
         try {
             const r = await search(
                 searchContext.query,
-                getResolvedSortBy(searchContext.sortBy, t),
+                getResolvedSortBy(searchContext.sortBy),
                 nextUrl,
                 searchContext.conditions,
                 {

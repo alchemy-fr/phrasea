@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Provider\AttributeEntityCollectionProvider;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeEntityRepository;
@@ -66,7 +67,10 @@ class AttributeEntity extends AbstractUuidEntity
     private ?string $type = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: false)]
-    #[Groups([self::GROUP_LIST, self::GROUP_READ])]
+    #[Groups([
+        self::GROUP_LIST, self::GROUP_READ,
+        ResolveEntitiesOutput::GROUP_READ,
+    ])]
     #[NotBlank]
     private ?string $value = null;
 

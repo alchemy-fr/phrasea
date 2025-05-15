@@ -21,32 +21,42 @@ fi
 
 BASE_URL="${BASE_URL}/${CONFIGURATOR_S3_PATH_PREFIX}"
 
-if [ "$CONFIG_IS_PUBLIC" = "0" ] || [ "$CONFIG_IS_PUBLIC" = "false" ]; then
-  WGET_OPTS=""
-  if [ "$VERIFY_SSL" = "0" ] || [ "$VERIFY_SSL" = "false" ]; then
-    WGET_OPTS="${WGET_OPTS} --no-check-certificate"
+function fetch_config() {
+  if [ "$CONFIG_IS_PUBLIC" = "0" ] || [ "$CONFIG_IS_PUBLIC" = "false" ]; then
+    WGET_OPTS=""
+    if [ "$VERIFY_SSL" = "0" ] || [ "$VERIFY_SSL" = "false" ]; then
+      WGET_OPTS="${WGET_OPTS} --no-check-certificate"
+    fi
+    wget \
+      ${WGET_OPTS} \
+      -q \
+      -O ${OUTPUT_FILE} \
+      --no-verbose "${BASE_URL}${FILE_KEY}" || (echo "{}" > ${OUTPUT_FILE})
+  else
+    CURL_OPTS=""
+    if [ "$VERIFY_SSL" = "0" ] || [ "$VERIFY_SSL" = "false" ]; then
+      CURL_OPTS="${CURL_OPTS} --insecure"
+    fi
+    RESOURCE="/${CONFIGURATOR_S3_BUCKET_NAME}/${CONFIGURATOR_S3_PATH_PREFIX}${FILE_KEY}"
+    CONTENT_TYPE="binary/octet-stream"
+    DATE_VALUE=`TZ=GMT date -R`
+    STR_TO_SIGN="GET\n\n${CONTENT_TYPE}\n${DATE_VALUE}\n${RESOURCE}"
+    SIGNATURE=`echo -en ${STR_TO_SIGN} | openssl sha1 -hmac ${CONFIGURATOR_S3_SECRET_KEY} -binary | base64`
+    curl --fail-with-body \
+      --no-progress-meter \
+      ${CURL_OPTS} \
+      -H "Host: ${ENDPOINT_HOST}" \
+      -H "Date: ${DATE_VALUE}" \
+      -H "Content-Type: ${CONTENT_TYPE}" \
+      -H "Authorization: AWS ${CONFIGURATOR_S3_ACCESS_KEY}:${SIGNATURE}" \
+      "${BASE_URL}/${FILE_KEY}" -o ${OUTPUT_FILE} || (echo "{}" > ${OUTPUT_FILE})
   fi
-  wget \
-    ${WGET_OPTS} \
-    -q \
-    -O ${OUTPUT_FILE} \
-    --no-verbose "${BASE_URL}${FILE_KEY}" || (echo "{}" > ${OUTPUT_FILE})
-else
-  CURL_OPTS=""
-  if [ "$VERIFY_SSL" = "0" ] || [ "$VERIFY_SSL" = "false" ]; then
-    CURL_OPTS="${CURL_OPTS} --insecure"
-  fi
-  RESOURCE="/${CONFIGURATOR_S3_BUCKET_NAME}/${CONFIGURATOR_S3_PATH_PREFIX}${FILE_KEY}"
-  CONTENT_TYPE="binary/octet-stream"
-  DATE_VALUE=`TZ=GMT date -R`
-  STR_TO_SIGN="GET\n\n${CONTENT_TYPE}\n${DATE_VALUE}\n${RESOURCE}"
-  SIGNATURE=`echo -en ${STR_TO_SIGN} | openssl sha1 -hmac ${CONFIGURATOR_S3_SECRET_KEY} -binary | base64`
-  curl --fail-with-body \
-    --no-progress-meter \
-    ${CURL_OPTS} \
-    -H "Host: ${ENDPOINT_HOST}" \
-    -H "Date: ${DATE_VALUE}" \
-    -H "Content-Type: ${CONTENT_TYPE}" \
-    -H "Authorization: AWS ${CONFIGURATOR_S3_ACCESS_KEY}:${SIGNATURE}" \
-    "${BASE_URL}/${FILE_KEY}" -o ${OUTPUT_FILE} || (echo "{}" > ${OUTPUT_FILE})
-fi
+}
+
+n=0
+until [ "$n" -ge 15 ]
+do
+   fetch_config && break
+   n=$((n+1))
+   sleep 1
+done

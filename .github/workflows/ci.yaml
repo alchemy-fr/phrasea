@@ -255,13 +255,16 @@ jobs:
           bin/setup.sh test
 
       - name: Test
-        if: "!contains(github.event.head_commit.message, '[skip test]')"
+        if: "!contains(github.event.head_commit.message, '[skip test]') && !contains(github.event.head_commit.message, '[skip php-test]')"
         run: bin/test.sh
 
       - name: Run Cypress tests
-        if: "!contains(github.event.head_commit.message, '[skip cypress]') && !contains(github.event.head_commit.message, '[skip test]')"
+        if: "!contains(github.event.head_commit.message, '[skip test]') && !contains(github.event.head_commit.message, '[skip cypress]')"
         run: |
-          docker compose up -d
+          docker compose build cypress &
+          docker compose up -d --wait expose-api-php --wait-timeout 200 &
+          wait
+          docker compose restart expose-api-nginx
           docker compose run --rm cypress
 
       - name: Extract Cypress output
@@ -271,6 +274,7 @@ jobs:
           docker run -d --rm --name dummy -v ${COMPOSE_PROJECT_NAME}_cypress_output:/cypress/output alpine:3.14.8 tail -f /dev/null
           docker cp dummy:/cypress/output ./cypress-output/
           docker stop dummy
+          docker compose logs
           docker compose down --volumes
 
       - name: Upload Cypress output

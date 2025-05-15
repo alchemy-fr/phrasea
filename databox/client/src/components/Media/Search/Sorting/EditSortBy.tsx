@@ -18,7 +18,6 @@ import SaveIcon from '@mui/icons-material/Save';
 import {useTranslation} from 'react-i18next';
 import {SearchContext} from '../SearchContext';
 import {getResolvedSortBy} from '../SearchProvider';
-import {ResultContext} from '../ResultContext';
 import {SortBy} from '../Filter';
 import SortByRow, {OnChangeHandler} from './SortByRow';
 import {
@@ -36,19 +35,26 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {BuiltInFilter} from '../search';
-
-type Props = {
-    onClose: () => void;
-};
+import {AttributeDefinition} from '../../../../types.ts';
+import {AttributeDefinitionsIndex} from '../../../../store/attributeDefinitionStore.ts';
 
 export type TogglableSortBy = {
     enabled: boolean;
     id: string;
 } & SortBy;
 
-export default function EditSortBy({onClose}: Props) {
+type Props = {
+    definitions: AttributeDefinition[];
+    definitionsIndex: AttributeDefinitionsIndex;
+    onClose: () => void;
+};
+
+export default function EditSortBy({
+    onClose,
+    definitions,
+    definitionsIndex,
+}: Props) {
     const {sortBy, setSortBy} = useContext(SearchContext)!;
-    const {facets} = useContext(ResultContext);
     const {t} = useTranslation();
     const [grouped, setGrouped] = React.useState(
         sortBy.length === 0 ? true : sortBy.some(s => s.g)
@@ -56,7 +62,7 @@ export default function EditSortBy({onClose}: Props) {
 
     const list = useMemo<TogglableSortBy[]>(() => {
         const l: TogglableSortBy[] = [];
-        getResolvedSortBy(sortBy, t).forEach(s => {
+        getResolvedSortBy(sortBy).forEach(s => {
             l.push({
                 ...s,
                 id: s.a,
@@ -64,31 +70,26 @@ export default function EditSortBy({onClose}: Props) {
             });
         });
 
-        if (facets) {
-            Object.keys(facets).forEach(k => {
-                if (l.some(s => s.a === k)) {
-                    return;
-                }
+        if (definitions) {
+            definitions
+                .filter(d => d.sortable)
+                .forEach(d => {
+                    if (l.some(s => s.a === d.searchSlug)) {
+                        return;
+                    }
 
-                const f = facets[k];
-
-                if (!f.meta.sortable) {
-                    return;
-                }
-
-                l.push({
-                    id: k,
-                    a: k,
-                    t: f.meta.title,
-                    w: 0,
-                    g: false,
-                    enabled: false,
+                    l.push({
+                        id: d.searchSlug,
+                        a: d.searchSlug,
+                        w: 0,
+                        g: false,
+                        enabled: false,
+                    });
                 });
-            });
         }
 
         return l;
-    }, [facets, sortBy]);
+    }, [definitions, sortBy]);
 
     const [orders, setOrders] = useState<TogglableSortBy[]>(list);
 
@@ -104,7 +105,6 @@ export default function EditSortBy({onClose}: Props) {
         const newSortBy = orders
             .filter(s => s.enabled)
             .map(s => ({
-                t: s.t,
                 w: s.w,
                 a: s.a,
                 g: false,
@@ -195,6 +195,7 @@ export default function EditSortBy({onClose}: Props) {
                                 {orders.map(s => (
                                     <SortByRow
                                         sortBy={s}
+                                        definition={definitionsIndex[s.a]}
                                         enabled={s.enabled}
                                         key={s.a}
                                         onChange={onChange}

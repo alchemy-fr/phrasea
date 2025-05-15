@@ -39,7 +39,7 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.greater_than',
                 '> (Greater than)'
             ),
-            supportedTypes: [RawType.Number, RawType.Date],
+            supportedTypes: [RawType.Number, RawType.Date, RawType.DateTime],
         },
         {
             value: AQLOperator.GTE,
@@ -47,7 +47,7 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.greater_than_or_equals',
                 '>= (Greater than or equals)'
             ),
-            supportedTypes: [RawType.Number, RawType.Date],
+            supportedTypes: [RawType.Number, RawType.Date, RawType.DateTime],
         },
         {
             value: AQLOperator.LT,
@@ -55,7 +55,7 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.less_than',
                 '< (Less than)'
             ),
-            supportedTypes: [RawType.Number, RawType.Date],
+            supportedTypes: [RawType.Number, RawType.Date, RawType.DateTime],
         },
         {
             value: AQLOperator.LTE,
@@ -63,12 +63,12 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.less_than_or_equals',
                 '<= (Less than or equals)'
             ),
-            supportedTypes: [RawType.Number, RawType.Date],
+            supportedTypes: [RawType.Number, RawType.Date, RawType.DateTime],
         },
         {
             value: AQLOperator.CONTAINS,
             label: t('search_condition.builder.operator.contains', 'Contains'),
-            supportedTypes: [RawType.String, RawType.Date],
+            supportedTypes: [RawType.Keyword, RawType.String, RawType.Date, RawType.DateTime],
         },
         {
             value: AQLOperator.NOT_CONTAINS,
@@ -76,12 +76,12 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.not_contains',
                 `Doesn't Contain`
             ),
-            supportedTypes: [RawType.String, RawType.Date],
+            supportedTypes: [RawType.Keyword, RawType.String, RawType.Date, RawType.DateTime],
         },
         {
             value: AQLOperator.MATCHES,
             label: t('search_condition.builder.operator.matches', 'Matches'),
-            supportedTypes: [RawType.String, RawType.Date],
+            supportedTypes: [RawType.String, RawType.Date, RawType.DateTime],
         },
         {
             value: AQLOperator.NOT_MATCHES,
@@ -89,7 +89,7 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.not_matches',
                 `Doesn't Match`
             ),
-            supportedTypes: [RawType.String, RawType.Date],
+            supportedTypes: [RawType.String, RawType.Date, RawType.DateTime],
         },
         {
             value: AQLOperator.STARTS_WITH,
@@ -97,7 +97,7 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.starts_with',
                 'Starts With'
             ),
-            supportedTypes: [RawType.String, RawType.Date],
+            supportedTypes: [RawType.Keyword, RawType.String, RawType.Date, RawType.DateTime],
         },
         {
             value: AQLOperator.NOT_STARTS_WITH,
@@ -105,7 +105,7 @@ export default function ConditionsBuilder({
                 'search_condition.builder.operator.not_starts_with',
                 `Doesn't Start With`
             ),
-            supportedTypes: [RawType.String, RawType.Date],
+            supportedTypes: [RawType.Keyword, RawType.String, RawType.Date, RawType.DateTime],
         },
         {
             value: AQLOperator.IN,
@@ -121,7 +121,7 @@ export default function ConditionsBuilder({
             value: AQLOperator.BETWEEN,
             label: t('search_condition.builder.operator.between', 'Between'),
             manyArgs: 2,
-            supportedTypes: [RawType.Number, RawType.Date],
+            supportedTypes: [RawType.Number, RawType.Date, RawType.DateTime],
         },
         {
             value: AQLOperator.NOT_BETWEEN,
@@ -130,7 +130,7 @@ export default function ConditionsBuilder({
                 'Not Between'
             ),
             manyArgs: 2,
-            supportedTypes: [RawType.Number, RawType.Date],
+            supportedTypes: [RawType.Number, RawType.Date, RawType.DateTime],
         },
         {
             value: AQLOperator.EXISTS,

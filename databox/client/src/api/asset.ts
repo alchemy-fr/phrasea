@@ -102,6 +102,18 @@ export async function getSearchSuggestions(
     };
 }
 
+export async function resolveEntities(
+    entities: string[],
+    requestConfig?: AxiosRequestConfig
+): Promise<Record<string, object>> {
+    const res = await apiClient.post('/assets/entities', {
+        entities,
+        ...requestConfig,
+    });
+
+    return res.data;
+}
+
 export async function getAsset(id: string): Promise<Asset> {
     return (await apiClient.get(`/assets/${id}`)).data;
 }
@@ -351,9 +363,13 @@ export async function postMultipleAssets(
     assets: NewAssetPostType[],
     config?: AxiosRequestConfig
 ): Promise<Asset[]> {
-    const res = await apiClient.post(`/assets/multiple`, {
-        assets,
-    }, config);
+    const res = await apiClient.post(
+        `/assets/multiple`,
+        {
+            assets,
+        },
+        config
+    );
 
     return res.data.assets;
 }
