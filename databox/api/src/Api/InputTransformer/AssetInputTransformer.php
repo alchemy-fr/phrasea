@@ -109,14 +109,6 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             if ($data->relationship) {
                 $this->handleRelationship($data->relationship, $object);
             }
-
-            if($data->isStory) {
-                $storyCollection = new Collection();
-                $storyCollection->setWorkspace($workspace);
-                $storyCollection->setOwnerId($object->getOwnerId());
-                $this->em->persist($storyCollection);
-                $object->setStoryCollection($storyCollection);
-            }
         }
 
         if (null !== $file = $this->handleFile($data, $object)) {
@@ -162,6 +154,14 @@ class AssetInputTransformer extends AbstractFileInputTransformer
         }
 
         $object = $this->processOwnerId($object);
+
+        if ($isNew && $data->isStory) {
+            $storyCollection = new Collection();
+            $storyCollection->setWorkspace($workspace);
+            $storyCollection->setOwnerId($object->getOwnerId());
+            $this->em->persist($storyCollection);
+            $object->setStoryCollection($storyCollection);
+        }
 
         return $object;
     }
