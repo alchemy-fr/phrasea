@@ -1,19 +1,15 @@
 import {IndexIterator} from '../../indexers';
 import {
     ConfigDataboxMapping,
-    ConfigPhraseanetSubdef,
     FieldMap,
     PhraseanetConfig,
     PhraseanetDatabox,
-    PhraseanetSubdefStruct,
 } from './types';
 import {CPhraseanetRecord, CPhraseanetStory} from './CPhraseanetRecord';
 import PhraseanetClient, {ORDER_ASC} from './phraseanetClient';
 import {
     AttrClassIndex,
-    attributeTypesEquivalence,
     createAsset,
-    DataboxAttributeType,
     TagIndex,
 } from './shared';
 import {getConfig, getStrict} from '../../configLoader';
@@ -22,11 +18,15 @@ import {AttributeDefinition, Tag} from '../../databox/types';
 import Twig from 'twig';
 import {Logger} from 'winston';
 import {DataboxClient} from '../../databox/client';
-import Yaml from 'js-yaml';
-import util from 'util';
 import p from 'path';
-import {collectionBasedOnPathStrategy} from '../../databox/strategy/collectionBasedOnPathStrategy.ts';
-import {getAlternateUrls} from '../../alternateUrl.ts';
+import {getAlternateUrls} from '../../alternateUrl';
+import {
+    importSubdefsStructure,
+    importMetadataStructure,
+    importStatusBitsStructure, dumpConfFromStructure,
+} from './StructureImporter';
+import {IndexLocation} from '../../types/config';
+import * as fs from 'fs';
 
 export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
     async function* (location, logger, databoxClient, options) {
@@ -40,12 +40,6 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             'databoxMapping',
             location.options
         );
-        const importFiles: boolean = getConfig(
-            'importFiles',
-            false,
-            location.options
-        );
-
         const idempotencePrefixes: Record<string, string> = {};
         for (const k of [
             'asset',
@@ -69,16 +63,31 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 continue;
             }
 
+            if(dm.renditions === undefined || dm.fieldMap === undefined) {
+                dumpConfFromStructure(
+                    phraseanetDatabox.databox_id,
+                    phraseanetClient,
+                    dm,
+                    logger
+                );
+                return;
+            }
+
             logger.info(
                 `Start indexing databox "${phraseanetDatabox.name}" (#${phraseanetDatabox.databox_id}) to workspace "${dm.workspaceSlug}"`
             );
 
-            // scan the conf.fieldMap to get a list of required locales
-            const fieldMap = new Map<string, FieldMap>(
-                Object.entries(dm.fieldMap ?? {})
+            const importFiles: boolean = getConfig(
+                'importFiles',
+                false,
+                location.options
             );
+
+            // scan the conf.fieldMap to get a list of required locales
+            const fieldMap: Record<string, any> = dm.fieldMap ?? {};
             let locales: string[] = [];
-            for (const [_name, fm] of fieldMap) {
+            for (const k in fieldMap) {
+                const fm = fieldMap[k];
                 for (const v of fm.values) {
                     if (v.locale !== undefined) {
                         locales.push(v.locale);
@@ -121,7 +130,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 phraseanetClient,
                 dm,
                 fieldMap,
-                idempotencePrefixes['attributeDefinition'],
+                idempotencePrefixes,
                 attrClassIndex[defaultPublicClass]['@id'],
                 logger
             );
@@ -142,7 +151,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 phraseanetDatabox.databox_id,
                 phraseanetClient,
                 dm,
-                idempotencePrefixes['renditionDefinition'],
+                idempotencePrefixes,
                 logger
             );
 
@@ -169,38 +178,47 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 bases: sourceCollections, // if empty (no collections on config) : search all collections
             };
 
-            const recordStories: Record<string, {id: string; path: string}[]> =
-                {}; // key: record_id ; values: story_id's
-
             let importStories = dm.importStories;
 
-            if(importStories !== false) {
-                let storiesAsCollections = false;
+            let storiesAsCollections = false;
 
-                const storiesCollectionPath: string = dm.storiesCollectionPath ?? '';
-                let storiesCollectionPathTwig: Twig.Template | null = null;
-                if (dm.storiesCollectionPath !== undefined) {
-                    storiesAsCollections = true;
+            const storiesCollectionPath: string = dm.storiesCollectionPath ?? '';
+            let storiesCollectionPathTwig: Twig.Template | null = null;
+            if (dm.storiesCollectionPath !== undefined) {
+                storiesAsCollections = true;
 
-                    if (storiesCollectionPath.search(/\{(\{|%)/) !== -1) {
-                        storiesCollectionPathTwig = Twig.twig({
-                            data: storiesCollectionPath,
-                        });
-                    }
+                if (storiesCollectionPath.search(/\{(\{|%)/) !== -1) {
+                    storiesCollectionPathTwig = Twig.twig({
+                        data: storiesCollectionPath,
+                    });
                 }
+            }
 
+            const lockFile = `${process.cwd()}/config/${location.name}_${phraseanetDatabox.name}_${dm.workspaceSlug}.lock`;
+            let wip: {last_story:null|string, last_record:null|string} = {
+                last_story: null,
+                last_record: null
+            };
+            try {
+                wip = JSON.parse(fs.readFileSync(lockFile, 'utf8'));
+            } catch (e) {
+                logger.info(`No lock file found, starting from 0`);
+            }
 
-                logger.info(`Importing stories`);
+            if(importStories !== false) {
+
+                logger.info(`>>> Importing empty stories`);
+
                 let stories: CPhraseanetStory[] = [];
-                let lastRecordId: undefined | string = undefined;
+
                 const ridOperator =
                     phraseanetClient.getSortOrder() === ORDER_ASC ? '>' : '<';
                 const PAGESIZE = 20;
-                let nRecords = 0;
+                let nStories = 0;
                 do {
                     let query = '';
-                    if (lastRecordId !== undefined) {
-                        query = `recordid ${ridOperator} ${lastRecordId}`;
+                    if (null !== wip.last_story) {
+                        query = `recordid ${ridOperator} ${wip.last_story}`;
                     }
                     logger.info(`search query: ${query}`);
 
@@ -211,187 +229,65 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         query
                     );
                     for (const story of stories) {
-
-                        const storyTitle = escapeSlashes((story.title ?? "story_" + story.databox_id + '_' + story.story_id).trim());
-                        var storyCollectionBasePath = '';
-                        var storyCollectionFullPath = '';
-                        var storyCollectionBasePathParts: string[] = [];
-                        var storyCollectionId: string;
-
-                        if (storiesAsCollections) {
-                            //
-                            // create phraseanet stories as visible collections
-                            //
-                            storyCollectionBasePathParts = splitPath(
-                                storiesCollectionPathTwig
-                                    ? await storiesCollectionPathTwig.renderAsync({
-                                        record: story,
-                                        collection: phraseanetDatabox.collections[story.base_id],
-                                    })
-                                    : storiesCollectionPath
-                            );
-                            storyCollectionBasePath = storyCollectionBasePathParts.join('/');
-                            // create the base
-                            let storyCollectionBaseURI: string | undefined = undefined;
-                            if (storyCollectionBasePathParts.length > 0) {
-                                storyCollectionBaseURI =
-                                    '/collections/' +
-                                    (await databoxClient.createCollectionTreeBranch(
-                                        workspaceId,
-                                        collectionKeyPrefix,
-                                        storyCollectionBasePathParts.map(k => ({
-                                            key: k,
-                                            title: k,
-                                        })),
-                                    ));
-                            }
-                            // then create the story collection
-                            storyCollectionId =
-                                await databoxClient.createCollection(
-                                    story.resource_id,
-                                    {
-                                        workspaceId: workspaceId,
-                                        key:
-                                            idempotencePrefixes['collection'] +
-                                            story.databox_id +
-                                            '_' +
-                                            story.story_id,
-                                        title: storiesAsCollections ? storyTitle : undefined,
-                                        parent: storyCollectionBaseURI,
-                                    }
-                                );
-                            storyCollectionFullPath = (storyCollectionBasePath ?? '') + '/' + storyTitle;
-
-                        } else {
-
-                            //
-                            // create phraseanet story as phrasea story (storyAsset + hidden collection)
-                            //
-                            let storyAssetBasePath: string = '';
-                            let storyAssetFullPath: string = '';
-                            if (recordsCollectionPathTwig !== null) {
-                                storyAssetBasePath = await recordsCollectionPathTwig.renderAsync({
-                                    record: story,
-                                    collection:
-                                        phraseanetDatabox.collections[story.base_id],
-                                });
-                            } else {
-                                // bc: dispatch in original phraseanet collection.name
-                                storyAssetBasePath = `${recordsCollectionPath}/${escapeSlashes(phraseanetDatabox.collections[story.base_id].name)}`;
-                            }
-                            storyAssetFullPath = concatPath(storyAssetBasePath, escapeSlashes(story.title));
-
-                            const branch = splitPath(storyAssetBasePath);
-                            let collId: string;
-                            try {
-                                collId = await databoxClient.createCollectionTreeBranch(
-                                    workspaceId,
-                                    collectionKeyPrefix ?? '',
-                                    branch.map(k => ({
-                                        key: k,
-                                        title: k,
-                                    }))
-                                );
-                            } catch (e: any) {
-                                logger.error(
-                                    `Failed to create collection branch "${branch.join('/')}": ${e.toString()}`
-                                );
-                                throw e;
-                            }
-
-                            const storyAsset = await createAsset(
+                        if(0 === story.children_total) {
+                            let {storyCollectionId, storyCollectionFullPath} = await importStory(
+                                story,
+                                location,
+                                dm,
+                                subdefToRendition,
+                                databoxClient,
+                                phraseanetDatabox,
                                 workspaceId,
                                 importFiles,
-                                story,
-                                storyAssetFullPath,
-                                collectionKeyPrefix,
-                                idempotencePrefixes['asset'] +
-                                story.databox_id +
-                                '_' +
-                                story.story_id,
-                                true,
                                 fieldMap,
                                 tagIndex,
-                                [],
-                                dm.sourceFile,
-                                subdefToRendition,
+                                storiesAsCollections,
+                                recordsCollectionPathTwig,
+                                recordsCollectionPath,
+                                storiesCollectionPathTwig,
+                                storiesCollectionPath,
+                                collectionKeyPrefix,
+                                idempotencePrefixes,
                                 logger
                             );
-
-                            const alternateUrls = getAlternateUrls(storyAsset, location);
-                            const storyAssetOutput = await databoxClient.createStoryAsset({
-                                workspaceId: storyAsset.workspaceId,
-                                sourceFile: storyAsset.publicUrl
-                                    ? {
-                                        url: storyAsset.publicUrl,
-                                        isPrivate: storyAsset.isPrivate,
-                                        alternateUrls,
-                                        importFile: storyAsset.importFile,
-                                    }
-                                    : undefined,
-                                collection: collId ? '/collections/' + collId : undefined,
-                                generateRenditions: storyAsset.generateRenditions,
-                                key: storyAsset.key,
-                                title: storyAsset.title || p.basename(storyAssetBasePath),
-                                attributes: storyAsset.attributes,
-                                tags: storyAsset.tags,
-                                renditions: storyAsset.renditions,
-                                isStory: storyAsset.isStory,
-                            });
-
-                            const assetId = storyAssetOutput.id;
-                            storyCollectionId = storyAssetOutput.storyCollection.id;
-                            storyCollectionFullPath = '';
+                            logger.info(
+                                `  Phraseanet empty story "${story.title}" (#${
+                                    story.story_id
+                                }) from base "${
+                                    phraseanetDatabox.collections[story.base_id].name
+                                }" (#${story.base_id}) ==> collection "${storyCollectionFullPath}" (#${storyCollectionId})`
+                            );
+                            nStories++;
                         }
 
-                        var nChildren = 0;
-                        for await (const child_rid of phraseanetClient.getStoryChildren(
-                            story.databox_id,
-                            story.story_id
-                        )) {
-                            if (recordStories[child_rid] === undefined) {
-                                recordStories[child_rid] = [];
-                            }
-                            recordStories[child_rid].push({
-                                id: storyCollectionId,
-                                path: storyCollectionFullPath,
-                                // path: '',
-                            });
-                            nChildren++;
-                        }
-
-                        logger.info(
-                            `  Phraseanet story "${story.title}" (#${
-                                story.story_id
-                            }) from base "${
-                                phraseanetDatabox.collections[story.base_id].name
-                            }" (#${story.base_id}), containing ${nChildren} children ==> collection "${storyCollectionFullPath}" (#${storyCollectionId})`
+                        wip.last_story = story.story_id;
+                        fs.writeFileSync(
+                            lockFile,
+                            JSON.stringify(wip, null, 2),
+                            {flag: 'w'}
                         );
-
-                        lastRecordId = story.story_id;
-                        nRecords++;
                     }
-                } while (stories.length == PAGESIZE);
+                } while (stories.length === PAGESIZE);
 
                 logger.info(
-                    `<<< End importing ${nRecords} stories of databox "${phraseanetDatabox.name}" (#${phraseanetDatabox.databox_id})`
+                    `<<< End importing ${nStories} empty stories of databox "${phraseanetDatabox.name}" (#${phraseanetDatabox.databox_id})`
                 );
             }
 
             logger.info(`>>> Importing records`);
+
             let records: CPhraseanetRecord[];
-            let lastRecordId: undefined | string = undefined;
             const ridOperator =
                 phraseanetClient.getSortOrder() === ORDER_ASC ? '>' : '<';
             const PAGESIZE = 50;
             let nRecords = 0;
             do {
                 let query = dm.searchQuery ?? '';
-                if (lastRecordId !== undefined) {
+                if (null !== wip.last_record) {
                     if (query) {
                         query = `(${query}) AND `;
                     }
-                    query += `recordid ${ridOperator} ${lastRecordId}`;
+                    query += `recordid ${ridOperator} ${wip.last_record}`;
                 }
                 logger.info(`search query: ${query}`);
                 records = await phraseanetClient.searchRecords(
@@ -401,6 +297,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     query
                 );
                 for (const record of records) {
+
                     logger.info(
                         `Phraseanet record "${record.title}" (#${
                             record.record_id
@@ -409,7 +306,45 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         }" (#${record.base_id})`
                     );
 
-                    const copyTo = recordStories[record.record_id] ?? [];
+                    const copyTo = [];
+                    if(importStories !== false && record.stories.length > 0) {
+                        let searchStoriesQuery = record.stories.map(rid => {
+                            return `recordid=${rid}`;
+                        }).join(' OR ');
+
+                        for (const story of await phraseanetClient.searchStories(
+                            [],
+                            0, // offset
+                            20,
+                            searchStoriesQuery
+                        )) {
+                            let {storyCollectionId, storyCollectionFullPath} = await importStory(
+                                story,
+                                location,
+                                dm,
+                                subdefToRendition,
+                                databoxClient,
+                                phraseanetDatabox,
+                                workspaceId,
+                                importFiles,
+                                fieldMap,
+                                tagIndex,
+                                storiesAsCollections,
+                                recordsCollectionPathTwig,
+                                recordsCollectionPath,
+                                storiesCollectionPathTwig,
+                                storiesCollectionPath,
+                                collectionKeyPrefix,
+                                idempotencePrefixes,
+                                logger
+                            );
+
+                            copyTo.push({
+                                id: storyCollectionId,
+                                path: storyCollectionFullPath,
+                            });
+                        }
+                    }
 
                     // copy the asset to other location(s) ?
                     for (const ct of dm.copyTo ?? []) {
@@ -476,8 +411,15 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         subdefToRendition,
                         logger
                     );
-                    lastRecordId = record.record_id;
+
                     nRecords++;
+
+                    wip.last_record = record.record_id;
+                    fs.writeFileSync(
+                        lockFile,
+                        JSON.stringify(wip, null, 2),
+                        {flag: 'w'}
+                    );
                 }
             } while (records.length == PAGESIZE);
             logger.info(
@@ -519,692 +461,159 @@ async function getSourceCollections(
     return sourceCollections;
 }
 
-async function importSubdefsStructure(
-    databoxClient: DataboxClient,
-    workspaceId: string,
-    phraseanetDataboxId: string,
-    phraseanetClient: PhraseanetClient,
+async function importStory(
+    story: CPhraseanetStory,
+    location: IndexLocation<PhraseanetConfig>,
     dm: ConfigDataboxMapping,
-    idempotencePrefix: string,
-    logger: Logger
-): Promise<Record<string, string[]>> {
-    const classIndex: Record<string, string> = {};
-    const renditionClasses =
-        await databoxClient.getRenditionClasses(workspaceId);
-    renditionClasses.forEach(rc => {
-        classIndex[rc.name] = rc.id;
-    });
+    subdefToRendition: Record<string, string[]>,
+    databoxClient: DataboxClient,
+    phraseanetDatabox: PhraseanetDatabox,
+    workspaceId: string,
+    importFiles: boolean,
+    fieldMap: Record<string, FieldMap>,
+    tagIndex: TagIndex,
+    storiesAsCollections: boolean,
+    recordsCollectionPathTwig: Twig.Template | null,
+    recordsCollectionPath: string,
+    storiesCollectionPathTwig: Twig.Template | null,
+    storiesCollectionPath: string,
+    collectionKeyPrefix: string,
+    idempotencePrefixes: Record<string, string>,
+    logger: Logger)
+{
+    const storyTitle = escapeSlashes((story.title ?? "story_" + story.databox_id + '_' + story.story_id).trim());
+    var storyCollectionBasePath = '';
+    var storyCollectionFullPath = '';
+    var storyCollectionBasePathParts: string[] = [];
+    var storyCollectionId: string;
 
-    const subdefs =
-        await phraseanetClient.getSubdefsStruct(phraseanetDataboxId);
-    const sdByName: Record<
-        string,
-        {
-            name: string;
-            parent: string | null;
-            buildMode: number;
-            useAsOriginal: boolean;
-            useAsPreview: boolean;
-            useAsThumbnail: boolean;
-            useAsThumbnailActive: boolean;
-            types: Record<string, PhraseanetSubdefStruct>;
-            class: string | null;
-            labels: Record<string, string>;
+    if (storiesAsCollections) {
+        //
+        // create phraseanet stories as visible collections
+        //
+        storyCollectionBasePathParts = splitPath(
+            storiesCollectionPathTwig
+                ? await storiesCollectionPathTwig.renderAsync({
+                    record: story,
+                    collection: phraseanetDatabox.collections[story.base_id],
+                })
+                : storiesCollectionPath
+        );
+        storyCollectionBasePath = storyCollectionBasePathParts.join('/');
+        // create the base
+        let storyCollectionBaseURI: string | undefined = undefined;
+        if (storyCollectionBasePathParts.length > 0) {
+            storyCollectionBaseURI =
+                '/collections/' +
+                (await databoxClient.createCollectionTreeBranch(
+                    workspaceId,
+                    collectionKeyPrefix,
+                    storyCollectionBasePathParts.map(k => ({
+                        key: k,
+                        title: k,
+                    })),
+                ));
         }
-    > = {};
-
-    if (dm.renditions === false) {
-        // special value: do not create rendition definitions
-        return {};
-    }
-
-    if (dm.sourceFile === undefined) {
-        dm.sourceFile = 'document';
-    }
-    if (dm.renditions === undefined) {
-        // import all subdefs from phraseanet
-        dm['renditions'] = {
-            original: {
-                useAsOriginal: true,
-                buildMode: 1,
-                class: 'original',
-            } as ConfigPhraseanetSubdef,
-        };
-
-        for (const sd of subdefs) {
-            if (!dm.renditions[sd.name]) {
-                const o: any = {
-                    class: sd.class,
-                    buildMode: 2,
-                    parent: 'original',
-                };
-                if (sd.name === 'preview') {
-                    o['useAsPreview'] = true;
-                }
-                if (sd.name === 'thumbnail') {
-                    o['useAsThumbnail'] = true;
-                }
-                if (sd.name === 'thumbnailgif') {
-                    o['useAsThumbnailActive'] = true;
-                }
-                o.builders = {};
-
-                dm.renditions[sd.name] = o;
-            }
-            dm.renditions[sd.name].builders[sd.type] = {
-                from: `${sd.type}:${sd.name}`,
-            };
-        }
-
-        const sampleConfig = util
-            .inspect(
+        // then create the story collection
+        storyCollectionId =
+            await databoxClient.createCollection(
+                story.resource_id,
                 {
-                    sourceFile: dm.sourceFile,
-                    renditions: dm.renditions,
-                },
-                {depth: null, compact: false}
-            )
-            .replace(/^\{(.*)}$/s, '...$1...');
-        logger.info(
-            `No renditions block in config. Importing all subdefs from phraseanet using generated config:\n${sampleConfig}`
-        );
-    }
-
-    const subdefToRendition = {} as Record<string, string[]>;
-
-    for (const [name, rendition] of Object.entries(dm.renditions)) {
-        if (!sdByName[name]) {
-            sdByName[name] = {
-                name: name,
-                parent: rendition['parent'] ?? null,
-                useAsOriginal: rendition['useAsOriginal'] ?? false,
-                buildMode:
-                    rendition['buildMode'] ?? (rendition['builders'] ? 2 : 1),
-                useAsPreview: rendition['useAsPreview'] ?? false,
-                useAsThumbnail: rendition['useAsThumbnail'] ?? false,
-                useAsThumbnailActive:
-                    rendition['useAsThumbnailActive'] ?? false,
-                types: {} as Record<string, PhraseanetSubdefStruct>,
-                class: rendition['class'] ?? null,
-                labels: {},
-            };
-        }
-
-        for (const [family, settings] of Object.entries(
-            rendition['builders'] ?? []
-        )) {
-            if ('build' in settings && 'from' in settings) {
-                logger.error(
-                    `  Rendition-definition "${name}" for family "${family}": Use "build" OR "from", not both. Rendition definition ignored`
-                );
-                continue;
-            }
-            if ('build' in settings) {
-                // hardcoded
-            }
-            if ('from' in settings) {
-                // find the subdef with good name and family
-                const [sdFamily, sdName] = settings['from'].split(':');
-                const sd = subdefs.find(
-                    sd => sd.name === sdName && sd.type === sdFamily
-                );
-                if (!sd) {
-                    logger.error(`  Subdef "${settings['from']}" not found`);
-                    continue;
+                    workspaceId: workspaceId,
+                    key:
+                        idempotencePrefixes['collection'] +
+                        story.databox_id +
+                        '_' +
+                        story.story_id,
+                    title: storiesAsCollections ? storyTitle : undefined,
+                    parent: storyCollectionBaseURI,
                 }
-                if (sdByName[name].types[sd.type]) {
-                    logger.error(
-                        `  Build "${sd.type}" for rendition "${name}" already set`
-                    );
-                    continue;
-                }
-                if (!subdefToRendition[settings['from']]) {
-                    subdefToRendition[settings['from']] = [];
-                }
-                subdefToRendition[settings['from']].push(name);
-                sdByName[name].types[sd.type] = sd;
-                sdByName[name].labels = sd.labels; // todo: check conflicts
-                if (!rendition['class']) {
-                    // use phrnet class
-                    if (sdByName[name].class === null) {
-                        sdByName[name].class = sd.class;
-                    }
-                    // sd of same name should have the same class
-                    if (
-                        sdByName[name].class !== sd.class &&
-                        sdByName[name].class !== 'mixed'
-                    ) {
-                        logger.info(
-                            `  Rendition "${name}" gets different class ("${sdByName[sd.name].class}" and "${sd.class}": "mixed" is used)`
-                        );
-                        sdByName[name].class = 'mixed';
-                    }
-                }
-            }
-        }
-    }
-
-    const renditionIdByName = {} as Record<string, string>;
-
-    for (const sdName in sdByName) {
-        const sd = sdByName[sdName];
-
-        if (!sd.class) {
-            logger.info(
-                `  Rendition definition "${sdName}" has neither "class" or phraseanet "from": using class "public"`
             );
-            sd.class = 'public';
-        }
+        storyCollectionFullPath = (storyCollectionBasePath ?? '') + '/' + storyTitle;
 
-        if (!classIndex[sd.class]) {
-            logger.info(`  Creating rendition class "${sd.class}" `);
-            classIndex[sd.class] = await databoxClient.createRenditionClass({
-                name: sd.class,
-                workspace: `/workspaces/${workspaceId}`,
-                public: true,
-            });
-        }
-
-        logger.info(
-            `  Creating rendition definition "${sd.name}" of class "${sd.class}"`
-        );
-        const jsConf: Record<string, object> = {};
-        const translators: Record<string, typeof translateImageSettings> = {
-            image: translateImageSettings,
-            video: translateVideoSettings,
-            audio: translateAudioSettings,
-            document: translateDocumentSettings,
-        };
-        for (const family in sd.types) {
-            if (translators[family]) {
-                jsConf[family] = translators[family](sd.types[family]);
-            }
-        }
-
-        if (sd['parent'] && !renditionIdByName[sd['parent']]) {
-            logger.error(
-                `    Parent rendition definition "${sd['parent']}" for "${sd.name}" not found: no parent set. Check declaration order`
-            );
-            sd['parent'] = null;
-        }
-
-        renditionIdByName[sd.name] =
-            await databoxClient.createRenditionDefinition({
-                name: sd.name,
-                parent: sd['parent']
-                    ? `/rendition-definitions/${renditionIdByName[sd['parent']]}`
-                    : null,
-                key: `${idempotencePrefix}${sd.name}`,
-                class: `/rendition-classes/${classIndex[sd.class]}`,
-                buildMode: sd.buildMode,
-                useAsOriginal: sd.useAsOriginal,
-                useAsPreview: sd.useAsPreview,
-                useAsThumbnail: sd.useAsThumbnail,
-                useAsThumbnailActive: sd.name === 'thumbnailgif',
-                priority: 0,
-                workspace: `/workspaces/${workspaceId}`,
-                labels: {
-                    phraseanetDefinition: sd.labels,
-                },
-                definition: Yaml.dump(jsConf, {lineWidth: 100}).trim(),
-            });
-    }
-
-    return subdefToRendition;
-}
-
-async function importStatusBitsStructure(
-    databoxClient: DataboxClient,
-    workspaceId: string,
-    phraseanetDataboxId: string,
-    phraseanetClient: PhraseanetClient,
-    logger: Logger
-): Promise<TagIndex> {
-    const tagIndex: TagIndex = {};
-    for (const sb of await phraseanetClient.getStatusBitsStruct(
-        phraseanetDataboxId
-    )) {
-        logger.info(`  Creating "${sb.label_on}" tag`);
-        const key =
-            phraseanetClient.getId() +
-            '_' +
-            phraseanetDataboxId +
-            '.sb' +
-            sb.bit;
-        const tag: Tag = await databoxClient.createTag(key, {
-            workspace: `/workspaces/${workspaceId}`,
-            name: sb.label_on,
-        });
-        tagIndex[sb.bit] = '/tags/' + tag.id;
-    }
-
-    return tagIndex;
-}
-
-async function importMetadataStructure(
-    databoxClient: DataboxClient,
-    workspaceId: string,
-    phraseanetDataboxId: string,
-    phraseanetClient: PhraseanetClient,
-    dm: ConfigDataboxMapping,
-    fieldMap: Map<string, FieldMap>,
-    idempotencePrefix: string,
-    attrClass: string,
-    logger: Logger
-): Promise<void> {
-    const metaStructure =
-        await phraseanetClient.getMetaStruct(phraseanetDataboxId);
-    if (!dm.fieldMap) {
-        // import all fields from structure
-        for (const name in metaStructure) {
-            fieldMap.set(name, {
-                id: metaStructure[name].id,
-                position: 0,
-                type:
-                    attributeTypesEquivalence[metaStructure[name].type] ??
-                    DataboxAttributeType.Text,
-                multivalue: metaStructure[name].multivalue,
-                readonly: metaStructure[name].readonly,
-                translatable: false,
-                labels: metaStructure[name].labels,
-                values: [
-                    {
-                        type: 'metadata',
-                        value: name,
-                    },
-                ],
-                attributeDefinition: {} as AttributeDefinition,
-            });
-        }
-    }
-    const attributeDefinitionIndex: Record<string, AttributeDefinition> = {};
-    let ufid = 0; // used to generate a unique id for fields declared in conf, but not existing in phraseanet
-    let position = 1;
-    for (const [name, fm] of fieldMap) {
-        fm.id = metaStructure[name]
-            ? metaStructure[name].id
-            : (--ufid).toString();
-        fm.position = position++;
-        fm.multivalue =
-            fm.multivalue ??
-            (metaStructure[name] ? metaStructure[name].multivalue : false);
-        fm.readonly =
-            fm.readonly ??
-            (metaStructure[name] ? metaStructure[name].readonly : false);
-        fm.labels =
-            fm.labels ??
-            (metaStructure[name] ? metaStructure[name].labels : {});
-        fm.type =
-            fm.type ??
-            (metaStructure[name]
-                ? attributeTypesEquivalence[metaStructure[name].type]
-                : DataboxAttributeType.Text);
-        for (const v of fm.values) {
-            if (v.locale !== undefined) {
-                fm.translatable = true;
-            }
-
-            if (v.type === 'template') {
-                try {
-                    v.twig = Twig.twig({data: v.value}); // compile once
-                } catch (e: any) {
-                    throw new Error(
-                        `Error compiling twig for field "${name}": ${e.message}`
-                    );
-                }
-            }
-        }
-
-        if (!attributeDefinitionIndex[name]) {
-            const data = {
-                key: `${idempotencePrefix}_${name}_${fm.type}_${fm.multivalue ? '1' : '0'}`,
-                name: name,
-                position: fm.position,
-                editable: !fm.readonly,
-                multiple: fm.multivalue,
-                fieldType: attributeTypesEquivalence[fm.type ?? ''] || fm.type,
-                workspace: `/workspaces/${workspaceId}`,
-                class: attrClass,
-                labels: fm.labels,
-                translatable: fm.translatable,
-            };
-            logger.info(`  Creating "${name}" attribute definition`);
-            attributeDefinitionIndex[name] =
-                await databoxClient.createAttributeDefinition(fm.id, data);
-        }
-        fm.attributeDefinition = attributeDefinitionIndex[name];
-    }
-}
-
-function translateDocumentSettings(sd: PhraseanetSubdefStruct): object {
-    // too bad: phraseanet api does not provide the target "mediatype" (image, video, ...)
-    // so we guess from the presence of option "icodec"
-    if (sd.options['icodec']) {
-        return translateDocumentSettings_withIcodec(sd);
-    }
-    // here no icodec: pdf or flexpaper (flexpaper is not handled by phrasea, so import as pdf)
-    return translateDocumentSettings_toPdf();
-}
-
-function translateDocumentSettings_withIcodec(
-    sd: PhraseanetSubdefStruct
-): object {
-    return {
-        transformations: [
-            {
-                module: 'document_to_pdf',
-            },
-            {
-                module: 'pdf_to_image',
-                options: {
-                    size: [sd.options['size'], sd.options['size']],
-                    resolution: sd.options['resolution'],
-                    extension: sd.options['icodec'],
-                },
-            },
-        ],
-    };
-}
-
-function translateDocumentSettings_toPdf(): object {
-    return {
-        transformations: [
-            {
-                module: 'document_to_pdf',
-            },
-        ],
-    };
-}
-
-function translateImageSettings(sd: PhraseanetSubdefStruct): object {
-    // todo: extension ?
-    const size = sd.options['size'];
-    const icodecFormats: Record<string, string> = {
-        jpeg: 'jpeg',
-        png: 'png',
-        tiff: 'tiff',
-    };
-    const format: string = icodecFormats[sd.options.icodec] ?? '';
-    if (!format) {
-        throw new Error(
-            `Unsupported image codec: ${sd.options.icodec} for subdef image:${sd.name}`
-        );
-    }
-
-    const filters: Record<string, any> = {
-        auto_rotate: null,
-    };
-
-    const bgcolor = sd.options.backgroundcolor?.['0'] ?? '';
-    if (bgcolor) {
-        filters.background_fill = {
-            color: bgcolor,
-            opacity: 100,
-        };
-    }
-    filters.thumbnail = {
-        size: [size, size],
-        mode: 'inset',
-    };
-
-    return {
-        transformations: [
-            {
-                module: 'imagine',
-                options: {
-                    format,
-                    filters,
-                },
-            },
-            {
-                module: 'set_dpi',
-                options: {
-                    dpi: sd.options['resolution'],
-                },
-            },
-        ],
-    };
-}
-
-function translateVideoSettings(sd: PhraseanetSubdefStruct): object {
-    // too bad: phraseanet api does not provide the target "mediatype" (image, video, ...)
-    // so we guess from the presence of option(s) "icodec", "vcodec", "acodec"
-    if (sd.options['vcodec']) {
-        // also have a acodec, so test first
-        return translateVideoSettings_withVcodec(sd);
-    }
-    if (sd.options['acodec']) {
-        // here no vcodec: pure audio
-        return translateVideoSettings_withAcodec(sd);
-    }
-    if (sd.options['icodec']) {
-        return translateVideoSettings_withIcodec(sd);
-    }
-    return {};
-}
-
-function translateVideoSettings_withVcodec(sd: PhraseanetSubdefStruct): object {
-    // todo : gop
-    const formatMap: Record<string, string> = {
-        libvpx: 'video-webm',
-        libtheora: 'video-webm',
-        libx264: 'video-mpeg4',
-    };
-    const format = formatMap[sd.options['vcodec']] ?? '';
-    if (!format) {
-        throw new Error(
-            `Unsupported video codec: ${sd.options['vcodec']} for subdef video: ${sd.name}`
-        );
-    }
-
-    const size = sd.options['size'] ?? 100;
-
-    const ffmpegModuleOptions: any = {
-        format,
-        timeout: 7200,
-        filters: [
-            {
-                name: 'resize',
-                width: size,
-                height: size,
-                mode: 'inset',
-            },
-        ],
-    };
-    // in phraseanet, "audiobitrate" is already in K !
-    const audiokbrate = sd.options['audiobitrate'] ?? 0;
-    if (audiokbrate > 0) {
-        ffmpegModuleOptions['audio_kilobitrate'] = audiokbrate;
-    }
-
-    if (null !== sd.options['acodec']) {
-        const audioCodecs = [
-            'libfaac',
-            'libvo_aacenc',
-            'libmp3lame',
-            'libvorbis',
-            'libfdk_aac',
-        ];
-        if (!audioCodecs.includes(sd.options['acodec'])) {
-            throw new Error(
-                `Unsupported audio codec: ${sd.options['acodec']} for subdef video: ${sd.name}`
-            );
-        }
-        ffmpegModuleOptions['audio_codec'] = sd.options['acodec'];
-    }
-
-    const audioSamplerate = sd.options['audiosamplerate'] ?? 0;
-    if (audioSamplerate > 0) {
-        ffmpegModuleOptions['filters'].push({
-            name: 'resample_audio',
-            rate: audioSamplerate,
-        });
-    }
-
-    return {
-        transformations: [
-            {
-                module: 'ffmpeg',
-                options: ffmpegModuleOptions,
-            },
-        ],
-    };
-}
-
-function translateVideoSettings_withAcodec(sd: PhraseanetSubdefStruct): object {
-    return translateAudioSettings_withAcodec(sd);
-}
-
-function translateVideoSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
-    if (sd.options['delay'] === undefined) {
-        // a static image
-        return translateVideoSettings_targetImageFrame(sd);
     } else {
-        // a animated gif (ignore icodec, always use gif)
-        return translateVideoSettings_targetAnimatedGif(sd);
-    }
-}
 
-function translateVideoSettings_targetImageFrame(
-    sd: PhraseanetSubdefStruct
-): object {
-    const formatMap: Record<string, string> = {
-        jpeg: 'image-jpeg',
-        png: 'image-png',
-        tiff: 'image-tiff',
-    };
-    const format = formatMap[sd.options['icodec']] ?? '';
-    if (!format) {
-        throw new Error(
-            `Unsupported image codec: ${sd.options['icodec']} for subdef video: ${sd.name}`
+        //
+        // create phraseanet story as phrasea story (storyAsset + hidden collection)
+        //
+        let storyAssetBasePath: string = '';
+        let storyAssetFullPath: string = '';
+        if (recordsCollectionPathTwig !== null) {
+            storyAssetBasePath = await recordsCollectionPathTwig.renderAsync({
+                record: story,
+                collection:
+                    phraseanetDatabox.collections[story.base_id],
+            });
+        } else {
+            // bc: dispatch in original phraseanet collection.name
+            storyAssetBasePath = `${recordsCollectionPath}/${escapeSlashes(phraseanetDatabox.collections[story.base_id].name)}`;
+        }
+        storyAssetFullPath = concatPath(storyAssetBasePath, escapeSlashes(story.title));
+
+        const branch = splitPath(storyAssetBasePath);
+        let collId: string;
+        try {
+            collId = await databoxClient.createCollectionTreeBranch(
+                workspaceId,
+                collectionKeyPrefix ?? '',
+                branch.map(k => ({
+                    key: k,
+                    title: k,
+                }))
+            );
+        } catch (e: any) {
+            logger.error(
+                `Failed to create collection branch "${branch.join('/')}": ${e.toString()}`
+            );
+            throw e;
+        }
+
+        const storyAsset = await createAsset(
+            workspaceId,
+            importFiles,
+            story,
+            storyAssetFullPath,
+            collectionKeyPrefix,
+            idempotencePrefixes['asset'] +
+            story.databox_id +
+            '_' +
+            story.story_id,
+            true,
+            fieldMap,
+            tagIndex,
+            [],
+            dm.sourceFile,
+            subdefToRendition,
+            logger
         );
+
+        const alternateUrls = getAlternateUrls(storyAsset, location);
+
+        const storyAssetOutput = await databoxClient.createStoryAsset({
+            workspaceId: storyAsset.workspaceId,
+            sourceFile: storyAsset.publicUrl
+                ? {
+                    url: storyAsset.publicUrl,
+                    isPrivate: storyAsset.isPrivate,
+                    alternateUrls,
+                    importFile: storyAsset.importFile,
+                }
+                : undefined,
+            collection: collId ? '/collections/' + collId : undefined,
+            generateRenditions: storyAsset.generateRenditions,
+            key: storyAsset.key,
+            title: storyAsset.title || p.basename(storyAssetBasePath),
+            attributes: storyAsset.attributes,
+            tags: storyAsset.tags,
+            renditions: storyAsset.renditions,
+            isStory: storyAsset.isStory,
+        });
+        console.log(`created story asset ${story.story_id}...`);
+
+        storyCollectionId = storyAssetOutput.storyCollection.id;
+        storyCollectionFullPath = '';
     }
 
-    const transformations: Array<object> = (translateImageSettings(sd) as any)
-        .transformations;
-
-    transformations.unshift({
-        module: 'video_to_frame',
-        options: {
-            format,
-            start: 0,
-        },
-    });
-
-    return {
-        transformations,
-    };
+    return { storyCollectionId, storyCollectionFullPath };
 }
 
-function translateVideoSettings_targetAnimatedGif(
-    sd: PhraseanetSubdefStruct
-): object {
-    const size = sd.options['size'] ?? 100;
-    // fps from (msec)delay, with 2 decimals
-    const fps = Math.round(100000.0 / sd.options['delay']) / 100;
-
-    return {
-        transformations: [
-            {
-                module: 'video_to_animation',
-                options: {
-                    format: 'animated-gif',
-                    start: 0,
-                    duration: 5,
-                    fps: fps,
-                    width: size,
-                    height: size,
-                },
-            },
-        ],
-    };
-}
-
-function translateAudioSettings(sd: PhraseanetSubdefStruct): object {
-    // too bad: phraseanet api does not provide the target "mediatype" (image, video, ...)
-    // so we guess from the presence of option(s) "icodec", "acodec"
-    if (sd.options['acodec']) {
-        // here no vcodec: pure audio
-        return translateAudioSettings_withAcodec(sd);
-    }
-    if (sd.options['icodec']) {
-        return translateAudioSettings_withIcodec(sd);
-    }
-    return {};
-}
-
-function translateAudioSettings_withAcodec(sd: PhraseanetSubdefStruct): object {
-    const formatMap: Record<string, string> = {
-        pcm_s16le: 'audio-wav',
-        libmp3lame: 'audio-mp3',
-        flac: 'audio-aac',
-    };
-    const format = formatMap[sd.options['acodec']] ?? '';
-    if (!format) {
-        throw new Error(
-            `Unsupported audio codec: ${sd.options['acodec']} for subdef video: ${sd.name}`
-        );
-    }
-
-    const ffmpegModuleOptions: Record<string, any> = {
-        format,
-        timeout: 7200,
-    };
-
-    // in phraseanet, "audiobitrate" is already in K !
-    const audiokbrate = sd.options['audiobitrate'] ?? 0;
-    if (audiokbrate > 0) {
-        ffmpegModuleOptions['audio_kilobitrate'] = audiokbrate;
-    }
-
-    const audioSamplerate = sd.options['audiosamplerate'] ?? 0;
-    if (audioSamplerate > 0) {
-        ffmpegModuleOptions['filters'] = [
-            {
-                name: 'resample_audio',
-                rate: audioSamplerate,
-            },
-        ];
-    }
-
-    return {
-        transformations: [
-            {
-                module: 'ffmpeg',
-                options: ffmpegModuleOptions,
-            },
-        ],
-    };
-}
-
-function translateAudioSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
-    const icodecs = ['jpeg', 'png', 'tiff'];
-    if (!icodecs.includes(sd.options['icodec'])) {
-        throw new Error(
-            `Unsupported image codec: ${sd.options['icodec']} for subdef video: ${sd.name}`
-        );
-    }
-
-    const size = sd.options['size'] ?? 100;
-
-    return {
-        transformations: [
-            {
-                module: 'album_artwork',
-                options: {
-                    format: 'image-' + sd.options['icodec'],
-                },
-            },
-            {
-                module: 'imagine',
-                options: {
-                    filters: {
-                        thumbnail: {
-                            size: [size, size],
-                        },
-                    },
-                },
-            },
-        ],
-    };
-}

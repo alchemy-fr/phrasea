@@ -364,7 +364,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     public function setStoryCollection(?Collection $storyCollection): void
     {
         if (null !== $storyCollection) {
-            if(null !== $this->storyCollection) {
+            if(null !== $this->storyCollection && $storyCollection->getId() !== $this->storyCollection->getId()) {
                 throw new \LogicException('Can\'t change the story collection');
             }
             if (null !== $storyCollection->getTitle()) {

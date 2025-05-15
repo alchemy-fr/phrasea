@@ -24,7 +24,7 @@ export async function createAsset(
     collectionKeyPrefix: string,
     key: string,
     isStory: boolean,
-    fieldMap: Map<string, FieldMap>,
+    fieldMap: Record<string, FieldMap>,
     tagIndex: TagIndex,
     shortcutIntoCollections: {id: string; path: string}[],
     sourceSubdefName: string | undefined,
@@ -33,7 +33,8 @@ export async function createAsset(
 ): Promise<Asset> {
     const attributes: AttributeInput[] = [];
 
-    for (const [_name, fm] of fieldMap) {
+    for (const _name in fieldMap) {
+        const fm = fieldMap[_name];
         const ad = fm.attributeDefinition;
 
         for (const v of fm.values) {
