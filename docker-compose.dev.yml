@@ -169,7 +169,9 @@ services:
       - MAILER_DSN
       - MAIL_FROM
       - MAIL_FROM_DISPLAY_NAME
-      - MAIL_REPLAY_TO
+      - MAIL_REPLY_TO
+      - MAIL_REPLY_TO_DISPLAY_NAME
+      - MAIL_ENVELOPE_FROM
       - MAILER_HOST
       - MAILER_PORT
       - MAILER_USER
