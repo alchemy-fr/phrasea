@@ -1,4 +1,4 @@
-import {AttributeDefinition, RenditionBuildMode} from '../../databox/types';
+import {AttributeDefinition} from '../../databox/types';
 import Twig from 'twig';
 import {DataboxAttributeType} from './shared.ts';
 
@@ -30,7 +30,7 @@ export type ConfigPhraseanetSubdef = {
     useAsPreview?: boolean;
     useAsOriginal?: boolean;
     useAsThumbnailActive?: boolean;
-    buildMode?: RenditionBuildMode;
+    buildMode?: number;
     class?: string;
     parent?: string | null;
     builders: Record<string, ConfigRenditionBuilder>;

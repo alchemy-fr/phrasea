@@ -14,11 +14,15 @@ import {
 } from './shared';
 import {
     AttributeDefinition,
-    RenditionBuildMode,
     Tag,
 } from '../../databox/types';
 import Twig from 'twig';
 import Yaml from 'js-yaml';
+
+enum RenditionBuildMode {
+    COPY_ASSET_FILE = 1,
+    BUILD_FROM_PARENT = 2,
+}
 
 export async function dumpConfFromStructure(
     phraseanetDataboxId: string,
