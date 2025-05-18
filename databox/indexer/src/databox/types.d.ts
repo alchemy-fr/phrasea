@@ -16,6 +16,11 @@ export enum Privacy {
     PUBLIC = 5,
 }
 
+export enum RenditionBuildMode {
+    COPY_ASSET_FILE = 1,
+    BUILD_FROM_PARENT = 2,
+}
+
 type AlternateUrl = {
     type: string;
     url: string;

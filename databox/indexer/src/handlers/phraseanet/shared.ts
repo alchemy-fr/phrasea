@@ -33,8 +33,8 @@ export async function createAsset(
 ): Promise<Asset> {
     const attributes: AttributeInput[] = [];
 
-    for (const _name in fieldMap) {
-        const fm = fieldMap[_name];
+    for (const name in fieldMap) {
+        const fm = fieldMap[name];
         const ad = fm.attributeDefinition;
 
         for (const v of fm.values) {

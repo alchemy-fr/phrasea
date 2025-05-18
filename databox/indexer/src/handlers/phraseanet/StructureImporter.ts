@@ -12,10 +12,13 @@ import {
     DataboxAttributeType,
     TagIndex,
 } from './shared';
-import {AttributeDefinition, Tag} from '../../databox/types';
+import {
+    AttributeDefinition,
+    RenditionBuildMode,
+    Tag,
+} from '../../databox/types';
 import Twig from 'twig';
 import Yaml from 'js-yaml';
-
 
 export async function dumpConfFromStructure(
     phraseanetDataboxId: string,
@@ -23,7 +26,7 @@ export async function dumpConfFromStructure(
     original_dm: ConfigDataboxMapping,
     logger: Logger
 ) {
-    const dm:ConfigDataboxMapping = JSON.parse(JSON.stringify(original_dm)); // = copy
+    const dm: ConfigDataboxMapping = JSON.parse(JSON.stringify(original_dm)); // = copy
     // patch to enforce creation
     dm.renditions = undefined;
     dm.sourceFile = undefined;
@@ -58,7 +61,7 @@ export async function addMissingRenditionsConf(
     dm['renditions'] = {
         original: {
             useAsOriginal: true,
-            buildMode: 1,   // copy asset file
+            buildMode: RenditionBuildMode.COPY_ASSET_FILE,
             class: 'original',
         } as ConfigPhraseanetSubdef,
     };
@@ -67,11 +70,12 @@ export async function addMissingRenditionsConf(
         if (!dm.renditions[sd.name]) {
             dm.renditions[sd.name] = {
                 class: sd.class,
-                buildMode: 2,   // build from parent
+                buildMode: RenditionBuildMode.BUILD_FROM_PARENT,
                 parent: 'original',
                 useAsPreview: sd.name === 'preview' ? true : undefined,
                 useAsThumbnail: sd.name === 'thumbnail' ? true : undefined,
-                useAsThumbnailActive: sd.name === 'thumbnailgif' ? true : undefined,
+                useAsThumbnailActive:
+                    sd.name === 'thumbnailgif' ? true : undefined,
                 builders: {},
             };
         }
@@ -84,7 +88,7 @@ export async function addMissingRenditionsConf(
 export async function addMissingAttributeDefinitionsConf(
     phraseanetDataboxId: string,
     phraseanetClient: PhraseanetClient,
-    dm: ConfigDataboxMapping,
+    dm: ConfigDataboxMapping
 ) {
     const metaStructure =
         await phraseanetClient.getMetaStruct(phraseanetDataboxId);
@@ -197,12 +201,10 @@ export async function importSubdefsStructure(
                 name: name,
                 parent: rendition.parent ?? null,
                 useAsOriginal: rendition.useAsOriginal ?? false,
-                buildMode:
-                    rendition.buildMode ?? (rendition.builders ? 2 : 1),
+                buildMode: rendition.buildMode ?? (rendition.builders ? RenditionBuildMode.BUILD_FROM_PARENT : RenditionBuildMode.COPY_ASSET_FILE),
                 useAsPreview: rendition.useAsPreview ?? false,
                 useAsThumbnail: rendition.useAsThumbnail ?? false,
-                useAsThumbnailActive:
-                    rendition.useAsThumbnailActive ?? false,
+                useAsThumbnailActive: rendition.useAsThumbnailActive ?? false,
                 types: {} as Record<string, PhraseanetSubdefStruct>,
                 class: rendition['class'] ?? null,
                 labels: {},
@@ -341,7 +343,7 @@ export async function importMetadataStructure(
     fieldMap: Record<string, FieldMap>,
     idempotencePrefixes: Record<string, string>,
     attrClass: string,
-    logger: Logger,
+    logger: Logger
 ): Promise<Record<string, FieldMap>> {
     const metaStructure =
         await phraseanetClient.getMetaStruct(phraseanetDataboxId);
@@ -447,7 +449,9 @@ function translateDocumentSettings(sd: PhraseanetSubdefStruct): object {
     return translateDocumentSettings_toPdf();
 }
 
-function translateDocumentSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
+function translateDocumentSettings_withIcodec(
+    sd: PhraseanetSubdefStruct
+): object {
     return {
         transformations: [
             {
@@ -624,7 +628,9 @@ function translateVideoSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
     }
 }
 
-function translateVideoSettings_targetImageFrame(sd: PhraseanetSubdefStruct): object {
+function translateVideoSettings_targetImageFrame(
+    sd: PhraseanetSubdefStruct
+): object {
     const formatMap: Record<string, string> = {
         jpeg: 'image-jpeg',
         png: 'image-png',
@@ -653,7 +659,9 @@ function translateVideoSettings_targetImageFrame(sd: PhraseanetSubdefStruct): ob
     };
 }
 
-function translateVideoSettings_targetAnimatedGif(sd: PhraseanetSubdefStruct): object {
+function translateVideoSettings_targetAnimatedGif(
+    sd: PhraseanetSubdefStruct
+): object {
     const size = sd.options['size'] ?? 100;
     // fps from (msec)delay, with 2 decimals
     const fps = Math.round(100000.0 / sd.options['delay']) / 100;
@@ -763,4 +771,3 @@ function translateAudioSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
         ],
     };
 }
-

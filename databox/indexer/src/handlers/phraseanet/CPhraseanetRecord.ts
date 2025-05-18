@@ -106,7 +106,7 @@ export class CPhraseanetRecord extends CPhraseanetRecordBase {
         super(r, client);
         this.record_id = r.record_id;
         this.phrasea_type = r.phrasea_type;
-        r.stories.map(s => {
+        r.stories.forEach(s => {
             this.stories.push(s.story_id);
         });
     }
