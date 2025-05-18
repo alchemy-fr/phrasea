@@ -41,7 +41,7 @@ export default function AndOrOrExpressionBuilder({
                             setExpression(p => ({
                                 ...p,
                                 operator: (newValue?.value ??
-                                    AQLAndOrOperator.AND) as QBAndOrExpression['operator'],
+                                    AQLAndOrOperator.AND) as AQLAndOrOperator,
                             }));
                         }}
                         value={expression.operator as any}
@@ -54,7 +54,7 @@ export default function AndOrOrExpressionBuilder({
                                 ),
                             },
                             {
-                                value: AQLAndOrOperator.OR,
+                                value: AQLAndOrOperator.AND,
                                 label: t(
                                     'search_condition.builder.operator.and',
                                     'AND'

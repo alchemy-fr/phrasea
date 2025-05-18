@@ -3,6 +3,7 @@ import {AttributeDefinition} from '../../../../types';
 import AttributeType from './AttributeType';
 import {toArray} from '../../../../lib/utils';
 import React from 'react';
+import {AttributeType as AttributeTypeEnum} from '../../../../api/attributes.ts';
 
 export type AttrValue<T = string> = {
     id: T;
@@ -23,7 +24,7 @@ let idInc = 1;
 export function createNewValue(type: string): AttrValue<number> {
     switch (type) {
         default:
-        case 'text':
+        case AttributeTypeEnum.Text:
             return {
                 id: idInc++,
                 value: '',

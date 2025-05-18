@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use App\Api\EntityIriConverter;
 use App\Api\Traits\CollectionProviderAwareTrait;
+use App\Api\Traits\WorkspaceCollectionTrait;
 use App\Elasticsearch\TagSearch;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
@@ -16,6 +17,7 @@ final class TagCollectionProvider extends AbstractCollectionProvider
 {
     use CollectionProviderAwareTrait;
     use SecurityAwareTrait;
+    use WorkspaceCollectionTrait;
 
     public function __construct(
         private readonly TagSearch $tagSearch,
@@ -25,23 +27,12 @@ final class TagCollectionProvider extends AbstractCollectionProvider
 
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array|object
     {
-        $workspaceId = $context['filters']['workspace'] ?? null;
-        if (!$workspaceId) {
-            $user = $this->getUser();
-            $workspaces = $this->em->getRepository(Workspace::class)->getAllowedWorkspaceIds($user?->getId(), $user?->getGroups() ?? []);
-        } else {
-            $workspace = $this->entityIriConverter->getItemFromIri(Workspace::class, $workspaceId);
-            $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace);
-            $workspaces = [$workspaceId];
-        }
-
-        $queryString = $context['filters']['query'] ?? null;
-
+        $workspaces = $this->resolveAllowedWorkspaces($context);
         if (empty($workspaces)) {
             return [];
         }
 
-        $context['filters']['workspace'] = $workspaces;
+        $queryString = $context['filters']['query'] ?? null;
 
         if (!empty($queryString)) {
             return $this->tagSearch->search($workspaces, $context['filters']);
