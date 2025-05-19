@@ -30,6 +30,7 @@ use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\Messenger\Exception\RejectRedeliveredMessageException;
 use Symfony\Component\Serializer\Exception\UnsupportedFormatException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -195,6 +196,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         NotAcceptableHttpException::class,
                         IgnoreSentryExceptionInterface::class,
                         ConversionException::class,
+                        RejectRedeliveredMessageException::class,
                     ],
                 ],
             ];
