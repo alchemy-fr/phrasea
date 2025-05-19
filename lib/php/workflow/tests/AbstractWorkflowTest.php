@@ -10,6 +10,7 @@ use Alchemy\Workflow\Executor\Adapter\PhpExecutor;
 use Alchemy\Workflow\Executor\EnvContainer;
 use Alchemy\Workflow\Executor\Expression\ExpressionParser;
 use Alchemy\Workflow\Executor\JobExecutor;
+use Alchemy\Workflow\Executor\JobStateManager;
 use Alchemy\Workflow\Executor\PlanExecutor;
 use Alchemy\Workflow\Loader\YamlLoader;
 use Alchemy\Workflow\Model\WorkflowList;
@@ -41,14 +42,17 @@ abstract class AbstractWorkflowTest extends TestCase
         $actionRegistry = new ArrayActionRegistry();
 
         $stateRepository = new TestStateStateRepository($stateRepository ?? new MemoryStateRepository());
+        $jobStateManager = new JobStateManager($stateRepository);
+
         $logger = new TestLogger();
-        $jobExecutor = new JobExecutor([
-            new BashExecutor(),
-            new PhpExecutor(),
-        ],
+        $jobExecutor = new JobExecutor(
+            [
+                new BashExecutor(),
+                new PhpExecutor(),
+            ],
             $actionRegistry,
             new ExpressionParser(),
-            $stateRepository,
+            $jobStateManager,
             $output,
             $logger,
             $envs,

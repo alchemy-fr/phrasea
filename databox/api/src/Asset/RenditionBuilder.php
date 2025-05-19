@@ -9,6 +9,7 @@ use Alchemy\RenditionFactory\Exception\NoBuildConfigException;
 use Alchemy\RenditionFactory\RenditionCreator;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Asset\Attribute\AttributesResolver;
+use App\Asset\RenditionBuild\Exception\RenditionBuildException;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
@@ -34,6 +35,10 @@ final readonly class RenditionBuilder
 
     public function buildRendition(RenditionDefinition $renditionDefinition, Asset $asset, bool $force = false): void
     {
+        if (RenditionDefinition::BUILD_MODE_NONE === $renditionDefinition->getBuildMode()) {
+            throw new RenditionBuildException(true, 'Rendition definition is not buildable');
+        }
+
         $isProjection = true;
         if ($asset->getWorkspaceId() !== $renditionDefinition->getWorkspaceId()) {
             throw new \LogicException(sprintf('Asset "%s" and rendition definition "%s" are not in the same workspace', $asset->getId(), $renditionDefinition->getId()));
@@ -72,7 +77,7 @@ final readonly class RenditionBuilder
 
         $buildDef = $renditionDefinition->getDefinition();
         if (empty($buildDef)) {
-            return;
+            throw new RenditionBuildException(true, 'Rendition definition is empty');
         }
 
         $buildHash = $this->buildHashManager->getBuildHash($source, $renditionDefinition);
@@ -87,8 +92,8 @@ final readonly class RenditionBuilder
         try {
             try {
                 $outputFile = $this->createRendition($source, $buildDef, $metadataContainer);
-            } catch (NoBuildConfigException) {
-                return;
+            } catch (NoBuildConfigException $e) {
+                throw new RenditionBuildException(true, $e->getMessage(), $e->getCode(), $e);
             }
 
             if (null !== $outputFile) {

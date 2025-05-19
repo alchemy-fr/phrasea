@@ -50,6 +50,8 @@ services:
         tags:
             - { name: alchemy_workflow.executor }
 
+    Alchemy\Workflow\Executor\JobStateManager: ~
+    
     Alchemy\Workflow\Executor\JobExecutor:
         arguments:
             - !tagged_iterator alchemy_workflow.executor

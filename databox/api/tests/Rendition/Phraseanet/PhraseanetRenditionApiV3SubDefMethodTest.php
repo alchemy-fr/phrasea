@@ -39,7 +39,8 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         self::enableFixtures();
         $apiClient = static::createClient();
 
-        $inMemoryTransport = $this->interceptMessengerEvents();
+        $queueName = 'p2';
+        $inMemoryTransport = $this->interceptMessengerEvents($queueName);
         $em = self::getService(EntityManagerInterface::class);
         /** @var PhraseanetApiClientFactoryMock $clientFactory */
         $clientFactory = self::getService(PhraseanetApiClientFactory::class);
@@ -100,7 +101,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         $eventMessage = $envelope->getMessage();
         self::assertInstanceOf(JobConsumer::class, $eventMessage);
         self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':api', $eventMessage->getJobId());
-        $this->consumeEvent($envelope);
+        $this->consumeEvent($envelope, $queueName);
 
         self::assertEquals('POST', $mockResponse->getRequestMethod());
         $requestOptions = $mockResponse->getRequestOptions();

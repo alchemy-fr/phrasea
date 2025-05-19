@@ -42,7 +42,8 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $apiClient = static::createClient();
         $apiClient->disableReboot();
 
-        $inMemoryTransport = $this->interceptMessengerEvents();
+        $queueName = 'p2';
+        $inMemoryTransport = $this->interceptMessengerEvents($queueName);
         $em = self::getService(EntityManagerInterface::class);
         /** @var PhraseanetApiClientFactoryMock $clientFactory */
         $clientFactory = self::getService(PhraseanetApiClientFactory::class);
@@ -104,7 +105,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         self::assertInstanceOf(JobConsumer::class, $eventMessage);
         $workflowId = $eventMessage->getWorkflowId();
         self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':enqueue', $eventMessage->getJobId());
-        $this->consumeEvent($envelope);
+        $this->consumeEvent($envelope, $queueName);
 
         self::assertEquals('POST', $mockResponse->getRequestMethod());
         $requestOptions = $mockResponse->getRequestOptions();
@@ -173,7 +174,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $envelope = $inMemoryTransport->get()[0];
         $eventMessage = $envelope->getMessage();
         self::assertInstanceOf(PhraseanetDownloadSubdef::class, $eventMessage);
-        $this->consumeEvent($envelope);
+        $this->consumeEvent($envelope, $queueName);
 
         $em = self::getService(EntityManagerInterface::class);
         $em->clear();
