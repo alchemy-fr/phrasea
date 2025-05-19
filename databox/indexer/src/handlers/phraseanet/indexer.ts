@@ -28,21 +28,6 @@ import {
 import {IndexLocation} from '../../types/config';
 import * as fs from 'fs';
 
-type runSession = {
-    start_time: Date;
-    story_query?: string;
-    start_empty_story?: string;
-    last_empty_story?: string;
-    count_empty_stories?: number;
-    record_query?: string;
-    start_record?: string;
-    last_record?: string;
-    count_records?: number;
-    count_stories?: number;
-    end_time?: Date;
-    duration?: number;
-};
-
 export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
     async function* (location, logger, databoxClient, options) {
         Twig.extendFilter('escapePath', function (v: string, args: any) {
@@ -210,19 +195,15 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             }
 
             const lockFile = `${process.cwd()}/config/${location.name}_${phraseanetDatabox.name}_${dm.workspaceSlug}.lock`;
-            let runSessions: Array<runSession>;
+            let wip: {last_story:null|string, last_record:null|string} = {
+                last_story: null,
+                last_record: null
+            };
             try {
-                runSessions = JSON.parse(fs.readFileSync(lockFile, 'utf8'));
+                wip = JSON.parse(fs.readFileSync(lockFile, 'utf8'));
             } catch (e) {
                 logger.info(`No lock file found, starting from 0`);
-                runSessions = [];
             }
-            const runSessionIndex = runSessions.length;
-            const lastRunSessionIndex = runSessionIndex - 1;
-
-            runSessions[runSessionIndex] = {
-                start_time: new Date(),
-            };
 
             if(importStories !== false) {
 
@@ -236,12 +217,10 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 let nStories = 0;
                 do {
                     let query = '';
-                    if (lastRunSessionIndex >= 0 && undefined !== runSessions[lastRunSessionIndex].last_empty_story) {
-                        query = `recordid ${ridOperator} ${runSessions[lastRunSessionIndex].last_empty_story}`;
-                        runSessions[runSessionIndex].last_empty_story = runSessions[lastRunSessionIndex].last_empty_story;
+                    if (null !== wip.last_story) {
+                        query = `recordid ${ridOperator} ${wip.last_story}`;
                     }
                     logger.info(`search query: ${query}`);
-                    runSessions[runSessionIndex].story_query = query;
 
                     stories = await phraseanetClient.searchStories(
                         searchParams,
@@ -279,28 +258,15 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                 }" (#${story.base_id}) ==> collection "${storyCollectionFullPath}" (#${storyCollectionId})`
                             );
                             nStories++;
-                            runSessions[runSessionIndex].count_empty_stories = nStories;
                         }
 
-                        if(undefined === runSessions[runSessionIndex].start_empty_story) {
-                            runSessions[runSessionIndex].start_empty_story = story.story_id;
-                        }
-                        runSessions[runSessionIndex].last_empty_story = story.story_id;
-                        runSessions[runSessionIndex].end_time = new Date();
-                        runSessions[runSessionIndex].duration =
-                            (runSessions[runSessionIndex].end_time.getTime() - runSessions[runSessionIndex].start_time.getTime()) / 1000;
+                        wip.last_story = story.story_id;
                         fs.writeFileSync(
                             lockFile,
-                            JSON.stringify(runSessions, null, 2),
+                            JSON.stringify(wip, null, 2),
                             {flag: 'w'}
                         );
                     }
-                    fs.writeFileSync(
-                        lockFile,
-                        JSON.stringify(runSessions, null, 2),
-                        {flag: 'w'}
-                    );
-
                 } while (stories.length === PAGESIZE);
 
                 logger.info(
@@ -315,19 +281,15 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 phraseanetClient.getSortOrder() === ORDER_ASC ? '>' : '<';
             const PAGESIZE = 50;
             let nRecords = 0;
-            let nStories = 0;
             do {
                 let query = dm.searchQuery ?? '';
-                if (lastRunSessionIndex >= 0 && undefined !== runSessions[lastRunSessionIndex].last_record) {
+                if (null !== wip.last_record) {
                     if (query) {
                         query = `(${query}) AND `;
                     }
-                    query += `recordid ${ridOperator} ${runSessions[lastRunSessionIndex].last_record}`;
-                    runSessions[runSessionIndex].last_record = runSessions[lastRunSessionIndex].last_record;
+                    query += `recordid ${ridOperator} ${wip.last_record}`;
                 }
                 logger.info(`search query: ${query}`);
-                runSessions[runSessionIndex].record_query = query;
-
                 records = await phraseanetClient.searchRecords(
                     searchParams,
                     0, // offset
@@ -376,9 +338,6 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                 idempotencePrefixes,
                                 logger
                             );
-
-                            nStories++;
-                            runSessions[runSessionIndex].count_stories = nStories;
 
                             copyTo.push({
                                 id: storyCollectionId,
@@ -454,26 +413,14 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     );
 
                     nRecords++;
-                    runSessions[runSessionIndex].count_records = nRecords;
 
-                    if(undefined === runSessions[runSessionIndex].start_record) {
-                        runSessions[runSessionIndex].start_record = record.record_id;
-                    }
-                    runSessions[runSessionIndex].last_record = record.record_id;
-                    runSessions[runSessionIndex].end_time = new Date();
-                    runSessions[runSessionIndex].duration =
-                        (runSessions[runSessionIndex].end_time.getTime() - runSessions[runSessionIndex].start_time.getTime()) / 1000;
+                    wip.last_record = record.record_id;
                     fs.writeFileSync(
                         lockFile,
-                        JSON.stringify(runSessions, null, 2),
+                        JSON.stringify(wip, null, 2),
                         {flag: 'w'}
                     );
                 }
-                fs.writeFileSync(
-                    lockFile,
-                    JSON.stringify(runSessions, null, 2),
-                    {flag: 'w'}
-                );
             } while (records.length == PAGESIZE);
             logger.info(
                 `<<< End importing ${nRecords} records of databox "${phraseanetDatabox.name}" (#${phraseanetDatabox.databox_id})`
@@ -661,7 +608,7 @@ async function importStory(
             renditions: storyAsset.renditions,
             isStory: storyAsset.isStory,
         });
-        logger.info(`created story asset ${story.story_id}...`);
+        console.log(`created story asset ${story.story_id}...`);
 
         storyCollectionId = storyAssetOutput.storyCollection.id;
         storyCollectionFullPath = '';
