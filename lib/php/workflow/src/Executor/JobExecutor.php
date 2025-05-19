@@ -6,50 +6,37 @@ namespace Alchemy\Workflow\Executor;
 
 use Alchemy\Workflow\Date\MicroDateTime;
 use Alchemy\Workflow\Exception\ConcurrencyException;
+use Alchemy\Workflow\Exception\JobSkipExceptionInterface;
 use Alchemy\Workflow\Executor\Action\ActionRegistryInterface;
 use Alchemy\Workflow\Executor\Expression\ExpressionParser;
-use Alchemy\Workflow\Listener\JobUpdateEvent;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Step;
 use Alchemy\Workflow\State\Inputs;
 use Alchemy\Workflow\State\JobState;
-use Alchemy\Workflow\State\Repository\LockAwareStateRepositoryInterface;
-use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
-use Alchemy\Workflow\State\Repository\TransactionalStateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
-final class JobExecutor
+final readonly class JobExecutor
 {
-    private readonly LoggerInterface $logger;
-    private readonly OutputInterface $output;
-    private readonly EnvContainer $envs;
-    private readonly EventDispatcherInterface $eventDispatcher;
-
-    /**
-     * @var JobUpdateEvent[]
-     */
-    private array $eventsToDispatch = [];
+    private LoggerInterface $logger;
+    private OutputInterface $output;
+    private EnvContainer $envs;
 
     public function __construct(
-        private readonly iterable $executors,
-        private readonly ActionRegistryInterface $actionRegistry,
-        private readonly ExpressionParser $expressionParser,
-        private readonly StateRepositoryInterface $stateRepository,
+        private iterable $executors,
+        private ActionRegistryInterface $actionRegistry,
+        private ExpressionParser $expressionParser,
+        private JobStateManager $jobStateManager,
         ?OutputInterface $output = null,
         ?LoggerInterface $logger = null,
         ?EnvContainer $envs = null,
-        ?EventDispatcherInterface $eventDispatcher = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
         $this->output = $output ?? new NullOutput();
         $this->envs = $envs ?? new EnvContainer();
-        $this->eventDispatcher = $eventDispatcher ?? new EventDispatcher();
     }
 
     private function shouldBeSkipped(JobExecutionContext $context, Job $job): bool
@@ -74,25 +61,14 @@ final class JobExecutor
         return false;
     }
 
-    private function wrapInTransaction(callable $callback): mixed
-    {
-        if ($this->stateRepository instanceof TransactionalStateRepositoryInterface) {
-            return $this->stateRepository->transactional($callback);
-        }
-
-        return $callback();
-    }
-
     public function executeJob(WorkflowState $workflowState, Job $job, string $jobStateId, array $env = []): void
     {
-        $context = $this->wrapInTransaction(function () use ($workflowState, $job, $jobStateId, $env): ?JobExecutionContext {
+        $context = $this->jobStateManager->wrapInTransaction(function () use ($workflowState, $job, $jobStateId, $env): ?JobExecutionContext {
             $workflowId = $workflowState->getId();
 
-            if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-                $this->stateRepository->acquireJobLock($workflowId, $jobStateId);
-            }
+            $this->jobStateManager->acquireJobLock($workflowId, $jobStateId);
 
-            $jobState = $this->stateRepository->getJobState($workflowId, $jobStateId);
+            $jobState = $this->jobStateManager->getJobState($workflowId, $jobStateId);
 
             $jobId = $job->getId();
 
@@ -127,28 +103,26 @@ final class JobExecutor
                     $this->logger->error($error);
                     $jobState->addError($error);
                     $jobState->setStatus(JobState::STATUS_ERROR);
-                    $this->persistJobState($jobState);
+                    $this->jobStateManager->persistJobState($jobState);
 
                     return null;
                 }
 
                 if ($shouldBeSkipped) {
                     $jobState->setStatus(JobState::STATUS_SKIPPED);
-                    $this->persistJobState($jobState);
+                    $this->jobStateManager->persistJobState($jobState);
 
                     return null;
                 }
 
                 $jobState->setStatus(JobState::STATUS_RUNNING);
                 $jobState->setStartedAt(new MicroDateTime());
-                $this->persistJobState($jobState);
+                $this->jobStateManager->persistJobState($jobState);
 
                 return $context;
             } catch (\Throwable $e) {
                 try {
-                    if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-                        $this->stateRepository->releaseJobLock($workflowId, $jobState->getId());
-                    }
+                    $this->jobStateManager->releaseJobLock($workflowId, $jobState->getId());
                 } catch (\Throwable $e2) {
                     throw new \RuntimeException(sprintf('Error while releasing job lock after another error: %s (First error was: %s)', $e2->getMessage(), $e->getMessage()), 0, $e);
                 }
@@ -157,7 +131,7 @@ final class JobExecutor
             }
         });
 
-        $this->flushEvents();
+        $this->jobStateManager->flushEvents();
 
         if (null === $context) {
             return;
@@ -165,27 +139,7 @@ final class JobExecutor
 
         $this->runJob($context, $job);
 
-        $this->flushEvents();
-    }
-
-    private function dispatchEvent(JobUpdateEvent $event): void
-    {
-        if ($this->stateRepository instanceof TransactionalStateRepositoryInterface) {
-            $this->eventsToDispatch[] = $event;
-        } else {
-            $this->eventDispatcher->dispatch($event);
-        }
-    }
-
-    private function persistJobState(JobState $jobState, bool $releaseLock = true): void
-    {
-        $this->stateRepository->persistJobState($jobState);
-
-        if ($releaseLock && $this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-            $this->stateRepository->releaseJobLock($jobState->getWorkflowId(), $jobState->getId());
-        }
-
-        $this->dispatchEvent(new JobUpdateEvent($jobState->getWorkflowId(), $jobState->getJobId(), $jobState->getId(), $jobState->getStatus()));
+        $this->jobStateManager->flushEvents();
     }
 
     private function runJob(JobExecutionContext $context, Job $job): void
@@ -223,13 +177,23 @@ final class JobExecutor
             try {
                 $jobCallable($runContext);
             } catch (\Throwable $e) {
-                $this->logger->error($e->getMessage(), [
-                    'exception' => $e,
-                    'step' => $step->getId(),
-                    'job' => $job->getId(),
-                ]);
-                $jobState->addException($e);
                 $endStatus = JobState::STATUS_FAILURE;
+                $jobState->addException($e);
+
+                if ($e instanceof JobSkipExceptionInterface && $e->shouldSkipJob()) {
+                    $endStatus = JobState::STATUS_SKIPPED;
+                    $this->logger->info(sprintf('Skipping job <info>%s</info>: %s', $job->getId(), $e->getMessage()), [
+                        'exception' => $e,
+                        'step' => $step->getId(),
+                        'job' => $job->getId(),
+                    ]);
+                } else {
+                    $this->logger->error($e->getMessage(), [
+                        'exception' => $e,
+                        'step' => $step->getId(),
+                        'job' => $job->getId(),
+                    ]);
+                }
 
                 if (!$step->isContinueOnError()) {
                     break;
@@ -241,7 +205,7 @@ final class JobExecutor
 
                 if ($runContext->isRetainJob()) {
                     $this->extractOutputs($job, $context);
-                    $this->persistJobState($jobState, releaseLock: false);
+                    $this->jobStateManager->persistJobState($jobState, releaseLock: false);
 
                     return;
                 }
@@ -252,7 +216,7 @@ final class JobExecutor
 
         $jobState->setEndedAt(new MicroDateTime());
         $jobState->setStatus($endStatus);
-        $this->persistJobState($jobState, releaseLock: false);
+        $this->jobStateManager->persistJobState($jobState, releaseLock: false);
     }
 
     private function getJobCallable(Step $step, JobExecutionContext $context, RunContext $runContext): callable
@@ -288,15 +252,6 @@ final class JobExecutor
 
                 throw new \RuntimeException(sprintf('Error while evaluating expression "%s": %s', $value, $e->getMessage()), 0, $e);
             }
-        }
-    }
-
-    private function flushEvents(): void
-    {
-        $events = $this->eventsToDispatch;
-        $this->eventsToDispatch = [];
-        foreach ($events as $event) {
-            $this->eventDispatcher->dispatch($event);
         }
     }
 }

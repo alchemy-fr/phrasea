@@ -9,5 +9,7 @@ services:
     Alchemy\MessengerBundle\Listener\PostFlushStack: ~
     Alchemy\MessengerBundle\Listener\TerminateStackListener: ~
 
+    Alchemy\MessengerBundle\Middleware\RetryCountMiddleware: ~
+
     Alchemy\MessengerBundle\Transport\TestTransportFactory:
         tags: [messenger.transport_factory]

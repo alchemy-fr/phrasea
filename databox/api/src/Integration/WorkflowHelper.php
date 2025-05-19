@@ -21,7 +21,7 @@ abstract class WorkflowHelper
         if (!empty($idSuffix)) {
             $id .= ':'.$idSuffix;
         }
-        $name = $workspaceIntegration->getTitle() ?? $integration::getTitle();
+        $name = $workspaceIntegration->getTitle() ?: $integration::getTitle();
         if (!empty($nameSuffix)) {
             $name .= ' - '.$nameSuffix;
         }
