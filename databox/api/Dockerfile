@@ -62,13 +62,11 @@ ENV SENTRY_RELEASE=${SENTRY_RELEASE}
 
 USER root
 
-ENTRYPOINT ["/srv/app/docker/php-entrypoint.sh"]
-
-CMD ["php-fpm"]
 
 FROM ${REGISTRY_NAMESPACE}nginx-fpm-base:${BASE_TAG} AS api-nginx
 
 COPY --from=api-php /srv/app/public /srv/app/public
+
 ENV FPM_HOSTNAME=databox-api-php
 
 
@@ -77,7 +75,8 @@ FROM api-php AS worker
 ENV PHP_MEMORY_LIMIT=1G \
     WORKER_PRIORITIES="p1 p2" \
     WORKER_TIME_LIMIT=3600 \
-    WORKER_LIMIT=200
+    WORKER_LIMIT=200 \
+    IS_WORKER=1
 
 RUN apk add --no-cache \
         supervisor \
@@ -87,8 +86,7 @@ RUN apk add --no-cache \
     && docker-php-ext-install \
       pcntl
 
-COPY ./databox/api/docker/supervisor/* /etc/supervisor.d/
-
-ENTRYPOINT ["/srv/app/docker/worker/docker-entrypoint.sh"]
-
 CMD ["/usr/bin/supervisord", "-n"]
+
+HEALTHCHECK --start-interval=1s --start-period=90s --retries=100 --interval=60s --timeout=1s \
+    CMD ash -c "[ -f /docker/worker-ready ]"
