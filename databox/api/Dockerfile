@@ -57,7 +57,9 @@ RUN mkdir -p var/cache var/logs var/sessions \
     && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
     && composer clear-cache
 
-COPY docker/entrypoint.d/*.sh /docker/entrypoint.d/
+RUN ls -hla /docker/
+
+COPY ./databox/api/docker/entrypoint.d/*.sh /docker/entrypoint.d/
 
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}
