@@ -688,7 +688,6 @@ services:
         limits:
           cpus: ${DATABOX_WORKER_CPU_LIMIT}
           memory: ${DATABOX_WORKER_MEMORY_LIMIT}
-
     environment:
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY}
       - WORKER_PRIORITIES=p1 p2
