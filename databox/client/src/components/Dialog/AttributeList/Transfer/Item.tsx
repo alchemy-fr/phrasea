@@ -17,6 +17,7 @@ type Props = {
         definitionsIndex: AttributeDefinitionsIndex;
         removeItem: (id: string) => void;
         onClick: (data: AttributeListItem) => void;
+        selectedItem?: string;
     }
 } & SortableItemProps<AttributeListItem>;
 
@@ -26,6 +27,7 @@ export default function Item({
         removeItem,
         definitionsIndex,
         onClick,
+        selectedItem,
     }
 }: Props) {
     const labelId = `d-${data.id}-label`;
@@ -35,6 +37,8 @@ export default function Item({
     } else if (data.type === AttributeListItemType.BuiltIn) {
         def = definitionsIndex[data.key!];
     }
+
+    console.log('data.key', data, def);
 
     const getLabel  = () => {
         if (data.type === AttributeListItemType.Definition) {
@@ -56,6 +60,7 @@ export default function Item({
     return <ListItemButton
         role="listitem"
         onClick={() => onClick(data)}
+        selected={selectedItem === data.id}
     >
         {icon ? <ListItemIcon>
             {icon}

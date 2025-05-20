@@ -31,8 +31,8 @@ export const types: {
     [AttributeType.Entity]: AttributeEntityType,
 };
 
-export function getAttributeType(type: string): AttributeTypeInstance<any> {
-    const t = types[type as AttributeType] ?? types[AttributeType.Text]!;
+export function getAttributeType(type: AttributeType): AttributeTypeInstance<any> {
+    const t = types[type] ?? types[AttributeType.Text]!;
 
     return new t();
 }

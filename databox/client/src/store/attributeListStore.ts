@@ -24,6 +24,7 @@ type State = {
     addAttributeList: (list: AttributeList) => void;
     loadList: (id: string) => Promise<AttributeList>;
     updateAttributeList: (data: AttributeList) => void;
+    updateAttributeListItem: (listId: string, data: AttributeListItem) => void;
     deleteAttributeList: (id: string) => void;
     addToCurrent: (items: AttributeListItem[]) => void;
     addToList: (listId: string | undefined, items: AttributeListItem[]) => void;
@@ -127,6 +128,19 @@ export const useAttributeListStore = create<State>((set, getState) => ({
                 return b;
             }),
             current: state.current?.id === data.id ? data : state.current,
+        }));
+    },
+
+    updateAttributeListItem: (listId, item) => {
+        set(state => ({
+            ...state,
+            lists: state.lists.map(l => {
+                if (l.id === item.id) {
+                    return l.items!.map(i => i.id === item.id ? item : i);
+                }
+
+                return l;
+            }),
         }));
     },
 

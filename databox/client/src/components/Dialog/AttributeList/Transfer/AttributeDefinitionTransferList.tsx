@@ -173,6 +173,7 @@ export default function AttributeDefinitionTransferList({definitions, definition
             onClick: item => {
                 setItem(item);
             },
+            selectedItem: item?.id,
         }}
         itemComponent={Item}
     />);
@@ -270,6 +271,7 @@ export default function AttributeDefinitionTransferList({definitions, definition
                     <ItemForm
                         key={item.id}
                         item={item}
+                        definitionsIndex={definitionsIndex}
                         listId={listId}
                         onChange={item => {
                             setItems(p => p.map(i => i.id === item.id ? item : i));

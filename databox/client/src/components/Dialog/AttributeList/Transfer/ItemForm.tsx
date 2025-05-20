@@ -8,19 +8,25 @@ import {FormFieldErrors, FormRow, SwitchWidget} from '@alchemy/react-form';
 import {putAttributeListItem} from "../../../../api/attributeList.ts";
 import RemoteErrors from "../../../Form/RemoteErrors.tsx";
 import {LoadingButton} from "@mui/lab";
+import {getAttributeType, types} from "../../../Media/Asset/Attribute/types";
+import {AttributeDefinitionsIndex} from "../../../../store/attributeDefinitionStore.ts";
+import {useAttributeListStore} from "../../../../store/attributeListStore.ts";
 
 type Props = {
     item: AttributeListItem;
     listId: string;
     onChange: (item: AttributeListItem) => void;
+    definitionsIndex: AttributeDefinitionsIndex;
 };
 
 export default function ItemForm({
     item,
+    definitionsIndex,
     listId,
     onChange,
 }: Props) {
     const {t} = useTranslation();
+    const updateAttributeListItem = useAttributeListStore(state => state.updateAttributeListItem);
 
     const {
         submitting,
@@ -36,6 +42,7 @@ export default function ItemForm({
             return await putAttributeListItem(listId, data.id, data);
         },
         onSuccess: (data) => {
+            updateAttributeListItem(listId, data);
             onChange(data);
             toast.success(
                 t('form.attribute_list_item.success', 'Item saved!') as string
@@ -45,6 +52,9 @@ export default function ItemForm({
 
     useDirtyFormPrompt(forbidNavigation);
     const formId = 'attr-list-item-basket';
+
+    const def = item.definition ? definitionsIndex[item.definition] : undefined;
+    const formats = def ? getAttributeType(def!.fieldType).getAvailableFormats() : [];
 
     return <form id={formId} onSubmit={handleSubmit}>
         {item.type === AttributeListItemType.Divider ? <FormRow>
@@ -56,14 +66,17 @@ export default function ItemForm({
             <FormFieldErrors field={'key'} errors={errors} />
         </FormRow> : null}
 
-        <FormRow>
+        {![
+            AttributeListItemType.Divider,
+            AttributeListItemType.Spacer,
+        ].includes(item.type) ? <FormRow>
             <SwitchWidget
                 control={control}
                 name={'displayEmpty'}
                 label={t('form.attribute_list_item.display_empty.label', 'Display even if empty')}
                 disabled={submitting}
             />
-        </FormRow>
+        </FormRow> : null}
 
         <LoadingButton
             type={'submit'}

@@ -156,7 +156,9 @@ function Attributes({
                         key={ai.id}
                     >{ai.key!}</Separator>)
                 } else if (ai.type === AttributeListItemType.Spacer) {
-                    return <Spacer/>
+                    return <Spacer
+                        key={ai.id}
+                    />
                 }
 
                 return null;

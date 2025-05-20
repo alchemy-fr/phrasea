@@ -1,22 +1,21 @@
 import {AttributeFormat} from '../types/types';
 import React from 'react';
+import {AttributeType} from "../../../../../api/attributes.ts";
 
 export type TAttributeFormatContext = {
     formats: Formats;
-    changeFormat: (type: Type, newFormat: AttributeFormat) => void;
-    toggleFormat: (type: Type) => void;
-    hasFormats: (type: Type) => boolean;
+    changeFormat: (type: AttributeType, newFormat: AttributeFormat) => void;
+    toggleFormat: (type: AttributeType) => void;
+    hasFormats: (type: AttributeType) => boolean;
 };
 
-type Type = string;
-export type {Type as AttributeFormatType};
 
-type Formats = Record<Type, AttributeFormat>;
+type Formats = Record<AttributeType, AttributeFormat>;
 export type {Formats as AttributeFormats};
 
 export const AttributeFormatContext =
     React.createContext<TAttributeFormatContext>({
-        formats: {},
+        formats: {} as Formats,
         changeFormat: () => {},
         toggleFormat: () => {},
         hasFormats: () => {

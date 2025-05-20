@@ -3,10 +3,11 @@ import {AttrValue, createNewValue} from './AttributesEditor';
 import {getAttributeType} from './types';
 import {AttributeWidgetOptions} from './types/types';
 import {AttributeDefinition} from '../../../../types.ts';
+import {AttributeType} from "../../../../api/attributes.ts";
 
 type Props = {
     id: string;
-    type: string;
+    type: AttributeType;
     name: string;
     value: AttrValue<string | number> | undefined;
     disabled: boolean;

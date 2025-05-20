@@ -5,11 +5,12 @@ import {
     TAttributeFormatContext,
 } from './AttributeFormatContext';
 import {getAttributeType} from '../types';
+import {AttributeType} from "../../../../../api/attributes.ts";
 
 type Props = PropsWithChildren<{}>;
 
 export default function AttributeFormatProvider({children}: Props) {
-    const [formats, setFormats] = React.useState<AttributeFormats>({});
+    const [formats, setFormats] = React.useState<AttributeFormats>({} as AttributeFormats);
 
     const value = React.useMemo<TAttributeFormatContext>(() => {
         const changeFormat: TAttributeFormatContext['changeFormat'] = (
@@ -22,7 +23,7 @@ export default function AttributeFormatProvider({children}: Props) {
             }));
         };
 
-        const toggleFormat: TAttributeFormatContext['toggleFormat'] = type => {
+        const toggleFormat: TAttributeFormatContext['toggleFormat'] = (type: AttributeType) => {
             const formatter = getAttributeType(type);
             const availableFormats = formatter.getAvailableFormats();
             const currentFormat = formats[type];
@@ -37,7 +38,7 @@ export default function AttributeFormatProvider({children}: Props) {
             );
         };
 
-        const hasFormats: TAttributeFormatContext['hasFormats'] = type => {
+        const hasFormats: TAttributeFormatContext['hasFormats'] = (type: AttributeType) => {
             const formatter = getAttributeType(type);
             const availableFormats = formatter.getAvailableFormats();
 
