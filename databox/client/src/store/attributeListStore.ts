@@ -133,10 +133,15 @@ export const useAttributeListStore = create<State>((set, getState) => ({
 
     updateAttributeListItem: (listId, item) => {
         set(state => ({
-            ...state,
             lists: state.lists.map(l => {
-                if (l.id === item.id) {
-                    return l.items!.map(i => i.id === item.id ? item : i);
+                if (l.id === listId) {
+                    return {
+                        ...l,
+                        items: l.items!.map(i => i.id === item.id ?  {
+                            ...i,
+                            ...item,
+                        } : i)
+                    };
                 }
 
                 return l;
