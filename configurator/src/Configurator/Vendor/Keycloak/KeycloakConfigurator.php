@@ -283,17 +283,13 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
     private function getBooleanEnv(string $name, bool $defaultValue= false): bool
     {
-        switch (getenv($name)) {
-            case 'true':
-                return true;
-                break;
-            case 'false':
-                return false;
-                break;
-            default:
-                return $defaultValue;
-                break;    
+        $val = filter_var(getenv($name), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+        if ($val === null) {
+            return $defaultValue;
         }
+
+        return $val;
     }
 
     private function configureDefaultClientScopes(): void
