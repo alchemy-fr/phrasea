@@ -17,7 +17,7 @@ import {
     attributeDefinitionToItem,
     createDivider,
     createSpacer,
-    hasDefinitionInItems
+    hasDefinitionInItems, isTmpId
 } from "../../../../store/attributeListStore.ts";
 import {FlexRow} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
@@ -123,7 +123,7 @@ export default function AttributeDefinitionTransferList({definitions, definition
     };
 
     const customList = (children: ReactNode) => (
-        <Paper sx={{ width: 300, height: 450, overflow: 'auto' }}>
+        <Paper sx={{ width: 220, height: 450, overflow: 'auto' }}>
             <List dense component="div" role="list">
                 {children}
             </List>
@@ -265,11 +265,17 @@ export default function AttributeDefinitionTransferList({definitions, definition
                 </FlexRow>
                 {rightList}
             </Grid>
-            {item ? <Grid>
-                <ItemForm
-                    item={item}
-                    listId={listId}
-                />
+            {item && !isTmpId(item.id) ? <Grid>
+                <Paper sx={{ width: 250, height: 450, overflow: 'auto', p: 1 }}>
+                    <ItemForm
+                        key={item.id}
+                        item={item}
+                        listId={listId}
+                        onChange={item => {
+                            setItems(p => p.map(i => i.id === item.id ? item : i));
+                        }}
+                    />
+                </Paper>
             </Grid> : null}
         </Grid>
     );

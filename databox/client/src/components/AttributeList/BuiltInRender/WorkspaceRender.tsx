@@ -6,5 +6,6 @@ export default function WorkspaceRender({asset}: BuiltInRenderProps) {
 
     return <WorkspaceChip
         label={workspace.nameTranslated || workspace.name}
+        size={'small'}
     />
 }

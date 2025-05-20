@@ -5,6 +5,7 @@ type Props = PropsWithChildren<{}>;
 
 export default function Separator({children}: Props) {
     return <Box sx={theme => ({
+        my: 1,
         display: 'flex',
         alignItems: 'center',
         fontSize: theme.typography.fontSize,
@@ -15,11 +16,11 @@ export default function Separator({children}: Props) {
         },
         ['&:not(:empty)::before']: {
             mr: 1,
-            width: '10px',
-            flex: '0 0 10px',
+            flex: '0 0 20px',
         },
         ['&:not(:empty)::after']: {
             ml: 1,
+            minWidth: 20,
         },
     })}>
         {children}

@@ -8,7 +8,12 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\AttributeListItemInput;
+use App\Api\Model\Output\AttributeListItemOutput;
+use App\Api\Processor\PutAttributeListItemProcessor;
 use App\Entity\Core\AttributeDefinition;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -20,9 +25,17 @@ use Symfony\Component\Validator\Constraints as Assert;
     uriTemplate: '/attribute-lists/{id}/items',
     operations: [
         new GetCollection(),
+        new Put(
+            uriTemplate: '/attribute-lists/{id}/items/{itemId}',
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object.getList())',
+            input: AttributeListItemInput::class,
+            output: AttributeListItemOutput::class,
+            processor: PutAttributeListItemProcessor::class,
+        ),
     ],
     uriVariables: [
         'id' => new Link(toProperty: 'list', fromClass: AttributeList::class),
+        'itemId' => new Link(fromClass: AttributeListItem::class),
     ],
     normalizationContext: [
         'groups' => [

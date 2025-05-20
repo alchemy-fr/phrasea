@@ -113,26 +113,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                             ? replaceHighlight(asset.titleHighlight)
                             : (asset.resolvedTitle ?? asset.title)}
                     </div>
-                    {asset.tags && asset.tags.length > 0 && (
-                        <div>
-                            <AssetTagList tags={asset.tags} />
-                        </div>
-                    )}
-                    <PrivacyChip
-                        privacy={asset.privacy}
-                        size={'small'}
-                        noAccess={disabled}
-                    />
-                    {asset.collections && asset.collections.length > 0 ? (
-                        <div>
-                            <AssetCollectionList
-                                workspace={asset.workspace}
-                                collections={asset.collections}
-                            />
-                        </div>
-                    ) : (
-                        ''
-                    )}
+
                     {displayAttributes && (
                         <Attributes asset={asset} displayControls={true} />
                     )}

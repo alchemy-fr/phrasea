@@ -12,11 +12,13 @@ import {LoadingButton} from "@mui/lab";
 type Props = {
     item: AttributeListItem;
     listId: string;
+    onChange: (item: AttributeListItem) => void;
 };
 
 export default function ItemForm({
     item,
     listId,
+    onChange,
 }: Props) {
     const {t} = useTranslation();
 
@@ -33,7 +35,8 @@ export default function ItemForm({
         onSubmit: async (data: AttributeListItem) => {
             return await putAttributeListItem(listId, data.id, data);
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+            onChange(data);
             toast.success(
                 t('form.attribute_list_item.success', 'Item saved!') as string
             );

@@ -68,4 +68,13 @@ class AttributeListRepository extends ServiceEntityRepository
             ->getQuery()
             ->toIterable();
     }
+
+    public function getItem(string $listId, string $itemId): ?AttributeListItem
+    {
+        return $this->_em->getRepository(AttributeListItem::class)
+            ->findOneBy([
+                'id' => $itemId,
+                'list' => $listId,
+            ]);
+    }
 }

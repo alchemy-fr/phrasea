@@ -13,6 +13,8 @@ final class AttributeListItemInput
     public ?string $id = null;
     public ?string $definition = null;
     public ?string $key = null;
+    public ?bool $displayEmpty = null;
+    public ?string $format = null;
 
     #[Assert\NotNull]
     #[Assert\Choice(choices: AttributeListItem::TYPES)]

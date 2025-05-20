@@ -16,6 +16,8 @@ import AttributeEntitySelect from '../components/Form/AttributeEntitySelect.tsx'
 import {WorkspaceChip} from "../components/Ui/Chips.tsx";
 import WorkspaceRender from "../components/AttributeList/BuiltInRender/WorkspaceRender.tsx";
 import CollectionRender from "../components/AttributeList/BuiltInRender/CollectionRender.tsx";
+import TagsRender from "../components/AttributeList/BuiltInRender/TagsRender.tsx";
+import PrivacyRender from "../components/AttributeList/BuiltInRender/PrivacyRender.tsx";
 
 export type AttributeDefinitionsIndex = Record<string, AttributeDefinition>;
 
@@ -125,6 +127,7 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
             widget: {
                 component: PrivacyWidget,
             },
+            builtInRenderComponent: PrivacyRender,
         },
         {
             slug: BuiltInFilter.Tag,
@@ -141,6 +144,7 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                     useIRI: false,
                 },
             },
+            builtInRenderComponent: TagsRender,
         },
         {
             slug: BuiltInFilter.EditedAt,

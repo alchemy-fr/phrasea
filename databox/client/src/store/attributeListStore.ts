@@ -203,7 +203,7 @@ export const useAttributeListStore = create<State>((set, getState) => ({
                 // @ts-expect-error id cannot be undefined
                 items: items.map(i => ({
                     ...i,
-                    id: i.id?.startsWith(tmpIdPrefix) ? undefined : i.id,
+                    id: isTmpId(i.id ?? '') ? undefined : i.id,
                 })),
             });
             set(state => ({
@@ -267,7 +267,7 @@ export const useAttributeListStore = create<State>((set, getState) => ({
             });
         }
 
-        const itemsToRemove = items.filter(i => !i.startsWith(tmpIdPrefix));
+        const itemsToRemove = items.filter(i => !isTmpId(i));
         if (itemsToRemove.length > 0) {
             const list = await removeFromAttributeList(listId, itemsToRemove);
             set(state => ({
@@ -321,6 +321,10 @@ export function createSpacer(): AttributeListItem {
 }
 
 const tmpIdPrefix = '_tmp_';
+
+export function isTmpId(id: string ): boolean {
+    return id.startsWith(tmpIdPrefix);
+}
 
 export function hasDefinitionInItems(items: AttributeListItem[], id: string): boolean {
     return items.some(i => i.definition === id || i.key === id);

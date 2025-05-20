@@ -66,7 +66,6 @@ export default function AssetCollectionList({workspace, collections}: Props) {
 export function collectionListSx() {
     return {
         [`.${assetClasses.collectionList}`]: {
-            'px': 1,
             'display': 'flex',
             'alignItems': 'center',
             'flexWrap': 'wrap',

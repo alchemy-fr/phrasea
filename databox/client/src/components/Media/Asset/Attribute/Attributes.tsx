@@ -21,6 +21,7 @@ import {
 } from "../../../../store/attributeDefinitionStore.ts";
 import {NO_LOCALE} from "./AttributesEditor.tsx";
 import Separator from "../../../Ui/Separator.tsx";
+import {Spacer} from "../../../Ui/VerticalSpacer.tsx";
 
 
 type AttributeItem = {
@@ -154,6 +155,8 @@ function Attributes({
                     return (<Separator
                         key={ai.id}
                     >{ai.key!}</Separator>)
+                } else if (ai.type === AttributeListItemType.Spacer) {
+                    return <Spacer/>
                 }
 
                 return null;
