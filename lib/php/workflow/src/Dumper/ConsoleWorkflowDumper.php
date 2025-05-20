@@ -14,7 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ConsoleWorkflowDumper implements WorkflowDumperInterface
 {
-    private const STATUSES = [
+    private const array STATUSES = [
         JobState::STATUS_FAILURE => '❌',
         JobState::STATUS_SKIPPED => '⏩',
         JobState::STATUS_TRIGGERED => '⌛',

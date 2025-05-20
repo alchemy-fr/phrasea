@@ -2,7 +2,13 @@ ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
-ENV IMAGICK_PHP83_FIX_COMMIT=28f27044e435a2b203e32675e942eb8de620ee58
+ENV IMAGICK_VERSION=3.8.0 \
+    IMAGEMAGICK_POLICY_VERSION=7 \
+    IMAGEMAGICK_POLICY_WIDTH=48KP \
+    IMAGEMAGICK_POLICY_MAP=2048MiB \
+    IMAGEMAGICK_POLICY_AREA=4096MB \
+    IMAGEMAGICK_POLICY_DISK=6GiB \
+    IMAGEMAGICK_POLICY_TEMPORARY_PATH=/tmp
 
 RUN apk add --no-cache \
     	imagemagick \
@@ -26,26 +32,15 @@ RUN apk add --no-cache \
         freetype-dev \
         imagemagick-dev \
     && pecl clear-cache \
-    && wget -O /tmp/imagick.zip https://github.com/Imagick/imagick/archive/${IMAGICK_PHP83_FIX_COMMIT}/master.zip \
-    && unzip -qq -d /tmp/imagick /tmp/imagick.zip \
-    && ls -la /tmp/imagick \
-    && (cd /tmp/imagick/imagick-${IMAGICK_PHP83_FIX_COMMIT} \
-       && phpize \
-       && ./configure \
-           --with-heic=yes \
-           --with-jpeg=yes \
-           --with-png=yes \
-           --with-tiff=yes \
-           --with-webp=yes \
-       && make \
-       && make install \
-    ) \
     && docker-php-ext-install \
         exif \
+    && pecl install \
+        imagick-${IMAGICK_VERSION} \
     && docker-php-ext-enable \
         imagick \
         exif \
-    && apk del build-essentials
+    && apk del build-essentials \
+    && pecl clear-cache
 
 USER app
 
@@ -61,6 +56,10 @@ COPY --chown=app:app ./databox/api .
 RUN mkdir -p var/cache var/logs var/sessions \
     && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
     && composer clear-cache
+
+RUN ls -hla /docker/
+
+COPY ./databox/api/docker/entrypoint.d/*.sh /docker/entrypoint.d/
 
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}

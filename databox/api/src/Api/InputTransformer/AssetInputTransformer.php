@@ -155,7 +155,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
 
         $object = $this->processOwnerId($object);
 
-        if($data->isStory) {
+        if ($isNew && $data->isStory) {
             $storyCollection = new Collection();
             $storyCollection->setWorkspace($workspace);
             $storyCollection->setOwnerId($object->getOwnerId());

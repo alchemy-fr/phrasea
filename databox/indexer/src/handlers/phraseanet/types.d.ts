@@ -11,7 +11,7 @@ export type FieldMapValue = {
 
 export type FieldMap = {
     id: string;
-    position: number;
+    position?: number;
     type: DataboxAttributeType;
     multivalue: boolean;
     readonly: boolean;
@@ -45,9 +45,9 @@ export type ConfigDataboxMapping = {
     copyTo: string;
     importStories?: boolean;
     storiesCollectionPath: string;
-    fieldMap: Map<string, FieldMap>;
+    fieldMap?: Record<string, FieldMap>;
     sourceFile?: string;
-    renditions: Record<string, ConfigPhraseanetSubdef> | false;
+    renditions?: Record<string, ConfigPhraseanetSubdef> | false;
 };
 
 export type PhraseanetConfig = {
@@ -150,6 +150,10 @@ type PhraseanetMetadata = {
     value: string;
 };
 
+export type PhraseanetStoryReference = {
+    story_id: string;
+};
+
 export type PhraseanetRecord = {
     resource_id: string;
     databox_id: string;
@@ -167,6 +171,7 @@ export type PhraseanetRecord = {
     subdefs: PhraseanetSubdef[];
     status: PhraseanetStatusBit[];
     metadata: PhraseanetMetadata[];
+    stories: PhraseanetStoryReference[];
 };
 
 export type PhraseanetStory = {
@@ -181,6 +186,7 @@ export type PhraseanetStory = {
     mime_type: string;
     created_on: string;
     updated_on: string;
+    children_total: number;
     subdefs: PhraseanetSubdef[];
     status: PhraseanetStatusBit[];
     metadata: PhraseanetMetadata[];

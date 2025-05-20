@@ -101,19 +101,25 @@ class CPhraseanetRecordBase {
 export class CPhraseanetRecord extends CPhraseanetRecordBase {
     record_id: string = '';
     phrasea_type: string = '';
+    stories: Array<string> = [];
     constructor(r: PhraseanetRecord, client: PhraseanetClient) {
         super(r, client);
         this.record_id = r.record_id;
         this.phrasea_type = r.phrasea_type;
+        r.stories.forEach(s => {
+            this.stories.push(s.story_id);
+        });
     }
 }
 
 export class CPhraseanetStory extends CPhraseanetRecordBase {
     story_id: string = '';
     phrasea_type: string = 'story';
+    children_total: number = 0;
     constructor(s: PhraseanetStory, client: PhraseanetClient) {
         super(s, client);
         this.story_id = s.story_id;
+        this.children_total = s.children_total;
     }
 
     async getChildren() {
