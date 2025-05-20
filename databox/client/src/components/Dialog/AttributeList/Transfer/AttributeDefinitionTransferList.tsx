@@ -8,32 +8,41 @@ import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
-import {AttributeDefinition, AttributeListItem, AttributeListItemType} from "../../../../types.ts";
+import {AttributeDefinition, AttributeListItem} from "../../../../types.ts";
 import {AttributeDefinitionsIndex} from "../../../../store/attributeDefinitionStore.ts";
 import AttributeDefinitionLabel from "../AttributeDefinitionLabel.tsx";
-import {IconButton, ListItemSecondaryAction, TextField} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import {attributeDefinitionToItem, createDivider, hasDefinitionInItems} from "../../../../store/attributeListStore.ts";
-import {stopPropagation} from "../../../../lib/stdFuncs.ts";
+import {TextField} from "@mui/material";
+import HeightIcon from '@mui/icons-material/Height';
+import {
+    attributeDefinitionToItem,
+    createDivider,
+    createSpacer,
+    hasDefinitionInItems
+} from "../../../../store/attributeListStore.ts";
 import {FlexRow} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
 import SortableList from "../../../Ui/Sortable/SortableList.tsx";
-import Item from "./Item.tsx";
+import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
+import Item, {getItemLabel} from "./Item.tsx";
+import ItemForm from "./ItemForm.tsx";
 
 type Props = {
     definitions: AttributeDefinition[];
     definitionsIndex: AttributeDefinitionsIndex;
     list: AttributeListItem[];
+    listId: string,
     onSort: (items: string[]) => void;
     onAdd: (items: AttributeListItem[]) => void;
     onRemove: (items: string[]) => void;
 };
 
-export default function AttributeDefinitionTransferList({definitions, definitionsIndex, list, onSort, onAdd, onRemove}: Props) {
+export default function AttributeDefinitionTransferList({definitions, definitionsIndex, listId, list, onSort, onAdd, onRemove}: Props) {
     const [checked, setChecked] = React.useState<string[]>([]);
     const [items, setItems] = React.useState<AttributeListItem[]>(list);
-    const [query, setQuery] = React.useState('');
+    const [queryLeft, setQueryLeft] = React.useState('');
+    const [queryRight, setQueryRight] = React.useState('');
     const {t} = useTranslation();
+    const [item, setItem] = React.useState<AttributeListItem | undefined>();
 
     React.useEffect(() => {
         setItems(list);
@@ -81,6 +90,11 @@ export default function AttributeDefinitionTransferList({definitions, definition
             setItems(items.concat(addedItems));
         }
     };
+    const handleAddSpacer = () => {
+        const addedItems = [createSpacer()];
+        onAdd(addedItems);
+        setItems(items.concat(addedItems));
+    };
     const handleClear = () => {
         setItems([]);
         onRemove(items.map(i => i.id));
@@ -119,7 +133,7 @@ export default function AttributeDefinitionTransferList({definitions, definition
     const left = definitions.filter(d => !hasDefinitionInItems(items, d.id));
 
     const leftList = customList(<>{left
-        .filter(d => !query || d.name.toLowerCase().includes(query.toLowerCase()))
+        .filter(d => !queryLeft || d.name.toLowerCase().includes(queryLeft.toLowerCase()))
         .map((definition: AttributeDefinition) => {
         const labelId = `d-${definition.id}-label`;
 
@@ -152,14 +166,16 @@ export default function AttributeDefinitionTransferList({definitions, definition
             setItems(items);
             onSort(items.map(i => i.id));
         }}
-        list={items}
+        list={items.filter(d => !queryRight || getItemLabel(d, definitionsIndex).toLowerCase().includes(queryRight.toLowerCase()))}
         itemProps={{
             removeItem,
             definitionsIndex,
+            onClick: item => {
+                setItem(item);
+            },
         }}
         itemComponent={Item}
     />);
-
 
     return (
         <Grid
@@ -182,14 +198,30 @@ export default function AttributeDefinitionTransferList({definitions, definition
                         type={'search'}
                         variant={'standard'}
                         placeholder={t('dialog.search', 'Search')}
-                        value={query}
-                        onChange={e => setQuery(e.target.value)}
+                        onChange={e => setQueryLeft(e.target.value)}
                     />
                 </FlexRow>
                 {leftList}
             </Grid>
             <Grid>
                 <Grid container direction="column" sx={{ alignItems: 'center' }}>
+                    <Button
+                        sx={{ my: 1 }}
+                        onClick={handleAddDivider}
+                        variant={'outlined'}
+                        title={t('attribute_list.organize.add_divider', 'Add Divider')}
+                    >
+                        <HorizontalRuleIcon/>
+                    </Button>
+                    <Button
+                        sx={{ my: 1 }}
+                        onClick={handleAddSpacer}
+                        variant={'outlined'}
+                        title={t('attribute_list.organize.add_spacer', 'Add Spacer')}
+                    >
+                        <HeightIcon/>
+                    </Button>
+
                     <Button
                         sx={{ my: 0.5 }}
                         variant="outlined"
@@ -223,15 +255,22 @@ export default function AttributeDefinitionTransferList({definitions, definition
                 </Grid>
             </Grid>
             <Grid>
-                <div>
-                    <Button
-                        onClick={handleAddDivider}
-                    >
-                        {t('attribute_list.organize.add_divider', 'Add divider')}
-                    </Button>
-                </div>
+                <FlexRow>
+                    <TextField
+                        type={'search'}
+                        variant={'standard'}
+                        placeholder={t('dialog.search', 'Search')}
+                        onChange={e => setQueryRight(e.target.value)}
+                    />
+                </FlexRow>
                 {rightList}
             </Grid>
+            {item ? <Grid>
+                <ItemForm
+                    item={item}
+                    listId={listId}
+                />
+            </Grid> : null}
         </Grid>
     );
 }

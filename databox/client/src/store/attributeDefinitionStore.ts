@@ -13,6 +13,9 @@ import WorkspaceSelect from '../components/Form/WorkspaceSelect.tsx';
 import PrivacyWidget from '../components/Form/PrivacyWidget.tsx';
 import TagSelect from '../components/Form/TagSelect.tsx';
 import AttributeEntitySelect from '../components/Form/AttributeEntitySelect.tsx';
+import {WorkspaceChip} from "../components/Ui/Chips.tsx";
+import WorkspaceRender from "../components/AttributeList/BuiltInRender/WorkspaceRender.tsx";
+import CollectionRender from "../components/AttributeList/BuiltInRender/CollectionRender.tsx";
 
 export type AttributeDefinitionsIndex = Record<string, AttributeDefinition>;
 
@@ -81,7 +84,7 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
     },
 }));
 
-function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
+export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
     return [
         {
             slug: BuiltInFilter.Score,
@@ -98,6 +101,7 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
             searchable: true,
             fieldType: AttributeType.CollectionPath,
             name: t('built_in_attr.collection', 'Collection'),
+            builtInRenderComponent: CollectionRender,
         },
         {
             slug: BuiltInFilter.Workspace,
@@ -110,6 +114,7 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
             widget: {
                 component: WorkspaceSelect,
             },
+            builtInRenderComponent: WorkspaceRender,
         },
         {
             slug: BuiltInFilter.Privacy,

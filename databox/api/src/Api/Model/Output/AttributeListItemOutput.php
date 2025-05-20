@@ -23,6 +23,10 @@ final readonly class AttributeListItemOutput
         public ?string $key = null,
         #[Groups([AttributeList::GROUP_READ])]
         public ?int $type = null,
+        #[Groups([AttributeList::GROUP_READ])]
+        public ?bool $displayEmpty = null,
+        #[Groups([AttributeList::GROUP_READ])]
+        public ?string $format = null,
     ) {
     }
 }

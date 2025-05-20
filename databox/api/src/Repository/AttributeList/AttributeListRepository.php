@@ -19,7 +19,7 @@ class AttributeListRepository extends ServiceEntityRepository
 
     public function removeFromList(string $listId, array $itemIds): void
     {
-        $this->_em->createQueryBuilder('t')
+        $this->_em->createQueryBuilder()
             ->delete()
             ->from(AttributeListItem::class, 't')
             ->andWhere('t.list = :lid')
@@ -57,13 +57,10 @@ class AttributeListRepository extends ServiceEntityRepository
             ->getOneOrNullResult() !== null;
     }
 
-    public function getDefinitionIdsIterator(string $listId): iterable
+    public function getItemsIterator(string $listId): iterable
     {
         return $this->_em->createQueryBuilder()
-            ->select('t.id')
-            ->addSelect('t.type')
-            ->addSelect('t.key')
-            ->addSelect('IDENTITY(t.definition) AS definition')
+            ->select('t')
             ->from(AttributeListItem::class, 't')
             ->andWhere('t.list = :l')
             ->setParameter('l', $listId)

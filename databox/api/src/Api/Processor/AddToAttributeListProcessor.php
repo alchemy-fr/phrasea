@@ -60,7 +60,6 @@ class AddToAttributeListProcessor implements ProcessorInterface
             $position = $this->attributeListRepository->getMaxPosition($attributeList->getId()) + 1;
         }
 
-
         foreach ($data->items as $i) {
             $item = new AttributeListItem();
             $item->setList($attributeList);
@@ -79,6 +78,8 @@ class AddToAttributeListProcessor implements ProcessorInterface
                 case AttributeListItem::TYPE_DIVIDER:
                 case AttributeListItem::TYPE_BUILT_IN:
                     $item->setKey($i->key);
+                    break;
+                case AttributeListItem::TYPE_SPACER:
                     break;
                 default:
                     throw new \InvalidArgumentException(sprintf('Unsupported type "%d"', $i->type));

@@ -9,6 +9,7 @@ use App\Api\Model\Output\AttributeListItemOutput;
 use App\Api\Model\Output\AttributeListOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\AttributeList\AttributeList;
+use App\Entity\AttributeList\AttributeListItem;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -48,16 +49,19 @@ class AttributeListOutputTransformer implements OutputTransformerInterface
         ], $context)) {
             $output->owner = $this->transformUser($data->getOwnerId());
 
-            $definitions = $this->em->getRepository(AttributeList::class)
-                ->getDefinitionIdsIterator($data->getId());
+            /** @var AttributeListItem[] $listItems */
+            $listItems = $this->em->getRepository(AttributeList::class)
+                ->getItemsIterator($data->getId());
 
             $output->items = [];
-            foreach ($definitions as $definition) {
+            foreach ($listItems as $item) {
                 $output->items[] = new AttributeListItemOutput(
-                    id: (string) $definition['id'],
-                    definition: $definition['definition'],
-                    key: $definition['key'],
-                    type: $definition['type'],
+                    id: $item->getId(),
+                    definition: $item->getDefinition()?->getId(),
+                    key: $item->getKey(),
+                    type: $item->getType(),
+                    displayEmpty: $item->isDisplayEmpty(),
+                    format: $item->getFormat(),
                 );
             }
         }

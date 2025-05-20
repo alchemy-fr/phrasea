@@ -32,6 +32,19 @@ export async function putAttributeList(
     return res.data;
 }
 
+export async function putAttributeListItem(
+    listId: string,
+    itemId: string,
+    data: Partial<AttributeListItem>
+): Promise<AttributeListItem> {
+    const res = await apiClient.put(
+        `/${entityType}/${listId}/items/${itemId}`,
+        data
+    );
+
+    return res.data;
+}
+
 export async function sortAttributeList(
     id: string,
     data: string[]

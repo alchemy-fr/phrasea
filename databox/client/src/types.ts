@@ -6,6 +6,7 @@ import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTy
 import {RenditionBuildMode} from './api/rendition.ts';
 import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/DefinitionManager.tsx';
 import React from 'react';
+import {BuiltInRenderComponent} from "./components/AttributeList/BuiltInRender/builtInRenderTypes.ts";
 
 type AlternateUrl = {
     type: string;
@@ -139,6 +140,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     lastErrors?: LastErrors;
     entityIri?: string | undefined;
     resolveLabel?: (entity: object) => string;
+    builtInRenderComponent?: BuiltInRenderComponent;
 }
 
 export type FieldWidget<P extends {} = any> = {
@@ -285,6 +287,7 @@ export enum AttributeListItemType {
     Definition = 0,
     BuiltIn = 1,
     Divider = 2,
+    Spacer = 3,
 }
 
 export type AttributeListItem = {
@@ -292,12 +295,15 @@ export type AttributeListItem = {
     type: AttributeListItemType;
     key?: string;
     definition?: string;
+    displayEmpty?: boolean;
+    format?: string;
 }
 
 export interface AttributeList extends IPermissions, Entity {
     title: string;
     description?: string;
     items?: AttributeListItem[];
+    exclusive?: boolean; // if true, only items in this list well be shown otherwise all attributes
     public?: boolean;
     createdAt: string;
     updatedAt: string;

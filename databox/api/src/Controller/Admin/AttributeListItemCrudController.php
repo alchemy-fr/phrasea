@@ -9,6 +9,7 @@ use App\Entity\AttributeList\AttributeListItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -49,6 +50,8 @@ class AttributeListItemCrudController extends AbstractAdminCrudController
         yield ChoiceField::new('type')
             ->setChoices(AttributeListItem::TYPES);;
         yield TextField::new('key');
+        yield BooleanField::new('displayEmpty');
+        yield TextField::new('format');
         yield NumberField::new('position');
     }
 }

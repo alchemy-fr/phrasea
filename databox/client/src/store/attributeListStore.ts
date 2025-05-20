@@ -299,13 +299,24 @@ export function attributeDefinitionToItem(
 
 let inc = 1;
 
+function generateId(): string {
+    return tmpIdPrefix + (inc++).toString();
+}
+
 export function createDivider(
     title: string,
 ): AttributeListItem {
     return {
-        id: tmpIdPrefix + (inc++).toString(),
+        id: generateId(),
         type: AttributeListItemType.Divider,
         key: title,
+    };
+}
+
+export function createSpacer(): AttributeListItem {
+    return {
+        id: generateId(),
+        type: AttributeListItemType.Spacer,
     };
 }
 

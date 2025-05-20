@@ -54,6 +54,7 @@ export default function OrganizeAttributeList({data, onClose, minHeight}: Props)
                     }}
                 >
                     <AttributeDefinitionTransferList
+                        listId={data.id}
                         definitions={definitions}
                         definitionsIndex={definitionsIndex}
                         list={data.items!}

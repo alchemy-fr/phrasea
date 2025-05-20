@@ -21,18 +21,33 @@ final class AttributeListItemInput
     #[Assert\Callback]
     public function validate(ExecutionContextInterface $context): void
     {
-        if ($this->type === AttributeListItem::TYPE_ATTR_DEF) {
-            if (null === $this->definition) {
-                $context->buildViolation('The definition must be set.')
-                    ->atPath('definition')
-                    ->addViolation();
-            }
-        } else {
-            if (empty($this->key)) {
-                $context->buildViolation('The key must be set and not empty.')
-                    ->atPath('key')
-                    ->addViolation();
-            }
+        switch ($this->type) {
+            case AttributeListItem::TYPE_ATTR_DEF:
+                if (null === $this->definition) {
+                    $context->buildViolation('The definition must be set.')
+                        ->atPath('definition')
+                        ->addViolation();
+                }
+                if (!empty($this->key)) {
+                    $context->buildViolation('The key must not be set for definitions.')
+                        ->atPath('key')
+                        ->addViolation();
+                }
+                break;
+            case AttributeListItem::TYPE_BUILT_IN:
+                if (empty($this->key)) {
+                    $context->buildViolation('The key must be set and not empty.')
+                        ->atPath('key')
+                        ->addViolation();
+                }
+                break;
+            case AttributeListItem::TYPE_SPACER:
+                if (!empty($this->key)) {
+                    $context->buildViolation('The key must not be set for spacers.')
+                        ->atPath('key')
+                        ->addViolation();
+                }
+                break;
         }
     }
 }

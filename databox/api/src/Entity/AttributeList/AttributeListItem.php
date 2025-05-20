@@ -37,11 +37,13 @@ class AttributeListItem extends AbstractUuidEntity
     final public const int TYPE_ATTR_DEF = 0;
     final public const int TYPE_BUILT_IN = 1;
     final public const int TYPE_DIVIDER = 2;
+    final public const int TYPE_SPACER = 3;
 
     final public const array TYPES = [
         'Attribute Definition' => self::TYPE_ATTR_DEF,
         'Built-in' => self::TYPE_BUILT_IN,
         'Divider' => self::TYPE_DIVIDER,
+        'Spacer' => self::TYPE_SPACER,
     ];
 
     public const string GROUP_LIST = 'attrlist-def:l';
@@ -64,13 +66,13 @@ class AttributeListItem extends AbstractUuidEntity
     #[Groups([self::GROUP_LIST])]
     private ?string $key = null;
 
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups([self::GROUP_LIST])]
+    private ?array $options = [];
+
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     #[Groups([self::GROUP_LIST])]
     private ?int $position = 0;
-
-    #[ORM\Column(type: Types::STRING, length: 50, nullable: true)]
-    #[Groups([self::GROUP_LIST])]
-    private ?string $format = null;
 
     public function getList(): ?AttributeList
     {
@@ -122,31 +124,66 @@ class AttributeListItem extends AbstractUuidEntity
         $this->type = $type;
     }
 
+    public function isDisplayEmpty(): bool
+    {
+        return $this->options['displayEmpty'] ?? false;
+    }
+
+    public function setDisplayEmpty(bool $displayEmpty): void
+    {
+        if (!$displayEmpty) {
+            unset($this->options['displayEmpty']);
+            return;
+        }
+
+        $this->options['displayEmpty'] = $displayEmpty;
+    }
+
     public function getFormat(): ?string
     {
-        return $this->format;
+        return $this->options['format'] ?? null;
     }
 
     public function setFormat(?string $format): void
     {
-        $this->format = $format;
+        if (null === $format) {
+            unset($this->options['format']);
+            return;
+        }
+
+        $this->options['format'] = $format;
     }
 
     #[Assert\Callback]
     public function validate(ExecutionContextInterface $context): void
     {
-        if ($this->type === self::TYPE_ATTR_DEF) {
-            if (null === $this->getDefinition()) {
-                $context->buildViolation('The definition must be set.')
-                    ->atPath('definition')
-                    ->addViolation();
-            }
-        } else {
-            if (empty($this->getKey())) {
-                $context->buildViolation('The key must be set and not empty.')
+        switch ($this->type) {
+            case self::TYPE_ATTR_DEF:
+                if (null === $this->getDefinition()) {
+                    $context->buildViolation('The definition must be set.')
+                        ->atPath('definition')
+                        ->addViolation();
+                }
+                if (!empty($this->getKey())) {
+                $context->buildViolation('The key must not be set for definitions.')
                     ->atPath('key')
                     ->addViolation();
-            }
+             }
+                break;
+            case self::TYPE_BUILT_IN:
+                if (empty($this->getKey())) {
+                    $context->buildViolation('The key must be set and not empty.')
+                        ->atPath('key')
+                        ->addViolation();
+                }
+                break;
+            case self::TYPE_SPACER:
+                if (!empty($this->getKey())) {
+                    $context->buildViolation('The key must not be set for spacers.')
+                        ->atPath('key')
+                        ->addViolation();
+                }
+                break;
         }
     }
 }

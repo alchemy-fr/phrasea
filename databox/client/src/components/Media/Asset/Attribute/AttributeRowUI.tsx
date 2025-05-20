@@ -17,7 +17,7 @@ export type BaseAttributeRowUIProps = {
 
 type Props = {
     definition: AttributeDefinition;
-    attribute: Attribute | Attribute[];
+    attribute: Attribute | Attribute[] | undefined;
     displayControls: boolean;
     togglePin: undefined | ((definition: AttributeDefinition) => void);
     pinned: boolean;
@@ -47,14 +47,14 @@ export default function AttributeRowUI({
         [formatContext]
     );
 
-    const locale = multiple ? undefined : (attribute as Attribute).locale;
+    const locale = multiple ? undefined : (attribute as Attribute)?.locale;
     const isRtl = locale ? isRtlLocale(locale) : false;
 
     const valueFormatterProps = {
         value: multiple
             ? (attribute as Attribute[]).map(a => a.value)
-            : (attribute as Attribute).value,
-        highlight: multiple ? undefined : (attribute as Attribute).highlight,
+            : (attribute as Attribute)?.value,
+        highlight: multiple ? undefined : (attribute as Attribute)?.highlight,
         locale,
         format: formatContext.formats[fieldType],
     };

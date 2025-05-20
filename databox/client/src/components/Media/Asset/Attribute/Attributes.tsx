@@ -1,19 +1,35 @@
-import {Asset} from '../../../../types';
-import React, {useContext} from 'react';
+import {Asset, Attribute, AttributeDefinition, AttributeListItemType} from '../../../../types';
+import React, {useContext, useMemo} from 'react';
 import AttributeRowUI, {BaseAttributeRowUIProps} from './AttributeRowUI';
 import {SxProps} from '@mui/material';
 import {stopPropagation} from '../../../../lib/stdFuncs';
-import {UserPreferencesContext} from '../../../User/Preferences/UserPreferencesContext';
 import {AttributeFormatContext} from './Format/AttributeFormatContext';
-import {buildAttributesGroupedByDefinition} from './attributeIndex.ts';
+import {AttributeGroup, buildAttributesGroupedByDefinition} from './attributeIndex.ts';
 import {
     copyToClipBoardClass,
     copyToClipBoardContainerClass,
 } from './CopyAttribute.tsx';
-import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
-import {hasDefinitionInItems, useAttributeListStore} from "../../../../store/attributeListStore.ts";
+import {
+    hasDefinitionInItems,
+    useAttributeListStore
+} from "../../../../store/attributeListStore.ts";
+import {useTranslation} from 'react-i18next';
+import {
+    getBuiltInFilters,
+    getIndexById,
+    useAttributeDefinitionStore
+} from "../../../../store/attributeDefinitionStore.ts";
+import {NO_LOCALE} from "./AttributesEditor.tsx";
+import Separator from "../../../Ui/Separator.tsx";
 
-export type OnActiveAnnotations = (annotations: AssetAnnotation[]) => void;
+
+type AttributeItem = {
+    id: string;
+    type: AttributeListItemType;
+    definition?: AttributeDefinition;
+    attribute?: AttributeGroup['attribute'];
+    key?: string;
+}
 
 type Props = {
     asset: Asset;
@@ -27,28 +43,83 @@ function Attributes({
     pinnedOnly,
     assetAnnotationsRef,
 }: Props) {
+    const {t} = useTranslation();
     const formatContext = useContext(AttributeFormatContext);
+    const definitionsIndex = getIndexById();
     const toggleDefinition = useAttributeListStore(s => s.toggleDefinition)
     const current = useAttributeListStore(s => s.current)
 
     const pinnedAttributes = current?.items ?? [];
 
-    let attributeGroups = buildAttributesGroupedByDefinition(asset.attributes);
+    const attributeItems = useMemo<AttributeItem[]>(() => {
+        let attributeGroups = buildAttributesGroupedByDefinition(asset.attributes);
+        if (pinnedAttributes.length === 0) {
+            return attributeGroups.map(ag => ({
+                id: ag.definition.id,
+                type: AttributeListItemType.Definition,
+                attribute: ag.attribute,
+                definition: ag.definition,
+            }))
+        }
 
-    attributeGroups.sort((a, b) => {
-        const aa = hasDefinitionInItems(pinnedAttributes, a.definition.id) ? 1 : 0;
-        const bb = hasDefinitionInItems(pinnedAttributes, b.definition.id) ? 1 : 0;
+        const attributeItems: AttributeItem[] = [];
 
-        return bb - aa;
-    });
+        const builtInDef = getBuiltInFilters(t);
 
-    if (pinnedOnly) {
-        attributeGroups = attributeGroups.filter(g =>
-            hasDefinitionInItems(pinnedAttributes, g.definition.id)
-        );
-    }
+        pinnedAttributes.forEach(item => {
+            if (item.type === AttributeListItemType.Definition) {
+                const defId = item.definition!;
+                const group = attributeGroups.find(g => g.definition.id === defId);
+                if (group) {
+                    attributeItems.push({
+                        id: item.id,
+                        type: item.type,
+                        attribute: group.attribute,
+                        definition: group.definition,
+                    });
+                } else if (item.displayEmpty && definitionsIndex[defId]) {
+                    attributeItems.push({
+                        id: item.id,
+                        type: item.type,
+                        definition: definitionsIndex[defId],
+                    });
+                }
+            } else if (item.type === AttributeListItemType.BuiltIn) {
+                const definition = builtInDef.find(g => g.id === item.key!);
 
-    if (attributeGroups.length === 0) {
+                if (definition) {
+                    attributeItems.push({
+                        id: item.id,
+                        type: item.type,
+                        definition,
+                    });
+                }
+            } else {
+                attributeItems.push({
+                    id: item.id,
+                    type: item.type,
+                    key: item.key,
+                });
+            }
+        });
+
+        if (!pinnedOnly) {
+            attributeGroups.filter(g =>
+                !hasDefinitionInItems(pinnedAttributes, g.definition.id)
+            ).forEach(ag => {
+                attributeItems.push({
+                    id: ag.definition.id,
+                    type: AttributeListItemType.Definition,
+                    attribute: ag.attribute,
+                    definition: ag.definition,
+                });
+            });
+        }
+
+        return attributeItems;
+    }, [pinnedAttributes, asset, t, definitionsIndex]);
+
+    if (attributeItems.length === 0) {
         return null;
     }
 
@@ -58,19 +129,34 @@ function Attributes({
             onClick={stopPropagation}
             onMouseDown={stopPropagation}
         >
-            {attributeGroups.map(g => {
-                return (
-                    <AttributeRowUI
-                        key={g.definition.id}
+            {attributeItems.map((ai) => {
+                if (ai.type === AttributeListItemType.Definition) {
+                    return <AttributeRowUI
+                        key={ai.id}
                         formatContext={formatContext}
-                        attribute={g.attribute}
-                        definition={g.definition}
+                        attribute={ai.attribute!}
+                        definition={ai.definition!}
                         displayControls={displayControls}
-                        pinned={hasDefinitionInItems(pinnedAttributes, g.definition.id)}
+                        pinned={hasDefinitionInItems(pinnedAttributes, ai.definition!.id)}
                         togglePin={toggleDefinition}
                         assetAnnotationsRef={assetAnnotationsRef}
                     />
-                );
+                } else if (ai.type === AttributeListItemType.BuiltIn) {
+                    const definition = ai.definition!;
+                    if (definition.builtInRenderComponent) {
+                        const BuiltInRender = definition.builtInRenderComponent;
+                        return <BuiltInRender
+                            key={ai.id}
+                            asset={asset}
+                        />
+                    }
+                } else if (ai.type === AttributeListItemType.Divider) {
+                    return (<Separator
+                        key={ai.id}
+                    >{ai.key!}</Separator>)
+                }
+
+                return null;
             })}
         </div>
     );
