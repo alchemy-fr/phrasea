@@ -57,7 +57,7 @@ function Item({
         setValue,
         putFn: async (id, d) => {
             const r = await onSave({
-                id,
+                ...denormalizeData(getValues()),
                 ...d,
             } as RenditionDefinition);
             onItemUpdate(r);
