@@ -67,6 +67,53 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             }
         }
 
+        $this->configureClients();
+
+        $defaultAdminUsername = getenv('DEFAULT_ADMIN_USERNAME');
+        $defaultAdminEmail = $defaultAdminUsername;
+        if (!str_contains($defaultAdminEmail, '@')) {
+            $defaultAdminEmail .= '@'.(getenv('PHRASEA_DOMAIN') ?: 'phrasea.io');
+        }
+
+        $defaultAdmin = $this->keycloakManager->createUser([
+            'username' => $defaultAdminUsername,
+            'email' => $defaultAdminEmail,
+            'enabled' => true,
+            'firstName' => 'Admin',
+            'lastName' => 'Admin',
+            'credentials' => [[
+                'type' => 'password',
+                'value' => getenv('DEFAULT_ADMIN_PASSWORD'),
+                'temporary' => !$hasTestPreset,
+            ]],
+        ]);
+
+        $this->keycloakManager->addRolesToUser($defaultAdmin['id'], [
+            KeycloakInterface::ROLE_ADMIN,
+        ]);
+        $this->keycloakManager->addClientRolesToUser($defaultAdmin['id'], [
+            'realm-admin',
+        ]);
+
+        if ($hasDevPreset) {
+            $this->keycloakManager->createClient('postman', null, null, [
+                'standardFlowEnabled' => false,
+                'implicitFlowEnabled' => false,
+                'directAccessGrantsEnabled' => true,
+                'serviceAccountsEnabled' => false,
+            ]);
+        }
+    }
+
+    public function synchronize()
+    {
+        $this->configureRealm();
+
+        $this->configureClients();
+    }
+
+    private function configureClients(): void
+    {
         $appScopes = $this->getAppScopes();
         foreach ($this->symfonyApplications as $app) {
             $clientId = getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app)));
@@ -125,75 +172,6 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             foreach ($this->getAppScopes()['databox'] as $scope) {
                 $this->keycloakManager->addScopeToClient($scope, $clientData['id']);
             }
-        }
-
-        $defaultAdminUsername = getenv('DEFAULT_ADMIN_USERNAME');
-        $defaultAdminEmail = $defaultAdminUsername;
-        if (!str_contains($defaultAdminEmail, '@')) {
-            $defaultAdminEmail .= '@'.(getenv('PHRASEA_DOMAIN') ?: 'phrasea.io');
-        }
-
-        $defaultAdmin = $this->keycloakManager->createUser([
-            'username' => $defaultAdminUsername,
-            'email' => $defaultAdminEmail,
-            'enabled' => true,
-            'firstName' => 'Admin',
-            'lastName' => 'Admin',
-            'credentials' => [[
-                'type' => 'password',
-                'value' => getenv('DEFAULT_ADMIN_PASSWORD'),
-                'temporary' => !$hasTestPreset,
-            ]],
-        ]);
-
-        $this->keycloakManager->addRolesToUser($defaultAdmin['id'], [
-            KeycloakInterface::ROLE_ADMIN,
-        ]);
-        $this->keycloakManager->addClientRolesToUser($defaultAdmin['id'], [
-            'realm-admin',
-        ]);
-
-        if ($hasDevPreset) {
-            $this->keycloakManager->createClient('postman', null, null, [
-                'standardFlowEnabled' => false,
-                'implicitFlowEnabled' => false,
-                'directAccessGrantsEnabled' => true,
-                'serviceAccountsEnabled' => false,
-            ]);
-        }
-    }
-
-    public function synchronize()
-    {
-        $this->configureRealm();
-
-        foreach ($this->frontendApplications as $app) {
-            $this->configureClient(
-                getenv(sprintf('%s_CLIENT_ID', strtoupper($app))),
-                null,
-                getenv(sprintf('%s_CLIENT_URL', strtoupper($app))),
-                [
-                    'serviceAccountsEnabled' => false,
-                ]
-            );
-        }
-
-        foreach ($this->symfonyApplications as $app) {
-            $clientId = getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app)));
-            $baseUri = getenv(sprintf('%s_API_URL', strtoupper($app)));
-
-            $this->configureClient(
-                $clientId,
-                getenv(sprintf('%s_ADMIN_CLIENT_SECRET', strtoupper($app))),
-                $baseUri,
-                [
-                    'serviceAccountsEnabled' => true,
-                ],
-                redirectUris: [
-                    $baseUri.'/admin/*',
-                    $baseUri.'/bundles/apiplatform/swagger-ui/oauth2-redirect.html',
-                ]
-            );
         }
     }
 
