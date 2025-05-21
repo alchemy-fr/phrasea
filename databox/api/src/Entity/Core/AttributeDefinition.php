@@ -64,7 +64,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
-            securityPostDenormalize: 'is_granted("CREATE", object)'
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            securityPostDenormalize: 'is_granted("CREATE", object)',
         ),
         new Post(
             uriTemplate: '/attribute-definitions/sort',
@@ -84,9 +85,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
                     ],
                 ],
             ],
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             input: false,
             output: false,
-            name: 'put_sort'
+            name: 'put_sort',
         ),
     ],
     normalizationContext: [
