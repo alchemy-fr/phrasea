@@ -1,28 +1,18 @@
-import {Asset, Attribute, AttributeDefinition, AttributeListItemType} from '../../../../types';
+import {Asset, AttributeDefinition, AttributeListItemType} from '../../../../types';
 import React, {useContext, useMemo} from 'react';
 import AttributeRowUI, {BaseAttributeRowUIProps} from './AttributeRowUI';
 import {SxProps} from '@mui/material';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import {AttributeFormatContext} from './Format/AttributeFormatContext';
 import {AttributeGroup, buildAttributesGroupedByDefinition} from './attributeIndex.ts';
-import {
-    copyToClipBoardClass,
-    copyToClipBoardContainerClass,
-} from './CopyAttribute.tsx';
-import {
-    hasDefinitionInItems,
-    useAttributeListStore
-} from "../../../../store/attributeListStore.ts";
+import {copyToClipBoardClass, copyToClipBoardContainerClass,} from './CopyAttribute.tsx';
+import {hasDefinitionInItems, useAttributeListStore} from "../../../../store/attributeListStore.ts";
 import {useTranslation} from 'react-i18next';
-import {
-    getBuiltInFilters,
-    getIndexById,
-    useAttributeDefinitionStore
-} from "../../../../store/attributeDefinitionStore.ts";
+import {getBuiltInFilters, getIndexById} from "../../../../store/attributeDefinitionStore.ts";
 import {NO_LOCALE} from "./AttributesEditor.tsx";
 import Separator from "../../../Ui/Separator.tsx";
 import {Spacer} from "../../../Ui/VerticalSpacer.tsx";
-import {formatValue, getAttributeType} from "./types";
+import {AttributeFormat} from "./types/types";
 
 
 type AttributeItem = {
@@ -30,6 +20,7 @@ type AttributeItem = {
     type: AttributeListItemType;
     definition?: AttributeDefinition;
     attribute?: AttributeGroup['attribute'];
+    format?: AttributeFormat;
     key?: string;
 }
 
@@ -69,20 +60,25 @@ function Attributes({
         const builtInDef = getBuiltInFilters(t);
 
         pinnedAttributes.forEach(item => {
+            const props = {
+                id: item.id,
+                type: item.type,
+                format: item.format,
+            }
+
             if (item.type === AttributeListItemType.Definition) {
                 const defId = item.definition!;
                 const group = attributeGroups.find(g => g.definition.id === defId);
+
                 if (group) {
                     attributeItems.push({
-                        id: item.id,
-                        type: item.type,
+                        ...props,
                         attribute: group.attribute,
                         definition: group.definition,
                     });
                 } else if (item.displayEmpty && definitionsIndex[defId]) {
                     attributeItems.push({
-                        id: item.id,
-                        type: item.type,
+                        ...props,
                         definition: definitionsIndex[defId],
                     });
                 }
@@ -91,15 +87,13 @@ function Attributes({
 
                 if (definition) {
                     attributeItems.push({
-                        id: item.id,
-                        type: item.type,
+                        ...props,
                         definition,
                     });
                 }
             } else {
                 attributeItems.push({
-                    id: item.id,
-                    type: item.type,
+                    ...props,
                     key: item.key,
                 });
             }
@@ -143,6 +137,7 @@ function Attributes({
                     return <AttributeRowUI
                         key={ai.id}
                         formatContext={formatContext}
+                        format={ai.format}
                         attribute={ai.attribute!}
                         definition={ai.definition!}
                         displayControls={displayControls}
@@ -158,6 +153,7 @@ function Attributes({
                         return <AttributeRowUI
                             key={ai.id}
                             formatContext={formatContext}
+                            format={ai.format}
                             attribute={definition.multiple ? valueFromAsset.map((v: any) => ({
                                 ...createAttrProps(definition),
                                 value: v,

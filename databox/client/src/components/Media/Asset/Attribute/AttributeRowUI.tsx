@@ -10,6 +10,7 @@ import {isRtlLocale} from '../../../../lib/lang';
 import {Attribute, AttributeDefinition} from '../../../../types.ts';
 import GestureIcon from '@mui/icons-material/Gesture';
 import {AssetAnnotationRef} from '../Annotations/annotationTypes.ts';
+import {AttributeFormat} from "./types/types";
 
 export type BaseAttributeRowUIProps = {
     assetAnnotationsRef?: AssetAnnotationRef;
@@ -22,6 +23,7 @@ type Props = {
     togglePin: undefined | ((definition: AttributeDefinition) => void);
     pinned: boolean;
     formatContext: TAttributeFormatContext;
+    format?: AttributeFormat;
 } & BaseAttributeRowUIProps;
 
 export default function AttributeRowUI({
@@ -31,6 +33,7 @@ export default function AttributeRowUI({
     pinned,
     displayControls,
     formatContext,
+    format,
     assetAnnotationsRef,
 }: Props) {
     const {nameTranslated, name, fieldType, multiple} = definition;
@@ -42,7 +45,7 @@ export default function AttributeRowUI({
     >(
         e => {
             e.stopPropagation();
-            formatContext.toggleFormat(fieldType);
+            formatContext.toggleFormat(fieldType, definition.id);
         },
         [formatContext]
     );
@@ -56,7 +59,7 @@ export default function AttributeRowUI({
             : (attribute as Attribute)?.value,
         highlight: multiple ? undefined : (attribute as Attribute)?.highlight,
         locale,
-        format: formatContext.formats[fieldType],
+        format: format ?? formatContext.getFormat(fieldType, definition.id),
     };
 
     return (
@@ -77,7 +80,7 @@ export default function AttributeRowUI({
                     <div className={attributesClasses.controls}>
                         {overControls ? (
                             <>
-                                {formatContext.hasFormats(fieldType) && (
+                                {!format && formatContext.hasFormats(fieldType) && (
                                     <IconButton onClick={toggleFormat}>
                                         <VisibilityIcon />
                                     </IconButton>
@@ -118,7 +121,7 @@ export default function AttributeRowUI({
                                       value: a.value,
                                       highlight: a.highlight,
                                       locale: a.locale,
-                                      format: formatContext.formats[fieldType],
+                                      format: formatContext.getFormat(fieldType, a.definition.id),
                                   };
 
                                   const isRtl = isRtlLocale(a.locale);

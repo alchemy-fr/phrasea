@@ -28,7 +28,6 @@ export default class PrivacyType
     }
 
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
-        console.log('value', value);
         return <PrivacyChip
             privacy={value}
             noAccess={false}

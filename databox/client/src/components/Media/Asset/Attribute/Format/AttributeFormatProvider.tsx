@@ -6,6 +6,7 @@ import {
 } from './AttributeFormatContext';
 import {getAttributeType} from '../types';
 import {AttributeType} from "../../../../../api/attributes.ts";
+import {AttributeFormat} from "../types/types";
 
 type Props = PropsWithChildren<{}>;
 
@@ -13,20 +14,33 @@ export default function AttributeFormatProvider({children}: Props) {
     const [formats, setFormats] = React.useState<AttributeFormats>({} as AttributeFormats);
 
     const value = React.useMemo<TAttributeFormatContext>(() => {
+        const getFormat: TAttributeFormatContext['getFormat'] = (
+            type: AttributeType,
+            definitionId?: string
+        ) => {
+            if (definitionId) {
+                return formats[definitionId] ?? formats[type];
+            }
+
+            return formats[type];
+        }
+
         const changeFormat: TAttributeFormatContext['changeFormat'] = (
             type,
-            format
+            format,
+            definitionId,
         ) => {
             setFormats(p => ({
                 ...p,
                 [type]: format,
+                ...(definitionId ? {[definitionId]: format} : {}),
             }));
         };
 
-        const toggleFormat: TAttributeFormatContext['toggleFormat'] = (type: AttributeType) => {
+        const toggleFormat: TAttributeFormatContext['toggleFormat'] = (type: AttributeType, definitionId) => {
             const formatter = getAttributeType(type);
             const availableFormats = formatter.getAvailableFormats();
-            const currentFormat = formats[type];
+            const currentFormat = getFormat(type, definitionId);
             const currentIndex = currentFormat
                 ? (availableFormats.findIndex(f => f.name === currentFormat) ??
                   0)
@@ -34,7 +48,8 @@ export default function AttributeFormatProvider({children}: Props) {
             changeFormat(
                 type,
                 availableFormats[(currentIndex + 1) % availableFormats.length]
-                    .name
+                    .name,
+                definitionId
             );
         };
 
@@ -49,7 +64,7 @@ export default function AttributeFormatProvider({children}: Props) {
             changeFormat,
             toggleFormat,
             hasFormats,
-            formats,
+           getFormat,
         };
     }, [formats, setFormats]);
 
