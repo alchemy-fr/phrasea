@@ -10,8 +10,8 @@ import {useModalFetch} from '../../../../hooks/useModalFetch.ts';
 import FullPageLoader from '../../../Ui/FullPageLoader.tsx';
 import React from 'react';
 import {Checkbox, FormControlLabel} from '@mui/material';
-import {CollectionChip} from '../../../Ui/Chips.tsx';
 import AlertDialog from '../../../Dialog/AlertDialog.tsx';
+import {CollectionChip} from "../../../Ui/CollectionChip.tsx";
 
 type Props = {
     assetIds: string[];

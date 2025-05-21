@@ -35,7 +35,6 @@ export default function FieldBuilder({
             name,
             value,
             onChange: (v: any) => {
-                console.log('v', v);
                 setValue(v);
                 if (
                     typeof v === 'object' &&

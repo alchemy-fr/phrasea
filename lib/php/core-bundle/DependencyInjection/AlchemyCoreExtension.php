@@ -151,6 +151,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         }
         if (isset($bundles['FrameworkBundle'])) {
             $container->prependExtensionConfig('framework', [
+                'disallow_search_engine_index' => false, // Header is added by NGINX
                 'http_method_override' => false,
                 'session' => [
                     'handler_id' => RedisSessionHandler::class,

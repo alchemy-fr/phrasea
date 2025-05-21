@@ -3,7 +3,7 @@ import {
     AttributeDefinition,
     AttributeEntity,
     Collection,
-    Tag,
+    Tag, User,
     Workspace,
 } from '../types';
 import {AttributeType, getAttributeDefinitions} from '../api/attributes.ts';
@@ -13,6 +13,7 @@ import WorkspaceSelect from '../components/Form/WorkspaceSelect.tsx';
 import PrivacyWidget from '../components/Form/PrivacyWidget.tsx';
 import TagSelect from '../components/Form/TagSelect.tsx';
 import AttributeEntitySelect from '../components/Form/AttributeEntitySelect.tsx';
+import UserSelect from "../components/Form/UserSelect.tsx";
 
 export type AttributeDefinitionsIndex = Record<string, AttributeDefinition>;
 
@@ -81,8 +82,8 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
     },
 }));
 
-function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
-    return [
+export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
+    return ([
         {
             slug: BuiltInFilter.Score,
             fieldType: AttributeType.Number,
@@ -98,10 +99,12 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
             searchable: true,
             fieldType: AttributeType.CollectionPath,
             name: t('built_in_attr.collection', 'Collection'),
+            getValueFromAsset: (asset) => asset.collections,
+            multiple: true,
         },
         {
             slug: BuiltInFilter.Workspace,
-            fieldType: AttributeType.Id,
+            fieldType: AttributeType.Workspace,
             resolveLabel: (entity: Workspace) =>
                 entity.nameTranslated ?? entity.name ?? '',
             entityIri: 'workspaces',
@@ -110,16 +113,31 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
             widget: {
                 component: WorkspaceSelect,
             },
+            getValueFromAsset: (asset) => asset.workspace,
+        },
+        {
+            slug: BuiltInFilter.Owner,
+            fieldType: AttributeType.User,
+            resolveLabel: (entity: User) =>
+                entity.username ?? entity.id ?? '',
+            entityIri: 'users',
+            searchable: true,
+            name: t('built_in_attr.owner', 'Owner'),
+            widget: {
+                component: UserSelect,
+            },
+            getValueFromAsset: (asset) => asset.owner,
         },
         {
             slug: BuiltInFilter.Privacy,
-            fieldType: AttributeType.Number,
+            fieldType: AttributeType.Privacy,
             searchable: true,
             sortable: true,
             name: t('built_in_attr.privacy', 'Privacy'),
             widget: {
                 component: PrivacyWidget,
             },
+            getValueFromAsset: (asset) => asset.privacy,
         },
         {
             slug: BuiltInFilter.Tag,
@@ -129,6 +147,7 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 entity.nameTranslated ?? entity.name ?? '',
             searchable: true,
             sortable: true,
+            multiple: true,
             name: t('built_in_attr.tag', 'Tag'),
             widget: {
                 component: TagSelect,
@@ -136,6 +155,7 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                     useIRI: false,
                 },
             },
+            getValueFromAsset: (asset) => asset.tags,
         },
         {
             slug: BuiltInFilter.EditedAt,
@@ -143,6 +163,7 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
             searchable: true,
             sortable: true,
             name: t('built_in_attr.editedAt', 'Edited At'),
+            getValueFromAsset: (asset) => asset.editedAt,
         },
         {
             slug: BuiltInFilter.CreatedAt,
@@ -150,24 +171,28 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
             searchable: true,
             sortable: true,
             name: t('built_in_attr.createdAt', 'Created At'),
+            getValueFromAsset: (asset) => asset.createdAt,
         },
         {
             slug: BuiltInFilter.FileType,
             fieldType: AttributeType.Keyword,
             searchable: true,
             name: t('built_in_attr.fileType', 'File Type'),
+            getValueFromAsset: (asset) => asset.source?.type,
         },
         {
             slug: BuiltInFilter.FileMimeType,
             fieldType: AttributeType.Keyword,
             searchable: true,
             name: t('built_in_attr.fileMimeType', 'File MIME Type'),
+            getValueFromAsset: (asset) => asset.source?.type,
         },
         {
             slug: BuiltInFilter.FileSize,
             fieldType: AttributeType.Number,
             searchable: true,
             name: t('built_in_attr.fileSize', 'File Size'),
+            getValueFromAsset: (asset) => asset.source?.size,
         },
         {
             slug: BuiltInFilter.FileName,
@@ -175,7 +200,7 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
             searchable: true,
             name: t('built_in_attr.filename', 'File Name'),
         },
-    ].map(
+    ] as Partial<AttributeDefinition>[]).map(
         d =>
             ({
                 ...d,
@@ -192,6 +217,9 @@ export function getIndexBySlug(): AttributeDefinitionsIndex {
 }
 export function getIndexBySearchSlug(): AttributeDefinitionsIndex {
     return getIndexByKey('searchSlug');
+}
+export function getIndexById(): AttributeDefinitionsIndex {
+    return getIndexByKey('id');
 }
 
 function getIndexByKey(

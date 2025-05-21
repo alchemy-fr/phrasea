@@ -66,9 +66,10 @@ export default function ValueDiff({actions, definitionIndex}: Props) {
                                             {
                                                 value: a.value,
                                                 locale: a.locale,
-                                                format: formatContext.formats[
-                                                    definition.fieldType
-                                                ],
+                                                format: formatContext.getFormat(
+                                                    definition.fieldType,
+                                                    definition.id
+                                                ),
                                             };
 
                                         const formatted =

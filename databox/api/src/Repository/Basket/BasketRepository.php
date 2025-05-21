@@ -41,7 +41,7 @@ class BasketRepository extends ServiceEntityRepository
             ->execute();
     }
 
-    public function getBasketMaxPosition(string $basketId): int
+    public function getMaxPosition(string $basketId): int
     {
         return $this->_em->createQueryBuilder()
             ->select('MAX(t.position) as m')

@@ -55,9 +55,9 @@ function Item({
     const createSaveTranslations = useCreateSaveTranslations({
         data,
         setValue,
-        putFn: async (id, d) => {
+        putFn: async (_id, d) => {
             const r = await onSave({
-                id,
+                ...denormalizeData(getValues()),
                 ...d,
             } as RenditionDefinition);
             onItemUpdate(r);

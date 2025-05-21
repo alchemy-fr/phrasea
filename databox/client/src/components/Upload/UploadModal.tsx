@@ -11,7 +11,6 @@ import {createCollection, submitFiles} from '../../lib/upload/uploader';
 import moment from 'moment';
 import {v4 as uuidv4} from 'uuid';
 import UploadDropzone from './UploadDropzone';
-import {CollectionChip, WorkspaceChip} from '../Ui/Chips';
 import {useAttributeEditor} from '../Media/Asset/Attribute/useAttributeEditor';
 import {useAssetDataTemplateOptions} from '../Media/Asset/Attribute/useAssetDataTemplateOptions';
 import {
@@ -25,6 +24,8 @@ import {Asset} from '../../types';
 import {getAttributeList} from '../Media/Asset/Attribute/AttributeListData.ts';
 import type {TFunction} from '@alchemy/i18n';
 import {CollectionId} from '../Media/Collection/CollectionTree/collectionTree.ts';
+import {WorkspaceChip} from "../Ui/WorkspaceChip.tsx";
+import {CollectionChip} from "../Ui/CollectionChip.tsx";
 
 type FileWrapper = {
     id: string;

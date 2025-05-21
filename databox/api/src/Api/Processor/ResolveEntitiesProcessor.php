@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
+use Alchemy\AclBundle\Repository\UserRepositoryInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Metadata\Exception\ItemNotFoundException;
@@ -21,6 +22,7 @@ class ResolveEntitiesProcessor implements ProcessorInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly IriConverterInterface $iriConverter,
+        private readonly UserRepositoryInterface $userRepository,
     ) {
     }
 
@@ -29,10 +31,16 @@ class ResolveEntitiesProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): ResolveEntitiesOutput
     {
+        $userIri = '/users/';
+
         $entities = [];
         foreach ($data->entities as $iri) {
             try {
-                $entities[$iri] = $this->iriConverter->getResourceFromIri($iri);
+                if (str_starts_with($iri, $userIri)) {
+                    $entities[$iri] = $this->userRepository->getUser(substr($iri, strlen($userIri)));
+                } else {
+                    $entities[$iri] = $this->iriConverter->getResourceFromIri($iri);
+                }
             } catch (ItemNotFoundException|ConversionException) {
                 $entities[$iri] = null;
             }

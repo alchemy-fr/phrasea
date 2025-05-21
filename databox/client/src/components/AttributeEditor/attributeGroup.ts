@@ -53,7 +53,7 @@ export function useAttributeValues<T>({
     const [definitionIndex, setDefinitionIndex] =
         React.useState<AttributeDefinitionIndex>({});
 
-    const createToKey = React.useCallback<CreateToKeyFunc<any>>(fieldType => {
+    const createToKey = React.useCallback<CreateToKeyFunc<any>>((fieldType: AttributeType) => {
         const type = getAttributeType(fieldType);
 
         return (v: any) => {

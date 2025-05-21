@@ -1,24 +1,17 @@
-import {useContext} from 'react';
-import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogTitle,
-    List,
-    ListItemButton,
-} from '@mui/material';
+import {Button, Dialog, DialogActions, DialogTitle, List, ListItemButton,} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import themes from '../../themes';
 import {ThemeName} from '../../lib/theme';
-import {UserPreferencesContext} from '../User/Preferences/UserPreferencesContext';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
+import {useUserPreferencesStore} from "../../store/userPreferencesStore.ts";
 
 type Props = {} & StackedModalProps;
 
 export default function ChangeTheme({open}: Props) {
     const {t} = useTranslation();
-    const prefContext = useContext(UserPreferencesContext);
-    const {preferences, updatePreference} = prefContext;
+    const preferences = useUserPreferencesStore(s => s.preferences);
+    const updatePreference = useUserPreferencesStore(s => s.updatePreference);
+
     const {closeModal} = useModals();
 
     const handleClick = (name: ThemeName) => {

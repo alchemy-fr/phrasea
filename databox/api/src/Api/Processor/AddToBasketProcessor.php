@@ -56,7 +56,7 @@ class AddToBasketProcessor implements ProcessorInterface
             $this->em->persist($basket);
             $position = 0;
         } else {
-            $position = $this->basketRepository->getBasketMaxPosition($basket->getId()) + 1;
+            $position = $this->basketRepository->getMaxPosition($basket->getId()) + 1;
         }
 
         $mapping = [];

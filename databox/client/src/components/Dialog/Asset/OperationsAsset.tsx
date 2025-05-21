@@ -16,7 +16,8 @@ import {FormSection} from '@alchemy/react-form';
 import ConfirmDialog from '../../Ui/ConfirmDialog.tsx';
 import {useModals} from '@alchemy/navigation';
 import ShortcutIcon from '@mui/icons-material/Shortcut';
-import {CollectionChip, WorkspaceChip} from '../../Ui/Chips.tsx';
+import {WorkspaceChip} from "../../Ui/WorkspaceChip.tsx";
+import {CollectionChip} from "../../Ui/CollectionChip.tsx";
 
 type Props = {
     data: Asset;
