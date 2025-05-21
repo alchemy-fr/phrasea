@@ -319,13 +319,15 @@ final class KeycloakManager
     {
         $client = $this->getClientByClientId($clientId);
 
-        $this->getAuthenticatedClient()
+        if (null !== $client) {
+            $this->getAuthenticatedClient()
             ->request('PUT', UriTemplate::resolve('{realm}/clients/{id}', [
                 'realm' => $this->keycloakRealm,
                 'id' => $client['id'],
             ]), [
                 'json' => $data,
             ]);
+        }
     }
 
     public function configureClientClaim(

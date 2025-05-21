@@ -163,6 +163,40 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         }
     }
 
+    public function synchronize()
+    {
+        $this->configureRealm();
+
+        foreach ($this->frontendApplications as $app) {
+            $baseUri = getenv(sprintf('%s_CLIENT_URL', strtoupper($app)));
+
+            $this->keycloakManager->updateClientByClientId(
+                getenv(sprintf('%s_CLIENT_ID', strtoupper($app))),
+                [
+                    'rootUrl' => $baseUri,
+                    'redirectUris' => $baseUri ? [$baseUri.'/*'] : null,
+                    'webOrigins' => [$baseUri]
+                ]
+            );
+        }
+
+        foreach ($this->symfonyApplications as $app) {
+            $baseUri = getenv(sprintf('%s_API_URL', strtoupper($app)));
+
+            $this->keycloakManager->updateClientByClientId(
+                getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app))),
+                [
+                    'rootUrl' => $baseUri,
+                    'redirectUris' => [
+                        $baseUri.'/admin/*',
+                        $baseUri.'/bundles/apiplatform/swagger-ui/oauth2-redirect.html',
+                    ],
+                    'webOrigins' => [$baseUri]
+                ]
+            );
+        }
+    }
+
     private function getAppScopes(): array
     {
         return [
