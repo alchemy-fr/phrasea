@@ -30,6 +30,7 @@ export const typeMap: Record<AttributeType, RawType> = {
     [AttributeType.Tag]: RawType.Id,
     [AttributeType.Text]: RawType.String,
     [AttributeType.Textarea]: RawType.String,
+    [AttributeType.User]: RawType.Id,
     [AttributeType.WebVtt]: RawType.String,
     [AttributeType.Workspace]: RawType.String,
 };

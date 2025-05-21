@@ -3,7 +3,7 @@ import {
     AttributeDefinition,
     AttributeEntity,
     Collection,
-    Tag,
+    Tag, User,
     Workspace,
 } from '../types';
 import {AttributeType, getAttributeDefinitions} from '../api/attributes.ts';
@@ -13,6 +13,7 @@ import WorkspaceSelect from '../components/Form/WorkspaceSelect.tsx';
 import PrivacyWidget from '../components/Form/PrivacyWidget.tsx';
 import TagSelect from '../components/Form/TagSelect.tsx';
 import AttributeEntitySelect from '../components/Form/AttributeEntitySelect.tsx';
+import UserSelect from "../components/Form/UserSelect.tsx";
 
 export type AttributeDefinitionsIndex = Record<string, AttributeDefinition>;
 
@@ -113,6 +114,19 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 component: WorkspaceSelect,
             },
             getValueFromAsset: (asset) => asset.workspace,
+        },
+        {
+            slug: BuiltInFilter.Owner,
+            fieldType: AttributeType.User,
+            resolveLabel: (entity: User) =>
+                entity.username ?? entity.id ?? '',
+            entityIri: 'users',
+            searchable: true,
+            name: t('built_in_attr.owner', 'Owner'),
+            widget: {
+                component: UserSelect,
+            },
+            getValueFromAsset: (asset) => asset.owner,
         },
         {
             slug: BuiltInFilter.Privacy,
