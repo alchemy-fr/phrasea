@@ -22,6 +22,7 @@ class AttributeListOutputTransformer implements OutputTransformerInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
+        private readonly AttributeListItemOutputTransformer $attributeListItemOutputTransformer,
     ) {
     }
 
@@ -55,14 +56,7 @@ class AttributeListOutputTransformer implements OutputTransformerInterface
 
             $output->items = [];
             foreach ($listItems as $item) {
-                $output->items[] = new AttributeListItemOutput(
-                    id: $item->getId(),
-                    definition: $item->getDefinition()?->getId(),
-                    key: $item->getKey(),
-                    type: $item->getType(),
-                    displayEmpty: $item->isDisplayEmpty(),
-                    format: $item->getFormat(),
-                );
+                $output->items[] = $this->attributeListItemOutputTransformer->createOutput($item);
             }
         }
 

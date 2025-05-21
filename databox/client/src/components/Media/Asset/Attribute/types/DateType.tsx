@@ -48,7 +48,13 @@ export default class DateType extends TextType {
                 name: Formats.Relative,
                 title: 'Relative',
             },
-        ];
+        ].map(f => ({
+            ...f,
+            example: this.formatValue({
+                value: '2023-01-01T00:00:00Z',
+                format: f.name,
+            })
+        }));
     }
 
     public getFieldProps(): TextFieldProps {

@@ -8,6 +8,7 @@ import {
     getAttributeLists,
     removeFromAttributeList, sortAttributeList,
 } from '../api/attributeList';
+import {putUserPreferences} from "../api/user.ts";
 
 type State = {
     lists: AttributeList[];
@@ -83,6 +84,10 @@ export const useAttributeListStore = create<State>((set, getState) => ({
             return;
         }
 
+        if (getState().current === data) {
+            return;
+        }
+
         set({
             current: data,
             loadingCurrent: true,
@@ -94,6 +99,7 @@ export const useAttributeListStore = create<State>((set, getState) => ({
                 current: list,
                 loadingCurrent: false,
             });
+            putUserPreferences('attrList', data.id);
         } catch (e: any) {
             set({
                 loadingCurrent: false,

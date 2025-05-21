@@ -28,8 +28,6 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Put(
             uriTemplate: '/attribute-lists/{id}/items/{itemId}',
             security: 'is_granted("'.AbstractVoter::EDIT.'", object.getList())',
-            input: AttributeListItemInput::class,
-            output: AttributeListItemOutput::class,
             processor: PutAttributeListItemProcessor::class,
         ),
     ],
@@ -39,9 +37,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     normalizationContext: [
         'groups' => [
-            self::GROUP_LIST,
+            AttributeList::GROUP_READ,
         ],
     ],
+    input: AttributeListItemInput::class,
+    output: AttributeListItemOutput::class,
     order: ['position' => 'ASC'],
 )]
 #[ORM\UniqueConstraint(name: 'list_def_uniq', columns: ['list_id', 'definition_id', 'key', 'type'])]
@@ -52,6 +52,7 @@ class AttributeListItem extends AbstractUuidEntity
     final public const int TYPE_DIVIDER = 2;
     final public const int TYPE_SPACER = 3;
 
+
     final public const array TYPES = [
         'Attribute Definition' => self::TYPE_ATTR_DEF,
         'Built-in' => self::TYPE_BUILT_IN,
@@ -59,32 +60,25 @@ class AttributeListItem extends AbstractUuidEntity
         'Spacer' => self::TYPE_SPACER,
     ];
 
-    public const string GROUP_LIST = 'attrlist-def:l';
-
     #[ORM\ManyToOne(targetEntity: AttributeList::class, inversedBy: 'items')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?AttributeList $list = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
-    #[Groups([self::GROUP_LIST])]
     #[Assert\Choice(choices: self::TYPES)]
     private int $type = self::TYPE_ATTR_DEF;
 
     #[ORM\ManyToOne(targetEntity: AttributeDefinition::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
-    #[Groups([self::GROUP_LIST])]
     private ?AttributeDefinition $definition = null;
 
     #[ORM\Column(type: Types::STRING, length: 150, nullable: true)]
-    #[Groups([self::GROUP_LIST])]
     private ?string $key = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups([self::GROUP_LIST])]
     private ?array $options = [];
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
-    #[Groups([self::GROUP_LIST])]
     private ?int $position = 0;
 
     public function getList(): ?AttributeList

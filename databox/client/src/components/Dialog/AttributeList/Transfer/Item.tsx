@@ -38,8 +38,6 @@ export default function Item({
         def = definitionsIndex[data.key!];
     }
 
-    console.log('data.key', data, def);
-
     const getLabel  = () => {
         if (data.type === AttributeListItemType.Definition) {
             return <AttributeDefinitionLabel data={def!}/>;

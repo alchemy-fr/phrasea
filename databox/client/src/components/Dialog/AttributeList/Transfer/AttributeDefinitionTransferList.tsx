@@ -11,7 +11,7 @@ import Paper from '@mui/material/Paper';
 import {AttributeDefinition, AttributeListItem} from "../../../../types.ts";
 import {AttributeDefinitionsIndex} from "../../../../store/attributeDefinitionStore.ts";
 import AttributeDefinitionLabel from "../AttributeDefinitionLabel.tsx";
-import {TextField} from "@mui/material";
+import {ListItem, TextField} from "@mui/material";
 import HeightIcon from '@mui/icons-material/Height';
 import {
     attributeDefinitionToItem,
@@ -123,7 +123,7 @@ export default function AttributeDefinitionTransferList({definitions, definition
     };
 
     const customList = (children: ReactNode) => (
-        <Paper sx={{ width: 220, height: 450, overflow: 'auto' }}>
+        <Paper sx={{ width: 230, height: 450, overflow: 'auto' }}>
             <List dense component="div" role="list">
                 {children}
             </List>
@@ -185,7 +185,7 @@ export default function AttributeDefinitionTransferList({definitions, definition
             sx={{ justifyContent: 'center', alignItems: 'center' }}
         >
             <Grid>
-                <FlexRow>
+                <ListItem component={'div'} sx={{px: 0}}>
                     <Checkbox
                         checked={checked.length === left.length && left.length > 0}
                         tabIndex={-1}
@@ -201,7 +201,7 @@ export default function AttributeDefinitionTransferList({definitions, definition
                         placeholder={t('dialog.search', 'Search')}
                         onChange={e => setQueryLeft(e.target.value)}
                     />
-                </FlexRow>
+                </ListItem>
                 {leftList}
             </Grid>
             <Grid>
@@ -256,17 +256,22 @@ export default function AttributeDefinitionTransferList({definitions, definition
                 </Grid>
             </Grid>
             <Grid>
-                <FlexRow>
-                    <TextField
-                        type={'search'}
-                        variant={'standard'}
-                        placeholder={t('dialog.search', 'Search')}
-                        onChange={e => setQueryRight(e.target.value)}
-                    />
-                </FlexRow>
+                <ListItem component={'div'}>
+                <TextField
+                    type={'search'}
+                    variant={'standard'}
+                    placeholder={t('dialog.search', 'Search')}
+                    onChange={e => setQueryRight(e.target.value)}
+                />
+                </ListItem>
                 {rightList}
             </Grid>
             {item && !isTmpId(item.id) ? <Grid>
+                <ListItem component={'div'}>
+                    <ListItemText
+                        primary={getItemLabel(item, definitionsIndex)}
+                    />
+                </ListItem>
                 <Paper sx={{ width: 250, height: 450, overflow: 'auto', p: 1 }}>
                     <ItemForm
                         key={item.id}
