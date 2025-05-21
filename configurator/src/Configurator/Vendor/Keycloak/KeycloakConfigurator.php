@@ -168,30 +168,30 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         $this->configureRealm();
 
         foreach ($this->frontendApplications as $app) {
-            $baseUri = getenv(sprintf('%s_CLIENT_URL', strtoupper($app)));
-
-            $this->keycloakManager->updateClientByClientId(
+            $this->configureClient(
                 getenv(sprintf('%s_CLIENT_ID', strtoupper($app))),
+                null,
+                getenv(sprintf('%s_CLIENT_URL', strtoupper($app))),
                 [
-                    'rootUrl' => $baseUri,
-                    'redirectUris' => $baseUri ? [$baseUri.'/*'] : null,
-                    'webOrigins' => [$baseUri]
+                    'serviceAccountsEnabled' => false,
                 ]
             );
         }
 
         foreach ($this->symfonyApplications as $app) {
+            $clientId = getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app)));
             $baseUri = getenv(sprintf('%s_API_URL', strtoupper($app)));
 
-            $this->keycloakManager->updateClientByClientId(
-                getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app))),
+            $this->configureClient(
+                $clientId,
+                getenv(sprintf('%s_ADMIN_CLIENT_SECRET', strtoupper($app))),
+                $baseUri,
                 [
-                    'rootUrl' => $baseUri,
-                    'redirectUris' => [
-                        $baseUri.'/admin/*',
-                        $baseUri.'/bundles/apiplatform/swagger-ui/oauth2-redirect.html',
-                    ],
-                    'webOrigins' => [$baseUri]
+                    'serviceAccountsEnabled' => true,
+                ],
+                redirectUris: [
+                    $baseUri.'/admin/*',
+                    $baseUri.'/bundles/apiplatform/swagger-ui/oauth2-redirect.html',
                 ]
             );
         }

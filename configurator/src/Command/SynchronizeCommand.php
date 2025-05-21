@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Configurator\Vendor\Keycloak\KeycloakConfigurator;
 
-#[AsCommand(name: 'synchronize', description: 'synchronize keycloak realm config, clients')]
+#[AsCommand(name: 'synchronize', description: 'Synchronize all parameters from env vars')]
 final class SynchronizeCommand extends Command
 {
     public function __construct(
