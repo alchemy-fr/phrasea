@@ -1,15 +1,12 @@
 import {MouseEvent} from 'react';
 import {AssetOrAssetContainer} from '../../../../types';
 import assetClasses from '../../classes';
-import PrivacyChip from '../../../Ui/PrivacyChip';
 import IconButton from '@mui/material/IconButton';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AssetThumb from '../../../Media/Asset/AssetThumb';
 import {replaceHighlight} from '../../../Media/Asset/Attribute/AttributeHighlights.tsx';
 import Attributes from '../../../Media/Asset/Attribute/Attributes';
-import AssetTagList from '../../../Media/Asset/Widgets/AssetTagList';
-import AssetCollectionList from '../../../Media/Asset/Widgets/AssetCollectionList';
 import {AssetItemProps, OnPreviewToggle} from '../../types';
 import {Checkbox, Grid} from '@mui/material';
 import {stopPropagation} from '../../../../lib/stdFuncs';
@@ -48,7 +45,8 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                 onChange={() =>
                     onToggle(item, {
                         ctrlKey: true,
-                        preventDefault() {},
+                        preventDefault() {
+                        },
                     } as MouseEvent)
                 }
             />
@@ -63,7 +61,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                                     onDoubleClick={stopPropagation}
                                     onClick={e => onAddToBasket(asset, e)}
                                 >
-                                    <ShoppingCartIcon fontSize={'small'} />
+                                    <ShoppingCartIcon fontSize={'small'}/>
                                 </IconButton>
                             ) : null}
                             {onContextMenuOpen && (
@@ -87,21 +85,21 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                         onMouseOver={
                             onPreviewToggle
                                 ? e =>
-                                      onPreviewToggle(
-                                          asset,
-                                          true,
-                                          e.currentTarget as HTMLElement
-                                      )
+                                    onPreviewToggle(
+                                        asset,
+                                        true,
+                                        e.currentTarget as HTMLElement
+                                    )
                                 : undefined
                         }
                         onMouseLeave={
                             onPreviewToggle
                                 ? e =>
-                                      onPreviewToggle(
-                                          asset,
-                                          false,
-                                          e.currentTarget as HTMLElement
-                                      )
+                                    onPreviewToggle(
+                                        asset,
+                                        false,
+                                        e.currentTarget as HTMLElement
+                                    )
                                 : undefined
                         }
                         asset={asset}
@@ -115,7 +113,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                     </div>
 
                     {displayAttributes && (
-                        <Attributes asset={asset} displayControls={true} />
+                        <Attributes asset={asset} displayControls={true}/>
                     )}
                 </Grid>
             </Grid>

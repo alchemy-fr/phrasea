@@ -19,7 +19,6 @@ import {
     createSpacer,
     hasDefinitionInItems, isTmpId
 } from "../../../../store/attributeListStore.ts";
-import {FlexRow} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
 import SortableList from "../../../Ui/Sortable/SortableList.tsx";
 import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
@@ -272,17 +271,14 @@ export default function AttributeDefinitionTransferList({definitions, definition
                         primary={getItemLabel(item, definitionsIndex)}
                     />
                 </ListItem>
-                <Paper sx={{ width: 250, height: 450, overflow: 'auto', p: 1 }}>
                     <ItemForm
                         key={item.id}
                         item={item}
-                        definitionsIndex={definitionsIndex}
                         listId={listId}
                         onChange={item => {
                             setItems(p => p.map(i => i.id === item.id ? item : i));
                         }}
                     />
-                </Paper>
             </Grid> : null}
         </Grid>
     );

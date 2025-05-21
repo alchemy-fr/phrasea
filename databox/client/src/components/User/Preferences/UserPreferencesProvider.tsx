@@ -8,6 +8,7 @@ import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
 import {useUserPreferencesStore} from "../../../store/userPreferencesStore.ts";
 import {useAuth} from '@alchemy/react-auth';
+import {useAttributeListStore} from "../../../store/attributeListStore.ts";
 
 type Props = PropsWithChildren<{}>;
 
@@ -18,12 +19,19 @@ export default function UserPreferencesProvider({children}: Props) {
     const preferences = useUserPreferencesStore(s => s.preferences);
     const loadPreferences = useUserPreferencesStore(s => s.load);
     const isLoading = useUserPreferencesStore(s => s.isLoading);
+    const setCurrentAttrList = useAttributeListStore(s => s.setCurrent);
 
     React.useEffect(() => {
         if (user) {
-            loadPreferences();
+            loadPreferences().then(up => {
+                if (up.attrList) {
+                    setCurrentAttrList(up.attrList);
+                }
+            });
         }
     }, [loadPreferences, user]);
+
+
 
     return (
         <ThemeEditorProvider

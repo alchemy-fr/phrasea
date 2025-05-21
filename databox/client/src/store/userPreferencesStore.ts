@@ -5,7 +5,6 @@ import {getUserPreferences, putUserPreferences} from "../api/user.ts";
 
 export type UserPreferences = {
     theme?: ThemeName | undefined;
-    pinnedAttrs?: Record<string, string[]> | undefined;
     layout?: Layout;
     attrList?: string | undefined;
 };
@@ -32,7 +31,7 @@ function putToStorage(prefs: UserPreferences): void {
 type UserPreferencesStore = {
     preferences: UserPreferences;
     isLoading: boolean;
-    load: () => Promise<void>;
+    load: () => Promise<UserPreferences>;
     updatePreference: <T extends keyof UserPreferences>(
         name: T,
         handler: UpdatePreferenceHandlerArg<T>
@@ -48,6 +47,8 @@ export const useUserPreferencesStore = create<UserPreferencesStore>((set, get) =
             const userPreferences = await getUserPreferences();
             putToStorage(userPreferences);
             set({preferences: userPreferences, isLoading: false});
+
+            return userPreferences;
         } finally {
             set({isLoading: false});
         }

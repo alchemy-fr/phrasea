@@ -22,6 +22,7 @@ import {
 import {NO_LOCALE} from "./AttributesEditor.tsx";
 import Separator from "../../../Ui/Separator.tsx";
 import {Spacer} from "../../../Ui/VerticalSpacer.tsx";
+import {formatValue, getAttributeType} from "./types";
 
 
 type AttributeItem = {
@@ -124,6 +125,13 @@ function Attributes({
         return null;
     }
 
+    const createAttrProps = (definition: AttributeDefinition) => ({
+        origin: 'machine',
+        locale: NO_LOCALE,
+        capabilities: {},
+        definition,
+    });
+
     return (
         <div
             onDoubleClick={stopPropagation}
@@ -144,11 +152,24 @@ function Attributes({
                     />
                 } else if (ai.type === AttributeListItemType.BuiltIn) {
                     const definition = ai.definition!;
-                    if (definition.builtInRenderComponent) {
-                        const BuiltInRender = definition.builtInRenderComponent;
-                        return <BuiltInRender
+                    if (definition.getValueFromAsset) {
+                        const valueFromAsset = definition.getValueFromAsset(asset);
+
+                        return <AttributeRowUI
                             key={ai.id}
-                            asset={asset}
+                            formatContext={formatContext}
+                            attribute={definition.multiple ? valueFromAsset.map((v: any) => ({
+                                ...createAttrProps(definition),
+                                value: v,
+                            })) : {
+                                ...createAttrProps(definition),
+                                value: valueFromAsset,
+                            }}
+                            definition={ai.definition!}
+                            displayControls={displayControls}
+                            pinned={hasDefinitionInItems(pinnedAttributes, ai.definition!.id)}
+                            togglePin={toggleDefinition}
+                            assetAnnotationsRef={assetAnnotationsRef}
                         />
                     }
                 } else if (ai.type === AttributeListItemType.Divider) {

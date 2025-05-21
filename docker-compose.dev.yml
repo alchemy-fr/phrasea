@@ -105,6 +105,7 @@ services:
     volumes:
       - ./databox/api:/srv/app
       - ./lib/php:/lib/php
+      - ./tmp:/srv/app/tmp
 
   databox-api-nginx:
     volumes:

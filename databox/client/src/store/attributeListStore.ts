@@ -32,7 +32,7 @@ type State = {
     sortList: (listId: string, items: string[]) => void;
     toggleDefinition: (definition: AttributeDefinition) => void;
     removeFromList: (listId: string, ids: string[]) => void;
-    setCurrent: (data: AttributeList | undefined) => Promise<void>;
+    setCurrent: (id: string | undefined) => Promise<void>;
     shouldSelectAttributeList: () => boolean;
 };
 
@@ -74,8 +74,8 @@ export const useAttributeListStore = create<State>((set, getState) => ({
         return !!getState().nextUrl;
     },
 
-    setCurrent: async data => {
-        if (!data) {
+    setCurrent: async id => {
+        if (!id) {
             set({
                 current: undefined,
                 loadingCurrent: false,
@@ -84,22 +84,25 @@ export const useAttributeListStore = create<State>((set, getState) => ({
             return;
         }
 
-        if (getState().current === data) {
+        if (getState().current?.id === id) {
             return;
         }
+
+        const data = getState().lists.find(l => l.id === id);
 
         set({
             current: data,
             loadingCurrent: true,
         });
 
+        putUserPreferences('attrList', id);
+
         try {
-            const list = await getAttributeList(data.id);
+            const list = await getAttributeList(id);
             set({
                 current: list,
                 loadingCurrent: false,
             });
-            putUserPreferences('attrList', data.id);
         } catch (e: any) {
             set({
                 loadingCurrent: false,
@@ -138,20 +141,27 @@ export const useAttributeListStore = create<State>((set, getState) => ({
     },
 
     updateAttributeListItem: (listId, item) => {
+        const replaceItemInList = (l: AttributeList, item: AttributeListItem): AttributeList => {
+            return {
+                ...l,
+                items: l.items?.map(i => {
+                    return i.id === item.id ? {
+                        ...i,
+                        ...item,
+                    } : i;
+                })
+            }
+        }
+
         set(state => ({
             lists: state.lists.map(l => {
                 if (l.id === listId) {
-                    return {
-                        ...l,
-                        items: l.items!.map(i => i.id === item.id ?  {
-                            ...i,
-                            ...item,
-                        } : i)
-                    };
+                    return replaceItemInList(l, item);
                 }
 
                 return l;
             }),
+            current: state.current ? replaceItemInList(state.current, item) : undefined,
         }));
     },
 

@@ -46,13 +46,10 @@ export default function OrganizeAttributeList({data, onClose, minHeight}: Props)
 
     return (
         <>
-            <DialogContent>
-                <Container
-                    sx={{
-                        pt: 2,
-                        minHeight,
-                    }}
-                >
+            <DialogContent
+                sx={{
+                    minHeight,
+                }}>
                     <AttributeDefinitionTransferList
                         listId={data.id}
                         definitions={definitions}
@@ -68,7 +65,6 @@ export default function OrganizeAttributeList({data, onClose, minHeight}: Props)
                             removeFromList(data.id, items);
                         }}
                     />
-                </Container>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>

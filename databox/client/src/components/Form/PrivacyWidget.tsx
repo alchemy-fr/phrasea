@@ -68,12 +68,14 @@ type Props = {
     onChange: (newPrivacy: number) => void;
     value?: number;
     inheritedPrivacy?: number;
+    disabled?: boolean;
 };
 
 export default function PrivacyWidget({
     onChange,
     value = 0,
     inheritedPrivacy,
+    disabled,
 }: Props) {
     const {t} = useTranslation();
 
@@ -153,8 +155,9 @@ export default function PrivacyWidget({
                                 key={k}
                                 value={k}
                                 disabled={
-                                    inheritedKeyPrivacy > 0 &&
-                                    getKeyValue(k) < inheritedKeyPrivacy
+                                    disabled ||
+                                    (inheritedKeyPrivacy > 0 &&
+                                    getKeyValue(k) < inheritedKeyPrivacy)
                                 }
                             >
                                 <ListItemText
@@ -168,7 +171,7 @@ export default function PrivacyWidget({
 
                 {['private', 'public'].includes(privacy) && (
                     <FormControlLabel
-                        disabled={workspaceOnlyLocked}
+                        disabled={disabled || workspaceOnlyLocked}
                         control={
                             <Checkbox
                                 checked={workspaceOnly}
@@ -184,7 +187,7 @@ export default function PrivacyWidget({
                 )}
                 {privacy === 'public' && (
                     <FormControlLabel
-                        disabled={authLocked || workspaceOnly}
+                        disabled={disabled || authLocked || workspaceOnly}
                         control={
                             <Checkbox
                                 checked={auth || workspaceOnly}

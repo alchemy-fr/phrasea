@@ -12,24 +12,26 @@ import {isAQLCondition, isAQLField, valueToString} from './query.ts';
 import {AttributeType} from "../../../../api/attributes.ts";
 
 export const typeMap: Record<AttributeType, RawType> = {
-    [AttributeType.Id]: RawType.Id,
     [AttributeType.Boolean]: RawType.Boolean,
     [AttributeType.Code]: RawType.String,
     [AttributeType.CollectionPath]: RawType.String,
     [AttributeType.Color]: RawType.String,
-    [AttributeType.Date]: RawType.Date,
     [AttributeType.DateTime]: RawType.DateTime,
+    [AttributeType.Date]: RawType.Date,
     [AttributeType.Entity]: RawType.String,
+    [AttributeType.GeoPoint]: RawType.GeoPoint,
     [AttributeType.Html]: RawType.String,
+    [AttributeType.Id]: RawType.Id,
     [AttributeType.Ip]: RawType.String,
+    [AttributeType.Json]: RawType.String,
     [AttributeType.Keyword]: RawType.Keyword,
     [AttributeType.Number]: RawType.Number,
-    [AttributeType.Textarea]: RawType.String,
-    [AttributeType.Text]: RawType.String,
-    [AttributeType.GeoPoint]: RawType.GeoPoint,
+    [AttributeType.Privacy]: RawType.Number,
     [AttributeType.Tag]: RawType.Id,
+    [AttributeType.Text]: RawType.String,
+    [AttributeType.Textarea]: RawType.String,
     [AttributeType.WebVtt]: RawType.String,
-    [AttributeType.Json]: RawType.String,
+    [AttributeType.Workspace]: RawType.String,
 };
 
 export function validateQueryAST(

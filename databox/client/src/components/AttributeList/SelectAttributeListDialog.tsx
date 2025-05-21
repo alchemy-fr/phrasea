@@ -30,7 +30,7 @@ export default function SelectAttributeListDialog({modalIndex, open}: Props) {
     }, [load]);
 
     const onSelect = (data: AttributeList): void => {
-        setCurrent(data);
+        setCurrent(data.id);
         closeModal();
     };
 

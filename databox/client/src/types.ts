@@ -6,7 +6,6 @@ import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTy
 import {RenditionBuildMode} from './api/rendition.ts';
 import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/DefinitionManager.tsx';
 import React from 'react';
-import {BuiltInRenderComponent} from "./components/AttributeList/BuiltInRender/builtInRenderTypes.ts";
 
 type AlternateUrl = {
     type: string;
@@ -140,7 +139,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     lastErrors?: LastErrors;
     entityIri?: string | undefined;
     resolveLabel?: (entity: object) => string;
-    builtInRenderComponent?: BuiltInRenderComponent;
+    getValueFromAsset?: (asset: Asset) => any;
 }
 
 export type FieldWidget<P extends {} = any> = {
