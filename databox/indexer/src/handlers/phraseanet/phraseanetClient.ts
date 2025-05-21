@@ -154,6 +154,7 @@ export default class PhraseanetClient {
                             'results.records.subdefs',
                             'results.records.metadata',
                             'results.records.status',
+                            'results.records.stories',
                             'results.stories.metadata',
                             'results.stories.status',
                         ],
