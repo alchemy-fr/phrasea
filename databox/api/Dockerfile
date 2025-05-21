@@ -12,6 +12,8 @@ ENV IMAGICK_VERSION=3.8.0 \
 
 RUN apk add --no-cache \
     	imagemagick \
+        ImageMagick-heic \
+        imagemagick-webp \
         ffmpeg \
         freetype \
         ghostscript \
