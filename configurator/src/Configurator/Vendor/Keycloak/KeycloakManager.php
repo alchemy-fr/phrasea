@@ -327,6 +327,8 @@ final class KeycloakManager
             ]), [
                 'json' => $data,
             ]);
+        } else {
+            throw new \InvalidArgumentException(sprintf('Client "%s" not found in realm "%s"', $clientId, $this->keycloakRealm));
         }
     }
 

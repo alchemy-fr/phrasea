@@ -868,6 +868,7 @@ services:
     environment:
       - APP_ENV
       - VERIFY_SSL
+      - VERIFY_HOST
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - TRUSTED_PROXIES
