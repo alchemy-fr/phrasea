@@ -29,7 +29,7 @@ CHART_VERSION="${2}"
 (
   mkdir -p /tmp/phrasea-helm-configure-shell \
   && cd /tmp/phrasea-helm-configure-shell \
-  && helm pull https://github.com/alchemy-fr/alchemy-helm-charts-repo/releases/download/phrasea-${CHART_VERSION}/phrasea-${CHART_VERSION}.tgz \
+  && helm pull https://github.com/alchemy-fr/phrasea-helm-charts/releases/download/phrasea-${CHART_VERSION}/phrasea-${CHART_VERSION}.tgz \
   && helm -n ${NS} get values ${RELEASE_NAME} -o yaml > .current-values.yaml \
   && (kubectl -n $NS delete job ${JOB} || true) \
   && helm template ${RELEASE_NAME} \
