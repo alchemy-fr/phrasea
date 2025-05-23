@@ -57,13 +57,30 @@ final class KeycloakManager
 
     public function createRealm(): void
     {
+        if ($this->getRealm() !== null) {
+            return;
+        }
+
         $data = [
-            'realm' => $this->keycloakRealm,
+            'realm'   => $this->keycloakRealm,
             'enabled' => true,
         ];
         HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()->request('POST', '', [
             'json' => $data,
         ])->getContent(), 409, $data);
+    }
+
+    private function getRealm(?string $realm = null)
+    {
+         $response = $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}', [
+            'realm' => $realm ?? $this->keycloakRealm,
+        ]));
+
+        if (404 === $response->getStatusCode()) {
+            return null;
+        }
+
+        return $response->toArray();
     }
 
     protected function getClients(?string $realm = null): array
