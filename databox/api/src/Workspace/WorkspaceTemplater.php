@@ -336,7 +336,7 @@ final readonly class WorkspaceTemplater
                 'name' => $item->getName(),
                 'class' => $attributeClassMap[$item->getClass()->getId()] ?? null,
                 'labels' => $item->getLabels(),
-                'entityType' => $item->getEntityType(),
+                'entityType' => $item->getDeprecatedEntityType(),
                 'fallback' => $item->getFallback(),
                 'fieldType' => $item->getFieldType(),
                 'fileType' => $item->getFileType(),
@@ -373,7 +373,7 @@ final readonly class WorkspaceTemplater
             }
             $o->setClass($attributeClassMap[$item['class']]);
             $o->setLabels($item['labels']);
-            $o->setEntityType($item['entityType']);
+            $o->setDeprecatedEntityType($item['entityType']);
             $o->setFallback($item['fallback']);
             $o->setFieldType($item['fieldType']);
             $o->setFileType($item['fileType']);

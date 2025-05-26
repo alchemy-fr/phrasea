@@ -21,6 +21,7 @@ use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Provider\AttributeEntityCollectionProvider;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeEntityRepository;
+use App\Validator\SameWorkspaceConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -54,22 +55,32 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[ApiFilter(filterClass: OrderFilter::class, properties: [
     'value',
     'createdAt',
+    'position',
 ])]
-#[ORM\Index(columns: ['type'], name: 'attr_entity_type_idx')]
+#[ORM\Index(columns: ['type_id'], name: 'entity_type_idx')]
+#[SameWorkspaceConstraint(
+    properties: ['workspace', 'type.workspace'],
+)]
 class AttributeEntity extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
-    public const int TYPE_LENGTH = 100;
 
-    final public const string GROUP_READ = 'attr-entity:read';
-    final public const string GROUP_LIST = 'attr-entity:index';
+    final public const string GROUP_READ = 'attr-ent:r';
+    final public const string GROUP_LIST = 'attr-ent:i';
 
-    #[ORM\Column(type: Types::STRING, length: self::TYPE_LENGTH, nullable: false)]
+    /**
+     * @deprecated
+     */
+    #[ORM\Column(name: 'type', type: Types::STRING, length: 100, nullable: false)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
     #[NotBlank]
-    private ?string $type = null;
+    private ?string $deprecatedType = null;
+
+    #[ORM\ManyToOne(targetEntity: EntityType::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    protected ?EntityType $type = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: false)]
     #[Groups([
@@ -86,14 +97,14 @@ class AttributeEntity extends AbstractUuidEntity
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
     private ?array $translations = null;
 
-    public function getType(): ?string
+    public function getDeprecatedType(): ?string
     {
-        return $this->type;
+        return $this->deprecatedType;
     }
 
-    public function setType(?string $type): void
+    public function setDeprecatedType(?string $deprecatedType): void
     {
-        $this->type = $type;
+        $this->deprecatedType = $deprecatedType;
     }
 
     public function getValue(): ?string
@@ -124,5 +135,20 @@ class AttributeEntity extends AbstractUuidEntity
     public function setTranslations(?array $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getType(): ?EntityType
+    {
+        return $this->type;
+    }
+
+    public function setType(?EntityType $type): void
+    {
+        $this->type = $type;
+    }
+
+    public function __toString(): string
+    {
+        return $this->value ?? $this->getId() ?? '';
     }
 }

@@ -150,8 +150,12 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     #[ORM\Column(type: Types::STRING, length: 50, nullable: false)]
     private string $fieldType = TextAttributeType::NAME;
 
-    #[ORM\Column(type: Types::STRING, length: AttributeEntity::TYPE_LENGTH, nullable: true)]
-    private ?string $entityType = null;
+    #[ORM\Column(name: 'entity_type', type: Types::STRING, length: 100, nullable: true)]
+    private ?string $deprecatedEntityType = null;
+
+    #[ORM\ManyToOne(targetEntity: EntityType::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    protected ?EntityType $entityType = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $searchable = true;
@@ -448,12 +452,22 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         $this->suggest = $suggest;
     }
 
-    public function getEntityType(): ?string
+    public function getDeprecatedEntityType(): ?string
+    {
+        return $this->deprecatedEntityType;
+    }
+
+    public function setDeprecatedEntityType(?string $deprecatedEntityType): void
+    {
+        $this->deprecatedEntityType = $deprecatedEntityType;
+    }
+
+    public function getEntityType(): ?EntityType
     {
         return $this->entityType;
     }
 
-    public function setEntityType(?string $entityType): void
+    public function setEntityType(?EntityType $entityType): void
     {
         $this->entityType = $entityType;
     }

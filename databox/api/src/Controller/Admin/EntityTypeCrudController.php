@@ -4,8 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
-use Alchemy\AdminBundle\Field\JsonField;
-use App\Entity\Core\AttributeEntity;
+use App\Entity\Core\EntityType;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -15,19 +14,18 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
-class AttributeEntityCrudController extends AbstractAdminCrudController
+class EntityTypeCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return AttributeEntity::class;
+        return EntityType::class;
     }
 
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
             ->add(EntityFilter::new('workspace'))
-            ->add(EntityFilter::new('type'))
-            ->add(TextFilter::new('value'))
+            ->add(TextFilter::new('name'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
     }
@@ -35,18 +33,16 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('Attribute Entity')
-            ->setEntityLabelInPlural('Attribute Entities')
-            ->setSearchFields(['id', 'position', 'value']);
+            ->setEntityLabelInSingular('Entity Type')
+            ->setEntityLabelInPlural('Entity Types')
+            ->setSearchFields(['id', 'name']);
     }
 
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
         yield AssociationField::new('workspace');
-        yield AssociationField::new('type');
-        yield TextField::new('value');
-        yield JsonField::new('translations');
+        yield TextField::new('name');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')
