@@ -6,12 +6,15 @@
     "dev": "turbo run dev --parallel",
     "format": "turbo run format --parallel",
     "lint:fix": "turbo run lint:fix --parallel",
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "eslint": "^8.57.1",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.18",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.0.0",
     "prettier": "^3.4.2",
     "turbo": "^2.3.4"
   },
@@ -19,6 +22,11 @@
   "pnpm": {
     "overrides": {
       "i18next": "24.2.1"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
     }
   }
 }
