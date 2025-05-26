@@ -87,7 +87,8 @@ final readonly class WorkspaceDelete
             $this->deleteDependencies(RenditionDefinition::class, $workspaceId);
             $this->deleteDependencies(RenditionClass::class, $workspaceId);
             $this->deleteDependencies(AssetDataTemplate::class, $workspaceId);
-            $this->deleteDependencies(AttributeDefinition::class, $workspaceId);$this->deleteDependencies(AttributeDefinition::class, $workspaceId);
+            $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
+            $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
             $this->deleteDependencies(AttributeClass::class, $workspaceId);
             $this->deleteDependencies(WorkspaceIntegration::class, $workspaceId);
             $this->deleteDependencies(WorkspaceSecret::class, $workspaceId);
