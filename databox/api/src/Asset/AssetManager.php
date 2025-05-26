@@ -12,6 +12,7 @@ use App\Entity\Core\File;
 use App\Entity\Workflow\WorkflowState;
 use App\Workflow\Event\AssetIngestWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 
 readonly class AssetManager
 {
@@ -22,6 +23,8 @@ readonly class AssetManager
         private WorkflowOrchestrator $workflowOrchestrator,
         private PostFlushStack $postFlushStack,
     ) {
+
+
     }
 
     public function assignNewAssetSourceFile(
