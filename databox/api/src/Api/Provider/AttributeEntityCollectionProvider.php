@@ -10,9 +10,6 @@ use App\Api\EntityIriConverter;
 use App\Api\Traits\CollectionProviderAwareTrait;
 use App\Api\Traits\WorkspaceCollectionTrait;
 use App\Elasticsearch\AttributeEntitySearch;
-use App\Entity\Core\Workspace;
-use App\Security\Voter\AbstractVoter;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
 {

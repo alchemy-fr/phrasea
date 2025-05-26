@@ -9,8 +9,7 @@ readonly class QuietContextStamp implements StampInterface
     public function __construct(
         private bool $noWebhook = false,
         private bool $noNotification = false,
-    )
-    {
+    ) {
     }
 
     public function isNoWebhook(): bool

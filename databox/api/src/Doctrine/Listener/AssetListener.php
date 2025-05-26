@@ -12,7 +12,6 @@ use App\Entity\Core\File;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
-use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::onFlush)]
@@ -31,9 +30,9 @@ class AssetListener
         $em = $args->getObjectManager();
         $uow = $em->getUnitOfWork();
 
-        foreach($uow->getScheduledEntityDeletions() as $entityDelete) {
+        foreach ($uow->getScheduledEntityDeletions() as $entityDelete) {
             if ($entityDelete instanceof Asset) {
-                if(null !== ($storyCollection = $entityDelete->getStoryCollection())) {
+                if (null !== ($storyCollection = $entityDelete->getStoryCollection())) {
                     $storyCollection->setStoryAsset(null);
                     $em->persist($storyCollection);
                     $em->remove($storyCollection);

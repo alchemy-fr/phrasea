@@ -9,7 +9,7 @@ import {
 import {hasProp} from '../../../../lib/utils.ts';
 import {AttributeDefinition} from '../../../../types.ts';
 import {isAQLCondition, isAQLField, valueToString} from './query.ts';
-import {AttributeType} from "../../../../api/attributes.ts";
+import {AttributeType} from '../../../../api/attributes.ts';
 
 export const typeMap: Record<AttributeType, RawType> = {
     [AttributeType.Boolean]: RawType.Boolean,
@@ -90,7 +90,7 @@ function validateConditionType(
                 throw new Error(
                     `Field "${attributeDefinition.name}" is not of type ${type}`
                 );
-            }
+            };
 
             if (
                 [
@@ -99,7 +99,12 @@ function validateConditionType(
                     AQLOperator.STARTS_WITH,
                     AQLOperator.NOT_STARTS_WITH,
                 ].includes(op) &&
-                ![RawType.Keyword, RawType.String, RawType.Date, RawType.DateTime].includes(rawType)
+                ![
+                    RawType.Keyword,
+                    RawType.String,
+                    RawType.Date,
+                    RawType.DateTime,
+                ].includes(rawType)
             ) {
                 if (rawType === RawType.Id) {
                     throwTypeError('ID');
@@ -109,11 +114,10 @@ function validateConditionType(
             }
 
             if (
-                [
-                    AQLOperator.MATCHES,
-                    AQLOperator.NOT_MATCHES,
-                ].includes(op) &&
-                ![RawType.String, RawType.Date, RawType.DateTime].includes(rawType)
+                [AQLOperator.MATCHES, AQLOperator.NOT_MATCHES].includes(op) &&
+                ![RawType.String, RawType.Date, RawType.DateTime].includes(
+                    rawType
+                )
             ) {
                 if (rawType === RawType.Id) {
                     throwTypeError('ID');
@@ -142,7 +146,9 @@ function validateConditionType(
                     AQLOperator.LT,
                     AQLOperator.LTE,
                 ].includes(op) &&
-                ![RawType.Number, RawType.Date, RawType.DateTime].includes(rawType)
+                ![RawType.Number, RawType.Date, RawType.DateTime].includes(
+                    rawType
+                )
             ) {
                 throwNotOfTypeError('number');
             }

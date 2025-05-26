@@ -26,7 +26,7 @@ final readonly class DateNormalizer
             }
 
             $length = strlen($value);
-            if ($length === 10) {
+            if (10 === $length) {
                 $date = \DateTimeImmutable::createFromFormat('Y-m-d', $value);
                 if ($date instanceof \DateTimeImmutable) {
                     return $date->format('Y-m-d');
@@ -63,6 +63,7 @@ final readonly class DateNormalizer
 
                 if ($date instanceof \DateTimeImmutable) {
                     $format = $withMicro ? 'Y-m-d\TH:i:s.uO' : 'Y-m-d\TH:i:sO';
+
                     return $date->format($format);
                 }
             }

@@ -26,6 +26,7 @@ final readonly class DoctrineConnectionManager
 
     public function getConnection(string $application): Connection
     {
+
         return $this->connections[$application];
     }
 }

@@ -22,6 +22,7 @@ readonly class AssetManager
         private WorkflowOrchestrator $workflowOrchestrator,
         private PostFlushStack $postFlushStack,
     ) {
+
     }
 
     public function assignNewAssetSourceFile(

@@ -6,7 +6,6 @@ namespace Alchemy\Workflow\State\Repository;
 
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
-use function array_filter;
 
 class MemoryStateRepository implements StateRepositoryInterface
 {
@@ -94,6 +93,7 @@ class MemoryStateRepository implements StateRepositoryInterface
                 function (object $s) use ($state, &$found): object {
                     if ($s->getId() === $state->getId()) {
                         $found = true;
+
                         return $state;
                     } else {
                         return $s;
@@ -111,9 +111,9 @@ class MemoryStateRepository implements StateRepositoryInterface
         unset($this->statuses[$jobStateId]);
 
         foreach ($this->statusesByJobId[$workflowId] as $jobId => $states) {
-            $this->statusesByJobId[$workflowId][$jobId] = array_filter(
+            $this->statusesByJobId[$workflowId][$jobId] = \array_filter(
                 $states,
-                fn(object $s): bool => $s->getId() !== $jobStateId
+                fn (object $s): bool => $s->getId() !== $jobStateId
             );
         }
     }
@@ -124,7 +124,7 @@ class MemoryStateRepository implements StateRepositoryInterface
             unset($this->statuses[$jobState->getId()]);
         }
 
-        $this->statusesByJobId[$workflowId][$jobId]=[];
+        $this->statusesByJobId[$workflowId][$jobId] = [];
     }
 
     private function ensureWorkflowExists(string $workflowId): void

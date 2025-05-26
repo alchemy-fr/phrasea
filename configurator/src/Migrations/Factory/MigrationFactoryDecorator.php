@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Migrations\Factory;
 
-use Psr\Log\LoggerInterface;
+use App\Configurator\Vendor\Keycloak\KeycloakManager;
+use App\Configurator\Vendor\Keycloak\Migrations\MigrationKeycloakInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\Migrations\AbstractMigration;
 use Doctrine\Migrations\Version\MigrationFactory;
-use App\Configurator\Vendor\Keycloak\KeycloakManager;
-use App\Configurator\Vendor\Keycloak\Migrations\MigrationKeycloakInterface;
+use Psr\Log\LoggerInterface;
 
 class MigrationFactoryDecorator implements MigrationFactory
 {
@@ -18,11 +18,11 @@ class MigrationFactoryDecorator implements MigrationFactory
     public function __construct(
         private readonly Connection $connection,
         private readonly LoggerInterface $logger,
-        private array $symfonyApplications, 
-        private array $frontendApplications, 
+        private array $symfonyApplications,
+        private array $frontendApplications,
         KeycloakManager $keycloakManager)
     {
-        $this->keycloakManager  = $keycloakManager;
+        $this->keycloakManager = $keycloakManager;
     }
 
     public function createVersion(string $migrationClassName): AbstractMigration
