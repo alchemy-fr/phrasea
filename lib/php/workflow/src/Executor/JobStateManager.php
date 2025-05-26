@@ -7,8 +7,8 @@ use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\LockAwareStateRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\Repository\TransactionalStateRepositoryInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 final class JobStateManager
 {
@@ -22,8 +22,7 @@ final class JobStateManager
     public function __construct(
         private readonly StateRepositoryInterface $stateRepository,
         ?EventDispatcherInterface $eventDispatcher = null,
-    )
-    {
+    ) {
         $this->eventDispatcher = $eventDispatcher ?? new EventDispatcher();
     }
 

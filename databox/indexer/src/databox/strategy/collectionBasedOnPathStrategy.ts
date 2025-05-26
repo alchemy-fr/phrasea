@@ -41,11 +41,11 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
             workspaceId: asset.workspaceId,
             sourceFile: asset.publicUrl
                 ? {
-                    url: asset.publicUrl,
-                    isPrivate: asset.isPrivate,
-                    alternateUrls,
-                    importFile: asset.importFile,
-                }
+                      url: asset.publicUrl,
+                      isPrivate: asset.isPrivate,
+                      alternateUrls,
+                      importFile: asset.importFile,
+                  }
                 : undefined,
             collection: collId ? '/collections/' + collId : undefined,
             generateRenditions: asset.generateRenditions,

@@ -5,7 +5,7 @@ namespace Alchemy\Workflow\Message;
 use Alchemy\MessengerBundle\Message\RetryCountSupportInterface;
 
 if (!interface_exists(RetryCountSupportInterface::class)) {
-    require __DIR__ . '/RetryCountSupportInterface.php';
+    require __DIR__.'/RetryCountSupportInterface.php';
 }
 
 final readonly class JobConsumer implements RetryCountSupportInterface
@@ -14,8 +14,7 @@ final readonly class JobConsumer implements RetryCountSupportInterface
         private string $workflowId,
         private string $jobId,
         private string $jobStateId,
-    )
-    {
+    ) {
     }
 
     public function getWorkflowId(): string

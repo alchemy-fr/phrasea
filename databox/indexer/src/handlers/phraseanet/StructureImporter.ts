@@ -12,10 +12,7 @@ import {
     DataboxAttributeType,
     TagIndex,
 } from './shared';
-import {
-    AttributeDefinition,
-    Tag,
-} from '../../databox/types';
+import {AttributeDefinition, Tag} from '../../databox/types';
 import Twig from 'twig';
 import Yaml from 'js-yaml';
 
@@ -39,7 +36,7 @@ export async function dumpConfFromStructure(
     await addMissingAttributeDefinitionsConf(
         phraseanetDataboxId,
         phraseanetClient,
-        dm,
+        dm
     );
 
     logger.info(
@@ -205,7 +202,11 @@ export async function importSubdefsStructure(
                 name: name,
                 parent: rendition.parent ?? null,
                 useAsOriginal: rendition.useAsOriginal ?? false,
-                buildMode: rendition.buildMode ?? (rendition.builders ? RenditionBuildMode.BUILD_FROM_PARENT : RenditionBuildMode.COPY_ASSET_FILE),
+                buildMode:
+                    rendition.buildMode ??
+                    (rendition.builders
+                        ? RenditionBuildMode.BUILD_FROM_PARENT
+                        : RenditionBuildMode.COPY_ASSET_FILE),
                 useAsPreview: rendition.useAsPreview ?? false,
                 useAsThumbnail: rendition.useAsThumbnail ?? false,
                 useAsThumbnailActive: rendition.useAsThumbnailActive ?? false,
