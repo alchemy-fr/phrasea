@@ -2,7 +2,8 @@
 
 namespace App\Elasticsearch\AQL;
 
-enum LogicOperatorEnum: string {
+enum LogicOperatorEnum: string
+{
     case AND = 'AND';
     case OR = 'OR';
 }

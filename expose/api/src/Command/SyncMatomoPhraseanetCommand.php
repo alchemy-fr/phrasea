@@ -23,6 +23,7 @@ final class SyncMatomoPhraseanetCommand extends Command
     ) {
         $this->matomoClient = $matomoClient;
         $this->phraseanetClient = $phraseanetClient;
+
         parent::__construct();
     }
 

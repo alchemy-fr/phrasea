@@ -100,7 +100,9 @@ export class DataboxClient {
         this.logger = logger;
     }
 
-    async createAsset(data: AssetInput): Promise<AssetOutput | StoryAssetOutput> {
+    async createAsset(
+        data: AssetInput
+    ): Promise<AssetOutput | StoryAssetOutput> {
         if (data.workspaceId) {
             data.workspace = `/workspaces/${data.workspaceId}`;
             delete data.workspaceId;
@@ -181,7 +183,7 @@ export class DataboxClient {
     async createCollectionTreeBranch(
         workspaceId: string,
         keyPrefix: string,
-        data: CollectionInput[],
+        data: CollectionInput[]
     ): Promise<string> {
         let parentId: string | undefined = undefined;
         let key = keyPrefix;

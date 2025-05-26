@@ -8,11 +8,10 @@ class RenditionBuildException extends \RuntimeException implements JobSkipExcept
 {
     public function __construct(
         private readonly bool $skip,
-        string $message = "",
+        string $message = '',
         int $code = 0,
-        ?\Throwable $previous = null
-    )
-    {
+        ?\Throwable $previous = null,
+    ) {
         parent::__construct($message, $code, $previous);
     }
 
