@@ -9,7 +9,7 @@ import {putAttributeListItem} from "../../../../api/attributeList.ts";
 import RemoteErrors from "../../../Form/RemoteErrors.tsx";
 import {LoadingButton} from "@mui/lab";
 import {getAttributeType} from "../../../Media/Asset/Attribute/types";
-import {getIndexById, getIndexBySlug} from "../../../../store/attributeDefinitionStore.ts";
+import {getIndexById, useIndexBySlug} from "../../../../store/attributeDefinitionStore.ts";
 import {useAttributeListStore} from "../../../../store/attributeListStore.ts";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
@@ -27,7 +27,7 @@ export default function ItemForm({
 }: Props) {
     const {t} = useTranslation();
     const updateAttributeListItem = useAttributeListStore(state => state.updateAttributeListItem);
-    const definitionIndexBySlug = getIndexBySlug();
+    const definitionIndexBySlug = useIndexBySlug();
     const definitionIndexById = getIndexById();
 
     const {
