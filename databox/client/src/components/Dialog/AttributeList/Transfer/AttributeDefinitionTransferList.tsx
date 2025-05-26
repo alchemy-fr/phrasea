@@ -8,34 +8,43 @@ import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
-import {AttributeDefinition, AttributeListItem} from "../../../../types.ts";
-import {AttributeDefinitionsIndex} from "../../../../store/attributeDefinitionStore.ts";
-import AttributeDefinitionLabel from "../AttributeDefinitionLabel.tsx";
-import {ListItem, TextField} from "@mui/material";
+import {AttributeDefinition, AttributeListItem} from '../../../../types.ts';
+import {AttributeDefinitionsIndex} from '../../../../store/attributeDefinitionStore.ts';
+import AttributeDefinitionLabel from '../AttributeDefinitionLabel.tsx';
+import {ListItem, TextField} from '@mui/material';
 import HeightIcon from '@mui/icons-material/Height';
 import {
     attributeDefinitionToItem,
     createDivider,
     createSpacer,
-    hasDefinitionInItems, isTmpId
-} from "../../../../store/attributeListStore.ts";
+    hasDefinitionInItems,
+    isTmpId,
+} from '../../../../store/attributeListStore.ts';
 import {useTranslation} from 'react-i18next';
-import SortableList from "../../../Ui/Sortable/SortableList.tsx";
+import SortableList from '../../../Ui/Sortable/SortableList.tsx';
 import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
-import Item, {getItemLabel} from "./Item.tsx";
-import ItemForm from "./ItemForm.tsx";
+import Item, {getItemLabel} from './Item.tsx';
+import ItemForm from './ItemForm.tsx';
 
 type Props = {
     definitions: AttributeDefinition[];
     definitionsIndex: AttributeDefinitionsIndex;
     list: AttributeListItem[];
-    listId: string,
+    listId: string;
     onSort: (items: string[]) => void;
     onAdd: (items: AttributeListItem[]) => void;
     onRemove: (items: string[]) => void;
 };
 
-export default function AttributeDefinitionTransferList({definitions, definitionsIndex, listId, list, onSort, onAdd, onRemove}: Props) {
+export default function AttributeDefinitionTransferList({
+    definitions,
+    definitionsIndex,
+    listId,
+    list,
+    onSort,
+    onAdd,
+    onRemove,
+}: Props) {
     const [checked, setChecked] = React.useState<string[]>([]);
     const [items, setItems] = React.useState<AttributeListItem[]>(list);
     const [queryLeft, setQueryLeft] = React.useState('');
@@ -60,22 +69,30 @@ export default function AttributeDefinitionTransferList({definitions, definition
         setChecked(newChecked);
     };
 
-    const getDefinitionsNotPresent = (items: AttributeListItem[], definitions: string[]): AttributeListItem[] => {
-        return definitions.map((id: string) => {
-            if (hasDefinitionInItems(items, id)) {
-                return undefined;
-            }
-            const def = definitionsIndex[id];
-            if (!def || hasDefinitionInItems(items, id)) {
-                return undefined;
-            }
+    const getDefinitionsNotPresent = (
+        items: AttributeListItem[],
+        definitions: string[]
+    ): AttributeListItem[] => {
+        return definitions
+            .map((id: string) => {
+                if (hasDefinitionInItems(items, id)) {
+                    return undefined;
+                }
+                const def = definitionsIndex[id];
+                if (!def || hasDefinitionInItems(items, id)) {
+                    return undefined;
+                }
 
-            return attributeDefinitionToItem(def);
-        }).filter(i => !!i) as AttributeListItem[];
-    }
+                return attributeDefinitionToItem(def);
+            })
+            .filter(i => !!i) as AttributeListItem[];
+    };
 
     const handleAddAll = () => {
-        const addedItems = getDefinitionsNotPresent(items, definitions.map(d => d.id));
+        const addedItems = getDefinitionsNotPresent(
+            items,
+            definitions.map(d => d.id)
+        );
         onAdd(addedItems);
         setItems(items.concat(addedItems));
     };
@@ -122,7 +139,7 @@ export default function AttributeDefinitionTransferList({definitions, definition
     };
 
     const customList = (children: ReactNode) => (
-        <Paper sx={{ width: 230, height: 450, overflow: 'auto' }}>
+        <Paper sx={{width: 230, height: 450, overflow: 'auto'}}>
             <List dense component="div" role="list">
                 {children}
             </List>
@@ -131,62 +148,84 @@ export default function AttributeDefinitionTransferList({definitions, definition
 
     const left = definitions.filter(d => !hasDefinitionInItems(items, d.id));
 
-    const leftList = customList(<>{left
-        .filter(d => !queryLeft || d.name.toLowerCase().includes(queryLeft.toLowerCase()))
-        .map((definition: AttributeDefinition) => {
-        const labelId = `d-${definition.id}-label`;
+    const leftList = customList(
+        <>
+            {left
+                .filter(
+                    d =>
+                        !queryLeft ||
+                        d.name.toLowerCase().includes(queryLeft.toLowerCase())
+                )
+                .map((definition: AttributeDefinition) => {
+                    const labelId = `d-${definition.id}-label`;
 
-        return (
-            <ListItemButton
-                key={definition.id}
-                role="listitem"
-                onClick={handleToggle(definition.id)}
-            >
-                <ListItemIcon>
-                    <Checkbox
-                        checked={checked.includes(definition.id)}
-                        tabIndex={-1}
-                        disableRipple
-                        inputProps={{
-                            'aria-labelledby': labelId,
-                        }}
-                    />
-                </ListItemIcon>
-                <ListItemText
-                    id={labelId}
-                    primary={<AttributeDefinitionLabel data={definition}/>}
-                />
-            </ListItemButton>
-        );
-    })}</>);
+                    return (
+                        <ListItemButton
+                            key={definition.id}
+                            role="listitem"
+                            onClick={handleToggle(definition.id)}
+                        >
+                            <ListItemIcon>
+                                <Checkbox
+                                    checked={checked.includes(definition.id)}
+                                    tabIndex={-1}
+                                    disableRipple
+                                    inputProps={{
+                                        'aria-labelledby': labelId,
+                                    }}
+                                />
+                            </ListItemIcon>
+                            <ListItemText
+                                id={labelId}
+                                primary={
+                                    <AttributeDefinitionLabel
+                                        data={definition}
+                                    />
+                                }
+                            />
+                        </ListItemButton>
+                    );
+                })}
+        </>
+    );
 
-    const rightList = customList(<SortableList
-        onOrderChange={items => {
-            setItems(items);
-            onSort(items.map(i => i.id));
-        }}
-        list={items.filter(d => !queryRight || getItemLabel(d, definitionsIndex).toLowerCase().includes(queryRight.toLowerCase()))}
-        itemProps={{
-            removeItem,
-            definitionsIndex,
-            onClick: item => {
-                setItem(item);
-            },
-            selectedItem: item?.id,
-        }}
-        itemComponent={Item}
-    />);
+    const rightList = customList(
+        <SortableList
+            onOrderChange={items => {
+                setItems(items);
+                onSort(items.map(i => i.id));
+            }}
+            list={items.filter(
+                d =>
+                    !queryRight ||
+                    getItemLabel(d, definitionsIndex)
+                        .toLowerCase()
+                        .includes(queryRight.toLowerCase())
+            )}
+            itemProps={{
+                removeItem,
+                definitionsIndex,
+                onClick: item => {
+                    setItem(item);
+                },
+                selectedItem: item?.id,
+            }}
+            itemComponent={Item}
+        />
+    );
 
     return (
         <Grid
             container
             spacing={2}
-            sx={{ justifyContent: 'center', alignItems: 'center' }}
+            sx={{justifyContent: 'center', alignItems: 'center'}}
         >
             <Grid>
                 <ListItem component={'div'} sx={{px: 0}}>
                     <Checkbox
-                        checked={checked.length === left.length && left.length > 0}
+                        checked={
+                            checked.length === left.length && left.length > 0
+                        }
                         tabIndex={-1}
                         disableRipple
                         onChange={toggleAll}
@@ -204,26 +243,32 @@ export default function AttributeDefinitionTransferList({definitions, definition
                 {leftList}
             </Grid>
             <Grid>
-                <Grid container direction="column" sx={{ alignItems: 'center' }}>
+                <Grid container direction="column" sx={{alignItems: 'center'}}>
                     <Button
-                        sx={{ my: 1 }}
+                        sx={{my: 1}}
                         onClick={handleAddDivider}
                         variant={'outlined'}
-                        title={t('attribute_list.organize.add_divider', 'Add Divider')}
+                        title={t(
+                            'attribute_list.organize.add_divider',
+                            'Add Divider'
+                        )}
                     >
-                        <HorizontalRuleIcon/>
+                        <HorizontalRuleIcon />
                     </Button>
                     <Button
-                        sx={{ my: 1 }}
+                        sx={{my: 1}}
                         onClick={handleAddSpacer}
                         variant={'outlined'}
-                        title={t('attribute_list.organize.add_spacer', 'Add Spacer')}
+                        title={t(
+                            'attribute_list.organize.add_spacer',
+                            'Add Spacer'
+                        )}
                     >
-                        <HeightIcon/>
+                        <HeightIcon />
                     </Button>
 
                     <Button
-                        sx={{ my: 0.5 }}
+                        sx={{my: 0.5}}
                         variant="outlined"
                         size="small"
                         onClick={handleAddAll}
@@ -233,7 +278,7 @@ export default function AttributeDefinitionTransferList({definitions, definition
                         ≫
                     </Button>
                     <Button
-                        sx={{ my: 0.5 }}
+                        sx={{my: 0.5}}
                         variant="outlined"
                         size="small"
                         onClick={handleAddChecked}
@@ -243,7 +288,7 @@ export default function AttributeDefinitionTransferList({definitions, definition
                         &gt;
                     </Button>
                     <Button
-                        sx={{ my: 0.5 }}
+                        sx={{my: 0.5}}
                         variant="outlined"
                         size="small"
                         onClick={handleClear}
@@ -256,30 +301,34 @@ export default function AttributeDefinitionTransferList({definitions, definition
             </Grid>
             <Grid>
                 <ListItem component={'div'}>
-                <TextField
-                    type={'search'}
-                    variant={'standard'}
-                    placeholder={t('dialog.search', 'Search')}
-                    onChange={e => setQueryRight(e.target.value)}
-                />
+                    <TextField
+                        type={'search'}
+                        variant={'standard'}
+                        placeholder={t('dialog.search', 'Search')}
+                        onChange={e => setQueryRight(e.target.value)}
+                    />
                 </ListItem>
                 {rightList}
             </Grid>
-            {item && !isTmpId(item.id) ? <Grid>
-                <ListItem component={'div'}>
-                    <ListItemText
-                        primary={getItemLabel(item, definitionsIndex)}
-                    />
-                </ListItem>
+            {item && !isTmpId(item.id) ? (
+                <Grid>
+                    <ListItem component={'div'}>
+                        <ListItemText
+                            primary={getItemLabel(item, definitionsIndex)}
+                        />
+                    </ListItem>
                     <ItemForm
                         key={item.id}
                         item={item}
                         listId={listId}
                         onChange={item => {
-                            setItems(p => p.map(i => i.id === item.id ? item : i));
+                            setItems(p =>
+                                p.map(i => (i.id === item.id ? item : i))
+                            );
                         }}
                     />
-            </Grid> : null}
+                </Grid>
+            ) : null}
         </Grid>
     );
 }

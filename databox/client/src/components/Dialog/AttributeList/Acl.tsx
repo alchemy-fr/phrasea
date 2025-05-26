@@ -15,7 +15,10 @@ export default function Acl({data, onClose, minHeight}: Props) {
             minHeight={minHeight}
             disableGutters={true}
         >
-            <AclForm objectId={data.id} objectType={PermissionObject.AttributeList} />
+            <AclForm
+                objectId={data.id}
+                objectType={PermissionObject.AttributeList}
+            />
         </ContentTab>
     );
 }

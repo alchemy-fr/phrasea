@@ -1,13 +1,13 @@
-import {AttributeFormatterProps, AttributeTypeInstance,} from './types';
+import {AttributeFormatterProps, AttributeTypeInstance} from './types';
 import React from 'react';
 import BaseType from './BaseType.tsx';
-import {Collection, Workspace} from '../../../../../types.ts';
-import {WorkspaceChip} from "../../../../Ui/WorkspaceChip.tsx";
-import {CollectionChip} from "../../../../Ui/CollectionChip.tsx";
+import {Collection} from '../../../../../types.ts';
+import {CollectionChip} from '../../../../Ui/CollectionChip.tsx';
 
 export default class CollectionType
     extends BaseType
-    implements AttributeTypeInstance<Collection> {
+    implements AttributeTypeInstance<Collection>
+{
     renderWidget() {
         return <></>;
     }
@@ -17,10 +17,12 @@ export default class CollectionType
     }
 
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
-        return <CollectionChip
-            label={value.titleTranslated || value.title}
-            size={'small'}
-        />
+        return (
+            <CollectionChip
+                label={value.titleTranslated || value.title}
+                size={'small'}
+            />
+        );
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {

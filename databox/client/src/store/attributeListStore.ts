@@ -1,14 +1,20 @@
 import {create} from 'zustand';
-import {AttributeDefinition, AttributeList, AttributeListItem, AttributeListItemType} from '../types';
+import {
+    AttributeDefinition,
+    AttributeList,
+    AttributeListItem,
+    AttributeListItemType,
+} from '../types';
 import {
     addToAttributeList,
     deleteAttributeList,
     getAttributeList,
     GetAttributeListOptions,
     getAttributeLists,
-    removeFromAttributeList, sortAttributeList,
+    removeFromAttributeList,
+    sortAttributeList,
 } from '../api/attributeList';
-import {putUserPreferences} from "../api/user.ts";
+import {putUserPreferences} from '../api/user.ts';
 
 type State = {
     lists: AttributeList[];
@@ -141,17 +147,22 @@ export const useAttributeListStore = create<State>((set, getState) => ({
     },
 
     updateAttributeListItem: (listId, item) => {
-        const replaceItemInList = (l: AttributeList, item: AttributeListItem): AttributeList => {
+        const replaceItemInList = (
+            l: AttributeList,
+            item: AttributeListItem
+        ): AttributeList => {
             return {
                 ...l,
                 items: l.items?.map(i => {
-                    return i.id === item.id ? {
-                        ...i,
-                        ...item,
-                    } : i;
-                })
-            }
-        }
+                    return i.id === item.id
+                        ? {
+                              ...i,
+                              ...item,
+                          }
+                        : i;
+                }),
+            };
+        };
 
         set(state => ({
             lists: state.lists.map(l => {
@@ -161,7 +172,9 @@ export const useAttributeListStore = create<State>((set, getState) => ({
 
                 return l;
             }),
-            current: state.current ? replaceItemInList(state.current, item) : undefined,
+            current: state.current
+                ? replaceItemInList(state.current, item)
+                : undefined,
         }));
     },
 
@@ -209,7 +222,9 @@ export const useAttributeListStore = create<State>((set, getState) => ({
         const defId = definition.id;
 
         if (current) {
-            const item = current.items!.find(i => i.definition === defId || i.key === defId);
+            const item = current.items!.find(
+                i => i.definition === defId || i.key === defId
+            );
             if (item?.id) {
                 state.removeFromList(current.id, [item.id]);
 
@@ -223,10 +238,10 @@ export const useAttributeListStore = create<State>((set, getState) => ({
     loadList: async (id: string) => {
         const list = await getAttributeList(id!);
         set(state => {
-            return ({
+            return {
                 current: state.current?.id === list.id ? list : state.current,
                 lists: replaceList(state.lists, list),
-            });
+            };
         });
 
         return list;
@@ -279,7 +294,10 @@ export const useAttributeListStore = create<State>((set, getState) => ({
 
                 return b;
             }),
-            current: p.current?.id === listId ? getReorderedListItems(p.current, items) : p.current,
+            current:
+                p.current?.id === listId
+                    ? getReorderedListItems(p.current, items)
+                    : p.current,
         }));
 
         await sortAttributeList(listId, items);
@@ -312,9 +330,13 @@ export const useAttributeListStore = create<State>((set, getState) => ({
     },
 }));
 
-function replaceList(prev: AttributeList[], list: AttributeList): AttributeList[] {
-    return prev.some(l => l.id === list.id) ? prev.map(l => l.id === list.id ? list : l)
-        : prev.concat([list])
+function replaceList(
+    prev: AttributeList[],
+    list: AttributeList
+): AttributeList[] {
+    return prev.some(l => l.id === list.id)
+        ? prev.map(l => (l.id === list.id ? list : l))
+        : prev.concat([list]);
 }
 
 export function attributeDefinitionToItem(
@@ -323,7 +345,7 @@ export function attributeDefinitionToItem(
     const isBI = definition.builtIn;
 
     return {
-        id: tmpIdPrefix +definition.id,
+        id: tmpIdPrefix + definition.id,
         type: isBI
             ? AttributeListItemType.BuiltIn
             : AttributeListItemType.Definition,
@@ -338,9 +360,7 @@ function generateId(): string {
     return tmpIdPrefix + (inc++).toString();
 }
 
-export function createDivider(
-    title: string,
-): AttributeListItem {
+export function createDivider(title: string): AttributeListItem {
     return {
         id: generateId(),
         type: AttributeListItemType.Divider,
@@ -357,21 +377,29 @@ export function createSpacer(): AttributeListItem {
 
 const tmpIdPrefix = '_tmp_';
 
-export function isTmpId(id: string ): boolean {
+export function isTmpId(id: string): boolean {
     return id.startsWith(tmpIdPrefix);
 }
 
-export function hasDefinitionInItems(items: AttributeListItem[], id: string): boolean {
+export function hasDefinitionInItems(
+    items: AttributeListItem[],
+    id: string
+): boolean {
     return items.some(i => i.definition === id || i.key === id);
 }
 
-function getReorderedListItems(list: AttributeList, order: string[]): AttributeList {
+function getReorderedListItems(
+    list: AttributeList,
+    order: string[]
+): AttributeList {
     if (!list.items) {
         return list;
     }
 
     return {
         ...list,
-        items: order.map(id => list.items!.find(i => i.id === id)).filter(i => !!i),
-    }
+        items: order
+            .map(id => list.items!.find(i => i.id === id))
+            .filter(i => !!i),
+    };
 }

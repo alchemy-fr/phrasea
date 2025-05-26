@@ -296,7 +296,7 @@ export type AttributeListItem = {
     definition?: string;
     displayEmpty?: boolean;
     format?: string;
-}
+};
 
 export interface AttributeList extends IPermissions, Entity {
     title: string;

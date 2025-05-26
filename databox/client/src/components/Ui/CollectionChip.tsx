@@ -1,5 +1,5 @@
-import {PropsWithChildren} from "react";
-import {Chip, ChipProps} from "@mui/material";
+import {PropsWithChildren} from 'react';
+import {Chip, ChipProps} from '@mui/material';
 
 export const CollectionChip = ({
     children,

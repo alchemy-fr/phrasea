@@ -3,7 +3,7 @@ import {AttrValue, createNewValue} from './AttributesEditor';
 import {getAttributeType} from './types';
 import {AttributeWidgetOptions} from './types/types';
 import {AttributeDefinition} from '../../../../types.ts';
-import {AttributeType} from "../../../../api/attributes.ts";
+import {AttributeType} from '../../../../api/attributes.ts';
 
 type Props = {
     id: string;

@@ -1,11 +1,21 @@
 import {AttributeFormat} from '../types/types';
 import React from 'react';
-import {AttributeType} from "../../../../../api/attributes.ts";
+import {AttributeType} from '../../../../../api/attributes.ts';
 
 export type TAttributeFormatContext = {
-    getFormat(type: AttributeType, definitionId?: AttributeDefinitionId): AttributeFormat | undefined;
-    changeFormat: (type: AttributeType, newFormat: AttributeFormat, definitionId?: AttributeDefinitionId) => void;
-    toggleFormat: (type: AttributeType, definitionId?: AttributeDefinitionId) => void;
+    getFormat(
+        type: AttributeType,
+        definitionId?: AttributeDefinitionId
+    ): AttributeFormat | undefined;
+    changeFormat: (
+        type: AttributeType,
+        newFormat: AttributeFormat,
+        definitionId?: AttributeDefinitionId
+    ) => void;
+    toggleFormat: (
+        type: AttributeType,
+        definitionId?: AttributeDefinitionId
+    ) => void;
     hasFormats: (type: AttributeType) => boolean;
 };
 

@@ -2,14 +2,15 @@ import {
     IconButton,
     ListItem,
     ListItemButton,
-    ListItemProps, ListItemSecondaryAction,
+    ListItemProps,
+    ListItemSecondaryAction,
     ListItemText,
 } from '@mui/material';
 import {AttributeList} from '../../types';
 import {useTranslation} from 'react-i18next';
 import {Classes} from '../../classes.ts';
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 type Props = {
     data: AttributeList;
@@ -41,7 +42,10 @@ export default function AttributeListMenuItem({
                         className={Classes.ellipsisText}
                         primary={
                             data.title ||
-                                  t('attributeList.default.title', 'My Attribute List')
+                            t(
+                                'attributeList.default.title',
+                                'My Attribute List'
+                            )
                         }
                         secondary={data.description}
                         secondaryTypographyProps={{
@@ -49,26 +53,37 @@ export default function AttributeListMenuItem({
                         }}
                     />
                     <ListItemSecondaryAction>
-                        {data.capabilities.canEdit && <IconButton
-                            onMouseDown={e => e.stopPropagation()}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onEdit(data.id);
-                            }}
-                        >
-                            <EditIcon />
-                        </IconButton>}
-                        {data.capabilities.canDelete && <IconButton
-                            onMouseDown={e => e.stopPropagation()}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                if (window.confirm(t('attributeList.delete.confirm', 'Are you sure you want to delete this attribute list?'))) {
-                                    onDelete(data.id);
-                                }
-                            }}
-                        >
-                            <DeleteIcon />
-                        </IconButton>}
+                        {data.capabilities.canEdit && (
+                            <IconButton
+                                onMouseDown={e => e.stopPropagation()}
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    onEdit(data.id);
+                                }}
+                            >
+                                <EditIcon />
+                            </IconButton>
+                        )}
+                        {data.capabilities.canDelete && (
+                            <IconButton
+                                onMouseDown={e => e.stopPropagation()}
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    if (
+                                        window.confirm(
+                                            t(
+                                                'attributeList.delete.confirm',
+                                                'Are you sure you want to delete this attribute list?'
+                                            )
+                                        )
+                                    ) {
+                                        onDelete(data.id);
+                                    }
+                                }}
+                            >
+                                <DeleteIcon />
+                            </IconButton>
+                        )}
                     </ListItemSecondaryAction>
                 </ListItemButton>
             </ListItem>

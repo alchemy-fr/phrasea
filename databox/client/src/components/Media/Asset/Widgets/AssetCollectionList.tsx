@@ -3,8 +3,8 @@ import {Collection, Workspace} from '../../../../types';
 import {DisplayContext} from '../../DisplayContext';
 import assetClasses from '../../../AssetList/classes';
 import {useTranslation} from 'react-i18next';
-import {WorkspaceChip} from "../../../Ui/WorkspaceChip.tsx";
-import {CollectionChip} from "../../../Ui/CollectionChip.tsx";
+import {WorkspaceChip} from '../../../Ui/WorkspaceChip.tsx';
+import {CollectionChip} from '../../../Ui/CollectionChip.tsx';
 
 type Props = {
     workspace?: Workspace;

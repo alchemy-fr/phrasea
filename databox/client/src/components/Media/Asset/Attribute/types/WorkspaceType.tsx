@@ -1,13 +1,14 @@
-import {AttributeFormatterProps, AttributeTypeInstance,} from './types';
+import {AttributeFormatterProps, AttributeTypeInstance} from './types';
 import React from 'react';
 import BaseType from './BaseType.tsx';
 import {Workspace} from '../../../../../types.ts';
 
-import {WorkspaceChip} from "../../../../Ui/WorkspaceChip.tsx";
+import {WorkspaceChip} from '../../../../Ui/WorkspaceChip.tsx';
 
 export default class WorkspaceType
     extends BaseType
-    implements AttributeTypeInstance<Workspace> {
+    implements AttributeTypeInstance<Workspace>
+{
     renderWidget() {
         return <></>;
     }
@@ -17,10 +18,12 @@ export default class WorkspaceType
     }
 
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
-        return <WorkspaceChip
-            label={value.nameTranslated || value.name}
-            size={'small'}
-        />
+        return (
+            <WorkspaceChip
+                label={value.nameTranslated || value.name}
+                size={'small'}
+            />
+        );
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {

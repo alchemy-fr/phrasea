@@ -8,7 +8,7 @@ import {
     AsyncRSelectWidget,
     SelectOption,
 } from '@alchemy/react-form';
-import {useEntitiesStore} from "../../store/entitiesStore.ts";
+import {useEntitiesStore} from '../../store/entitiesStore.ts';
 
 type Props<TFieldValues extends FieldValues> = {
     data?: Promise<User[]> | undefined;
@@ -35,10 +35,10 @@ export default function UserSelect<TFieldValues extends FieldValues>({
                 .map((t: User) => {
                     store(`/users/${t.id}`, t);
 
-                    return ({
+                    return {
                         value: t.id,
                         label: t.username,
-                    });
+                    };
                 })
                 .filter(i =>
                     i.label

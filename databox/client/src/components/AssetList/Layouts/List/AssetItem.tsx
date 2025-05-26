@@ -45,8 +45,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                 onChange={() =>
                     onToggle(item, {
                         ctrlKey: true,
-                        preventDefault() {
-                        },
+                        preventDefault() {},
                     } as MouseEvent)
                 }
             />
@@ -61,7 +60,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                                     onDoubleClick={stopPropagation}
                                     onClick={e => onAddToBasket(asset, e)}
                                 >
-                                    <ShoppingCartIcon fontSize={'small'}/>
+                                    <ShoppingCartIcon fontSize={'small'} />
                                 </IconButton>
                             ) : null}
                             {onContextMenuOpen && (
@@ -85,21 +84,21 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                         onMouseOver={
                             onPreviewToggle
                                 ? e =>
-                                    onPreviewToggle(
-                                        asset,
-                                        true,
-                                        e.currentTarget as HTMLElement
-                                    )
+                                      onPreviewToggle(
+                                          asset,
+                                          true,
+                                          e.currentTarget as HTMLElement
+                                      )
                                 : undefined
                         }
                         onMouseLeave={
                             onPreviewToggle
                                 ? e =>
-                                    onPreviewToggle(
-                                        asset,
-                                        false,
-                                        e.currentTarget as HTMLElement
-                                    )
+                                      onPreviewToggle(
+                                          asset,
+                                          false,
+                                          e.currentTarget as HTMLElement
+                                      )
                                 : undefined
                         }
                         asset={asset}
@@ -113,7 +112,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                     </div>
 
                     {displayAttributes && (
-                        <Attributes asset={asset} displayControls={true}/>
+                        <Attributes asset={asset} displayControls={true} />
                     )}
                 </Grid>
             </Grid>

@@ -1,16 +1,20 @@
-import {AttributeDefinition, AttributeListItem, AttributeListItemType} from "../../../../types.ts";
-import ListItemText from "@mui/material/ListItemText";
-import AttributeDefinitionLabel from "../AttributeDefinitionLabel.tsx";
-import {IconButton, ListItemIcon, ListItemSecondaryAction} from "@mui/material";
-import {stopPropagation} from "../../../../lib/stdFuncs.ts";
-import DeleteIcon from "@mui/icons-material/Delete";
-import ListItemButton from "@mui/material/ListItemButton";
-import * as React from "react";
-import {ReactNode} from "react";
-import {SortableItemProps} from "../../../Ui/Sortable/SortableList.tsx";
-import {AttributeDefinitionsIndex} from "../../../../store/attributeDefinitionStore.ts";
-import HeightIcon from "@mui/icons-material/Height";
-import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
+import {
+    AttributeDefinition,
+    AttributeListItem,
+    AttributeListItemType,
+} from '../../../../types.ts';
+import ListItemText from '@mui/material/ListItemText';
+import AttributeDefinitionLabel from '../AttributeDefinitionLabel.tsx';
+import {IconButton, ListItemIcon, ListItemSecondaryAction} from '@mui/material';
+import {stopPropagation} from '../../../../lib/stdFuncs.ts';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ListItemButton from '@mui/material/ListItemButton';
+import * as React from 'react';
+import {ReactNode} from 'react';
+import {SortableItemProps} from '../../../Ui/Sortable/SortableList.tsx';
+import {AttributeDefinitionsIndex} from '../../../../store/attributeDefinitionStore.ts';
+import HeightIcon from '@mui/icons-material/Height';
+import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 
 type Props = {
     itemProps: {
@@ -18,17 +22,12 @@ type Props = {
         removeItem: (id: string) => void;
         onClick: (data: AttributeListItem) => void;
         selectedItem?: string;
-    }
+    };
 } & SortableItemProps<AttributeListItem>;
 
 export default function Item({
     data,
-    itemProps: {
-        removeItem,
-        definitionsIndex,
-        onClick,
-        selectedItem,
-    }
+    itemProps: {removeItem, definitionsIndex, onClick, selectedItem},
 }: Props) {
     const labelId = `d-${data.id}-label`;
     let def: AttributeDefinition | undefined;
@@ -38,51 +37,54 @@ export default function Item({
         def = definitionsIndex[data.key!];
     }
 
-    const getLabel  = () => {
+    const getLabel = () => {
         if (data.type === AttributeListItemType.Definition) {
-            return <AttributeDefinitionLabel data={def!}/>;
+            return <AttributeDefinitionLabel data={def!} />;
         } else if (data.type === AttributeListItemType.BuiltIn) {
-            return <AttributeDefinitionLabel data={def!}/>;
+            return <AttributeDefinitionLabel data={def!} />;
         } else {
             return getItemLabel(data, definitionsIndex);
         }
-    }
+    };
 
     let icon: ReactNode | undefined;
     if (data.type === AttributeListItemType.Spacer) {
-        icon = <HeightIcon/>;
+        icon = <HeightIcon />;
     } else if (data.type === AttributeListItemType.Divider) {
-        icon = <HorizontalRuleIcon/>;
+        icon = <HorizontalRuleIcon />;
     }
 
-    return <ListItemButton
-        role="listitem"
-        onClick={() => onClick(data)}
-        selected={selectedItem === data.id}
-    >
-        {icon ? <ListItemIcon>
-            {icon}
-        </ListItemIcon> : null}
-        <ListItemText
-            id={labelId}
-            primary={getLabel()}
-        />
-        <ListItemSecondaryAction>
-            <IconButton
-                onMouseDown={stopPropagation}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    removeItem(data.id!);
-                }}
-            >
-                <DeleteIcon/>
-            </IconButton>
-        </ListItemSecondaryAction>
-    </ListItemButton>
+    return (
+        <ListItemButton
+            role="listitem"
+            onClick={() => onClick(data)}
+            selected={selectedItem === data.id}
+        >
+            {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
+            <ListItemText id={labelId} primary={getLabel()} />
+            <ListItemSecondaryAction>
+                <IconButton
+                    onMouseDown={stopPropagation}
+                    onClick={e => {
+                        e.stopPropagation();
+                        removeItem(data.id!);
+                    }}
+                >
+                    <DeleteIcon />
+                </IconButton>
+            </ListItemSecondaryAction>
+        </ListItemButton>
+    );
 }
 
-export function getItemLabel(item: AttributeListItem, definitionsIndex: AttributeDefinitionsIndex): string {
-    if (item.type === AttributeListItemType.Definition || item.type === AttributeListItemType.BuiltIn) {
+export function getItemLabel(
+    item: AttributeListItem,
+    definitionsIndex: AttributeDefinitionsIndex
+): string {
+    if (
+        item.type === AttributeListItemType.Definition ||
+        item.type === AttributeListItemType.BuiltIn
+    ) {
         const def = definitionsIndex[item.definition!];
         if (def) {
             return def.nameTranslated ?? def.name ?? 'Unknown';

@@ -39,7 +39,7 @@ import {useAuth} from '@alchemy/react-auth';
 import ViewQuiltIcon from '@mui/icons-material/ViewQuilt';
 import ShareAssetDialog from '../../Share/ShareAssetDialog.tsx';
 import {toast} from 'react-toastify';
-import AttributeListSwitcher from "../../AttributeList/AttributeListSwitcher.tsx";
+import AttributeListSwitcher from '../../AttributeList/AttributeListSwitcher.tsx';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -547,7 +547,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     ''
                 )}
 
-                <AttributeListSwitcher/>
+                <AttributeListSwitcher />
                 <DisplayOptionsMenu />
             </Paper>
         </Box>

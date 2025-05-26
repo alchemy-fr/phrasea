@@ -6,9 +6,9 @@ import {Classes} from '../../../classes.ts';
 import {scrollbarWidth} from '../../../constants.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
-import {useUserPreferencesStore} from "../../../store/userPreferencesStore.ts";
+import {useUserPreferencesStore} from '../../../store/userPreferencesStore.ts';
 import {useAuth} from '@alchemy/react-auth';
-import {useAttributeListStore} from "../../../store/attributeListStore.ts";
+import {useAttributeListStore} from '../../../store/attributeListStore.ts';
 
 type Props = PropsWithChildren<{}>;
 
@@ -31,15 +31,13 @@ export default function UserPreferencesProvider({children}: Props) {
         }
     }, [loadPreferences, user]);
 
-
-
     return (
         <ThemeEditorProvider
             defaultTheme={createCachedThemeOptions(
                 preferences.theme ?? 'default'
             )}
         >
-            <CssBaseline/>
+            <CssBaseline />
             <GlobalStyles
                 styles={theme => ({
                     '*': {
@@ -57,13 +55,12 @@ export default function UserPreferencesProvider({children}: Props) {
                     'body': {
                         backgroundColor: theme.palette.common.white,
                     },
-                    [`.${Classes.ellipsisText} .MuiListItemText-secondary`]:
-                        {
-                            textOverflow: 'ellipsis',
-                            wordBreak: 'break-all',
-                            overflow: 'hidden',
-                            whiteSpace: 'nowrap',
-                        },
+                    [`.${Classes.ellipsisText} .MuiListItemText-secondary`]: {
+                        textOverflow: 'ellipsis',
+                        wordBreak: 'break-all',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                    },
                 })}
             />
 

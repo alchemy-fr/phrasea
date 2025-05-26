@@ -7,7 +7,7 @@ import Attributes, {attributesSx} from '../Media/Asset/Attribute/Attributes';
 import {DisplayContext} from '../Media/DisplayContext';
 import {ZIndex} from '../../themes/zIndex.ts';
 import {getMediaBackgroundColor} from '../../themes/base.ts';
-import {collectionListSx} from "../Media/Asset/Widgets/AssetCollectionList.tsx";
+import {collectionListSx} from '../Media/Asset/Widgets/AssetCollectionList.tsx';
 
 type Props = {
     anchorEl: HTMLElement | undefined;

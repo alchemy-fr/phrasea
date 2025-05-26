@@ -24,10 +24,7 @@ export async function putAttributeList(
     id: string,
     data: Partial<AttributeList>
 ): Promise<AttributeList> {
-    const res = await apiClient.put(
-        `/${entityType}/${id}`,
-        data
-    );
+    const res = await apiClient.put(`/${entityType}/${id}`, data);
 
     return res.data;
 }
@@ -49,13 +46,12 @@ export async function sortAttributeList(
     id: string,
     data: string[]
 ): Promise<void> {
-    await apiClient.post(
-        `/${entityType}/${id}/sort`,
-        data
-    );
+    await apiClient.post(`/${entityType}/${id}/sort`, data);
 }
 
-export async function postAttributeList(data: Partial<AttributeList>): Promise<AttributeList> {
+export async function postAttributeList(
+    data: Partial<AttributeList>
+): Promise<AttributeList> {
     const res = await apiClient.post(`/${entityType}`, data);
 
     return res.data;
@@ -78,7 +74,10 @@ export async function addToAttributeList(
     data: AddToAttributeListInput
 ): Promise<AttributeList> {
     return (
-        await apiClient.post(`/attribute-lists/${listId ?? 'default'}/items`, data)
+        await apiClient.post(
+            `/attribute-lists/${listId ?? 'default'}/items`,
+            data
+        )
     ).data;
 }
 

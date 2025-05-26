@@ -1,7 +1,7 @@
 import {create} from 'zustand';
-import {ThemeName} from "../lib/theme.ts";
-import {Layout} from "../components/AssetList/Layouts";
-import {getUserPreferences, putUserPreferences} from "../api/user.ts";
+import {ThemeName} from '../lib/theme.ts';
+import {Layout} from '../components/AssetList/Layouts';
+import {getUserPreferences, putUserPreferences} from '../api/user.ts';
 
 export type UserPreferences = {
     theme?: ThemeName | undefined;
@@ -38,33 +38,35 @@ type UserPreferencesStore = {
     ) => Promise<void>;
 };
 
-export const useUserPreferencesStore = create<UserPreferencesStore>((set, get) => ({
-    preferences: getFromStorage(),
-    isLoading: false,
-    load: async () => {
-        set({isLoading: true});
-        try {
-            const userPreferences = await getUserPreferences();
-            putToStorage(userPreferences);
-            set({preferences: userPreferences, isLoading: false});
+export const useUserPreferencesStore = create<UserPreferencesStore>(
+    (set, get) => ({
+        preferences: getFromStorage(),
+        isLoading: false,
+        load: async () => {
+            set({isLoading: true});
+            try {
+                const userPreferences = await getUserPreferences();
+                putToStorage(userPreferences);
+                set({preferences: userPreferences, isLoading: false});
 
-            return userPreferences;
-        } finally {
-            set({isLoading: false});
-        }
-    },
-    updatePreference: async (name, handler) => {
-        const prev = get().preferences;
-        const newPrefs = {...prev};
-        if (typeof handler === 'function') {
-            newPrefs[name] = handler(newPrefs[name]);
-        } else {
-            newPrefs[name] = handler;
-        }
-        set({preferences: newPrefs});
-        putToStorage(newPrefs);
-        setTimeout(() => {
-            putUserPreferences(name, newPrefs[name]);
-        }, 0);
-    },
-}));
+                return userPreferences;
+            } finally {
+                set({isLoading: false});
+            }
+        },
+        updatePreference: async (name, handler) => {
+            const prev = get().preferences;
+            const newPrefs = {...prev};
+            if (typeof handler === 'function') {
+                newPrefs[name] = handler(newPrefs[name]);
+            } else {
+                newPrefs[name] = handler;
+            }
+            set({preferences: newPrefs});
+            putToStorage(newPrefs);
+            setTimeout(() => {
+                putUserPreferences(name, newPrefs[name]);
+            }, 0);
+        },
+    })
+);

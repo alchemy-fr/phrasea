@@ -1,9 +1,16 @@
-import {Button, Dialog, DialogActions, DialogTitle, List, ListItemButton,} from '@mui/material';
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogTitle,
+    List,
+    ListItemButton,
+} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import themes from '../../themes';
 import {ThemeName} from '../../lib/theme';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useUserPreferencesStore} from "../../store/userPreferencesStore.ts";
+import {useUserPreferencesStore} from '../../store/userPreferencesStore.ts';
 
 type Props = {} & StackedModalProps;
 

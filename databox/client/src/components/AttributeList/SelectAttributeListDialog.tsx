@@ -7,9 +7,9 @@ import {useTranslation} from 'react-i18next';
 import AttributeListMenuItem from './AttributeListMenuItem';
 import CreateAttributeList from './CreateAttributeList';
 import AddIcon from '@mui/icons-material/Add';
-import {useEffect} from "react";
-import {useNavigateToModal} from "../Routing/ModalLink.tsx";
-import {modalRoutes} from "../../routes.ts";
+import {useEffect} from 'react';
+import {useNavigateToModal} from '../Routing/ModalLink.tsx';
+import {modalRoutes} from '../../routes.ts';
 
 type Props = {} & StackedModalProps;
 
@@ -20,13 +20,15 @@ export default function SelectAttributeListDialog({modalIndex, open}: Props) {
 
     const current = useAttributeListStore(state => state.current);
     const setCurrent = useAttributeListStore(state => state.setCurrent);
-    const deleteAttributeList = useAttributeListStore(state => state.deleteAttributeList);
+    const deleteAttributeList = useAttributeListStore(
+        state => state.deleteAttributeList
+    );
     const load = useAttributeListStore(state => state.load);
     const loading = useAttributeListStore(state => !state.loaded);
     const lists = useAttributeListStore(state => state.lists);
 
     useEffect(() => {
-        load()
+        load();
     }, [load]);
 
     const onSelect = (data: AttributeList): void => {
@@ -57,7 +59,10 @@ export default function SelectAttributeListDialog({modalIndex, open}: Props) {
             open={open}
             loading={loading}
             onClose={closeModal}
-            title={t('attributeList.choose_modal.title', 'Select current Attribute List')}
+            title={t(
+                'attributeList.choose_modal.title',
+                'Select current Attribute List'
+            )}
             actions={({onClose}) => (
                 <>
                     <Button
@@ -65,7 +70,10 @@ export default function SelectAttributeListDialog({modalIndex, open}: Props) {
                         onClick={createAttributeList}
                         startIcon={<AddIcon />}
                     >
-                        {t('attributeList.create_button.label', 'Create new Attribute List')}
+                        {t(
+                            'attributeList.create_button.label',
+                            'Create new Attribute List'
+                        )}
                     </Button>
                     <Button
                         onClick={onClose}

@@ -157,7 +157,7 @@ export default function PrivacyWidget({
                                 disabled={
                                     disabled ||
                                     (inheritedKeyPrivacy > 0 &&
-                                    getKeyValue(k) < inheritedKeyPrivacy)
+                                        getKeyValue(k) < inheritedKeyPrivacy)
                                 }
                             >
                                 <ListItemText

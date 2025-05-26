@@ -9,8 +9,8 @@ import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {OnCollectionEdit} from '../../Dialog/Collection/EditCollection';
 import React from 'react';
 import {useDirtyFormPrompt} from '../../Dialog/Tabbed/FormTab';
-import {WorkspaceChip} from "../../Ui/WorkspaceChip.tsx";
-import {CollectionChip} from "../../Ui/CollectionChip.tsx";
+import {WorkspaceChip} from '../../Ui/WorkspaceChip.tsx';
+import {CollectionChip} from '../../Ui/CollectionChip.tsx';
 
 type Props = {
     parent?: string;

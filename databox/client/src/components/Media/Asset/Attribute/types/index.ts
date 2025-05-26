@@ -1,7 +1,11 @@
 import {AttributeType} from '../../../../../api/attributes';
 import TextType from './TextType';
 import DateType from './DateType';
-import {AttributeFormatterProps, AttributeTypeClass, AttributeTypeInstance} from './types';
+import {
+    AttributeFormatterProps,
+    AttributeTypeClass,
+    AttributeTypeInstance,
+} from './types';
 import TextareaType from './TextareaType';
 import JsonType from './JsonType';
 import CodeType from './CodeType';
@@ -12,10 +16,10 @@ import GeoPointType from './GeoPointType';
 import DateTimeType from './DateTimeType';
 import TagsType from './TagsType.tsx';
 import AttributeEntityType from './AttributeEntityType.tsx';
-import {ReactNode} from "react";
-import WorkspaceType from "./WorkspaceType.tsx";
-import CollectionType from "./CollectionType.tsx";
-import PrivacyType from "./PrivacyType.tsx";
+import {ReactNode} from 'react';
+import WorkspaceType from './WorkspaceType.tsx';
+import CollectionType from './CollectionType.tsx';
+import PrivacyType from './PrivacyType.tsx';
 
 export const types: {
     [key in AttributeType]?: AttributeTypeClass;
@@ -38,7 +42,9 @@ export const types: {
     [AttributeType.Privacy]: PrivacyType,
 };
 
-export function getAttributeType(type: AttributeType): AttributeTypeInstance<any> {
+export function getAttributeType(
+    type: AttributeType
+): AttributeTypeInstance<any> {
     const t = types[type] ?? types[AttributeType.Text]!;
 
     return new t();

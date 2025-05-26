@@ -5,7 +5,7 @@ import {useModals} from '@alchemy/navigation';
 import {useTranslation} from 'react-i18next';
 import {LoadingButton} from '@alchemy/react-form';
 import React from 'react';
-import SelectAttributeListDialog from "./SelectAttributeListDialog.tsx";
+import SelectAttributeListDialog from './SelectAttributeListDialog.tsx';
 
 type Props = {};
 
@@ -33,9 +33,10 @@ export default function AttributeListSwitcher({}: Props) {
                 onClick={openList}
                 loading={loadingCurrent}
                 loadingPosition={'start'}
-                endIcon={<ArrowDropDownIcon/>}
+                endIcon={<ArrowDropDownIcon />}
             >
-                {current?.title || t('attributeList.default.title', 'My Attribute List')}
+                {current?.title ||
+                    t('attributeList.default.title', 'My Attribute List')}
             </LoadingButton>
         </ButtonGroup>
     );

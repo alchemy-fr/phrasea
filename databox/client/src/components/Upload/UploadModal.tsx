@@ -24,8 +24,8 @@ import {Asset} from '../../types';
 import {getAttributeList} from '../Media/Asset/Attribute/AttributeListData.ts';
 import type {TFunction} from '@alchemy/i18n';
 import {CollectionId} from '../Media/Collection/CollectionTree/collectionTree.ts';
-import {WorkspaceChip} from "../Ui/WorkspaceChip.tsx";
-import {CollectionChip} from "../Ui/CollectionChip.tsx";
+import {WorkspaceChip} from '../Ui/WorkspaceChip.tsx';
+import {CollectionChip} from '../Ui/CollectionChip.tsx';
 
 type FileWrapper = {
     id: string;

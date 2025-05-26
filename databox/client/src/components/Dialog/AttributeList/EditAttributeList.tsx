@@ -6,8 +6,8 @@ import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {useFormPrompt} from '@alchemy/navigation';
 import {AttributeListForm} from '../../Form/AttributeListForm';
-import {putAttributeList} from "../../../api/attributeList.ts";
-import {useAttributeListStore} from "../../../store/attributeListStore.ts";
+import {putAttributeList} from '../../../api/attributeList.ts';
+import {useAttributeListStore} from '../../../store/attributeListStore.ts';
 
 type Props = {
     id: string;
@@ -17,7 +17,9 @@ type Props = {
 export default function EditAttributeList({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
 
-    const updateAttributeList = useAttributeListStore(state => state.updateAttributeList);
+    const updateAttributeList = useAttributeListStore(
+        state => state.updateAttributeList
+    );
 
     const usedFormSubmit = useFormSubmit({
         defaultValues: data,
@@ -28,7 +30,10 @@ export default function EditAttributeList({data, onClose, minHeight}: Props) {
             updateAttributeList(data);
 
             toast.success(
-                t('form.attribute_list_edit.success', 'Attribute List edited!') as string
+                t(
+                    'form.attribute_list_edit.success',
+                    'Attribute List edited!'
+                ) as string
             );
             onClose();
         },

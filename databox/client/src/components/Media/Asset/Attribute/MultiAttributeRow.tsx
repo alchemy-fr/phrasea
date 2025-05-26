@@ -7,7 +7,7 @@ import {useTranslation} from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {AttributeWidgetOptions} from './types/types';
-import {AttributeType} from "../../../../api/attributes.ts";
+import {AttributeType} from '../../../../api/attributes.ts';
 
 type Props = {
     id: string;

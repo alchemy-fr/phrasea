@@ -11,7 +11,7 @@ import FullPageLoader from '../../../Ui/FullPageLoader.tsx';
 import React from 'react';
 import {Checkbox, FormControlLabel} from '@mui/material';
 import AlertDialog from '../../../Dialog/AlertDialog.tsx';
-import {CollectionChip} from "../../../Ui/CollectionChip.tsx";
+import {CollectionChip} from '../../../Ui/CollectionChip.tsx';
 
 type Props = {
     assetIds: string[];

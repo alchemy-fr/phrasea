@@ -53,7 +53,7 @@ export default class DateType extends TextType {
             example: this.formatValue({
                 value: '2023-01-01T00:00:00Z',
                 format: f.name,
-            })
+            }),
         }));
     }
 

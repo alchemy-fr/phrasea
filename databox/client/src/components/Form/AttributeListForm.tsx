@@ -1,7 +1,7 @@
 import {TextField} from '@mui/material';
 import {FC} from 'react';
 import {useTranslation} from 'react-i18next';
-import {AttributeList, Basket} from '../../types';
+import {AttributeList} from '../../types';
 import {FormFieldErrors, FormRow, SwitchWidget} from '@alchemy/react-form';
 import {FormProps} from './types';
 
@@ -36,7 +36,10 @@ export const AttributeListForm: FC<FormProps<AttributeList>> = function ({
                     rows={5}
                     fullWidth={true}
                     multiline={true}
-                    label={t('form.attribute_list.description.label', 'Description')}
+                    label={t(
+                        'form.attribute_list.description.label',
+                        'Description'
+                    )}
                     disabled={submitting}
                     {...register('description')}
                 />
@@ -46,10 +49,7 @@ export const AttributeListForm: FC<FormProps<AttributeList>> = function ({
                 <SwitchWidget
                     control={control}
                     name={'public'}
-                    label={t(
-                        'form.attribute_list.public.label',
-                        'Public'
-                    )}
+                    label={t('form.attribute_list.public.label', 'Public')}
                 />
             </FormRow>
         </form>

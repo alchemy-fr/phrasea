@@ -5,13 +5,14 @@ import {
     TAttributeFormatContext,
 } from './AttributeFormatContext';
 import {getAttributeType} from '../types';
-import {AttributeType} from "../../../../../api/attributes.ts";
-import {AttributeFormat} from "../types/types";
+import {AttributeType} from '../../../../../api/attributes.ts';
 
 type Props = PropsWithChildren<{}>;
 
 export default function AttributeFormatProvider({children}: Props) {
-    const [formats, setFormats] = React.useState<AttributeFormats>({} as AttributeFormats);
+    const [formats, setFormats] = React.useState<AttributeFormats>(
+        {} as AttributeFormats
+    );
 
     const value = React.useMemo<TAttributeFormatContext>(() => {
         const getFormat: TAttributeFormatContext['getFormat'] = (
@@ -23,12 +24,12 @@ export default function AttributeFormatProvider({children}: Props) {
             }
 
             return formats[type];
-        }
+        };
 
         const changeFormat: TAttributeFormatContext['changeFormat'] = (
             type,
             format,
-            definitionId,
+            definitionId
         ) => {
             setFormats(p => ({
                 ...p,
@@ -37,7 +38,10 @@ export default function AttributeFormatProvider({children}: Props) {
             }));
         };
 
-        const toggleFormat: TAttributeFormatContext['toggleFormat'] = (type: AttributeType, definitionId) => {
+        const toggleFormat: TAttributeFormatContext['toggleFormat'] = (
+            type: AttributeType,
+            definitionId
+        ) => {
             const formatter = getAttributeType(type);
             const availableFormats = formatter.getAvailableFormats();
             const currentFormat = getFormat(type, definitionId);
@@ -53,7 +57,9 @@ export default function AttributeFormatProvider({children}: Props) {
             );
         };
 
-        const hasFormats: TAttributeFormatContext['hasFormats'] = (type: AttributeType) => {
+        const hasFormats: TAttributeFormatContext['hasFormats'] = (
+            type: AttributeType
+        ) => {
             const formatter = getAttributeType(type);
             const availableFormats = formatter.getAvailableFormats();
 
@@ -64,7 +70,7 @@ export default function AttributeFormatProvider({children}: Props) {
             changeFormat,
             toggleFormat,
             hasFormats,
-           getFormat,
+            getFormat,
         };
     }, [formats, setFormats]);
 

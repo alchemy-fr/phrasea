@@ -1,7 +1,7 @@
 import apiClient from './api-client';
 import {Group, User} from '../types';
 import {AxiosRequestConfig} from 'axios';
-import {UserPreferences} from "../store/userPreferencesStore.ts";
+import {UserPreferences} from '../store/userPreferencesStore.ts';
 
 type QueryOptions = {
     query?: string;

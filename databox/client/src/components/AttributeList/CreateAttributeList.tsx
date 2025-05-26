@@ -13,10 +13,16 @@ type Props = {
     onCreate?: (data: AttributeList) => void;
 } & StackedModalProps;
 
-export default function CreateAttributeList({modalIndex, open, onCreate}: Props) {
+export default function CreateAttributeList({
+    modalIndex,
+    open,
+    onCreate,
+}: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
-    const addAttributeList = useAttributeListStore(state => state.addAttributeList);
+    const addAttributeList = useAttributeListStore(
+        state => state.addAttributeList
+    );
 
     const usedFormSubmit = useFormSubmit<AttributeList>({
         defaultValues: {
@@ -27,7 +33,10 @@ export default function CreateAttributeList({modalIndex, open, onCreate}: Props)
         },
         onSuccess: data => {
             toast.success(
-                t('form.attributelist_create.success', 'Attribute List created!') as string
+                t(
+                    'form.attributelist_create.success',
+                    'Attribute List created!'
+                ) as string
             );
             addAttributeList(data);
             closeModal();
@@ -43,13 +52,19 @@ export default function CreateAttributeList({modalIndex, open, onCreate}: Props)
     return (
         <FormDialog
             modalIndex={modalIndex}
-            title={t('form.attributelist_create.title', 'Create Attribute List')}
+            title={t(
+                'form.attributelist_create.title',
+                'Create Attribute List'
+            )}
             formId={formId}
             loading={submitting}
             errors={remoteErrors}
             open={open}
         >
-            <AttributeListForm formId={formId} usedFormSubmit={usedFormSubmit} />
+            <AttributeListForm
+                formId={formId}
+                usedFormSubmit={usedFormSubmit}
+            />
         </FormDialog>
     );
 }
