@@ -1,13 +1,14 @@
 {
   "version": "1.0.0",
   "name": "@alchemy/phrasea",
+  "type": "module",
   "scripts": {
     "lint": "turbo run lint",
     "dev": "turbo run dev --parallel",
     "format": "turbo run format --parallel",
     "lint:fix": "turbo run lint:fix --parallel",
     "build": "turbo run build",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "devDependencies": {
     "eslint": "^8.57.1",

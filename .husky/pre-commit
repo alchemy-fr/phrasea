@@ -1,0 +1,5 @@
+if ! command -v lint-staged &> /dev/null; then
+    docker compose --env-file=.env --env-file=.env.local run --rm --entrypoint="" dev npx lint-staged
+else
+    npx lint-staged
+fi

@@ -1,7 +1,4 @@
-/**
- * @filename: lint-staged.config.js
- * @type {import('lint-staged').Configuration}
- */
+
 export default {
     'databox/client/**/*.(t|j)sx?': ['cd databox/client', 'pnpm cs'],
     'dashboard/client/**/*.(t|j)sx?': ['cd dashboard/client', 'pnpm cs'],
