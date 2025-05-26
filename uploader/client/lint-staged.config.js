@@ -1,7 +1,3 @@
-/**
- * @filename: lint-staged.config.js
- * @type {import('lint-staged').Configuration}
- */
-export default {
+module.exports = {
     '*.{ts,tsx,js,jsx}': () => 'pnpm cs',
-}
+};

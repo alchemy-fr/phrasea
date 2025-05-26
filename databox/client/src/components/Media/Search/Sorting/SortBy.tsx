@@ -4,10 +4,9 @@ import ImportExportIcon from '@mui/icons-material/ImportExport';
 import SortByChip from '../SortByChip';
 import EditSortBy from './EditSortBy';
 import {SearchContext} from '../SearchContext';
-import {ResultContext} from '../ResultContext';
 import {useTranslation} from 'react-i18next';
 import {
-    getIndexBySearchSlug,
+    useIndexBySearchSlug,
     useAttributeDefinitionStore,
 } from '../../../../store/attributeDefinitionStore.ts';
 
@@ -17,7 +16,7 @@ export default function SortBy({}: Props) {
     const {t} = useTranslation();
     const search = useContext(SearchContext)!;
     const {load, definitions, loaded} = useAttributeDefinitionStore();
-    const definitionsIndex = getIndexBySearchSlug();
+    const definitionsIndex = useIndexBySearchSlug();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const menuOpen = Boolean(anchorEl);
 

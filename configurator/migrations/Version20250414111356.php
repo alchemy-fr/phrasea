@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
-use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 use App\Configurator\Vendor\Keycloak\KeycloakManager;
 use App\Configurator\Vendor\Keycloak\Migrations\MigrationKeycloakInterface;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
@@ -32,7 +32,7 @@ final class Version20250414111356 extends AbstractMigration implements Migration
     {
         $this->frontendApplications = $frontendApplications;
     }
-  
+
     public function getDescription(): string
     {
         return 'Add redirectAfterPasswordUpdate attribute to Keycloak clients';
@@ -48,13 +48,13 @@ final class Version20250414111356 extends AbstractMigration implements Migration
                 $clientId,
                 [
                     'attributes' => [
-                        'redirectAfterPasswordUpdate' =>  $rootUrl .'/admin'
+                        'redirectAfterPasswordUpdate' => $rootUrl.'/admin',
                     ],
                 ]
             );
-       }
+        }
 
-       foreach ($this->frontendApplications as $app) {
+        foreach ($this->frontendApplications as $app) {
             $clientId = getenv(sprintf('%s_CLIENT_ID', strtoupper($app)));
             $rootUrl = getenv(sprintf('%s_CLIENT_URL', strtoupper($app)));
 
@@ -62,14 +62,14 @@ final class Version20250414111356 extends AbstractMigration implements Migration
                 $clientId,
                 [
                     'attributes' => [
-                        'redirectAfterPasswordUpdate' => $rootUrl
+                        'redirectAfterPasswordUpdate' => $rootUrl,
                     ],
                 ]
             );
-       }
+        }
     }
 
     public function down(Schema $schema): void
-    {   
+    {
     }
 }

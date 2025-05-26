@@ -1,7 +1,6 @@
 {
   "version": "1.0.0",
   "name": "@alchemy/phrasea",
-  "type": "module",
   "scripts": {
     "lint": "turbo run lint",
     "dev": "turbo run dev --parallel",
