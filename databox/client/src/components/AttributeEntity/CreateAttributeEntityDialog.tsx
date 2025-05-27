@@ -59,10 +59,7 @@ export default function CreateAttributeEntityDialog({
                 translations: getNonEmptyTranslations(data.translations ?? {}),
             };
 
-            return await postAttributeEntity(workspaceId, {
-                ...d,
-                type,
-            });
+            return await postAttributeEntity(type, d);
         },
         onSuccess: data => {
             onCreate(data);

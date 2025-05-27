@@ -25,7 +25,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    shortName: 'entity-type',
+    shortName: 'entity-list',
     operations: [
         new Get(),
         new Delete(security: 'is_granted("DELETE", object)'),
@@ -54,18 +54,18 @@ use Symfony\Component\Validator\Constraints as Assert;
 ])]
 #[ORM\UniqueConstraint(name: 'uniq_ws_type', columns: ['workspace_id', 'name'])]
 #[UniqueEntity(
-    fields: ['workspace', 'type'],
+    fields: ['workspace', 'name'],
     message: 'This entity type already exists in the workspace.'
 )]
-class EntityType extends AbstractUuidEntity implements \Stringable
+class EntityList extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
     public const int TYPE_LENGTH = 100;
 
-    final public const string GROUP_READ = 'entity-type:r';
-    final public const string GROUP_LIST = 'entity-type:i';
+    final public const string GROUP_READ = 'entity-list:r';
+    final public const string GROUP_LIST = 'entity-list:i';
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]

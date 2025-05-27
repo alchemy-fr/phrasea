@@ -56,7 +56,7 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
                               widget: {
                                   component: AttributeEntitySelect,
                                   props: {
-                                      type: d.entityType,
+                                      type: d.entityList,
                                   },
                               },
                           }

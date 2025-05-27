@@ -56,7 +56,6 @@ export default function AttributeEntitySelect<
     const load = async (inputValue: string): Promise<SelectOption[]> => {
         const data = (
             await getAttributeEntities({
-                workspace: workspaceId,
                 type,
                 query: inputValue,
             })

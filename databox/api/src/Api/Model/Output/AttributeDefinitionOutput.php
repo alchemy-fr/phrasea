@@ -12,7 +12,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
-use App\Entity\Core\EntityType;
+use App\Entity\Core\EntityList;
 use App\Entity\Core\Share;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
@@ -52,7 +52,7 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public string $fieldType = TextAttributeType::NAME;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
-    public ?EntityType $entityType = null;
+    public ?EntityList $entityList = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $searchable = true;

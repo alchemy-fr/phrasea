@@ -1,4 +1,4 @@
-import {AttributeEntity, Workspace} from '../../../types';
+import {AttributeEntity, EntityList, Workspace} from '../../../types';
 import {
     deleteAttributeEntity,
     getAttributeEntities,
@@ -19,8 +19,6 @@ import {useTranslation} from 'react-i18next';
 import Flag from '../../Ui/Flag.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 
-let lastType = '';
-
 function Item({
     usedFormSubmit,
     workspace,
@@ -35,14 +33,6 @@ function Item({
 
     return (
         <>
-            <FormRow>
-                <TextField
-                    label={t('form.attribute_entity.type.label', 'Type')}
-                    {...register('type')}
-                    disabled={submitting}
-                />
-                <FormFieldErrors field={'type'} errors={errors} />
-            </FormRow>
             <FormRow>
                 <TextField
                     label={t('form.attribute_entity.value.label', 'Value')}
@@ -88,17 +78,18 @@ function ListItem({data}: DefinitionItemProps<AttributeEntity>) {
 function createNewItem(): Partial<AttributeEntity> {
     return {
         value: '',
-        type: lastType,
         translations: {},
     };
 }
 
-type Props = DataTabProps<Workspace>;
+type Props = {
+    workspace: Workspace;
+} & Omit<DataTabProps<EntityList>, 'onClose'>;
 
 export default function AttributeEntityManager({
-    data: workspace,
+    data: type,
     minHeight,
-    onClose,
+    workspace,
 }: Props) {
     const {t} = useTranslation();
 
@@ -106,9 +97,7 @@ export default function AttributeEntityManager({
         if (data.id) {
             return await putAttributeEntity(data.id, data);
         } else {
-            lastType = data.type;
-
-            return await postAttributeEntity(workspace.id, {
+            return await postAttributeEntity(type.id, {
                 ...data,
             });
         }
@@ -120,12 +109,11 @@ export default function AttributeEntityManager({
             listComponent={ListItem}
             load={() =>
                 getAttributeEntities({
-                    workspace: workspace.id,
+                    type: type.id,
                 }).then(r => r.result)
             }
             workspace={workspace}
             minHeight={minHeight}
-            onClose={onClose}
             createNewItem={createNewItem}
             newLabel={t('attribute_entity.new.label', 'New Entity')}
             handleSave={handleSave}

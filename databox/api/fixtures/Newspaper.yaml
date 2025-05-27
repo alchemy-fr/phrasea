@@ -126,7 +126,7 @@ App\Entity\Core\AttributeDefinition:
     ad_transport_type (extends attribute_definition_n):
         name: 'Transport Type'
         fieldType: entity
-        entityType: '@et_transport_type'
+        entityList: '@et_transport_type'
         facetEnabled: true
         sortable: true
         suggest: true
@@ -135,7 +135,7 @@ App\Entity\Core\AttributeDefinition:
     ad_seasons (extends attribute_definition_n):
         name: 'Seasons'
         fieldType: entity
-        entityType: '@et_season'
+        entityList: '@et_season'
         facetEnabled: true
         multiple: true
         sortable: true
@@ -527,7 +527,7 @@ App\Entity\Integration\WorkspaceSecret:
         name: AWS_ACCESS_KEY_SECRET
         plainValue: xxx
 
-App\Entity\Core\EntityType:
+App\Entity\Core\EntityList:
     et_transport_type:
         workspace: '@w_newspaper'
         name: Transport Type

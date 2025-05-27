@@ -25,7 +25,7 @@ use App\Validator\SameWorkspaceConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'attribute-entity',
@@ -70,24 +70,17 @@ class AttributeEntity extends AbstractUuidEntity
     final public const string GROUP_READ = 'attr-ent:r';
     final public const string GROUP_LIST = 'attr-ent:i';
 
-    /**
-     * @deprecated
-     */
-    #[ORM\Column(name: 'type', type: Types::STRING, length: 100, nullable: false)]
-    #[Groups([self::GROUP_LIST, self::GROUP_READ])]
-    #[NotBlank]
-    private ?string $deprecatedType = null;
-
-    #[ORM\ManyToOne(targetEntity: EntityType::class)]
+    #[ORM\ManyToOne(targetEntity: EntityList::class)]
     #[ORM\JoinColumn(nullable: false)]
-    protected ?EntityType $type = null;
+    #[Assert\NotNull]
+    private ?EntityList $type = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: false)]
     #[Groups([
         self::GROUP_LIST, self::GROUP_READ,
         ResolveEntitiesOutput::GROUP_READ,
     ])]
-    #[NotBlank]
+    #[Assert\NotBlank]
     private ?string $value = null;
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
@@ -96,16 +89,6 @@ class AttributeEntity extends AbstractUuidEntity
     #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
     private ?array $translations = null;
-
-    public function getDeprecatedType(): ?string
-    {
-        return $this->deprecatedType;
-    }
-
-    public function setDeprecatedType(?string $deprecatedType): void
-    {
-        $this->deprecatedType = $deprecatedType;
-    }
 
     public function getValue(): ?string
     {
@@ -137,13 +120,17 @@ class AttributeEntity extends AbstractUuidEntity
         $this->translations = $translations;
     }
 
-    public function getType(): ?EntityType
+    public function getType(): ?EntityList
     {
         return $this->type;
     }
 
-    public function setType(?EntityType $type): void
+    public function setType(?EntityList $type): void
     {
+        if (null !== $type && null === $this->workspace) {
+            $this->setWorkspace($type->getWorkspace());
+        }
+
         $this->type = $type;
     }
 

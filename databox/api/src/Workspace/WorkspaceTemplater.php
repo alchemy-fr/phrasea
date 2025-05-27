@@ -6,7 +6,7 @@ namespace App\Workspace;
 
 use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
-use App\Entity\Core\EntityType;
+use App\Entity\Core\EntityList;
 use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Tag;
@@ -337,7 +337,7 @@ final readonly class WorkspaceTemplater
                 'name' => $item->getName(),
                 'class' => $attributeClassMap[$item->getClass()->getId()] ?? null,
                 'labels' => $item->getLabels(),
-                'entityType' => $item->getEntityType()?->getId(),
+                'entityList' => $item->getEntityList()?->getId(),
                 'fallback' => $item->getFallback(),
                 'fieldType' => $item->getFieldType(),
                 'fileType' => $item->getFileType(),
@@ -374,8 +374,8 @@ final readonly class WorkspaceTemplater
             }
             $o->setClass($attributeClassMap[$item['class']]);
             $o->setLabels($item['labels']);
-            if ($item['entityType'] ?? null) {
-                $o->setEntityType($this->em->getReference(EntityType::class, $item['entityType']));
+            if ($item['entityList'] ?? null) {
+                $o->setEntityList($this->em->getReference(EntityList::class, $item['entityList']));
             }
             $o->setFallback($item['fallback']);
             $o->setFieldType($item['fieldType']);

@@ -16,8 +16,8 @@ import RenditionDefinitionManager from './RenditionDefinitionManager';
 import InfoWorkspace from './InfoWorkspace';
 import {modalRoutes} from '../../../routes';
 import {useCloseModal} from '../../Routing/ModalLink';
-import AttributeEntityManager from './AttributeEntityManager.tsx';
 import IntegrationManager from './IntegrationManager.tsx';
+import EntityListManager from './EntityListManager.tsx';
 
 type Props = {};
 
@@ -99,8 +99,8 @@ export default function WorkspaceDialog({}: Props) {
                         'workspace.manage.attribute_entity.title',
                         'Entities'
                     ),
-                    component: AttributeEntityManager,
-                    id: 'attribute-entity',
+                    component: EntityListManager,
+                    id: 'entities',
                     props: {
                         data,
                     },

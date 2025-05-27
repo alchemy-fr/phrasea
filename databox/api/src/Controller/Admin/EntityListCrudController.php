@@ -4,7 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
-use App\Entity\Core\EntityType;
+use App\Entity\Core\EntityList;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -14,11 +14,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
-class EntityTypeCrudController extends AbstractAdminCrudController
+class EntityListCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return EntityType::class;
+        return EntityList::class;
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -33,8 +33,8 @@ class EntityTypeCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('Entity Type')
-            ->setEntityLabelInPlural('Entity Types')
+            ->setEntityLabelInSingular('Entity List')
+            ->setEntityLabelInPlural('Entity Lists')
             ->setSearchFields(['id', 'name']);
     }
 
