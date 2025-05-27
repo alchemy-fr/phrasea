@@ -22,6 +22,7 @@ use Arthem\ObjectReferenceBundle\Mapping\Attribute\ObjectReference;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'integration-data',
@@ -72,10 +73,12 @@ class IntegrationData extends AbstractUuidEntity
 
     #[ORM\ManyToOne(targetEntity: WorkspaceIntegration::class)]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull]
     private ?WorkspaceIntegration $integration = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     #[Groups([self::GROUP_LIST, WorkspaceIntegration::GROUP_LIST])]
+    #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
@@ -88,6 +91,7 @@ class IntegrationData extends AbstractUuidEntity
 
     #[ORM\Column(type: Types::TEXT, nullable: false)]
     #[Groups([self::GROUP_LIST, WorkspaceIntegration::GROUP_LIST])]
+    #[Assert\NotNull]
     private $value;
 
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]

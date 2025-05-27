@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use App\Api\Processor\ExportProcessor;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'export',
@@ -36,12 +37,16 @@ class Export
      * @var string[]
      */
     #[Groups('export:input')]
+    #[Assert\NotNull]
+    #[Assert\Count(min: 1)]
     public $assets;
 
     /**
      * @var string[]
      */
     #[Groups('export:input')]
+    #[Assert\NotNull]
+    #[Assert\Count(min: 1)]
     public $renditions;
 
     #[Groups('export:output')]
