@@ -54,7 +54,7 @@ final readonly class AttributeEntityListener implements EventSubscriber
             if ($entity instanceof AttributeEntity) {
                 $this->postFlushStack->addBusMessage(new AttributeEntityDelete(
                     $entity->getId(),
-                    $entity->getType()->getId(),
+                    $entity->getList()->getId(),
                     $entity->getWorkspaceId(),
                 ));
             }

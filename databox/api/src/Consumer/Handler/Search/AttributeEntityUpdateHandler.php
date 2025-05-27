@@ -31,7 +31,7 @@ final readonly class AttributeEntityUpdateHandler
         $attributeEntity = DoctrineUtil::findStrictByRepo($this->attributeEntityRepository, $id);
         $definitions = $this->attributeDefinitionRepository->getWorkspaceDefinitionOfEntity(
             $attributeEntity->getWorkspaceId(),
-            $attributeEntity->getType()->getId(),
+            $attributeEntity->getList()->getId(),
         );
 
         $fields = [];

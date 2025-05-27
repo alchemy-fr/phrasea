@@ -26,7 +26,7 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(EntityFilter::new('workspace'))
-            ->add(EntityFilter::new('type'))
+            ->add(EntityFilter::new('list'))
             ->add(TextFilter::new('value'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
@@ -44,7 +44,7 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
     {
         yield IdField::new();
         yield AssociationField::new('workspace');
-        yield AssociationField::new('type');
+        yield AssociationField::new('list');
         yield TextField::new('value');
         yield JsonField::new('translations');
         yield DateTimeField::new('createdAt')

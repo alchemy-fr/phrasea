@@ -29,8 +29,8 @@ class AttributeEntityVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        $typeEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $subject->getType());
-        $typeReader = fn (): bool => $this->security->isGranted(AbstractVoter::READ, $subject->getType());
+        $typeEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $subject->getList());
+        $typeReader = fn (): bool => $this->security->isGranted(AbstractVoter::READ, $subject->getList());
 
         return match ($attribute) {
             self::CREATE => $typeEditor() || $this->hasScope($token, $attribute),

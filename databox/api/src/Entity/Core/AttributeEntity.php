@@ -50,16 +50,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: AttributeEntityRepository::class)]
 #[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: [
     'workspace',
-    'type',
+    'list',
 ])]
 #[ApiFilter(filterClass: OrderFilter::class, properties: [
     'value',
     'createdAt',
     'position',
 ])]
-#[ORM\Index(columns: ['type_id'], name: 'entity_type_idx')]
+#[ORM\Index(columns: ['list_id'], name: 'entity_list_idx')]
 #[SameWorkspaceConstraint(
-    properties: ['workspace', 'type.workspace'],
+    properties: ['workspace', 'list.workspace'],
 )]
 class AttributeEntity extends AbstractUuidEntity
 {
@@ -73,7 +73,7 @@ class AttributeEntity extends AbstractUuidEntity
     #[ORM\ManyToOne(targetEntity: EntityList::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
-    private ?EntityList $type = null;
+    private ?EntityList $list = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: false)]
     #[Groups([
@@ -120,18 +120,18 @@ class AttributeEntity extends AbstractUuidEntity
         $this->translations = $translations;
     }
 
-    public function getType(): ?EntityList
+    public function getList(): ?EntityList
     {
-        return $this->type;
+        return $this->list;
     }
 
-    public function setType(?EntityList $type): void
+    public function setList(?EntityList $list): void
     {
-        if (null !== $type && null === $this->workspace) {
-            $this->setWorkspace($type->getWorkspace());
+        if (null !== $list && null === $this->workspace) {
+            $this->setWorkspace($list->getWorkspace());
         }
 
-        $this->type = $type;
+        $this->list = $list;
     }
 
     public function __toString(): string
