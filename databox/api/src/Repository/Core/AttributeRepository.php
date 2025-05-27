@@ -126,7 +126,7 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
         $queryBuilder->andWhere(sprintf('d.translatable = true OR %s.locale IS NULL', $rootAlias));
     }
 
-    public function deleteByAttributeEntity(string $entityId, string $workspaceId, string $entityType): void
+    public function deleteByAttributeEntity(string $entityId, string $workspaceId, string $entityTypeId): void
     {
         $expr = $this->_em->getExpressionBuilder();
         $this
@@ -146,7 +146,7 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
             ))
             ->setParameter('workspace', $workspaceId)
             ->setParameter('t', EntityAttributeType::getName())
-            ->setParameter('etype', $entityType)
+            ->setParameter('etype', $entityTypeId)
             ->setParameter('id', $entityId)
             ->getQuery()
             ->execute();

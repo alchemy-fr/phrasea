@@ -126,7 +126,7 @@ App\Entity\Core\AttributeDefinition:
     ad_transport_type (extends attribute_definition_n):
         name: 'Transport Type'
         fieldType: entity
-        entityType: transport_type
+        entityType: '@et_transport_type'
         facetEnabled: true
         sortable: true
         suggest: true
@@ -135,7 +135,7 @@ App\Entity\Core\AttributeDefinition:
     ad_seasons (extends attribute_definition_n):
         name: 'Seasons'
         fieldType: entity
-        entityType: season
+        entityType: '@et_season'
         facetEnabled: true
         multiple: true
         sortable: true
@@ -527,9 +527,17 @@ App\Entity\Integration\WorkspaceSecret:
         name: AWS_ACCESS_KEY_SECRET
         plainValue: xxx
 
+App\Entity\Core\EntityType:
+    et_transport_type:
+        workspace: '@w_newspaper'
+        name: Transport Type
+    et_season:
+        workspace: '@w_newspaper'
+        name: Season
+
 App\Entity\Core\AttributeEntity:
     attr_entity_transport_type (template):
-        type: transport_type
+        type: '@et_transport_type'
         workspace: '@w_newspaper'
     att_plane (extends attr_entity_transport_type):
         value: Plane
@@ -548,7 +556,7 @@ App\Entity\Core\AttributeEntity:
         translations:
             fr: Bateau
     attr_entity_season (template):
-        type: season
+        type: '@et_season'
         workspace: '@w_newspaper'
     att_winter (extends attr_entity_season):
         value: Winter

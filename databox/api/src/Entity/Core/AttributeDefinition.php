@@ -469,16 +469,6 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         $this->suggest = $suggest;
     }
 
-    public function getDeprecatedEntityType(): ?string
-    {
-        return $this->deprecatedEntityType;
-    }
-
-    public function setDeprecatedEntityType(?string $deprecatedEntityType): void
-    {
-        $this->deprecatedEntityType = $deprecatedEntityType;
-    }
-
     public function getEntityType(): ?EntityType
     {
         return $this->entityType;
