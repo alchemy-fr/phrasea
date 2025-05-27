@@ -1,3 +1,3 @@
 module.exports = {
-    '*.php': () => 'composer cs',
+    '*.php': ['composer cs'],
 }
