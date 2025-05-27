@@ -7,9 +7,8 @@ final readonly class JobTrigger
     public function __construct(
         private string $workflowId,
         private string $jobId,
-        private string $jobStateId
-    )
-    {
+        private string $jobStateId,
+    ) {
     }
 
     public function getWorkflowId(): string

@@ -1,4 +1,4 @@
-import {AxiosInstance, AxiosResponse} from 'axios';
+import {AxiosInstance} from 'axios';
 import {getConfig, getStrict} from '../../configLoader';
 import {
     PhraseanetCollection,
@@ -140,7 +140,7 @@ export default class PhraseanetClient {
         searchQuery: string,
         limit: number = 100
     ): Promise<(CPhraseanetRecord | CPhraseanetStory)[]> {
-        let last_error:any = null;
+        let last_error: any = null;
         for (let ttry = 1; ttry <= 3; ttry++) {
             try {
                 this.logger.info(`Fetching search results...`);
@@ -185,7 +185,7 @@ export default class PhraseanetClient {
                 this.logger.warn(
                     `Failed ${ttry}/3 to fetch search results (${e.message})`
                 );
-                await new Promise(resolve => setTimeout(resolve, 1000*ttry));
+                await new Promise(resolve => setTimeout(resolve, 1000 * ttry));
             }
         }
         throw last_error;
@@ -198,7 +198,7 @@ export default class PhraseanetClient {
         let offset = 0;
         do {
             let res: any;
-            let last_error:any = null;
+            let last_error: any = null;
             for (let ttry = 1; ttry <= 3; ttry++) {
                 try {
                     this.logger.info(`Fetching story children`);
@@ -218,7 +218,9 @@ export default class PhraseanetClient {
                     this.logger.warn(
                         `Failed ${ttry}/3 to fetch story children (${e.message})`
                     );
-                    await new Promise(resolve => setTimeout(resolve, 1000*ttry));
+                    await new Promise(resolve =>
+                        setTimeout(resolve, 1000 * ttry)
+                    );
                 }
             }
             if (last_error) {

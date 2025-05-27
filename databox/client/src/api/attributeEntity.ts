@@ -16,6 +16,7 @@ export async function getAttributeEntities(
     const res = await apiClient.get(attributeEntityNS, {
         params: {
             ...options,
+            [`order[value]`]: 'asc',
         },
     });
 

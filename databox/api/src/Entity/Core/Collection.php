@@ -464,7 +464,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
      */
     public function setStoryAsset(?Asset $storyAsset): void
     {
-        if($storyAsset && null !== $this->getTitle()) {
+        if ($storyAsset && null !== $this->getTitle()) {
             throw new \LogicException('Story collection should not have a title');
         }
         $this->storyAsset = $storyAsset;

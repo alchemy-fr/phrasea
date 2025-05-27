@@ -34,7 +34,7 @@ echo "Migrating..."
 (
   mkdir -p /tmp/phrasea-helm-configure \
   && cd /tmp/phrasea-helm-configure \
-  && helm pull https://github.com/alchemy-fr/alchemy-helm-charts-repo/releases/download/phrasea-${CHART_VERSION}/phrasea-${CHART_VERSION}.tgz \
+  && helm pull https://github.com/alchemy-fr/phrasea-helm-charts/releases/download/phrasea-${CHART_VERSION}/phrasea-${CHART_VERSION}.tgz \
   && helm -n ${NS} get values ${RELEASE_NAME} -o yaml > .current-values.yaml \
   && (kubectl -n ${NS} delete job configurator-migrate-${MIGRATION_NAME} || true) \
   && helm template ${RELEASE_NAME} \

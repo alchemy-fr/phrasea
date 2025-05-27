@@ -307,8 +307,8 @@ final class KeycloakManager
                 $rootUrl.'/*',
             ] : null),
             'attributes' => [
-                'redirectAfterPasswordUpdate' => str_contains($clientId, 'admin') ? $rootUrl .'/admin' : $rootUrl
-            ]
+                'redirectAfterPasswordUpdate' => str_contains($clientId, 'admin') ? $rootUrl.'/admin' : $rootUrl,
+            ],
         ], $data);
 
         if (null !== $client) {
@@ -332,7 +332,7 @@ final class KeycloakManager
         return $client;
     }
 
-    public function updateClientByClientId(string $clientId, array $data = []):void
+    public function updateClientByClientId(string $clientId, array $data = []): void
     {
         $client = $this->getClientByClientId($clientId);
 

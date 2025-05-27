@@ -7,7 +7,7 @@ import {
     SelectOption,
 } from '@alchemy/react-form';
 import {getWorkspaces} from '../../api/workspace.ts';
-import {useEntitiesStore} from "../../store/entitiesStore.ts";
+import {useEntitiesStore} from '../../store/entitiesStore.ts';
 
 type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<
     TFieldValues,
@@ -27,10 +27,10 @@ export default function WorkspaceSelect<TFieldValues extends FieldValues>({
                 .map((t: Workspace) => {
                     store(t['@id'], t);
 
-                    return ({
+                    return {
                         value: t.id,
                         label: t.nameTranslated ?? t.name,
-                    });
+                    };
                 })
                 .filter(i =>
                     i.label

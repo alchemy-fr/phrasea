@@ -7,14 +7,14 @@ import {
 } from './types';
 import {CPhraseanetRecord, CPhraseanetStory} from './CPhraseanetRecord';
 import PhraseanetClient, {ORDER_ASC} from './phraseanetClient';
-import {
-    AttrClassIndex,
-    createAsset,
-    TagIndex,
-} from './shared';
+import {AttrClassIndex, createAsset, TagIndex} from './shared';
 import {getConfig, getStrict} from '../../configLoader';
-import {concatPath, escapePath, escapeSlashes, splitPath} from '../../lib/pathUtils';
-import {AttributeDefinition, Tag} from '../../databox/types';
+import {
+    concatPath,
+    escapePath,
+    escapeSlashes,
+    splitPath,
+} from '../../lib/pathUtils';
 import Twig from 'twig';
 import {Logger} from 'winston';
 import {DataboxClient} from '../../databox/client';
@@ -23,7 +23,8 @@ import {getAlternateUrls} from '../../alternateUrl';
 import {
     importSubdefsStructure,
     importMetadataStructure,
-    importStatusBitsStructure, dumpConfFromStructure,
+    importStatusBitsStructure,
+    dumpConfFromStructure,
 } from './StructureImporter';
 import {IndexLocation} from '../../types/config';
 import * as fs from 'fs';
@@ -63,7 +64,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 continue;
             }
 
-            if(dm.renditions === undefined || dm.fieldMap === undefined) {
+            if (dm.renditions === undefined || dm.fieldMap === undefined) {
                 dumpConfFromStructure(
                     phraseanetDatabox.databox_id,
                     phraseanetClient,
@@ -178,11 +179,12 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 bases: sourceCollections, // if empty (no collections on config) : search all collections
             };
 
-            let importStories = dm.importStories;
+            const importStories = dm.importStories;
 
             let storiesAsCollections = false;
 
-            const storiesCollectionPath: string = dm.storiesCollectionPath ?? '';
+            const storiesCollectionPath: string =
+                dm.storiesCollectionPath ?? '';
             let storiesCollectionPathTwig: Twig.Template | null = null;
             if (dm.storiesCollectionPath !== undefined) {
                 storiesAsCollections = true;
@@ -195,9 +197,9 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             }
 
             const lockFile = `${process.cwd()}/config/${location.name}_${phraseanetDatabox.name}_${dm.workspaceSlug}.lock`;
-            let wip: {last_story:null|string, last_record:null|string} = {
+            let wip: {last_story: null | string; last_record: null | string} = {
                 last_story: null,
-                last_record: null
+                last_record: null,
             };
             try {
                 wip = JSON.parse(fs.readFileSync(lockFile, 'utf8'));
@@ -205,8 +207,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 logger.info(`No lock file found, starting from 0`);
             }
 
-            if(importStories !== false) {
-
+            if (importStories !== false) {
                 logger.info(`>>> Importing empty stories`);
 
                 let stories: CPhraseanetStory[] = [];
@@ -229,32 +230,34 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         query
                     );
                     for (const story of stories) {
-                        if(0 === story.children_total) {
-                            let {storyCollectionId, storyCollectionFullPath} = await importStory(
-                                story,
-                                location,
-                                dm,
-                                subdefToRendition,
-                                databoxClient,
-                                phraseanetDatabox,
-                                workspaceId,
-                                importFiles,
-                                fieldMap,
-                                tagIndex,
-                                storiesAsCollections,
-                                recordsCollectionPathTwig,
-                                recordsCollectionPath,
-                                storiesCollectionPathTwig,
-                                storiesCollectionPath,
-                                collectionKeyPrefix,
-                                idempotencePrefixes,
-                                logger
-                            );
+                        if (0 === story.children_total) {
+                            const {storyCollectionId, storyCollectionFullPath} =
+                                await importStory(
+                                    story,
+                                    location,
+                                    dm,
+                                    subdefToRendition,
+                                    databoxClient,
+                                    phraseanetDatabox,
+                                    workspaceId,
+                                    importFiles,
+                                    fieldMap,
+                                    tagIndex,
+                                    storiesAsCollections,
+                                    recordsCollectionPathTwig,
+                                    recordsCollectionPath,
+                                    storiesCollectionPathTwig,
+                                    storiesCollectionPath,
+                                    collectionKeyPrefix,
+                                    idempotencePrefixes,
+                                    logger
+                                );
                             logger.info(
                                 `  Phraseanet empty story "${story.title}" (#${
                                     story.story_id
                                 }) from base "${
-                                    phraseanetDatabox.collections[story.base_id].name
+                                    phraseanetDatabox.collections[story.base_id]
+                                        .name
                                 }" (#${story.base_id}) ==> collection "${storyCollectionFullPath}" (#${storyCollectionId})`
                             );
                             nStories++;
@@ -297,7 +300,6 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     query
                 );
                 for (const record of records) {
-
                     logger.info(
                         `Phraseanet record "${record.title}" (#${
                             record.record_id
@@ -307,10 +309,12 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     );
 
                     const copyTo = [];
-                    if(importStories !== false && record.stories.length > 0) {
-                        let searchStoriesQuery = record.stories.map(rid => {
-                            return `recordid=${rid}`;
-                        }).join(' OR ');
+                    if (importStories !== false && record.stories.length > 0) {
+                        const searchStoriesQuery = record.stories
+                            .map(rid => {
+                                return `recordid=${rid}`;
+                            })
+                            .join(' OR ');
 
                         for (const story of await phraseanetClient.searchStories(
                             [],
@@ -318,26 +322,27 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                             20,
                             searchStoriesQuery
                         )) {
-                            let {storyCollectionId, storyCollectionFullPath} = await importStory(
-                                story,
-                                location,
-                                dm,
-                                subdefToRendition,
-                                databoxClient,
-                                phraseanetDatabox,
-                                workspaceId,
-                                importFiles,
-                                fieldMap,
-                                tagIndex,
-                                storiesAsCollections,
-                                recordsCollectionPathTwig,
-                                recordsCollectionPath,
-                                storiesCollectionPathTwig,
-                                storiesCollectionPath,
-                                collectionKeyPrefix,
-                                idempotencePrefixes,
-                                logger
-                            );
+                            const {storyCollectionId, storyCollectionFullPath} =
+                                await importStory(
+                                    story,
+                                    location,
+                                    dm,
+                                    subdefToRendition,
+                                    databoxClient,
+                                    phraseanetDatabox,
+                                    workspaceId,
+                                    importFiles,
+                                    fieldMap,
+                                    tagIndex,
+                                    storiesAsCollections,
+                                    recordsCollectionPathTwig,
+                                    recordsCollectionPath,
+                                    storiesCollectionPathTwig,
+                                    storiesCollectionPath,
+                                    collectionKeyPrefix,
+                                    idempotencePrefixes,
+                                    logger
+                                );
 
                             copyTo.push({
                                 id: storyCollectionId,
@@ -400,9 +405,9 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         path,
                         collectionKeyPrefix,
                         idempotencePrefixes['asset'] +
-                        record.databox_id +
-                        '_' +
-                        record.record_id,
+                            record.databox_id +
+                            '_' +
+                            record.record_id,
                         false,
                         fieldMap,
                         tagIndex,
@@ -415,11 +420,9 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     nRecords++;
 
                     wip.last_record = record.record_id;
-                    fs.writeFileSync(
-                        lockFile,
-                        JSON.stringify(wip, null, 2),
-                        {flag: 'w'}
-                    );
+                    fs.writeFileSync(lockFile, JSON.stringify(wip, null, 2), {
+                        flag: 'w',
+                    });
                 }
             } while (records.length == PAGESIZE);
             logger.info(
@@ -479,13 +482,17 @@ async function importStory(
     storiesCollectionPath: string,
     collectionKeyPrefix: string,
     idempotencePrefixes: Record<string, string>,
-    logger: Logger)
-{
-    const storyTitle = escapeSlashes((story.title ?? "story_" + story.databox_id + '_' + story.story_id).trim());
-    var storyCollectionBasePath = '';
-    var storyCollectionFullPath = '';
-    var storyCollectionBasePathParts: string[] = [];
-    var storyCollectionId: string;
+    logger: Logger
+) {
+    const storyTitle = escapeSlashes(
+        (
+            story.title ?? 'story_' + story.databox_id + '_' + story.story_id
+        ).trim()
+    );
+    let storyCollectionBasePath = '';
+    let storyCollectionFullPath = '';
+    let storyCollectionBasePathParts: string[] = [];
+    let storyCollectionId: string;
 
     if (storiesAsCollections) {
         //
@@ -494,9 +501,9 @@ async function importStory(
         storyCollectionBasePathParts = splitPath(
             storiesCollectionPathTwig
                 ? await storiesCollectionPathTwig.renderAsync({
-                    record: story,
-                    collection: phraseanetDatabox.collections[story.base_id],
-                })
+                      record: story,
+                      collection: phraseanetDatabox.collections[story.base_id],
+                  })
                 : storiesCollectionPath
         );
         storyCollectionBasePath = storyCollectionBasePathParts.join('/');
@@ -511,28 +518,26 @@ async function importStory(
                     storyCollectionBasePathParts.map(k => ({
                         key: k,
                         title: k,
-                    })),
+                    }))
                 ));
         }
         // then create the story collection
-        storyCollectionId =
-            await databoxClient.createCollection(
-                story.resource_id,
-                {
-                    workspaceId: workspaceId,
-                    key:
-                        idempotencePrefixes['collection'] +
-                        story.databox_id +
-                        '_' +
-                        story.story_id,
-                    title: storiesAsCollections ? storyTitle : undefined,
-                    parent: storyCollectionBaseURI,
-                }
-            );
-        storyCollectionFullPath = (storyCollectionBasePath ?? '') + '/' + storyTitle;
-
+        storyCollectionId = await databoxClient.createCollection(
+            story.resource_id,
+            {
+                workspaceId: workspaceId,
+                key:
+                    idempotencePrefixes['collection'] +
+                    story.databox_id +
+                    '_' +
+                    story.story_id,
+                title: storiesAsCollections ? storyTitle : undefined,
+                parent: storyCollectionBaseURI,
+            }
+        );
+        storyCollectionFullPath =
+            (storyCollectionBasePath ?? '') + '/' + storyTitle;
     } else {
-
         //
         // create phraseanet story as phrasea story (storyAsset + hidden collection)
         //
@@ -541,14 +546,16 @@ async function importStory(
         if (recordsCollectionPathTwig !== null) {
             storyAssetBasePath = await recordsCollectionPathTwig.renderAsync({
                 record: story,
-                collection:
-                    phraseanetDatabox.collections[story.base_id],
+                collection: phraseanetDatabox.collections[story.base_id],
             });
         } else {
             // bc: dispatch in original phraseanet collection.name
             storyAssetBasePath = `${recordsCollectionPath}/${escapeSlashes(phraseanetDatabox.collections[story.base_id].name)}`;
         }
-        storyAssetFullPath = concatPath(storyAssetBasePath, escapeSlashes(story.title));
+        storyAssetFullPath = concatPath(
+            storyAssetBasePath,
+            escapeSlashes(story.title)
+        );
 
         const branch = splitPath(storyAssetBasePath);
         let collId: string;
@@ -575,9 +582,9 @@ async function importStory(
             storyAssetFullPath,
             collectionKeyPrefix,
             idempotencePrefixes['asset'] +
-            story.databox_id +
-            '_' +
-            story.story_id,
+                story.databox_id +
+                '_' +
+                story.story_id,
             true,
             fieldMap,
             tagIndex,
@@ -593,11 +600,11 @@ async function importStory(
             workspaceId: storyAsset.workspaceId,
             sourceFile: storyAsset.publicUrl
                 ? {
-                    url: storyAsset.publicUrl,
-                    isPrivate: storyAsset.isPrivate,
-                    alternateUrls,
-                    importFile: storyAsset.importFile,
-                }
+                      url: storyAsset.publicUrl,
+                      isPrivate: storyAsset.isPrivate,
+                      alternateUrls,
+                      importFile: storyAsset.importFile,
+                  }
                 : undefined,
             collection: collId ? '/collections/' + collId : undefined,
             generateRenditions: storyAsset.generateRenditions,
@@ -614,6 +621,5 @@ async function importStory(
         storyCollectionFullPath = '';
     }
 
-    return { storyCollectionId, storyCollectionFullPath };
+    return {storyCollectionId, storyCollectionFullPath};
 }
-

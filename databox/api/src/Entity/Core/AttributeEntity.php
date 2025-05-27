@@ -7,6 +7,7 @@ namespace App\Entity\Core;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -49,6 +50,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: [
     'workspace',
     'type',
+])]
+#[ApiFilter(filterClass: OrderFilter::class, properties: [
+    'value',
+    'createdAt',
 ])]
 #[ORM\Index(columns: ['type'], name: 'attr_entity_type_idx')]
 class AttributeEntity extends AbstractUuidEntity

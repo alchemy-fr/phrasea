@@ -49,7 +49,7 @@ class JsonDumperTest extends AbstractDumperTest
                             'disabled' => false,
                             'stateId' => 'intro-0',
                             'number' => 0,
-            ],
+                        ],
                         [
                             'jobId' => 'never-called',
                             'name' => 'never-called',

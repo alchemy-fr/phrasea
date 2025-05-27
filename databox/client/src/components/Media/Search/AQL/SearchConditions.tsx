@@ -9,8 +9,8 @@ import AddIcon from '@mui/icons-material/Add';
 import {TResultContext} from '../ResultContext.tsx';
 import {useResolveASTs} from './useResolveASTs.ts';
 import {
-    getIndexBySearchSlug,
-    getIndexBySlug,
+    useIndexBySearchSlug,
+    useIndexBySlug,
     useAttributeDefinitionStore,
 } from '../../../../store/attributeDefinitionStore.ts';
 
@@ -29,8 +29,8 @@ export default function SearchConditions({
     const {t} = useTranslation();
     const {openModal} = useModals();
     const {load, loaded} = useAttributeDefinitionStore();
-    const definitionsIndexBySlug = getIndexBySlug();
-    const definitionsIndexBySearchSlug = getIndexBySearchSlug();
+    const definitionsIndexBySlug = useIndexBySlug();
+    const definitionsIndexBySearchSlug = useIndexBySearchSlug();
 
     React.useEffect(() => {
         if (!loaded) {

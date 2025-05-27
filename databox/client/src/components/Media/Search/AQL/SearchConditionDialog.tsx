@@ -9,27 +9,22 @@ import {
 import {useTranslation} from 'react-i18next';
 import CheckIcon from '@mui/icons-material/Check';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import React, {useMemo} from 'react';
+import React from 'react';
 import AqlField from './AQLField.tsx';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {parseAQLQuery} from './AQL.ts';
 import nl2br from 'react-nl2br';
 import ConditionsBuilder from './Builder/ConditionsBuilder.tsx';
 import {
-    getIndexBySearchSlug,
-    getIndexBySlug,
+    useIndexBySlug,
     useAttributeDefinitionStore,
 } from '../../../../store/attributeDefinitionStore.ts';
-import {AttributeDefinition, StateSetterHandler} from '../../../../types.ts';
+import {StateSetterHandler} from '../../../../types.ts';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 import {validateQueryAST} from './validation.ts';
 import {QBExpression} from './Builder/builderTypes.ts';
 import {emptyCondition} from './Builder/builder.ts';
 import {AQLExpression, AQLQueryAST} from './aqlTypes.ts';
-import {BuiltInFilter} from '../search.ts';
-import WorkspaceSelect from '../../../Form/WorkspaceSelect.tsx';
-import TagSelect from '../../../Form/TagSelect.tsx';
-import PrivacyWidget from '../../../Form/PrivacyWidget.tsx';
 
 type Props = {
     condition: AQLQuery;
@@ -94,7 +89,7 @@ export default function SearchConditionDialog({
     const isNew = !condition.query;
 
     const {load, loaded} = useAttributeDefinitionStore();
-    const definitionsIndex = getIndexBySlug();
+    const definitionsIndex = useIndexBySlug();
 
     useEffectOnce(() => {
         load(t);

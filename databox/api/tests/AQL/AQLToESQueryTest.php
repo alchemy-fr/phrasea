@@ -35,9 +35,9 @@ class AQLToESQueryTest extends TestCase
 
         $esQueryConverter = new AQLToESQuery(
             new FacetRegistry([
-            '@workspace' => new WorkspaceFacet($em),
-            '@createdAt' => new CreatedAtFacet(),
-        ]), $functionRegistry, $attributeTypeRegistry, new DateNormalizer());
+                '@workspace' => new WorkspaceFacet($em),
+                '@createdAt' => new CreatedAtFacet(),
+            ]), $functionRegistry, $attributeTypeRegistry, new DateNormalizer());
 
         $fieldClusters = [
             [

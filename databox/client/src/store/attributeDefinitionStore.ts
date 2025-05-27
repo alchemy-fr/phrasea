@@ -187,14 +187,14 @@ function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
     );
 }
 
-export function getIndexBySlug(): AttributeDefinitionsIndex {
-    return getIndexByKey('slug');
+export function useIndexBySlug(): AttributeDefinitionsIndex {
+    return useIndexByKey('slug');
 }
-export function getIndexBySearchSlug(): AttributeDefinitionsIndex {
-    return getIndexByKey('searchSlug');
+export function useIndexBySearchSlug(): AttributeDefinitionsIndex {
+    return useIndexByKey('searchSlug');
 }
 
-function getIndexByKey(
+function useIndexByKey(
     key: keyof AttributeDefinition
 ): AttributeDefinitionsIndex {
     const definitions = useAttributeDefinitionStore(s => s.definitions);

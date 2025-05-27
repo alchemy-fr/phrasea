@@ -81,7 +81,7 @@ final readonly class CollectionDelete
             throw new \InvalidArgumentException(sprintf('Collection "%s" not found for deletion', $collectionId));
         }
 
-        if($collection->isStory()) {
+        if ($collection->isStory()) {
             $storyAsset = $collection->getStoryAsset();
             $storyAsset->setStoryCollection(null);
             $this->em->remove($storyAsset);
