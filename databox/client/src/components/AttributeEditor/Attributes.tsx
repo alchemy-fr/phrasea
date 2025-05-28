@@ -42,14 +42,14 @@ export default function Attributes({
             }}
         >
             {attributeDefinitions.map(def => {
-                const l = def?.translatable ? locale : NO_LOCALE;
+                const l = def.translatable ? locale : NO_LOCALE;
                 const type = def.fieldType;
                 const formatter = getAttributeType(type);
                 const defValue = definitionValues[def.id];
                 const valueFormatterProps: AttributeFormatterProps = {
                     value: defValue.value?.[l] ?? '',
                     locale,
-                    format: formatContext.formats[type],
+                    format: formatContext.getFormat(type, def.id),
                 };
 
                 return (

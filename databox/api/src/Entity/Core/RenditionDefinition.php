@@ -49,7 +49,8 @@ use Doctrine\ORM\Mapping as ORM;
             normalizationContext: [
                 'groups' => [RenditionDefinition::GROUP_READ],
             ],
-            securityPostDenormalize: 'is_granted("CREATE", object)'),
+            securityPostDenormalize: 'is_granted("CREATE", object)'
+        ),
         new Post(
             uriTemplate: '/rendition-definitions/sort',
             controller: RenditionDefinitionSortAction::class,

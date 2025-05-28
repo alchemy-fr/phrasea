@@ -118,7 +118,7 @@ class Publication implements AclObjectInterface, \Stringable
     final public const string GROUP_ADMIN_READ = 'publication:admin:read';
     final public const string GROUP_LIST = 'publication:index';
 
-    final public const SECURITY_METHOD_NONE = null;
+    final public const null SECURITY_METHOD_NONE = null;
     final public const string SECURITY_METHOD_PASSWORD = 'password';
     final public const string SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
@@ -130,6 +130,7 @@ class Publication implements AclObjectInterface, \Stringable
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
+    #[Assert\Length(max: 255)]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -218,7 +219,8 @@ class Publication implements AclObjectInterface, \Stringable
      * URL slug.
      */
     #[Groups(['_', self::GROUP_LIST, self::GROUP_READ, self::GROUP_READ])]
-    #[ORM\Column(type: Types::STRING, length: 100, nullable: true, unique: true)]
+    #[ORM\Column(type: Types::STRING, length: 100, unique: true, nullable: true)]
+    #[Assert\Length(max: 100)]
     protected ?string $slug = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]

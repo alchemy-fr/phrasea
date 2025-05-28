@@ -87,6 +87,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
         if ($this->hasGroup([
             Asset::GROUP_READ,
+            Asset::GROUP_LIST,
         ], $context)) {
             $output->owner = $this->transformUser($data->getOwnerId());
             if ($user instanceof JwtUser) {

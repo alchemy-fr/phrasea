@@ -172,7 +172,7 @@ final readonly class KeycloakClient
             'query',
             'json',
             'body',
-                 ] as $key) {
+        ] as $key) {
             if (isset($options[$key])) {
                 $requestOptions[$key] = $options[$key];
             }
@@ -186,7 +186,7 @@ final readonly class KeycloakClient
         foreach ([
             'limit',
             'offset',
-                 ] as $key) {
+        ] as $key) {
             if (isset($options[$key])) {
                 $requestOptions['query'] ??= [];
                 $requestOptions['query'][$key] = $options[$key];

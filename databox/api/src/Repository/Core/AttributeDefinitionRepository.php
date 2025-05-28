@@ -215,4 +215,16 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return AttributeDefinition[]
+     */
+    public function findByIds(array $ids): array
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+    }
 }

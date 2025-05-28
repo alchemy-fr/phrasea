@@ -10,6 +10,7 @@ import {isRtlLocale} from '../../../../lib/lang';
 import {Attribute, AttributeDefinition} from '../../../../types.ts';
 import GestureIcon from '@mui/icons-material/Gesture';
 import {AssetAnnotationRef} from '../Annotations/annotationTypes.ts';
+import {AttributeFormat} from './types/types';
 
 export type BaseAttributeRowUIProps = {
     assetAnnotationsRef?: AssetAnnotationRef;
@@ -17,11 +18,12 @@ export type BaseAttributeRowUIProps = {
 
 type Props = {
     definition: AttributeDefinition;
-    attribute: Attribute | Attribute[];
+    attribute: Attribute | Attribute[] | undefined;
     displayControls: boolean;
-    togglePin: undefined | ((definitionId: string) => void);
+    togglePin: undefined | ((definition: AttributeDefinition) => void);
     pinned: boolean;
     formatContext: TAttributeFormatContext;
+    format?: AttributeFormat;
 } & BaseAttributeRowUIProps;
 
 export default function AttributeRowUI({
@@ -31,9 +33,10 @@ export default function AttributeRowUI({
     pinned,
     displayControls,
     formatContext,
+    format,
     assetAnnotationsRef,
 }: Props) {
-    const {id, nameTranslated, name, fieldType, multiple} = definition;
+    const {nameTranslated, name, fieldType, multiple} = definition;
     const formatter = getAttributeType(fieldType);
     const [overControls, setOverControls] = React.useState(false);
 
@@ -42,21 +45,21 @@ export default function AttributeRowUI({
     >(
         e => {
             e.stopPropagation();
-            formatContext.toggleFormat(fieldType);
+            formatContext.toggleFormat(fieldType, definition.id);
         },
         [formatContext]
     );
 
-    const locale = multiple ? undefined : (attribute as Attribute).locale;
+    const locale = multiple ? undefined : (attribute as Attribute)?.locale;
     const isRtl = locale ? isRtlLocale(locale) : false;
 
     const valueFormatterProps = {
         value: multiple
             ? (attribute as Attribute[]).map(a => a.value)
-            : (attribute as Attribute).value,
-        highlight: multiple ? undefined : (attribute as Attribute).highlight,
+            : (attribute as Attribute)?.value,
+        highlight: multiple ? undefined : (attribute as Attribute)?.highlight,
         locale,
-        format: formatContext.formats[fieldType],
+        format: format ?? formatContext.getFormat(fieldType, definition.id),
     };
 
     return (
@@ -77,11 +80,12 @@ export default function AttributeRowUI({
                     <div className={attributesClasses.controls}>
                         {overControls ? (
                             <>
-                                {formatContext.hasFormats(fieldType) && (
-                                    <IconButton onClick={toggleFormat}>
-                                        <VisibilityIcon />
-                                    </IconButton>
-                                )}
+                                {!format &&
+                                    formatContext.hasFormats(fieldType) && (
+                                        <IconButton onClick={toggleFormat}>
+                                            <VisibilityIcon />
+                                        </IconButton>
+                                    )}
 
                                 <CopyAttribute
                                     value={formatter.formatValueAsString(
@@ -90,7 +94,9 @@ export default function AttributeRowUI({
                                 />
 
                                 {togglePin ? (
-                                    <IconButton onClick={() => togglePin(id)}>
+                                    <IconButton
+                                        onClick={() => togglePin(definition)}
+                                    >
                                         <PushPinIcon
                                             color={
                                                 pinned ? 'success' : undefined
@@ -118,7 +124,10 @@ export default function AttributeRowUI({
                                       value: a.value,
                                       highlight: a.highlight,
                                       locale: a.locale,
-                                      format: formatContext.formats[fieldType],
+                                      format: formatContext.getFormat(
+                                          fieldType,
+                                          a.definition.id
+                                      ),
                                   };
 
                                   const isRtl = isRtlLocale(a.locale);

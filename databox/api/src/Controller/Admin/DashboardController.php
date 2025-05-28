@@ -11,6 +11,8 @@ use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
 use App\Entity\Admin\ESIndexState;
 use App\Entity\Admin\PopulatePass;
+use App\Entity\AttributeList\AttributeList;
+use App\Entity\AttributeList\AttributeListItem;
 use App\Entity\Basket\Basket;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\AlternateUrl;
@@ -90,6 +92,11 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Basket Assets', '', BasketAsset::class),
         ];
 
+        $attributeList = [
+            MenuItem::linkToCrud('Attribute Lists', '', AttributeList::class),
+            MenuItem::linkToCrud('Lists Items', '', AttributeListItem::class),
+        ];
+
         $submenuTemplates = [
             MenuItem::linkToCrud('Asset Data Template', '', AssetDataTemplate::class),
             MenuItem::linkToCrud('Template Attribute', '', TemplateAttribute::class),
@@ -123,6 +130,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Permission', 'fas fa-lock')->setSubItems($submenu1);
         yield MenuItem::subMenu('Core', 'fas fa-database')->setSubItems($submenu2);
         yield MenuItem::subMenu('Basket', 'fas fa-basket-shopping')->setSubItems($basket);
+        yield MenuItem::subMenu('Attribute List', 'fas fa-list')->setSubItems($attributeList);
         yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenu3);
         yield MenuItem::subMenu('Template', 'fas fa-align-justify')->setSubItems($submenuTemplates);
         yield MenuItem::subMenu('Integration', 'fas fa-gear')->setSubItems($submenu4);

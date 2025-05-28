@@ -7,10 +7,11 @@ import {useTranslation} from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {AttributeWidgetOptions} from './types/types';
+import {AttributeType} from '../../../../api/attributes.ts';
 
 type Props = {
     id: string;
-    type: string;
+    type: AttributeType;
     name?: string;
     values: AttrValue<string | number>[];
     onChange: (values: AttrValue<string | number>[]) => void;

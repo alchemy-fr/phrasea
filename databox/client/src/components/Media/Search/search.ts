@@ -8,6 +8,7 @@ export enum BuiltInFilter {
     Collection = '@collection',
     Privacy = '@privacy',
     Workspace = '@workspace',
+    Owner = '@owner',
     Tag = '@tag',
     CreatedAt = '@createdAt',
     EditedAt = '@editedAt',

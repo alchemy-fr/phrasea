@@ -13,10 +13,6 @@ class BasketInputTransformer extends AbstractFileInputTransformer
 {
     use WithOwnerIdProcessorTrait;
 
-    public function __construct()
-    {
-    }
-
     public function supports(string $resourceClass, object $data): bool
     {
         return Basket::class === $resourceClass && $data instanceof BasketInput;

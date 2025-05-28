@@ -10,6 +10,7 @@ import BasketDialog from './components/Dialog/Basket/BasketDialog';
 import BasketViewDialog from './components/Basket/BasketViewDialog';
 import AttributeEditorView from './components/AttributeEditor/AttributeEditorView.tsx';
 import SharePage from './pages/SharePage.tsx';
+import AttributeListDialog from './components/Dialog/AttributeList/AttributeListDialog.tsx';
 
 const modalRoutes = {
     workspaces: {
@@ -43,6 +44,16 @@ const modalRoutes = {
             view: {
                 path: 'view',
                 component: BasketViewDialog,
+            },
+        },
+    },
+    attributeList: {
+        public: false,
+        path: '/attribute-lists/:id',
+        routes: {
+            manage: {
+                path: 'manage/:tab',
+                component: AttributeListDialog,
             },
         },
     },

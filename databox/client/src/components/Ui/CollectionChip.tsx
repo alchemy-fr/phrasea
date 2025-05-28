@@ -1,5 +1,5 @@
-import {Chip, ChipProps} from '@mui/material';
 import {PropsWithChildren} from 'react';
+import {Chip, ChipProps} from '@mui/material';
 
 export const CollectionChip = ({
     children,
@@ -13,11 +13,4 @@ export const CollectionChip = ({
         })}
         label={children || props.label}
     />
-);
-
-export const WorkspaceChip = ({
-    children,
-    ...props
-}: PropsWithChildren<ChipProps>) => (
-    <Chip {...props} color={'primary'} label={children || props.label} />
 );

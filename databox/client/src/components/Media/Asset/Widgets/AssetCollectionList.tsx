@@ -1,9 +1,10 @@
 import {useContext} from 'react';
 import {Collection, Workspace} from '../../../../types';
 import {DisplayContext} from '../../DisplayContext';
-import {CollectionChip, WorkspaceChip} from '../../../Ui/Chips';
 import assetClasses from '../../../AssetList/classes';
 import {useTranslation} from 'react-i18next';
+import {WorkspaceChip} from '../../../Ui/WorkspaceChip.tsx';
+import {CollectionChip} from '../../../Ui/CollectionChip.tsx';
 
 type Props = {
     workspace?: Workspace;
@@ -66,7 +67,6 @@ export default function AssetCollectionList({workspace, collections}: Props) {
 export function collectionListSx() {
     return {
         [`.${assetClasses.collectionList}`]: {
-            'px': 1,
             'display': 'flex',
             'alignItems': 'center',
             'flexWrap': 'wrap',

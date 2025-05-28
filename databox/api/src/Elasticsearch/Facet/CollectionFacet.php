@@ -100,6 +100,9 @@ final class CollectionFacet extends AbstractFacet
         $id = $ids[array_key_last($ids)];
 
         $collection = $this->em->find(Collection::class, $id);
+        if (null === $collection) {
+            return null;
+        }
         $preferredLocales = $this->getPreferredLocales($collection->getWorkspace());
         $levels = [];
         $pColl = $collection;
