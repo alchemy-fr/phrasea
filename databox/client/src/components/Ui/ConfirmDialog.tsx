@@ -30,6 +30,8 @@ type Props<CO extends ConfirmOptions> = PropsWithChildren<
     } & StackedModalProps
 >;
 
+export type {Props as ConfirmDialogProps};
+
 export default function ConfirmDialog<CO extends ConfirmOptions>({
     onCancel,
     onConfirm,

@@ -12,6 +12,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\EntityList;
 use App\Entity\Core\Share;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
@@ -32,10 +33,10 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     public ?AttributeClass $class = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST, Share::GROUP_PUBLIC_READ, EntityList::GROUP_READ, EntityList::GROUP_LIST])]
     public ?string $name = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST, Share::GROUP_PUBLIC_READ, EntityList::GROUP_READ, EntityList::GROUP_LIST])]
     public ?string $nameTranslated = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST])]
@@ -51,7 +52,7 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public string $fieldType = TextAttributeType::NAME;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
-    public ?string $entityType = null;
+    public ?EntityList $entityList = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $searchable = true;

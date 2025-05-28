@@ -22,7 +22,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'attribute-class',
@@ -45,6 +47,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\UniqueConstraint(name: 'uniq_class_ws_name', columns: ['workspace_id', 'name'])]
 #[ORM\UniqueConstraint(name: 'uniq_class_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity]
+#[UniqueEntity(
+    fields: ['workspace', 'name'],
+    message: 'The attribute class name must be unique in the workspace.',
+    errorPath: 'name',
+)]
 class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \Stringable
 {
     use CreatedAtTrait;
@@ -58,18 +65,23 @@ class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \
     #[ORM\ManyToOne(targetEntity: Workspace::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['_'])]
+    #[Assert\NotNull]
     protected ?Workspace $workspace = null;
 
     #[Groups([AttributeClass::GROUP_LIST, AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ])]
     #[ORM\Column(type: Types::STRING, length: 80)]
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
     private ?string $name = null;
 
     #[Groups([AttributeClass::GROUP_LIST])]
     #[ORM\Column(type: Types::BOOLEAN)]
+    #[Assert\NotNull]
     private ?bool $editable = null;
 
     #[Groups([AttributeClass::GROUP_LIST])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    #[Assert\NotNull]
     private ?bool $public = null;
 
     /**

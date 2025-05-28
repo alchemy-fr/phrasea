@@ -25,11 +25,13 @@ use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\AssetDataTemplateRepository;
+use App\Validator\SameWorkspaceConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table]
 #[ORM\Entity(repositoryClass: AssetDataTemplateRepository::class)]
@@ -68,6 +70,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
     provider: AssetDataTemplateCollectionProvider::class,
 )]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
+#[SameWorkspaceConstraint(
+    properties: ['workspace', 'tags.workspace', 'collection.workspace', 'attributes.workspace']
+)]
 class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
     use OwnerIdTrait;
@@ -81,6 +86,7 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
      * Template name.
      */
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
+    #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]

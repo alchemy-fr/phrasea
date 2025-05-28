@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Post;
 use App\Entity\Traits\ExtraMetadataTrait;
 use App\Repository\Core\CollectionAssetRepository;
+use App\Validator\SameWorkspaceConstraint;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ApiResource(
@@ -25,6 +26,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_asset', columns: ['collection_id', 'asset_id'])]
 #[ORM\Entity(repositoryClass: CollectionAssetRepository::class)]
+#[SameWorkspaceConstraint(
+    properties: ['asset.workspace', 'collection.workspace']
+)]
 class CollectionAsset extends AbstractUuidEntity implements ESIndexableDependencyInterface, ESIndexableDeleteDependencyInterface, \Stringable
 {
     use CreatedAtTrait;

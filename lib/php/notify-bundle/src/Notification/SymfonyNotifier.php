@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Notifier\Bridge\Novu\NovuSubscriberRecipient;
 use Symfony\Component\Notifier\NotifierInterface as SymfonyNotifierInterface;
-use Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 
 final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
 {
@@ -99,7 +99,7 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
             if (!$this->novuIsDown) {
                 try {
                     $isSubscribed = $this->novuClient->isSubscribed($topicKey, $userId);
-                } catch (TimeoutExceptionInterface $e) {
+                } catch (ExceptionInterface $e) {
                     $this->logger->alert('Novu is down', [
                         'exception' => $e,
                     ]);

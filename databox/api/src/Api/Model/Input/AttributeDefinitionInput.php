@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Model\Input;
 
 use App\Entity\Core\AttributeClass;
+use App\Entity\Core\EntityList;
 use App\Entity\Core\Workspace;
 
 class AttributeDefinitionInput
@@ -32,9 +33,9 @@ class AttributeDefinitionInput
     public $fieldType;
 
     /**
-     * @var string|null
+     * @var EntityList|null
      */
-    public $entityType;
+    public $entityList;
 
     /**
      * @var string

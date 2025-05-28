@@ -28,7 +28,7 @@ final readonly class AttributeEntityDeleteHandler
 
         $definitions = $this->attributeDefinitionRepository->getWorkspaceDefinitionOfEntity(
             $message->getWorkspaceId(),
-            $message->getType(),
+            $message->getTypeId(),
         );
 
         if (empty($definitions)) {
@@ -51,7 +51,7 @@ final readonly class AttributeEntityDeleteHandler
         $this->attributeRepository->deleteByAttributeEntity(
             $message->getId(),
             $message->getWorkspaceId(),
-            $message->getType()
+            $message->getTypeId()
         );
 
         $this->elasticSearchClient->updateByQuery(

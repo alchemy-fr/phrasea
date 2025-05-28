@@ -61,6 +61,10 @@ trait FileUserActionsTrait
     public function transformData(IntegrationData $data, IntegrationConfig $config): void
     {
         $file = $this->em->find(File::class, $data->getValue());
+        if (!$file) {
+            throw new BadRequestHttpException(sprintf('File with id "%s" not found', $data->getValue()));
+        }
+
         $data->setValue([
             'id' => $file->getId(),
             'url' => $this->fileUrlResolver->resolveUrl($file),

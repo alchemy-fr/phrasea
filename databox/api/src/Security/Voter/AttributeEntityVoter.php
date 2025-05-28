@@ -29,14 +29,14 @@ class AttributeEntityVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        $workspaceEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $subject->getWorkspace());
-        $workspaceReader = fn (): bool => $this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace());
+        $typeEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $subject->getList());
+        $typeReader = fn (): bool => $this->security->isGranted(AbstractVoter::READ, $subject->getList());
 
         return match ($attribute) {
-            self::CREATE => $workspaceEditor() || $this->hasScope($token, $attribute),
-            self::EDIT => $workspaceEditor() || $this->hasScope($token, $attribute),
-            self::DELETE => $workspaceEditor() || $this->hasScope($token, $attribute),
-            self::READ => $workspaceReader() || $this->hasScope($token, $attribute),
+            self::CREATE => $typeEditor() || $this->hasScope($token, $attribute),
+            self::EDIT => $typeEditor() || $this->hasScope($token, $attribute),
+            self::DELETE => $typeEditor() || $this->hasScope($token, $attribute),
+            self::READ => $typeReader() || $this->hasScope($token, $attribute),
             default => false,
         };
     }

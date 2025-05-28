@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
 use App\Api\Processor\IncomingUploadProcessor;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'incoming-upload',
@@ -18,11 +19,20 @@ use App\Api\Processor\IncomingUploadProcessor;
 final class IncomingUpload
 {
     #[ApiProperty(writable: true, identifier: true)]
+    #[Assert\NotBlank]
     public ?string $commit_id = null;
 
+    #[Assert\NotNull]
+    #[Assert\Count(min: 1)]
     public ?array $assets = null;
+
+    #[Assert\NotBlank]
     public ?string $publisher = null;
+
+    #[Assert\NotBlank]
     public ?string $token = null;
+
+    #[Assert\NotBlank]
     public ?string $base_url = null;
 
     public function toArray(): array

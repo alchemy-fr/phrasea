@@ -25,6 +25,7 @@ use App\Entity\Traits\ErrorDisableTrait;
 use App\Entity\Traits\NullableWorkspaceTrait;
 use App\Integration\Exception\CircularReferenceException;
 use App\Security\Voter\AbstractVoter;
+use App\Validator\ValidIntegrationOptionsConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -55,6 +56,7 @@ use Symfony\Component\Yaml\Yaml;
 #[ORM\UniqueConstraint(name: 'uniq_integration_key', columns: ['workspace_id', 'title', 'integration'])]
 #[ORM\Entity]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
+#[ValidIntegrationOptionsConstraint]
 class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface
 {
     use CreatedAtTrait;

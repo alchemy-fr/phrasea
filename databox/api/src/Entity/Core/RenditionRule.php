@@ -20,6 +20,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\RenditionRuleInput;
 use App\Api\Model\Output\RenditionRuleOutput;
 use App\Repository\Core\RenditionRuleRepository;
+use App\Validator\SameWorkspaceConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -53,22 +54,20 @@ use Ramsey\Uuid\Doctrine\UuidType;
 #[ORM\UniqueConstraint(name: 'rend_uniq_rule', columns: ['user_type', 'user_id', 'object_type', 'object_id'])]
 #[ORM\Entity(repositoryClass: RenditionRuleRepository::class)]
 #[ApiFilter(SearchFilter::class, properties: ['allowed' => 'exact', 'userType' => 'exact', 'userId' => 'exact', 'objectType' => 'exact', 'objectId' => 'exact'])]
+#[SameWorkspaceConstraint(
+    properties: ['allowed.workspace']
+)]
 class RenditionRule extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
-    final public const string GROUP_READ = 'rendrule:read';
-    final public const string GROUP_LIST = 'rendrule:index';
+    final public const string GROUP_READ = 'rendrule:r';
+    final public const string GROUP_LIST = 'rendrule:i';
 
     final public const int TYPE_USER = 0;
     final public const int TYPE_GROUP = 1;
     final public const int TYPE_WORKSPACE = 0;
     final public const int TYPE_COLLECTION = 1;
-
-    final public const OBJECT_CLASSES = [
-        self::TYPE_WORKSPACE => Workspace::class,
-        self::TYPE_COLLECTION => Collection::class,
-    ];
 
     #[ORM\Column(type: Types::SMALLINT)]
     protected ?int $userType = null;

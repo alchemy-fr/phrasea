@@ -18,6 +18,7 @@ use App\Api\Model\Input\TagFilterRuleInput;
 use App\Api\Model\Output\TagFilterRuleOutput;
 use App\Api\Provider\TagFilterRuleCollectionProvider;
 use App\Repository\Core\TagFilterRuleRepository;
+use App\Validator\TagFilterRuleConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -48,6 +49,7 @@ use Ramsey\Uuid\Doctrine\UuidType;
 #[ORM\Index(columns: ['user_type'], name: 'tfr_user_type_idx')]
 #[ORM\UniqueConstraint(name: 'tfr_uniq_ace', columns: ['user_type', 'user_id', 'object_type', 'object_id'])]
 #[ORM\Entity(repositoryClass: TagFilterRuleRepository::class)]
+#[TagFilterRuleConstraint]
 class TagFilterRule extends AbstractUuidEntity
 {
     use CreatedAtTrait;
@@ -61,7 +63,7 @@ class TagFilterRule extends AbstractUuidEntity
     final public const int TYPE_WORKSPACE = 0;
     final public const int TYPE_COLLECTION = 1;
 
-    final public const OBJECT_CLASSES = [
+    final public const array OBJECT_CLASSES = [
         self::TYPE_WORKSPACE => Workspace::class,
         self::TYPE_COLLECTION => Collection::class,
     ];

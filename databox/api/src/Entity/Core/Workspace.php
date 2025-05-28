@@ -32,6 +32,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'workspace',
@@ -96,9 +97,16 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     final public const string GROUP_LIST = 'workspace:index';
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
+    #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::STRING, length: 50, unique: true, nullable: false)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 50)]
+    #[Assert\Regex(
+        pattern: '/^[a-z0-9][a-z0-9-]*[a-z0-9]$/',
+        message: 'Invalid slug. Should match: my-workspace01'
+    )]
     private ?string $slug = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
@@ -108,6 +116,13 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     private array $config = [];
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
+    #[Assert\All([
+        new Assert\NotBlank(),
+        new Assert\Regex(
+            pattern: '#^[a-z]{2}(_[A-Z]{2})?$#',
+            message: 'Invalid locale format, must match "fr" or "fr_FR"'
+        ),
+    ])]
     private array $enabledLocales = ['en'];
 
     #[ORM\Column(type: Types::JSON, nullable: false)]

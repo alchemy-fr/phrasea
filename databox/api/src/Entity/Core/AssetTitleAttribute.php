@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use App\Validator\SameWorkspaceConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
+#[SameWorkspaceConstraint(
+    properties: ['workspace', 'definition.workspace']
+)]
 class AssetTitleAttribute extends AbstractUuidEntity
 {
     #[ORM\ManyToOne(targetEntity: Workspace::class)]
