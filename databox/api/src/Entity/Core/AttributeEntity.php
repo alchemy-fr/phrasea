@@ -125,6 +125,14 @@ class AttributeEntity extends AbstractUuidEntity
         return $this->list;
     }
 
+    /**
+     * Used by ES.
+     */
+    public function getListId(): ?string
+    {
+        return $this->list?->getId();
+    }
+
     public function setList(?EntityList $list): void
     {
         if (null !== $list && null === $this->workspace) {

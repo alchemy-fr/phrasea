@@ -1,4 +1,4 @@
-import {AttributeEntity, EntityList, Workspace} from '../../../types';
+import {AttributeEntity, EntityList} from '../../../types';
 import {
     deleteAttributeEntity,
     getAttributeEntities,
@@ -13,6 +13,7 @@ import {
 } from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
+    DefinitionItemManageProps,
     DefinitionItemProps,
 } from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
@@ -82,14 +83,14 @@ function createNewItem(): Partial<AttributeEntity> {
     };
 }
 
-type Props = {
-    workspace: Workspace;
-} & Omit<DataTabProps<EntityList>, 'onClose'>;
+type Props = DefinitionItemManageProps<EntityList> &
+    Omit<DataTabProps<EntityList>, 'onClose'>;
 
 export default function AttributeEntityManager({
-    data: type,
+    data: list,
     minHeight,
     workspace,
+    setSubManagementState,
 }: Props) {
     const {t} = useTranslation();
 
@@ -97,7 +98,7 @@ export default function AttributeEntityManager({
         if (data.id) {
             return await putAttributeEntity(data.id, data);
         } else {
-            return await postAttributeEntity(type.id, {
+            return await postAttributeEntity(list.id, {
                 ...data,
             });
         }
@@ -105,11 +106,12 @@ export default function AttributeEntityManager({
 
     return (
         <DefinitionManager
+            managerFormId={'entity-attribute-manager'}
             itemComponent={Item}
             listComponent={ListItem}
             load={() =>
                 getAttributeEntities({
-                    type: type.id,
+                    list: list.id,
                 }).then(r => r.result)
             }
             workspace={workspace}
@@ -118,6 +120,7 @@ export default function AttributeEntityManager({
             newLabel={t('attribute_entity.new.label', 'New Entity')}
             handleSave={handleSave}
             handleDelete={deleteAttributeEntity}
+            setSubManagementState={setSubManagementState}
         />
     );
 }

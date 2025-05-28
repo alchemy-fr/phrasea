@@ -5,16 +5,18 @@ import {
     postEntityList,
     putEntityList,
 } from '../../../api/entityList.ts';
-import {ListItemText, TextField} from '@mui/material';
+import {ListItemSecondaryAction, ListItemText, TextField} from '@mui/material';
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemManageProps,
-    DefinitionItemProps,
+    DefinitionListItemProps,
 } from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import AttributeEntityManager from './AttributeEntityManager.tsx';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
 
 function Item({usedFormSubmit}: DefinitionItemFormProps<EntityList>) {
     const {t} = useTranslation();
@@ -38,14 +40,35 @@ function Item({usedFormSubmit}: DefinitionItemFormProps<EntityList>) {
     );
 }
 
-function ManageItem({workspace, data}: DefinitionItemManageProps<EntityList>) {
-    return <AttributeEntityManager workspace={workspace} data={data} />;
+function ManageItem({
+    workspace,
+    data,
+    setSubManagementState,
+}: DefinitionItemManageProps<EntityList>) {
+    return (
+        <AttributeEntityManager
+            workspace={workspace}
+            data={data}
+            setSubManagementState={setSubManagementState}
+        />
+    );
 }
 
-function ListItem({data}: DefinitionItemProps<EntityList>) {
+function ListItem({data, onEdit}: DefinitionListItemProps<EntityList>) {
     return (
         <>
             <ListItemText primary={data.name} />
+            <ListItemSecondaryAction>
+                <IconButton
+                    onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        onEdit();
+                    }}
+                >
+                    <EditIcon />
+                </IconButton>
+            </ListItemSecondaryAction>
         </>
     );
 }
@@ -92,7 +115,6 @@ export default function EntityListManager({
             newLabel={t('entity_type.new.label', 'New Entity List')}
             handleSave={handleSave}
             handleDelete={deleteEntityList}
-            hasSubDefinitions={true}
         />
     );
 }

@@ -96,6 +96,6 @@ export function createWidgetOptionsFromDefinition(
     definition: AttributeDefinition
 ): AttributeWidgetOptions {
     return {
-        type: definition.entityList,
+        list: definition.entityList?.id,
     };
 }
