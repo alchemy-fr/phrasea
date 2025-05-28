@@ -40,7 +40,6 @@ final class Version20250415153255 extends AbstractMigration implements Migration
 
     public function up(Schema $schema): void
     {
-
         $this->keycloakManager->putRealm([
             'displayName' => 'Phrasea Auth',
             'displayNameHtml' => '<div class="kc-logo-text"><span>Phrasea Auth</span></div>',
@@ -60,15 +59,15 @@ final class Version20250415153255 extends AbstractMigration implements Migration
             'maxDeltaTimeSeconds' => '43200',
             'quickLoginCheckMilliSeconds' => '1000',
             'minimumQuickLoginWaitSeconds' => '60',
-            'eventsEnabled'                 => $this->getBooleanEnv('KC_REALM_USER_EVENT_ENABLED', false),
-            'eventsExpiration'              => getenv('KC_REALM_USER_EVENT_EXPIRATION') ?: '604800',
-            'eventsListeners'               => ['jboss-logging'],
-            'adminEventsEnabled'           => $this->getBooleanEnv('KC_REALM_ADMIN_EVENT_ENABLED', false),
-            'adminEventsDetailsEnabled'    => true,      
-            'ssoSessionIdleTimeout'     => getenv('KC_REALM_SSO_SESSION_IDLE_TIMEOUT') ?: '1800',
-            'ssoSessionMaxLifespan'     => getenv('KC_REALM_SSO_SESSION_MAX_LIFESPAN') ?: '36000',
-            'clientSessionIdleTimeout'  => getenv('KC_REALM_CLIENT_SESSION_IDLE_TIMEOUT') ?: '1800',
-            'clientSessionMaxLifespan'  => getenv('KC_REALM_CLIENT_SESSION_MAX_LIFESPAN') ?: '36000',
+            'eventsEnabled' => $this->getBooleanEnv('KC_REALM_USER_EVENT_ENABLED', false),
+            'eventsExpiration' => getenv('KC_REALM_USER_EVENT_EXPIRATION') ?: '604800',
+            'eventsListeners' => ['jboss-logging'],
+            'adminEventsEnabled' => $this->getBooleanEnv('KC_REALM_ADMIN_EVENT_ENABLED', false),
+            'adminEventsDetailsEnabled' => true,
+            'ssoSessionIdleTimeout' => getenv('KC_REALM_SSO_SESSION_IDLE_TIMEOUT') ?: '1800',
+            'ssoSessionMaxLifespan' => getenv('KC_REALM_SSO_SESSION_MAX_LIFESPAN') ?: '36000',
+            'clientSessionIdleTimeout' => getenv('KC_REALM_CLIENT_SESSION_IDLE_TIMEOUT') ?: '1800',
+            'clientSessionMaxLifespan' => getenv('KC_REALM_CLIENT_SESSION_MAX_LIFESPAN') ?: '36000',
             'offlineSessionIdleTimeout' => getenv('KC_REALM_OFFLINE_SESSION_IDLE_TIMEOUT') ?: '2592000',
             'offlineSessionMaxLifespanEnabled' => getenv('KC_REALM_OFFLINE_SESSION_MAX_LIFESPAN') ? true : false,
             'offlineSessionMaxLifespan' => getenv('KC_REALM_OFFLINE_SESSION_MAX_LIFESPAN') ?: '7344000',
