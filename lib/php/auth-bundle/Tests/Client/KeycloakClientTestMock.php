@@ -117,6 +117,13 @@ class KeycloakClientTestMock implements HttpClientInterface
             ]),
             str_ends_with($url, '/admin/realms/phrasea/users'),
             str_ends_with($url, '/admin/realms/phrasea/groups') => $this->createResponse($args, 200, []),
+            str_contains($url, '/admin/realms/phrasea/users/') => $this->createResponse($args, 200, [
+                'id' => '123',
+                'username' => 'user',
+                'firstName' => 'Test',
+                'lastName' => 'User',
+                'email' => 'user@phrasea.local',
+            ]),
             default => throw new \InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $url)),
         };
     }
