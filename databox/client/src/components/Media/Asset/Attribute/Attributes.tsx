@@ -63,6 +63,7 @@ function Attributes({
         const attributeGroups = buildAttributesGroupedByDefinition(
             asset.attributes
         );
+
         if (pinnedAttributes.length === 0) {
             return attributeGroups.map(ag => ({
                 id: ag.definition.id,

@@ -20,6 +20,7 @@ import {ReactNode} from 'react';
 import WorkspaceType from './WorkspaceType.tsx';
 import CollectionType from './CollectionType.tsx';
 import PrivacyType from './PrivacyType.tsx';
+import UserType from './UserType.tsx';
 
 export const types: {
     [key in AttributeType]?: AttributeTypeClass;
@@ -40,6 +41,7 @@ export const types: {
     [AttributeType.WebVtt]: CodeType,
     [AttributeType.Workspace]: WorkspaceType,
     [AttributeType.Privacy]: PrivacyType,
+    [AttributeType.User]: UserType,
 };
 
 export function getAttributeType(
