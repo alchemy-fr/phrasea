@@ -167,7 +167,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     #[ORM\Column(type: Types::STRING, length: 50, nullable: false)]
     private string $fieldType = TextAttributeType::NAME;
 
-    #[ORM\ManyToOne(targetEntity: EntityList::class)]
+    #[ORM\ManyToOne(targetEntity: EntityList::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: true)]
     protected ?EntityList $entityList = null;
 

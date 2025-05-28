@@ -70,7 +70,7 @@ class AttributeEntity extends AbstractUuidEntity
     final public const string GROUP_READ = 'attr-ent:r';
     final public const string GROUP_LIST = 'attr-ent:i';
 
-    #[ORM\ManyToOne(targetEntity: EntityList::class)]
+    #[ORM\ManyToOne(targetEntity: EntityList::class, inversedBy: 'entities')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
     private ?EntityList $list = null;

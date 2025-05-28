@@ -18,6 +18,8 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Entity\Traits\WorkspaceTrait;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -73,6 +75,19 @@ class EntityList extends AbstractUuidEntity implements \Stringable
     #[Assert\Length(max: self::TYPE_LENGTH)]
     private ?string $name = null;
 
+    #[ORM\OneToMany(mappedBy: 'list', targetEntity: AttributeEntity::class, cascade: ['remove'])]
+    private ?Collection $entities = null;
+
+    #[ORM\OneToMany(mappedBy: 'entityList', targetEntity: AttributeDefinition::class, cascade: ['remove'])]
+    private ?Collection $definitions = null;
+
+    public function __construct()
+    {
+        $this->entities = new ArrayCollection();
+        $this->definitions = new ArrayCollection();
+        parent::__construct();
+    }
+
     public function getName(): ?string
     {
         return $this->name;
@@ -86,5 +101,11 @@ class EntityList extends AbstractUuidEntity implements \Stringable
     public function __toString()
     {
         return $this->name ?? $this->getId() ?? '';
+    }
+
+    #[Groups([self::GROUP_READ, self::GROUP_LIST])]
+    public function getDefinitions(): ?Collection
+    {
+        return $this->definitions;
     }
 }

@@ -239,6 +239,7 @@ export type AttributeEntity = {
 
 export type EntityList = {
     name: string;
+    definitions: AttributeDefinition[];
     createdAt: string;
     updatedAt: string;
 } & ApiHydraObjectResponse &

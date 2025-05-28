@@ -31,6 +31,8 @@ import SortableList, {
 import {Entity, StateSetter, Workspace} from '../../../../types.ts';
 import ItemForm from './ItemForm.tsx';
 import {UseFormSubmitReturn} from '@alchemy/api';
+import {useModals} from '@alchemy/navigation';
+import ConfirmDialog, {ConfirmDialogProps} from '../../../Ui/ConfirmDialog.tsx';
 
 export type DefinitionBase = ApiHydraObjectResponse & Entity;
 
@@ -132,6 +134,9 @@ type Props<D extends DefinitionBase> = {
     denormalizeData?: NormalizeData<D>;
     setSubManagementState?: SetSubManagementState;
     managerFormId?: string;
+    deleteConfirmAssertions?: (
+        data: D
+    ) => ConfirmDialogProps<any>['assertions'];
 };
 
 export default function DefinitionManager<D extends DefinitionBase>({
@@ -152,7 +157,9 @@ export default function DefinitionManager<D extends DefinitionBase>({
     denormalizeData,
     managerFormId = 'definition-manager',
     setSubManagementState: parentSetSubManagementState,
+    deleteConfirmAssertions,
 }: Props<D>) {
+    const {openModal} = useModals();
     const [listState, setListState] = useState<ListState<D>>({
         list: undefined,
         loading: false,
@@ -292,26 +299,28 @@ export default function DefinitionManager<D extends DefinitionBase>({
 
     const onDelete = useCallback(() => {
         if (handleDelete && typeof item === 'object') {
-            if (
-                window.confirm(
-                    t(
-                        'definition_manager.confirm_delete',
-                        'Are you sure you want to delete this item?'
-                    )
-                )
-            ) {
-                setListState(p => ({
-                    ...p,
-                    item: undefined,
-                    list: (p.list || []).filter(i => i.id !== item.id),
-                }));
-                setItemState({
-                    item: undefined,
-                    loading: false,
-                    action: ItemAction.None,
-                });
-                handleDelete(item.id);
-            }
+            openModal(ConfirmDialog, {
+                title: t(
+                    'definition_manager.confirm_delete',
+                    'Are you sure you want to delete this item?'
+                ),
+                assertions: deleteConfirmAssertions
+                    ? deleteConfirmAssertions(item)
+                    : undefined,
+                onConfirm: async () => {
+                    setListState(p => ({
+                        ...p,
+                        item: undefined,
+                        list: (p.list || []).filter(i => i.id !== item.id),
+                    }));
+                    setItemState({
+                        item: undefined,
+                        loading: false,
+                        action: ItemAction.None,
+                    });
+                    handleDelete(item.id);
+                },
+            });
         }
     }, [item, t]);
 

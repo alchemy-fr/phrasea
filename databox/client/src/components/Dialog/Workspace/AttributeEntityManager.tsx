@@ -106,6 +106,12 @@ export default function AttributeEntityManager({
 
     return (
         <DefinitionManager
+            deleteConfirmAssertions={() => [
+                t(
+                    'attribute_entity.delete.confirm.assertion.unset_on_attrs',
+                    `I understand that this entity will be unset on all asset's attributes using it.`
+                ),
+            ]}
             managerFormId={'entity-attribute-manager'}
             itemComponent={Item}
             listComponent={ListItem}

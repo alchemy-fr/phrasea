@@ -55,9 +55,25 @@ function ManageItem({
 }
 
 function ListItem({data, onEdit}: DefinitionListItemProps<EntityList>) {
+    const {t} = useTranslation();
+
     return (
         <>
-            <ListItemText primary={data.name} />
+            <ListItemText
+                primary={data.name}
+                secondary={
+                    data.definitions.length > 0
+                        ? t(
+                              'entity_type.definitions.count',
+                              'Used on {{ count }} attribute definitions',
+                              {count: data.definitions.length}
+                          )
+                        : t(
+                              'entity_type.definitions.none',
+                              'No attribute definition usage'
+                          )
+                }
+            />
             <ListItemSecondaryAction>
                 <IconButton
                     onClick={e => {
@@ -100,6 +116,32 @@ export default function EntityListManager({
 
     return (
         <DefinitionManager
+            deleteConfirmAssertions={(data: EntityList) => {
+                const assertions = [
+                    t(
+                        'entity_type.delete.confirm.assertion.unset_on_attrs',
+                        `I understand that all entities of this list will be unset on asset's attributes using it.`
+                    ),
+                    t(
+                        'entity_type.delete.confirm.assertion.no_undo',
+                        'I understand this action cannot be undone.'
+                    ),
+                ];
+
+                data.definitions.forEach(def => {
+                    assertions.push(
+                        t(
+                            'attribute_entity.delete.confirm.assertion.delete_attr_def',
+                            `I understand that attribute definition "{{ definitionName }}" will be deleted because it's using it.`,
+                            {
+                                definitionName: def.nameTranslated ?? def.name,
+                            }
+                        )
+                    );
+                });
+
+                return assertions;
+            }}
             itemComponent={Item}
             manageItemComponent={ManageItem}
             listComponent={ListItem}
