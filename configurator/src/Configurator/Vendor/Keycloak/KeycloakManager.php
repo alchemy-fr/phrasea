@@ -57,12 +57,12 @@ final class KeycloakManager
 
     public function createRealm(): void
     {
-        if ($this->getRealm() !== null) {
+        if (null !== $this->getRealm()) {
             return;
         }
 
         $data = [
-            'realm'   => $this->keycloakRealm,
+            'realm' => $this->keycloakRealm,
             'enabled' => true,
         ];
         HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()->request('POST', '', [
@@ -72,7 +72,7 @@ final class KeycloakManager
 
     private function getRealm(?string $realm = null)
     {
-         $response = $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}', [
+        $response = $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}', [
             'realm' => $realm ?? $this->keycloakRealm,
         ]));
 

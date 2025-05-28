@@ -27,7 +27,7 @@ final class SynchronizeCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->keycloakConfigurator->synchronize();
-        
+
         return Command::SUCCESS;
     }
 }
