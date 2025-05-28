@@ -16,9 +16,8 @@ use App\Entity\Core\AttributeDefinition;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Attribute\Groups;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity]
 #[ApiResource(
@@ -51,7 +50,6 @@ class AttributeListItem extends AbstractUuidEntity
     final public const int TYPE_BUILT_IN = 1;
     final public const int TYPE_DIVIDER = 2;
     final public const int TYPE_SPACER = 3;
-
 
     final public const array TYPES = [
         'Attribute Definition' => self::TYPE_ATTR_DEF,
@@ -140,6 +138,7 @@ class AttributeListItem extends AbstractUuidEntity
     {
         if (!$displayEmpty) {
             unset($this->options['displayEmpty']);
+
             return;
         }
 
@@ -155,6 +154,7 @@ class AttributeListItem extends AbstractUuidEntity
     {
         if (null === $format) {
             unset($this->options['format']);
+
             return;
         }
 
@@ -172,10 +172,10 @@ class AttributeListItem extends AbstractUuidEntity
                         ->addViolation();
                 }
                 if (!empty($this->getKey())) {
-                $context->buildViolation('The key must not be set for definitions.')
-                    ->atPath('key')
-                    ->addViolation();
-             }
+                    $context->buildViolation('The key must not be set for definitions.')
+                        ->atPath('key')
+                        ->addViolation();
+                }
                 break;
             case self::TYPE_BUILT_IN:
                 if (empty($this->getKey())) {

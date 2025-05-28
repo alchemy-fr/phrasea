@@ -77,7 +77,7 @@ abstract class AbstractSortAction extends AbstractController
             ->andWhere('t.workspace = :ws');
 
         return [
-            'ws' => $workspace->getId()
+            'ws' => $workspace->getId(),
         ];
     }
 }

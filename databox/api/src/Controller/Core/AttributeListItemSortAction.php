@@ -19,7 +19,7 @@ class AttributeListItemSortAction extends AbstractSortAction
     }
 
     /**
-     * @param AttributeListItem       $firstItem
+     * @param AttributeListItem $firstItem
      */
     protected function buildQuery(QueryBuilder $queryBuilder, object $firstItem): array
     {
@@ -35,7 +35,7 @@ class AttributeListItemSortAction extends AbstractSortAction
             ->andWhere('t.list = :list');
 
         return [
-            'list' => $list->getId()
+            'list' => $list->getId(),
         ];
     }
 }

@@ -13,8 +13,7 @@ final class OwnerFacet extends AbstractFacet
 {
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,
-    )
-    {
+    ) {
     }
 
     public function normalizeBucket(array $bucket): ?array

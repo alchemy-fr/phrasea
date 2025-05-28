@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Repository\AttributeList;
 
-use App\Entity\AttributeList\AttributeListItem;
 use App\Entity\AttributeList\AttributeList;
+use App\Entity\AttributeList\AttributeListItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -45,7 +45,7 @@ class AttributeListRepository extends ServiceEntityRepository
 
     public function hasDefinition(string $listId, string $definitionId): bool
     {
-        return $this->_em->createQueryBuilder()
+        return null !== $this->_em->createQueryBuilder()
             ->select('1')
             ->setMaxResults(1)
             ->from(AttributeListItem::class, 't')
@@ -54,7 +54,7 @@ class AttributeListRepository extends ServiceEntityRepository
             ->setParameter('l', $listId)
             ->setParameter('d', $definitionId)
             ->getQuery()
-            ->getOneOrNullResult() !== null;
+            ->getOneOrNullResult();
     }
 
     public function getItemsIterator(string $listId): iterable

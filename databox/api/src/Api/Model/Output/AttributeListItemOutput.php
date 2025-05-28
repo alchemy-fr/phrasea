@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
-use Alchemy\WebhookBundle\Normalizer\WebhookSerializationInterface;
-use ApiPlatform\Metadata\ApiProperty;
-use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
-use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
-use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\AttributeList\AttributeList;
 use Symfony\Component\Serializer\Annotation\Groups;
 

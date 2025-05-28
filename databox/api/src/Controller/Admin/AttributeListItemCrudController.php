@@ -38,7 +38,7 @@ class AttributeListItemCrudController extends AbstractAdminCrudController
             ->add(AssociationIdentifierFilter::new('definition'))
             ->add('key')
             ->add('type')
-            ;
+        ;
     }
 
     public function configureFields(string $pageName): iterable
@@ -48,7 +48,7 @@ class AttributeListItemCrudController extends AbstractAdminCrudController
         yield AssociationField::new('list');
         yield AssociationField::new('definition');
         yield ChoiceField::new('type')
-            ->setChoices(AttributeListItem::TYPES);;
+            ->setChoices(AttributeListItem::TYPES);
         yield TextField::new('key');
         yield BooleanField::new('displayEmpty');
         yield TextField::new('format');

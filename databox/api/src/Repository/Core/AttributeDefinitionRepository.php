@@ -8,7 +8,6 @@ use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Attribute\Type\EntityAttributeType;
-use App\Entity\Core\Asset;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;

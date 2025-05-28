@@ -121,7 +121,7 @@ class AttributeListTest extends AbstractDataboxTestCase
                     [
                         'type' => AttributeListItem::TYPE_ATTR_DEF,
                         'definition' => $def2->getId(),
-                    ]
+                    ],
                 ],
             ],
         ]);
@@ -140,7 +140,7 @@ class AttributeListTest extends AbstractDataboxTestCase
                 [
                     'definition' => $def2->getId(),
                     'type' => AttributeListItem::TYPE_ATTR_DEF,
-                ]
+                ],
             ],
         ]);
         $this->assertMatchesResourceItemJsonSchema(AttributeList::class);
@@ -152,9 +152,9 @@ class AttributeListTest extends AbstractDataboxTestCase
             'json' => [
                 'items' => [
                     [
-                    'type' => AttributeListItem::TYPE_ATTR_DEF,
-                    'definition' => $def2->getId(),
-                    ]
+                        'type' => AttributeListItem::TYPE_ATTR_DEF,
+                        'definition' => $def2->getId(),
+                    ],
                 ],
             ],
         ]);
