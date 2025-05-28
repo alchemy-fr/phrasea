@@ -122,7 +122,7 @@ class KeycloakClientTestMock implements HttpClientInterface
                 'username' => 'user',
                 'firstName' => 'Test',
                 'lastName' => 'User',
-                'email' => 'user@phrasea.local',
+                  'email' => 'user@phrasea.test',
             ]),
             default => throw new \InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $url)),
         };
