@@ -41,7 +41,6 @@ final readonly class JwtExtractor
 
         $scope = $claims->get('scope', '');
 
-
         $scopes = !empty($scope) ? explode(' ', $scope) : [];
 
         if (!empty($clientId = $claims->get('client_id'))) {

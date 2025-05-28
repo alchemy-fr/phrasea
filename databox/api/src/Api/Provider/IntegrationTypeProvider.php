@@ -27,6 +27,9 @@ final readonly class IntegrationTypeProvider implements ProviderInterface
         }
 
         $integration = $this->integrationRegistry->getIntegration(IntegrationType::denormalizeId($uriVariables['id']));
+        if (null === $integration) {
+            return null;
+        }
 
         return $this->getIntegration($integration);
     }

@@ -1,4 +1,5 @@
 import {Asset, AttributeDefinition, StateSetter} from '../../types.ts';
+import {AttributeType} from '../../api/attributes.ts';
 
 export type IndeterminateGroup = {
     g: boolean;
@@ -69,7 +70,7 @@ export type MultiValueIndex<T> = {
 };
 
 export type CreateToKeyFunc<T = string> = (
-    fieldType: string
+    fieldType: AttributeType
 ) => ToKeyFuncTypeScoped<T>;
 
 export type ToKeyFuncTypeScoped<T> = (v: T) => string;

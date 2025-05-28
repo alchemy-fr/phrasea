@@ -139,6 +139,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     lastErrors?: LastErrors;
     entityIri?: string | undefined;
     resolveLabel?: (entity: object) => string;
+    getValueFromAsset?: (asset: Asset) => any;
 }
 
 export type FieldWidget<P extends {} = any> = {
@@ -276,6 +277,33 @@ export interface Basket extends IPermissions, Entity {
     description?: string | undefined;
     descriptionHighlight?: string | undefined;
     assetCount?: number;
+    createdAt: string;
+    updatedAt: string;
+    owner?: User;
+}
+
+export enum AttributeListItemType {
+    Definition = 0,
+    BuiltIn = 1,
+    Divider = 2,
+    Spacer = 3,
+}
+
+export type AttributeListItem = {
+    id: string;
+    type: AttributeListItemType;
+    key?: string;
+    definition?: string;
+    displayEmpty?: boolean;
+    format?: string;
+};
+
+export interface AttributeList extends IPermissions, Entity {
+    title: string;
+    description?: string;
+    items?: AttributeListItem[];
+    exclusive?: boolean; // if true, only items in this list well be shown otherwise all attributes
+    public?: boolean;
     createdAt: string;
     updatedAt: string;
     owner?: User;

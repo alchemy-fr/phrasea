@@ -55,10 +55,18 @@ export default class ColorType extends TextType {
             {
                 name: Formats.Box,
                 title: 'Box',
+                example: this.formatValue({
+                    value: '#FF0000',
+                    format: Formats.Box,
+                }),
             },
             {
                 name: Formats.Hex,
                 title: 'Hexadecimal',
+                example: this.formatValue({
+                    value: '#FF0000',
+                    format: Formats.Hex,
+                }),
             },
         ];
     }

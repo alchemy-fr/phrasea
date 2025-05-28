@@ -49,7 +49,7 @@ export default function PermissionList({
         mask: number
     ): Promise<void> => {
         setPermissions(p =>
-            p!.concat([
+            (p ?? []).concat([
                 {
                     mask: mask,
                     userId: entry.id,
@@ -62,7 +62,7 @@ export default function PermissionList({
         const ace = await updatePermission(entry.type, entry.id, mask);
 
         setPermissions(p =>
-            p!.map(p => (p.resolving && p.userId === entry.id ? ace : p))
+            (p ?? []).map(p => (p.resolving && p.userId === entry.id ? ace : p))
         );
     };
 

@@ -75,7 +75,7 @@ export default function GroupDivider({groupValue, top, page}: Props) {
                               : formatAttribute(
                                     type,
                                     v,
-                                    formatContext.formats[type]
+                                    formatContext.getFormat(type)
                                 )}
                       </span>
                   ))

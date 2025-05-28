@@ -202,7 +202,7 @@ export default function MultiAttributeRow<T>({
                 const valueFormatterProps: AttributeFormatterProps = {
                     value: v.value,
                     locale,
-                    format: formatContext.formats[type],
+                    format: formatContext.getFormat(type, id),
                 };
 
                 const indeterminate = v.part < 100;

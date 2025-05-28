@@ -19,7 +19,6 @@ import SortableNode from './SortableNode';
 
 export type SortableItem = {
     id: string;
-    position: number;
 };
 
 export type SortableItemProps<D extends SortableItem> = {
