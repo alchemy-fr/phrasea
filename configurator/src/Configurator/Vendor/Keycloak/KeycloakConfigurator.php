@@ -67,6 +67,53 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             }
         }
 
+        $this->configureClients();
+
+        $defaultAdminUsername = getenv('DEFAULT_ADMIN_USERNAME');
+        $defaultAdminEmail = $defaultAdminUsername;
+        if (!str_contains($defaultAdminEmail, '@')) {
+            $defaultAdminEmail .= '@'.(getenv('PHRASEA_DOMAIN') ?: 'phrasea.io');
+        }
+
+        $defaultAdmin = $this->keycloakManager->createUser([
+            'username' => $defaultAdminUsername,
+            'email' => $defaultAdminEmail,
+            'enabled' => true,
+            'firstName' => 'Admin',
+            'lastName' => 'Admin',
+            'credentials' => [[
+                'type' => 'password',
+                'value' => getenv('DEFAULT_ADMIN_PASSWORD'),
+                'temporary' => !$hasTestPreset,
+            ]],
+        ]);
+
+        $this->keycloakManager->addRolesToUser($defaultAdmin['id'], [
+            KeycloakInterface::ROLE_ADMIN,
+        ]);
+        $this->keycloakManager->addClientRolesToUser($defaultAdmin['id'], [
+            'realm-admin',
+        ]);
+
+        if ($hasDevPreset) {
+            $this->keycloakManager->createClient('postman', null, null, [
+                'standardFlowEnabled' => false,
+                'implicitFlowEnabled' => false,
+                'directAccessGrantsEnabled' => true,
+                'serviceAccountsEnabled' => false,
+            ]);
+        }
+    }
+
+    public function synchronize()
+    {
+        $this->configureRealm();
+
+        $this->configureClients();
+    }
+
+    private function configureClients(): void
+    {
         $appScopes = $this->getAppScopes();
         foreach ($this->symfonyApplications as $app) {
             $clientId = getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app)));
@@ -125,41 +172,6 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             foreach ($this->getAppScopes()['databox'] as $scope) {
                 $this->keycloakManager->addScopeToClient($scope, $clientData['id']);
             }
-        }
-
-        $defaultAdminUsername = getenv('DEFAULT_ADMIN_USERNAME');
-        $defaultAdminEmail = $defaultAdminUsername;
-        if (!str_contains($defaultAdminEmail, '@')) {
-            $defaultAdminEmail .= '@'.(getenv('PHRASEA_DOMAIN') ?: 'phrasea.io');
-        }
-
-        $defaultAdmin = $this->keycloakManager->createUser([
-            'username' => $defaultAdminUsername,
-            'email' => $defaultAdminEmail,
-            'enabled' => true,
-            'firstName' => 'Admin',
-            'lastName' => 'Admin',
-            'credentials' => [[
-                'type' => 'password',
-                'value' => getenv('DEFAULT_ADMIN_PASSWORD'),
-                'temporary' => !$hasTestPreset,
-            ]],
-        ]);
-
-        $this->keycloakManager->addRolesToUser($defaultAdmin['id'], [
-            KeycloakInterface::ROLE_ADMIN,
-        ]);
-        $this->keycloakManager->addClientRolesToUser($defaultAdmin['id'], [
-            'realm-admin',
-        ]);
-
-        if ($hasDevPreset) {
-            $this->keycloakManager->createClient('postman', null, null, [
-                'standardFlowEnabled' => false,
-                'implicitFlowEnabled' => false,
-                'directAccessGrantsEnabled' => true,
-                'serviceAccountsEnabled' => false,
-            ]);
         }
     }
 
@@ -256,8 +268,12 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'adminEventsEnabled' => $this->getBooleanEnv('KC_REALM_ADMIN_EVENT_ENABLED', false),
             'adminEventsDetailsEnabled' => true,
             'ssoSessionIdleTimeout' => getenv('KC_REALM_SSO_SESSION_IDLE_TIMEOUT') ?: '1800',
+            'ssoSessionMaxLifespan' => getenv('KC_REALM_SSO_SESSION_MAX_LIFESPAN') ?: '36000',
             'clientSessionIdleTimeout' => getenv('KC_REALM_CLIENT_SESSION_IDLE_TIMEOUT') ?: '1800',
+            'clientSessionMaxLifespan' => getenv('KC_REALM_CLIENT_SESSION_MAX_LIFESPAN') ?: '36000',
             'offlineSessionIdleTimeout' => getenv('KC_REALM_OFFLINE_SESSION_IDLE_TIMEOUT') ?: '2592000',
+            'offlineSessionMaxLifespanEnabled' => getenv('KC_REALM_OFFLINE_SESSION_MAX_LIFESPAN') ? true : false,
+            'offlineSessionMaxLifespan' => getenv('KC_REALM_OFFLINE_SESSION_MAX_LIFESPAN') ?: '7344000',
             'internationalizationEnabled' => true,
             'supportedLocales' => (null != getenv('KC_REALM_SUPPORTED_LOCALES')) ? explode(',', getenv('KC_REALM_SUPPORTED_LOCALES')) : ['en'],
             'defaultLocale' => getenv('KC_REALM_DEFAULT_LOCALE') ?: 'en',
