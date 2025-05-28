@@ -6,6 +6,7 @@ namespace App\Validator;
 
 use Symfony\Component\Validator\Constraint;
 
+#[\Attribute(\Attribute::TARGET_CLASS)]
 class ValidIntegrationOptionsConstraint extends Constraint
 {
     public function getTargets(): string|array

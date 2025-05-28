@@ -24,6 +24,7 @@ use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\Collection;
+use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
@@ -74,6 +75,7 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Multipart Upload', '', MultipartUpload::class),
             MenuItem::linkToCrud('Attribute', '', Attribute::class),
             MenuItem::linkToCrud('Attribute Entity', '', AttributeEntity::class),
+            MenuItem::linkToCrud('Entity List', '', EntityList::class),
             MenuItem::linkToCrud('Asset Title Attribute', '', AssetTitleAttribute::class),
             MenuItem::linkToCrud('Attribute Definition', '', AttributeDefinition::class),
             MenuItem::linkToCrud('Attribute Class', '', AttributeClass::class),

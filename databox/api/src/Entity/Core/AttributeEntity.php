@@ -21,10 +21,11 @@ use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Provider\AttributeEntityCollectionProvider;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeEntityRepository;
+use App\Validator\SameWorkspaceConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'attribute-entity',
@@ -49,34 +50,37 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[ORM\Entity(repositoryClass: AttributeEntityRepository::class)]
 #[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: [
     'workspace',
-    'type',
+    'list',
 ])]
 #[ApiFilter(filterClass: OrderFilter::class, properties: [
     'value',
     'createdAt',
+    'position',
 ])]
-#[ORM\Index(columns: ['type'], name: 'attr_entity_type_idx')]
+#[ORM\Index(columns: ['list_id'], name: 'entity_list_idx')]
+#[SameWorkspaceConstraint(
+    properties: ['workspace', 'list.workspace'],
+)]
 class AttributeEntity extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
-    public const int TYPE_LENGTH = 100;
 
-    final public const string GROUP_READ = 'attr-entity:read';
-    final public const string GROUP_LIST = 'attr-entity:index';
+    final public const string GROUP_READ = 'attr-ent:r';
+    final public const string GROUP_LIST = 'attr-ent:i';
 
-    #[ORM\Column(type: Types::STRING, length: self::TYPE_LENGTH, nullable: false)]
-    #[Groups([self::GROUP_LIST, self::GROUP_READ])]
-    #[NotBlank]
-    private ?string $type = null;
+    #[ORM\ManyToOne(targetEntity: EntityList::class, inversedBy: 'entities')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull]
+    private ?EntityList $list = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: false)]
     #[Groups([
         self::GROUP_LIST, self::GROUP_READ,
         ResolveEntitiesOutput::GROUP_READ,
     ])]
-    #[NotBlank]
+    #[Assert\NotBlank]
     private ?string $value = null;
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
@@ -85,16 +89,6 @@ class AttributeEntity extends AbstractUuidEntity
     #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
     private ?array $translations = null;
-
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function setType(?string $type): void
-    {
-        $this->type = $type;
-    }
 
     public function getValue(): ?string
     {
@@ -124,5 +118,32 @@ class AttributeEntity extends AbstractUuidEntity
     public function setTranslations(?array $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getList(): ?EntityList
+    {
+        return $this->list;
+    }
+
+    /**
+     * Used by ES.
+     */
+    public function getListId(): ?string
+    {
+        return $this->list?->getId();
+    }
+
+    public function setList(?EntityList $list): void
+    {
+        if (null !== $list && null === $this->workspace) {
+            $this->setWorkspace($list->getWorkspace());
+        }
+
+        $this->list = $list;
+    }
+
+    public function __toString(): string
+    {
+        return $this->value ?? $this->getId() ?? '';
     }
 }

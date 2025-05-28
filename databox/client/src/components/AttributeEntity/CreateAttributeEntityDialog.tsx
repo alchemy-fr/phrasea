@@ -20,7 +20,7 @@ import React from 'react';
 
 type Props = {
     value: string;
-    type: string;
+    list: string;
     workspaceId: string;
     onCreate: (entity: AttributeEntity) => void;
 } & StackedModalProps;
@@ -29,7 +29,7 @@ export default function CreateAttributeEntityDialog({
     open,
     modalIndex,
     value,
-    type,
+    list,
     workspaceId,
     onCreate,
 }: Props) {
@@ -59,10 +59,7 @@ export default function CreateAttributeEntityDialog({
                 translations: getNonEmptyTranslations(data.translations ?? {}),
             };
 
-            return await postAttributeEntity(workspaceId, {
-                ...d,
-                type,
-            });
+            return await postAttributeEntity(list, d);
         },
         onSuccess: data => {
             onCreate(data);

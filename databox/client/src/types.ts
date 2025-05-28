@@ -118,7 +118,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     searchSlug: string;
     enabled: boolean;
     fieldType: AttributeType;
-    entityType?: string | undefined;
+    entityList?: EntityList | undefined;
     multiple: boolean;
     searchable: boolean;
     sortable: boolean;
@@ -233,6 +233,14 @@ export type AttributeEntity = {
     locale: string;
     value: string;
     translations: KeyTranslations;
+    createdAt: string;
+    updatedAt: string;
+} & ApiHydraObjectResponse &
+    Entity;
+
+export type EntityList = {
+    name: string;
+    definitions: AttributeDefinition[];
     createdAt: string;
     updatedAt: string;
 } & ApiHydraObjectResponse &

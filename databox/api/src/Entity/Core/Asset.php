@@ -68,6 +68,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'asset',
@@ -272,6 +273,8 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     private int $sequence = 0;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $title = null;
 
     /**

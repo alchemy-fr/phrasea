@@ -1,4 +1,4 @@
-import {AttributeEntity, Workspace} from '../../../types';
+import {AttributeEntity, EntityList} from '../../../types';
 import {
     deleteAttributeEntity,
     getAttributeEntities,
@@ -13,13 +13,12 @@ import {
 } from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
+    DefinitionItemManageProps,
     DefinitionItemProps,
 } from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import Flag from '../../Ui/Flag.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
-
-let lastType = '';
 
 function Item({
     usedFormSubmit,
@@ -35,14 +34,6 @@ function Item({
 
     return (
         <>
-            <FormRow>
-                <TextField
-                    label={t('form.attribute_entity.type.label', 'Type')}
-                    {...register('type')}
-                    disabled={submitting}
-                />
-                <FormFieldErrors field={'type'} errors={errors} />
-            </FormRow>
             <FormRow>
                 <TextField
                     label={t('form.attribute_entity.value.label', 'Value')}
@@ -88,17 +79,18 @@ function ListItem({data}: DefinitionItemProps<AttributeEntity>) {
 function createNewItem(): Partial<AttributeEntity> {
     return {
         value: '',
-        type: lastType,
         translations: {},
     };
 }
 
-type Props = DataTabProps<Workspace>;
+type Props = DefinitionItemManageProps<EntityList> &
+    Omit<DataTabProps<EntityList>, 'onClose'>;
 
 export default function AttributeEntityManager({
-    data: workspace,
+    data: list,
     minHeight,
-    onClose,
+    workspace,
+    setSubManagementState,
 }: Props) {
     const {t} = useTranslation();
 
@@ -106,9 +98,7 @@ export default function AttributeEntityManager({
         if (data.id) {
             return await putAttributeEntity(data.id, data);
         } else {
-            lastType = data.type;
-
-            return await postAttributeEntity(workspace.id, {
+            return await postAttributeEntity(list.id, {
                 ...data,
             });
         }
@@ -116,20 +106,27 @@ export default function AttributeEntityManager({
 
     return (
         <DefinitionManager
+            deleteConfirmAssertions={() => [
+                t(
+                    'attribute_entity.delete.confirm.assertion.unset_on_attrs',
+                    `I understand that this entity will be unset on all asset's attributes using it.`
+                ),
+            ]}
+            managerFormId={'entity-attribute-manager'}
             itemComponent={Item}
             listComponent={ListItem}
             load={() =>
                 getAttributeEntities({
-                    workspace: workspace.id,
+                    list: list.id,
                 }).then(r => r.result)
             }
             workspace={workspace}
             minHeight={minHeight}
-            onClose={onClose}
             createNewItem={createNewItem}
             newLabel={t('attribute_entity.new.label', 'New Entity')}
             handleSave={handleSave}
             handleDelete={deleteAttributeEntity}
+            setSubManagementState={setSubManagementState}
         />
     );
 }
