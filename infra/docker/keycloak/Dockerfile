@@ -35,5 +35,3 @@ COPY --from=builder /opt/keycloak /opt/keycloak
 COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-
-CMD ["start", "--optimized"]
