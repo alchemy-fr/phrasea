@@ -18,7 +18,6 @@ COPY --from=spi-builder /app/group-uuid-mapper/target/group-uuid-mapper.jar /opt
 COPY --from=spi-builder /app/jq-idp-mapper/target/jq-idp-mapper-jar-with-dependencies.jar /opt/keycloak/providers/
 
 ENV KC_HEALTH_ENABLED=true \
-    KC_METRICS_ENABLED=true \
     KC_DB=postgres
 
 RUN /opt/keycloak/bin/kc.sh build \
