@@ -30,21 +30,21 @@ class StoryTest extends AbstractSearchTestCase
         $client = static::createClient();
         list($collectionId, $assetId) = $this->createStory($client);
 
-        $client->request('DELETE', '/collections/' . urlencode($collectionId), [
+        $client->request('DELETE', '/collections/'.urlencode($collectionId), [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],
         ]);
         $this->assertResponseStatusCodeSame(204);
 
-        $client->request('GET', '/collections/' . urlencode($collectionId), [
+        $client->request('GET', '/collections/'.urlencode($collectionId), [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],
         ]);
         $this->assertResponseStatusCodeSame(404);
 
-        $client->request('GET', '/assets/' . urlencode($assetId), [
+        $client->request('GET', '/assets/'.urlencode($assetId), [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],
@@ -61,21 +61,21 @@ class StoryTest extends AbstractSearchTestCase
         $client = static::createClient();
         list($collectionId, $assetId) = $this->createStory($client);
 
-        $client->request('DELETE', '/assets/' . urlencode($assetId), [
+        $client->request('DELETE', '/assets/'.urlencode($assetId), [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],
         ]);
         $this->assertResponseStatusCodeSame(204);
 
-        $client->request('GET', '/assets/' . urlencode($assetId), [
+        $client->request('GET', '/assets/'.urlencode($assetId), [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],
         ]);
         $this->assertResponseStatusCodeSame(404);
 
-        $client->request('GET', '/collections/' . urlencode($collectionId), [
+        $client->request('GET', '/collections/'.urlencode($collectionId), [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],
@@ -109,7 +109,7 @@ class StoryTest extends AbstractSearchTestCase
     private function checkRelation(Client $client, string $assetId, string $collectionId): void
     {
         $adminAuthorization = 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID);
-        $response = $client->request('GET', '/collections/' . urlencode($collectionId), [
+        $response = $client->request('GET', '/collections/'.urlencode($collectionId), [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],
@@ -126,7 +126,7 @@ class StoryTest extends AbstractSearchTestCase
         // because apiPlatform is set to skip null values, we check it's not there
         $this->assertArrayNotHasKey('title', $response->toArray());
 
-        $response = $client->request('GET', '/assets/' . urlencode($assetId), [
+        $response = $client->request('GET', '/assets/'.urlencode($assetId), [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],

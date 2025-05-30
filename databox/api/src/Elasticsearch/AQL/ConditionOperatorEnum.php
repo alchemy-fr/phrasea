@@ -2,7 +2,8 @@
 
 namespace App\Elasticsearch\AQL;
 
-enum ConditionOperatorEnum: string {
+enum ConditionOperatorEnum: string
+{
     case EQUALS = '=';
     case NOT_EQUALS = '!=';
     case GT = '>';

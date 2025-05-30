@@ -57,6 +57,10 @@ final class KeycloakManager
 
     public function createRealm(): void
     {
+        if (null !== $this->getRealm()) {
+            return;
+        }
+
         $data = [
             'realm' => $this->keycloakRealm,
             'enabled' => true,
@@ -64,6 +68,19 @@ final class KeycloakManager
         HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()->request('POST', '', [
             'json' => $data,
         ])->getContent(), 409, $data);
+    }
+
+    private function getRealm(?string $realm = null)
+    {
+        $response = $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}', [
+            'realm' => $realm ?? $this->keycloakRealm,
+        ]));
+
+        if (404 === $response->getStatusCode()) {
+            return null;
+        }
+
+        return $response->toArray();
     }
 
     protected function getClients(?string $realm = null): array
@@ -290,8 +307,8 @@ final class KeycloakManager
                 $rootUrl.'/*',
             ] : null),
             'attributes' => [
-                'redirectAfterPasswordUpdate' => str_contains($clientId, 'admin') ? $rootUrl .'/admin' : $rootUrl
-            ]
+                'redirectAfterPasswordUpdate' => str_contains($clientId, 'admin') ? $rootUrl.'/admin' : $rootUrl,
+            ],
         ], $data);
 
         if (null !== $client) {
@@ -315,17 +332,21 @@ final class KeycloakManager
         return $client;
     }
 
-    public function updateClientByClientId(string $clientId, array $data = []):void
+    public function updateClientByClientId(string $clientId, array $data = []): void
     {
         $client = $this->getClientByClientId($clientId);
 
-        $this->getAuthenticatedClient()
+        if (null !== $client) {
+            $this->getAuthenticatedClient()
             ->request('PUT', UriTemplate::resolve('{realm}/clients/{id}', [
                 'realm' => $this->keycloakRealm,
                 'id' => $client['id'],
             ]), [
                 'json' => $data,
             ]);
+        } else {
+            throw new \InvalidArgumentException(sprintf('Client "%s" not found in realm "%s"', $clientId, $this->keycloakRealm));
+        }
     }
 
     public function configureClientClaim(

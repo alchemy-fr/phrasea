@@ -33,8 +33,7 @@ class JobState
         protected readonly string $id,
         protected ?WorkflowState $workflow,
         protected string $jobId,
-    )
-    {
+    ) {
     }
 
     public function getId(): string

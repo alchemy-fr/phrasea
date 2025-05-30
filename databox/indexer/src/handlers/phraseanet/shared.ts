@@ -1,5 +1,5 @@
 import {Asset} from '../../indexers';
-import {FieldMap, PhraseanetStory} from './types';
+import {FieldMap} from './types';
 import {CPhraseanetRecord, CPhraseanetStory} from './CPhraseanetRecord';
 import {Logger} from 'winston';
 import {AttributeClass, AttributeInput} from '../../databox/types';

@@ -2,7 +2,6 @@
 
 namespace Alchemy\Workflow\State\Repository;
 
-
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
 
@@ -95,7 +94,7 @@ trait JobStatusCacheTrait
             unset($this->statuses[$jobState->getId()]);
         }
 
-        $this->statusesByJobId[$workflowId][$jobId]=[];
+        $this->statusesByJobId[$workflowId][$jobId] = [];
     }
 
     protected function removeJobStateFromCache(string $workflowId, string $jobStateId): void

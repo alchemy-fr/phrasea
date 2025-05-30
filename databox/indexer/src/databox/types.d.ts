@@ -120,13 +120,13 @@ export type AttributeClass = {
 
 export type CollectionOutput = {
     id: string;
-}
+};
 
 export type AssetOutput = {
     id: string;
-}
+};
 
 export type StoryAssetOutput = {
     id: string;
     storyCollection: CollectionOutput;
-}
+};

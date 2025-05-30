@@ -11,7 +11,7 @@ import React from 'react';
 import {getAttributeEntities} from '../../api/attributeEntity.ts';
 import {useModals} from '@alchemy/navigation';
 import CreateAttributeEntityDialog from '../AttributeEntity/CreateAttributeEntityDialog.tsx';
-import {useEntitiesStore} from "../../store/entitiesStore.ts";
+import {useEntitiesStore} from '../../store/entitiesStore.ts';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
@@ -65,11 +65,11 @@ export default function AttributeEntitySelect<
         return data.map((t: AttributeEntity) => {
             store(t['@id'], t);
 
-            return ({
+            return {
                 value: t.id,
                 label: t.value,
                 item: t,
-            });
+            };
         });
     };
 

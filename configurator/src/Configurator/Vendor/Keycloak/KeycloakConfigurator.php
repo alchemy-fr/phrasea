@@ -67,6 +67,53 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             }
         }
 
+        $this->configureClients();
+
+        $defaultAdminUsername = getenv('DEFAULT_ADMIN_USERNAME');
+        $defaultAdminEmail = $defaultAdminUsername;
+        if (!str_contains($defaultAdminEmail, '@')) {
+            $defaultAdminEmail .= '@'.(getenv('PHRASEA_DOMAIN') ?: 'phrasea.io');
+        }
+
+        $defaultAdmin = $this->keycloakManager->createUser([
+            'username' => $defaultAdminUsername,
+            'email' => $defaultAdminEmail,
+            'enabled' => true,
+            'firstName' => 'Admin',
+            'lastName' => 'Admin',
+            'credentials' => [[
+                'type' => 'password',
+                'value' => getenv('DEFAULT_ADMIN_PASSWORD'),
+                'temporary' => !$hasTestPreset,
+            ]],
+        ]);
+
+        $this->keycloakManager->addRolesToUser($defaultAdmin['id'], [
+            KeycloakInterface::ROLE_ADMIN,
+        ]);
+        $this->keycloakManager->addClientRolesToUser($defaultAdmin['id'], [
+            'realm-admin',
+        ]);
+
+        if ($hasDevPreset) {
+            $this->keycloakManager->createClient('postman', null, null, [
+                'standardFlowEnabled' => false,
+                'implicitFlowEnabled' => false,
+                'directAccessGrantsEnabled' => true,
+                'serviceAccountsEnabled' => false,
+            ]);
+        }
+    }
+
+    public function synchronize()
+    {
+        $this->configureRealm();
+
+        $this->configureClients();
+    }
+
+    private function configureClients(): void
+    {
         $appScopes = $this->getAppScopes();
         foreach ($this->symfonyApplications as $app) {
             $clientId = getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app)));
@@ -125,41 +172,6 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             foreach ($this->getAppScopes()['databox'] as $scope) {
                 $this->keycloakManager->addScopeToClient($scope, $clientData['id']);
             }
-        }
-
-        $defaultAdminUsername = getenv('DEFAULT_ADMIN_USERNAME');
-        $defaultAdminEmail = $defaultAdminUsername;
-        if (!str_contains($defaultAdminEmail, '@')) {
-            $defaultAdminEmail .= '@'.(getenv('PHRASEA_DOMAIN') ?: 'phrasea.io');
-        }
-
-        $defaultAdmin = $this->keycloakManager->createUser([
-            'username' => $defaultAdminUsername,
-            'email' => $defaultAdminEmail,
-            'enabled' => true,
-            'firstName' => 'Admin',
-            'lastName' => 'Admin',
-            'credentials' => [[
-                'type' => 'password',
-                'value' => getenv('DEFAULT_ADMIN_PASSWORD'),
-                'temporary' => !$hasTestPreset,
-            ]],
-        ]);
-
-        $this->keycloakManager->addRolesToUser($defaultAdmin['id'], [
-            KeycloakInterface::ROLE_ADMIN,
-        ]);
-        $this->keycloakManager->addClientRolesToUser($defaultAdmin['id'], [
-            'realm-admin',
-        ]);
-
-        if ($hasDevPreset) {
-            $this->keycloakManager->createClient('postman', null, null, [
-                'standardFlowEnabled' => false,
-                'implicitFlowEnabled' => false,
-                'directAccessGrantsEnabled' => true,
-                'serviceAccountsEnabled' => false,
-            ]);
         }
     }
 
@@ -232,39 +244,43 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         $this->keycloakManager->createRealm();
 
         $this->keycloakManager->putRealm([
-            'displayName'               => 'Phrasea Auth',
-            'displayNameHtml'           => '<div class="kc-logo-text"><span>Phrasea Auth</span></div>',
-            'registrationAllowed'       => $this->getBooleanEnv('KC_REALM_LOGIN_REGISTRATION_ALLOWED', false),
-            'resetPasswordAllowed'      => $this->getBooleanEnv('KC_REALM_LOGIN_RESET_PASSWORD_ALLOWED', true),
-            'rememberMe'                => $this->getBooleanEnv('KC_REALM_LOGIN_REMEMBER_ME_ALLOWED', true),
-            'loginWithEmailAllowed'     => $this->getBooleanEnv('KC_REALM_LOGIN_WITH_EMAIL_ALLOWED', true),
-            'verifyEmail'               => $this->getBooleanEnv('KC_REALM_LOGIN_VERIFY_EMAIL_ALLOWED', false),
+            'displayName' => 'Phrasea Auth',
+            'displayNameHtml' => '<div class="kc-logo-text"><span>Phrasea Auth</span></div>',
+            'registrationAllowed' => $this->getBooleanEnv('KC_REALM_LOGIN_REGISTRATION_ALLOWED', false),
+            'resetPasswordAllowed' => $this->getBooleanEnv('KC_REALM_LOGIN_RESET_PASSWORD_ALLOWED', true),
+            'rememberMe' => $this->getBooleanEnv('KC_REALM_LOGIN_REMEMBER_ME_ALLOWED', true),
+            'loginWithEmailAllowed' => $this->getBooleanEnv('KC_REALM_LOGIN_WITH_EMAIL_ALLOWED', true),
+            'verifyEmail' => $this->getBooleanEnv('KC_REALM_LOGIN_VERIFY_EMAIL_ALLOWED', false),
             'registrationEmailAsUsername' => $this->getBooleanEnv('KC_REALM_LOGIN_EMAIL_AS_USERNAME', false),
-            'editUsernameAllowed'       => $this->getBooleanEnv('KC_REALM_LOGIN_EDIT_USERNAME', false),            
-            'bruteForceProtected'       => true,
-            'failureFactor'             => '30',   
-            'bruteForceStrategy'        => 'MULTIPLE',
-            'permanentLockout'          => false,
-            'waitIncrementSeconds'      => '60',
-            'maxFailureWaitSeconds'     => '900',
-            'maxDeltaTimeSeconds'       => '43200',
+            'editUsernameAllowed' => $this->getBooleanEnv('KC_REALM_LOGIN_EDIT_USERNAME', false),
+            'bruteForceProtected' => true,
+            'failureFactor' => '30',
+            'bruteForceStrategy' => 'MULTIPLE',
+            'permanentLockout' => false,
+            'waitIncrementSeconds' => '60',
+            'maxFailureWaitSeconds' => '900',
+            'maxDeltaTimeSeconds' => '43200',
             'quickLoginCheckMilliSeconds' => '1000',
             'minimumQuickLoginWaitSeconds' => '60',
-            'eventsEnabled'                 => $this->getBooleanEnv('KC_REALM_USER_EVENT_ENABLED', false),
-            'eventsExpiration'              => getenv('KC_REALM_USER_EVENT_EXPIRATION') ?: '604800',
-            'eventsListeners'               => ['jboss-logging'],
-            'adminEventsEnabled'           => $this->getBooleanEnv('KC_REALM_ADMIN_EVENT_ENABLED', false),
-            'adminEventsDetailsEnabled'    => true,      
-            'ssoSessionIdleTimeout'     => getenv('KC_REALM_SSO_SESSION_IDLE_TIMEOUT') ?: '1800',
-            'clientSessionIdleTimeout'  => getenv('KC_REALM_CLIENT_SESSION_IDLE_TIMEOUT') ?: '1800',
+            'eventsEnabled' => $this->getBooleanEnv('KC_REALM_USER_EVENT_ENABLED', false),
+            'eventsExpiration' => getenv('KC_REALM_USER_EVENT_EXPIRATION') ?: '604800',
+            'eventsListeners' => ['jboss-logging'],
+            'adminEventsEnabled' => $this->getBooleanEnv('KC_REALM_ADMIN_EVENT_ENABLED', false),
+            'adminEventsDetailsEnabled' => true,
+            'ssoSessionIdleTimeout' => getenv('KC_REALM_SSO_SESSION_IDLE_TIMEOUT') ?: '1800',
+            'ssoSessionMaxLifespan' => getenv('KC_REALM_SSO_SESSION_MAX_LIFESPAN') ?: '36000',
+            'clientSessionIdleTimeout' => getenv('KC_REALM_CLIENT_SESSION_IDLE_TIMEOUT') ?: '1800',
+            'clientSessionMaxLifespan' => getenv('KC_REALM_CLIENT_SESSION_MAX_LIFESPAN') ?: '36000',
             'offlineSessionIdleTimeout' => getenv('KC_REALM_OFFLINE_SESSION_IDLE_TIMEOUT') ?: '2592000',
+            'offlineSessionMaxLifespanEnabled' => getenv('KC_REALM_OFFLINE_SESSION_MAX_LIFESPAN') ? true : false,
+            'offlineSessionMaxLifespan' => getenv('KC_REALM_OFFLINE_SESSION_MAX_LIFESPAN') ?: '7344000',
             'internationalizationEnabled' => true,
-            'supportedLocales'          => (getenv('KC_REALM_SUPPORTED_LOCALES') != null) ? explode(',', getenv('KC_REALM_SUPPORTED_LOCALES')) : ['en'],
-            'defaultLocale'             => getenv('KC_REALM_DEFAULT_LOCALE') ?: 'en',
+            'supportedLocales' => (null != getenv('KC_REALM_SUPPORTED_LOCALES')) ? explode(',', getenv('KC_REALM_SUPPORTED_LOCALES')) : ['en'],
+            'defaultLocale' => getenv('KC_REALM_DEFAULT_LOCALE') ?: 'en',
             'smtpServer' => [
                 'auth' => getenv('MAILER_USER') ? true : false,
                 'from' => getenv('MAIL_FROM') ?: 'noreply@phrasea.io',
-                'fromDisplayName' => getenv('MAIL_FROM_DISPLAY_NAME') ?: 'Phrasea',         
+                'fromDisplayName' => getenv('MAIL_FROM_DISPLAY_NAME') ?: 'Phrasea',
                 'replyTo' => getenv('MAIL_REPLY_TO') ?: '',
                 'replyToDisplayName' => getenv('MAIL_REPLY_TO_DISPLAY_NAME') ?: '',
                 'envelopeFrom' => getenv('MAIL_ENVELOPE_FROM') ?: '',
@@ -277,15 +293,15 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             ],
             'attributes' => [
                 'adminEventsExpiration' => getenv('KC_REALM_ADMIN_EVENT_EXPIRATION') ?: '604800',
-            ]
+            ],
         ]);
     }
 
-    private function getBooleanEnv(string $name, bool $defaultValue= false): bool
+    private function getBooleanEnv(string $name, bool $defaultValue = false): bool
     {
         $val = filter_var(getenv($name), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
-        if ($val === null) {
+        if (null === $val) {
             return $defaultValue;
         }
 

@@ -10,9 +10,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 final readonly class MessengerJobTrigger implements JobTriggerInterface
 {
     public function __construct(
-        private MessageBusInterface $bus
-    )
-    {
+        private MessageBusInterface $bus,
+    ) {
     }
 
     public function triggerJob(JobTrigger $jobTrigger): void

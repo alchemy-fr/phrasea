@@ -44,7 +44,7 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
                         'triggeredAt' => $jobState->getTriggeredAt()->formatAtom(),
                         'startedAt' => $jobState->getStartedAt()?->formatAtom(),
                         'endedAt' => $jobState->getEndedAt()?->formatAtom(),
-                        'duration' => StateUtil::getFormattedDuration($jobState->getDuration())
+                        'duration' => StateUtil::getFormattedDuration($jobState->getDuration()),
                     ];
 
                     if (!empty($jobState->getErrors())) {

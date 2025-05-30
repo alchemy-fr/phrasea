@@ -16,8 +16,7 @@ final readonly class QuietContextMiddleware implements MiddlewareInterface
     public function __construct(
         private RequestStack $requestStack,
         private NotifierInterface $notifier,
-    )
-    {
+    ) {
     }
 
     public function handle(Envelope $envelope, StackInterface $stack): Envelope

@@ -2,7 +2,8 @@
 
 namespace App\Elasticsearch\AQL;
 
-enum ExpressionOperatorEnum: string {
+enum ExpressionOperatorEnum: string
+{
     case PLUS = '+';
     case MINUS = '-';
     case MULTIPLY = '*';

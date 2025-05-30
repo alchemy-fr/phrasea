@@ -163,7 +163,7 @@ final readonly class AQLToESQuery
                 $this->createPoint($value[0], $value[1]),
                 $this->createPoint($value[2], $value[3]),
             ])),
-            ConditionOperatorEnum::CONTAINS, ConditionOperatorEnum::NOT_CONTAINS => $this->wrapInNotQuery((new Query\Wildcard($fieldRaw, sprintf('*%s*', $value))), ConditionOperatorEnum::NOT_CONTAINS === $operator),
+            ConditionOperatorEnum::CONTAINS, ConditionOperatorEnum::NOT_CONTAINS => $this->wrapInNotQuery(new Query\Wildcard($fieldRaw, sprintf('*%s*', $value)), ConditionOperatorEnum::NOT_CONTAINS === $operator),
             ConditionOperatorEnum::STARTS_WITH, ConditionOperatorEnum::NOT_STARTS_WITH => $this->wrapInNotQuery((new Query\Prefix())->setPrefix($fieldRaw, $value), ConditionOperatorEnum::NOT_STARTS_WITH === $operator),
             default => throw new BadRequestHttpException(sprintf('Operator "%s" not implemented', $operator->value)),
         };
