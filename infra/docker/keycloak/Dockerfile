@@ -34,4 +34,4 @@ COPY --from=builder /opt/keycloak /opt/keycloak
 
 COPY entrypoint.sh /entrypoint.sh
 
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
