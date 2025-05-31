@@ -901,9 +901,9 @@ services:
     build:
       context: ./infra/docker/keycloak
       target: keycloak
-    # command:
-    #   - 'start'
-    #   - '--optimized'
+    command:
+      - 'start'
+      - '--optimized'
     networks:
       - internal
     environment:
