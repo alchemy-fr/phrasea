@@ -3,8 +3,8 @@
 namespace Alchemy\CoreBundle\Api;
 
 use ApiPlatform\OpenApi\Factory\OpenApiFactoryInterface;
-use ApiPlatform\OpenApi\OpenApi;
 use ApiPlatform\OpenApi\Model;
+use ApiPlatform\OpenApi\OpenApi;
 
 readonly class OpenApiFactory implements OpenApiFactoryInterface
 {
@@ -12,8 +12,7 @@ readonly class OpenApiFactory implements OpenApiFactoryInterface
         private OpenApiFactoryInterface $decorated,
         private string $applicationName,
         private string $applicationId,
-    )
-    {
+    ) {
     }
 
     public function __invoke(array $context = []): OpenApi
@@ -28,7 +27,7 @@ readonly class OpenApiFactory implements OpenApiFactoryInterface
 
         $openApi = $openApi
             ->withInfo(
-                (new Model\Info($apiTitle, $openApi->getInfo()->getVersion()))
+                new Model\Info($apiTitle, $openApi->getInfo()->getVersion())
             )
         ;
 
