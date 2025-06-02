@@ -50,16 +50,31 @@ class EntityAttributeType extends TextAttributeType
             ]);
             $entityId = $entity->getId();
 
-            return array_filter(array_map(function ($v) use ($entityId): ?array {
+            $output = [];
+
+            foreach ($locales as $locale => $v) {
                 if (empty($v)) {
-                    return null;
+                    continue;
                 }
 
-                return [
+                $output[$locale] = [
                     'id' => $entityId,
                     'value' => $v,
                 ];
-            }, $locales));
+            }
+
+            foreach ($entity->getSynonyms() as $locale => $synonyms) {
+                if (empty($synonyms)) {
+                    continue;
+                }
+
+                $output[$locale] ??= [
+                    'id' => $entityId,
+                ];
+                $output[$locale]['synonyms'] = $synonyms;
+            }
+
+            return $output;
         }
 
         return null;
@@ -68,6 +83,13 @@ class EntityAttributeType extends TextAttributeType
     public function getElasticSearchTextSubField(): ?string
     {
         return 'value';
+    }
+
+    public function getAdditionalSubFields(int $boost): array
+    {
+        return [
+            'synonyms' => $boost * 0.5,
+        ];
     }
 
     public function normalizeBucket(array $bucket): ?array
@@ -147,6 +169,9 @@ class EntityAttributeType extends TextAttributeType
                 'value' => [
                     ...$mapping,
                     'type' => $this->getElasticSearchType(),
+                ],
+                'synonyms' => [
+                    'type' => 'text',
                 ],
             ],
         ];

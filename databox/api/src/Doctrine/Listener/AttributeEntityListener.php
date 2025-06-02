@@ -29,22 +29,30 @@ final readonly class AttributeEntityListener implements EventSubscriber
         foreach ($uow->getScheduledEntityUpdates() as $entityUpdate) {
             if ($entityUpdate instanceof AttributeEntity) {
                 $changeSet = $uow->getEntityChangeSet($entityUpdate);
-                $changes = [];
+                $locales = [];
                 if ($changeSet['value'] ?? false) {
-                    $changes[AttributeInterface::NO_LOCALE] = $changeSet['value'][1];
+                    $locales[AttributeInterface::NO_LOCALE] = true;
                 }
                 if ($changeSet['translations'] ?? false) {
                     [$old, $new] = $changeSet['translations'];
                     foreach ($new as $l => $v) {
                         if (isset($old[$l]) && $old[$l] !== $v) {
-                            $changes[$l] = $v;
+                            $locales[$l] = true;
                         }
                     }
                 }
-                if (!empty($changes)) {
+                if ($changeSet['synonyms'] ?? false) {
+                    [$old, $new] = $changeSet['synonyms'];
+                    foreach ($new as $l => $v) {
+                        if (isset($old[$l]) && $old[$l] != $v) {
+                            $locales[$l] = true;
+                        }
+                    }
+                }
+                if (!empty($locales)) {
                     $this->postFlushStack->addBusMessage(new AttributeEntityUpdate(
                         $entityUpdate->getId(),
-                        $changes
+                        array_keys($locales),
                     ));
                 }
             }

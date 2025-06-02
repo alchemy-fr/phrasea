@@ -38,13 +38,18 @@ final readonly class AttributeEntityUpdateHandler
         $fields = [];
         $calls = [];
         $params = [];
+        $locales = $message->getLocales();
         foreach ($definitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
-            foreach ($message->getChanges() as $locale => $change) {
+
+            foreach ($locales as $locale) {
                 $fields[sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, AttributeInterface::NO_LOCALE, $fieldName)] = true;
-                $params[$locale] = $change;
+                $params[$locale] = [
+                    'v' => $attributeEntity->getTranslations()[$locale] ?? (AttributeInterface::NO_LOCALE === $locale ? $attributeEntity->getValue() : ''),
+                    's' => $attributeEntity->getSynonymsOfLocale($locale) ?? [],
+                ];
                 $calls[$locale] = sprintf(
-                    'up(ctx._source, \'%1$s\', \'%2$s\', params[\'_id\'], params[\'%1$s\'], %3$s);',
+                    'up(ctx._source, \'%1$s\', \'%2$s\', params[\'_id\'], params[\'%1$s\'][\'v\'], params[\'%1$s\'][\'s\'], %3$s);',
                     $locale,
                     $fieldName,
                     $definition->isMultiple() ? 'true' : 'false',
@@ -78,7 +83,7 @@ final readonly class AttributeEntityUpdateHandler
             ],
             [
                 'source' => sprintf(<<<EOF
-void up(HashMap src, String locale, String name, String id, String n, boolean m) {
+void up(HashMap src, String locale, String name, String id, String n, def s, boolean m) {
     HashMap attributes;
 
     if (src.%1\$s instanceof List) {
@@ -92,6 +97,8 @@ void up(HashMap src, String locale, String name, String id, String n, boolean m)
         }
     }
 
+    boolean hasValue = !n.isEmpty() || s.size() > 0;
+
     HashMap node = attributes.get(locale);
     if (!(node instanceof Map)) {
         node = attributes[locale] = [:];
@@ -104,8 +111,9 @@ void up(HashMap src, String locale, String name, String id, String n, boolean m)
         }
         for (item in field) {
             if (item['id'] == id) {
-                if (!n.isEmpty()) {
+                if (hasValue) {
                     item['value'] = n;
+                    item['synonyms'] = s;
                 } else {
                     field.remove(field.indexOf(item));
                 }
@@ -113,12 +121,12 @@ void up(HashMap src, String locale, String name, String id, String n, boolean m)
             }
         }
 
-        if (!n.isEmpty()) {
+        if (hasValue) {
             def ref = attributes['_']?.get(name);
             if (ref instanceof List) {
                 for (item in ref) {
                     if (item['id'] == id) {
-                        field.add(["id": id, "value": n]);
+                        field.add(["id": id, "value": n, "synonyms": s]);
                         return;
                     }
                 }
@@ -129,18 +137,19 @@ void up(HashMap src, String locale, String name, String id, String n, boolean m)
 
     if (field instanceof Map) {
         if (field['id'] == id) {
-            if (!n.isEmpty()) {
+            if (hasValue) {
                 field['value'] = n;
+                field['synonyms'] = s;
             } else {
                 node.remove(name);
             }
         }
-    } else if (!n.isEmpty()) {
+    } else if (hasValue) {
         def ref = attributes['_']?.get(name);
 
         if (ref instanceof Map) {
             if (ref['id'] == id) {
-                node[name] = ["id": id, "value": n];
+                node[name] = ["id": id, "value": n, "synonyms": s];
             }
         }
     }

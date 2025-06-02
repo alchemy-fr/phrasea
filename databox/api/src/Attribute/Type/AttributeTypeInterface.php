@@ -22,6 +22,11 @@ interface AttributeTypeInterface
 
     public function getElasticSearchSearchType(): ?SearchType;
 
+    /**
+     * @return array<string, int>
+     */
+    public function getAdditionalSubFields(int $boost): array;
+
     public function getElasticSearchRawField(): ?string;
 
     public function supportsElasticSearchFuzziness(): bool;

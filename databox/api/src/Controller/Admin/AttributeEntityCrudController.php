@@ -46,6 +46,8 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
         yield AssociationField::new('workspace');
         yield AssociationField::new('list');
         yield TextField::new('value');
+        yield JsonField::new('synonyms')
+            ->hideOnIndex();
         yield JsonField::new('translations');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();

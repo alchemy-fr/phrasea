@@ -83,6 +83,21 @@ class AttributeEntity extends AbstractUuidEntity
     #[Assert\NotBlank]
     private ?string $value = null;
 
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups([
+        self::GROUP_LIST, self::GROUP_READ,
+    ])]
+    #[Assert\Type('array')]
+    #[Assert\All([
+        new Assert\Type('array'),
+        new Assert\All([
+            new Assert\Type('string'),
+            new Assert\NotBlank(),
+            new Assert\Length(max: 100),
+        ]),
+    ])]
+    private ?array $synonyms = null;
+
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $position = 0;
 
@@ -140,6 +155,25 @@ class AttributeEntity extends AbstractUuidEntity
         }
 
         $this->list = $list;
+    }
+
+    public function getSynonyms(): ?array
+    {
+        return $this->synonyms;
+    }
+
+    public function setSynonyms(?array $synonyms): void
+    {
+        $this->synonyms = $synonyms;
+    }
+
+    public function getSynonymsOfLocale(string $locale): ?array
+    {
+        if (null === $this->synonyms) {
+            return null;
+        }
+
+        return $this->synonyms[$locale] ?? null;
     }
 
     public function __toString(): string
