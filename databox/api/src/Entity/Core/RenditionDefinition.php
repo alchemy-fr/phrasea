@@ -51,7 +51,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: [
                 'groups' => [RenditionDefinition::GROUP_READ],
             ],
-            securityPostDenormalize: 'is_granted("CREATE", object)'),
+            securityPostDenormalize: 'is_granted("CREATE", object)'
+        ),
         new Post(
             uriTemplate: '/rendition-definitions/sort',
             controller: RenditionDefinitionSortAction::class,

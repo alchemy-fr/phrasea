@@ -28,6 +28,7 @@ use App\Entity\Traits\ErrorDisableTrait;
 use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Security\Voter\AbstractVoter;
 use App\Validator\SameWorkspaceConstraint;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -40,15 +41,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'attribute-definition',
     operations: [
-        new Get(),
+        new Get(
+            security: 'is_granted("'.AbstractVoter::READ.'", object)'
+        ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
-            security: 'is_granted("EDIT", object)'
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)'
         ),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
         new GetCollection(
             parameters: [
                 'searchable' => new QueryParameter(
@@ -64,7 +67,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
-            securityPostDenormalize: 'is_granted("CREATE", object)'
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            securityPostDenormalize: 'is_granted("CREATE", object)',
         ),
         new Post(
             uriTemplate: '/attribute-definitions/sort',
@@ -84,9 +88,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                     ],
                 ],
             ],
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             input: false,
             output: false,
-            name: 'put_sort'
+            name: 'put_sort',
         ),
     ],
     normalizationContext: [
@@ -94,7 +99,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     input: AttributeDefinitionInput::class,
     output: AttributeDefinitionOutput::class,
-    security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
     provider: AttributeDefinitionCollectionProvider::class,
 )]
 #[ORM\Table]

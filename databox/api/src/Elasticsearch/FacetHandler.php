@@ -7,6 +7,7 @@ namespace App\Elasticsearch;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Facet\FacetRegistry;
+use App\Elasticsearch\Facet\OwnerFacet;
 use Elastica\Aggregation\Missing;
 use Elastica\Query;
 
@@ -21,6 +22,11 @@ final readonly class FacetHandler
     public function addBuiltInFacets(Query $query): void
     {
         foreach ($this->facetRegistry->getAll() as $facet) {
+            if ($facet instanceof OwnerFacet) {
+                // We don't want to add the owner facet to the query for now
+                continue;
+            }
+
             $facet->buildFacet($query);
             if ($facet->includesMissing()) {
                 $missingAgg = new Missing($facet::getKey().self::MISSING_SUFFIX, $facet->getFieldName());

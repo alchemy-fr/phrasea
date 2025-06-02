@@ -47,7 +47,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     const d = React.useContext(DisplayContext)!;
     const {innerHeight} = useWindowSize();
     const height = innerHeight - toolbarHeight - menuHeight;
-    const firstItem: Item | undefined = pages[0][0];
+    const firstItem: Item | undefined = pages[0]?.[0];
     const firstAsset = firstItem
         ? itemToAsset
             ? itemToAsset(firstItem)
