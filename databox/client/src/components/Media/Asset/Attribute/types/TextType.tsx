@@ -59,7 +59,7 @@ export default class TextType
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {
-        return value.toString();
+        return value?.toString();
     }
 
     public getFieldProps(): TextFieldProps {
