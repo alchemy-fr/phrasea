@@ -1,5 +1,5 @@
 import {AttributeFormat} from '../Format/AttributeFormatContext';
-import React from 'react';
+import React, {ReactNode} from 'react';
 
 export type AttributeWidgetOptions = Record<string, any>;
 
@@ -30,6 +30,7 @@ export type AttributeFormatterProps = {
 export type AvailableFormat = {
     name: AttributeFormat;
     title: string;
+    example?: ReactNode;
 };
 
 export type AttributeTypeFormatter = {

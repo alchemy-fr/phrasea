@@ -9,8 +9,6 @@ type AttributeDefinitionIndex = {
     };
 };
 
-export type AttributeDefinitionIndices = AttributeDefinitionIndex[];
-
 export type AttributeIndex = {
     [definitionId: string]: AttributeDefinitionIndex;
 };

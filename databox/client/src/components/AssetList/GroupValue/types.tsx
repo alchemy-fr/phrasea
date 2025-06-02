@@ -1,8 +1,8 @@
 import {Collection, Tag} from '../../../types';
 import TagNode from '../../Ui/TagNode';
 
-import {CollectionChip} from '../../Ui/Chips';
 import React from 'react';
+import {CollectionChip} from '../../Ui/CollectionChip.tsx';
 
 export const groupValueTypes: Record<string, (value: any) => React.ReactNode> =
     {

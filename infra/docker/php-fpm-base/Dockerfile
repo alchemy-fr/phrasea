@@ -87,6 +87,10 @@ COPY entrypoint.d/*.sh /docker/entrypoint.d/
 COPY supervisor/* /etc/supervisor.d/
 COPY worker/* /docker/worker/
 
+ENV SUPERVISOR_START_SECS=2 \
+    SUPERVISOR_START_RETRIES=10 \
+    SUPERVISOR_STOP_WAIT_SECS=20
+
 WORKDIR /srv/app
 
 RUN chown -R app:app .
