@@ -13,4 +13,7 @@ final class UserOutput
 
     #[Groups(['_'])]
     public ?string $username = null;
+
+    #[Groups(['_'])]
+    public ?bool $removed = false;
 }

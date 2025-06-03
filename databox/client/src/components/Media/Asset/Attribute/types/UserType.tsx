@@ -19,7 +19,7 @@ export default class UserType
 
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
         if (value) {
-            return <UserChip label={value.username} size={'small'} />;
+            return <UserChip user={value} size={'small'} />;
         }
     }
 

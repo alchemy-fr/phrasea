@@ -26,6 +26,7 @@ use App\Repository\Core\TagRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints\Length;
 
@@ -67,6 +68,10 @@ use Symfony\Component\Validator\Constraints\Length;
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'ws_name_uniq', columns: ['workspace_id', 'name'])]
+#[UniqueEntity(
+    fields: ['workspace', 'name'],
+    errorPath: 'name',
+)]
 #[ORM\Entity(repositoryClass: TagRepository::class)]
 #[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: ['workspace'])]
 class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringable

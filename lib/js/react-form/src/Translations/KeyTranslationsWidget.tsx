@@ -17,6 +17,10 @@ type Props<TFieldValues extends {translations: KeyTranslations}> = {
     name: string;
     errors: FieldErrors<TFieldValues>;
     renderLocale: (locale: string) => ReactNode;
+    renderField?: (props: {
+        locale: string;
+        register: UseFormRegister<TFieldValues>;
+    }) => ReactNode;
 };
 
 export default function KeyTranslationsWidget<
@@ -28,6 +32,7 @@ export default function KeyTranslationsWidget<
     inputProps,
     locales,
     renderLocale,
+    renderField,
 }: Props<TFieldValues>) {
     const {t} = useTranslation();
 
@@ -48,7 +53,10 @@ export default function KeyTranslationsWidget<
                                     {renderLocale(l)}
                                 </div>
                                 <div>
-                                    <TextField
+                                    {renderField ? renderField({
+                                        locale: l,
+                                        register,
+                                    }) : <TextField
                                         label={t(
                                             'lib.form.translations.translation.label',
                                             {
@@ -59,7 +67,7 @@ export default function KeyTranslationsWidget<
                                         )}
                                         {...register(`${path}.${l}` as any)}
                                         {...(inputProps ?? {})}
-                                    />
+                                    />}
                                     <FormFieldErrors
                                         field={`${path}.${l}` as any}
                                         errors={errors}

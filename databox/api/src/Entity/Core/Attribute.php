@@ -21,9 +21,11 @@ use App\Api\Processor\BatchAttributeUpdateProcessor;
 use App\Api\Provider\AttributeCollectionProvider;
 use App\Entity\Traits\AssetAnnotationsTrait;
 use App\Repository\Core\AttributeRepository;
+use App\Validator\UniqueAttributeConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'attribute',
@@ -56,6 +58,7 @@ use Ramsey\Uuid\Doctrine\UuidType;
 
 #[ORM\Entity(repositoryClass: AttributeRepository::class)]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact'])]
+#[UniqueAttributeConstraint]
 class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDependencyInterface
 {
     use AssetAnnotationsTrait;
@@ -94,6 +97,7 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
 
     #[ORM\ManyToOne(targetEntity: AttributeDefinition::class, inversedBy: 'attributes')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull]
     protected ?AttributeDefinition $definition = null;
 
     /**
@@ -102,6 +106,7 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     private ?string $highlight = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
+    #[Assert\NotNull]
     private ?int $origin = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]

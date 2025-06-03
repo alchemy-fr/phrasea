@@ -1,7 +1,7 @@
 import FormError from './FormError';
-import {FieldValues} from 'react-hook-form';
-import {FieldErrors} from 'react-hook-form';
+import {FieldValues, FieldErrors} from 'react-hook-form';
 import {useTranslation} from 'react-i18next';
+import {getObjectPropertyPath} from '@alchemy/api';
 
 type Props<T extends FieldValues> = {
     field: keyof T;
@@ -14,15 +14,17 @@ export default function FormFieldErrors<T extends FieldValues = FieldValues>({
 }: Props<T>) {
     const {t} = useTranslation();
 
+    const error = getObjectPropertyPath(errors, field);
+
     return (
         <>
-            {errors[field]?.type === 'required' && (
+            {error?.type === 'required' && (
                 <FormError>
                     {t('lib.form.error.required', 'This field is required')}
                 </FormError>
             )}
-            {errors[field] && (
-                <FormError>{errors[field]!.message as string}</FormError>
+            {error && (
+                <FormError>{error!.message as string}</FormError>
             )}
         </>
     );

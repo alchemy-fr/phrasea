@@ -9,7 +9,7 @@ final readonly class AttributeEntityUpdate
 {
     public function __construct(
         private string $id,
-        private array $changes,
+        private array $locales,
     ) {
     }
 
@@ -18,8 +18,8 @@ final readonly class AttributeEntityUpdate
         return $this->id;
     }
 
-    public function getChanges(): array
+    public function getLocales(): array
     {
-        return $this->changes;
+        return $this->locales;
     }
 }

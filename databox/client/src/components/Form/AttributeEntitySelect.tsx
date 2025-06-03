@@ -17,7 +17,7 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
     multiple: IsMulti;
     allowNew?: boolean;
-    type: string;
+    list: string;
 } & AsyncRSelectProps<TFieldValues, IsMulti>;
 
 export default function AttributeEntitySelect<
@@ -26,7 +26,7 @@ export default function AttributeEntitySelect<
 >({
     workspaceId: wsId,
     multiple,
-    type,
+    list,
     allowNew = true,
     ...rest
 }: Props<TFieldValues, IsMulti>) {
@@ -40,7 +40,7 @@ export default function AttributeEntitySelect<
             ? (inputValue, onCreate) => {
                   openModal(CreateAttributeEntityDialog, {
                       value: inputValue,
-                      type,
+                      list,
                       workspaceId,
                       onCreate: (d: AttributeEntity) => {
                           onCreate({
@@ -56,8 +56,7 @@ export default function AttributeEntitySelect<
     const load = async (inputValue: string): Promise<SelectOption[]> => {
         const data = (
             await getAttributeEntities({
-                workspace: workspaceId,
-                type,
+                list,
                 query: inputValue,
             })
         ).result;

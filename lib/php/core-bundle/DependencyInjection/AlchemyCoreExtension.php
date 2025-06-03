@@ -160,8 +160,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                     ConversionException::class => [
                         'status_code' => 404,
                         'log_level' => 'debug',
-                    ]
-                ]
+                    ],
+                ],
             ]);
         }
 
@@ -201,7 +201,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                 ],
             ];
 
-            if ($env !== 'prod') {
+            if ('prod' !== $env) {
                 $sentryConfig['dsn'] = null;
             }
             $container->prependExtensionConfig('sentry', $sentryConfig);
@@ -246,8 +246,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                     'clientSecret' => '%env(ADMIN_CLIENT_SECRET)%',
                     'tokenUrl' => '%env(KEYCLOAK_URL)%/realms/%env(KEYCLOAK_REALM_NAME)%/protocol/openid-connect/token',
                     'authorizationUrl' => '%env(KEYCLOAK_URL)%/realms/%env(KEYCLOAK_REALM_NAME)%/protocol/openid-connect/auth',
-                    'flow' => 'authorizationCode'
-                ]
+                    'flow' => 'authorizationCode',
+                ],
             ]);
         }
     }

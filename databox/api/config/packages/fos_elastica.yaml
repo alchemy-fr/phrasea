@@ -333,7 +333,7 @@ fos_elastica:
             use_alias: '%elastica.use_alias%'
             index_name: "%es_index_prefix%attribute_entity_%kernel.environment%"
             properties:
-                type:
+                listId:
                     type: keyword
                 value:
                     type: text

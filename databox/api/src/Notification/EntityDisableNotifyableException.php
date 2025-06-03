@@ -12,11 +12,14 @@ class EntityDisableNotifyableException extends UserNotifyableException
         string $message = '',
         int $code = 0,
         ?\Throwable $previous = null,
+        bool $appendWorkspace = true,
     ) {
+        $workspace = $this->entity->getWorkspace();
+
         parent::__construct(
-            $this->entity->getWorkspace()?->getOwnerId(),
+            $workspace?->getOwnerId(),
             $subject,
-            $message,
+            $message.($appendWorkspace && $workspace ? ' (in workspace: '.$workspace?->getName().')' : ''),
             $code,
             $previous
         );

@@ -6,11 +6,13 @@ namespace App\Entity\Traits;
 
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 trait WorkspaceTrait
 {
     #[ORM\ManyToOne(targetEntity: Workspace::class)]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull]
     protected ?Workspace $workspace = null;
 
     public function getWorkspace(): ?Workspace

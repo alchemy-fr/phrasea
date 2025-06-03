@@ -8,10 +8,14 @@ import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
-import {AttributeDefinition, AttributeListItem} from '../../../../types.ts';
+import {
+    AttributeDefinition,
+    AttributeListItem,
+    Workspace,
+} from '../../../../types.ts';
 import {AttributeDefinitionsIndex} from '../../../../store/attributeDefinitionStore.ts';
 import AttributeDefinitionLabel from '../AttributeDefinitionLabel.tsx';
-import {ListItem, TextField} from '@mui/material';
+import {ListItem, ListSubheader, TextField} from '@mui/material';
 import HeightIcon from '@mui/icons-material/Height';
 import {
     attributeDefinitionToItem,
@@ -148,6 +152,8 @@ export default function AttributeDefinitionTransferList({
 
     const left = definitions.filter(d => !hasDefinitionInItems(items, d.id));
 
+    let lastWorkspace: Workspace | undefined;
+
     const leftList = customList(
         <>
             {left
@@ -159,31 +165,50 @@ export default function AttributeDefinitionTransferList({
                 .map((definition: AttributeDefinition) => {
                     const labelId = `d-${definition.id}-label`;
 
+                    let displayWorkspace = false;
+                    if (
+                        definition.workspace &&
+                        lastWorkspace?.id !==
+                            (definition.workspace as Workspace).id
+                    ) {
+                        lastWorkspace = definition.workspace as Workspace;
+                        displayWorkspace = true;
+                    }
+
                     return (
-                        <ListItemButton
-                            key={definition.id}
-                            role="listitem"
-                            onClick={handleToggle(definition.id)}
-                        >
-                            <ListItemIcon>
-                                <Checkbox
-                                    checked={checked.includes(definition.id)}
-                                    tabIndex={-1}
-                                    disableRipple
-                                    inputProps={{
-                                        'aria-labelledby': labelId,
-                                    }}
-                                />
-                            </ListItemIcon>
-                            <ListItemText
-                                id={labelId}
-                                primary={
-                                    <AttributeDefinitionLabel
-                                        data={definition}
+                        <React.Fragment key={definition.id}>
+                            {displayWorkspace ? (
+                                <ListSubheader>
+                                    {lastWorkspace!.nameTranslated ||
+                                        lastWorkspace!.name}
+                                </ListSubheader>
+                            ) : null}
+                            <ListItemButton
+                                role="listitem"
+                                onClick={handleToggle(definition.id)}
+                            >
+                                <ListItemIcon>
+                                    <Checkbox
+                                        checked={checked.includes(
+                                            definition.id
+                                        )}
+                                        tabIndex={-1}
+                                        disableRipple
+                                        inputProps={{
+                                            'aria-labelledby': labelId,
+                                        }}
                                     />
-                                }
-                            />
-                        </ListItemButton>
+                                </ListItemIcon>
+                                <ListItemText
+                                    id={labelId}
+                                    primary={
+                                        <AttributeDefinitionLabel
+                                            data={definition}
+                                        />
+                                    }
+                                />
+                            </ListItemButton>
+                        </React.Fragment>
                     );
                 })}
         </>

@@ -53,6 +53,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'collection',
@@ -178,6 +179,8 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     final public const string EVENT_ASSET_REMOVE = 'asset_remove';
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $title = null;
 
     #[ORM\ManyToOne(targetEntity: Collection::class, inversedBy: 'children')]
@@ -210,6 +213,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
 
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'collections')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull]
     protected ?Workspace $workspace = null;
 
     /**

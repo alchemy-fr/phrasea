@@ -203,7 +203,7 @@ class AttributeSearch
             foreach ($cluster['fields'] as $fieldName => $conf) {
                 /** @var AttributeTypeInterface $type */
                 $type = $conf['type'];
-                $fieldName = str_replace('{l}', $language, $fieldName);
+                $fieldName = $fieldNameBase = str_replace('{l}', $language, $fieldName);
                 if ($type->getElasticSearchTextSubField()) {
                     $fieldName .= '.'.$type->getElasticSearchTextSubField();
                 }
@@ -213,6 +213,14 @@ class AttributeSearch
                     $weights[$fieldName] = $conf['b'];
                     if ($type->supportsElasticSearchFuzziness()) {
                         $weightsFuzzy[$fieldName] = $conf['b'];
+                    }
+
+                    foreach ($type->getAdditionalSubFields($conf['b']) as $subField => $boost) {
+                        $f = $fieldNameBase.'.'.$subField;
+                        $weights[$f] = $boost;
+                        if ($type->supportsElasticSearchFuzziness()) {
+                            $weightsFuzzy[$f] = $boost;
+                        }
                     }
                 } elseif (SearchType::Keyword === $searchType) {
                     $term = new Query\Term([$fieldName => $queryString]);

@@ -1,9 +1,14 @@
-import {PropsWithChildren} from 'react';
 import {Chip, ChipProps} from '@mui/material';
+import {User} from '../../types.ts';
 
-export const UserChip = ({
-    children,
-    ...props
-}: PropsWithChildren<ChipProps>) => (
-    <Chip {...props} color={'info'} label={children || props.label} />
+type Props = {
+    user: User;
+} & ChipProps;
+
+export const UserChip = ({user, ...props}: Props) => (
+    <Chip
+        {...props}
+        color={!user.removed ? 'info' : 'error'}
+        label={user.username}
+    />
 );

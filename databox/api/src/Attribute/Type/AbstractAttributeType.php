@@ -110,6 +110,11 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return null;
     }
 
+    public function getAdditionalSubFields(int $boost): array
+    {
+        return [];
+    }
+
     public function supportsElasticSearchFuzziness(): bool
     {
         return false;

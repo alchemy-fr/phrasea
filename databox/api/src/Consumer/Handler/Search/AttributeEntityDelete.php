@@ -9,7 +9,7 @@ final readonly class AttributeEntityDelete
 {
     public function __construct(
         private string $id,
-        private string $type,
+        private string $typeId,
         private string $wId,
     ) {
     }
@@ -19,9 +19,9 @@ final readonly class AttributeEntityDelete
         return $this->id;
     }
 
-    public function getType(): string
+    public function getTypeId(): string
     {
-        return $this->type;
+        return $this->typeId;
     }
 
     public function getWorkspaceId(): string
