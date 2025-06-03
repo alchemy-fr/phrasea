@@ -907,7 +907,8 @@ services:
     networks:
       - internal
     environment:
-      - KC_LOGIN_BACKGROUND_IMAGE_URL
+      - DASHBOARD_CLIENT_URL
+      - KC_LOGIN_CSS_BACKGROUND
       - KC_HEALTH_ENABLED=true
       - KC_HTTP_ENABLED=true
       - KC_BOOTSTRAP_ADMIN_USERNAME=${KEYCLOAK_ADMIN}
