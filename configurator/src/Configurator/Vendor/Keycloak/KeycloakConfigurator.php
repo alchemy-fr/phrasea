@@ -52,21 +52,6 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         ];
         $this->keycloakManager->createRoleHierarchy($roleHierarchy);
 
-        foreach ([
-            'openid',
-            'groups',
-        ] as $scope) {
-            $this->keycloakManager->createScope($scope);
-        }
-
-        foreach ($this->getAppScopes() as $app => $appScopes) {
-            foreach ($appScopes as $scope) {
-                $this->keycloakManager->createScope($scope, [
-                    'description' => sprintf('%s in %s', $scope, ucwords($app)),
-                ]);
-            }
-        }
-
         $this->configureClients();
 
         $defaultAdminUsername = getenv('DEFAULT_ADMIN_USERNAME');
@@ -114,6 +99,21 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
     private function configureClients(): void
     {
+        foreach ([
+            'openid',
+            'groups',
+        ] as $scope) {
+            $this->keycloakManager->createScope($scope);
+        }
+
+        foreach ($this->getAppScopes() as $app => $appScopes) {
+            foreach ($appScopes as $scope) {
+                $this->keycloakManager->createScope($scope, [
+                    'description' => sprintf('%s in %s', $scope, ucwords($app)),
+                ]);
+            }
+        }
+
         $appScopes = $this->getAppScopes();
         foreach ($this->symfonyApplications as $app) {
             $clientId = getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app)));
