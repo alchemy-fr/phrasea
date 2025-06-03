@@ -349,7 +349,7 @@
   },
   "definition_manager": {
     "confirm_delete": "Êtes-vous sûr de vouloir supprimer cet élément ?",
-    "saved": "Définition enregistrée !"
+    "saved": "Enregistré !"
   },
   "delete": {
     "basket": {
@@ -468,7 +468,7 @@
       "class": {
         "label": "Classe"
       },
-      "entityType": {
+      "entityList": {
         "label": "Type d'entité"
       },
       "field_type": {

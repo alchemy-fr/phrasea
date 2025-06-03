@@ -31,7 +31,7 @@ export default class AttributeEntityType
                 <AttributeEntitySelect
                     id={id}
                     multiple={false}
-                    type={options.type}
+                    list={options.list}
                     name={name}
                     disabled={readOnly || disabled}
                     value={value?.id}

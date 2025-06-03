@@ -21,10 +21,12 @@ use App\Controller\Core\RenditionDefinitionSortAction;
 use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Validator as CustomAssert;
+use App\Validator\SameWorkspaceConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'rendition-definition',
@@ -92,6 +94,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(columns: ['workspace_id', 'name'], name: 'rend_def_ws_name')]
 #[ORM\UniqueConstraint(name: 'uniq_rend_def_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity]
+#[SameWorkspaceConstraint(
+    properties: ['workspace', 'class.workspace', 'parent.workspace'],
+)]
 class RenditionDefinition extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
@@ -119,6 +124,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
      */
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'renditionDefinitions')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull]
     protected ?Workspace $workspace = null;
 
     #[ORM\ManyToOne(targetEntity: self::class)]
@@ -132,10 +138,12 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     private ?string $key = null;
 
     #[ORM\Column(type: Types::STRING, length: 80)]
+    #[Assert\NotNull]
     private ?string $name = null;
 
     #[ORM\ManyToOne(targetEntity: RenditionClass::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull]
     protected ?RenditionClass $class = null;
 
     #[ORM\Column(type: Types::BOOLEAN)]
@@ -164,6 +172,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     private ?string $definition = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
+    #[Assert\NotNull]
     private int $priority = 0;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
