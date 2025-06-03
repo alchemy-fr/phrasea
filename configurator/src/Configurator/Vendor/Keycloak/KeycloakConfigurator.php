@@ -277,6 +277,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'internationalizationEnabled' => true,
             'supportedLocales' => (null != getenv('KC_REALM_SUPPORTED_LOCALES')) ? explode(',', getenv('KC_REALM_SUPPORTED_LOCALES')) : ['en'],
             'defaultLocale' => getenv('KC_REALM_DEFAULT_LOCALE') ?: 'en',
+            'loginTheme' => 'phrasea',
             'smtpServer' => [
                 'auth' => getenv('MAILER_USER') ? true : false,
                 'from' => getenv('MAIL_FROM') ?: 'noreply@phrasea.io',
