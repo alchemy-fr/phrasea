@@ -43,8 +43,13 @@ final readonly class AttributeEntityListener implements EventSubscriber
                 }
                 if ($changeSet['synonyms'] ?? false) {
                     [$old, $new] = $changeSet['synonyms'];
-                    foreach ($new as $l => $v) {
+                    foreach (($new ?? []) as $l => $v) {
                         if (isset($old[$l]) && $old[$l] != $v) {
+                            $locales[$l] = true;
+                        }
+                    }
+                    foreach (($old ?? []) as $l => $v) {
+                        if (isset($new[$l]) && $new[$l] != $v) {
                             $locales[$l] = true;
                         }
                     }

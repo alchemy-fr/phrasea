@@ -5,75 +5,31 @@ import {
     postAttributeEntity,
     putAttributeEntity,
 } from '../../../api/attributeEntity';
-import {ListItemText, TextField} from '@mui/material';
-import {
-    FormFieldErrors,
-    FormRow,
-    KeyTranslationsWidget,
-} from '@alchemy/react-form';
+import {ListItemText} from '@mui/material';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemManageProps,
     DefinitionItemProps,
 } from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
-import Flag from '../../Ui/Flag.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
+import AttributeEntityFields from '../../AttributeEntity/AttributeEntityFields.tsx';
+import React from 'react';
 
 function Item({
     usedFormSubmit,
     workspace,
 }: DefinitionItemFormProps<AttributeEntity>) {
-    const {t} = useTranslation();
-
-    const {
-        register,
-        submitting,
-        formState: {errors},
-    } = usedFormSubmit;
-
     return (
-        <>
-            <FormRow>
-                <TextField
-                    label={t('form.attribute_entity.value.label', 'Value')}
-                    {...register('value')}
-                    disabled={submitting}
-                />
-                <FormFieldErrors field={'value'} errors={errors} />
-            </FormRow>
-            {(workspace.enabledLocales ?? []).length > 0 ? (
-                <FormRow>
-                    <KeyTranslationsWidget
-                        renderLocale={l => {
-                            return (
-                                <Flag
-                                    sx={{
-                                        mr: 1,
-                                    }}
-                                    locale={l}
-                                />
-                            );
-                        }}
-                        locales={workspace.enabledLocales ?? []}
-                        name={'translations'}
-                        errors={errors}
-                        register={register}
-                    />
-                </FormRow>
-            ) : (
-                ''
-            )}
-        </>
+        <AttributeEntityFields
+            usedFormSubmit={usedFormSubmit}
+            workspace={workspace}
+        />
     );
 }
 
 function ListItem({data}: DefinitionItemProps<AttributeEntity>) {
-    return (
-        <>
-            <ListItemText primary={data.value} />
-        </>
-    );
+    return <ListItemText primary={data.value} />;
 }
 
 function createNewItem(): Partial<AttributeEntity> {

@@ -132,6 +132,14 @@ class AttributeEntity extends AbstractUuidEntity
 
     public function setTranslations(?array $translations): void
     {
+        if (null !== $translations) {
+            foreach ($translations as $locale => $v) {
+                if (is_numeric($locale) || empty($v)) {
+                    unset($translations[$locale]);
+                }
+            }
+        }
+
         $this->translations = $translations;
     }
 
@@ -164,6 +172,14 @@ class AttributeEntity extends AbstractUuidEntity
 
     public function setSynonyms(?array $synonyms): void
     {
+        if (null !== $synonyms) {
+            foreach ($synonyms as $locale => $lSynonyms) {
+                if (is_numeric($locale) || empty($lSynonyms)) {
+                    unset($synonyms[$locale]);
+                }
+            }
+        }
+
         $this->synonyms = $synonyms;
     }
 

@@ -228,11 +228,16 @@ type KeyTranslations = {
     [locale: string]: string;
 };
 
+type EntitySynonyms = {
+    [locale: string]: string[];
+};
+
 export type AttributeEntity = {
     type: string;
     locale: string;
     value: string;
     translations: KeyTranslations;
+    synonyms?: EntitySynonyms;
     createdAt: string;
     updatedAt: string;
 } & ApiHydraObjectResponse &

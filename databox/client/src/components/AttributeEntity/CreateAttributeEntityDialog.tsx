@@ -2,21 +2,15 @@ import {AttributeEntity, Workspace} from '../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps, useFormPrompt, useModals} from '@alchemy/navigation';
-import {Button, TextField} from '@mui/material';
+import {Button} from '@mui/material';
 import {LoadingButton} from '@mui/lab';
-import {
-    FormFieldErrors,
-    FormRow,
-    KeyTranslationsWidget,
-    getNonEmptyTranslations,
-} from '@alchemy/react-form';
+import {getNonEmptyTranslations} from '@alchemy/react-form';
 import {postAttributeEntity} from '../../api/attributeEntity.ts';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
-import RemoteErrors from '../Form/RemoteErrors.tsx';
-import Flag from '../Ui/Flag.tsx';
 import {getWorkspace} from '../../api/workspace.ts';
 import React from 'react';
+import AttributeEntityFields from './AttributeEntityFields.tsx';
 
 type Props = {
     value: string;
@@ -42,14 +36,7 @@ export default function CreateAttributeEntityDialog({
         getWorkspace(workspaceId).then(w => setWorkspace(w));
     }, [workspaceId]);
 
-    const {
-        submitting,
-        remoteErrors,
-        forbidNavigation,
-        handleSubmit,
-        register,
-        formState: {errors},
-    } = useFormSubmit<AttributeEntity>({
+    const usedFormSubmit = useFormSubmit<AttributeEntity>({
         defaultValues: {
             value,
         },
@@ -70,6 +57,7 @@ export default function CreateAttributeEntityDialog({
             closeModal();
         },
     });
+    const {submitting, forbidNavigation, handleSubmit} = usedFormSubmit;
 
     useFormPrompt(t, forbidNavigation, modalIndex);
 
@@ -98,39 +86,10 @@ export default function CreateAttributeEntityDialog({
             )}
         >
             <form id={formId} onSubmit={handleSubmit}>
-                <FormRow>
-                    <TextField
-                        autoFocus
-                        required={true}
-                        label={t('form.attribute_entity.value.label', 'Value')}
-                        disabled={submitting}
-                        {...register('value', {
-                            required: true,
-                        })}
-                    />
-                    <FormFieldErrors field={'value'} errors={errors} />
-                </FormRow>
-
-                <FormRow>
-                    <KeyTranslationsWidget
-                        renderLocale={l => {
-                            return (
-                                <Flag
-                                    sx={{
-                                        mr: 1,
-                                    }}
-                                    locale={l}
-                                />
-                            );
-                        }}
-                        locales={workspace?.enabledLocales ?? []}
-                        name={'translations'}
-                        errors={errors}
-                        register={register}
-                    />
-                </FormRow>
-
-                <RemoteErrors errors={remoteErrors} />
+                <AttributeEntityFields
+                    usedFormSubmit={usedFormSubmit}
+                    workspace={workspace}
+                />
             </form>
         </AppDialog>
     );
