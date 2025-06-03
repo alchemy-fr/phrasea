@@ -131,6 +131,7 @@ class EntityAttributeType extends TextAttributeType
             'id' => $id,
             'value' => $v,
             'createdAt' => $entity->getCreatedAt(),
+            'translations' => $entity->getTranslations(),
         ];
     }
 

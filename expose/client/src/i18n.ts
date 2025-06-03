@@ -1,6 +1,6 @@
 import {createI18N, createNS} from '@alchemy/i18n';
 import * as appLangs from '../translations';
-import {getBestTranslatedValue} from '@alchemy/i18n/src/Locale/localeHelper';
+import {getBestFieldTranslatedValue} from '@alchemy/i18n/src/Locale/localeHelper';
 import type {Translations} from '@alchemy/i18n';
 import {initReactI18next} from 'react-i18next';
 
@@ -18,7 +18,7 @@ export function getTranslatedTitle({
     title: string;
     translations?: Translations;
 }): string {
-    return getBestTranslatedValue(translations, 'title', title);
+    return getBestFieldTranslatedValue(translations, 'title', title);
 }
 
 export function getTranslatedDescription({
@@ -28,5 +28,9 @@ export function getTranslatedDescription({
     description?: string | undefined;
     translations?: Translations;
 }): string | undefined {
-    return getBestTranslatedValue(translations, 'description', description);
+    return getBestFieldTranslatedValue(
+        translations,
+        'description',
+        description
+    );
 }
