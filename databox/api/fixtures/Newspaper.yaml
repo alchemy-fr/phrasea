@@ -126,7 +126,7 @@ App\Entity\Core\AttributeDefinition:
     ad_transport_type (extends attribute_definition_n):
         name: 'Transport Type'
         fieldType: entity
-        entityType: transport_type
+        entityList: '@et_transport_type'
         facetEnabled: true
         sortable: true
         suggest: true
@@ -135,7 +135,7 @@ App\Entity\Core\AttributeDefinition:
     ad_seasons (extends attribute_definition_n):
         name: 'Seasons'
         fieldType: entity
-        entityType: season
+        entityList: '@et_season'
         facetEnabled: true
         multiple: true
         sortable: true
@@ -527,42 +527,104 @@ App\Entity\Integration\WorkspaceSecret:
         name: AWS_ACCESS_KEY_SECRET
         plainValue: xxx
 
+App\Entity\Core\EntityList:
+    et_transport_type:
+        workspace: '@w_newspaper'
+        name: Transport Type
+    et_season:
+        workspace: '@w_newspaper'
+        name: Season
+
 App\Entity\Core\AttributeEntity:
     attr_entity_transport_type (template):
-        type: transport_type
+        list: '@et_transport_type'
         workspace: '@w_newspaper'
     att_plane (extends attr_entity_transport_type):
         value: Plane
         translations:
             fr: Avion
+        synonyms:
+            en:
+            - Aircraft
+            - Airplane
+            fr:
+            - Aéronef
     att_bike (extends attr_entity_transport_type):
         value: Bike
         translations:
             fr: Vélo
+        synonyms:
+            en:
+            - Bicycle
+            - Cycle
+            fr:
+            - Bicyclette
     att_cat (extends attr_entity_transport_type):
         value: Car
         translations:
             fr: Voiture
+        synonyms:
+            en:
+            - Automobile
+            - Vehicle
+            fr:
+            - Véhicule
+            - Automobile
     att_boat (extends attr_entity_transport_type):
         value: Boat
         translations:
             fr: Bateau
+        synonyms:
+            en:
+            - Ship
+            - Ferry
+            fr:
+            - Navire
+            - Ferry
     attr_entity_season (template):
-        type: season
+        list: '@et_season'
         workspace: '@w_newspaper'
     att_winter (extends attr_entity_season):
         value: Winter
         translations:
             fr: Hiver
+        synonyms:
+            en:
+            - Wintertime
+            - Cold Season
+            fr:
+            - Saison froide
+            - Saison hivernale
     att_spring (extends attr_entity_season):
         value: Spring
         translations:
             fr: Printemps
+        synonyms:
+            en:
+            - Springtime
+            - Bloom Season
+            fr:
+            - Saison de floraison
+            - Saison printanière
     att_summer (extends attr_entity_season):
         value: Summer
         translations:
             fr: Été
+        synonyms:
+            en:
+            - Summertime
+            - Warm Season
+            fr:
+            - Saison chaude
+            - Saison estivale
     att_autumn (extends attr_entity_season):
         value: Autumn
         translations:
             fr: Automne
+        synonyms:
+            en:
+            - Fall
+            - Harvest Season
+            fr:
+            - Saison des récoltes
+            - Saison automnale

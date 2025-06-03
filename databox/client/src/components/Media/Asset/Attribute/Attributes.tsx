@@ -1,18 +1,43 @@
-import {Asset} from '../../../../types';
-import React, {useContext} from 'react';
+import {
+    Asset,
+    AttributeDefinition,
+    AttributeListItemType,
+} from '../../../../types';
+import React, {useContext, useMemo} from 'react';
 import AttributeRowUI, {BaseAttributeRowUIProps} from './AttributeRowUI';
 import {SxProps} from '@mui/material';
 import {stopPropagation} from '../../../../lib/stdFuncs';
-import {UserPreferencesContext} from '../../../User/Preferences/UserPreferencesContext';
 import {AttributeFormatContext} from './Format/AttributeFormatContext';
-import {buildAttributesGroupedByDefinition} from './attributeIndex.ts';
+import {
+    AttributeGroup,
+    buildAttributesGroupedByDefinition,
+} from './attributeIndex.ts';
 import {
     copyToClipBoardClass,
     copyToClipBoardContainerClass,
 } from './CopyAttribute.tsx';
-import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
+import {
+    hasDefinitionInItems,
+    useAttributeListStore,
+} from '../../../../store/attributeListStore.ts';
+import {useTranslation} from 'react-i18next';
+import {
+    getBuiltInFilters,
+    useIndexById,
+} from '../../../../store/attributeDefinitionStore.ts';
+import {NO_LOCALE} from './AttributesEditor.tsx';
+import Separator from '../../../Ui/Separator.tsx';
+import {Spacer} from '../../../Ui/VerticalSpacer.tsx';
+import {AttributeFormat} from './types/types';
 
-export type OnActiveAnnotations = (annotations: AssetAnnotation[]) => void;
+type AttributeItem = {
+    id: string;
+    type: AttributeListItemType;
+    definition?: AttributeDefinition;
+    attribute?: AttributeGroup['attribute'];
+    format?: AttributeFormat;
+    key?: string;
+};
 
 type Props = {
     asset: Asset;
@@ -26,53 +51,103 @@ function Attributes({
     pinnedOnly,
     assetAnnotationsRef,
 }: Props) {
-    const {preferences, updatePreference} = useContext(UserPreferencesContext);
+    const {t} = useTranslation();
     const formatContext = useContext(AttributeFormatContext);
+    const definitionsIndex = useIndexById();
+    const toggleDefinition = useAttributeListStore(s => s.toggleDefinition);
+    const current = useAttributeListStore(s => s.current);
 
-    const togglePin = React.useCallback(
-        (definitionId: string) => {
-            updatePreference('pinnedAttrs', prev => {
-                const ws = {...prev};
+    const pinnedAttributes = current?.items ?? [];
 
-                if (ws[asset.workspace.id]?.includes(definitionId)) {
-                    ws[asset.workspace.id] = ws[asset.workspace.id].filter(
-                        c => c !== definitionId
-                    );
-                } else {
-                    ws[asset.workspace.id] = [
-                        ...(ws[asset.workspace.id] || []),
-                        definitionId,
-                    ];
-                }
-
-                return ws;
-            });
-        },
-        [asset]
-    );
-
-    const pinnedAttributes = asset.workspace
-        ? ((preferences.pinnedAttrs ?? {})[asset.workspace.id] ?? [])
-        : [];
-
-    let attributeGroups = buildAttributesGroupedByDefinition(asset.attributes);
-
-    attributeGroups.sort((a, b) => {
-        const aa = pinnedAttributes.includes(a.definition.id) ? 1 : 0;
-        const bb = pinnedAttributes.includes(b.definition.id) ? 1 : 0;
-
-        return bb - aa;
-    });
-
-    if (pinnedOnly) {
-        attributeGroups = attributeGroups.filter(g =>
-            pinnedAttributes.includes(g.definition.id)
+    const attributeItems = useMemo<AttributeItem[]>(() => {
+        const attributeGroups = buildAttributesGroupedByDefinition(
+            asset.attributes
         );
-    }
 
-    if (attributeGroups.length === 0) {
+        if (pinnedAttributes.length === 0) {
+            return attributeGroups.map(ag => ({
+                id: ag.definition.id,
+                type: AttributeListItemType.Definition,
+                attribute: ag.attribute,
+                definition: ag.definition,
+            }));
+        }
+
+        const attributeItems: AttributeItem[] = [];
+
+        const builtInDef = getBuiltInFilters(t);
+
+        pinnedAttributes.forEach(item => {
+            const props = {
+                id: item.id,
+                type: item.type,
+                format: item.format,
+            };
+
+            if (item.type === AttributeListItemType.Definition) {
+                const defId = item.definition!;
+                const group = attributeGroups.find(
+                    g => g.definition.id === defId
+                );
+
+                if (group) {
+                    attributeItems.push({
+                        ...props,
+                        attribute: group.attribute,
+                        definition: group.definition,
+                    });
+                } else if (item.displayEmpty && definitionsIndex[defId]) {
+                    attributeItems.push({
+                        ...props,
+                        definition: definitionsIndex[defId],
+                    });
+                }
+            } else if (item.type === AttributeListItemType.BuiltIn) {
+                const definition = builtInDef.find(g => g.id === item.key!);
+
+                if (definition) {
+                    attributeItems.push({
+                        ...props,
+                        definition,
+                    });
+                }
+            } else {
+                attributeItems.push({
+                    ...props,
+                    key: item.key,
+                });
+            }
+        });
+
+        if (!pinnedOnly) {
+            attributeGroups
+                .filter(
+                    g =>
+                        !hasDefinitionInItems(pinnedAttributes, g.definition.id)
+                )
+                .forEach(ag => {
+                    attributeItems.push({
+                        id: ag.definition.id,
+                        type: AttributeListItemType.Definition,
+                        attribute: ag.attribute,
+                        definition: ag.definition,
+                    });
+                });
+        }
+
+        return attributeItems;
+    }, [pinnedAttributes, asset, t, definitionsIndex]);
+
+    if (attributeItems.length === 0) {
         return null;
     }
+
+    const createAttrProps = (definition: AttributeDefinition) => ({
+        origin: 'machine',
+        locale: NO_LOCALE,
+        capabilities: {},
+        definition,
+    });
 
     return (
         <div
@@ -80,19 +155,64 @@ function Attributes({
             onClick={stopPropagation}
             onMouseDown={stopPropagation}
         >
-            {attributeGroups.map(g => {
-                return (
-                    <AttributeRowUI
-                        key={g.definition.id}
-                        formatContext={formatContext}
-                        attribute={g.attribute}
-                        definition={g.definition}
-                        displayControls={displayControls}
-                        pinned={pinnedAttributes.includes(g.definition.id)}
-                        togglePin={asset.workspace ? togglePin : undefined}
-                        assetAnnotationsRef={assetAnnotationsRef}
-                    />
-                );
+            {attributeItems.map(ai => {
+                if (ai.type === AttributeListItemType.Definition) {
+                    return (
+                        <AttributeRowUI
+                            key={ai.id}
+                            formatContext={formatContext}
+                            format={ai.format}
+                            attribute={ai.attribute!}
+                            definition={ai.definition!}
+                            displayControls={displayControls}
+                            pinned={hasDefinitionInItems(
+                                pinnedAttributes,
+                                ai.definition!.id
+                            )}
+                            togglePin={toggleDefinition}
+                            assetAnnotationsRef={assetAnnotationsRef}
+                        />
+                    );
+                } else if (ai.type === AttributeListItemType.BuiltIn) {
+                    const definition = ai.definition!;
+                    if (definition.getValueFromAsset) {
+                        const valueFromAsset =
+                            definition.getValueFromAsset(asset);
+
+                        return (
+                            <AttributeRowUI
+                                key={ai.id}
+                                formatContext={formatContext}
+                                format={ai.format}
+                                attribute={
+                                    definition.multiple
+                                        ? valueFromAsset.map((v: any) => ({
+                                              ...createAttrProps(definition),
+                                              value: v,
+                                          }))
+                                        : {
+                                              ...createAttrProps(definition),
+                                              value: valueFromAsset,
+                                          }
+                                }
+                                definition={ai.definition!}
+                                displayControls={displayControls}
+                                pinned={hasDefinitionInItems(
+                                    pinnedAttributes,
+                                    ai.definition!.id
+                                )}
+                                togglePin={toggleDefinition}
+                                assetAnnotationsRef={assetAnnotationsRef}
+                            />
+                        );
+                    }
+                } else if (ai.type === AttributeListItemType.Divider) {
+                    return <Separator key={ai.id}>{ai.key!}</Separator>;
+                } else if (ai.type === AttributeListItemType.Spacer) {
+                    return <Spacer key={ai.id} />;
+                }
+
+                return null;
             })}
         </div>
     );

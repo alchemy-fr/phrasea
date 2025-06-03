@@ -28,24 +28,30 @@ use App\Entity\Traits\ErrorDisableTrait;
 use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Security\Voter\AbstractVoter;
+use App\Validator\SameWorkspaceConstraint;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'attribute-definition',
     operations: [
-        new Get(),
+        new Get(
+            security: 'is_granted("'.AbstractVoter::READ.'", object)'
+        ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
-            security: 'is_granted("EDIT", object)'
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)'
         ),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
         new GetCollection(
             parameters: [
                 'searchable' => new QueryParameter(
@@ -61,7 +67,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
-            securityPostDenormalize: 'is_granted("CREATE", object)'
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            securityPostDenormalize: 'is_granted("CREATE", object)',
         ),
         new Post(
             uriTemplate: '/attribute-definitions/sort',
@@ -81,9 +88,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
                     ],
                 ],
             ],
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             input: false,
             output: false,
-            name: 'put_sort'
+            name: 'put_sort',
         ),
     ],
     normalizationContext: [
@@ -91,7 +99,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
     ],
     input: AttributeDefinitionInput::class,
     output: AttributeDefinitionOutput::class,
-    security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
     provider: AttributeDefinitionCollectionProvider::class,
 )]
 #[ORM\Table]
@@ -102,6 +109,16 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_slug', columns: ['workspace_id', 'slug'])]
 #[ORM\ChangeTrackingPolicy('DEFERRED_EXPLICIT')]
 #[ORM\Entity(repositoryClass: AttributeDefinitionRepository::class)]
+#[SameWorkspaceConstraint(
+    properties: [
+        'workspace',
+        'class.workspace',
+    ],
+)]
+#[UniqueEntity(
+    fields: ['workspace', 'name'],
+    errorPath: 'name',
+)]
 class AttributeDefinition extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface
 {
     use CreatedAtTrait;
@@ -118,11 +135,13 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
      */
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'attributeDefinitions')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull]
     protected ?Workspace $workspace = null;
 
     #[ORM\ManyToOne(targetEntity: AttributeClass::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: false)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
+    #[Assert\NotNull]
     protected ?AttributeClass $class = null;
 
     /**
@@ -134,6 +153,8 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     // Keep this group for ApiPlatform "assertMatchesResourceItemJsonSchema" test
     #[Groups([self::GROUP_READ, Asset::GROUP_READ, Asset::GROUP_LIST])]
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
@@ -150,8 +171,9 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     #[ORM\Column(type: Types::STRING, length: 50, nullable: false)]
     private string $fieldType = TextAttributeType::NAME;
 
-    #[ORM\Column(type: Types::STRING, length: AttributeEntity::TYPE_LENGTH, nullable: true)]
-    private ?string $entityType = null;
+    #[ORM\ManyToOne(targetEntity: EntityList::class, inversedBy: 'definitions')]
+    #[ORM\JoinColumn(nullable: true)]
+    protected ?EntityList $entityList = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $searchable = true;
@@ -448,14 +470,14 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         $this->suggest = $suggest;
     }
 
-    public function getEntityType(): ?string
+    public function getEntityList(): ?EntityList
     {
-        return $this->entityType;
+        return $this->entityList;
     }
 
-    public function setEntityType(?string $entityType): void
+    public function setEntityList(?EntityList $entityList): void
     {
-        $this->entityType = $entityType;
+        $this->entityList = $entityList;
     }
 
     public function disableAfterErrors(): void

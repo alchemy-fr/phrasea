@@ -84,7 +84,7 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private array $tags;
 
-    #[Groups([Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_READ, Asset::GROUP_LIST])]
     public ?UserOutput $owner = null;
 
     #[Groups([Asset::GROUP_READ])]

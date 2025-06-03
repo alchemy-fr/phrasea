@@ -50,6 +50,7 @@ export function mapApiErrors<TFieldValues extends FieldValues>(
         const p1 = normalizePath
             ? normalizePath(v.propertyPath)
             : v.propertyPath;
+
         const p2 = (mapping[p1] || p1) as Path<TFieldValues>;
 
         const values = getValues();
@@ -85,4 +86,28 @@ function objectHasPropertyPath(
     }
 
     return false;
+}
+
+export function getObjectPropertyPath<T extends Record<string, any>>(
+    object: Record<string, any>,
+    path: keyof T
+): any {
+    const parts = path.toString().split('.');
+
+    let pointer: Record<string, any> = object;
+    for (let i = 0; i < parts.length; i++) {
+        if (Object.prototype.hasOwnProperty.call(pointer, parts[i])) {
+            if (i === parts.length - 1) {
+                return pointer[parts[i]];
+            }
+            if (typeof pointer[parts[i]] !== 'object') {
+                return undefined;
+            }
+            pointer = pointer[parts[i]];
+        } else {
+            return undefined;
+        }
+    }
+
+    return pointer;
 }

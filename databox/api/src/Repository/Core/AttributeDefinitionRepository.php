@@ -202,16 +202,28 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     /**
      * @return AttributeDefinition[]
      */
-    public function getWorkspaceDefinitionOfEntity(string $workspaceId, string $entityType): array
+    public function getWorkspaceDefinitionOfEntity(string $workspaceId, string $entityListId): array
     {
         return $this
             ->createQueryBuilder('d')
             ->andWhere('d.workspace = :workspace')
             ->andWhere('d.fieldType = :t')
-            ->andWhere('d.entityType = :etype')
+            ->andWhere('d.entityList = :etype')
             ->setParameter('workspace', $workspaceId)
             ->setParameter('t', EntityAttributeType::getName())
-            ->setParameter('etype', $entityType)
+            ->setParameter('etype', $entityListId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return AttributeDefinition[]
+     */
+    public function findByIds(array $ids): array
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.id IN (:ids)')
+            ->setParameter('ids', $ids)
             ->getQuery()
             ->getResult();
     }

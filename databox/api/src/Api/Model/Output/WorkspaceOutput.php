@@ -8,6 +8,7 @@ use Alchemy\WebhookBundle\Normalizer\WebhookSerializationInterface;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
@@ -37,6 +38,8 @@ class WorkspaceOutput extends AbstractUuidOutput
         WebhookSerializationInterface::DEFAULT_GROUP,
         RenditionDefinition::GROUP_LIST,
         ResolveEntitiesOutput::GROUP_READ,
+        AttributeDefinition::GROUP_LIST,
+        AttributeDefinition::GROUP_READ,
     ])]
     private string $name;
 
@@ -50,6 +53,8 @@ class WorkspaceOutput extends AbstractUuidOutput
         WebhookSerializationInterface::DEFAULT_GROUP,
         RenditionDefinition::GROUP_LIST,
         ResolveEntitiesOutput::GROUP_READ,
+        AttributeDefinition::GROUP_LIST,
+        AttributeDefinition::GROUP_READ,
     ])]
     public ?string $nameTranslated;
 

@@ -2,6 +2,8 @@
 
 namespace App\Entity\Traits;
 
+use App\Entity\Core\Workspace;
+
 interface ErrorDisableInterface
 {
     public function getId(): string;
@@ -15,4 +17,6 @@ interface ErrorDisableInterface
     public function getErrorCount(): int;
 
     public function disableAfterErrors(): void;
+
+    public function getWorkspace(): ?Workspace;
 }

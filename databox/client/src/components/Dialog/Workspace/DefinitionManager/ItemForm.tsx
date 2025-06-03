@@ -50,9 +50,7 @@ export default function ItemForm<D extends DefinitionBase>({
             }
         },
         onSuccess: () => {
-            toast.success(
-                t('definition_manager.saved', 'Definition saved!') as string
-            );
+            toast.success(t('definition_manager.saved', 'Saved!') as string);
         },
     });
 
@@ -61,17 +59,15 @@ export default function ItemForm<D extends DefinitionBase>({
     useDirtyFormPrompt(Boolean(item) && forbidNavigation);
 
     return (
-        <>
-            <form id={formId} onSubmit={usedFormSubmit.handleSubmit}>
-                {React.createElement(itemComponent, {
-                    data: item,
-                    onSave,
-                    onItemUpdate,
-                    usedFormSubmit,
-                    workspace,
-                })}
-                <RemoteErrors errors={remoteErrors} />
-            </form>
-        </>
+        <form id={formId} onSubmit={usedFormSubmit.handleSubmit}>
+            {React.createElement(itemComponent, {
+                data: item,
+                onSave,
+                onItemUpdate,
+                usedFormSubmit,
+                workspace,
+            })}
+            <RemoteErrors errors={remoteErrors} />
+        </form>
     );
 }

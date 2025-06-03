@@ -56,12 +56,13 @@ function Item({
         getValues,
         formState: {errors},
     } = usedFormSubmit;
+
     const createSaveTranslations = useCreateSaveTranslations({
         data,
         setValue,
-        putFn: async (id, d) => {
+        putFn: async (_id, d) => {
             const r = await onSave({
-                id,
+                ...getValues(),
                 ...d,
             } as AttributeDefinition);
             onItemUpdate(r);
@@ -141,13 +142,13 @@ function Item({
                 <FormRow>
                     <TextField
                         label={t(
-                            'form.attribute_definition.entityType.label',
-                            'Entity Type'
+                            'form.attribute_definition.entityList.label',
+                            'Entity List'
                         )}
-                        {...register('entityType')}
+                        {...register('entityList')}
                         disabled={submitting}
                     />
-                    <FormFieldErrors field={'entityType'} errors={errors} />
+                    <FormFieldErrors field={'entityList'} errors={errors} />
                 </FormRow>
             ) : (
                 ''

@@ -70,7 +70,7 @@ function normalizeLocale(l: string): string {
     return l.replace('-', '_');
 }
 
-export function getBestTranslatedValue<T>(
+export function getBestFieldTranslatedValue<T>(
     translations:
         | Readonly<Record<string, Readonly<Record<string, T>>>>
         | undefined,
@@ -83,8 +83,24 @@ export function getBestTranslatedValue<T>(
         return fallback;
     }
 
+    return getBestTranslatedValue(translations[field], fallback, fallbackLocale, languages);
+}
+
+
+export function getBestTranslatedValue<T>(
+    translations:
+        | Readonly<Record<string, T>>
+        | undefined,
+    fallback: T,
+    fallbackLocale?: string | undefined,
+    languages?: readonly string[]
+): T {
+    if (!translations) {
+        return fallback;
+    }
+
     const tr = {
-        ...(translations[field] ?? {}),
+        ...(translations ?? {}),
     };
 
     if (

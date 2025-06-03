@@ -26,7 +26,7 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(EntityFilter::new('workspace'))
-            ->add(TextFilter::new('type'))
+            ->add(EntityFilter::new('list'))
             ->add(TextFilter::new('value'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
@@ -37,15 +37,17 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Attribute Entity')
             ->setEntityLabelInPlural('Attribute Entities')
-            ->setSearchFields(['id', 'position', 'type', 'value']);
+            ->setSearchFields(['id', 'position', 'value']);
     }
 
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
         yield AssociationField::new('workspace');
-        yield TextField::new('type');
+        yield AssociationField::new('list');
         yield TextField::new('value');
+        yield JsonField::new('synonyms')
+            ->hideOnIndex();
         yield JsonField::new('translations');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();

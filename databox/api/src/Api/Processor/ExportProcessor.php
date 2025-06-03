@@ -16,6 +16,7 @@ use App\Model\Export;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\RenditionPermissionManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ExportProcessor implements ProcessorInterface
@@ -68,6 +69,10 @@ class ExportProcessor implements ProcessorInterface
                     'path' => sprintf('%s-%s-%s%s', $rendition->getName(), $asset->getTitle(), $assetId, $ext),
                 ];
             }
+        }
+
+        if (empty($files)) {
+            throw new NotFoundHttpException('No files to export');
         }
 
         $response = $this->zippyClient->request('POST', '/archives', [

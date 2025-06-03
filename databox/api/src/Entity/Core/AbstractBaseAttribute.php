@@ -7,10 +7,13 @@ namespace App\Entity\Core;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use App\Validator\ValidAttributeConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\MappedSuperclass]
+#[ValidAttributeConstraint]
 abstract class AbstractBaseAttribute extends AbstractUuidEntity
 {
     use CreatedAtTrait;
@@ -23,6 +26,7 @@ abstract class AbstractBaseAttribute extends AbstractUuidEntity
     private int $position = 0;
 
     #[ORM\Column(type: Types::TEXT, nullable: false)]
+    #[Assert\NotNull]
     private ?string $value = null;
 
     public function getValue(): ?string

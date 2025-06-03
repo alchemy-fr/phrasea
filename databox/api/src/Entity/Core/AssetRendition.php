@@ -19,6 +19,7 @@ use App\Api\Model\Output\AssetRenditionOutput;
 use App\Api\Provider\RenditionCollectionProvider;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Validator\SameWorkspaceConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -118,6 +119,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_representation', columns: ['definition_id', 'asset_id'])]
 #[ORM\Entity(repositoryClass: AssetRenditionRepository::class)]
+#[SameWorkspaceConstraint(
+    properties: ['asset.workspace', 'file.workspace', 'definition.workspace']
+)]
 class AssetRendition extends AbstractUuidEntity
 {
     use CreatedAtTrait;

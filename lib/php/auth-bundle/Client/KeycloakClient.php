@@ -113,9 +113,9 @@ final readonly class KeycloakClient
                     ...$options,
                     'access_token' => $accessToken,
                 ]));
-            });
+            }, handleHttpException: false);
         } catch (HttpExceptionInterface $e) {
-            if (404 === $e->getStatusCode()) {
+            if (404 === $e->getResponse()?->getStatusCode()) {
                 return null;
             }
 
@@ -172,7 +172,7 @@ final readonly class KeycloakClient
             'query',
             'json',
             'body',
-                 ] as $key) {
+        ] as $key) {
             if (isset($options[$key])) {
                 $requestOptions[$key] = $options[$key];
             }
@@ -186,7 +186,7 @@ final readonly class KeycloakClient
         foreach ([
             'limit',
             'offset',
-                 ] as $key) {
+        ] as $key) {
             if (isset($options[$key])) {
                 $requestOptions['query'] ??= [];
                 $requestOptions['query'][$key] = $options[$key];
@@ -196,18 +196,20 @@ final readonly class KeycloakClient
         return $requestOptions;
     }
 
-    private function wrapRequest(callable $handler): array
+    private function wrapRequest(callable $handler, bool $handleHttpException = true): array
     {
         try {
             $response = $handler();
 
             return $response->toArray();
-        } catch (ClientException $e) {
-            if (null !== $statusCode = $e->getResponse()?->getStatusCode()) {
-                throw match ($statusCode) {
-                    403 => new AccessDeniedHttpException($e->getResponse()->getContent(false), $e),
-                    default => new HttpException($statusCode, $e->getResponse()->getContent(false), $e),
-                };
+        } catch (HttpExceptionInterface $e) {
+            if ($handleHttpException) {
+                if (null !== $statusCode = $e->getResponse()?->getStatusCode()) {
+                    throw match ($statusCode) {
+                        403 => new AccessDeniedHttpException($e->getResponse()->getContent(false), $e),
+                        default => new HttpException($statusCode, $e->getResponse()->getContent(false), $e),
+                    };
+                }
             }
 
             throw $e;

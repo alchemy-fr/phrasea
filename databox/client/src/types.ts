@@ -29,6 +29,7 @@ export type GroupValue = {
 
 export type User = {
     username: string;
+    removed: boolean;
 } & Entity;
 
 export type ShareAlternateUrl = {
@@ -118,7 +119,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     searchSlug: string;
     enabled: boolean;
     fieldType: AttributeType;
-    entityType?: string | undefined;
+    entityList?: EntityList | undefined;
     multiple: boolean;
     searchable: boolean;
     sortable: boolean;
@@ -139,6 +140,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     lastErrors?: LastErrors;
     entityIri?: string | undefined;
     resolveLabel?: (entity: object) => string;
+    getValueFromAsset?: (asset: Asset) => any;
 }
 
 export type FieldWidget<P extends {} = any> = {
@@ -227,11 +229,24 @@ type KeyTranslations = {
     [locale: string]: string;
 };
 
+type EntitySynonyms = {
+    [locale: string]: string[];
+};
+
 export type AttributeEntity = {
     type: string;
     locale: string;
     value: string;
     translations: KeyTranslations;
+    synonyms?: EntitySynonyms;
+    createdAt: string;
+    updatedAt: string;
+} & ApiHydraObjectResponse &
+    Entity;
+
+export type EntityList = {
+    name: string;
+    definitions: AttributeDefinition[];
     createdAt: string;
     updatedAt: string;
 } & ApiHydraObjectResponse &
@@ -276,6 +291,33 @@ export interface Basket extends IPermissions, Entity {
     description?: string | undefined;
     descriptionHighlight?: string | undefined;
     assetCount?: number;
+    createdAt: string;
+    updatedAt: string;
+    owner?: User;
+}
+
+export enum AttributeListItemType {
+    Definition = 0,
+    BuiltIn = 1,
+    Divider = 2,
+    Spacer = 3,
+}
+
+export type AttributeListItem = {
+    id: string;
+    type: AttributeListItemType;
+    key?: string;
+    definition?: string;
+    displayEmpty?: boolean;
+    format?: string;
+};
+
+export interface AttributeList extends IPermissions, Entity {
+    title: string;
+    description?: string;
+    items?: AttributeListItem[];
+    exclusive?: boolean; // if true, only items in this list well be shown otherwise all attributes
+    public?: boolean;
     createdAt: string;
     updatedAt: string;
     owner?: User;
