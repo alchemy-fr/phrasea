@@ -7,3 +7,6 @@ services:
     Alchemy\ESBundle\Indexer\IndexPersister: ~
     Alchemy\ESBundle\Indexer\SearchIndexer: ~
     Alchemy\ESBundle\Message\ESIndexHandler: ~
+
+    Alchemy\ESBundle\Command\ESDebugIndexCommand: ~
+    Alchemy\ESBundle\Command\ESRemoveIndexCommand: ~
