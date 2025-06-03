@@ -53,15 +53,12 @@ export default class AttributeEntityType
         return value?.id;
     }
 
-    formatValue({value, locale}: AttributeFormatterProps): React.ReactNode {
-        return getTranslatedValue(value, locale) as React.ReactNode;
+    formatValue({value}: AttributeFormatterProps): React.ReactNode {
+        return getTranslatedValue(value) as React.ReactNode;
     }
 
-    formatValueAsString({
-        value,
-        locale,
-    }: AttributeFormatterProps): string | undefined {
-        return getTranslatedValue(value, locale);
+    formatValueAsString({value}: AttributeFormatterProps): string | undefined {
+        return getTranslatedValue(value);
     }
 }
 
