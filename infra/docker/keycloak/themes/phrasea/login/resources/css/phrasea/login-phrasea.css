@@ -6,7 +6,7 @@
     background-size: cover;
     height: 100%;
     background: #f1f1f1;
-    background-image: url("${KC_LOGIN_BACKGROUND_IMAGE_URL}");
+    background-image: url("##background-image##");
     background-repeat: no-repeat;
     background-position: center;
     background-attachment: fixed;
