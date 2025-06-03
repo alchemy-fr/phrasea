@@ -29,6 +29,7 @@ export type GroupValue = {
 
 export type User = {
     username: string;
+    removed: boolean;
 } & Entity;
 
 export type ShareAlternateUrl = {

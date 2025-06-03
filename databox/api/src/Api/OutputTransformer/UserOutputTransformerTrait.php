@@ -24,6 +24,9 @@ trait UserOutputTransformerTrait
         $user = $this->userRepository->getUser($userId);
         if (null !== $user) {
             $output->username = $user['username'];
+        } else {
+            $output->username = 'User not found';
+            $output->removed = true;
         }
 
         return $output;
