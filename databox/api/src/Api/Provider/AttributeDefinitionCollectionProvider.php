@@ -39,6 +39,7 @@ class AttributeDefinitionCollectionProvider extends AbstractCollectionProvider
         }
 
         return $queryBuilder
+            ->addOrderBy('t.workspace', 'ASC')
             ->addOrderBy('t.position', 'ASC')
             ->addOrderBy('t.name', 'ASC')
             ->getQuery()
