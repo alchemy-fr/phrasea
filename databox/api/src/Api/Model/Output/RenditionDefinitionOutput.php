@@ -22,8 +22,19 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public self|RenditionDefinition|null $parent = null;
 
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
+    #[Groups([
+        RenditionDefinition::GROUP_LIST,
+        RenditionDefinition::GROUP_READ,
+        ResolveEntitiesOutput::GROUP_READ,
+    ])]
     public ?string $name = null;
+
+    #[Groups([
+        RenditionDefinition::GROUP_LIST,
+        RenditionDefinition::GROUP_READ,
+        ResolveEntitiesOutput::GROUP_READ,
+    ])]
+    public ?string $nameTranslated = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public ?RenditionClass $class = null;
@@ -57,9 +68,6 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public ?int $priority = null;
-
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
-    public ?string $nameTranslated = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public ?array $translations = null;

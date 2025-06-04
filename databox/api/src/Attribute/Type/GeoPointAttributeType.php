@@ -42,7 +42,7 @@ class GeoPointAttributeType extends AbstractAttributeType
             }
         }
 
-        if (!is_string($value) || !str_contains($value, ',')) {
+        if (!is_string($value) || (!str_contains($value, ' ') && !str_contains($value, ','))) {
             return null;
         }
 
@@ -55,15 +55,28 @@ class GeoPointAttributeType extends AbstractAttributeType
             return null;
         }
 
-        if (!is_string($value) || !str_contains($value, ',')) {
+        if (!is_string($value) || (!str_contains($value, ' ') && !str_contains($value, ','))) {
             return null;
         }
 
-        [$lat, $lng] = explode(',', $value);
+        [$lat, $lng] = preg_split('#\s*[, ]\s*#', $value);
 
         return [
             'lat' => (float) trim($lat),
             'lng' => (float) trim($lng),
+        ];
+    }
+
+    public function normalizeElasticsearchValue(?string $value)
+    {
+        $value = $this->denormalizeValue($value);
+        if (null === $value) {
+            return null;
+        }
+
+        return [
+            'lat' => $value['lat'],
+            'lon' => $value['lng'],
         ];
     }
 }
