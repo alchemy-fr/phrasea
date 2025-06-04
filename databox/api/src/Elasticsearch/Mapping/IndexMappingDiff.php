@@ -27,6 +27,10 @@ class IndexMappingDiff
             return false;
         }
 
+        if ($current['index']['analysis'] ?? null == $new['index']['analysis'] ?? null) {
+            return false;
+        }
+
         return true;
     }
 

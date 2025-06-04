@@ -16,8 +16,54 @@ class IndexMappingDiffTest extends TestCase
     {
         $differ = new IndexMappingDiff();
 
-        $indexedMappingWrapped = ['mappings' => ['properties' => ['attributes' => ['properties' => $indexedMapping]]]];
-        $newMappingWrapped = ['mappings' => ['properties' => ['attributes' => ['properties' => $newMapping]]]];
+        $indexedMappingWrapped = [
+            'settings' => [
+                'index' => [
+                    'analysis' => [
+                        'analyzer' => [
+                            'text' => [
+                                'type' => 'custom',
+                                'tokenizer' => 'standard',
+                                'filter' => ['lowercase'],
+                            ],
+                        ],
+                    ],
+                    'number_of_shards' => 1,
+                    'number_of_replicas' => 0,
+                ],
+            ],
+            'mappings' => [
+                'properties' => [
+                    'attributes' => [
+                        'properties' => $indexedMapping,
+                    ],
+                ],
+            ],
+        ];
+        $newMappingWrapped = [
+            'settings' => [
+                'index' => [
+                    'analysis' => [
+                        'analyzer' => [
+                            'text' => [
+                                'type' => 'custom',
+                                'tokenizer' => 'standard',
+                                'filter' => ['lowercase'],
+                            ],
+                        ],
+                    ],
+                    'number_of_shards' => 2,
+                    'number_of_replicas' => 0,
+                ],
+            ],
+            'mappings' => [
+                'properties' => [
+                    'attributes' => [
+                        'properties' => $newMapping,
+                    ],
+                ],
+            ],
+        ];
         $this->assertEquals($expected, $differ->shouldReindex($indexedMappingWrapped, $newMappingWrapped));
     }
 
