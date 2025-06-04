@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Command;
+namespace Alchemy\ESBundle\Command;
 
 use FOS\ElasticaBundle\Elastica\Client;
 use FOS\ElasticaBundle\Index\IndexManager;
@@ -25,7 +25,7 @@ class ESDebugIndexCommand extends Command
         parent::configure();
 
         $this
-            ->setName('app:es:debug-index')
+            ->setName('alchemy:es:debug-index')
             ->addOption('index', 'i', InputOption::VALUE_REQUIRED)
             ->setDescription('Display index settings & mapping');
     }

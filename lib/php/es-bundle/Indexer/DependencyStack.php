@@ -23,7 +23,7 @@ class DependencyStack
         private readonly int $batchSize,
         private readonly int $depth,
         private readonly array $currentBatch,
-        array $previousParents
+        array $previousParents,
     ) {
         $this->parents = $previousParents;
     }
