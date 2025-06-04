@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Command;
+namespace Alchemy\ESBundle\Command;
 
 use Elastica\Exception\ExceptionInterface;
 use Elastica\Request;
@@ -27,16 +27,18 @@ class ESRemoveIndexCommand extends Command
         parent::configure();
 
         $this
-            ->setName('app:es:delete-index')
+            ->setName('alchemy:es:delete-index')
             ->addOption('index', 'i', InputOption::VALUE_REQUIRED)
             ->addOption('remove-olds')
             ->addOption('olds-only')
+            ->addOption('force-prefix', null, InputOption::VALUE_NONE, 'Force the prefix to be used for the index name')
             ->setDescription('Remove index and its aliases');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $indexArg = $input->getOption('index');
+        $forcePrefix = $input->getOption('force-prefix');
         $indices = null === $indexArg ? array_keys($this->indexManager->getAllIndexes()) : [$indexArg];
 
         foreach ($indices as $i) {
@@ -50,6 +52,13 @@ class ESRemoveIndexCommand extends Command
 
             $response = $this->client->request('_aliases');
             foreach ($response->getData() as $indexKey => $c) {
+                if ($forcePrefix && str_starts_with($indexKey, $indexArg)) {
+                    ++$nbDeleted;
+                    $this->deleteIndex($indexKey);
+
+                    continue;
+                }
+
                 if (isset($c['aliases'][$indexName])) {
                     if (!$oldsOnly) {
                         $output->writeln(sprintf('Removing aliased index <comment>%s</comment>', $indexKey));

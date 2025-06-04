@@ -13,7 +13,7 @@ class QueryBuilderMock extends QueryBuilder
 
     public function __construct(
         EntityManagerInterface $em,
-        private readonly array $store
+        private readonly array $store,
     ) {
         $this->emCopy = $em;
         parent::__construct($em);
