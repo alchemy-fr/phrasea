@@ -10,14 +10,18 @@ import {
     SelectOption,
     AsyncRSelectProps,
 } from '@alchemy/react-form';
+import {useEntitiesStore} from '../../store/entitiesStore.ts';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
+    useIRI?: boolean;
 } & AsyncRSelectProps<TFieldValues, false>;
 
 export default function RenditionDefinitionSelect<
     TFieldValues extends FieldValues,
->({workspaceId, ...rest}: Props<TFieldValues>) {
+>({workspaceId, useIRI, ...rest}: Props<TFieldValues>) {
+    const store = useEntitiesStore(s => s.store);
+
     const load = useCallback(
         async (inputValue: string): Promise<SelectOption[]> => {
             const data = await getRenditionDefinitions({
@@ -25,10 +29,16 @@ export default function RenditionDefinitionSelect<
             });
 
             return data.result
-                .map((t: RenditionDefinition) => ({
-                    value: `${renditionDefinitionNS}/${t.id}`,
-                    label: t.nameTranslated,
-                }))
+                .map((t: RenditionDefinition) => {
+                    store(t['@id'], t);
+
+                    return {
+                        value: useIRI
+                            ? `${renditionDefinitionNS}/${t.id}`
+                            : t.id,
+                        label: t.nameTranslated,
+                    };
+                })
                 .filter(i =>
                     i.label
                         .toLowerCase()

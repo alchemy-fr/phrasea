@@ -2,7 +2,7 @@ import {useNavigateToModal} from '../components/Routing/ModalLink.tsx';
 import {modalRoutes, routes} from '../routes.ts';
 import type {NotificationUriHandler} from '@alchemy/notification';
 import {getPath, useNavigate} from '@alchemy/navigation';
-import {queryToHash} from '../components/Media/Search/search.ts';
+import {BuiltInFilter, queryToHash} from '../components/Media/Search/search.ts';
 
 export function useNotificationUriHandler(): NotificationUriHandler {
     const navigateToModal = useNavigateToModal();
@@ -32,7 +32,7 @@ export function useNotificationUriHandler(): NotificationUriHandler {
                     [
                         {
                             id: 'collection',
-                            query: `@collection = "${id}"`,
+                            query: `${BuiltInFilter.Collection} = "${id}"`,
                         },
                     ],
                     [],

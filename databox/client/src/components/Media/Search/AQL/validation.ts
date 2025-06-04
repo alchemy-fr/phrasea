@@ -27,6 +27,7 @@ export const typeMap: Record<AttributeType, RawType> = {
     [AttributeType.Keyword]: RawType.Keyword,
     [AttributeType.Number]: RawType.Number,
     [AttributeType.Privacy]: RawType.Number,
+    [AttributeType.Rendition]: RawType.String,
     [AttributeType.Tag]: RawType.Id,
     [AttributeType.Text]: RawType.String,
     [AttributeType.Textarea]: RawType.String,

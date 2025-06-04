@@ -3,6 +3,7 @@ import {
     AttributeDefinition,
     AttributeEntity,
     Collection,
+    RenditionDefinition,
     Tag,
     User,
     Workspace,
@@ -15,6 +16,7 @@ import PrivacyWidget from '../components/Form/PrivacyWidget.tsx';
 import TagSelect from '../components/Form/TagSelect.tsx';
 import AttributeEntitySelect from '../components/Form/AttributeEntitySelect.tsx';
 import UserSelect from '../components/Form/UserSelect.tsx';
+import RenditionDefinitionSelect from '../components/Form/RenditionDefinitionSelect.tsx';
 
 export type AttributeDefinitionsIndex = Record<string, AttributeDefinition>;
 
@@ -158,6 +160,23 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                     },
                 },
                 getValueFromAsset: asset => asset.tags,
+            },
+            {
+                slug: BuiltInFilter.Rendition,
+                fieldType: AttributeType.Rendition,
+                entityIri: 'rendition-definitions',
+                resolveLabel: (entity: RenditionDefinition) =>
+                    entity.nameTranslated ?? entity.name ?? '',
+                searchable: true,
+                sortable: true,
+                multiple: true,
+                name: t('built_in_attr.rendition', 'Rendition'),
+                widget: {
+                    component: RenditionDefinitionSelect,
+                    props: {
+                        useIRI: false,
+                    },
+                },
             },
             {
                 slug: BuiltInFilter.EditedAt,
