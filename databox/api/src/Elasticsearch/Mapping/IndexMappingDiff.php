@@ -10,13 +10,24 @@ class IndexMappingDiff
 {
     public function shouldReindex(array $indexedMapping, array $newMapping): bool
     {
-        // TODO support index settings
+        if ($this->settingsDiffer($indexedMapping['settings'], $newMapping['settings'])) {
+            return true;
+        }
 
         if ($this->propertiesDiffer($indexedMapping['mappings']['properties'] ?? [], $newMapping['mappings']['properties'] ?? [])) {
             return true;
         }
 
         return false;
+    }
+
+    private function settingsDiffer(array $current, array $new): bool
+    {
+        if ($current == $new) {
+            return false;
+        }
+
+        return true;
     }
 
     private function propertiesDiffer(array $current, array $new): bool
