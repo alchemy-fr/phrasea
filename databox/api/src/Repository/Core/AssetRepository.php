@@ -77,7 +77,8 @@ class AssetRepository extends ServiceEntityRepository
     {
         return $this
             ->createQueryBuilder($alias)
-            ->addOrderBy($alias.'.referenceCollection', 'ASC')
+            ->addOrderBy($alias.'.createdAt', 'DESC')
+            ->addOrderBy($alias.'.id', 'ASC')
         ;
     }
 }

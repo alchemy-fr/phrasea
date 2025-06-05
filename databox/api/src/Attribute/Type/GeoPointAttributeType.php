@@ -55,6 +55,10 @@ class GeoPointAttributeType extends AbstractAttributeType
             return null;
         }
 
+        if (empty(trim($value))) {
+            return null;
+        }
+
         if (!is_string($value) || (!str_contains($value, ' ') && !str_contains($value, ','))) {
             return null;
         }

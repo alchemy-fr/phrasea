@@ -32,6 +32,8 @@ final readonly class AssetIndexer
         $progressBar = new ProgressBar($output, $total);
         $assets = $this->assetRepository->getESQueryBuilder('a')
             ->select('a')
+            ->resetDQLPart('orderBy')
+            ->addOrderBy('a.referenceCollection', 'ASC')
             ->getQuery()
             ->toIterable();
 
