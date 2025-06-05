@@ -223,7 +223,7 @@ hr {
 }
 
 div.kc-logo-text {
-    background-image: url(""); /* to override default keycloak logo when the class exist from the displayname html*/
+    background: none; /* to override default keycloak logo when the class exist from the displayname html*/
     height: 35px;
     width: 300px;
     margin: 0 auto;
