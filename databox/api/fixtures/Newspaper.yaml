@@ -37,6 +37,13 @@ App\Entity\Core\AttributeDefinition:
         class: '@n_ac_public'
         initialValuesAll: "{\"type\": \"metadata\", \"value\": \"IPTC:Keywords\"}"
         position: 1
+    ad_location (extends attribute_definition_n):
+        name: Location
+        facetEnabled: true
+        suggest: true
+        fieldType: geo_point
+        class: '@n_ac_public'
+        position: 1
     ad_author (extends attribute_definition_n):
         name: Author
         multiple: false
@@ -47,6 +54,7 @@ App\Entity\Core\AttributeDefinition:
     ad_image_size (extends attribute_definition_n):
         name: Image Size
         multiple: false
+        fieldType: number
         class: '@n_ac_public'
         initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('Composite:ImageSize').value }}\"}"
         position: 2
@@ -67,6 +75,7 @@ App\Entity\Core\AttributeDefinition:
     ad_creation_date (extends attribute_definition_n):
         name: CreationDate
         multiple: false
+        fieldType: date
         facetEnabled: false
         class: '@n_ac_public'
         initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('ExifIFD:CreateDate').value ?? file.metadata('IPTC:DateCreated').value ?? file.metadata('IPTC:DigitalCreationDate').value }}\"}"
@@ -456,6 +465,11 @@ App\Entity\Core\Attribute:
         definition: '@ad_country'
         asset: '@a_*'
         value: '<country()>'
+
+    at_location_{@a_*} (extends attribute_n):
+        definition: '@ad_location'
+        asset: '@a_*'
+        value: '<numberBetween(-48, 48)> <numberBetween(-20, 20)>'
 
     at_date_{@a_*} (extends attribute_n):
         __factory:

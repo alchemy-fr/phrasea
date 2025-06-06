@@ -30,7 +30,8 @@ function putToStorage(prefs: UserPreferences): void {
 
 type UserPreferencesStore = {
     preferences: UserPreferences;
-    isLoading: boolean;
+    loading: boolean;
+    loaded: boolean;
     load: () => Promise<UserPreferences>;
     updatePreference: <T extends keyof UserPreferences>(
         name: T,
@@ -41,17 +42,25 @@ type UserPreferencesStore = {
 export const useUserPreferencesStore = create<UserPreferencesStore>(
     (set, get) => ({
         preferences: getFromStorage(),
-        isLoading: false,
+        loading: false,
+        loaded: false,
         load: async () => {
-            set({isLoading: true});
+            if (get().loaded) {
+                return get().preferences;
+            }
+            set({loading: true});
             try {
                 const userPreferences = await getUserPreferences();
                 putToStorage(userPreferences);
-                set({preferences: userPreferences, isLoading: false});
+                set({
+                    preferences: userPreferences,
+                    loading: false,
+                    loaded: true,
+                });
 
                 return userPreferences;
             } finally {
-                set({isLoading: false});
+                set({loading: false});
             }
         },
         updatePreference: async (name, handler) => {

@@ -12,65 +12,89 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 final class AssetPermissionComputer
 {
-    private CacheInterface $cache;
+    private CacheInterface $collectionCache;
+    private CacheInterface $assetCache;
 
     public function __construct(
         private readonly PermissionManager $permissionManager,
     ) {
-        $this->disableCache();
+        $this->disableAssetCache();
+        $this->disableCollectionCache();
     }
 
-    public function setCache(CacheInterface $cache): void
+    public function setCollectionCache(CacheInterface $collectionCache): void
     {
-        $this->cache = $cache;
+        $this->collectionCache = $collectionCache;
     }
 
-    public function disableCache(): void
+    public function clearCollectionCache(): void
     {
-        $this->cache = new NullAdapter();
+        $this->collectionCache->clear();
+    }
+
+    public function clearAssetCache(): void
+    {
+        $this->assetCache->clear();
+    }
+
+    public function setAssetCache(CacheInterface $assetCache): void
+    {
+        $this->assetCache = $assetCache;
+    }
+
+    public function disableCollectionCache(): void
+    {
+        $this->collectionCache = new NullAdapter();
+    }
+
+    public function disableAssetCache(): void
+    {
+        $this->assetCache = new NullAdapter();
     }
 
     public function getAssetPermissionFields(Asset $asset): array
     {
-        $bestPrivacy = $asset->getPrivacy();
+        return $this->assetCache->get($asset->getId(), function () use ($asset): array {
+            $bestPrivacy = $asset->getPrivacy();
 
-        $users = $this->permissionManager->getAllowedUsers($asset, PermissionInterface::VIEW);
-        $groups = $this->permissionManager->getAllowedGroups($asset, PermissionInterface::VIEW);
+            $users = $this->permissionManager->getAllowedUsers($asset, PermissionInterface::VIEW);
+            $groups = $this->permissionManager->getAllowedGroups($asset, PermissionInterface::VIEW);
 
-        if (null !== $asset->getOwnerId()) {
-            $users[] = $asset->getOwnerId();
-        }
-
-        $collectionsPaths = [];
-        foreach ($asset->getCollections() as $collectionAsset) {
-            $collection = $collectionAsset->getCollection();
-            [$cBestPrivacy, $absolutePath, $cUsers, $cGroups] = $this->getCollectionHierarchyInfo($collection);
-
-            if (in_array($cBestPrivacy, [
-                WorkspaceItemPrivacyInterface::PRIVATE,
-                WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
-            ], true)) {
-                // Private collections does not expose its assets
-                $cBestPrivacy = WorkspaceItemPrivacyInterface::SECRET;
+            if (null !== $asset->getOwnerId()) {
+                $users[] = $asset->getOwnerId();
             }
-            $bestPrivacy = max($bestPrivacy, $cBestPrivacy);
 
-            $collectionsPaths[] = $absolutePath;
-            $users = array_merge($users, $cUsers);
-            $groups = array_merge($groups, $cGroups);
-        }
+            $collectionsPaths = [];
+            foreach ($asset->getCollections() as $collectionAsset) {
+                $collection = $collectionAsset->getCollection();
+                [$cBestPrivacy, $absolutePath, $cUsers, $cGroups] = $this->getCollectionHierarchyInfo($collection);
 
-        return [
-            'privacy' => $bestPrivacy,
-            'users' => array_values(array_unique($users)),
-            'groups' => array_values(array_unique($groups)),
-            'collectionPaths' => array_unique($collectionsPaths),
-        ];
+                if (in_array($cBestPrivacy, [
+                    WorkspaceItemPrivacyInterface::PRIVATE,
+                    WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
+                ], true)) {
+                    // Private collections does not expose its assets
+                    $cBestPrivacy = WorkspaceItemPrivacyInterface::SECRET;
+                }
+                $bestPrivacy = max($bestPrivacy, $cBestPrivacy);
+
+                $collectionsPaths[] = $absolutePath;
+                $users = array_merge($users, $cUsers);
+                $groups = array_merge($groups, $cGroups);
+            }
+
+            return [
+                'privacy' => $bestPrivacy,
+                'users' => array_values(array_unique($users)),
+                'groups' => array_values(array_unique($groups)),
+                'collectionPaths' => array_unique($collectionsPaths),
+            ];
+        });
     }
 
     private function getCollectionHierarchyInfo(Collection $collection): array
     {
-        return $this->cache->get($collection->getId(), function () use ($collection): array {
+        return $this->collectionCache->get($collection->getId(), function () use ($collection): array {
             $bestPrivacyInParentHierarchy = $collection->getBestPrivacyInParentHierarchy();
             $cUsers = [];
             $cGroups = [];

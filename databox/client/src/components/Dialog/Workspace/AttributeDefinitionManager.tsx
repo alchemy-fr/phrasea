@@ -37,6 +37,7 @@ import {NO_LOCALE} from '../../Media/Asset/Attribute/AttributesEditor.tsx';
 import LastErrorsList from './LastErrorsList.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';
+import {useAttributeDefinitionStore} from '../../../store/attributeDefinitionStore.ts';
 
 function Item({
     usedFormSubmit,
@@ -333,14 +334,28 @@ export default function AttributeDefinitionManager({
 }: Props) {
     const {t} = useTranslation();
 
+    const {addDefinition, updateDefinition} = useAttributeDefinitionStore(
+        s => ({
+            addDefinition: s.addDefinition,
+            updateDefinition: s.updateDefinition,
+        })
+    );
+
     const handleSave = async (data: AttributeDefinition) => {
         if (data.id) {
-            return await putAttributeDefinition(data.id, data);
+            const d = await putAttributeDefinition(data.id, data);
+            updateDefinition(d);
+
+            return d;
         } else {
-            return await postAttributeDefinition({
+            const d = await postAttributeDefinition({
                 ...data,
                 workspace: `/workspaces/${workspace.id}`,
             });
+
+            addDefinition(d);
+
+            return d;
         }
     };
 

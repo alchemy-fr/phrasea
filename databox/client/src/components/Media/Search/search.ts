@@ -6,6 +6,7 @@ const arraySep = ',';
 
 export enum BuiltInFilter {
     Collection = '@collection',
+    Rendition = '@rendition',
     Privacy = '@privacy',
     Workspace = '@workspace',
     Owner = '@owner',

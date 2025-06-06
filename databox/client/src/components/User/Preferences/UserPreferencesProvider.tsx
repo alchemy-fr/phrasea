@@ -18,7 +18,7 @@ export default function UserPreferencesProvider({children}: Props) {
 
     const preferences = useUserPreferencesStore(s => s.preferences);
     const loadPreferences = useUserPreferencesStore(s => s.load);
-    const isLoading = useUserPreferencesStore(s => s.isLoading);
+    const isLoading = useUserPreferencesStore(s => s.loading);
     const setCurrentAttrList = useAttributeListStore(s => s.setCurrent);
 
     React.useEffect(() => {

@@ -24,6 +24,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
             ['0,0', '0,0'],
             ['0.0,0.01', '0,0.01'],
             ['0.00099999991,0.01', '0.001,0.01'],
+            ['0.00099999991 0.01', '0.001,0.01'],
             [null, null],
             ['', null],
             [' ', null],

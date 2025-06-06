@@ -67,10 +67,6 @@ services:
             $signingKey: '%env(APP_SECRET)%'
             $ttl: 86400
 
-    App\Elasticsearch\Mapping\ElasticsearchClient:
-        arguments:
-            $client: '@fos_elastica.client'
-
     App\Elasticsearch\Mapping\IndexSyncState:
         arguments:
             $configManager: '@fos_elastica.config_manager'

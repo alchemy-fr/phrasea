@@ -28,7 +28,7 @@ class ESMappingValidateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $returnCode = 0;
+        $returnCode = Command::SUCCESS;
         foreach ([
             'collection',
             'asset',
