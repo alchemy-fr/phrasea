@@ -31,3 +31,13 @@ FROM quay.io/keycloak/keycloak:26.1.2 AS keycloak
 ENV KC_SPI_THEME_DEFAULT=phrasea
 
 COPY --from=builder /opt/keycloak /opt/keycloak
+
+USER root
+
+RUN chown -R 1000:1000 /opt/keycloak/themes/phrasea
+
+USER 1000
+
+COPY entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

@@ -5,11 +5,13 @@
 .login-pf body {
     background-size: cover;
     height: 100%;
-    background: #f1f1f1;
+    background: ##KC_LOGIN_CSS_BACKGROUND##;
 }
 
 #kc-header-wrapper {
+    color: #2e0c0c;
     padding: 40px 10px 20px;
+    background: ##KC_LOGIN_CSS_LOGO_BACKGROUND##;
 }
 
 .login-pf-header {
@@ -221,9 +223,8 @@ hr {
 }
 
 div.kc-logo-text {
-    background-image: url("../../img/logo.png");
-    background-repeat: no-repeat;
-    height: 63px;
+    background: none; /* to override default keycloak logo when the class exist from the displayname html*/
+    height: 35px;
     width: 300px;
     margin: 0 auto;
 }
