@@ -24,7 +24,7 @@
             <script>
                 var redirectUrl = '${client.getAttribute("redirectAfterPasswordUpdate")!}';
                 if (!redirectUrl) {
-                    redirectUrl = '${properties['env.keycloakRedirectUrl']}'; // Default value
+                    redirectUrl = '${properties['env.DASHBOARD_CLIENT_URL']}'; // Default value
                 }
                 setTimeout(function() {
                     window.location.replace(redirectUrl);
