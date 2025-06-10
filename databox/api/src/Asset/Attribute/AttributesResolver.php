@@ -31,7 +31,7 @@ readonly class AttributesResolver
     {
         /** @var Attribute[] $attributes */
         $attributes = $this->em->getRepository(Attribute::class)
-            ->getAssetAttributes($asset->getId());
+            ->getCachedAssetAttributes($asset->getId());
 
         $index = $this->buildIndex($attributes);
         $this->resolveFallbacks($asset, $index);

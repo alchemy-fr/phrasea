@@ -43,7 +43,6 @@ readonly class IndexSyncState
         ]);
 
         return $state?->getMapping();
-
     }
 
     public function getCurrentConfigMapping(string $indexName): array

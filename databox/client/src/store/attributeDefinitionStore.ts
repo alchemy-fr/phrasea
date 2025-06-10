@@ -3,6 +3,7 @@ import {
     AttributeDefinition,
     AttributeEntity,
     Collection,
+    RenditionDefinition,
     Tag,
     User,
     Workspace,
@@ -15,22 +16,40 @@ import PrivacyWidget from '../components/Form/PrivacyWidget.tsx';
 import TagSelect from '../components/Form/TagSelect.tsx';
 import AttributeEntitySelect from '../components/Form/AttributeEntitySelect.tsx';
 import UserSelect from '../components/Form/UserSelect.tsx';
+import RenditionDefinitionSelect from '../components/Form/RenditionDefinitionSelect.tsx';
 
 export type AttributeDefinitionsIndex = Record<string, AttributeDefinition>;
 
 type State = {
     definitions: AttributeDefinition[];
-    definitionsIndex: AttributeDefinitionsIndex;
     loaded: boolean;
     loading: boolean;
     load: (t: TFunction, force?: boolean) => Promise<void>;
+    updateDefinition: (definition: AttributeDefinition) => void;
+    addDefinition: (definition: AttributeDefinition) => void;
 };
 
 export const useAttributeDefinitionStore = create<State>((set, getState) => ({
     loaded: false,
     loading: false,
     definitions: [],
-    definitionsIndex: {},
+
+    updateDefinition: definition => {
+        const state = getState();
+        const definitions = state.definitions.map(d =>
+            d.id === definition.id ? definition : d
+        );
+        set({
+            definitions,
+        });
+    },
+
+    addDefinition: definition => {
+        const state = getState();
+        set({
+            definitions: [...state.definitions, definition],
+        });
+    },
 
     load: async (t, force) => {
         const state = getState();
@@ -65,15 +84,9 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
                         : d
                 )
             );
-            const index: AttributeDefinitionsIndex = {};
-
-            for (const def of data) {
-                index[def.searchSlug] = def;
-            }
 
             set({
                 definitions: data,
-                definitionsIndex: index,
                 loading: false,
                 loaded: true,
             });
@@ -158,6 +171,23 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                     },
                 },
                 getValueFromAsset: asset => asset.tags,
+            },
+            {
+                slug: BuiltInFilter.Rendition,
+                fieldType: AttributeType.Rendition,
+                entityIri: 'rendition-definitions',
+                resolveLabel: (entity: RenditionDefinition) =>
+                    entity.nameTranslated ?? entity.name ?? '',
+                searchable: true,
+                sortable: true,
+                multiple: true,
+                name: t('built_in_attr.rendition', 'Rendition'),
+                widget: {
+                    component: RenditionDefinitionSelect,
+                    props: {
+                        useIRI: false,
+                    },
+                },
             },
             {
                 slug: BuiltInFilter.EditedAt,

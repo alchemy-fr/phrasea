@@ -7,8 +7,15 @@ namespace App\Elasticsearch\Listener;
 use App\Elasticsearch\AssetPermissionComputer;
 use App\Entity\Core\Attribute;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 
+#[AsEventListener(KernelEvents::TERMINATE, method: 'reset', priority: -5)]
+#[AsEventListener(ConsoleEvents::TERMINATE, method: 'reset', priority: -5)]
+#[AsEventListener(WorkerMessageHandledEvent::class, method: 'reset', priority: -5)]
 final class AttributePostTransformListener implements EventSubscriberInterface
 {
     private ?array $lastAssetPermissions = null;
@@ -43,5 +50,10 @@ final class AttributePostTransformListener implements EventSubscriberInterface
         return [
             PostTransformEvent::class => 'hydrateDocument',
         ];
+    }
+
+    public function reset(): void
+    {
+        $this->lastAssetPermissions = null;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Core\File;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -71,7 +72,7 @@ class FileCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield ArrayField::new('alternateUrls')
             ->hideOnIndex();
-        yield TextField::new('metadata')
+        yield JsonField::new('metadata')
             ->onlyOnDetail();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();

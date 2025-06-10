@@ -119,5 +119,6 @@ export enum AttributeType {
     Textarea = 'textarea',
     WebVtt = 'web_vtt',
     Workspace = 'workspace',
+    Rendition = 'rendition',
     User = 'user',
 }

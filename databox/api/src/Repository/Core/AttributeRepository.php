@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository\Core;
 
+use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\EntityAttributeType;
@@ -12,10 +13,19 @@ use App\Entity\Core\Attribute;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 
-class AttributeRepository extends ServiceEntityRepository implements AttributeRepositoryInterface
+#[AsEventListener(KernelEvents::TERMINATE, method: 'reset', priority: -5)]
+#[AsEventListener(ConsoleEvents::TERMINATE, method: 'reset', priority: -5)]
+#[AsEventListener(WorkerMessageHandledEvent::class, method: 'reset', priority: -5)]
+class AttributeRepository extends ServiceEntityRepository
 {
+    private array $attributeCache = [];
+
     public function __construct(
         ManagerRegistry $registry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
@@ -54,7 +64,7 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
             ->getResult();
     }
 
-    public function getAssetAttributes(string $assetId): array
+    private function getAssetAttributes(string $assetId): array
     {
         $queryBuilder = $this
             ->createQueryBuilder('a')
@@ -75,6 +85,15 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
         return $queryBuilder
             ->getQuery()
             ->getResult();
+    }
+
+    public function getCachedAssetAttributes(string $assetId): array
+    {
+        if (isset($this->attributeCache[$assetId])) {
+            return $this->attributeCache[$assetId];
+        }
+
+        return $this->attributeCache[$assetId] = $this->getAssetAttributes($assetId);
     }
 
     /**
@@ -123,7 +142,7 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
 
     private function restrictTranslatableFields(QueryBuilder $queryBuilder, $rootAlias = 'a'): void
     {
-        $queryBuilder->andWhere(sprintf('d.translatable = true OR %s.locale IS NULL', $rootAlias));
+        $queryBuilder->andWhere(sprintf('d.translatable = true OR %1$s.locale IS NULL OR %1$s.locale = \'%2$s\'', $rootAlias, AttributeInterface::NO_LOCALE));
     }
 
     public function deleteByAttributeEntity(string $entityId, string $workspaceId, string $entityListId): void
@@ -150,5 +169,10 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
             ->setParameter('id', $entityId)
             ->getQuery()
             ->execute();
+    }
+
+    public function reset(): void
+    {
+        $this->attributeCache = [];
     }
 }

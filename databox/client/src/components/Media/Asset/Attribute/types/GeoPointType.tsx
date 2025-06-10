@@ -58,6 +58,8 @@ export default class GeoPointType extends TextType {
 
                 return (
                     <OpenStreetMap
+                        width={300}
+                        height={200}
                         center={position}
                         zoom={13}
                         scrollWheelZoom={false}
@@ -72,7 +74,7 @@ export default class GeoPointType extends TextType {
             case Formats.Coords:
                 return (
                     <>
-                        {lng}, {lat}
+                        Longitude: {lng}, Latitude: {lat}
                     </>
                 );
         }

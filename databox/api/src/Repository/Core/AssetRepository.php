@@ -73,12 +73,12 @@ class AssetRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function getESQueryBuilder(): QueryBuilder
+    public function getESQueryBuilder(string $alias = 't'): QueryBuilder
     {
         return $this
-            ->createQueryBuilder('t')
-            ->addOrderBy('t.createdAt', 'DESC')
-            ->addOrderBy('t.id', 'ASC')
+            ->createQueryBuilder($alias)
+            ->addOrderBy($alias.'.createdAt', 'DESC')
+            ->addOrderBy($alias.'.id', 'ASC')
         ;
     }
 }

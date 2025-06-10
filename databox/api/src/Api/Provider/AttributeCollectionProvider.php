@@ -14,7 +14,7 @@ class AttributeCollectionProvider extends AbstractAssetFilteredCollectionProvide
         $asset = $this->getAsset($context);
 
         return $this->em->getRepository(Attribute::class)
-            ->getAssetAttributes($asset->getId())
+            ->getCachedAssetAttributes($asset->getId())
         ;
     }
 }

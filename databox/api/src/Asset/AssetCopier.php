@@ -112,7 +112,7 @@ class AssetCopier
 
             if ($options[self::OPT_WITH_ATTRIBUTES] ?? false) {
                 $attributes = $this->em->getRepository(Attribute::class)
-                    ->getAssetAttributes($asset->getId());
+                    ->getCachedAssetAttributes($asset->getId());
 
                 foreach ($attributes as $attr) {
                     $this->copyAttribute($attr, $copy);
