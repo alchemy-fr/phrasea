@@ -145,11 +145,7 @@ export default function EntityListManager({
             itemComponent={Item}
             manageItemComponent={ManageItem}
             listComponent={ListItem}
-            load={() =>
-                getEntityLists({
-                    workspace: workspace.id,
-                }).then(r => r.result)
-            }
+            load={() => getEntityLists(workspace.id).then(r => r.result)}
             workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}

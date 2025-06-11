@@ -6,18 +6,19 @@ const arraySep = ',';
 
 export enum BuiltInFilter {
     Collection = '@collection',
-    Rendition = '@rendition',
-    Privacy = '@privacy',
-    Workspace = '@workspace',
-    Owner = '@owner',
-    Tag = '@tag',
     CreatedAt = '@createdAt',
     EditedAt = '@editedAt',
-    Score = '@score',
-    FileType = '@type',
     FileMimeType = '@mimetype',
-    FileSize = '@size',
     FileName = '@filename',
+    FileSize = '@size',
+    FileType = '@type',
+    Id = '@id',
+    Owner = '@owner',
+    Privacy = '@privacy',
+    Rendition = '@rendition',
+    Score = '@score',
+    Tag = '@tag',
+    Workspace = '@workspace',
 }
 
 function encodeSortBy(sortBy: SortBy): string {

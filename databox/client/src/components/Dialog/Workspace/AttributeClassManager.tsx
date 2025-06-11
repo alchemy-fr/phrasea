@@ -94,9 +94,11 @@ function ListItem({data}: DefinitionItemProps<AttributeClass>) {
     const publicLabel = data.public
         ? t('chip.public', 'Public')
         : t('chip.private', 'Private');
-    const editableLabel = data.editable
-        ? t('chip.editable', 'Editable')
-        : t('chip.read_only', 'Read only');
+    const editableLabel = data.public
+        ? data.editable
+            ? t('chip.editable', 'Editable')
+            : t('chip.read_only', 'Read only')
+        : undefined;
 
     return (
         <ListItemText
@@ -111,11 +113,13 @@ function ListItem({data}: DefinitionItemProps<AttributeClass>) {
                         label={publicLabel}
                         size={'small'}
                     />{' '}
-                    <Chip
-                        color={data.editable ? 'success' : 'error'}
-                        label={editableLabel}
-                        size={'small'}
-                    />
+                    {editableLabel ? (
+                        <Chip
+                            color={data.editable ? 'success' : 'error'}
+                            label={editableLabel}
+                            size={'small'}
+                        />
+                    ) : null}
                 </>
             }
         />

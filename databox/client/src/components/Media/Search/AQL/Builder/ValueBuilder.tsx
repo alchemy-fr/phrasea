@@ -74,10 +74,10 @@ export default function ValueBuilder({
             }
 
             let num: number | undefined = NaN;
-            if (matchesNumber(value)) {
-                num = parseInt(value, 10);
-            } else if (matchesFloat(value)) {
+            if (matchesFloat(value)) {
                 num = parseFloat(value);
+            } else if (matchesNumber(value)) {
+                num = parseInt(value, 10);
             } else if (
                 value.length >= 2 &&
                 value[0] === '"' &&

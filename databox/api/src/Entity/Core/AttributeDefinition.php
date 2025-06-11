@@ -159,7 +159,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     private ?string $name = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
-    #[Gedmo\Slug(fields: ['name'], style: 'lower', unique: false, separator: '')]
+    #[Gedmo\Slug(fields: ['name'], updatable: false, style: 'lower', unique: false, separator: '')]
     private ?string $slug = null;
 
     /**

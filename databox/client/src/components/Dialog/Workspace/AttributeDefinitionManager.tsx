@@ -1,5 +1,10 @@
 import React from 'react';
-import {AttributeClass, AttributeDefinition, Workspace} from '../../../types';
+import {
+    AttributeClass,
+    AttributeDefinition,
+    EntityList,
+    Workspace,
+} from '../../../types';
 import {
     AttributeType,
     deleteAttributeDefinition,
@@ -38,6 +43,7 @@ import LastErrorsList from './LastErrorsList.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';
 import {useAttributeDefinitionStore} from '../../../store/attributeDefinitionStore.ts';
+import EntityListSelect from '../../Form/EntityListSelect.tsx';
 
 function Item({
     usedFormSubmit,
@@ -47,6 +53,8 @@ function Item({
     onItemUpdate,
 }: DefinitionItemFormProps<AttributeDefinition>) {
     const {t} = useTranslation();
+
+    const isNew = !data.id;
 
     const {
         register,
@@ -101,17 +109,22 @@ function Item({
                 </TranslatedField>
                 <FormFieldErrors field={'name'} errors={errors} />
             </FormRow>
-            <FormRow>
-                <TextField
-                    label={t('form.attribute_definition.slug.label', 'Slug')}
-                    {...register('slug')}
-                    disabled={submitting}
-                    inputProps={{
-                        readOnly: true,
-                    }}
-                />
-                <FormFieldErrors field={'slug'} errors={errors} />
-            </FormRow>
+            {!isNew && (
+                <FormRow>
+                    <TextField
+                        label={t(
+                            'form.attribute_definition.slug.label',
+                            'Slug'
+                        )}
+                        {...register('slug')}
+                        disabled={submitting}
+                        inputProps={{
+                            readOnly: true,
+                        }}
+                    />
+                    <FormFieldErrors field={'slug'} errors={errors} />
+                </FormRow>
+            )}
             <FormRow>
                 <FormGroup>
                     <FormLabel>
@@ -141,13 +154,18 @@ function Item({
             </FormRow>
             {fieldType === AttributeType.Entity ? (
                 <FormRow>
-                    <TextField
-                        label={t(
+                    <FormLabel>
+                        {t(
                             'form.attribute_definition.entityList.label',
                             'Entity List'
                         )}
-                        {...register('entityList')}
+                    </FormLabel>
+                    <EntityListSelect
+                        useIRI={true}
                         disabled={submitting}
+                        name={'entityList'}
+                        control={control}
+                        workspaceId={workspace.id}
                     />
                     <FormFieldErrors field={'entityList'} errors={errors} />
                 </FormRow>
@@ -321,6 +339,7 @@ function createNewItem(): Partial<AttributeDefinition> {
         suggest: false,
         fieldType: AttributeType.Text,
         class: null,
+        entityList: null,
         enabled: true,
     };
 }
@@ -386,5 +405,8 @@ function normalizeData(data: AttributeDefinition) {
     return {
         ...data,
         class: data.class ? (data.class as AttributeClass)['@id'] : null,
+        entityList: data.entityList
+            ? (data.entityList as EntityList)['@id']
+            : null,
     };
 }

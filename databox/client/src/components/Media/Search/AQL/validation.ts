@@ -100,12 +100,7 @@ function validateConditionType(
                     AQLOperator.STARTS_WITH,
                     AQLOperator.NOT_STARTS_WITH,
                 ].includes(op) &&
-                ![
-                    RawType.Keyword,
-                    RawType.String,
-                    RawType.Date,
-                    RawType.DateTime,
-                ].includes(rawType)
+                ![RawType.Keyword, RawType.String].includes(rawType)
             ) {
                 if (rawType === RawType.Id) {
                     throwTypeError('ID');
@@ -116,9 +111,7 @@ function validateConditionType(
 
             if (
                 [AQLOperator.MATCHES, AQLOperator.NOT_MATCHES].includes(op) &&
-                ![RawType.String, RawType.Date, RawType.DateTime].includes(
-                    rawType
-                )
+                ![RawType.String].includes(rawType)
             ) {
                 if (rawType === RawType.Id) {
                     throwTypeError('ID');

@@ -43,6 +43,7 @@ export default function ItemForm<D extends DefinitionBase>({
                 );
                 const n = normalizeData ? normalizeData(newData) : newData;
                 onItemUpdate(n);
+                reset(n);
 
                 return n;
             } finally {
@@ -54,7 +55,7 @@ export default function ItemForm<D extends DefinitionBase>({
         },
     });
 
-    const {remoteErrors, forbidNavigation} = usedFormSubmit;
+    const {remoteErrors, forbidNavigation, reset} = usedFormSubmit;
 
     useDirtyFormPrompt(Boolean(item) && forbidNavigation);
 
