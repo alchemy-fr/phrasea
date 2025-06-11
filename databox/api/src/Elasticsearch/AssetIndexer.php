@@ -15,7 +15,9 @@ final readonly class AssetIndexer
 {
     public function __construct(
         #[Autowire(service: 'fos_elastica.object_persister.asset')]
-        private ObjectPersisterInterface $objectPersister,
+        private ObjectPersisterInterface $assetObjectPersister,
+        #[Autowire(service: 'fos_elastica.object_persister.attribute')]
+        private ObjectPersisterInterface $attributeObjectPersister,
         private AttributeRepository $attributeRepository,
         private AssetPermissionComputer $assetPermissionComputer,
         private AssetRepository $assetRepository,
@@ -51,7 +53,10 @@ final readonly class AssetIndexer
             $this->assetPermissionComputer->clearAssetCache();
 
             $attributes = $this->attributeRepository->getCachedAssetAttributes($asset->getId());
-            $this->objectPersister->insertMany([$asset, ...$attributes]);
+            $this->assetObjectPersister->replaceMany([$asset]);
+            if (!empty($attributes)) {
+                $this->attributeObjectPersister->replaceMany($attributes);
+            }
 
             $progressBar->advance();
         }
