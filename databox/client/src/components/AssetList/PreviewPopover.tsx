@@ -1,4 +1,4 @@
-import {useCallback, useContext, useState} from 'react';
+import {useContext} from 'react';
 import {Asset} from '../../types';
 import {Box, Paper, Popper, Stack, useTheme} from '@mui/material';
 import FilePlayer from '../Media/Asset/FilePlayer';
@@ -23,24 +23,20 @@ export default function PreviewPopover({
     zIndex = ZIndex.assetPreview,
 }: Props) {
     const relativeSize = 50;
-    const [anchor, setAnchor] = useState<HTMLElement>();
     const width = getRelativeViewWidth(relativeSize);
     const height = getRelativeViewHeight(relativeSize);
     const {previewLocked} = useContext(DisplayContext)!;
     const theme = useTheme();
     const padding = 1;
     const spacingInt = parseInt(theme.spacing(padding));
-
-    const onLoad = useCallback(() => {
-        setAnchor(anchorEl);
-    }, [anchorEl]);
+    const previewWidth = displayAttributes ? width / 2 : width;
 
     return (
         <Popper
             keepMounted={true}
-            open={Boolean(anchor && asset && anchor === anchorEl)}
+            open={Boolean(asset && anchorEl)}
             placement="bottom"
-            anchorEl={anchor || null}
+            anchorEl={anchorEl}
             sx={{
                 pointerEvents: !previewLocked ? 'none' : undefined,
                 zIndex,
@@ -91,19 +87,18 @@ export default function PreviewPopover({
                                 justifyContent: 'center',
                                 flexFlow: 'row nowrap',
                                 alignItems: 'center',
-                                minWidth: '50%',
                                 backgroundColor: getMediaBackgroundColor(theme),
+                                width: previewWidth,
                             }}
                         >
                             <FilePlayer
                                 key={asset.id}
                                 file={asset.preview!.file!}
                                 dimensions={{
-                                    width: width / 2,
+                                    width: previewWidth,
                                     height: height - spacingInt * 2,
                                 }}
                                 title={asset.resolvedTitle}
-                                onLoad={onLoad}
                                 noInteraction={!previewLocked}
                                 controls={previewLocked}
                                 autoPlayable={true}
@@ -112,6 +107,7 @@ export default function PreviewPopover({
                         {displayAttributes && (
                             <Box
                                 sx={{
+                                    'width': previewWidth,
                                     'maxHeight': height - spacingInt * 2,
                                     'overflowY': previewLocked
                                         ? 'auto'

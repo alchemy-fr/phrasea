@@ -60,6 +60,7 @@ class AddToAttributeListProcessor implements ProcessorInterface
 
         foreach ($data->items as $i) {
             $item = new AttributeListItem();
+            $item->setDisplayEmpty(true);
             $item->setList($attributeList);
             $item->setType($i->type);
             $item->setPosition($position++);
