@@ -2,7 +2,7 @@ import apiClient from './api-client';
 import {EntityList} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 
-const entityTypeNS = '/entity-lists';
+export const entityTypeNS = '/entity-lists';
 
 type EntityListOptions = {
     query?: string;
@@ -10,11 +10,13 @@ type EntityListOptions = {
 };
 
 export async function getEntityLists(
-    options: EntityListOptions
+    workspaceId: string,
+    options?: EntityListOptions
 ): Promise<ApiCollectionResponse<EntityList>> {
     const res = await apiClient.get(entityTypeNS, {
         params: {
-            ...options,
+            ...(options ?? {}),
+            workspace: workspaceId,
             [`order[value]`]: 'asc',
         },
     });

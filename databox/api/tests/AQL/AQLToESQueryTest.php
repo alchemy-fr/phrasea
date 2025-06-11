@@ -348,6 +348,14 @@ class AQLToESQueryTest extends TestCase
                     ],
                 ],
             ],
+            [
+                'date CONTAINS "2023-10-01"',
+                'Operator "CONTAINS" not supported for field type "date"',
+            ],
+            [
+                'date START WITH "2023-10-01"',
+                'Operator "STARTS_WITH" not supported for field type "date"',
+            ],
         ];
     }
 }

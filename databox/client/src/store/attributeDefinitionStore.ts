@@ -107,6 +107,14 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 name: t('built_in_attr.score', 'Score'),
             },
             {
+                slug: BuiltInFilter.Id,
+                fieldType: AttributeType.Id,
+                sortable: true,
+                searchable: true,
+                name: t('built_in_attr.id', 'ID'),
+                getValueFromAsset: asset => asset.id,
+            },
+            {
                 slug: BuiltInFilter.Collection,
                 entityIri: 'collections',
                 resolveLabel: (entity: Collection) =>

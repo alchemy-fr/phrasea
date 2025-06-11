@@ -5,8 +5,12 @@ namespace App\Elasticsearch\AQL;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
+use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\DateTimeAttributeType;
+use App\Attribute\Type\GeoPointAttributeType;
 use App\Attribute\Type\KeywordAttributeType;
+use App\Attribute\Type\NumberAttributeType;
+use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AQL\Function\AQLFunctionInterface;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AQL\Function\Argument;
@@ -114,6 +118,8 @@ final readonly class AQLToESQuery
             throw new BadRequestHttpException(sprintf('Unsupported operator "%s"', $data['operator']));
         }
 
+        $this->validateOperator($operator, $type->getName());
+
         if (null !== $type->getElasticSearchRawField() && in_array($operator, $strictOperators, true)) {
             $fieldName .= '.'.$type->getElasticSearchRawField();
         } elseif (null !== $type->getElasticSearchTextSubField() && in_array($operator, $strictOperators + [
@@ -167,6 +173,52 @@ final readonly class AQLToESQuery
             ConditionOperatorEnum::STARTS_WITH, ConditionOperatorEnum::NOT_STARTS_WITH => $this->wrapInNotQuery((new Query\Prefix())->setPrefix($fieldRaw, $value), ConditionOperatorEnum::NOT_STARTS_WITH === $operator),
             default => throw new BadRequestHttpException(sprintf('Operator "%s" not implemented', $operator->value)),
         };
+    }
+
+    private function validateOperator(ConditionOperatorEnum $operator, string $fieldType): void
+    {
+        $gt = [
+            NumberAttributeType::NAME,
+            DateAttributeType::NAME,
+            DateTimeAttributeType::getName(),
+        ];
+
+        $text = [
+            TextAttributeType::NAME,
+            KeywordAttributeType::NAME,
+        ];
+
+        $geo = [
+            GeoPointAttributeType::NAME,
+        ];
+
+        $operatorSupportedTypes = [
+            ConditionOperatorEnum::EQUALS->value => null,
+            ConditionOperatorEnum::NOT_EQUALS->value => null,
+            ConditionOperatorEnum::GT->value => $gt,
+            ConditionOperatorEnum::GTE->value => $gt,
+            ConditionOperatorEnum::LT->value => $gt,
+            ConditionOperatorEnum::LTE->value => $gt,
+            ConditionOperatorEnum::IN->value => null,
+            ConditionOperatorEnum::NOT_IN->value => null,
+            ConditionOperatorEnum::EXISTS->value => null,
+            ConditionOperatorEnum::MISSING->value => null,
+            ConditionOperatorEnum::BETWEEN->value => $gt,
+            ConditionOperatorEnum::NOT_BETWEEN->value => $gt,
+            ConditionOperatorEnum::MATCHES->value => $text,
+            ConditionOperatorEnum::NOT_MATCHES->value => $text,
+            ConditionOperatorEnum::CONTAINS->value => $text,
+            ConditionOperatorEnum::NOT_CONTAINS->value => $text,
+            ConditionOperatorEnum::STARTS_WITH->value => $text,
+            ConditionOperatorEnum::NOT_STARTS_WITH->value => $text,
+            ConditionOperatorEnum::WITHIN_CIRCLE->value => $geo,
+            ConditionOperatorEnum::WITHIN_RECTANGLE->value => $geo,
+        ];
+
+        $supportedTypes = $operatorSupportedTypes[$operator->value] ?? null;
+        if (null !== $supportedTypes && !in_array($fieldType, $supportedTypes, true)) {
+            throw new BadRequestHttpException(sprintf('Operator "%s" not supported for field type "%s"', $operator->value, $fieldType));
+        }
     }
 
     private function createRangeParams(array $values, AttributeTypeInterface $attributeType): array

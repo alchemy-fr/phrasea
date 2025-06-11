@@ -118,6 +118,7 @@ function Item({
                     </FormLabel>
                     <RenditionDefinitionSelect
                         disabled={submitting}
+                        useIRI={true}
                         name={'parent'}
                         control={control}
                         workspaceId={workspace.id}

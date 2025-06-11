@@ -66,5 +66,5 @@ export function matchesInt(value: string): boolean {
 }
 
 export function matchesFloat(value: string): boolean {
-    return value.match(/^\d+([.,]\d+)?$/) !== null;
+    return value.match(/^\d+([.,]\d+)$/) !== null;
 }
