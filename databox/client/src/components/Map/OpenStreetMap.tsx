@@ -22,7 +22,7 @@ export default function OpenStreetMap({
                 'position': 'relative',
                 'zIndex': 0,
                 '.leaflet-container': {
-                    width,
+                    minWidth: width,
                     height,
                 },
             }}

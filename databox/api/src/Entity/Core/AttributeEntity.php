@@ -167,6 +167,10 @@ class AttributeEntity extends AbstractUuidEntity
 
     public function getSynonyms(): ?array
     {
+        if (empty($this->synonyms)) {
+            return null;
+        }
+
         return $this->synonyms;
     }
 
