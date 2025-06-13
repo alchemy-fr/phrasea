@@ -85,6 +85,11 @@ class AttributeDefinitionInput
     /**
      * @var bool
      */
+    public $editable;
+
+    /**
+     * @var bool
+     */
     public $allowInvalid;
 
     /**
