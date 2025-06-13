@@ -131,7 +131,6 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     final public const string GROUP_READ = 'attrdef:read';
     final public const string GROUP_LIST = 'attrdef:index';
 
-    private const string OPT_EDITABLE = 'editable';
     private const string OPT_EDITABLE_IN_GUI = 'gui-edit';
 
     /**
@@ -199,6 +198,9 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $suggest = false;
+
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    private bool $editable = true;
 
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $searchBoost = null;
@@ -508,12 +510,12 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
 
     public function setEditable(bool $editable): void
     {
-        $this->options[self::OPT_EDITABLE] = $editable;
+        $this->editable = $editable;
     }
 
     public function isEditable(): bool
     {
-        return $this->options[self::OPT_EDITABLE] ?? true;
+        return $this->editable;
     }
 
     public function setEditableInGui(bool $editable): void

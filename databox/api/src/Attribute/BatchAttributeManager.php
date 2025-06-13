@@ -176,6 +176,9 @@ class BatchAttributeManager
                     }
 
                     if ($definition) {
+                        if (!$definition->isEditable()) {
+                            throw new BadRequestHttpException(sprintf('Attribute "%s" is not editable in action #%d', $definition->getSlug(), $i));
+                        }
                         $changedAttributeDefinitions[$definition->getId()] = true;
                     } else {
                         $changedAttributeDefinitions['*'] = true;
@@ -271,6 +274,7 @@ class BatchAttributeManager
                                     ->select('ad.id')
                                     ->from(AttributeDefinition::class, 'ad')
                                     ->andWhere('ad.workspace = :ws')
+                                    ->andWhere('ad.editable = true')
                                     ->setParameter('ws', $workspaceId);
                                 if ($user instanceof JwtUser) {
                                     $sub
@@ -440,6 +444,7 @@ class BatchAttributeManager
                 $qb
                     ->innerJoin('a.definition', 'ad')
                     ->innerJoin('ad.class', 'ac')
+                    ->andWhere('ad.editable = true')
                     ->andWhere('ac.public = true OR ace.id IS NOT NULL');
                 $this->joinUserAcl($qb, $user);
             }

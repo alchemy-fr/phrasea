@@ -374,6 +374,8 @@ function createNewItem(): Partial<AttributeDefinition> {
         searchable: true,
         sortable: false,
         suggest: false,
+        editable: true,
+        editableInGui: true,
         fieldType: AttributeType.Text,
         class: null,
         entityList: null,
