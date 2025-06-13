@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "sync": "npx novu@2.6.6 sync --bridge-url=${NOVU_BRIDGE_URL}/api/novu --secret-key=${NOVU_SECRET_KEY} --api-url=${NOVU_API_URL}"
+    "sync": "npx novu@2.6.6 sync --bridge-url=${NOVU_BRIDGE_URL}/api/novu --secret-key=${NOVU_SECRET_KEY} --api-url=${NOVU_API_URL}",
+    "lint:fix": "next lint --fix",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+    "cs": "pnpm lint:fix"
   },
   "dependencies": {
     "@novu/framework": "latest",
