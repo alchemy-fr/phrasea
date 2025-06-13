@@ -122,6 +122,8 @@ export interface AttributeDefinition extends IPermissions, Entity {
     entityList?: EntityList | string | null | undefined;
     multiple: boolean;
     searchable: boolean;
+    editable: boolean;
+    editableInGui: boolean;
     sortable: boolean;
     suggest: boolean;
     translatable: boolean;

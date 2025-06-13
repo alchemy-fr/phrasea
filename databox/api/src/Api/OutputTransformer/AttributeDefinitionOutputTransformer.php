@@ -61,6 +61,8 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         }
         $output->key = $data->getKey();
         $output->labels = $data->getLabels();
+        $output->editable = $data->isEditable();
+        $output->editableInGui = $data->isEditableInGui();
         $output->canEdit = $data->getClass()->isEditable()
             || $this->isGranted(PermissionInterface::EDIT, $data->getClass());
         $output->position = $data->getPosition();

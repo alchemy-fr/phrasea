@@ -201,6 +201,30 @@ function Item({
             <FormRow>
                 <CheckboxWidget
                     label={t(
+                        'form.attribute_definition.editable.label',
+                        'Editable'
+                    )}
+                    control={control}
+                    name={'editable'}
+                    disabled={submitting}
+                />
+                <FormFieldErrors field={'editable'} errors={errors} />
+            </FormRow>
+            <FormRow>
+                <CheckboxWidget
+                    label={t(
+                        'form.attribute_definition.editableInGui.label',
+                        'Editable in GUI'
+                    )}
+                    control={control}
+                    name={'editableInGui'}
+                    disabled={submitting}
+                />
+                <FormFieldErrors field={'editableInGui'} errors={errors} />
+            </FormRow>
+            <FormRow>
+                <CheckboxWidget
+                    label={t(
                         'form.attribute_definition.sortable.label',
                         'Sortable'
                     )}
