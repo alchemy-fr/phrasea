@@ -201,6 +201,18 @@ function Item({
             <FormRow>
                 <CheckboxWidget
                     label={t(
+                        'form.attribute_definition.sortable.label',
+                        'Sortable'
+                    )}
+                    control={control}
+                    name={'sortable'}
+                    disabled={submitting}
+                />
+                <FormFieldErrors field={'sortable'} errors={errors} />
+            </FormRow>
+            <FormRow>
+                <CheckboxWidget
+                    label={t(
                         'form.attribute_definition.suggest.label',
                         'Display in search suggestions'
                     )}
@@ -336,6 +348,7 @@ function createNewItem(): Partial<AttributeDefinition> {
         translatable: false,
         allowInvalid: false,
         searchable: true,
+        sortable: false,
         suggest: false,
         fieldType: AttributeType.Text,
         class: null,

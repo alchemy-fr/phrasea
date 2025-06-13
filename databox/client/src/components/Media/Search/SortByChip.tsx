@@ -11,7 +11,8 @@ type Props = {
 
 export default function SortByChip({definition, sortBy}: Props) {
     if (!definition) {
-        throw new Error(`Missing definition for ${sortBy.a}`);
+        console.warn(`Missing definition for ${sortBy.a}`);
+        return null;
     }
 
     return (

@@ -26,10 +26,6 @@ export default function SortByRow({sortBy, definition, onChange}: Props) {
     const {t} = useTranslation();
     const isDesc = sortBy.w === 1;
 
-    if (!definition) {
-        throw new Error(`Missing definition for ${sortBy.a}`);
-    }
-
     const {
         attributes,
         listeners,
@@ -40,6 +36,11 @@ export default function SortByRow({sortBy, definition, onChange}: Props) {
     } = useSortable({
         id: sortBy.id,
     });
+
+    if (!definition) {
+        console.warn(`Missing definition for ${sortBy.a}`);
+        return null;
+    }
 
     const style = {
         transform: CSS.Transform.toString(transform),

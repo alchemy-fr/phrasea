@@ -86,33 +86,12 @@ export default function WorkspaceDialog({}: Props) {
                     enabled: data.capabilities.canEdit,
                 },
                 {
-                    title: t('workspace.manage.tag_rules.title', 'Tag rules'),
-                    component: TagRulesTab,
-                    id: 'tag-rules',
-                    props: {
-                        data,
-                    },
-                    enabled: data.capabilities.canEdit,
-                },
-                {
                     title: t(
                         'workspace.manage.attribute_entity.title',
                         'Entities'
                     ),
                     component: EntityListManager,
                     id: 'entities',
-                    props: {
-                        data,
-                    },
-                    enabled: data.capabilities.canEdit,
-                },
-                {
-                    title: t(
-                        'workspace.manage.attribute_class.title',
-                        'Attribute classes'
-                    ),
-                    component: AttributeClassManager,
-                    id: 'attribute-classes',
                     props: {
                         data,
                     },
@@ -132,11 +111,11 @@ export default function WorkspaceDialog({}: Props) {
                 },
                 {
                     title: t(
-                        'workspace.manage.integrations.title',
-                        'Integrations'
+                        'workspace.manage.rendition_definition.title',
+                        'Renditions'
                     ),
-                    component: IntegrationManager,
-                    id: 'integrations',
+                    component: RenditionDefinitionManager,
+                    id: 'rendition-definitions',
                     props: {
                         data,
                     },
@@ -156,11 +135,32 @@ export default function WorkspaceDialog({}: Props) {
                 },
                 {
                     title: t(
-                        'workspace.manage.rendition_definition.title',
-                        'Renditions'
+                        'workspace.manage.attribute_class.title',
+                        'Attribute classes'
                     ),
-                    component: RenditionDefinitionManager,
-                    id: 'rendition-definitions',
+                    component: AttributeClassManager,
+                    id: 'attribute-classes',
+                    props: {
+                        data,
+                    },
+                    enabled: data.capabilities.canEdit,
+                },
+                {
+                    title: t(
+                        'workspace.manage.integrations.title',
+                        'Integrations'
+                    ),
+                    component: IntegrationManager,
+                    id: 'integrations',
+                    props: {
+                        data,
+                    },
+                    enabled: data.capabilities.canEdit,
+                },
+                {
+                    title: t('workspace.manage.tag_rules.title', 'Tag rules'),
+                    component: TagRulesTab,
+                    id: 'tag-rules',
                     props: {
                         data,
                     },
