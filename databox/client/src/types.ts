@@ -18,6 +18,7 @@ export interface File extends Entity {
     type: string;
     alternateUrls: AlternateUrl[];
     size: number;
+    metadata?: Record<string, any>;
 }
 
 export type GroupValue = {
