@@ -55,7 +55,7 @@ export default function AttributeRowUI({
 
     const valueFormatterProps = {
         value: multiple
-            ? (attribute as Attribute[]).map(a => a.value)
+            ? ((attribute as Attribute[] | undefined) ?? []).map(a => a.value)
             : (attribute as Attribute)?.value,
         highlight: multiple ? undefined : (attribute as Attribute)?.highlight,
         locale,

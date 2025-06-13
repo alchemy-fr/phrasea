@@ -23,6 +23,7 @@ class FileOutput extends AbstractUuidOutput
      */
     #[Groups([File::GROUP_LIST,
         File::GROUP_READ,
+        File::GROUP_METADATA,
         Asset::GROUP_LIST,
         Asset::GROUP_READ,
         AssetRendition::GROUP_LIST,
@@ -32,6 +33,7 @@ class FileOutput extends AbstractUuidOutput
 
     #[Groups([File::GROUP_LIST,
         File::GROUP_READ,
+        File::GROUP_METADATA,
         Asset::GROUP_LIST,
         Asset::GROUP_READ,
         AssetRendition::GROUP_LIST,
@@ -43,10 +45,13 @@ class FileOutput extends AbstractUuidOutput
      */
     #[Groups([File::GROUP_LIST,
         File::GROUP_READ,
+        File::GROUP_METADATA,
         Asset::GROUP_LIST,
         Asset::GROUP_READ,
         AssetRendition::GROUP_LIST,
-        AssetFileVersion::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
+        AssetFileVersion::GROUP_LIST,
+        Share::GROUP_PUBLIC_READ,
+    ])]
     private ?string $url = null;
 
     /**
@@ -58,6 +63,9 @@ class FileOutput extends AbstractUuidOutput
         Asset::GROUP_READ,
         AssetRendition::GROUP_LIST])]
     private ?array $alternateUrls = [];
+
+    #[Groups([File::GROUP_METADATA])]
+    public ?array $metadata = null;
 
     public function getUrl(): ?string
     {

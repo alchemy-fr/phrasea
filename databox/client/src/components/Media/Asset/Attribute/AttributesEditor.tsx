@@ -69,6 +69,10 @@ export default function AttributesEditor({
             {Object.keys(definitions).map(defId => {
                 const d = definitions[defId];
 
+                if (!d.editable || !d.editableInGui) {
+                    return null;
+                }
+
                 return (
                     <Box
                         key={defId}

@@ -91,6 +91,12 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->multiple) {
             $object->setMultiple($data->multiple);
         }
+        if (null !== $data->editable) {
+            $object->setEditable($data->editable);
+        }
+        if (null !== $data->editableInGui) {
+            $object->setEditableInGui($data->editableInGui);
+        }
         if (null !== $data->name) {
             $object->setName($data->name);
         }

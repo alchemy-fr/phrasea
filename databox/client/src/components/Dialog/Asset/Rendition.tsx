@@ -14,6 +14,10 @@ import LockIcon from '@mui/icons-material/Lock';
 import AspectRatioIcon from '@mui/icons-material/AspectRatio';
 import CropRotateIcon from '@mui/icons-material/CropRotate';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
+import InfoIcon from '@mui/icons-material/Info';
+import IconButton from '@mui/material/IconButton';
+import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
+import {modalRoutes} from '../../../routes.ts';
 
 type Props = {
     asset: Asset;
@@ -32,6 +36,7 @@ export function Rendition({
 }: Props) {
     const {t} = useTranslation();
     const [deleting, setDeleting] = React.useState(false);
+    const navigateToModal = useNavigateToModal();
 
     const deleteRendition = async () => {
         setDeleting(true);
@@ -135,6 +140,22 @@ export function Rendition({
                         ) : (
                             ''
                         )}
+                        <IconButton
+                            sx={{
+                                ml: 1,
+                            }}
+                            onClick={() => {
+                                navigateToModal(
+                                    modalRoutes.files.routes.manage,
+                                    {
+                                        tab: 'metadata',
+                                        id: file!.id,
+                                    }
+                                );
+                            }}
+                        >
+                            <InfoIcon />
+                        </IconButton>
                     </div>
                 )
             }

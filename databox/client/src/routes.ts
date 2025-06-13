@@ -11,6 +11,7 @@ import BasketViewDialog from './components/Basket/BasketViewDialog';
 import AttributeEditorView from './components/AttributeEditor/AttributeEditorView.tsx';
 import SharePage from './pages/SharePage.tsx';
 import AttributeListDialog from './components/Dialog/AttributeList/AttributeListDialog.tsx';
+import FileDialog from './components/Dialog/File/FileDialog.tsx';
 
 const modalRoutes = {
     workspaces: {
@@ -72,6 +73,16 @@ const modalRoutes = {
             view: {
                 path: ':renditionId',
                 component: AssetView,
+            },
+        },
+    },
+    files: {
+        public: false,
+        path: '/files/:id',
+        routes: {
+            manage: {
+                path: 'manage/:tab',
+                component: FileDialog,
             },
         },
     },

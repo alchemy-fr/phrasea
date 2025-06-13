@@ -26,6 +26,9 @@ class AttributeVoter extends AbstractVoter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $attributeDefinition = $subject->getDefinition();
+        if (!$attributeDefinition->isEditable()) {
+            return false;
+        }
 
         return match ($attribute) {
             self::READ => $this->security->isGranted(self::READ, $subject->getAsset())
