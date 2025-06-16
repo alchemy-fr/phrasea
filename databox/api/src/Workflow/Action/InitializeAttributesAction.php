@@ -21,6 +21,11 @@ readonly class InitializeAttributesAction implements ActionInterface
     ) {
     }
 
+    private function hashAttributeValue(Attribute $attribute): string
+    {
+        return hash('sha256', $attribute->getValue());
+    }
+
     public function handle(RunContext $context): void
     {
         $inputs = $context->getInputs();
@@ -32,12 +37,56 @@ readonly class InitializeAttributesAction implements ActionInterface
             throw new \InvalidArgumentException(sprintf('%s %s not found', Workspace::class, $asset->getWorkspaceId()));
         }
 
-        $attributes = $this->initialValueResolver->resolveInitialAttributes($asset);
+        /** @var array<string, array<string, Attribute>> $assetAttributes */
+        $assetAttributes = [];
 
         /** @var Attribute $attribute */
-        foreach ($attributes as $attribute) {
-            $this->em->persist($attribute);
+        foreach ($asset->getAttributes() as $attribute) {
+            $defId = $attribute->getDefinition()->getId();
+            $assetAttributes[$defId] ??= [];
+            if (!array_key_exists($this->hashAttributeValue($attribute), $assetAttributes[$defId])) {
+                $assetAttributes[$defId][$this->hashAttributeValue($attribute)] = $attribute;
+            } else {
+                // existing double, fix
+                $this->em->remove($attribute);
+            }
         }
+
+        $assetAttributesCleaned = [];
+        /** @var Attribute $attribute */
+        foreach ($this->initialValueResolver->resolveInitialAttributes($asset) as $attribute) {
+            $defId = $attribute->getDefinition()->getId();
+            $isMono = !$attribute->getDefinition()->isMultiple();
+
+            $assetAttributes[$defId] ??= [];
+            if (!array_key_exists($defId, $assetAttributesCleaned)) {
+                $nMono = 0;
+                foreach ($assetAttributes[$defId] ?? [] as $k => $assetAttribute) {
+                    // remove /initial/ values and repair mono that contains multiple values (keep only the first one)
+                    if (Attribute::ORIGIN_INITIAL === $assetAttribute->getOrigin() || ($isMono && $nMono++ > 0)) {
+                        $this->em->remove($assetAttribute);
+                        $assetAttributes[$defId][$k] = null;
+                    }
+                }
+                $assetAttributes[$defId] = array_filter($assetAttributes[$defId], function ($a) {
+                    return null !== $a;
+                });
+                $assetAttributesCleaned[$defId] = true;
+            }
+
+            if ($isMono) {
+                if (empty($assetAttributes[$defId])) {
+                    $this->em->persist($attribute);
+                    $assetAttributes[$defId][$this->hashAttributeValue($attribute)] = $attribute;
+                }
+            } else {
+                if (!array_key_exists($this->hashAttributeValue($attribute), $assetAttributes[$defId])) {
+                    $this->em->persist($attribute);
+                    $assetAttributes[$defId][$this->hashAttributeValue($attribute)] = $attribute;
+                }
+            }
+        }
+
         $this->em->flush();
     }
 }
