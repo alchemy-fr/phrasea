@@ -83,6 +83,12 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         yield BooleanField::new('searchable')
             ->hideOnIndex()
             ->renderAsSwitch(false);
+        yield BooleanField::new('editable')
+            ->hideOnIndex()
+            ->renderAsSwitch(false);
+        yield BooleanField::new('editableInGui')
+            ->hideOnIndex()
+            ->renderAsSwitch(false);
         yield BooleanField::new('suggest')
             ->hideOnIndex()
             ->renderAsSwitch(false);

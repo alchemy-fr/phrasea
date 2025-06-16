@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class FileOutputTransformer implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
+    use GroupsHelperTrait;
 
     private array $cache = [];
 
@@ -40,6 +41,10 @@ class FileOutputTransformer implements OutputTransformerInterface
         $output->setId($data->getId());
         $output->setType($data->getType());
         $output->setSize((int) $data->getSize());
+
+        if ($this->hasGroup(File::GROUP_METADATA, $context)) {
+            $output->metadata = $data->getMetadata();
+        }
 
         if ($data->isPathPublic()) {
             $output->setUrl($this->fileUrlResolver->resolveUrl($data));

@@ -12,6 +12,7 @@ import {getAttributeEntities} from '../../api/attributeEntity.ts';
 import {useModals} from '@alchemy/navigation';
 import CreateAttributeEntityDialog from '../AttributeEntity/CreateAttributeEntityDialog.tsx';
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
+import {getBestTranslatedValue} from '@alchemy/i18n/src/Locale/localeHelper';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
@@ -66,7 +67,7 @@ export default function AttributeEntitySelect<
 
             return {
                 value: t.id,
-                label: t.value,
+                label: getBestTranslatedValue(t.translations, t.value),
                 item: t,
             };
         });
