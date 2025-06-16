@@ -33,28 +33,32 @@ export default function Operations({data, onClose, minHeight}: Props) {
 
     return (
         <ContentTab onClose={onClose} minHeight={minHeight}>
-            <CollectionMoveSection
-                collection={data}
-                onMoved={() => {
-                    onClose();
-                }}
-            />
-            <FormSection>
-                <Alert
-                    color={'error'}
-                    sx={{
-                        mb: 2,
+            {data.capabilities.canEdit && (
+                <CollectionMoveSection
+                    collection={data}
+                    onMoved={() => {
+                        onClose();
                     }}
-                >
-                    {t('danger_zone', 'Danger zone')}
-                </Alert>
-                <Typography variant={'h2'} sx={{mb: 1}}>
-                    {t('collection_delete.title', 'Delete collection')}
-                </Typography>
-                <Button onClick={deleteConfirmCollection} color={'error'}>
-                    {t('collection_delete.title', 'Delete collection')}
-                </Button>
-            </FormSection>
+                />
+            )}
+            {data.capabilities.canDelete && (
+                <FormSection>
+                    <Alert
+                        color={'error'}
+                        sx={{
+                            mb: 2,
+                        }}
+                    >
+                        {t('danger_zone', 'Danger zone')}
+                    </Alert>
+                    <Typography variant={'h2'} sx={{mb: 1}}>
+                        {t('collection_delete.title', 'Delete collection')}
+                    </Typography>
+                    <Button onClick={deleteConfirmCollection} color={'error'}>
+                        {t('collection_delete.title', 'Delete collection')}
+                    </Button>
+                </FormSection>
+            )}
         </ContentTab>
     );
 }
