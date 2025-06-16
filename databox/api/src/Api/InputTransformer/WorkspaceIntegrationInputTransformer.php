@@ -20,6 +20,8 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
+        $this->validator->validate($data, $context);
+
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var WorkspaceIntegration $object */
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new WorkspaceIntegration();

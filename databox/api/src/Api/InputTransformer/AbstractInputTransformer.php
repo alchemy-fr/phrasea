@@ -6,6 +6,7 @@ namespace App\Api\InputTransformer;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Exception\ItemNotFoundException;
+use ApiPlatform\Validator\ValidatorInterface;
 use App\Api\EntityIriConverter;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\CollectionInput;
@@ -22,6 +23,7 @@ abstract class AbstractInputTransformer implements InputTransformerInterface
 
     protected EntityManagerInterface $em;
     protected EntityIriConverter $entityIriConverter;
+    protected ValidatorInterface $validator;
 
     protected function transformPrivacy(AssetInput|CollectionInput $data, Asset|Collection $object): void
     {
@@ -63,5 +65,11 @@ abstract class AbstractInputTransformer implements InputTransformerInterface
     public function setEntityIriConverter(EntityIriConverter $entityIriConverter): void
     {
         $this->entityIriConverter = $entityIriConverter;
+    }
+
+    #[Required]
+    public function setValidator(ValidatorInterface $validator): void
+    {
+        $this->validator = $validator;
     }
 }
