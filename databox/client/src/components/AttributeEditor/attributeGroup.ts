@@ -1,5 +1,5 @@
 import {Asset, AttributeDefinition, StateSetter, Tag} from '../../types.ts';
-import React from 'react';
+import React, {useRef} from 'react';
 import {
     AttributeDefinitionIndex,
     AttributesCommit,
@@ -52,6 +52,7 @@ export function useAttributeValues<T>({
     const [inc, setInc] = React.useState(0);
     const [definitionIndex, setDefinitionIndex] =
         React.useState<AttributeDefinitionIndex>({});
+    const saved = useRef(false);
 
     const createToKey = React.useCallback<CreateToKeyFunc<any>>(
         (fieldType: AttributeType) => {
@@ -434,11 +435,14 @@ export function useAttributeValues<T>({
             actions,
             definitionIndex,
             workspaceId: assets[0].workspace.id,
-            onSaved,
+            onSaved: () => {
+                saved.current = true;
+                onSaved();
+            },
         });
     }, [index, initialIndex, definitionIndex, onSaved]);
 
-    useDirtyFormPrompt(history.current > 0, modalIndex);
+    useDirtyFormPrompt(!saved && history.current > 0, modalIndex);
 
     return {
         attributeDefinitions: finalAttributeDefinitions,

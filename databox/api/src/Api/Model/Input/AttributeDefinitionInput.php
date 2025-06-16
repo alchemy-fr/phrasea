@@ -80,6 +80,16 @@ class AttributeDefinitionInput
     /**
      * @var bool
      */
+    public $editableInGui;
+
+    /**
+     * @var bool
+     */
+    public $editable;
+
+    /**
+     * @var bool
+     */
     public $allowInvalid;
 
     /**

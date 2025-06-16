@@ -8,8 +8,10 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use App\Api\Model\Output\FileOutput;
 use App\Entity\Traits\WorkspaceTrait;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -17,6 +19,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     shortName: 'file',
     operations: [
+        new Get(
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
+        ),
+        new Get(
+            uriTemplate: '/files/{id}/metadata',
+            normalizationContext: ['groups' => [File::GROUP_METADATA]],
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
+            name: 'file_metadata',
+        ),
     ],
     normalizationContext: [
         'groups' => [File::GROUP_LIST],
@@ -32,9 +43,10 @@ class File extends AbstractUuidEntity implements \Stringable
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
-    final public const string GROUP_READ = 'file:read';
-    final public const string GROUP_LIST = 'file:index';
-    final public const string GROUP_WRITE = 'file:write';
+    final public const string GROUP_READ = 'file:r';
+    final public const string GROUP_LIST = 'file:i';
+    final public const string GROUP_METADATA = 'file:m';
+    final public const string GROUP_WRITE = 'file:w';
     final public const string STORAGE_S3_MAIN = 's3_main';
     final public const string STORAGE_URL = 'url';
 

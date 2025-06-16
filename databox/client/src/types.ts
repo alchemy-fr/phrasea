@@ -18,6 +18,7 @@ export interface File extends Entity {
     type: string;
     alternateUrls: AlternateUrl[];
     size: number;
+    metadata?: Record<string, any>;
 }
 
 export type GroupValue = {
@@ -122,6 +123,8 @@ export interface AttributeDefinition extends IPermissions, Entity {
     entityList?: EntityList | string | null | undefined;
     multiple: boolean;
     searchable: boolean;
+    editable: boolean;
+    editableInGui: boolean;
     sortable: boolean;
     suggest: boolean;
     translatable: boolean;

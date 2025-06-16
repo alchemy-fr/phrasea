@@ -131,6 +131,8 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     final public const string GROUP_READ = 'attrdef:read';
     final public const string GROUP_LIST = 'attrdef:index';
 
+    private const string OPT_EDITABLE_IN_GUI = 'gui-edit';
+
     /**
      * Override trait for annotation.
      */
@@ -197,6 +199,9 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $suggest = false;
 
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    private bool $editable = true;
+
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $searchBoost = null;
 
@@ -220,6 +225,9 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $labels = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $options = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
@@ -498,6 +506,26 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         }
 
         $this->enabled = $enabled;
+    }
+
+    public function setEditable(bool $editable): void
+    {
+        $this->editable = $editable;
+    }
+
+    public function isEditable(): bool
+    {
+        return $this->editable;
+    }
+
+    public function setEditableInGui(bool $editable): void
+    {
+        $this->options[self::OPT_EDITABLE_IN_GUI] = $editable;
+    }
+
+    public function isEditableInGui(): bool
+    {
+        return $this->options[self::OPT_EDITABLE_IN_GUI] ?? true;
     }
 
     #[Assert\Callback]

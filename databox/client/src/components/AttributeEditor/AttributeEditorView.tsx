@@ -8,11 +8,11 @@ import AttributeEditorLoader from './AttributeEditorLoader.tsx';
 type Props = {};
 
 export default function AttributeEditorView({}: Props) {
-    const {state} = useLocation();
+    const {state, search} = useLocation();
     const closeDrawer = useCloseModal();
 
     React.useEffect(() => {
-        if (!state?.selection) {
+        if (search.includes('_m') && !state?.selection) {
             closeDrawer({
                 replace: true,
             });
