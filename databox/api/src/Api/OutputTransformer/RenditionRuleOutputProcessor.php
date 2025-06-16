@@ -4,20 +4,13 @@ declare(strict_types=1);
 
 namespace App\Api\OutputTransformer;
 
-use Alchemy\AuthBundle\Repository\GroupRepositoryInterface;
-use Alchemy\AuthBundle\Repository\UserRepositoryInterface;
-use App\Api\Model\Output\GroupOutput;
 use App\Api\Model\Output\RenditionRuleOutput;
-use App\Api\Model\Output\UserOutput;
 use App\Entity\Core\RenditionRule;
 
-readonly class RenditionRuleOutputProcessor implements OutputTransformerInterface
+class RenditionRuleOutputProcessor implements OutputTransformerInterface
 {
-    public function __construct(
-        private UserRepositoryInterface $userRepository,
-        private GroupRepositoryInterface $groupRepository,
-    ) {
-    }
+    use UserOutputTransformerTrait;
+    use GroupOutputTransformerTrait;
 
     public function supports(string $outputClass, object $data): bool
     {
@@ -34,18 +27,10 @@ readonly class RenditionRuleOutputProcessor implements OutputTransformerInterfac
         $output->setCreatedAt($data->getCreatedAt());
         if (RenditionRule::TYPE_USER === $data->getUserType()) {
             $output->setUserId($data->getUserId());
-            $user = $this->userRepository->getUser($data->getUserId());
-            $userOutput = new UserOutput();
-            $userOutput->id = $user['id'];
-            $userOutput->username = $user['username'];
-            $output->user = $userOutput;
+            $output->user = $this->transformUser($data->getUserId());
         } elseif (RenditionRule::TYPE_GROUP === $data->getUserType()) {
             $output->setGroupId($data->getUserId());
-            $group = $this->groupRepository->getGroup($data->getUserId());
-            $groupOutput = new GroupOutput();
-            $groupOutput->id = $group['id'];
-            $groupOutput->name = $group['name'];
-            $output->group = $groupOutput;
+            $output->group = $this->transformGroup($data->getUserId());
         }
 
         if (RenditionRule::TYPE_COLLECTION === $data->getObjectType()) {

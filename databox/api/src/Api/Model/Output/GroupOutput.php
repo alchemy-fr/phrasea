@@ -13,4 +13,7 @@ final class GroupOutput
 
     #[Groups(['_'])]
     public ?string $name = null;
+
+    #[Groups(['_'])]
+    public ?bool $removed = false;
 }
