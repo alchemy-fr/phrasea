@@ -42,7 +42,7 @@ final class Version20250415153255 extends AbstractMigration implements Migration
     {
         $this->keycloakManager->putRealm([
             'displayName' => 'Phrasea Auth',
-            'displayNameHtml' => '<div class="kc-logo-text"><span>Phrasea Auth</span></div>',
+            'displayNameHtml' => getenv('KC_REALM_HTML_DISPLAY_NAME') ?: '<div class="kc-logo-text"><span>Phrasea Auth</span></div>',
             'registrationAllowed' => $this->getBooleanEnv('KC_REALM_LOGIN_REGISTRATION_ALLOWED', false),
             'resetPasswordAllowed' => $this->getBooleanEnv('KC_REALM_LOGIN_RESET_PASSWORD_ALLOWED', true),
             'rememberMe' => $this->getBooleanEnv('KC_REALM_LOGIN_REMEMBER_ME_ALLOWED', true),
