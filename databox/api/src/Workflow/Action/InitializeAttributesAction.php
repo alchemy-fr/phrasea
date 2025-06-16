@@ -60,10 +60,8 @@ readonly class InitializeAttributesAction implements ActionInterface
 
             $assetAttributes[$defId] ??= [];
             if (!array_key_exists($defId, $assetAttributesCleaned)) {
-                $nMono = 0;
-                foreach ($assetAttributes[$defId] ?? [] as $k => $assetAttribute) {
-                    // remove /initial/ values and repair mono that contains multiple values (keep only the first one)
-                    if (Attribute::ORIGIN_INITIAL === $assetAttribute->getOrigin() || ($isMono && $nMono++ > 0)) {
+                foreach ($assetAttributes[$defId] as $k => $assetAttribute) {
+                    if (Attribute::ORIGIN_INITIAL === $assetAttribute->getOrigin()) {
                         $this->em->remove($assetAttribute);
                         $assetAttributes[$defId][$k] = null;
                     }
