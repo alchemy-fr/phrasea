@@ -515,6 +515,11 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         $this->attributes->add($attribute);
     }
 
+    public function getAttributes(): DoctrineCollection
+    {
+        return $this->attributes;
+    }
+
     /**
      * @return AssetRendition[]
      */

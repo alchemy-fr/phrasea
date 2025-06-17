@@ -32,12 +32,21 @@ readonly class InitializeAttributesAction implements ActionInterface
             throw new \InvalidArgumentException(sprintf('%s %s not found', Workspace::class, $asset->getWorkspaceId()));
         }
 
-        $attributes = $this->initialValueResolver->resolveInitialAttributes($asset);
+        /** @var array<string, bool> $assetAttributesExists */
+        $assetAttributesExists = [];
 
         /** @var Attribute $attribute */
-        foreach ($attributes as $attribute) {
-            $this->em->persist($attribute);
+        foreach ($asset->getAttributes() as $attribute) {
+            $assetAttributesExists[$attribute->getDefinition()->getId()] = true;
         }
+
+        /** @var Attribute $attribute */
+        foreach ($this->initialValueResolver->resolveInitialAttributes($asset) as $attribute) {
+            if (!isset($assetAttributesExists[$attribute->getDefinition()->getId()])) {
+                $this->em->persist($attribute);
+            }
+        }
+
         $this->em->flush();
     }
 }
