@@ -42,7 +42,7 @@ readonly class InitializeAttributesAction implements ActionInterface
 
         /** @var Attribute $attribute */
         foreach ($this->initialValueResolver->resolveInitialAttributes($asset) as $attribute) {
-            if (!in_array($attribute->getDefinition()->getId(), $assetAttributesExists)) {
+            if (!isset($assetAttributesExists[$attribute->getDefinition()->getId()])) {
                 file_put_contents('/tmp/meta.log', sprintf("%s (%d) %s\n", __FILE__, __LINE__, $attribute->getValue()), FILE_APPEND);
                 $this->em->persist($attribute);
             }
