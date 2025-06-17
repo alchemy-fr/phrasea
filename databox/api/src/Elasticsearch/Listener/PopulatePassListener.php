@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Listener;
 
+use Alchemy\ESBundle\Service\IndexRemover;
 use App\Elasticsearch\Mapping\IndexSyncState;
 use App\Entity\Admin\PopulatePass;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,12 +21,15 @@ class PopulatePassListener implements EventSubscriberInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly IndexSyncState $indexSyncState,
+        private readonly IndexRemover $indexRemover,
     ) {
     }
 
     public function preIndexPopulate(PreIndexPopulateEvent $event): void
     {
         $indexName = $event->getIndex();
+
+        $this->cleanOrphanIndex($indexName);
 
         $currentPopulate = $this->em->getRepository(PopulatePass::class)->findOneBy([
             'endedAt' => null,
@@ -92,6 +96,16 @@ class PopulatePassListener implements EventSubscriberInterface
         $populatePass->setEndedAt(new \DateTimeImmutable());
         $this->em->persist($populatePass);
         $this->em->flush();
+
+        $this->cleanOrphanIndex($indexName);
+    }
+
+    private function cleanOrphanIndex(string $indexName): void
+    {
+        $this->indexRemover->removeIndices(
+            $indexName,
+            oldsOnly: true,
+        );
     }
 
     private function getPass(string $indexName): PopulatePass
@@ -99,6 +113,7 @@ class PopulatePassListener implements EventSubscriberInterface
         /** @var PopulatePass $populatePass */
         $populatePass = $this->em->find(PopulatePass::class, $this->pendingPasses[$indexName]);
         if (null === $populatePass) {
+            $this->cleanOrphanIndex($indexName);
             // Pass has been deleted/cancelled
             throw new \RuntimeException('Populate cancelled');
         }
