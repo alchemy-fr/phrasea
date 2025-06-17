@@ -104,7 +104,9 @@ export default function CollectionDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled:
+                        data.capabilities.canEdit ||
+                        data.capabilities.canDelete,
                 },
                 {
                     title: t('collection.manage.es_doc.title', 'ES Document'),
