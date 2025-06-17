@@ -30,6 +30,14 @@ export default class DateType extends TextType {
         return value;
     }
 
+    normalize(value: string | undefined): string | undefined {
+        if (value) {
+            value = moment(value).local(true).format();
+        }
+
+        return value;
+    }
+
     getAvailableFormats(): AvailableFormat[] {
         return [
             {
