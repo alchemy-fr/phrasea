@@ -81,7 +81,7 @@ function Attributes({
             const props = {
                 id: item.id,
                 type: item.type,
-                format: item.format,
+                format: item.format || undefined,
             };
 
             if (item.type === AttributeListItemType.Definition) {
