@@ -21,11 +21,6 @@ readonly class InitializeAttributesAction implements ActionInterface
     ) {
     }
 
-    private function hashAttributeValue(Attribute $attribute): string
-    {
-        return hash('sha256', $attribute->getValue());
-    }
-
     public function handle(RunContext $context): void
     {
         $inputs = $context->getInputs();
@@ -37,51 +32,19 @@ readonly class InitializeAttributesAction implements ActionInterface
             throw new \InvalidArgumentException(sprintf('%s %s not found', Workspace::class, $asset->getWorkspaceId()));
         }
 
-        /** @var array<string, array<string, Attribute>> $assetAttributes */
-        $assetAttributes = [];
+        /** @var array<string, bool> $assetAttributesExists */
+        $assetAttributesExists = [];
 
         /** @var Attribute $attribute */
         foreach ($asset->getAttributes() as $attribute) {
-            $defId = $attribute->getDefinition()->getId();
-            $assetAttributes[$defId] ??= [];
-            if (!array_key_exists($this->hashAttributeValue($attribute), $assetAttributes[$defId])) {
-                $assetAttributes[$defId][$this->hashAttributeValue($attribute)] = $attribute;
-            } else {
-                // existing double, fix
-                $this->em->remove($attribute);
-            }
+            $assetAttributesExists[$attribute->getDefinition()->getId()] = true;
         }
 
-        $assetAttributesCleaned = [];
         /** @var Attribute $attribute */
         foreach ($this->initialValueResolver->resolveInitialAttributes($asset) as $attribute) {
-            $defId = $attribute->getDefinition()->getId();
-            $isMono = !$attribute->getDefinition()->isMultiple();
-
-            $assetAttributes[$defId] ??= [];
-            if (!array_key_exists($defId, $assetAttributesCleaned)) {
-                foreach ($assetAttributes[$defId] as $k => $assetAttribute) {
-                    if (Attribute::ORIGIN_INITIAL === $assetAttribute->getOrigin()) {
-                        $this->em->remove($assetAttribute);
-                        $assetAttributes[$defId][$k] = null;
-                    }
-                }
-                $assetAttributes[$defId] = array_filter($assetAttributes[$defId], function ($a) {
-                    return null !== $a;
-                });
-                $assetAttributesCleaned[$defId] = true;
-            }
-
-            if ($isMono) {
-                if (empty($assetAttributes[$defId])) {
-                    $this->em->persist($attribute);
-                    $assetAttributes[$defId][$this->hashAttributeValue($attribute)] = $attribute;
-                }
-            } else {
-                if (!array_key_exists($this->hashAttributeValue($attribute), $assetAttributes[$defId])) {
-                    $this->em->persist($attribute);
-                    $assetAttributes[$defId][$this->hashAttributeValue($attribute)] = $attribute;
-                }
+            if (!in_array($attribute->getDefinition()->getId(), $assetAttributesExists)) {
+                file_put_contents('/tmp/meta.log', sprintf("%s (%d) %s\n", __FILE__, __LINE__, $attribute->getValue()), FILE_APPEND);
+                $this->em->persist($attribute);
             }
         }
 
