@@ -22,14 +22,19 @@ export default function PreviewPopover({
     displayAttributes,
     zIndex = ZIndex.assetPreview,
 }: Props) {
-    const relativeSize = 50;
+    const relativeSize = 70;
+    const previewRatio = 0.7;
     const width = getRelativeViewWidth(relativeSize);
     const height = getRelativeViewHeight(relativeSize);
     const {previewLocked} = useContext(DisplayContext)!;
     const theme = useTheme();
     const padding = 1;
     const spacingInt = parseInt(theme.spacing(padding));
-    const previewWidth = displayAttributes ? width / 2 : width;
+
+    const previewWidth = displayAttributes ? width * previewRatio : width;
+    const attributeWidth = displayAttributes
+        ? width * (1 - previewRatio)
+        : width;
 
     return (
         <Popper
@@ -107,7 +112,7 @@ export default function PreviewPopover({
                         {displayAttributes && (
                             <Box
                                 sx={{
-                                    'width': previewWidth,
+                                    'width': attributeWidth,
                                     'maxHeight': height - spacingInt * 2,
                                     'overflowY': previewLocked
                                         ? 'auto'
