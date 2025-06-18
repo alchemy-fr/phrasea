@@ -79,7 +79,7 @@ export type RenditionInput = {
     source?: Source;
 };
 
-export type RenditionClass = {
+export type RenditionPolicy = {
     id: string;
     name: string;
 };
@@ -94,7 +94,7 @@ export type AttributeDefinition = {
     editable: boolean;
     fieldType: DataboxAttributeType;
     workspace: string;
-    class: string;
+    policy: string;
     translatable: boolean;
     labels?: Labels | undefined;
 };
@@ -108,7 +108,7 @@ export type Tag = {
 
 export type TagInput = string;
 
-export type AttributeClass = {
+export type AttributePolicy = {
     ['@id']: string;
     id: string;
     key?: string | undefined;

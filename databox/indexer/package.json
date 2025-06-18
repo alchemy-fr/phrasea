@@ -16,7 +16,8 @@
     "sync-databox-types": "generate-api-platform-client --generator typescript http://databox-api src/",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
     "lint": "eslint src",
-    "lint:fix": "eslint --fix src"
+    "lint:fix": "eslint --fix src",
+    "cs": "pnpm lint:fix && pnpm format"
   },
   "dependencies": {
     "@alchemy/api": "workspace:*",
