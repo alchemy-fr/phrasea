@@ -7,7 +7,7 @@ import {
 } from './types';
 import {CPhraseanetRecord, CPhraseanetStory} from './CPhraseanetRecord';
 import PhraseanetClient, {ORDER_ASC} from './phraseanetClient';
-import {AttrClassIndex, createAsset, TagIndex} from './shared';
+import {AttrPolicyIndex, createAsset, TagIndex} from './shared';
 import {getConfig, getStrict} from '../../configLoader';
 import {
     concatPath,
@@ -110,17 +110,17 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 workspaceId = await databoxClient.flushWorkspace(workspaceId);
             }
 
-            const attrClassIndex: AttrClassIndex = {};
-            const defaultPublicClass = 'public';
+            const attrPolicyIndex: AttrPolicyIndex = {};
+            const defaultPublicPolicy = 'public';
             const name = 'Phraseanet Public';
-            logger.info(`Creating "${name}" attribute class`);
-            attrClassIndex[defaultPublicClass] =
-                await databoxClient.createAttributeClass(defaultPublicClass, {
+            logger.info(`Creating "${name}" attribute policy`);
+            attrPolicyIndex[defaultPublicPolicy] =
+                await databoxClient.createAttributePolicy(defaultPublicPolicy, {
                     name,
                     public: true,
                     editable: true,
                     workspace: `/workspaces/${workspaceId}`,
-                    key: defaultPublicClass,
+                    key: defaultPublicPolicy,
                 });
 
             logger.info(`Importing metadata structure`);
@@ -132,7 +132,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 dm,
                 fieldMap,
                 idempotencePrefixes,
-                attrClassIndex[defaultPublicClass]['@id'],
+                attrPolicyIndex[defaultPublicPolicy]['@id'],
                 logger
             );
 

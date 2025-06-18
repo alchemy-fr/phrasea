@@ -17,7 +17,7 @@ App\Entity\Core\Collection:
     parent: '@c_m_furniture'
     title: '<ucwords($current)>'
 
-App\Entity\Core\RenditionClass:
+App\Entity\Core\RenditionPolicy:
   m_rc_public:
     workspace: '@w_marketplace'
     name: Public
@@ -31,21 +31,21 @@ App\Entity\Core\RenditionDefinition:
   m_rd_original:
     name: original
     workspace: '@w_marketplace'
-    class: '@m_rc_public'
+    policy: '@m_rc_public'
     buildMode: 1
     useAsOriginal: true
   m_rd_preview:
     name: preview
     workspace: '@w_marketplace'
-    class: '@m_rc_public'
+    policy: '@m_rc_public'
     useAsPreview: true
   m_rd_thumbnail:
     name: thumbnail
     workspace: '@w_marketplace'
-    class: '@m_rc_public'
+    policy: '@m_rc_public'
     useAsThumbnail: true
   m_rd_thumbnailActive:
     name: thumbnailActive
     workspace: '@w_marketplace'
-    class: '@m_rc_public'
+    policy: '@m_rc_public'
     useAsThumbnailActive: true

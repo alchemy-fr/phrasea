@@ -125,9 +125,9 @@
       }
     }
   },
-  "attribute_class": {
+  "attribute_policy": {
     "new": {
-      "label": "New class"
+      "label": "New policy"
     }
   },
   "attribute_definitions": {
@@ -450,7 +450,7 @@
         "item_remove": "Remove"
       }
     },
-    "attribute_class": {
+    "attribute_policy": {
       "editable": {
         "label": "Editable"
       },
@@ -465,7 +465,7 @@
       "allowInvalid": {
         "label": "Allow invalid values"
       },
-      "class": {
+      "policy": {
         "label": "Class"
       },
       "entityList": {
@@ -560,7 +560,7 @@
         }
       }
     },
-    "rendition_class": {
+    "rendition_policy": {
       "name": {
         "label": "Name"
       },
@@ -569,7 +569,7 @@
       }
     },
     "rendition_definition": {
-      "class": {
+      "policy": {
         "label": "Class"
       },
       "definition": {
@@ -788,9 +788,9 @@
     "remove_bg": "Remove BG",
     "use_slider_to_compare": "Use slider to compare"
   },
-  "rendition_class": {
+  "rendition_policy": {
     "new": {
-      "label": "New class"
+      "label": "New policy"
     }
   },
   "rendition_definitions": {
@@ -909,8 +909,8 @@
       "acl": {
         "title": "Permissions"
       },
-      "attribute_class": {
-        "title": "Attribute classes"
+      "attribute_policy": {
+        "title": "Attribute policies"
       },
       "attribute_definitions": {
         "title": "Attributes"
@@ -924,8 +924,8 @@
       "info": {
         "title": "Info"
       },
-      "rendition_class": {
-        "title": "Rendition classes"
+      "rendition_policy": {
+        "title": "Rendition policies"
       },
       "rendition_definition": {
         "title": "Renditions"

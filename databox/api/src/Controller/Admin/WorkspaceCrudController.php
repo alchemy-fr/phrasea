@@ -113,7 +113,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
             ->onlyOnDetail();
         yield AssociationField::new('tags')
             ->onlyOnDetail();
-        yield AssociationField::new('renditionClasses')
+        yield AssociationField::new('renditionPolicies')
             ->onlyOnDetail();
         yield AssociationField::new('renditionDefinitions')
             ->onlyOnDetail();

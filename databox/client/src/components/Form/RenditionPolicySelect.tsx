@@ -1,7 +1,7 @@
 import {useCallback} from 'react';
 import {FieldValues} from 'react-hook-form';
-import {getRenditionClasses, renditionClassNS} from '../../api/rendition';
-import {RenditionClass} from '../../types';
+import {getRenditionPolicies, renditionPolicyNS} from '../../api/rendition';
+import {RenditionPolicy} from '../../types';
 import {
     AsyncRSelectWidget,
     AsyncRSelectProps,
@@ -12,17 +12,16 @@ type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
 } & AsyncRSelectProps<TFieldValues, false>;
 
-export default function RenditionClassSelect<TFieldValues extends FieldValues>({
-    workspaceId,
-    ...rest
-}: Props<TFieldValues>) {
+export default function RenditionPolicySelect<
+    TFieldValues extends FieldValues,
+>({workspaceId, ...rest}: Props<TFieldValues>) {
     const load = useCallback(
         async (inputValue: string): Promise<SelectOption[]> => {
-            const data = await getRenditionClasses(workspaceId);
+            const data = await getRenditionPolicies(workspaceId);
 
             return data.result
-                .map((t: RenditionClass) => ({
-                    value: `${renditionClassNS}/${t.id}`,
+                .map((t: RenditionPolicy) => ({
+                    value: `${renditionPolicyNS}/${t.id}`,
                     label: t.name,
                 }))
                 .filter(i =>

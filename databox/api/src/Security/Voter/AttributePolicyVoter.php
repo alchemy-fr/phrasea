@@ -4,30 +4,30 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use App\Entity\Core\AttributeClass;
+use App\Entity\Core\AttributePolicy;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class AttributeClassVoter extends AbstractVoter
+class AttributePolicyVoter extends AbstractVoter
 {
     final public const string READ_ADMIN = 'READ_ADMIN';
 
     public static function getScopePrefix(): string
     {
-        return 'attribute-class:';
+        return 'attribute-policy:';
     }
 
     protected function supports(string $attribute, $subject): bool
     {
-        return $subject instanceof AttributeClass;
+        return $subject instanceof AttributePolicy;
     }
 
     public function supportsType(string $subjectType): bool
     {
-        return is_a($subjectType, AttributeClass::class, true);
+        return is_a($subjectType, AttributePolicy::class, true);
     }
 
     /**
-     * @param AttributeClass $subject
+     * @param AttributePolicy $subject
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {

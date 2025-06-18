@@ -31,7 +31,7 @@ export type ConfigPhraseanetSubdef = {
     useAsOriginal?: boolean;
     useAsThumbnailActive?: boolean;
     buildMode?: number;
-    class?: string;
+    policy?: string;
     parent?: string | null;
     builders: Record<string, ConfigRenditionBuilder>;
 };

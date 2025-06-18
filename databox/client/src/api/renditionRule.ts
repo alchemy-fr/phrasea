@@ -2,21 +2,21 @@ import {CollectionOrWorkspace, RenditionRule, UserType} from '../types';
 import apiClient from './api-client';
 
 export async function getRenditionRules(
-    classId: string,
+    policyId: string,
     params: {} = {}
 ): Promise<RenditionRule[]> {
     return (
         await apiClient.get(`/rendition-rules`, {
             params: {
                 ...params,
-                allowed: classId,
+                allowed: policyId,
             },
         })
     ).data['hydra:member'];
 }
 
 export async function postRenditionRule(
-    classId: string,
+    policyId: string,
     objectType: CollectionOrWorkspace,
     objectId: string,
     userType: UserType,
@@ -34,7 +34,7 @@ export async function postRenditionRule(
                     : undefined,
             userId: userType === UserType.User ? userId : undefined,
             groupId: userType === UserType.Group ? userId : undefined,
-            allowed: [`/rendition-classes/${classId}`],
+            allowed: [`/rendition-policies/${policyId}`],
         })
     ).data;
 }

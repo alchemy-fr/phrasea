@@ -9,9 +9,9 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
-use App\Entity\Core\AttributeClass;
+use App\Entity\Core\AttributePolicy;
 
-class AttributeClassCollectionProvider extends AbstractCollectionProvider
+class AttributePolicyCollectionProvider extends AbstractCollectionProvider
 {
     use SecurityAwareTrait;
 
@@ -27,7 +27,7 @@ class AttributeClassCollectionProvider extends AbstractCollectionProvider
 
         $filters = $context['filters'] ?? [];
 
-        $queryBuilder = $this->em->getRepository(AttributeClass::class)
+        $queryBuilder = $this->em->getRepository(AttributePolicy::class)
             ->createQueryBuilder('t')
             ->innerJoin('t.workspace', 'w');
 

@@ -7,15 +7,15 @@ App\Entity\Core\Workspace:
             - en
             - fr
 
-App\Entity\Core\AttributeClass:
-    attribute_class_n (template):
+App\Entity\Core\AttributePolicy:
+    attribute_policy_n (template):
         workspace: '@w_newspaper'
 
-    n_ac_public (extends attribute_class_n):
+    n_ap_public (extends attribute_policy_n):
         name: Public
         public: true
         editable: true
-    n_ac_business (extends attribute_class_n):
+    n_ap_business (extends attribute_policy_n):
         name: Business field
         public: false
         editable: false
@@ -26,7 +26,7 @@ App\Entity\Core\AttributeDefinition:
 
     ad_desc (extends attribute_definition_n):
         name: Description
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         initialValuesAll: "{\"type\": \"metadata\", \"value\": \"XMP-dc:Description\"}"
         position: 0
     ad_keywords (extends attribute_definition_n):
@@ -34,7 +34,7 @@ App\Entity\Core\AttributeDefinition:
         multiple: true
         facetEnabled: true
         suggest: true
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         initialValuesAll: "{\"type\": \"metadata\", \"value\": \"IPTC:Keywords\"}"
         position: 1
     ad_location (extends attribute_definition_n):
@@ -42,34 +42,34 @@ App\Entity\Core\AttributeDefinition:
         facetEnabled: true
         suggest: true
         fieldType: geo_point
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         position: 1
     ad_author (extends attribute_definition_n):
         name: Author
         multiple: false
         facetEnabled: true
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('IFD0:Artist').value ?? file.metadata('XMP-dc:Creator').value ?? file.metadata('IFD0:Copyright').value ?? file.metadata('IPTC:CopyrightNotice').value }}\"}"
         position: 2
     ad_image_size (extends attribute_definition_n):
         name: Image Size
         multiple: false
         fieldType: number
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('Composite:ImageSize').value }}\"}"
         position: 2
     ad_country (extends attribute_definition_n):
         name: Country
         multiple: false
         facetEnabled: true
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('IPTC:Country-PrimaryLocationName').value ?? file.metadata('XMP-photoshop:Country').value }}\"}"
         position: 2
     ad_city (extends attribute_definition_n):
         name: City
         multiple: false
         facetEnabled: true
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('IPTC:City').value ?? file.metadata('XMP-photoshop:City').value }}\"}"
         position: 3
     ad_creation_date (extends attribute_definition_n):
@@ -77,17 +77,17 @@ App\Entity\Core\AttributeDefinition:
         multiple: false
         fieldType: date
         facetEnabled: false
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('ExifIFD:CreateDate').value ?? file.metadata('IPTC:DateCreated').value ?? file.metadata('IPTC:DigitalCreationDate').value }}\"}"
         position: 4
     ad_admin_note (extends attribute_definition_n):
         name: Admin notes
-        class: '@n_ac_business'
+        policy: '@n_ap_business'
         position: 5
     ad_vtt (extends attribute_definition_n):
         name: WebVTT
         fieldType: code
-        class: '@n_ac_business'
+        policy: '@n_ap_business'
         translatable: true
         position: 6
     ad_date (extends attribute_definition_n):
@@ -95,34 +95,34 @@ App\Entity\Core\AttributeDefinition:
         fieldType: date
         facetEnabled: true
         sortable: true
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         position: 7
     ad_datetime (extends attribute_definition_n):
         name: 'Date & Time'
         fieldType: date_time
         facetEnabled: true
         sortable: true
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         position: 8
     ad_languages (extends attribute_definition_n):
         name: Languages
         facetEnabled: true
         multiple: true
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         position: 9
     ad_watermark (extends attribute_definition_n):
         name: Watermark
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         position: 10
     ad_blurhash (extends attribute_definition_n):
         name: Blurhash
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         position: 10
     ad_ean (extends attribute_definition_n):
         name: EAN
         facetEnabled: true
         suggest: true
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         position: 11
     ad_number (extends attribute_definition_n):
         name: 'Number'
@@ -130,7 +130,7 @@ App\Entity\Core\AttributeDefinition:
         facetEnabled: true
         sortable: true
         suggest: true
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         position: 12
     ad_transport_type (extends attribute_definition_n):
         name: 'Transport Type'
@@ -139,7 +139,7 @@ App\Entity\Core\AttributeDefinition:
         facetEnabled: true
         sortable: true
         suggest: true
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         position: 13
     ad_seasons (extends attribute_definition_n):
         name: 'Seasons'
@@ -149,17 +149,17 @@ App\Entity\Core\AttributeDefinition:
         multiple: true
         sortable: true
         suggest: true
-        class: '@n_ac_public'
+        policy: '@n_ap_public'
         position: 14
 
-App\Entity\Core\RenditionClass:
-    rendition_class_n (template):
+App\Entity\Core\RenditionPolicy:
+    rendition_policy_n (template):
         workspace: '@w_newspaper'
 
-    n_rc_public (extends rendition_class_n):
+    n_rc_public (extends rendition_policy_n):
         name: Public
         public: true
-    n_rc_restricted (extends rendition_class_n):
+    n_rc_restricted (extends rendition_policy_n):
         name: Restricted
         public: false
 
@@ -169,12 +169,12 @@ App\Entity\Core\RenditionDefinition:
 
     n_rd_original (extends rendition_definition_n):
         name: original
-        class: '@n_rc_public'
+        policy: '@n_rc_public'
         buildMode: 1
         useAsOriginal: true
     n_rd_preview (extends rendition_definition_n):
         name: preview
-        class: '@n_rc_public'
+        policy: '@n_rc_public'
         useAsPreview: true
         parent: '@n_rd_original'
         buildMode: 2
@@ -197,7 +197,7 @@ App\Entity\Core\RenditionDefinition:
 
     n_rd_thumbnail (extends rendition_definition_n):
         name: thumbnail
-        class: '@n_rc_public'
+        policy: '@n_rc_public'
         useAsThumbnail: true
         parent: '@n_rd_preview'
         buildMode: 2
@@ -220,7 +220,7 @@ App\Entity\Core\RenditionDefinition:
 
     n_rd_thumbnailActive (extends rendition_definition_n):
         name: thumbnailActive
-        class: '@n_rc_public'
+        policy: '@n_rc_public'
         useAsThumbnailActive: true
         parent: '@n_rd_thumbnail'
 

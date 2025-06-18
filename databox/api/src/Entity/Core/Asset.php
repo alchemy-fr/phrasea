@@ -258,8 +258,8 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     use NotificationSettingsTrait;
     use ExtraMetadataTrait;
 
-    final public const string GROUP_READ = 'asset:read';
-    final public const string GROUP_LIST = 'asset:index';
+    final public const string GROUP_READ = 'asset:r';
+    final public const string GROUP_LIST = 'asset:i';
     final public const string GROUP_WRITE = 'asset:w';
 
     final public const string EVENT_UPDATE = 'update';

@@ -6,7 +6,7 @@ namespace App\Api\Model\Input;
 
 use App\Entity\Core\Workspace;
 
-class AttributeClassInput
+class AttributePolicyInput
 {
     /**
      * @var Workspace

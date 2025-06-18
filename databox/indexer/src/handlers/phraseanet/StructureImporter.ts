@@ -63,14 +63,14 @@ export async function addMissingRenditionsConf(
         original: {
             useAsOriginal: true,
             buildMode: RenditionBuildMode.COPY_ASSET_FILE,
-            class: 'original',
+            policy: 'original',
         } as ConfigPhraseanetSubdef,
     };
 
     for (const sd of subdefs) {
         if (!dm.renditions[sd.name]) {
             dm.renditions[sd.name] = {
-                class: sd.class,
+                policy: sd.class,
                 buildMode: RenditionBuildMode.BUILD_FROM_PARENT,
                 parent: 'original',
                 useAsPreview: sd.name === 'preview' ? true : undefined,
@@ -162,11 +162,11 @@ export async function importSubdefsStructure(
     idempotencePrefixes: Record<string, string>,
     logger: Logger
 ): Promise<Record<string, string[]>> {
-    const classIndex: Record<string, string> = {};
-    const renditionClasses =
-        await databoxClient.getRenditionClasses(workspaceId);
-    renditionClasses.forEach(rc => {
-        classIndex[rc.name] = rc.id;
+    const policyIndex: Record<string, string> = {};
+    const renditionPolicies =
+        await databoxClient.getRenditionPolicies(workspaceId);
+    renditionPolicies.forEach(rc => {
+        policyIndex[rc.name] = rc.id;
     });
 
     const sdByName: Record<
@@ -180,7 +180,7 @@ export async function importSubdefsStructure(
             useAsThumbnail: boolean;
             useAsThumbnailActive: boolean;
             types: Record<string, PhraseanetSubdefStruct>;
-            class: string | null;
+            policy: string | null;
             labels: Record<string, string>;
         }
     > = {};
@@ -211,7 +211,7 @@ export async function importSubdefsStructure(
                 useAsThumbnail: rendition.useAsThumbnail ?? false,
                 useAsThumbnailActive: rendition.useAsThumbnailActive ?? false,
                 types: {} as Record<string, PhraseanetSubdefStruct>,
-                class: rendition['class'] ?? null,
+                policy: rendition['policy'] ?? null,
                 labels: {},
             };
         }
@@ -250,20 +250,20 @@ export async function importSubdefsStructure(
                 subdefToRendition[settings['from']].push(name);
                 sdByName[name].types[sd.type] = sd;
                 sdByName[name].labels = sd.labels; // todo: check conflicts
-                if (!rendition.class) {
+                if (!rendition.policy) {
                     // use phrnet class
-                    if (sdByName[name].class === null) {
-                        sdByName[name].class = sd.class;
+                    if (sdByName[name].policy === null) {
+                        sdByName[name].policy = sd.class;
                     }
                     // sd of same name should have the same class
                     if (
-                        sdByName[name].class !== sd.class &&
-                        sdByName[name].class !== 'mixed'
+                        sdByName[name].policy !== sd.class &&
+                        sdByName[name].policy !== 'mixed'
                     ) {
                         logger.info(
-                            `  Rendition "${name}" gets different class ("${sdByName[sd.name].class}" and "${sd.class}": "mixed" is used)`
+                            `  Rendition "${name}" gets different class ("${sdByName[sd.name].policy}" and "${sd.class}": "mixed" is used)`
                         );
-                        sdByName[name].class = 'mixed';
+                        sdByName[name].policy = 'mixed';
                     }
                 }
             }
@@ -275,24 +275,24 @@ export async function importSubdefsStructure(
     for (const sdName in sdByName) {
         const sd = sdByName[sdName];
 
-        if (!sd.class) {
+        if (!sd.policy) {
             logger.info(
                 `  Rendition definition "${sdName}" has neither "class" or phraseanet "from": using class "public"`
             );
-            sd.class = 'public';
+            sd.policy = 'public';
         }
 
-        if (!classIndex[sd.class]) {
-            logger.info(`  Creating rendition class "${sd.class}" `);
-            classIndex[sd.class] = await databoxClient.createRenditionClass({
-                name: sd.class,
+        if (!policyIndex[sd.policy]) {
+            logger.info(`  Creating rendition policy "${sd.policy}" `);
+            policyIndex[sd.policy] = await databoxClient.createRenditionPolicy({
+                name: sd.policy,
                 workspace: `/workspaces/${workspaceId}`,
                 public: true,
             });
         }
 
         logger.info(
-            `  Creating rendition definition "${sd.name}" of class "${sd.class}"`
+            `  Creating rendition definition "${sd.name}" of class "${sd.policy}"`
         );
         const jsConf: Record<string, object> = {};
         const translators: Record<string, typeof translateImageSettings> = {
@@ -321,7 +321,7 @@ export async function importSubdefsStructure(
                     ? `/rendition-definitions/${renditionIdByName[sd['parent']]}`
                     : null,
                 key: `${idempotencePrefixes['renditionDefinition']}${sd.name}`,
-                class: `/rendition-classes/${classIndex[sd.class]}`,
+                policy: `/rendition-policies/${policyIndex[sd.policy]}`,
                 buildMode: sd.buildMode,
                 useAsOriginal: sd.useAsOriginal,
                 useAsPreview: sd.useAsPreview,
@@ -347,7 +347,7 @@ export async function importMetadataStructure(
     dm: ConfigDataboxMapping,
     fieldMap: Record<string, FieldMap>,
     idempotencePrefixes: Record<string, string>,
-    attrClass: string,
+    attrPolicy: string,
     logger: Logger
 ): Promise<Record<string, FieldMap>> {
     const metaStructure =
@@ -401,7 +401,7 @@ export async function importMetadataStructure(
                 multiple: fm.multivalue,
                 fieldType: attributeTypesEquivalence[fm.type ?? ''] || fm.type,
                 workspace: `/workspaces/${workspaceId}`,
-                class: attrClass,
+                policy: attrPolicy,
                 labels: fm.labels,
                 translatable: fm.translatable,
             };

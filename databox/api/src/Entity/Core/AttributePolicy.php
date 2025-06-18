@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
@@ -14,7 +15,8 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\Provider\RenditionClassCollectionProvider;
+use App\Api\Model\Input\AttributePolicyInput;
+use App\Api\Provider\AttributePolicyCollectionProvider;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
@@ -25,7 +27,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    shortName: 'rendition-class',
+    shortName: 'attribute-policy',
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
@@ -35,52 +37,68 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ],
     normalizationContext: [
-        'groups' => [RenditionClass::GROUP_LIST],
+        'groups' => [AttributePolicy::GROUP_LIST],
     ],
+    input: AttributePolicyInput::class,
     security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
-    provider: RenditionClassCollectionProvider::class,
+    provider: AttributePolicyCollectionProvider::class,
 )]
 #[ORM\Table]
-#[ORM\UniqueConstraint(name: 'rend_class_uniq', columns: ['workspace_id', 'name'])]
+#[ORM\UniqueConstraint(name: 'uniq_policy_ws_name', columns: ['workspace_id', 'name'])]
+#[ORM\UniqueConstraint(name: 'uniq_policy_ws_key', columns: ['workspace_id', 'key'])]
+#[ORM\Entity]
 #[UniqueEntity(
     fields: ['workspace', 'name'],
+    message: 'The attribute policy name must be unique in the workspace.',
     errorPath: 'name',
 )]
-#[ORM\Entity]
-class RenditionClass extends AbstractUuidEntity implements \Stringable
+class AttributePolicy extends AbstractUuidEntity implements AclObjectInterface, \Stringable
 {
     use CreatedAtTrait;
     use WorkspaceTrait;
-    final public const string GROUP_READ = 'rendclass:read';
-    final public const string GROUP_LIST = 'rendclass:index';
+    final public const string GROUP_READ = 'attrpol:r';
+    final public const string GROUP_LIST = 'attrpol:i';
 
     /**
      * Override trait for annotation.
      */
-    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'renditionClasses')]
+    #[ORM\ManyToOne(targetEntity: Workspace::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['_'])]
     #[Assert\NotNull]
     protected ?Workspace $workspace = null;
 
-    #[Groups([RenditionClass::GROUP_LIST, RenditionClass::GROUP_READ])]
+    #[Groups([AttributePolicy::GROUP_LIST, AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ])]
     #[ORM\Column(type: Types::STRING, length: 80)]
     #[Assert\NotNull]
+    #[Assert\NotBlank]
     private ?string $name = null;
 
-    #[Groups([RenditionClass::GROUP_LIST, RenditionClass::GROUP_READ])]
-    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
-    private bool $public = false;
+    #[Groups([AttributePolicy::GROUP_LIST])]
+    #[ORM\Column(type: Types::BOOLEAN)]
+    #[Assert\NotNull]
+    private ?bool $editable = null;
 
-    #[Groups([RenditionClass::GROUP_LIST, RenditionClass::GROUP_READ])]
-    #[ORM\Column(type: Types::JSON, nullable: true)]
-    private ?array $labels = null;
+    #[Groups([AttributePolicy::GROUP_LIST])]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    #[Assert\NotNull]
+    private ?bool $public = null;
 
     /**
-     * @var RenditionDefinition[]
+     * @var AttributeDefinition[]|DoctrineCollection
      */
-    #[ORM\OneToMany(mappedBy: 'class', targetEntity: RenditionDefinition::class, cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'policy', targetEntity: AttributeDefinition::class, cascade: ['remove'])]
     protected ?DoctrineCollection $definitions = null;
+
+    /**
+     * Unique key by workspace. Used to prevent duplicates.
+     */
+    #[ORM\Column(type: Types::STRING, length: 150, nullable: true)]
+    private ?string $key = null;
+
+    #[Groups([AttributePolicy::GROUP_READ])]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $labels = null;
 
     public function __construct()
     {
@@ -111,6 +129,31 @@ class RenditionClass extends AbstractUuidEntity implements \Stringable
     public function setPublic(bool $public): void
     {
         $this->public = $public;
+    }
+
+    public function isEditable(): bool
+    {
+        return $this->editable;
+    }
+
+    public function setEditable(bool $editable): void
+    {
+        $this->editable = $editable;
+    }
+
+    public function getAclOwnerId(): string
+    {
+        return '';
+    }
+
+    public function getKey(): ?string
+    {
+        return $this->key;
+    }
+
+    public function setKey(?string $key): void
+    {
+        $this->key = $key;
     }
 
     public function getLabels(): ?array

@@ -168,8 +168,8 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     use ExtraMetadataTrait;
     use TranslationsTrait;
 
-    final public const string GROUP_READ = 'coll:read';
-    final public const string GROUP_LIST = 'coll:index';
+    final public const string GROUP_READ = 'coll:r';
+    final public const string GROUP_LIST = 'coll:i';
     final public const string GROUP_CHILDREN = 'coll:ic';
     final public const string GROUP_ABSOLUTE_TITLE = 'coll:absTitle';
 

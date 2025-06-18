@@ -113,7 +113,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[SameWorkspaceConstraint(
     properties: [
         'workspace',
-        'class.workspace',
+        'policy.workspace',
     ],
 )]
 #[UniqueEntity(
@@ -128,8 +128,8 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     use ErrorDisableTrait;
     use TranslationsTrait;
 
-    final public const string GROUP_READ = 'attrdef:read';
-    final public const string GROUP_LIST = 'attrdef:index';
+    final public const string GROUP_READ = 'attrdef:r';
+    final public const string GROUP_LIST = 'attrdef:i';
 
     private const string OPT_EDITABLE_IN_GUI = 'gui-edit';
 
@@ -141,11 +141,11 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     #[Assert\NotNull]
     protected ?Workspace $workspace = null;
 
-    #[ORM\ManyToOne(targetEntity: AttributeClass::class, inversedBy: 'definitions')]
+    #[ORM\ManyToOne(targetEntity: AttributePolicy::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: false)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     #[Assert\NotNull]
-    protected ?AttributeClass $class = null;
+    protected ?AttributePolicy $policy = null;
 
     /**
      * @var Attribute[]
@@ -400,14 +400,14 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         $this->slug = $slug;
     }
 
-    public function getClass(): ?AttributeClass
+    public function getPolicy(): ?AttributePolicy
     {
-        return $this->class;
+        return $this->policy;
     }
 
-    public function setClass(?AttributeClass $class): void
+    public function setPolicy(?AttributePolicy $policy): void
     {
-        $this->class = $class;
+        $this->policy = $policy;
     }
 
     public function getPosition(): int

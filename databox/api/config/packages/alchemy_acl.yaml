@@ -3,7 +3,7 @@ alchemy_acl:
     asset: App\Entity\Core\Asset
     collection: App\Entity\Core\Collection
     workspace: App\Entity\Core\Workspace
-    attribute_class: App\Entity\Core\AttributeClass
+    attribute_policy: App\Entity\Core\AttributePolicy
     data_template: App\Entity\Template\AssetDataTemplate
     basket: App\Entity\Basket\Basket
     attribute_list: App\Entity\AttributeList\AttributeList
