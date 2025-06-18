@@ -6,8 +6,8 @@ namespace App\Api\Model\Output;
 
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
-use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
+use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -37,7 +37,7 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
     public ?string $nameTranslated = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
-    public ?RenditionClass $class = null;
+    public ?RenditionPolicy $policy = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public bool $download;

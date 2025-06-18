@@ -1,10 +1,10 @@
 import {useEffect} from 'react';
-import {AttributeClass, Workspace} from '../../../types';
+import {AttributePolicy, Workspace} from '../../../types';
 import {
-    deleteAttributeClass,
-    getWorkspaceAttributeClasses,
-    postAttributeClass,
-    putAttributeClass,
+    deleteAttributePolicy,
+    getWorkspaceAttributePolicies,
+    postAttributePolicy,
+    putAttributePolicy,
 } from '../../../api/attributes';
 import {Chip, InputLabel, ListItemText, TextField} from '@mui/material';
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
@@ -29,7 +29,7 @@ function Item({
         setValue,
         formState: {errors},
     },
-}: DefinitionItemFormProps<AttributeClass>) {
+}: DefinitionItemFormProps<AttributePolicy>) {
     const {t} = useTranslation();
 
     const isPublic = watch('public');
@@ -48,7 +48,7 @@ function Item({
         <>
             <FormRow>
                 <TextField
-                    label={t('form.attribute_class.name.label', 'Name')}
+                    label={t('form.attribute_policy.name.label', 'Name')}
                     {...register('name')}
                     disabled={submitting}
                 />
@@ -56,7 +56,7 @@ function Item({
             </FormRow>
             <FormRow>
                 <CheckboxWidget
-                    label={t('form.attribute_class.public.label', 'Public')}
+                    label={t('form.attribute_policy.public.label', 'Public')}
                     control={control}
                     name={'public'}
                     disabled={submitting}
@@ -65,7 +65,10 @@ function Item({
             </FormRow>
             <FormRow>
                 <CheckboxWidget
-                    label={t('form.attribute_class.editable.label', 'Editable')}
+                    label={t(
+                        'form.attribute_policy.editable.label',
+                        'Editable'
+                    )}
                     control={control}
                     name={'editable'}
                     disabled={!isPublic || submitting}
@@ -79,7 +82,7 @@ function Item({
                     </InputLabel>
                     <AclForm
                         objectId={data.id}
-                        objectType={PermissionObject.AttributeClass}
+                        objectType={PermissionObject.AttributePolicy}
                         displayedPermissions={displayedPermissions}
                     />
                 </FormRow>
@@ -88,7 +91,7 @@ function Item({
     );
 }
 
-function ListItem({data}: DefinitionItemProps<AttributeClass>) {
+function ListItem({data}: DefinitionItemProps<AttributePolicy>) {
     const {t} = useTranslation();
 
     const publicLabel = data.public
@@ -126,7 +129,7 @@ function ListItem({data}: DefinitionItemProps<AttributeClass>) {
     );
 }
 
-function createNewItem(): Partial<AttributeClass> {
+function createNewItem(): Partial<AttributePolicy> {
     return {
         name: '',
         public: true,
@@ -136,18 +139,18 @@ function createNewItem(): Partial<AttributeClass> {
 
 type Props = DataTabProps<Workspace>;
 
-export default function AttributeClassManager({
+export default function AttributePolicyManager({
     data: workspace,
     minHeight,
     onClose,
 }: Props) {
     const {t} = useTranslation();
 
-    const handleSave = async (data: AttributeClass) => {
+    const handleSave = async (data: AttributePolicy) => {
         if (data.id) {
-            return await putAttributeClass(data.id, data);
+            return await putAttributePolicy(data.id, data);
         } else {
-            return await postAttributeClass({
+            return await postAttributePolicy({
                 ...data,
                 workspace: `/workspaces/${workspace.id}`,
             });
@@ -158,14 +161,14 @@ export default function AttributeClassManager({
         <DefinitionManager
             itemComponent={Item}
             listComponent={ListItem}
-            load={() => getWorkspaceAttributeClasses(workspace.id)}
+            load={() => getWorkspaceAttributePolicies(workspace.id)}
             workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}
             createNewItem={createNewItem}
-            newLabel={t('attribute_class.new.label', 'New class')}
+            newLabel={t('attribute_policy.new.label', 'New class')}
             handleSave={handleSave}
-            handleDelete={deleteAttributeClass}
+            handleDelete={deleteAttributePolicy}
         />
     );
 }

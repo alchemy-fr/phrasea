@@ -6,31 +6,40 @@ alchemy_webhook:
       description: A custom event
   entities:
     App\Entity\Core\Asset:
-      groups: ['asset:read']
+      groups:
+        - !php/const App\Entity\Core\Asset::GROUP_READ
       name: asset
     App\Entity\Core\AttributeDefinition:
-      groups: ['attributedef:read']
+      groups:
+        - !php/const App\Entity\Core\AttributeDefinition::GROUP_READ
       name: attribute_definition
     App\Entity\Core\Attribute:
-      groups: ['attribute:read']
+      groups:
+        - !php/const App\Entity\Core\Attribute::GROUP_READ
       name: attribute
     App\Entity\Core\Collection:
-      groups: ['collection:read']
+      groups:
+        - !php/const App\Entity\Core\Collection::GROUP_READ
       name: collection
       ignoreProperties:
         - assets
-    App\Entity\Core\RenditionClass:
-      groups: ['rendclass:read']
-      name: rendition_class
+    App\Entity\Core\RenditionPolicy:
+      groups:
+        - !php/const App\Entity\Core\RenditionPolicy::GROUP_READ
+      name: rendition_policy
     App\Entity\Core\RenditionDefinition:
-      groups: ['renddef:read']
+      groups:
+        - !php/const App\Entity\Core\RenditionDefinition::GROUP_READ
       name: rendition_definition
     App\Entity\Core\RenditionRule:
-      groups: ['rendrule:read']
+      groups:
+        - !php/const App\Entity\Core\RenditionRule::GROUP_READ
       name: rendition_rule
     App\Entity\Core\Tag:
-      groups: ['tag:read']
+      groups:
+        - !php/const App\Entity\Core\Tag::GROUP_READ
       name: tag
     App\Entity\Core\Workspace:
-      groups: ['workspace:read']
+      groups:
+        - !php/const App\Entity\Core\Workspace::GROUP_READ
       name: workspace

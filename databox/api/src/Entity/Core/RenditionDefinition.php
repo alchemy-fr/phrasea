@@ -95,7 +95,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(name: 'uniq_rend_def_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity]
 #[SameWorkspaceConstraint(
-    properties: ['workspace', 'class.workspace', 'parent.workspace'],
+    properties: ['workspace', 'policy.workspace', 'parent.workspace'],
 )]
 class RenditionDefinition extends AbstractUuidEntity implements \Stringable
 {
@@ -114,8 +114,8 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
         'Custom' => RenditionDefinition::BUILD_MODE_CUSTOM,
     ];
 
-    final public const string GROUP_READ = 'renddef:read';
-    final public const string GROUP_LIST = 'renddef:index';
+    final public const string GROUP_READ = 'renddef:r';
+    final public const string GROUP_LIST = 'renddef:i';
     final public const string GROUP_WRITE = 'renddef:w';
     private const string GRANT_ADMIN_PROP = "object ? is_granted('READ_ADMIN', object) : true";
 
@@ -141,10 +141,10 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     #[Assert\NotNull]
     private ?string $name = null;
 
-    #[ORM\ManyToOne(targetEntity: RenditionClass::class, inversedBy: 'definitions')]
+    #[ORM\ManyToOne(targetEntity: RenditionPolicy::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
-    protected ?RenditionClass $class = null;
+    protected ?RenditionPolicy $policy = null;
 
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $download = true;
@@ -251,14 +251,14 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
         $this->definition = $definition;
     }
 
-    public function getClass(): ?RenditionClass
+    public function getPolicy(): ?RenditionPolicy
     {
-        return $this->class;
+        return $this->policy;
     }
 
-    public function setClass(?RenditionClass $class): void
+    public function setPolicy(?RenditionPolicy $policy): void
     {
-        $this->class = $class;
+        $this->policy = $policy;
     }
 
     public function getPriority(): int

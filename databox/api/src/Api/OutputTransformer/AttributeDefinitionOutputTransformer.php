@@ -37,7 +37,7 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->setId($data->getId());
         $output->nameTranslated = $data->getTranslatedField('name', $this->getPreferredLocales($data->getWorkspace()), $data->getName());
         $output->workspace = $data->getWorkspace();
-        $output->class = $data->getClass();
+        $output->policy = $data->getPolicy();
         $output->name = $data->getName();
         $output->slug = $data->getSlug();
         $output->searchSlug = $this->fieldNameResolver->getFieldNameFromDefinition($data);
@@ -63,8 +63,8 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->labels = $data->getLabels();
         $output->editable = $data->isEditable();
         $output->editableInGui = $data->isEditableInGui();
-        $output->canEdit = $data->getClass()->isEditable()
-            || $this->isGranted(PermissionInterface::EDIT, $data->getClass());
+        $output->canEdit = $data->getPolicy()->isEditable()
+            || $this->isGranted(PermissionInterface::EDIT, $data->getPolicy());
         $output->position = $data->getPosition();
 
         return $output;

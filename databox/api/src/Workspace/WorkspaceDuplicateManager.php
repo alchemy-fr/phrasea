@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Workspace;
 
-use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
+use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\RenditionRule;
 use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
@@ -39,13 +39,13 @@ class WorkspaceDuplicateManager
 
     private function copyRenditionDefinitions(Workspace $from, Workspace $to): void
     {
-        /** @var RenditionClass[] $items */
-        $items = $this->em->getRepository(RenditionClass::class)->findBy([
+        /** @var RenditionPolicy[] $items */
+        $items = $this->em->getRepository(RenditionPolicy::class)->findBy([
             'workspace' => $from->getId(),
         ]);
         $classMap = [];
         foreach ($items as $item) {
-            $i = new RenditionClass();
+            $i = new RenditionPolicy();
             $i->setName($item->getName());
             $i->setWorkspace($to);
             $this->em->persist($i);
@@ -60,7 +60,7 @@ class WorkspaceDuplicateManager
             $i = new RenditionDefinition();
             $i->setName($item->getName());
             $i->setWorkspace($to);
-            $i->setClass($classMap[$item->getClass()->getId()]);
+            $i->setPolicy($classMap[$item->getPolicy()->getId()]);
             $i->setPriority($item->getPriority());
             $i->setKey($item->getKey());
             $i->setUseAsOriginal($item->isUseAsOriginal());
@@ -76,7 +76,7 @@ class WorkspaceDuplicateManager
             'objectId' => $from->getId(),
         ]);
 
-        $replace = fn (RenditionClass $class): RenditionClass => $classMap[$class->getId()];
+        $replace = fn (RenditionPolicy $class): RenditionPolicy => $classMap[$class->getId()];
         foreach ($items as $item) {
             $i = new RenditionRule();
             $i->setObjectType(RenditionRule::TYPE_WORKSPACE);

@@ -9,9 +9,9 @@ import {Workspace} from '../../../types';
 import Acl from './Acl';
 import TagRulesTab from './TagRulesTab';
 import AttributeDefinitionManager from './AttributeDefinitionManager';
-import AttributeClassManager from './AttributeClassManager';
+import AttributePolicyManager from './AttributePolicyManager';
 import TagManager from './TagManager';
-import RenditionClassManager from './RenditionClassManager';
+import RenditionPolicyManager from './RenditionPolicyManager.tsx';
 import RenditionDefinitionManager from './RenditionDefinitionManager';
 import InfoWorkspace from './InfoWorkspace';
 import {modalRoutes} from '../../../routes';
@@ -123,10 +123,10 @@ export default function WorkspaceDialog({}: Props) {
                 },
                 {
                     title: t(
-                        'workspace.manage.rendition_class.title',
+                        'workspace.manage.rendition_policy.title',
                         'Rendition classes'
                     ),
-                    component: RenditionClassManager,
+                    component: RenditionPolicyManager,
                     id: 'rendition-classes',
                     props: {
                         data,
@@ -135,10 +135,10 @@ export default function WorkspaceDialog({}: Props) {
                 },
                 {
                     title: t(
-                        'workspace.manage.attribute_class.title',
+                        'workspace.manage.attribute_policy.title',
                         'Attribute classes'
                     ),
-                    component: AttributeClassManager,
+                    component: AttributePolicyManager,
                     id: 'attribute-classes',
                     props: {
                         data,

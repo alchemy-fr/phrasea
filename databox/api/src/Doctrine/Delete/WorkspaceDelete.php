@@ -7,12 +7,12 @@ namespace App\Doctrine\Delete;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use App\Doctrine\SoftDeleteToggler;
 use App\Elasticsearch\IndexCleaner;
-use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
-use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
+use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -85,11 +85,11 @@ final readonly class WorkspaceDelete
 
             $this->deleteDependencies(Tag::class, $workspaceId);
             $this->deleteDependencies(RenditionDefinition::class, $workspaceId);
-            $this->deleteDependencies(RenditionClass::class, $workspaceId);
+            $this->deleteDependencies(RenditionPolicy::class, $workspaceId);
             $this->deleteDependencies(AssetDataTemplate::class, $workspaceId);
             $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
             $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
-            $this->deleteDependencies(AttributeClass::class, $workspaceId);
+            $this->deleteDependencies(AttributePolicy::class, $workspaceId);
             $this->deleteDependencies(WorkspaceIntegration::class, $workspaceId);
             $this->deleteDependencies(WorkspaceSecret::class, $workspaceId);
 

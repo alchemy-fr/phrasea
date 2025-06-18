@@ -48,7 +48,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(EntityFilter::new('workspace'))
-            ->add(EntityFilter::new('class'))
+            ->add(EntityFilter::new('policy'))
             ->add(BooleanFilter::new('searchable'))
             ->add(BooleanFilter::new('multiple'))
             ->add(ChoiceFilter::new('fieldType')->setChoices($this->getFieldTypeChoice()))
@@ -65,7 +65,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield TextField::new('slug');
         yield AssociationField::new('workspace');
-        yield AssociationField::new('class');
+        yield AssociationField::new('policy');
         yield TextField::new('fileType');
         yield ChoiceField::new('fieldType')
             ->setChoices($this->getFieldTypeChoice());

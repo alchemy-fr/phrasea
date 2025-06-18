@@ -6,10 +6,10 @@ namespace App\Api\Provider;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
-use App\Entity\Core\RenditionClass;
+use App\Entity\Core\RenditionPolicy;
 use App\Security\Voter\AbstractVoter;
 
-class RenditionClassCollectionProvider extends AbstractCollectionProvider
+class RenditionPolicyCollectionProvider extends AbstractCollectionProvider
 {
     use SecurityAwareTrait;
 
@@ -25,8 +25,8 @@ class RenditionClassCollectionProvider extends AbstractCollectionProvider
             $criteria['workspace'] = $filters['workspaceId'];
         }
 
-        $classes = $this->em->getRepository(RenditionClass::class)->findBy($criteria);
+        $policies = $this->em->getRepository(RenditionPolicy::class)->findBy($criteria);
 
-        return array_filter($classes, fn (RenditionClass $renditionClass): bool => $this->security->isGranted(AbstractVoter::READ, $renditionClass));
+        return array_filter($policies, fn (RenditionPolicy $renditionPolicy): bool => $this->security->isGranted(AbstractVoter::READ, $renditionPolicy));
     }
 }

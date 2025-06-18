@@ -1,4 +1,4 @@
-import {RenditionClass, Workspace} from '../../../types';
+import {RenditionPolicy, Workspace} from '../../../types';
 import {InputLabel, ListItemText, TextField} from '@mui/material';
 import {FormRow} from '@alchemy/react-form';
 import DefinitionManager, {
@@ -8,13 +8,13 @@ import DefinitionManager, {
 import {useTranslation} from 'react-i18next';
 import {FormFieldErrors} from '@alchemy/react-form';
 import {
-    deleteRenditionClass,
-    getRenditionClasses,
-    postRenditionClass,
-    putRenditionClass,
+    deleteRenditionPolicy,
+    getRenditionPolicies,
+    postRenditionPolicy,
+    putRenditionPolicy,
 } from '../../../api/rendition';
 import {CheckboxWidget} from '@alchemy/react-form';
-import RenditionClassPermissions from './RenditionClassPermissions';
+import RenditionPolicyPermissions from './RenditionPolicyPermissions';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 
 function Item({
@@ -26,7 +26,7 @@ function Item({
         watch,
         formState: {errors},
     },
-}: DefinitionItemFormProps<RenditionClass>) {
+}: DefinitionItemFormProps<RenditionPolicy>) {
     const {t} = useTranslation();
 
     const isPublic = watch('public');
@@ -35,7 +35,7 @@ function Item({
         <>
             <FormRow>
                 <TextField
-                    label={t('form.rendition_class.name.label', 'Name')}
+                    label={t('form.rendition_policy.name.label', 'Name')}
                     {...register('name')}
                     disabled={submitting}
                 />
@@ -43,7 +43,7 @@ function Item({
             </FormRow>
             <FormRow>
                 <CheckboxWidget
-                    label={t('form.rendition_class.public.label', 'Public')}
+                    label={t('form.rendition_policy.public.label', 'Public')}
                     control={control}
                     name={'public'}
                     disabled={submitting}
@@ -55,8 +55,8 @@ function Item({
                     <InputLabel>
                         {t('form.permissions.label', 'Permissions')}
                     </InputLabel>
-                    <RenditionClassPermissions
-                        classId={data.id}
+                    <RenditionPolicyPermissions
+                        policyId={data.id}
                         workspaceId={(data.workspace as Workspace).id}
                     />
                 </FormRow>
@@ -65,11 +65,11 @@ function Item({
     );
 }
 
-function ListItem({data}: DefinitionItemProps<RenditionClass>) {
+function ListItem({data}: DefinitionItemProps<RenditionPolicy>) {
     return <ListItemText primary={data.name} />;
 }
 
-function createNewItem(): Partial<RenditionClass> {
+function createNewItem(): Partial<RenditionPolicy> {
     return {
         name: '',
         public: true,
@@ -78,21 +78,21 @@ function createNewItem(): Partial<RenditionClass> {
 
 type Props = DataTabProps<Workspace>;
 
-export default function RenditionClassManager({
+export default function RenditionPolicyManager({
     data: workspace,
     minHeight,
     onClose,
 }: Props) {
     const {t} = useTranslation();
 
-    const handleSave = async (data: RenditionClass) => {
+    const handleSave = async (data: RenditionPolicy) => {
         if (data.id) {
-            const postData = {...data} as Partial<RenditionClass>;
+            const postData = {...data} as Partial<RenditionPolicy>;
             delete postData.workspace;
 
-            return await putRenditionClass(data.id, postData);
+            return await putRenditionPolicy(data.id, postData);
         } else {
-            return await postRenditionClass({
+            return await postRenditionPolicy({
                 ...data,
                 workspace: `/workspaces/${workspace.id}`,
             });
@@ -103,14 +103,14 @@ export default function RenditionClassManager({
         <DefinitionManager
             itemComponent={Item}
             listComponent={ListItem}
-            load={() => getRenditionClasses(workspace.id).then(r => r.result)}
+            load={() => getRenditionPolicies(workspace.id).then(r => r.result)}
             workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}
             createNewItem={createNewItem}
-            newLabel={t('rendition_class.new.label', 'New class')}
+            newLabel={t('rendition_policy.new.label', 'New class')}
             handleSave={handleSave}
-            handleDelete={deleteRenditionClass}
+            handleDelete={deleteRenditionPolicy}
         />
     );
 }
