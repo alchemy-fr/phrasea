@@ -1,4 +1,4 @@
-import {RenditionClass, RenditionDefinition, Workspace} from '../../../types';
+import {RenditionPolicy, RenditionDefinition, Workspace} from '../../../types';
 import {
     FormGroup,
     FormHelperText,
@@ -25,7 +25,7 @@ import {
     putRenditionDefinition,
     RenditionBuildMode,
 } from '../../../api/rendition';
-import RenditionClassSelect from '../../Form/RenditionClassSelect';
+import RenditionPolicySelect from '../../Form/RenditionPolicySelect';
 import apiClient from '../../../api/api-client';
 import {toast} from 'react-toastify';
 import React from 'react';
@@ -100,15 +100,15 @@ function Item({
             <FormRow>
                 <FormGroup>
                     <FormLabel>
-                        {t('form.rendition_definition.class.label', 'Class')}
+                        {t('form.rendition_definition.policy.label', 'Policy')}
                     </FormLabel>
-                    <RenditionClassSelect
+                    <RenditionPolicySelect
                         disabled={submitting}
-                        name={'class'}
+                        name={'policy'}
                         control={control}
                         workspaceId={workspace.id}
                     />
-                    <FormFieldErrors field={'class'} errors={errors} />
+                    <FormFieldErrors field={'policy'} errors={errors} />
                 </FormGroup>
             </FormRow>
             <FormRow>
@@ -209,7 +209,7 @@ function createNewItem(): Partial<RenditionDefinition> {
         useAsPreview: false,
         useAsThumbnail: false,
         useAsThumbnailActive: false,
-        class: null,
+        policy: null,
     };
 }
 
@@ -263,10 +263,10 @@ function normalizeData(data: RenditionDefinition) {
         ...data,
         buildMode: data.buildMode?.toString(),
         class:
-            typeof data.class === 'string'
-                ? data.class
-                : data.class
-                  ? (data.class as RenditionClass)['@id']
+            typeof data.policy === 'string'
+                ? data.policy
+                : data.policy
+                  ? (data.policy as RenditionPolicy)['@id']
                   : null,
         parent:
             typeof data.parent === 'string'

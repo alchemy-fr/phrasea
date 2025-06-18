@@ -93,8 +93,8 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     use DeletedAtTrait;
     use TranslationsTrait;
 
-    final public const string GROUP_READ = 'workspace:read';
-    final public const string GROUP_LIST = 'workspace:index';
+    final public const string GROUP_READ = 'workspace:r';
+    final public const string GROUP_LIST = 'workspace:i';
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     #[Assert\NotBlank]
@@ -141,10 +141,10 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     protected ?DoctrineCollection $tags = null;
 
     /**
-     * @var DoctrineCollection<RenditionClass>
+     * @var DoctrineCollection<RenditionPolicy>
      */
-    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: RenditionClass::class)]
-    protected ?DoctrineCollection $renditionClasses = null;
+    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: RenditionPolicy::class)]
+    protected ?DoctrineCollection $renditionPolicies = null;
 
     /**
      * @var DoctrineCollection<RenditionDefinition>
@@ -169,7 +169,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
         parent::__construct();
         $this->collections = new ArrayCollection();
         $this->tags = new ArrayCollection();
-        $this->renditionClasses = new ArrayCollection();
+        $this->renditionPolicies = new ArrayCollection();
         $this->renditionDefinitions = new ArrayCollection();
         $this->attributeDefinitions = new ArrayCollection();
         $this->files = new ArrayCollection();

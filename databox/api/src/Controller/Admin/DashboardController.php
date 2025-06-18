@@ -20,14 +20,14 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\AssetTitleAttribute;
 use App\Entity\Core\Attribute;
-use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
+use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Collection;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
-use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
+use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\RenditionRule;
 use App\Entity\Core\Share;
 use App\Entity\Core\Tag;
@@ -78,12 +78,12 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Entity List', '', EntityList::class),
             MenuItem::linkToCrud('Asset Title Attribute', '', AssetTitleAttribute::class),
             MenuItem::linkToCrud('Attribute Definition', '', AttributeDefinition::class),
-            MenuItem::linkToCrud('Attribute Class', '', AttributeClass::class),
+            MenuItem::linkToCrud('Attribute Policy', '', AttributePolicy::class),
             MenuItem::linkToCrud('Tag', '', Tag::class),
             MenuItem::linkToCrud('Tag Filter Rule', '', TagFilterRule::class),
             MenuItem::linkToCrud('Asset Rendition', '', AssetRendition::class),
             MenuItem::linkToCrud('Rendition Definition', '', RenditionDefinition::class),
-            MenuItem::linkToCrud('Rendition Class', '', RenditionClass::class),
+            MenuItem::linkToCrud('Rendition Policy', '', RenditionPolicy::class),
             MenuItem::linkToCrud('Rendition Rule', '', RenditionRule::class),
             MenuItem::linkToCrud('Alternate URL', '', AlternateUrl::class),
             MenuItem::linkToCrud('Share', '', Share::class),

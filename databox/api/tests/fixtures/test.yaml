@@ -44,13 +44,13 @@ App\Entity\Core\Collection:
         workspace: '@w_test'
         privacy: 4
 
-App\Entity\Core\AttributeClass:
-  ac_public:
+App\Entity\Core\AttributePolicy:
+  ap_public:
     name: Public attrs
     workspace: '@w_test'
     public: true
     editable: true
-  ac_private:
+  ap_private:
     name: Private attrs
     workspace: '@w_test'
     public: false
@@ -60,20 +60,20 @@ App\Entity\Core\AttributeDefinition:
   ad_photographer:
     name: Photographer
     workspace: '@w_test'
-    class: '@ac_public'
+    policy: '@ap_public'
   ad_desc:
     name: Description
     workspace: '@w_test'
-    class: '@ac_public'
+    policy: '@ap_public'
   ad_keywords:
     name: Keywords
     multiple: true
     workspace: '@w_test'
-    class: '@ac_public'
+    policy: '@ap_public'
   ad_business:
     name: Business field
     workspace: '@w_test'
-    class: '@ac_private'
+    policy: '@ap_private'
 
 App\Entity\Core\Attribute:
   a_foo_desc:
@@ -100,14 +100,14 @@ App\Entity\Core\Attribute:
     asset: '@asset_bar'
     position: '<current()>'
 
-App\Entity\Core\RenditionClass:
-  rendition_class (template):
+App\Entity\Core\RenditionPolicy:
+  rendition_policy (template):
     workspace: '@w_test'
 
-  t_rc_public (extends rendition_class):
+  t_rc_public (extends rendition_policy):
     name: Public
     public: true
-  t_rc_restricted (extends rendition_class):
+  t_rc_restricted (extends rendition_policy):
     name: Restricted
     public: false
 
@@ -117,24 +117,24 @@ App\Entity\Core\RenditionDefinition:
 
   t_rd_original (extends rendition_definition):
     name: original
-    class: '@t_rc_restricted'
+    policy: '@t_rc_restricted'
     buildMode: 1
     useAsOriginal: true
   t_rd_original_watermarked (extends rendition_definition):
     name: original
-    class: '@t_rc_public'
+    policy: '@t_rc_public'
     useAsOriginal: true
   t_rd_preview (extends rendition_definition):
     name: preview
-    class: '@t_rc_public'
+    policy: '@t_rc_public'
     useAsPreview: true
   t_rd_thumbnail (extends rendition_definition):
     name: thumbnail
-    class: '@t_rc_public'
+    policy: '@t_rc_public'
     useAsThumbnail: true
   t_rd_thumbnailActive (extends rendition_definition):
     name: thumbnailActive
-    class: '@t_rc_public'
+    policy: '@t_rc_public'
     useAsThumbnailActive: true
 
 App\Entity\Core\Tag:

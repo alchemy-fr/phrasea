@@ -50,11 +50,12 @@ class ExportProcessor implements ProcessorInterface
                 AssetRenditionRepository::WITH_FILE => true,
             ]);
 
+            /** @var AssetRendition[] $renditions */
             foreach ($renditions as $rendition) {
                 $asset = $rendition->getAsset();
                 if (!$this->renditionPermissionManager->isGranted(
                     $asset,
-                    $rendition->getDefinition()->getClass(),
+                    $rendition->getDefinition()->getPolicy(),
                     $userId,
                     $groupsIds
                 )) {

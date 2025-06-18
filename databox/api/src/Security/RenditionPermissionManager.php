@@ -6,7 +6,7 @@ namespace App\Security;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
-use App\Entity\Core\RenditionClass;
+use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\RenditionRule;
 use App\Repository\Core\RenditionRuleRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,13 +25,13 @@ class RenditionPermissionManager
     {
     }
 
-    public function isGranted(Asset $asset, RenditionClass $class, ?string $userId, array $groupIds = []): bool
+    public function isGranted(Asset $asset, RenditionPolicy $policy, ?string $userId, array $groupIds = []): bool
     {
-        if ($class->isPublic()) {
+        if ($policy->isPublic()) {
             return true;
         }
 
-        $assetKey = sprintf('%s:%s:%s', $asset->getId(), $class->getId(), $userId ?? self::ANONYMOUS);
+        $assetKey = sprintf('%s:%s:%s', $asset->getId(), $policy->getId(), $userId ?? self::ANONYMOUS);
         if (isset($this->cache[$assetKey])) {
             return $this->cache[$assetKey];
         }
@@ -40,13 +40,13 @@ class RenditionPermissionManager
         $repo = $this->em->getRepository(RenditionRule::class);
 
         if ($asset->getReferenceCollection()) {
-            $result = $this->isCollectionGranted($asset->getReferenceCollection(), $class, $userId, $groupIds);
+            $result = $this->isCollectionGranted($asset->getReferenceCollection(), $policy, $userId, $groupIds);
             if (null !== $result) {
                 return $this->cache[$assetKey] = $result;
             }
         }
 
-        $workspaceKey = sprintf('%s:%s:%s', $asset->getWorkspace()->getId(), $class->getId(), $userId ?? self::ANONYMOUS);
+        $workspaceKey = sprintf('%s:%s:%s', $asset->getWorkspace()->getId(), $policy->getId(), $userId ?? self::ANONYMOUS);
         if (isset($this->cache[$workspaceKey])) {
             return $this->cache[$assetKey] = $this->cache[$workspaceKey];
         }
@@ -55,7 +55,7 @@ class RenditionPermissionManager
 
         $result = false;
         if (!empty($rules)) {
-            $result = $this->satisfyOneRule($rules, $class);
+            $result = $this->satisfyOneRule($rules, $policy);
         }
         $this->cache[$workspaceKey] = $result;
         $this->cache[$assetKey] = $result;
@@ -63,12 +63,12 @@ class RenditionPermissionManager
         return $result;
     }
 
-    private function isCollectionGranted(Collection $collection, $class, ?string $userId, array $groupIds): ?bool
+    private function isCollectionGranted(Collection $collection, RenditionPolicy $policy, ?string $userId, array $groupIds): ?bool
     {
         /** @var RenditionRuleRepository $repo */
         $repo = $this->em->getRepository(RenditionRule::class);
 
-        $collectionKey = sprintf('%s:%s:%s', $collection->getId(), $class->getId(), $userId ?? self::ANONYMOUS);
+        $collectionKey = sprintf('%s:%s:%s', $collection->getId(), $policy->getId(), $userId ?? self::ANONYMOUS);
         if (isset($this->cache[$collectionKey])) {
             if (self::IS_EMPTY !== $this->cache[$collectionKey]) {
                 return $this->cache[$collectionKey];
@@ -76,7 +76,7 @@ class RenditionPermissionManager
         } else {
             $rules = $repo->getRules($userId, $groupIds, RenditionRule::TYPE_COLLECTION, $collection->getId());
             if (!empty($rules)) {
-                $result = $this->satisfyOneRule($rules, $class);
+                $result = $this->satisfyOneRule($rules, $policy);
 
                 $this->cache[$collectionKey] = $result;
 
@@ -87,7 +87,7 @@ class RenditionPermissionManager
         }
 
         if (null !== $collection->getParent()) {
-            $r = $this->isCollectionGranted($collection->getParent(), $class, $userId, $groupIds);
+            $r = $this->isCollectionGranted($collection->getParent(), $policy, $userId, $groupIds);
             $this->cache[$collectionKey] = $r ?? self::IS_EMPTY;
 
             return $r;
@@ -96,10 +96,10 @@ class RenditionPermissionManager
         return null;
     }
 
-    private function satisfyOneRule(array $ruleSets, RenditionClass $class): bool
+    private function satisfyOneRule(array $ruleSets, RenditionPolicy $policy): bool
     {
         foreach ($ruleSets as $ruleSet) {
-            if ($ruleSet->getAllowed()->contains($class)) {
+            if ($ruleSet->getAllowed()->contains($policy)) {
                 return true;
             }
         }

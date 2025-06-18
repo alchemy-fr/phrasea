@@ -125,9 +125,9 @@
       }
     }
   },
-  "attribute_class": {
+  "attribute_policy": {
     "new": {
-      "label": "Nouvelle classe"
+      "label": "Nouvelle politique d'accès"
     }
   },
   "attribute_definitions": {
@@ -450,7 +450,7 @@
         "item_remove": "Retirer"
       }
     },
-    "attribute_class": {
+    "attribute_policy": {
       "editable": {
         "label": "Éditable"
       },
@@ -465,7 +465,7 @@
       "allowInvalid": {
         "label": "Permettre les valeurs invalides"
       },
-      "class": {
+      "policy": {
         "label": "Classe"
       },
       "entityList": {
@@ -560,7 +560,7 @@
         }
       }
     },
-    "rendition_class": {
+    "rendition_policy": {
       "name": {
         "label": "Nom"
       },
@@ -569,7 +569,7 @@
       }
     },
     "rendition_definition": {
-      "class": {
+      "policy": {
         "label": "Classe de Rendition"
       },
       "definition": {
@@ -788,9 +788,9 @@
     "remove_bg": "Retirer le BG",
     "use_slider_to_compare": "Utiliser le curseur pour comparer"
   },
-  "Rendition_class": {
+  "Rendition_policy": {
     "new": {
-      "label": "Nouvelle classe de Rendition"
+      "label": "Nouvelle politique d'accès de Rendition"
     }
   },
   "Rendition_definitions": {
@@ -909,7 +909,7 @@
       "acl": {
         "title": "Permissions"
       },
-      "attribute_class": {
+      "attribute_policy": {
         "title": "Classes d'attributs"
       },
       "attribute_definitions": {
@@ -924,7 +924,7 @@
       "info": {
         "title": "Informations"
       },
-      "rendition_class": {
+      "rendition_policy": {
         "title": "Classes de Rendition"
       },
       "rendition_definition": {

@@ -60,8 +60,8 @@ class RenditionDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->name) {
             $object->setName($data->name);
         }
-        if (null !== $data->class) {
-            $object->setClass($data->class);
+        if (null !== $data->policy) {
+            $object->setPolicy($data->policy);
         }
 
         if (null !== $data->download) {

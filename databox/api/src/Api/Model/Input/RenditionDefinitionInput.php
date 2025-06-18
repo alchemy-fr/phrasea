@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Api\Model\Input;
 
 use ApiPlatform\Metadata\ApiProperty;
-use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
+use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Attribute\Groups;
 
@@ -27,10 +27,10 @@ class RenditionDefinitionInput
     public $parent;
 
     /**
-     * @var RenditionClass|null
+     * @var RenditionPolicy|null
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
-    public $class;
+    public $policy;
 
     /**
      * @var string

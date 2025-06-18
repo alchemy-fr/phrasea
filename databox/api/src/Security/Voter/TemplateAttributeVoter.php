@@ -28,8 +28,8 @@ class TemplateAttributeVoter extends AbstractVoter
         return match ($attribute) {
             self::READ => $this->security->isGranted(self::READ, $subject->getTemplate())
                 && (
-                    $subject->getDefinition()->getClass()->isPublic()
-                    || $this->hasAcl(PermissionInterface::VIEW, $subject->getDefinition()->getClass(), $token)
+                    $subject->getDefinition()->getPolicy()->isPublic()
+                    || $this->hasAcl(PermissionInterface::VIEW, $subject->getDefinition()->getPolicy(), $token)
                 ),
             self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(AbstractVoter::EDIT, $subject->getTemplate()),
             default => false,

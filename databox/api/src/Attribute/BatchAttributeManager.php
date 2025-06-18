@@ -129,8 +129,8 @@ class BatchAttributeManager
 
     private function denyUnlessGranted(AttributeDefinition $definition): void
     {
-        if (!$definition->getClass()->isEditable()
-            && !$this->security->isGranted(PermissionInterface::EDIT, $definition->getClass())) {
+        if (!$definition->getPolicy()->isEditable()
+            && !$this->security->isGranted(PermissionInterface::EDIT, $definition->getPolicy())) {
             throw new AccessDeniedHttpException(sprintf('Unauthorized to edit attribute definition %s', $definition->getId()));
         }
     }
@@ -278,7 +278,7 @@ class BatchAttributeManager
                                     ->setParameter('ws', $workspaceId);
                                 if ($user instanceof JwtUser) {
                                     $sub
-                                        ->innerJoin('ad.class', 'ac')
+                                        ->innerJoin('ad.policy', 'ap')
                                         ->andWhere('ac.public = true OR ace.id IS NOT NULL');
                                     $this->joinUserAcl($sub, $user);
                                 }
@@ -443,7 +443,7 @@ class BatchAttributeManager
             if ($user instanceof JwtUser) {
                 $qb
                     ->innerJoin('a.definition', 'ad')
-                    ->innerJoin('ad.class', 'ac')
+                    ->innerJoin('ad.policy', 'ap')
                     ->andWhere('ad.editable = true')
                     ->andWhere('ac.public = true OR ace.id IS NOT NULL');
                 $this->joinUserAcl($qb, $user);
@@ -478,8 +478,8 @@ class BatchAttributeManager
             $queryBuilder,
             $user->getId(),
             $user->getGroups(),
-            'attribute_class',
-            'ac',
+            'attribute_policy',
+            'ap',
             PermissionInterface::EDIT,
             false
         );

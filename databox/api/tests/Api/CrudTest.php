@@ -38,7 +38,7 @@ final class CrudTest extends AbstractDataboxTestCase
         array $options = [],
     ): ResponseInterface {
         $workspace = $this->getOrCreateDefaultWorkspace();
-        $attributeClass = $this->getOrCreateDefaultAttributeClass();
+        $attributeClass = $this->getOrCreateDefaultAttributePolicy();
 
         $replacePH = fn (mixed $s): mixed => $this->replacePlaceholders($s, [
             'workspace' => $workspace,
@@ -101,14 +101,14 @@ final class CrudTest extends AbstractDataboxTestCase
 
     public function getCases(): array
     {
-        $createAttributeClass = ['POST', '/attribute-classes', KeycloakClientTestMock::ADMIN_UID, [
+        $createAttributePolicy = ['POST', '/attribute-policies', KeycloakClientTestMock::ADMIN_UID, [
             'workspace' => '/workspaces/{workspaceId}',
             'name' => 'AttrClass Test',
             'public' => true,
             'editable' => false,
         ]];
 
-        $createRenditionClass = ['POST', '/rendition-classes', KeycloakClientTestMock::ADMIN_UID, [
+        $createRenditionPolicy = ['POST', '/rendition-policies', KeycloakClientTestMock::ADMIN_UID, [
             'workspace' => '/workspaces/{workspaceId}',
             'name' => 'RendClass Test',
             'public' => true,
@@ -117,28 +117,28 @@ final class CrudTest extends AbstractDataboxTestCase
         $createAttributeDefinition = ['POST', '/attribute-definitions', KeycloakClientTestMock::ADMIN_UID, [
             'workspace' => '/workspaces/{workspaceId}',
             'name' => 'AttrDef Test',
-            'class' => '/attribute-classes/{attributeClassId}',
+            'class' => '/attribute-policies/{attributeClassId}',
         ]];
 
         return [
-            // AttributeClass
-            ['POST', '/attribute-classes', null, [], [
+            // AttributePolicy
+            ['POST', '/attribute-policies', null, [], [
                 'code' => 401,
             ]],
 
-            ['POST', '/attribute-classes', KeycloakClientTestMock::USER_UID, [
+            ['POST', '/attribute-policies', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
                 'code' => 403,
             ]],
 
-            ['POST', '/attribute-classes', KeycloakClientTestMock::ADMIN_UID, [
+            ['POST', '/attribute-policies', KeycloakClientTestMock::ADMIN_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
                 'code' => 422,
             ]],
 
-            ['POST', '/attribute-classes', KeycloakClientTestMock::USER_UID, [
+            ['POST', '/attribute-policies', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
                 'name' => 'AttrClass Test',
                 'public' => true,
@@ -147,33 +147,33 @@ final class CrudTest extends AbstractDataboxTestCase
                 'code' => 403,
             ]],
 
-            $createAttributeClass,
+            $createAttributePolicy,
 
-            ['PUT', '/attribute-classes/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
+            ['PUT', '/attribute-policies/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
                 'name' => 'AttrClass Test 2',
                 'public' => false,
                 'editable' => true,
             ], [], [
-                'createItem' => $createAttributeClass,
+                'createItem' => $createAttributePolicy,
             ]],
 
-            // RenditionClass
-            ['POST', '/rendition-classes', null, [], [
+            // RenditionPolicy
+            ['POST', '/rendition-policies', null, [], [
                 'code' => 401,
             ]],
 
-            ['POST', '/rendition-classes', KeycloakClientTestMock::USER_UID, [
+            ['POST', '/rendition-policies', KeycloakClientTestMock::USER_UID, [
             ], [
                 'code' => 403,
             ]],
 
-            ['POST', '/rendition-classes', KeycloakClientTestMock::ADMIN_UID, [
+            ['POST', '/rendition-policies', KeycloakClientTestMock::ADMIN_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
                 'code' => 422,
             ]],
 
-            ['POST', '/rendition-classes', KeycloakClientTestMock::USER_UID, [
+            ['POST', '/rendition-policies', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
                 'name' => 'RendClass Test',
                 'public' => true,
@@ -181,13 +181,13 @@ final class CrudTest extends AbstractDataboxTestCase
                 'code' => 403,
             ]],
 
-            $createRenditionClass,
+            $createRenditionPolicy,
 
-            ['PUT', '/rendition-classes/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
+            ['PUT', '/rendition-policies/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
                 'name' => 'RendClass Test 2',
                 'public' => false,
             ], [], [
-                'createItem' => $createRenditionClass,
+                'createItem' => $createRenditionPolicy,
             ]],
 
             // AttributeDefinition
@@ -215,7 +215,7 @@ final class CrudTest extends AbstractDataboxTestCase
             ['POST', '/attribute-definitions', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
                 'name' => 'AttrClass Test',
-                'class' => '/attribute-classes/{attributeClassId}',
+                'class' => '/attribute-policies/{attributeClassId}',
             ], [
                 'code' => 403,
             ]],

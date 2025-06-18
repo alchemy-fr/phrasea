@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Workspace;
 
-use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\EntityList;
-use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
+use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\WorkspaceTemplate;
@@ -31,10 +31,9 @@ final readonly class WorkspaceTemplater
 
         return [
             'Workspace' => $this->exportWorkspace($workspace),
-
-            'RenditionClass' => $this->exportRenditionClass($workspace->getId(), $renditionClassMap),
+            'RenditionPolicy' => $this->exportRenditionPolicy($workspace->getId(), $renditionClassMap),
             'RenditionDefinition' => $this->exportRenditionDefinition($workspace->getId(), $renditionClassMap),
-            'AttributeClass' => $this->exportAttributeClass($workspace->getId(), $attributeClassMap),
+            'AttributePolicy' => $this->exportAttributePolicy($workspace->getId(), $attributeClassMap),
             'AttributeDefinition' => $this->exportAttributeDefinition($workspace->getId(), $attributeClassMap),
             'Tag' => $this->exportTag($workspace->getId()),
         ];
@@ -88,11 +87,11 @@ final readonly class WorkspaceTemplater
             $this->importWorkspace($ws, $data['Workspace'] ?? []);
 
             $attributeClassMap = [];
-            $this->importAttributeClass($ws, $data['AttributeClass'] ?? [], $attributeClassMap);
+            $this->importAttributePolicy($ws, $data['AttributePolicy'] ?? [], $attributeClassMap);
             $this->importAttributeDefinition($ws, $data['AttributeDefinition'] ?? [], $attributeClassMap);
 
             $renditionClassMap = [];
-            $this->importRenditionClass($ws, $data['RenditionClass'] ?? [], $renditionClassMap);
+            $this->importRenditionPolicy($ws, $data['RenditionPolicy'] ?? [], $renditionClassMap);
             $this->importRenditionDefinition($ws, $data['RenditionDefinition'] ?? [], $renditionClassMap);
 
             $this->importTag($ws, $data['Tag'] ?? []);
@@ -132,12 +131,12 @@ final readonly class WorkspaceTemplater
         $this->em->persist($ws);
     }
 
-    private function exportRenditionClass(string $workspaceId, array &$renditionClassMap): array
+    private function exportRenditionPolicy(string $workspaceId, array &$renditionClassMap): array
     {
         $o = [];
 
-        /** @var RenditionClass[] $items */
-        $items = $this->em->getRepository(RenditionClass::class)->findBy([
+        /** @var RenditionPolicy[] $items */
+        $items = $this->em->getRepository(RenditionPolicy::class)->findBy([
             'workspace' => $workspaceId,
         ]);
         foreach ($items as $item) {
@@ -156,21 +155,21 @@ final readonly class WorkspaceTemplater
         return $o;
     }
 
-    private function importRenditionClass(Workspace $ws, array $data, array &$renditionClassMap): void
+    private function importRenditionPolicy(Workspace $ws, array $data, array &$renditionClassMap): void
     {
         foreach ($data as $item) {
-            /** @var RenditionClass $o */
-            if (!($o = $this->em->getRepository(RenditionClass::class)->findOneBy([
+            /** @var RenditionPolicy $o */
+            if (!($o = $this->em->getRepository(RenditionPolicy::class)->findOneBy([
                 'workspace' => $ws,
                 'name' => $item['name'],
             ]))) {
-                $this->logger->info(sprintf('Creating RenditionClass "%s"', $item['name']));
-                $o = new RenditionClass();
+                $this->logger->info(sprintf('Creating RenditionPolicy "%s"', $item['name']));
+                $o = new RenditionPolicy();
                 $o->setWorkspace($ws);
                 $o->setName($item['name']);
                 $this->em->persist($o);
             } else {
-                $this->logger->info(sprintf('Updating RenditionClass "%s"', $item['name']));
+                $this->logger->info(sprintf('Updating RenditionPolicy "%s"', $item['name']));
             }
             $o->setPublic($item['public']);
             $o->setLabels($item['labels']);
@@ -180,7 +179,7 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    private function exportRenditionDefinition(string $workspaceId, array $renditionClassMap): array
+    private function exportRenditionDefinition(string $workspaceId, array $renditionPolicyMap): array
     {
         $o = [];
 
@@ -197,7 +196,7 @@ final readonly class WorkspaceTemplater
             $o[] = [
                 'id' => $item->getId(),
                 'name' => $item->getName(),
-                'class' => $renditionClassMap[$item->getClass()->getId()] ?? null,
+                'policy' => $renditionPolicyMap[$item->getPolicy()->getId()] ?? null,
                 'parent' => $item->getParent()?->getId(),
                 'buildMode' => $item->getBuildMode(),
                 'priority' => $item->getPriority(),
@@ -264,7 +263,7 @@ final readonly class WorkspaceTemplater
             $o->setUseAsThumbnailActive($item['useAsThumbnailActive']);
             $o->setLabels($item['labels']);
             $o->setDefinition($item['definition']);
-            $o->setClass($renditionClassMap[$item['class']]);
+            $o->setPolicy($renditionClassMap[$item['policy']]);
             if ($item['parent']) {
                 $o->setParent($rdMap[$item['parent']]);
             }
@@ -274,12 +273,12 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    private function exportAttributeClass(string $workspaceId, array &$attributeClassMap): array
+    private function exportAttributePolicy(string $workspaceId, array &$attributeClassMap): array
     {
         $o = [];
 
-        /** @var AttributeClass[] $items */
-        $items = $this->em->getRepository(AttributeClass::class)->findBy([
+        /** @var AttributePolicy[] $items */
+        $items = $this->em->getRepository(AttributePolicy::class)->findBy([
             'workspace' => $workspaceId,
         ]);
 
@@ -300,20 +299,20 @@ final readonly class WorkspaceTemplater
         return $o;
     }
 
-    private function importAttributeClass(Workspace $ws, array $data, array &$attributeClassMap): void
+    private function importAttributePolicy(Workspace $ws, array $data, array &$attributeClassMap): void
     {
         foreach ($data as $item) {
-            /** @var AttributeClass $o */
-            if (!($o = $this->em->getRepository(AttributeClass::class)->findOneBy([
+            /** @var AttributePolicy $o */
+            if (!($o = $this->em->getRepository(AttributePolicy::class)->findOneBy([
                 'workspace' => $ws,
                 'name' => $item['name'],
             ]))) {
-                $this->logger->info(sprintf('Creating AttributeClass "%s"', $item['name']));
-                $o = new AttributeClass();
+                $this->logger->info(sprintf('Creating AttributePolicy "%s"', $item['name']));
+                $o = new AttributePolicy();
                 $o->setWorkspace($ws);
                 $o->setName($item['name']);
             } else {
-                $this->logger->info(sprintf('Updating AttributeClass "%s"', $item['name']));
+                $this->logger->info(sprintf('Updating AttributePolicy "%s"', $item['name']));
             }
             $o->setPublic($item['public']);
             $o->setLabels($item['labels']);
@@ -324,7 +323,7 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    private function exportAttributeDefinition(string $workspaceId, array $attributeClassMap): array
+    private function exportAttributeDefinition(string $workspaceId, array $attributePolicyMap): array
     {
         $o = [];
 
@@ -335,7 +334,7 @@ final readonly class WorkspaceTemplater
         foreach ($items as $item) {
             $o[] = [
                 'name' => $item->getName(),
-                'class' => $attributeClassMap[$item->getClass()->getId()] ?? null,
+                'policy' => $attributePolicyMap[$item->getPolicy()->getId()] ?? null,
                 'labels' => $item->getLabels(),
                 'entityList' => $item->getEntityList()?->getId(),
                 'fallback' => $item->getFallback(),
@@ -372,7 +371,7 @@ final readonly class WorkspaceTemplater
             } else {
                 $this->logger->info(sprintf('Updating AttributeDefinition "%s"', $item['name']));
             }
-            $o->setClass($attributeClassMap[$item['class']]);
+            $o->setPolicy($attributeClassMap[$item['policy']]);
             $o->setLabels($item['labels']);
             if ($item['entityList'] ?? null) {
                 $o->setEntityList($this->em->getReference(EntityList::class, $item['entityList']));
