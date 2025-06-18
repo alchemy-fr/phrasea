@@ -57,7 +57,7 @@ class RenditionPolicy extends AbstractUuidEntity implements \Stringable
     /**
      * Override trait for annotation.
      */
-    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'renditionClasses')]
+    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'renditionPolicies')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['_'])]
     #[Assert\NotNull]
