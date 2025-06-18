@@ -9,6 +9,7 @@ enum Formats {
     Medium = 'medium',
     Relative = 'relative',
     Long = 'long',
+    Iso = 'iso',
 }
 
 export {Formats as DateFormats};
@@ -24,7 +25,10 @@ export default class DateType extends TextType {
 
     denormalize(value: string | undefined): string | undefined {
         if (value) {
-            return value.replace(/(Z|[+-]\d{2}:\d{2})$/, '');
+            return moment(value)
+                .local(false)
+                .format()
+                .replace(/(Z|[+-]\d{2}:\d{2})$/, '');
         }
 
         return value;
@@ -55,6 +59,10 @@ export default class DateType extends TextType {
             {
                 name: Formats.Relative,
                 title: 'Relative',
+            },
+            {
+                name: Formats.Iso,
+                title: 'ISO',
             },
         ].map(f => ({
             ...f,
@@ -91,6 +99,8 @@ export default class DateType extends TextType {
                 return m.fromNow();
             case Formats.Long:
                 return m.format('LLLL');
+            case Formats.Iso:
+                return m.format();
         }
     }
 }

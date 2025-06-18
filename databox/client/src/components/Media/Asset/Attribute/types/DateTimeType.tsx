@@ -35,6 +35,8 @@ export default class DateTimeType extends DateType {
                 return m.fromNow();
             case DateFormats.Long:
                 return m.format('LLLL');
+            case DateFormats.Iso:
+                return m.format();
         }
     }
 }
