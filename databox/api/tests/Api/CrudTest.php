@@ -38,11 +38,11 @@ final class CrudTest extends AbstractDataboxTestCase
         array $options = [],
     ): ResponseInterface {
         $workspace = $this->getOrCreateDefaultWorkspace();
-        $attributeClass = $this->getOrCreateDefaultAttributePolicy();
+        $attributePolicy = $this->getOrCreateDefaultAttributePolicy();
 
         $replacePH = fn (mixed $s): mixed => $this->replacePlaceholders($s, [
             'workspace' => $workspace,
-            'attributeClass' => $attributeClass,
+            'attributePolicy' => $attributePolicy,
             'lastId' => $options['itemId'] ?? 'Undefined Item ID',
         ]);
 
@@ -84,11 +84,11 @@ final class CrudTest extends AbstractDataboxTestCase
             return str_replace([
                 '{workspaceId}',
                 '{lastId}',
-                '{attributeClassId}',
+                '{attributePolicyId}',
             ], [
                 $context['workspace']->getId(),
                 $context['lastId'] ?? 'undefinedLastId',
-                $context['attributeClass']->getId(),
+                $context['attributePolicy']->getId(),
             ], $input);
         }
 
@@ -117,7 +117,7 @@ final class CrudTest extends AbstractDataboxTestCase
         $createAttributeDefinition = ['POST', '/attribute-definitions', KeycloakClientTestMock::ADMIN_UID, [
             'workspace' => '/workspaces/{workspaceId}',
             'name' => 'AttrDef Test',
-            'class' => '/attribute-policies/{attributeClassId}',
+            'policy' => '/attribute-policies/{attributePolicyId}',
         ]];
 
         return [
@@ -215,7 +215,7 @@ final class CrudTest extends AbstractDataboxTestCase
             ['POST', '/attribute-definitions', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
                 'name' => 'AttrClass Test',
-                'class' => '/attribute-policies/{attributeClassId}',
+                'policy' => '/attribute-policies/{attributePolicyId}',
             ], [
                 'code' => 403,
             ]],

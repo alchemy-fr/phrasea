@@ -221,6 +221,7 @@
         "php-parallel-lint/php-var-dump-check": "^v0.5"
     },
     "config": {
+        "process-timeout": 900,
         "preferred-install": {
             "*": "dist"
         },

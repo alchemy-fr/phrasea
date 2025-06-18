@@ -123,7 +123,7 @@ trait DataboxTestTrait
         $em = self::getEntityManager();
 
         $definition = new AttributeDefinition();
-        $definition->setPolicy($options['class'] ?? $this->getOrCreateDefaultAttributePolicy([
+        $definition->setPolicy($options['policy'] ?? $this->getOrCreateDefaultAttributePolicy([
             'no_flush' => $options['no_flush'] ?? null,
             'workspace' => $options['workspace'] ?? null,
         ]));

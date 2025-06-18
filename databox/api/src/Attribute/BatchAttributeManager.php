@@ -279,7 +279,7 @@ class BatchAttributeManager
                                 if ($user instanceof JwtUser) {
                                     $sub
                                         ->innerJoin('ad.policy', 'ap')
-                                        ->andWhere('ac.public = true OR ace.id IS NOT NULL');
+                                        ->andWhere('ap.public = true OR ace.id IS NOT NULL');
                                     $this->joinUserAcl($sub, $user);
                                 }
 
@@ -445,7 +445,7 @@ class BatchAttributeManager
                     ->innerJoin('a.definition', 'ad')
                     ->innerJoin('ad.policy', 'ap')
                     ->andWhere('ad.editable = true')
-                    ->andWhere('ac.public = true OR ace.id IS NOT NULL');
+                    ->andWhere('ap.public = true OR ace.id IS NOT NULL');
                 $this->joinUserAcl($qb, $user);
             }
         }
