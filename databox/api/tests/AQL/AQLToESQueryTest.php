@@ -122,6 +122,112 @@ class AQLToESQueryTest extends TestCase
                     'attrs._.date_date_s' => ['lt' => 2015],
                 ],
             ]],
+            ['date=  "2015"', [
+                'prefix' => [
+                    'attrs._.date_date_s.raw' => [
+                        'value' => '2015',
+                        'boost' => 1.0,
+                    ],
+                ],
+            ]],
+            ['date=  "2015-05"', [
+                'prefix' => [
+                    'attrs._.date_date_s.raw' => [
+                        'value' => '2015-05',
+                        'boost' => 1.0,
+                    ],
+                ],
+            ]],
+            ['date="2015-05-22"', [
+                'prefix' => [
+                    'attrs._.date_date_s.raw' => [
+                        'value' => '2015-05-22',
+                        'boost' => 1.0,
+                    ],
+                ],
+            ]],
+            ['date="2015-05-22 15"', [
+                'prefix' => [
+                    'attrs._.date_date_s.raw' => [
+                        'value' => '2015-05-22T15',
+                        'boost' => 1.0,
+                    ],
+                ],
+            ]],
+            ['date="2015-05-22T15"', [
+                'prefix' => [
+                    'attrs._.date_date_s.raw' => [
+                        'value' => '2015-05-22T15',
+                        'boost' => 1.0,
+                    ],
+                ],
+            ]],
+            ['date="2015-05-22T10:05"', [
+                'prefix' => [
+                    'attrs._.date_date_s.raw' => [
+                        'value' => '2015-05-22T10:05',
+                        'boost' => 1.0,
+                    ],
+                ],
+            ]],
+            ['date="2015-05-22T10:05:42"', [
+                'prefix' => [
+                    'attrs._.date_date_s.raw' => [
+                        'value' => '2015-05-22T10:05:42',
+                        'boost' => 1.0,
+                    ],
+                ],
+            ]],
+            ['date="2015-05-22 10:05:42"', [
+                'prefix' => [
+                    'attrs._.date_date_s.raw' => [
+                        'value' => '2015-05-22T10:05:42',
+                        'boost' => 1.0,
+                    ],
+                ],
+            ]],
+            ['date !=  "2015"', [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'prefix' => [
+                                'attrs._.date_date_s.raw' => [
+                                    'value' => '2015',
+                                    'boost' => 1.0,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]],
+            ['date !=  "2015-05"', [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'prefix' => [
+                                'attrs._.date_date_s.raw' => [
+                                    'value' => '2015-05',
+                                    'boost' => 1.0,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]],
+            ['date !=  "2015-05-22"', [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'prefix' => [
+                                'attrs._.date_date_s.raw' => [
+                                    'value' => '2015-05-22',
+                                    'boost' => 1.0,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]],
             ['foo="bar"', [
                 'term' => [
                     'attrs.fr.foo_text_s.raw' => 'bar',

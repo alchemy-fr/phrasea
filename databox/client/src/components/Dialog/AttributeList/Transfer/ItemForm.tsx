@@ -135,6 +135,7 @@ export default function ItemForm({item, listId, onChange}: Props) {
                                     <input
                                         type="radio"
                                         {...register('format')}
+                                        value={''}
                                     />
                                     <ListItemText
                                         primary={t(

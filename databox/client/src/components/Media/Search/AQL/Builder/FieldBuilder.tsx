@@ -1,5 +1,5 @@
 import {RawType} from '../aqlTypes.ts';
-import {TextField} from '@mui/material';
+import {TextField, TextFieldProps} from '@mui/material';
 import React from 'react';
 import {FieldWidget} from '../../../../../types.ts';
 import {hasProp} from '../../../../../lib/utils.ts';
@@ -49,11 +49,18 @@ export default function FieldBuilder({
         });
     }
 
+    const extraProps: Partial<TextFieldProps> = {};
+
     let fieldType = 'text';
     if (rawType === RawType.Date) {
         fieldType = 'date';
     } else if (rawType === RawType.DateTime) {
         fieldType = 'datetime-local';
+        extraProps.InputProps = {
+            inputProps: {
+                step: 1,
+            },
+        };
     }
 
     return (
@@ -67,6 +74,7 @@ export default function FieldBuilder({
                 setValue(e.target.value);
             }}
             fullWidth={true}
+            {...extraProps}
         />
     );
 }

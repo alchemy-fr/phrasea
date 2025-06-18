@@ -22,7 +22,12 @@ export function isSame(a: any, b: any): boolean {
 
     if (a instanceof Array && b instanceof Array) {
         return isSameArray(a, b);
-    } else if (typeof a === 'object' && typeof b === 'object') {
+    } else if (
+        typeof a === 'object' &&
+        typeof b === 'object' &&
+        a !== null &&
+        b !== null
+    ) {
         return isSameObject(a, b);
     }
 

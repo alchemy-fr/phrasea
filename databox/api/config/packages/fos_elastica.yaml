@@ -118,10 +118,19 @@ fos_elastica:
                     type: integer
                 createdAt:
                     type: date
+                    fields:
+                        raw:
+                            type: keyword
                 editedAt:
                     type: date
+                    fields:
+                        raw:
+                            type: keyword
                 attributesEditedAt:
                     type: date
+                    fields:
+                        raw:
+                            type: keyword
             persistence:
                 driver: orm
                 model: App\Entity\Core\Asset

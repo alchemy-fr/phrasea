@@ -15,6 +15,7 @@ import {DisplayContext} from '../../Media/DisplayContext';
 import {debounce} from '../../../lib/debounce';
 import ToggleWithLimit from '../../Media/Search/ToggleWithLimit';
 import ThumbSizeWidget from './ThumbSizeWidget';
+import SizeRatioWidget from './SizeRatioWidget.tsx';
 
 type Props = {};
 
@@ -39,6 +40,8 @@ export default function DisplayOptionsMenu({}: Props) {
         setTagsLimit,
         displayPreview,
         toggleDisplayPreview,
+        setPreviewOptions,
+        previewOptions,
     } = useContext(DisplayContext)!;
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -145,20 +148,114 @@ export default function DisplayOptionsMenu({}: Props) {
                         />
                     </FormGroup>
                     {displayPreview && (
-                        <FormGroup>
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                        checked={playVideos}
-                                        onChange={togglePlayVideos}
-                                    />
-                                }
-                                label={t(
-                                    'layout.options.play_preview_videos.label',
-                                    'Auto play video previews'
+                        <>
+                            <Typography gutterBottom>
+                                {t(
+                                    'layout.options.preview_options.options.label',
+                                    'Preview options'
                                 )}
-                            />
-                        </FormGroup>
+                            </Typography>
+                            <FormGroup>
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            checked={playVideos}
+                                            onChange={togglePlayVideos}
+                                        />
+                                    }
+                                    label={t(
+                                        'layout.options.play_preview_videos.label',
+                                        'Auto play video previews'
+                                    )}
+                                />
+                            </FormGroup>
+                            <FormGroup>
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            checked={previewOptions.displayFile}
+                                            onChange={() => {
+                                                setPreviewOptions(p => ({
+                                                    ...p,
+                                                    displayFile: !p.displayFile,
+                                                }));
+                                            }}
+                                        />
+                                    }
+                                    label={t(
+                                        'layout.options.preview_options.displayFile.label',
+                                        'Display File in preview'
+                                    )}
+                                />
+                            </FormGroup>
+                            <FormGroup>
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            checked={
+                                                previewOptions.displayAttributes
+                                            }
+                                            onChange={() => {
+                                                setPreviewOptions(p => ({
+                                                    ...p,
+                                                    displayAttributes:
+                                                        !p.displayAttributes,
+                                                }));
+                                            }}
+                                        />
+                                    }
+                                    label={t(
+                                        'layout.options.preview_options.displayAttributes.label',
+                                        'Display attributes in preview'
+                                    )}
+                                />
+                            </FormGroup>
+                            <FormGroup>
+                                <Typography gutterBottom>
+                                    {t(
+                                        'layout.options.preview_options.sizeRatio.label',
+                                        'Size'
+                                    )}
+                                </Typography>
+                                <SizeRatioWidget
+                                    min={20}
+                                    max={80}
+                                    sliderId={'sizeRatio'}
+                                    defaultValue={previewOptions.sizeRatio}
+                                    onChange={v => {
+                                        setPreviewOptions(p => ({
+                                            ...p,
+                                            sizeRatio: v,
+                                        }));
+                                    }}
+                                />
+                            </FormGroup>
+                            {previewOptions.displayAttributes &&
+                                previewOptions.displayFile && (
+                                    <FormGroup>
+                                        <Typography gutterBottom>
+                                            {t(
+                                                'layout.options.preview_options.attributesRatio.label',
+                                                'Attributes Size'
+                                            )}
+                                        </Typography>
+                                        <SizeRatioWidget
+                                            min={20}
+                                            max={80}
+                                            sliderId={'attributesRatio'}
+                                            defaultValue={
+                                                previewOptions.attributesRatio
+                                            }
+                                            onChange={v => {
+                                                setPreviewOptions(p => ({
+                                                    ...p,
+                                                    attributesRatio: v,
+                                                }));
+                                            }}
+                                        />
+                                    </FormGroup>
+                                )}
+                        </>
                     )}
                 </Box>
             </Menu>
