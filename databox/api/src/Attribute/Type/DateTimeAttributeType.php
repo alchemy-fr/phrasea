@@ -54,7 +54,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         return [
             'fields' => [
                 'text' => [
-                    'type' => 'text',
+                    'type' => 'keyword',
                 ],
             ],
         ];
