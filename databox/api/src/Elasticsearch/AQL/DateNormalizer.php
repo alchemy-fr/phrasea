@@ -6,7 +6,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final readonly class DateNormalizer
 {
-    public function normalizeDate(mixed $value): int|string|array
+    public function normalizeDate(mixed $value, bool $allowPartialDate = false, bool $withTimeZone = true): int|string|array
     {
         $originalValue = $value;
         if (is_array($value)) {
@@ -41,7 +41,7 @@ final readonly class DateNormalizer
                     $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.uO', $value);
                     if (false === $date) {
                         $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.u', $value);
-                        if (false === $date) {
+                        if (false === $date && !$allowPartialDate) {
                             $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i.uO', $value);
                             if (false === $date) {
                                 $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i.u', $value);
@@ -52,7 +52,7 @@ final readonly class DateNormalizer
                     $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:sO', $value);
                     if (false === $date) {
                         $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $value);
-                        if (false === $date) {
+                        if (false === $date && !$allowPartialDate) {
                             $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i', $value);
                             if (false === $date) {
                                 $date = \DateTimeImmutable::createFromFormat('Y-m-d\TH:iO', $value);
@@ -62,10 +62,15 @@ final readonly class DateNormalizer
                 }
 
                 if ($date instanceof \DateTimeImmutable) {
-                    $format = $withMicro ? 'Y-m-d\TH:i:s.uO' : 'Y-m-d\TH:i:sO';
+                    $tz = $withTimeZone ? 'O' : '';
+                    $format = $withMicro ? 'Y-m-d\TH:i:s.u'.$tz : 'Y-m-d\TH:i:s'.$tz;
 
                     return $date->format($format);
                 }
+            }
+
+            if ($allowPartialDate && preg_match('/^\d{4}(-\d{2}(-\d{2})?([T\s]\d{2}(:\d{2})?(:\d{2})?)?)?$/', $originalValue)) {
+                return str_replace(' ', 'T', $originalValue);
             }
 
             throw new BadRequestHttpException(sprintf('Invalid date value "%s"', $originalValue));

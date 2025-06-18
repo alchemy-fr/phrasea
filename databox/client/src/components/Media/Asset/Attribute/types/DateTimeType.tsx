@@ -7,6 +7,11 @@ export default class DateTimeType extends DateType {
     public getFieldProps(): TextFieldProps {
         return {
             type: 'datetime-local',
+            InputProps: {
+                inputProps: {
+                    step: 1,
+                },
+            },
             InputLabelProps: {
                 shrink: true,
             },
