@@ -1,5 +1,5 @@
 import {PropsWithChildren, useEffect, useState} from 'react';
-import {DisplayContext, PlayingContext} from './DisplayContext';
+import {DisplayContext, PlayingContext, PreviewOptions} from './DisplayContext';
 import {toast} from 'react-toastify';
 
 import {useTranslation} from 'react-i18next';
@@ -17,6 +17,7 @@ type Props = PropsWithChildren<{
     tagsLimit?: number;
     playingContext?: PlayingContext;
     previewLocked?: boolean;
+    previewOptions?: Partial<PreviewOptions>;
 }>;
 
 export default function DisplayProvider({
@@ -33,7 +34,15 @@ export default function DisplayProvider({
     tagsLimit: defaultTagsLimit = 1,
     playingContext: defaultPlayingContext,
     previewLocked: defaultPreviewLocked = false,
+    previewOptions: defaultPreviewOptions = {},
 }: Props) {
+    const [previewOptions, setPreviewOptions] = useState<PreviewOptions>({
+        sizeRatio: 0.6,
+        attributesRatio: 0.3,
+        displayFile: true,
+        displayAttributes: true,
+        ...defaultPreviewOptions,
+    });
     const [thumbSize, setThumbSize] = useState<number>(defaultThumbSize);
     const [displayTitle, setDisplayTitle] =
         useState<boolean>(defaultDisplayTitle);
@@ -105,6 +114,7 @@ export default function DisplayProvider({
                 displayAttributes,
                 displayCollections,
                 displayPreview,
+                previewOptions,
                 displayTags,
                 displayTitle,
                 playVideos,
@@ -132,6 +142,7 @@ export default function DisplayProvider({
                 toggleDisplayTags: () => setDisplayTags(p => !p),
                 toggleDisplayTitle: () => setDisplayTitle(p => !p),
                 togglePlayVideos: () => setPlayVideos(p => !p),
+                setPreviewOptions,
             }}
         >
             {children}

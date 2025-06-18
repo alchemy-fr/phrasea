@@ -1,7 +1,15 @@
 import React from 'react';
+import {StateSetter} from '../../types.ts';
 
 export type PlayingContext = {
     stop: VoidFunction;
+};
+
+export type PreviewOptions = {
+    sizeRatio: number;
+    attributesRatio: number;
+    displayAttributes: boolean;
+    displayFile: boolean;
 };
 
 export type TDisplayContext = {
@@ -9,6 +17,7 @@ export type TDisplayContext = {
     displayAttributes: boolean;
     displayCollections: boolean;
     displayPreview: boolean;
+    previewOptions: PreviewOptions;
     displayTags: boolean;
     displayTitle: boolean;
     playVideos: boolean;
@@ -28,6 +37,7 @@ export type TDisplayContext = {
     toggleDisplayTags: VoidFunction;
     toggleDisplayTitle: VoidFunction;
     togglePlayVideos: VoidFunction;
+    setPreviewOptions: StateSetter<PreviewOptions>;
 };
 
 export const DisplayContext = React.createContext<TDisplayContext | null>(null);
