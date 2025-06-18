@@ -4,10 +4,10 @@ import {
     AssetInput,
     AssetOutput,
     StoryAssetOutput,
-    AttributeClass,
+    AttributePolicy,
     AttributeDefinition,
     CollectionInput,
-    RenditionClass,
+    RenditionPolicy,
     Tag,
 } from './types';
 import {lockPromise} from '../lib/promise';
@@ -228,23 +228,25 @@ export class DataboxClient {
         return res.data['hydra:member'];
     }
 
-    async createAttributeClass(
+    async createAttributePolicy(
         key: string,
-        data: Partial<AttributeClass>
-    ): Promise<AttributeClass> {
-        return await lockPromise(`attr-class-${key}`, async () => {
-            return (await this.client.post(`/attribute-classes`, data)).data;
+        data: Partial<AttributePolicy>
+    ): Promise<AttributePolicy> {
+        return await lockPromise(`attr-policy-${key}`, async () => {
+            return (await this.client.post(`/attribute-policies`, data)).data;
         });
     }
 
-    async createRenditionClass(data: object): Promise<string> {
-        const res = await this.client.post(`/rendition-classes`, data);
+    async createRenditionPolicy(data: object): Promise<string> {
+        const res = await this.client.post(`/rendition-policies`, data);
 
         return res.data.id;
     }
 
-    async getRenditionClasses(workspaceId: string): Promise<RenditionClass[]> {
-        const res = await this.client.get(`/rendition-classes`, {
+    async getRenditionPolicies(
+        workspaceId: string
+    ): Promise<RenditionPolicy[]> {
+        const res = await this.client.get(`/rendition-policies`, {
             params: {
                 workspaceId,
             },

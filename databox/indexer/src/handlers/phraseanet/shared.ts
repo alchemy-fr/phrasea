@@ -2,7 +2,7 @@ import {Asset} from '../../indexers';
 import {FieldMap} from './types';
 import {CPhraseanetRecord, CPhraseanetStory} from './CPhraseanetRecord';
 import {Logger} from 'winston';
-import {AttributeClass, AttributeInput} from '../../databox/types';
+import {AttributePolicy, AttributeInput} from '../../databox/types';
 
 export type AttrDefinitionIndex = Record<
     string,
@@ -14,7 +14,7 @@ export type AttrDefinitionIndex = Record<
 
 export type TagIndex = Record<number, string>;
 
-export type AttrClassIndex = Record<string, AttributeClass>;
+export type AttrPolicyIndex = Record<string, AttributePolicy>;
 
 export async function createAsset(
     workspaceId: string,
