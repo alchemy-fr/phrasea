@@ -119,17 +119,17 @@ fos_elastica:
                 createdAt:
                     type: date
                     fields:
-                        text:
+                        raw:
                             type: keyword
                 editedAt:
                     type: date
                     fields:
-                        text:
+                        raw:
                             type: keyword
                 attributesEditedAt:
                     type: date
                     fields:
-                        text:
+                        raw:
                             type: keyword
             persistence:
                 driver: orm

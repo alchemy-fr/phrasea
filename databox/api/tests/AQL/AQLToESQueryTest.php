@@ -124,7 +124,7 @@ class AQLToESQueryTest extends TestCase
             ]],
             ['date=  "2015"', [
                 'prefix' => [
-                    'attrs._.date_date_s.text' => [
+                    'attrs._.date_date_s.raw' => [
                         'value' => '2015',
                         'boost' => 1.0,
                     ],
@@ -132,7 +132,7 @@ class AQLToESQueryTest extends TestCase
             ]],
             ['date=  "2015-05"', [
                 'prefix' => [
-                    'attrs._.date_date_s.text' => [
+                    'attrs._.date_date_s.raw' => [
                         'value' => '2015-05',
                         'boost' => 1.0,
                     ],
@@ -140,7 +140,7 @@ class AQLToESQueryTest extends TestCase
             ]],
             ['date="2015-05-22"', [
                 'prefix' => [
-                    'attrs._.date_date_s.text' => [
+                    'attrs._.date_date_s.raw' => [
                         'value' => '2015-05-22',
                         'boost' => 1.0,
                     ],
@@ -148,7 +148,7 @@ class AQLToESQueryTest extends TestCase
             ]],
             ['date="2015-05-22 15"', [
                 'prefix' => [
-                    'attrs._.date_date_s.text' => [
+                    'attrs._.date_date_s.raw' => [
                         'value' => '2015-05-22T15',
                         'boost' => 1.0,
                     ],
@@ -156,7 +156,7 @@ class AQLToESQueryTest extends TestCase
             ]],
             ['date="2015-05-22T15"', [
                 'prefix' => [
-                    'attrs._.date_date_s.text' => [
+                    'attrs._.date_date_s.raw' => [
                         'value' => '2015-05-22T15',
                         'boost' => 1.0,
                     ],
@@ -164,7 +164,7 @@ class AQLToESQueryTest extends TestCase
             ]],
             ['date="2015-05-22T10:05"', [
                 'prefix' => [
-                    'attrs._.date_date_s.text' => [
+                    'attrs._.date_date_s.raw' => [
                         'value' => '2015-05-22T10:05',
                         'boost' => 1.0,
                     ],
@@ -172,7 +172,7 @@ class AQLToESQueryTest extends TestCase
             ]],
             ['date="2015-05-22T10:05:42"', [
                 'prefix' => [
-                    'attrs._.date_date_s.text' => [
+                    'attrs._.date_date_s.raw' => [
                         'value' => '2015-05-22T10:05:42',
                         'boost' => 1.0,
                     ],
@@ -180,7 +180,7 @@ class AQLToESQueryTest extends TestCase
             ]],
             ['date="2015-05-22 10:05:42"', [
                 'prefix' => [
-                    'attrs._.date_date_s.text' => [
+                    'attrs._.date_date_s.raw' => [
                         'value' => '2015-05-22T10:05:42',
                         'boost' => 1.0,
                     ],
@@ -191,7 +191,7 @@ class AQLToESQueryTest extends TestCase
                     'must_not' => [
                         [
                             'prefix' => [
-                                'attrs._.date_date_s.text' => [
+                                'attrs._.date_date_s.raw' => [
                                     'value' => '2015',
                                     'boost' => 1.0,
                                 ],
@@ -205,7 +205,7 @@ class AQLToESQueryTest extends TestCase
                     'must_not' => [
                         [
                             'prefix' => [
-                                'attrs._.date_date_s.text' => [
+                                'attrs._.date_date_s.raw' => [
                                     'value' => '2015-05',
                                     'boost' => 1.0,
                                 ],
@@ -219,7 +219,7 @@ class AQLToESQueryTest extends TestCase
                     'must_not' => [
                         [
                             'prefix' => [
-                                'attrs._.date_date_s.text' => [
+                                'attrs._.date_date_s.raw' => [
                                     'value' => '2015-05-22',
                                     'boost' => 1.0,
                                 ],

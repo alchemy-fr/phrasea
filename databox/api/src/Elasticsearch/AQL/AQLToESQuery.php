@@ -153,7 +153,6 @@ final readonly class AQLToESQuery
             );
 
             if (null !== $switchOperator) {
-                $fieldRaw = $fieldName;
                 $operator = $switchOperator;
             }
         }
