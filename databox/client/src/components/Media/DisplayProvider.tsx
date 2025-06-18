@@ -37,8 +37,8 @@ export default function DisplayProvider({
     previewOptions: defaultPreviewOptions = {},
 }: Props) {
     const [previewOptions, setPreviewOptions] = useState<PreviewOptions>({
-        sizeRatio: 0.6,
-        attributesRatio: 0.3,
+        sizeRatio: 60,
+        attributesRatio: 30,
         displayFile: true,
         displayAttributes: true,
         ...defaultPreviewOptions,
