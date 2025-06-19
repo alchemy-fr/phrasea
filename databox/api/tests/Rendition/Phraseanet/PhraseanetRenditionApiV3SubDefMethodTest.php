@@ -66,6 +66,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
                 'thumbnail',
             ],
         ]);
+        $integration->setOwnerId('custom_owner');
         $em->persist($integration);
 
         $em->flush();
