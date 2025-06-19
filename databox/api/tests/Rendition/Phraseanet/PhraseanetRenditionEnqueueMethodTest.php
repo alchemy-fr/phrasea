@@ -69,6 +69,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
                 'thumbnail',
             ],
         ]);
+        $integration->setOwnerId('custom_owner');
         $em->persist($integration);
 
         $em->flush();

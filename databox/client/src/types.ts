@@ -402,6 +402,7 @@ export interface WorkspaceIntegration extends DefinitionBase {
     configYaml: string;
     tokens: IntegrationToken[];
     workspace: Workspace | string;
+    owner?: User;
     lastErrors?: LastErrors;
 }
 

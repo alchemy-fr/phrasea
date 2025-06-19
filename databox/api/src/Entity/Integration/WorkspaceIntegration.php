@@ -23,6 +23,8 @@ use App\Entity\Core\Workspace;
 use App\Entity\Traits\ErrorDisableInterface;
 use App\Entity\Traits\ErrorDisableTrait;
 use App\Entity\Traits\NullableWorkspaceTrait;
+use App\Entity\Traits\OwnerIdTrait;
+use App\Entity\WithOwnerIdInterface;
 use App\Integration\Exception\CircularReferenceException;
 use App\Security\Voter\AbstractVoter;
 use App\Validator\ValidIntegrationOptionsConstraint;
@@ -58,10 +60,11 @@ use Symfony\Component\Yaml\Yaml;
 #[ORM\Entity]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 #[ValidIntegrationOptionsConstraint]
-class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface
+class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, WithOwnerIdInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    use OwnerIdTrait;
     use NullableWorkspaceTrait;
     use ErrorDisableTrait;
 
