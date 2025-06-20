@@ -76,6 +76,7 @@ use Symfony\Component\String\ByteString;
         ),
         new Post(
             securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
+            validate: false,
             provider: ShareReadProvider::class,
             processor: ShareProcessor::class,
         ),
