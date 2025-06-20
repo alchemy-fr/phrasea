@@ -32,7 +32,7 @@ class WorkspaceRepository extends EntityRepository
     {
         return array_map(fn (array $row): string => (string) $row['id'], $this
             ->createAllowedWorkspacesQueryBuilder($userId, $groupIds)
-            ->select('w.id')
+            ->select('DISTINCT w.id')
             ->getQuery()
             ->getResult()
         );
