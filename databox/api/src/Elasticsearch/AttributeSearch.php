@@ -241,6 +241,11 @@ class AttributeSearch
                 }
             }
 
+            if (!$matchBoolQuery->hasParam('should') || empty($matchBoolQuery->getParam('should'))) {
+                // If no match query was created, we can skip this cluster
+                continue;
+            }
+
             $clusterQuery->addMust($matchBoolQuery);
             if (1 !== $cluster['b']) {
                 $clusterQuery->setBoost($cluster['b']);
