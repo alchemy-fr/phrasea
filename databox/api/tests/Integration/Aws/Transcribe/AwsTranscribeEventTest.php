@@ -86,6 +86,7 @@ EOL;
             'accessKeyId' => '42',
             'accessKeySecret' => '42',
         ]);
+        $integration->setOwnerId('custom_owner');
         $em->persist($integration);
         $em->flush();
 

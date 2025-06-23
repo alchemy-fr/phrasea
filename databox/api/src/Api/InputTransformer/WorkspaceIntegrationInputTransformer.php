@@ -43,7 +43,7 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
         }
         $object->setEnabled($data->enabled);
 
-        return $object;
+        return $this->processOwnerId($object);
     }
 
     public function supports(string $resourceClass, object $data): bool
