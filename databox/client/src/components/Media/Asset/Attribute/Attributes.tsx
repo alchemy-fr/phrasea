@@ -25,10 +25,10 @@ import {
     getBuiltInFilters,
     useIndexById,
 } from '../../../../store/attributeDefinitionStore.ts';
-import {NO_LOCALE} from './AttributesEditor.tsx';
 import Separator from '../../../Ui/Separator.tsx';
 import {Spacer} from '../../../Ui/VerticalSpacer.tsx';
 import {AttributeFormat} from './types/types';
+import {NO_LOCALE} from './constants.ts';
 
 type AttributeItem = {
     id: string;

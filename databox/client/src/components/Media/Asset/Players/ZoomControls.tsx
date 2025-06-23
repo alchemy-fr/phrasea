@@ -6,6 +6,7 @@ import FitScreenIcon from '@mui/icons-material/FitScreen';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import PanToolIcon from '@mui/icons-material/PanTool';
 import {StateSetter} from '../../../../types.ts';
+import {useEffect, useRef} from 'react';
 
 type Props = {
     fitContentToWrapper: (
@@ -14,6 +15,7 @@ type Props = {
     hand: boolean;
     setHand: StateSetter<boolean>;
     forceHand: boolean | undefined;
+    autoCenter?: boolean;
 };
 
 export default function ZoomControls({
@@ -21,8 +23,16 @@ export default function ZoomControls({
     hand,
     setHand,
     forceHand,
+    autoCenter = true,
 }: Props) {
     const {zoomIn, zoomOut, resetTransform, centerView} = useControls();
+    const wasReset = useRef(false);
+
+    useEffect(() => {
+        if (autoCenter && centerView && !wasReset.current) {
+            fitContentToWrapper(centerView);
+        }
+    }, [centerView]);
 
     return (
         <>
@@ -34,13 +44,28 @@ export default function ZoomControls({
                     <PanToolIcon />
                 </IconButton>
             ) : null}
-            <IconButton onClick={() => zoomIn()}>
+            <IconButton
+                onClick={() => {
+                    wasReset.current = true;
+                    zoomIn();
+                }}
+            >
                 <ZoomInIcon />
             </IconButton>
-            <IconButton onClick={() => zoomOut()}>
+            <IconButton
+                onClick={() => {
+                    wasReset.current = true;
+                    zoomOut();
+                }}
+            >
                 <ZoomOutIcon />
             </IconButton>
-            <IconButton onClick={() => resetTransform()}>
+            <IconButton
+                onClick={() => {
+                    wasReset.current = true;
+                    resetTransform();
+                }}
+            >
                 <RestartAltIcon />
             </IconButton>
             <IconButton onClick={() => fitContentToWrapper(centerView)}>

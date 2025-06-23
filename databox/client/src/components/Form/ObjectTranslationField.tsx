@@ -1,9 +1,9 @@
 import React, {ReactNode} from 'react';
 import {Alert, Box, InputLabel, Tab, Tabs} from '@mui/material';
 import Flag from '../Ui/Flag.tsx';
-import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor.tsx';
 import {useTranslation} from 'react-i18next';
 import {TabPanelProps} from '@mui/lab';
+import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
 
 type Props = {
     translatable?: boolean;

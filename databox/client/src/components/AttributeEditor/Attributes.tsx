@@ -6,8 +6,8 @@ import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {useContext} from 'react';
 import {AttributeFormatContext} from '../Media/Asset/Attribute/Format/AttributeFormatContext.ts';
 import {AttributeFormatterProps} from '../Media/Asset/Attribute/types/types';
-import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor.tsx';
 import LockIcon from '@mui/icons-material/Lock';
+import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
 
 type Props = {
     definitionValues: DefinitionValuesIndex<any>;

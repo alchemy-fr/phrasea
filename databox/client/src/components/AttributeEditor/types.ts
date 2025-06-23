@@ -1,5 +1,6 @@
 import {Asset, AttributeDefinition, StateSetter} from '../../types.ts';
-import {AttributeType} from '../../api/attributes.ts';
+
+import {AttributeType} from '../../api/types.ts';
 
 export type IndeterminateGroup = {
     g: boolean;

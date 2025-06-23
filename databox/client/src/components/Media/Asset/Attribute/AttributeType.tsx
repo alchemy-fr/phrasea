@@ -5,7 +5,6 @@ import {AttributeDefinition} from '../../../../types';
 import {
     AttrValue,
     LocalizedAttributeIndex,
-    NO_LOCALE,
     OnChangeHandler,
 } from './AttributesEditor';
 import MultiAttributeRow from './MultiAttributeRow';
@@ -13,6 +12,7 @@ import {FormRow} from '@alchemy/react-form';
 import {FormLabel} from '@mui/material';
 import TranslatableAttributeTabs from './TranslatableAttributeTabs';
 import React from 'react';
+import {NO_LOCALE} from './constants.ts';
 
 function extractNoLocaleOrDefinedLocaleValue<T>(
     attributes: LocalizedAttributeIndex<T>

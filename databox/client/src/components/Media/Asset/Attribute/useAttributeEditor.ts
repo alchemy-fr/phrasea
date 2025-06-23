@@ -3,13 +3,13 @@ import {
     AttributeIndex,
     AttrValue,
     DefinitionIndex,
-    NO_LOCALE,
     OnChangeHandler,
 } from './AttributesEditor';
 import {Attribute, AttributeDefinition} from '../../../../types';
 import {getWorkspaceAttributeDefinitions} from '../../../../api/attributes';
 import {getAssetAttributes} from '../../../../api/asset';
 import {getBatchActions} from './BatchActions';
+import {NO_LOCALE} from './constants.ts';
 
 export function useAttributeEditor({
     workspaceId,

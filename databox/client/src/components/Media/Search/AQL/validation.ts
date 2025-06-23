@@ -9,7 +9,8 @@ import {
 import {hasProp} from '../../../../lib/utils.ts';
 import {AttributeDefinition} from '../../../../types.ts';
 import {isAQLCondition, isAQLField, valueToString} from './query.ts';
-import {AttributeType} from '../../../../api/attributes.ts';
+
+import {AttributeType} from '../../../../api/types.ts';
 
 export const typeMap: Record<AttributeType, RawType> = {
     [AttributeType.Boolean]: RawType.Boolean,

@@ -1,6 +1,7 @@
 import {AttributeFormat} from '../types/types';
 import React from 'react';
-import {AttributeType} from '../../../../../api/attributes.ts';
+
+import {AttributeType} from '../../../../../api/types.ts';
 
 export type TAttributeFormatContext = {
     getFormat(

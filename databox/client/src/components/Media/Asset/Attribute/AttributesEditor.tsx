@@ -3,14 +3,14 @@ import {AttributeDefinition} from '../../../../types';
 import AttributeType from './AttributeType';
 import {toArray} from '../../../../lib/utils';
 import React from 'react';
-import {AttributeType as AttributeTypeEnum} from '../../../../api/attributes.ts';
+
+import {AttributeType as AttributeTypeEnum} from '../../../../api/types.ts';
 
 export type AttrValue<T = string> = {
     id: T;
     value: any;
 };
 
-export const NO_LOCALE = '_';
 export type DefinitionIndex = Record<string, AttributeDefinition>;
 export type LocalizedAttributeIndex<T = string> = {
     [locale: string]: AttrValue<T> | AttrValue<T>[] | undefined;

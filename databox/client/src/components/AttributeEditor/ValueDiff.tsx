@@ -1,8 +1,4 @@
 import {
-    AttributeBatchAction,
-    AttributeBatchActionEnum,
-} from '../../api/asset.ts';
-import {
     Avatar,
     List,
     ListItem,
@@ -19,6 +15,10 @@ import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {AttributeFormatterProps} from '../Media/Asset/Attribute/types/types';
 import {useContext} from 'react';
 import {AttributeFormatContext} from '../Media/Asset/Attribute/Format/AttributeFormatContext.ts';
+import {
+    AttributeBatchAction,
+    AttributeBatchActionEnum,
+} from '../../api/types.ts';
 
 type Props = {
     actions: AttributeBatchAction[];

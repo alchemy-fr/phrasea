@@ -1,7 +1,8 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {AttributeWidgetProps} from '../Media/Asset/Attribute/types/types';
-import {AttributeType} from '../../api/attributes.ts';
+
+import {AttributeType} from '../../api/types.ts';
 
 type Props<T> = {
     type: AttributeType;

@@ -30,6 +30,13 @@ export default function AttributeListMenuItem({
 }: Props) {
     const {t} = useTranslation();
 
+    const canEdit = data.capabilities.canEdit;
+    const canDelete = data.capabilities.canDelete;
+
+    const textSx = {
+        pr: (canEdit ? 6 : 0) + (canDelete ? 6 : 0),
+    };
+
     return (
         <>
             <ListItem onContextMenu={onContextMenu} disablePadding>
@@ -50,10 +57,14 @@ export default function AttributeListMenuItem({
                         secondary={data.description}
                         secondaryTypographyProps={{
                             style: {whiteSpace: 'normal'},
+                            sx: textSx,
+                        }}
+                        primaryTypographyProps={{
+                            sx: textSx,
                         }}
                     />
                     <ListItemSecondaryAction>
-                        {data.capabilities.canEdit && (
+                        {canEdit && (
                             <IconButton
                                 onMouseDown={e => e.stopPropagation()}
                                 onClick={e => {
@@ -64,7 +75,7 @@ export default function AttributeListMenuItem({
                                 <EditIcon />
                             </IconButton>
                         )}
-                        {data.capabilities.canDelete && (
+                        {canDelete && (
                             <IconButton
                                 onMouseDown={e => e.stopPropagation()}
                                 onClick={e => {

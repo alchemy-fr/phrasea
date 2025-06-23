@@ -1,5 +1,6 @@
-import {AttributeIndex, DefinitionIndex, NO_LOCALE} from './AttributesEditor';
+import {AttributeIndex, DefinitionIndex} from './AttributesEditor';
 import {getAttributeType} from './types';
+import {NO_LOCALE} from './constants.ts';
 
 type AttributeInput = {
     definitionId: string;
