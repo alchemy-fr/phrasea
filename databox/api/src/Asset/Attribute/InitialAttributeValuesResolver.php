@@ -101,7 +101,7 @@ class InitialAttributeValuesResolver
             case 'metadata':
                 // the value is a simple metadata tag name, fetch data directly
                 $m = $fileMetadataAccessorWrapper->getMetadata($initializeFormula['value']);
-                $initialValues = $definition->isMultiple() ? $m['values'] : [$m['value']];
+                $initialValues = $m ? ($definition->isMultiple() ? $m['values'] : [$m['value']]) : [];
                 break;
 
             case 'template':

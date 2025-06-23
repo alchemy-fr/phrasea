@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\File;
 
 use App\Entity\Core\File;
-use App\Metadata\MetadataNormalizer;
 use Twig\Error\SyntaxError;
 
 /**
@@ -53,10 +52,6 @@ class FileMetadataAccessorWrapper
             }
         }
 
-        // no file or no metadata ? be nice also
-        $r = MetadataNormalizer::createBlankMeta();
-        $this->meta[$id] = $r;
-
-        return $r;
+        return null;
     }
 }
