@@ -41,13 +41,4 @@ class MetadataNormalizer
 
         return $a;
     }
-
-    public static function createBlankMeta(): array
-    {
-        return [
-            'name' => null,
-            'values' => [],
-            'value' => null,
-        ];
-    }
 }
