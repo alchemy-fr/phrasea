@@ -1,11 +1,11 @@
 import {ApiHydraObjectResponse} from './api/hydra';
-import {AttributeType} from './api/attributes';
 import type {WithTranslations} from '@alchemy/react-form';
 import {Integration} from './components/Integration/types.ts';
 import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTypes.ts';
 import {RenditionBuildMode} from './api/rendition.ts';
 import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/DefinitionManager.tsx';
 import React from 'react';
+import {AttributeType} from './api/types.ts';
 
 type AlternateUrl = {
     type: string;

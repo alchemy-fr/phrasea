@@ -1,7 +1,7 @@
 import apiClient from './api-client';
-import {AttributeBatchAction} from './asset';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import {Attribute, Entity, Tag} from '../types';
+import {AttributeBatchAction} from './types.ts';
 
 export type AssetDataTemplate = {
     name: string;

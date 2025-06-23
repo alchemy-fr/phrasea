@@ -8,7 +8,7 @@ import {
     User,
     Workspace,
 } from '../types';
-import {AttributeType, getAttributeDefinitions} from '../api/attributes.ts';
+import {getAttributeDefinitions} from '../api/attributes.ts';
 import {TFunction} from '@alchemy/i18n';
 import {BuiltInFilter} from '../components/Media/Search/search.ts';
 import WorkspaceSelect from '../components/Form/WorkspaceSelect.tsx';
@@ -17,6 +17,7 @@ import TagSelect from '../components/Form/TagSelect.tsx';
 import AttributeEntitySelect from '../components/Form/AttributeEntitySelect.tsx';
 import UserSelect from '../components/Form/UserSelect.tsx';
 import RenditionDefinitionSelect from '../components/Form/RenditionDefinitionSelect.tsx';
+import {AttributeType} from '../api/types.ts';
 
 export type AttributeDefinitionsIndex = Record<string, AttributeDefinition>;
 

@@ -10,7 +10,6 @@ import SuggestionPanel from './Suggestions/SuggestionPanel.tsx';
 import {scrollbarWidth} from '../../constants.ts';
 import EditorPanel from './EditorPanel.tsx';
 import {SelectedValue, SetAttributeValue} from './types.ts';
-import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor.tsx';
 import {Resizable} from 're-resizable';
 import {useTranslation} from 'react-i18next';
 import AttributesToolbar from './AttributesToolbar.tsx';
@@ -22,6 +21,7 @@ import {ZIndex} from '../../themes/zIndex.ts';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {useTabShortcut} from './shortcuts.ts';
 import AssetToggleOverlay from './AssetToggleOverlay.tsx';
+import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
 
 type Props = {
     assets: Asset[];

@@ -19,6 +19,7 @@ import FieldBuilder, {FieldBuilderProps} from './FieldBuilder.tsx';
 import {parseAQLQuery} from '../AQL.ts';
 import {valueToString} from '../query.ts';
 import {FieldWidget} from '../../../../../types.ts';
+import DateType from '../../../Asset/Attribute/types/DateType.tsx';
 
 type Props = {
     expression: BaseBuilderProps<QBCondition>['expression'];
@@ -64,6 +65,13 @@ export default function ValueBuilder({
         value: string | number | boolean
     ): AQLValueOrExpression => {
         if (typeof value === 'string') {
+            if (rawType && [RawType.Date, RawType.DateTime].includes(rawType)) {
+                const date = new Date(value);
+                if (!isNaN(date.getTime())) {
+                    return {literal: new DateType().normalize(value) as string};
+                }
+            }
+
             if (value.startsWith('=')) {
                 const result = parseAQLQuery(`f = ${value.slice(1)}`);
                 if (!result) {
@@ -105,7 +113,8 @@ export default function ValueBuilder({
     if (!manyArgsDefined) {
         fields.push({
             value: resolveValue(
-                expression.rightOperand as AQLValueOrExpression
+                expression.rightOperand as AQLValueOrExpression,
+                rawType
             ),
             name: 'value',
             label:
@@ -126,7 +135,8 @@ export default function ValueBuilder({
         for (let i = 0; i < argCount; i++) {
             fields.push({
                 value: resolveValue(
-                    (expression.rightOperand as AQLValueOrExpression[])[i]
+                    (expression.rightOperand as AQLValueOrExpression[])[i],
+                    rawType
                 ),
                 name: `value-${i}`,
                 label:
@@ -181,9 +191,16 @@ export default function ValueBuilder({
     );
 }
 
-function resolveValue(value: AQLValueOrExpression): string {
+function resolveValue(
+    value: AQLValueOrExpression,
+    rawType: RawType | undefined
+): string {
     if (typeof value === 'object') {
         if (hasProp<AQLLiteral>(value, 'literal')) {
+            if (rawType && [RawType.Date, RawType.DateTime].includes(rawType)) {
+                return new DateType().denormalize(value.literal) as string;
+            }
+
             if (matchesNumber(value.literal)) {
                 return `"${value.literal}"`;
             }

@@ -140,7 +140,21 @@ final readonly class AQLToESQuery
         }
 
         if ($type instanceof DateTimeAttributeType && null !== $value) {
-            $value = $this->dateNormalizer->normalizeDate($value);
+            $operatorSwitches = [
+                ConditionOperatorEnum::EQUALS->value => ConditionOperatorEnum::STARTS_WITH,
+                ConditionOperatorEnum::NOT_EQUALS->value => ConditionOperatorEnum::NOT_STARTS_WITH,
+            ];
+
+            $switchOperator = $operatorSwitches[$operator->value] ?? null;
+            $value = $this->dateNormalizer->normalizeDate(
+                $value,
+                allowPartialDate: null !== $switchOperator,
+                withTimeZone: null === $switchOperator,
+            );
+
+            if (null !== $switchOperator) {
+                $operator = $switchOperator;
+            }
         }
 
         return match ($operator) {

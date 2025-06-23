@@ -56,8 +56,16 @@ class DateTimeAttributeType extends AbstractAttributeType
                 'text' => [
                     'type' => 'text',
                 ],
+                AttributeTypeInterface::RAW_PROP => [
+                    'type' => 'keyword',
+                ],
             ],
         ];
+    }
+
+    public function getElasticSearchRawField(): ?string
+    {
+        return AttributeTypeInterface::RAW_PROP;
     }
 
     public function getElasticSearchTextSubField(): ?string

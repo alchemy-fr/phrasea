@@ -1,11 +1,7 @@
 import {postCollection} from '../../api/collection';
 import {UploadFiles} from '../../api/uploader/file';
 import {Asset} from '../../types';
-import {
-    AttributeBatchAction,
-    NewAssetPostType,
-    postMultipleAssets,
-} from '../../api/asset';
+import {NewAssetPostType, postMultipleAssets} from '../../api/asset';
 import {v4 as uuidv4} from 'uuid';
 import {
     CollectionId,
@@ -13,6 +9,7 @@ import {
     treeViewPathSeparator,
 } from '../../components/Media/Collection/CollectionTree/collectionTree.ts';
 import {AxiosRequestConfig} from 'axios';
+import {AttributeBatchAction} from '../../api/types.ts';
 
 type InputFile = {
     title?: string;

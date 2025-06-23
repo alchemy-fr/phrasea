@@ -14,6 +14,7 @@ import {
 } from './hydra';
 import {AxiosRequestConfig} from 'axios';
 import {TFacets} from '../components/Media/Asset/Facets';
+import {AttributeBatchAction, AttributeBatchActionEnum} from './types.ts';
 
 export interface GetAssetOptions {
     url?: string;
@@ -202,24 +203,6 @@ export async function getAssetFileVersions(
 export async function deleteAssetFileVersion(id: string): Promise<void> {
     await apiClient.delete(`${assetFileVersionEntity}/${id}`);
 }
-
-export enum AttributeBatchActionEnum {
-    Set = 'set',
-    Replace = 'replace',
-    Add = 'add',
-    Delete = 'delete',
-}
-
-export type AttributeBatchAction = {
-    action?: AttributeBatchActionEnum | undefined;
-    id?: string | undefined;
-    ids?: string[] | undefined;
-    assets?: string[] | undefined;
-    value?: any | undefined;
-    definitionId?: string | undefined;
-    locale?: string | undefined;
-    position?: number | undefined;
-};
 
 export async function attributeBatchUpdate(
     assetId: string | string[],

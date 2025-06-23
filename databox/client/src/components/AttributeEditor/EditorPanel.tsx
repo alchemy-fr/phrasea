@@ -9,11 +9,11 @@ import {
 } from './types.ts';
 import AttributeWidget from './AttributeWidget.tsx';
 import Flag from '../Ui/Flag.tsx';
-import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor.tsx';
 import MultiAttributeRow from './MultiAttributeRow.tsx';
 import {useDebounce} from '@alchemy/react-hooks/src/useDebounce.ts';
 import {createWidgetOptionsFromDefinition} from '../Media/Asset/Attribute/AttributeWidget.tsx';
 import {useTranslation} from 'react-i18next';
+import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
 
 type Props<T> = {
     definition: AttributeDefinition;

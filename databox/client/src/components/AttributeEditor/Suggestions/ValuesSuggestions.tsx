@@ -16,7 +16,7 @@ import {getAttributeType} from '../../Media/Asset/Attribute/types';
 import MenuItem from '@mui/material/MenuItem';
 import EditIcon from '@mui/icons-material/Edit';
 import HighlightAltIcon from '@mui/icons-material/HighlightAlt';
-import {NO_LOCALE} from '../../Media/Asset/Attribute/AttributesEditor.tsx';
+import {NO_LOCALE} from '../../Media/Asset/Attribute/constants.ts';
 
 type Stats = Record<string, number>;
 

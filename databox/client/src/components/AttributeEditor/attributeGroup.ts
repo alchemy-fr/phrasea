@@ -12,7 +12,6 @@ import {
     CreateToKeyFunc,
     Values,
 } from './types';
-import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor';
 import {computeValues} from './store/values.ts';
 import {
     computeAllDefinitionsValues,
@@ -23,8 +22,9 @@ import {useModals} from '@alchemy/navigation';
 import SavePreviewDialog from './SavePreviewDialog.tsx';
 import {useDirtyFormPrompt} from '../Dialog/Tabbed/FormTab.tsx';
 import {useTranslation} from 'react-i18next';
-import {AttributeType} from '../../api/attributes.ts';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
+import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
+import {AttributeType} from '../../api/types.ts';
 
 type Props = {
     attributeDefinitions: AttributeDefinition[];

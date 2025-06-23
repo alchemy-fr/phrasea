@@ -11,13 +11,13 @@ import {ExpandLess, ExpandMore} from '@mui/icons-material';
 import TextFacet from './Facets/TextFacet';
 import DateHistogramFacet from './Facets/DateHistogramFacet';
 import GeoDistanceFacet from './Facets/GeoDistanceFacet';
-import {AttributeType} from '../../../api/attributes';
 import {getAttributeType} from './Attribute/types';
 import {FilterType} from '../Search/Filter';
 import {AttributeFormat} from './Attribute/types/types';
 import TagsFacet from './Facets/TagsFacet';
 import EntitiesFacet from './Facets/EntitiesFacet.tsx';
 import {BuiltInFilter} from '../Search/search.ts';
+import {AttributeType} from '../../../api/types.ts';
 
 export type BucketValue = string | number | boolean;
 

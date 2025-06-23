@@ -1,6 +1,6 @@
 import {Attribute, AttributeDefinition} from '../../../../types.ts';
-import {NO_LOCALE} from './AttributesEditor.tsx';
 import {getBestLocaleOfTranslations} from '@alchemy/i18n/src/Locale/localeHelper.ts';
+import {NO_LOCALE} from './constants.ts';
 
 type AttributeDefinitionIndex = {
     definition: AttributeDefinition;

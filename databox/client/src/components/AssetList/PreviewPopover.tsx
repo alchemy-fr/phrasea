@@ -22,14 +22,19 @@ export default function PreviewPopover({
     displayAttributes,
     zIndex = ZIndex.assetPreview,
 }: Props) {
-    const relativeSize = 50;
+    const {previewLocked, previewOptions} = useContext(DisplayContext)!;
+    const relativeSize = previewOptions.sizeRatio;
     const width = getRelativeViewWidth(relativeSize);
     const height = getRelativeViewHeight(relativeSize);
-    const {previewLocked} = useContext(DisplayContext)!;
+    const previewRatio = 1 - previewOptions.attributesRatio / 100;
     const theme = useTheme();
     const padding = 1;
     const spacingInt = parseInt(theme.spacing(padding));
-    const previewWidth = displayAttributes ? width / 2 : width;
+
+    const previewWidth = displayAttributes ? width * previewRatio : width;
+    const attributeWidth = displayAttributes
+        ? width * (1 - previewRatio)
+        : width;
 
     return (
         <Popper
@@ -81,52 +86,56 @@ export default function PreviewPopover({
                             maxHeight: height - spacingInt,
                         }}
                     >
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                flexFlow: 'row nowrap',
-                                alignItems: 'center',
-                                backgroundColor: getMediaBackgroundColor(theme),
-                                width: previewWidth,
-                            }}
-                        >
-                            <FilePlayer
-                                key={asset.id}
-                                file={asset.preview!.file!}
-                                dimensions={{
+                        {previewOptions.displayFile && (
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    flexFlow: 'row nowrap',
+                                    alignItems: 'center',
+                                    backgroundColor:
+                                        getMediaBackgroundColor(theme),
                                     width: previewWidth,
-                                    height: height - spacingInt * 2,
-                                }}
-                                title={asset.resolvedTitle}
-                                noInteraction={!previewLocked}
-                                controls={previewLocked}
-                                autoPlayable={true}
-                            />
-                        </div>
-                        {displayAttributes && (
-                            <Box
-                                sx={{
-                                    'width': previewWidth,
-                                    'maxHeight': height - spacingInt * 2,
-                                    'overflowY': previewLocked
-                                        ? 'auto'
-                                        : 'clip',
-                                    'overflowX': 'visible',
-                                    'overflowClipMargin': theme.spacing(1),
-                                    'paddingLeft': theme.spacing(2),
-                                    '&:empty': {
-                                        display: 'none',
-                                    },
                                 }}
                             >
-                                <Attributes
-                                    asset={asset}
-                                    displayControls={previewLocked}
-                                    pinnedOnly={true}
+                                <FilePlayer
+                                    key={asset.id}
+                                    file={asset.preview!.file!}
+                                    dimensions={{
+                                        width: previewWidth,
+                                        height: height - spacingInt * 2,
+                                    }}
+                                    title={asset.resolvedTitle}
+                                    noInteraction={!previewLocked}
+                                    controls={previewLocked}
+                                    autoPlayable={true}
                                 />
-                            </Box>
+                            </div>
                         )}
+                        {displayAttributes &&
+                            previewOptions.displayAttributes && (
+                                <Box
+                                    sx={{
+                                        'width': attributeWidth,
+                                        'maxHeight': height - spacingInt * 2,
+                                        'overflowY': previewLocked
+                                            ? 'auto'
+                                            : 'clip',
+                                        'overflowX': 'visible',
+                                        'overflowClipMargin': theme.spacing(1),
+                                        'paddingLeft': theme.spacing(2),
+                                        '&:empty': {
+                                            display: 'none',
+                                        },
+                                    }}
+                                >
+                                    <Attributes
+                                        asset={asset}
+                                        displayControls={previewLocked}
+                                        pinnedOnly={true}
+                                    />
+                                </Box>
+                            )}
                     </Stack>
                 </Paper>
             )}

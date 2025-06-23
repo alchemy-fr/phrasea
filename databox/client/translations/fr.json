@@ -39,7 +39,7 @@
       }
     },
     "info": {
-      "date_added": "Date d'ajout",
+      "created_at": "Date d'ajout",
       "id": "ID",
       "last_attribute_modification_date": "Date de dernière modification des attributs",
       "last_modification_date": "Date de dernière modification",
@@ -645,7 +645,7 @@
     }
   },
   "get_resolved_sort_by": {
-    "date_added": "Date d'ajout",
+    "created_at": "Date d'ajout",
     "relevance": "Pertinence"
   },
   "get_user_name": {

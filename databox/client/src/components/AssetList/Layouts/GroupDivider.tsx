@@ -6,10 +6,10 @@ import {IconButton} from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {groupValueTypes} from '../GroupValue/types';
 import assetClasses from '../classes';
-import {AttributeType} from '../../../api/attributes.ts';
 import {AttributeFormat} from '../../Media/Asset/Attribute/types/types';
 import {getAttributeType} from '../../Media/Asset/Attribute/types';
 import {useTranslation} from 'react-i18next';
+import {AttributeType} from '../../../api/types.ts';
 
 type Props = PropsWithChildren<{
     groupValue: GroupValue;

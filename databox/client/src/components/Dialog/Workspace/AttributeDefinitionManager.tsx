@@ -6,7 +6,6 @@ import {
     Workspace,
 } from '../../../types';
 import {
-    AttributeType,
     deleteAttributeDefinition,
     getWorkspaceAttributeDefinitions,
     postAttributeDefinition,
@@ -38,12 +37,13 @@ import apiClient from '../../../api/api-client';
 import {toast} from 'react-toastify';
 import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
 import ObjectTranslationField from '../../Form/ObjectTranslationField.tsx';
-import {NO_LOCALE} from '../../Media/Asset/Attribute/AttributesEditor.tsx';
 import LastErrorsList from './LastErrorsList.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';
 import {useAttributeDefinitionStore} from '../../../store/attributeDefinitionStore.ts';
 import EntityListSelect from '../../Form/EntityListSelect.tsx';
+import {NO_LOCALE} from '../../Media/Asset/Attribute/constants.ts';
+import {AttributeType} from '../../../api/types.ts';
 
 function Item({
     usedFormSubmit,

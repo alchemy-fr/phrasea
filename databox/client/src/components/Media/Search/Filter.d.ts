@@ -1,4 +1,4 @@
-import {AttributeType} from '../../../api/attributes';
+import {AttributeType} from '../../../api/types.ts';
 
 export type SortBy = {
     a: string; // Attribute slug

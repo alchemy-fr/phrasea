@@ -97,28 +97,3 @@ export async function deleteAttributeDefinition(id: string): Promise<void> {
 export async function deleteAttributeClass(id: string): Promise<void> {
     await apiClient.delete(`${attributeClassNS}/${id}`);
 }
-
-export enum AttributeType {
-    Boolean = 'boolean',
-    Code = 'code',
-    CollectionPath = 'collection_path',
-    Color = 'color',
-    Date = 'date',
-    DateTime = 'date_time',
-    Entity = 'entity',
-    GeoPoint = 'geo_point',
-    Html = 'html',
-    Id = 'id',
-    Ip = 'ip',
-    Json = 'json',
-    Keyword = 'keyword',
-    Number = 'number',
-    Privacy = 'privacy',
-    Tag = 'tag',
-    Text = 'text',
-    Textarea = 'textarea',
-    WebVtt = 'web_vtt',
-    Workspace = 'workspace',
-    Rendition = 'rendition',
-    User = 'user',
-}

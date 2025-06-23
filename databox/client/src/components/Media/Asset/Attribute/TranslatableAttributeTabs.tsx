@@ -2,17 +2,14 @@ import {Alert, Box, Tab, Tabs} from '@mui/material';
 import Flag from '../../../Ui/Flag';
 import MultiAttributeRow from './MultiAttributeRow';
 import {isRtlLocale} from '../../../../lib/lang';
-import {
-    AttrValue,
-    LocalizedAttributeIndex,
-    NO_LOCALE,
-} from './AttributesEditor';
+import {AttrValue, LocalizedAttributeIndex} from './AttributesEditor';
 import AttributeWidget from './AttributeWidget';
 import {AttributeDefinition} from '../../../../types';
 import {TabPanelProps} from '@mui/lab';
 import React from 'react';
 import {AttributeWidgetOptions} from './types/types';
 import {useTranslation} from 'react-i18next';
+import {NO_LOCALE} from './constants.ts';
 
 function TabPanel({
     children,

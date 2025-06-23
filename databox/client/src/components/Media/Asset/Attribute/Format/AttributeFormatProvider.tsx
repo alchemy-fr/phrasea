@@ -5,7 +5,8 @@ import {
     TAttributeFormatContext,
 } from './AttributeFormatContext';
 import {getAttributeType} from '../types';
-import {AttributeType} from '../../../../../api/attributes.ts';
+
+import {AttributeType} from '../../../../../api/types.ts';
 
 type Props = PropsWithChildren<{}>;
 

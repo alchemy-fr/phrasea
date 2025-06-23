@@ -35,7 +35,7 @@ export default function AssetInfoList({data}: Props) {
                     icon={<PersonIcon />}
                 />
                 <InfoRow
-                    label={t('asset.info.date_added', `Date Added`)}
+                    label={t('asset.info.created_at', `Created At`)}
                     value={data.createdAt}
                     copyValue={data.createdAt}
                     icon={<EventIcon />}

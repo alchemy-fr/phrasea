@@ -1,4 +1,3 @@
-import {AttributeType} from '../../../../../api/attributes';
 import TextType from './TextType';
 import DateType from './DateType';
 import {
@@ -21,6 +20,7 @@ import WorkspaceType from './WorkspaceType.tsx';
 import CollectionType from './CollectionType.tsx';
 import PrivacyType from './PrivacyType.tsx';
 import UserType from './UserType.tsx';
+import {AttributeType} from '../../../../../api/types.ts';
 
 export const types: {
     [key in AttributeType]?: AttributeTypeClass;

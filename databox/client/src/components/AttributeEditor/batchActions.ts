@@ -7,10 +7,13 @@ import {
     CreateToKeyFunc,
     ToKeyFuncTypeScoped,
 } from './types.ts';
-import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor.tsx';
-import {AttributeBatchAction, AttributeBatchActionEnum} from '../../api/asset';
 import {pushUnique} from '../../utils/array.ts';
 import {Asset, Attribute} from '../../types.ts';
+import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
+import {
+    AttributeBatchAction,
+    AttributeBatchActionEnum,
+} from '../../api/types.ts';
 
 export function getBatchActions<T>(
     assets: Asset[],
@@ -43,7 +46,7 @@ export function getBatchActions<T>(
                     return;
                 }
 
-                if (currValue) {
+                if (isNotEmpty(currValue)) {
                     if (definition.multiple) {
                         if ((currValue as T[]).length > 0) {
                             const normalizedInitialValues: T[] =
@@ -81,12 +84,12 @@ export function getBatchActions<T>(
                             );
                         }
                     } else {
-                        const key = toKey(currValue);
+                        const key = toKey(currValue as T);
                         setGroups[defId] ??= {};
                         setGroups[defId][locale] ??= {};
                         setGroups[defId][locale][key] ??= {
                             assetIds: [],
-                            value: currValue,
+                            value: currValue as T,
                         };
                         pushUnique(
                             setGroups[defId][locale][key].assetIds,
@@ -140,7 +143,7 @@ export function getBatchActions<T>(
                         deleteGroups
                     );
                 } else {
-                    if (currValue !== undefined) {
+                    if (isNotEmpty(currValue)) {
                         return;
                     }
 
@@ -288,6 +291,17 @@ function addAttributeIdsToDeleteGroup<T>(
 
     const attributeIds = asset.attributes
         .filter((a: Attribute): boolean => {
+            console.log('a', a);
+            console.log(
+                '(a.locale ?? NO_LOCALE) === locale',
+                a.locale ?? NO_LOCALE,
+                locale
+            );
+            console.log(
+                'toKeyForType(a.value) === key',
+                toKeyForType(a.value),
+                key
+            );
             return (
                 a.definition.id === defId &&
                 (a.locale ?? NO_LOCALE) === locale &&
@@ -303,4 +317,8 @@ function addAttributeIdsToDeleteGroup<T>(
     attributeIds.forEach((attributeId: string) => {
         deleteGroups[defId][locale][key].attributeIds!.push(attributeId);
     });
+}
+
+function isNotEmpty(value: any): boolean {
+    return value !== undefined && value !== '' && value !== null;
 }

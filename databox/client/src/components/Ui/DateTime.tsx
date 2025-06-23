@@ -1,5 +1,5 @@
-import {AttributeType} from '../../api/attributes';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
+import {AttributeType} from '../../api/types.ts';
 
 type Props = {
     datetime: string;

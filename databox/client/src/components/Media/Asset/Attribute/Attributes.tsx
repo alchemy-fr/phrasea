@@ -25,10 +25,10 @@ import {
     getBuiltInFilters,
     useIndexById,
 } from '../../../../store/attributeDefinitionStore.ts';
-import {NO_LOCALE} from './AttributesEditor.tsx';
 import Separator from '../../../Ui/Separator.tsx';
 import {Spacer} from '../../../Ui/VerticalSpacer.tsx';
 import {AttributeFormat} from './types/types';
+import {NO_LOCALE} from './constants.ts';
 
 type AttributeItem = {
     id: string;
@@ -81,7 +81,7 @@ function Attributes({
             const props = {
                 id: item.id,
                 type: item.type,
-                format: item.format,
+                format: item.format || undefined,
             };
 
             if (item.type === AttributeListItemType.Definition) {
@@ -105,11 +105,17 @@ function Attributes({
             } else if (item.type === AttributeListItemType.BuiltIn) {
                 const definition = builtInDef.find(g => g.id === item.key!);
 
-                if (definition) {
-                    attributeItems.push({
-                        ...props,
-                        definition,
-                    });
+                if (definition && definition.getValueFromAsset) {
+                    const v = definition.getValueFromAsset(asset);
+                    if (
+                        (definition.multiple ? v && v.length > 0 : !!v) ||
+                        item.displayEmpty
+                    ) {
+                        attributeItems.push({
+                            ...props,
+                            definition,
+                        });
+                    }
                 }
             } else {
                 attributeItems.push({
