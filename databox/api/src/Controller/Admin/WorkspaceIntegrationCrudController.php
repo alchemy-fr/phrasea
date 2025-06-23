@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
+use Alchemy\AdminBundle\Field\UserChoiceField;
 use Alchemy\AdminBundle\Field\YamlField;
 use App\Admin\Field\IntegrationChoiceField;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -22,7 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class WorkspaceIntegrationCrudController extends AbstractAdminCrudController
 {
-    public function __construct(private readonly IntegrationChoiceField $integrationChoiceField)
+    public function __construct(private readonly IntegrationChoiceField $integrationChoiceField, private readonly UserChoiceField $userChoiceField)
     {
     }
 
@@ -53,6 +54,9 @@ class WorkspaceIntegrationCrudController extends AbstractAdminCrudController
         yield BooleanField::new('enabled');
         yield TextField::new('title');
         yield AssociationField::new('workspace');
+        yield TextField::new('ownerId')
+            ->onlyOndetail();
+        yield $this->userChoiceField->create('ownerId', 'Owner');
         yield AssociationField::new('needs');
         yield TextField::new('if')
             ->setHelp('Based on Symfony Expression Language.
