@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Rekognition;
 
+use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Action\FileUserActionsTrait;
 use App\Integration\Aws\AbstractAwsIntegration;
 use App\Integration\Aws\Rekognition\Message\RekognitionAnalyze;
+use App\Integration\Core\Rendition\RenditionIntegration;
+use App\Integration\FilterNeedIntegrationInterface;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
 use App\Integration\UserActionsIntegrationInterface;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
+use App\Storage\RenditionManager;
 use App\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
@@ -22,7 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class AwsRekognitionIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface, UserActionsIntegrationInterface
+class AwsRekognitionIntegration extends AbstractAwsIntegration implements FilterNeedIntegrationInterface, WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
     use FileUserActionsTrait;
 
@@ -40,6 +44,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
 
     public function __construct(
         private readonly MessageBusInterface $bus,
+        private readonly RenditionManager $renditionManager,
     ) {
     }
 
@@ -118,6 +123,9 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
                     $action,
                     $category,
                     ucfirst($category),
+                    [
+                        'category' => $category,
+                    ]
                 );
             }
         }
@@ -166,5 +174,32 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
     public function getSupportedContexts(): array
     {
         return [IntegrationContext::AssetView];
+    }
+
+    public function getNeededJobs(IntegrationConfig $config, IntegrationConfig $neededIntegrationConfig, Job $job): ?array
+    {
+        $category = $job->getMetadata()['category'] ?? null;
+        if (null === $category) {
+            return null;
+        }
+
+        $rendition = $config[$category]['rendition'] ?? null;
+        if (!$rendition) {
+            return null;
+        }
+
+        if ($neededIntegrationConfig->getIntegration() instanceof RenditionIntegration) {
+            $renditionDefinition = $this->renditionManager
+                ->getRenditionDefinitionByName($neededIntegrationConfig->getWorkspaceId(), $rendition);
+
+            return [
+                RenditionIntegration::getJobId(
+                    $neededIntegrationConfig,
+                    $renditionDefinition->getId(),
+                ),
+            ];
+        }
+
+        return null;
     }
 }

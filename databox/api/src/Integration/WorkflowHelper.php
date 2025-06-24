@@ -14,10 +14,11 @@ abstract class WorkflowHelper
         string $action,
         ?string $idSuffix = null,
         ?string $nameSuffix = null,
+        array $metadata = [],
     ): Job {
         $workspaceIntegration = $config->getWorkspaceIntegration();
         $integration = $config->getIntegration();
-        $id = $integration::getName().':'.$workspaceIntegration->getId();
+        $id = self::getJobIdPrefix($config);
         if (!empty($idSuffix)) {
             $id .= ':'.$idSuffix;
         }
@@ -27,6 +28,7 @@ abstract class WorkflowHelper
         }
 
         $job = new Job($id);
+        $job->setMetadata($metadata);
         $job->setName($name);
         if (is_subclass_of($action, IfActionInterface::class)) {
             $job->setIf($action.'::evaluateIf');
@@ -39,5 +41,10 @@ abstract class WorkflowHelper
         $job->getSteps()->append($step);
 
         return $job;
+    }
+
+    public static function getJobIdPrefix(IntegrationConfig $config): string
+    {
+        return $config->getIntegration()::getName().':'.$config->getWorkspaceIntegration()->getId();
     }
 }

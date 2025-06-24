@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use ApiPlatform\Api\IriConverterInterface;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\IntegrationDataManager;
@@ -27,6 +28,7 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
         private readonly IntegrationDataManager $integrationDataManager,
         private readonly IntegrationTokenRepository $integrationTokenRepository,
         private readonly ObjectMapper $objectMapper,
+        private readonly IriConverterInterface $iriConverter,
     ) {
     }
 
@@ -48,6 +50,8 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
         $output->setEnabled($data->isEnabled());
         $output->setIntegration($data->getIntegration());
         $output->workspace = $data->getWorkspace();
+        $output->needs = array_map(fn (WorkspaceIntegration $wi): string => $this->iriConverter->getIriFromResource($wi), $data->getNeeds()->getValues());
+        $output->if = $data->getIf();
         if ($this->isGranted(AbstractVoter::EDIT, $data)) {
             $output->lastErrors = $data->getLastErrors();
         }

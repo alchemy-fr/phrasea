@@ -32,7 +32,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -46,7 +45,10 @@ use Symfony\Component\Yaml\Yaml;
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Post(
+            securityPostDenormalize: 'is_granted("CREATE", object)',
+            validationContext: ['Default', 'create'],
+        ),
     ],
     normalizationContext: [
         'groups' => [WorkspaceIntegration::GROUP_LIST],
@@ -76,11 +78,9 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
     protected ?Workspace $workspace = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
-    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     #[NotNull]
     private ?string $integration = null;
 
@@ -88,11 +88,9 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
     private ?Collection $needs = null;
 
     #[ORM\Column(type: Types::STRING, length: 2048, nullable: true)]
-    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $if = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
-    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private bool $enabled = true;
 
     #[ApiProperty(security: 'is_granted("'.AbstractVoter::EDIT.'", object.workspace)')]

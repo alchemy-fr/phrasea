@@ -1,7 +1,9 @@
 import {IntegrationType, Workspace, WorkspaceIntegration} from '../../../types';
 import {
     Button,
+    FormGroup,
     FormHelperText,
+    FormLabel,
     ListItemText,
     TextField,
     Typography,
@@ -20,16 +22,18 @@ import {
     postIntegration,
     putIntegration,
 } from '../../../api/integrations.ts';
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import IntegrationTypeSelect from '../../Form/IntegrationTypeSelect.tsx';
 import CodeEditor from '../../Media/Asset/Widgets/CodeEditor.tsx';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LastErrorsList from './LastErrorsList.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
+import WorkspaceIntegrationSelect from '../../Form/WorkspaceIntegrationSelect.tsx';
 
 function Item({
     usedFormSubmit,
     data,
+    workspace,
 }: DefinitionItemFormProps<WorkspaceIntegration>) {
     const {t} = useTranslation();
     const [integrationHelp, setIntegrationHelp] = useState<
@@ -95,6 +99,60 @@ function Item({
                     name={'enabled'}
                     disabled={submitting}
                 />
+            </FormRow>
+
+            <FormRow>
+                <TextField
+                    label={t('form.integration.if.label', 'IF')}
+                    {...register('if')}
+                    placeholder={t(
+                        'form.integration.if.placeholder',
+                        'Condition to run the integration'
+                    )}
+                    disabled={submitting}
+                />
+                <FormFieldErrors field={'if'} errors={errors} />
+
+                <FormHelperText>
+                    {t(
+                        'form.integration.if.helper',
+                        'This condition is used to determine if the integration should be executed.'
+                    )}
+                    <br />
+                    {t(
+                        'form.integration.if.helper_examples',
+                        'Examples of conditions:'
+                    )}
+                    <pre>{`asset.getSource().getType() matches '#^image/#'`}</pre>
+                    <pre>{`asset.getCreatedAt() > date('2000-01-01')`}</pre>
+                </FormHelperText>
+            </FormRow>
+
+            <FormRow>
+                <FormGroup>
+                    <FormLabel>
+                        {t('form.integration.needs.label', 'Needs')}
+                    </FormLabel>
+                    <WorkspaceIntegrationSelect<WorkspaceIntegration, true>
+                        disabled={submitting}
+                        name={'needs'}
+                        isMulti={true}
+                        control={control}
+                        workspaceId={workspace.id}
+                        disabledValues={[`/integrations/${data.id}`]}
+                        placeholder={t(
+                            'form.integration.needs.placeholder',
+                            'Select dependencies'
+                        )}
+                    />
+                    <FormHelperText>
+                        {t(
+                            'form.integration.needs.helper',
+                            'These integrations are required to be completed before this integration is run.'
+                        )}
+                    </FormHelperText>
+                    <FormFieldErrors field={'needs'} errors={errors} />
+                </FormGroup>
             </FormRow>
 
             <FormRow>

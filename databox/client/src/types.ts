@@ -403,6 +403,8 @@ export interface WorkspaceIntegration extends DefinitionBase {
     tokens: IntegrationToken[];
     workspace: Workspace | string;
     owner?: User;
+    if?: string;
+    needs?: string[];
     lastErrors?: LastErrors;
 }
 

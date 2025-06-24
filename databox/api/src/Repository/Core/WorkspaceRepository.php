@@ -28,7 +28,7 @@ class WorkspaceRepository extends EntityRepository
     /**
      * @return string[]
      */
-    public function getAllowedWorkspaceIds(string $userId, array $groupIds): array
+    public function getAllowedWorkspaceIds(?string $userId, array $groupIds): array
     {
         return array_map(fn (array $row): string => (string) $row['id'], $this
             ->createAllowedWorkspacesQueryBuilder($userId, $groupIds)

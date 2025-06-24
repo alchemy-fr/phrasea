@@ -33,7 +33,8 @@ class AssetRenditionInputTransformer extends AbstractFileInputTransformer
             if ($data->definitionId) {
                 $definition = $this->getEntity(RenditionDefinition::class, $data->definitionId);
             } elseif ($data->name) {
-                $definition = $this->renditionManager->getRenditionDefinitionByName($object->getAsset()->getWorkspace(), $data->name);
+                $definition = $this->renditionManager
+                    ->getRenditionDefinitionByName($object->getAsset()->getWorkspaceId(), $data->name);
             } else {
                 throw new BadRequestHttpException('Missing "definitionId" or "name"');
             }

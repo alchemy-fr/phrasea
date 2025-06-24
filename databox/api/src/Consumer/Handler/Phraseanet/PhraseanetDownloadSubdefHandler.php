@@ -40,7 +40,7 @@ readonly class PhraseanetDownloadSubdefHandler
         [$urlPart] = explode('?', $permalink, 2);
 
         try {
-            $renditionDefinition = $this->renditionManager->getRenditionDefinitionByName($workspace, $message->getSubdefName());
+            $renditionDefinition = $this->renditionManager->getRenditionDefinitionByName($workspace->getId(), $message->getSubdefName());
         } catch (\InvalidArgumentException $e) {
             $this->logger->warning($e->getMessage());
 
