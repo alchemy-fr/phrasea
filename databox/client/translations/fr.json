@@ -1031,8 +1031,8 @@
         "tag_list": {
             "others": "+ {{count}} autres",
             "others_plural": "+ {{count}} autres",
-            "tags": "+ {{count}} etiquette",
-            "tags_plural": "+ {{count}} etiquette"
+            "tags": "+ {{count}} Tag",
+            "tags_plural": "+ {{count}} Tags"
         },
         "view": {
             "attributes": "Attribut d'Assets"
