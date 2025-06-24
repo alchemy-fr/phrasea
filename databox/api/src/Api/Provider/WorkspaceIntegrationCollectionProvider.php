@@ -4,17 +4,30 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
+use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
+use Alchemy\AclBundle\Mapping\ObjectMapping;
+use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\IntegrationContext;
+use App\Integration\IntegrationInterface;
+use App\Integration\IntegrationRegistry;
 use App\Security\Voter\AbstractVoter;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
 {
     use SecurityAwareTrait;
+
+    public function __construct(
+        private ObjectMapping $objectMapping,
+        private IntegrationRegistry $integrationRegistry,
+    ) {
+    }
 
     protected function provideCollection(
         Operation $operation,
@@ -33,6 +46,20 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
                 ->setParameter('enabled', $filters['enabled']);
         }
 
+        $context = $filters['context'] ?? null;
+        if (null !== $context) {
+            $context = IntegrationContext::tryFrom($context) ?? throw new BadRequestHttpException(sprintf('Invalid context "%s"', $context));
+            $supportedIntegrations = array_map(
+                fn (IntegrationInterface $integration): string => $integration::getName(),
+                $this->integrationRegistry->getSupportingIntegrations($context)
+            );
+
+            $queryBuilder
+                ->andWhere('t.integration IN (:integrations)')
+                ->setParameter('integrations', $supportedIntegrations)
+            ;
+        }
+
         if ($filters['workspace'] ?? false) {
             $workspaceId = str_replace('/workspaces/', '', $filters['workspace']);
             $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $workspaceId);
@@ -43,9 +70,24 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
                 ->andWhere('t.workspace = :ws')
                 ->setParameter('ws', $workspace->getId());
         } else {
-            $this->denyAccessUnlessGranted(JwtUser::ROLE_ADMIN);
             $queryBuilder
-                ->andWhere('t.workspace IS NULL');
+                ->leftJoin('t.workspace', 'w');
+
+            $user = $this->security->getUser();
+            if ($user instanceof JwtUser) {
+                AccessControlEntryRepository::joinAcl(
+                    $queryBuilder,
+                    $user->getId(),
+                    $user->getGroups(),
+                    $this->objectMapping->getObjectKey(Workspace::class),
+                    'w',
+                    PermissionInterface::VIEW,
+                    false
+                );
+                $queryBuilder->andWhere(sprintf('ace.id IS NOT NULL OR %1$s.ownerId = :uid OR %1$s.public = true OR t.workspace IS NULL', 'w'));
+            } else {
+                $queryBuilder->andWhere('t.workspace IS NULL');
+            }
         }
 
         return $queryBuilder
