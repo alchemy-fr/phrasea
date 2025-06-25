@@ -14,10 +14,11 @@ field_type:
     date_time: Date & Time
     geo_point: Geo point
 
+    entity: Entité
 privacy:
-    secret: Secret
-    private_in_workspace: Privé dans l'espace de travail
-    public_in_workspace: Public dans l'espace de travail
-    private: Privé
-    public_for_users: Ouvert aux utilisateurs
-    public: Ouvert
+  secret: Secret
+  private_in_workspace: Privé dans l'espace de travail
+  public_in_workspace: Public dans l'espace de travail
+  private: Privé
+  public_for_users: Ouvert aux utilisateurs
+  public: Ouvert
