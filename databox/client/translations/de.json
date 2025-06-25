@@ -1,1 +1,18 @@
-{}
+{
+    "acl": {
+        "delete": "Löschen",
+        "form": {
+            "group_select": {
+                "placeholder": "Wählen Sie einen Benutzer"
+            },
+            "user_select": {
+                "placeholder": "Gruppe wählen"
+            }
+        },
+        "table": {
+            "cols": {
+                "user_group": "Benutzer/Gruppe"
+            }
+        }
+    }
+}
