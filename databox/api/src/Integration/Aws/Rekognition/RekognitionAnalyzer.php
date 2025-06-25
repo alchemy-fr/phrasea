@@ -54,7 +54,7 @@ final readonly class RekognitionAnalyzer
             if (AwsRekognitionIntegration::LABELS === $category && !empty($config['labels']['attributes'] ?? [])) {
                 $this->saveTextsToAttributes($category, $asset, array_map(fn (array $text): array => [
                     'value' => $text['Name'],
-                    'confidence' => $text['Confidence'],
+                    'confidence' => $text['Confidence'] / 100,
                     'annotations' => array_map(fn (array $instance): array => [
                         'type' => AssetAnnotationsInterface::TYPE_RECTANGLE,
                         'x' => $instance['BoundingBox']['Left'] ?? null,
@@ -69,7 +69,7 @@ final readonly class RekognitionAnalyzer
 
                     return [
                         'value' => $text['DetectedText'],
-                        'confidence' => $text['Confidence'],
+                        'confidence' => $text['Confidence'] / 100,
                         'annotations' => [[
                             'type' => AssetAnnotationsInterface::TYPE_RECTANGLE,
                             'x' => $box['Left'] ?? null,

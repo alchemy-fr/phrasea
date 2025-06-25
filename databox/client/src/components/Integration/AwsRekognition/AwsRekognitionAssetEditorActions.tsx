@@ -116,7 +116,7 @@ export default function AwsRekognitionAssetEditorActions({
                         id,
                         title: i.Name,
                         type: DetectType.Labels,
-                        confidence: i.Confidence,
+                        confidence: i.Confidence / 100,
                         instances: i.Instances.map(instance => {
                             const box = instance.BoundingBox;
 
@@ -142,7 +142,7 @@ export default function AwsRekognitionAssetEditorActions({
                         id,
                         title: t.DetectedText,
                         type: DetectType.Texts,
-                        confidence: t.Confidence,
+                        confidence: t.Confidence / 100,
                         instances: [
                             {
                                 id: `${id}-0`,
@@ -169,7 +169,7 @@ export default function AwsRekognitionAssetEditorActions({
                     return {
                         id,
                         type: DetectType.Faces,
-                        confidence: f.Confidence,
+                        confidence: f.Confidence / 100,
                         title,
                         instances: [
                             {
@@ -323,7 +323,7 @@ export default function AwsRekognitionAssetEditorActions({
                                                     (
                                                     <ValueConfidence
                                                         confidence={
-                                                            l.confidence
+                                                            l.confidence * 100
                                                         }
                                                     />
                                                     )
