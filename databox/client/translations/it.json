@@ -1,942 +1,942 @@
 {
     "acl": {
-        "delete": "",
+        "delete": "Elimina",
         "form": {
             "group_select": {
-                "placeholder": ""
+            "placeholder": "Seleziona gruppo"
             },
             "user_select": {
-                "placeholder": ""
+            "placeholder": "Seleziona utente"
             }
         },
         "table": {
             "cols": {
-                "user_group": ""
+            "user_group": "Gruppo utente"
             }
         }
-    },
-    "asset": {
+        },
+        "asset": {
         "actions": {
-            "delete": "",
-            "download": "",
-            "edit": "",
-            "edit_attributes": "",
-            "open": "",
-            "save_as": ""
+            "delete": "Elimina",
+            "download": "Scarica",
+            "edit": "Modifica",
+            "edit_attributes": "Modifica attributi",
+            "open": "Apri",
+            "save_as": "Salva come"
         },
         "collection_list": {
-            "collections": "",
-            "collections_plural": "",
-            "others": "",
-            "others_plural": ""
+            "collections": "Collection",
+            "collections_plural": "Collections",
+            "others": "Altri",
+            "others_plural": "Altri"
         },
         "delete": {
             "confirm": {
-                "message": "",
-                "message_many_plural": "",
-                "title": ""
+            "message": "Sei sicuro di voler eliminare questo Asset?",
+            "message_many_plural": "Sei sicuro di voler eliminare questi Asset?",
+            "title": "Conferma eliminazione"
             }
         },
         "info": {
-            "created_at": "",
-            "id": "",
-            "last_attribute_modification_date": "",
-            "last_modification_date": "",
-            "owner": ""
+            "created_at": "Creato il",
+            "id": "ID",
+            "last_attribute_modification_date": "Ultima modifica attributo",
+            "last_modification_date": "Ultima modifica",
+            "owner": "Proprietario"
         },
         "manage": {
             "acl": {
-                "title": "",
-                "versions": ""
+            "title": "Gestisci ACL",
+            "versions": "Versioni"
             },
             "attributes": {
-                "title": ""
+            "title": "Attributi"
             },
             "edit": {
-                "title": ""
+            "title": "Modifica Asset"
             },
             "info": {
-                "title": ""
+            "title": "Informazioni"
             },
             "open": {
-                "title": ""
+            "title": "Apri Asset"
             },
             "operations": {
-                "title": ""
+            "title": "Operazioni"
             },
             "renditions": {
-                "title": ""
+            "title": "Rendition"
             },
-            "title": ""
+            "title": "Gestisci Asset"
         },
         "operations": {
-            "last_asset_workflows": "",
-            "trigger_workflow_again": "",
-            "view": "",
-            "you_need_to_run_integrations_again": ""
+            "last_asset_workflows": "Ultimi workflow Asset",
+            "trigger_workflow_again": "Rilancia workflow",
+            "view": "Visualizza",
+            "you_need_to_run_integrations_again": "Devi eseguire di nuovo le integrazioni"
         },
         "replace": {
-            "label": ""
+            "label": "Sostituisci"
         },
         "tag_list": {
-            "others": "",
-            "others_plural": "",
-            "tags": "",
-            "tags_plural": ""
+            "others": "Altri",
+            "others_plural": "Altri",
+            "tags": "Tag",
+            "tags_plural": "Tag"
         },
         "view": {
-            "attributes": ""
+            "attributes": "Attributi"
         }
-    },
-    "asset_actions": {
-        "copy": "",
-        "delete": "",
-        "download": "",
-        "edit": "",
-        "edit_attributes": "",
-        "export": "",
-        "move": "",
-        "select_all": "",
-        "share": "",
-        "substitute_file": "",
-        "unselect_all": ""
-    },
-    "asset_dropzone": {
-        "drop_the_files_here": "",
-        "you_must_be_authenticated_in_order_to_upload_new_files": ""
-    },
-    "asset_file_versions": {
-        "current": ""
-    },
-    "asset_selection": {
-        "item": ""
-    },
-    "attribute": {
+        },
+        "asset_actions": {
+        "copy": "Copia",
+        "delete": "Elimina",
+        "download": "Scarica",
+        "edit": "Modifica",
+        "edit_attributes": "Modifica attributi",
+        "export": "Esporta",
+        "move": "Sposta",
+        "select_all": "Seleziona tutto",
+        "share": "Condividi",
+        "substitute_file": "Sostituisci file",
+        "unselect_all": "Deseleziona tutto"
+        },
+        "asset_dropzone": {
+        "drop_the_files_here": "Trascina i file qui",
+        "you_must_be_authenticated_in_order_to_upload_new_files": "Devi essere autenticato per caricare nuovi file"
+        },
+        "asset_file_versions": {
+        "current": "Corrente"
+        },
+        "asset_selection": {
+        "item": "Elemento"
+        },
+        "attribute": {
         "editor": {
             "tabs": {
-                "preview": {
-                    "no_asset": "",
-                    "title": ""
-                },
-                "values": {
-                    "title": ""
-                }
+            "preview": {
+                "no_asset": "Nessun Asset",
+                "title": "Anteprima"
+            },
+            "values": {
+                "title": "Valori"
+            }
             }
         }
-    },
-    "attribute_policy": {
+        },
+        "attribute_policy": {
         "new": {
-            "label": ""
+            "label": "Nuova Attribute Policy"
         }
-    },
-    "attribute_definitions": {
+        },
+        "attribute_definitions": {
         "new": {
-            "label": ""
+            "label": "Nuova Attribute Definition"
         }
-    },
-    "attribute_editor": {
+        },
+        "attribute_editor": {
         "cancel": {
-            "label": ""
+            "label": "Annulla"
         },
         "definitions": {
-            "indeterminate": ""
+            "indeterminate": "Indeterminato"
         },
         "diff": {
             "dialog": {
-                "title": ""
+            "title": "Differenze"
             }
         },
         "discard_changes": {
-            "confirm": "",
-            "desc": "",
-            "title": ""
+            "confirm": "Sei sicuro di voler annullare le modifiche?",
+            "desc": "Le modifiche non salvate andranno perse.",
+            "title": "Annulla modifiche"
         },
-        "remove_from_selection": "",
+        "remove_from_selection": "Rimuovi dalla selezione",
         "save": {
-            "label": ""
+            "label": "Salva"
         },
-        "saved": "",
+        "saved": "Salvato",
         "suggestions": {
             "menu": {
-                "apply": "",
-                "select_with_value": ""
+            "apply": "Applica",
+            "select_with_value": "Seleziona con valore"
             },
-            "no_value": "",
+            "no_value": "Nessun valore",
             "originalValues": {
-                "label": ""
+            "label": "Valori originali"
             }
         }
-    },
-    "attribute_entity": {
+        },
+        "attribute_entity": {
         "dialog": {
             "create": {
-                "title": ""
+            "title": "Crea Attribute Entity"
             }
         },
         "form": {
-            "created": ""
+            "created": "Creato"
         },
         "new": {
-            "label": ""
+            "label": "Nuova Attribute Entity"
         }
-    },
-    "attributes": {
-        "values": ""
-    },
-    "attributes_editor_form": {
-        "attributes_saved": ""
-    },
-    "aws_rekognition": {
+        },
+        "attributes": {
+        "values": "Valori"
+        },
+        "attributes_editor_form": {
+        "attributes_saved": "Attributi salvati"
+        },
+        "aws_rekognition": {
         "actions": {
-            "detect_faces": "",
-            "detect_image_labels": "",
-            "detect_texts": "",
-            "face_n": "",
-            "faces": "",
-            "labels": "",
-            "no_face_detected": "",
-            "no_text_detected": "",
-            "text": ""
+            "detect_faces": "Rileva volti",
+            "detect_image_labels": "Rileva etichette immagine",
+            "detect_texts": "Rileva testi",
+            "face_n": "Volto n.",
+            "faces": "Volti",
+            "labels": "Etichette",
+            "no_face_detected": "Nessun volto rilevato",
+            "no_text_detected": "Nessun testo rilevato",
+            "text": "Testo"
         }
-    },
-    "basket": {
+        },
+        "basket": {
         "choose_modal": {
-            "title": ""
+            "title": "Scegli Basket"
         },
         "create_button": {
-            "label": ""
+            "label": "Crea Basket"
         },
         "default": {
-            "title": ""
+            "title": "Basket predefinito"
         },
         "info": {
-            "creation_date": "",
-            "id": "",
-            "modification_date": "",
-            "owner": ""
+            "creation_date": "Data creazione",
+            "id": "ID",
+            "modification_date": "Data modifica",
+            "owner": "Proprietario"
         },
         "item": {
-            "edit": ""
+            "edit": "Modifica"
         },
         "manage": {
             "acl": {
-                "title": ""
+            "title": "Gestisci ACL"
             },
             "edit": {
-                "title": ""
+            "title": "Modifica Basket"
             },
             "info": {
-                "title": ""
+            "title": "Informazioni"
             },
             "integrations": {
-                "title": ""
+            "title": "Integrazioni"
             },
             "operations": {
-                "title": ""
+            "title": "Operazioni"
             },
-            "title": ""
+            "title": "Gestisci Basket"
         }
-    },
-    "basket_delete": {
-        "confirm": "",
-        "title": ""
-    },
-    "basket_view_dialog": {
-        "item": "",
-        "remove_from_basket": ""
-    },
-    "change_theme": {
-        "save": "",
-        "title": ""
-    },
-    "chip": {
-        "editable": "",
-        "private": "",
-        "public": "",
-        "read_only": ""
-    },
-    "collection": {
+        },
+        "basket_delete": {
+        "confirm": "Sei sicuro di voler eliminare questo Basket?",
+        "title": "Conferma eliminazione"
+        },
+        "basket_view_dialog": {
+        "item": "Elemento",
+        "remove_from_basket": "Rimuovi dal Basket"
+        },
+        "change_theme": {
+        "save": "Salva",
+        "title": "Cambia tema"
+        },
+        "chip": {
+        "editable": "Modificabile",
+        "private": "Privato",
+        "public": "Pubblico",
+        "read_only": "Sola lettura"
+        },
+        "collection": {
         "info": {
-            "creation_date": "",
-            "id": "",
-            "modification_date": "",
-            "owner": ""
+            "creation_date": "Data creazione",
+            "id": "ID",
+            "modification_date": "Data modifica",
+            "owner": "Proprietario"
         },
         "item": {
-            "create_asset": "",
-            "create_collection": "",
-            "edit": ""
+            "create_asset": "Crea Asset",
+            "create_collection": "Crea Collection",
+            "edit": "Modifica"
         },
         "manage": {
             "acl": {
-                "title": ""
+            "title": "Gestisci ACL"
             },
             "edit": {
-                "title": ""
+            "title": "Modifica Collection"
             },
             "info": {
-                "title": ""
+            "title": "Informazioni"
             },
             "operations": {
-                "title": ""
+            "title": "Operazioni"
             },
             "tag_rules": {
-                "title": ""
+            "title": "Regole Tag"
             },
-            "title": ""
+            "title": "Gestisci Collection"
         }
-    },
-    "collection_delete": {
-        "confirm": "",
-        "title": ""
-    },
-    "collection_move": {
-        "intro": "",
-        "title": ""
-    },
-    "common": {
-        "cancel": "",
-        "copy": "",
-        "databox": "",
-        "delete": "",
-        "item_sorted": "",
-        "loading": "",
-        "no": "",
-        "or": "",
-        "remove": "",
-        "save": "",
-        "search": {
-            "placeholder": "",
-            "submit": ""
         },
-        "uploading": "",
-        "yes": ""
-    },
-    "copy_assets": {
+        "collection_delete": {
+        "confirm": "Sei sicuro di voler eliminare questa Collection?",
+        "title": "Conferma eliminazione"
+        },
+        "collection_move": {
+        "intro": "Sposta la Collection",
+        "title": "Sposta Collection"
+        },
+        "common": {
+        "cancel": "Annulla",
+        "copy": "Copia",
+        "databox": "Databox",
+        "delete": "Elimina",
+        "item_sorted": "Elemento ordinato",
+        "loading": "Caricamento...",
+        "no": "No",
+        "or": "o",
+        "remove": "Rimuovi",
+        "save": "Salva",
+        "search": {
+            "placeholder": "Cerca",
+            "submit": "Cerca"
+        },
+        "uploading": "Caricamento in corso...",
+        "yes": "Sì"
+        },
+        "copy_assets": {
         "dialog": {
-            "intro": "",
-            "submit": "",
-            "title": "",
-            "title_plural": ""
+            "intro": "Copia Asset",
+            "submit": "Copia",
+            "title": "Copia Asset",
+            "title_plural": "Copia Asset"
         },
         "form": {
             "by_reference": {
-                "label": ""
+            "label": "Per riferimento"
             },
             "with_attributes": {
-                "label": ""
+            "label": "Con attributi"
             },
             "with_tags": {
-                "label": ""
+            "label": "Con Tag"
             }
         }
-    },
-    "copy_assets_dialog": {
-        "assets_were_copied": ""
-    },
-    "copy_toclipboard": {
-        "copied": ""
-    },
-    "danger_zone": "",
-    "date_histogram_facet": {
-        "clear_filter": ""
-    },
-    "debug_es_modal": {
-        "elasticsearch_response_time": "",
-        "search_debug": "",
-        "total_response_time": ""
-    },
-    "definition_manager": {
-        "confirm_delete": "",
-        "saved": ""
-    },
-    "delete": {
+        },
+        "copy_assets_dialog": {
+        "assets_were_copied": "Gli Asset sono stati copiati"
+        },
+        "copy_toclipboard": {
+        "copied": "Copiato"
+        },
+        "danger_zone": "Zona pericolosa",
+        "date_histogram_facet": {
+        "clear_filter": "Cancella filtro"
+        },
+        "debug_es_modal": {
+        "elasticsearch_response_time": "Tempo di risposta Elasticsearch",
+        "search_debug": "Debug ricerca",
+        "total_response_time": "Tempo di risposta totale"
+        },
+        "definition_manager": {
+        "confirm_delete": "Conferma eliminazione",
+        "saved": "Salvato"
+        },
+        "delete": {
         "basket": {
-            "confirmed": ""
+            "confirmed": "Basket eliminato"
         },
         "collection": {
-            "confirmed": ""
+            "confirmed": "Collection eliminata"
         }
-    },
-    "dialog": {
-        "apply": "",
-        "cancel": "",
-        "close": "",
-        "confirm": "",
-        "confirm_text_type": {
-            "intro": "",
-            "placeholder": ""
         },
-        "reset": "",
-        "save": ""
-    },
-    "edit_sort_by": {
-        "add_group_separators_between_results": "",
-        "group_by_sections": ""
-    },
-    "editor_panel": {
-        "untranslated": ""
-    },
-    "export": {
         "dialog": {
-            "intro": "",
-            "submit": "",
-            "title": "",
-            "title_plural": ""
+        "apply": "Applica",
+        "cancel": "Annulla",
+        "close": "Chiudi",
+        "confirm": "Conferma",
+        "confirm_text_type": {
+            "intro": "Digita per confermare",
+            "placeholder": "Conferma"
+        },
+        "reset": "Resetta",
+        "save": "Salva"
+        },
+        "edit_sort_by": {
+        "add_group_separators_between_results": "Aggiungi separatori di gruppo tra i risultati",
+        "group_by_sections": "Raggruppa per sezioni"
+        },
+        "editor_panel": {
+        "untranslated": "Non tradotto"
+        },
+        "export": {
+        "dialog": {
+            "intro": "Esporta",
+            "submit": "Esporta",
+            "title": "Esporta",
+            "title_plural": "Esporta"
         }
-    },
-    "expose_basket_integration": {
-        "also_delete_the_publication": "",
-        "authorize": "",
-        "force_sync": "",
-        "ok": "",
-        "stop_synchronization": "",
-        "sync_with_a_publication": ""
-    },
-    "face_detail_tooltip": {
-        "age_range": "",
-        "eyeglasses": "",
-        "eyes_open": "",
-        "gender": "",
-        "has_a_beard": "",
-        "mouth_open": "",
-        "mustache": "",
-        "smiling": ""
-    },
-    "facets": {
-        "missing_with_total": ""
-    },
-    "filter": {
-        "exclude": "",
-        "is_missing": ""
-    },
-    "filter_rule": {
-        "confirm_delete_this_rule": "",
+        },
+        "expose_basket_integration": {
+        "also_delete_the_publication": "Elimina anche la pubblicazione",
+        "authorize": "Autorizza",
+        "force_sync": "Forza sincronizzazione",
+        "ok": "OK",
+        "stop_synchronization": "Ferma sincronizzazione",
+        "sync_with_a_publication": "Sincronizza con una pubblicazione"
+        },
+        "face_detail_tooltip": {
+        "age_range": "Fascia d'età",
+        "eyeglasses": "Occhiali",
+        "eyes_open": "Occhi aperti",
+        "gender": "Genere",
+        "has_a_beard": "Ha la barba",
+        "mouth_open": "Bocca aperta",
+        "mustache": "Baffi",
+        "smiling": "Sorridente"
+        },
+        "facets": {
+        "missing_with_total": "Mancante (totale)"
+        },
+        "filter": {
+        "exclude": "Escludi",
+        "is_missing": "Mancante"
+        },
+        "filter_rule": {
+        "confirm_delete_this_rule": "Confermi di voler eliminare questa regola?",
         "exclude": {
-            "helper": ""
+            "helper": "Escludi dalla ricerca"
         },
-        "group": "",
+        "group": "Gruppo",
         "include": {
-            "helper": ""
+            "helper": "Includi nella ricerca"
         },
-        "or": "",
-        "rule_applies_for": "",
-        "user": ""
-    },
-    "foo": "",
-    "form": {
+        "or": "o",
+        "rule_applies_for": "La regola si applica a",
+        "user": "Utente"
+        },
+        "foo": "",
+        "form": {
         "asset": {
             "tags": {
-                "label": ""
+            "label": "Tag"
             },
             "templates": {
-                "label": ""
+            "label": "Template"
             },
             "title": {
-                "label": ""
+            "label": "Titolo"
             }
         },
         "asset_create": {
-            "title": "",
-            "title_with_parent": ""
+            "title": "Crea Asset",
+            "title_with_parent": "Crea Asset in"
         },
         "asset_edit": {
-            "success": ""
+            "success": "Asset modificato con successo"
         },
         "attribute": {
             "collection": {
-                "item_add": "",
-                "item_remove": ""
+            "item_add": "Aggiungi elemento",
+            "item_remove": "Rimuovi elemento"
             }
         },
         "attribute_policy": {
             "editable": {
-                "label": ""
+            "label": "Modificabile"
             },
             "name": {
-                "label": ""
+            "label": "Nome"
             },
             "public": {
-                "label": ""
+            "label": "Pubblico"
             }
         },
         "attribute_definition": {
             "allowInvalid": {
-                "label": ""
+            "label": "Consenti non valido"
             },
             "policy": {
-                "label": ""
+            "label": "Policy"
             },
             "entityList": {
-                "label": ""
+            "label": "Lista entità"
             },
             "field_type": {
-                "label": ""
+            "label": "Tipo campo"
             },
             "multiple": {
-                "label": ""
+            "label": "Multiplo"
             },
             "name": {
-                "label": ""
+            "label": "Nome"
             },
             "searchable": {
-                "label": ""
+            "label": "Ricercabile"
             },
             "slug": {
-                "label": ""
+            "label": "Slug"
             },
             "suggest": {
-                "label": ""
+            "label": "Suggerisci"
             },
             "translatable": {
-                "label": ""
+            "label": "Traducibile"
             }
         },
         "attribute_entity": {
             "type": {
-                "label": ""
+            "label": "Tipo"
             },
             "value": {
-                "label": ""
+            "label": "Valore"
             }
         },
         "basket": {
             "description": {
-                "label": ""
+            "label": "Descrizione"
             },
             "title": {
-                "label": ""
+            "label": "Titolo"
             }
         },
         "basket_create": {
-            "success": "",
-            "title": ""
+            "success": "Basket creato con successo",
+            "title": "Crea Basket"
         },
         "basket_edit": {
-            "success": ""
+            "success": "Basket modificato con successo"
         },
         "collection": {
             "title": {
-                "label": ""
+            "label": "Titolo"
             }
         },
         "collection_create": {
-            "success": "",
-            "title": "",
-            "title_with_parent": ""
+            "success": "Collection creata con successo",
+            "title": "Crea Collection",
+            "title_with_parent": "Crea Collection in"
         },
         "collection_edit": {
-            "success": ""
+            "success": "Collection modificata con successo"
         },
         "collection_move": {
-            "success": ""
+            "success": "Collection spostata con successo"
         },
         "copy_assets": {
             "asset_not_linkable": {
-                "other_ws": "",
-                "permission": "",
-                "select_for_hard_copy": ""
+            "other_ws": "Altro Workspace",
+            "permission": "Permesso",
+            "select_for_hard_copy": "Seleziona per copia fisica"
             },
             "destination": {
-                "label": ""
+            "label": "Destinazione"
             }
         },
         "move_assets": {
             "destination": {
-                "label": ""
+            "label": "Destinazione"
             }
         },
         "permissions": {
-            "label": ""
+            "label": "Permessi"
         },
         "privacy": {
-            "label": ""
+            "label": "Privacy"
         },
         "profile": {
             "firstName": {
-                "translate": {
-                    "title": ""
-                }
+            "translate": {
+                "title": "Traduci nome"
+            }
             }
         },
         "rendition_policy": {
             "name": {
-                "label": ""
+            "label": "Nome"
             },
             "public": {
-                "label": ""
+            "label": "Pubblico"
             }
         },
         "rendition_definition": {
             "policy": {
-                "label": ""
+            "label": "Policy"
             },
             "definition": {
-                "label": ""
+            "label": "Definizione"
             },
             "name": {
-                "label": ""
+            "label": "Nome"
             },
             "parent": {
-                "helper": "",
-                "label": ""
+            "helper": "Parent",
+            "label": "Parent"
             },
             "pickSourceFile": {
-                "label": ""
+            "label": "Scegli file sorgente"
             },
             "useAsOriginal": {
-                "label": ""
+            "label": "Usa come originale"
             },
             "useAsPreview": {
-                "label": ""
+            "label": "Usa come anteprima"
             },
             "useAsThumbnail": {
-                "label": ""
+            "label": "Usa come miniatura"
             },
             "useAsThumbnailActive": {
-                "label": ""
+            "label": "Usa come miniatura attiva"
             }
         },
         "save_as": {
             "destination": {
-                "label": ""
+            "label": "Destinazione"
             }
         },
         "tag": {
             "color": {
-                "label": ""
+            "label": "Colore"
             },
             "name": {
-                "label": ""
+            "label": "Nome"
             }
         },
         "upload": {
             "destination": {
-                "label": ""
+            "label": "Destinazione"
             },
             "submit": {
-                "title": ""
+            "title": "Carica"
             },
-            "success": "",
-            "title": ""
+            "success": "Caricamento riuscito",
+            "title": "Carica"
         },
         "workspace": {
             "fallback_locales": {
-                "add": "",
-                "label": "",
-                "title": ""
+            "add": "Aggiungi lingua di fallback",
+            "label": "Lingue di fallback",
+            "title": "Lingue di fallback"
             },
             "locales": {
-                "add": "",
-                "label": "",
-                "placeholder": "",
-                "title": ""
+            "add": "Aggiungi lingua",
+            "label": "Lingue",
+            "placeholder": "Seleziona lingua",
+            "title": "Lingue"
             },
             "public": {
-                "label": ""
+            "label": "Pubblico"
             },
             "title": {
-                "label": ""
+            "label": "Titolo"
             }
         },
         "workspace_edit": {
-            "success": ""
+            "success": "Workspace modificato con successo"
         }
-    },
-    "get_resolved_sort_by": {
-        "created_at": "",
-        "relevance": ""
-    },
-    "get_user_name": {
-        "all_groups": "",
-        "all_users": "",
-        "group_not_found": "",
-        "user_not_found": ""
-    },
-    "group_divider": {
-        "none": ""
-    },
-    "integration": {
+        },
+        "get_resolved_sort_by": {
+        "created_at": "Data creazione",
+        "relevance": "Rilevanza"
+        },
+        "get_user_name": {
+        "all_groups": "Tutti i gruppi",
+        "all_users": "Tutti gli utenti",
+        "group_not_found": "Gruppo non trovato",
+        "user_not_found": "Utente non trovato"
+        },
+        "group_divider": {
+        "none": "Nessuno"
+        },
+        "integration": {
         "expose": {
             "create_pub": {
-                "submit": "",
-                "success": "",
-                "title": ""
+            "submit": "Crea pubblicazione",
+            "success": "Pubblicazione creata",
+            "title": "Crea pubblicazione"
             },
             "form": {
-                "description": "",
-                "enabled": "",
-                "parent": "",
-                "profile": "",
-                "slug": "",
-                "title": ""
+            "description": "Descrizione",
+            "enabled": "Abilitato",
+            "parent": "Parent",
+            "profile": "Profilo",
+            "slug": "Slug",
+            "title": "Titolo"
             },
             "sync": {
-                "event": {
-                    "sync_clean": "",
-                    "sync_complete": "",
-                    "sync_progress": ""
-                }
+            "event": {
+                "sync_clean": "Sincronizzazione pulita",
+                "sync_complete": "Sincronizzazione completata",
+                "sync_progress": "Progresso sincronizzazione"
+            }
             }
         }
-    },
-    "layout": {
+        },
+        "layout": {
         "options": {
             "collections_count": {
-                "label": ""
+            "label": "Numero di Collection"
             },
             "display_collections": {
-                "label": ""
+            "label": "Mostra Collection"
             },
             "display_previews_hover": {
-                "label": ""
+            "label": "Mostra anteprime al passaggio"
             },
             "display_tags": {
-                "label": ""
+            "label": "Mostra Tag"
             },
             "display_title": {
-                "label": ""
+            "label": "Mostra titolo"
             },
-            "more": "",
+            "more": "Altro",
             "play_preview_videos": {
-                "label": ""
+            "label": "Riproduci video anteprima"
             },
             "tags_count": {
-                "label": ""
+            "label": "Numero di Tag"
             },
             "thumb_size": {
-                "label": ""
+            "label": "Dimensione miniatura"
             },
             "title_rows": {
-                "label": ""
+            "label": "Righe titolo"
             }
         },
-        "previews_locked": "",
-        "previews_unlocked": "",
+        "previews_locked": "Anteprime bloccate",
+        "previews_unlocked": "Anteprime sbloccate",
         "view": {
-            "grid": "",
-            "list": "",
-            "masonry": ""
+            "grid": "Griglia",
+            "list": "Lista",
+            "masonry": "Masonry"
         }
-    },
-    "left_panel": {
-        "baskets": "",
-        "facets": "",
-        "tree": ""
-    },
-    "load_more": {
+        },
+        "left_panel": {
+        "baskets": "Baskets",
+        "facets": "Facets",
+        "tree": "Albero"
+        },
+        "load_more": {
         "button": {
-            "load_more": "",
-            "loading": ""
+            "load_more": "Carica altro",
+            "loading": "Caricamento..."
         }
-    },
-    "menu": {
-        "change_theme": "",
-        "sign_in": "",
-        "theme_editor": ""
-    },
-    "metric": {
-        "ms": ""
-    },
-    "modal": {
-        "close": ""
-    },
-    "move_assets": {
+        },
+        "menu": {
+        "change_theme": "Cambia tema",
+        "sign_in": "Accedi",
+        "theme_editor": "Editor tema"
+        },
+        "metric": {
+        "ms": "ms"
+        },
+        "modal": {
+        "close": "Chiudi"
+        },
+        "move_assets": {
         "dialog": {
-            "intro": "",
-            "submit": "",
-            "title": "",
-            "title_plural": ""
+            "intro": "Sposta Asset",
+            "submit": "Sposta",
+            "title": "Sposta Asset",
+            "title_plural": "Sposta Asset"
         }
-    },
-    "move_assets_dialog": {
-        "assets_were_moved": ""
-    },
-    "not_found": {
-        "back_home": "",
-        "content": "",
-        "title": ""
-    },
-    "operations_asset": {
-        "workflow_is_starting": ""
-    },
-    "pagination": {
-        "load_more_collections": ""
-    },
-    "pasted_image": {
-        "filename": ""
-    },
-    "permission_table": {
-        "actions": ""
-    },
-    "privacy": {
-        "no_access": "",
-        "private": "",
-        "private_in_workspace": "",
-        "public": "",
-        "public_for_users": "",
-        "public_in_workspace": "",
-        "secret": ""
-    },
-    "privacy_field": {
-        "only_visible_to_workspace": "",
-        "user_must_be_authenticated": ""
-    },
-    "remove_bgasset_editor_actions": {
-        "bg_removed": "",
-        "remove_bg": "",
-        "use_slider_to_compare": ""
-    },
-    "rendition_policy": {
+        },
+        "move_assets_dialog": {
+        "assets_were_moved": "Gli Asset sono stati spostati"
+        },
+        "not_found": {
+        "back_home": "Torna alla home",
+        "content": "Contenuto non trovato",
+        "title": "Non trovato"
+        },
+        "operations_asset": {
+        "workflow_is_starting": "Il workflow sta iniziando"
+        },
+        "pagination": {
+        "load_more_collections": "Carica altre Collection"
+        },
+        "pasted_image": {
+        "filename": "Nome file"
+        },
+        "permission_table": {
+        "actions": "Azioni"
+        },
+        "privacy": {
+        "no_access": "Nessun accesso",
+        "private": "Privato",
+        "private_in_workspace": "Privato nel Workspace",
+        "public": "Pubblico",
+        "public_for_users": "Pubblico per utenti",
+        "public_in_workspace": "Pubblico nel Workspace",
+        "secret": "Segreto"
+        },
+        "privacy_field": {
+        "only_visible_to_workspace": "Visibile solo al Workspace",
+        "user_must_be_authenticated": "L'utente deve essere autenticato"
+        },
+        "remove_bgasset_editor_actions": {
+        "bg_removed": "Sfondo rimosso",
+        "remove_bg": "Rimuovi sfondo",
+        "use_slider_to_compare": "Usa lo slider per confrontare"
+        },
+        "rendition_policy": {
         "new": {
-            "label": ""
+            "label": "Nuova Rendition Policy"
         }
-    },
-    "rendition_definitions": {
+        },
+        "rendition_definitions": {
         "new": {
-            "label": ""
+            "label": "Nuova Rendition Definition"
         }
-    },
-    "renditions": {
-        "dirty": "",
-        "download": ""
-    },
-    "replace_asset_with_file_dialog": {
-        "asset_has_been_replaced": "",
-        "please_confirm_replacing_asset": "",
-        "replace_asset_with_file": ""
-    },
-    "save_as_button": {
-        "new_asset": "",
-        "rendition": "",
-        "replace_asset_source": "",
-        "save_as": ""
-    },
-    "save_as_template_form": {
-        "apply_to_collection": "",
-        "include_collection_children": "",
-        "my_template": "",
-        "public": "",
-        "remember_attributes": "",
-        "remember_privacy": "",
-        "remember_tags": "",
-        "save_values_as_template_for_reuse": "",
-        "template_name": ""
-    },
-    "save_file_as_new_asset_dialog": {
-        "file_is_saved": "",
-        "save": "",
-        "save_file_as_new_asset": "",
+        },
+        "renditions": {
+        "dirty": "Dirty",
+        "download": "Scarica"
+        },
+        "replace_asset_with_file_dialog": {
+        "asset_has_been_replaced": "L'Asset è stato sostituito",
+        "please_confirm_replacing_asset": "Conferma la sostituzione dell'Asset",
+        "replace_asset_with_file": "Sostituisci Asset con file"
+        },
+        "save_as_button": {
+        "new_asset": "Nuovo Asset",
+        "rendition": "Rendition",
+        "replace_asset_source": "Sostituisci sorgente Asset",
+        "save_as": "Salva come"
+        },
+        "save_as_template_form": {
+        "apply_to_collection": "Applica alla Collection",
+        "include_collection_children": "Includi figli della Collection",
+        "my_template": "Mio template",
+        "public": "Pubblico",
+        "remember_attributes": "Ricorda attributi",
+        "remember_privacy": "Ricorda privacy",
+        "remember_tags": "Ricorda Tag",
+        "save_values_as_template_for_reuse": "Salva valori come template per riutilizzo",
+        "template_name": "Nome template"
+        },
+        "save_file_as_new_asset_dialog": {
+        "file_is_saved": "File salvato",
+        "save": "Salva",
+        "save_file_as_new_asset": "Salva file come nuovo Asset",
         "title": {
-            "label": ""
+            "label": "Titolo"
         }
-    },
-    "save_file_as_rendition_dialog": {
-        "rendition_has_been_saved": "",
-        "rendition_to_add_or_replace": "",
-        "save_file_as_asset_rendition": ""
-    },
-    "search": {
-        "search_button": "",
+        },
+        "save_file_as_rendition_dialog": {
+        "rendition_has_been_saved": "Rendition salvata",
+        "rendition_to_add_or_replace": "Rendition da aggiungere o sostituire",
+        "save_file_as_asset_rendition": "Salva file come Rendition dell'Asset"
+        },
+        "search": {
+        "search_button": "Cerca",
         "sort_by": {
-            "title": ""
+            "title": "Ordina per"
         }
-    },
-    "search_auto_complete": {
-        "search": ""
-    },
-    "search_provider": {
-        "collections": "",
-        "workspaces": ""
-    },
-    "selection_actions": {
-        "result": "",
-        "s": ""
-    },
-    "sort_by": {
-        "sort_by": ""
-    },
-    "sort_by_row": {
-        "ascendant": "",
-        "descendant": ""
-    },
-    "substitute_file": {
+        },
+        "search_auto_complete": {
+        "search": "Cerca"
+        },
+        "search_provider": {
+        "collections": "Collection",
+        "workspaces": "Workspace"
+        },
+        "selection_actions": {
+        "result": "Risultato",
+        "s": "s"
+        },
+        "sort_by": {
+        "sort_by": "Ordina per"
+        },
+        "sort_by_row": {
+        "ascendant": "Ascendente",
+        "descendant": "Discendente"
+        },
+        "substitute_file": {
         "dialog": {
-            "intro": "",
-            "submit": "",
-            "title": ""
+            "intro": "Sostituisci file",
+            "submit": "Sostituisci",
+            "title": "Sostituisci file"
         }
-    },
-    "tag_rules": {
-        "edit_this_rule": "",
-        "new_rule": "",
-        "tag_rules": ""
-    },
-    "tags": {
-        "label": "",
+        },
+        "tag_rules": {
+        "edit_this_rule": "Modifica questa regola",
+        "new_rule": "Nuova regola",
+        "tag_rules": "Regole Tag"
+        },
+        "tags": {
+        "label": "Tag",
         "new": {
-            "label": ""
+            "label": "Nuovo Tag"
         }
-    },
-    "translatable_attribute_tabs": {
-        "untranslated": ""
-    },
-    "tuiphoto_editor": {
-        "file_name": "",
-        "open_recent": "",
-        "original": "",
-        "save": "",
-        "save_as": "",
-        "saved": ""
-    },
-    "upload_dropzone": {
-        "drag_n_drop_some_files_here_or_click_to_select_files": ""
-    },
-    "use_integration_auth": {
-        "auth": ""
-    },
-    "workspace": {
+        },
+        "translatable_attribute_tabs": {
+        "untranslated": "Non tradotto"
+        },
+        "tuiphoto_editor": {
+        "file_name": "Nome file",
+        "open_recent": "Apri recenti",
+        "original": "Originale",
+        "save": "Salva",
+        "save_as": "Salva come",
+        "saved": "Salvato"
+        },
+        "upload_dropzone": {
+        "drag_n_drop_some_files_here_or_click_to_select_files": "Trascina qui i file o clicca per selezionare"
+        },
+        "use_integration_auth": {
+        "auth": "Autorizzazione"
+        },
+        "workspace": {
         "info": {
-            "creation_date": "",
-            "id": ""
+            "creation_date": "Data creazione",
+            "id": "ID"
         },
         "item": {
-            "create_collection": "",
-            "edit": ""
+            "create_collection": "Crea Collection",
+            "edit": "Modifica"
         },
         "manage": {
             "acl": {
-                "title": ""
+            "title": "Gestisci ACL"
             },
             "attribute_policy": {
-                "title": ""
+            "title": "Gestisci Attribute Policy"
             },
             "attribute_definitions": {
-                "title": ""
+            "title": "Gestisci Attribute Definitions"
             },
             "attribute_entity": {
-                "title": ""
+            "title": "Gestisci Attribute Entity"
             },
             "edit": {
-                "title": ""
+            "title": "Modifica Workspace"
             },
             "info": {
-                "title": ""
+            "title": "Informazioni"
             },
             "rendition_policy": {
-                "title": ""
+            "title": "Gestisci Rendition Policy"
             },
             "rendition_definition": {
-                "title": ""
+            "title": "Gestisci Rendition Definition"
             },
             "tag_rules": {
-                "title": ""
+            "title": "Gestisci Tag Rules"
             },
             "tags": {
-                "title": ""
+            "title": "Gestisci Tag"
             },
-            "title": ""
+            "title": "Gestisci Workspace"
         },
-        "no_locale_defined": ""
+        "no_locale_defined": "Nessuna lingua definita"
     }
 }
