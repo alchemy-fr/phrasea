@@ -1,0 +1,942 @@
+{
+    "acl": {
+        "delete": "",
+        "form": {
+            "group_select": {
+                "placeholder": ""
+            },
+            "user_select": {
+                "placeholder": ""
+            }
+        },
+        "table": {
+            "cols": {
+                "user_group": ""
+            }
+        }
+    },
+    "asset": {
+        "actions": {
+            "delete": "",
+            "download": "",
+            "edit": "",
+            "edit_attributes": "",
+            "open": "",
+            "save_as": ""
+        },
+        "collection_list": {
+            "collections": "",
+            "collections_plural": "",
+            "others": "",
+            "others_plural": ""
+        },
+        "delete": {
+            "confirm": {
+                "message": "",
+                "message_many_plural": "",
+                "title": ""
+            }
+        },
+        "info": {
+            "created_at": "",
+            "id": "",
+            "last_attribute_modification_date": "",
+            "last_modification_date": "",
+            "owner": ""
+        },
+        "manage": {
+            "acl": {
+                "title": "",
+                "versions": ""
+            },
+            "attributes": {
+                "title": ""
+            },
+            "edit": {
+                "title": ""
+            },
+            "info": {
+                "title": ""
+            },
+            "open": {
+                "title": ""
+            },
+            "operations": {
+                "title": ""
+            },
+            "renditions": {
+                "title": ""
+            },
+            "title": ""
+        },
+        "operations": {
+            "last_asset_workflows": "",
+            "trigger_workflow_again": "",
+            "view": "",
+            "you_need_to_run_integrations_again": ""
+        },
+        "replace": {
+            "label": ""
+        },
+        "tag_list": {
+            "others": "",
+            "others_plural": "",
+            "tags": "",
+            "tags_plural": ""
+        },
+        "view": {
+            "attributes": ""
+        }
+    },
+    "asset_actions": {
+        "copy": "",
+        "delete": "",
+        "download": "",
+        "edit": "",
+        "edit_attributes": "",
+        "export": "",
+        "move": "",
+        "select_all": "",
+        "share": "",
+        "substitute_file": "",
+        "unselect_all": ""
+    },
+    "asset_dropzone": {
+        "drop_the_files_here": "",
+        "you_must_be_authenticated_in_order_to_upload_new_files": ""
+    },
+    "asset_file_versions": {
+        "current": ""
+    },
+    "asset_selection": {
+        "item": ""
+    },
+    "attribute": {
+        "editor": {
+            "tabs": {
+                "preview": {
+                    "no_asset": "",
+                    "title": ""
+                },
+                "values": {
+                    "title": ""
+                }
+            }
+        }
+    },
+    "attribute_policy": {
+        "new": {
+            "label": ""
+        }
+    },
+    "attribute_definitions": {
+        "new": {
+            "label": ""
+        }
+    },
+    "attribute_editor": {
+        "cancel": {
+            "label": ""
+        },
+        "definitions": {
+            "indeterminate": ""
+        },
+        "diff": {
+            "dialog": {
+                "title": ""
+            }
+        },
+        "discard_changes": {
+            "confirm": "",
+            "desc": "",
+            "title": ""
+        },
+        "remove_from_selection": "",
+        "save": {
+            "label": ""
+        },
+        "saved": "",
+        "suggestions": {
+            "menu": {
+                "apply": "",
+                "select_with_value": ""
+            },
+            "no_value": "",
+            "originalValues": {
+                "label": ""
+            }
+        }
+    },
+    "attribute_entity": {
+        "dialog": {
+            "create": {
+                "title": ""
+            }
+        },
+        "form": {
+            "created": ""
+        },
+        "new": {
+            "label": ""
+        }
+    },
+    "attributes": {
+        "values": ""
+    },
+    "attributes_editor_form": {
+        "attributes_saved": ""
+    },
+    "aws_rekognition": {
+        "actions": {
+            "detect_faces": "",
+            "detect_image_labels": "",
+            "detect_texts": "",
+            "face_n": "",
+            "faces": "",
+            "labels": "",
+            "no_face_detected": "",
+            "no_text_detected": "",
+            "text": ""
+        }
+    },
+    "basket": {
+        "choose_modal": {
+            "title": ""
+        },
+        "create_button": {
+            "label": ""
+        },
+        "default": {
+            "title": ""
+        },
+        "info": {
+            "creation_date": "",
+            "id": "",
+            "modification_date": "",
+            "owner": ""
+        },
+        "item": {
+            "edit": ""
+        },
+        "manage": {
+            "acl": {
+                "title": ""
+            },
+            "edit": {
+                "title": ""
+            },
+            "info": {
+                "title": ""
+            },
+            "integrations": {
+                "title": ""
+            },
+            "operations": {
+                "title": ""
+            },
+            "title": ""
+        }
+    },
+    "basket_delete": {
+        "confirm": "",
+        "title": ""
+    },
+    "basket_view_dialog": {
+        "item": "",
+        "remove_from_basket": ""
+    },
+    "change_theme": {
+        "save": "",
+        "title": ""
+    },
+    "chip": {
+        "editable": "",
+        "private": "",
+        "public": "",
+        "read_only": ""
+    },
+    "collection": {
+        "info": {
+            "creation_date": "",
+            "id": "",
+            "modification_date": "",
+            "owner": ""
+        },
+        "item": {
+            "create_asset": "",
+            "create_collection": "",
+            "edit": ""
+        },
+        "manage": {
+            "acl": {
+                "title": ""
+            },
+            "edit": {
+                "title": ""
+            },
+            "info": {
+                "title": ""
+            },
+            "operations": {
+                "title": ""
+            },
+            "tag_rules": {
+                "title": ""
+            },
+            "title": ""
+        }
+    },
+    "collection_delete": {
+        "confirm": "",
+        "title": ""
+    },
+    "collection_move": {
+        "intro": "",
+        "title": ""
+    },
+    "common": {
+        "cancel": "",
+        "copy": "",
+        "databox": "",
+        "delete": "",
+        "item_sorted": "",
+        "loading": "",
+        "no": "",
+        "or": "",
+        "remove": "",
+        "save": "",
+        "search": {
+            "placeholder": "",
+            "submit": ""
+        },
+        "uploading": "",
+        "yes": ""
+    },
+    "copy_assets": {
+        "dialog": {
+            "intro": "",
+            "submit": "",
+            "title": "",
+            "title_plural": ""
+        },
+        "form": {
+            "by_reference": {
+                "label": ""
+            },
+            "with_attributes": {
+                "label": ""
+            },
+            "with_tags": {
+                "label": ""
+            }
+        }
+    },
+    "copy_assets_dialog": {
+        "assets_were_copied": ""
+    },
+    "copy_toclipboard": {
+        "copied": ""
+    },
+    "danger_zone": "",
+    "date_histogram_facet": {
+        "clear_filter": ""
+    },
+    "debug_es_modal": {
+        "elasticsearch_response_time": "",
+        "search_debug": "",
+        "total_response_time": ""
+    },
+    "definition_manager": {
+        "confirm_delete": "",
+        "saved": ""
+    },
+    "delete": {
+        "basket": {
+            "confirmed": ""
+        },
+        "collection": {
+            "confirmed": ""
+        }
+    },
+    "dialog": {
+        "apply": "",
+        "cancel": "",
+        "close": "",
+        "confirm": "",
+        "confirm_text_type": {
+            "intro": "",
+            "placeholder": ""
+        },
+        "reset": "",
+        "save": ""
+    },
+    "edit_sort_by": {
+        "add_group_separators_between_results": "",
+        "group_by_sections": ""
+    },
+    "editor_panel": {
+        "untranslated": ""
+    },
+    "export": {
+        "dialog": {
+            "intro": "",
+            "submit": "",
+            "title": "",
+            "title_plural": ""
+        }
+    },
+    "expose_basket_integration": {
+        "also_delete_the_publication": "",
+        "authorize": "",
+        "force_sync": "",
+        "ok": "",
+        "stop_synchronization": "",
+        "sync_with_a_publication": ""
+    },
+    "face_detail_tooltip": {
+        "age_range": "",
+        "eyeglasses": "",
+        "eyes_open": "",
+        "gender": "",
+        "has_a_beard": "",
+        "mouth_open": "",
+        "mustache": "",
+        "smiling": ""
+    },
+    "facets": {
+        "missing_with_total": ""
+    },
+    "filter": {
+        "exclude": "",
+        "is_missing": ""
+    },
+    "filter_rule": {
+        "confirm_delete_this_rule": "",
+        "exclude": {
+            "helper": ""
+        },
+        "group": "",
+        "include": {
+            "helper": ""
+        },
+        "or": "",
+        "rule_applies_for": "",
+        "user": ""
+    },
+    "foo": "",
+    "form": {
+        "asset": {
+            "tags": {
+                "label": ""
+            },
+            "templates": {
+                "label": ""
+            },
+            "title": {
+                "label": ""
+            }
+        },
+        "asset_create": {
+            "title": "",
+            "title_with_parent": ""
+        },
+        "asset_edit": {
+            "success": ""
+        },
+        "attribute": {
+            "collection": {
+                "item_add": "",
+                "item_remove": ""
+            }
+        },
+        "attribute_policy": {
+            "editable": {
+                "label": ""
+            },
+            "name": {
+                "label": ""
+            },
+            "public": {
+                "label": ""
+            }
+        },
+        "attribute_definition": {
+            "allowInvalid": {
+                "label": ""
+            },
+            "policy": {
+                "label": ""
+            },
+            "entityList": {
+                "label": ""
+            },
+            "field_type": {
+                "label": ""
+            },
+            "multiple": {
+                "label": ""
+            },
+            "name": {
+                "label": ""
+            },
+            "searchable": {
+                "label": ""
+            },
+            "slug": {
+                "label": ""
+            },
+            "suggest": {
+                "label": ""
+            },
+            "translatable": {
+                "label": ""
+            }
+        },
+        "attribute_entity": {
+            "type": {
+                "label": ""
+            },
+            "value": {
+                "label": ""
+            }
+        },
+        "basket": {
+            "description": {
+                "label": ""
+            },
+            "title": {
+                "label": ""
+            }
+        },
+        "basket_create": {
+            "success": "",
+            "title": ""
+        },
+        "basket_edit": {
+            "success": ""
+        },
+        "collection": {
+            "title": {
+                "label": ""
+            }
+        },
+        "collection_create": {
+            "success": "",
+            "title": "",
+            "title_with_parent": ""
+        },
+        "collection_edit": {
+            "success": ""
+        },
+        "collection_move": {
+            "success": ""
+        },
+        "copy_assets": {
+            "asset_not_linkable": {
+                "other_ws": "",
+                "permission": "",
+                "select_for_hard_copy": ""
+            },
+            "destination": {
+                "label": ""
+            }
+        },
+        "move_assets": {
+            "destination": {
+                "label": ""
+            }
+        },
+        "permissions": {
+            "label": ""
+        },
+        "privacy": {
+            "label": ""
+        },
+        "profile": {
+            "firstName": {
+                "translate": {
+                    "title": ""
+                }
+            }
+        },
+        "rendition_policy": {
+            "name": {
+                "label": ""
+            },
+            "public": {
+                "label": ""
+            }
+        },
+        "rendition_definition": {
+            "policy": {
+                "label": ""
+            },
+            "definition": {
+                "label": ""
+            },
+            "name": {
+                "label": ""
+            },
+            "parent": {
+                "helper": "",
+                "label": ""
+            },
+            "pickSourceFile": {
+                "label": ""
+            },
+            "useAsOriginal": {
+                "label": ""
+            },
+            "useAsPreview": {
+                "label": ""
+            },
+            "useAsThumbnail": {
+                "label": ""
+            },
+            "useAsThumbnailActive": {
+                "label": ""
+            }
+        },
+        "save_as": {
+            "destination": {
+                "label": ""
+            }
+        },
+        "tag": {
+            "color": {
+                "label": ""
+            },
+            "name": {
+                "label": ""
+            }
+        },
+        "upload": {
+            "destination": {
+                "label": ""
+            },
+            "submit": {
+                "title": ""
+            },
+            "success": "",
+            "title": ""
+        },
+        "workspace": {
+            "fallback_locales": {
+                "add": "",
+                "label": "",
+                "title": ""
+            },
+            "locales": {
+                "add": "",
+                "label": "",
+                "placeholder": "",
+                "title": ""
+            },
+            "public": {
+                "label": ""
+            },
+            "title": {
+                "label": ""
+            }
+        },
+        "workspace_edit": {
+            "success": ""
+        }
+    },
+    "get_resolved_sort_by": {
+        "created_at": "",
+        "relevance": ""
+    },
+    "get_user_name": {
+        "all_groups": "",
+        "all_users": "",
+        "group_not_found": "",
+        "user_not_found": ""
+    },
+    "group_divider": {
+        "none": ""
+    },
+    "integration": {
+        "expose": {
+            "create_pub": {
+                "submit": "",
+                "success": "",
+                "title": ""
+            },
+            "form": {
+                "description": "",
+                "enabled": "",
+                "parent": "",
+                "profile": "",
+                "slug": "",
+                "title": ""
+            },
+            "sync": {
+                "event": {
+                    "sync_clean": "",
+                    "sync_complete": "",
+                    "sync_progress": ""
+                }
+            }
+        }
+    },
+    "layout": {
+        "options": {
+            "collections_count": {
+                "label": ""
+            },
+            "display_collections": {
+                "label": ""
+            },
+            "display_previews_hover": {
+                "label": ""
+            },
+            "display_tags": {
+                "label": ""
+            },
+            "display_title": {
+                "label": ""
+            },
+            "more": "",
+            "play_preview_videos": {
+                "label": ""
+            },
+            "tags_count": {
+                "label": ""
+            },
+            "thumb_size": {
+                "label": ""
+            },
+            "title_rows": {
+                "label": ""
+            }
+        },
+        "previews_locked": "",
+        "previews_unlocked": "",
+        "view": {
+            "grid": "",
+            "list": "",
+            "masonry": ""
+        }
+    },
+    "left_panel": {
+        "baskets": "",
+        "facets": "",
+        "tree": ""
+    },
+    "load_more": {
+        "button": {
+            "load_more": "",
+            "loading": ""
+        }
+    },
+    "menu": {
+        "change_theme": "",
+        "sign_in": "",
+        "theme_editor": ""
+    },
+    "metric": {
+        "ms": ""
+    },
+    "modal": {
+        "close": ""
+    },
+    "move_assets": {
+        "dialog": {
+            "intro": "",
+            "submit": "",
+            "title": "",
+            "title_plural": ""
+        }
+    },
+    "move_assets_dialog": {
+        "assets_were_moved": ""
+    },
+    "not_found": {
+        "back_home": "",
+        "content": "",
+        "title": ""
+    },
+    "operations_asset": {
+        "workflow_is_starting": ""
+    },
+    "pagination": {
+        "load_more_collections": ""
+    },
+    "pasted_image": {
+        "filename": ""
+    },
+    "permission_table": {
+        "actions": ""
+    },
+    "privacy": {
+        "no_access": "",
+        "private": "",
+        "private_in_workspace": "",
+        "public": "",
+        "public_for_users": "",
+        "public_in_workspace": "",
+        "secret": ""
+    },
+    "privacy_field": {
+        "only_visible_to_workspace": "",
+        "user_must_be_authenticated": ""
+    },
+    "remove_bgasset_editor_actions": {
+        "bg_removed": "",
+        "remove_bg": "",
+        "use_slider_to_compare": ""
+    },
+    "rendition_policy": {
+        "new": {
+            "label": ""
+        }
+    },
+    "rendition_definitions": {
+        "new": {
+            "label": ""
+        }
+    },
+    "renditions": {
+        "dirty": "",
+        "download": ""
+    },
+    "replace_asset_with_file_dialog": {
+        "asset_has_been_replaced": "",
+        "please_confirm_replacing_asset": "",
+        "replace_asset_with_file": ""
+    },
+    "save_as_button": {
+        "new_asset": "",
+        "rendition": "",
+        "replace_asset_source": "",
+        "save_as": ""
+    },
+    "save_as_template_form": {
+        "apply_to_collection": "",
+        "include_collection_children": "",
+        "my_template": "",
+        "public": "",
+        "remember_attributes": "",
+        "remember_privacy": "",
+        "remember_tags": "",
+        "save_values_as_template_for_reuse": "",
+        "template_name": ""
+    },
+    "save_file_as_new_asset_dialog": {
+        "file_is_saved": "",
+        "save": "",
+        "save_file_as_new_asset": "",
+        "title": {
+            "label": ""
+        }
+    },
+    "save_file_as_rendition_dialog": {
+        "rendition_has_been_saved": "",
+        "rendition_to_add_or_replace": "",
+        "save_file_as_asset_rendition": ""
+    },
+    "search": {
+        "search_button": "",
+        "sort_by": {
+            "title": ""
+        }
+    },
+    "search_auto_complete": {
+        "search": ""
+    },
+    "search_provider": {
+        "collections": "",
+        "workspaces": ""
+    },
+    "selection_actions": {
+        "result": "",
+        "s": ""
+    },
+    "sort_by": {
+        "sort_by": ""
+    },
+    "sort_by_row": {
+        "ascendant": "",
+        "descendant": ""
+    },
+    "substitute_file": {
+        "dialog": {
+            "intro": "",
+            "submit": "",
+            "title": ""
+        }
+    },
+    "tag_rules": {
+        "edit_this_rule": "",
+        "new_rule": "",
+        "tag_rules": ""
+    },
+    "tags": {
+        "label": "",
+        "new": {
+            "label": ""
+        }
+    },
+    "translatable_attribute_tabs": {
+        "untranslated": ""
+    },
+    "tuiphoto_editor": {
+        "file_name": "",
+        "open_recent": "",
+        "original": "",
+        "save": "",
+        "save_as": "",
+        "saved": ""
+    },
+    "upload_dropzone": {
+        "drag_n_drop_some_files_here_or_click_to_select_files": ""
+    },
+    "use_integration_auth": {
+        "auth": ""
+    },
+    "workspace": {
+        "info": {
+            "creation_date": "",
+            "id": ""
+        },
+        "item": {
+            "create_collection": "",
+            "edit": ""
+        },
+        "manage": {
+            "acl": {
+                "title": ""
+            },
+            "attribute_policy": {
+                "title": ""
+            },
+            "attribute_definitions": {
+                "title": ""
+            },
+            "attribute_entity": {
+                "title": ""
+            },
+            "edit": {
+                "title": ""
+            },
+            "info": {
+                "title": ""
+            },
+            "rendition_policy": {
+                "title": ""
+            },
+            "rendition_definition": {
+                "title": ""
+            },
+            "tag_rules": {
+                "title": ""
+            },
+            "tags": {
+                "title": ""
+            },
+            "title": ""
+        },
+        "no_locale_defined": ""
+    }
+}
