@@ -646,15 +646,15 @@
         },
         "workspace": {
             "fallback_locales": {
-                "add": "Ajouter une locale de fallback",
-                "label": "Locale",
-                "title": "Locales de Fallback"
+                "add": "Ajouter une langue primaire",
+                "label": "Langue",
+                "title": "Langue primaire"
             },
             "locales": {
-                "add": "Ajouter une locale",
-                "label": "Locale",
-                "placeholder": "ex. fr ou fr-FR",
-                "title": "Locales du Workspace"
+                "add": "Ajouter une langue",
+                "label": "Langue",
+                "placeholder": "exemple: fr ou fr-FR",
+                "title": "Langues du Workspace"
             },
             "public": {
                 "label": "Publique"
@@ -1048,15 +1048,15 @@
             "creation_date": "Date de création"
         },
         "item": {
-            "edit": "Editer ce Workspace",
-            "create_collection": "Ajouter la collection à ce Workspace"
+            "edit": "Modifier le Workspace",
+            "create_collection": "Ajouter la collection dans ce Workspace"
         },
         "manage": {
             "acl": {
                 "title": "Permissions"
             },
             "attribute_policy": {
-                "title": "Polices de l'attribut"
+                "title": "Politiques d'accès des attributs"
             },
             "attribute_definitions": {
                 "title": "Attributs"
@@ -1068,7 +1068,7 @@
                 "title": "Editer"
             },
             "info": {
-                "title": "Infos"
+                "title": "Informations"
             },
             "rendition_definition": {
                 "title": "Renditions"
@@ -1081,14 +1081,14 @@
             },
             "title": "Gérer le Workspace {{name}}",
             "rendition_policy": {
-                "title": "Polices de renditions"
+                "title": "Politiques d'accès aux renditions"
             }
         },
-        "no_locale_defined": "Aucune locale définie pour ce Workspace"
+        "no_locale_defined": "Aucune langue définie pour ce Workspace"
     },
     "rendition_policy": {
         "new": {
-            "label": "Nouvelle police"
+            "label": "Nouvelle politique d'accès"
         }
     },
     "rendition_definitions": {
