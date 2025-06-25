@@ -228,7 +228,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         foreach ($assetRenditions as $rendition) {
             if ($rendition->getDefinition()->{'isUseAs'.ucfirst($type)}()) {
                 // Return the first viewable sub def for user
-                if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getClass(), $userId, $groupIds)) {
+                if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getPolicy(), $userId, $groupIds)) {
                     return $rendition;
                 }
             }

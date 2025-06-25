@@ -4,30 +4,30 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use App\Entity\Core\RenditionClass;
+use App\Entity\Core\RenditionPolicy;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class RenditionClassVoter extends AbstractVoter
+class RenditionPolicyVoter extends AbstractVoter
 {
     final public const string READ_ADMIN = 'READ_ADMIN';
 
     public static function getScopePrefix(): string
     {
-        return 'rendition-class:';
+        return 'rendition-policy:';
     }
 
     protected function supports(string $attribute, $subject): bool
     {
-        return $subject instanceof RenditionClass;
+        return $subject instanceof RenditionPolicy;
     }
 
     public function supportsType(string $subjectType): bool
     {
-        return is_a($subjectType, RenditionClass::class, true);
+        return is_a($subjectType, RenditionPolicy::class, true);
     }
 
     /**
-     * @param RenditionClass $subject
+     * @param RenditionPolicy $subject
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {

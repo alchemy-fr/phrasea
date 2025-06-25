@@ -51,7 +51,7 @@ final class ShareReadProvider implements ProviderInterface
 
         foreach ($renditions as $rendition) {
             $definition = $rendition->getDefinition();
-            if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getClass(), null)) {
+            if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getPolicy(), null)) {
                 $item->alternateUrls[] = new ShareAlternateUrlOutput(
                     $definition->getName(),
                     $this->urlGenerator->generate('share_public_rendition', [

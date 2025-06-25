@@ -139,7 +139,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     fallback: Record<string, string>;
     initialValues: Record<string, string>;
     workspace: Workspace | string;
-    class: AttributeClass | string | null;
+    policy: AttributePolicy | string | null;
     lastErrors?: LastErrors;
     entityIri?: string | undefined;
     resolveLabel?: (entity: object) => string;
@@ -151,7 +151,14 @@ export type FieldWidget<P extends {} = any> = {
     props?: Partial<P>;
 };
 
-export interface AttributeClass extends ApiHydraObjectResponse, Entity {
+export interface AttributePolicy extends ApiHydraObjectResponse, Entity {
+    name: string;
+    public: boolean;
+    editable: boolean;
+    workspace: Workspace | string;
+}
+
+export interface RenditionPolicy extends ApiHydraObjectResponse, Entity {
     name: string;
     public: boolean;
     editable: boolean;
@@ -167,7 +174,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
     name: string;
     nameTranslated: string;
     parent?: RenditionDefinition | string | undefined | null;
-    class: AttributeClass | string | null;
+    policy: RenditionPolicy | string | null;
     workspace: Workspace | string;
     definition: string;
     buildMode?: RenditionBuildMode | string;
@@ -189,7 +196,7 @@ export interface AssetRendition extends ApiHydraObjectResponse, Entity {
     substituted: boolean;
 }
 
-export interface RenditionClass extends ApiHydraObjectResponse, Entity {
+export interface RenditionPolicy extends ApiHydraObjectResponse, Entity {
     name: string;
     workspace: Workspace | string;
     public: boolean;
@@ -203,7 +210,7 @@ export interface RenditionRule extends ApiHydraObjectResponse, Entity {
     collectionId: string | null;
     group: Group | null;
     user: User | null;
-    allowed: RenditionClass[];
+    allowed: RenditionPolicy[];
 }
 
 export type TPermission<E extends Record<string, boolean> = {}> = {

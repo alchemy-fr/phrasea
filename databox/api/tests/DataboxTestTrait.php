@@ -12,8 +12,8 @@ use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
-use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\Tag;
@@ -25,7 +25,7 @@ use Ramsey\Uuid\Uuid;
 trait DataboxTestTrait
 {
     protected ?Workspace $defaultWorkspace = null;
-    protected ?AttributeClass $defaultAttributeClass = null;
+    protected ?AttributePolicy $defaultAttributePolicy = null;
 
     protected function createAsset(array $options = []): Asset
     {
@@ -123,7 +123,7 @@ trait DataboxTestTrait
         $em = self::getEntityManager();
 
         $definition = new AttributeDefinition();
-        $definition->setClass($options['class'] ?? $this->getOrCreateDefaultAttributeClass([
+        $definition->setPolicy($options['policy'] ?? $this->getOrCreateDefaultAttributePolicy([
             'no_flush' => $options['no_flush'] ?? null,
             'workspace' => $options['workspace'] ?? null,
         ]));
@@ -143,11 +143,11 @@ trait DataboxTestTrait
         return $definition;
     }
 
-    protected function createAttributeClass(array $options = []): AttributeClass
+    protected function createAttributePolicy(array $options = []): AttributePolicy
     {
         $em = self::getEntityManager();
 
-        $attributeClass = new AttributeClass();
+        $attributeClass = new AttributePolicy();
         $attributeClass->setWorkspace($options['workspace'] ?? $this->getOrCreateDefaultWorkspace());
         $attributeClass->setEditable($options['editable'] ?? true);
         $attributeClass->setPublic($options['public'] ?? true);
@@ -279,13 +279,13 @@ trait DataboxTestTrait
         return $this->defaultWorkspace = $this->createWorkspace();
     }
 
-    protected function getOrCreateDefaultAttributeClass(array $options = []): AttributeClass
+    protected function getOrCreateDefaultAttributePolicy(array $options = []): AttributePolicy
     {
-        if (null !== $this->defaultAttributeClass) {
-            return $this->defaultAttributeClass;
+        if (null !== $this->defaultAttributePolicy) {
+            return $this->defaultAttributePolicy;
         }
 
-        return $this->defaultAttributeClass = $this->createAttributeClass(array_merge([
+        return $this->defaultAttributePolicy = $this->createAttributePolicy(array_merge([
             'name' => 'Default',
         ], $options));
     }

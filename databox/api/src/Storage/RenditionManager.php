@@ -172,9 +172,9 @@ final class RenditionManager
             ->select('r')
             ->from(AssetRendition::class, 'r')
             ->innerJoin('r.definition', 'd')
-            ->innerJoin('d.class', 'c')
+            ->innerJoin('d.policy', 'p')
             ->andWhere('r.asset = :asset')
-            ->andWhere('c.public = true')
+            ->andWhere('p.public = true')
             ->andWhere(sprintf('d.useAs%s = :as', ucfirst($as)))
             ->setParameters([
                 'asset' => $assetId,

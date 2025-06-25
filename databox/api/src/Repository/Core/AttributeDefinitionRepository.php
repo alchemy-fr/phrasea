@@ -30,7 +30,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this
             ->createQueryBuilder('t')
-            ->innerJoin('t.class', 'c')
+            ->innerJoin('t.policy', 'c')
             ->innerJoin('t.workspace', 'w');
 
         if (null !== $userId) {
@@ -38,11 +38,11 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
                 $queryBuilder,
                 $userId,
                 $groupIds,
-                'attribute_class',
+                'attribute_policy',
                 'c',
                 PermissionInterface::VIEW,
                 false,
-                'ac_ace'
+                'ap_ace'
             );
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
@@ -57,7 +57,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             );
             $queryBuilder->setParameter('uid', $userId);
             if ($withConditions) {
-                $queryBuilder->andWhere('c.public = true OR ac_ace.id IS NOT NULL');
+                $queryBuilder->andWhere('c.public = true OR ap_ace.id IS NOT NULL');
                 $queryBuilder->andWhere('w.public = true OR w.ownerId = :uid OR w_ace.id IS NOT NULL');
             }
         } else {
@@ -92,7 +92,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
         if (null !== $userId) {
             $queryBuilder->addSelect('w.ownerId AS w_ownerId');
             $queryBuilder->addSelect('w_ace.id AS w_aceId');
-            $queryBuilder->addSelect('ac_ace.id AS ac_aceId');
+            $queryBuilder->addSelect('ap_ace.id AS ap_aceId');
         }
 
         foreach ($queryBuilder
@@ -100,8 +100,8 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
                      ->toIterable() as $row) {
             if (null !== $userId) {
                 $row['allowed'] = ($row['wPublic'] || $row['w_ownerId'] === $userId || $row['w_aceId'])
-                    && ($row['cPublic'] || $row['ac_aceId']);
-                unset($row['w_ownerId'], $row['w_aceId'], $row['ac_aceId']);
+                    && ($row['cPublic'] || $row['ap_aceId']);
+                unset($row['w_ownerId'], $row['w_aceId'], $row['ap_aceId']);
             } else {
                 $row['allowed'] = $row['wPublic'] && $row['cPublic'];
             }

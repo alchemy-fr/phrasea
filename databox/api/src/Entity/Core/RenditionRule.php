@@ -40,7 +40,7 @@ use Ramsey\Uuid\Doctrine\UuidType;
     normalizationContext: [
         'groups' => [
             RenditionRule::GROUP_LIST,
-            RenditionClass::GROUP_READ,
+            RenditionPolicy::GROUP_READ,
         ],
     ],
     input: RenditionRuleInput::class,
@@ -82,10 +82,10 @@ class RenditionRule extends AbstractUuidEntity
     protected string $objectId;
 
     /**
-     * @var RenditionClass[]|DoctrineCollection
+     * @var RenditionPolicy[]|DoctrineCollection
      */
     #[ORM\JoinTable(name: 'sdr_allowed')]
-    #[ORM\ManyToMany(targetEntity: RenditionClass::class)]
+    #[ORM\ManyToMany(targetEntity: RenditionPolicy::class)]
     protected ?DoctrineCollection $allowed = null;
 
     public function __construct()
@@ -136,7 +136,7 @@ class RenditionRule extends AbstractUuidEntity
     }
 
     /**
-     * @return RenditionClass[]
+     * @return RenditionPolicy[]
      */
     public function getAllowed(): DoctrineCollection
     {

@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use App\Api\Model\Input\AttributeClassInput;
-use App\Entity\Core\AttributeClass;
+use App\Api\Model\Input\AttributePolicyInput;
+use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Workspace;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class AttributeClassInputTransformer extends AbstractInputTransformer
+class AttributePolicyInputTransformer extends AbstractInputTransformer
 {
     public function supports(string $resourceClass, object $data): bool
     {
-        return AttributeClass::class === $resourceClass && $data instanceof AttributeClassInput;
+        return AttributePolicy::class === $resourceClass && $data instanceof AttributePolicyInput;
     }
 
     /**
-     * @param AttributeClassInput $data
+     * @param AttributePolicyInput $data
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
-        /** @var AttributeClass $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new AttributeClass();
+        /** @var AttributePolicy $object */
+        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new AttributePolicy();
 
         $workspace = null;
         if ($data->workspace) {
@@ -37,7 +37,7 @@ class AttributeClassInputTransformer extends AbstractInputTransformer
             }
 
             if ($data->key) {
-                $attrClass = $this->em->getRepository(AttributeClass::class)
+                $attrClass = $this->em->getRepository(AttributePolicy::class)
                     ->findOneBy([
                         'workspace' => $workspace->getId(),
                         'key' => $data->key,

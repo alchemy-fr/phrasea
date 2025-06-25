@@ -33,13 +33,13 @@ class AttributeVoter extends AbstractVoter
         return match ($attribute) {
             self::READ => $this->security->isGranted(self::READ, $subject->getAsset())
                 && (
-                    $attributeDefinition->getClass()->isPublic()
-                    || $this->hasAcl(PermissionInterface::VIEW, $attributeDefinition->getClass(), $token)
+                    $attributeDefinition->getPolicy()->isPublic()
+                    || $this->hasAcl(PermissionInterface::VIEW, $attributeDefinition->getPolicy(), $token)
                 ),
             self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $subject->getAsset())
                 && (
-                    $attributeDefinition->getClass()->isEditable()
-                    || $this->hasAcl(PermissionInterface::EDIT, $attributeDefinition->getClass(), $token)
+                    $attributeDefinition->getPolicy()->isEditable()
+                    || $this->hasAcl(PermissionInterface::EDIT, $attributeDefinition->getPolicy(), $token)
                 ),
             default => false,
         };

@@ -10,8 +10,8 @@ use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
-use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\Share;
 use App\Entity\Core\Tag;
@@ -31,7 +31,7 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
 
     #[Groups([AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ])]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
-    public ?AttributeClass $class = null;
+    public ?AttributePolicy $policy = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST, Share::GROUP_PUBLIC_READ, EntityList::GROUP_READ, EntityList::GROUP_LIST])]
     public ?string $name = null;

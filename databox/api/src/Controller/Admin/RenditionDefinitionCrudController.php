@@ -42,7 +42,7 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(EntityFilter::new('workspace'))
-            ->add(EntityFilter::new('class'))
+            ->add(EntityFilter::new('policy'))
             ->add(TextFilter::new('name'))
             ->add(BooleanFilter::new('substitutable'))
             ->add(BooleanFilter::new('useAsOriginal'))
@@ -62,7 +62,7 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
         yield JsonField::new('translations')
             ->hideOnIndex();
         yield AssociationField::new('parent');
-        yield AssociationField::new('class');
+        yield AssociationField::new('policy');
         yield AssociationField::new('workspace');
         yield TextField::new('key')
             ->hideOnIndex()

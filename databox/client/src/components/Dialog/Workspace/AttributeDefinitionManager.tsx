@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    AttributeClass,
+    AttributePolicy,
     AttributeDefinition,
     EntityList,
     Workspace,
@@ -30,7 +30,7 @@ import DefinitionManager, {
     OnSort,
 } from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
-import AttributeClassSelect from '../../Form/AttributeClassSelect';
+import AttributePolicySelect from '../../Form/AttributePolicySelect';
 import FieldTypeSelect from '../../Form/FieldTypeSelect';
 import {fieldTypesIcons} from '../../../lib/icons';
 import apiClient from '../../../api/api-client';
@@ -175,15 +175,15 @@ function Item({
             <FormRow>
                 <FormGroup>
                     <FormLabel>
-                        {t('form.attribute_definition.class.label', 'Class')}
+                        {t('form.attribute_definition.policy.label', 'Policy')}
                     </FormLabel>
-                    <AttributeClassSelect
+                    <AttributePolicySelect
                         disabled={submitting}
-                        name={'class'}
+                        name={'policy'}
                         control={control}
                         workspaceId={workspace.id}
                     />
-                    <FormFieldErrors field={'class'} errors={errors} />
+                    <FormFieldErrors field={'policy'} errors={errors} />
                 </FormGroup>
             </FormRow>
             <FormRow>
@@ -377,7 +377,7 @@ function createNewItem(): Partial<AttributeDefinition> {
         editable: true,
         editableInGui: true,
         fieldType: AttributeType.Text,
-        class: null,
+        policy: null,
         entityList: null,
         enabled: true,
     };
@@ -443,7 +443,7 @@ export default function AttributeDefinitionManager({
 function normalizeData(data: AttributeDefinition) {
     return {
         ...data,
-        class: data.class ? (data.class as AttributeClass)['@id'] : null,
+        policy: data.policy ? (data.policy as AttributePolicy)['@id'] : null,
         entityList: data.entityList
             ? (data.entityList as EntityList)['@id']
             : null,

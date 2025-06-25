@@ -1,4 +1,4 @@
-import {AssetRendition, RenditionClass, RenditionDefinition} from '../types';
+import {AssetRendition, RenditionPolicy, RenditionDefinition} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import apiClient from './api-client';
 
@@ -12,7 +12,7 @@ export enum RenditionBuildMode {
     CUSTOM = 2,
 }
 
-export const renditionClassNS = '/rendition-classes';
+export const renditionPolicyNS = '/rendition-policies';
 export const renditionDefinitionNS = '/rendition-definitions';
 export const renditionNS = '/renditions';
 
@@ -53,17 +53,17 @@ export async function getRenditionDefinitions(
     return getHydraCollection(res.data);
 }
 
-export async function putRenditionClass(
+export async function putRenditionPolicy(
     id: string | undefined,
-    data: Partial<RenditionClass>
-): Promise<RenditionClass> {
-    return (await apiClient.put(`${renditionClassNS}/${id}`, data)).data;
+    data: Partial<RenditionPolicy>
+): Promise<RenditionPolicy> {
+    return (await apiClient.put(`${renditionPolicyNS}/${id}`, data)).data;
 }
 
-export async function postRenditionClass(
-    data: RenditionClass
-): Promise<RenditionClass> {
-    return (await apiClient.post(renditionClassNS, data)).data;
+export async function postRenditionPolicy(
+    data: RenditionPolicy
+): Promise<RenditionPolicy> {
+    return (await apiClient.post(renditionPolicyNS, data)).data;
 }
 
 export async function putRenditionDefinition(
@@ -82,10 +82,10 @@ export async function postRenditionDefinition(
     return (await apiClient.post(renditionDefinitionNS, data)).data;
 }
 
-export async function getRenditionClasses(
+export async function getRenditionPolicies(
     workspaceId: string
-): Promise<ApiCollectionResponse<RenditionClass>> {
-    const res = await apiClient.get(renditionClassNS, {
+): Promise<ApiCollectionResponse<RenditionPolicy>> {
+    const res = await apiClient.get(renditionPolicyNS, {
         params: {
             workspaceId,
         },
@@ -106,8 +106,8 @@ export async function getWorkspaceRenditionDefinitions(
     return res.data['hydra:member'];
 }
 
-export async function deleteRenditionClass(id: string): Promise<void> {
-    await apiClient.delete(`${renditionClassNS}/${id}`);
+export async function deleteRenditionPolicy(id: string): Promise<void> {
+    await apiClient.delete(`${renditionPolicyNS}/${id}`);
 }
 
 export async function deleteRendition(id: string): Promise<void> {

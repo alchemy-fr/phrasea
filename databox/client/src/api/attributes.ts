@@ -1,8 +1,8 @@
-import {AttributeClass, AttributeDefinition, FieldType} from '../types';
+import {AttributePolicy, AttributeDefinition, FieldType} from '../types';
 import apiClient from './api-client';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 
-export const attributeClassNS = '/attribute-classes';
+export const attributePolicyNS = '/attribute-policies';
 export const attributeDefinitionNS = '/attribute-definitions';
 
 export async function putAttributeDefinition(
@@ -20,31 +20,31 @@ export async function postAttributeDefinition(
     return (await apiClient.post(attributeDefinitionNS, data)).data;
 }
 
-export async function putAttributeClass(
+export async function putAttributePolicy(
     id: string | undefined,
-    data: Partial<AttributeClass>
-): Promise<AttributeClass> {
+    data: Partial<AttributePolicy>
+): Promise<AttributePolicy> {
     delete data.workspace;
 
-    return (await apiClient.put(`${attributeClassNS}/${id}`, data)).data;
+    return (await apiClient.put(`${attributePolicyNS}/${id}`, data)).data;
 }
 
-export async function postAttributeClass(
-    data: AttributeClass
-): Promise<AttributeClass> {
-    return (await apiClient.post(attributeClassNS, data)).data;
+export async function postAttributePolicy(
+    data: AttributePolicy
+): Promise<AttributePolicy> {
+    return (await apiClient.post(attributePolicyNS, data)).data;
 }
 
-export async function getAttributeClasses(
+export async function getAttributePolicies(
     workspaceId: string
-): Promise<ApiCollectionResponse<AttributeClass>> {
-    const res = await apiClient.get(attributeClassNS, {
+): Promise<ApiCollectionResponse<AttributePolicy>> {
+    const res = await apiClient.get(attributePolicyNS, {
         params: {
             workspaceId,
         },
     });
 
-    return getHydraCollection<AttributeClass>(res.data);
+    return getHydraCollection<AttributePolicy>(res.data);
 }
 
 export async function getAttributeFieldTypes(): Promise<FieldType[]> {
@@ -53,10 +53,10 @@ export async function getAttributeFieldTypes(): Promise<FieldType[]> {
     return res.data['hydra:member'];
 }
 
-export async function getWorkspaceAttributeClasses(
+export async function getWorkspaceAttributePolicies(
     workspaceId: string
-): Promise<AttributeClass[]> {
-    const res = await apiClient.get(attributeClassNS, {
+): Promise<AttributePolicy[]> {
+    const res = await apiClient.get(attributePolicyNS, {
         params: {
             workspaceId,
         },
@@ -94,6 +94,6 @@ export async function deleteAttributeDefinition(id: string): Promise<void> {
     await apiClient.delete(`${attributeDefinitionNS}/${id}`);
 }
 
-export async function deleteAttributeClass(id: string): Promise<void> {
-    await apiClient.delete(`${attributeClassNS}/${id}`);
+export async function deleteAttributePolicy(id: string): Promise<void> {
+    await apiClient.delete(`${attributePolicyNS}/${id}`);
 }

@@ -102,7 +102,7 @@ class AssetCopier
 
         if ($sameWorkspace) {
             foreach ($asset->getRenditions() as $rendition) {
-                if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getClass(),
+                if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getPolicy(),
                     $userId,
                     $groupsId
                 )) {

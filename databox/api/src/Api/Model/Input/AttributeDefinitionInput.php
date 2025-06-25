@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
-use App\Entity\Core\AttributeClass;
+use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\Workspace;
 
@@ -16,9 +16,9 @@ class AttributeDefinitionInput
     public $workspace;
 
     /**
-     * @var AttributeClass|null
+     * @var AttributePolicy|null
      */
-    public $class;
+    public $policy;
 
     /**
      * Target definition by name. Or use $definition.

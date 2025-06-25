@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
-use App\Entity\Core\RenditionClass;
+use App\Entity\Core\RenditionPolicy;
 
 class RenditionRuleInput
 {
@@ -17,7 +17,7 @@ class RenditionRuleInput
     public ?string $collectionId = null;
 
     /**
-     * @var RenditionClass[]
+     * @var RenditionPolicy[]
      */
     public ?array $allowed = null;
 }

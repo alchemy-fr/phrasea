@@ -14,13 +14,13 @@ import {
 } from '../../../api/renditionRule';
 
 type Props = {
-    classId: string;
+    policyId: string;
     workspaceId?: string;
     collectionId?: string;
 };
 
-export default function RenditionClassPermissions({
-    classId,
+export default function RenditionPolicyPermissions({
+    policyId,
     collectionId,
     workspaceId,
 }: Props) {
@@ -36,16 +36,16 @@ export default function RenditionClassPermissions({
     };
 
     const loadPermissions = useCallback(async (): Promise<Ace[]> => {
-        const rules = await getRenditionRules(classId);
+        const rules = await getRenditionRules(policyId);
 
         return rules.map(mapRuleToAce);
-    }, [classId]);
+    }, [policyId]);
 
     const updatePermission = useCallback(
         async (userType: UserType, userId: string | null) => {
             return mapRuleToAce(
                 await postRenditionRule(
-                    classId,
+                    policyId,
                     collectionId
                         ? CollectionOrWorkspace.Collection
                         : CollectionOrWorkspace.Workspace,
@@ -55,12 +55,12 @@ export default function RenditionClassPermissions({
                 )
             );
         },
-        [classId]
+        [policyId]
     );
 
     const deletePermission: OnPermissionDelete = useCallback(
         async (userType: UserType, userId: string | null) => {
-            const rules = await getRenditionRules(classId, {
+            const rules = await getRenditionRules(policyId, {
                 userType: userType === UserType.Group ? 1 : 0,
                 userId,
                 objectType: 0,
@@ -69,7 +69,7 @@ export default function RenditionClassPermissions({
 
             await Promise.all(rules.map(r => deleteRenditionRule(r.id)));
         },
-        [classId]
+        [policyId]
     );
 
     return (

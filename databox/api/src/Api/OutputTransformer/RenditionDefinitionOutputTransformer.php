@@ -30,7 +30,7 @@ class RenditionDefinitionOutputTransformer implements OutputTransformerInterface
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
         $output->workspace = $data->getWorkspace();
-        $output->class = $data->getClass();
+        $output->policy = $data->getPolicy();
         $output->name = $data->getName();
         $output->nameTranslated = $data->getTranslatedField('name', $this->getPreferredLocales($data->getWorkspace()), $data->getName());
         $output->parent = $data->getParent();
