@@ -12,7 +12,6 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\File\FileMetadataAccessorWrapper;
 use App\Repository\Core\AttributeDefinitionRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -21,7 +20,7 @@ class InitialAttributeValuesResolver
     private readonly Environment $twig;
 
     public function __construct(
-        private readonly EntityManagerInterface $em,
+        private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly AttributeAssigner $attributeAssigner,
     ) {
         $this->twig = new Environment(new ArrayLoader(), [
@@ -36,10 +35,7 @@ class InitialAttributeValuesResolver
     {
         $attributes = [];
 
-        /** @var AttributeDefinitionRepository $repo */
-        $repo = $this->em->getRepository(AttributeDefinition::class);
-
-        $definitions = $repo->getWorkspaceInitializeDefinitions($asset->getWorkspaceId());
+        $definitions = $this->attributeDefinitionRepository->getWorkspaceInitializeDefinitions($asset->getWorkspaceId());
         $fileMetadataAccessorWrapper = new FileMetadataAccessorWrapper($asset->getSource());
 
         foreach ($definitions as $definition) {
