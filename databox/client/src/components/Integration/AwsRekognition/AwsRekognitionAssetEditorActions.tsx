@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {
     Button,
     List,
@@ -7,142 +7,22 @@ import {
     ListItemIcon,
     ListItemText,
     ListSubheader,
-    Tooltip,
 } from '@mui/material';
 import {ObjectType, runIntegrationAction} from '../../../api/integrations';
-import {IntegrationOverlayCommonProps} from '../../Media/Asset/View/AssetView.tsx';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ImageSearchIcon from '@mui/icons-material/ImageSearch';
 import {IntegrationData} from '../../../types';
 import IntegrationPanelContent from '../Common/IntegrationPanelContent';
-import {
-    DetectType,
-    FaceDetail,
-    FacesData,
-    ImageLabel,
-    LabelsData,
-    TextDetection,
-    TextsData,
-} from './types';
-import FaceDetailTooltip from './FaceDetailTooltip';
+import {DetectType, FacesData, LabelsData, TextsData} from './types';
 import ValueConfidence from './ValueConfidence';
 import {AssetIntegrationActionsProps, Integration} from '../types.ts';
 import {useTranslation} from 'react-i18next';
 import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {useIntegrationData} from '../useIntegrationData.ts';
-
-function ImageOverlay({
-    labels,
-    texts,
-    faces,
-}: {
-    labels: ImageLabel[] | undefined;
-    texts: TextDetection[] | undefined;
-    faces: FaceDetail[] | undefined;
-} & IntegrationOverlayCommonProps) {
-    const {t} = useTranslation();
-
-    return (
-        <div>
-            {labels &&
-                labels.map((il, j) => {
-                    return (
-                        <>
-                            {il.Instances.map((i, k) => {
-                                const box = i.BoundingBox;
-
-                                const percent = (x: number) => `${x * 100}%`;
-
-                                return (
-                                    <Tooltip
-                                        title={
-                                            <>
-                                                {il.Name}{' '}
-                                                <small>
-                                                    (
-                                                    <ValueConfidence
-                                                        confidence={
-                                                            il.Confidence
-                                                        }
-                                                    />
-                                                    )
-                                                </small>
-                                            </>
-                                        }
-                                        arrow
-                                    >
-                                        <div
-                                            key={`${j}-${k}`}
-                                            style={{
-                                                position: 'absolute',
-                                                top: percent(box.Top),
-                                                left: percent(box.Left),
-                                                width: percent(box.Width),
-                                                height: percent(box.Height),
-                                                boxShadow: `0 0 3px blue, 0 0 3px inset blue`,
-                                            }}
-                                        ></div>
-                                    </Tooltip>
-                                );
-                            })}
-                        </>
-                    );
-                })}
-            {texts &&
-                texts.map((i, k) => {
-                    const box = i.Geometry.BoundingBox;
-
-                    const percent = (x: number) => `${x * 100}%`;
-
-                    return (
-                        <div
-                            key={k}
-                            style={{
-                                position: 'absolute',
-                                top: percent(box.Top),
-                                left: percent(box.Left),
-                                width: percent(box.Width),
-                                height: percent(box.Height),
-                                boxShadow: `0 0 3px red, 0 0 3px inset red`,
-                            }}
-                        ></div>
-                    );
-                })}
-            {faces &&
-                faces.map((i, k) => {
-                    const box = i.BoundingBox;
-                    const percent = (x: number) => `${x * 100}%`;
-
-                    return (
-                        <Tooltip
-                            title={
-                                <FaceDetailTooltip
-                                    detail={i}
-                                    title={t('aws_rekognition.actions.face_n', {
-                                        defaultValue: `Face #{{n}}`,
-                                        n: k + 1,
-                                    })}
-                                />
-                            }
-                            arrow
-                        >
-                            <div
-                                key={k}
-                                style={{
-                                    position: 'absolute',
-                                    top: percent(box.Top),
-                                    left: percent(box.Left),
-                                    width: percent(box.Width),
-                                    height: percent(box.Height),
-                                    boxShadow: `0 0 3px yellow, 0 0 3px inset yellow`,
-                                }}
-                            ></div>
-                        </Tooltip>
-                    );
-                })}
-        </div>
-    );
-}
+import {
+    AnnotationType,
+    AssetAnnotation,
+} from '../../Media/Asset/Annotations/annotationTypes.ts';
 
 function parseData<T>(data: IntegrationData[], key: string): T | undefined {
     const value = data.find(d => d.name === key);
@@ -160,10 +40,26 @@ type ApiCategory = {
     enabled: boolean;
 };
 
+type Categories = {
+    titleLabel: string;
+    noneLabel: string;
+    detectLabel: string;
+    type: DetectType;
+    hasData: boolean;
+}[];
+
+type NormalizedAnnotationItem = {
+    id: string;
+    type: DetectType;
+    title: string;
+    confidence: number;
+    instances: AssetAnnotation[];
+};
+
 export default function AwsRekognitionAssetEditorActions({
     file,
     integration,
-    setIntegrationOverlay,
+    assetAnnotationsRef,
     enableInc,
 }: Props) {
     const {t} = useTranslation();
@@ -208,17 +104,99 @@ export default function AwsRekognitionAssetEditorActions({
         }
     );
 
-    useEffect(() => {
+    const annotations = useMemo<NormalizedAnnotationItem[]>(() => {
         const instances =
             labels?.Labels.filter(l => l.Instances.length > 0) ?? [];
 
         if (enableInc && (instances.length > 0 || texts || faces)) {
-            setIntegrationOverlay(ImageOverlay, {
-                labels: instances,
-                texts: texts?.TextDetections,
-                faces: faces?.FaceDetails,
-            });
+            const annotations: NormalizedAnnotationItem[] = [
+                ...instances.map((i, index) => {
+                    const id = `label-${index}`;
+                    return {
+                        id,
+                        title: i.Name,
+                        type: DetectType.Labels,
+                        confidence: i.Confidence,
+                        instances: i.Instances.map(instance => {
+                            const box = instance.BoundingBox;
+
+                            return {
+                                id: `${id}-${instance.BoundingBox.Left}-${instance.BoundingBox.Top}`,
+                                type: AnnotationType.Rect,
+                                c: 'blue',
+                                x: box.Left,
+                                y: box.Top,
+                                w: box.Width,
+                                h: box.Height,
+                                name: i.Name,
+                            };
+                        }),
+                    };
+                }),
+
+                ...(texts?.TextDetections.map((t, index) => {
+                    const box = t.Geometry.BoundingBox;
+                    const id = `text-${index}`;
+
+                    return {
+                        id,
+                        title: t.DetectedText,
+                        type: DetectType.Texts,
+                        confidence: t.Confidence,
+                        instances: [
+                            {
+                                id: `${id}-0`,
+                                type: AnnotationType.Rect,
+                                x: box.Left,
+                                y: box.Top,
+                                w: box.Width,
+                                h: box.Height,
+                                name: t.DetectedText,
+                                c: 'green',
+                            },
+                        ],
+                    };
+                }) ?? []),
+
+                ...(faces?.FaceDetails.map((f, i) => {
+                    const box = f.BoundingBox;
+                    const title = t('aws_rekognition.actions.face_n', {
+                        defaultValue: `Face #{{n}}`,
+                        n: i + 1,
+                    });
+
+                    const id = `face-${i}`;
+                    return {
+                        id,
+                        type: DetectType.Faces,
+                        confidence: f.Confidence,
+                        title,
+                        instances: [
+                            {
+                                id: `${id}-0`,
+                                type: AnnotationType.Rect,
+                                c: 'red',
+                                x: box.Left,
+                                y: box.Top,
+                                w: box.Width,
+                                h: box.Height,
+                                name: title,
+                            },
+                        ],
+                    };
+                }) ?? []),
+            ];
+
+            return annotations;
         }
+
+        return [];
+    }, [enableInc, labels, texts, faces]);
+
+    useEffect(() => {
+        assetAnnotationsRef?.current?.replaceAnnotations(
+            annotations.map(a => a.instances).flat()
+        );
     }, [enableInc, labels, texts, faces]);
 
     const config = integration.config as {
@@ -227,156 +205,142 @@ export default function AwsRekognitionAssetEditorActions({
         faces: ApiCategory;
     };
 
+    const categories = useMemo<Categories>(
+        () => [
+            {
+                type: DetectType.Labels,
+                hasData: !!labels,
+                titleLabel: t('aws_rekognition.actions.labels', `Labels`),
+                noneLabel: t(
+                    'aws_rekognition.actions.no_label_detected',
+                    `No label detected`
+                ),
+                detectLabel: t(
+                    'aws_rekognition.actions.detect_image_labels',
+                    `Detect image labels`
+                ),
+            },
+            {
+                type: DetectType.Texts,
+                hasData: !!texts,
+                titleLabel: t('aws_rekognition.actions.texts', `Texts`),
+                noneLabel: t(
+                    'aws_rekognition.actions.no_text_detected',
+                    `No text detected`
+                ),
+                detectLabel: t(
+                    'aws_rekognition.actions.detect_texts',
+                    `Detect texts`
+                ),
+            },
+            {
+                type: DetectType.Faces,
+                hasData: !!faces,
+                titleLabel: t('aws_rekognition.actions.faces', `Faces`),
+                noneLabel: t(
+                    'aws_rekognition.actions.no_face_detected',
+                    `No face detected`
+                ),
+                detectLabel: t(
+                    'aws_rekognition.actions.detect_faces',
+                    `Detect faces`
+                ),
+            },
+        ],
+        [t, labels, texts, faces]
+    );
+
+    const selectItem = useCallback(
+        (item: NormalizedAnnotationItem) => {
+            const ar = assetAnnotationsRef?.current;
+            if (ar) {
+                item.instances.forEach(i => ar.selectAnnotation(i));
+                ar.replaceAnnotations(
+                    annotations
+                        .filter(a => a.type === item.type)
+                        .map(a => a.instances as AssetAnnotation[])
+                        .flat()
+                );
+            }
+        },
+        [assetAnnotationsRef, annotations]
+    );
+
     return (
         <>
-            {config.labels.enabled && !labels && (
-                <IntegrationPanelContent>
-                    <Button
-                        onClick={() => process(DetectType.Labels)}
-                        disabled={running.includes(DetectType.Labels)}
-                        variant={'contained'}
-                        startIcon={<ImageSearchIcon />}
-                    >
-                        {t(
-                            'aws_rekognition.actions.detect_image_labels',
-                            `Detect image labels`
-                        )}
-                    </Button>
-                </IntegrationPanelContent>
-            )}
-            {config.texts.enabled && !texts && (
-                <IntegrationPanelContent>
-                    <Button
-                        onClick={() => process(DetectType.Texts)}
-                        disabled={running.includes(DetectType.Texts)}
-                        variant={'contained'}
-                        startIcon={<ImageSearchIcon />}
-                    >
-                        {t(
-                            'aws_rekognition.actions.detect_texts',
-                            `Detect texts`
-                        )}
-                    </Button>
-                </IntegrationPanelContent>
-            )}
-            {config.faces.enabled && !faces && (
-                <IntegrationPanelContent>
-                    <Button
-                        onClick={() => process(DetectType.Faces)}
-                        disabled={running.includes(DetectType.Faces)}
-                        variant={'contained'}
-                        startIcon={<ImageSearchIcon />}
-                    >
-                        {t(
-                            'aws_rekognition.actions.detect_faces',
-                            `Detect faces`
-                        )}
-                    </Button>
-                </IntegrationPanelContent>
-            )}
-            {labels && (
-                <div>
-                    <List component="div" disablePadding>
-                        <ListSubheader>
-                            {t('aws_rekognition.actions.labels', `Labels`)}
-                        </ListSubheader>
-                        {labels.Labels.map(l => {
-                            return (
-                                <ListItemButton key={l.Name}>
-                                    <ListItemText>
-                                        {l.Name}{' '}
-                                        <small>
-                                            (
-                                            <ValueConfidence
-                                                confidence={l.Confidence}
-                                            />
-                                            )
-                                        </small>
-                                    </ListItemText>
-                                    {l.Instances.length > 0 && (
-                                        <ListItemIcon>
-                                            <VisibilityIcon />
-                                        </ListItemIcon>
-                                    )}
-                                </ListItemButton>
-                            );
-                        })}
-                    </List>
-                </div>
-            )}
-            {texts && (
-                <div>
-                    <List component="div" disablePadding>
-                        <ListSubheader>
-                            {t('aws_rekognition.actions.text', `Text`)}
-                        </ListSubheader>
-                        {texts.TextDetections.length === 0 && (
-                            <ListItem>
-                                <ListItemText>
-                                    {t(
-                                        'aws_rekognition.actions.no_text_detected',
-                                        `No text detected`
-                                    )}
-                                </ListItemText>
-                            </ListItem>
-                        )}
-                        {texts.TextDetections.map(l => {
-                            return (
-                                <ListItemButton key={l.Id}>
-                                    <ListItemText>
-                                        {l.DetectedText}{' '}
-                                        <small>
-                                            (
-                                            <ValueConfidence
-                                                confidence={l.Confidence}
-                                            />
-                                            )
-                                        </small>
-                                    </ListItemText>
-                                </ListItemButton>
-                            );
-                        })}
-                    </List>
-                </div>
-            )}
-            {faces && (
-                <div>
-                    <List component="div" disablePadding>
-                        <ListSubheader>
-                            {t('aws_rekognition.actions.faces', `Faces`)}
-                        </ListSubheader>
-                        {faces.FaceDetails.length === 0 && (
-                            <ListItem>
-                                <ListItemText>
-                                    {t(
-                                        'aws_rekognition.actions.no_face_detected',
-                                        `No face detected`
-                                    )}
-                                </ListItemText>
-                            </ListItem>
-                        )}
-                        {faces.FaceDetails.map((l, i) => {
-                            return (
-                                <ListItemButton key={i}>
-                                    <ListItemText>
-                                        {t('aws_rekognition.actions.face_n', {
-                                            defaultValue: `Face #{{n}}`,
-                                            n: i + 1,
-                                        })}{' '}
-                                        <small>
-                                            (
-                                            <ValueConfidence
-                                                confidence={l.Confidence}
-                                            />
-                                            )
-                                        </small>
-                                    </ListItemText>
-                                </ListItemButton>
-                            );
-                        })}
-                    </List>
-                </div>
-            )}
+            {categories
+                .filter(
+                    category =>
+                        config[category.type].enabled && !category.hasData
+                )
+                .map(category => {
+                    return (
+                        <IntegrationPanelContent key={category.type}>
+                            <Button
+                                onClick={() => process(category.type)}
+                                disabled={running.includes(category.type)}
+                                variant={'contained'}
+                                startIcon={<ImageSearchIcon />}
+                            >
+                                {category.detectLabel}
+                            </Button>
+                        </IntegrationPanelContent>
+                    );
+                })}
+
+            {categories
+                .filter(
+                    category =>
+                        config[category.type].enabled && category.hasData
+                )
+                .map(category => {
+                    const items = annotations.filter(
+                        a => a.type === category.type
+                    );
+
+                    return (
+                        <div key={category.type}>
+                            <List component="div" disablePadding>
+                                <ListSubheader>
+                                    {category.titleLabel}
+                                </ListSubheader>
+                                {items.length === 0 && (
+                                    <ListItem>
+                                        <ListItemText>
+                                            {category.noneLabel}
+                                        </ListItemText>
+                                    </ListItem>
+                                )}
+                                {items.map(l => {
+                                    return (
+                                        <ListItemButton
+                                            key={l.id}
+                                            onClick={() => selectItem(l)}
+                                        >
+                                            <ListItemText>
+                                                {l.title}{' '}
+                                                <small>
+                                                    (
+                                                    <ValueConfidence
+                                                        confidence={
+                                                            l.confidence
+                                                        }
+                                                    />
+                                                    )
+                                                </small>
+                                            </ListItemText>
+                                            {l.instances.length > 0 && (
+                                                <ListItemIcon>
+                                                    <VisibilityIcon />
+                                                </ListItemIcon>
+                                            )}
+                                        </ListItemButton>
+                                    );
+                                })}
+                            </List>
+                        </div>
+                    );
+                })}
         </>
     );
 }
