@@ -1,5 +1,6 @@
 import {Asset, Basket, File, WorkspaceIntegration} from '../../types.ts';
 import {SetIntegrationOverlayFunction} from '../Media/Asset/View/AssetView.tsx';
+import {AssetAnnotationRef} from '../Media/Asset/Annotations/annotationTypes.ts';
 
 export enum Integration {
     RemoveBg = 'remove.bg',
@@ -20,5 +21,6 @@ export type AssetIntegrationActionsProps = {
     asset: Asset;
     file: File;
     setIntegrationOverlay: SetIntegrationOverlayFunction;
+    assetAnnotationsRef?: AssetAnnotationRef;
     enableInc: number;
 } & IntegrationActionProps;

@@ -1,4 +1,5 @@
 import {MutableRefObject} from 'react';
+import {StateSetter} from '../../../../types.ts';
 
 export type Point = {
     x: number;
@@ -132,3 +133,5 @@ export type AnnotationsControl = {
 };
 
 export type AssetAnnotationRef = MutableRefObject<AnnotationsControl | null>;
+
+export type AnnotationsStateSetter = StateSetter<AssetAnnotation[] | undefined>;

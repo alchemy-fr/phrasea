@@ -12,6 +12,7 @@ use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
+use App\Entity\Traits\AssetAnnotationsInterface;
 use App\Integration\ApiBudgetLimiter;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationDataManager;
@@ -51,22 +52,40 @@ final readonly class RekognitionAnalyzer
 
         if (!empty($result) && $asset instanceof Asset) {
             if (AwsRekognitionIntegration::LABELS === $category && !empty($config['labels']['attributes'] ?? [])) {
-                $this->saveTextsToAttributes($asset, array_map(fn (array $text): array => [
+                $this->saveTextsToAttributes($category, $asset, array_map(fn (array $text): array => [
                     'value' => $text['Name'],
-                    'confidence' => $text['Confidence'],
+                    'confidence' => $text['Confidence'] / 100,
+                    'annotations' => array_map(fn (array $instance): array => [
+                        'type' => AssetAnnotationsInterface::TYPE_RECTANGLE,
+                        'x' => $instance['BoundingBox']['Left'] ?? null,
+                        'y' => $instance['BoundingBox']['Top'] ?? null,
+                        'w' => $instance['BoundingBox']['Width'] ?? null,
+                        'h' => $instance['BoundingBox']['Height'] ?? null,
+                    ], $text['Instances'] ?? []),
                 ], $result['Labels']), $config['labels']['attributes']);
             } elseif (AwsRekognitionIntegration::TEXTS === $category && !empty($config['texts']['attributes'] ?? [])) {
-                $this->saveTextsToAttributes($asset, array_map(fn (array $text): array => [
-                    'value' => $text['DetectedText'],
-                    'confidence' => $text['Confidence'],
-                ], array_filter($result['TextDetections'], fn (array $text): bool => 'LINE' === $text['Type'])), $config['texts']['attributes']);
+                $this->saveTextsToAttributes($category, $asset, array_map(function (array $text): array {
+                    $box = $text['Geometry']['BoundingBox'] ?? [];
+
+                    return [
+                        'value' => $text['DetectedText'],
+                        'confidence' => $text['Confidence'] / 100,
+                        'annotations' => [[
+                            'type' => AssetAnnotationsInterface::TYPE_RECTANGLE,
+                            'x' => $box['Left'] ?? null,
+                            'y' => $box['Top'] ?? null,
+                            'w' => $box['Width'] ?? null,
+                            'h' => $box['Height'] ?? null,
+                        ]],
+                    ];
+                }, array_filter($result['TextDetections'], fn (array $text): bool => 'LINE' === $text['Type'])), $config['texts']['attributes']);
             }
         }
 
         return $result;
     }
 
-    protected function saveTextsToAttributes(Asset $asset, array $texts, array $attributes): void
+    protected function saveTextsToAttributes(string $category, Asset $asset, array $texts, array $attributes): void
     {
         foreach ($attributes as $attrConfig) {
             $attrDef = $this->attributeManager
@@ -84,17 +103,20 @@ final readonly class RekognitionAnalyzer
             $i->action = BatchAttributeManager::ACTION_DELETE;
             $i->origin = Attribute::ORIGIN_MACHINE;
             $i->originVendor = AwsRekognitionIntegration::getName();
+            $i->originVendorContext = $category;
             $input->actions[] = $i;
 
             foreach ($texts as $text) {
-                if (null === $threshold || $threshold < $text['confidence']) {
+                if (null === $threshold || $text['confidence'] >= $threshold) {
                     $i = new AttributeActionInput();
                     $i->action = BatchAttributeManager::ACTION_ADD;
                     $i->originVendor = AwsRekognitionIntegration::getName();
+                    $i->originVendorContext = $category;
                     $i->origin = Attribute::ORIGIN_MACHINE;
                     $i->definitionId = $attrDef->getId();
                     $i->confidence = $text['confidence'];
                     $i->value = $text['value'];
+                    $i->annotations = $text['annotations'] ?? [];
                     $input->actions[] = $i;
                 }
             }

@@ -10,7 +10,7 @@ interface AssetAnnotationsInterface
     // "x", "y", "r" (radius in %), "c"? (border color in hexa), "f"? (fill color in hexa)
     final public const string TYPE_CIRCLE = 'circle';
 
-    // "x1", "y1", "x2", "y2", "c"? (border color in hexa), "f"? (fill color in hexa)
+    // "x", "y", "w", "h", "c"? (border color in hexa), "f"? (fill color in hexa)
     final public const string TYPE_RECTANGLE = 'rect';
 
     // "t" (time: float in seconds)

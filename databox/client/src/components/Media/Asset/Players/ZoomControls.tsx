@@ -27,10 +27,17 @@ export default function ZoomControls({
 }: Props) {
     const {zoomIn, zoomOut, resetTransform, centerView} = useControls();
     const wasReset = useRef(false);
+    const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
     useEffect(() => {
         if (autoCenter && centerView && !wasReset.current) {
             fitContentToWrapper(centerView);
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+            timeoutRef.current = setTimeout(() => {
+                wasReset.current = true;
+            }, 500);
         }
     }, [centerView]);
 

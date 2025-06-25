@@ -204,6 +204,7 @@ class BatchAttributeManager
                                 'ids' => $action->ids,
                                 'origin' => $action->origin,
                                 'originVendor' => $action->originVendor,
+                                'originVendorContext' => $action->originVendorContext,
                             ]);
                             break;
                         case self::ACTION_SET:
@@ -468,6 +469,11 @@ class BatchAttributeManager
             $qb
                 ->andWhere('a.originVendor = :originVendor')
                 ->setParameter('originVendor', $options['originVendor']);
+        }
+        if ($options['originVendorContext'] ?? null) {
+            $qb
+                ->andWhere('a.originVendorContext = :ovc')
+                ->setParameter('ovc', $options['originVendorContext']);
         }
         $qb->getQuery()->execute();
     }

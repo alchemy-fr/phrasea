@@ -291,6 +291,9 @@ export default function AssetView({modalIndex, open}: Props) {
                                             key={rendition.file.id}
                                             asset={asset}
                                             file={rendition.file}
+                                            assetAnnotationsRef={
+                                                assetAnnotationsRef
+                                            }
                                             setIntegrationOverlay={setProxy}
                                         />
                                     ) : (

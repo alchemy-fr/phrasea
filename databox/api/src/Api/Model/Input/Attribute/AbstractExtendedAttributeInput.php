@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input\Attribute;
 
+use App\Entity\Traits\AssetAnnotationsInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+
 abstract class AbstractExtendedAttributeInput extends AbstractBaseAttributeInput
 {
     /**
@@ -22,6 +25,12 @@ abstract class AbstractExtendedAttributeInput extends AbstractBaseAttributeInput
     /**
      * @var array
      */
+    #[Assert\Collection(
+        fields: [
+            'type' => new Assert\Choice(AssetAnnotationsInterface::TYPES),
+        ],
+        allowExtraFields: true,
+    )]
     public $annotations;
 
     /**
