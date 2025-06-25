@@ -9,11 +9,11 @@ import {
     ListSubheader,
     Tooltip,
 } from '@mui/material';
-import {runIntegrationAction} from '../../../api/integrations';
+import {ObjectType, runIntegrationAction} from '../../../api/integrations';
 import {IntegrationOverlayCommonProps} from '../../Media/Asset/View/AssetView.tsx';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ImageSearchIcon from '@mui/icons-material/ImageSearch';
-import {WorkspaceIntegration} from '../../../types';
+import {IntegrationData} from '../../../types';
 import IntegrationPanelContent from '../Common/IntegrationPanelContent';
 import {
     DetectType,
@@ -26,8 +26,10 @@ import {
 } from './types';
 import FaceDetailTooltip from './FaceDetailTooltip';
 import ValueConfidence from './ValueConfidence';
-import {AssetIntegrationActionsProps} from '../types.ts';
+import {AssetIntegrationActionsProps, Integration} from '../types.ts';
 import {useTranslation} from 'react-i18next';
+import {useChannelRegistration} from '../../../lib/pusher.ts';
+import {useIntegrationData} from '../useIntegrationData.ts';
 
 function ImageOverlay({
     labels,
@@ -142,11 +144,8 @@ function ImageOverlay({
     );
 }
 
-function parseData<T>(
-    integration: WorkspaceIntegration,
-    key: string
-): T | undefined {
-    const value = integration.data.find(d => d.name === key);
+function parseData<T>(data: IntegrationData[], key: string): T | undefined {
+    const value = data.find(d => d.name === key);
 
     if (!value) {
         return;
@@ -168,41 +167,46 @@ export default function AwsRekognitionAssetEditorActions({
     enableInc,
 }: Props) {
     const {t} = useTranslation();
-    const [running, setRunning] = useState<DetectType | undefined>();
+    const [running, setRunning] = useState<DetectType[]>([]);
     const [labels, setLabels] = useState<LabelsData | undefined>();
     const [texts, setTexts] = useState<TextsData | undefined>();
     const [faces, setFaces] = useState<FacesData | undefined>();
 
+    const {data, load: loadData} = useIntegrationData({
+        objectType: ObjectType.File,
+        objectId: file.id,
+        integrationId: integration.id,
+        defaultData: integration.data,
+    });
+
     const process = async (category: DetectType) => {
-        setRunning(category);
+        setRunning(p => p.concat([category]));
         try {
-            const res = await runIntegrationAction('analyze', integration.id, {
+            await runIntegrationAction('analyze', integration.id, {
                 fileId: file.id,
                 category,
             });
-
-            switch (category) {
-                case DetectType.Labels:
-                    setLabels(res[DetectType.Labels]);
-                    break;
-                case DetectType.Texts:
-                    setTexts(res[DetectType.Texts]);
-                    break;
-                case DetectType.Faces:
-                    setFaces(res[DetectType.Faces]);
-                    break;
-            }
         } catch (e) {
-            setRunning(undefined);
+            setRunning(p => p.filter(c => c !== category));
             throw e;
         }
     };
 
     useEffect(() => {
-        setLabels(parseData(integration, 'labels'));
-        setTexts(parseData(integration, 'texts'));
-        setFaces(parseData(integration, 'faces'));
-    }, [integration.data]);
+        const allData = data.pages.flat();
+        setLabels(parseData(allData, 'labels'));
+        setTexts(parseData(allData, 'texts'));
+        setFaces(parseData(allData, 'faces'));
+    }, [data]);
+
+    useChannelRegistration(
+        `file-${file.id}`,
+        `integration:${Integration.AwsRekognition}`,
+        () => {
+            setRunning([]);
+            loadData();
+        }
+    );
 
     useEffect(() => {
         const instances =
@@ -229,7 +233,7 @@ export default function AwsRekognitionAssetEditorActions({
                 <IntegrationPanelContent>
                     <Button
                         onClick={() => process(DetectType.Labels)}
-                        disabled={running === DetectType.Labels}
+                        disabled={running.includes(DetectType.Labels)}
                         variant={'contained'}
                         startIcon={<ImageSearchIcon />}
                     >
@@ -244,7 +248,7 @@ export default function AwsRekognitionAssetEditorActions({
                 <IntegrationPanelContent>
                     <Button
                         onClick={() => process(DetectType.Texts)}
-                        disabled={running === DetectType.Texts}
+                        disabled={running.includes(DetectType.Texts)}
                         variant={'contained'}
                         startIcon={<ImageSearchIcon />}
                     >
@@ -259,7 +263,7 @@ export default function AwsRekognitionAssetEditorActions({
                 <IntegrationPanelContent>
                     <Button
                         onClick={() => process(DetectType.Faces)}
-                        disabled={running === DetectType.Faces}
+                        disabled={running.includes(DetectType.Faces)}
                         variant={'contained'}
                         startIcon={<ImageSearchIcon />}
                     >

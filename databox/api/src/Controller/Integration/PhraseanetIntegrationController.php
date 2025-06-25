@@ -80,7 +80,7 @@ class PhraseanetIntegrationController extends AbstractController
         }
 
         try {
-            $definition = $renditionManager->getRenditionDefinitionByName($asset->getWorkspace(), $name);
+            $definition = $renditionManager->getRenditionDefinitionByName($asset->getWorkspaceId(), $name);
         } catch (\InvalidArgumentException $e) {
             throw new BadRequestHttpException(sprintf('Undefined rendition definition "%s"', $name), $e);
         }

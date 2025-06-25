@@ -125,12 +125,12 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             foreach ($data->renditions as $renditionInput) {
                 if ($renditionInput->definitionId) {
                     $definition = $this->renditionManager->getRenditionDefinitionById(
-                        $workspace,
+                        $workspace->getId(),
                         $renditionInput->definitionId
                     );
                 } elseif ($renditionInput->name) {
                     $definition = $this->renditionManager->getRenditionDefinitionByName(
-                        $workspace,
+                        $workspace->getId(),
                         $renditionInput->name
                     );
                 } else {

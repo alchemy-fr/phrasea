@@ -10,6 +10,7 @@ use Alchemy\Workflow\Model\Workflow;
 use Alchemy\Workflow\Normalizer\DisabledNeedNormalizer;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\FilterNeedIntegrationInterface;
 use App\Integration\IntegrationManager;
 use App\Integration\WorkflowIntegrationInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -90,7 +91,7 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
             $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
 
             if ($config->getIntegration() instanceof WorkflowIntegrationInterface) {
-                $integrationConfigs[] = $config;
+                $integrationConfigs[$workspaceIntegration->getId()] = $config;
             }
         }
 
@@ -116,10 +117,17 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
 
         foreach ($integrationConfigs as $config) {
             $workspaceIntegration = $config->getWorkspaceIntegration();
+            $integration = $config->getIntegration();
 
             foreach ($workspaceIntegration->getNeeds() as $need) {
+                $neededConfig = $integrationConfigs[$need->getId()] ?? null;
                 foreach ($jobMap[$workspaceIntegration->getId()] as $job) {
                     $needList = $job->getNeeds();
+
+                    $neededJobs = null;
+                    if ($integration instanceof FilterNeedIntegrationInterface && null !== $neededConfig) {
+                        $neededJobs = $integration->getNeededJobs($config, $neededConfig, $job);
+                    }
 
                     foreach ($jobMap[$workspaceIntegration->getId()] as $j) {
                         if ($needList->has($j->getId())) {
@@ -128,7 +136,9 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
                     }
 
                     foreach ($jobMap[$need->getId()] as $neededJob) {
-                        $needList->append($neededJob->getId());
+                        if (null === $neededJobs || in_array($neededJob->getId(), $neededJobs, true)) {
+                            $needList->append($neededJob->getId());
+                        }
                     }
                 }
             }

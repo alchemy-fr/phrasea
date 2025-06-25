@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Model\Input;
 
 use App\Entity\Core\Workspace;
+use App\Entity\Integration\WorkspaceIntegration;
 use Symfony\Component\Validator\Constraints\NotNull;
 
 class WorkspaceIntegrationInput extends AbstractOwnerIdInput
@@ -17,6 +18,12 @@ class WorkspaceIntegrationInput extends AbstractOwnerIdInput
     public ?string $configYaml = null;
     public ?bool $enabled = null;
 
-    #[NotNull]
+    /**
+     * @var WorkspaceIntegration[]
+     */
+    public ?array $needs = null;
+    public ?string $if = null;
+
+    #[NotNull(groups: ['create'])]
     public ?Workspace $workspace = null;
 }

@@ -10,7 +10,6 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
-use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PersistentCollection;
 
@@ -186,14 +185,14 @@ final class RenditionManager
             ->getOneOrNullResult();
     }
 
-    public function getRenditionDefinitionByName(Workspace $workspace, string $name): RenditionDefinition
+    public function getRenditionDefinitionByName(string $workspaceId, string $name): RenditionDefinition
     {
         $definition = $this
             ->em
             ->getRepository(RenditionDefinition::class)
             ->findOneBy([
                 'name' => $name,
-                'workspace' => $workspace->getId(),
+                'workspace' => $workspaceId,
             ]);
 
         if (!$definition instanceof RenditionDefinition) {
@@ -213,14 +212,14 @@ final class RenditionManager
             ]);
     }
 
-    public function getRenditionDefinitionById(Workspace $workspace, string $id): RenditionDefinition
+    public function getRenditionDefinitionById(string $workspaceId, string $id): RenditionDefinition
     {
         $definition = $this
             ->em
             ->getRepository(RenditionDefinition::class)
             ->findOneBy([
                 'id' => $id,
-                'workspace' => $workspace->getId(),
+                'workspace' => $workspaceId,
             ]);
 
         if (!$definition instanceof RenditionDefinition) {

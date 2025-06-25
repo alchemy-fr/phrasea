@@ -43,6 +43,17 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
         }
         $object->setEnabled($data->enabled);
 
+        if (null !== $data->needs) {
+            $needs = $object->getNeeds();
+            $needs->clear();
+            foreach ($data->needs as $need) {
+                $needs->add($need);
+            }
+        }
+        if (null !== $data->if) {
+            $object->setIf($data->if ?: null);
+        }
+
         return $this->processOwnerId($object);
     }
 

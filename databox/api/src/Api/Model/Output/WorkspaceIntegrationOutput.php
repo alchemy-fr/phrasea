@@ -41,6 +41,12 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?array $tokens = null;
 
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
+    public ?array $needs = null;
+
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
+    public ?string $if = null;
+
     /**
      * @var IntegrationData[]
      */

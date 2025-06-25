@@ -30,7 +30,7 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
             $j = WorkflowHelper::createIntegrationJob(
                 $config,
                 RenditionBuildAction::class,
-                RenditionBuildAction::JOB_ID.':'.$definition->getId(),
+                self::getJobIdSuffix($definition->getId()),
                 $definition->getName(),
             );
             $j->getWith()->offsetSet('definition', $definition->getId());
@@ -44,6 +44,20 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
         }
 
         return $jobs;
+    }
+
+    private static function getJobIdSuffix(string $renditionDefinitionId): string
+    {
+        return RenditionBuildAction::JOB_ID.':'.$renditionDefinitionId;
+    }
+
+    public static function getJobId(IntegrationConfig $config, string $renditionDefinitionId): string
+    {
+        return sprintf(
+            '%s:%s',
+            WorkflowHelper::getJobIdPrefix($config),
+            self::getJobIdSuffix($renditionDefinitionId),
+        );
     }
 
     public static function getName(): string

@@ -20,6 +20,7 @@ class Job
     private bool $continueOnError = false;
     private bool $disabled = false;
     private ?string $disabledReason = null;
+    private array $metadata = [];
 
     public function __construct(private readonly string $id)
     {
@@ -124,6 +125,16 @@ class Job
     {
         $this->disabled = true;
         $this->disabledReason = $reason;
+    }
+
+    public function getMetadata(): array
+    {
+        return $this->metadata;
+    }
+
+    public function setMetadata(array $metadata): void
+    {
+        $this->metadata = $metadata;
     }
 
     public function __clone(): void
