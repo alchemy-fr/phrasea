@@ -10,7 +10,7 @@ use App\Api\Model\Input\Attribute\AbstractExtendedAttributeInput;
 use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
 
-final readonly class AttributeAssigner
+class AttributeAssigner
 {
     public function __construct(private AttributeTypeRegistry $attributeTypeRegistry)
     {
