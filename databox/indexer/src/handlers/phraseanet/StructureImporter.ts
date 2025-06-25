@@ -261,7 +261,7 @@ export async function importSubdefsStructure(
                         sdByName[name].policy !== 'mixed'
                     ) {
                         logger.info(
-                            `  Rendition "${name}" gets different class ("${sdByName[sd.name].policy}" and "${sd.class}": "mixed" is used)`
+                            `  Rendition "${name}" gets different policies ("${sdByName[sd.name].policy}" and "${sd.class}": "mixed" is used)`
                         );
                         sdByName[name].policy = 'mixed';
                     }
