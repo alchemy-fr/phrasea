@@ -277,7 +277,7 @@ export async function importSubdefsStructure(
 
         if (!sd.policy) {
             logger.info(
-                `  Rendition definition "${sdName}" has neither "class" or phraseanet "from": using class "public"`
+                `  Rendition definition "${sdName}" has neither "class" or phraseanet "from": using policy "public"`
             );
             sd.policy = 'public';
         }
