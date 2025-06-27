@@ -1,0 +1,94 @@
+# shortcuts
+#
+# - definitions/<fieldname>/initialValues is an array with keys as locale code, like '_', 'fr', 'en', etc.
+# if no locale distingo is needed, the plain value can be used (it will be converted to ['_' => value])
+# - same principle applies for expected/<fieldname> values (no locale == '_' locale)
+#
+# - expected values is an array, possibly with only one element
+# if only one value is expected, the plain value can be used (it will test with [value])
+#
+# - fieldType defaults to text
+#
+# - isMultiple defaults to false
+#
+# - possible fieldTypes are:
+# boolean, code, collection_path, color, date, date_time, entity, geo_point, html, ip, json, keyword, number, tag, textarea, text
+
+exiftoolVersion:
+    about:
+        title: 'Vérification du fonctionnement de l''intégration metadata-read'
+        description:
+            'Cette lecture permet de s''assurer du bon déroulement du processus d''extraction des métadonnées.
+            La metadata _ExifTool:ExifToolVersion_ est toujours retournée par exiftool.'
+    definitions:
+        exiftoolVersion:
+            initialValues: '{ "type": "metadata", "value": "ExifTool:ExifToolVersion"}'
+    metadata:
+        'ExifTool:ExifToolVersion': '12.42'
+    expected:
+        exiftoolVersion: '12.42'
+
+multi2multi:
+    about:
+        title: 'Meta multi-valuée -> attribut multi-valué (méthode "metadata")'
+    definitions:
+        keywords:
+            isMultiple: true
+            initialValues: '{"type": "metadata", "value": "IPTC:Keywords"}'
+    metadata:
+        'IPTC:Keywords': ['keyword1', 'keyword2', 'keyword3']
+    expected:
+        keywords: ['keyword1', 'keyword2', 'keyword3']
+
+exiftoolVersion2:
+    enabled: false
+    definitions:
+        exiftoolVersion:
+            fieldType: text
+            isMultiple: false
+            initialValues:
+                _: '{ "type": "metadata", "value": "ExifTool:ExifToolVersion"}'
+    metadata:
+        'ExifTool:ExifToolVersion': '12.42'
+    expected:
+        exiftoolVersion:
+            _:
+                - '12.42'
+test1:
+    enabled: false
+    definitions:
+        Title:
+            isMultiple: false
+            initialValues:
+                _: '{ "type": "metadata", "value": "XMP-dc:Title"}'
+                en: '{ "type": "metadata", "value": "description"}'
+            fieldType: text
+    metadata:
+        'Composite:GPSPosition': '48.8588443, 2.2943506'
+        'XMP-dc:Title': Test Title
+        description: Test Description
+    expected:
+        Title:
+            _:
+                - Test Title
+            en:
+                - Test Description
+test2:
+    enabled: false
+    definitions:
+        Keywords:
+            isMultiple: true
+            initialValues:
+                _: '{ "type": "metadata", "value": "IPTC:Keywords"}'
+            fieldType: text
+    metadata:
+        'IPTC:Keywords':
+            - dog
+            - cat
+            - bird
+    expected:
+        Keywords:
+            _:
+                - cat
+                - dog
+                - bird
