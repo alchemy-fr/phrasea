@@ -42,6 +42,8 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
 
         $attrDefs = $this->attributeManager->getAttributeDefinitions($asset->getWorkspaceId());
 
+        $client = $this->createClient($config);
+
         foreach ($attrDefs as $attrDef) {
             if (!$attrDef->isTranslatable()) {
                 continue;
@@ -51,7 +53,6 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
             if (empty($text)) {
                 continue;
             }
-            $client = $this->createClient($config);
 
             $result = $client->translateText([
                 'Settings' => [
