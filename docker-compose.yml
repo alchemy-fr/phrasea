@@ -784,7 +784,7 @@ services:
   elasticsearch:
     profiles:
       - databox
-    image: elasticsearch:7.17.3
+    image: elasticsearch:7.17.28
     networks:
       - internal
     volumes:

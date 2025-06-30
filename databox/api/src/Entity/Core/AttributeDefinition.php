@@ -43,7 +43,10 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     shortName: 'attribute-definition',
     operations: [
         new Get(
-            security: 'is_granted("'.AbstractVoter::READ.'", object)'
+            normalizationContext: [
+                'groups' => [AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ],
+            ],
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(
@@ -54,6 +57,9 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         ),
         new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
         new GetCollection(
+            normalizationContext: [
+                'groups' => [AttributeDefinition::GROUP_LIST],
+            ],
             parameters: [
                 'searchable' => new QueryParameter(
                     schema: ['type' => 'boolean'],
@@ -62,12 +68,9 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                 'workspaceId' => new QueryParameter(
                     schema: ['type' => 'string'],
                 ),
-            ]
+            ],
         ),
         new Post(
-            normalizationContext: [
-                'groups' => [self::GROUP_READ],
-            ],
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             securityPostDenormalize: 'is_granted("CREATE", object)',
         ),
@@ -96,7 +99,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         ),
     ],
     normalizationContext: [
-        'groups' => [AttributeDefinition::GROUP_LIST],
+        'groups' => [AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ],
     ],
     input: AttributeDefinitionInput::class,
     output: AttributeDefinitionOutput::class,
