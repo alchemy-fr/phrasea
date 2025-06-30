@@ -1,943 +1,943 @@
 {
-    "acl": {
-        "delete": "Eliminar",
-        "form": {
-            "group_select": {
-                "placeholder": "Seleccionar usuario"
-            },
-            "user_select": {
-                "placeholder": "Seleccionar grupo"
-            }
-        },
-        "table": {
-            "cols": {
-                "user_group": "Usuario/Grupo"
-            }
-        }
+  "acl": {
+    "delete": "Eliminar",
+    "form": {
+      "group_select": {
+        "placeholder": "Seleccionar usuario"
+      },
+      "user_select": {
+        "placeholder": "Seleccionar grupo"
+      }
     },
-    "asset": {
-        "actions": {
-            "delete": "Eliminar",
-            "download": "Descargar",
-            "edit": "Editar",
-            "edit_attributes": "Editar Attributos",
-            "open": "Abrir",
-            "save_as": "Guardar como"
-        },
-        "collection_list": {
-            "collections": "+ {{count}} Collection",
-            "collections_plural": "+ {{count}} Collection",
-            "others": "+ {{count}} otros",
-            "others_plural": "+ {{count}} otros"
-        },
-        "delete": {
-            "confirm": {
-                "message_many": "¿Seguro que quieres eliminar {{count}} Asset?",
-                "message_many_plural": "¿Seguro que quieres eliminar {{count}} Asset?",
-                "message_one": "¿Seguro que quieres eliminar este Asset?",
-                "title": "Confirmar eliminación"
-            }
-        },
-        "info": {
-            "created_at": "Creado el",
-            "id": "ID",
-            "last_attribute_modification_date": "Última modificación de Attributo",
-            "last_modification_date": "Última modificación",
-            "owner": "Propietario"
-        },
-        "manage": {
-            "acl": {
-                "title": "Permisos",
-                "versions": "Versiones"
-            },
-            "attributes": {
-                "title": "Attributos"
-            },
-            "edit": {
-                "title": "Editar"
-            },
-            "info": {
-                "title": "Información"
-            },
-            "open": {
-                "title": "Abrir"
-            },
-            "operations": {
-                "title": "Operaciones"
-            },
-            "renditions": {
-                "title": "Renditions"
-            },
-            "title": "Gestionar Asset {{name}}"
-        },
-        "operations": {
-            "last_asset_workflows": "Últimos flujos de trabajo de Asset",
-            "trigger_workflow_again": "Ejecutar flujo de trabajo de nuevo",
-            "view": "Ver",
-            "you_need_to_run_integrations_again": "¿Necesitas ejecutar integraciones de nuevo?"
-        },
-        "replace": {
-            "label": "Reemplazar"
-        },
-        "tag_list": {
-            "others": "+ {{count}} otros",
-            "others_plural": "+ {{count}} otros",
-            "tags": "+ {{count}} Tag",
-            "tags_plural": "+ {{count}} Tag"
-        },
-        "view": {
-            "attributes": "Attributos de Asset"
-        }
+    "table": {
+      "cols": {
+        "user_group": "Usuario/Grupo"
+      }
+    }
+  },
+  "asset": {
+    "actions": {
+      "delete": "Eliminar",
+      "download": "Descargar",
+      "edit": "Editar",
+      "edit_attributes": "Editar Attributos",
+      "open": "Abrir",
+      "save_as": "Guardar como"
     },
-    "asset_actions": {
-        "copy": "Copiar",
-        "delete": "Eliminar",
-        "download": "Descargar",
-        "edit": "Editar",
-        "edit_attributes": "Editar Attributos",
-        "export": "Exportar",
-        "move": "Mover",
-        "select_all": "Seleccionar todo",
-        "share": "Compartir",
-        "substitute_file": "Sustituir archivo",
-        "unselect_all": "Deseleccionar todo"
-    },
-    "asset_dropzone": {
-        "drop_the_files_here": "Suelta los archivos aquí…",
-        "you_must_be_authenticated_in_order_to_upload_new_files": "Debes estar autenticado para subir nuevos archivos"
-    },
-    "asset_file_versions": {
-        "current": "Actual"
-    },
-    "asset_selection": {
-        "item": "elemento"
-    },
-    "attribute": {
-        "editor": {
-            "tabs": {
-                "preview": {
-                    "no_asset": "Ningún Asset seleccionado",
-                    "title": "Vista previa"
-                },
-                "values": {
-                    "title": "Valores"
-                }
-            }
-        }
-    },
-    "attribute_policy": {
-        "new": {
-            "label": "Nueva política"
-        }
-    },
-    "attribute_definitions": {
-        "new": {
-            "label": "Nuevo Attributo"
-        }
-    },
-    "attribute_editor": {
-        "cancel": {
-            "label": "Cancelar"
-        },
-        "definitions": {
-            "indeterminate": "Indeterminado"
-        },
-        "diff": {
-            "dialog": {
-                "title": "¿Confirmar cambios?"
-            }
-        },
-        "discard_changes": {
-            "confirm": "Sí, descartar",
-            "desc": "Todos los cambios realizados en los Asset no se aplicarán y se descartarán.",
-            "title": "¿Descartar cambios?"
-        },
-        "remove_from_selection": "Eliminar de la selección",
-        "save": {
-            "label": "Guardar"
-        },
-        "saved": "¡Guardado!",
-        "suggestions": {
-            "menu": {
-                "apply": "Asignar este valor a los Asset seleccionados",
-                "select_with_value": "Seleccionar Asset con este valor"
-            },
-            "no_value": "- vacío -",
-            "originalValues": {
-                "label": "Comparar valores originales"
-            }
-        }
-    },
-    "attribute_entity": {
-        "dialog": {
-            "create": {
-                "title": "Nuevo elemento"
-            }
-        },
-        "form": {
-            "created": "¡Elemento creado!"
-        },
-        "new": {
-            "label": "Nueva entidad"
-        }
-    },
-    "attributes": {
-        "values": "{{count}} valores"
-    },
-    "attributes_editor_form": {
-        "attributes_saved": "¡Attributos guardados!"
-    },
-    "aws_rekognition": {
-        "actions": {
-            "detect_faces": "Detectar caras",
-            "detect_image_labels": "Detectar etiquetas de imagen",
-            "detect_texts": "Detectar textos",
-            "face_n": "Cara #{{n}}",
-            "faces": "Caras",
-            "labels": "Etiquetas",
-            "no_face_detected": "No se detectaron caras",
-            "no_text_detected": "No se detectó texto",
-            "text": "Texto"
-        }
-    },
-    "basket": {
-        "choose_modal": {
-            "title": "Seleccionar Basket actual"
-        },
-        "create_button": {
-            "label": "Crear nuevo Basket"
-        },
-        "default": {
-            "title": "Mi Basket"
-        },
-        "info": {
-            "creation_date": "Fecha de creación",
-            "id": "ID",
-            "modification_date": "Fecha de modificación",
-            "owner": "Propietario"
-        },
-        "item": {
-            "edit": "Editar este Basket"
-        },
-        "manage": {
-            "acl": {
-                "title": "Permisos"
-            },
-            "edit": {
-                "title": "Editar"
-            },
-            "info": {
-                "title": "Información"
-            },
-            "integrations": {
-                "title": "Integraciones"
-            },
-            "operations": {
-                "title": "Operaciones"
-            },
-            "title": "Gestionar Basket {{name}}"
-        }
-    },
-    "basket_delete": {
-        "confirm": "¿Seguro que quieres eliminar este Basket?",
-        "title": "Eliminar Basket"
-    },
-    "basket_view_dialog": {
-        "item": "elemento",
-        "remove_from_basket": "Eliminar del Basket"
-    },
-    "change_theme": {
-        "save": "Guardar",
-        "title": "Elegir un tema"
-    },
-    "chip": {
-        "editable": "Editable",
-        "private": "Privado",
-        "public": "Público",
-        "read_only": "Solo lectura"
-    },
-    "collection": {
-        "info": {
-            "creation_date": "Fecha de creación",
-            "id": "ID",
-            "modification_date": "Fecha de modificación",
-            "owner": "Propietario"
-        },
-        "item": {
-            "create_asset": "Añadir nuevo Asset a la Collection",
-            "create_collection": "Crear nueva Collection dentro de esta",
-            "edit": "Editar esta Collection"
-        },
-        "manage": {
-            "acl": {
-                "title": "Permisos"
-            },
-            "edit": {
-                "title": "Editar"
-            },
-            "info": {
-                "title": "Información"
-            },
-            "operations": {
-                "title": "Operaciones"
-            },
-            "tag_rules": {
-                "title": "Reglas de Tag"
-            },
-            "title": "Gestionar Collection {{name}}"
-        }
-    },
-    "collection_delete": {
-        "confirm": "¿Seguro que quieres eliminar esta Collection?",
-        "title": "Eliminar Collection"
-    },
-    "collection_move": {
-        "intro": "Selecciona el destino para mover esta Collection:",
-        "title": "Mover Collection"
-    },
-    "common": {
-        "cancel": "Cancelar",
-        "copy": "Copiar",
-        "databox": "Databox",
-        "delete": "Eliminar",
-        "item_sorted": "¡Orden guardado!",
-        "loading": "Cargando…",
-        "no": "No",
-        "or": "o",
-        "remove": "Eliminar",
-        "save": "Guardar",
-        "search": {
-            "placeholder": "Buscar…",
-            "submit": "Buscar"
-        },
-        "uploading": "Subiendo…",
-        "yes": "Sí"
-    },
-    "copy_assets": {
-        "dialog": {
-            "intro": "¿Dónde quieres copiar los Asset seleccionados?",
-            "submit": "Copiar",
-            "title": "Copiar {{count}} Asset",
-            "title_plural": "Copiar {{count}} Asset"
-        },
-        "form": {
-            "by_reference": {
-                "label": "Copiar por referencia (acceso directo)"
-            },
-            "with_attributes": {
-                "label": "Copiar Attributos"
-            },
-            "with_tags": {
-                "label": "Copiar Tag"
-            }
-        }
-    },
-    "copy_assets_dialog": {
-        "assets_were_copied": "Asset copiados"
-    },
-    "copy_toclipboard": {
-        "copied": "¡Copiado al portapapeles!"
-    },
-    "danger_zone": "Zona peligrosa",
-    "date_histogram_facet": {
-        "clear_filter": "Limpiar filtro"
-    },
-    "debug_es_modal": {
-        "elasticsearch_response_time": "Tiempo de respuesta de Elasticsearch:",
-        "search_debug": "Depuración de búsqueda",
-        "total_response_time": "Tiempo total de respuesta:"
-    },
-    "definition_manager": {
-        "confirm_delete": "¿Seguro que quieres eliminar este elemento?",
-        "saved": "¡Guardado!"
+    "collection_list": {
+      "collections": "+ {{count}} Collection",
+      "collections_plural": "+ {{count}} Collection",
+      "others": "+ {{count}} otros",
+      "others_plural": "+ {{count}} otros"
     },
     "delete": {
-        "basket": {
-            "confirmed": "¡Basket eliminado!"
-        },
-        "collection": {
-            "confirmed": "¡Collection eliminada!"
-        }
+      "confirm": {
+        "message_many": "¿Seguro que quieres eliminar {{count}} Asset?",
+        "message_many_plural": "¿Seguro que quieres eliminar {{count}} Asset?",
+        "message_one": "¿Seguro que quieres eliminar este Asset?",
+        "title": "Confirmar eliminación"
+      }
     },
+    "info": {
+      "created_at": "Creado el",
+      "id": "ID",
+      "last_attribute_modification_date": "Última modificación de Attributo",
+      "last_modification_date": "Última modificación",
+      "owner": "Propietario"
+    },
+    "manage": {
+      "acl": {
+        "title": "Permisos",
+        "versions": "Versiones"
+      },
+      "attributes": {
+        "title": "Attributos"
+      },
+      "edit": {
+        "title": "Editar"
+      },
+      "info": {
+        "title": "Información"
+      },
+      "open": {
+        "title": "Abrir"
+      },
+      "operations": {
+        "title": "Operaciones"
+      },
+      "renditions": {
+        "title": "Renditions"
+      },
+      "title": "Gestionar Asset {{name}}"
+    },
+    "operations": {
+      "last_asset_workflows": "Últimos flujos de trabajo de Asset",
+      "trigger_workflow_again": "Ejecutar flujo de trabajo de nuevo",
+      "view": "Ver",
+      "you_need_to_run_integrations_again": "¿Necesitas ejecutar integraciones de nuevo?"
+    },
+    "replace": {
+      "label": "Reemplazar"
+    },
+    "tag_list": {
+      "others": "+ {{count}} otros",
+      "others_plural": "+ {{count}} otros",
+      "tags": "+ {{count}} Tag",
+      "tags_plural": "+ {{count}} Tag"
+    },
+    "view": {
+      "attributes": "Attributos de Asset"
+    }
+  },
+  "asset_actions": {
+    "copy": "Copiar",
+    "delete": "Eliminar",
+    "download": "Descargar",
+    "edit": "Editar",
+    "edit_attributes": "Editar Attributos",
+    "export": "Exportar",
+    "move": "Mover",
+    "select_all": "Seleccionar todo",
+    "share": "Compartir",
+    "substitute_file": "Sustituir archivo",
+    "unselect_all": "Deseleccionar todo"
+  },
+  "asset_dropzone": {
+    "drop_the_files_here": "Suelta los archivos aquí…",
+    "you_must_be_authenticated_in_order_to_upload_new_files": "Debes estar autenticado para subir nuevos archivos"
+  },
+  "asset_file_versions": {
+    "current": "Actual"
+  },
+  "asset_selection": {
+    "item": "elemento"
+  },
+  "attribute": {
+    "editor": {
+      "tabs": {
+        "preview": {
+          "no_asset": "Ningún Asset seleccionado",
+          "title": "Vista previa"
+        },
+        "values": {
+          "title": "Valores"
+        }
+      }
+    }
+  },
+  "attribute_policy": {
+    "new": {
+      "label": "Nueva política"
+    }
+  },
+  "attribute_definitions": {
+    "new": {
+      "label": "Nuevo Attributo"
+    }
+  },
+  "attribute_editor": {
+    "cancel": {
+      "label": "Cancelar"
+    },
+    "definitions": {
+      "indeterminate": "Indeterminado"
+    },
+    "diff": {
+      "dialog": {
+        "title": "¿Confirmar cambios?"
+      }
+    },
+    "discard_changes": {
+      "confirm": "Sí, descartar",
+      "desc": "Todos los cambios realizados en los Asset no se aplicarán y se descartarán.",
+      "title": "¿Descartar cambios?"
+    },
+    "remove_from_selection": "Eliminar de la selección",
+    "save": {
+      "label": "Guardar"
+    },
+    "saved": "¡Guardado!",
+    "suggestions": {
+      "menu": {
+        "apply": "Asignar este valor a los Asset seleccionados",
+        "select_with_value": "Seleccionar Asset con este valor"
+      },
+      "no_value": "- vacío -",
+      "originalValues": {
+        "label": "Comparar valores originales"
+      }
+    }
+  },
+  "attribute_entity": {
     "dialog": {
-        "apply": "Aplicar",
-        "cancel": "Cancelar",
-        "close": "Cerrar",
-        "confirm": "Confirmar",
-        "confirm_text_type": {
-            "intro": "Por favor, escribe \"{{ text }}\" para confirmar:",
-            "placeholder": "Escribe \"{{ text }}\""
-        },
-        "reset": "Restablecer",
-        "save": "Guardar"
+      "create": {
+        "title": "Nuevo elemento"
+      }
     },
-    "edit_sort_by": {
-        "add_group_separators_between_results": "Añadir separadores de grupo entre resultados",
-        "group_by_sections": "Agrupar por secciones"
-    },
-    "editor_panel": {
-        "untranslated": "Sin traducir"
-    },
-    "export": {
-        "dialog": {
-            "intro": "Selecciona las Rendition que quieres exportar:",
-            "submit": "Exportar",
-            "title": "Exportar {{count}} Asset",
-            "title_plural": "Exportar {{count}} Asset"
-        }
-    },
-    "expose_basket_integration": {
-        "also_delete_the_publication": "Eliminar también la publicación",
-        "authorize": "Autorizar",
-        "force_sync": "Forzar sincronización",
-        "ok": "OK",
-        "stop_synchronization": "¿Detener sincronización?",
-        "sync_with_a_publication": "Sincronizar con una publicación"
-    },
-    "face_detail_tooltip": {
-        "age_range": "Rango de edad",
-        "eyeglasses": "Gafas",
-        "eyes_open": "Ojos abiertos",
-        "gender": "Género",
-        "has_a_beard": "Tiene barba",
-        "mouth_open": "Boca abierta",
-        "mustache": "Bigote",
-        "smiling": "Sonriendo"
-    },
-    "facets": {
-        "missing_with_total": "Faltan ({{total}})"
-    },
-    "filter": {
-        "exclude": "Excluir ",
-        "is_missing": "Falta {{title}}"
-    },
-    "filter_rule": {
-        "confirm_delete_this_rule": "¿Confirmar eliminación de esta regla?",
-        "exclude": {
-            "helper": "Los Asset en esta {{type}} solo serán visibles si NO contienen estos Tag."
-        },
-        "group": "Grupo",
-        "include": {
-            "helper": "Los Asset en esta {{type}} solo serán visibles si contienen estos Tag."
-        },
-        "or": "o",
-        "rule_applies_for": "Regla aplicable para:",
-        "user": "Usuario"
-    },
-    "foo": "bar",
     "form": {
-        "asset": {
-            "tags": {
-                "label": "Tag"
-            },
-            "templates": {
-                "label": "Rellenar con plantilla"
-            },
-            "title": {
-                "label": "Título"
-            }
-        },
-        "asset_create": {
-            "title": "Crear Asset en",
-            "title_with_parent": "Crear Asset bajo"
-        },
-        "asset_edit": {
-            "success": "¡Asset editado!"
-        },
-        "attribute": {
-            "collection": {
-                "item_add": "Añadir {{name}}",
-                "item_remove": "Eliminar"
-            }
-        },
-        "attribute_policy": {
-            "editable": {
-                "label": "Editable"
-            },
-            "name": {
-                "label": "Nombre"
-            },
-            "public": {
-                "label": "Público"
-            }
-        },
-        "attribute_definition": {
-            "allowInvalid": {
-                "label": "Permitir valores no válidos"
-            },
-            "policy": {
-                "label": "Clase"
-            },
-            "entityList": {
-                "label": "Lista de entidades"
-            },
-            "field_type": {
-                "label": "Tipo de campo"
-            },
-            "multiple": {
-                "label": "Valores múltiples"
-            },
-            "name": {
-                "label": "Nombre"
-            },
-            "searchable": {
-                "label": "Buscable"
-            },
-            "slug": {
-                "label": "Slug"
-            },
-            "suggest": {
-                "label": "Mostrar en sugerencias de búsqueda"
-            },
-            "translatable": {
-                "label": "Traducible"
-            }
-        },
-        "attribute_entity": {
-            "type": {
-                "label": "Tipo"
-            },
-            "value": {
-                "label": "Valor"
-            }
-        },
-        "basket": {
-            "description": {
-                "label": "Descripción"
-            },
-            "title": {
-                "label": "Título"
-            }
-        },
-        "basket_create": {
-            "success": "¡Basket creado!",
-            "title": "Crear Basket"
-        },
-        "basket_edit": {
-            "success": "¡Basket editado!"
-        },
-        "collection": {
-            "title": {
-                "label": "Título"
-            }
-        },
-        "collection_create": {
-            "success": "¡Collection creada!",
-            "title": "Crear Collection en",
-            "title_with_parent": "Crear Collection bajo"
-        },
-        "collection_edit": {
-            "success": "¡Collection editada!"
-        },
-        "collection_move": {
-            "success": "¡Collection movida!"
-        },
-        "copy_assets": {
-            "asset_not_linkable": {
-                "other_ws": "Los siguientes Asset no se pueden copiar por referencia en otro Workspace.",
-                "permission": "Los siguientes Asset no se pueden copiar por referencia porque no tienes permisos suficientes.",
-                "select_for_hard_copy": "Puedes seleccionar el Asset que deseas duplicar en el destino (copia dura):"
-            },
-            "destination": {
-                "label": "Destino"
-            }
-        },
-        "move_assets": {
-            "destination": {
-                "label": "Destino"
-            }
-        },
-        "permissions": {
-            "label": "Permisos"
-        },
-        "privacy": {
-            "label": "Privacidad"
-        },
-        "profile": {
-            "firstName": {
-                "translate": {
-                    "title": "Traducir Tag"
-                }
-            }
-        },
-        "rendition_policy": {
-            "name": {
-                "label": "Nombre"
-            },
-            "public": {
-                "label": "Público"
-            }
-        },
-        "rendition_definition": {
-            "policy": {
-                "label": "Clase"
-            },
-            "definition": {
-                "label": "Definición de construcción"
-            },
-            "name": {
-                "label": "Nombre"
-            },
-            "parent": {
-                "helper": "Rendition de la que deriva esta",
-                "label": "Padre"
-            },
-            "pickSourceFile": {
-                "label": "Seleccionar archivo fuente"
-            },
-            "useAsOriginal": {
-                "label": "Usar como original"
-            },
-            "useAsPreview": {
-                "label": "Usar como vista previa"
-            },
-            "useAsThumbnail": {
-                "label": "Usar como miniatura"
-            },
-            "useAsThumbnailActive": {
-                "label": "Usar como miniatura activa"
-            }
-        },
-        "save_as": {
-            "destination": {
-                "label": "Destino"
-            }
-        },
-        "tag": {
-            "color": {
-                "label": "Color"
-            },
-            "name": {
-                "label": "Nombre"
-            }
-        },
-        "upload": {
-            "destination": {
-                "label": "Destino"
-            },
-            "submit": {
-                "title": "Subir"
-            },
-            "success": "¡Archivos subidos!",
-            "title": "Subir"
-        },
-        "workspace": {
-            "fallback_locales": {
-                "add": "Añadir idioma alternativo",
-                "label": "Idioma",
-                "title": "Idiomas alternativos"
-            },
-            "locales": {
-                "add": "Añadir idioma",
-                "label": "Idioma",
-                "placeholder": "ej. fr o fr-FR",
-                "title": "Idiomas de Workspace"
-            },
-            "public": {
-                "label": "Público"
-            },
-            "title": {
-                "label": "Título"
-            }
-        },
-        "workspace_edit": {
-            "success": "¡Workspace editado!"
-        }
+      "created": "¡Elemento creado!"
     },
-    "get_resolved_sort_by": {
-        "created_at": "Creado el",
-        "relevance": "Relevancia"
+    "new": {
+      "label": "Nueva entidad"
+    }
+  },
+  "attributes": {
+    "values": "{{count}} valores"
+  },
+  "attributes_editor_form": {
+    "attributes_saved": "¡Attributos guardados!"
+  },
+  "aws_rekognition": {
+    "actions": {
+      "detect_faces": "Detectar caras",
+      "detect_image_labels": "Detectar etiquetas de imagen",
+      "detect_texts": "Detectar textos",
+      "face_n": "Cara #{{n}}",
+      "faces": "Caras",
+      "labels": "Etiquetas",
+      "no_face_detected": "No se detectaron caras",
+      "no_text_detected": "No se detectó texto",
+      "text": "Texto"
+    }
+  },
+  "basket": {
+    "choose_modal": {
+      "title": "Seleccionar Basket actual"
     },
-    "get_user_name": {
-        "all_groups": "Todos los grupos",
-        "all_users": "Todos los usuarios",
-        "group_not_found": "Grupo no encontrado",
-        "user_not_found": "Usuario no encontrado"
+    "create_button": {
+      "label": "Crear nuevo Basket"
     },
-    "group_divider": {
-        "none": "Ninguno"
+    "default": {
+      "title": "Mi Basket"
     },
-    "integration": {
-        "expose": {
-            "create_pub": {
-                "submit": "Crear y sincronizar",
-                "success": "La publicación ha sido creada y será sincronizada",
-                "title": "Crear publicación"
-            },
-            "form": {
-                "description": "Descripción",
-                "enabled": "Habilitado",
-                "parent": "Publicación padre",
-                "profile": "Perfil de publicación",
-                "slug": "Identificador",
-                "title": "Título de la publicación"
-            },
-            "sync": {
-                "event": {
-                    "sync_clean": "Limpiando Asset…",
-                    "sync_complete": "¡Sincronización completa!",
-                    "sync_progress": "Sincronizando…"
-                }
-            }
-        }
+    "info": {
+      "creation_date": "Fecha de creación",
+      "id": "ID",
+      "modification_date": "Fecha de modificación",
+      "owner": "Propietario"
     },
-    "layout": {
-        "options": {
-            "collections_count": {
-                "label": "Collection"
-            },
-            "display_collections": {
-                "label": "Mostrar Collection"
-            },
-            "display_previews_hover": {
-                "label": "Mostrar vista previa al pasar el ratón"
-            },
-            "display_tags": {
-                "label": "Mostrar Tag"
-            },
-            "display_title": {
-                "label": "Mostrar título"
-            },
-            "more": "Más opciones",
-            "play_preview_videos": {
-                "label": "Reproducir videos de vista previa automáticamente"
-            },
-            "tags_count": {
-                "label": "Tag"
-            },
-            "thumb_size": {
-                "label": "Tamaño de miniatura"
-            },
-            "title_rows": {
-                "label": "filas"
-            }
-        },
-        "previews_locked": "Vistas previas bloqueadas",
-        "previews_unlocked": "Vistas previas desbloqueadas",
-        "view": {
-            "grid": "Vista de cuadrícula",
-            "list": "Vista de lista",
-            "masonry": "Vista Masonry"
-        }
+    "item": {
+      "edit": "Editar este Basket"
     },
-    "left_panel": {
-        "baskets": "Baskets",
-        "facets": "Facetas",
-        "tree": "Árbol"
+    "manage": {
+      "acl": {
+        "title": "Permisos"
+      },
+      "edit": {
+        "title": "Editar"
+      },
+      "info": {
+        "title": "Información"
+      },
+      "integrations": {
+        "title": "Integraciones"
+      },
+      "operations": {
+        "title": "Operaciones"
+      },
+      "title": "Gestionar Basket {{name}}"
+    }
+  },
+  "basket_delete": {
+    "confirm": "¿Seguro que quieres eliminar este Basket?",
+    "title": "Eliminar Basket"
+  },
+  "basket_view_dialog": {
+    "item": "elemento",
+    "remove_from_basket": "Eliminar del Basket"
+  },
+  "change_theme": {
+    "save": "Guardar",
+    "title": "Elegir un tema"
+  },
+  "chip": {
+    "editable": "Editable",
+    "private": "Privado",
+    "public": "Público",
+    "read_only": "Solo lectura"
+  },
+  "collection": {
+    "info": {
+      "creation_date": "Fecha de creación",
+      "id": "ID",
+      "modification_date": "Fecha de modificación",
+      "owner": "Propietario"
     },
-    "load_more": {
-        "button": {
-            "load_more": "Cargar más",
-            "loading": "Cargando…"
-        }
+    "item": {
+      "create_asset": "Añadir nuevo Asset a la Collection",
+      "create_collection": "Crear nueva Collection dentro de esta",
+      "edit": "Editar esta Collection"
     },
-    "menu": {
-        "change_theme": "Cambiar tema",
-        "sign_in": "Iniciar sesión",
-        "theme_editor": "Editor de temas"
+    "manage": {
+      "acl": {
+        "title": "Permisos"
+      },
+      "edit": {
+        "title": "Editar"
+      },
+      "info": {
+        "title": "Información"
+      },
+      "operations": {
+        "title": "Operaciones"
+      },
+      "tag_rules": {
+        "title": "Reglas de Tag"
+      },
+      "title": "Gestionar Collection {{name}}"
+    }
+  },
+  "collection_delete": {
+    "confirm": "¿Seguro que quieres eliminar esta Collection?",
+    "title": "Eliminar Collection"
+  },
+  "collection_move": {
+    "intro": "Selecciona el destino para mover esta Collection:",
+    "title": "Mover Collection"
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "copy": "Copiar",
+    "databox": "Databox",
+    "delete": "Eliminar",
+    "item_sorted": "¡Orden guardado!",
+    "loading": "Cargando…",
+    "no": "No",
+    "or": "o",
+    "remove": "Eliminar",
+    "save": "Guardar",
+    "search": {
+      "placeholder": "Buscar…",
+      "submit": "Buscar"
     },
-    "metric": {
-        "ms": "ms"
+    "uploading": "Subiendo…",
+    "yes": "Sí"
+  },
+  "copy_assets": {
+    "dialog": {
+      "intro": "¿Dónde quieres copiar los Asset seleccionados?",
+      "submit": "Copiar",
+      "title": "Copiar {{count}} Asset",
+      "title_plural": "Copiar {{count}} Asset"
     },
-    "modal": {
-        "close": "Cerrar"
+    "form": {
+      "by_reference": {
+        "label": "Copiar por referencia (acceso directo)"
+      },
+      "with_attributes": {
+        "label": "Copiar Attributos"
+      },
+      "with_tags": {
+        "label": "Copiar Tag"
+      }
+    }
+  },
+  "copy_assets_dialog": {
+    "assets_were_copied": "Asset copiados"
+  },
+  "copy_toclipboard": {
+    "copied": "¡Copiado al portapapeles!"
+  },
+  "danger_zone": "Zona peligrosa",
+  "date_histogram_facet": {
+    "clear_filter": "Limpiar filtro"
+  },
+  "debug_es_modal": {
+    "elasticsearch_response_time": "Tiempo de respuesta de Elasticsearch:",
+    "search_debug": "Depuración de búsqueda",
+    "total_response_time": "Tiempo total de respuesta:"
+  },
+  "definition_manager": {
+    "confirm_delete": "¿Seguro que quieres eliminar este elemento?",
+    "saved": "¡Guardado!"
+  },
+  "delete": {
+    "basket": {
+      "confirmed": "¡Basket eliminado!"
+    },
+    "collection": {
+      "confirmed": "¡Collection eliminada!"
+    }
+  },
+  "dialog": {
+    "apply": "Aplicar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "confirm_text_type": {
+      "intro": "Por favor, escribe \"{{ text }}\" para confirmar:",
+      "placeholder": "Escribe \"{{ text }}\""
+    },
+    "reset": "Restablecer",
+    "save": "Guardar"
+  },
+  "edit_sort_by": {
+    "add_group_separators_between_results": "Añadir separadores de grupo entre resultados",
+    "group_by_sections": "Agrupar por secciones"
+  },
+  "editor_panel": {
+    "untranslated": "Sin traducir"
+  },
+  "export": {
+    "dialog": {
+      "intro": "Selecciona las Rendition que quieres exportar:",
+      "submit": "Exportar",
+      "title": "Exportar {{count}} Asset",
+      "title_plural": "Exportar {{count}} Asset"
+    }
+  },
+  "expose_basket_integration": {
+    "also_delete_the_publication": "Eliminar también la publicación",
+    "authorize": "Autorizar",
+    "force_sync": "Forzar sincronización",
+    "ok": "OK",
+    "stop_synchronization": "¿Detener sincronización?",
+    "sync_with_a_publication": "Sincronizar con una publicación"
+  },
+  "face_detail_tooltip": {
+    "age_range": "Rango de edad",
+    "eyeglasses": "Gafas",
+    "eyes_open": "Ojos abiertos",
+    "gender": "Género",
+    "has_a_beard": "Tiene barba",
+    "mouth_open": "Boca abierta",
+    "mustache": "Bigote",
+    "smiling": "Sonriendo"
+  },
+  "facets": {
+    "missing_with_total": "Faltan ({{total}})"
+  },
+  "filter": {
+    "exclude": "Excluir ",
+    "is_missing": "Falta {{title}}"
+  },
+  "filter_rule": {
+    "confirm_delete_this_rule": "¿Confirmar eliminación de esta regla?",
+    "exclude": {
+      "helper": "Los Asset en esta {{type}} solo serán visibles si NO contienen estos Tag."
+    },
+    "group": "Grupo",
+    "include": {
+      "helper": "Los Asset en esta {{type}} solo serán visibles si contienen estos Tag."
+    },
+    "or": "o",
+    "rule_applies_for": "Regla aplicable para:",
+    "user": "Usuario"
+  },
+  "foo": "bar",
+  "form": {
+    "asset": {
+      "tags": {
+        "label": "Tag"
+      },
+      "templates": {
+        "label": "Rellenar con plantilla"
+      },
+      "title": {
+        "label": "Título"
+      }
+    },
+    "asset_create": {
+      "title": "Crear Asset en",
+      "title_with_parent": "Crear Asset bajo"
+    },
+    "asset_edit": {
+      "success": "¡Asset editado!"
+    },
+    "attribute": {
+      "collection": {
+        "item_add": "Añadir {{name}}",
+        "item_remove": "Eliminar"
+      }
+    },
+    "attribute_policy": {
+      "editable": {
+        "label": "Editable"
+      },
+      "name": {
+        "label": "Nombre"
+      },
+      "public": {
+        "label": "Público"
+      }
+    },
+    "attribute_definition": {
+      "allowInvalid": {
+        "label": "Permitir valores no válidos"
+      },
+      "policy": {
+        "label": "Clase"
+      },
+      "entityList": {
+        "label": "Lista de entidades"
+      },
+      "field_type": {
+        "label": "Tipo de campo"
+      },
+      "multiple": {
+        "label": "Valores múltiples"
+      },
+      "name": {
+        "label": "Nombre"
+      },
+      "searchable": {
+        "label": "Buscable"
+      },
+      "slug": {
+        "label": "Slug"
+      },
+      "suggest": {
+        "label": "Mostrar en sugerencias de búsqueda"
+      },
+      "translatable": {
+        "label": "Traducible"
+      }
+    },
+    "attribute_entity": {
+      "type": {
+        "label": "Tipo"
+      },
+      "value": {
+        "label": "Valor"
+      }
+    },
+    "basket": {
+      "description": {
+        "label": "Descripción"
+      },
+      "title": {
+        "label": "Título"
+      }
+    },
+    "basket_create": {
+      "success": "¡Basket creado!",
+      "title": "Crear Basket"
+    },
+    "basket_edit": {
+      "success": "¡Basket editado!"
+    },
+    "collection": {
+      "title": {
+        "label": "Título"
+      }
+    },
+    "collection_create": {
+      "success": "¡Collection creada!",
+      "title": "Crear Collection en",
+      "title_with_parent": "Crear Collection bajo"
+    },
+    "collection_edit": {
+      "success": "¡Collection editada!"
+    },
+    "collection_move": {
+      "success": "¡Collection movida!"
+    },
+    "copy_assets": {
+      "asset_not_linkable": {
+        "other_ws": "Los siguientes Asset no se pueden copiar por referencia en otro Workspace.",
+        "permission": "Los siguientes Asset no se pueden copiar por referencia porque no tienes permisos suficientes.",
+        "select_for_hard_copy": "Puedes seleccionar el Asset que deseas duplicar en el destino (copia dura):"
+      },
+      "destination": {
+        "label": "Destino"
+      }
     },
     "move_assets": {
-        "dialog": {
-            "intro": "¿Dónde quieres mover los Asset seleccionados?",
-            "submit": "Mover",
-            "title": "Mover {{count}} Asset",
-            "title_plural": "Mover {{count}} Asset"
-        }
+      "destination": {
+        "label": "Destino"
+      }
     },
-    "move_assets_dialog": {
-        "assets_were_moved": "Asset movidos"
-    },
-    "not_found": {
-        "back_home": "Volver al inicio",
-        "content": "La página que buscas no existe o ha sido eliminada",
-        "title": "Página no encontrada"
-    },
-    "operations_asset": {
-        "workflow_is_starting": "¡El flujo de trabajo está comenzando!"
-    },
-    "pagination": {
-        "load_more_collections": "Cargar más Collection"
-    },
-    "pasted_image": {
-        "filename": "Imagen-pegada-{{date}}"
-    },
-    "permission_table": {
-        "actions": "Acciones"
+    "permissions": {
+      "label": "Permisos"
     },
     "privacy": {
-        "no_access": "Sin acceso",
-        "private": "Privado",
-        "private_in_workspace": "Privado en Workspace",
-        "public": "Público",
-        "public_for_users": "Público para usuarios",
-        "public_in_workspace": "Público en Workspace",
-        "secret": "Secreto"
+      "label": "Privacidad"
     },
-    "privacy_field": {
-        "only_visible_to_workspace": "Solo visible para Workspace",
-        "user_must_be_authenticated": "El usuario debe estar autenticado"
-    },
-    "remove_bgasset_editor_actions": {
-        "bg_removed": "{{title}} - Fondo eliminado",
-        "remove_bg": "Eliminar fondo",
-        "use_slider_to_compare": "Usa el deslizador para comparar"
+    "profile": {
+      "firstName": {
+        "translate": {
+          "title": "Traducir Tag"
+        }
+      }
     },
     "rendition_policy": {
-        "new": {
-            "label": "Nueva política"
-        }
+      "name": {
+        "label": "Nombre"
+      },
+      "public": {
+        "label": "Público"
+      }
     },
-    "rendition_definitions": {
-        "new": {
-            "label": "Nueva Rendition"
-        }
+    "rendition_definition": {
+      "policy": {
+        "label": "Clase"
+      },
+      "definition": {
+        "label": "Definición de construcción"
+      },
+      "name": {
+        "label": "Nombre"
+      },
+      "parent": {
+        "helper": "Rendition de la que deriva esta",
+        "label": "Padre"
+      },
+      "pickSourceFile": {
+        "label": "Seleccionar archivo fuente"
+      },
+      "useAsOriginal": {
+        "label": "Usar como original"
+      },
+      "useAsPreview": {
+        "label": "Usar como vista previa"
+      },
+      "useAsThumbnail": {
+        "label": "Usar como miniatura"
+      },
+      "useAsThumbnailActive": {
+        "label": "Usar como miniatura activa"
+      }
     },
-    "renditions": {
-        "dirty": "Dirty",
-        "download": "Descargar"
+    "save_as": {
+      "destination": {
+        "label": "Destino"
+      }
     },
-    "replace_asset_with_file_dialog": {
-        "asset_has_been_replaced": "Asset ha sido reemplazado",
-        "please_confirm_replacing_asset": "Por favor, confirma el reemplazo del Asset.",
-        "replace_asset_with_file": "Reemplazar Asset con archivo"
+    "tag": {
+      "color": {
+        "label": "Color"
+      },
+      "name": {
+        "label": "Nombre"
+      }
     },
-    "save_as_button": {
-        "new_asset": "Nuevo Asset",
-        "rendition": "Rendition",
-        "replace_asset_source": "Reemplazar fuente de Asset",
-        "save_as": "Guardar como"
-    },
-    "save_as_template_form": {
-        "apply_to_collection": "Aplicar a Collection",
-        "include_collection_children": "Incluir sub-Collection",
-        "my_template": "Mi plantilla…",
-        "public": "Público",
-        "remember_attributes": "Recordar Attributos",
-        "remember_privacy": "Recordar privacidad",
-        "remember_tags": "Recordar Tag",
-        "save_values_as_template_for_reuse": "Guardar valores como plantilla para reutilizar",
-        "template_name": "Nombre de la plantilla"
-    },
-    "save_file_as_new_asset_dialog": {
-        "file_is_saved": "Archivo guardado",
-        "save": "Guardar",
-        "save_file_as_new_asset": "Guardar archivo como nuevo Asset",
-        "title": {
-            "label": "Título"
-        }
-    },
-    "save_file_as_rendition_dialog": {
-        "rendition_has_been_saved": "Rendition guardada",
-        "rendition_to_add_or_replace": "Rendition para añadir o reemplazar",
-        "save_file_as_asset_rendition": "Guardar archivo como Rendition de Asset"
-    },
-    "search": {
-        "search_button": "Buscar",
-        "sort_by": {
-            "title": "Ordenar por"
-        }
-    },
-    "search_auto_complete": {
-        "search": "Buscar…"
-    },
-    "search_provider": {
-        "collections": "Collection",
-        "workspaces": "Workspace"
-    },
-    "selection_actions": {
-        "result": "resultado",
-        "s": "s"
-    },
-    "sort_by": {
-        "sort_by": "Ordenar por"
-    },
-    "sort_by_row": {
-        "ascendant": "Ascendente",
-        "descendant": "Descendente"
-    },
-    "substitute_file": {
-        "dialog": {
-            "intro": "Suelta aquí",
-            "submit": "Sustituir",
-            "title": "Sustituir archivo"
-        }
-    },
-    "tag_rules": {
-        "edit_this_rule": "Editar esta regla",
-        "new_rule": "Nueva regla",
-        "tag_rules": "Reglas de Tag"
-    },
-    "tags": {
-        "label": "Tag",
-        "new": {
-            "label": "Nuevo Tag"
-        }
-    },
-    "translatable_attribute_tabs": {
-        "untranslated": "Sin traducir"
-    },
-    "tuiphoto_editor": {
-        "file_name": "Nombre del archivo",
-        "open_recent": "Abrir reciente",
-        "original": "Original",
-        "save": "Guardar",
-        "save_as": "Guardar como",
-        "saved": "¡Guardado!"
-    },
-    "upload_dropzone": {
-        "drag_n_drop_some_files_here_or_click_to_select_files": "Arrastra y suelta archivos aquí, o haz clic para seleccionar archivos"
-    },
-    "use_integration_auth": {
-        "auth": "Autenticación"
+    "upload": {
+      "destination": {
+        "label": "Destino"
+      },
+      "submit": {
+        "title": "Subir"
+      },
+      "success": "¡Archivos subidos!",
+      "title": "Subir"
     },
     "workspace": {
-        "info": {
-            "creation_date": "Fecha de creación",
-            "id": "ID"
-        },
-        "item": {
-            "create_collection": "Añadir Collection en este Workspace",
-            "edit": "Editar este Workspace"
-        },
-        "manage": {
-            "acl": {
-                "title": "Permisos"
-            },
-            "attribute_policy": {
-                "title": "Políticas de Attributo"
-            },
-            "attribute_definitions": {
-                "title": "Attributos"
-            },
-            "attribute_entity": {
-                "title": "Entidades"
-            },
-            "edit": {
-                "title": "Editar"
-            },
-            "info": {
-                "title": "Información"
-            },
-            "rendition_policy": {
-                "title": "Políticas de Rendition"
-            },
-            "rendition_definition": {
-                "title": "Rendition"
-            },
-            "tag_rules": {
-                "title": "Reglas de Tag"
-            },
-            "tags": {
-                "title": "Tag"
-            },
-            "title": "Gestionar Workspace {{name}}"
-        },
-        "no_locale_defined": "No hay idioma definido en este Workspace"
+      "fallback_locales": {
+        "add": "Añadir idioma alternativo",
+        "label": "Idioma",
+        "title": "Idiomas alternativos"
+      },
+      "locales": {
+        "add": "Añadir idioma",
+        "label": "Idioma",
+        "placeholder": "ej. fr o fr-FR",
+        "title": "Idiomas de Workspace"
+      },
+      "public": {
+        "label": "Público"
+      },
+      "title": {
+        "label": "Título"
+      }
+    },
+    "workspace_edit": {
+      "success": "¡Workspace editado!"
     }
+  },
+  "get_resolved_sort_by": {
+    "created_at": "Creado el",
+    "relevance": "Relevancia"
+  },
+  "get_user_name": {
+    "all_groups": "Todos los grupos",
+    "all_users": "Todos los usuarios",
+    "group_not_found": "Grupo no encontrado",
+    "user_not_found": "Usuario no encontrado"
+  },
+  "group_divider": {
+    "none": "Ninguno"
+  },
+  "integration": {
+    "expose": {
+      "create_pub": {
+        "submit": "Crear y sincronizar",
+        "success": "La publicación ha sido creada y será sincronizada",
+        "title": "Crear publicación"
+      },
+      "form": {
+        "description": "Descripción",
+        "enabled": "Habilitado",
+        "parent": "Publicación padre",
+        "profile": "Perfil de publicación",
+        "slug": "Identificador",
+        "title": "Título de la publicación"
+      },
+      "sync": {
+        "event": {
+          "sync_clean": "Limpiando Asset…",
+          "sync_complete": "¡Sincronización completa!",
+          "sync_progress": "Sincronizando…"
+        }
+      }
+    }
+  },
+  "layout": {
+    "options": {
+      "collections_count": {
+        "label": "Collection"
+      },
+      "display_collections": {
+        "label": "Mostrar Collection"
+      },
+      "display_previews_hover": {
+        "label": "Mostrar vista previa al pasar el ratón"
+      },
+      "display_tags": {
+        "label": "Mostrar Tag"
+      },
+      "display_title": {
+        "label": "Mostrar título"
+      },
+      "more": "Más opciones",
+      "play_preview_videos": {
+        "label": "Reproducir videos de vista previa automáticamente"
+      },
+      "tags_count": {
+        "label": "Tag"
+      },
+      "thumb_size": {
+        "label": "Tamaño de miniatura"
+      },
+      "title_rows": {
+        "label": "filas"
+      }
+    },
+    "previews_locked": "Vistas previas bloqueadas",
+    "previews_unlocked": "Vistas previas desbloqueadas",
+    "view": {
+      "grid": "Vista de cuadrícula",
+      "list": "Vista de lista",
+      "masonry": "Vista Masonry"
+    }
+  },
+  "left_panel": {
+    "baskets": "Baskets",
+    "facets": "Facetas",
+    "tree": "Árbol"
+  },
+  "load_more": {
+    "button": {
+      "load_more": "Cargar más",
+      "loading": "Cargando…"
+    }
+  },
+  "menu": {
+    "change_theme": "Cambiar tema",
+    "sign_in": "Iniciar sesión",
+    "theme_editor": "Editor de temas"
+  },
+  "metric": {
+    "ms": "ms"
+  },
+  "modal": {
+    "close": "Cerrar"
+  },
+  "move_assets": {
+    "dialog": {
+      "intro": "¿Dónde quieres mover los Asset seleccionados?",
+      "submit": "Mover",
+      "title": "Mover {{count}} Asset",
+      "title_plural": "Mover {{count}} Asset"
+    }
+  },
+  "move_assets_dialog": {
+    "assets_were_moved": "Asset movidos"
+  },
+  "not_found": {
+    "back_home": "Volver al inicio",
+    "content": "La página que buscas no existe o ha sido eliminada",
+    "title": "Página no encontrada"
+  },
+  "operations_asset": {
+    "workflow_is_starting": "¡El flujo de trabajo está comenzando!"
+  },
+  "pagination": {
+    "load_more_collections": "Cargar más Collection"
+  },
+  "pasted_image": {
+    "filename": "Imagen-pegada-{{date}}"
+  },
+  "permission_table": {
+    "actions": "Acciones"
+  },
+  "privacy": {
+    "no_access": "Sin acceso",
+    "private": "Privado",
+    "private_in_workspace": "Privado en Workspace",
+    "public": "Público",
+    "public_for_users": "Público para usuarios",
+    "public_in_workspace": "Público en Workspace",
+    "secret": "Secreto"
+  },
+  "privacy_field": {
+    "only_visible_to_workspace": "Solo visible para Workspace",
+    "user_must_be_authenticated": "El usuario debe estar autenticado"
+  },
+  "remove_bgasset_editor_actions": {
+    "bg_removed": "{{title}} - Fondo eliminado",
+    "remove_bg": "Eliminar fondo",
+    "use_slider_to_compare": "Usa el deslizador para comparar"
+  },
+  "rendition_policy": {
+    "new": {
+      "label": "Nueva política"
+    }
+  },
+  "rendition_definitions": {
+    "new": {
+      "label": "Nueva Rendition"
+    }
+  },
+  "renditions": {
+    "dirty": "Dirty",
+    "download": "Descargar"
+  },
+  "replace_asset_with_file_dialog": {
+    "asset_has_been_replaced": "Asset ha sido reemplazado",
+    "please_confirm_replacing_asset": "Por favor, confirma el reemplazo del Asset.",
+    "replace_asset_with_file": "Reemplazar Asset con archivo"
+  },
+  "save_as_button": {
+    "new_asset": "Nuevo Asset",
+    "rendition": "Rendition",
+    "replace_asset_source": "Reemplazar fuente de Asset",
+    "save_as": "Guardar como"
+  },
+  "save_as_template_form": {
+    "apply_to_collection": "Aplicar a Collection",
+    "include_collection_children": "Incluir sub-Collection",
+    "my_template": "Mi plantilla…",
+    "public": "Público",
+    "remember_attributes": "Recordar Attributos",
+    "remember_privacy": "Recordar privacidad",
+    "remember_tags": "Recordar Tag",
+    "save_values_as_template_for_reuse": "Guardar valores como plantilla para reutilizar",
+    "template_name": "Nombre de la plantilla"
+  },
+  "save_file_as_new_asset_dialog": {
+    "file_is_saved": "Archivo guardado",
+    "save": "Guardar",
+    "save_file_as_new_asset": "Guardar archivo como nuevo Asset",
+    "title": {
+      "label": "Título"
+    }
+  },
+  "save_file_as_rendition_dialog": {
+    "rendition_has_been_saved": "Rendition guardada",
+    "rendition_to_add_or_replace": "Rendition para añadir o reemplazar",
+    "save_file_as_asset_rendition": "Guardar archivo como Rendition de Asset"
+  },
+  "search": {
+    "search_button": "Buscar",
+    "sort_by": {
+      "title": "Ordenar por"
+    }
+  },
+  "search_auto_complete": {
+    "search": "Buscar…"
+  },
+  "search_provider": {
+    "collections": "Collection",
+    "workspaces": "Workspace"
+  },
+  "selection_actions": {
+    "result": "resultado",
+    "s": "s"
+  },
+  "sort_by": {
+    "sort_by": "Ordenar por"
+  },
+  "sort_by_row": {
+    "ascendant": "Ascendente",
+    "descendant": "Descendente"
+  },
+  "substitute_file": {
+    "dialog": {
+      "intro": "Suelta aquí",
+      "submit": "Sustituir",
+      "title": "Sustituir archivo"
+    }
+  },
+  "tag_rules": {
+    "edit_this_rule": "Editar esta regla",
+    "new_rule": "Nueva regla",
+    "tag_rules": "Reglas de Tag"
+  },
+  "tags": {
+    "label": "Tag",
+    "new": {
+      "label": "Nuevo Tag"
+    }
+  },
+  "translatable_attribute_tabs": {
+    "untranslated": "Sin traducir"
+  },
+  "tuiphoto_editor": {
+    "file_name": "Nombre del archivo",
+    "open_recent": "Abrir reciente",
+    "original": "Original",
+    "save": "Guardar",
+    "save_as": "Guardar como",
+    "saved": "¡Guardado!"
+  },
+  "upload_dropzone": {
+    "drag_n_drop_some_files_here_or_click_to_select_files": "Arrastra y suelta archivos aquí, o haz clic para seleccionar archivos"
+  },
+  "use_integration_auth": {
+    "auth": "Autenticación"
+  },
+  "workspace": {
+    "info": {
+      "creation_date": "Fecha de creación",
+      "id": "ID"
+    },
+    "item": {
+      "create_collection": "Añadir Collection en este Workspace",
+      "edit": "Editar este Workspace"
+    },
+    "manage": {
+      "acl": {
+        "title": "Permisos"
+      },
+      "attribute_policy": {
+        "title": "Políticas de Attributo"
+      },
+      "attribute_definitions": {
+        "title": "Attributos"
+      },
+      "attribute_entity": {
+        "title": "Entidades"
+      },
+      "edit": {
+        "title": "Editar"
+      },
+      "info": {
+        "title": "Información"
+      },
+      "rendition_policy": {
+        "title": "Políticas de Rendition"
+      },
+      "rendition_definition": {
+        "title": "Rendition"
+      },
+      "tag_rules": {
+        "title": "Reglas de Tag"
+      },
+      "tags": {
+        "title": "Tag"
+      },
+      "title": "Gestionar Workspace {{name}}"
+    },
+    "no_locale_defined": "No hay idioma definido en este Workspace"
+  }
 }
