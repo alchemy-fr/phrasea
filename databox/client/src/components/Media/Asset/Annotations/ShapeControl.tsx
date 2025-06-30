@@ -77,6 +77,14 @@ export default function ShapeControl({
                     <Box
                         className="shape-name"
                         onClick={e => {
+                            if (
+                                elementRef.current?.getAttribute(
+                                    'data-editable'
+                                ) !== 'true'
+                            ) {
+                                return;
+                            }
+
                             setName(
                                 (e.target as HTMLDivElement).textContent ?? ''
                             );
