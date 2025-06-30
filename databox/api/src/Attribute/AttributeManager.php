@@ -21,4 +21,11 @@ final readonly class AttributeManager
             'workspace' => $workspaceId,
         ]);
     }
+
+    public function getAttributeDefinitions(string $workspaceId): iterable
+    {
+        return $this->em->getRepository(AttributeDefinition::class)->findAll([
+            'workspace' => $workspaceId,
+        ]);
+    }
 }
