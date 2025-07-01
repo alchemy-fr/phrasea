@@ -159,13 +159,19 @@ function BasketsPanel({selected}: Props) {
                     contextMenu={contextMenu}
                     id={'basket-context-menu'}
                 >
-                    <MenuItem onClick={() => onEdit(contextMenu.data)}>
+                    <MenuItem
+                        disabled={!contextMenu.data.capabilities.canEdit}
+                        onClick={() => onEdit(contextMenu.data)}
+                    >
                         <ListItemIcon>
                             <EditIcon />
                         </ListItemIcon>
                         {t('basket.actions.edit', 'Edit Basket')}
                     </MenuItem>
-                    <MenuItem onClick={() => onDelete(contextMenu.data)}>
+                    <MenuItem
+                        disabled={!contextMenu.data.capabilities.canDelete}
+                        onClick={() => onDelete(contextMenu.data)}
+                    >
                         <ListItemIcon>
                             <DeleteIcon />
                         </ListItemIcon>
