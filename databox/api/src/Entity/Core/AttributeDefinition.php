@@ -43,16 +43,10 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     shortName: 'attribute-definition',
     operations: [
         new Get(
-            normalizationContext: [
-                'groups' => [AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ],
-            ],
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(
-            normalizationContext: [
-                'groups' => [self::GROUP_READ],
-            ],
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)'
         ),
         new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
