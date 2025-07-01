@@ -1,72 +1,43 @@
 import {PropsWithChildren, useEffect, useState} from 'react';
-import {DisplayContext, PlayingContext, PreviewOptions} from './DisplayContext';
+import {
+    DisplayContext,
+    DisplayPreferences,
+    PlayingContext,
+} from './DisplayContext';
 import {toast} from 'react-toastify';
 
 import {useTranslation} from 'react-i18next';
+import {useUserPreferencesStore} from '../../store/userPreferencesStore.ts';
 
 type Props = PropsWithChildren<{
-    thumbSize?: number;
-    displayTitle?: boolean;
-    displayTags?: boolean;
-    displayPreview?: boolean;
-    titleRows?: number;
-    displayCollections?: boolean;
-    displayAttributes?: boolean;
-    playVideos?: boolean;
-    collectionsLimit?: number;
-    tagsLimit?: number;
-    playingContext?: PlayingContext;
-    previewLocked?: boolean;
-    previewOptions?: Partial<PreviewOptions>;
+    defaultState?: Partial<DisplayPreferences>;
 }>;
 
-export default function DisplayProvider({
-    children,
-    thumbSize: defaultThumbSize = 200,
-    displayTitle: defaultDisplayTitle = true,
-    displayTags: defaultDisplayTags = true,
-    displayPreview: defaultDisplayPreview = true,
-    titleRows: defaultTitleRows = 1,
-    displayCollections: defaultDisplayCollections = true,
-    displayAttributes: defaultDisplayAttributes = true,
-    playVideos: defaultPlayVideos = false,
-    collectionsLimit: defaultCollectionsLimit = 2,
-    tagsLimit: defaultTagsLimit = 1,
-    playingContext: defaultPlayingContext,
-    previewLocked: defaultPreviewLocked = false,
-    previewOptions: defaultPreviewOptions = {},
-}: Props) {
-    const [previewOptions, setPreviewOptions] = useState<PreviewOptions>({
-        sizeRatio: 60,
-        attributesRatio: 30,
-        displayFile: true,
+export default function DisplayProvider({children, defaultState = {}}: Props) {
+    const [playingContext, setPlayingContext] = useState<PlayingContext>();
+    const displayPref = useUserPreferencesStore(s => s.preferences)?.display;
+
+    const [state, setState] = useState<DisplayPreferences>({
+        ...defaultState,
+        thumbSize: 200,
+        displayTitle: true,
+        displayTags: true,
+        displayPreview: true,
+        titleRows: 1,
+        displayCollections: true,
         displayAttributes: true,
-        ...defaultPreviewOptions,
+        playVideos: false,
+        collectionsLimit: 2,
+        tagsLimit: 1,
+        previewLocked: false,
+        previewOptions: {
+            sizeRatio: 60,
+            attributesRatio: 30,
+            displayFile: true,
+            displayAttributes: true,
+        },
+        ...displayPref,
     });
-    const [thumbSize, setThumbSize] = useState<number>(defaultThumbSize);
-    const [displayTitle, setDisplayTitle] =
-        useState<boolean>(defaultDisplayTitle);
-    const [displayTags, setDisplayTags] = useState<boolean>(defaultDisplayTags);
-    const [displayPreview, setDisplayPreview] = useState<boolean>(
-        defaultDisplayPreview
-    );
-    const [titleRows, setTitleRows] = useState<number>(defaultTitleRows);
-    const [displayCollections, setDisplayCollections] = useState<boolean>(
-        defaultDisplayCollections
-    );
-    const [displayAttributes, setDisplayAttributes] = useState<boolean>(
-        defaultDisplayAttributes
-    );
-    const [playVideos, setPlayVideos] = useState<boolean>(defaultPlayVideos);
-    const [collectionsLimit, setCollectionsLimit] = useState<number>(
-        defaultCollectionsLimit
-    );
-    const [tagsLimit, setTagsLimit] = useState<number>(defaultTagsLimit);
-    const [playingContext, setPlayingContext] = useState<
-        PlayingContext | undefined
-    >(defaultPlayingContext);
-    const [previewLocked, setPreviewLocked] =
-        useState<boolean>(defaultPreviewLocked);
 
     const {t} = useTranslation();
 
@@ -81,7 +52,7 @@ export default function DisplayProvider({
             if (e.ctrlKey && e.key === 'p') {
                 e.preventDefault();
                 toast.info(
-                    previewLocked
+                    state.previewLocked
                         ? (t(
                               'layout.previews_unlocked',
                               'Previews unlocked'
@@ -96,7 +67,10 @@ export default function DisplayProvider({
                     }
                 );
 
-                setPreviewLocked(!previewLocked);
+                setState(p => ({
+                    ...p,
+                    previewLocked: !p.previewLocked,
+                }));
             }
         };
 
@@ -105,23 +79,15 @@ export default function DisplayProvider({
         return () => {
             window.removeEventListener('keydown', handler);
         };
-    }, [previewLocked]);
+    }, [state.previewLocked]);
 
     return (
         <DisplayContext.Provider
             value={{
-                collectionsLimit,
-                displayAttributes,
-                displayCollections,
-                displayPreview,
-                previewOptions,
-                displayTags,
-                displayTitle,
-                playVideos,
+                state,
+                setState,
                 playing: playingContext,
-                previewLocked,
-                setCollectionsLimit,
-                setPlaying: context => {
+                setPlaying: (context: PlayingContext) => {
                     setPlayingContext(p => {
                         if (p && p !== context) {
                             p.stop();
@@ -130,19 +96,6 @@ export default function DisplayProvider({
                         return context;
                     });
                 },
-                setTagsLimit,
-                setThumbSize,
-                setTitleRows,
-                tagsLimit,
-                thumbSize,
-                titleRows,
-                toggleDisplayAttributes: () => setDisplayAttributes(p => !p),
-                toggleDisplayCollections: () => setDisplayCollections(p => !p),
-                toggleDisplayPreview: () => setDisplayPreview(p => !p),
-                toggleDisplayTags: () => setDisplayTags(p => !p),
-                toggleDisplayTitle: () => setDisplayTitle(p => !p),
-                togglePlayVideos: () => setPlayVideos(p => !p),
-                setPreviewOptions,
             }}
         >
             {children}

@@ -2,11 +2,13 @@ import {create} from 'zustand';
 import {ThemeName} from '../lib/theme.ts';
 import {Layout} from '../components/AssetList/Layouts';
 import {getUserPreferences, putUserPreferences} from '../api/user.ts';
+import {DisplayPreferences} from '../components/Media/DisplayContext.tsx';
 
 export type UserPreferences = {
     theme?: ThemeName | undefined;
     layout?: Layout;
     attrList?: string | undefined;
+    display?: DisplayPreferences | undefined;
 };
 
 export type UpdatePreferenceHandlerArg<T extends keyof UserPreferences> =
