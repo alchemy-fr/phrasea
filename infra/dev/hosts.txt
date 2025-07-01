@@ -18,7 +18,7 @@ ${IP} dashboard.${PHRASEA_DOMAIN}
 ${IP} databox.${PHRASEA_DOMAIN}
 ${IP} elastichq.${PHRASEA_DOMAIN}
 ${IP} report-kibana.${PHRASEA_DOMAIN}
-${IP} zipper.${PHRASEA_DOMAIN}
+${IP} zippy.${PHRASEA_DOMAIN}
 ${IP} traefik-console.${PHRASEA_DOMAIN}
 ${IP} databox-indexer.${PHRASEA_DOMAIN}
 ${IP} grafana.${PHRASEA_DOMAIN}

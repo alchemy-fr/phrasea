@@ -48,7 +48,7 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?string $fileType = null;
 
-    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     public string $fieldType = TextAttributeType::NAME;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]

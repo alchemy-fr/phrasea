@@ -466,7 +466,7 @@
         "label": "Allow invalid values"
       },
       "policy": {
-        "label": "Class"
+        "label": "Policy"
       },
       "entityList": {
         "label": "Entity List"
@@ -570,7 +570,7 @@
     },
     "rendition_definition": {
       "policy": {
-        "label": "Class"
+        "label": "Policy"
       },
       "definition": {
         "label": "Build definition"
