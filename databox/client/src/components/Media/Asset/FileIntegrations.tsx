@@ -21,6 +21,7 @@ import {
     AssetIntegrationActionsProps,
     Integration,
 } from '../../Integration/types.ts';
+import {AssetAnnotationRef} from './Annotations/annotationTypes.ts';
 
 const supportsImage = (file: File): boolean => {
     return (file && file.type.startsWith('image/')) || false;
@@ -91,12 +92,14 @@ type Props = {
     asset: Asset;
     file: File;
     setIntegrationOverlay: SetIntegrationOverlayFunction;
+    assetAnnotationsRef?: AssetAnnotationRef;
 };
 
 export default function FileIntegrations({
     asset,
     file,
     setIntegrationOverlay,
+    assetAnnotationsRef,
 }: Props) {
     const [integrations, setIntegrations] = useState<WorkspaceIntegration[]>();
     const [expanded, setExpanded] = useState<string>();
@@ -118,6 +121,7 @@ export default function FileIntegrations({
     useEffect(() => {
         if (!expanded) {
             setIntegrationOverlay(null);
+            assetAnnotationsRef?.current?.replaceAnnotations([]);
         }
     }, [expanded, integrations]);
 
@@ -144,6 +148,7 @@ export default function FileIntegrations({
                         file={file}
                         enableInc={enableIncs.current[i.id]}
                         setIntegrationOverlay={setIntegrationOverlay}
+                        assetAnnotationsRef={assetAnnotationsRef}
                     />
                 ))}
         </>

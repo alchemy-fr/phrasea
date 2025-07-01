@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   report-elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_VERSION}

@@ -15,7 +15,6 @@ class MediaFaker extends AbstractCachedFaker
             'mp4' => [
                 'https://www.learningcontainer.com/download/sample-mp4-video-file-download-for-testing/?wpdmdl=2727&refresh=6282e5734c9491652745587',
                 'https://download.samplelib.com/mp4/sample-5s.mp4',
-                'https://assets.mixkit.co/videos/preview/mixkit-portrait-of-a-fashion-woman-with-silver-makeup-39875-large.mp4',
             ],
             'avi' => [
                 'https://jsoncompare.org/LearningContainer/SampleFiles/Video/AVI/Sample-AVI-Video-File-for-Testing.avi',

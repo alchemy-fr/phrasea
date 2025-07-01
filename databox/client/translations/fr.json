@@ -467,7 +467,7 @@
         "label": "Permettre les valeurs invalides"
       },
       "policy": {
-        "label": "Classe"
+        "label": "Politique"
       },
       "entityList": {
         "label": "Type d'entité"
@@ -571,7 +571,7 @@
     },
     "rendition_definition": {
       "policy": {
-        "label": "Classe de Rendition"
+        "label": "Politique de Rendition"
       },
       "definition": {
         "label": "Définition de Rendition"
