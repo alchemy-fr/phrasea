@@ -3,6 +3,7 @@ import {ThemeName} from '../lib/theme.ts';
 import {Layout} from '../components/AssetList/Layouts';
 import {getUserPreferences, putUserPreferences} from '../api/user.ts';
 import {DisplayPreferences} from '../components/Media/DisplayContext.tsx';
+import {deepEquals} from '@alchemy/core';
 
 export type UserPreferences = {
     theme?: ThemeName | undefined;
@@ -73,6 +74,11 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
             } else {
                 newPrefs[name] = handler;
             }
+
+            if (deepEquals(newPrefs, prev)) {
+                return;
+            }
+
             set({preferences: newPrefs});
             putToStorage(newPrefs);
             setTimeout(() => {

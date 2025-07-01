@@ -16,6 +16,7 @@ type Props = PropsWithChildren<{
 export default function DisplayProvider({children, defaultState = {}}: Props) {
     const [playingContext, setPlayingContext] = useState<PlayingContext>();
     const displayPref = useUserPreferencesStore(s => s.preferences)?.display;
+    const updatePreference = useUserPreferencesStore(s => s.updatePreference);
 
     const [state, setState] = useState<DisplayPreferences>({
         ...defaultState,
@@ -38,6 +39,10 @@ export default function DisplayProvider({children, defaultState = {}}: Props) {
         },
         ...displayPref,
     });
+
+    useEffect(() => {
+        updatePreference('display', state);
+    }, [state, updatePreference]);
 
     const {t} = useTranslation();
 
