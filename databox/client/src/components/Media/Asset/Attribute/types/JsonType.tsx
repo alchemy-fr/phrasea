@@ -7,6 +7,11 @@ export default class JsonType extends CodeType {
     }
 
     protected prettifyCode(code: string): string {
-        return JSON.stringify(JSON.parse(code), null, 2);
+        try {
+            return JSON.stringify(JSON.parse(code), null, 2);
+        } catch (e) {
+            console.error('Error prettifying JSON code:', e);
+            return code; // Return original code if parsing fails
+        }
     }
 }
