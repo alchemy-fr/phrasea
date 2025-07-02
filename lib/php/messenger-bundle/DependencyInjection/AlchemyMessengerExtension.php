@@ -78,7 +78,7 @@ class AlchemyMessengerExtension extends Extension implements PrependExtensionInt
             '1', 'y', 'true', 'on',
         ], true);
 
-        $container->setParameter('alchemy_messenger.amqp_transport_dsn', 'amqp'.($isSsl ? 's':  '').'://%env(RABBITMQ_USER)%:%env(RABBITMQ_PASSWORD)%@%env(RABBITMQ_HOST)%:%env(RABBITMQ_PORT)%/%env(RABBITMQ_VHOST)%');
+        $container->setParameter('alchemy_messenger.amqp_transport_dsn', 'amqp'.($isSsl ? 's' : '').'://%env(RABBITMQ_USER)%:%env(RABBITMQ_PASSWORD)%@%env(RABBITMQ_HOST)%:%env(RABBITMQ_PORT)%/%env(RABBITMQ_VHOST)%');
         $container->setParameter('alchemy_messenger.amqp_transport_options', [
             'confirm_timeout' => 3,
             'read_timeout' => 3,
@@ -92,21 +92,21 @@ class AlchemyMessengerExtension extends Extension implements PrependExtensionInt
                     'default_serializer' => 'messenger.transport.symfony_serializer',
                     'symfony_serializer' => [
                         'format' => 'json',
-                        'context' => []
-                    ]
+                        'context' => [],
+                    ],
                 ],
                 'failure_transport' => 'failed',
                 'transports' => [
                     'failed' => 'doctrine://default?queue_name=failed',
-                    'sync' => 'sync://'
+                    'sync' => 'sync://',
                 ],
                 'buses' => [
                     'command_bus' => [
                         'middleware' => [
                             'doctrine_ping_connection',
                             RetryCountMiddleware::class,
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 'routing' => $routing,
             ],

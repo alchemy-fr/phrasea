@@ -14,14 +14,13 @@ final readonly class TestTransportFactory implements TransportFactoryInterface
         private TransportFactoryInterface $syncTransportFactory,
         #[Autowire(service: 'messenger.transport.in_memory.factory')]
         private TransportFactoryInterface $inMemoryTransportFactory,
-    )
-    {
+    ) {
     }
 
     public function createTransport(
         string $dsn,
         array $options,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
     ): TransportInterface {
         return new TestTransport(
             $this->syncTransportFactory->createTransport($dsn, $options, $serializer),
