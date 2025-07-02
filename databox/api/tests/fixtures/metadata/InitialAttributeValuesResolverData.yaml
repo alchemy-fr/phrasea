@@ -61,7 +61,7 @@ multi2mono_template:
     definitions:
         Keywords:
             isMultiple: true
-            initialValues: '{"method": "template", "value": "{{ file.getMetadata(''IPTC:Keywords'').value }}"}'
+            initialValues: '{"type": "template", "value": "{{ file.getMetadata(''IPTC:Keywords'').value }}"}'
     metadata:
         'IPTC:Keywords': ['chien', 'chat', 'oiseau']
     expected:
@@ -74,7 +74,7 @@ multi2multi_template:
     definitions:
         Keywords:
             isMultiple: true
-            initialValues: '{"method": "template", "value": "{{ file.getMetadata(''IPTC:Keywords'').values }}"}'
+            initialValues: '{"type": "template", "value": "{{ file.getMetadata(''IPTC:Keywords'').values | join(''\n'') }}"}'
     metadata:
         'IPTC:Keywords': ['chien', 'chat', 'oiseau']
     expected:
