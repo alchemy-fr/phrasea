@@ -262,7 +262,7 @@ function normalizeData(data: RenditionDefinition) {
     return {
         ...data,
         buildMode: data.buildMode?.toString(),
-        class:
+        policy:
             typeof data.policy === 'string'
                 ? data.policy
                 : data.policy

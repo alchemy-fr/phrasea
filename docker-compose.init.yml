@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   php-fpm-base:
     image: ${REGISTRY_NAMESPACE}php-fpm-base:${DOCKER_TAG}

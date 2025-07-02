@@ -443,7 +443,12 @@ export default function AttributeDefinitionManager({
 function normalizeData(data: AttributeDefinition) {
     return {
         ...data,
-        policy: data.policy ? (data.policy as AttributePolicy)['@id'] : null,
+        policy:
+            typeof data.policy === 'string'
+                ? data.policy
+                : data.policy
+                  ? (data.policy as AttributePolicy)['@id']
+                  : null,
         entityList: data.entityList
             ? (data.entityList as EntityList)['@id']
             : null,

@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   saml-idp:
     image: alchemyfr/test-saml-idp:${DOCKER_TAG}
