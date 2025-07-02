@@ -297,7 +297,8 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     searchParams,
                     0, // offset
                     PAGESIZE,
-                    query
+                    query,
+                    dm.importStories
                 );
                 for (const record of records) {
                     logger.info(
