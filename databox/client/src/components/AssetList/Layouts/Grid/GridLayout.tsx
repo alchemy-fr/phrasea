@@ -34,7 +34,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
     const lineHeight = 26;
     const collLineHeight = 32;
     const tagLineHeight = 32;
-    const d = useContext(DisplayContext)!;
+    const d = useContext(DisplayContext)!.state;
     const listRef = React.useRef<HTMLDivElement | null>(null);
 
     useScrollTopPages(

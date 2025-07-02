@@ -22,7 +22,11 @@ export default function AssetShare({asset}: Props) {
 
     return (
         <>
-            <DisplayProvider thumbSize={width}>
+            <DisplayProvider
+                defaultState={{
+                    thumbSize: width,
+                }}
+            >
                 <Paper
                     elevation={1}
                     sx={{

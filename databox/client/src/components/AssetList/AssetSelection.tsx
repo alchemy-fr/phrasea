@@ -16,7 +16,12 @@ export default function AssetSelection({assets, onSelectionChange}: Props) {
     const pages = useMemo(() => [assets], [assets]);
 
     return (
-        <DisplayProvider thumbSize={100} displayAttributes={false}>
+        <DisplayProvider
+            defaultState={{
+                thumbSize: 100,
+                displayAttributes: false,
+            }}
+        >
             <AssetList
                 pages={pages}
                 total={assets.length}

@@ -11,7 +11,9 @@ type Props = {
 
 export default function AssetTagList({tags}: Props) {
     const {t} = useTranslation();
-    const {tagsLimit, displayTags} = useContext(DisplayContext)!;
+    const {
+        state: {tagsLimit, displayTags},
+    } = useContext(DisplayContext)!;
 
     if (!displayTags) {
         return <></>;

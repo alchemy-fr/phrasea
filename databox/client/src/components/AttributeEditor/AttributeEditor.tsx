@@ -176,11 +176,13 @@ export default function AttributeEditor({
                         }}
                     >
                         <DisplayProvider
-                            thumbSize={defaultThumbSize}
-                            displayTitle={false}
-                            displayPreview={false}
-                            displayCollections={false}
-                            displayTags={false}
+                            defaultState={{
+                                thumbSize: defaultThumbSize,
+                                displayTitle: false,
+                                displayPreview: false,
+                                displayCollections: false,
+                                displayTags: false,
+                            }}
                         >
                             <AssetList
                                 total={assets.length}
