@@ -19,7 +19,7 @@ exiftoolVersion:
         title: 'Vérification du fonctionnement de l''intégration metadata-read'
         description:
             'Cette lecture permet de s''assurer du bon déroulement du processus d''extraction des métadonnées.
-            La metadata _ExifTool:ExifToolVersion_ est toujours retournée par exiftool.'
+            La metadata `ExifTool:ExifToolVersion` est toujours retournée par exiftool.'
     definitions:
         exiftoolVersion:
             initialValues: '{ "type": "metadata", "value": "ExifTool:ExifToolVersion"}'
@@ -28,67 +28,87 @@ exiftoolVersion:
     expected:
         exiftoolVersion: '12.42'
 
+multi2mono:
+    about:
+        title: 'Meta multi-valuée -> attribut mono-valué (méthode "metadata")'
+        description:
+            'Les valeurs seront séparées par des points-virgules.'
+    definitions:
+        Keywords:
+            isMultiple: false
+            initialValues: '{"type": "metadata", "value": "IPTC:Keywords"}'
+    metadata:
+        'IPTC:Keywords': ['chien', 'chat', 'oiseau']
+    expected:
+        Keywords: 'chien ; chat ; oiseau'
+
 multi2multi:
     about:
         title: 'Meta multi-valuée -> attribut multi-valué (méthode "metadata")'
     definitions:
-        keywords:
+        Keywords:
             isMultiple: true
             initialValues: '{"type": "metadata", "value": "IPTC:Keywords"}'
     metadata:
-        'IPTC:Keywords': ['keyword1', 'keyword2', 'keyword3']
+        'IPTC:Keywords': ['chien', 'chat', 'oiseau']
     expected:
-        keywords: ['keyword1', 'keyword2', 'keyword3']
+        Keywords: ['chien', 'chat', 'oiseau']
 
-exiftoolVersion2:
-    enabled: false
+multi2mono_template:
+    about:
+        title: 'Meta multi-valuée -> attribut multi-valué (méthode "template")'
+        description: 'attention : utilisation erronée de getMetadata(...).value (sans "s")'
     definitions:
-        exiftoolVersion:
-            fieldType: text
-            isMultiple: false
-            initialValues:
-                _: '{ "type": "metadata", "value": "ExifTool:ExifToolVersion"}'
+        Keywords:
+            isMultiple: true
+            initialValues: '{"method": "template", "value": "{{ file.getMetadata(''IPTC:Keywords'').value }}"}'
     metadata:
-        'ExifTool:ExifToolVersion': '12.42'
+        'IPTC:Keywords': ['chien', 'chat', 'oiseau']
     expected:
-        exiftoolVersion:
-            _:
-                - '12.42'
-test1:
-    enabled: false
+        Keywords: 'chien ; chat ; oiseau'
+
+multi2multi_template:
+    about:
+        title: 'Meta multi-valuée -> attribut multi-valué (méthode "template")'
+        description: 'Utilisation correcte de getMetadata(...).value__s__'
     definitions:
-        Title:
-            isMultiple: false
-            initialValues:
-                _: '{ "type": "metadata", "value": "XMP-dc:Title"}'
-                en: '{ "type": "metadata", "value": "description"}'
-            fieldType: text
+        Keywords:
+            isMultiple: true
+            initialValues: '{"method": "template", "value": "{{ file.getMetadata(''IPTC:Keywords'').values }}"}'
     metadata:
-        'Composite:GPSPosition': '48.8588443, 2.2943506'
-        'XMP-dc:Title': Test Title
-        description: Test Description
+        'IPTC:Keywords': ['chien', 'chat', 'oiseau']
     expected:
-        Title:
-            _:
-                - Test Title
-            en:
-                - Test Description
-test2:
-    enabled: false
+        Keywords: ['chien', 'chat', 'oiseau']
+
+mono_multilingue:
+    about:
+        title: 'mono multilingue'
+    definitions:
+        Copyright:
+            initialValues:
+                en: '{ "type": "template", "value": "(c) {{ file.getMetadata(''XMP-dc:Creator'').value }}. All rights reserved" }'
+                fr: '{ "type": "template", "value": "(c) {{ file.getMetadata(''XMP-dc:Creator'').value }}. Tous droits réservés" }'
+    metadata:
+        'XMP-dc:Creator': 'Bob'
+    expected:
+        Copyright:
+            en: '(c) Bob. All rights reserved'
+            fr: '(c) Bob. Tous droits réservés'
+
+multi_multilingue:
+    about:
+        title: 'multi multilingue'
     definitions:
         Keywords:
             isMultiple: true
             initialValues:
-                _: '{ "type": "metadata", "value": "IPTC:Keywords"}'
-            fieldType: text
+                en: '{ "type": "metadata", "value": "XMP-dc:Subject" }'
+                fr: '{ "type": "metadata", "value": "IPTC:SupplementalCategories" }'
     metadata:
-        'IPTC:Keywords':
-            - dog
-            - cat
-            - bird
+        'XMP-dc:Subject': ['dog', 'cat', 'bird']
+        'IPTC:SupplementalCategories': ['chien', 'chat', 'oiseau']
     expected:
         Keywords:
-            _:
-                - cat
-                - dog
-                - bird
+            en: ['dog', 'cat', 'bird']
+            fr: ['chien', 'chat', 'oiseau']
+
