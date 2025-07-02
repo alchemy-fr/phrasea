@@ -7,6 +7,8 @@ namespace App\Api\InputTransformer;
 use App\Api\Model\Input\WorkspaceIntegrationInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\IntegrationInterface;
+use App\Integration\IntegrationRegistry;
 use App\Model\IntegrationType;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Yaml\Yaml;
@@ -14,6 +16,11 @@ use Symfony\Component\Yaml\Yaml;
 class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
 {
     use WithOwnerIdProcessorTrait;
+
+    public function __construct(
+        private readonly IntegrationRegistry $integrationRegistry,
+    ) {
+    }
 
     /**
      * @param WorkspaceIntegrationInput $data
@@ -29,11 +36,13 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
             $object->setTitle($data->title);
         }
 
+        $integrationTypeName = IntegrationType::denormalizeId($data->integration ?? '');
+
         if ($isNew) {
             if (null !== $data->workspace) {
                 $object->setWorkspace($data->workspace);
             }
-            $object->setIntegration(IntegrationType::denormalizeId($data->integration));
+            $object->setIntegration($integrationTypeName);
         }
 
         if (null !== $data->configYaml) {
@@ -41,6 +50,14 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
         } elseif (null !== $data->config) {
             $object->setConfig($data->config);
         }
+
+        if ($isNew) {
+            $integration = $this->integrationRegistry->getIntegration($integrationTypeName);
+            if ($integration instanceof IntegrationInterface) {
+                $object->setConfig($integration->generateConfigurationDefaults($object->getConfig()));
+            }
+        }
+
         $object->setEnabled($data->enabled);
 
         if (null !== $data->needs) {

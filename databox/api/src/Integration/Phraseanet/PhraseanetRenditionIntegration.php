@@ -80,9 +80,13 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
         $info = [];
 
         if (self::METHOD_ENQUEUE === $config['method']) {
-            $info['Webhook URL'] = $this->urlGenerator->generate('integration_phraseanet_webhook_event', [
-                'integrationId' => $config->getIntegrationId(),
-            ], UrlGeneratorInterface::ABSOLUTE_URL);
+            $info[] = [
+                'label' => 'Webhook URL',
+                'description' => 'The URL to which Phraseanet will send incoming renditions.',
+                'value' => $this->urlGenerator->generate('integration_phraseanet_webhook_event', [
+                    'integrationId' => $config->getIntegrationId(),
+                ], UrlGeneratorInterface::ABSOLUTE_URL),
+            ];
         }
 
         return $info;
