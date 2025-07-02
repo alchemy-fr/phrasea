@@ -8,10 +8,13 @@ import {
 } from '@mui/material';
 import CopyToClipboard from '../../../lib/CopyToClipboard';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import FastTooltip from '../../Ui/FastTooltip.tsx';
+import InfoIcon from '@mui/icons-material/Info';
 
 type Props = {
-    icon: ReactNode;
+    icon?: ReactNode;
     label: ReactNode;
+    description?: ReactNode;
     value: ReactNode;
     copyValue?: string | undefined;
     onClick?: () => void;
@@ -23,12 +26,36 @@ export default function InfoRow({
     value,
     copyValue,
     onClick,
+    description,
 }: Props) {
     return (
         <ListItem disableGutters={true}>
             {icon && <ListItemIcon>{icon}</ListItemIcon>}
             <ListItemText
-                primary={label}
+                primary={
+                    description ? (
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                flexDirection: 'row',
+                                gap: 2,
+                            }}
+                        >
+                            {label}
+                            {description ? (
+                                <FastTooltip title={description}>
+                                    <InfoIcon
+                                        fontSize={'small'}
+                                        color={'inherit'}
+                                    />
+                                </FastTooltip>
+                            ) : null}
+                        </div>
+                    ) : (
+                        label
+                    )
+                }
                 secondaryTypographyProps={{
                     component: 'div',
                     variant: 'body2',
