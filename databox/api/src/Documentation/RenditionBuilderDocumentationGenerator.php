@@ -1,6 +1,8 @@
 <?php
 
-namespace App\documentation;
+declare(strict_types=1);
+
+namespace App\Documentation;
 
 use Alchemy\RenditionFactory\RenditionBuilderConfigurationDocumentation;
 

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\documentation;
+namespace App\Documentation;
 
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag(self::TAG)]
 interface DocumentationGeneratorInterface
 {
-    final public const TAG = 'documentation_generator';
+    final public const string TAG = 'documentation_generator';
 
     public static function getName(): string;
 

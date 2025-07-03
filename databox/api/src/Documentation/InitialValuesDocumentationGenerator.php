@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\documentation;
+namespace App\Documentation;
 
 use Symfony\Component\Yaml\Yaml;
 
