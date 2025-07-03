@@ -16,8 +16,7 @@ class TestTransport implements TransportInterface
     public function __construct(
         private readonly SyncTransport $syncTransport,
         private readonly InMemoryTransport $inMemoryTransport,
-    )
-    {
+    ) {
     }
 
     public function get(): iterable
