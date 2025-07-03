@@ -43,7 +43,6 @@ class BatchAttributeManager
         private readonly AttributeAssigner $attributeAssigner,
         private readonly Security $security,
         private readonly PostFlushStack $postFlushStack,
-        private readonly AttributeManager $attributeManager,
         private readonly DeferredIndexListener $deferredIndexListener,
         private readonly AttributeTypeRegistry $typeRegistry,
         private readonly ValidatorInterface $validator,
