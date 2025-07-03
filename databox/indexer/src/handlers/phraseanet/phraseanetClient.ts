@@ -107,14 +107,16 @@ export default class PhraseanetClient {
         params: Record<string, any>,
         offset: number = 0,
         limit: number = 50,
-        searchQuery: string
+        searchQuery: string,
+        importStories: boolean
     ): Promise<CPhraseanetRecord[]> {
         return this.search(
             params,
             offset,
             PhraseanetSearchType.Record,
             searchQuery,
-            limit
+            limit,
+            importStories
         ) as unknown as Promise<CPhraseanetRecord[]>;
     }
 
@@ -129,7 +131,8 @@ export default class PhraseanetClient {
             offset,
             PhraseanetSearchType.Story,
             searchQuery,
-            limit
+            limit,
+            true
         ) as unknown as Promise<CPhraseanetStory[]>;
     }
 
@@ -138,7 +141,8 @@ export default class PhraseanetClient {
         offset: number = 0,
         searchType: PhraseanetSearchType,
         searchQuery: string,
-        limit: number = 100
+        limit: number = 100,
+        importStories: boolean
     ): Promise<(CPhraseanetRecord | CPhraseanetStory)[]> {
         let last_error: any = null;
         for (let ttry = 1; ttry <= 3; ttry++) {
@@ -168,6 +172,17 @@ export default class PhraseanetClient {
                 if (searchType === PhraseanetSearchType.Record) {
                     res.data.response.results.records.map(
                         (r: PhraseanetRecord) => {
+                            if (r.stories === undefined) {
+                                if (importStories) {
+                                    ttry = 3; // deadly error, no need to retry
+                                    throw new Error(
+                                        'Phraseanet is not up-to-date : importStories requires https://github.com/alchemy-fr/Phraseanet/pull/4602'
+                                    );
+                                } else {
+                                    // be nice: fix old phraseanet versions
+                                    r.stories = [];
+                                }
+                            }
                             recs.push(new CPhraseanetRecord(r, this));
                         }
                     );
