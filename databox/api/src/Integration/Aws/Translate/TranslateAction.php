@@ -9,13 +9,13 @@ use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Asset\Attribute\AttributesResolver;
 use App\Attribute\AttributeInterface;
-use App\Attribute\AttributeManager;
 use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Attribute;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\ApiBudgetLimiter;
 use App\Integration\IfActionInterface;
 use App\Integration\IntegrationConfig;
+use App\Repository\Core\AttributeDefinitionRepository;
 use Aws\Translate\TranslateClient;
 
 class TranslateAction extends AbstractIntegrationAction implements IfActionInterface
@@ -23,7 +23,7 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
     public function __construct(
         private readonly ApiBudgetLimiter $apiBudgetLimiter,
         private readonly AttributesResolver $attributesResolver,
-        private readonly AttributeManager $attributeManager,
+        private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private BatchAttributeManager $batchAttributeManager,
     ) {
     }
@@ -35,48 +35,129 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
 
         $this->apiBudgetLimiter->acceptIntegrationApiCall($config);
 
-        $sourceLangage = $config['source_lng'];
-        $destinationLanguage = $config['destination_lng'];
+        $defaultSourceLanguage = $config['defaultSourceLanguage'];
+        $preferredSourceLanguages = $config['preferredSourceLanguages'];
+        $translatedLanguages = $config['translatedLanguages'];
+
+        $srcLocales = !empty($preferredSourceLanguages) ? $preferredSourceLanguages : [AttributeInterface::NO_LOCALE];
+
+        if (empty($translatedLanguages)) {
+            $translatedLanguages = $asset->getWorkspace()->getEnabledLocales();
+        }
 
         $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
 
-        $attrDefs = $this->attributeManager->getAttributeDefinitions($asset->getWorkspaceId());
+        $attrDefs = $this->attributeDefinitionRepository->getAttributeDefinitions($asset->getWorkspaceId());
 
         $client = $this->createClient($config);
 
+        $toTranslates = [];
+
         foreach ($attrDefs as $attrDef) {
+            $text = '';
+            $sourceLangage = '';
+            $destinationLanguages = [];
+
             if (!$attrDef->isTranslatable()) {
                 continue;
             }
 
-            $text = $attributeIndex->getAttribute($attrDef->getId(), AttributeInterface::NO_LOCALE)?->getValue();
-            if (empty($text)) {
-                continue;
+            if ($attrDef->isMultiple()) {
+                foreach ($srcLocales as $locale) {
+                    $attributesSources = $attributeIndex->getAttributes($attrDef->getId(), $locale);
+                    $sourceLangage = (AttributeInterface::NO_LOCALE == $locale) ? $defaultSourceLanguage : $locale;
+                    if (!empty($attributesSources)) {
+                        break;
+                    }
+                }
+
+                if (empty($attributesSources)) {
+                    continue;
+                }
+
+                foreach ($translatedLanguages as $destinationLanguage) {
+                    $attributes = $attributeIndex->getAttributes($attrDef->getId(), $destinationLanguage);
+
+                    if (empty($attributes)) {
+                        $destinationLanguages[] = $destinationLanguage;
+                    }
+                }
+
+                if (empty($destinationLanguages)) {
+                    continue;
+                }
+
+                foreach ($attributesSources as $attribute) {
+                    $text = $attribute->getValue();
+                    $toTranslates[] = [
+                        'text' => $text,
+                        'sourceLanguage' => $sourceLangage,
+                        'destinationLanguages' => $destinationLanguages,
+                        'definitionId' => $attrDef->getId(),
+                        'action' => BatchAttributeManager::ACTION_ADD,
+                    ];
+                }
+            } else {
+                foreach ($srcLocales as $locale) {
+                    $text = $attributeIndex->getAttribute($attrDef->getId(), $locale)?->getValue();
+                    $sourceLangage = (AttributeInterface::NO_LOCALE == $locale) ? $defaultSourceLanguage : $locale;
+                    if (!empty($text)) {
+                        break;
+                    }
+                }
+
+                if (empty($text)) {
+                    continue;
+                }
+
+                foreach ($translatedLanguages as $destinationLanguage) {
+                    $t = $attributeIndex->getAttribute($attrDef->getId(), $destinationLanguage)?->getValue();
+
+                    if (empty($t)) {
+                        $destinationLanguages[] = $destinationLanguage;
+                    }
+                }
+
+                if (empty($destinationLanguages)) {
+                    continue;
+                }
+
+                $toTranslates[] = [
+                    'text' => $text,
+                    'sourceLanguage' => $sourceLangage,
+                    'destinationLanguages' => $destinationLanguages,
+                    'definitionId' => $attrDef->getId(),
+                    'action' => BatchAttributeManager::ACTION_SET,
+                ];
             }
+        }
 
-            $result = $client->translateText([
-                'Settings' => [
-                    'Brevity' => 'ON',
-                    'Formality' => 'FORMAL',
-                    'Profanity' => 'MASK',
-                ],
-                'SourceLanguageCode' => $sourceLangage,
-                'TargetLanguageCode' => $destinationLanguage,
-
-                'Text' => $text,
-            ]);
-
-            $translatedText = $result->get('TranslatedText');
-
+        foreach ($toTranslates as $toTranslate) {
             $input = new AssetAttributeBatchUpdateInput();
-            $i = new AttributeActionInput();
-            $i->definitionId = $attrDef->getId();
-            $i->action = BatchAttributeManager::ACTION_SET;
-            $i->origin = Attribute::ORIGIN_MACHINE;
-            $i->originVendor = AwsTranslateIntegration::getName();
-            $i->value = $translatedText;
-            $i->locale = $destinationLanguage;
-            $input->actions[] = $i;
+
+            foreach ($toTranslate['destinationLanguages'] as $destinationLanguage) {
+                $result = $client->translateText([
+                    'Settings' => [
+                        'Brevity' => 'ON',
+                        'Formality' => 'FORMAL',
+                        'Profanity' => 'MASK',
+                    ],
+                    'SourceLanguageCode' => $toTranslate['sourceLanguage'],
+                    'TargetLanguageCode' => $destinationLanguage,
+                    'Text' => $toTranslate['text'],
+                ]);
+
+                $translatedText = $result->get('TranslatedText');
+                $i = new AttributeActionInput();
+                $i->definitionId = $toTranslate['definitionId'];
+                $i->action = $toTranslate['action'];
+                $i->origin = Attribute::ORIGIN_MACHINE;
+                $i->originVendor = AwsTranslateIntegration::getName();
+                $i->value = $translatedText;
+                $i->locale = $destinationLanguage;
+
+                $input->actions[] = $i;
+            }
 
             $this->batchAttributeManager->handleBatch(
                 $asset->getWorkspaceId(),
@@ -84,7 +165,6 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
                 $input,
                 null
             );
-
         }
     }
 

@@ -27,15 +27,21 @@ class AwsTranslateIntegration extends AbstractAwsIntegration implements Workflow
         $this->addRegionConfigNode($builder);
 
         $builder
-            ->scalarNode('source_lng')
+            ->scalarNode('defaultSourceLanguage')
                 ->isRequired()
                 ->cannotBeEmpty()
-                ->info('The language code to translate from')
+                ->info('The language for the attribute no language (NO_LOCALE)')
             ->end()
-            ->scalarNode('destination_lng')
+            ->arrayNode('preferredSourceLanguages')
                 ->isRequired()
-                ->cannotBeEmpty()
-                ->info('The language code of to translate to')
+                ->scalarPrototype()
+                    ->info('The language codes of the preferred source languages to translate from')
+                ->end()
+            ->end()
+            ->arrayNode('translatedLanguages')
+                ->isRequired()
+                ->scalarPrototype()
+                ->end()
             ->end()
         ;
 
