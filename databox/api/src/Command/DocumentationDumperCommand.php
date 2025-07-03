@@ -4,19 +4,28 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use Alchemy\RenditionFactory\RenditionBuilderConfigurationDocumentation;
+use App\documentation\DocumentationGeneratorInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 #[AsCommand('app:documentation:dump')]
 class DocumentationDumperCommand extends Command
 {
+    /**
+     * @uses InitialValuesDocumentationGenerator
+     * @uses RenditionBuilderDocumentationGenerator
+     */
+
+    /** @var array<string, DocumentationGeneratorInterface> */
+    private array $chapters = [];
+
     public function __construct(
-        private readonly RenditionBuilderConfigurationDocumentation $renditionBuilderConfigurationDocumentation,
+        #[AutowireIterator(DocumentationGeneratorInterface::TAG)] private readonly iterable $documentations,
     ) {
         parent::__construct();
     }
@@ -25,156 +34,55 @@ class DocumentationDumperCommand extends Command
     {
         parent::configure();
 
+        $slugger = new AsciiSlugger();
+        /** @var DocumentationGeneratorInterface $documentation */
+        foreach ($this->documentations as $documentation) {
+            $name = strtolower($slugger->slug($documentation::getName())->toString());
+            if (isset($this->chapters[$documentation::getName()])) {
+                throw new \LogicException(sprintf('Chapter "%s" is already registered.', $name));
+            }
+            $this->chapters[$name] = $documentation;
+        }
+
         $this
             ->setDescription('Dump code-generated documentation(s)')
-            ->addArgument('part', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Part(s) to dump. If not specified, all parts will be dumped.')
-            ->setHelp('parts: "rendition", "initial-attribute"')
+            ->addArgument('chapters', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Chapter(s) to dump. If not specified, all chapters will be dumped.')
+            ->addOption('output', 'o', InputArgument::OPTIONAL, 'Output directory to write the documentation to. If not specified, it will be written to stdout.')
+            ->setHelp(sprintf('chapters: "%s"', join('", "', array_keys($this->chapters))))
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (empty($input->getArgument('part'))) {
-            $input->setArgument('part', ['rendition', 'initial-attribute']);
+        $outputDir = $input->getOption('output');
+        if ($outputDir && !is_dir($outputDir)) {
+            $output->writeln(sprintf('<error>Output directory "%s" does not exists.</error>', $outputDir));
+
+            return Command::FAILURE;
         }
 
-        foreach ($input->getArgument('part') as $part) {
-            if (!in_array($part, ['rendition', 'initial-attribute'])) {
-                $output->writeln(sprintf('<error>Unknown part "%s". Valid parts are "rendition" and "initial-attribute".</error>', $part));
+        foreach ($input->getArgument('chapters') as $chapter) {
+            if (!isset($this->chapters[$chapter])) {
+                $output->writeln(sprintf('<error>Unknown chapter "%s".</error> Available chapters are "%s"', $chapter, join('", "', array_keys($this->chapters))));
 
                 return Command::FAILURE;
             }
-            switch ($part) {
-                case 'rendition':
-                    $output->writeln('# '.$this->renditionBuilderConfigurationDocumentation::getName());
-                    $output->writeln($this->renditionBuilderConfigurationDocumentation->generate());
-                    break;
-                case 'initial-attribute':
-                    $this->dumpInitialValuesDocumentation($output);
-                    break;
+        }
+
+        if (empty($input->getArgument('chapters'))) {
+            $input->setArgument('chapters', array_keys($this->chapters));
+        }
+        foreach ($input->getArgument('chapters') as $chapter) {
+            $text = '# '.$this->chapters[$chapter]->getName()."\n".$this->chapters[$chapter]->generate();
+            if ($outputDir) {
+                $outputFile = rtrim($outputDir, '/').'/'.$chapter.'.md';
+                file_put_contents($outputFile, $text);
+                $output->writeln(sprintf('<info>Documentation for chapter "%s" written to "%s".</info>', $chapter, $outputFile));
+            } else {
+                $output->writeln($text);
             }
         }
 
         return Command::SUCCESS;
-    }
-
-    private function dumpInitialValuesDocumentation(OutputInterface $output)
-    {
-        $output->writeln('# Initial Attribute Values');
-        $n = 0;
-        foreach (Yaml::parseFile(__DIR__.'/../../tests/fixtures/metadata/InitialAttributeValuesResolverData.yaml') as $test) {
-            if (!($test['about'] ?? false)) {
-                continue;
-            }
-
-            if ($n++ > 0) {
-                $output->writeln('');
-                $output->writeln('---');
-                $output->writeln('');
-            }
-
-            $output->writeln(sprintf('## %s', $test['about']['title'] ?? ''));
-            if ($description = $test['about']['description'] ?? '') {
-                $output->writeln(sprintf('%s', $description));
-            }
-
-            $output->writeln('### Attribute(s) definition(s) ...');
-            foreach ($test['definitions'] as $name => $definition) {
-                $output->write(sprintf('- __%s__:', $name));
-                $output->write(sprintf('   `%s`', $definition['fieldType'] ?? 'text'));
-                $output->write(sprintf(' ; [%s] `multi`', $definition['isMultiple'] ?? false ? 'X' : ' '));
-                $output->write(sprintf(' ; [%s] `translatable`', $definition['isTranslatable'] ?? false ? 'X' : ' '));
-
-                $output->writeln('');
-
-                if (is_array($definition['initialValues'] ?? null)) {
-                    foreach ($definition['initialValues'] as $locale => $initializer) {
-                        $output->writeln(sprintf('  - locale `%s`', $locale));
-                        $code = json_encode(json_decode($initializer), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-                        $this->codeBlockIndented($output, $code, 'json', 1);
-                    }
-                } elseif (null !== ($definition['initialValues'] ?? null)) {
-                    $initializer = $definition['initialValues'];
-                    $code = json_encode(json_decode($initializer), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-                    $this->codeBlockIndented($output, $code, 'json', 0);
-                }
-
-                $output->writeln('');
-                $output->writeln('### ... with file metadata ...');
-                $output->writeln('| metadata | value(s) |');
-                $output->writeln('|---|---|');
-                foreach ($test['metadata'] as $metadataName => $values) {
-                    $v = is_array($values) ? $values : [$values];
-                    $output->writeln(sprintf('| %s | `%s` |', $metadataName, join('` ; `', $v)));
-                }
-
-                $output->writeln('');
-                $output->writeln('### ... set attribute(s) initial value(s)');
-                $this->dumpExpected($output, $test['expected'], 1);
-
-                $output->writeln('');
-            }
-
-        }
-    }
-
-    private function codeBlockIndented(OutputInterface $output, string $code, string $language, int $indent = 0): void
-    {
-        $tab = str_repeat('  ', $indent);
-        $output->writeln(sprintf('%s```%s', $tab, $language));
-        foreach (explode("\n", $code) as $line) {
-            $output->writeln(sprintf('%s%s', $tab, $line));
-        }
-        $output->writeln(sprintf('%s```', $tab));
-    }
-
-    private function dumpExpected(OutputInterface $output, array $expected, int $indent = 0): void
-    {
-        $tab = str_repeat('  ', $indent);
-        $output->writeln(sprintf('%s| Attributes | initial value(s) |', $tab));
-        $output->writeln(sprintf('%s|---|---|', $tab));
-        foreach ($expected as $attributeName => $value) {
-            if (is_array($value)) {
-                if ($this->isNumericArray($value)) {
-                    // a simple array of values
-                    $n = 1;
-                    foreach ($value as $v) {
-                        $output->writeln(sprintf('%s| %s #%d | `%s` |', $tab, $attributeName, $n++, $v));
-                        // $output->writeln('');
-                    }
-                } else {
-                    // an array with key=locale
-                    foreach ($value as $locale => $v) {
-                        $output->writeln(sprintf('%s| __locale `%s`__ |   |', $tab, $locale));
-                        if (is_array($v)) {
-                            // an array of values
-                            foreach ($v as $n => $w) {
-                                $output->writeln(sprintf('%s| %s #%d | `%s` |', $tab, $attributeName, $n + 1, $w));
-                            }
-                        } else {
-                            $output->writeln(sprintf('%s| %s  | `%s` |', $tab, $attributeName, $v));
-                        }
-                        // $output->writeln('');
-                    }
-                }
-            } else {
-                // a single value
-                $output->writeln(sprintf('%s| %s | `%s`', $tab, $attributeName, $value));
-            }
-        }
-    }
-
-    private function isNumericArray($a): bool
-    {
-        if (!is_array($a)) {
-            return false;
-        }
-        foreach ($a as $k => $v) {
-            if (!is_numeric($k)) {
-                return false;
-            }
-        }
-
-        return true;
     }
 }
