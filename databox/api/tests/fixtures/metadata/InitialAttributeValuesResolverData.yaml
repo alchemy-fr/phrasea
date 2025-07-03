@@ -1,0 +1,114 @@
+# shortcuts
+#
+# - definitions/<fieldname>/initialValues is an array with keys as locale code, like '_', 'fr', 'en', etc.
+# if no locale distingo is needed, the plain value can be used (it will be converted to ['_' => value])
+# - same principle applies for expected/<fieldname> values (no locale == '_' locale)
+#
+# - expected values is an array, possibly with only one element
+# if only one value is expected, the plain value can be used (it will test with [value])
+#
+# - fieldType defaults to text
+#
+# - isMultiple defaults to false
+#
+# - possible fieldTypes are:
+# boolean, code, collection_path, color, date, date_time, entity, geo_point, html, ip, json, keyword, number, tag, textarea, text
+
+exiftoolVersion:
+    about:
+        title: 'Vérification du fonctionnement de l''intégration metadata-read'
+        description:
+            'Cette lecture permet de s''assurer du bon déroulement du processus d''extraction des métadonnées.
+            La metadata `ExifTool:ExifToolVersion` est toujours retournée par exiftool.'
+    definitions:
+        exiftoolVersion:
+            initialValues: '{ "type": "metadata", "value": "ExifTool:ExifToolVersion"}'
+    metadata:
+        'ExifTool:ExifToolVersion': '12.42'
+    expected:
+        exiftoolVersion: '12.42'
+
+multi2mono:
+    about:
+        title: 'Meta multi-valuée -> attribut mono-valué (méthode "metadata")'
+        description:
+            'Les valeurs seront séparées par des points-virgules.'
+    definitions:
+        Keywords:
+            isMultiple: false
+            initialValues: '{"type": "metadata", "value": "IPTC:Keywords"}'
+    metadata:
+        'IPTC:Keywords': ['chien', 'chat', 'oiseau']
+    expected:
+        Keywords: 'chien ; chat ; oiseau'
+
+multi2multi:
+    about:
+        title: 'Meta multi-valuée -> attribut multi-valué (méthode "metadata")'
+    definitions:
+        Keywords:
+            isMultiple: true
+            initialValues: '{"type": "metadata", "value": "IPTC:Keywords"}'
+    metadata:
+        'IPTC:Keywords': ['chien', 'chat', 'oiseau']
+    expected:
+        Keywords: ['chien', 'chat', 'oiseau']
+
+multi2mono_template:
+    about:
+        title: 'Meta multi-valuée -> attribut multi-valué (méthode "template")'
+        description: 'attention : utilisation erronée de getMetadata(...).value (sans "s")'
+    definitions:
+        Keywords:
+            isMultiple: true
+            initialValues: '{"type": "template", "value": "{{ file.getMetadata(''IPTC:Keywords'').value }}"}'
+    metadata:
+        'IPTC:Keywords': ['chien', 'chat', 'oiseau']
+    expected:
+        Keywords: 'chien ; chat ; oiseau'
+
+multi2multi_template:
+    about:
+        title: 'Meta multi-valuée -> attribut multi-valué (méthode "template")'
+        description: 'Utilisation correcte de getMetadata(...).value__s__'
+    definitions:
+        Keywords:
+            isMultiple: true
+            initialValues: '{"type": "template", "value": "{{ file.getMetadata(''IPTC:Keywords'').values | join(''\n'') }}"}'
+    metadata:
+        'IPTC:Keywords': ['chien', 'chat', 'oiseau']
+    expected:
+        Keywords: ['chien', 'chat', 'oiseau']
+
+mono_multilingue:
+    about:
+        title: 'mono multilingue'
+    definitions:
+        Copyright:
+            initialValues:
+                en: '{ "type": "template", "value": "(c) {{ file.getMetadata(''XMP-dc:Creator'').value }}. All rights reserved" }'
+                fr: '{ "type": "template", "value": "(c) {{ file.getMetadata(''XMP-dc:Creator'').value }}. Tous droits réservés" }'
+    metadata:
+        'XMP-dc:Creator': 'Bob'
+    expected:
+        Copyright:
+            en: '(c) Bob. All rights reserved'
+            fr: '(c) Bob. Tous droits réservés'
+
+multi_multilingue:
+    about:
+        title: 'multi multilingue'
+    definitions:
+        Keywords:
+            isMultiple: true
+            initialValues:
+                en: '{ "type": "metadata", "value": "XMP-dc:Subject" }'
+                fr: '{ "type": "metadata", "value": "IPTC:SupplementalCategories" }'
+    metadata:
+        'XMP-dc:Subject': ['dog', 'cat', 'bird']
+        'IPTC:SupplementalCategories': ['chien', 'chat', 'oiseau']
+    expected:
+        Keywords:
+            en: ['dog', 'cat', 'bird']
+            fr: ['chien', 'chat', 'oiseau']
+
