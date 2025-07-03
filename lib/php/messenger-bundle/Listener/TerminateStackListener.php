@@ -17,6 +17,7 @@ final class TerminateStackListener
 {
     private array $callbacks = [];
     private array $messages = [];
+
     public function __construct(
         private readonly MessageBusInterface $bus,
     ) {

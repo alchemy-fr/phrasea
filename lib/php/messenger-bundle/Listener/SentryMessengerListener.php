@@ -26,8 +26,7 @@ final readonly class SentryMessengerListener
         private SerializerInterface $serializer,
         private HubInterface $hub,
         private bool $captureSoftFails = true,
-    )
-    {
+    ) {
     }
 
     public function handleWorkerMessageFailedEvent(WorkerMessageFailedEvent $event): void

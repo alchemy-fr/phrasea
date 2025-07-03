@@ -8,7 +8,7 @@ final readonly class MessengerMessage
     final public const TAG = 'messenger.message';
 
     public function __construct(
-        private string $queue
+        private string $queue,
     ) {
     }
 
