@@ -116,3 +116,114 @@ multi_multilingue:
             en: ['dog', 'cat', 'bird']
             fr: ['chien', 'chat', 'oiseau']
 
+unknown_tag:
+    about:
+        title: 'Unknown tag'
+    definitions:
+        zAttribute:
+            initialValues: '{
+               "type": "template",
+               "value": "{{ (file.getMetadata(''badTag'').value ?? ''whaat ?'') }}"
+            }'
+    metadata: ~
+    expected:
+        zAttribute: 'whaat ?'
+
+first_metadata:
+    about:
+        title: 'First metadata set, with alternate value (1)'
+        description: 'for this test, only the metadata `IPTC:City` is set.'
+    definitions:
+        City:
+            initialValues: '{
+               "type": "template",
+               "value": "{{ file.getMetadata(''XMP-iptcCore:CreatorCity'').value ?? file.getMetadata(''IPTC:City'').value ?? ''no-city ?'' }}"
+            }'
+    metadata:
+        'IPTC:City': 'Paris'
+    expected:
+        City: 'Paris'
+
+first_metadata_default:
+    about:
+        title: 'First metadata set, with alternate value (2)'
+        description: 'for this test, no metadata is set, so the default value is used.'
+    definitions:
+        City:
+            initialValues: '{
+               "type": "template",
+               "value": "{{ file.getMetadata(''XMP-iptcCore:CreatorCity'').value ?? file.getMetadata(''IPTC:City'').value ?? ''no-city ?'' }}"
+            }'
+    metadata: ~
+    expected:
+        City: 'no-city ?'
+
+many_metadata_to_mono:
+    about:
+        title: 'Many metadata to a mono-value attribute'
+        description: 'Here an array `[a, b]` is used, the `join` filter inserts a " - " only if required.'
+    definitions:
+        CreatorLocation:
+            initialValues: '{
+                "type": "template",
+                "value": "{{ [file.getMetadata(''XMP-iptcCore:CreatorCity'').value, file.getMetadata(''XMP-iptcCore:CreatorCountry'').value] | join('' - '') }}"
+            }'
+    metadata:
+        'XMP-iptcCore:CreatorCity': 'Paris'
+        'XMP-iptcCore:CreatorCountry': 'France'
+    expected:
+        CreatorLocation: 'Paris - France'
+
+many_metadata_to_multi:
+    about:
+        title: 'Many metadata to a multi-values attribute'
+        description: "_nb_: We fill an array that will be joined by `\\n` to generate __one line per item__ (required).\n
+                        \n
+                        The `merge` filter __requires__ arrays, so `IPTC:Keywords` defaults to `[]` in case there is no keywords in metadata.\n"
+    definitions:
+        Keywords:
+            isMultiple: true
+            initialValues: '{
+                "type": "template",
+                "value": "{{ ( (file.getMetadata(''IPTC:Keywords'').values ?? []) | merge([file.getMetadata(''IPTC:City'').value, file.getMetadata(''XMP-photoshop:Country'').value ]) ) | join(''\n'') }}"
+            }'
+    metadata:
+        'IPTC:Keywords': ['Eiffel Tower', 'Seine river']
+        'IPTC:City': 'Paris'
+        'XMP-photoshop:Country': 'France'
+    expected:
+        Keywords: ['Eiffel Tower', 'Seine river', 'Paris', 'France']
+
+code_to_string:
+    about:
+        title: 'Transform code to human readable text'
+        description: 'here the `ExposureProgram` metadata is a code (0...9), used to index an array of strings.'
+    definitions:
+        ExposureProgram:
+            initialValues: '{
+                "type": "template",
+                "value": "{{ [
+                                ''Not Defined'', ''Manual'', ''Program AE'',
+                                ''Aperture-priority AE'', ''Shutter speed priority AE'',
+                                ''Creative (Slow speed)'', ''Action (High speed)'', ''Portrait'',
+                                ''Landscape'',  ''Bulb''
+                             ][file.getMetadata(''ExifIFD:ExposureProgram'').value]
+                            ?? ''Unknown mode''
+                          }}"
+            }'
+    metadata:
+        'ExifIFD:ExposureProgram': 2
+    expected:
+        ExposureProgram: 'Program AE'
+
+code_to_string_2:
+    definitions:
+        ExposureProgram:
+            initialValues: '{
+                "type": "template",
+                "value": "{{ [ ''a'', ''b'' ][file.getMetadata(''ExifIFD:ExposureProgram'').value] ?? ''z'' }}"
+            }'
+    metadata: ~
+    expected:
+        ExposureProgram: 'z'
+
