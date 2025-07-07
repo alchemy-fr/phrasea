@@ -70,7 +70,7 @@ class InitialValuesDocumentationGenerator extends DocumentationGenerator
                 $output .= "### ... with file metadata ...\n";
                 $output .= "| metadata | value(s) |\n";
                 $output .= "|---|---|\n";
-                foreach ($test['metadata'] as $metadataName => $values) {
+                foreach ($test['metadata'] ?? [] as $metadataName => $values) {
                     $v = is_array($values) ? $values : [$values];
                     $output .= sprintf("| %s | `%s` |\n", $metadataName, join('` ; `', $v));
                 }

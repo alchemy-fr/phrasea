@@ -50,7 +50,7 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
      *
      * @param array<string, string|string[]> $metadata
      */
-    public function testResolveInitialAttributes(array $definitions, array $metadata, array $expected): void
+    public function testResolveInitialAttributes(array $definitions, ?array $metadata, array $expected): void
     {
         $attributeDefinitions = [];
         foreach ($definitions as $name => $definition) {
@@ -145,6 +145,9 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
 
     private function conformMetadata($data): array
     {
+        if (null === $data) {
+            return [];
+        }
         $conformed = [];
         $data = is_array($data) ? $data : [$data];
         foreach ($data as $key => $value) {
