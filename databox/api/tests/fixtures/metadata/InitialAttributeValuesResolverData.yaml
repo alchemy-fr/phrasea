@@ -1,25 +1,29 @@
 # shortcuts
 #
 # - definitions/<fieldname>/initialValues is an array with keys as locale code, like '_', 'fr', 'en', etc.
-# if no locale distingo is needed, the plain value can be used (it will be converted to ['_' => value])
+#   if no locale distingo is needed, the plain value can be used (it will be converted to ['_' => value])
 # - same principle applies for expected/<fieldname> values (no locale == '_' locale)
 #
 # - expected values is an array, possibly with only one element
-# if only one value is expected, the plain value can be used (it will test with [value])
+#   if only one value is expected, the plain value can be used (it will test with [value])
 #
 # - fieldType defaults to text
 #
 # - isMultiple defaults to false
 #
 # - possible fieldTypes are:
-# boolean, code, collection_path, color, date, date_time, entity, geo_point, html, ip, json, keyword, number, tag, textarea, text
+#   boolean, code, collection_path, color, date, date_time, entity, geo_point, html, ip, json, keyword, number, tag, textarea, text
+#
+# - documentation generation
+#   Tests with an "about" section will be included in the documentation
 
 exiftoolVersion:
     about:
-        title: 'Vérification du fonctionnement de l''intégration metadata-read'
+        title: 'Check of integration "metadata-read"'
         description:
-            'Cette lecture permet de s''assurer du bon déroulement du processus d''extraction des métadonnées.
-            La metadata `ExifTool:ExifToolVersion` est toujours retournée par exiftool.'
+            'Extracting the `ExifTool:ExifToolVersion` metadata allows to ensure that the metadata-read.
+            integration is functional.
+            The metadata `ExifTool:ExifToolVersion` in always returned by exiftool.'
     definitions:
         exiftoolVersion:
             initialValues: '{ "type": "metadata", "value": "ExifTool:ExifToolVersion"}'
@@ -30,59 +34,59 @@ exiftoolVersion:
 
 multi2mono:
     about:
-        title: 'Meta multi-valuée -> attribut mono-valué (méthode "metadata")'
+        title: 'Multi-values metadata -> mono-value attribute ("metadata" method)'
         description:
-            'Les valeurs seront séparées par des points-virgules.'
+            'Values will be separated by " ; "'
     definitions:
         Keywords:
             isMultiple: false
             initialValues: '{"type": "metadata", "value": "IPTC:Keywords"}'
     metadata:
-        'IPTC:Keywords': ['chien', 'chat', 'oiseau']
+        'IPTC:Keywords': ['dog', 'cat', 'bird']
     expected:
-        Keywords: 'chien ; chat ; oiseau'
+        Keywords: 'dog ; cat ; bird'
 
 multi2multi:
     about:
-        title: 'Meta multi-valuée -> attribut multi-valué (méthode "metadata")'
+        title: 'Multi-values metadata -> multi-values attribute ("metadata" method)'
     definitions:
         Keywords:
             isMultiple: true
             initialValues: '{"type": "metadata", "value": "IPTC:Keywords"}'
     metadata:
-        'IPTC:Keywords': ['chien', 'chat', 'oiseau']
+        'IPTC:Keywords': ['dog', 'cat', 'bird']
     expected:
-        Keywords: ['chien', 'chat', 'oiseau']
+        Keywords: ['dog', 'cat', 'bird']
 
 multi2mono_template:
     about:
-        title: 'Meta multi-valuée -> attribut multi-valué (méthode "template")'
-        description: 'attention : utilisation erronée de getMetadata(...).value (sans "s")'
+        title: 'Multi-values metadata -> multi-values attribute ("template" method)'
+        description: '__warning__ : __Wrong__ usage of `getMetadata(...).value` (without "s")'
     definitions:
         Keywords:
             isMultiple: true
             initialValues: '{"type": "template", "value": "{{ file.getMetadata(''IPTC:Keywords'').value }}"}'
     metadata:
-        'IPTC:Keywords': ['chien', 'chat', 'oiseau']
+        'IPTC:Keywords': ['dog', 'cat', 'bird']
     expected:
-        Keywords: 'chien ; chat ; oiseau'
+        Keywords: 'dog ; cat ; bird'
 
 multi2multi_template:
     about:
-        title: 'Meta multi-valuée -> attribut multi-valué (méthode "template")'
-        description: 'Utilisation correcte de getMetadata(...).value__s__'
+        title: 'Multi-values metadata -> multi-values attribute ("template" method)'
+        description: 'Good usage of `getMetadata(...).values`'
     definitions:
         Keywords:
             isMultiple: true
             initialValues: '{"type": "template", "value": "{{ file.getMetadata(''IPTC:Keywords'').values | join(''\n'') }}"}'
     metadata:
-        'IPTC:Keywords': ['chien', 'chat', 'oiseau']
+        'IPTC:Keywords': ['dog', 'cat', 'bird']
     expected:
-        Keywords: ['chien', 'chat', 'oiseau']
+        Keywords: ['dog', 'cat', 'bird']
 
 mono_multilingue:
     about:
-        title: 'mono multilingue'
+        title: 'Mono-value multilocale'
     definitions:
         Copyright:
             initialValues:
@@ -97,7 +101,7 @@ mono_multilingue:
 
 multi_multilingue:
     about:
-        title: 'multi multilingue'
+        title: 'Multi-values multilocale'
     definitions:
         Keywords:
             isMultiple: true
