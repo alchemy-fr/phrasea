@@ -6,18 +6,23 @@ namespace App\Documentation;
 
 use Alchemy\RenditionFactory\RenditionBuilderConfigurationDocumentation;
 
-class RenditionBuilderDocumentationGenerator implements DocumentationGeneratorInterface
+class RenditionBuilderDocumentationGenerator extends DocumentationGenerator
 {
     public function __construct(private RenditionBuilderConfigurationDocumentation $renditionBuilderConfigurationDocumentation)
     {
     }
 
-    public static function getName(): string
+    public function getName(): string
+    {
+        return 'rendition_factory';
+    }
+
+    public function getTitle(): string
     {
         return 'Rendition Factory';
     }
 
-    public function generate(): string
+    public function getContent(): string
     {
         return $this->renditionBuilderConfigurationDocumentation->generate();
     }

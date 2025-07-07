@@ -6,14 +6,19 @@ namespace App\Documentation;
 
 use Symfony\Component\Yaml\Yaml;
 
-class InitialValuesDocumentationGenerator implements DocumentationGeneratorInterface
+class InitialValuesDocumentationGenerator extends DocumentationGenerator
 {
-    public static function getName(): string
+    public function getName(): string
+    {
+        return 'initial_attribute_values';
+    }
+
+    public function getTitle(): string
     {
         return 'Initial Attribute Values';
     }
 
-    public function generate(): string
+    public function getContent(): ?string
     {
         $n = 0;
         $output = '';
@@ -26,7 +31,13 @@ class InitialValuesDocumentationGenerator implements DocumentationGeneratorInter
                 $output .= "\n---\n";
             }
 
-            $output .= sprintf("## %s\n", $test['about']['title'] ?? '');
+            $levels = $this->getLevels();
+            $levels[] = $n;
+
+            $output .= sprintf("## %s: %s\n",
+                join('.', $levels),
+                $test['about']['title'] ?? ''
+            );
             if ($description = $test['about']['description'] ?? '') {
                 $output .= sprintf("%s\n", $description);
             }

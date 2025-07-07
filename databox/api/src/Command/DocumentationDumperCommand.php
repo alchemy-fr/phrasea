@@ -11,16 +11,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
-use Symfony\Component\String\Slugger\AsciiSlugger;
 
 #[AsCommand('app:documentation:dump')]
 class DocumentationDumperCommand extends Command
 {
-    /**
-     * @uses InitialValuesDocumentationGenerator
-     * @uses RenditionBuilderDocumentationGenerator
-     */
-
     /** @var array<string, DocumentationGeneratorInterface> */
     private array $chapters = [];
 
@@ -34,11 +28,10 @@ class DocumentationDumperCommand extends Command
     {
         parent::configure();
 
-        $slugger = new AsciiSlugger();
         /** @var DocumentationGeneratorInterface $documentation */
         foreach ($this->documentations as $documentation) {
-            $name = strtolower($slugger->slug($documentation::getName())->toString());
-            if (isset($this->chapters[$documentation::getName()])) {
+            $name = $documentation->getName();
+            if (isset($this->chapters[$name])) {
                 throw new \LogicException(sprintf('Chapter "%s" is already registered.', $name));
             }
             $this->chapters[$name] = $documentation;
@@ -73,7 +66,7 @@ class DocumentationDumperCommand extends Command
             $input->setArgument('chapters', array_keys($this->chapters));
         }
         foreach ($input->getArgument('chapters') as $chapter) {
-            $text = '# '.$this->chapters[$chapter]->getName()."\n".$this->chapters[$chapter]->generate();
+            $text = $this->getAsText($this->chapters[$chapter]);
             if ($outputDir) {
                 $outputFile = rtrim($outputDir, '/').'/'.$chapter.'.md';
                 file_put_contents($outputFile, $text);
@@ -84,5 +77,34 @@ class DocumentationDumperCommand extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    private function getAsText(DocumentationGeneratorInterface $chapter, array $levels = [1]): string
+    {
+        $chapter->setLevels($levels);
+        $text = '';
+        $l = join('.', $levels);
+        if (null !== ($t = $chapter->getTitle())) {
+            $text .= '# '.$l.': '.$t."\n";
+        }
+        if (null !== ($t = $chapter->getHeader())) {
+            $text .= $t."\n";
+        }
+        if (null !== ($t = $chapter->getContent())) {
+            $text .= $t."\n";
+        }
+
+        $n = 1;
+        foreach ($chapter->getChildren() as $child) {
+            $subLevels = $levels;
+            $subLevels[] = $n++;
+            $text .= $this->getAsText($child, $subLevels);
+        }
+
+        if (null !== ($t = $chapter->getFooter())) {
+            $text .= $t."\n";
+        }
+
+        return $text;
     }
 }
