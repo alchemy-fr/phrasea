@@ -97,12 +97,24 @@ final readonly class NovuClient
 
     public function upsertSubscribers(array $subscribers): void
     {
-        foreach (array_chunk($subscribers, 500) as $chunk) {
-            $this->request('POST', '/v1/subscribers/bulk', [
-                'json' => [
-                    'subscribers' => $chunk,
-                ],
-            ]);
+        if (empty($subscribers)) {
+            return;
+        }
+
+        if (count($subscribers) > 10) {
+            foreach (array_chunk($subscribers, 500) as $chunk) {
+                $this->request('POST', '/v1/subscribers/bulk', [
+                    'json' => [
+                        'subscribers' => $chunk,
+                    ],
+                ]);
+            }
+        } else {
+            foreach ($subscribers as $subscriber) {
+                $this->request('POST', '/v1/subscribers', [
+                    'json' => $subscriber,
+                ]);
+            }
         }
     }
 

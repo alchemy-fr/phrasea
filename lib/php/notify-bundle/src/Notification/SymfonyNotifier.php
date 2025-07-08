@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\NotifyBundle\Notification;
 
 use Alchemy\AuthBundle\Repository\UserRepository;
+use Alchemy\NotifyBundle\Message\AddTopicSubscribers;
 use Alchemy\NotifyBundle\Message\UpdateSubscribers;
 use Alchemy\NotifyBundle\Service\NovuClient;
 use Psr\Log\LoggerAwareInterface;
@@ -77,7 +78,7 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
 
     public function addTopicSubscribers(string $topicKey, array $subscribers): void
     {
-        $this->novuClient->addTopicSubscribers($topicKey, $subscribers);
+        $this->bus->dispatch(new AddTopicSubscribers($topicKey, $subscribers));
         $this->bus->dispatch(new UpdateSubscribers($subscribers));
     }
 
