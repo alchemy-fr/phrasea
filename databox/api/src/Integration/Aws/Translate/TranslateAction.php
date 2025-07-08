@@ -39,10 +39,18 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
         $preferredSourceLanguages = $config['preferredSourceLanguages'];
         $translatedLanguages = $config['translatedLanguages'];
 
-        $srcLocales = !empty($preferredSourceLanguages) ? $preferredSourceLanguages : [AttributeInterface::NO_LOCALE];
+        $allEnabledLocales = $asset->getWorkspace()->getEnabledLocales();
+        $lc = array_diff($allEnabledLocales, $preferredSourceLanguages);
+
+        if (!empty($preferredSourceLanguages)) {
+            $srcLocales = $preferredSourceLanguages;
+            $srcLocales = array_merge($srcLocales, $lc, [AttributeInterface::NO_LOCALE]);
+        } else {
+            $srcLocales = [AttributeInterface::NO_LOCALE];
+        }
 
         if (empty($translatedLanguages)) {
-            $translatedLanguages = $asset->getWorkspace()->getEnabledLocales();
+            $translatedLanguages = $allEnabledLocales;
         }
 
         $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
@@ -65,7 +73,7 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
             if ($attrDef->isMultiple()) {
                 foreach ($srcLocales as $locale) {
                     $attributesSources = $attributeIndex->getAttributes($attrDef->getId(), $locale);
-                    $sourceLangage = (AttributeInterface::NO_LOCALE == $locale) ? $defaultSourceLanguage : $locale;
+                    $sourceLangage = AttributeInterface::NO_LOCALE === $locale ? $defaultSourceLanguage : $locale;
                     if (!empty($attributesSources)) {
                         break;
                     }
@@ -100,7 +108,7 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
             } else {
                 foreach ($srcLocales as $locale) {
                     $text = $attributeIndex->getAttribute($attrDef->getId(), $locale)?->getValue();
-                    $sourceLangage = (AttributeInterface::NO_LOCALE == $locale) ? $defaultSourceLanguage : $locale;
+                    $sourceLangage = AttributeInterface::NO_LOCALE === $locale ? $defaultSourceLanguage : $locale;
                     if (!empty($text)) {
                         break;
                     }
