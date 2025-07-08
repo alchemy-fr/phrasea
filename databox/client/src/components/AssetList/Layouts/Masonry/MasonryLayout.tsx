@@ -40,7 +40,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
 }: LayoutProps<Item>) {
     const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
     const {innerWidth, innerHeight} = useWindowSize();
-    const d = useContext(DisplayContext)!;
+    const d = useContext(DisplayContext)!.state;
     const masonryWidth = innerWidth - leftPanelWidth;
     const masonryHeight = innerHeight - toolbarHeight - menuHeight;
     const columnWidth = d.thumbSize;

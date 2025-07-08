@@ -13,7 +13,9 @@ type Props = {
 
 export default function AssetCollectionList({workspace, collections}: Props) {
     const {t} = useTranslation();
-    const {collectionsLimit, displayCollections} = useContext(DisplayContext)!;
+    const {
+        state: {collectionsLimit, displayCollections},
+    } = useContext(DisplayContext)!;
 
     if (!displayCollections) {
         return <></>;

@@ -12,7 +12,7 @@ export type PreviewOptions = {
     displayFile: boolean;
 };
 
-export type TDisplayContext = {
+export type DisplayPreferences = {
     collectionsLimit: number;
     displayAttributes: boolean;
     displayCollections: boolean;
@@ -21,23 +21,17 @@ export type TDisplayContext = {
     displayTags: boolean;
     displayTitle: boolean;
     playVideos: boolean;
-    playing: PlayingContext | undefined;
     previewLocked: boolean;
-    setCollectionsLimit: (limit: number) => void;
-    setPlaying: (context: PlayingContext) => void;
-    setTagsLimit: (limit: number) => void;
-    setThumbSize: (size: number) => void;
-    setTitleRows: (rows: number) => void;
     tagsLimit: number;
     thumbSize: number;
     titleRows: number;
-    toggleDisplayAttributes: VoidFunction;
-    toggleDisplayCollections: VoidFunction;
-    toggleDisplayPreview: VoidFunction;
-    toggleDisplayTags: VoidFunction;
-    toggleDisplayTitle: VoidFunction;
-    togglePlayVideos: VoidFunction;
-    setPreviewOptions: StateSetter<PreviewOptions>;
+};
+
+export type TDisplayContext = {
+    setPlaying: (context: PlayingContext) => void;
+    playing: PlayingContext | undefined;
+    state: DisplayPreferences;
+    setState: StateSetter<DisplayPreferences>;
 };
 
 export const DisplayContext = React.createContext<TDisplayContext | null>(null);

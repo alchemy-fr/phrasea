@@ -22,7 +22,9 @@ export default function PreviewPopover({
     displayAttributes,
     zIndex = ZIndex.assetPreview,
 }: Props) {
-    const {previewLocked, previewOptions} = useContext(DisplayContext)!;
+    const {
+        state: {previewLocked, previewOptions},
+    } = useContext(DisplayContext)!;
     const relativeSize = previewOptions.sizeRatio;
     const width = getRelativeViewWidth(relativeSize);
     const height = getRelativeViewHeight(relativeSize);

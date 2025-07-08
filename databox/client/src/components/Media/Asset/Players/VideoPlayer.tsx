@@ -65,11 +65,12 @@ export default function VideoPlayer({
     const [ratio, setRatio] = useState<number>();
     const type = getFileTypeFromMIMEType(file.type);
     const isAudio = type === FileTypeEnum.Audio;
+    const d = displayContext?.state;
     const dimensions = createStrictDimensions(
-        forcedDimensions ?? {width: displayContext!.thumbSize}
+        forcedDimensions ?? {width: d?.thumbSize ?? 200}
     );
     const videoDimensions = getRatioDimensions(dimensions, ratio);
-    const autoPlay = autoPlayable && displayContext?.playVideos;
+    const autoPlay = autoPlayable && d?.playVideos;
 
     const onPlay = (e: MouseEvent) => {
         if (e.ctrlKey) {
