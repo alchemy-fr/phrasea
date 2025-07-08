@@ -34,6 +34,7 @@ interface NotifierInterface
     public function addTopicSubscribers(
         string $topicKey,
         array $subscribers,
+        bool $direct = false,
     ): void;
 
     public function createTopic(

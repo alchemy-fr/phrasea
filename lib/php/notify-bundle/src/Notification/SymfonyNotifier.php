@@ -6,6 +6,8 @@ namespace Alchemy\NotifyBundle\Notification;
 
 use Alchemy\AuthBundle\Repository\UserRepository;
 use Alchemy\NotifyBundle\Message\AddTopicSubscribers;
+use Alchemy\NotifyBundle\Message\NotifyTopic;
+use Alchemy\NotifyBundle\Message\RemoveTopicSubscribers;
 use Alchemy\NotifyBundle\Message\UpdateSubscribers;
 use Alchemy\NotifyBundle\Service\NovuClient;
 use Psr\Log\LoggerAwareInterface;
@@ -73,12 +75,16 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
         if ($this->notifyAuthor) {
             $authorId = null;
         }
-        $this->novuClient->notifyTopic($topicKey, $authorId, $notificationId, $parameters, $options);
+        $this->bus->dispatch(new NotifyTopic($topicKey, $authorId, $notificationId, $parameters, $options));
     }
 
-    public function addTopicSubscribers(string $topicKey, array $subscribers): void
+    public function addTopicSubscribers(string $topicKey, array $subscribers, bool $direct = false): void
     {
-        $this->bus->dispatch(new AddTopicSubscribers($topicKey, $subscribers));
+        if ($direct) {
+            $this->novuClient->addTopicSubscribers($topicKey, $subscribers);
+        } else {
+            $this->bus->dispatch(new AddTopicSubscribers($topicKey, $subscribers));
+        }
         $this->bus->dispatch(new UpdateSubscribers($subscribers));
     }
 
@@ -89,7 +95,7 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
 
     public function removeTopicSubscribers(string $topicKey, array $subscribers): void
     {
-        $this->novuClient->removeTopicSubscribers($topicKey, $subscribers);
+        $this->bus->dispatch(new RemoveTopicSubscribers($topicKey, $subscribers));
     }
 
     public function getTopicSubscriptions(array $topicKeys, string $userId): array
