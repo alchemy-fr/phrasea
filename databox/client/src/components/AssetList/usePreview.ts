@@ -4,7 +4,7 @@ import {DisplayContext} from '../Media/DisplayContext';
 import {OnPreviewToggle} from './types';
 
 export function usePreview(resettingValues: any[]) {
-    const d = useContext(DisplayContext)!;
+    const d = useContext(DisplayContext)!.state;
     const previewTimer = useRef<ReturnType<typeof setTimeout>>();
     const [previewAnchorEl, setPreviewAnchorEl] = React.useState<null | {
         asset: Asset;
