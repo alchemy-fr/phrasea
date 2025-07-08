@@ -60,16 +60,17 @@ export default function VideoPlayer({
 }: Props) {
     const [progress, setProgress] = useState<Progress>();
     const [duration, setDuration] = useState<number>();
-    const {state: d, setPlaying} = useContext(DisplayContext)!;
+    const displayContext = useContext(DisplayContext);
     const [play, setPlay] = useState(false);
     const [ratio, setRatio] = useState<number>();
     const type = getFileTypeFromMIMEType(file.type);
     const isAudio = type === FileTypeEnum.Audio;
+    const d = displayContext?.state;
     const dimensions = createStrictDimensions(
-        forcedDimensions ?? {width: d.thumbSize}
+        forcedDimensions ?? {width: d?.thumbSize ?? 200}
     );
     const videoDimensions = getRatioDimensions(dimensions, ratio);
-    const autoPlay = autoPlayable && d.playVideos;
+    const autoPlay = autoPlayable && d?.playVideos;
 
     const onPlay = (e: MouseEvent) => {
         if (e.ctrlKey) {
@@ -77,7 +78,7 @@ export default function VideoPlayer({
         }
         e.stopPropagation();
         setPlay(p => {
-            setPlaying({
+            displayContext?.setPlaying({
                 stop: !p ? () => setPlay(false) : () => {},
             });
 
