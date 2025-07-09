@@ -64,6 +64,12 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
 
     public function testSearchOwnedAssetsAsOwner(): void
     {
+        $this->grantUserOnObject(
+            KeycloakClientTestMock::USER_UID,
+            $this->getOrCreateDefaultWorkspace(),
+            PermissionInterface::VIEW
+        );
+
         $asset = $this->createAsset([
             'title' => 'Foo',
             'ownerId' => KeycloakClientTestMock::USER_UID,
@@ -104,6 +110,11 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
 
     public function testSearchAssetsFromOwnedCollectionAsOwner(): void
     {
+        $this->grantUserOnObject(
+            KeycloakClientTestMock::USER_UID,
+            $this->getOrCreateDefaultWorkspace(),
+            PermissionInterface::VIEW
+        );
         $collection = $this->createCollection([
             'ownerId' => KeycloakClientTestMock::USER_UID,
         ]);
@@ -150,6 +161,11 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
 
     public function testSearchAssetsWithACEOnAsset(): void
     {
+        $this->grantUserOnObject(
+            KeycloakClientTestMock::USER_UID,
+            $this->getOrCreateDefaultWorkspace(),
+            PermissionInterface::VIEW
+        );
         $collection = $this->createCollection([
             'ownerId' => 'another_owner',
         ]);
@@ -180,6 +196,11 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
 
     public function testSearchAssetsWithACEOnAllAssets(): void
     {
+        $this->grantUserOnObject(
+            KeycloakClientTestMock::USER_UID,
+            $this->getOrCreateDefaultWorkspace(),
+            PermissionInterface::VIEW
+        );
         $collection = $this->createCollection([
             'ownerId' => 'another_owner',
         ]);
@@ -223,6 +244,12 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
 
         $this->grantUserOnObject(
             KeycloakClientTestMock::USER_UID,
+            $collection->getWorkspace(),
+            PermissionInterface::VIEW
+        );
+
+        $this->grantUserOnObject(
+            KeycloakClientTestMock::USER_UID,
             $collection,
             PermissionInterface::VIEW
         );
@@ -243,6 +270,11 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
 
     public function testSearchAssetsWithACEOnAllCollections(): void
     {
+        $this->grantUserOnObject(
+            KeycloakClientTestMock::USER_UID,
+            $this->getOrCreateDefaultWorkspace(),
+            PermissionInterface::VIEW
+        );
         $collection = $this->createCollection([
             'ownerId' => 'another_owner',
         ]);

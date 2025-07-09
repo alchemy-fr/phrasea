@@ -43,20 +43,25 @@ class CollectionVoter extends AbstractVoter
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
+        $isWorkspaceAllowed = fn (): bool => $this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace());
 
         $workspace = $subject->getWorkspace();
 
         return match ($attribute) {
             self::CREATE => $this->hasScope($token, $attribute)
-                || ($subject->getParent() ? $this->security->isGranted(AbstractVoter::EDIT, $subject->getParent())
-                : $this->security->isGranted(AbstractVoter::EDIT, $workspace)),
+                || ($isWorkspaceAllowed() && ($subject->getParent() ? $this->security->isGranted(AbstractVoter::EDIT, $subject->getParent())
+                : $this->security->isGranted(AbstractVoter::EDIT, $workspace))),
             self::LIST => $isOwner()
-                || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
-                || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
+                || ($isWorkspaceAllowed()
+                    && ($subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
+                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
+                    )
                 || $this->hasScope($token, self::READ)
-                || ($this->security->isGranted(AbstractVoter::READ, $workspace) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
-                || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
-                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
+                || ($isWorkspaceAllowed()
+                        && ($subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
+                        || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
+                        || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent()))
+                )),
             self::READ => $isOwner()
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                 || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
