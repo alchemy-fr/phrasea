@@ -39,6 +39,14 @@ class AssetVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
+        if ($this->hasScope($token, $attribute)) {
+            return true;
+        }
+
+        if (!$this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace())) {
+            return false;
+        }
+
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
@@ -54,7 +62,6 @@ class AssetVoter extends AbstractVoter
                 return $isOwner()
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
-                    || $this->hasScope($token, $attribute)
                     || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
                     || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                     || $this->collectionGrantsAccess($subject)
@@ -62,27 +69,22 @@ class AssetVoter extends AbstractVoter
             case self::EDIT_RENDITIONS:
             case self::EDIT:
                 return $isOwner()
-                    || $this->hasScope($token, $attribute)
                     || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
                     || $this->voteOnContainer($subject, AbstractVoter::OPERATOR);
             case self::EDIT_ATTRIBUTES:
                 return $isOwner()
-                    || $this->hasScope($token, $attribute)
                     || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
                     || $this->voteOnContainer($subject, AbstractVoter::EDIT);
             case self::SHARE:
                 return $isOwner()
-                    || $this->hasScope($token, $attribute)
                     || $this->hasAcl(PermissionInterface::SHARE, $subject, $token)
                     || $this->voteOnContainer($subject, AbstractVoter::EDIT);
             case self::DELETE:
                 return $isOwner()
-                    || $this->hasScope($token, $attribute)
                     || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
                     || $this->voteOnContainer($subject, AbstractVoter::DELETE);
             case self::EDIT_PERMISSIONS:
                 return $isOwner()
-                    || $this->hasScope($token, $attribute)
                     || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                     || $this->voteOnContainer($subject, AbstractVoter::OWNER);
         }
