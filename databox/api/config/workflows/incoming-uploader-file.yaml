@@ -11,6 +11,10 @@ on:
                 required: true
             token:
                 required: true
+            workspaceId:
+                required: false
+            collectionId:
+                required: false
 
 jobs:
     border:

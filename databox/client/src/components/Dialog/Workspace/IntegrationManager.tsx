@@ -1,10 +1,12 @@
 import {IntegrationType, Workspace, WorkspaceIntegration} from '../../../types';
 import {
+    Alert,
     Button,
     FormGroup,
     FormHelperText,
     FormLabel,
     ListItemText,
+    MenuList,
     TextField,
     Typography,
 } from '@mui/material';
@@ -29,6 +31,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LastErrorsList from './LastErrorsList.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import WorkspaceIntegrationSelect from '../../Form/WorkspaceIntegrationSelect.tsx';
+import InfoRow from '../Info/InfoRow.tsx';
 
 function Item({
     usedFormSubmit,
@@ -91,6 +94,28 @@ function Item({
                 />
                 <FormFieldErrors field={'title'} errors={errors} />
             </FormRow>
+
+            {data.configInfo && data.configInfo.length > 0 && (
+                <Alert severity={'info'}>
+                    <Typography variant={'body1'}>
+                        {t(
+                            'form.integration.config_info.title',
+                            'Integration Keys'
+                        )}
+                    </Typography>
+                    <MenuList>
+                        {data.configInfo.map(configKey => (
+                            <InfoRow
+                                key={configKey.label}
+                                label={configKey.label}
+                                value={configKey.value}
+                                copyValue={configKey.value}
+                                description={configKey.description}
+                            />
+                        ))}
+                    </MenuList>
+                </Alert>
+            )}
 
             <FormRow>
                 <CheckboxWidget

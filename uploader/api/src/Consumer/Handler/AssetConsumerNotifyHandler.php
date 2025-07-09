@@ -14,6 +14,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 #[AsMessageHandler]
 final readonly class AssetConsumerNotifyHandler
 {
+    final public const string DEFAULT_AUTHORIZATION_SCHEME = 'ApiKey';
+
     public function __construct(
         private HttpClientInterface $client,
         private EntityManagerInterface $em,
@@ -26,9 +28,9 @@ final readonly class AssetConsumerNotifyHandler
         $id = $message->getId();
         $commit = DoctrineUtil::findStrict($this->em, Commit::class, $id);
         $target = $commit->getTarget();
-        $accessToken = $target->getTargetAccessToken();
+        $authorizationKey = $target->getAuthorizationKey();
 
-        if (empty($target->getTargetUrl()) || 'avoid' === $accessToken) {
+        if (empty($target->getTargetUrl()) || 'avoid' === $authorizationKey) {
             return;
         }
 
@@ -47,7 +49,7 @@ final readonly class AssetConsumerNotifyHandler
 
         $this->client->request('POST', $target->getTargetUrl(), [
             'headers' => [
-                'Authorization' => ($target->getTargetTokenType() ?? 'Bearer').' '.$accessToken,
+                'Authorization' => ($target->getAuthorizationScheme() ?? self::DEFAULT_AUTHORIZATION_SCHEME).' '.$authorizationKey,
             ],
             'json' => $arr,
         ])->getContent();

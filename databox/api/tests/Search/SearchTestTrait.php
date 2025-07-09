@@ -20,7 +20,7 @@ trait SearchTestTrait
 
     protected static function bootSearch(KernelInterface $kernel): void
     {
-        $container = static::getContainer() ?? static::$kernel->getContainer();
+        $container = static::getContainer() ?? $kernel->getContainer();
 
         $indexes = [
             'asset',

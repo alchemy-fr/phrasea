@@ -6,6 +6,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\GroupChoiceField;
 use Alchemy\AdminBundle\Field\IdField;
+use App\Consumer\Handler\AssetConsumerNotifyHandler;
 use App\Entity\Target;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
@@ -29,7 +30,7 @@ class TargetCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('Target')
             ->setEntityLabelInPlural('Target')
             ->setDefaultSort(['createdAt' => 'DESC'])
-            ->setSearchFields(['id', 'slug', 'name', 'description', 'targetUrl', 'defaultDestination', 'targetAccessToken', 'targetTokenType', 'allowedGroups']);
+            ->setSearchFields(['id', 'slug', 'name', 'description', 'targetUrl', 'defaultDestination', 'authorizationKey', 'authorizationScheme', 'allowedGroups']);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -52,11 +53,11 @@ class TargetCrudController extends AbstractAdminCrudController
             ->onlyOnIndex();
         yield TextField::new('targetUrl')
             ->setHelp('Leave empty for pull mode. i.e: "https://phraseanet.phrasea.local/api/v1/upload/enqueue/" for Phraseanet, "http://api-databox.phrasea.local/incoming-uploads" for Databox upload');
-        yield TextField::new('targetTokenType')
+        yield TextField::new('authorizationScheme')
             ->setHelp('Use "OAuth" for Phraseanet')
-            ->setFormTypeOptions(['attr' => ['placeholder' => 'Defaults to "Bearer"']])
+            ->setFormTypeOptions(['attr' => ['placeholder' => 'Defaults to "'.AssetConsumerNotifyHandler::DEFAULT_AUTHORIZATION_SCHEME.'"']])
             ->onlyOnForms();
-        yield TextField::new('targetAccessToken');
+        yield TextField::new('authorizationKey');
         yield TextField::new('defaultDestination')
             ->setHelp('i.e: "42" (for Phraseanet collection), "cdc3679f-3f37-4260-8de7-b649ecc8c1cc" (for Databox collection)')
             ->hideOnIndex();
