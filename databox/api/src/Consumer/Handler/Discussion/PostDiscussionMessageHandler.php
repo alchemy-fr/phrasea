@@ -39,9 +39,7 @@ readonly class PostDiscussionMessageHandler
             return;
         }
 
-        $notificationOptions = [
-            'transactionId' => $message->getId(),
-        ];
+        $notificationOptions = [];
 
         $object = $this->discussionManager->getThreadObject($message->getThread());
         $authorId = $message->getAuthorId();
@@ -88,7 +86,7 @@ readonly class PostDiscussionMessageHandler
         foreach ($mentions as $userId => $username) {
             $newSubscribers[] = $userId;
         }
-        $this->notifier->addTopicSubscribers($topicKey, array_unique($newSubscribers));
+        $this->notifier->addTopicSubscribers($topicKey, array_unique($newSubscribers), direct: true);
 
         $this->notifier->notifyTopic($topicKey, $authorId, $notificationId, $params, $notificationOptions);
     }

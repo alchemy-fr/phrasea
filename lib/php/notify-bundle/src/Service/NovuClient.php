@@ -3,6 +3,7 @@
 namespace Alchemy\NotifyBundle\Service;
 
 use Alchemy\CoreBundle\Listener\ClientExceptionListener;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -18,6 +19,7 @@ final readonly class NovuClient
         #[Autowire(service: 'novu.client')]
         HttpClientInterface $client,
         private ClientExceptionListener $clientExceptionListener,
+        private LoggerInterface $logger,
     ) {
         $this->client = $client->withOptions([
             'headers' => [
@@ -33,6 +35,12 @@ final readonly class NovuClient
         array $parameters = [],
         array $options = [],
     ): void {
+        $this->logger->info(sprintf('Sending notification to topic "%s"', $topicKey), [
+            'notificationId' => $notificationId,
+            'parameters' => $parameters,
+            'authorId' => $authorId,
+        ]);
+
         $data = [
             'name' => $notificationId,
             'to' => [
@@ -88,6 +96,10 @@ final readonly class NovuClient
 
     public function addTopicSubscribers(string $topicKey, array $subscribers): void
     {
+        $this->logger->info(sprintf('Add subscribers to topic "%s"', $topicKey), [
+            'subscribers' => $subscribers,
+        ]);
+
         $this->request('POST', sprintf('/v1/topics/%s/subscribers', $topicKey), [
             'json' => [
                 'subscribers' => $subscribers,
@@ -120,6 +132,8 @@ final readonly class NovuClient
 
     public function createTopic(string $topicKey): void
     {
+        $this->logger->info(sprintf('Creating topic "%s"', $topicKey));
+
         $this->request('POST', '/v1/topics', [
             'json' => [
                 'key' => $topicKey,
@@ -130,6 +144,10 @@ final readonly class NovuClient
 
     public function removeTopicSubscribers(string $topicKey, array $subscribers): void
     {
+        $this->logger->info(sprintf('Removing subscribers from topic "%s"', $topicKey), [
+            'subscribers' => $subscribers,
+        ]);
+
         $this->request('POST', sprintf('/v1/topics/%s/subscribers/removal', $topicKey), [
             'json' => [
                 'subscribers' => $subscribers,
