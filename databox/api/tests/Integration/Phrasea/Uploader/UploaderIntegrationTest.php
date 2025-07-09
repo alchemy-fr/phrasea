@@ -5,12 +5,16 @@ namespace App\Tests\Integration\Phrasea\Uploader;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use App\Border\UploaderClient;
+use App\Border\UploaderClientMock;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Phrasea\Uploader\UploaderIntegration;
+use App\Repository\Core\AssetRepository;
 use App\Tests\FileUploadTrait;
 use App\Tests\Rendition\Phraseanet\PhraseanetApiClientFactoryMock;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class UploaderIntegrationTest extends ApiTestCase
 {
@@ -23,8 +27,6 @@ class UploaderIntegrationTest extends ApiTestCase
         self::enableFixtures();
         $apiClient = static::createClient();
 
-        $queueName = 'p2';
-        $inMemoryTransport = $this->interceptMessengerEvents($queueName);
         $em = self::getService(EntityManagerInterface::class);
         /** @var PhraseanetApiClientFactoryMock $clientFactory */
 
@@ -65,5 +67,22 @@ class UploaderIntegrationTest extends ApiTestCase
             'json' => $payload,
         ]);
         $this->assertEquals(200, $response->getStatusCode());
+
+        $em->clear();
+        $assetRepo = $this->getService(AssetRepository::class);
+        $asset = $assetRepo->findOneBy([
+            'title' => 'test_file.txt',
+        ]);
+        $this->assertNotNull($asset);
+        $this->assertEquals('test_file.txt', $asset->getTitle());
+
+        /** @var UploaderClientMock $uploadClient */
+        $uploadClient = $this->getService(UploaderClient::class);
+        $this->assertCount(1, $uploadClient->getAcknowledgedAssets());
+    }
+
+    protected static function bootKernel(array $options = []): KernelInterface
+    {
+        return static::bootKernelWithFixtures($options);
     }
 }
