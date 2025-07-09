@@ -28,16 +28,16 @@ class UploaderIntegration extends AbstractIntegration
             ->scalarNode('collectionId')
                 ->info('The collection target')
             ->end()
-            ->scalarNode('securityToken')
+            ->scalarNode('securityKey')
                 ->cannotBeEmpty()
-                ->info('The security token to authenticate Uploader requests')
+                ->info('The security key to authenticate Uploader requests')
             ->end()
         ;
     }
 
     public function generateConfigurationDefaults(array $userConfig): array
     {
-        $userConfig['securityToken'] ??= bin2hex(random_bytes(32));
+        $userConfig['securityKey'] ??= bin2hex(random_bytes(32));
 
         return $userConfig;
     }
@@ -60,9 +60,14 @@ class UploaderIntegration extends AbstractIntegration
                 ], UrlGeneratorInterface::ABSOLUTE_URL),
             ],
             [
-                'label' => 'Security Token',
-                'description' => 'The security token to set in the Uploader Target configuration to authenticate requests.',
-                'value' => $config['securityToken'] ?? 'Not set',
+                'label' => 'Authorization Scheme',
+                'description' => 'Use this Authorization header scheme to authenticate requests from Uploader.',
+                'value' => 'ApiKey',
+            ],
+            [
+                'label' => 'Security Key',
+                'description' => 'The security key to set in the Uploader Target configuration to authenticate requests.',
+                'value' => $config['securityKey'] ?? 'Not set',
             ],
         ];
     }
