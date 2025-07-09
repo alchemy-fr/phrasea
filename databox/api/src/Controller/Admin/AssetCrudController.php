@@ -19,6 +19,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -134,6 +135,8 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield TextField::new('pendingUploadToken')
             ->onlyOnDetail();
         yield JsonField::new('notificationSettings')
+            ->hideOnIndex();
+        yield BooleanField::new('autoSubscribeOwner')
             ->hideOnIndex();
     }
 }

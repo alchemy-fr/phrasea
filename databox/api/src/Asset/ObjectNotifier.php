@@ -42,9 +42,10 @@ final readonly class ObjectNotifier
                 }
 
                 if ($object->isAutoSubscribeOwner() && $object->getOwnerId()) {
-                    $this->notifier->addTopicSubscribers($topicKey, [$object->getOwnerId()]);
+                    $this->notifier->addTopicSubscribers($topicKey, [$object->getOwnerId()], direct: true);
                     $shouldNotify = true;
                 } else {
+                    $this->notifier->createTopic($topicKey);
                     $shouldNotify = false;
                 }
 

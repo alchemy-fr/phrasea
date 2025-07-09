@@ -33,6 +33,7 @@ use App\Entity\Core\Share;
 use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
+use App\Entity\Discussion\Thread;
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\IntegrationToken;
 use App\Entity\Integration\WorkspaceEnv;
@@ -129,6 +130,10 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Job State', '', JobState::class),
         ];
 
+        $discussions = [
+            MenuItem::linkToCrud('Threads', '', Thread::class),
+        ];
+
         yield MenuItem::subMenu('Permission', 'fas fa-lock')->setSubItems($submenu1);
         yield MenuItem::subMenu('Core', 'fas fa-database')->setSubItems($submenu2);
         yield MenuItem::subMenu('Basket', 'fas fa-basket-shopping')->setSubItems($basket);
@@ -138,6 +143,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Integration', 'fas fa-gear')->setSubItems($submenu4);
         yield MenuItem::subMenu('Workflow', 'fas fa-gears')->setSubItems($workflows);
         yield MenuItem::subMenu('Webhook', 'fas fa-network-wired')->setSubItems($webhookSubMenu);
+        yield MenuItem::subMenu('Discussions', 'fas fa-message')->setSubItems($discussions);
         yield MenuItem::linkToRoute('Notification', 'fas fa-bell', 'alchemy_notify_admin_index');
         yield MenuItem::linkToCrud('Global Config', 'fa fa-gear', ConfiguratorEntry::class);
         yield $this->createDevMenu();

@@ -28,7 +28,6 @@ declare global {
                 SOKETI_USAGE_URL: string;
                 NOVU_DASHBOARD_URL: string;
                 NOVU_BRIDGE_URL: string;
-                NOVU_STUDIO_URL: string;
             };
         } & WindowConfig;
     }

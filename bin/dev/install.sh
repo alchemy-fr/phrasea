@@ -2,6 +2,8 @@
 
 . bin/vars.sh
 
+(cd novu/bridge && pnpm install)
+
 pnpm install
 
 bin/dev/sf-all.sh composer install

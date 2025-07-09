@@ -52,7 +52,7 @@ final class MockNotifier implements NotifierInterface
         ];
     }
 
-    public function addTopicSubscribers(string $topicKey, array $subscribers): void
+    public function addTopicSubscribers(string $topicKey, array $subscribers, bool $direct = false): void
     {
     }
 
