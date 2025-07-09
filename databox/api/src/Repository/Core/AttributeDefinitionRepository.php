@@ -70,6 +70,21 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
         return $queryBuilder;
     }
 
+    public function getAttributeDefinitionBySlug(string $workspaceId, string $slug): ?AttributeDefinition
+    {
+        return $this->findOneBy([
+            'slug' => $slug,
+            'workspace' => $workspaceId,
+        ]);
+    }
+
+    public function getAttributeDefinitions(string $workspaceId): iterable
+    {
+        return $this->findBy([
+            'workspace' => $workspaceId,
+        ]);
+    }
+
     /**
      * @return AttributeDefinition[]
      */

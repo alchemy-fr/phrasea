@@ -17,6 +17,7 @@ use App\Consumer\Handler\Search\IndexAssetAttributes;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AssetVoter;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
@@ -42,11 +43,11 @@ class BatchAttributeManager
         private readonly AttributeAssigner $attributeAssigner,
         private readonly Security $security,
         private readonly PostFlushStack $postFlushStack,
-        private readonly AttributeManager $attributeManager,
         private readonly DeferredIndexListener $deferredIndexListener,
         private readonly AttributeTypeRegistry $typeRegistry,
         private readonly ValidatorInterface $validator,
         private readonly TranslatorInterface $translator,
+        private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
     ) {
     }
 
@@ -421,7 +422,7 @@ class BatchAttributeManager
 
     private function getAttributeDefinitionBySlug(string $workspaceId, string $slug): AttributeDefinition
     {
-        return $this->attributeManager->getAttributeDefinitionBySlug($workspaceId, $slug)
+        return $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($workspaceId, $slug)
             ?? throw new BadRequestHttpException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $slug, $workspaceId));
     }
 

@@ -8,12 +8,12 @@ use Alchemy\Workflow\Executor\RunContext;
 use App\Asset\Attribute\AttributesResolver;
 use App\Asset\FileFetcher;
 use App\Attribute\AttributeInterface;
-use App\Attribute\AttributeManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Image\ImageManagerFactory;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
+use App\Repository\Core\AttributeDefinitionRepository;
 use App\Storage\FileManager;
 use App\Storage\RenditionManager;
 use Intervention\Image\Imagick\Font;
@@ -25,7 +25,7 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
         private readonly AttributesResolver $attributesResolver,
         private readonly ImageManagerFactory $imageManagerFactory,
         private readonly RenditionManager $renditionManager,
-        private readonly AttributeManager $attributeManager,
+        private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly FileManager $fileManager,
     ) {
     }
@@ -39,7 +39,7 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
         $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
         $attrName = $config['attributeName'];
 
-        $attrDef = $this->attributeManager->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $attrName)
+        $attrDef = $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $attrName)
             ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $attrName, $asset->getWorkspaceId()));
 
         $text = $attributeIndex->getAttribute($attrDef->getId(), AttributeInterface::NO_LOCALE)?->getValue();
