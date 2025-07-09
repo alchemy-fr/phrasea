@@ -7,9 +7,18 @@
     ],
     "homepage": "https://www.alchemy.fr/",
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../auth-bundle",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
     "require": {
         "php": "^8.3",
-        "alchemy/auth-bundle": "*",
+        "alchemy/auth-bundle": "@dev",
         "symfony/notifier": "^6.4.13",
         "symfony/framework-bundle": "^6.4"
     },

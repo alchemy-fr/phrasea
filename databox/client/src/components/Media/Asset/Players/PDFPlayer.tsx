@@ -27,9 +27,10 @@ export default function PDFPlayer({
     const [ratio, setRatio] = useState<number>();
     const [numPages, setNumPages] = useState<number>();
     const [pageNumber, setPageNumber] = useState<number>(1);
-    const d = useContext(DisplayContext)!.state;
+    const displayContext = useContext(DisplayContext);
+    const d = displayContext?.state;
     const dimensions = createStrictDimensions(
-        forcedDimensions ?? {width: d.thumbSize}
+        forcedDimensions ?? {width: d?.thumbSize ?? 200}
     );
     const pdfDimensions = getRatioDimensions(dimensions, ratio);
     const onDocLoad = useCallback(
