@@ -7,7 +7,6 @@ namespace App\Integration\Aws\Rekognition;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Asset\FileFetcher;
-use App\Attribute\AttributeManager;
 use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
@@ -16,6 +15,7 @@ use App\Entity\Traits\AssetAnnotationsInterface;
 use App\Integration\ApiBudgetLimiter;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationDataManager;
+use App\Repository\Core\AttributeDefinitionRepository;
 
 final readonly class RekognitionAnalyzer
 {
@@ -25,7 +25,7 @@ final readonly class RekognitionAnalyzer
         private FileFetcher $fileFetcher,
         private ApiBudgetLimiter $apiBudgetLimiter,
         private BatchAttributeManager $batchAttributeManager,
-        private AttributeManager $attributeManager,
+        private AttributeDefinitionRepository $attributeDefinitionRepository,
     ) {
     }
 
@@ -88,7 +88,7 @@ final readonly class RekognitionAnalyzer
     protected function saveTextsToAttributes(string $category, Asset $asset, array $texts, array $attributes): void
     {
         foreach ($attributes as $attrConfig) {
-            $attrDef = $this->attributeManager
+            $attrDef = $this->attributeDefinitionRepository
                 ->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $attrConfig['name'])
                     ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $attrConfig['name'], $asset->getWorkspaceId()));
 
