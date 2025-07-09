@@ -43,10 +43,6 @@ class AssetVoter extends AbstractVoter
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
-        if (!$this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace())) {
-            return false;
-        }
-
         switch ($attribute) {
             case self::CREATE:
                 if (null !== $collection = $subject->getReferenceCollection()) {
