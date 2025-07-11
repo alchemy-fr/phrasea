@@ -46,7 +46,7 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
             $srcLocales = $preferredSourceLanguages;
             $srcLocales = array_merge($srcLocales, $lc, [AttributeInterface::NO_LOCALE]);
         } else {
-            $srcLocales = [AttributeInterface::NO_LOCALE];
+            $srcLocales = array_merge($allEnabledLocales, [AttributeInterface::NO_LOCALE]);
         }
 
         if (empty($translatedLanguages)) {
@@ -145,11 +145,6 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
 
             foreach ($toTranslate['destinationLanguages'] as $destinationLanguage) {
                 $result = $client->translateText([
-                    'Settings' => [
-                        'Brevity' => 'ON',
-                        'Formality' => 'FORMAL',
-                        'Profanity' => 'MASK',
-                    ],
                     'SourceLanguageCode' => $toTranslate['sourceLanguage'],
                     'TargetLanguageCode' => $destinationLanguage,
                     'Text' => $toTranslate['text'],
