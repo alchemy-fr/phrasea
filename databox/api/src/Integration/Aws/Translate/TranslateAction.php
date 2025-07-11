@@ -145,10 +145,6 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
 
             foreach ($toTranslate['destinationLanguages'] as $destinationLanguage) {
                 $result = $client->translateText([
-                    'Settings' => [
-                        'Formality' => 'INFORMAL',
-                        'Profanity' => 'MASK',
-                    ],
                     'SourceLanguageCode' => $toTranslate['sourceLanguage'],
                     'TargetLanguageCode' => $destinationLanguage,
                     'Text' => $toTranslate['text'],
