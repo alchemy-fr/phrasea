@@ -394,10 +394,6 @@ services:
       - db
     image: rabbitmq:3.7.14-management
     hostname: rabbitmq
-    deploy:
-      resources:
-        limits:
-          cpus: '0.01'
     networks:
       - internal
     environment:
