@@ -17,6 +17,7 @@ use App\Integration\IntegrationContext;
 use App\Integration\UserActionsIntegrationInterface;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
+use App\Notification\EntityDisableNotifyableException;
 use App\Storage\RenditionManager;
 use App\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -189,8 +190,12 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
         }
 
         if ($neededIntegrationConfig->getIntegration() instanceof RenditionIntegration) {
-            $renditionDefinition = $this->renditionManager
-                ->getRenditionDefinitionByName($neededIntegrationConfig->getWorkspaceId(), $rendition);
+            try {
+                $renditionDefinition = $this->renditionManager
+                    ->getRenditionDefinitionByName($neededIntegrationConfig->getWorkspaceId(), $rendition);
+            } catch (\InvalidArgumentException $e) {
+                throw new EntityDisableNotifyableException($config->getWorkspaceIntegration(), sprintf('Rendition "%s" not found', $rendition), sprintf('Rendition "%s" not found in workspace "%s"', $rendition, $neededIntegrationConfig->getWorkspaceIntegration()->getWorkspace()->getName()), $e->getCode(), $e);
+            }
 
             return [
                 RenditionIntegration::getJobId(

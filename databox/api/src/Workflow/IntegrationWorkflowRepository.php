@@ -13,7 +13,10 @@ use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\FilterNeedIntegrationInterface;
 use App\Integration\IntegrationManager;
 use App\Integration\WorkflowIntegrationInterface;
+use App\Notification\ExceptionNotifier;
+use App\Notification\UserNotifyableException;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 final readonly class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
 {
@@ -30,6 +33,8 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
         private EntityManagerInterface $em,
         private IntegrationManager $integrationManager,
         private WorkflowRepositoryInterface $decorated,
+        private ExceptionNotifier $exceptionNotifier,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -126,7 +131,20 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
 
                     $neededJobs = null;
                     if ($integration instanceof FilterNeedIntegrationInterface && null !== $neededConfig) {
-                        $neededJobs = $integration->getNeededJobs($config, $neededConfig, $job);
+                        try {
+                            $neededJobs = $integration->getNeededJobs($config, $neededConfig, $job);
+                        } catch (UserNotifyableException $e) {
+                            $this->exceptionNotifier->notifyException($e);
+                        } catch (\Exception $e) {
+                            $this->logger->alert(
+                                sprintf('Error while getting needed jobs for integration "%"',
+                                    $workspaceIntegration->getWorkspaceId()
+                                ),
+                                [
+                                    'exception' => $e,
+                                ]
+                            );
+                        }
                     }
 
                     foreach ($jobMap[$workspaceIntegration->getId()] as $j) {
