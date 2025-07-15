@@ -33,8 +33,8 @@ export default function ZoomControls({
 
     useEffect(() => {
         if (autoCenter && centerView && !wasReset.current) {
-            fitContentToWrapper((scale: number) => {
-                if (!allowUpscale && scale > 1) {
+            fitContentToWrapper((scale: number | undefined) => {
+                if (!scale || (!allowUpscale && scale > 1)) {
                     return;
                 }
 
