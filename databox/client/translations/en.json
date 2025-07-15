@@ -1,4 +1,7 @@
 {
+  "Already <1>bold</1>.": "Already <1>bold</1>.",
+  "Already translated": "Already translated",
+  "Tags to <1>exclude</1>": "Tags to <1>exclude</1>",
   "acl": {
     "delete": "Delete",
     "form": {
@@ -62,7 +65,9 @@
         "title": "Confirm delete"
       },
       "confirm_message_one": "Are you sure you want to delete {{count}} assets?",
-      "confirm_message_other": "Are you sure you want to delete {{count}} assets?"
+      "confirm_message_other": "Are you sure you want to delete {{count}} assets?",
+      "hard_delete": "Delete asset permanently",
+      "remove_from_collection": "Remove from collection <strong>{{name}}</strong>"
     },
     "es_document": {
       "sync_now": "Sync Now"
@@ -148,6 +153,8 @@
   },
   "asset_collections": {
     "other_collections": "It also appears as shortcut in the following collections:",
+    "reference_collection": "This asset belongs to the collection <strong>{{collection}}</strong> in the workspace <i>{{workspace}}</i>.",
+    "reference_workspace": "This asset belongs to the workspace <strong>{{workspace}}</strong> root collection.",
     "remove_shortcut": "Remove shortcut",
     "remove_shortcut_confirm": "Are you sure you want to remove this shortcut?",
     "title": "Collections"
@@ -172,6 +179,9 @@
   "asset_version_delete": {
     "confirm": "Are you sure you want to delete this version?",
     "confirmed": "Version has been deleted!"
+  },
+  "asset_view": {
+    "edit_asset": "Asset <strong>{{name}}</strong>"
   },
   "attribute": {
     "editor": {
@@ -615,7 +625,8 @@
     },
     "group": "Group",
     "include": {
-      "helper": "Assets in this {{type}} will only be visible if they contains theses tags."
+      "helper": "Assets in this {{type}} will only be visible if they contains theses tags.",
+      "label": "Tags to <1>include</1>"
     },
     "or": "or",
     "rule_applies_for": "Rule applies for:",
@@ -928,12 +939,14 @@
       "fallback_locales": {
         "add": "Add fallback locale",
         "label": "Locale",
+        "remove": "Remove <1>this locale</1>",
         "title": "Fallbacks locales"
       },
       "locales": {
         "add": "Add locale",
         "label": "Locale",
         "placeholder": "e.g. fr or fr-FR",
+        "remove": "Remove <1>this locale</1>",
         "title": "Workspace locales"
       },
       "public": {
