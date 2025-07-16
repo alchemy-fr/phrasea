@@ -35,14 +35,18 @@ final class CreateAssetAction extends AbstractController
             $target = $this->em->getRepository(Target::class)->findOneBy([
                 'slug' => $targetSlug,
             ]);
+
+            if (!$target instanceof Target) {
+                throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetSlug));
+            }
         } elseif (!empty($targetId = $request->request->get('targetId'))) {
             $target = $this->em->find(Target::class, $targetId);
+
+            if (!$target instanceof Target) {
+                throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetId));
+            }
         } else {
             throw new BadRequestHttpException('"targetId" or "targetSlug" is required');
-        }
-
-        if (!$target instanceof Target) {
-            throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetId));
         }
 
         if ($request->request->all('multipart')) {

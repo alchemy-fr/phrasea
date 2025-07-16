@@ -1,10 +1,12 @@
 import {create} from 'zustand';
 import {Asset} from '../types';
+import {getAsset} from '../api/asset.ts';
 
 type State = {
     assets: Record<string, Asset>;
     update: (asset: Asset) => void;
     delete: (id: string) => void;
+    loadAsset: (id: string) => Promise<void>;
     setAssets: (assets: Asset[]) => void;
 };
 
@@ -14,6 +16,15 @@ export const useAssetStore = create<State>(set => ({
         set(state => {
             const assets = {...state.assets};
             delete assets[id];
+
+            return {assets};
+        });
+    },
+    loadAsset: async (id: string) => {
+        const asset = await getAsset(id);
+        set(state => {
+            const assets = {...state.assets};
+            assets[asset.id] = asset;
 
             return {assets};
         });

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use Alchemy\CoreBundle\Pusher\PusherManager;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
@@ -27,7 +26,6 @@ class PostMessageProcessor implements ProcessorInterface
         private readonly EntityManagerInterface $em,
         private readonly MessageBusInterface $bus,
         private readonly ThreadRepository $threadRepository,
-        private readonly PusherManager $pusherManager,
         private readonly DiscussionPusher $discussionPusher,
     ) {
     }

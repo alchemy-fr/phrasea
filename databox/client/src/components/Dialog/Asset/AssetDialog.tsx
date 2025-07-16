@@ -1,12 +1,10 @@
-import {useEffect, useState} from 'react';
+import {useEffect} from 'react';
 import TabbedDialog from '../Tabbed/TabbedDialog';
 import {useTranslation} from 'react-i18next';
 import EditAsset from './EditAsset';
 import {useParams} from '@alchemy/navigation';
 import FullPageLoader from '../../Ui/FullPageLoader';
-import {Asset} from '../../../types';
 import Acl from './Acl';
-import {getAsset} from '../../../api/asset';
 import EditAttributes from './EditAttributes';
 import Renditions from './Renditions';
 import InfoAsset from './InfoAsset';
@@ -17,6 +15,7 @@ import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 import AssetWorkflow from './AssetWorkflow.tsx';
 import {useAuth} from '@alchemy/react-auth';
 import ESDocument from './ESDocument.tsx';
+import {useAssetStore} from '../../../store/assetStore.ts';
 
 type Props = {};
 
@@ -26,11 +25,13 @@ export default function AssetDialog({}: Props) {
     const navigateToModal = useNavigateToModal();
     const {user} = useAuth();
 
-    const [data, setData] = useState<Asset>();
+    const assets = useAssetStore(state => state.assets);
+    const loadAsset = useAssetStore(state => state.loadAsset);
+    const data = assets[id!];
 
     useEffect(() => {
-        getAsset(id!).then(c => setData(c));
-    }, [id]);
+        loadAsset(id!);
+    }, [loadAsset, id]);
 
     if (!data) {
         return <FullPageLoader />;
@@ -126,7 +127,6 @@ export default function AssetDialog({}: Props) {
                     id: 'operations',
                     props: {
                         data,
-                        setData,
                     },
                     enabled: data.capabilities.canEdit,
                 },

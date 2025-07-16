@@ -9,6 +9,7 @@ import axios from 'axios';
 import {getResolvedSortBy} from './SearchProvider';
 import {AQLQueries} from './AQL/query.ts';
 import {useAssetStore} from '../../../store/assetStore.ts';
+import {useChannelRegistration} from '../../../lib/pusher.ts';
 
 type UserSearchContext = {
     position?: string | undefined;
@@ -95,7 +96,18 @@ export default function ResultProvider({children}: Props) {
             loading,
         }));
 
-    const setAssets = useAssetStore(s => s.setAssets);
+    const [setAssets, loadAsset] = useAssetStore(s => [
+        s.setAssets,
+        s.loadAsset,
+    ]);
+
+    useChannelRegistration(
+        'assets',
+        'rendition-update',
+        (event: {assetId: string}) => {
+            loadAsset(event.assetId);
+        }
+    );
 
     const doSearch = async (nextUrl?: string) => {
         setLoading(true);
