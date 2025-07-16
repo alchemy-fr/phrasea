@@ -137,12 +137,8 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
                             $this->exceptionNotifier->notifyException($e);
                         } catch (\Exception $e) {
                             $this->logger->alert(
-                                sprintf('Error while getting needed jobs for integration "%"',
-                                    $workspaceIntegration->getWorkspaceId()
-                                ),
-                                [
-                                    'exception' => $e,
-                                ]
+                                sprintf('Error while getting needed jobs for integration "%s"', $workspaceIntegration->getWorkspaceId()),
+                                ['exception' => $e]
                             );
                         }
                     }
