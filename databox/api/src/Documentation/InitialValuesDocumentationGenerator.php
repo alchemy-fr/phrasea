@@ -10,17 +10,12 @@ class InitialValuesDocumentationGenerator extends DocumentationGenerator
 {
     public function getName(): string
     {
-        return 'initial_attribute_values';
+        return 'Databox/Attributes/initial_attribute_values';
     }
 
     public function getTitle(): string
     {
         return 'Initial Attribute Values';
-    }
-
-    public function getSubdirectory(): string
-    {
-        return 'Databox/Attributes';
     }
 
     public function getContent(): ?string
