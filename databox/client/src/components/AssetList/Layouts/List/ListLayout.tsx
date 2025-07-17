@@ -44,7 +44,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
     const headersRef = React.useRef<HTMLDivElement | null>(null);
     const listRef = React.useRef<List | null>(null);
-    const d = React.useContext(DisplayContext)!;
+    const d = React.useContext(DisplayContext)!.state;
     const {innerHeight} = useWindowSize();
     const height = innerHeight - toolbarHeight - menuHeight;
     const firstItem: Item | undefined = pages[0]?.[0];

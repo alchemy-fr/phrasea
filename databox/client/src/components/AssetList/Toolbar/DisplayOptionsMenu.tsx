@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useCallback, useContext} from 'react';
 import {
     Box,
     FormControlLabel,
@@ -11,38 +11,47 @@ import {
 } from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import {DisplayContext} from '../../Media/DisplayContext';
+import {DisplayContext, PreviewOptions} from '../../Media/DisplayContext';
 import {debounce} from '../../../lib/debounce';
 import ToggleWithLimit from '../../Media/Search/ToggleWithLimit';
 import ThumbSizeWidget from './ThumbSizeWidget';
 import SizeRatioWidget from './SizeRatioWidget.tsx';
+import {StateSetter} from '../../../types.ts';
 
 type Props = {};
 
 export default function DisplayOptionsMenu({}: Props) {
     const {t} = useTranslation();
     const {
-        thumbSize,
-        setThumbSize,
-        displayTitle,
-        toggleDisplayTitle,
-        displayCollections,
-        toggleDisplayCollections,
-        titleRows,
-        collectionsLimit,
-        setCollectionsLimit,
-        setTitleRows,
-        playVideos,
-        togglePlayVideos,
-        displayTags,
-        tagsLimit,
-        toggleDisplayTags,
-        setTagsLimit,
-        displayPreview,
-        toggleDisplayPreview,
-        setPreviewOptions,
-        previewOptions,
+        state: {
+            thumbSize,
+            displayTitle,
+            displayCollections,
+            titleRows,
+            collectionsLimit,
+            playVideos,
+            displayTags,
+            tagsLimit,
+            displayPreview,
+            previewOptions,
+        },
+        setState: setDisplayPreferences,
     } = useContext(DisplayContext)!;
+
+    const setPreviewOptions = useCallback<StateSetter<PreviewOptions>>(
+        handler => {
+            setDisplayPreferences(p => ({
+                ...p,
+                previewOptions: {
+                    ...p.previewOptions,
+                    ...(typeof handler === 'function'
+                        ? handler(p.previewOptions)
+                        : handler),
+                },
+            }));
+        },
+        [setDisplayPreferences]
+    );
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const menuOpen = Boolean(anchorEl);
@@ -53,7 +62,14 @@ export default function DisplayOptionsMenu({}: Props) {
         setAnchorEl(null);
     };
 
-    const onThumbSizeChange = debounce((v: number) => setThumbSize(v), 0);
+    const onThumbSizeChange = debounce(
+        (v: number) =>
+            setDisplayPreferences(p => ({
+                ...p,
+                thumbSize: v,
+            })),
+        0
+    );
 
     const sliderId = 'thumb_size-slider';
     const moreBtnId = 'more-button';
@@ -104,8 +120,18 @@ export default function DisplayOptionsMenu({}: Props) {
                         )}
                         unit={t('layout.options.title_rows.label', 'rows')}
                         value={displayTitle}
-                        toggle={toggleDisplayTitle}
-                        setLimit={setTitleRows}
+                        toggle={() => {
+                            setDisplayPreferences(p => ({
+                                ...p,
+                                displayTitle: !p.displayTitle,
+                            }));
+                        }}
+                        setLimit={v => {
+                            setDisplayPreferences(p => ({
+                                ...p,
+                                titleRows: v,
+                            }));
+                        }}
                         limit={titleRows}
                     />
                     <ToggleWithLimit
@@ -115,8 +141,18 @@ export default function DisplayOptionsMenu({}: Props) {
                         )}
                         unit={t('layout.options.tags_count.label', 'tags')}
                         value={displayTags}
-                        toggle={toggleDisplayTags}
-                        setLimit={setTagsLimit}
+                        toggle={() => {
+                            setDisplayPreferences(p => ({
+                                ...p,
+                                displayTags: !p.displayTags,
+                            }));
+                        }}
+                        setLimit={v => {
+                            setDisplayPreferences(p => ({
+                                ...p,
+                                tagsLimit: v,
+                            }));
+                        }}
                         limit={tagsLimit}
                     />
                     <ToggleWithLimit
@@ -129,8 +165,18 @@ export default function DisplayOptionsMenu({}: Props) {
                             'collections'
                         )}
                         value={displayCollections}
-                        toggle={toggleDisplayCollections}
-                        setLimit={setCollectionsLimit}
+                        toggle={() => {
+                            setDisplayPreferences(p => ({
+                                ...p,
+                                displayCollections: !p.displayCollections,
+                            }));
+                        }}
+                        setLimit={v => {
+                            setDisplayPreferences(p => ({
+                                ...p,
+                                collectionsLimit: v,
+                            }));
+                        }}
                         limit={collectionsLimit}
                     />
                     <FormGroup>
@@ -138,7 +184,12 @@ export default function DisplayOptionsMenu({}: Props) {
                             control={
                                 <Switch
                                     checked={displayPreview}
-                                    onChange={toggleDisplayPreview}
+                                    onChange={() => {
+                                        setDisplayPreferences(p => ({
+                                            ...p,
+                                            displayPreview: !p.displayPreview,
+                                        }));
+                                    }}
                                 />
                             }
                             label={t(
@@ -160,7 +211,12 @@ export default function DisplayOptionsMenu({}: Props) {
                                     control={
                                         <Switch
                                             checked={playVideos}
-                                            onChange={togglePlayVideos}
+                                            onChange={() => {
+                                                setDisplayPreferences(p => ({
+                                                    ...p,
+                                                    playVideos: !p.playVideos,
+                                                }));
+                                            }}
                                         />
                                     }
                                     label={t(

@@ -47,7 +47,6 @@ export default function Dashboard({}: Props) {
         TRAEFIK_CONSOLE_URL,
         SOKETI_USAGE_URL,
         NOVU_DASHBOARD_URL,
-        NOVU_STUDIO_URL,
     } = config.env;
 
     const roles = user?.roles ?? [];
@@ -280,17 +279,6 @@ export default function Dashboard({}: Props) {
                                 rel={'noreferrer noopener'}
                             >
                                 Novu Dashboard
-                            </Link>
-                        </Grid>
-                    )}
-                    {config.devMode && NOVU_STUDIO_URL && (
-                        <Grid item>
-                            <Link
-                                href={NOVU_STUDIO_URL}
-                                target={'_blank'}
-                                rel={'noreferrer noopener'}
-                            >
-                                Novu Studio
                             </Link>
                         </Grid>
                     )}
