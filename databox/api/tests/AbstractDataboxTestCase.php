@@ -17,11 +17,6 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
 
     protected static function bootKernel(array $options = []): KernelInterface
     {
-        if (static::$kernel) {
-            return static::$kernel;
-        }
-        static::bootKernelWithFixtures($options);
-
-        return static::$kernel;
+        return static::bootKernelWithFixtures($options);
     }
 }

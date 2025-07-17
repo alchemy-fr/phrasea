@@ -2,7 +2,6 @@
 
 namespace App\Integration\Phrasea\Expose;
 
-use Alchemy\StorageBundle\Upload\UploadManager;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Asset\Attribute\AttributesResolver;
 use App\Asset\FileFetcher;
@@ -24,7 +23,6 @@ final readonly class ExposeClient
         private AssetTitleResolver $assetTitleResolver,
         private AttributesResolver $attributesResolver,
         private RenditionManager $renditionManager,
-        private UploadManager $uploadManager,
     ) {
     }
 

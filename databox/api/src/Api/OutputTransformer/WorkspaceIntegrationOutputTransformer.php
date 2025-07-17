@@ -86,6 +86,7 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
             $integration = $config->getIntegration();
             $output->integrationTitle = $integration->getTitle();
             $output->setConfig($integration->resolveClientConfiguration($data, $config));
+            $output->configInfo = $integration->getConfigurationInfo($config);
         } catch (\Throwable $e) {
             $output->lastErrors ??= [];
             $output->lastErrors[] = [
