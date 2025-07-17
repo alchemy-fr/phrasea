@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Storage;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Entity\Asset;
 use App\Entity\Target;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class AssetManager
+readonly class AssetManager
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly int $assetDaysRetention)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private int $assetDaysRetention,
+    ) {
     }
 
     public function createAsset(
@@ -48,12 +50,7 @@ class AssetManager
 
     public function findAsset(string $id): Asset
     {
-        $asset = $this->em->find(Asset::class, $id);
-        if (!$asset instanceof Asset) {
-            throw new NotFoundHttpException('Asset '.$id.' not found');
-        }
-
-        return $asset;
+        return DoctrineUtil::findStrict($this->em, Asset::class, $id, throw404: true);
     }
 
     public function cleanAssets(?int $assetDaysRetention = null): void

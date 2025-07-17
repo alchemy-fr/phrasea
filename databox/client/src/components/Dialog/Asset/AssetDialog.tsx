@@ -6,7 +6,7 @@ import {useParams} from '@alchemy/navigation';
 import FullPageLoader from '../../Ui/FullPageLoader';
 import Acl from './Acl';
 import EditAttributes from './EditAttributes';
-import Renditions from './Renditions';
+import Renditions from './Rendition/Renditions.tsx';
 import InfoAsset from './InfoAsset';
 import AssetFileVersions from './AssetFileVersions';
 import OperationsAsset from './OperationsAsset';

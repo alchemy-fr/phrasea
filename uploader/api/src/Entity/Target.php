@@ -210,7 +210,7 @@ class Target extends AbstractUuidEntity implements \Stringable
         $this->slug = $slug;
     }
 
-    public function getEnabled(): bool
+    public function isEnabled(): bool
     {
         return $this->enabled;
     }
