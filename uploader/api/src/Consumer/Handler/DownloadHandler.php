@@ -17,15 +17,15 @@ use Symfony\Component\Mime\MimeTypes;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[AsMessageHandler]
-final readonly class DownloadHandler
+class DownloadHandler
 {
     public function __construct(
-        private FileStorageManager $storageManager,
-        private HttpClientInterface $client,
-        private AssetManager $assetManager,
-        private MessageBusInterface $bus,
-        private PathGenerator $pathGenerator,
-        private EntityManagerInterface $em,
+        private readonly FileStorageManager $storageManager,
+        private readonly HttpClientInterface $client,
+        private readonly AssetManager $assetManager,
+        private readonly MessageBusInterface $bus,
+        private readonly PathGenerator $pathGenerator,
+        private readonly EntityManagerInterface $em,
     ) {
     }
 

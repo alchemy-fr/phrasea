@@ -9,11 +9,11 @@ use App\Entity\Asset;
 use App\Entity\Target;
 use Doctrine\ORM\EntityManagerInterface;
 
-readonly class AssetManager
+class AssetManager
 {
     public function __construct(
-        private EntityManagerInterface $em,
-        private int $assetDaysRetention,
+        private readonly EntityManagerInterface $em,
+        private readonly int $assetDaysRetention,
     ) {
     }
 
