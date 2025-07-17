@@ -18,12 +18,17 @@ class InitialValuesDocumentationGenerator extends DocumentationGenerator
         return 'Initial Attribute Values';
     }
 
+    public function getSubdirectory(): string
+    {
+        return 'Databox/Attributes';
+    }
+
     public function getContent(): ?string
     {
         $n = 0;
         $output = '';
-        foreach (Yaml::parseFile(__DIR__.'/../../tests/fixtures/metadata/InitialAttributeValuesResolverData.yaml') as $test) {
-            if (!($test['about'] ?? false)) {
+        foreach (Yaml::parseFile(__DIR__.'/InitialAttributeValuesResolverData.yaml') as $example) {
+            if (!($example['documentation'] ?? false)) {
                 continue;
             }
 
@@ -36,14 +41,14 @@ class InitialValuesDocumentationGenerator extends DocumentationGenerator
 
             $output .= sprintf("## %s: %s\n",
                 join('.', $levels),
-                $test['about']['title'] ?? ''
+                $example['documentation']['title'] ?? ''
             );
-            if ($description = $test['about']['description'] ?? '') {
+            if ($description = $example['documentation']['description'] ?? '') {
                 $output .= sprintf("%s\n", $description);
             }
 
             $output .= "### Attribute(s) definition(s) ...\n";
-            foreach ($test['definitions'] as $name => $definition) {
+            foreach ($example['definitions'] as $name => $definition) {
                 $output .= sprintf("- __%s__:   `%s` ; [%s] `multi` ; [%s] `translatable`\n",
                     $name,
                     $definition['fieldType'] ?? 'text',
@@ -70,7 +75,7 @@ class InitialValuesDocumentationGenerator extends DocumentationGenerator
                 $output .= "### ... with file metadata ...\n";
                 $output .= "| metadata | value(s) |\n";
                 $output .= "|---|---|\n";
-                foreach ($test['metadata'] ?? [] as $metadataName => $values) {
+                foreach ($example['metadata'] ?? [] as $metadataName => $values) {
                     $v = is_array($values) ? $values : [$values];
                     $output .= sprintf("| %s | `%s` |\n", $metadataName, join('` ; `', $v));
                 }
@@ -78,7 +83,7 @@ class InitialValuesDocumentationGenerator extends DocumentationGenerator
                 $output .= "\n";
 
                 $output .= "### ... set attribute(s) initial value(s)\n";
-                $this->dumpExpected($output, $test['expected'], 1);
+                $this->dumpExpected($output, $example['expected'], 1);
 
                 $output .= "\n";
             }

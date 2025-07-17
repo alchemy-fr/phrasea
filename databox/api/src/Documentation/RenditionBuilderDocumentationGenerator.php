@@ -22,6 +22,11 @@ class RenditionBuilderDocumentationGenerator extends DocumentationGenerator
         return 'Rendition Factory';
     }
 
+    public function getSubdirectory(): string
+    {
+        return 'Databox/Renditions';
+    }
+
     public function getContent(): string
     {
         return $this->renditionBuilderConfigurationDocumentation->generate();

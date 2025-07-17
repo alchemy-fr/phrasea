@@ -37,9 +37,10 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
                 ];
             },
             array_filter(
-                Yaml::parseFile(__DIR__.'/../../fixtures/metadata/InitialAttributeValuesResolverData.yaml'),
+                // the data file is used for documentation generation AND as a data provider for tests
+                Yaml::parseFile(__DIR__.'/../../../src/Documentation/InitialAttributeValuesResolverData.yaml'),
                 function ($test) {
-                    return $test['enabled'] ?? true;
+                    return $test['test'] ?? true;
                 }
             )
         );
