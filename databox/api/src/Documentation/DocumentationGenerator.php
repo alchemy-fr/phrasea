@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Documentation;
 
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+
+#[AutoconfigureTag(DocumentationGeneratorInterface::TAG)]
 abstract class DocumentationGenerator implements DocumentationGeneratorInterface
 {
     private array $levels = [];
@@ -21,6 +24,11 @@ abstract class DocumentationGenerator implements DocumentationGeneratorInterface
     public function getHeader(): ?string
     {
         return null;
+    }
+
+    public function getSubdirectory(): string
+    {
+        return '';
     }
 
     public function getContent(): ?string

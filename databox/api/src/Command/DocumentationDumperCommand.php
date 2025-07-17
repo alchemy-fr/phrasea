@@ -47,9 +47,9 @@ class DocumentationDumperCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $outputDir = $input->getOption('output');
-        if ($outputDir && !is_dir($outputDir)) {
-            $output->writeln(sprintf('<error>Output directory "%s" does not exists.</error>', $outputDir));
+        $outputRoot = trim($input->getOption('output'));
+        if ($outputRoot && !is_dir($outputRoot)) {
+            $output->writeln(sprintf('<error>Output directory "%s" does not exists.</error>', $outputRoot));
 
             return Command::FAILURE;
         }
@@ -67,8 +67,13 @@ class DocumentationDumperCommand extends Command
         }
         foreach ($input->getArgument('chapters') as $chapter) {
             $text = $this->getAsText($this->chapters[$chapter]);
-            if ($outputDir) {
-                $outputFile = rtrim($outputDir, '/').'/'.$chapter.'.md';
+            if ($outputRoot) {
+                $outputDir = rtrim($outputRoot, '/');
+                if ('' !== ($subDir = $this->chapters[$chapter]->getSubdirectory())) {
+                    $outputDir .= '/'.trim($subDir, " \n\r\t\v\0/");
+                }
+                @mkdir($outputDir, 0777, true);
+                $outputFile = $outputDir.'/'.$chapter.'.md';
                 file_put_contents($outputFile, $text);
                 $output->writeln(sprintf('<info>Documentation for chapter "%s" written to "%s".</info>', $chapter, $outputFile));
             } else {
@@ -79,14 +84,15 @@ class DocumentationDumperCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function getAsText(DocumentationGeneratorInterface $chapter, array $levels = [1]): string
+    private function getAsText(DocumentationGeneratorInterface $chapter, array $levels = []): string
     {
         $chapter->setLevels($levels);
         $text = '';
         $l = join('.', $levels);
-        if (null !== ($t = $chapter->getTitle())) {
-            $text .= '# '.$l.': '.$t."\n";
-        }
+
+        $title = $chapter->getTitle() ?? $chapter->getName();
+        $text .= "---\n".$l.($l ? ': ' : '').$title."\n---\n\n";
+
         if (null !== ($t = $chapter->getHeader())) {
             $text .= $t."\n";
         }
@@ -97,7 +103,9 @@ class DocumentationDumperCommand extends Command
         $n = 1;
         foreach ($chapter->getChildren() as $child) {
             $subLevels = $levels;
-            $subLevels[] = $n++;
+            if (!empty($subLevels)) {
+                $subLevels[] = $n++;
+            }
             $text .= $this->getAsText($child, $subLevels);
         }
 

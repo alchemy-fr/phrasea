@@ -1,4 +1,10 @@
-# shortcuts
+# this file is used to
+# - generate the documentation for the initial values of attributes
+#       blocks with a "documentation" section will be included in the documentation
+# - provide the data for the tests
+#       blocks with `test: false` will not be included in the tests
+#
+# syntax and shortcuts
 #
 # - definitions/<fieldname>/initialValues is an array with keys as locale code, like '_', 'fr', 'en', etc.
 #   if no locale distingo is needed, the plain value can be used (it will be converted to ['_' => value])
@@ -13,12 +19,9 @@
 #
 # - possible fieldTypes are:
 #   boolean, code, collection_path, color, date, date_time, entity, geo_point, html, ip, json, keyword, number, tag, textarea, text
-#
-# - documentation generation
-#   Tests with an "about" section will be included in the documentation
 
 exiftoolVersion:
-    about:
+    documentation:
         title: 'Check of integration "metadata-read"'
         description:
             'Extracting the `ExifTool:ExifToolVersion` metadata allows to ensure that the metadata-read.
@@ -33,7 +36,7 @@ exiftoolVersion:
         exiftoolVersion: '12.42'
 
 multi2mono:
-    about:
+    documentation:
         title: 'Multi-values metadata -> mono-value attribute ("metadata" method)'
         description:
             'Values will be separated by " ; "'
@@ -47,7 +50,7 @@ multi2mono:
         Keywords: 'dog ; cat ; bird'
 
 multi2multi:
-    about:
+    documentation:
         title: 'Multi-values metadata -> multi-values attribute ("metadata" method)'
     definitions:
         Keywords:
@@ -59,7 +62,7 @@ multi2multi:
         Keywords: ['dog', 'cat', 'bird']
 
 multi2mono_template:
-    about:
+    documentation:
         title: 'Multi-values metadata -> multi-values attribute ("template" method)'
         description: '__warning__ : __Wrong__ usage of `getMetadata(...).value` (without "s")'
     definitions:
@@ -72,7 +75,7 @@ multi2mono_template:
         Keywords: 'dog ; cat ; bird'
 
 multi2multi_template:
-    about:
+    documentation:
         title: 'Multi-values metadata -> multi-values attribute ("template" method)'
         description: 'Good usage of `getMetadata(...).values`'
     definitions:
@@ -85,7 +88,7 @@ multi2multi_template:
         Keywords: ['dog', 'cat', 'bird']
 
 mono_multilingue:
-    about:
+    documentation:
         title: 'Mono-value multilocale'
     definitions:
         Copyright:
@@ -100,7 +103,7 @@ mono_multilingue:
             fr: '(c) Bob. Tous droits réservés'
 
 multi_multilingue:
-    about:
+    documentation:
         title: 'Multi-values multilocale'
     definitions:
         Keywords:
@@ -117,7 +120,7 @@ multi_multilingue:
             fr: ['chien', 'chat', 'oiseau']
 
 unknown_tag:
-    about:
+    documentation:
         title: 'Unknown tag'
     definitions:
         zAttribute:
@@ -130,7 +133,7 @@ unknown_tag:
         zAttribute: 'whaat ?'
 
 first_metadata:
-    about:
+    documentation:
         title: 'First metadata set, with alternate value (1)'
         description: 'for this test, only the metadata `IPTC:City` is set.'
     definitions:
@@ -145,7 +148,7 @@ first_metadata:
         City: 'Paris'
 
 first_metadata_default:
-    about:
+    documentation:
         title: 'First metadata set, with alternate value (2)'
         description: 'for this test, no metadata is set, so the default value is used.'
     definitions:
@@ -159,7 +162,7 @@ first_metadata_default:
         City: 'no-city ?'
 
 many_metadata_to_mono:
-    about:
+    documentation:
         title: 'Many metadata to a mono-value attribute'
         description: 'Here an array `[a, b]` is used, the `join` filter inserts a " - " only if required.'
     definitions:
@@ -175,7 +178,7 @@ many_metadata_to_mono:
         CreatorLocation: 'Paris - France'
 
 many_metadata_to_multi:
-    about:
+    documentation:
         title: 'Many metadata to a multi-values attribute'
         description: "_nb_: We fill an array that will be joined by `\\n` to generate __one line per item__ (required).\n
                         \n
@@ -195,7 +198,7 @@ many_metadata_to_multi:
         Keywords: ['Eiffel Tower', 'Seine river', 'Paris', 'France']
 
 code_to_string:
-    about:
+    documentation:
         title: 'Transform code to human readable text'
         description: 'here the `ExposureProgram` metadata is a code (0...9), used to index an array of strings.'
     definitions:
