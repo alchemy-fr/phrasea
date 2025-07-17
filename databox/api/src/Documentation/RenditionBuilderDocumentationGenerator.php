@@ -14,17 +14,12 @@ class RenditionBuilderDocumentationGenerator extends DocumentationGenerator
 
     public function getName(): string
     {
-        return 'rendition_factory';
+        return 'Databox/Renditions/rendition_factory';
     }
 
     public function getTitle(): string
     {
         return 'Rendition Factory';
-    }
-
-    public function getSubdirectory(): string
-    {
-        return 'Databox/Renditions';
     }
 
     public function getContent(): string

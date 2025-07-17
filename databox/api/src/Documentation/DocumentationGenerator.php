@@ -26,11 +26,6 @@ abstract class DocumentationGenerator implements DocumentationGeneratorInterface
         return null;
     }
 
-    public function getSubdirectory(): string
-    {
-        return '';
-    }
-
     public function getContent(): ?string
     {
         return null;
