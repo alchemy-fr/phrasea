@@ -11,6 +11,7 @@ import {FormGroup, InputLabel, TextField} from '@mui/material';
 import {FormFieldErrors} from '@alchemy/react-form';
 import TagSelect from '../../Form/TagSelect';
 import PrivacyField from '../../Ui/PrivacyField';
+import {useAssetStore} from '../../../store/assetStore.ts';
 
 type Props = {
     id: string;
@@ -21,6 +22,7 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
 
     const formId = 'edit-asset';
+    const updateAsset = useAssetStore(s => s.update);
 
     const {
         register,
@@ -44,7 +46,13 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
                   tags: [] as Tag[],
               },
         onSubmit: async d => {
-            return await putAsset(data.id, d as unknown as AssetApiInput);
+            const asset = await putAsset(
+                data.id,
+                d as unknown as AssetApiInput
+            );
+            updateAsset(asset);
+
+            return asset;
         },
         onSuccess: () => {
             toast.success(

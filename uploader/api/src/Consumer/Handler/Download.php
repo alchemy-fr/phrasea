@@ -8,36 +8,12 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 final readonly class Download
 {
     public function __construct(
-        private string $url,
-        private string $userId,
-        private string $targetId,
-        private array $formData,
-        private string $locale,
+        public string $url,
+        public string $userId,
+        public string $targetId,
+        public string $locale,
+        public ?array $data = null,
+        public ?array $formData = null,
     ) {
-    }
-
-    public function getUrl(): string
-    {
-        return $this->url;
-    }
-
-    public function getUserId(): string
-    {
-        return $this->userId;
-    }
-
-    public function getTargetId(): string
-    {
-        return $this->targetId;
-    }
-
-    public function getFormData(): array
-    {
-        return $this->formData;
-    }
-
-    public function getLocale(): string
-    {
-        return $this->locale;
     }
 }

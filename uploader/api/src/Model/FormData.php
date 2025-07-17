@@ -10,7 +10,15 @@ use App\Controller\ValidateFormAction;
 use App\Entity\Target;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ApiResource(operations: [new Post(uriTemplate: '/form/validate', controller: ValidateFormAction::class, description: 'Retrieve form schema')])]
+#[ApiResource(
+    operations: [
+        new Post(
+            uriTemplate: '/form/validate',
+            controller: ValidateFormAction::class,
+            description: 'Retrieve form schema'
+        ),
+    ]
+)]
 final class FormData
 {
     #[Assert\NotNull]

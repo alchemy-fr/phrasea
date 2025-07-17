@@ -26,6 +26,8 @@ class ThreadMessageVoter extends AbstractVoter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         switch ($attribute) {
+            case self::READ:
+                return $this->security->isGranted(self::READ, $subject->getThread());
             case self::EDIT:
             case self::DELETE:
                 $user = $token->getUser();
