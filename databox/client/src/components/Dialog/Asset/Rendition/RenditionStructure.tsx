@@ -1,12 +1,6 @@
 import {ReactNode} from 'react';
-import {Dimensions} from '../../Media/Asset/Players';
-import {
-    Card,
-    CardActions,
-    CardContent,
-    CardMedia,
-    Typography,
-} from '@mui/material';
+import {Dimensions} from '../../../Media/Asset/Players';
+import {Box, Card, CardContent, CardMedia, Typography} from '@mui/material';
 
 type Props = {
     title: ReactNode;
@@ -47,14 +41,19 @@ export function RenditionStructure({
                     flexGrow: 1,
                 }}
             >
-                <Typography component="div" variant="h5">
-                    {title}
-                </Typography>
+                <Box sx={{display: 'flex', gap: 1, flexDirection: 'row'}}>
+                    <Typography
+                        component="div"
+                        variant="h5"
+                        style={{flexGrow: 1}}
+                    >
+                        {title}
+                    </Typography>
+                    <div>{actions}</div>
+                </Box>
                 <Typography component="div" variant="body1">
                     {info}
                 </Typography>
-
-                <CardActions disableSpacing>{actions}</CardActions>
             </CardContent>
         </Card>
     );

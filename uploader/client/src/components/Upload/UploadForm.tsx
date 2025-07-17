@@ -23,6 +23,7 @@ export default function UploadForm({target, files, onSubmit, onCancel}: Props) {
             <AssetForm
                 targetId={target.id}
                 submitPath={'/form/validate'}
+                formDataKey={'data'}
                 onComplete={onSubmit}
                 onCancel={onCancel}
             />

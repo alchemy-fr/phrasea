@@ -1,4 +1,4 @@
-import React, {Context, MouseEvent, useEffect} from 'react';
+import React, {Context, MouseEvent, useCallback, useEffect} from 'react';
 import {Asset, AssetOrAssetContainer, StateSetter} from '../../types';
 import AssetToolbar from './AssetToolbar';
 import {
@@ -29,6 +29,7 @@ import {useSelectAllKey} from '../../hooks/useSelectAllKey.ts';
 import {createDefaultActionsContext} from './actionContext.ts';
 import useUpdateEffect from '@alchemy/react-hooks/src/useUpdateEffect';
 import {useContextMenu} from '../../hooks/useContextMenu.ts';
+import {useAssetStore} from '../../store/assetStore.ts';
 
 type Props<Item extends AssetOrAssetContainer> = {
     pages: Item[][];
@@ -57,7 +58,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     total,
     loading,
     onOpen,
-    itemToAsset,
+    itemToAsset: itemToAssetProxy,
     loadMore,
     reload,
     searchBar,
@@ -92,6 +93,18 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
         asset: Asset;
         item: Item;
     }>();
+
+    const storeAssets = useAssetStore(s => s.assets);
+    const itemToAsset = useCallback(
+        (item: Item) => {
+            const asset: Asset = itemToAssetProxy
+                ? itemToAssetProxy(item)
+                : (item as unknown as Asset);
+
+            return storeAssets[asset.id] ?? asset;
+        },
+        [itemToAssetProxy, storeAssets]
+    );
 
     const onContextMenuOpen = React.useCallback<OnAssetContextMenuOpen<Item>>(
         (e: MouseEvent<HTMLElement>, item: Item, anchorEl?: HTMLElement) => {

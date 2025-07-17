@@ -11,6 +11,10 @@ export async function getThreadMessages(
     return getHydraCollection(res.data);
 }
 
+export async function getMessage(id: string): Promise<ThreadMessage> {
+    return (await apiClient.get(`/messages/${id}`)).data;
+}
+
 export async function postThreadMessage(data: {
     threadKey: string;
     threadId?: string;

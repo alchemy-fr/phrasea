@@ -8,10 +8,12 @@ use App\Entity\Target;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class FormValidator
+final readonly class FormValidator
 {
-    public function __construct(private readonly LiFormToFormTransformer $formGenerator, private readonly FormSchemaManager $schemaLoader)
-    {
+    public function __construct(
+        private LiFormToFormTransformer $formGenerator,
+        private FormSchemaManager $schemaLoader,
+    ) {
     }
 
     public function validateForm(array $data, Target $target, Request $request): array

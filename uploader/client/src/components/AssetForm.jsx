@@ -14,6 +14,7 @@ export default class AssetForm extends Component {
     //     baseSchema: PropTypes.object,
     //     submitPath: PropTypes.string.isRequired,
     //     targetId: PropTypes.string.isRequired,
+    //     formDataKey: PropTypes.string,
     // };
 
     state = {
@@ -57,7 +58,7 @@ export default class AssetForm extends Component {
     }
 
     onSubmit = async reduxFormData => {
-        let formData = {...reduxFormData};
+        const formData = {...reduxFormData};
         const {baseSchema, submitPath, onComplete} = this.props;
 
         // Extract base fields out from form data
@@ -74,7 +75,7 @@ export default class AssetForm extends Component {
         }
         data = {
             ...data,
-            data: formData,
+            [this.props.formDataKey ?? 'formData']: formData,
         };
 
         let r;

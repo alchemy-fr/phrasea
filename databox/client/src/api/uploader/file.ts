@@ -25,28 +25,51 @@ type FormData = Record<string, any> | undefined;
 
 type UploadedFile = {
     data?: Record<string, any>;
-    file: File;
-};
+} & FileOrUrl;
+
+export type FileOrUrl =
+    | {
+          file: File;
+          url?: never;
+      }
+    | {
+          file?: never;
+          url: string;
+      };
+
 export async function UploadFiles(
     files: UploadedFile[],
     formData?: FormData
 ): Promise<void> {
     const targetSlug = config.uploaderTargetSlug;
-    const assets = await promiseConcurrency(
-        files.map(f => () => UploadFile(targetSlug, f)),
-        2
-    );
+    const assets = (
+        await promiseConcurrency(
+            files.map(f => () => UploadFile(targetSlug, f)),
+            2
+        )
+    ).filter(a => a) as string[];
 
-    await CommitUpload(targetSlug, assets, formData);
+    if (assets.length > 0) {
+        await CommitUpload(targetSlug, assets, formData);
+    }
 }
 
 export async function UploadFile(
     targetSlug: string,
     uploadedFile: UploadedFile
-): Promise<string> {
+): Promise<string | undefined> {
+    if (uploadedFile.url) {
+        await uploaderClient.post(`/downloads`, {
+            targetSlug,
+            url: uploadedFile.url,
+            data: uploadedFile.data,
+        });
+        return;
+    }
+
     const multipart = await multipartUpload(
         uploaderClient,
-        uploadedFile.file,
+        uploadedFile.file!,
         {}
     );
 

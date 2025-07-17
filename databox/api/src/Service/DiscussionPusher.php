@@ -5,13 +5,11 @@ namespace App\Service;
 use Alchemy\CoreBundle\Pusher\PusherManager;
 use App\Entity\Discussion\Message;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 
 final readonly class DiscussionPusher
 {
     public function __construct(
         private PusherManager $pusherManager,
-        private SerializerInterface $serializer,
         private MessageBusInterface $bus,
     ) {
     }
@@ -23,14 +21,9 @@ final readonly class DiscussionPusher
         $this->bus->dispatch($this->pusherManager->createBusMessage(
             'thread-'.$message->getThread()->getKey(),
             $event,
-            $removed ? [
+            [
                 'id' => $message->getId(),
-            ] : json_decode($this->serializer->serialize($message, 'json', [
-                'groups' => [
-                    '_',
-                    Message::GROUP_READ,
-                ],
-            ]), true, 512, JSON_THROW_ON_ERROR),
+            ],
         ));
     }
 }

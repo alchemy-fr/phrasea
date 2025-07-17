@@ -1,23 +1,33 @@
 import React from 'react';
-import {Asset, AssetRendition} from '../../../types';
-import FilePlayer from '../../Media/Asset/FilePlayer';
-import {Dimensions} from '../../Media/Asset/Players';
-import {Box, Button, Chip, Tooltip} from '@mui/material';
+import {Asset, AssetRendition} from '../../../../types.ts';
+import FilePlayer from '../../../Media/Asset/FilePlayer.tsx';
+import {Dimensions} from '../../../Media/Asset/Players';
+import {
+    Box,
+    Chip,
+    Divider,
+    ListItemIcon,
+    ListItemText,
+    MenuItem,
+    Tooltip,
+} from '@mui/material';
 import byteSize from 'byte-size';
-import DownloadIcon from '@mui/icons-material/Download';
-import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
+import SaveAsButton from '../../../Media/Asset/Actions/SaveAsButton.tsx';
 import {useTranslation} from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {RenditionStructure} from './RenditionStructure.tsx';
-import {LoadingButton} from '@mui/lab';
 import LockIcon from '@mui/icons-material/Lock';
 import AspectRatioIcon from '@mui/icons-material/AspectRatio';
 import CropRotateIcon from '@mui/icons-material/CropRotate';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import InfoIcon from '@mui/icons-material/Info';
 import IconButton from '@mui/material/IconButton';
-import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
-import {modalRoutes} from '../../../routes.ts';
+import {useNavigateToModal} from '../../../Routing/ModalLink.tsx';
+import {MoreActionsButton} from '@alchemy/phrasea-ui';
+import {modalRoutes} from '../../../../routes.ts';
+import UploadIcon from '@mui/icons-material/Upload';
+import DownloadIcon from '@mui/icons-material/Download';
+import SaveIcon from '@mui/icons-material/Save';
 
 type Props = {
     asset: Asset;
@@ -25,18 +35,22 @@ type Props = {
     rendition: AssetRendition;
     dimensions: Dimensions;
     onDelete: () => Promise<void>;
+    onUpload: (rendition: AssetRendition) => void;
 };
 
 export function Rendition({
     title,
     asset,
     dimensions,
-    rendition: {nameTranslated, file, dirty, substituted, projection, locked},
+    rendition,
     onDelete,
+    onUpload,
 }: Props) {
     const {t} = useTranslation();
     const [deleting, setDeleting] = React.useState(false);
     const navigateToModal = useNavigateToModal();
+    const {nameTranslated, file, dirty, substituted, projection, locked} =
+        rendition;
 
     const deleteRendition = async () => {
         setDeleting(true);
@@ -45,6 +59,10 @@ export function Rendition({
         } finally {
             setDeleting(false);
         }
+    };
+
+    const uploadRendition = () => {
+        onUpload(rendition);
     };
 
     return (
@@ -160,34 +178,101 @@ export function Rendition({
                 )
             }
             actions={
-                <>
-                    {file?.url && (
-                        <>
-                            <Button
-                                startIcon={<DownloadIcon />}
-                                href={file.url}
-                                target={'_blank'}
-                                rel={'noreferrer'}
+                <MoreActionsButton
+                    disablePortal={false}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                    }}
+                >
+                    {closeWrapper => {
+                        const actions = [];
+
+                        if (file) {
+                            actions.push(
+                                <MenuItem
+                                    component="a"
+                                    key={'download'}
+                                    href={file.url}
+                                    target={'_blank'}
+                                    rel={'noreferrer'}
+                                >
+                                    <ListItemIcon>
+                                        <DownloadIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={t(
+                                            'renditions.download',
+                                            'Download'
+                                        )}
+                                    />
+                                </MenuItem>
+                            );
+                            actions.push(
+                                <MenuItem
+                                    key={'replace'}
+                                    onClick={closeWrapper(uploadRendition)}
+                                >
+                                    <ListItemIcon>
+                                        <UploadIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={t(
+                                            'renditions.replace',
+                                            'Replace'
+                                        )}
+                                    />
+                                </MenuItem>
+                            );
+                            actions.push(
+                                <SaveAsButton
+                                    asset={asset}
+                                    file={file}
+                                    icon={<SaveIcon />}
+                                    variant={'outlined'}
+                                    closeWrapper={closeWrapper}
+                                    Component={MenuItem}
+                                />
+                            );
+                        } else {
+                            actions.push(
+                                <MenuItem
+                                    key={'upload'}
+                                    onClick={closeWrapper(uploadRendition)}
+                                >
+                                    <ListItemIcon>
+                                        <UploadIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={t(
+                                            'renditions.upload',
+                                            'Upload'
+                                        )}
+                                    />
+                                </MenuItem>
+                            );
+                        }
+
+                        actions.push(<Divider key={'div1'} />);
+                        actions.push(
+                            <MenuItem
+                                key={'delete'}
+                                onClick={closeWrapper(deleteRendition)}
+                                disabled={deleting}
+                                color={'error'}
                             >
-                                {t('renditions.download', 'Download')}
-                            </Button>
-                            <SaveAsButton
-                                asset={asset}
-                                file={file}
-                                variant={'outlined'}
-                            />
-                        </>
-                    )}
-                    <LoadingButton
-                        loading={deleting}
-                        disabled={deleting}
-                        onClick={deleteRendition}
-                        color={'error'}
-                        startIcon={<DeleteIcon />}
-                    >
-                        {t('renditions.delete', 'Delete')}
-                    </LoadingButton>
-                </>
+                                <ListItemIcon>
+                                    <DeleteIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={t('renditions.delete', 'Delete')}
+                                />
+                            </MenuItem>
+                        );
+
+                        return actions;
+                    }}
+                </MoreActionsButton>
             }
         />
     );

@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 class TargetVoter extends Voter
 {
     final public const string READ = 'READ';
+    final public const string UPLOAD = 'UPLOAD';
 
     public function __construct(private readonly Security $security)
     {
@@ -38,8 +39,11 @@ class TargetVoter extends Voter
             $groups = $user->getGroups();
         }
 
+        $isAllowed = fn () => empty($subject->getAllowedGroups()) || !empty(array_intersect($groups, $subject->getAllowedGroups()));
+
         return match ($attribute) {
-            self::READ => empty($subject->getAllowedGroups()) || !empty(array_intersect($groups, $subject->getAllowedGroups())),
+            self::UPLOAD => $subject->isEnabled() && $isAllowed(),
+            self::READ => $isAllowed(),
             default => false,
         };
     }

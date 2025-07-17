@@ -194,6 +194,9 @@ export interface AssetRendition extends ApiHydraObjectResponse, Entity {
     projection?: boolean;
     locked: boolean;
     substituted: boolean;
+    definition: {
+        id: string;
+    };
 }
 
 export interface RenditionPolicy extends ApiHydraObjectResponse, Entity {
