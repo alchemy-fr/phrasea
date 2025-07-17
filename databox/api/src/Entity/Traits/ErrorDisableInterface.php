@@ -18,5 +18,9 @@ interface ErrorDisableInterface
 
     public function disableAfterErrors(): void;
 
+    public function isEnabled(): bool;
+
     public function getWorkspace(): ?Workspace;
+
+    public function getOwnerId(): ?string;
 }
