@@ -17,7 +17,7 @@ class EntityDisableNotifyableException extends UserNotifyableException
         $workspace = $this->entity->getWorkspace();
 
         parent::__construct(
-            $workspace?->getOwnerId(),
+            $this->entity->getOwnerId(),
             $subject,
             $message.($appendWorkspace && $workspace ? ' (in workspace: '.$workspace?->getName().')' : ''),
             $code,
