@@ -69,7 +69,7 @@ export default function AttributeEntityFields({
             ) : null}
             <FormRow>
                 <InputLabel>
-                    {t('form.attribute_entity.synonym.label', 'Synonyms')}
+                    {t('form.attribute_entity.synonyms.label', 'Synonyms')}
                 </InputLabel>
                 <KeyTranslationsWidget
                     renderLocale={l => {

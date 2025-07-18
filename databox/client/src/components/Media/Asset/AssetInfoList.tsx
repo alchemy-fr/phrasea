@@ -75,7 +75,7 @@ export default function AssetInfoList({data}: Props) {
                     label={t('asset.info.collection', `Collection`)}
                     value={
                         data.referenceCollection?.absoluteTitleTranslated ??
-                        t('asset.info.collection.none', 'None')
+                        t('asset.info.collections.none', 'None')
                     }
                     copyValue={data.referenceCollection?.id}
                     onClick={
