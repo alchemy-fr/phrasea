@@ -6,6 +6,7 @@ import {
 import {Ace, UserType} from '../../types';
 import {useTranslation} from 'react-i18next';
 import {AclPermission, aclPermissions} from '../Acl/acl';
+import AclHeader from '../Acl/AclHeader';
 import {Box} from '@mui/material';
 import PermissionRow from './PermissionRow';
 import type {TFunction} from '@alchemy/i18n';
@@ -23,7 +24,6 @@ type Props = {
     onMaskChange: OnMaskChange;
     onDelete: OnPermissionDelete;
     displayedPermissions?: DisplayedPermissions;
-    permissionHelper?: PermissionHelpers;
 };
 
 export default function PermissionTable({
@@ -31,7 +31,6 @@ export default function PermissionTable({
     onMaskChange,
     onDelete,
     displayedPermissions,
-    permissionHelper,
 }: Props) {
     const {t} = useTranslation();
 
@@ -100,7 +99,7 @@ export default function PermissionTable({
                     {allColumns.map(k => {
                         return (
                             <th key={k} className={'p'}>
-                                <span>{permissionHelper?.[k]?.label ?? k}</span>
+                                <AclHeader aclName={k} />
                             </th>
                         );
                     })}

@@ -13,7 +13,17 @@
       }
     },
     "permission": {
-      "manage_collection": "Manage"
+      "all": "ALL",
+      "create": "CREATE",
+      "delete": "DELETE",
+      "edit": "EDIT",
+      "manage_collection": "Manage",
+      "master": "MASTER",
+      "operator": "OPERATOR",
+      "owner": "OWNER",
+      "share": "SHARE",
+      "undelete": "UNDELETE",
+      "view": "VIEW"
     },
     "table": {
       "cols": {
@@ -719,6 +729,9 @@
     },
     "attribute_entity": {
       "synonym": {
+        "label": "Synonym"
+      },
+      "synonyms": {
         "label": "Synonyms"
       },
       "value": {
