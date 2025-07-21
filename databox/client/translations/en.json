@@ -1,7 +1,6 @@
 {
   "Already <1>bold</1>.": "Already <1>bold</1>.",
   "Already translated": "Already translated",
-  "Tags to <1>exclude</1>": "Tags to <1>exclude</1>",
   "acl": {
     "delete": "Delete",
     "form": {
@@ -142,7 +141,7 @@
       "tags_other": "+ {{count}} tag"
     },
     "view": {
-      "attributes": "Attributes",
+      "attributes": "Asset Attributes",
       "discussion": "Discussion",
       "info": "Information"
     }
@@ -299,7 +298,7 @@
   },
   "attribute_policy": {
     "new": {
-      "label": "New class"
+      "label": "New policy"
     }
   },
   "attributes": {
@@ -406,10 +405,10 @@
       "workspace": "Workspace"
     },
     "item": {
-      "create_asset": "Add Asset to Collection",
-      "create_collection": "Create sub collection",
+      "create_asset": "Add new asset to collection",
+      "create_collection": "Create new collection in this one",
       "delete": "Delete",
-      "edit": "Edit",
+      "edit": "Edit this collection",
       "notifications": "Notifications"
     },
     "manage": {
@@ -631,7 +630,8 @@
   "filter_rule": {
     "confirm_delete_this_rule": "Confirm delete this rule?",
     "exclude": {
-      "helper": "Assets in this {{type}} will only be visible if they DOES NOT contains theses tags."
+      "helper": "Assets in this {{type}} will only be visible if they DOES NOT contains theses tags.",
+      "label": "Tags to <1>exclude</1>"
     },
     "group": "Group",
     "include": {
@@ -660,7 +660,7 @@
     },
     "asset_create": {
       "title": "Create asset in",
-      "title_with_parent": "Create Asset under"
+      "title_with_parent": "Create asset under"
     },
     "asset_edit": {
       "success": "Asset edited!"
@@ -806,8 +806,8 @@
     },
     "collection_create": {
       "success": "Collection created!",
-      "title": "Create Collection in",
-      "title_with_parent": "Create Collection under"
+      "title": "Create collection in",
+      "title_with_parent": "Create collection under"
     },
     "collection_edit": {
       "success": "Collection edited!"
@@ -1201,7 +1201,7 @@
   },
   "rendition_policy": {
     "new": {
-      "label": "New class"
+      "label": "New policy"
     }
   },
   "renditions": {
@@ -1460,7 +1460,7 @@
         "title": "Entities"
       },
       "attribute_policy": {
-        "title": "Attribute classes"
+        "title": "Attribute policies"
       },
       "edit": {
         "title": "Edit"
@@ -1475,7 +1475,7 @@
         "title": "Renditions"
       },
       "rendition_policy": {
-        "title": "Rendition classes"
+        "title": "Rendition policies"
       },
       "tag_rules": {
         "title": "Tag rules"
