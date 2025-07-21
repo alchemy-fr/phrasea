@@ -7,6 +7,7 @@ import {
     AsyncRSelectProps,
     SelectOption,
 } from '@alchemy/react-form';
+import {useTranslation} from 'react-i18next';
 
 const Option = (props: OptionProps<SelectOption>) => {
     return (
@@ -48,6 +49,8 @@ export default function AssetDataTemplateSelect<
             );
     };
 
+    const {t} = useTranslation();
+
     return (
         <AsyncRSelectWidget<TFieldValues, true>
             key={`${workspaceId}-${collectionId ?? ''}`}
@@ -58,6 +61,9 @@ export default function AssetDataTemplateSelect<
             isMulti={true as any}
             closeMenuOnSelect={false}
             hideSelectedOptions={false}
+            noOptionsMessage={() =>
+                t('form.asset.templates.no_options', `No templates available`)
+            }
         />
     );
 }

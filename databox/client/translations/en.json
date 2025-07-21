@@ -652,7 +652,8 @@
         "label": "Tags"
       },
       "templates": {
-        "label": "Fill with template"
+        "label": "Fill with template",
+        "no_options": "No templates available"
       },
       "title": {
         "label": "Title"
