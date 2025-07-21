@@ -22,11 +22,9 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
 {
     private const string ASSET_INGEST_NAME = 'asset-ingest';
     private const string ATTRIBUTES_UPDATE_NAME = 'attributes-update';
-    private const string INCOMING_UPLOADER_FILE_NAME = 'incoming-uploader-file';
     private const array ROOT_WORKFLOWS = [
         self::ATTRIBUTES_UPDATE_NAME,
         self::ASSET_INGEST_NAME,
-        self::INCOMING_UPLOADER_FILE_NAME,
     ];
 
     public function __construct(
