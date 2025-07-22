@@ -39,8 +39,16 @@ final readonly class DownloadHandler
         $response = $this->client->request('GET', $url);
         $headers = $response->getHeaders();
         $contentType = $headers['content-type'][0] ?? 'application/octet-stream';
+        $contentType = trim(explode(';', $contentType, 2)[0]);
 
-        $originalName = basename(explode('?', (string) $url, 2)[0]);
+        $originalName = $url;
+        $originalName = explode('?', $originalName, 2)[0];
+        if (1 === preg_match('#^[a-z]+://[^/]+/?$#', $originalName)) {
+            $originalName = rtrim($originalName, '/');
+            $originalName .= '/index';
+        } else {
+            $originalName = basename($originalName);
+        }
         if (isset($headers['Content-Disposition'][0])) {
             $contentDisposition = $headers['Content-Disposition'][0];
             if (preg_match('#\s+filename="(.+?)"#', $contentDisposition, $regs)) {

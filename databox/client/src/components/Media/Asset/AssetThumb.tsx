@@ -3,11 +3,10 @@ import {Asset} from '../../../types';
 import AssetFileIcon from './AssetFileIcon';
 import assetClasses from '../../AssetList/classes';
 import FilePlayer from './FilePlayer';
-import {CircularProgress, SxProps} from '@mui/material';
+import {Skeleton, SxProps} from '@mui/material';
 import classNames from 'classnames';
 import {alpha, Theme} from '@mui/material/styles';
 import {videoPlayerSx} from './Players/VideoPlayer.tsx';
-import {useTranslation} from 'react-i18next';
 
 type Props = {
     asset: Asset;
@@ -23,12 +22,18 @@ function AssetThumb({
     },
     ...domAttrs
 }: Props) {
-    const {t} = useTranslation();
     let thumb: ReactNode | undefined;
 
     if (pendingSourceFile) {
         thumb = (
-            <CircularProgress title={t('common.uploading', `Uploading…`)} />
+            <Skeleton
+                style={{
+                    borderRadius: 0,
+                    transform: 'none',
+                    width: '100%',
+                    height: '100%',
+                }}
+            />
         );
     } else if (thumbnail?.file) {
         thumb = (

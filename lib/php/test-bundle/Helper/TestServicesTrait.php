@@ -24,6 +24,11 @@ trait TestServicesTrait
         return self::getContainer()->get($name);
     }
 
+    public static function replaceService(string $name, object $service): void
+    {
+        self::getContainer()->set($name, $service);
+    }
+
     public function getEntityManager(): EntityManagerInterface
     {
         return self::getService(EntityManagerInterface::class);

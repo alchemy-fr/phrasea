@@ -16,6 +16,7 @@ type Props = {
     setHand: StateSetter<boolean>;
     forceHand: boolean | undefined;
     autoCenter?: boolean;
+    allowUpscale?: boolean;
 };
 
 export default function ZoomControls({
@@ -24,6 +25,7 @@ export default function ZoomControls({
     setHand,
     forceHand,
     autoCenter = true,
+    allowUpscale = false,
 }: Props) {
     const {zoomIn, zoomOut, resetTransform, centerView} = useControls();
     const wasReset = useRef(false);
@@ -31,7 +33,13 @@ export default function ZoomControls({
 
     useEffect(() => {
         if (autoCenter && centerView && !wasReset.current) {
-            fitContentToWrapper(centerView);
+            fitContentToWrapper((scale: number | undefined) => {
+                if (!scale || (!allowUpscale && scale > 1)) {
+                    return;
+                }
+
+                centerView(scale);
+            });
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current);
             }
