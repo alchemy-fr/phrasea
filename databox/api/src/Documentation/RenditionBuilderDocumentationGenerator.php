@@ -12,7 +12,7 @@ class RenditionBuilderDocumentationGenerator extends DocumentationGenerator
     {
     }
 
-    public function getName(): string
+    public function getPath(): string
     {
         return 'Databox/Renditions/rendition_factory';
     }

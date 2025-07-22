@@ -81,7 +81,7 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
 
         $fileMock->expects($this->any())
             ->method('getMetadata')
-            ->willReturn($this->conformMetadata($metadata));
+            ->willReturn($this->normalizeMetadata($metadata));
 
         $assetMock = $this->createMock(Asset::class);
         $assetMock->expects($this->any())
@@ -101,20 +101,20 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
             $result[$attribute->getDefinition()->getName()][$attribute->getLocale()][] = $attribute->getValue();
         }
 
-        $this->assertEquals($this->conformExpected($expected), $result);
+        $this->assertEquals($this->normalizeExpected($expected), $result);
     }
 
-    private function conformExpected(array $expected): array
+    private function normalizeExpected(array $expected): array
     {
-        $conformed = [];
+        $normalized = [];
         foreach ($expected as $attributeName => $value) {
             if (is_array($value)) {
                 if ($this->isNumericArray($value)) {
                     // a simple list of values
-                    $conformed[$attributeName] = ['_' => $value];
+                    $normalized[$attributeName] = ['_' => $value];
                 } else {
                     // an array with key=locale
-                    $conformed[$attributeName] = array_map(
+                    $normalized[$attributeName] = array_map(
                         function ($v) {
                             return is_array($v) ? $v : [$v];
                         },
@@ -123,11 +123,11 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
                 }
             } else {
                 // a single value
-                $conformed[$attributeName] = ['_' => [$value]];
+                $normalized[$attributeName] = ['_' => [$value]];
             }
         }
 
-        return $conformed;
+        return $normalized;
     }
 
     private function isNumericArray($a): bool
@@ -144,27 +144,27 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
         return true;
     }
 
-    private function conformMetadata($data): array
+    private function normalizeMetadata($data): array
     {
         if (null === $data) {
             return [];
         }
-        $conformed = [];
+        $normalized = [];
         $data = is_array($data) ? $data : [$data];
         foreach ($data as $key => $value) {
             if (is_array($value)) {
-                $conformed[$key] = [
+                $normalized[$key] = [
                     'value' => join(' ; ', $value),
                     'values' => $value,
                 ];
             } else {
-                $conformed[$key] = [
+                $normalized[$key] = [
                     'value' => $value,
                     'values' => [$value],
                 ];
             }
         }
 
-        return $conformed;
+        return $normalized;
     }
 }

@@ -1,10 +1,10 @@
-# this file is used to
+# This file is used to:
 # - generate the documentation for the initial values of attributes
 #       blocks with a "documentation" section will be included in the documentation
 # - provide the data for the tests
 #       blocks with `test: false` will not be included in the tests
 #
-# syntax and shortcuts
+# Syntax and shortcuts
 #
 # - definitions/<fieldname>/initialValues is an array with keys as locale code, like '_', 'fr', 'en', etc.
 #   if no locale distingo is needed, the plain value can be used (it will be converted to ['_' => value])
