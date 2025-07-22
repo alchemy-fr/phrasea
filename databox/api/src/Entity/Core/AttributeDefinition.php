@@ -564,4 +564,9 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
             }
         }
     }
+
+    public function getOwnerId(): ?string
+    {
+        return $this->getWorkspace()?->getOwnerId();
+    }
 }

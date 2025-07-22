@@ -36,4 +36,25 @@ readonly class ObjectOrArrayAccessor
 
         return $value;
     }
+
+    public function __serialize(): array
+    {
+        return [
+            'wrapped' => $this->wrapped,
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->wrapped = $data['wrapped'];
+        $this->propertyAccessor = PropertyAccess::createPropertyAccessorBuilder()
+            ->disableExceptionOnInvalidIndex()
+            ->disableExceptionOnInvalidPropertyPath()
+            ->getPropertyAccessor();
+    }
+
+    public function unwrap(): object|array
+    {
+        return $this->wrapped;
+    }
 }

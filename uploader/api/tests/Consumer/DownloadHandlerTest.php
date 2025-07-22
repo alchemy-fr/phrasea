@@ -90,8 +90,9 @@ class DownloadHandlerTest extends TestCase
             $url,
             'USER_ID',
             'c705d014-5e18-4711-bad6-5e9e27e10099',
-            ['foo' => 'bar'],
             'en',
+            null,
+            ['foo' => 'bar'],
         );
         $consumer($message);
     }

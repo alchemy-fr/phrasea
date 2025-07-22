@@ -81,10 +81,18 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
             $output->setData($subData);
         }
 
-        $config = $this->integrationManager->getIntegrationConfiguration($data);
-        $integration = $config->getIntegration();
-        $output->integrationTitle = $integration->getTitle();
-        $output->setConfig($integration->resolveClientConfiguration($data, $config));
+        try {
+            $config = $this->integrationManager->getIntegrationConfiguration($data);
+            $integration = $config->getIntegration();
+            $output->integrationTitle = $integration->getTitle();
+            $output->setConfig($integration->resolveClientConfiguration($data, $config));
+            $output->configInfo = $integration->getConfigurationInfo($config);
+        } catch (\Throwable $e) {
+            $output->lastErrors ??= [];
+            $output->lastErrors[] = [
+                'message' => $e->getMessage(),
+            ];
+        }
 
         if ($this->isGranted(AbstractVoter::EDIT, $data)) {
             $output->configYaml = Yaml::dump($data->getConfig(), 4);

@@ -50,3 +50,12 @@ export function dataURLtoFile(dataurl: string, filename: string): File {
     }
     return new File([u8arr], filename, {type: mime});
 }
+
+export function validateUrl(value: string): boolean {
+    try {
+        new URL(value);
+        return true;
+    } catch {
+        return false;
+    }
+}

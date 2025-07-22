@@ -7,7 +7,9 @@
         {% for k,item in field.value %}
         <tr>
             <th style="padding-right:8px">{{ k }}</th>
-            <td>{{ item }}</td>
+            <td>
+                {{ item|json_encode }}
+            </td>
         </tr>
         {% endfor %}
         </tbody>

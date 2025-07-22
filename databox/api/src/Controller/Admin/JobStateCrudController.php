@@ -124,20 +124,21 @@ class JobStateCrudController extends AbstractAdminCrudController
         yield DateTimeField::new('startedAt', 'Started At');
         yield NumberField::new('number');
         yield ChoiceField::new('status', 'Status')
-        ->setChoices([
-            'TRIGGERED' => ModelJobState::STATUS_TRIGGERED,
-            'SUCCESS' => ModelJobState::STATUS_SUCCESS,
-            'FAILURE' => ModelJobState::STATUS_FAILURE,
-            'SKIPPED' => ModelJobState::STATUS_SKIPPED,
-            'RUNNING' => ModelJobState::STATUS_RUNNING,
-        ])
-        ->renderAsBadges([
-            ModelJobState::STATUS_TRIGGERED => 'secondary',
-            ModelJobState::STATUS_SUCCESS => 'success',
-            ModelJobState::STATUS_FAILURE => 'danger',
-            ModelJobState::STATUS_SKIPPED => 'info',
-            ModelJobState::STATUS_RUNNING => 'warning',
-        ]);
+            ->setChoices([
+                'TRIGGERED' => ModelJobState::STATUS_TRIGGERED,
+                'SUCCESS' => ModelJobState::STATUS_SUCCESS,
+                'FAILURE' => ModelJobState::STATUS_FAILURE,
+                'SKIPPED' => ModelJobState::STATUS_SKIPPED,
+                'RUNNING' => ModelJobState::STATUS_RUNNING,
+            ])
+            ->renderAsBadges([
+                ModelJobState::STATUS_TRIGGERED => 'secondary',
+                ModelJobState::STATUS_SUCCESS => 'success',
+                ModelJobState::STATUS_FAILURE => 'danger',
+                ModelJobState::STATUS_SKIPPED => 'info',
+                ModelJobState::STATUS_RUNNING => 'warning',
+            ])
+        ;
 
         yield DateTimeField::new('endedAt', 'Ended At');
         yield TextField::new('durationString', 'Duration');

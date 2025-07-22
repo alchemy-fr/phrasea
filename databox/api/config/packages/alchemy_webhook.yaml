@@ -1,9 +1,6 @@
 alchemy_webhook:
   normalizer_roles:
     - ROLE_SUPER-ADMIN
-  events:
-    'custom:event':
-      description: A custom event
   entities:
     App\Entity\Core\Asset:
       groups:
@@ -13,6 +10,10 @@ alchemy_webhook:
       groups:
         - !php/const App\Entity\Core\AttributeDefinition::GROUP_READ
       name: attribute_definition
+    App\Entity\Core\AssetRendition:
+      groups:
+        - !php/const App\Entity\Core\AssetRendition::GROUP_READ
+      name: rendition
     App\Entity\Core\Attribute:
       groups:
         - !php/const App\Entity\Core\Attribute::GROUP_READ

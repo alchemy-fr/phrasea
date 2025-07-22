@@ -2,7 +2,7 @@ import Menu, {MenuProps} from '@mui/material/Menu';
 import React, {JSX, MouseEventHandler, ReactNode} from 'react';
 import {ButtonBaseProps} from '@mui/material';
 
-type CloseWrapper = (handler?: MouseEventHandler) => MouseEventHandler;
+type CloseWrapper = (handler?: React.MouseEventHandler<HTMLElement>) => React.MouseEventHandler<HTMLElement>;
 
 type MainButtonProps = {
     open: boolean;
@@ -37,7 +37,7 @@ export default function DropdownActions({
     };
 
     const closeWrapper: CloseWrapper = handler => {
-        return (e => {
+        return ((e: React.MouseEvent<HTMLElement>) => {
             handler?.(e);
             handleClose();
         }) as MouseEventHandler;
