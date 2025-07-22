@@ -464,7 +464,6 @@
       "placeholder": "Search…",
       "submit": "Search"
     },
-    "uploading": "Uploading…",
     "yes": "Yes"
   },
   "copy_assets": {
@@ -832,6 +831,9 @@
       }
     },
     "integration": {
+      "config_info": {
+        "title": "Integration Keys"
+      },
       "enabled": {
         "label": "Enabled"
       },
@@ -942,6 +944,11 @@
       },
       "submit": {
         "label": "Send"
+      }
+    },
+    "translations": {
+      "collection": {
+        "remove": "Remove <1>this translation</1>"
       }
     },
     "upload": {
@@ -1083,6 +1090,77 @@
     "baskets": "Baskets",
     "facets": "Facets",
     "tree": "Tree"
+  },
+  "lib": {
+    "api": {
+      "error": {
+        "http_bad_request": "Bad Request",
+        "http_error": "Server error",
+        "http_not_found": "Not Found",
+        "http_unauthorized": "Unauthorized",
+        "session_expired": "Your session has expired"
+      },
+      "http_error": {
+        "429": "Too many requests, you can retry in {{minutes}}min"
+      }
+    },
+    "auth": {
+      "sess_exp": {
+        "about_to_expire": {
+          "intro": "Are you still here? Do you want to keep your session alive?",
+          "logout": "Logout",
+          "stay": "Keep me in!",
+          "title": "You session is about to expire"
+        },
+        "expired": {
+          "intro": "Don't forget to save your contents before signing in again!",
+          "sign_in": "Close",
+          "title": "You session has expired"
+        }
+      }
+    },
+    "form": {
+      "cancel": "Cancel",
+      "collection": {
+        "add": "Add",
+        "remove": "Remove"
+      },
+      "error": {
+        "required": "This field is required"
+      },
+      "has_errors": "Form contains errors",
+      "translations": {
+        "collection": {
+          "add": "Add new translation",
+          "title": "Translations"
+        },
+        "disabled_translation": "This translation is disabled",
+        "fallback": {
+          "label": "Default value"
+        },
+        "locale": {
+          "placeholder": "Select locale"
+        },
+        "saved": "Translations saved!",
+        "submit": "Save",
+        "tooltip": "Manage translations",
+        "translation": {
+          "label": "Translation {{locale}}"
+        },
+        "value": {
+          "label": "Translation"
+        }
+      }
+    },
+    "navigation": {
+      "dismiss_changes": "Are you sure you want to dismiss unsaved changes?"
+    },
+    "ui": {
+      "menu": {
+        "account": "My account",
+        "logout": "Logout"
+      }
+    }
   },
   "load_more": {
     "button": {
