@@ -8,7 +8,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class InitialValuesDocumentationGenerator extends DocumentationGenerator
 {
-    public function getName(): string
+    public function getPath(): string
     {
         return 'Databox/Attributes/initial_attribute_values';
     }

@@ -29,11 +29,11 @@ class DocumentationDumperCommand extends Command
 
         /** @var DocumentationGeneratorInterface $documentation */
         foreach ($this->documentations as $documentation) {
-            $name = $documentation->getName();
-            if (isset($this->chapters[$name])) {
-                throw new \LogicException(sprintf('Chapter "%s" is already registered.', $name));
+            $k = $documentation->getPath();
+            if (isset($this->chapters[$k])) {
+                throw new \LogicException(sprintf('Chapter "%s" is already registered.', $k));
             }
-            $this->chapters[$name] = $documentation;
+            $this->chapters[$k] = $documentation;
         }
 
         $this
@@ -44,16 +44,17 @@ class DocumentationDumperCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        foreach (array_keys($this->chapters) as $chapter) {
-            $pathParts = explode('/', trim($this->chapters[$chapter]->getName(), " \n\r\t\v\0/"));
+        foreach ($this->chapters as $chapter) {
+            $title = $chapter->getTitle() ?? $chapter->getPath();
+            $pathParts = explode('/', trim($chapter->getPath(), " \n\r\t\v\0/"));
             $filename = array_pop($pathParts);
 
             $outputDir = '../../doc/'.join('/', $pathParts);
             @mkdir($outputDir, 0777, true);
             $outputFile = $outputDir.'/'.$filename.'.md';
 
-            file_put_contents($outputFile, $this->getAsText($this->chapters[$chapter]));
-            $output->writeln(sprintf('<info>Documentation for chapter "%s" written to "%s".</info>', $chapter, $outputFile));
+            file_put_contents($outputFile, $this->getAsText($chapter));
+            $output->writeln(sprintf('<info>Documentation for chapter "%s" written to "%s".</info>', $title, $outputFile));
         }
 
         return Command::SUCCESS;
@@ -63,7 +64,7 @@ class DocumentationDumperCommand extends Command
     {
         $chapter->setLevels($levels);
 
-        $title = str_replace("'", "''", $chapter->getTitle() ?? $chapter->getName()); // Escape single quotes for YAML frontmatter
+        $title = str_replace("'", "''", $chapter->getTitle() ?? $chapter->getPath()); // Escape single quotes for YAML frontmatter
         if (!empty($levels)) {
             $title = join('.', $levels).': '.$title;
         }
