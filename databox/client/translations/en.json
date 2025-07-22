@@ -580,7 +580,7 @@
     "dialog": {
       "intro": "Select the renditions you want to export:",
       "submit": "Export",
-      "title_one": "Export {{count}} assets",
+      "title_one": "Export {{count}} asset",
       "title_other": "Export {{count}} assets"
     }
   },
@@ -869,6 +869,14 @@
       "label": "Permissions"
     },
     "privacy": {
+      "choices": {
+        "helpers": {
+          "private": "Users can request access"
+        },
+        "private": "Private",
+        "public": "Public",
+        "secret": "Secret"
+      },
       "inherited": "This collection cannot be more restricted than its parent collection.",
       "label": "Privacy"
     },
@@ -1243,6 +1251,7 @@
     "remember_attributes": "Remember Attributes",
     "remember_privacy": "Remember Privacy",
     "remember_tags": "Remember Tags",
+    "replace": "Replace applied template",
     "save_values_as_template_for_reuse": "Save values as template for reuse",
     "template_name": "Template name"
   },
