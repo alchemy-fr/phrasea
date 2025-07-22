@@ -24,7 +24,7 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
         private readonly ApiBudgetLimiter $apiBudgetLimiter,
         private readonly AttributesResolver $attributesResolver,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
-        private BatchAttributeManager $batchAttributeManager,
+        private readonly BatchAttributeManager $batchAttributeManager,
     ) {
     }
 
@@ -63,7 +63,7 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
 
         foreach ($attrDefs as $attrDef) {
             $text = '';
-            $sourceLangage = '';
+            $sourceLanguage = '';
             $destinationLanguages = [];
 
             if (!$attrDef->isTranslatable()) {
@@ -73,7 +73,7 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
             if ($attrDef->isMultiple()) {
                 foreach ($srcLocales as $locale) {
                     $attributesSources = $attributeIndex->getAttributes($attrDef->getId(), $locale);
-                    $sourceLangage = AttributeInterface::NO_LOCALE === $locale ? $defaultSourceLanguage : $locale;
+                    $sourceLanguage = AttributeInterface::NO_LOCALE === $locale ? $defaultSourceLanguage : $locale;
                     if (!empty($attributesSources)) {
                         break;
                     }
@@ -99,7 +99,7 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
                     $text = $attribute->getValue();
                     $toTranslates[] = [
                         'text' => $text,
-                        'sourceLanguage' => $sourceLangage,
+                        'sourceLanguage' => $sourceLanguage,
                         'destinationLanguages' => $destinationLanguages,
                         'definitionId' => $attrDef->getId(),
                         'action' => BatchAttributeManager::ACTION_ADD,
@@ -108,7 +108,7 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
             } else {
                 foreach ($srcLocales as $locale) {
                     $text = $attributeIndex->getAttribute($attrDef->getId(), $locale)?->getValue();
-                    $sourceLangage = AttributeInterface::NO_LOCALE === $locale ? $defaultSourceLanguage : $locale;
+                    $sourceLanguage = AttributeInterface::NO_LOCALE === $locale ? $defaultSourceLanguage : $locale;
                     if (!empty($text)) {
                         break;
                     }
@@ -132,7 +132,7 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
 
                 $toTranslates[] = [
                     'text' => $text,
-                    'sourceLanguage' => $sourceLangage,
+                    'sourceLanguage' => $sourceLanguage,
                     'destinationLanguages' => $destinationLanguages,
                     'definitionId' => $attrDef->getId(),
                     'action' => BatchAttributeManager::ACTION_SET,

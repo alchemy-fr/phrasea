@@ -402,6 +402,12 @@ export type IntegrationData = {
     value: any;
 } & Entity;
 
+export type IntegrationConfigKey = {
+    label: string;
+    description: string;
+    value: string | undefined;
+};
+
 export interface WorkspaceIntegration extends DefinitionBase {
     title: string;
     enabled: boolean;
@@ -410,6 +416,7 @@ export interface WorkspaceIntegration extends DefinitionBase {
     data: IntegrationData[];
     config: object;
     configYaml: string;
+    configInfo?: IntegrationConfigKey[];
     tokens: IntegrationToken[];
     workspace: Workspace | string;
     owner?: User;

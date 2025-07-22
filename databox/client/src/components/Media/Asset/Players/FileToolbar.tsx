@@ -6,6 +6,7 @@ import {AssetAnnotationRef} from '../Annotations/annotationTypes.ts';
 import ZoomControls from './ZoomControls.tsx';
 import {
     ReactZoomPanPinchContentRef,
+    ReactZoomPanPinchHandlers,
     TransformComponent,
     TransformWrapper,
 } from 'react-zoom-pan-pinch';
@@ -91,7 +92,7 @@ export default function FileToolbar({
     }, [contentRef]);
 
     const fitContentToWrapper = useCallback(
-        (centerView: (scale: number) => void) => {
+        (centerView: ReactZoomPanPinchHandlers['centerView']) => {
             if (contentRef.current) {
                 const wrapperEl = contentRef.current.closest(
                     `.${filePlayerRelativeWrapperClassName}`

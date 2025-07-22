@@ -17,6 +17,8 @@ interface IntegrationInterface
 
     public function buildConfiguration(NodeBuilder $builder): void;
 
+    public function generateConfigurationDefaults(array $userConfig): array;
+
     public function validateConfiguration(IntegrationConfig $config): void;
 
     public function getConfigurationInfo(IntegrationConfig $config): array;

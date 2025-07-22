@@ -31,11 +31,20 @@ class DownloadHandler
 
     public function __invoke(Download $message): void
     {
+        $url = $message->url;
         $response = $this->client->request('GET', $message->url);
         $headers = $response->getHeaders();
         $contentType = $headers['content-type'][0] ?? 'application/octet-stream';
+        $contentType = trim(explode(';', $contentType, 2)[0]);
 
-        $originalName = basename(explode('?', $message->url, 2)[0]);
+        $originalName = $url;
+        $originalName = explode('?', $originalName, 2)[0];
+        if (1 === preg_match('#^[a-z]+://[^/]+/?$#', $originalName)) {
+            $originalName = rtrim($originalName, '/');
+            $originalName .= '/index';
+        } else {
+            $originalName = basename($originalName);
+        }
         if (isset($headers['Content-Disposition'][0])) {
             $contentDisposition = $headers['Content-Disposition'][0];
             if (preg_match('#\s+filename="(.+?)"#', $contentDisposition, $regs)) {

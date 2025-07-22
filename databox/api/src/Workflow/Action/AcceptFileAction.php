@@ -30,15 +30,18 @@ readonly class AcceptFileAction implements ActionInterface
         $inputs = $context->getInputs();
         $userId = $inputs['userId'];
         $assetData = $this->uploaderClient->getAsset($inputs['baseUrl'], $inputs['assetId'], $inputs['token']);
-        $assetId = $assetData['data']['targetAsset'] ?? null;
-        $renditionDefId = $assetData['data']['targetRendition'] ?? null;
+        $data = $assetData['data'];
+        $assetId = $data['targetAsset'] ?? null;
+        $formData = $assetData['formData'] ?? [];
+        $assetId = $data['targetAsset'] ?? null;
+        $renditionDefId = $data['targetRendition'] ?? null;
 
         if (null !== $assetId) {
             $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
             if ($renditionDefId) {
                 DoctrineUtil::findStrict($this->em, RenditionDefinition::class, $renditionDefId);
             } else {
-                $uploadToken = $assetData['data']['uploadToken'];
+                $uploadToken = $data['uploadToken'];
 
                 if ($uploadToken !== $asset->getPendingUploadToken()) {
                     throw new \InvalidArgumentException('Unexpected upload token');
@@ -46,14 +49,14 @@ readonly class AcceptFileAction implements ActionInterface
             }
         } else {
             $collection = null;
-            $collectionId = $assetData['formData']['collection_destination'] ?? null;
+            $collectionId = $formData['collection_destination'] ?? $inputs['collectionId'] ?? null;
             if ($collectionId) {
                 $collection = DoctrineUtil::findStrict($this->em, Collection::class, $collectionId);
                 $workspace = $collection->getWorkspace();
             } else {
-                $workspaceId = $assetData['data']['workspaceId'] ?? null;
+                $workspaceId = $data['workspaceId'] ?? $inputs['workspaceId'] ?? null;
                 if (empty($workspaceId)) {
-                    throw new \InvalidArgumentException('Missing "collection_destination", "targetAsset" or "workspaceId"');
+                    throw new \InvalidArgumentException('Missing "collection_destination", "targetAsset", "collectionId" or "workspaceId"');
                 }
                 $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $workspaceId);
             }
@@ -66,9 +69,6 @@ readonly class AcceptFileAction implements ActionInterface
                 $asset->setReferenceCollection($collection);
                 $asset->addToCollection($collection);
             }
-
-            $this->em->persist($asset);
-            $this->em->flush();
         }
 
         $inputFile = new InputFile(
@@ -78,9 +78,12 @@ readonly class AcceptFileAction implements ActionInterface
             $assetData['url'],
         );
 
+        $this->em->persist($asset);
         $file = $this->borderManager->acceptFile($inputFile, $asset->getWorkspace());
+
         $context->setOutput('fileId', $file->getId());
         $context->setOutput('assetId', $asset->getId());
+        $context->setOutput('formData', $formData);
         $context->setOutput('renditionId', $renditionDefId);
     }
 }

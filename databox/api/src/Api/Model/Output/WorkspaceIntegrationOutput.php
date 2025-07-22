@@ -33,6 +33,9 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     public ?string $configYaml = null;
 
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
+    public ?array $configInfo = null;
+
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private bool $enabled = true;
 
     #[Groups([WorkspaceIntegration::GROUP_LIST])]

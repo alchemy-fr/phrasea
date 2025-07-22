@@ -15,15 +15,25 @@ final class IncomingUploaderFileWorkflowEvent
         string $assetId,
         string $userId,
         string $token,
+        ?string $collectionId = null,
+        ?string $workspaceId = null,
     ): WorkflowEvent {
+        $payload = [
+            'baseUrl' => $baseUrl,
+            'assetId' => $assetId,
+            'userId' => $userId,
+            'token' => $token,
+        ];
+        if (null !== $collectionId) {
+            $payload['collectionId'] = $collectionId;
+        }
+        if (null !== $workspaceId) {
+            $payload['workspaceId'] = $workspaceId;
+        }
+
         return new WorkflowEvent(
             self::EVENT,
-            [
-                'baseUrl' => $baseUrl,
-                'assetId' => $assetId,
-                'userId' => $userId,
-                'token' => $token,
-            ]
+            $payload
         );
     }
 }
