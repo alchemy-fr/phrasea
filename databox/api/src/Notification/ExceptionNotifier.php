@@ -15,15 +15,19 @@ final readonly class ExceptionNotifier
 
     public function notifyException(UserNotifyableException $exception): void
     {
+        if ($exception instanceof EntityDisableNotifyableException) {
+            if (!$exception->getEntity()->isEnabled()) {
+                return;
+            }
+
+            $this->errorDisableHandler->handleError($exception->getEntity(), $exception);
+        }
+
         foreach ($exception->getSubscribers() as $subscriber) {
             $this->notifier->notifyUser($subscriber, $exception->getNotificationId(), [
                 'subject' => $exception->getSubject(),
                 'message' => $exception->getMessage(),
             ]);
-        }
-
-        if ($exception instanceof EntityDisableNotifyableException) {
-            $this->errorDisableHandler->handleError($exception->getEntity(), $exception);
         }
     }
 }

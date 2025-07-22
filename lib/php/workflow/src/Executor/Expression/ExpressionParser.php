@@ -62,7 +62,12 @@ class ExpressionParser extends ExpressionLanguage
         }
 
         if (1 === $count) {
-            return $this->evaluate($matches[1][0], $variables);
+            $var = $this->evaluate($matches[1][0], $variables);
+            if ($var instanceof ObjectOrArrayAccessor) {
+                return $var->unwrap();
+            }
+
+            return $var;
         }
 
         return $this->replaceVars($expression, $variables);

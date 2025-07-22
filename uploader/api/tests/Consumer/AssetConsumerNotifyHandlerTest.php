@@ -55,9 +55,9 @@ class AssetConsumerNotifyHandlerTest extends ApiTestCase
         $commit->getAssets()->add(new Asset());
         $commit->getAssets()->add(new Asset());
         $commit->setToken('a_token');
-        $target->setTargetAccessToken($accessToken);
+        $target->setAuthorizationKey($accessToken);
         $target->setTargetUrl('http://localhost/api/v1/upload/enqueue/');
-        $target->setTargetTokenType('OAuth');
+        $target->setAuthorizationScheme('OAuth');
         $commit->setTarget($target);
 
         $em->expects($this->once())

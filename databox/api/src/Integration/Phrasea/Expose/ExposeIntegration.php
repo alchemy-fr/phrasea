@@ -168,9 +168,13 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
     public function getConfigurationInfo(IntegrationConfig $config): array
     {
         return [
-            'Redirect URI' => $this->urlGenerator->generate('integration_auth_code', [
-                'integrationId' => $config->getIntegrationId(),
-            ], UrlGeneratorInterface::ABSOLUTE_URL),
+            [
+                'label' => 'Redirect URI',
+                'description' => 'The URI that must be allowed in the OAuth client configuration of Expose.',
+                'value' => $this->urlGenerator->generate('integration_auth_code', [
+                    'integrationId' => $config->getIntegrationId(),
+                ], UrlGeneratorInterface::ABSOLUTE_URL),
+            ],
         ];
     }
 

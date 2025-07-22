@@ -11,6 +11,10 @@ on:
                 required: true
             token:
                 required: true
+            workspaceId:
+                required: false
+            collectionId:
+                required: false
 
 jobs:
     border:
@@ -20,6 +24,7 @@ jobs:
         outputs:
             fileId: ${{ steps.accept_file.outputs.fileId }}
             assetId: ${{ steps.accept_file.outputs.assetId }}
+            formData: ${{ steps.accept_file.outputs.formData }}
 
     uploader_ack:
         needs: [ border ]
@@ -33,3 +38,4 @@ jobs:
         with:
             assetId: ${{ jobs.border.outputs.assetId }}
             fileId: ${{ jobs.border.outputs.fileId }}
+            formData: ${{ jobs.border.outputs.formData }}

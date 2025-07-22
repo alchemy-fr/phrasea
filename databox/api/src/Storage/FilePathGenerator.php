@@ -14,10 +14,6 @@ final readonly class FilePathGenerator
 
     public function generatePath(string $workspaceId, ?string $extension): string
     {
-        if (empty($extension)) {
-            throw new \InvalidArgumentException('Files must have an extension');
-        }
-
         return $this->pathGenerator->generatePath(
             $extension,
             sprintf('files/%s/%s/', $workspaceId, date('Y/m/d'))

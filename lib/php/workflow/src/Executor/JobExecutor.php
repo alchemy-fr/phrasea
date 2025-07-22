@@ -9,6 +9,7 @@ use Alchemy\Workflow\Exception\ConcurrencyException;
 use Alchemy\Workflow\Exception\JobSkipExceptionInterface;
 use Alchemy\Workflow\Executor\Action\ActionRegistryInterface;
 use Alchemy\Workflow\Executor\Expression\ExpressionParser;
+use Alchemy\Workflow\Executor\Expression\ObjectOrArrayAccessor;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Step;
 use Alchemy\Workflow\State\Inputs;
@@ -246,6 +247,10 @@ final readonly class JobExecutor
         foreach ($job->getOutputs() as $key => $value) {
             try {
                 $resolved = $this->expressionParser->evaluateJobExpression($value, $context);
+                if ($resolved instanceof ObjectOrArrayAccessor) {
+                    $resolved = $resolved->unwrap();
+                }
+
                 $outputs->set($key, $resolved);
             } catch (\Throwable $e) {
                 $this->logger->error($e->getMessage());

@@ -72,7 +72,12 @@ abstract class AbstractIntegrationAction implements IfActionInterface
 
     public function evaluateIf(JobExecutionContext $context): bool
     {
-        $asset = $this->getAsset($context);
+        try {
+            $asset = $this->getAsset($context);
+        } catch (\InvalidArgumentException $e) {
+            return false;
+        }
+
         if (!$this->shouldRun($asset)) {
             return false;
         }

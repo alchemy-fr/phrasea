@@ -29,7 +29,11 @@ readonly class AssignSourceFileToAssetAction implements ActionInterface
         $file = DoctrineUtil::findStrict($this->em, File::class, $fileId);
         $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
 
-        $this->assetManager->assignNewAssetSourceFile($asset, $file);
+        $this->assetManager->assignNewAssetSourceFile(
+            $asset,
+            $file,
+            $inputs['formData'] ?? [],
+        );
         $this->em->flush();
     }
 }
