@@ -1,0 +1,579 @@
+---
+title: Phrasea User Documentation
+description: Complete user manual for Phrasea Databox
+status: draft
+translation: en
+lastUpdate: 2025-07-22
+---
+
+# PHRASEA USER DOCUMENTATION
+
+---
+
+## Introduction
+
+Phrasea is a Digital Asset Management (DAM) solution developed by Alchemy, a French publisher based in Paris, DAM expert since the early 1990s. Designed as the evolution of Phraseanet (launched in 2005), Phrasea is a robust, modern and comprehensive DAM solution, entirely rewritten to meet today’s digital media management challenges.
+
+Open Source, it is a sovereign alternative to proprietary platforms, ensuring transparency and independence.
+
+API-first, highly scalable, Phrasea is available in SaaS, On-premise, and hybrid modes.
+
+It offers everything you expect from a DAM: import with or without pre-indexing, manual or automatic indexing, workflow management, collaboration and sharing tools, web publishing, advanced rights management. It is particularly aimed at communication and marketing teams, public institutions and local authorities, media and photographers, IT, etc.
+
+Key strengths of Phrasea in a few words…
+
+* Modern architecture and API First. Based on microservices: each module is isolated, deployable independently. Docker/Kubernetes deployment: Containerized deployment ensures consistent installation, automatic scaling and full control of infrastructure.
+* One of the few solutions available both in SaaS and On-Premise
+* Professional support available via Alchemy (maintenance contracts, support hour packs, hosting offers, custom developments, training, ...)
+* Modern, responsive and multilingual interface.
+* Massive, fast and reliable import: Manage thousands of files effortlessly.
+* Powerful search with Elastic engine: Full text, faceted search, advanced filters on all types of metadata, suggestions, sorting.
+* Batch manual or automatic indexing, tags,
+* Collaboration tools (annotation, integrated chat) and asset sharing
+* Numerous integrations available for assets (simple retouching, remove background, text detection, ...)
+* Asset versioning, rendition generation
+* Integrated web publishing with Phrasea Expose (create mini sites, CDN integration, ideal for sharing assets externally with or without password, terms of use, customizable web gallery templates, ...)
+* Enhanced security: Authentication via Keycloak, SSO, OAuth2, MFA. Granular access control (ACL, roles, ...).
+
+# Databox
+
+## The Interface
+
+The media management interface is called “Databox”. It is divided into several areas:
+
+* ### Sidebar
+
+  - Baskets: to group assets, temporarily or not, for an action: editing, export, sharing, publishing a gallery on an external site, ...
+
+* ### Search Bar
+
+  - Simple search: Enter one or more terms to find assets
+  - Advanced search: Enter one or more conditions to search in specific fields.
+  - Sorting: To classify results as needed, and/or by large sections for even clearer display.
+
+* ### Results Display Area
+
+  The central area allows you to view all assets resulting from a search.
+  By default, these are displayed as thumbnails (two other display modes are available in the display preferences: list and masonry).
+
+* ### Actions Menu
+
+  To the right of the actions menu, on the same line, are the User Preferences. They include the following options:
+
+  - Result display mode
+  - Asset view display preferences: show/hide titles, collections, tags, preview on hover
+  - Thumbnail size choice
+  - Overall display size and ratio between preview and attributes
+  - Creation and management of personal attribute lists
+
+* ### Add Assets
+
+---
+
+## Import
+
+* ### Add Assets
+
+Adding assets (photos, videos, audio documents, PDFs, etc.) is very easy in the DAM. There are several methods to import assets into Phrasea:
+
+1. #### Add assets from the + icon
+
+* Click the **+** button at the bottom right of the interface. A window opens.
+* Select files or drag and drop into the window.
+* Choose a Workspace if there are several, as well as the destination collection.
+* Select document confidentiality (Public, Private or Secret).
+* Validate the transfer by clicking the “Add” button.
+
+2. #### Add assets directly from a collection
+
+In the sidebar:
+
+* Browse the tree and choose your destination collection for these new assets.
+* When hovering over the collection title, the **...** icon appears. Click it.
+* Select “Add a new asset to the collection”.
+* The rest of the process is the same as previously described.
+
+3. #### Drag and drop documents into Databox
+
+A simple drag and drop anywhere on the window opens the import window. The documents are ready for addition, just select a destination collection and apply the same process as before.
+
+4. #### Use Phrasea Uploader
+
+Besides import in Databox, you can use Phrasea Uploader.
+Phrasea Uploader is a dedicated file import application.
+- Import from any device (phone, tablet, desktop)
+- Large file volumes
+- Build pre-indexing forms
+- Customizable input channels
+- Automated imports (retrieve media from other applications)
+
+* ### Add with Pre-indexing
+
+Pre-index your content during import. Instead of clicking “Import” directly after loading your assets, fill out the form presented.
+A form allows you to fill in information in the various attributes that have been configured: title, description, keywords, credit, tags, etc.
+From this same window, you can pre-index in several languages simultaneously.
+
+* ### Use Templates on Import
+
+Pre-indexing templates allow you to automatically pre-fill metadata when importing assets. They speed up user work while ensuring documentary consistency. Less typing also means fewer errors or omissions.
+
+To create a template:
+
+* Fill in attributes, tags, etc. on selected assets for import, then check the box in the import form: “Save values as template for reuse”.
+* Give the template a name.
+* Fill in the available options within a template:
+
+  - Replace or not a template that has been applied
+  - Apply or not to the collection
+  - Include or not sub-collections
+  - Include or not attributes
+  - Include or not confidentiality
+  - Include or not tags
+  - Make the template Public or only available to the user who created it.
+
+* Click the “Add” button to transfer the assets.
+* On the next import, the template appears in the dropdown list at the top of the form “Fill with template”.
+
+Good to know:
+> Users thus create templates adapted to different uses, which can be shared if needed.
+> Templates can be combined.
+
+---
+
+## Search
+
+* ### Search: Introduction
+
+The search engine used by Phrasea is Elastic   
+[https://www.elastic.co/](https://www.elastic.co/)   
+Elasticsearch is an open source, distributed solution designed for search and analytics engines, optimized for speed, scalability and AI applications. As a retrieval platform, it stores structured, unstructured and vector data in real time — offering fast hybrid and vector search, powering observability and security, and enabling AI-driven applications to achieve high performance, optimal accuracy and great relevance.
+
+Elasticsearch allows you to:
+
+- Search documents in free text, by exact words, or precise expressions.
+- Search in multiple fields at once,
+- Combine many criteria (conditions),
+- Perform fuzzy searches,
+- Search with value ranges (dates, numbers).
+- Finally, adjust the relevance of results with custom scoring functions.
+
+These search methods with Elastic are numerous and detailed here on the Elastic site [https://www.elastic.co/docs/explore-analyze/query-filter](https://www.elastic.co/docs/explore-analyze/query-filter) 
+
+* ### Simple Search
+
+In Databox, the search bar is above the results display.
+Place the cursor in the search bar and enter a term.
+
+The “Search Suggestions” feature offers terms to the user to guide their search. You also avoid missing important information.
+
+Results are displayed by default as a grid (thumbnails).
+
+Phrasea includes an automatic highlighting feature for terms in metadata. When a user performs a search, matching terms are visually highlighted, making it easier to quickly identify relevant information. This function is active and applies to all indexed attributes.
+For multi-valued attributes, only the strict term is considered.
+
+* ### Faceted Search
+
+Faceted search can be seen as a map of the search.
+After launching it, facets create a kind of plan of the results by distributing them according to different criteria such as date, category, location or document type.
+Each facet represents a potential path to explore to refine and guide the search more precisely.
+
+- Navigate via facets
+
+Click on the “Facets” tab in the sidebar.
+For each facet, check the values you are interested in to progressively refine the search.
+Example: choose a date range, keywords, tags, country, city, credit, ...
+
+- Combine or exclude facets
+
+Combining or excluding facets allows you to broaden or narrow the scope of the search.
+This ensures you reach the exact information more efficiently.
+
+After selecting a facet value (for example: the tag “New”), click on the menu (**...**) of the value. Several choices are offered:
+- Disable: to exclude this value from the search. All assets with tags except the “New” tag will be displayed.
+- Enable: when you have excluded a value from the search. The facet will then be reactivated.
+- Edit: to modify a condition (see “advanced search” below).
+- Remove: to remove this facet from your search.
+
+- Configure facets to display
+
+You can choose which facets are displayed in the sidebar.
+To configure facets, you must have Workspace management rights.
+Go to Workspace editing, click on the “Attributes” tab and for each attribute, decide whether to check the “Facets” box.
+
+* ### Advanced Search
+
+Advanced search allows you to quickly find assets by combining several criteria and, in particular, to search specific attributes. Click the funnel icon to open advanced search.
+
+- Add conditions
+
+Click “Add condition”.
+
+From this window, conditions must be added:
+
+- Select a field to search in:
+  - Either a technical field (collection, dates, file size or type, tags, etc.)
+  - Or among your attributes (credit field, title, caption, country, city, keywords, etc.)
+
+- Select the operator
+After choosing the field, select the operator (“starts with”, “exists”, “contains”, “equals”, ...: these operators change depending on the chosen condition)
+
+- Select the value
+Finally, enter a value: a term, a date, etc.
+
+You can then run the search by clicking the “Add” button, or add one or more other conditions, as well as one or more groups of conditions to combine search filters on specific fields.
+
+* ### Sorting
+
+You can sort and group your search results: Sort by creation date, modification date, tags or attributes.
+By grouping results by large sections, you get a display adapted to your needs.
+
+Example: A sort on the “Country” attribute placed first, then add the city. Uncheck unwanted attributes and move these two elements to the top by drag and drop.
+
+Results are displayed first by country, then by city.
+
+Check “Group by sections” to add group separators in the results presentation. Click the “Apply” button.
+Results are displayed first by country, then by city, separated by large sections.
+
+---
+
+---
+
+**Warning:**  
+When searching by date  
+Equal to (whether complete or incomplete), there may be a difference (e.g. Japan time zone offset) due to time zones. The “created at” is always in UTC.  
+To solve this, do not search in text mode with “=”.  
+You must search with the “between” operator to get correct results.
+
+---
+
+## Edit
+
+Phrasea automatically extracts asset metadata during import.
+This information is indexed to enable searching and enrichment of the file.
+
+* Edit assets in batch
+
+Select assets, then click the "Edit" button in the menu.
+
+A window opens.
+The indexing window shows the selected assets.
+
+Select your assets to index in batch, as well as in sub-batch, from the most generic to the most specific.
+
+You can change the thumbnail size in the display preferences.
+
+The input area shows tags, fields, and a document preview.
+It is possible to index in several languages simultaneously.
+
+Values are visible on the right side of the window.
+
+Enter information in a field.
+
+You can correct entered values and undo or redo your changes using the "undo" or "redo" button.
+
+Compare the original values to those in the modified indexing sheet before validating everything.
+
+- Edit one asset at a time
+
+Select an asset.
+Click the “Edit” button.
+The “Attributes” tab shows the fields to fill in.
+
+Enter information in the various fields.
+Tags must be entered from the “Edit” tab.
+
+Click Save.
+
+## Perform Actions on Assets
+
+* Export assets
+
+To download documents, select items from the results grid then click the “Export” button in the actions bar.
+
+The window that opens allows the user to choose the renditions to export.
+
+* Delete
+
+To permanently delete an asset, select the item then click the Delete button.
+A confirmation window appears.
+
+* Move
+
+Click the arrow next to the “Edit” button.
+Select: “Move”.
+A window opens.
+Expand the Workspaces and collections you have access to in order to choose the collection to move the item to.
+Click “Move” to finalize the move.
+
+* Duplicate
+
+Two types of copies can be made in Phrasea:
+- Asset duplication
+- Shortcut copy
+
+Select the case that suits your needs.
+Choose a destination collection
+Finally, click “Copy”.
+
+* Annotate
+
+Phrasea offers a visual annotation feature allowing you to comment directly on a specific area of an asset.
+This collaborative function lets you click on a part of the asset to place an annotation, making detailed feedback, corrections or targeted validations easier (indicate a correction to be made, designate a location, discuss a specific topic with users). Each annotation can be accompanied by a message and a mention to notify one or more collaborators.
+
+To annotate an asset, double click on a document. The detailed view opens.
+
+At the bottom of the image, a menu is present. The annotation tool is highlighted above.
+You can hide this menu bar by clicking the cross. It will then be indicated by an arrow on the left side of your screen, if you want to reopen it later.
+
+When you open the menu, the annotation function presents various tools:
+- Text tool: to add text on the image
+- Target, rectangle, circle tool to draw these shapes
+- Arrow and line tool, to draw these lines
+- Brush, to choose the color of shapes and lines
+- Size
+- Finally, below: zoom, unzoom, center the image, see the whole image.
+
+Choice of shape and size
+
+You can also resize the shape by placing the cursor on one of the circles
+
+Choice of color for the circle / rectangle / line...
+Select the element you have drawn, then choose the color, size, etc.
+
+Rename the element if necessary by clicking on the title or delete it by clicking on the trash.
+
+For a user to see an annotation, they must click on the highlighted element below. If there are several elements, they must repeat the operation.
+
+* Discuss
+
+Collaborative messaging:
+Phrasea DAM includes messaging allowing users to communicate directly on visuals. For each asset, a comment area is available, accessible from the detailed view.
+This feature allows you to leave messages, ask questions or give targeted feedback on an image. Users can mention one or more users via @ (followed by the user’s name) which generates a notification to facilitate collaboration.
+Messages remain visible to all users who have access to the asset. This allows clear tracking of decisions and validations. This messaging is ideal for streamlining validation or retouching processes, and centralizing discussions related to a file.
+
+* Notifications
+
+The system includes notifications to keep users informed in real time of actions performed on assets.
+A user can be notified if they:
+
+- are individually subscribed to an asset: They can then, at their choice:
+  - be notified each time the asset is updated
+  - when there is a new comment on the asset
+
+They can unsubscribe from tracking an asset.
+
+- are subscribed to a collection
+
+The user can configure their notification preferences: to receive them by email or in the application, or both.
+
+* Version Management
+
+todo
+
+All actions can be triggered individually from each asset in the results grid.
+
+## Display
+
+Result display can be customized by users.
+
+- Views (thumbnails, list, masonry)
+
+Three views are possible in Phrasea
+
+- Thumbnail view
+- List view
+- Masonry view
+
+* Display Preferences
+
+The Databox interface adjusts to your needs.
+
+The display shows only what you want to see. To do this, go to Display Preferences via the highlighted arrow below:
+
+You can:
+
+- Choose the size of your thumbnails
+- Choose to display (or not) the title, tags, collections (and their number), image preview on hover
+- Choose preview preferences: autoplay for videos, choose to display only the image, only the attributes, or both
+- Finally, choose the overall preview size, as well as the size dedicated to attribute display.
+
+* Attribute Lists
+
+Lists can be created to pre-select the attributes you want to see displayed when hovering over your assets in the results display area.
+
+Below, an example with a custom list with only geographic information:
+
+The result displayed on hover shows the attributes: City, Country, GPS Position (with map display).
+
+* Themes
+
+Themes can be set for your Databox interface. You can change the colors of your interface, the shape of the buttons...
+
+Below, an example with our 4 default themes on the demo platform:
+
+- Preview (detailed view)
+
+Double click on a thumbnail to view a document and start working.
+
+* By expanding the "Asset attributes" tab, you have access to the information entered in the record, with the corresponding attributes.
+* Below, the "Information" tab tells you about the asset owner, its ID, and various technical fields, such as the date the asset was added to the DAM, the last modification date, the collection and workspace it is in.
+* The "Discussion" tab allows users to send messages about the image, and also groups annotations.
+* The following tabs are integrations:
+
+Several integrations can be installed in your DAM (Auto indexing, Remove Background, simple retouching, ...)
+
+## Sharing
+
+- Public sharing
+- Advanced sharing
+
+By clicking the “Share” button, easily share your media in Phrasea.
+
+After selecting an asset, choose between "standard" mode for a permanent sharing link, in Public mode, or "advanced" mode for time-limited sharing.
+
+The sharing bar in this mode also facilitates integration with social networks.
+
+## Baskets
+
+In Phrasea, baskets can be created to temporarily or permanently set aside certain assets.
+
+* **Access a basket**
+
+Find all baskets in the sidebar, "Baskets" tab:
+
+Click on the title of a basket to display its contents:
+
+* **Create baskets**
+
+To create a basket, simply click the "Create a new basket" button in the sidebar.
+
+Give it a title, optionally a description, then click "Save".
+
+* **Add assets to the basket**
+
+Above the results display area, the button with the basket title appears.
+Select the basket of your choice to add assets to.
+
+To do this, use the arrow next to the default basket title (or the last basket used) to select the desired basket.
+
+- Add an asset to a basket
+In the results:
+
+Select an asset to add to the basket, then click the basket icon on the thumbnail.
+
+The number of assets in the basket increases as documents are added.
+
+- Select media in batches to add to a basket
+Select several assets then click the icon in the button
+
+* **Perform actions on basket assets**
+
+Click on the basket as seen previously to display its contents, then select one or more assets: various action buttons are available, depending on your rights: export, index, move, share, delete, remove asset from basket.
+
+Action buttons are grayed out. Select assets to activate them. If they remain grayed out, it means you do not have sufficient rights.
+
+As in the results display area, the user can choose their display preferences (adjust thumbnail size, attribute size, choose to display or not titles, tags, collections, preview on hover, switch to thumbnail or list mode, etc.).
+
+* **Basket sharing**
+
+It is possible to share baskets with other DAM users.
+
+To do this, right-click on the basket title, then click "Edit Basket".
+
+A window opens.
+
+Go to the "Permissions" tab and choose the group(s) and/or system user(s) to share with.
+
+Finally, select the appropriate rights to grant them.
+
+* **Basket publication**
+
+Publish your baskets as web galleries on an external site.
+
+Phrasea Expose is directly integrated and allows you to view your publications, customize the layout, colors to your graphic charter.
+
+Many options are available for each publication, such as adding terms of use, a logo, protecting a publication by adding a password, ...
+
+Click on Integrations
+NB: Expose must have been configured [Details todo]
+
+Click on Authorize
+
+Click the button Synchronize with a publication
+
+The publication creation window opens
+
+Enter information in the fields:
+- Choose a parent publication (optional): if you want to create a hierarchical publication
+- Publication title (required): name the publication
+- Identifier (optional): or slug: unique identifier
+- Description (optional)
+- Enabled (required): button to make a publication active or not
+- Publication profile: select a profile among those you have previously configured.
+
+Click Create
+
+The window displays a publication link. You can delete it if needed, or force synchronization if you add assets to the basket after creating the publication.
+
+Click on the displayed link.
+
+We had chosen a grid media display (configured in the chosen publication profile)
+
+If I prefer a Gallery display, as well as other colors, I choose another publication profile. For example:
+This profile contains a logo.
+
+Click Delete to delete the publication and check “also delete the publication”.
+
+---
+
+**Initial structure**
+
+**[Doc structure]**
+
+**The Interface**
+
+* Sidebar
+
+- Workspaces/collections
+- Facets
+- Baskets
+
+* Search area
+
+* Actions menu
+
+* Results display area
+
+* User display settings/preferences
+
+**Import**
+- Add assets (several methods)
+- Add and pre-index
+- Use templates on import
+
+**Search**
+- Simple search
+- Advanced search
+- Sorting
+- Faceted search
+
+**Edit**
+- Edit an asset
+- Edit assets in batch
+
+**Perform actions on assets**
+Export, delete, move, duplicate, annotate, discuss, + integrations
+
+**Display**
+- Views (thumbnails, list, masonry)
+- User settings (thumbnail size, attribute/preview size and ratio, etc, attribute lists, themes)
+- Preview (detailed view)
+
+**Sharing**
+- Public sharing
+- Advanced sharing
+
+**Baskets**
+- Create basket
+- Create a publication from a basket
+- Share a basket with users or user groups (permissions tab)
