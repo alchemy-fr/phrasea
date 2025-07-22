@@ -7,17 +7,12 @@ namespace App\Matomo;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final class PhraseanetClient
+final readonly class PhraseanetClient
 {
-    private HttpClientInterface $client;
-    private string $authToken;
-
     public function __construct(
-        HttpClientInterface $phraseanetClient,
-        string $phraseanetAuthToken,
+        private HttpClientInterface $phraseanetClient,
+        private string $phraseanetAuthToken,
     ) {
-        $this->client = $phraseanetClient;
-        $this->authToken = $phraseanetAuthToken;
     }
 
     public function patchField(array $stat): void
@@ -32,9 +27,9 @@ final class PhraseanetClient
         unset($stat['idsubdatatable']);
 
         try {
-            $data = $this->client->request('GET', sprintf('/api/v1/records/%s/%s/metadatas/', $databoxId, $recordId), [
+            $data = $this->phraseanetClient->request('GET', sprintf('/api/v1/records/%s/%s/metadatas/', $databoxId, $recordId), [
                 'headers' => [
-                    'Authorization' => 'OAuth '.$this->authToken,
+                    'Authorization' => 'OAuth '.$this->phraseanetAuthToken,
                 ],
             ])->toArray();
         } catch (HttpExceptionInterface $e) {
@@ -57,9 +52,9 @@ final class PhraseanetClient
             return;
         }
 
-        $res = $this->client->request('PATCH', sprintf('/api/v3/records/%s/%s/', $databoxId, $recordId), [
+        $res = $this->phraseanetClient->request('PATCH', sprintf('/api/v3/records/%s/%s/', $databoxId, $recordId), [
             'headers' => [
-                'Authorization' => 'OAuth '.$this->authToken,
+                'Authorization' => 'OAuth '.$this->phraseanetAuthToken,
             ],
             'json' => [
                 'metadatas' => [

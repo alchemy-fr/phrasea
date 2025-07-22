@@ -10,6 +10,8 @@ use Alchemy\StorageBundle\Storage\PathGenerator;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use App\Entity\Asset;
 use App\Entity\Target;
+use App\Repository\TargetRepository;
+use App\Security\Voter\TargetVoter;
 use App\Storage\AssetManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,29 +27,35 @@ final class CreateAssetAction extends AbstractController
         private readonly UploadManager $uploadManager,
         private readonly PathGenerator $pathGenerator,
         private readonly EntityManagerInterface $em,
+        private readonly TargetRepository $targetRepository,
     ) {
     }
 
     public function __invoke(Request $request): Asset
     {
-        $targetId = null;
         if (!empty($targetSlug = $request->request->get('targetSlug'))) {
-            $target = $this->em->getRepository(Target::class)->findOneBy([
+            $target = $this->targetRepository->findOneBy([
                 'slug' => $targetSlug,
             ]);
+
+            if (!$target instanceof Target) {
+                throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetSlug));
+            }
         } elseif (!empty($targetId = $request->request->get('targetId'))) {
             $target = $this->em->find(Target::class, $targetId);
+
+            if (!$target instanceof Target) {
+                throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetId));
+            }
         } else {
             throw new BadRequestHttpException('"targetId" or "targetSlug" is required');
-        }
-
-        if (!$target instanceof Target) {
-            throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetId));
         }
 
         if ($request->request->all('multipart')) {
             return $this->handleMultipartUpload($request, $target);
         }
+
+        $this->denyAccessUnlessGranted(TargetVoter::UPLOAD, $target);
 
         ini_set('max_execution_time', '600');
 
