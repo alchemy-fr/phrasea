@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Repository\AttributeList;
 
+use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
+use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\AttributeList\AttributeList;
 use App\Entity\AttributeList\AttributeListItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 class AttributeListRepository extends ServiceEntityRepository
@@ -76,5 +79,30 @@ class AttributeListRepository extends ServiceEntityRepository
                 'id' => $itemId,
                 'list' => $listId,
             ]);
+    }
+
+    public function createQueryBuilderAcl(?string $userId, array $groupIds): QueryBuilder
+    {
+        $queryBuilder = $this
+            ->createQueryBuilder('t')
+        ;
+
+        if (null !== $userId) {
+            AccessControlEntryRepository::joinAcl(
+                $queryBuilder,
+                $userId,
+                $groupIds,
+                'attribute_list',
+                't',
+                PermissionInterface::VIEW,
+                false,
+            );
+            $queryBuilder->setParameter('uid', $userId);
+            $queryBuilder->andWhere('t.public = true OR t.ownerId = :uid OR ace.id IS NOT NULL');
+        } else {
+            $queryBuilder->andWhere('t.public = true');
+        }
+
+        return $queryBuilder;
     }
 }

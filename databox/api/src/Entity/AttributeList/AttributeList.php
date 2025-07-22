@@ -21,6 +21,7 @@ use App\Api\Model\Input\RemoveFromAttributeListInput;
 use App\Api\Model\Output\AttributeListOutput;
 use App\Api\Processor\AddToAttributeListProcessor;
 use App\Api\Processor\RemoveFromAttributeListProcessor;
+use App\Api\Provider\AttributeListCollectionProvider;
 use App\Controller\Core\AttributeListItemSortAction;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
@@ -114,6 +115,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     input: AttributeListInput::class,
     output: AttributeListOutput::class,
+    provider: AttributeListCollectionProvider::class,
 )]
 #[ORM\Entity(repositoryClass: AttributeListRepository::class)]
 class AttributeList extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface
