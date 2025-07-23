@@ -19,11 +19,13 @@ import React from 'react';
 function Item({
     usedFormSubmit,
     workspace,
+    data,
 }: DefinitionItemFormProps<AttributeEntity>) {
     return (
         <AttributeEntityFields
             usedFormSubmit={usedFormSubmit}
             workspace={workspace}
+            data={data}
         />
     );
 }
