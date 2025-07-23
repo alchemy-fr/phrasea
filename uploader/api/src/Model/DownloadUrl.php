@@ -6,16 +6,25 @@ namespace App\Model;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
-use App\Controller\DownloadUrlAction;
+use App\Api\DTO\Input\DownloadUrlInput;
+use App\Api\Processor\DownloadUrlProcessor;
 use App\Entity\Target;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ApiResource(operations: [new Post(controller: DownloadUrlAction::class)], shortName: 'download')]
+#[ApiResource(
+    shortName: 'download',
+    operations: [
+        new Post(
+            input: DownloadUrlInput::class,
+            processor: DownloadUrlProcessor::class,
+        ),
+    ])]
 class DownloadUrl
 {
     private ?string $url = null;
 
-    private array $data = [];
+    private ?array $data = null;
+    private ?array $formData = null;
 
     #[Assert\NotNull]
     private ?Target $target = null;
@@ -30,14 +39,24 @@ class DownloadUrl
         $this->url = $url;
     }
 
-    public function getData(): array
+    public function getData(): ?array
     {
         return $this->data;
     }
 
-    public function setData(array $data): void
+    public function setData(?array $data): void
     {
         $this->data = $data;
+    }
+
+    public function getFormData(): ?array
+    {
+        return $this->formData;
+    }
+
+    public function setFormData(?array $formData): void
+    {
+        $this->formData = $formData;
     }
 
     public function getTarget(): ?Target

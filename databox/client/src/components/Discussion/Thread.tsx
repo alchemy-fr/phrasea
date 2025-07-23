@@ -1,6 +1,10 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import {ThreadMessage} from '../../types.ts';
-import {deleteThreadMessage, getThreadMessages} from '../../api/discussion.ts';
+import {
+    deleteThreadMessage,
+    getMessage,
+    getThreadMessages,
+} from '../../api/discussion.ts';
 import {ApiCollectionResponse} from '../../api/hydra.ts';
 import MessageForm, {BaseMessageFormProps} from './MessageForm.tsx';
 import {Box, Skeleton} from '@mui/material';
@@ -29,6 +33,7 @@ export default function Thread({
     ...formProps
 }: Props) {
     const ref = React.useRef<HTMLDivElement | null>(null);
+    const appendedMessages = useRef<Record<string, true>>({});
     const [messages, setMessages] =
         React.useState<ApiCollectionResponse<ThreadMessage>>();
     const {openModal} = useModals();
@@ -57,6 +62,8 @@ export default function Thread({
     const appendMessage = React.useCallback(
         (message: ThreadMessage) => {
             message.acknowledged = true;
+
+            appendedMessages.current[message.id] = true;
 
             setMessages(p =>
                 p
@@ -102,8 +109,11 @@ export default function Thread({
         }
     }, [threadId, threadKey]);
 
-    useChannelRegistration(`thread-${threadKey}`, `message`, data => {
-        appendMessage(data);
+    useChannelRegistration(`thread-${threadKey}`, `message`, async data => {
+        if (appendedMessages.current[data.id]) {
+            return;
+        }
+        appendMessage(await getMessage(data.id));
     });
 
     useChannelRegistration(`thread-${threadKey}`, `message-delete`, data => {

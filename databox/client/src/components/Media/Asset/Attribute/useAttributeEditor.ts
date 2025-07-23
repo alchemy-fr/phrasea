@@ -7,9 +7,10 @@ import {
 } from './AttributesEditor';
 import {Attribute, AttributeDefinition} from '../../../../types';
 import {getWorkspaceAttributeDefinitions} from '../../../../api/attributes';
-import {getAssetAttributes} from '../../../../api/asset';
+import {getAsset, getAssetAttributes} from '../../../../api/asset';
 import {getBatchActions} from './BatchActions';
 import {NO_LOCALE} from './constants.ts';
+import {useAssetStore} from '../../../../store/assetStore.ts';
 
 export function useAttributeEditor({
     workspaceId,
@@ -27,6 +28,8 @@ export function useAttributeEditor({
     const [attributes, setAttributes] = useState<
         AttributeIndex<string | number> | undefined
     >();
+
+    const updateAsset = useAssetStore(s => s.update);
 
     useEffect(() => {
         setAttributes(undefined);
@@ -108,10 +111,13 @@ export function useAttributeEditor({
 
     return React.useMemo(() => {
         const reloadAssetAttributes = async (assetId: string) => {
-            const res = await getAssetAttributes(assetId);
+            const res = await getAsset(assetId);
+
+            updateAsset(res);
+
             const attributeIndex = buildAttributeIndex(
                 state!.definitionIndex,
-                res
+                res.attributes
             );
 
             setDirty(false);
@@ -136,7 +142,7 @@ export function useAttributeEditor({
             reset,
             dirty,
         };
-    }, [state, workspaceId, attributes]);
+    }, [state, workspaceId, attributes, updateAsset]);
 }
 
 export function buildAttributeIndex(

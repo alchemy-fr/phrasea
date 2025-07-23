@@ -17,26 +17,22 @@ use Symfony\Component\Mime\MimeTypes;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[AsMessageHandler]
-final readonly class DownloadHandler
+class DownloadHandler
 {
     public function __construct(
-        private FileStorageManager $storageManager,
-        private HttpClientInterface $client,
-        private AssetManager $assetManager,
-        private MessageBusInterface $bus,
-        private PathGenerator $pathGenerator,
-        private EntityManagerInterface $em,
+        private readonly FileStorageManager $storageManager,
+        private readonly HttpClientInterface $client,
+        private readonly AssetManager $assetManager,
+        private readonly MessageBusInterface $bus,
+        private readonly PathGenerator $pathGenerator,
+        private readonly EntityManagerInterface $em,
     ) {
     }
 
     public function __invoke(Download $message): void
     {
-        $url = $message->getUrl();
-        $userId = $message->getUserId();
-        $targetId = $message->getTargetId();
-        $formData = $message->getFormData();
-        $locale = $message->getLocale();
-        $response = $this->client->request('GET', $url);
+        $url = $message->url;
+        $response = $this->client->request('GET', $message->url);
         $headers = $response->getHeaders();
         $contentType = $headers['content-type'][0] ?? 'application/octet-stream';
         $contentType = trim(explode(';', $contentType, 2)[0]);
@@ -70,10 +66,7 @@ final readonly class DownloadHandler
         $size = strlen($content);
         $this->storageManager->store($path, $content);
 
-        $target = DoctrineUtil::findStrict($this->em, Target::class, $targetId);
-        if (!$target instanceof Target) {
-            throw new \InvalidArgumentException(sprintf('Target "%s" not found', $targetId));
-        }
+        $target = DoctrineUtil::findStrict($this->em, Target::class, $message->targetId);
 
         $asset = $this->assetManager->createAsset(
             $target,
@@ -81,20 +74,18 @@ final readonly class DownloadHandler
             $contentType,
             $originalName,
             $size,
-            $userId
+            $message->userId,
+            $message->data
         );
 
         $commit = new Commit();
         $commit->setTarget($target);
         $commit->setTotalSize($size);
-        $commit->setLocale($locale);
-        $commit->setFormData($formData);
-        $commit->setUserId($userId);
+        $commit->setLocale($message->locale);
+        $commit->setFormData($message->formData ?? []);
+        $commit->setUserId($message->userId);
         $commit->setFiles([$asset->getId()]);
         $commit->generateToken();
-
-        $this->em->persist($commit);
-        $this->em->flush();
 
         $this->bus->dispatch($commit->toMessage());
     }
