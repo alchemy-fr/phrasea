@@ -7,12 +7,18 @@ namespace App\Attribute;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\Tag;
+use App\Repository\Core\TagRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class AttributeDataExporter
 {
-    public function __construct(private EntityManagerInterface $em)
-    {
+    private const string BUILT_IN_ATTRIBUTE_PREFIX = 'databox_';
+
+    public function __construct(
+        private EntityManagerInterface $em,
+        private TagRepository $tagRepository,
+    ) {
     }
 
     public function importAttributes(Asset $asset, array $data, ?string $locale): void
@@ -21,6 +27,31 @@ final readonly class AttributeDataExporter
         $repo = $this->em->getRepository(AttributeDefinition::class);
 
         foreach ($data as $key => $value) {
+            if (str_starts_with($key, self::BUILT_IN_ATTRIBUTE_PREFIX)) {
+                $k = substr($key, strlen(self::BUILT_IN_ATTRIBUTE_PREFIX));
+                switch ($k) {
+                    case 'tags':
+                        if (is_array($value)) {
+                            foreach ($value as $tagId) {
+                                $t = $this->tagRepository->findOneBy([
+                                    'id' => $tagId,
+                                    'workspace' => $workspaceId,
+                                ]);
+                                if ($t instanceof Tag) {
+                                    $asset->addTag($t);
+                                }
+                            }
+                        }
+                        break;
+                    case 'title':
+                        if (is_string($value)) {
+                            $asset->setTitle($value);
+                        }
+                        break;
+                }
+                continue;
+            }
+
             $attributeDefinition = $repo->findOneBy([
                 'workspace' => $workspaceId,
                 'slug' => $key,

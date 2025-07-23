@@ -5,6 +5,9 @@ import {FieldArray} from 'redux-form';
 import {times as _times} from 'lodash';
 import ChoiceWidget from './ChoiceWidget';
 import classNames from 'classnames';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const renderArrayFields = (
     count,
@@ -29,7 +32,7 @@ const renderArrayFields = (
                                     swap(idx, idx + 1);
                                 }}
                             >
-                                <span className="glyphicon glyphicon-arrow-down" />
+                                <KeyboardArrowDownIcon/>
                             </button>
                         ) : (
                             ''
@@ -42,7 +45,7 @@ const renderArrayFields = (
                                     swap(idx, idx - 1);
                                 }}
                             >
-                                <span className="glyphicon glyphicon-arrow-up" />
+                                <KeyboardArrowUpIcon/>
                             </button>
                         ) : (
                             ''
@@ -55,7 +58,7 @@ const renderArrayFields = (
                                 remove(idx);
                             }}
                         >
-                            <span className="glyphicon glyphicon-trash" />
+                            <DeleteIcon/>
                         </button>
                     </div>
                     {renderField(

@@ -11,14 +11,18 @@ import {
     KeyTranslationsWidget,
 } from '@alchemy/react-form';
 import RemoteErrors from '../Form/RemoteErrors.tsx';
+import KeyIcon from '@mui/icons-material/Key';
+import InfoRow from '../Dialog/Info/InfoRow.tsx';
 
 type Props = {
     workspace?: Workspace;
     usedFormSubmit: UseFormSubmitReturn<AttributeEntity, AttributeEntity>;
+    data?: AttributeEntity;
 };
 
 export default function AttributeEntityFields({
     workspace,
+    data,
     usedFormSubmit,
 }: Props) {
     const {t} = useTranslation();
@@ -33,6 +37,16 @@ export default function AttributeEntityFields({
 
     return (
         <>
+            {data?.id ? (
+                <FormRow>
+                    <InfoRow
+                        label={t('common.id', `ID`)}
+                        value={data.id}
+                        copyValue={data.id}
+                        icon={<KeyIcon />}
+                    />
+                </FormRow>
+            ) : null}
             <FormRow>
                 <TextField
                     autoFocus

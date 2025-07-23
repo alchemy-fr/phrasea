@@ -1,3 +1,3 @@
 module.exports = {
-    '*.md': () => 'prettier --write',
+    '*.md': () => 'prettier --write "*.md"',
 }

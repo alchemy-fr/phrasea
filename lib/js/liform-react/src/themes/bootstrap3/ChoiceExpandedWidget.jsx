@@ -13,8 +13,9 @@ const renderChoice = field => {
         'form-group',
         {'has-error': field.meta.touched && field.meta.error},
     ]);
-    const options = field.schema.enum;
-    const optionNames = field.schema.enum_titles || options;
+    const s = field.schema;
+    const options = s.items?.enum || s.enum;
+    const optionNames = s.items?.enum_titles || s.enum_titles || options;
 
     const selectOptions = zipObject(options, optionNames);
     return (
@@ -32,6 +33,7 @@ const renderChoice = field => {
                             checked={field.input.value === value}
                             onChange={e => field.input.onChange(value)}
                         />
+                        {' '}
                         {name}
                     </label>
                 </div>

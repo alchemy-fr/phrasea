@@ -13,6 +13,8 @@ import {ColorPicker} from '@alchemy/react-form';
 import React from 'react';
 import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
+import InfoRow from '../Info/InfoRow.tsx';
+import KeyIcon from '@mui/icons-material/Key';
 
 function Item({
     data,
@@ -36,6 +38,16 @@ function Item({
     return (
         <>
             <FormRow>
+                {data.id ? (
+                    <FormRow>
+                        <InfoRow
+                            label={t('common.id', `ID`)}
+                            value={data.id}
+                            copyValue={data.id}
+                            icon={<KeyIcon />}
+                        />
+                    </FormRow>
+                ) : null}
                 <TranslatedField<Tag>
                     noToast={!data?.id}
                     field={'name'}
