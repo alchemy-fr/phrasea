@@ -1,10 +1,10 @@
 import {useTranslation} from 'react-i18next';
 import {AclPermission} from './acl';
 
-export default function AclHeader({aclName}: {aclName: string}) {
+export default function useAclPermissionLabels(): Record<string, string> {
     const {t} = useTranslation();
 
-    const aclPermissionLabels: {[key: string]: string} = {
+    return {
         [AclPermission.VIEW]: t('acl.permission.view', 'VIEW'),
         [AclPermission.SHARE]: t('acl.permission.share', 'SHARE'),
         [AclPermission.CREATE]: t('acl.permission.create', 'CREATE'),
@@ -16,6 +16,4 @@ export default function AclHeader({aclName}: {aclName: string}) {
         [AclPermission.OWNER]: t('acl.permission.owner', 'OWNER'),
         [AclPermission.ALL]: t('acl.permission.all', 'ALL'),
     };
-
-    return <span>{aclPermissionLabels[aclName]}</span>;
 }

@@ -6,7 +6,7 @@ import {
 import {Ace, UserType} from '../../types';
 import {useTranslation} from 'react-i18next';
 import {AclPermission, aclPermissions} from '../Acl/acl';
-import AclHeader from '../Acl/AclHeader';
+import useAclPermissionLabels from '../Acl/AclPermissionLabel';
 import {Box} from '@mui/material';
 import PermissionRow from './PermissionRow';
 import type {TFunction} from '@alchemy/i18n';
@@ -33,6 +33,7 @@ export default function PermissionTable({
     displayedPermissions,
 }: Props) {
     const {t} = useTranslation();
+    const permissionLabels = useAclPermissionLabels();
 
     const columns = displayedPermissions
         ? Object.keys(aclPermissions).filter(c =>
@@ -99,7 +100,7 @@ export default function PermissionTable({
                     {allColumns.map(k => {
                         return (
                             <th key={k} className={'p'}>
-                                <AclHeader aclName={k} />
+                                <span>{permissionLabels[k]}</span>
                             </th>
                         );
                     })}

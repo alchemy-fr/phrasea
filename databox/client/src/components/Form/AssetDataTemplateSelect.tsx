@@ -62,7 +62,7 @@ export default function AssetDataTemplateSelect<
             closeMenuOnSelect={false}
             hideSelectedOptions={false}
             noOptionsMessage={() =>
-                t('form.asset.templates.no_options', `No templates available`)
+                t('form.asset.templates.no_options', `No template available`)
             }
         />
     );

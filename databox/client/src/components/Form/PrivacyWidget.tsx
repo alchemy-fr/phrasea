@@ -171,6 +171,9 @@ export default function PrivacyWidget({
                     onChange={handlePChange}
                 >
                     {Object.keys(choices).map(k => {
+                        const label = getChoicesTranslated(t, k).label;
+                        const helper = getChoicesTranslated(t, k)?.helper;
+
                         return (
                             <MenuItem
                                 key={k}
@@ -182,10 +185,8 @@ export default function PrivacyWidget({
                                 }
                             >
                                 <ListItemText
-                                    primary={getChoicesTranslated(t, k).label}
-                                    secondary={
-                                        getChoicesTranslated(t, k)?.helper
-                                    }
+                                    primary={label}
+                                    secondary={helper}
                                 />
                             </MenuItem>
                         );
