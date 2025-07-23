@@ -16,6 +16,7 @@ import {useTranslation} from 'react-i18next';
 import UploadRenditionDialog from '../../../Media/Asset/Actions/UploadRenditionDialog.tsx';
 import {useChannelRegistration} from '../../../../lib/pusher.ts';
 import {RenditionPlaceholder} from './RenditionPlaceholder.tsx';
+import {ChannelEvent, ChannelType} from '../../../../api/channels.ts';
 
 type Props = {
     data: Asset;
@@ -50,8 +51,8 @@ export default function Renditions({data, onClose, minHeight}: Props) {
     }, [data.id]);
 
     useChannelRegistration(
-        'assets',
-        'rendition-update',
+        ChannelType.ASSETS,
+        ChannelEvent.RENDITION_UPDATE,
         (event: {assetId: string}) => {
             if (data.id === event.assetId) {
                 load();

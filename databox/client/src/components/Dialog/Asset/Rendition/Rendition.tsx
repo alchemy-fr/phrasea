@@ -226,6 +226,7 @@ export function Rendition({
                             );
                             actions.push(
                                 <SaveAsButton
+                                    key={'save-as'}
                                     asset={asset}
                                     file={file}
                                     icon={<SaveIcon />}
