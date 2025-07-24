@@ -14,7 +14,7 @@ const changeValue = (checked, item, onChange, currentValue = []) => {
             return onChange([...currentValue, item]);
         }
     } else {
-        return onChange(currentValue.filter(items => it === item));
+        return onChange(currentValue.filter(it => it !== item));
     }
     return onChange(currentValue);
 };
@@ -24,8 +24,9 @@ const renderChoice = field => {
         'form-group',
         {'has-error': field.meta.touched && field.meta.error},
     ]);
-    const options = field.schema.items.enum;
-    const optionNames = field.schema.items.enum_titles || options;
+    const s = field.schema;
+    const options = s.items?.enum || s.enum;
+    const optionNames = s.items?.enum_titles || s.enum_titles || options;
 
     const selectOptions = zipObject(options, optionNames);
     return (
@@ -39,7 +40,7 @@ const renderChoice = field => {
                         <input
                             type="checkbox"
                             value={value}
-                            checked={field.input.value.indexOf(value) !== -1}
+                            checked={field.input.value.includes(value)}
                             onChange={e =>
                                 changeValue(
                                     e.target.checked,
@@ -49,6 +50,7 @@ const renderChoice = field => {
                                 )
                             }
                         />
+                        {' '}
                         {name}
                     </label>
                 </div>
@@ -75,7 +77,7 @@ const ChoiceMultipleExpandedWidget = props => {
             placeholder={props.schema.default}
             description={props.schema.description}
             schema={props.schema}
-            multiple={props.multiple}
+            multiple={true}
         />
     );
 };
