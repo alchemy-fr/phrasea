@@ -171,8 +171,9 @@ export default function PrivacyWidget({
                     onChange={handlePChange}
                 >
                     {Object.keys(choices).map(k => {
-                        const label = getChoicesTranslated(t, k).label;
-                        const helper = getChoicesTranslated(t, k)?.helper;
+                        const choice = getChoicesTranslated(t, k);
+                        const label = choice.label;
+                        const helper = choice.helper;
 
                         return (
                             <MenuItem
