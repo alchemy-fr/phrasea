@@ -161,7 +161,7 @@ export default function FilterRule({
                         <FormRow>
                             <FormGroup>
                                 <FormLabel>
-                                    <Trans key={'filter_rule.include.label'}>
+                                    <Trans i18nKey="filter_rule.include.label">
                                         Tags to <b>include</b>
                                     </Trans>
                                 </FormLabel>
@@ -191,7 +191,9 @@ export default function FilterRule({
                         <FormRow>
                             <FormGroup>
                                 <FormLabel>
-                                    <Trans key={'filter_rule.exclude.label'}>
+                                    <Trans
+                                        i18nKey={'filter_rule.exclude.label'}
+                                    >
                                         Tags to <b>exclude</b>
                                     </Trans>
                                 </FormLabel>

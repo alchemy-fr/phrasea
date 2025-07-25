@@ -1,24 +1,23 @@
 field_type:
-  types:
-    text: Text
-    textarea: Textarea
-    json: JSON
-    ip: IP
-    code: Code
-    html: HTML
-    boolean: Boolean
-    color: Color
-    keyword: Keyword
-    number: Number
-    date: Date
-    date_time: Date & Time
-    geo_point: Geo point
-    entity: Entity
-
+    types:
+        text: Text
+        textarea: Textarea
+        json: JSON
+        ip: IP
+        code: Code
+        html: HTML
+        boolean: Boolean
+        color: Color
+        keyword: Keyword
+        number: Number
+        date: Date
+        date_time: 'Date & Time'
+        geo_point: 'Geo point'
+        entity: Entity
 privacy:
     secret: Secret
-    private_in_workspace: Private in workspace
-    public_in_workspace: Public in workspace
+    private_in_workspace: 'Private in workspace'
+    public_in_workspace: 'Public in workspace'
     private: Private
-    public_for_users: Public for users
+    public_for_users: 'Public for users'
     public: Public
