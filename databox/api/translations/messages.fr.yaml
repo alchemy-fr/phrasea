@@ -1,17 +1,17 @@
 field_type:
   types:
-    text: Text
-    textarea: Textarea
+    text: Texte
+    textarea: Zone de texte
     json: JSON
     ip: IP
     code: Code
     html: HTML
-    boolean: Boolean
-    color: Color
-    keyword: Keyword
-    number: Number
+    boolean: Booléen
+    color: Couleur
+    keyword: Mot-clé
+    number: Nombre
     date: Date
-    date_time: Date & Time
+    date_time: Date et Heure
     geo_point: Geo point
 
     entity: Entité

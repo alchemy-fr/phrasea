@@ -18,6 +18,27 @@ const choices: {[key: string]: {label: string; helper?: string}} = {
     public: {label: 'Public'},
 };
 
+function getChoicesTranslated(
+    t: (...args: any) => any,
+    key: string
+): {label: string; helper?: string} {
+    switch (key) {
+        default:
+        case 'secret':
+            return {label: t('form.privacy.choices.secret', 'Secret')};
+        case 'private':
+            return {
+                label: t('form.privacy.choices.private', 'Private'),
+                helper: t(
+                    'form.privacy.choices.helpers.private',
+                    'Users can request access'
+                ),
+            };
+        case 'public':
+            return {label: t('form.privacy.choices.public', 'Public')};
+    }
+}
+
 function getValue(value: string, workspace: boolean, auth: boolean): number {
     switch (value) {
         default:
@@ -150,6 +171,10 @@ export default function PrivacyWidget({
                     onChange={handlePChange}
                 >
                     {Object.keys(choices).map(k => {
+                        const choice = getChoicesTranslated(t, k);
+                        const label = choice.label;
+                        const helper = choice.helper;
+
                         return (
                             <MenuItem
                                 key={k}
@@ -161,8 +186,8 @@ export default function PrivacyWidget({
                                 }
                             >
                                 <ListItemText
-                                    primary={choices[k].label}
-                                    secondary={choices[k].helper}
+                                    primary={label}
+                                    secondary={helper}
                                 />
                             </MenuItem>
                         );
