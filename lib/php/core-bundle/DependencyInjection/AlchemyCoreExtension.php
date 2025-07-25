@@ -24,6 +24,7 @@ use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
@@ -191,6 +192,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         ValidationException::class,
                         UnauthorizedHttpException::class,
                         AccessDeniedException::class,
+                        BadRequestHttpException::class,
                         HttpException::class,
                         MethodNotAllowedHttpException::class,
                         NotAcceptableHttpException::class,

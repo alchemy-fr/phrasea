@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AssetRenditionInput;
 use App\Api\Model\Output\AssetRenditionOutput;
+use App\Api\Processor\DeleteAssetRenditionProcessor;
 use App\Api\Provider\RenditionCollectionProvider;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
@@ -27,7 +28,10 @@ use Doctrine\ORM\Mapping as ORM;
     shortName: 'rendition',
     operations: [
         new Get(security: 'is_granted("'.AbstractVoter::READ.'", object)'),
-        new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
+        new Delete(
+            security: 'is_granted("'.AbstractVoter::DELETE.'", object)',
+            processor: DeleteAssetRenditionProcessor::class,
+        ),
         new Put(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
         new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
         new GetCollection(),

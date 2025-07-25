@@ -109,7 +109,7 @@ export default function AssetWorkflow({data, onClose, minHeight}: Props) {
                     >
                         <div>
                             <Typography variant={'body1'}>{w.name}</Typography>
-                            <Typography variant={'body2'}>
+                            <Typography variant={'body2'} component={'div'}>
                                 {moment(w.startedAt).fromNow()}
                                 {w.status !== undefined && (
                                     <Chip

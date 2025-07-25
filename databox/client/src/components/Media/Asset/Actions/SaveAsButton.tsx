@@ -56,10 +56,12 @@ export default function SaveAsButton({
 
     const options = [
         {
+            id: 'new-asset',
             title: t('save_as_button.new_asset', `New asset`),
             component: SaveFileAsNewAssetDialog,
         },
         {
+            id: 'rendition',
             title: t('save_as_button.rendition', `Rendition`),
             component: SaveFileAsRenditionDialog,
         },
@@ -67,6 +69,7 @@ export default function SaveAsButton({
 
     if (asset.source?.id !== file.id) {
         options.push({
+            id: 'replace-asset-source',
             title: t(
                 'save_as_button.replace_asset_source',
                 `Replace asset source`
@@ -165,7 +168,7 @@ export default function SaveAsButton({
                                 <MenuList id="split-button-menu" autoFocusItem>
                                     {options.map((option, index) => (
                                         <MenuItem
-                                            key={option.title}
+                                            key={option.id}
                                             onClick={closeWrapper(event =>
                                                 handleMenuItemClick(
                                                     event,

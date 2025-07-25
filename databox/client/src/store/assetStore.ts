@@ -7,10 +7,11 @@ type State = {
     update: (asset: Asset) => void;
     delete: (id: string) => void;
     loadAsset: (id: string) => Promise<void>;
+    reloadAsset: (id: string) => Promise<void>;
     setAssets: (assets: Asset[]) => void;
 };
 
-export const useAssetStore = create<State>(set => ({
+export const useAssetStore = create<State>((set, getState) => ({
     assets: {},
     delete(id: string): void {
         set(state => {
@@ -28,6 +29,13 @@ export const useAssetStore = create<State>(set => ({
 
             return {assets};
         });
+    },
+    reloadAsset: async (id: string) => {
+        const s = getState();
+        if (!s.assets[id]) {
+            return;
+        }
+        await s.loadAsset(id);
     },
     update(asset: Asset): void {
         set(state => {

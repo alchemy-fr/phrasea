@@ -10,6 +10,7 @@ import {getResolvedSortBy} from './SearchProvider';
 import {AQLQueries} from './AQL/query.ts';
 import {useAssetStore} from '../../../store/assetStore.ts';
 import {useChannelRegistration} from '../../../lib/pusher.ts';
+import {ChannelEvent, ChannelType} from '../../../api/channels.ts';
 
 type UserSearchContext = {
     position?: string | undefined;
@@ -96,16 +97,16 @@ export default function ResultProvider({children}: Props) {
             loading,
         }));
 
-    const [setAssets, loadAsset] = useAssetStore(s => [
+    const [setAssets, reloadAsset] = useAssetStore(s => [
         s.setAssets,
-        s.loadAsset,
+        s.reloadAsset,
     ]);
 
     useChannelRegistration(
-        'assets',
-        'rendition-update',
+        ChannelType.ASSETS,
+        ChannelEvent.RENDITION_UPDATE,
         (event: {assetId: string}) => {
-            loadAsset(event.assetId);
+            reloadAsset(event.assetId);
         }
     );
 

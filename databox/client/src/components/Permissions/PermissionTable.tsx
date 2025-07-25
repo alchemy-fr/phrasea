@@ -65,7 +65,7 @@ export default function PermissionTable({
                     'maxWidth': selectSize,
                     'fontWeight': 400,
                     'textAlign': 'center',
-                    '&:nth-child(even)': {
+                    '&:nth-of-type(even)': {
                         backgroundColor: theme.palette.grey[100],
                     },
                 },
