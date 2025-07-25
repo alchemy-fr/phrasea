@@ -97,6 +97,11 @@ class TranslateAction extends AbstractIntegrationAction implements IfActionInter
 
                 foreach ($attributesSources as $attribute) {
                     $text = $attribute->getValue();
+
+                    if (empty($text)) {
+                        continue;
+                    }
+
                     $toTranslates[] = [
                         'text' => $text,
                         'sourceLanguage' => $sourceLanguage,
