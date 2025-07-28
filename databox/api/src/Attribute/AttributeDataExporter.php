@@ -52,6 +52,12 @@ final readonly class AttributeDataExporter
                 continue;
             }
 
+            $fieldLocale = $locale;
+            if (1 === preg_match('#^(.+):([a-z_-]{2,5})$#i', $key, $matches)) {
+                $key = $matches[1];
+                $fieldLocale = $matches[2];
+            }
+
             $attributeDefinition = $repo->findOneBy([
                 'workspace' => $workspaceId,
                 'slug' => $key,
@@ -64,11 +70,11 @@ final readonly class AttributeDataExporter
             if ($attributeDefinition->isMultiple()) {
                 if (is_array($value)) {
                     foreach ($value as $v) {
-                        $this->createAttribute($asset, $attributeDefinition, $v, $locale);
+                        $this->createAttribute($asset, $attributeDefinition, $v, $fieldLocale);
                     }
                 }
             } elseif (is_scalar($value)) {
-                $this->createAttribute($asset, $attributeDefinition, $value, $locale);
+                $this->createAttribute($asset, $attributeDefinition, $value, $fieldLocale);
             }
         }
     }
