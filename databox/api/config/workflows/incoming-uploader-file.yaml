@@ -26,6 +26,7 @@ jobs:
             assetId: ${{ steps.accept_file.outputs.assetId }}
             renditionId: ${{ steps.accept_file.outputs.renditionId }}
             formData: ${{ steps.accept_file.outputs.formData }}
+            formLocale: ${{ steps.accept_file.outputs.formLocale }}
 
     uploader_ack:
         needs: [ border ]
@@ -41,3 +42,4 @@ jobs:
             fileId: ${{ jobs.border.outputs.fileId }}
             renditionId: ${{ jobs.border.outputs.renditionId }}
             formData: ${{ jobs.border.outputs.formData }}
+            formLocale: ${{ jobs.border.outputs.formLocale }}

@@ -33,7 +33,7 @@ readonly class AcceptFileAction implements ActionInterface
         $data = $assetData['data'];
         $assetId = $data['targetAsset'] ?? null;
         $formData = $assetData['formData'] ?? [];
-        $assetId = $data['targetAsset'] ?? null;
+        $formLocale = $assetData['formLocale'] ?? null;
         $renditionDefId = $data['targetRendition'] ?? null;
 
         if (null !== $assetId) {
@@ -84,6 +84,7 @@ readonly class AcceptFileAction implements ActionInterface
         $context->setOutput('fileId', $file->getId());
         $context->setOutput('assetId', $asset->getId());
         $context->setOutput('formData', $formData);
+        $context->setOutput('formLocale', $formLocale);
         $context->setOutput('renditionId', $renditionDefId);
     }
 }

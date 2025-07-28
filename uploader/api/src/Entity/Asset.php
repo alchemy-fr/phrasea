@@ -244,6 +244,12 @@ class Asset extends AbstractUuidEntity
         return $this->commit?->getFormData();
     }
 
+    #[Groups('asset:read')]
+    public function getFormLocale(): ?string
+    {
+        return $this->commit?->getFormLocale();
+    }
+
     #[ApiProperty]
     public function getToken(): ?string
     {

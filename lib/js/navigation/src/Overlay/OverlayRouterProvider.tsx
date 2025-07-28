@@ -25,6 +25,16 @@ export default React.memo(function OverlayRouterProvider({
         []
     );
 
+    const extraParams: Record<string, string | undefined> = {};
+    if (path.indexOf('?') > 0) {
+        const [pathWithoutQuery, queryString] = path.split('?');
+        const searchParams = new URLSearchParams(queryString);
+        for (const [key, value] of searchParams.entries()) {
+            extraParams[key] = value;
+        }
+        path = pathWithoutQuery;
+    }
+
     const matches = matchRoutes(routes, {
         pathname: path,
     });
@@ -40,7 +50,15 @@ export default React.memo(function OverlayRouterProvider({
 
     return (
         <OverlayRouteContext.Provider value={contextValue}>
-            {renderMatches(matches)}
+            {matches !== null ? renderMatches(matches.map(
+                (match) => ({
+                    ...match,
+                    params: {
+                        ...match.params,
+                        ...extraParams,
+                    },
+                })
+            )) : null}
         </OverlayRouteContext.Provider>
     );
 });
