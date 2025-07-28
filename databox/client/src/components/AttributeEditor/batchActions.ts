@@ -291,17 +291,6 @@ function addAttributeIdsToDeleteGroup<T>(
 
     const attributeIds = asset.attributes
         .filter((a: Attribute): boolean => {
-            console.log('a', a);
-            console.log(
-                '(a.locale ?? NO_LOCALE) === locale',
-                a.locale ?? NO_LOCALE,
-                locale
-            );
-            console.log(
-                'toKeyForType(a.value) === key',
-                toKeyForType(a.value),
-                key
-            );
             return (
                 a.definition.id === defId &&
                 (a.locale ?? NO_LOCALE) === locale &&

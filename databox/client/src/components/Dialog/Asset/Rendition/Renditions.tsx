@@ -1,10 +1,11 @@
 import {useCallback, useEffect, useState} from 'react';
-import {Asset, AssetRendition} from '../../../../types.ts';
+import {Asset, AssetRendition, RenditionDefinition} from '../../../../types.ts';
 import {DialogTabProps} from '../../Tabbed/TabbedDialog.tsx';
 import ContentTab from '../../Tabbed/ContentTab.tsx';
 import {
     deleteRendition,
     getAssetRenditions,
+    getRenditionDefinitions,
 } from '../../../../api/rendition.ts';
 import {Rendition} from './Rendition.tsx';
 import {RenditionSkeleton} from './RenditionSkeleton.tsx';
@@ -14,6 +15,8 @@ import {useModals} from '@alchemy/navigation';
 import {useTranslation} from 'react-i18next';
 import UploadRenditionDialog from '../../../Media/Asset/Actions/UploadRenditionDialog.tsx';
 import {useChannelRegistration} from '../../../../lib/pusher.ts';
+import {RenditionPlaceholder} from './RenditionPlaceholder.tsx';
+import {ChannelEvent, ChannelType} from '../../../../api/channels.ts';
 
 type Props = {
     data: Asset;
@@ -21,6 +24,7 @@ type Props = {
 
 export default function Renditions({data, onClose, minHeight}: Props) {
     const [renditions, setRenditions] = useState<AssetRendition[]>();
+    const [definitions, setDefinitions] = useState<RenditionDefinition[]>();
     const [loading, setLoading] = useState(false);
     const {openModal} = useModals();
     const {t} = useTranslation();
@@ -33,16 +37,22 @@ export default function Renditions({data, onClose, minHeight}: Props) {
     const load = useCallback(async () => {
         setLoading(true);
         try {
-            const r = await getAssetRenditions(data.id);
+            const [r, rd] = await Promise.all([
+                getAssetRenditions(data.id),
+                getRenditionDefinitions({
+                    workspaceIds: [data.workspace.id],
+                }),
+            ]);
             setRenditions(r.result);
+            setDefinitions(rd.result);
         } finally {
             setLoading(false);
         }
     }, [data.id]);
 
     useChannelRegistration(
-        'assets',
-        'rendition-update',
+        ChannelType.ASSETS,
+        ChannelEvent.RENDITION_UPDATE,
         (event: {assetId: string}) => {
             if (data.id === event.assetId) {
                 load();
@@ -81,6 +91,18 @@ export default function Renditions({data, onClose, minHeight}: Props) {
         });
     };
 
+    const onUploadFromDef = async (def: RenditionDefinition) => {
+        openModal(UploadRenditionDialog, {
+            asset: data,
+            renditionName: def.nameTranslated,
+            renditionId: def.id,
+        });
+    };
+
+    const remainingDefinitions = definitions?.filter(
+        d => !renditions?.some(r => r.definition.id === d.id)
+    );
+
     return (
         <ContentTab
             onClose={onClose}
@@ -106,6 +128,18 @@ export default function Renditions({data, onClose, minHeight}: Props) {
                 [0, 1, 2].map(i => (
                     <RenditionSkeleton key={i} dimensions={maxDimensions} />
                 ))}
+            {remainingDefinitions && remainingDefinitions.length > 0 && (
+                <>
+                    {remainingDefinitions.map(def => (
+                        <RenditionPlaceholder
+                            definition={def}
+                            key={def.id}
+                            dimensions={maxDimensions}
+                            onUpload={onUploadFromDef}
+                        />
+                    ))}
+                </>
+            )}
         </ContentTab>
     );
 }
