@@ -12,6 +12,7 @@ final readonly class Download
         public string $userId,
         public string $targetId,
         public string $locale,
+        public ?string $schemaId,
         public ?array $data = null,
         public ?array $formData = null,
     ) {

@@ -82,6 +82,7 @@ class DownloadHandler
         $commit->setTarget($target);
         $commit->setTotalSize($size);
         $commit->setLocale($message->locale);
+        $commit->schemaId = $message->schemaId;
         $commit->setFormData($message->formData ?? []);
         $commit->setUserId($message->userId);
         $commit->setFiles([$asset->getId()]);

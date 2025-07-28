@@ -43,16 +43,15 @@ export default function UploadStepper({target}: Props) {
     }, [onError, uploadBatch]);
 
     const onSubmitFiles = React.useCallback(() => {
-        console.log('files', files);
-
         uploadBatch.addFiles(files);
         uploadBatch.startUpload();
         setStep(Step.Form);
     }, [uploadBatch, setStep, files]);
 
     const onSubmitForm = React.useCallback(
-        (data: FormData) => {
+        (data: FormData, schemaId?: string) => {
             uploadBatch.formData = data;
+            uploadBatch.schemaId = schemaId;
             setStep(Step.Progress);
         },
         [uploadBatch, setStep]

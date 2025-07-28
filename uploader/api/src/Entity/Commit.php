@@ -79,6 +79,13 @@ class Commit extends AbstractUuidEntity
     #[Groups(['asset:read', 'commit:read', 'commit:write'])]
     private array $formData = [];
 
+    #[ORM\Column(type: Types::STRING, length: 5, nullable: true)]
+    #[Groups(['asset:read', 'commit:read'])]
+    private ?string $formLocale = null;
+
+    #[Groups(['commit:write'])]
+    public ?string $schemaId = null;
+
     #[Groups(['asset:read', 'commit:read', 'commit:write'])]
     #[ORM\Column(type: Types::JSON)]
     private array $options = [];
@@ -199,6 +206,7 @@ class Commit extends AbstractUuidEntity
             $this->formData,
             $this->notify,
             $this->locale,
+            $this->schemaId,
             $this->options,
         );
     }
@@ -214,6 +222,7 @@ class Commit extends AbstractUuidEntity
         $instance->setUserId($message->getUserId());
         $instance->setNotify($message->isNotify());
         $instance->setLocale($message->getLocale());
+        $instance->schemaId = $message->getSchemaId();
         $instance->setOptions($message->getOptions());
 
         return $instance;
@@ -290,5 +299,15 @@ class Commit extends AbstractUuidEntity
     public function getAcknowledgedAt(): ?\DateTimeImmutable
     {
         return $this->acknowledgedAt;
+    }
+
+    public function getFormLocale(): ?string
+    {
+        return $this->formLocale;
+    }
+
+    public function setFormLocale(?string $formLocale): void
+    {
+        $this->formLocale = $formLocale;
     }
 }

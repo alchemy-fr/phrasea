@@ -11,6 +11,7 @@ export default class UploadBatch {
     progresses;
     formData;
     targetId;
+    schemaId;
     progressListeners;
     errorListeners;
     resumeListeners;
@@ -125,6 +126,7 @@ export default class UploadBatch {
         const formData = {
             files: idCollection,
             formData: this.formData,
+            schemaId: this.schemaId,
             target: `/targets/${this.targetId}`,
         };
 

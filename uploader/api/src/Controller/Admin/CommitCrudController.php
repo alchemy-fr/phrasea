@@ -88,6 +88,8 @@ class CommitCrudController extends AbstractAdminCrudController
         yield JsonField::new('options')
             ->hideOnIndex();
         yield TextField::new('locale');
+        yield TextField::new('formLocale')
+            ->hideOnIndex();
         yield DateTimeField::new('acknowledgedAt')
             ->hideOnForm();
         yield DateTimeField::new('createdAt')
