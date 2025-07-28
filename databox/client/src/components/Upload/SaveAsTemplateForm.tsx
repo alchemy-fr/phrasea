@@ -81,7 +81,10 @@ export default function SaveAsTemplateForm({
                                 <SwitchWidget
                                     control={control}
                                     name={'override'}
-                                    label={`Replace applied template`}
+                                    label={t(
+                                        'save_as_template_form.replace',
+                                        `Replace applied template`
+                                    )}
                                 />
                             </FormRow>
                         )}
