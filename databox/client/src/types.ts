@@ -194,6 +194,9 @@ export interface AssetRendition extends ApiHydraObjectResponse, Entity {
     projection?: boolean;
     locked: boolean;
     substituted: boolean;
+    definition: {
+        id: string;
+    };
 }
 
 export interface RenditionPolicy extends ApiHydraObjectResponse, Entity {
@@ -399,6 +402,12 @@ export type IntegrationData = {
     value: any;
 } & Entity;
 
+export type IntegrationConfigKey = {
+    label: string;
+    description: string;
+    value: string | undefined;
+};
+
 export interface WorkspaceIntegration extends DefinitionBase {
     title: string;
     enabled: boolean;
@@ -407,6 +416,7 @@ export interface WorkspaceIntegration extends DefinitionBase {
     data: IntegrationData[];
     config: object;
     configYaml: string;
+    configInfo?: IntegrationConfigKey[];
     tokens: IntegrationToken[];
     workspace: Workspace | string;
     owner?: User;

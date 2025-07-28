@@ -1,4 +1,4 @@
-import Pusher from 'pusher-js';
+import Pusher, {Channel} from 'pusher-js';
 import {PusherEventCallback, UnregisterWebSocket} from './types';
 import type {Options} from 'pusher-js';
 
@@ -35,11 +35,18 @@ export function createPusher({
     return pusher;
 }
 
+type ChannelSubscription = {
+    channel: Channel;
+    events: Record<string, number>;
+}
+
+const subscribedChannels: Record<string, ChannelSubscription> = {};
+
 export function registerPusherWs(
     pusher: Pusher,
     channelName: string,
     event: string,
-    callback: PusherEventCallback
+    callback: PusherEventCallback,
 ): UnregisterWebSocket {
     channelName = normalizeChannel(channelName);
     if (!(pusher as any).connecting) {
@@ -50,11 +57,27 @@ export function registerPusherWs(
         pusher.connect();
     }
 
-    const channel = pusher.subscribe(channelName);
+    const sub = subscribedChannels[channelName] ?? (subscribedChannels[channelName] = {
+        channel: pusher.subscribe(channelName),
+        events: {},
+    });
 
-    channel.bind(event, callback);
+    sub.events[event] ??= 0;
+    sub.events[event]++;
+    sub.channel.bind(event, callback);
 
     return () => {
-        pusher.unsubscribe(channelName);
+        const sub = subscribedChannels[channelName];
+        if (sub) {
+            sub.events[event]--;
+            if (sub.events[event] === 0) {
+                pusher.unsubscribe(channelName);
+                delete subscribedChannels[channelName];
+            } else {
+                sub.channel.unbind(event, callback);
+            }
+        } else {
+            pusher.unsubscribe(channelName);
+        }
     };
 }

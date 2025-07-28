@@ -14,22 +14,31 @@ import {useModals} from '@alchemy/navigation';
 import ReplaceAssetWithFileDialog from './ReplaceAssetWithFileDialog';
 import SaveFileAsRenditionDialog from './SaveFileAsRenditionDialog';
 import {stopPropagation} from '../../../../lib/stdFuncs';
-import {FC, PropsWithChildren} from 'react';
+import {FC, MouseEventHandler, PropsWithChildren, ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
+import {ListItemIcon} from '@mui/material';
+
+type CloseWrapper = (
+    handler?: React.MouseEventHandler<HTMLElement>
+) => React.MouseEventHandler<HTMLElement>;
 
 type Props = PropsWithChildren<{
     variant?: ButtonProps['variant'];
     Component?: FC<any>;
     componentProps?: ButtonProps;
+    closeWrapper?: CloseWrapper;
+    icon?: ReactNode;
 }> &
     BaseSaveAsProps;
 
 export default function SaveAsButton({
     file,
     asset,
+    icon,
     children,
     Component = Button,
     componentProps = {},
+    closeWrapper,
     ...saveAsProps
 }: Props) {
     const {t} = useTranslation();
@@ -37,12 +46,22 @@ export default function SaveAsButton({
     const anchorRef = React.useRef<HTMLDivElement>(null);
     const {openModal} = useModals();
 
+    if (!closeWrapper) {
+        closeWrapper = handler => e => {
+            handler?.(e);
+
+            return () => {};
+        };
+    }
+
     const options = [
         {
+            id: 'new-asset',
             title: t('save_as_button.new_asset', `New asset`),
             component: SaveFileAsNewAssetDialog,
         },
         {
+            id: 'rendition',
             title: t('save_as_button.rendition', `Rendition`),
             component: SaveFileAsRenditionDialog,
         },
@@ -50,6 +69,7 @@ export default function SaveAsButton({
 
     if (asset.source?.id !== file.id) {
         options.push({
+            id: 'replace-asset-source',
             title: t(
                 'save_as_button.replace_asset_source',
                 `Replace asset source`
@@ -59,7 +79,7 @@ export default function SaveAsButton({
     }
 
     const handleMenuItemClick = (
-        _event: React.MouseEvent<HTMLLIElement, MouseEvent>,
+        _event: React.MouseEvent<HTMLElement, MouseEvent>,
         index: number
     ) => {
         const item = options[index];
@@ -89,8 +109,22 @@ export default function SaveAsButton({
         setOpen(false);
     };
 
+    let arrowIcon: ReactNode | undefined;
+    let startIcon: ReactNode | undefined;
     if (Component === Button) {
-        componentProps.endIcon = <ArrowDropDownIcon />;
+        if (icon) {
+            componentProps.startIcon ??= icon;
+        }
+        componentProps.endIcon ??= <ArrowDropDownIcon />;
+    } else if (Component === MenuItem) {
+        if (icon) {
+            startIcon = <ListItemIcon>{icon}</ListItemIcon>;
+        }
+        arrowIcon = (
+            <ListItemIcon>
+                <ArrowDropDownIcon />
+            </ListItemIcon>
+        );
     }
 
     return (
@@ -105,7 +139,9 @@ export default function SaveAsButton({
                 ref={anchorRef}
                 {...componentProps}
             >
+                {startIcon}
                 {children ?? t('save_as_button.save_as', `Save as`)}
+                {arrowIcon}
             </Component>
             <Popper
                 sx={theme => ({
@@ -132,13 +168,13 @@ export default function SaveAsButton({
                                 <MenuList id="split-button-menu" autoFocusItem>
                                     {options.map((option, index) => (
                                         <MenuItem
-                                            key={option.title}
-                                            onClick={event =>
+                                            key={option.id}
+                                            onClick={closeWrapper(event =>
                                                 handleMenuItemClick(
                                                     event,
                                                     index
                                                 )
-                                            }
+                                            )}
                                             onMouseDown={stopPropagation}
                                         >
                                             {option.title}

@@ -6,6 +6,7 @@ namespace App\Storage;
 
 use Alchemy\CoreBundle\Pusher\PusherManager;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
+use App\Asset\RenditionBuild\Exception\RenditionBuildException;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
@@ -80,7 +81,7 @@ final class RenditionManager
         }
 
         if ($rendition->isSubstituted() && !$force) {
-            throw new \InvalidArgumentException(sprintf('Rendition "%s" is a substitution and cannot be replaced without the "force" option', $definition->getName()));
+            throw new RenditionBuildException(true, sprintf('Rendition "%s" is a substitution and cannot be replaced without the "force" option', $definition->getName()));
         }
 
         $rendition->setFile($file);

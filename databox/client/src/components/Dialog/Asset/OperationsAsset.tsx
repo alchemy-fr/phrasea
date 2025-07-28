@@ -1,4 +1,4 @@
-import {Asset, StateSetter} from '../../../types';
+import {Asset} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import {
@@ -10,7 +10,7 @@ import {
     ListItemSecondaryAction,
     Typography,
 } from '@mui/material';
-import {deleteAsset, deleteAssetShortcut, getAsset} from '../../../api/asset';
+import {deleteAsset, deleteAssetShortcut} from '../../../api/asset';
 import {Trans, useTranslation} from 'react-i18next';
 import {FormSection} from '@alchemy/react-form';
 import ConfirmDialog from '../../Ui/ConfirmDialog.tsx';
@@ -18,20 +18,16 @@ import {useModals} from '@alchemy/navigation';
 import ShortcutIcon from '@mui/icons-material/Shortcut';
 import {WorkspaceChip} from '../../Ui/WorkspaceChip.tsx';
 import {CollectionChip} from '../../Ui/CollectionChip.tsx';
+import {useAssetStore} from '../../../store/assetStore.ts';
 
 type Props = {
     data: Asset;
-    setData: StateSetter<Asset>;
 } & DialogTabProps;
 
-export default function OperationsAsset({
-    data,
-    onClose,
-    minHeight,
-    setData,
-}: Props) {
+export default function OperationsAsset({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
+    const loadAsset = useAssetStore(s => s.loadAsset);
 
     const deleteConfirmAsset = async () => {
         openModal(ConfirmDialog, {
@@ -132,11 +128,7 @@ export default function OperationsAsset({
                                                                 data.id,
                                                                 c.id
                                                             );
-                                                            setData(
-                                                                await getAsset(
-                                                                    data.id
-                                                                )
-                                                            );
+                                                            loadAsset(data.id);
                                                         },
                                                     });
                                                 }}

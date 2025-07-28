@@ -48,28 +48,26 @@ class WorkspaceVoter extends AbstractVoter
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
+        if ($this->hasScope($token, $attribute)) {
+            return true;
+        }
+
         return match ($attribute) {
-            self::CREATE => $this->isAdmin()
-                || $this->hasScope($token, $attribute),
+            self::CREATE => $this->isAdmin(),
             self::READ => $isOwner()
                 || $subject->isPublic()
-                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                 || $this->isAdmin(),
             self::EDIT => $isOwner()
-                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
                 || $this->isAdmin(),
             self::DELETE => $isOwner()
-                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
                 || $this->isAdmin(),
             self::EDIT_PERMISSIONS, self::OWNER => $isOwner()
-                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                 || $this->isAdmin(),
             self::OPERATOR => $isOwner()
-                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token),
 
             default => false,

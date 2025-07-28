@@ -74,15 +74,15 @@ class Target extends AbstractUuidEntity implements \Stringable
     #[Groups(['target:write'])]
     private ?string $defaultDestination = null;
 
-    #[ORM\Column(type: Types::STRING, length: 2000, nullable: true)]
-    #[Assert\Length(max: 2000)]
-    #[Groups(['target:write'])]
-    private ?string $targetAccessToken = null;
-
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     #[Assert\Length(max: 100)]
     #[Groups(['target:write'])]
-    private ?string $targetTokenType = null;
+    private ?string $authorizationScheme = null;
+
+    #[ORM\Column(type: Types::STRING, length: 2000, nullable: true)]
+    #[Assert\Length(max: 2000)]
+    #[Groups(['target:write'])]
+    private ?string $authorizationKey = null;
 
     /**
      * Null value allows everyone.
@@ -120,14 +120,14 @@ class Target extends AbstractUuidEntity implements \Stringable
         return $this->createdAt;
     }
 
-    public function getTargetAccessToken(): ?string
+    public function getAuthorizationKey(): ?string
     {
-        return $this->targetAccessToken;
+        return $this->authorizationKey;
     }
 
-    public function setTargetAccessToken(?string $targetAccessToken): void
+    public function setAuthorizationKey(?string $authorizationKey): void
     {
-        $this->targetAccessToken = $targetAccessToken;
+        $this->authorizationKey = $authorizationKey;
     }
 
     public function getName(): ?string
@@ -190,14 +190,14 @@ class Target extends AbstractUuidEntity implements \Stringable
         return (string) ($this->getName() ?? $this->getId());
     }
 
-    public function getTargetTokenType(): ?string
+    public function getAuthorizationScheme(): ?string
     {
-        return $this->targetTokenType;
+        return $this->authorizationScheme;
     }
 
-    public function setTargetTokenType(?string $targetTokenType): void
+    public function setAuthorizationScheme(?string $authorizationScheme): void
     {
-        $this->targetTokenType = $targetTokenType;
+        $this->authorizationScheme = $authorizationScheme;
     }
 
     public function getSlug(): ?string
@@ -210,7 +210,7 @@ class Target extends AbstractUuidEntity implements \Stringable
         $this->slug = $slug;
     }
 
-    public function getEnabled(): bool
+    public function isEnabled(): bool
     {
         return $this->enabled;
     }
