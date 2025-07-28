@@ -58,8 +58,9 @@ export default class FormEditor extends Component {
         event.preventDefault();
 
         const {schema, value, selected} = this.state;
+        let formData;
         try {
-            const formData = JSON.parse(value);
+            formData = JSON.parse(value);
         } catch (error) {
             alert(error.message);
             return;
