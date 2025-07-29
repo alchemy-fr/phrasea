@@ -23,10 +23,11 @@ const renderArrayFields = (
         return _times(count, idx => {
             return (
                 <div key={idx}>
-                    <div className="btn-group pull-right ">
+                    <div className="btn-group pull-right">
                         {idx !== count - 1 && count > 1 ? (
                             <button
                                 className="btn btn-primary"
+                                type={"button"}
                                 onClick={e => {
                                     e.preventDefault();
                                     swap(idx, idx + 1);
@@ -40,6 +41,7 @@ const renderArrayFields = (
                         {idx !== 0 && count > 1 ? (
                             <button
                                 className="btn btn-primary"
+                                type={"button"}
                                 onClick={e => {
                                     e.preventDefault();
                                     swap(idx, idx - 1);
@@ -53,6 +55,7 @@ const renderArrayFields = (
 
                         <button
                             className="btn btn-danger"
+                            type={"button"}
                             onClick={e => {
                                 e.preventDefault();
                                 remove(idx);
