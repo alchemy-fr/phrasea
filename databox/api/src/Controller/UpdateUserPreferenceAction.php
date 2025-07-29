@@ -35,9 +35,7 @@ class UpdateUserPreferenceAction extends AbstractController
         if (empty($name = ($data['name'] ?? null))) {
             throw new BadRequestHttpException('Missing or empty name');
         }
-        if (null === $value = ($data['value'] ?? null)) {
-            throw new BadRequestHttpException('Missing or empty name');
-        }
+        $value = $data['value'] ?? null;
 
         $pref = $userPreferencesManager->updatePreferences(
             $user->getId(),
