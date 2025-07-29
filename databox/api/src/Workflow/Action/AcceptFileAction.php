@@ -14,6 +14,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
+use App\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 readonly class AcceptFileAction implements ActionInterface
@@ -22,6 +23,7 @@ readonly class AcceptFileAction implements ActionInterface
         private BorderManager $borderManager,
         private UploaderClient $uploaderClient,
         private EntityManagerInterface $em,
+        private RenditionManager $renditionManager,
     ) {
     }
 
@@ -39,7 +41,14 @@ readonly class AcceptFileAction implements ActionInterface
         if (null !== $assetId) {
             $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
             if ($renditionDefId) {
-                DoctrineUtil::findStrict($this->em, RenditionDefinition::class, $renditionDefId);
+                $renditionDefinition = DoctrineUtil::findStrict($this->em, RenditionDefinition::class, $renditionDefId);
+
+                $this->renditionManager->validateSubstitution(
+                    $asset,
+                    $renditionDefinition,
+                    true,
+                    true,
+                );
             } else {
                 $uploadToken = $data['uploadToken'];
 

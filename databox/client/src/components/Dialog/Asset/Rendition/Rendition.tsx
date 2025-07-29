@@ -208,22 +208,24 @@ export function Rendition({
                                     />
                                 </MenuItem>
                             );
-                            actions.push(
-                                <MenuItem
-                                    key={'replace'}
-                                    onClick={closeWrapper(uploadRendition)}
-                                >
-                                    <ListItemIcon>
-                                        <UploadIcon />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary={t(
-                                            'renditions.replace',
-                                            'Replace'
-                                        )}
-                                    />
-                                </MenuItem>
-                            );
+                            if (rendition.definition.substitutable) {
+                                actions.push(
+                                    <MenuItem
+                                        key={'replace'}
+                                        onClick={closeWrapper(uploadRendition)}
+                                    >
+                                        <ListItemIcon>
+                                            <UploadIcon />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={t(
+                                                'renditions.replace',
+                                                'Replace'
+                                            )}
+                                        />
+                                    </MenuItem>
+                                );
+                            }
                             actions.push(
                                 <SaveAsButton
                                     key={'save-as'}
