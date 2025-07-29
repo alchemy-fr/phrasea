@@ -1,9 +1,76 @@
-import {AttributeFormatterProps} from './types';
+import {AttributeFormatterProps, AvailableFormat} from './types';
 import moment from 'moment/moment';
 import {TextFieldProps} from '@mui/material';
-import DateType, {DateFormats} from './DateType';
+import React from 'react';
+import TextType from './TextType.tsx';
 
-export default class DateTimeType extends DateType {
+export enum DateFormats {
+    Short = 'short',
+    Medium = 'medium',
+    Relative = 'relative',
+    Long = 'long',
+    Iso = 'iso',
+}
+
+export default class DateTimeType extends TextType {
+    formatValue(props: AttributeFormatterProps): React.ReactNode {
+        return <>{this.format(props)}</>;
+    }
+
+    formatValueAsString(props: AttributeFormatterProps): string | undefined {
+        return this.format(props);
+    }
+
+    denormalize(value: string | undefined): string | undefined {
+        if (value) {
+            return moment(value)
+                .local(false)
+                .format()
+                .replace(/(Z|[+-]\d{2}:\d{2})$/, '');
+        }
+
+        return value;
+    }
+
+    normalize(value: string | undefined): string | undefined {
+        if (value) {
+            value = moment(value).local(true).format();
+        }
+
+        return value;
+    }
+
+    getAvailableFormats(): AvailableFormat[] {
+        return [
+            {
+                name: DateFormats.Medium,
+                title: 'Medium',
+            },
+            {
+                name: DateFormats.Short,
+                title: 'Short',
+            },
+            {
+                name: DateFormats.Long,
+                title: 'Long',
+            },
+            {
+                name: DateFormats.Relative,
+                title: 'Relative',
+            },
+            {
+                name: DateFormats.Iso,
+                title: 'ISO',
+            },
+        ].map(f => ({
+            ...f,
+            example: this.formatValue({
+                value: '2023-01-01T00:00:00Z',
+                format: f.name,
+            }),
+        }));
+    }
+
     public getFieldProps(): TextFieldProps {
         return {
             type: 'datetime-local',
