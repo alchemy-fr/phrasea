@@ -20,6 +20,14 @@ Name your field with this keyword in order to send email to user when upload has
 }
 ```
 
+- `collection_destination`
+Set the collection destination of the asset.
+
+### Databox reserved keywords
+
+- `databox_title` Set the title of the asset.
+- `databox_tags` Se
+
 ## Hard coded form data (Bulk data)
 
 Uploader can define custom form data for a specific client.
@@ -40,11 +48,6 @@ In the Bulk data section of the upload (you must be an admin), you can edit the 
 ```
 
 ## Databox examples
-
-Reserved keywords:
-
-- `databox_title` Set the title of the asset.
-- `databox_tags` Set the tags of the asset.
 
 ```json
 {

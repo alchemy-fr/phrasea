@@ -19,6 +19,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 readonly class AcceptFileAction implements ActionInterface
 {
+    final public const string COLLECTION_DESTINATION = 'collection_destination';
+
     public function __construct(
         private BorderManager $borderManager,
         private UploaderClient $uploaderClient,
@@ -58,14 +60,14 @@ readonly class AcceptFileAction implements ActionInterface
             }
         } else {
             $collection = null;
-            $collectionId = $formData['collection_destination'] ?? $inputs['collectionId'] ?? null;
+            $collectionId = $formData[self::COLLECTION_DESTINATION] ?? $inputs['collectionId'] ?? null;
             if ($collectionId) {
                 $collection = DoctrineUtil::findStrict($this->em, Collection::class, $collectionId);
                 $workspace = $collection->getWorkspace();
             } else {
                 $workspaceId = $data['workspaceId'] ?? $inputs['workspaceId'] ?? null;
                 if (empty($workspaceId)) {
-                    throw new \InvalidArgumentException('Missing "collection_destination", "targetAsset", "collectionId" or "workspaceId"');
+                    throw new \InvalidArgumentException(sprintf('Missing "%s", "targetAsset", "collectionId" or "workspaceId"', self::COLLECTION_DESTINATION));
                 }
                 $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $workspaceId);
             }

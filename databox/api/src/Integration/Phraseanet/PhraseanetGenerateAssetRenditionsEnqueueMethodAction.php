@@ -8,6 +8,7 @@ use Alchemy\Workflow\Executor\RunContext;
 use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
+use App\Workflow\Action\AcceptFileAction;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\Exception\ClientException;
 
@@ -34,7 +35,7 @@ final class PhraseanetGenerateAssetRenditionsEnqueueMethodAction extends Abstrac
             'token' => $this->tokenManager->createToken($asset->getId(), $workflowId),
             'base_url' => $this->databoxBaseUrl.'/integrations/phraseanet/'.$config->getIntegrationId().'/workflows/'.$workflowId.'/',
             'formData' => [
-                'collection_destination' => $config['collectionId'],
+                AcceptFileAction::COLLECTION_DESTINATION => $config['collectionId'],
             ],
         ];
 
