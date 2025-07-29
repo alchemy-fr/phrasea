@@ -67,6 +67,10 @@ final readonly class AttributeDataExporter
                 continue;
             }
 
+            if (!$attributeDefinition->isTranslatable()) {
+                $fieldLocale = null;
+            }
+
             if ($attributeDefinition->isMultiple()) {
                 if (is_array($value)) {
                     foreach ($value as $v) {
