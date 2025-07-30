@@ -34,7 +34,7 @@ export async function getUserPreferences(): Promise<UserPreferences> {
 }
 
 export async function putUserPreferences(
-    name: string,
+    name: keyof UserPreferences,
     value: any
 ): Promise<UserPreferences> {
     const res = await apiClient.put(`/preferences`, {

@@ -12,12 +12,14 @@ class FormSchemaRepository extends EntityRepository
     {
         return $this->createQueryBuilder('t')
             ->select('t')
+            ->addSelect('CASE WHEN t.locale = :locale THEN 2 WHEN t.locale IS NULL THEN 1 ELSE 0 END AS HIDDEN locale_match')
             ->andWhere('t.target = :t')
-            ->andWhere('t.locale = :locale OR t.locale IS NULL')
             ->setParameters([
                 'locale' => $locale,
                 't' => $targetId,
             ])
+            ->orderBy('locale_match', 'DESC')
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
     }

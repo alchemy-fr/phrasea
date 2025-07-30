@@ -14,6 +14,7 @@ use App\Integration\Phraseanet\PhraseanetRenditionIntegration;
 use App\Integration\Phraseanet\PhraseanetTokenManager;
 use App\Storage\FileManager;
 use App\Storage\RenditionManager;
+use App\Workflow\Action\AcceptFileAction;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -181,7 +182,6 @@ class PhraseanetIntegrationController extends AbstractController
         EntityManagerInterface $em,
         LoggerInterface $logger,
         IntegrationManager $integrationManager,
-        StateRepositoryInterface $workflowStateRepository,
         PhraseanetTokenManager $tokenManager,
         Request $request,
     ): Response {
@@ -208,7 +208,7 @@ class PhraseanetIntegrationController extends AbstractController
             'originalName' => sprintf('%s%s_%s.%s', self::ASSET_NAME_PREFIX, $asset->getId(), $workflowId, $asset->getSource()->getExtension()),
             'url' => $fileUrlResolver->resolveUrl($asset->getSource()),
             'formData' => [
-                'collection_destination' => $options['collectionId'],
+                AcceptFileAction::COLLECTION_DESTINATION => $options['collectionId'],
             ],
         ]);
     }

@@ -7,6 +7,7 @@ import {
     TextField,
 } from '@mui/material';
 import {
+    CheckboxWidget,
     FormFieldErrors,
     FormRow,
     RSelectWidget,
@@ -110,6 +111,18 @@ function Item({
                     />
                     <FormFieldErrors field={'policy'} errors={errors} />
                 </FormGroup>
+            </FormRow>
+            <FormRow>
+                <CheckboxWidget
+                    label={t(
+                        'form.rendition_definition.substitutable.label',
+                        'Substitutable'
+                    )}
+                    control={control}
+                    name={'substitutable'}
+                    disabled={submitting}
+                />
+                <FormFieldErrors field={'substitutable'} errors={errors} />
             </FormRow>
             <FormRow>
                 <FormGroup>

@@ -63,9 +63,11 @@ class RenditionDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->policy) {
             $object->setPolicy($data->policy);
         }
-
         if (null !== $data->download) {
             $object->setDownload($data->download);
+        }
+        if (null !== $data->substitutable) {
+            $object->setSubstitutable($data->substitutable);
         }
         if (null !== $data->buildMode) {
             $object->setBuildMode($data->buildMode);

@@ -74,16 +74,9 @@ final class RenditionManager
             $this->em->persist($asset);
         }
 
+        $this->validateSubstitution($asset, $definition, $substituted, $force);
+
         $rendition = $this->getOrCreateRendition($asset, $definition);
-
-        if ($rendition->isLocked()) {
-            throw new \InvalidArgumentException(sprintf('Rendition "%s" is locked', $definition->getName()));
-        }
-
-        if ($rendition->isSubstituted() && !$force) {
-            throw new RenditionBuildException(true, sprintf('Rendition "%s" is a substitution and cannot be replaced without the "force" option', $definition->getName()));
-        }
-
         $rendition->setFile($file);
         $rendition->setBuildHash($buildHash);
         $rendition->setModuleHashes($moduleHashes);
@@ -102,6 +95,26 @@ final class RenditionManager
         ));
 
         return $rendition;
+    }
+
+    public function validateSubstitution(
+        Asset $asset,
+        RenditionDefinition $definition,
+        bool $isSubstitution,
+        bool $force,
+    ): void {
+        $rendition = $this->getAssetRenditionByDefinition($asset, $definition);
+        if ($rendition?->isLocked()) {
+            throw new \InvalidArgumentException(sprintf('Rendition "%s" is locked', $definition->getName()));
+        }
+
+        if ($isSubstitution) {
+            if (!$definition->isSubstitutable()) {
+                throw new \InvalidArgumentException(sprintf('Rendition "%s" is not substitutable', $definition->getName()));
+            }
+        } elseif ($rendition?->isSubstituted() && !$force) {
+            throw new RenditionBuildException(true, sprintf('Rendition "%s" is a substitution and cannot be replaced without the "force" option', $definition->getName()));
+        }
     }
 
     public function getOrCreateRendition(

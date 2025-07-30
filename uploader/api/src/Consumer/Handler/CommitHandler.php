@@ -6,6 +6,7 @@ namespace App\Consumer\Handler;
 
 use App\Entity\Asset;
 use App\Entity\Commit;
+use App\Entity\FormSchema;
 use App\Entity\TargetParams;
 use App\Storage\AssetManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,6 +28,26 @@ final readonly class CommitHandler
         $commit = Commit::fromMessage($message, $this->em);
         $commit->generateToken();
         $target = $commit->getTarget();
+
+        if (null !== $commit->schemaId) {
+            $formSchema = $this->em
+                ->getRepository(FormSchema::class)
+                ->find($commit->schemaId);
+
+            if ($formSchema instanceof FormSchema) {
+                switch ($formSchema->getLocaleMode()) {
+                    case FormSchema::LOCALE_MODE_NO_LOCALE:
+                        $commit->setFormLocale(null);
+                        break;
+                    case FormSchema::LOCALE_MODE_USE_UA:
+                        $commit->setFormLocale($message->getLocale());
+                        break;
+                    case FormSchema::LOCALE_MODE_FORCED:
+                        $commit->setFormLocale($formSchema->getLocale());
+                        break;
+                }
+            }
+        }
 
         $totalSize = $this->assetManager->getTotalSize($commit->getFiles());
         $commit->setTotalSize($totalSize);

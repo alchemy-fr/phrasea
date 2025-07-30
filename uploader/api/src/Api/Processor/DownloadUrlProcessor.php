@@ -22,10 +22,10 @@ final class DownloadUrlProcessor implements ProcessorInterface
     use SecurityAwareTrait;
 
     public function __construct(
-        private MessageBusInterface $bus,
-        private FormValidator $formValidator,
-        private TargetRepository $targetRepository,
-        private RequestStack $requestStack,
+        private readonly MessageBusInterface $bus,
+        private readonly FormValidator $formValidator,
+        private readonly TargetRepository $targetRepository,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -57,6 +57,7 @@ final class DownloadUrlProcessor implements ProcessorInterface
             $this->getStrictUser()->getId(),
             $target->getId(),
             $request->getLocale() ?? $request->getDefaultLocale(),
+            $data->schemaId,
             $data->data,
             $data->formData,
         ));

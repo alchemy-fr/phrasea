@@ -6,6 +6,7 @@ namespace App\Api\Model\Output;
 
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
+use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Workspace;
@@ -42,7 +43,12 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public bool $download;
 
-    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
+    #[Groups([
+        RenditionDefinition::GROUP_LIST,
+        RenditionDefinition::GROUP_READ,
+        AssetRendition::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+    ])]
     public bool $substitutable;
 
     #[Groups([RenditionDefinition::GROUP_READ])]

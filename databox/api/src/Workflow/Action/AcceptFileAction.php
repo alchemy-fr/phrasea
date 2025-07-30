@@ -14,14 +14,18 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
+use App\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 readonly class AcceptFileAction implements ActionInterface
 {
+    final public const string COLLECTION_DESTINATION = 'collection_destination';
+
     public function __construct(
         private BorderManager $borderManager,
         private UploaderClient $uploaderClient,
         private EntityManagerInterface $em,
+        private RenditionManager $renditionManager,
     ) {
     }
 
@@ -33,13 +37,20 @@ readonly class AcceptFileAction implements ActionInterface
         $data = $assetData['data'];
         $assetId = $data['targetAsset'] ?? null;
         $formData = $assetData['formData'] ?? [];
-        $assetId = $data['targetAsset'] ?? null;
+        $formLocale = $assetData['formLocale'] ?? null;
         $renditionDefId = $data['targetRendition'] ?? null;
 
         if (null !== $assetId) {
             $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
             if ($renditionDefId) {
-                DoctrineUtil::findStrict($this->em, RenditionDefinition::class, $renditionDefId);
+                $renditionDefinition = DoctrineUtil::findStrict($this->em, RenditionDefinition::class, $renditionDefId);
+
+                $this->renditionManager->validateSubstitution(
+                    $asset,
+                    $renditionDefinition,
+                    true,
+                    true,
+                );
             } else {
                 $uploadToken = $data['uploadToken'];
 
@@ -49,14 +60,14 @@ readonly class AcceptFileAction implements ActionInterface
             }
         } else {
             $collection = null;
-            $collectionId = $formData['collection_destination'] ?? $inputs['collectionId'] ?? null;
+            $collectionId = $formData[self::COLLECTION_DESTINATION] ?? $inputs['collectionId'] ?? null;
             if ($collectionId) {
                 $collection = DoctrineUtil::findStrict($this->em, Collection::class, $collectionId);
                 $workspace = $collection->getWorkspace();
             } else {
                 $workspaceId = $data['workspaceId'] ?? $inputs['workspaceId'] ?? null;
                 if (empty($workspaceId)) {
-                    throw new \InvalidArgumentException('Missing "collection_destination", "targetAsset", "collectionId" or "workspaceId"');
+                    throw new \InvalidArgumentException(sprintf('Missing "%s", "targetAsset", "collectionId" or "workspaceId"', self::COLLECTION_DESTINATION));
                 }
                 $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $workspaceId);
             }
@@ -84,6 +95,7 @@ readonly class AcceptFileAction implements ActionInterface
         $context->setOutput('fileId', $file->getId());
         $context->setOutput('assetId', $asset->getId());
         $context->setOutput('formData', $formData);
+        $context->setOutput('formLocale', $formLocale);
         $context->setOutput('renditionId', $renditionDefId);
     }
 }

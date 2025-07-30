@@ -126,6 +126,7 @@ export default function AssetWorkflow({data, onClose, minHeight}: Props) {
                             route={modalRoutes.workflow}
                             params={{
                                 id: w.id,
+                                assetId: data.id,
                             }}
                         >
                             {t('asset.operations.view', `View`)}

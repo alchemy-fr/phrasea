@@ -178,6 +178,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
     workspace: Workspace | string;
     definition: string;
     buildMode?: RenditionBuildMode | string;
+    substitutable: boolean;
     useAsOriginal?: boolean;
     useAsPreview?: boolean;
     useAsThumbnail?: boolean;
@@ -194,9 +195,7 @@ export interface AssetRendition extends ApiHydraObjectResponse, Entity {
     projection?: boolean;
     locked: boolean;
     substituted: boolean;
-    definition: {
-        id: string;
-    };
+    definition: Pick<RenditionDefinition, 'id' | 'substitutable'>;
 }
 
 export interface RenditionPolicy extends ApiHydraObjectResponse, Entity {

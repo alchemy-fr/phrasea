@@ -92,6 +92,7 @@ class DownloadHandlerTest extends TestCase
             'c705d014-5e18-4711-bad6-5e9e27e10099',
             'en',
             null,
+            null,
             ['foo' => 'bar'],
         );
         $consumer($message);

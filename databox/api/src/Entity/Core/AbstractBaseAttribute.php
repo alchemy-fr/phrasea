@@ -51,7 +51,11 @@ abstract class AbstractBaseAttribute extends AbstractUuidEntity
 
     public function setLocale(?string $locale): void
     {
-        $this->locale = $locale;
+        if (empty($locale)) {
+            $this->locale = null;
+        } else {
+            $this->locale = $locale;
+        }
     }
 
     public function getPosition(): int

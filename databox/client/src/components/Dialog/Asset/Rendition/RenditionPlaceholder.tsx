@@ -36,13 +36,15 @@ export function RenditionPlaceholder({
             }
             info={<></>}
             actions={
-                <Button
-                    variant={'contained'}
-                    startIcon={<UploadIcon />}
-                    onClick={uploadRendition}
-                >
-                    {t('renditions.upload', 'Upload rendition')}
-                </Button>
+                definition.substitutable && (
+                    <Button
+                        variant={'contained'}
+                        startIcon={<UploadIcon />}
+                        onClick={uploadRendition}
+                    >
+                        {t('renditions.upload', 'Upload rendition')}
+                    </Button>
+                )
             }
         />
     );

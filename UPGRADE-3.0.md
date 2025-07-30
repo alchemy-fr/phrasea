@@ -10,7 +10,6 @@ bin/migrate.sh \
 
 ## Upgrade HELM release
 
-
 1. Backup actual version:
 
 ```bash
@@ -47,11 +46,13 @@ bin/ops/configurator-migrate.sh ${NAMESPACE} v20230807 ${CHART_VERSION}
 ```
 
 Follow the logs (optional):
+
 ```bash
 kubectl attach -it job/configurator-migrate-${MIGRATION_NAME}
 ```
 
 Clean jobs:
+
 ```bash
 kubectl delete job/configurator-migrate-${MIGRATION_NAME}
 kubectl delete job/configurator-configure

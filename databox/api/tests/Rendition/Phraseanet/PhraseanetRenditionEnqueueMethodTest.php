@@ -16,6 +16,7 @@ use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Phraseanet\PhraseanetApiClientFactory;
 use App\Integration\Phraseanet\PhraseanetRenditionIntegration;
 use App\Tests\FileUploadTrait;
+use App\Workflow\Action\AcceptFileAction;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -142,7 +143,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $this->assertJsonContains([
             'originalName' => $originalName,
             'formData' => [
-                'collection_destination' => 42,
+                AcceptFileAction::COLLECTION_DESTINATION => 42,
             ],
         ]);
 

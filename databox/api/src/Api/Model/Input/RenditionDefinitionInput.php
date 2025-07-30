@@ -45,6 +45,12 @@ class RenditionDefinitionInput
     public $download;
 
     /**
+     * @var bool
+     */
+    #[Groups([RenditionDefinition::GROUP_WRITE])]
+    public $substitutable;
+
+    /**
      * @var int
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]

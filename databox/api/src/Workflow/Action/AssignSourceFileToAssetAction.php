@@ -54,7 +54,8 @@ readonly class AssignSourceFileToAssetAction implements ActionInterface
             $this->assetManager->assignNewAssetSourceFile(
                 $asset,
                 $file,
-                $inputs['formData'] ?? []
+                $inputs['formData'] ?? [],
+                $inputs['formLocale'] ?? null,
             );
             $this->em->flush();
         }

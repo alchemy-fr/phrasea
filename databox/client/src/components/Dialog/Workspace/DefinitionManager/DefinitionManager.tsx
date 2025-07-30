@@ -134,6 +134,7 @@ type Props<D extends DefinitionBase> = {
     denormalizeData?: NormalizeData<D>;
     setSubManagementState?: SetSubManagementState;
     managerFormId?: string;
+    preListBody?: (list: D[] | undefined) => React.ReactNode;
     deleteConfirmAssertions?: (
         data: D
     ) => ConfirmDialogProps<any>['assertions'];
@@ -158,6 +159,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
     managerFormId = 'definition-manager',
     setSubManagementState: parentSetSubManagementState,
     deleteConfirmAssertions,
+    preListBody,
 }: Props<D>) {
     const {openModal} = useModals();
     const [listState, setListState] = useState<ListState<D>>({
@@ -370,6 +372,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                     component="div"
                     role="list"
                 >
+                    {preListBody?.(list)}
                     <ListItem disablePadding>
                         <ListItemButton
                             selected={action === ItemAction.Create}

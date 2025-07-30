@@ -19,6 +19,7 @@ export default class AssetForm extends Component {
 
     state = {
         schema: undefined,
+        schemaId: undefined,
     };
 
     componentDidMount() {
@@ -27,7 +28,9 @@ export default class AssetForm extends Component {
 
     async init() {
         const {baseSchema, targetId} = this.props;
+        let schemaId = null;
         let schema = await getFormSchema(targetId);
+
         if (null === schema) {
             if (!baseSchema) {
                 this.props.onComplete({});
@@ -35,6 +38,7 @@ export default class AssetForm extends Component {
             }
             schema = {};
         } else {
+            schemaId = schema.id;
             schema = schema.data;
         }
 
@@ -54,7 +58,10 @@ export default class AssetForm extends Component {
             }
         }
 
-        this.setState({schema});
+        this.setState({
+            schema,
+            schemaId,
+        });
     }
 
     onSubmit = async reduxFormData => {
@@ -73,6 +80,7 @@ export default class AssetForm extends Component {
                 }
             });
         }
+
         data = {
             ...data,
             [this.props.formDataKey ?? 'formData']: formData,
@@ -97,7 +105,7 @@ export default class AssetForm extends Component {
             throw new SubmissionError(errs);
         }
 
-        onComplete && onComplete(formData);
+        onComplete && onComplete(formData, this.state.schemaId);
     };
 
     render() {

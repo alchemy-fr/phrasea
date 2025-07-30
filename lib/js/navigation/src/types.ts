@@ -1,5 +1,6 @@
 import React, {ElementType, FunctionComponent, PropsWithChildren} from 'react';
 import type {ActionFunction, LoaderFunction} from 'react-router-dom';
+import {NavigateOptions} from "react-router-dom";
 
 export type RouteDefinition = {
     path: string;
@@ -40,3 +41,10 @@ export type TErrorBoundaryComponent = React.JSXElementConstructor<
 >;
 
 export type {Location, Path, To} from 'react-router-dom';
+
+export type NavigateToOverlayProps = {
+    route: RouteDefinition;
+    params?: RouteParameters;
+    options?: NavigateOptions;
+    hash?: string;
+}

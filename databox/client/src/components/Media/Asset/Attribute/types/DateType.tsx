@@ -1,76 +1,11 @@
-import {AttributeFormatterProps, AvailableFormat} from './types';
+import {AttributeFormatterProps} from './types';
 import moment from 'moment/moment';
-import TextType from './TextType';
 import {TextFieldProps} from '@mui/material';
-import React from 'react';
+import DateTimeType, {DateFormats} from './DateTimeType.tsx';
 
-enum Formats {
-    Short = 'short',
-    Medium = 'medium',
-    Relative = 'relative',
-    Long = 'long',
-    Iso = 'iso',
-}
-
-export {Formats as DateFormats};
-
-export default class DateType extends TextType {
-    formatValue(props: AttributeFormatterProps): React.ReactNode {
-        return <>{this.format(props)}</>;
-    }
-
-    formatValueAsString(props: AttributeFormatterProps): string | undefined {
-        return this.format(props);
-    }
-
+export default class DateType extends DateTimeType {
     denormalize(value: string | undefined): string | undefined {
-        if (value) {
-            return moment(value)
-                .local(false)
-                .format()
-                .replace(/(Z|[+-]\d{2}:\d{2})$/, '');
-        }
-
-        return value;
-    }
-
-    normalize(value: string | undefined): string | undefined {
-        if (value) {
-            value = moment(value).local(true).format();
-        }
-
-        return value;
-    }
-
-    getAvailableFormats(): AvailableFormat[] {
-        return [
-            {
-                name: Formats.Medium,
-                title: 'Medium',
-            },
-            {
-                name: Formats.Short,
-                title: 'Short',
-            },
-            {
-                name: Formats.Long,
-                title: 'Long',
-            },
-            {
-                name: Formats.Relative,
-                title: 'Relative',
-            },
-            {
-                name: Formats.Iso,
-                title: 'ISO',
-            },
-        ].map(f => ({
-            ...f,
-            example: this.formatValue({
-                value: '2023-01-01T00:00:00Z',
-                format: f.name,
-            }),
-        }));
+        return super.denormalize(value)?.replace(/T\d{2}:\d{2}(:\d{2})?/, '');
     }
 
     public getFieldProps(): TextFieldProps {
@@ -90,16 +25,16 @@ export default class DateType extends TextType {
         const m = moment(typeof value === 'number' ? value * 1000 : value);
 
         switch (format ?? this.getAvailableFormats()[0].name) {
-            case Formats.Short:
+            case DateFormats.Short:
                 return m.format('ll');
             default:
-            case Formats.Medium:
+            case DateFormats.Medium:
                 return m.format('L');
-            case Formats.Relative:
+            case DateFormats.Relative:
                 return m.fromNow();
-            case Formats.Long:
+            case DateFormats.Long:
                 return m.format('LLLL');
-            case Formats.Iso:
+            case DateFormats.Iso:
                 return m.format();
         }
     }

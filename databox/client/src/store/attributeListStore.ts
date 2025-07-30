@@ -62,14 +62,13 @@ export const useAttributeListStore = create<State>((set, getState) => ({
         try {
             const data = await getAttributeLists(undefined, params);
 
-            set(state => ({
+            set({
                 lists: data.result,
                 total: data.total,
                 loading: false,
                 loaded: true,
-                current: data.total === 1 ? data.result[0] : state.current,
                 nextUrl: data.next || undefined,
-            }));
+            });
         } catch (e: any) {
             set({loading: false});
             throw e;
@@ -81,11 +80,13 @@ export const useAttributeListStore = create<State>((set, getState) => ({
     },
 
     setCurrent: async id => {
+        const prefKey = 'attrList';
         if (!id) {
             set({
                 current: undefined,
                 loadingCurrent: false,
             });
+            putUserPreferences(prefKey, null);
 
             return;
         }
@@ -101,16 +102,17 @@ export const useAttributeListStore = create<State>((set, getState) => ({
             loadingCurrent: true,
         });
 
-        putUserPreferences('attrList', id);
-
         try {
             const list = await getAttributeList(id);
             set({
                 current: list,
                 loadingCurrent: false,
             });
+            putUserPreferences(prefKey, id);
         } catch (e: any) {
+            putUserPreferences(prefKey, null);
             set({
+                current: undefined,
                 loadingCurrent: false,
             });
         }
@@ -236,15 +238,24 @@ export const useAttributeListStore = create<State>((set, getState) => ({
     },
 
     loadList: async (id: string) => {
-        const list = await getAttributeList(id!);
-        set(state => {
-            return {
-                current: state.current?.id === list.id ? list : state.current,
-                lists: replaceList(state.lists, list),
-            };
-        });
+        try {
+            const list = await getAttributeList(id!);
+            set(state => {
+                return {
+                    current:
+                        state.current?.id === list.id ? list : state.current,
+                    lists: replaceList(state.lists, list),
+                };
+            });
 
-        return list;
+            return list;
+        } catch (e: any) {
+            const s = getState();
+            if (s.current?.id === id) {
+                s.setCurrent(undefined);
+            }
+            throw e;
+        }
     },
 
     addToList: async (listId, items) => {

@@ -5,6 +5,9 @@ import {FieldArray} from 'redux-form';
 import {times as _times} from 'lodash';
 import ChoiceWidget from './ChoiceWidget';
 import classNames from 'classnames';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const renderArrayFields = (
     count,
@@ -20,16 +23,17 @@ const renderArrayFields = (
         return _times(count, idx => {
             return (
                 <div key={idx}>
-                    <div className="btn-group pull-right ">
+                    <div className="btn-group pull-right">
                         {idx !== count - 1 && count > 1 ? (
                             <button
                                 className="btn btn-primary"
+                                type={"button"}
                                 onClick={e => {
                                     e.preventDefault();
                                     swap(idx, idx + 1);
                                 }}
                             >
-                                <span className="glyphicon glyphicon-arrow-down" />
+                                <KeyboardArrowDownIcon/>
                             </button>
                         ) : (
                             ''
@@ -37,12 +41,13 @@ const renderArrayFields = (
                         {idx !== 0 && count > 1 ? (
                             <button
                                 className="btn btn-primary"
+                                type={"button"}
                                 onClick={e => {
                                     e.preventDefault();
                                     swap(idx, idx - 1);
                                 }}
                             >
-                                <span className="glyphicon glyphicon-arrow-up" />
+                                <KeyboardArrowUpIcon/>
                             </button>
                         ) : (
                             ''
@@ -50,12 +55,13 @@ const renderArrayFields = (
 
                         <button
                             className="btn btn-danger"
+                            type={"button"}
                             onClick={e => {
                                 e.preventDefault();
                                 remove(idx);
                             }}
                         >
-                            <span className="glyphicon glyphicon-trash" />
+                            <DeleteIcon/>
                         </button>
                     </div>
                     {renderField(

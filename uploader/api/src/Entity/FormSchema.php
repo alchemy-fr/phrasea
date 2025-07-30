@@ -46,6 +46,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: FormSchemaRepository::class)]
 class FormSchema extends AbstractUuidEntity implements AclObjectInterface
 {
+    final public const int LOCALE_MODE_NO_LOCALE = 0;
+    final public const int LOCALE_MODE_USE_UA = 1;
+    final public const int LOCALE_MODE_FORCED = 2;
+
     #[ORM\ManyToOne(targetEntity: Target::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
@@ -55,6 +59,10 @@ class FormSchema extends AbstractUuidEntity implements AclObjectInterface
     #[ORM\Column(type: Types::STRING, length: 5, nullable: true)]
     #[Groups(['formschema:index', 'formschema:write'])]
     private ?string $locale = null;
+
+    #[ORM\Column(type: Types::SMALLINT)]
+    #[Groups(['formschema:index', 'formschema:write'])]
+    private int $localeMode = 0;
 
     #[ORM\Column(type: Types::JSON)]
     #[Groups(['formschema:index', 'formschema:write'])]
@@ -135,5 +143,15 @@ class FormSchema extends AbstractUuidEntity implements AclObjectInterface
     public function setTarget(Target $target): void
     {
         $this->target = $target;
+    }
+
+    public function getLocaleMode(): int
+    {
+        return $this->localeMode;
+    }
+
+    public function setLocaleMode(int $localeMode): void
+    {
+        $this->localeMode = $localeMode;
     }
 }

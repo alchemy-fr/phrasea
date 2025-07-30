@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {useParams} from '@alchemy/navigation';
+import {NavigateToOverlayProps, useParams} from '@alchemy/navigation';
 import {cancelWorkflow, getWorkflow, rerunJob} from '../../api/workflow';
 import {Box, CircularProgress} from '@mui/material';
 import {
@@ -11,13 +11,14 @@ import {
 import RouteDialog from '../Dialog/RouteDialog';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {useChannelRegistration} from '../../lib/pusher.ts';
+import {modalRoutes} from '../../routes.ts';
 
 type Props = {};
 
 const headerHeight = 78;
 
 export default function WorkflowView({}: Props) {
-    const {id} = useParams();
+    const {id, assetId} = useParams();
     const [data, setData] = useState<Workflow>();
 
     const onRefresh = React.useCallback(async () => {
@@ -58,7 +59,19 @@ export default function WorkflowView({}: Props) {
     }
 
     return (
-        <RouteDialog>
+        <RouteDialog
+            previousLocation={
+                assetId
+                    ? ({
+                          route: modalRoutes.assets.routes.manage,
+                          params: {
+                              id: assetId,
+                              tab: 'workflow',
+                          },
+                      } as NavigateToOverlayProps)
+                    : undefined
+            }
+        >
             {({open, onClose}) => (
                 <AppDialog
                     open={open}

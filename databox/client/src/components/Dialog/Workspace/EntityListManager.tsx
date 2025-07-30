@@ -17,6 +17,7 @@ import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import AttributeEntityManager from './AttributeEntityManager.tsx';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
+import React from 'react';
 
 function Item({usedFormSubmit}: DefinitionItemFormProps<EntityList>) {
     const {t} = useTranslation();

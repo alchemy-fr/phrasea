@@ -43,7 +43,7 @@ export default function WorkspaceDialog({}: Props) {
         <TabbedDialog
             route={modalRoutes.workspaces.routes.manage}
             routeParams={{id}}
-            maxWidth={'md'}
+            maxWidth={'lg'}
             title={t('workspace.manage.title', 'Manage workspace {{name}}', {
                 name: data.nameTranslated,
             })}
