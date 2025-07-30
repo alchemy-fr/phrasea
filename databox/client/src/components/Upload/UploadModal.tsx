@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import {Box} from '@mui/material';
-import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
 import UploadIcon from '@mui/icons-material/Upload';
 import {useFormSubmit} from '@alchemy/api';
@@ -161,9 +160,6 @@ export default function UploadModal({
             );
         },
         onSuccess: () => {
-            toast.success(
-                t('form.upload.success', 'Files uploaded!') as string
-            );
             closeModal(true);
         },
     });

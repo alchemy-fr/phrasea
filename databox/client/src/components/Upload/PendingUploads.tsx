@@ -19,7 +19,6 @@ export default function PendingUploads({}: Props) {
                 setTimeout(() => {
                     toast.done(tid);
                 }, 2000);
-                toastId.current = null;
             }
             return;
         }
@@ -46,6 +45,9 @@ export default function PendingUploads({}: Props) {
                 isLoading: true,
                 closeButton: false,
                 autoClose: false,
+                onClose: () => {
+                    toastId.current = null;
+                },
                 onClick: () => {
                     openModal(PendingUploadsDialog);
                 },
@@ -54,6 +56,7 @@ export default function PendingUploads({}: Props) {
             const isLoading = progress < 1;
             toast.update(toastId.current, {
                 progress: isLoading ? progress : undefined,
+                type: !isLoading ? 'success' : 'info',
                 isLoading,
                 autoClose: isLoading ? false : null,
                 closeButton: !isLoading,
