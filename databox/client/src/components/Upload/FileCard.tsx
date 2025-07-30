@@ -1,58 +1,64 @@
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import {FileBlobThumb} from '../../lib/upload/fileBlob';
-import {Grid, Paper} from '@mui/material';
+import {Box, LinearProgress, Paper} from '@mui/material';
 import byteSize from 'byte-size';
 
 import {thumbSx} from '../Media/Asset/AssetThumb.tsx';
-import {useTranslation} from 'react-i18next';
-
-const size = 100;
+import AssetFileIcon from '../Media/Asset/AssetFileIcon.tsx';
+import {ReactNode} from 'react';
+import assetClasses from '../AssetList/classes.ts';
 
 type Props = {
     file: File;
-    onRemove: () => void;
+    actions?: ReactNode;
+    size?: number;
+    progress?: number;
 };
 
-export default function FileCard({file, onRemove}: Props) {
-    const {t} = useTranslation();
+export type {Props as FileCardProps};
+
+export default function FileCard({file, progress, actions, size = 100}: Props) {
     return (
         <Paper
             sx={theme => ({
-                padding: theme.spacing(2),
                 margin: 'auto',
                 ...thumbSx(size, theme),
             })}
         >
-            <Grid
-                sx={theme => ({
-                    width: {
-                        xs: `calc(${size}px + ${theme.spacing(2)})`,
-                        sm: 395,
-                    },
-                })}
-                container
-                spacing={2}
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                }}
             >
-                <Grid item>
+                <div className={assetClasses.thumbWrapper}>
                     {[
                         'image/jpeg',
                         'image/png',
                         'image/bmp',
                         'image/gif',
+                        'image/webp',
+                        'image/svg+xml',
                     ].includes(file.type) ? (
                         <FileBlobThumb file={file} size={size} />
                     ) : (
                         <div
                             style={{
-                                width: 0,
+                                width: size,
                                 height: size,
                                 objectFit: 'contain',
                             }}
-                        />
+                        >
+                            <AssetFileIcon mimeType={file.type} />
+                        </div>
                     )}
-                </Grid>
-                <Grid item xs={12} sm>
+                </div>
+                <Box
+                    sx={{
+                        p: 2,
+                        flexGrow: 1,
+                    }}
+                >
                     <Typography
                         sx={{
                             overflow: 'hidden',
@@ -71,11 +77,12 @@ export default function FileCard({file, onRemove}: Props) {
                     <Typography variant="body2" gutterBottom>
                         {byteSize(file.size).toString()} • {file.type}
                     </Typography>
-                    <Button size="small" color="error" onClick={onRemove}>
-                        {t('common.remove', `Remove`)}
-                    </Button>
-                </Grid>
-            </Grid>
+                    {actions}
+                </Box>
+            </Box>
+            {progress !== undefined && progress < 1 ? (
+                <LinearProgress variant="determinate" value={progress * 100} />
+            ) : null}
         </Paper>
     );
 }

@@ -3,7 +3,7 @@ import {useTranslation} from 'react-i18next';
 import FormDialog from '../../../Dialog/FormDialog';
 import {Asset} from '../../../../types';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {UploadFiles} from '../../../../api/uploader/file.ts';
+import {generateUploadId, UploadFiles} from '../../../../api/uploader/file.ts';
 import {toast} from 'react-toastify';
 import SingleFileUploadWidget, {
     AssetUploadForm,
@@ -38,6 +38,7 @@ export default function UploadRenditionDialog({
         try {
             await UploadFiles([
                 {
+                    id: generateUploadId(),
                     ...uploadForm,
                     data: {
                         targetAsset: asset.id,

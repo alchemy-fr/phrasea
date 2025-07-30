@@ -3,7 +3,11 @@ import uploaderClient from '../uploader-client';
 import {promiseConcurrency} from '../../lib/promises';
 import {oauthClient} from '../api-client';
 import {RawAxiosRequestHeaders} from 'axios';
-import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
+import {
+    multipartUpload,
+    MultipartUploadOptions,
+} from '@alchemy/api/src/multiPartUpload.ts';
+import {useUploadStore} from '../../store/uploadStore.ts';
 
 interface MyHeaders extends RawAxiosRequestHeaders {
     Authorization?: string;
@@ -23,7 +27,12 @@ export async function makeAuthorizationHeaders(): Promise<MyHeaders> {
 
 type FormData = Record<string, any> | undefined;
 
+export function generateUploadId(): string {
+    return Math.random().toString(36).substring(2, 15);
+}
+
 type UploadedFile = {
+    id: string;
     data?: Record<string, any>;
 } & FileOrUrl;
 
@@ -41,10 +50,34 @@ export async function UploadFiles(
     files: UploadedFile[],
     formData?: FormData
 ): Promise<void> {
+    const uploadState = useUploadStore.getState();
+
+    files
+        .filter(f => Boolean(f.file))
+        .forEach(f => {
+            uploadState.addUpload({
+                id: f.id,
+                file: f.file!,
+                progress: 0,
+            });
+        });
+
     const targetSlug = config.uploaderTargetSlug;
     const assets = (
         await promiseConcurrency(
-            files.map(f => () => UploadFile(targetSlug, f)),
+            files.map(
+                f => () =>
+                    UploadFile(targetSlug, f, {
+                        onProgress: event => {
+                            const progress = event.loaded / event.total!;
+                            uploadState.uploadProgress({
+                                id: f.id,
+                                file: f.file!,
+                                progress,
+                            });
+                        },
+                    })
+            ),
             2
         )
     ).filter(a => a) as string[];
@@ -56,7 +89,8 @@ export async function UploadFiles(
 
 export async function UploadFile(
     targetSlug: string,
-    uploadedFile: UploadedFile
+    uploadedFile: UploadedFile,
+    multipartUploadOptions: MultipartUploadOptions = {}
 ): Promise<string | undefined> {
     if (uploadedFile.url) {
         await uploaderClient.post(`/downloads`, {
@@ -70,7 +104,7 @@ export async function UploadFile(
     const multipart = await multipartUpload(
         uploaderClient,
         uploadedFile.file!,
-        {}
+        multipartUploadOptions
     );
 
     return (

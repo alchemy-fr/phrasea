@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-import {Box, Grid} from '@mui/material';
-import FileCard from './FileCard';
+import {Box} from '@mui/material';
 import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
 import UploadIcon from '@mui/icons-material/Upload';
@@ -26,6 +25,7 @@ import type {TFunction} from '@alchemy/i18n';
 import {CollectionId} from '../Media/Collection/CollectionTree/collectionTree.ts';
 import {WorkspaceChip} from '../Ui/WorkspaceChip.tsx';
 import {CollectionChip} from '../Ui/CollectionChip.tsx';
+import FileToUploadCard from './FileToUploadCard.tsx';
 
 type FileWrapper = {
     id: string;
@@ -236,26 +236,35 @@ export default function UploadModal({
             {files.length > 0 && (
                 <Box
                     sx={theme => ({
-                        bgcolor: theme.palette.grey[100],
-                        maxHeight: 400,
-                        overflow: 'auto',
-                        p: 1,
+                        'bgcolor': theme.palette.grey[100],
+                        'maxHeight': 400,
+                        'overflow': 'auto',
+                        'p': 1,
+                        'display': 'grid',
+                        'alignItems': 'stretch',
+                        'gridTemplateColumns': {
+                            xs: `repeat(1, 1fr)`,
+                            md: `repeat(2, 1fr)`,
+                        },
+                        'gridColumnGap': theme.spacing(2),
+                        'gridRowGap': theme.spacing(2),
+                        '> div': {
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            alignItems: 'stretch',
+                        },
                     })}
                 >
-                    <Grid
-                        container
-                        rowSpacing={1}
-                        columnSpacing={{xs: 1, sm: 2, md: 3}}
-                    >
-                        {files.map(f => (
-                            <Grid item xs={12} md={6} key={f.id}>
-                                <FileCard
-                                    file={f.file}
-                                    onRemove={() => onFileRemove(f.id)}
-                                />
-                            </Grid>
-                        ))}
-                    </Grid>
+                    {files.map(f => (
+                        <FileToUploadCard
+                            key={f.id}
+                            file={f.file}
+                            onRemove={() => onFileRemove(f.id)}
+                        />
+                    ))}
                 </Box>
             )}
             <UploadForm

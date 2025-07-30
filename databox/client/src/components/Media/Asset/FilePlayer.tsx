@@ -39,7 +39,7 @@ export default function FilePlayer({file, autoPlayable, ...playProps}: Props) {
         }
     }
 
-    return <AssetFileIcon file={file} />;
+    return <AssetFileIcon mimeType={file.type} />;
 }
 
 export const MemoizedFilePlayer = React.memo(FilePlayer, (prev, next) => {
