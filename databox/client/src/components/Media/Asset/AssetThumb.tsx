@@ -44,7 +44,7 @@ function AssetThumb({
             />
         );
     } else if (original?.file) {
-        thumb = <AssetFileIcon file={original.file} />;
+        thumb = <AssetFileIcon mimeType={original.file.type} />;
     }
 
     return (

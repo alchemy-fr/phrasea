@@ -3,7 +3,7 @@ import {useTranslation} from 'react-i18next';
 import FormDialog from '../../../Dialog/FormDialog';
 import {Asset} from '../../../../types';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {UploadFiles} from '../../../../api/uploader/file.ts';
+import {generateUploadId, UploadFiles} from '../../../../api/uploader/file.ts';
 import {toast} from 'react-toastify';
 import {prepareAssetSubstitution} from '../../../../api/asset.ts';
 import SingleFileUploadWidget, {
@@ -36,6 +36,7 @@ export default function ReplaceAssetSourceDialog({
             const data = await prepareAssetSubstitution(asset.id);
             await UploadFiles([
                 {
+                    id: generateUploadId(),
                     ...uploadForm,
                     data: {
                         targetAsset: data.id,

@@ -14,6 +14,6 @@ class MultipleAssetOutput
     /**
      * @var AssetOutput[]
      */
-    #[Groups([Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST])]
     public array $assets = [];
 }

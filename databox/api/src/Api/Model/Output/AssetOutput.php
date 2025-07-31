@@ -26,6 +26,10 @@ class AssetOutput extends AbstractUuidOutput
     use CapabilitiesDTOTrait;
     use ExtraMetadataDTOTrait;
 
+    #[Groups(['_', Asset::GROUP_LIST])]
+    #[ApiProperty(identifier: true)]
+    protected string $id;
+
     #[ApiProperty(jsonSchemaContext: [
         'type' => 'object',
         'properties' => [
@@ -72,7 +76,7 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private ?bool $pendingSourceFile = null;
 
-    #[Groups([Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_READ, Asset::GROUP_LIST])]
     private ?string $pendingUploadToken = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]

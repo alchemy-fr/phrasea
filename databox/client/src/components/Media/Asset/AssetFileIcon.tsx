@@ -1,4 +1,3 @@
-import {File} from '../../../types';
 import ImageIcon from '@mui/icons-material/Image';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
@@ -10,8 +9,8 @@ import {FileTypeEnum, getFileTypeFromMIMEType} from '../../../lib/file';
 import React from 'react';
 import assetClasses from '../../AssetList/classes';
 
-function getIconFromType(type: string | undefined): typeof SvgIcon {
-    switch (getFileTypeFromMIMEType(type)) {
+function getIconFromType(mimeType: string | undefined): typeof SvgIcon {
+    switch (getFileTypeFromMIMEType(mimeType)) {
         case FileTypeEnum.Image:
             return ImageIcon;
         case FileTypeEnum.Video:
@@ -19,7 +18,7 @@ function getIconFromType(type: string | undefined): typeof SvgIcon {
         case FileTypeEnum.Audio:
             return AudioFileIcon;
         default:
-            switch (type) {
+            switch (mimeType) {
                 case 'application/pdf':
                     return PictureAsPdfIcon;
                 case 'text/csv':
@@ -55,11 +54,11 @@ function getIconFromType(type: string | undefined): typeof SvgIcon {
 }
 
 type Props = {
-    file: File;
+    mimeType: string | undefined;
 } & SvgIconProps;
 
-export default function AssetFileIcon({file, ...iconProps}: Props) {
-    return React.createElement(getIconFromType(file.type), {
+export default function AssetFileIcon({mimeType, ...iconProps}: Props) {
+    return React.createElement(getIconFromType(mimeType), {
         fontSize: 'large',
         className: assetClasses.fileIcon,
         ...iconProps,

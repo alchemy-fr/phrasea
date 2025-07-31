@@ -16,6 +16,7 @@ import {setSentryUser} from '@alchemy/core';
 import {useAuth} from '@alchemy/react-auth';
 import AssetSearch from './AssetSearch/AssetSearch';
 import {leftPanelWidth} from '../themes/base';
+import PendingUploads from './Upload/PendingUploads.tsx';
 
 function isDrawer(locationSearch: string): boolean {
     return locationSearch.includes('_m=');
@@ -52,6 +53,7 @@ const AppProxy = React.memo(
                             onToggleLeftPanel={toggleLeftPanel}
                         />
                         <DisplayProvider>
+                            <PendingUploads />
                             <div
                                 style={{
                                     display: 'flex',

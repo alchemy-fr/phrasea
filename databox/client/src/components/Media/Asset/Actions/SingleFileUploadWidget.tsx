@@ -1,11 +1,11 @@
 import UploadDropzone from '../../../Upload/UploadDropzone.tsx';
 import {Box, Button, TextField} from '@mui/material';
-import FileCard from '../../../Upload/FileCard.tsx';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
 import {FileOrUrl} from '../../../../api/uploader/file.ts';
 import LinkIcon from '@mui/icons-material/Link';
 import {validateUrl} from '../../../../lib/file.ts';
+import FileToUploadCard from '../../../Upload/FileToUploadCard.tsx';
 
 export type AssetUploadForm = FileOrUrl;
 
@@ -82,7 +82,10 @@ export default function SingleFileUploadWidget({onUpload}: Props) {
                         p: 1,
                     })}
                 >
-                    <FileCard file={file} onRemove={() => setFile(undefined)} />
+                    <FileToUploadCard
+                        file={file}
+                        onRemove={() => setFile(undefined)}
+                    />
                 </Box>
             )}
         </>

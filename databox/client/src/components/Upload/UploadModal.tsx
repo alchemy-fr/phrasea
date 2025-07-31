@@ -1,8 +1,6 @@
 import React, {useState} from 'react';
-import {Box, Grid} from '@mui/material';
-import FileCard from './FileCard';
-import {toast} from 'react-toastify';
-import {useTranslation} from 'react-i18next';
+import {Box, Button} from '@mui/material';
+import {Trans, useTranslation} from 'react-i18next';
 import UploadIcon from '@mui/icons-material/Upload';
 import {useFormSubmit} from '@alchemy/api';
 import FormDialog from '../Dialog/FormDialog';
@@ -26,6 +24,8 @@ import type {TFunction} from '@alchemy/i18n';
 import {CollectionId} from '../Media/Collection/CollectionTree/collectionTree.ts';
 import {WorkspaceChip} from '../Ui/WorkspaceChip.tsx';
 import {CollectionChip} from '../Ui/CollectionChip.tsx';
+import FileToUploadCard from './FileToUploadCard.tsx';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 type FileWrapper = {
     id: string;
@@ -161,9 +161,6 @@ export default function UploadModal({
             );
         },
         onSuccess: () => {
-            toast.success(
-                t('form.upload.success', 'Files uploaded!') as string
-            );
             closeModal(true);
         },
     });
@@ -234,29 +231,69 @@ export default function UploadModal({
         >
             <UploadDropzone onDrop={onDrop} />
             {files.length > 0 && (
-                <Box
-                    sx={theme => ({
-                        bgcolor: theme.palette.grey[100],
-                        maxHeight: 400,
-                        overflow: 'auto',
-                        p: 1,
-                    })}
-                >
-                    <Grid
-                        container
-                        rowSpacing={1}
-                        columnSpacing={{xs: 1, sm: 2, md: 3}}
+                <>
+                    <Box
+                        sx={{
+                            mb: 2,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <div style={{flexGrow: 1}}>
+                            <Trans
+                                i18nKey={'form.upload.files_to_upload'}
+                                defaults="<strong>{{count}}</strong> file to upload"
+                                values={{count: files.length}}
+                                count={files.length}
+                                tOptions={{
+                                    defaultValue_other:
+                                        '<strong>{{count}}</strong> files to upload',
+                                }}
+                            />
+                        </div>
+                        <Button
+                            startIcon={<DeleteIcon />}
+                            variant="outlined"
+                            color="error"
+                            onClick={() => setFiles([])}
+                        >
+                            {t('form.upload.reset', 'Reset')}
+                        </Button>
+                    </Box>
+                    <Box
+                        sx={theme => ({
+                            'bgcolor': theme.palette.grey[100],
+                            'maxHeight': 400,
+                            'overflow': 'auto',
+                            'p': 1,
+                            'display': 'grid',
+                            'alignItems': 'stretch',
+                            'gridTemplateColumns': {
+                                xs: `repeat(1, 1fr)`,
+                                md: `repeat(2, 1fr)`,
+                            },
+                            'gridColumnGap': theme.spacing(2),
+                            'gridRowGap': theme.spacing(2),
+                            '> div': {
+                                width: '100%',
+                                height: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                alignItems: 'stretch',
+                            },
+                        })}
                     >
                         {files.map(f => (
-                            <Grid item xs={12} md={6} key={f.id}>
-                                <FileCard
-                                    file={f.file}
-                                    onRemove={() => onFileRemove(f.id)}
-                                />
-                            </Grid>
+                            <FileToUploadCard
+                                key={f.id}
+                                file={f.file}
+                                onRemove={() => onFileRemove(f.id)}
+                            />
                         ))}
-                    </Grid>
-                </Box>
+                    </Box>
+                </>
             )}
             <UploadForm
                 resetForms={resetForms}
