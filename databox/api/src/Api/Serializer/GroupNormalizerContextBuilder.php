@@ -16,7 +16,8 @@ final readonly class GroupNormalizerContextBuilder implements NormalizerContextB
     {
         if (isset($context['groups'])) {
             foreach ($context['groups'] as $group) {
-                if (1 === preg_match('#^([^:]+):read$#', (string) $group, $matches)) {
+                if (1 === preg_match('#^([^:]+):r(ead)?$#', (string) $group, $matches)) {
+                    $context['groups'][] = $matches[1].':i';
                     $context['groups'][] = $matches[1].':index';
                 }
             }

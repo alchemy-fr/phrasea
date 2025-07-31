@@ -16,17 +16,18 @@ export default function PendingUploads({}: Props) {
         if (uploads.length === 0) {
             if (toastId.current !== null) {
                 const tid = toastId.current;
-                setTimeout(() => {
-                    toast.done(tid);
-                }, 2000);
+                toast.done(tid);
+                toastId.current = null;
             }
+
             return;
         }
 
-        const pendingUploads = uploads.filter(upload => upload.progress < 1);
+        const pendingUploads = uploads.filter(u => u.progress < 1);
         const progress =
-            uploads.reduce((acc, upload) => acc + upload.progress, 0) /
-            uploads.length;
+            uploads.reduce((acc, u) => acc + u.progress * 100, 0) /
+            uploads.length /
+            100;
         const message = (
             <Trans
                 i18nKey={'upload.pending.toast.message'}

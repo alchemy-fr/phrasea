@@ -168,7 +168,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             uriTemplate: '/assets/multiple',
             normalizationContext: [
-                'groups' => [self::GROUP_READ, Collection::GROUP_ABSOLUTE_TITLE],
+                'groups' => [self::GROUP_LIST],
             ],
             input: MultipleAssetInput::class,
             output: MultipleAssetOutput::class,
