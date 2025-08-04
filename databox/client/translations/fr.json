@@ -198,7 +198,8 @@
         "delete": {
             "confirm": {
                 "assertion": {
-                    "unset_on_attrs": "Je comprends que cette entité sera supprimé de tout les l'assets qui l'utilisent."
+                    "unset_on_attrs": "Je comprends que cette entité sera supprimée de tous les assets qui l'utilisent.",
+                    "delete_attr_def": "Je comprends que cette définition d'attribut \"{{ definitionName }}\" sera supprimée de tous les assets qui l'utilisent."
                 }
             }
         }
@@ -477,14 +478,14 @@
         "rule_applies_for": "La règle s'applique pour :",
         "user": "Utilisateur"
     },
-    "foo": "bar",
+    "foo": "barre",
     "form": {
         "asset": {
             "tags": {
                 "label": "Tags"
             },
             "templates": {
-                "label": "Remplir avec modèle",
+                "label": "Remplir avec un modèle",
                 "no_options": "Aucun modèle disponible"
             },
             "title": {
@@ -621,7 +622,7 @@
         },
         "copy_assets": {
             "asset_not_linkable": {
-                "other_ws": "Les assets suivants ne peuvent pas être copiés par référence dans un autre espace de travail.",
+                "other_ws": "Les assets suivants ne peuvent pas être copiés par référence dans un autre Workspace",
                 "permission": "Les assets suivants ne peuvent pas être copiés par référence car vous n'avez pas les permissions nécessaires.",
                 "select_for_hard_copy": "Vous pouvez sélectionner l'asset que vous souhaitez dupliquer vers la destination (copie dure) :"
             },
@@ -666,7 +667,7 @@
         },
         "rendition_definition": {
             "policy": {
-                "label": "Politique de Rendition"
+                "label": "Politique de Renditions"
             },
             "definition": {
                 "label": "Définition de Rendition"
@@ -812,7 +813,7 @@
             },
             "needs": {
                 "helper": "Ces intégrations doivent être terminées avant que cette intégration ne soit exécutée.",
-                "label": "Needs",
+                "label": "A besoin de",
                 "placeholder": "Sélectionnez les dépendances"
             },
             "title": {
@@ -1026,8 +1027,8 @@
         "user_must_be_authenticated": "L'utilisateur doit être authentifié"
     },
     "remove_bgasset_editor_actions": {
-        "bg_removed": "{{title}} - BG retiré",
-        "remove_bg": "Retirer le BG",
+        "bg_removed": "{{title}} - Arrière-plan retiré",
+        "remove_bg": "Retirer l'arrière-plan",
         "use_slider_to_compare": "Utiliser le curseur pour comparer"
     },
     "Rendition_policy": {
@@ -1203,12 +1204,12 @@
         "collection_list": {
             "collections_one": "+ {{count}} collection",
             "collections_many": "+ {{count}} collections",
-            "collections_other": "",
+            "collections_other": "+ {{count}} collections",
             "collections_plural": "+ {{count}} collection",
             "others_plural": "+ {{count}} autres",
             "others_one": "+ {{count}} autre",
             "others_many": "+ {{count}} autres",
-            "others_other": ""
+            "others_other": "+ {{count}} autres"
         },
         "manage": {
             "operations": {
@@ -1225,7 +1226,7 @@
                 "title": "Editer"
             },
             "info": {
-                "title": "Infos"
+                "title": "Informations"
             },
             "open": {
                 "title": "Ouvrir"
@@ -1280,7 +1281,7 @@
         "tag_list": {
             "others_one": "+ {{count}} autre",
             "others_many": "+ {{count}} autres",
-            "others_other": "",
+            "others_other": "+ {{count}} autres",
             "others_plural": "+ {{count}} autres",
             "tags_one": "+ {{count}} tag",
             "tags_many": "+ {{count}} tags",
@@ -1293,7 +1294,7 @@
             "info": "Information"
         },
         "es_document": {
-            "sync_now": "Synchronisez maintenant"
+            "sync_now": "Synchroniser maintenant"
         },
         "not_found": "Asset non trouvé"
     },
@@ -1383,7 +1384,7 @@
         "delete": {
             "confirm": {
                 "assertion": {
-                    "unset_on_attrs": "Je suis conscient que toutes les entités de cette liste seront supprimés des attributs d'assets.",
+                    "unset_on_attrs": "Je suis conscient que toutes les entités de cette liste seront supprimés des attributs de l'asset.",
                     "no_undo": "Je suis conscient que cette action est irréversible."
                 }
             }
@@ -1710,7 +1711,7 @@
         },
         "form": {
             "expiresAt": {
-                "helper": "Optionnel. Si activé, le lien de partage ne sera actif que pendant cette période",
+                "helper": "Optionnel. Si activé, le lien de partage ne sera actif seulement jusqu'à cette date",
                 "label": "Expire le"
             },
             "startsAt": {
