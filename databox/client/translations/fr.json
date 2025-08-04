@@ -194,6 +194,13 @@
         },
         "new": {
             "label": "Nouvelle entité"
+        },
+        "delete": {
+            "confirm": {
+                "assertion": {
+                    "unset_on_attrs": "Je comprends que cette entité sera supprimé de tout les l'assets qui l'utilisent."
+                }
+            }
         }
     },
     "attributes": {
@@ -727,7 +734,7 @@
             "success": "Assets ajoutés !",
             "title": "Assets ajoutés",
             "quiet": {
-                "label": "Silencieux (aucune notification, aucun webhook)"
+                "label": "Ne pas déclencher de notification ou de webhook"
             }
         },
         "Workspace": {
@@ -1506,8 +1513,8 @@
             "edit_condition": "Modifier la condition",
             "submit_add": "Ajouter",
             "submit_update": "Mettre à jour",
-            "switch_to_builder": "Générateur graphique",
-            "switch_to_text": "Mode textuel"
+            "switch_to_builder": "Graphique",
+            "switch_to_text": "Texte"
         },
         "add_condition": "Ajouter une condition",
         "menu": {
