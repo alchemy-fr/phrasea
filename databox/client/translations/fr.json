@@ -839,7 +839,7 @@
         },
         "attribute_list_item": {
             "display_empty": {
-                "label": "Afficher même s'il est vide"
+                "label": "Afficher même vide"
             },
             "format": {
                 "label": "Format par défaut",
@@ -1299,7 +1299,7 @@
         "not_found": "Asset non trouvé"
     },
     "renditions": {
-        "dirty": "Dirty",
+        "dirty": "Les réglages de cette Rendition ont été modifiés après sa création (dirty).",
         "download": "Télécharger",
         "delete": "Supprimer"
     },
@@ -1401,7 +1401,7 @@
     },
     "es_document": {
         "sync_scheduled": "Synchronisation planifiée",
-        "not_synced": "Ce document n'est pas synchronisé.",
+        "not_synced": "Ce document n'est pas synchronisé dans l'index.",
         "refresh": "Actualiser"
     },
     "notification": {
@@ -1481,14 +1481,14 @@
                 "exists": "Existe",
                 "greater_than": "> (Supérieur à)",
                 "greater_than_or_equals": ">= (Supérieur ou égal)",
-                "in": "Dans",
+                "in": "Inclus Dans",
                 "less_than": "< (Inférieur à)",
                 "less_than_or_equals": "<= (Inférieur ou égal à)",
                 "matches": "Correspond à",
                 "missing": "Est manquant",
                 "not_contains": "Ne contient pas",
                 "not_equals": "! = (Non égal)",
-                "not_in": "Non inclus dans",
+                "not_in": "Exclus de",
                 "not_starts_with": "Ne commence pas par",
                 "or": "OU",
                 "starts_with": "Commence par",
