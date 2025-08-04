@@ -223,8 +223,8 @@
         "delete": {
             "confirm": {
                 "assertion": {
-                    "delete_attr_def": "Ich verstehe, die Attributdefinition \"{{ definitionName }}\" gelöscht wird, weil sie es verwendet.",
-                    "unset_on_attrs": "Ich verstehe, dass diese Entität für alle Attribute des Assets, die sie verwenden, deaktiviert wird."
+                    "delete_attr_def": "Ich verstehe, dass diese Attributdefinition \"{{ definitionName }}\" aus allen Assets, die sie verwenden, gelöscht wird.",
+                    "unset_on_attrs": "Ich verstehe, dass diese Entität aus allen Assets, die sie verwenden, gelöscht wird."
                 }
             }
         }
@@ -239,15 +239,15 @@
     "aws_rekognition": {
         "actions": {
             "detect_faces": "Gesichter erkennen",
-            "detect_image_labels": "Bildetiketten erkennen",
+            "detect_image_labels": "Bild-Labels erkennen",
             "detect_texts": "Texte erkennen",
             "face_n": "Gesicht # {{n}}",
             "faces": "Gesichter",
-            "labels": "Beschriftungen",
+            "labels": "Labels",
             "no_text_detected": "Es wurde kein Text erkannt",
             "text": "Text",
             "no_face_detected": "Kein Gesicht erkannt",
-            "no_label_detected": "Keine Beschriftung erkannt",
+            "no_label_detected": "Keine Labels erkannt",
             "texts": "Texte"
         }
     },
@@ -537,7 +537,7 @@
             "name": {
                 "label": "Name",
                 "translate": {
-                    "title": "Name übersetzen"
+                    "title": "Übersetzung"
                 }
             },
             "searchable": {
@@ -672,7 +672,7 @@
             "name": {
                 "label": "Name",
                 "translate": {
-                    "title": "Name übersetzen"
+                    "title": "Übersetzung"
                 }
             },
             "parent": {
@@ -722,7 +722,7 @@
                 "label": "Name"
             },
             "translate": {
-                "name": "Name übersetzen"
+                "name": "Übersetzung"
             }
         },
         "upload": {
@@ -1023,8 +1023,8 @@
         "only_visible_to_workspace": "Nur im Workspace sichtbar"
     },
     "remove_bgasset_editor_actions": {
-        "bg_removed": "{{title}} - BG entfernt",
-        "remove_bg": "BG entfernen",
+        "bg_removed": "{{title}} - Bildhintergrund entfernt",
+        "remove_bg": "Bildhintergrund entfernen",
         "use_slider_to_compare": "Verwenden Sie den Slider zum Vergleichen"
     },
     "rendition_definitions": {
@@ -1052,9 +1052,9 @@
         "apply_to_collection": "Zur Kollektion anwenden",
         "my_template": "Meine Vorlage…",
         "public": "Öffentlich",
-        "remember_attributes": "Attribute merken",
-        "remember_privacy": "Datenschutz merken",
-        "remember_tags": "Tags merken",
+        "remember_attributes": "Attribute einbeziehen",
+        "remember_privacy": "Datenschutz einbeziehen",
+        "remember_tags": "Tags einbeziehen",
         "save_values_as_template_for_reuse": "Werte als Vorlage zur Wiederverwendung speichern",
         "template_name": "Name der Vorlage",
         "include_collection_children": "Kollektionkinder einbeziehen",
@@ -1088,7 +1088,7 @@
     },
     "selection_actions": {
         "result": "Ergebnis",
-        "s": "e"
+        "s": ""
     },
     "sort_by": {
         "sort_by": "Sortiere nach"
@@ -1273,7 +1273,7 @@
             "confirm": {
                 "assertion": {
                     "no_undo": "Ich verstehe, dass diese Aktion nicht rückgängig gemacht werden kann.",
-                    "unset_on_attrs": "Ich verstehe, dass alle Entitäten dieser Liste bei Verwendung in den Attributen des Assets deaktiviert werden"
+                    "unset_on_attrs": "Ich verstehe, dass alle Entitäten dieser Liste aus den Attributen des Assets entfernt werden"
                 }
             }
         },
@@ -1541,7 +1541,7 @@
     "rendition_definition": {
         "build_mode": {
             "none": "Keine",
-            "custom": "Build",
+            "custom": "Erzeugen",
             "pick_source": "Übergeordnetes oder Quelldatei kopieren"
         }
     },
@@ -1557,5 +1557,6 @@
     },
     "user_preferences": {
         "loading": "Benutzereinstellungen werden geladen…"
-    }
+    },
+    "Already <1>bold</1>.": "Schon <1>bold</1>."
 }
