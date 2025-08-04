@@ -1481,11 +1481,11 @@
                 "exists": "Existe",
                 "greater_than": "> (Supérieur à)",
                 "greater_than_or_equals": ">= (Supérieur ou égal)",
-                "in": "Inclus Dans",
+                "in": "Inclus dans",
                 "less_than": "< (Inférieur à)",
                 "less_than_or_equals": "<= (Inférieur ou égal à)",
                 "matches": "Correspond à",
-                "missing": "Est manquant",
+                "missing": "Est vide",
                 "not_contains": "Ne contient pas",
                 "not_equals": "! = (Non égal)",
                 "not_in": "Non inclus dans",
@@ -1514,15 +1514,15 @@
             "edit_condition": "Modifier la condition",
             "submit_add": "Ajouter",
             "submit_update": "Mettre à jour",
-            "switch_to_builder": "Graphique",
-            "switch_to_text": "Texte"
+            "switch_to_builder": "Passer au mode Graphique",
+            "switch_to_text": "Passer au mode Textuel"
         },
         "add_condition": "Ajouter une condition",
         "menu": {
             "disable": "Désactiver",
-            "edit": "Editer",
+            "edit": "Modifier",
             "enable": "Activer",
-            "remove": "Retirer"
+            "remove": "Supprimer"
         }
     },
     "share": {
