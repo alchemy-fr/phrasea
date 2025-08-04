@@ -6,7 +6,7 @@
                 "placeholder": "Sélectionnez un utilisateur"
             },
             "user_select": {
-                "placeholder": "Sélectionnez un groupe"
+                "placeholder": "Sélectionner un groupe"
             }
         },
         "table": {
@@ -19,7 +19,13 @@
             "create": "CRÉER",
             "delete": "SUPPRIMER",
             "edit": "MODIFIER",
-            "manage_collection": "Gérez"
+            "manage_collection": "Gérez",
+            "master": "MASTER",
+            "operator": "OPERATEUR",
+            "owner": "PROPRIETAIRE",
+            "share": "PARTAGER",
+            "undelete": "RETABLIR",
+            "view": "VISUALISER"
         }
     },
     "Asset": {
@@ -108,11 +114,12 @@
         "select_all": "Sélectionner tout",
         "share": "Partager",
         "substitute_file": "Remplacer le fichier",
-        "unselect_all": "Désélectionner tout"
+        "unselect_all": "Désélectionner tout",
+        "share_multiple": "Vous ne pouvez partager qu'un asset à la fois"
     },
     "asset_dropzone": {
         "drop_the_files_here": "Déposez les fichiers ici…",
-        "you_must_be_authenticated_in_order_to_upload_new_files": "Vous devez être authentifié pour créer des nouveaux Assets"
+        "you_must_be_authenticated_in_order_to_upload_new_files": "Vous devez être authentifié pour créer de nouveaux assets"
     },
     "asset_file_versions": {
         "current": "Actuel"
@@ -124,7 +131,7 @@
         "editor": {
             "tabs": {
                 "preview": {
-                    "no_asset": "Aucun Asset sélectionné",
+                    "no_asset": "Aucun asset sélectionné",
                     "title": "Aperçu"
                 },
                 "values": {
@@ -152,12 +159,12 @@
         },
         "diff": {
             "dialog": {
-                "title": "Confirmer les changements ?"
+                "title": "Confirmer les changements ?"
             }
         },
         "discard_changes": {
             "confirm": "Oui, annuler",
-            "desc": "Tous les changements que vous avez effectués sur les Assets ne sont pas appliqués et seront annulés.",
+            "desc": "Tous les changements que vous avez effectués sur les assets ne sont pas appliqués et seront annulés.",
             "title": "Annuler les changements ?"
         },
         "remove_from_selection": "Retirer de la sélection",
@@ -167,8 +174,8 @@
         "saved": "Enregistré !",
         "suggestions": {
             "menu": {
-                "apply": "Appliquer cette valeur aux Assets sélectionnés",
-                "select_with_value": "Sélectionner les Assets ayant cette valeur"
+                "apply": "Appliquer cette valeur aux assets sélectionnés",
+                "select_with_value": "Sélectionner les assets ayant cette valeur"
             },
             "no_value": "- vide -",
             "originalValues": {
@@ -190,7 +197,9 @@
         }
     },
     "attributes": {
-        "values": "{{count}} valeurs"
+        "values_one": "{{count}} valeur",
+        "values_many": "{{count}} valeurs",
+        "values_other": "{{count}} valeurs"
     },
     "attributes_editor_form": {
         "attributes_saved": "Attributs enregistrés !"
@@ -205,7 +214,9 @@
             "labels": "Étiquettes",
             "no_face_detected": "Aucun visage détecté",
             "no_text_detected": "Aucun texte détecté",
-            "text": "Texte"
+            "text": "Texte",
+            "no_label_detected": "Aucune étiquette détectée",
+            "texts": "Textes"
         }
     },
     "basket": {
@@ -244,6 +255,10 @@
                 "title": "Opérations"
             },
             "title": "Gérer le panier {{name}}"
+        },
+        "actions": {
+            "delete": "Supprimer le panier",
+            "edit": "Editer le panier"
         }
     },
     "basket_delete": {
@@ -269,12 +284,16 @@
             "creation_date": "Date de création",
             "id": "ID",
             "modification_date": "Date de modification",
-            "owner": "Propriétaire"
+            "owner": "Propriétaire",
+            "absolute_path": "Chemin absolu",
+            "workspace": "Workspace"
         },
         "item": {
-            "create_asset": "Ajouter un nouvel Asset à la collection",
+            "create_asset": "Ajouter un nouvel asset à la collection",
             "create_collection": "Créer une nouvelle collection dans celle-ci",
-            "edit": "Modifier cette collection"
+            "edit": "Modifier cette collection",
+            "delete": "Supprimer",
+            "notifications": "Notifications"
         },
         "manage": {
             "acl": {
@@ -292,7 +311,13 @@
             "tag_rules": {
                 "title": "Règles des tags"
             },
-            "title": "Gérer la collection {{name}}"
+            "title": "Gérer la collection {{name}}",
+            "es_doc": {
+                "title": "Document ES"
+            },
+            "notifications": {
+                "title": "Notifications"
+            }
         }
     },
     "collection_delete": {
@@ -301,7 +326,10 @@
     },
     "collection_move": {
         "intro": "Sélectionnez la destination où déplacer cette collection :",
-        "title": "Déplacer la collection"
+        "title": "Déplacer la collection",
+        "move": {
+            "label": "Déplacer la collection"
+        }
     },
     "common": {
         "cancel": "Annuler",
@@ -319,13 +347,18 @@
             "submit": "Rechercher"
         },
         "uploading": "Téléchargement…",
-        "yes": "Oui"
+        "yes": "Oui",
+        "close": "Fermer",
+        "edit": "Editer",
+        "revoke": "Révoquer"
     },
     "copy_assets": {
         "dialog": {
-            "intro": "Où voulez-vous dupliquer les Assets sélectionnés ?",
+            "intro": "Où voulez-vous dupliquer les assets sélectionnés ?",
             "submit": "Dupliquer",
-            "title": "Dupliquer {{count}} Asset",
+            "title_one": "Dupliquer {{count}} asset",
+            "title_many": "Dupliquer {{count}} assets",
+            "title_other": "Dupliquer {{count}} assets",
             "title_plural": "Dupliquer {{count}} Assets"
         },
         "form": {
@@ -341,7 +374,7 @@
         }
     },
     "copy_assets_dialog": {
-        "assets_were_copied": "Les Assets ont été dupliqués"
+        "assets_were_copied": "Les assets ont été dupliqués"
     },
     "copy_toclipboard": {
         "copied": "Copié dans le presse-papiers !"
@@ -377,7 +410,8 @@
             "placeholder": "Tapez \"{{ text }}\""
         },
         "reset": "Réinitialiser",
-        "save": "Enregistrer"
+        "save": "Enregistrer",
+        "search": "Rechercher"
     },
     "edit_sort_by": {
         "add_group_separators_between_results": "Ajouter des séparateurs de groupes entre les résultats",
@@ -388,9 +422,11 @@
     },
     "export": {
         "dialog": {
-            "intro": "Sélectionnez les Renditions que vous voulez exporter :",
+            "intro": "Sélectionnez les renditions que vous voulez exporter :",
             "submit": "Exporter",
-            "title": "Exporter {{count}} Asset",
+            "title_one": "Exporter {{count}} asset",
+            "title_many": "Exporter {{count}} assets",
+            "title_other": "Exporter {{count}} assets",
             "title_plural": "Exporter {{count}} Assets"
         }
     },
@@ -422,12 +458,12 @@
     "filter_rule": {
         "confirm_delete_this_rule": "Confirmer la suppression de cette règle ?",
         "exclude": {
-            "helper": "Les Assets dans cette {{type}} seront seulement visibles s'ils NE contiennent PAS ces tags.",
+            "helper": "Les assets dans ce {{type}} seront seulement visibles s'ils NE contiennent PAS ces tags.",
             "label": "Tags à <1>exclure</1>"
         },
         "group": "Groupe",
         "include": {
-            "helper": "Les Assets dans cette {{type}} seront seulement visibles s'ils contiennent ces tags.",
+            "helper": "Les assets dans ce {{type}} seront seulement visibles s'ils contiennent ces tags.",
             "label": "Tags à <1>inclure</1>"
         },
         "or": "ou",
@@ -449,8 +485,8 @@
             }
         },
         "asset_create": {
-            "title": "Créer un Asset dans",
-            "title_with_parent": "Créer un Asset sous"
+            "title": "Créer un asset dans",
+            "title_with_parent": "Créer un asset sous"
         },
         "asset_edit": {
             "success": "Asset modifié !"
@@ -578,9 +614,9 @@
         },
         "copy_assets": {
             "asset_not_linkable": {
-                "other_ws": "Les Assets suivants ne peuvent pas être copiés par référence dans un autre espace de travail.",
-                "permission": "Les Assets suivants ne peuvent pas être copiés par référence car vous n'avez pas les permissions nécessaires.",
-                "select_for_hard_copy": "Vous pouvez sélectionner l'Asset que vous souhaitez dupliquer vers la destination (copie dure) :"
+                "other_ws": "Les assets suivants ne peuvent pas être copiés par référence dans un autre espace de travail.",
+                "permission": "Les assets suivants ne peuvent pas être copiés par référence car vous n'avez pas les permissions nécessaires.",
+                "select_for_hard_copy": "Vous pouvez sélectionner l'asset que vous souhaitez dupliquer vers la destination (copie dure) :"
             },
             "destination": {
                 "label": "Destination"
@@ -604,7 +640,7 @@
                 "public": "Public",
                 "secret": "Secret"
             },
-            "inherited": "Une collection ne peut pas être plus restreinte que sa collection mère."
+            "inherited": "Une collection ne peut pas être plus restreinte que sa collection parente."
         },
         "profile": {
             "firstName": {
@@ -636,8 +672,8 @@
             },
             "parent": {
                 "helper": "Rendition dont celle-ci est dérivée",
-                "label": "Parent",
-                "placeholder": "Fichier source d'Asset"
+                "label": "Parente",
+                "placeholder": "Fichier source de l'asset"
             },
             "pickSourceFile": {
                 "label": "Sélectionner le fichier source"
@@ -656,7 +692,7 @@
             },
             "useAs": {
                 "preview": "Aperçu",
-                "label": "Cette Rendition est",
+                "label": "Cette rendition est",
                 "original": "Original",
                 "thumbnail": "Vignette",
                 "thumbnailActive": "Vignette active"
@@ -741,8 +777,8 @@
             }
         },
         "attributelist_create": {
-            "success": "Liste d'attributs créée!",
-            "title": "Créer une liste d'Attributs"
+            "success": "Liste d'attributs créée !",
+            "title": "Créer une liste d'attributs"
         },
         "integration": {
             "errors": {
@@ -791,7 +827,7 @@
             }
         },
         "attribute_list_edit": {
-            "success": "Liste d'attributs modifiée!"
+            "success": "Liste d'attributs modifiée !"
         },
         "attribute_list_item": {
             "display_empty": {
@@ -805,7 +841,7 @@
                 "label": "Valeur"
             },
             "save": "Sauvegarder",
-            "success": "Sauvegarder!"
+            "success": "Sauvegardé !"
         },
         "entity_type": {
             "name": {
@@ -854,7 +890,7 @@
             },
             "sync": {
                 "event": {
-                    "sync_clean": "Nettoyage des Assets…",
+                    "sync_clean": "Nettoyage des assets…",
                     "sync_complete": "Synchronisation terminée !",
                     "sync_progress": "Synchronisation en cours…"
                 }
@@ -893,7 +929,7 @@
             },
             "preview_options": {
                 "attributesRatio": {
-                    "label": "Attributs taille"
+                    "label": "Taille des attributs"
                 },
                 "displayAttributes": {
                     "label": "Afficher les attributs dans l'aperçu"
@@ -941,14 +977,16 @@
     },
     "move_assets": {
         "dialog": {
-            "intro": "Où voulez-vous déplacer les Assets sélectionnés ?",
+            "intro": "Où voulez-vous déplacer les assets sélectionnés ?",
             "submit": "Déplacer",
-            "title": "Déplacer {{count}} Asset",
+            "title_one": "Déplacer {{count}} asset",
+            "title_many": "Déplacer {{count}} assets",
+            "title_other": "Déplacer {{count}} assets",
             "title_plural": "Déplacer {{count}} Assets"
         }
     },
     "move_assets_dialog": {
-        "assets_were_moved": "Les Assets ont été déplacés"
+        "assets_were_moved": "Les assets ont été déplacés"
     },
     "not_found": {
         "back_home": "Retour à l'accueil",
@@ -1001,13 +1039,13 @@
     },
     "replace_asset_with_file_dialog": {
         "asset_has_been_replaced": "Le fichier de l'asset a été remplacé",
-        "please_confirm_replacing_asset": "Confirmer le remplacement du fichier de l'Asset.",
-        "replace_asset_with_file": "Remplacer le fichier de l'Asset"
+        "please_confirm_replacing_asset": "Confirmer le remplacement du fichier de l'asset.",
+        "replace_asset_with_file": "Remplacer le fichier de l'asset"
     },
     "save_as_button": {
-        "new_asset": "Nouvel Asset",
+        "new_asset": "Nouvel asset",
         "Rendition": "Rendition",
-        "replace_asset_source": "Remplacer la source de l'Asset",
+        "replace_asset_source": "Remplacer la source de l'asset",
         "save_as": "Enregistrer sous",
         "rendition": "Rendition"
     },
@@ -1026,7 +1064,7 @@
     "save_file_as_new_asset_dialog": {
         "file_is_saved": "Le fichier est enregistré",
         "save": "Enregistrer",
-        "save_file_as_new_asset": "Enregistrer comme nouvel Asset",
+        "save_file_as_new_asset": "Enregistrer comme nouvel asset",
         "title": {
             "label": "Titre"
         }
@@ -1034,7 +1072,7 @@
     "save_file_as_rendition_dialog": {
         "Rendition_has_been_saved": "La Rendition a été enregistrée",
         "Rendition_to_add_or_replace": "Rendition à ajouter ou à remplacer",
-        "save_file_as_asset_rendition": "Enregistrer comme Rendition de l'Asset",
+        "save_file_as_asset_rendition": "Enregistrer comme rendition de l'asset",
         "rendition_to_add_or_replace": "Rendition à ajouter ou remplacer",
         "rendition_has_been_saved": "La rendition a été sauvegardée"
     },
@@ -1092,7 +1130,7 @@
         "saved": "Enregistré !"
     },
     "upload_dropzone": {
-        "drag_n_drop_some_files_here_or_click_to_select_files": "Glissez-déposez des fichiers, cliquez pour les sélectionner des fichiers ou coller le presse-papiers"
+        "drag_n_drop_some_files_here_or_click_to_select_files": "Glissez-déposez des fichiers, cliquez pour sélectionner des fichiers ou coller le presse-papiers"
     },
     "use_integration_auth": {
         "auth": "Authentification"
@@ -1152,13 +1190,18 @@
             "info": "Informations",
             "move": "Déplacer",
             "replace_source_file": "Remplacer le fichier source",
-            "share": "Partager"
+            "share": "Partager",
+            "copy": "Copier"
         },
         "collection_list": {
-            "collections": "+ {{count}} collection",
+            "collections_one": "+ {{count}} collection",
+            "collections_many": "+ {{count}} collections",
+            "collections_other": "",
             "collections_plural": "+ {{count}} collection",
             "others_plural": "+ {{count}} autres",
-            "others": "+ {{count}} autres"
+            "others_one": "+ {{count}} autre",
+            "others_many": "+ {{count}} autres",
+            "others_other": ""
         },
         "manage": {
             "operations": {
@@ -1183,7 +1226,13 @@
             "renditions": {
                 "title": "Renditions"
             },
-            "title": "Gérer l'asset {{name}}"
+            "title": "Gérer l'asset {{name}}",
+            "es_doc": {
+                "title": "Document ES"
+            },
+            "workflow": {
+                "title": "Workflow"
+            }
         },
         "delete": {
             "confirm": {
@@ -1192,12 +1241,12 @@
                 "message_one": "Etes-vous sûr de vouloir supprimer cet asset?",
                 "message_many": "Etes-vous sûr de vouloir supprimer ces assets?",
                 "message_other": "",
-                "not_allowed": "Vous n'êtes autorisé à supprimer aucun de ces Assets"
+                "not_allowed": "Vous n'êtes autorisé à supprimer aucun de ces assets"
             },
-            "confirm_message_one": "Êtes-vous sûr de vouloir supprimer l'Assets?",
-            "confirm_message_many": "Êtes-vous sûr de vouloir supprimer les  {{count}}  Assets?",
-            "confirm_message_other": "Êtes-vous sûr de vouloir supprimer les  {{count}}  Assets?",
-            "hard_delete": "Supprimer définitivement l'assets?",
+            "confirm_message_one": "Êtes-vous sûr de vouloir supprimer l'asset?",
+            "confirm_message_many": "Êtes-vous sûr de vouloir supprimer les  {{count}}  assets?",
+            "confirm_message_other": "Êtes-vous sûr de vouloir supprimer les  {{count}}  assets?",
+            "hard_delete": "Supprimer définitivement l'asset?",
             "remove_from_collection": "Supprimer de la collection <strong> {{name}} </strong>"
         },
         "info": {
@@ -1206,29 +1255,40 @@
             "last_modification_date": "Dernière date de modification",
             "owner": "Propriétaire",
             "created_at": "Créé le",
-            "collection": "Collection"
+            "collection": "Collection",
+            "collections": {
+                "none": "Aucun"
+            },
+            "workspace": "Workspace"
         },
         "operations": {
             "last_asset_workflows": "Derniers workflows de l'asset",
             "trigger_workflow_again": "Déclencher à nouveau le workflow",
             "view": "Visualiser",
-            "you_need_to_run_integrations_again": "Avez-vous besoin de relancer les intégrations?"
+            "you_need_to_run_integrations_again": "Avez-vous besoin de relancer les intégrations ?"
         },
         "replace": {
             "label": "Remplacer"
         },
         "tag_list": {
-            "others": "+ {{count}} autres",
+            "others_one": "+ {{count}} autre",
+            "others_many": "+ {{count}} autres",
+            "others_other": "",
             "others_plural": "+ {{count}} autres",
-            "tags": "+ {{count}} tag",
+            "tags_one": "+ {{count}} tag",
+            "tags_many": "+ {{count}} tags",
+            "tags_other": "+ {{count}} tags",
             "tags_plural": "+ {{count}} tag"
         },
         "view": {
-            "attributes": "Attributs de l'asset"
+            "attributes": "Attributs de l'asset",
+            "discussion": "Discussion",
+            "info": "Information"
         },
         "es_document": {
             "sync_now": "Synchronisez maintenant"
-        }
+        },
+        "not_found": "Asset non trouvé"
     },
     "renditions": {
         "dirty": "Dirty",
@@ -1300,28 +1360,35 @@
     },
     "attributeList": {
         "choose_modal": {
-            "title": "Sélectionnez la liste d'Attributs courante"
+            "title": "Sélectionnez la liste d'attributs courante"
         },
         "create_button": {
-            "label": "Créer une nouvelle liste d'Attributs"
+            "label": "Créer une nouvelle liste d'attributs"
         },
         "default": {
-            "title": "Ma liste d'Attributs"
+            "title": "Ma liste d'attributs"
         },
         "delete": {
-            "confirm": "Êtes-vous sûr de vouloir supprimer cette liste d'attributs?"
+            "confirm": "Êtes-vous sûr de vouloir supprimer cette liste d'attributs ?"
         }
     },
     "entity_type": {
         "delete": {
             "confirm": {
                 "assertion": {
-                    "unset_on_attrs": "Je suis conscient que toutes les entités de cette liste seront supprimés des attributs d'Assets."
+                    "unset_on_attrs": "Je suis conscient que toutes les entités de cette liste seront supprimés des attributs d'assets.",
+                    "no_undo": "Je suis conscient que cette action est irréversible."
                 }
             }
         },
         "new": {
-            "label": "Nouvelle liste d'Entités"
+            "label": "Nouvelle liste d'entités"
+        },
+        "definitions": {
+            "count_one": "Utilisé sur {{ count }} définition d'attribut",
+            "count_many": "Utilisé sur {{ count }} définitions d'attributs",
+            "count_other": "Utilisé sur {{ count }} définitions d'attributs",
+            "none": "Pas d'utilisation de définitions d'attributs"
         }
     },
     "es_document": {
@@ -1345,21 +1412,21 @@
                     "label": "Discussion"
                 },
                 "delete": {
-                    "desc": "Recevoir une notification lorsque l'Asset est supprimé",
+                    "desc": "Recevoir une notification lorsque l'asset est supprimé",
                     "label": "Supprimer"
                 },
                 "update": {
-                    "desc": "Recevoir une notification lorsque l'Asset est mis à jour",
+                    "desc": "Recevoir une notification lorsque l'asset est mis à jour",
                     "label": "Mettre à jour"
                 }
             },
             "collection": {
                 "asset_new_comment": {
-                    "desc": "Recevoir une notification lors d'un nouveau commentaire sur un assets de cette collection",
+                    "desc": "Recevoir une notification lors d'un nouveau commentaire sur un asset de cette collection",
                     "label": "Discussion"
                 },
                 "asset_add": {
-                    "desc": "Recevoir une notification lorsqu'un Assets est ajouté à la collection",
+                    "desc": "Recevoir une notification lorsqu'un asset est ajouté à la collection",
                     "label": "Asset ajouté"
                 },
                 "asset_remove": {
@@ -1375,37 +1442,37 @@
         }
     },
     "rendition_delete": {
-        "confirm": "Êtes-vous sûr de vouloir supprimer cette Rendition ?",
-        "confirmed": "Rendition a été supprimée!"
+        "confirm": "Êtes-vous sûr de vouloir supprimer cette rendition ?",
+        "confirmed": "La rendition a été supprimée!"
     },
     "rentition": {
         "flags": {
-            "non_projection": "Rendition plus conforme à la configuration définit",
-            "is_projection": "La Rendition est une déclinaison de la source",
-            "locked": "Rendition verrouillé",
-            "substituted": "La Rendition a été remplacée"
+            "non_projection": "Rendition plus conforme à la configuration définie",
+            "is_projection": "La rendition est une déclinaison de la source",
+            "locked": "Rendition verrouillée",
+            "substituted": "La rendition a été remplacée"
         }
     },
     "replace_asset": {
         "dialog": {
-            "success": "Le nouveau fichier source d'Asset chargé, remplacement en cours.",
-            "title": "Substituer le fichier sources de l'Asset"
+            "success": "Le nouveau fichier source d'asset a été chargé, remplacement en cours.",
+            "title": "Substituer le fichier source de l'asset"
         }
     },
     "search_condition": {
         "builder": {
-            "add_condition_group": "Ajouter un Groupe de conditions",
+            "add_condition_group": "Ajouter un groupe de conditions",
             "operator": {
-                "not_between": "en dehors de",
+                "not_between": "En dehors de",
                 "not_matches": "Ne correspond pas",
                 "within_rectangle": "Dans un rectangle",
-                "and": "AND",
+                "and": "ET",
                 "between": "Entre",
                 "contains": "Contient",
                 "equals": "= (Égale)",
                 "exists": "Existe",
                 "greater_than": "> (Supérieur à)",
-                "greater_than_or_equals": ">= (supérieur ou égal)",
+                "greater_than_or_equals": ">= (Supérieur ou égal)",
                 "in": "Dans",
                 "less_than": "< (Inférieur à)",
                 "less_than_or_equals": "<= (Inférieur ou égal à)",
@@ -1415,7 +1482,7 @@
                 "not_equals": "! = (Non égal)",
                 "not_in": "Non inclus dans",
                 "not_starts_with": "Ne commence pas par",
-                "or": "OR",
+                "or": "OU",
                 "starts_with": "Commence par",
                 "within_circle": "Dans un rayon de",
                 "within_circle_latitude": "Latitude",
@@ -1444,9 +1511,9 @@
         },
         "add_condition": "Ajouter une condition",
         "menu": {
-            "disable": "Désactivé",
+            "disable": "Désactiver",
             "edit": "Editer",
-            "enable": "Activé",
+            "enable": "Activer",
             "remove": "Retirer"
         }
     },
@@ -1460,7 +1527,7 @@
                 "secondary": "Partagez un lien avec toute personne extérieure à votre organisation"
             },
             "submit": "Copier le lien",
-            "title": "Partager Asset"
+            "title": "Partager un asset"
         },
         "item": {
             "createdAt": "Créé le {{date}}",
@@ -1524,15 +1591,15 @@
     },
     "Already translated": "Déjà traduit",
     "asset_delete": {
-        "confirm": "Êtes-vous sûr de vouloir supprimer cet Asset?",
-        "title": "Supprimer l'Asset"
+        "confirm": "Êtes-vous sûr de vouloir supprimer cet asset ?",
+        "title": "Supprimer l'asset"
     },
     "asset_version": {
         "delete": "Supprimer la version"
     },
     "asset_version_delete": {
-        "confirm": "Êtes-vous sûr de vouloir supprimer cette version?",
-        "confirmed": "Version supprimée!"
+        "confirm": "Êtes-vous sûr de vouloir supprimer cette version ?",
+        "confirmed": "Version supprimée !"
     },
     "asset_view": {
         "edit_asset": "Asset <strong> {{name}} </strong>"
@@ -1540,7 +1607,18 @@
     "built_in_attr": {
         "fileMimeType": "Type de fichier MIME",
         "fileSize": "Taille du fichier",
-        "fileType": "Type de fichier"
+        "fileType": "Type de fichier",
+        "filename": "Nom du fichier",
+        "owner": "Propriétaire",
+        "collection": "Collection",
+        "createdAt": "Créé le",
+        "editedAt": "Edité le",
+        "id": "ID",
+        "privacy": "Confidentialité",
+        "rendition": "Rendition",
+        "score": "Score",
+        "tag": "Tag",
+        "workspace": "Workspace"
     },
     "file": {
         "dialog": {
@@ -1578,5 +1656,64 @@
     },
     "user_preferences": {
         "loading": "Chargement des préférences utilisateur…"
+    },
+    "annotation": {
+        "type": {
+            "arrow": "Flèche",
+            "circle": "Cercle",
+            "cue": "Repère",
+            "draw": "Dessiner",
+            "line": "Ligne",
+            "rectangle": "Rectangle",
+            "target": "Cible",
+            "text": "Texte",
+            "timerange": "Intervalle de temps"
+        }
+    },
+    "asset_collections": {
+        "reference_collection": "Cet asset appartient à la collection <strong>{{collection}}</strong> dans le Workspace <i>{{workspace}}</i>.",
+        "reference_workspace": "Cet asset appartient à la collection racine du Workspace <strong>{{workspace}}</strong> .",
+        "remove_shortcut": "Retirer le raccourci",
+        "title": "Collections",
+        "other_collections": "Il apparaît aussi comme raccourci dans les collections suivantes :",
+        "remove_shortcut_confirm": "Etes-vous sûr de vouloir retirer ce raccourci ?"
+    },
+    "attribute_list": {
+        "manage": {
+            "acl": {
+                "title": "Permissions"
+            },
+            "edit": {
+                "title": "Editer"
+            },
+            "organize": {
+                "title": "Organiser"
+            },
+            "title": "Gérer la liste d'attributs {{name}}"
+        },
+        "organize": {
+            "add_divider": "Ajouter un séparateur",
+            "add_spacer": "Ajouter un espacement"
+        }
+    },
+    "create_share_link": {
+        "dialog": {
+            "submit": "Créer le lien",
+            "title": "Créer le lien de partage"
+        },
+        "form": {
+            "expiresAt": {
+                "helper": "Optionnel. Si activé, le lien de partage ne sera actif que pendant cette période",
+                "label": "Expire le"
+            },
+            "startsAt": {
+                "helper": "Optionnel. Si activé, le lien de partage ne sera actif qu'après cette date",
+                "label": "Débute le"
+            },
+            "title": {
+                "helper": "Vous pouvez définir à qui s'adresse ce lien de partage",
+                "label": "Titre"
+            }
+        }
     }
 }
