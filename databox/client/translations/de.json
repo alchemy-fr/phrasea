@@ -56,9 +56,11 @@
             "share": "Teilen"
         },
         "collection_list": {
-            "collections": "+ {{count}} Kollektion",
+            "collections_one": "+ {{count}} Kollektion",
+            "collections_other": "+ {{count}} Kollektionen",
             "collections_plural": "+ {{count}} Kollektion",
-            "others": "+ {{count}} andere",
+            "others_one": "+ {{count}} andere",
+            "others_other": "+ {{count}} anderen",
             "others_plural": "+ {{count}} andere"
         },
         "info": {
@@ -114,9 +116,11 @@
             "label": "Ersetzen"
         },
         "tag_list": {
-            "others": "+ {{count}} andere",
+            "others_one": "+ {{count}} andere",
+            "others_other": "+ {{count}} anderen",
             "others_plural": "+ {{count}} andere",
-            "tags": "+ {{count}} Tag",
+            "tags_one": "+ {{count}} Tag",
+            "tags_other": "+ {{count}} Tags",
             "tags_plural": "+ {{count}} Tag"
         },
         "view": {
@@ -226,7 +230,8 @@
         }
     },
     "attributes": {
-        "values": "{{count}} Werte"
+        "values_one": "{{count}} Wert",
+        "values_other": "{{count}} Werte"
     },
     "attributes_editor_form": {
         "attributes_saved": "Attribute gespeichert!"
@@ -384,7 +389,8 @@
             "intro": "Wo möchten Sie die ausgewählten Assets kopieren?",
             "submit": "Kopieren",
             "title_plural": "{{count}} Assets kopieren",
-            "title": "{{count}} Assets kopieren"
+            "title_one": "{{count}} Asset kopieren",
+            "title_other": "{{count}} Assets kopieren"
         },
         "form": {
             "by_reference": {
@@ -423,7 +429,7 @@
         }
     },
     "dialog": {
-        "apply": "Bewerben",
+        "apply": "Anwenden",
         "cancel": "Abbrechen",
         "close": "Schliessen",
         "confirm": "Bestätigen",
@@ -446,7 +452,8 @@
         "dialog": {
             "intro": "Wählen Sie die Renditionen aus, die Sie exportieren möchten:",
             "submit": "Exportieren",
-            "title": "{{count}} Assets exportieren",
+            "title_one": "{{count}} Asset exportieren",
+            "title_other": "{{count}} Assets exportieren",
             "title_plural": "{{count}} Assets exportieren"
         }
     },
@@ -628,12 +635,12 @@
                 "select_for_hard_copy": "Sie können das Asset auswählen, das Sie auf das Ziel duplizieren möchten (Hardcopy):"
             },
             "destination": {
-                "label": "Reiseziel"
+                "label": "Ziel"
             }
         },
         "move_assets": {
             "destination": {
-                "label": "Reiseziel"
+                "label": "Ziel"
             }
         },
         "permissions": {
@@ -704,7 +711,7 @@
         },
         "save_as": {
             "destination": {
-                "label": "Reiseziel"
+                "label": "Ziel"
             }
         },
         "tag": {
@@ -726,7 +733,7 @@
                 "title": "Upload"
             },
             "success": "Dateien hochgeladen!",
-            "title": "Upload",
+            "title": "Die Assets wurden hinzugefügt",
             "quiet": {
                 "label": "Still (keine Benachrichtigung, kein Webhook)"
             }
@@ -978,7 +985,8 @@
             "intro": "Wohin möchten Sie die ausgewählten Assets verschieben?",
             "submit": "Verschieben",
             "title_plural": "{{count}} Assets verschieben",
-            "title": "{{count}} Assets verschieben"
+            "title_one": "{{count}} Asset verschieben",
+            "title_other": "{{count}} Assets verschieben"
         }
     },
     "move_assets_dialog": {
@@ -1041,7 +1049,7 @@
         "save_as": "Speichern unter"
     },
     "save_as_template_form": {
-        "apply_to_collection": "Zur Kollektion bewerben",
+        "apply_to_collection": "Zur Kollektion anwenden",
         "my_template": "Meine Vorlage…",
         "public": "Öffentlich",
         "remember_attributes": "Attribute merken",
@@ -1080,7 +1088,7 @@
     },
     "selection_actions": {
         "result": "Ergebnis",
-        "s": "s"
+        "s": "e"
     },
     "sort_by": {
         "sort_by": "Sortiere nach"
@@ -1119,7 +1127,7 @@
         "save_as": "Speichern unter"
     },
     "use_integration_auth": {
-        "auth": "Auth"
+        "auth": "Authentifizierung"
     },
     "workspace": {
         "info": {
