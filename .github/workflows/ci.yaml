@@ -297,7 +297,8 @@ jobs:
         run: |
           docker compose up -d databox-api-php --wait
           docker compose exec -T databox-api-php sh -c "bin/console app:documentation:dump -f documentation.md"
-          cp -r ${{ github.workspace }}/databox/api/generatedDoc/ ${{ github.workspace }}/doc/generatedDoc/
+          DATABOX_CONTAINER_NAME=$(docker compose ps --format "{{.Names}}" databox-api-php)
+          docker cp $DATABOX_CONTAINER_NAME:/srv/app/src/Command/../../generatedDoc/ ${{ github.workspace }}/doc/generatedDoc/
 
       - name: zip directory
         # if: github.event_name == 'release' && github.event.action == 'created'
