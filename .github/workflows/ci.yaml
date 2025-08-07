@@ -292,30 +292,28 @@ jobs:
             ./cypress-output/output/results
           retention-days: 2
 
-      - name: export dynamic documentation
-        #if: github.event_name == 'release' && github.event.action == 'created'
+      - name: generate dynamic documentation
         run: |
           docker compose up -d databox-api-php --wait
           docker compose exec -T databox-api-php sh -c "bin/console app:documentation:dump -f documentation.md"
           DATABOX_CONTAINER_NAME=$(docker compose ps --format "{{.Names}}" databox-api-php)
           docker cp $DATABOX_CONTAINER_NAME:/srv/app/src/Command/../../generatedDoc/ ${{ github.workspace }}/doc/generatedDoc/
 
-      - name: zip directory
-        # if: github.event_name == 'release' && github.event.action == 'created'
+      - name: zip phrasea doc directory
         uses: vimtor/action-zip@v1.2
         with:
           files: doc/
           dest: result.zip
           recursive: true  
 
-      - name: Check if zip file exists
+      - name: upload phrasea doc zip to the artifact
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
-          name: my-result-zip
+          name: phrasea-doc-zip
           path: ${{ github.workspace }}/result.zip    
 
-      - name: Upload Release Asset
+      - name: Upload phrasea doc zip to the Release Assets
         if: github.event_name == 'release' && github.event.action == 'created'
         uses: svenstaro/upload-release-action@v2
         with:
