@@ -297,7 +297,7 @@ jobs:
         run: |
           docker compose up -d databox-api-php --wait
           docker compose exec -T databox-api-php sh -c "bin/console app:documentation:dump -f documentation.md"
-          cp -r ./databox/api/generatedDoc/ ./doc/generatedDoc/
+          cp -r ${{ github.workspace }}/databox/api/generatedDoc/ ${{ github.workspace }}/doc/generatedDoc/
 
       - name: zip directory
         # if: github.event_name == 'release' && github.event.action == 'created'
@@ -307,8 +307,8 @@ jobs:
           dest: result.zip
           recursive: true  
 
-#check/see if zip is successfully created , to be commented/deleted before merge
       - name: Check if zip file exists
+        if: github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
           name: my-result-zip
