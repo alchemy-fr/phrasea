@@ -306,6 +306,7 @@ final class KeycloakManager
             'redirectUris' => $redirectUris ?? ($rootUrl ? [
                 $rootUrl.'/*',
             ] : null),
+            'webOrigins' => [$rootUrl],
             'attributes' => [
                 'redirectAfterPasswordUpdate' => str_contains($clientId, 'admin') ? $rootUrl.'/admin' : $rootUrl,
             ],
