@@ -35,14 +35,27 @@ class DocumentationDumperCommand extends Command
 
             $outputFilename = $input->getOption('output-filename');
 
-            $outputDir = __DIR__.'/../../generatedDoc';
-            mkdir($outputDir, 0755, true);
+            $outputDir = __DIR__.'/../../_generatedDoc';
 
-            file_put_contents(
+            if (!is_dir($outputDir)) {
+                if (!mkdir($outputDir, 0755, true) && !is_dir($outputDir)) {
+                    $output->writeln('<error>Failed to create output directory: '.$outputDir.'</error>');
+
+                    return Command::FAILURE;
+                }
+            }
+
+            $result = file_put_contents(
                 $outputDir.'/'.$outputFilename,
                 '# '.$this->renditionBuilderConfigurationDocumentation::getName()."\n\n".
                 $this->renditionBuilderConfigurationDocumentation->generate()
             );
+
+            if (false === $result) {
+                $output->writeln('<error>Failed to save documentation to '.$outputDir.'/'.$outputFilename.'</error>');
+
+                return Command::FAILURE;
+            }
 
             $output->writeln('Documentation saved to '.$outputDir.'/'.$outputFilename);
         } else {

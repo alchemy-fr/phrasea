@@ -297,7 +297,7 @@ jobs:
           docker compose up -d databox-api-php --wait
           docker compose exec -T databox-api-php sh -c "bin/console app:documentation:dump -f documentation.md"
           DATABOX_CONTAINER_NAME=$(docker compose ps --format "{{.Names}}" databox-api-php)
-          docker cp $DATABOX_CONTAINER_NAME:/srv/app/src/Command/../../generatedDoc/ ${{ github.workspace }}/doc/generatedDoc/
+          docker cp $DATABOX_CONTAINER_NAME:/srv/app/src/Command/../../_generatedDoc/ ${{ github.workspace }}/doc/_generatedDoc/
 
       - name: zip phrasea doc directory
         uses: vimtor/action-zip@v1.2

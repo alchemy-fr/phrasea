@@ -21,4 +21,4 @@
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 
-/generatedDoc/
+/_generatedDoc/
