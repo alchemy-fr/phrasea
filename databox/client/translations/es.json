@@ -25,16 +25,21 @@
             "save_as": "Guardar como"
         },
         "collection_list": {
-            "collections": "+ {{count}} Collection",
+            "collections_one": "+ {{count}} Collection",
+            "collections_many": "",
+            "collections_other": "",
             "collections_plural": "+ {{count}} Collection",
-            "others": "+ {{count}} otros",
+            "others_one": "+ {{count}} otros",
+            "others_many": "",
+            "others_other": "",
             "others_plural": "+ {{count}} otros"
         },
         "delete": {
             "confirm": {
-                "message_many": "¿Seguro que quieres eliminar {{count}} Asset?",
-                "message_many_plural": "¿Seguro que quieres eliminar {{count}} Asset?",
                 "message_one": "¿Seguro que quieres eliminar este Asset?",
+                "message_many": "¿Seguro que quieres eliminar {{count}} Asset?",
+                "message_other": "",
+                "message_many_plural": "¿Seguro que quieres eliminar {{count}} Asset?",
                 "title": "Confirmar eliminación"
             }
         },
@@ -80,9 +85,13 @@
             "label": "Reemplazar"
         },
         "tag_list": {
-            "others": "+ {{count}} otros",
+            "others_one": "+ {{count}} otros",
+            "others_many": "",
+            "others_other": "",
             "others_plural": "+ {{count}} otros",
-            "tags": "+ {{count}} Tag",
+            "tags_one": "+ {{count}} Tag",
+            "tags_many": "",
+            "tags_other": "",
             "tags_plural": "+ {{count}} Tag"
         },
         "view": {
@@ -746,7 +755,9 @@
         "dialog": {
             "intro": "¿Dónde quieres mover los Asset seleccionados?",
             "submit": "Mover",
-            "title": "Mover {{count}} Asset",
+            "title_one": "Mover {{count}} Asset",
+            "title_many": "",
+            "title_other": "",
             "title_plural": "Mover {{count}} Asset"
         }
     },

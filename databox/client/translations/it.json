@@ -25,9 +25,13 @@
             "save_as": "Salva come"
         },
         "collection_list": {
-            "collections": "Collection",
+            "collections_one": "Collection",
+            "collections_many": "",
+            "collections_other": "",
             "collections_plural": "Collections",
-            "others": "Altri",
+            "others_one": "Altri",
+            "others_many": "",
+            "others_other": "",
             "others_plural": "Altri"
         },
         "delete": {
@@ -79,9 +83,13 @@
             "label": "Sostituisci"
         },
         "tag_list": {
-            "others": "Altri",
+            "others_one": "Altri",
+            "others_many": "",
+            "others_other": "",
             "others_plural": "Altri",
-            "tags": "Tag",
+            "tags_one": "Tag",
+            "tags_many": "",
+            "tags_other": "",
             "tags_plural": "Tag"
         },
         "view": {
@@ -745,7 +753,9 @@
         "dialog": {
             "intro": "Sposta Asset",
             "submit": "Sposta",
-            "title": "Sposta Asset",
+            "title_one": "Sposta Asset",
+            "title_many": "",
+            "title_other": "",
             "title_plural": "Sposta Asset"
         }
     },
