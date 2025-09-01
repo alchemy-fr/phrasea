@@ -16,13 +16,13 @@ final readonly class DateNormalizer
         }
 
         if (is_int($value)) {
-            return $value;
+            return $value * 1000;
         }
 
         if (is_string($value)) {
             $value = trim($value);
             if (is_numeric($value)) {
-                return (int) $value;
+                return (int) $value * 1000;
             }
 
             $length = strlen($value);

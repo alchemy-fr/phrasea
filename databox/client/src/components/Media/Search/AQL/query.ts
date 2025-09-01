@@ -336,7 +336,7 @@ export function replaceFieldFromDefinitions(
             replace(expression.leftOperand);
             replace(expression.rightOperand);
         } else if (isAQLParentheses(expression)) {
-            replace(expression);
+            replace(expression.expression);
         } else if (isAQLValueExpression(expression)) {
             replace(expression);
         } else if (isAQLField(expression)) {
