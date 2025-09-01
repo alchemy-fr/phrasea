@@ -1,4 +1,4 @@
-import {useContext} from 'react';
+import React, {useContext} from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -23,6 +23,11 @@ import ChangeTheme from './ChangeTheme';
 import ThemeEditor from './ThemeEditor';
 import {UserMenu} from '@alchemy/phrasea-ui';
 import {useNotificationUriHandler} from '../../hooks/useNotificationUriHandler.ts';
+import LocaleDialog from '../Locale/LocaleDialog.tsx';
+import i18n from '../../i18n.ts';
+import {getBestLocale} from '@alchemy/i18n/src/Locale/localeHelper.ts';
+import {appLocales, defaultLocale} from '../../../translations/locales.ts';
+import LocaleIcon from '../Locale/LocaleIcon.tsx';
 
 export const menuHeight = 42;
 
@@ -43,6 +48,10 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
     });
     const notificationUriHandler = useNotificationUriHandler();
     const onTitleClick = () => searchContext.reset();
+
+    const currentLocale =
+        getBestLocale(appLocales, i18n.language ? [i18n.language] : [])! ??
+        defaultLocale;
 
     return (
         <div
@@ -160,6 +169,26 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                     accountUrl={getAccountUrl()}
                                     onLogout={logout}
                                     actions={({closeMenu}) => [
+                                        <MenuItem
+                                            key={'change_locale'}
+                                            onClick={() => {
+                                                openModal(LocaleDialog);
+                                                closeMenu();
+                                            }}
+                                        >
+                                            <ListItemIcon>
+                                                <LocaleIcon
+                                                    locale={currentLocale}
+                                                    height="25"
+                                                />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                                primary={t('locale', {
+                                                    defaultValue:
+                                                        currentLocale.toUpperCase(),
+                                                })}
+                                            />
+                                        </MenuItem>,
                                         <MenuItem
                                             key={'change_theme'}
                                             onClick={() => {

@@ -19,7 +19,7 @@ class LocaleUtilTest extends TestCase
 
     public function getCases(): array
     {
-        $locales = [
+        $availableLocales = [
             'fr',
             'fr_FR',
             'en_US',
@@ -28,14 +28,21 @@ class LocaleUtilTest extends TestCase
 
         return [
             [null, [], ['fr']],
+            [null, [], ['fr', 'en']],
             [null, [], ['fr_FR']],
-            ['fr_FR', $locales, ['fr_FR']],
-            ['fr', $locales, ['fr_CA']],
-            ['en_US', $locales, ['en']],
-            ['en_UK', $locales, ['en_UK']],
-            ['en_US', $locales, ['en_US']],
-            ['en_US', $locales, ['en_DD']],
-            [null, $locales, ['']],
+            ['fr_FR', $availableLocales, ['fr_FR']],
+            ['fr', $availableLocales, ['fr_CA']],
+            ['en_US', $availableLocales, ['en']],
+            ['en_UK', $availableLocales, ['en', 'en_UK']],
+            ['en_US', $availableLocales, ['en', 'en_US']],
+            ['en_UK', $availableLocales, ['en_UK']],
+            ['en_UK', $availableLocales, ['en_UK', 'en']],
+            ['en_US', $availableLocales, ['en_US']],
+            ['en_US', $availableLocales, ['en_US', 'en']],
+            ['en_US', $availableLocales, ['en_DD']],
+            ['en_US', $availableLocales, ['en_DD', 'en']],
+            ['en_US', $availableLocales, ['en_DD', 'fr']],
+            [null, $availableLocales, ['']],
         ];
     }
 }

@@ -23,19 +23,19 @@ final readonly class LocaleUtil
             }
 
             if (str_contains($l, '_')) {
-                [$_l] = explode('_', $l);
+                [$lang] = explode('_', $l);
 
-                if (in_array($_l, $availableLocales, true)) {
-                    return $_l;
+                if (in_array($lang, $availableLocales, true)) {
+                    return $lang;
                 }
 
-                $l = $_l;
+                $l = $lang;
             }
 
             foreach ($availableLocales as $availableLocale) {
-                [$_l] = explode('_', $availableLocale);
+                [$lang] = explode('_', $availableLocale);
 
-                if ($_l === $l) {
+                if ($lang === $l) {
                     return $availableLocale;
                 }
             }

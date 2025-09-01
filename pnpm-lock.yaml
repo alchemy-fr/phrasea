@@ -258,6 +258,9 @@ importers:
       react-ace:
         specifier: ^10.1.0
         version: 10.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-circle-flags:
+        specifier: ^0.0.23
+        version: 0.0.23(react@18.3.1)
       react-colorful:
         specifier: ^5.6.1
         version: 5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -9768,6 +9771,12 @@ packages:
     peerDependencies:
       react: '>=0.14.0 <17.0.0'
       react-dom: '>=0.14.0 <17.0.0'
+
+  react-circle-flags@0.0.23:
+    resolution: {integrity: sha512-J35vkTnG4Iz7cgitq/UIw4/1i8aUWEkz2Z0MQTTWycWOHKezuey5+3BPAsXNr78gYMdjSBtZWmSzQc0oEeK4oQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: ^16.0.0 || 17.x || 18.x || 19.x
 
   react-clientside-effect@1.2.7:
     resolution: {integrity: sha512-gce9m0Pk/xYYMEojRI9bgvqQAkl6hm7ozQvqWPyQx+kULiatdHgkNM1QG4DQRx5N9BAzWSCJmt9mMV8/KsdgVg==}
@@ -22626,6 +22635,10 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       snapsvg-cjs: 0.0.6(eve@0.5.4)
+
+  react-circle-flags@0.0.23(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   react-clientside-effect@1.2.7(react@18.3.1):
     dependencies:

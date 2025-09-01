@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\CoreBundle\Util\LocaleUtil;
 use Alchemy\ESBundle\Indexer\ESIndexableDeleteDependencyInterface;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -19,6 +20,7 @@ use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
 use App\Api\Processor\BatchAttributeUpdateProcessor;
 use App\Api\Provider\AttributeCollectionProvider;
+use App\Attribute\AttributeInterface;
 use App\Entity\Traits\AssetAnnotationsTrait;
 use App\Repository\Core\AttributeRepository;
 use App\Validator\UniqueAttributeConstraint;
@@ -257,5 +259,21 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     public function setLocked(bool $locked): void
     {
         $this->locked = $locked;
+    }
+
+    public function getNearestWorkspaceLocale(): string
+    {
+        if (null === $this->locale) {
+            return AttributeInterface::NO_LOCALE;
+        }
+
+        $enabledLocales = $this->getWorkspace()->getEnabledLocales();
+
+        return LocaleUtil::getBestLocale($enabledLocales, [$this->locale]) ?? AttributeInterface::NO_LOCALE;
+    }
+
+    public function getWorkspace(): Workspace
+    {
+        return $this->definition->getWorkspace();
     }
 }

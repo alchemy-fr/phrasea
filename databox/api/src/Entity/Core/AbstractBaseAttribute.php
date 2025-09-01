@@ -20,7 +20,7 @@ abstract class AbstractBaseAttribute extends AbstractUuidEntity
     use UpdatedAtTrait;
 
     #[ORM\Column(type: Types::STRING, length: 10, nullable: true)]
-    private ?string $locale = null;
+    protected ?string $locale = null;
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $position = 0;
