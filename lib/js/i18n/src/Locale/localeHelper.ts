@@ -7,7 +7,6 @@ export function setCurrentLocale(locale: string | undefined) {
     ];
 }
 
-
 export function getBestLocaleOfTranslations(
     fieldTranslations: Record<string, any> | undefined,
     languages?: readonly string[]
@@ -93,14 +92,16 @@ export function getBestFieldTranslatedValue<T>(
         return fallback;
     }
 
-    return getBestTranslatedValue(translations[field], fallback, fallbackLocale, languages);
+    return getBestTranslatedValue(
+        translations[field],
+        fallback,
+        fallbackLocale,
+        languages
+    );
 }
 
-
 export function getBestTranslatedValue<T>(
-    translations:
-        | Readonly<Record<string, T>>
-        | undefined,
+    translations: Readonly<Record<string, T>> | undefined,
     fallback: T,
     fallbackLocale?: string | undefined,
     languages?: readonly string[]

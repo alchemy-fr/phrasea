@@ -48,9 +48,9 @@ it('get best translated value', () => {
     expect(
         getBestFieldTranslatedValue({}, fieldName, undefined, 'fr', ['fr'])
     ).toEqual(undefined);
-    expect(getBestFieldTranslatedValue({}, fieldName, 'bar', 'fr', ['fr'])).toEqual(
-        'bar'
-    );
+    expect(
+        getBestFieldTranslatedValue({}, fieldName, 'bar', 'fr', ['fr'])
+    ).toEqual('bar');
     expect(getBestFieldTranslatedValue({}, fieldName, 'bar', 'fr', [])).toEqual(
         'bar'
     );
