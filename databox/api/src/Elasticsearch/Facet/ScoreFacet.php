@@ -9,9 +9,9 @@ use App\Entity\Core\Asset;
 
 final class ScoreFacet extends AbstractFacet
 {
-    protected function getAggregationTitle(): string
+    protected function getAggregationTranslationKey(): string
     {
-        return 'Relevance';
+        return 'relevance';
     }
 
     public function getType(): string

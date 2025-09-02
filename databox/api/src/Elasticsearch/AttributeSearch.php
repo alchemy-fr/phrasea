@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
+use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
@@ -23,6 +24,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 class AttributeSearch
 {
+    use UserLocaleTrait;
+
     final public const string OPT_STRICT_PHRASE = 'strict';
     final public const string GROUP_ALL = '*';
 
@@ -337,8 +340,10 @@ class AttributeSearch
             }
             $facets[$field] = true;
 
+            $nameTranslated = $definition->getTranslatedField('name', $this->getPreferredLocales($definition->getWorkspace()), $definition->getName());
+
             $meta = [
-                'title' => $definition->getName(),
+                'title' => $nameTranslated,
                 'sortable' => $definition->isSortable(),
             ];
             if (TextAttributeType::getName() !== $type::getName()) {

@@ -7,6 +7,7 @@ namespace App\Elasticsearch\Facet;
 use App\Api\Filter\Group\GroupValue;
 use App\Entity\Core\Asset;
 use Elastica\Query;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 interface FacetInterface
 {
@@ -22,7 +23,7 @@ interface FacetInterface
 
     public function getValueFromAsset(Asset $asset): mixed;
 
-    public function buildFacet(Query $query): void;
+    public function buildFacet(Query $query, TranslatorInterface $translator): void;
 
     public function getType(): string;
 

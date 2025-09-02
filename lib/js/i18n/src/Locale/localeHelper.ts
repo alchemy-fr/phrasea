@@ -1,3 +1,13 @@
+let currentLanguages: string[] = [...window.navigator.languages];
+
+export function setCurrentLocale(locale: string | undefined) {
+    currentLanguages = [
+        ...(locale ? [locale] : []),
+        ...window.navigator.languages.filter(l => l !== locale),
+    ];
+}
+
+
 export function getBestLocaleOfTranslations(
     fieldTranslations: Record<string, any> | undefined,
     languages?: readonly string[]
@@ -6,7 +16,7 @@ export function getBestLocaleOfTranslations(
         return;
     }
 
-    const langList = languages ?? window.navigator.languages;
+    const langList = languages ?? currentLanguages;
 
     for (const _lang of langList) {
         let language = normalizeLocale(_lang);
@@ -40,7 +50,7 @@ export function getBestLocale(
         return undefined;
     }
 
-    const langList = languages ?? window.navigator.languages;
+    const langList = languages ?? currentLanguages;
 
     for (const _lang of langList) {
         let language = normalizeLocale(_lang);

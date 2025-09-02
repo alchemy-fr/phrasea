@@ -9,7 +9,6 @@ import React from 'react';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
-import i18n from '../../i18n.ts';
 import {appLocales} from '../../../translations/locales.ts';
 import LocaleIcon from './LocaleIcon.tsx';
 
@@ -18,6 +17,7 @@ type Props = {} & StackedModalProps;
 export default function LocaleDialog({open, modalIndex}: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
+    const {i18n} = useTranslation();
 
     return (
         <AppDialog

@@ -40,8 +40,8 @@ final class WorkspaceFacet extends AbstractEntityFacet
         return $asset->getWorkspace();
     }
 
-    protected function getAggregationTitle(): string
+    protected function getAggregationTranslationKey(): string
     {
-        return 'Workspace';
+        return 'workspace';
     }
 }

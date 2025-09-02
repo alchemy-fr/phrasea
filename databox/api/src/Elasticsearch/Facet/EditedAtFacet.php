@@ -8,9 +8,9 @@ use App\Entity\Core\Asset;
 
 class EditedAtFacet extends AbstractDateTimeFacet
 {
-    protected function getAggregationTitle(): string
+    protected function getAggregationTranslationKey(): string
     {
-        return 'Modification date';
+        return 'modification_date';
     }
 
     public static function getKey(): string

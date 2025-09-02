@@ -66,9 +66,9 @@ final class OwnerFacet extends AbstractFacet
         return $asset->getPrivacy();
     }
 
-    protected function getAggregationTitle(): string
+    protected function getAggregationTranslationKey(): string
     {
-        return 'Owner';
+        return 'owner';
     }
 
     protected function getAggregationSize(): int

@@ -48,9 +48,9 @@ final class PrivacyFacet extends AbstractLabelledFacet
         return $asset->getPrivacy();
     }
 
-    protected function getAggregationTitle(): string
+    protected function getAggregationTranslationKey(): string
     {
-        return 'Privacy';
+        return 'privacy';
     }
 
     protected function getAggregationSize(): int

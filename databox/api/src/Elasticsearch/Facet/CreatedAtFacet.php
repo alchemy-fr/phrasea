@@ -8,9 +8,9 @@ use App\Entity\Core\Asset;
 
 class CreatedAtFacet extends AbstractDateTimeFacet
 {
-    protected function getAggregationTitle(): string
+    protected function getAggregationTranslationKey(): string
     {
-        return 'Created At';
+        return 'created_at';
     }
 
     public static function getKey(): string

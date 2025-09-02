@@ -89,9 +89,9 @@ final class CollectionFacet extends AbstractFacet
         return $value;
     }
 
-    protected function getAggregationTitle(): string
+    protected function getAggregationTranslationKey(): string
     {
-        return 'Collections';
+        return 'collections';
     }
 
     private function normalizeCollectionPath(string $path): ?string

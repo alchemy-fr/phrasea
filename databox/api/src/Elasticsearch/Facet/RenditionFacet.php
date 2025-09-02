@@ -37,9 +37,9 @@ final class RenditionFacet extends AbstractEntityFacet
         throw new \LogicException('Should never be called');
     }
 
-    protected function getAggregationTitle(): string
+    protected function getAggregationTranslationKey(): string
     {
-        return 'Renditions';
+        return 'renditions';
     }
 
     public function isSortable(): bool

@@ -65,8 +65,8 @@ final class TagFacet extends AbstractEntityFacet
         return $asset->getTags();
     }
 
-    protected function getAggregationTitle(): string
+    protected function getAggregationTranslationKey(): string
     {
-        return 'Tags';
+        return 'tags';
     }
 }

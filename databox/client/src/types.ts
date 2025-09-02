@@ -237,7 +237,7 @@ export interface TagFilterRule extends ApiHydraObjectResponse, Entity {
     exclude: Tag[];
 }
 
-type KeyTranslations = {
+export type KeyTranslations = {
     [locale: string]: string;
 };
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use Alchemy\CoreBundle\Util\LocaleUtil;
+use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\AttributeInterface;
 use App\Elasticsearch\ESFacetInterface;
 use App\Entity\Core\AttributeEntity;
@@ -13,6 +15,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class EntityAttributeType extends TextAttributeType
 {
+    use UserLocaleTrait;
+
     public const string NAME = 'entity';
 
     public function __construct(
@@ -99,17 +103,27 @@ class EntityAttributeType extends TextAttributeType
             return null;
         }
 
+        $translatedValue = $this->getTranslatedValue($entity);
+
         $bucket['key'] = [
             'value' => $bucket['key'],
-            'label' => $entity->getValue(),
+            'label' => $translatedValue,
             'item' => [
                 'id' => $entity->getId(),
                 'value' => $entity->getValue(),
-                'translations' => $entity->getTranslations(),
+                'translatedValue' => $translatedValue,
             ],
         ];
 
         return $bucket;
+    }
+
+    protected function getTranslatedValue(AttributeEntity $entity): ?string
+    {
+        $translations = $entity->getTranslations() ?? [];
+        $locale = LocaleUtil::getBestLocale(array_keys($translations), $this->getPreferredLocales($entity->getWorkspace()));
+
+        return $translations[$locale] ?? $entity->getValue();
     }
 
     public function getAggregationField(): ?string
@@ -146,14 +160,10 @@ class EntityAttributeType extends TextAttributeType
             return null;
         }
 
-        $id = $entity->getId();
-        $v = $entity->getValue();
-
         return [
-            'id' => $id,
-            'value' => $v,
+            'id' => $entity->getId(),
+            'value' => $this->getTranslatedValue($entity),
             'createdAt' => $entity->getCreatedAt(),
-            'translations' => $entity->getTranslations(),
         ];
     }
 
