@@ -13,6 +13,7 @@ import {AppDialog} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
 import {appLocales} from '../../../translations/locales.ts';
 import LocaleIcon from './LocaleIcon.tsx';
+import {locales} from '@alchemy/i18n/src/Locale/locales';
 import {
     useDataLocale,
     useUpdateDataLocale,
@@ -25,18 +26,7 @@ export default function LocaleDialog({open, modalIndex}: Props) {
     const {closeModal} = useModals();
     const {i18n} = useTranslation();
 
-    const workspaceLocales = [
-        'en',
-        'fr',
-        'es',
-        'de',
-        'it',
-        'pt',
-        'zh',
-        'ja',
-        'ru',
-        'ar',
-    ]; // TODO
+    const workspaceLocales = Object.keys(locales);
 
     const dataLocale = useDataLocale();
     const updateDataLocale = useUpdateDataLocale();
@@ -112,10 +102,10 @@ export default function LocaleDialog({open, modalIndex}: Props) {
                                     <LocaleIcon locale={l} height="35" />
                                 </ListItemIcon>
                                 <ListItemText
-                                    primary={t('locale', {
-                                        lng: l,
-                                        defaultValue: l.toUpperCase(),
-                                    })}
+                                    primary={
+                                        locales[l]?.name || l.toUpperCase()
+                                    }
+                                    secondary={l}
                                 />
                             </ListItemButton>
                         ))}

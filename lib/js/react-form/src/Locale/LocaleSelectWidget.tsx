@@ -15,7 +15,7 @@ export default function LocaleSelectWidget<TFieldValues extends FieldValues>(
         () =>
             Object.keys(locales).map(k => ({
                 value: k,
-                label: locales[k],
+                label: locales[k].name,
             })),
         []
     );
