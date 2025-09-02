@@ -9,6 +9,7 @@ import {initSentry} from '@alchemy/core';
 import config from './config';
 import {QueryClientProvider} from '@tanstack/react-query';
 import {queryClient} from './lib/query.ts';
+import {locales} from '@alchemy/i18n/src/Locale/locales';
 
 initSentry(config);
 
@@ -19,3 +20,19 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         </QueryClientProvider>
     </React.StrictMode>
 );
+
+Object.keys(locales).map(l => {
+    if (!locales[l].nameLocal) {
+        const ref = Object.keys(locales).find(sl => sl.startsWith(l + '_'));
+        console.log('ref', ref);
+        if (ref) {
+            locales[l].nameLocal = locales[ref].nameLocal
+                .replace(/\([^)]+\)/, '')
+                .trim();
+        } else {
+            locales[l].nameLocal = locales[l].name;
+        }
+    }
+});
+
+console.log('locales:', locales);

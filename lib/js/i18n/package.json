@@ -5,6 +5,7 @@
   "main": "src/index.ts",
   "files": [
     "src/Locale/locales.ts",
+    "src/locales.json",
     "src/Locale/localeHelper.ts"
   ],
   "scripts": {

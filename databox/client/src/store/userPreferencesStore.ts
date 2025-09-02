@@ -8,6 +8,7 @@ import {deepEquals} from '@alchemy/core';
 export type UserPreferences = {
     theme?: ThemeName | undefined;
     layout?: Layout;
+    dataLocale?: string | undefined;
     attrList?: string | undefined;
     display?: DisplayPreferences | undefined;
 };
