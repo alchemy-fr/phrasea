@@ -22,7 +22,7 @@ final readonly class DateNormalizer
         if (is_string($value)) {
             $value = trim($value);
             if (is_numeric($value)) {
-                return (int) $value * 1000;
+                return (int) $value;
             }
 
             $length = strlen($value);
