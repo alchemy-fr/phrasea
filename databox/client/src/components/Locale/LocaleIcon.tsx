@@ -1,109 +1,26 @@
 import {CircleFlag} from 'react-circle-flags';
 import React, {ImgHTMLAttributes} from 'react';
+import {languageCountryMap} from '@alchemy/i18n/src/Locale/locales';
 
 type Props = {
     locale: string;
+    region?: string;
     height?: ImgHTMLAttributes<any>['height'];
 };
 
-export default function LocaleIcon({locale, height = 25}: Props) {
-    const l = locale.replace('-', '_').split('_')[0];
-
-    const countryEquivalents: Record<string, string> = {
-        en: 'gb',
-        pt: 'br',
-        zh: 'cn',
-        he: 'il',
-        iw: 'il',
-        fa: 'ir',
-        ji: 'ye',
-        ja: 'jp',
-        ak: 'gh',
-        sq: 'al',
-        hy: 'am',
-        asa: 'tz',
-        bem: 'zm',
-        bez: 'tz',
-        tzm: 'ma',
-        chr: 'us',
-        cgg: 'ug',
-        cs: 'cz',
-        da: 'dk',
-        ebu: 'ke',
-        fil: 'ph',
-        ff: 'sn',
-        lg: 'ug',
-        ka: 'ge',
-        el: 'gr',
-        guz: 'ke',
-        ha: 'ng',
-        haw: 'us',
-        hi: 'in',
-        ig: 'ng',
-        kea: 'cv',
-        kab: 'dz',
-        kl: 'gl',
-        kln: 'ke',
-        kam: 'ke',
-        kk: 'kz',
-        kok: 'in',
-        ko: 'kr',
-        khq: 'ml',
-        ses: 'ml',
-        lag: 'tz',
-        luo: 'ke',
-        luy: 'ke',
-        jmc: 'tz',
-        kde: 'tz',
-        gv: 'im',
-        mas: 'ke',
-        mer: 'ke',
-        mfe: 'mu',
-        naq: 'na',
-        nd: 'zw',
-        nb: 'no',
-        nn: 'no',
-        nyn: 'ug',
-        or: 'in',
-        rm: 'ch',
-        rof: 'tz',
-        rwk: 'tz',
-        saq: 'ke',
-        seh: 'mz',
-        ii: 'cn',
-        xog: 'ug',
-        sw: 'tz',
-        gsw: 'ch',
-        shi: 'ma',
-        dav: 'ke',
-        te: 'in',
-        teo: 'ug',
-        ti: 'et',
-        ur: 'pk',
-        vun: 'tz',
-        yo: 'ng',
-        zu: 'za',
-        aa: 'dj',
-        xh: 'za',
-        ts: 'za',
-        tig: 'er',
-        ssy: 'er',
-        rtm: 'er',
-        rn: 'bi',
-        qu: 'pe',
-        rar: 'ck',
-        nrb: 'ke',
-        ny: 'mw',
-        mi: 'nz',
-        ln: 'cd',
-        kun: 'cd',
-        ku: 'tr',
-        lo: 'la',
-        hif: 'fj',
-        fan: 'ga',
-    };
+export default function LocaleIcon({region, locale, height = 25}: Props) {
+    let countryCode = region;
+    if (!countryCode) {
+        const parts = locale.replace(/-/g, '_').split('_');
+        const l = parts[0];
+        if (parts.length > 1) {
+            countryCode = parts[parts.length - 1];
+        } else {
+            countryCode = languageCountryMap[l] || l;
+        }
+    }
 
     return (
-        <CircleFlag countryCode={countryEquivalents[l] || l} height={height} />
+        <CircleFlag countryCode={countryCode?.toLowerCase()} height={height} />
     );
 }

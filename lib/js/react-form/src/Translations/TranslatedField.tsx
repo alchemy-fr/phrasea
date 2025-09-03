@@ -8,8 +8,10 @@ import FieldTranslationsEditDialog, {
 } from './FieldTranslationsEditDialog';
 import {getFieldTranslationCount} from './localeHelper';
 import {WithTranslations} from '../types';
+import {GetLocales} from "../Locale/LocaleSelectWidget";
 
 type Props<T extends WithTranslations> = {
+    getLocales: GetLocales;
     getData: (() => T) | undefined;
     onUpdate: FieldTranslationsEditDialogProps<T>['onUpdate'] | undefined;
 } & Omit<
@@ -25,12 +27,14 @@ export default function TranslatedField<T extends WithTranslations>({
     title,
     inputProps,
     noToast,
+    getLocales,
 }: Props<T>) {
     const {openModal} = useModals();
     const {t} = useTranslation();
 
     const openTitleTranslations = useCallback(async () => {
         openModal(FieldTranslationsEditDialog, {
+            getLocales,
             getData,
             onUpdate: onUpdate!,
             field,

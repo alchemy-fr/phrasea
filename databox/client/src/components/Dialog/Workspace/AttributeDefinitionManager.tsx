@@ -44,6 +44,7 @@ import {useAttributeDefinitionStore} from '../../../store/attributeDefinitionSto
 import EntityListSelect from '../../Form/EntityListSelect.tsx';
 import {NO_LOCALE} from '../../Media/Asset/Attribute/constants.ts';
 import {AttributeType} from '../../../api/types.ts';
+import {getLocaleOptions} from '../../../api/locale.ts';
 
 function Item({
     usedFormSubmit,
@@ -89,6 +90,7 @@ function Item({
             <FormRow>
                 <TranslatedField<AttributeDefinition>
                     field={'name'}
+                    getLocales={getLocaleOptions}
                     getData={getValues}
                     title={t(
                         'form.attribute_definition.name.translate.title',

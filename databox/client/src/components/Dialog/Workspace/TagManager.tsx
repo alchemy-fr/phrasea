@@ -15,6 +15,7 @@ import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslation
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import InfoRow from '../Info/InfoRow.tsx';
 import KeyIcon from '@mui/icons-material/Key';
+import {getLocaleOptions} from '../../../api/locale.ts';
 
 function Item({
     data,
@@ -50,6 +51,7 @@ function Item({
                 ) : null}
                 <TranslatedField<Tag>
                     noToast={!data?.id}
+                    getLocales={getLocaleOptions}
                     field={'name'}
                     getData={getValues}
                     title={t('form.tag.translate.name', 'Translate Name')}

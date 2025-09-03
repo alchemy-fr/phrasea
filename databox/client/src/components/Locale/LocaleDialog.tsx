@@ -13,30 +13,42 @@ import {AppDialog} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
 import {appLocales} from '../../../translations/locales.ts';
 import LocaleIcon from './LocaleIcon.tsx';
-import {locales} from '@alchemy/i18n/src/Locale/locales';
 import {
     useDataLocale,
     useUpdateDataLocale,
 } from '../../store/useDataLocaleStore.ts';
+import {getLocales, Locale} from '../../api/locale.ts';
 
 type Props = {} & StackedModalProps;
 
 export default function LocaleDialog({open, modalIndex}: Props) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const {closeModal} = useModals();
-    const {i18n} = useTranslation();
+    const [locales, setLocales] = React.useState<Locale[]>();
 
-    const workspaceLocales = Object.keys(locales);
+    React.useEffect(() => {
+        if (open) {
+            getLocales().then(data => {
+                setLocales(data);
+            });
+        }
+    }, [i18n.language]);
+
+    const workspaceLocales = locales;
 
     const dataLocale = useDataLocale();
     const updateDataLocale = useUpdateDataLocale();
+
+    if (!workspaceLocales) {
+        return null;
+    }
 
     return (
         <AppDialog
             modalIndex={modalIndex}
             open={open}
             title={t('locale.switcher.title', 'Change Language')}
-            maxWidth={'xs'}
+            maxWidth={'sm'}
             onClose={closeModal}
             actions={({onClose}) => (
                 <>
@@ -90,22 +102,24 @@ export default function LocaleDialog({open, modalIndex}: Props) {
                                 'Data Language'
                             )}
                         </ListSubheader>
-                        {workspaceLocales.map((l: string) => (
+                        {workspaceLocales.map((l: Locale) => (
                             <ListItemButton
-                                key={l}
+                                key={l.id}
                                 onClick={() => {
-                                    updateDataLocale(l);
+                                    updateDataLocale(l.id);
                                 }}
-                                selected={dataLocale === l}
+                                selected={dataLocale === l.id}
                             >
                                 <ListItemIcon>
-                                    <LocaleIcon locale={l} height="35" />
+                                    <LocaleIcon
+                                        region={l.region}
+                                        locale={l.id}
+                                        height="35"
+                                    />
                                 </ListItemIcon>
                                 <ListItemText
-                                    primary={
-                                        locales[l]?.name || l.toUpperCase()
-                                    }
-                                    secondary={l}
+                                    primary={l.name}
+                                    secondary={l.nativeName}
                                 />
                             </ListItemButton>
                         ))}

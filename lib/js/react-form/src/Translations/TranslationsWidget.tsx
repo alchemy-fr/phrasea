@@ -3,7 +3,7 @@ import {BaseCollectionProps} from '../Collection/CollectionWidget';
 import IconFormLabel from '../IconFormLabel';
 import {Trans, useTranslation} from 'react-i18next';
 import SortableCollectionWidget from '../Collection/SortableCollectionWidget';
-import LocaleSelectWidget from '../Locale/LocaleSelectWidget';
+import LocaleSelectWidget, {GetLocales} from '../Locale/LocaleSelectWidget';
 import {EmojiFlags} from '@mui/icons-material';
 import {TextFieldProps} from '@mui/material/TextField/TextField';
 import FormRow from '../FormRow';
@@ -20,12 +20,14 @@ const emptyTypedItem: Translation = {
 };
 
 type Props<TFieldValues extends {translations: Translation[]}> = {
+    getLocales: GetLocales;
+} & {
     inputProps?: TextFieldProps;
 } & BaseCollectionProps<TFieldValues>;
 
 export default function TranslationsWidget<
     TFieldValues extends {translations: Translation[]},
->({name, control, register, errors, max, inputProps}: Props<TFieldValues>) {
+>({getLocales, name, control, register, errors, max, inputProps}: Props<TFieldValues>) {
     const {t} = useTranslation();
 
     return (
@@ -95,6 +97,7 @@ export default function TranslationsWidget<
                                         }}
                                     >
                                         <LocaleSelectWidget
+                                            getLocales={getLocales}
                                             control={control}
                                             name={
                                                 `${path}.${index}.locale` as any

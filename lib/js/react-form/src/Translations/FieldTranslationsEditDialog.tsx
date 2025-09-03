@@ -13,8 +13,8 @@ import {
     getFieldTranslationsObject,
 } from './localeHelper';
 import {WithTranslations} from '../types';
-import {locales} from '@alchemy/i18n/src/Locale/locales';
 import LoadingButton from '../LoadingButton';
+import {GetLocales} from "../Locale/LocaleSelectWidget";
 
 type Model = {
     fallback: string;
@@ -29,6 +29,7 @@ type Props<T extends WithTranslations> = {
     inputProps?: TextFieldProps;
     noToast?: boolean;
     maxTranslations?: number;
+    getLocales: GetLocales;
 };
 
 export type {Props as FieldTranslationsEditDialogProps};
@@ -36,6 +37,7 @@ export type {Props as FieldTranslationsEditDialogProps};
 export default function FieldTranslationsEditDialog<
     T extends WithTranslations,
 >({
+    getLocales,
     getData,
     title,
     field,
@@ -48,8 +50,6 @@ export default function FieldTranslationsEditDialog<
 }: Props<T> & StackedModalProps) {
     const {closeModal} = useModals();
     const {t} = useTranslation();
-
-    maxTranslations ??= Object.keys(locales).length;
 
     const data = getData();
 
@@ -126,6 +126,7 @@ export default function FieldTranslationsEditDialog<
         >
             <form id={formId} onSubmit={handleSubmit}>
                 <TranslationsWidget
+                    getLocales={getLocales}
                     name={'translations'}
                     control={control}
                     errors={errors}

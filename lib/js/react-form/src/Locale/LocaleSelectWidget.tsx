@@ -1,24 +1,22 @@
 import React from 'react';
 import {FieldValues} from 'react-hook-form';
-import {locales} from '@alchemy/i18n/src/Locale/locales';
-import RSelectWidget, {RSelectProps} from '../RSelectWidget';
+import {RSelectProps, SelectOption} from '../RSelectWidget';
+import AsyncRSelectWidget from "../AsyncRSelectWidget";
 
-type Props<TFieldValues extends FieldValues> = RSelectProps<
+export type GetLocales = () => Promise<SelectOption[]>
+
+type Props<TFieldValues extends FieldValues> = {
+    getLocales: GetLocales;
+} & RSelectProps<
     TFieldValues,
     false
 >;
 
 export default function LocaleSelectWidget<TFieldValues extends FieldValues>(
-    props: Props<TFieldValues>
+    {getLocales, ...props}: Props<TFieldValues>
 ) {
-    const options = React.useMemo(
-        () =>
-            Object.keys(locales).map(k => ({
-                value: k,
-                label: locales[k].name,
-            })),
-        []
-    );
-
-    return <RSelectWidget {...props} options={options} />;
+    return <AsyncRSelectWidget
+        {...props}
+        loadOptions={() => getLocales()}
+    />;
 }

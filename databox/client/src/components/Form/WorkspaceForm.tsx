@@ -14,6 +14,7 @@ import {useDirtyFormPrompt} from '../Dialog/Tabbed/FormTab';
 import {CheckboxWidget} from '@alchemy/react-form';
 import {useCreateSaveTranslations} from '../../hooks/useCreateSaveTranslations.ts';
 import {putWorkspace} from '../../api/collection.ts';
+import {getLocaleOptions} from '../../api/locale.ts';
 
 const emptyLocaleItem = '';
 
@@ -53,6 +54,7 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                     <TranslatedField<Workspace>
                         field={'name'}
                         getData={getValues}
+                        getLocales={getLocaleOptions}
                         title={t(
                             'form.workspace.title.translate.title',
                             'Translate Title'

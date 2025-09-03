@@ -8,6 +8,7 @@ import {FormRow} from '@alchemy/react-form';
 import {FormProps} from './types';
 import {useCreateSaveTranslations} from '../../hooks/useCreateSaveTranslations.ts';
 import {putCollection} from '../../api/collection.ts';
+import {getLocaleOptions} from '../../api/locale.ts';
 
 export const CollectionForm: FC<FormProps<Collection>> = function ({
     formId,
@@ -38,6 +39,7 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
                 <TranslatedField<Collection>
                     field={'title'}
                     getData={getValues}
+                    getLocales={getLocaleOptions}
                     title={t(
                         'form.collection.title.translate.title',
                         'Translate Title'
