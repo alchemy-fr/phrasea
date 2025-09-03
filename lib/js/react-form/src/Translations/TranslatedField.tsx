@@ -12,6 +12,7 @@ import {GetLocales} from "../Locale/LocaleSelectWidget";
 
 type Props<T extends WithTranslations> = {
     getLocales: GetLocales;
+    locales?: string[];
     getData: (() => T) | undefined;
     onUpdate: FieldTranslationsEditDialogProps<T>['onUpdate'] | undefined;
 } & Omit<
@@ -23,6 +24,7 @@ export default function TranslatedField<T extends WithTranslations>({
     children,
     field,
     getData,
+    locales,
     onUpdate,
     title,
     inputProps,
@@ -36,6 +38,7 @@ export default function TranslatedField<T extends WithTranslations>({
         openModal(FieldTranslationsEditDialog, {
             getLocales,
             getData,
+            locales,
             onUpdate: onUpdate!,
             field,
             title,

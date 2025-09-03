@@ -1,4 +1,4 @@
-import {AttributeEntity, Workspace} from '../../types.ts';
+import {AttributeEntity} from '../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps, useFormPrompt, useModals} from '@alchemy/navigation';
@@ -8,9 +8,9 @@ import {getNonEmptyTranslations} from '@alchemy/react-form';
 import {postAttributeEntity} from '../../api/attributeEntity.ts';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
-import {getWorkspace} from '../../api/workspace.ts';
 import React from 'react';
 import AttributeEntityFields from './AttributeEntityFields.tsx';
+import {useWorkspace} from '../../hooks/useWorkspace.ts';
 
 type Props = {
     value: string;
@@ -28,13 +28,9 @@ export default function CreateAttributeEntityDialog({
     onCreate,
 }: Props) {
     const {t} = useTranslation();
-    const [workspace, setWorkspace] = React.useState<Workspace>();
     const {closeModal} = useModals();
     const formId = 'attr-entity';
-
-    React.useEffect(() => {
-        getWorkspace(workspaceId).then(w => setWorkspace(w));
-    }, [workspaceId]);
+    const workspace = useWorkspace(workspaceId);
 
     const usedFormSubmit = useFormSubmit<AttributeEntity>({
         defaultValues: {

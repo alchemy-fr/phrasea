@@ -21,13 +21,14 @@ const emptyTypedItem: Translation = {
 
 type Props<TFieldValues extends {translations: Translation[]}> = {
     getLocales: GetLocales;
+    locales?: string[];
 } & {
     inputProps?: TextFieldProps;
 } & BaseCollectionProps<TFieldValues>;
 
 export default function TranslationsWidget<
     TFieldValues extends {translations: Translation[]},
->({getLocales, name, control, register, errors, max, inputProps}: Props<TFieldValues>) {
+>({getLocales, locales, name, control, register, errors, max, inputProps}: Props<TFieldValues>) {
     const {t} = useTranslation();
 
     return (
@@ -47,7 +48,41 @@ export default function TranslationsWidget<
             />
             <FormFieldErrors field={'fallback' as any} errors={errors} />
 
-            <SortableCollectionWidget
+            {locales ? (<div>
+                    {locales.map((locale, index) => {
+                        const pathValue = `${name}.${index}.value` as any;
+                        const pathLocale = `${name}.${index}.locale` as any
+
+                        return (
+                            <div key={locale}>
+                                <input
+                                    type="hidden"
+                                    {...register(pathLocale)}
+                                    value={locale}
+                                />
+                                <TextField
+                                    sx={{
+                                        mb: 2,
+                                    }}
+                                    fullWidth={true}
+                                    label={t(
+                                        'lib.form.translations.value_for_locale',
+                                        'Translation for {{locale}}',
+                                        {locale}
+                                    )}
+                                    {...register(pathValue)}
+                                    required={false}
+                                    {...(inputProps ?? {})}
+                                />
+                                <FormFieldErrors
+                                    field={pathValue}
+                                    errors={errors}
+                                />
+                            </div>
+                        );
+                    })}
+                </div>
+                ) : (<SortableCollectionWidget
                 errors={errors}
                 emptyItem={emptyTypedItem}
                 max={max}
@@ -143,7 +178,7 @@ export default function TranslationsWidget<
                         </>
                     );
                 }}
-            />
+            />)}
         </>
     );
 }

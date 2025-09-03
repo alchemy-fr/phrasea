@@ -114,9 +114,9 @@ services:
       - ./databox/api:/srv/app
       - ./lib/php:/lib/php
 
-  elasticsearch:
-    ports:
-      - ${ELASTICSEARCH_PORT}:9200
+#  elasticsearch:
+#    ports:
+#      - ${ELASTICSEARCH_PORT}:9200
 
   dev:
     build: infra/docker/dev

@@ -82,9 +82,14 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
 
             set({preferences: newPrefs});
             putToStorage(newPrefs);
-            setTimeout(() => {
-                putUserPreferences(name, newPrefs[name]);
-            }, 0);
+
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    putUserPreferences(name, newPrefs[name]).then(() => {
+                        resolve();
+                    });
+                }, 0);
+            });
         },
     })
 );

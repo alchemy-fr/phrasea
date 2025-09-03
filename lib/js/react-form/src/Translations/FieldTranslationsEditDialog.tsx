@@ -30,6 +30,7 @@ type Props<T extends WithTranslations> = {
     noToast?: boolean;
     maxTranslations?: number;
     getLocales: GetLocales;
+    locales?: string[];
 };
 
 export type {Props as FieldTranslationsEditDialogProps};
@@ -47,6 +48,7 @@ export default function FieldTranslationsEditDialog<
     inputProps,
     noToast,
     maxTranslations,
+    locales,
 }: Props<T> & StackedModalProps) {
     const {closeModal} = useModals();
     const {t} = useTranslation();
@@ -65,7 +67,7 @@ export default function FieldTranslationsEditDialog<
     } = useFormSubmit({
         defaultValues: {
             fallback: data[field] || '',
-            translations: getFieldTranslationsList(data.translations, field),
+            translations: getFieldTranslationsList(data.translations, field, locales),
         },
         onSubmit: async (d: Model) => {
             return await onUpdate({
@@ -87,6 +89,7 @@ export default function FieldTranslationsEditDialog<
             normalizePath: p => p.replace('translations.title', 'translations'),
         },
     });
+    console.log('data', data);
 
     const formId = field + 'Translations';
 
@@ -126,6 +129,7 @@ export default function FieldTranslationsEditDialog<
         >
             <form id={formId} onSubmit={handleSubmit}>
                 <TranslationsWidget
+                    locales={locales}
                     getLocales={getLocales}
                     name={'translations'}
                     control={control}

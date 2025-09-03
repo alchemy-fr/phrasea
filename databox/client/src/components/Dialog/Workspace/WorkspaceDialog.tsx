@@ -18,19 +18,28 @@ import {modalRoutes} from '../../../routes';
 import {useCloseModal} from '../../Routing/ModalLink';
 import IntegrationManager from './IntegrationManager.tsx';
 import EntityListManager from './EntityListManager.tsx';
+import {useWorkspaceStore} from '../../../store/workspaceStore.ts';
 
 type Props = {};
 
 export default function WorkspaceDialog({}: Props) {
     const {t} = useTranslation();
     const {id} = useParams();
-    const [data, setData] = useState<Workspace>();
+    const [data, proxySetData] = useState<Workspace>();
     const closeModal = useCloseModal();
+
+    const updateWorkspace = useWorkspaceStore(s => s.updateWorkspace);
+
+    const setData = (newData: Workspace) => {
+        updateWorkspace(newData);
+        proxySetData({...newData});
+    };
 
     useEffect(() => {
         getWorkspace(id!)
             .then(c => setData(c))
-            .catch(() => {
+            .catch(e => {
+                console.error(e);
                 closeModal();
             });
     }, [id]);

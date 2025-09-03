@@ -794,6 +794,7 @@ services:
         soft: -1
         hard: -1
     environment:
+      - xpack.security.enabled=false
       - discovery.type=single-node
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true

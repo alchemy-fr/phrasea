@@ -9,6 +9,7 @@ import {FormProps} from './types';
 import {useCreateSaveTranslations} from '../../hooks/useCreateSaveTranslations.ts';
 import {putCollection} from '../../api/collection.ts';
 import {getLocaleOptions} from '../../api/locale.ts';
+import {useWorkspace} from '../../hooks/useWorkspace.ts';
 
 export const CollectionForm: FC<FormProps<Collection>> = function ({
     formId,
@@ -25,6 +26,7 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
     },
 }) {
     const {t} = useTranslation();
+    const enabledLocales = useWorkspace(data?.workspace.id)?.enabledLocales;
 
     const createSaveTranslations = useCreateSaveTranslations({
         data,
@@ -37,6 +39,7 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
         <form id={formId} onSubmit={handleSubmit}>
             <FormRow>
                 <TranslatedField<Collection>
+                    locales={enabledLocales}
                     field={'title'}
                     getData={getValues}
                     getLocales={getLocaleOptions}

@@ -78,6 +78,7 @@ function Item({
         <>
             <FormRow>
                 <TranslatedField<RenditionDefinition>
+                    locales={workspace.enabledLocales}
                     field={'name'}
                     getData={getValues}
                     getLocales={getLocaleOptions}

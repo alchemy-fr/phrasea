@@ -91,6 +91,7 @@ function Item({
                 <TranslatedField<AttributeDefinition>
                     field={'name'}
                     getLocales={getLocaleOptions}
+                    locales={workspace.enabledLocales}
                     getData={getValues}
                     title={t(
                         'form.attribute_definition.name.translate.title',

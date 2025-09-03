@@ -64,7 +64,10 @@ class WorkspaceOutput extends AbstractUuidOutput
     #[Groups([Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private bool $public;
 
-    #[Groups([Workspace::GROUP_READ])]
+    #[Groups([
+        Workspace::GROUP_LIST,
+        Workspace::GROUP_READ,
+    ])]
     private ?array $enabledLocales = null;
 
     #[Groups([Workspace::GROUP_READ])]

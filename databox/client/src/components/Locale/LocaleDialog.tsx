@@ -1,11 +1,13 @@
 import {
     Button,
+    Chip,
     List,
     ListItemButton,
     ListItemIcon,
     ListItemText,
     ListSubheader,
     Stack,
+    TextField,
 } from '@mui/material';
 import React from 'react';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
@@ -18,13 +20,15 @@ import {
     useUpdateDataLocale,
 } from '../../store/useDataLocaleStore.ts';
 import {getLocales, Locale} from '../../api/locale.ts';
+import ConfirmDialog from '../Ui/ConfirmDialog.tsx';
 
 type Props = {} & StackedModalProps;
 
 export default function LocaleDialog({open, modalIndex}: Props) {
     const {t, i18n} = useTranslation();
-    const {closeModal} = useModals();
+    const {closeModal, openModal} = useModals();
     const [locales, setLocales] = React.useState<Locale[]>();
+    const [filter, setFilter] = React.useState('');
 
     React.useEffect(() => {
         if (open) {
@@ -39,16 +43,45 @@ export default function LocaleDialog({open, modalIndex}: Props) {
     const dataLocale = useDataLocale();
     const updateDataLocale = useUpdateDataLocale();
 
+    const noDataLocaleId = 'no-data-locale';
+    const center = () =>
+        document
+            .getElementById(dataLocale ?? noDataLocaleId)
+            ?.scrollIntoView({block: 'center'});
+
+    React.useEffect(() => {
+        if (workspaceLocales && dataLocale) {
+            setTimeout(center, 100);
+        }
+    }, [dataLocale, workspaceLocales]);
+
     if (!workspaceLocales) {
         return null;
     }
+
+    const changeDataLocale = (locale: string | undefined) => {
+        openModal(ConfirmDialog, {
+            title: t(
+                'locale.switcher.change_data_locale.modal.title',
+                'Page will be reloaded'
+            ),
+            onConfirm: async () => {
+                await updateDataLocale(locale);
+                window.location.reload();
+            },
+            confirmLabel: t(
+                'locale.switcher.change_data_locale.modal.confirm',
+                'Change Data language'
+            ),
+        });
+    };
 
     return (
         <AppDialog
             modalIndex={modalIndex}
             open={open}
             title={t('locale.switcher.title', 'Change Language')}
-            maxWidth={'sm'}
+            maxWidth={'md'}
             onClose={closeModal}
             actions={({onClose}) => (
                 <>
@@ -64,6 +97,13 @@ export default function LocaleDialog({open, modalIndex}: Props) {
                 gap={2}
                 padding={2}
                 justifyContent="space-between"
+                sx={{
+                    'height': 'calc(95vh - 200px)',
+                    '> div': {
+                        flex: 1,
+                        overflow: 'auto',
+                    },
+                }}
             >
                 <div>
                     <List>
@@ -97,32 +137,77 @@ export default function LocaleDialog({open, modalIndex}: Props) {
                 <div>
                     <List>
                         <ListSubheader>
-                            {t(
-                                'locale.switcher.data_languages',
-                                'Data Language'
-                            )}
-                        </ListSubheader>
-                        {workspaceLocales.map((l: Locale) => (
-                            <ListItemButton
-                                key={l.id}
-                                onClick={() => {
-                                    updateDataLocale(l.id);
-                                }}
-                                selected={dataLocale === l.id}
-                            >
-                                <ListItemIcon>
-                                    <LocaleIcon
-                                        region={l.region}
-                                        locale={l.id}
-                                        height="35"
+                            <div onClick={center}>
+                                {t(
+                                    'locale.switcher.data_languages',
+                                    'Data Language'
+                                )}
+                                {dataLocale ? (
+                                    <Chip
+                                        sx={{
+                                            ml: 1,
+                                        }}
+                                        label={dataLocale.replace('_', '-')}
                                     />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary={l.name}
-                                    secondary={l.nativeName}
-                                />
-                            </ListItemButton>
-                        ))}
+                                ) : null}
+                            </div>
+
+                            <TextField
+                                fullWidth
+                                size="small"
+                                type={'search'}
+                                value={filter}
+                                onChange={e => setFilter(e.target.value)}
+                                placeholder={t(
+                                    'locale.switcher.filter_placeholder',
+                                    'Search...'
+                                )}
+                            />
+                        </ListSubheader>
+                        <ListItemButton
+                            id={noDataLocaleId}
+                            onClick={() => {
+                                changeDataLocale(undefined);
+                            }}
+                            selected={!dataLocale}
+                        >
+                            <ListItemText
+                                primary={t(
+                                    'locale.switcher.data_locale.default',
+                                    'Default'
+                                )}
+                                secondary={t(
+                                    'locale.switcher.data_locale.default_description',
+                                    'Use UI language'
+                                )}
+                            />
+                        </ListItemButton>
+                        {workspaceLocales
+                            .filter(l => {
+                                const sv = filter.toLowerCase();
+
+                                return (
+                                    !filter ||
+                                    l.name.toLowerCase().includes(sv) ||
+                                    l.nativeName.toLowerCase().includes(sv) ||
+                                    l.id.toLowerCase().includes(sv)
+                                );
+                            })
+                            .map((l: Locale) => (
+                                <ListItemButton
+                                    key={l.id}
+                                    id={l.id}
+                                    onClick={() => {
+                                        changeDataLocale(l.id);
+                                    }}
+                                    selected={dataLocale === l.id}
+                                >
+                                    <ListItemText
+                                        primary={l.name}
+                                        secondary={l.nativeName}
+                                    />
+                                </ListItemButton>
+                            ))}
                     </List>
                 </div>
             </Stack>

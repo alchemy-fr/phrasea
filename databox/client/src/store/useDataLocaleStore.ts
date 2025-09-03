@@ -8,8 +8,12 @@ export function useDataLocale() {
 export function useUpdateDataLocale() {
     const updatePreference = useUserPreferencesStore(s => s.updatePreference);
 
-    return (locale: string | undefined) => {
-        updatePreference('dataLocale', locale);
-        apiClient.defaults.headers.common['Data-Locale'] = locale;
+    return async (locale: string | undefined) => {
+        await updatePreference('dataLocale', locale);
+        updateClientDataLocale(locale);
     };
+}
+
+export function updateClientDataLocale(locale: string | undefined) {
+    apiClient.defaults.headers.common['X-Data-Locale'] = locale;
 }

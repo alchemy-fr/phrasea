@@ -16,6 +16,7 @@ import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import InfoRow from '../Info/InfoRow.tsx';
 import KeyIcon from '@mui/icons-material/Key';
 import {getLocaleOptions} from '../../../api/locale.ts';
+import {useWorkspace} from '../../../hooks/useWorkspace.ts';
 
 function Item({
     data,
@@ -27,8 +28,10 @@ function Item({
         submitting,
         formState: {errors},
     },
+    workspace,
 }: DefinitionItemFormProps<Tag>) {
     const {t} = useTranslation();
+    const enabledLocales = useWorkspace(workspace.id)?.enabledLocales;
 
     const createSaveTranslations = useCreateSaveTranslations({
         data,
@@ -50,6 +53,7 @@ function Item({
                     </FormRow>
                 ) : null}
                 <TranslatedField<Tag>
+                    locales={enabledLocales}
                     noToast={!data?.id}
                     getLocales={getLocaleOptions}
                     field={'name'}

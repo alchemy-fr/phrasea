@@ -12,7 +12,7 @@ export type Locale = {
     nativeName: string;
 };
 
-type LocaleAwareCache = Record<string, Locale[]>;
+type LocaleAwareCache = Record<string, Locale[] | Promise<Locale[]>>;
 
 const cache: LocaleAwareCache = {};
 
@@ -31,9 +31,9 @@ export async function getLocales(): Promise<Locale[]> {
         return cache[currentLocale];
     }
 
-    const res = await doGetLocales();
-
-    return (cache[currentLocale] = res.result);
+    return (cache[currentLocale] = doGetLocales().then(res => {
+        return (cache[currentLocale] = res.result);
+    }) as Promise<Locale[]>);
 }
 
 async function doGetLocales(): Promise<ApiCollectionResponse<Locale>> {
