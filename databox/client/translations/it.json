@@ -948,5 +948,7 @@
             "title": "Gestisci Workspace"
         },
         "no_locale_defined": "Nessuna lingua definita"
-    }
+    },
+    "Already <1>bold</1>.": "Già <1>bold</1>.",
+    "Already translated": "Già tradotto"
 }
