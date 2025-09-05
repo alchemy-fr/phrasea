@@ -1,1 +1,18 @@
-{}
+{
+    "lib": {
+        "auth": {
+            "sess_exp": {
+                "about_to_expire": {
+                    "intro": "Sei ancora qui? Vuoi mantenere viva la tua sessione?",
+                    "logout": "Esci",
+                    "stay": "Tienimi dentro!",
+                    "title": "La tua sessione sta per scadere"
+                },
+                "expired": {
+                    "sign_in": "Chiudi",
+                    "title": "La tua sessione è scaduta"
+                }
+            }
+        }
+    }
+}
