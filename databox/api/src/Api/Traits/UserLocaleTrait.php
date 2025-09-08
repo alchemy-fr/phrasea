@@ -15,7 +15,12 @@ trait UserLocaleTrait
     {
         $request = $this->requestStack->getCurrentRequest();
         if (null !== $request) {
-            return $request->getLanguages();
+            $languages = $request->getLanguages();
+            if ($request->headers->get('X-Data-Locale')) {
+                array_unshift($languages, $request->headers->get('X-Data-Locale'));
+            }
+
+            return $languages;
         }
 
         return [];
