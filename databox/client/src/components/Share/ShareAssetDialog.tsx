@@ -156,7 +156,7 @@ export default function ShareAssetDialog({asset, open, modalIndex}: Props) {
             submitLabel={
                 !advancedMode && !!publicUrl
                     ? t('share.dialog.submit', 'Copy Link')
-                    : t('common.close', 'Close')
+                    : t('dialog.close', 'Close')
             }
         >
             {!advancedMode ? (

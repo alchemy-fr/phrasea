@@ -93,7 +93,7 @@ export default function DebugEsModal({debug, open, modalIndex}: Props) {
                         onClick={onClose}
                         color="primary"
                     >
-                        {t('modal.close', 'Close')}
+                        {t('dialog.close', 'Close')}
                     </Button>
                 </>
             )}

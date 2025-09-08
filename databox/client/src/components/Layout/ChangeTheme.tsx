@@ -48,7 +48,7 @@ export default function ChangeTheme({open}: Props) {
                 </List>
                 <DialogActions>
                     <Button autoFocus onClick={onClose}>
-                        {t('change_theme.close', 'Close')}
+                        {t('dialog.close', 'Close')}
                     </Button>
                 </DialogActions>
             </Dialog>
