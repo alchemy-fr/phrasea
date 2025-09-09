@@ -21,6 +21,7 @@ import CollectionType from './CollectionType.tsx';
 import PrivacyType from './PrivacyType.tsx';
 import UserType from './UserType.tsx';
 import {AttributeType} from '../../../../../api/types.ts';
+import NumberType from './NumberType.tsx';
 
 export const types: {
     [key in AttributeType]?: AttributeTypeClass;
@@ -42,6 +43,7 @@ export const types: {
     [AttributeType.Workspace]: WorkspaceType,
     [AttributeType.Privacy]: PrivacyType,
     [AttributeType.User]: UserType,
+    [AttributeType.Number]: NumberType,
 };
 
 export function getAttributeType(

@@ -63,6 +63,15 @@ class NumberAttributeType extends AbstractAttributeType
         }
     }
 
+    public function denormalizeValue(?string $value)
+    {
+        if (is_numeric($value)) {
+            return $value + 0; // Convert to int or float
+        }
+
+        return $value;
+    }
+
     public function supportsAggregation(): bool
     {
         return true;

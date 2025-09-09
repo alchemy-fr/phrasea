@@ -27,6 +27,17 @@ export default function AttributeFormatProvider({children}: Props) {
             return formats[type];
         };
 
+        const getFormatTitle: TAttributeFormatContext['getFormatTitle'] = (
+            type: AttributeType,
+            definitionId?: string
+        ) => {
+            const formatter = getAttributeType(type);
+
+            return formatter
+                .getAvailableFormats()
+                .find(f => f.name === getFormat(type, definitionId))?.title;
+        };
+
         const changeFormat: TAttributeFormatContext['changeFormat'] = (
             type,
             format,
@@ -72,6 +83,7 @@ export default function AttributeFormatProvider({children}: Props) {
             toggleFormat,
             hasFormats,
             getFormat,
+            getFormatTitle,
         };
     }, [formats, setFormats]);
 
