@@ -59,21 +59,36 @@ export default function LocaleDialog({open, modalIndex}: Props) {
         return null;
     }
 
-    const changeDataLocale = (locale: string | undefined) => {
+    const confirmReload = (callback: () => Promise<void>) => {
         openModal(ConfirmDialog, {
             title: t(
                 'locale.switcher.change_data_locale.modal.title',
                 'Page will be reloaded'
             ),
             onConfirm: async () => {
-                await updateDataLocale(locale);
+                await callback();
                 window.location.reload();
             },
             confirmLabel: t(
                 'locale.switcher.change_data_locale.modal.confirm',
-                'Change Data language'
+                'Continue'
             ),
         });
+    };
+
+    const changeDataLocale = (locale: string | undefined) => {
+        confirmReload(() => updateDataLocale(locale));
+    };
+
+    const changeLocale = (locale: string | undefined) => {
+        const cb = async () => {
+            i18n.changeLanguage(locale);
+        };
+        if (!dataLocale) {
+            return confirmReload(cb);
+        }
+
+        cb();
     };
 
     return (
@@ -117,7 +132,7 @@ export default function LocaleDialog({open, modalIndex}: Props) {
                             <ListItemButton
                                 key={l}
                                 onClick={() => {
-                                    i18n.changeLanguage(l);
+                                    changeLocale(l);
                                 }}
                                 selected={i18n.resolvedLanguage === l}
                             >
