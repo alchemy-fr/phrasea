@@ -10,7 +10,7 @@ class EditedAtFacet extends AbstractDateTimeFacet
 {
     protected function getAggregationTranslationKey(): string
     {
-        return 'modification_date';
+        return 'edited_at';
     }
 
     public static function getKey(): string
