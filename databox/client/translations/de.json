@@ -1,5 +1,5 @@
 {
-    "locale": "Deutsch",
+    "locale": {"current": "Deutsch"},
     "acl": {
         "delete": "Löschen",
         "form": {

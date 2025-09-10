@@ -42,7 +42,7 @@ export function RenditionPlaceholder({
                         startIcon={<UploadIcon />}
                         onClick={uploadRendition}
                     >
-                        {t('renditions.upload', 'Upload rendition')}
+                        {t('renditions.upload', 'Upload Rendition')}
                     </Button>
                 )
             }

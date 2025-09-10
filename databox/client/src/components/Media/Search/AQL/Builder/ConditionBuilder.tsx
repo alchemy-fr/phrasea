@@ -93,7 +93,7 @@ export default function ConditionBuilder({
                 <RSelectWidget
                     required={true}
                     placeholder={t(
-                        'search_condition.builder.operator',
+                        'search_condition.builder.operator.placeholder',
                         'Operator'
                     )}
                     name={'operator'}

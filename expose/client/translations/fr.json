@@ -1,17 +1,17 @@
 {
-  "download": "Télécharger",
-  "download_archive": "Télécharger l'archive",
-  "gallery": {
-    "empty": "La galerie est vide"
-  },
-  "map": {
-    "empty": "La carte est vide"
-  },
-  "menu": {
-    "toggle": "Afficher le menu"
-  },
-  "order": {
-    "last_post_added": "Récents",
-    "publication_name": "Nom"
-  }
+    "download": "Télécharger",
+    "download_archive": "Télécharger l'archive",
+    "gallery": {
+        "empty": "La galerie est vide"
+    },
+    "map": {
+        "empty": "La carte est vide"
+    },
+    "menu": {
+        "toggle": "Afficher le menu"
+    },
+    "order": {
+        "last_post_added": "Récents",
+        "publication_name": "Nom"
+    }
 }

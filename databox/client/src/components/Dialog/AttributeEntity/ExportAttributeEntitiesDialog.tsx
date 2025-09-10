@@ -63,7 +63,7 @@ export default function ExportAttributeEntitiesDialog({
                 closeModal();
             }}
             title={t(
-                'admin:dialog.export_attribute_entities.title',
+                'dialog.export_attribute_entities.title',
                 'Export Attribute Entities'
             )}
             open={open}
@@ -77,7 +77,7 @@ export default function ExportAttributeEntitiesDialog({
                                 startIcon={<ContentCopyIcon />}
                             >
                                 {t(
-                                    'admin:dialog.export_attribute_entities.copy_code',
+                                    'dialog.export_attribute_entities.copy_code',
                                     'Copy Code'
                                 )}
                             </Button>
@@ -99,12 +99,12 @@ export default function ExportAttributeEntitiesDialog({
                 <div>
                     <RSelectWidget
                         label={t(
-                            'admin:dialog.export_attribute_entities.locale',
+                            'dialog.export_attribute_entities.locale',
                             'Locale'
                         )}
                         value={locale as any}
                         placeholder={t(
-                            'admin:dialog.export_attribute_entities.select_locale',
+                            'dialog.export_attribute_entities.select_locale',
                             'Select Locale'
                         )}
                         isClearable={false}
@@ -114,7 +114,7 @@ export default function ExportAttributeEntitiesDialog({
                             {
                                 value: NO_LOCALE,
                                 label: t(
-                                    'admin:dialog.export_attribute_entities.all_locales',
+                                    'dialog.export_attribute_entities.all_locales',
                                     'All Locales'
                                 ),
                             },
@@ -128,13 +128,13 @@ export default function ExportAttributeEntitiesDialog({
                 <div>
                     <RSelectWidget
                         label={t(
-                            'admin:dialog.export_attribute_entities.format',
+                            'dialog.export_attribute_entities.format',
                             'Format'
                         )}
                         required={true}
                         value={format as any}
                         placeholder={t(
-                            'admin:dialog.export_attribute_entities.select_format',
+                            'dialog.export_attribute_entities.select_format',
                             'Select Format'
                         )}
                         isClearable={false}

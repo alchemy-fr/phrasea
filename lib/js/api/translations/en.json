@@ -2,7 +2,9 @@
   "lib": {
     "api": {
       "error": {
+        "http_bad_request": "Bad Request",
         "http_error": "Server error",
+        "http_not_found": "Not Found",
         "http_unauthorized": "Unauthorized",
         "session_expired": "Your session has expired"
       },
