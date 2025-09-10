@@ -249,7 +249,7 @@ export function Rendition({
                                     <ListItemText
                                         primary={t(
                                             'renditions.upload',
-                                            'Upload'
+                                            'Upload Rendition'
                                         )}
                                     />
                                 </MenuItem>

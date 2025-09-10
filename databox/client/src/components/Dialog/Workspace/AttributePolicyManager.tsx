@@ -166,7 +166,7 @@ export default function AttributePolicyManager({
             minHeight={minHeight}
             onClose={onClose}
             createNewItem={createNewItem}
-            newLabel={t('attribute_policy.new.label', 'New class')}
+            newLabel={t('attribute_policy.new.label', 'New Policy')}
             handleSave={handleSave}
             handleDelete={deleteAttributePolicy}
         />

@@ -36,7 +36,7 @@ export default function DownloadViaEmailModal({url, onClose}: Props) {
                 <form onSubmit={onSubmit}>
                     <Modal.Header closeButton>
                         <Modal.Title>
-                            <Trans i18nKey={'download_via_email'}>
+                            <Trans i18nKey={'download_via_email.cta'}>
                                 Download via email
                             </Trans>
                         </Modal.Title>

@@ -45,7 +45,7 @@
     "@mui/material": "^5.16.14",
     "@types/node": "^10.17.60",
     "@types/react": "^18.3.18",
-    "i18next-scanner": "^4.6.0",
+    "@4rthem/i18next-scanner": "^0.0.1",
     "i18next-scanner-typescript": "^1.2.1",
     "react-toastify": "^11.0.3",
     "typescript": "^5.7.3"

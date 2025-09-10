@@ -108,7 +108,7 @@ export default function RenditionPolicyManager({
             minHeight={minHeight}
             onClose={onClose}
             createNewItem={createNewItem}
-            newLabel={t('rendition_policy.new.label', 'New class')}
+            newLabel={t('rendition_policy.new.label', 'New Policy')}
             handleSave={handleSave}
             handleDelete={deleteRenditionPolicy}
         />

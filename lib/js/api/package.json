@@ -26,7 +26,7 @@
   "devDependencies": {
     "@types/react": "^18.3.18",
     "axios": "^1.8.2",
-    "i18next-scanner": "^4.6.0",
+    "@4rthem/i18next-scanner": "^0.0.1",
     "i18next-scanner-typescript": "^1.2.1",
     "react": "^18.3.1",
     "react-hook-form": "^7.54.2",

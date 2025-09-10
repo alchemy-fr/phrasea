@@ -53,7 +53,7 @@ export default function WorkspaceDialog({}: Props) {
             route={modalRoutes.workspaces.routes.manage}
             routeParams={{id}}
             maxWidth={'lg'}
-            title={t('workspace.manage.title', 'Manage workspace {{name}}', {
+            title={t('workspace.manage.title', 'Manage Workspace {{name}}', {
                 name: data.nameTranslated,
             })}
             tabs={[
@@ -133,7 +133,7 @@ export default function WorkspaceDialog({}: Props) {
                 {
                     title: t(
                         'workspace.manage.rendition_policy.title',
-                        'Rendition classes'
+                        'Rendition Policies'
                     ),
                     component: RenditionPolicyManager,
                     id: 'rendition-classes',

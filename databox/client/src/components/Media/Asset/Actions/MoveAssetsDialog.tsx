@@ -58,7 +58,8 @@ export default function MoveAssetsDialog({
         <FormDialog
             modalIndex={modalIndex}
             open={open}
-            title={t('move_assets.dialog.title', 'Move {{count}} assets', {
+            title={t('move_assets.dialog.title', 'Move {{count}} asset', {
+                defaultValue_other: 'Move {{count}} assets',
                 count,
             })}
             loading={submitting}

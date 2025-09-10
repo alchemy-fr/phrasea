@@ -1,6 +1,28 @@
 {
+  "asset_proxy": {
+    "unsupported_media_type": "Unsupported media type"
+  },
   "download": "Download",
   "download_archive": "Download archive",
+  "download_custom": "Download {{name}}",
+  "download_original": "Download original",
+  "download_via_email": {
+    "cta": "Download via email",
+    "sent": "You will receive your download link by email."
+  },
+  "email": {
+    "label": "Email"
+  },
+  "embedded_asset": {
+    "forbidden": "Forbidden",
+    "not_found": "Not found"
+  },
+  "error": {
+    "invalid_password": "Invalid password"
+  },
+  "form": {
+    "continue": "Continue"
+  },
   "gallery": {
     "empty": "Gallery is empty"
   },
@@ -10,8 +32,32 @@
   "menu": {
     "toggle": "Toggle Menu"
   },
+  "modal": {
+    "close": "Close",
+    "discard": "Discard"
+  },
   "order": {
     "last_post_added": "Recents",
     "publication_name": "Name"
+  },
+  "publication": {
+    "auth_required": {
+      "sign_in": "Sign In",
+      "title": "This publication requires authentication."
+    },
+    "logout": "Logout",
+    "not_allowed": "Sorry! You are not allowed to access this publication.",
+    "password_required": {
+      "enter_password": "Enter password",
+      "submit": "OK"
+    }
+  },
+  "publication_security_proxy": {
+    "sorry_you_cannot_access_this_publication": "Sorry! You cannot access this publication."
+  },
+  "terms": {
+    "accept": "Accept",
+    "please_read_accept": "Please read and accept the <link>terms</link>",
+    "terms": "terms"
   }
 }

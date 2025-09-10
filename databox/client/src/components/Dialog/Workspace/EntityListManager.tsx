@@ -64,11 +64,13 @@ function ListItem({data, onEdit}: DefinitionListItemProps<EntityList>) {
                 primary={data.name}
                 secondary={
                     data.definitions.length > 0
-                        ? t(
-                              'entity_type.definitions.count',
-                              'Used on {{ count }} attribute definitions',
-                              {count: data.definitions.length}
-                          )
+                        ? t('entity_type.definitions.count', {
+                              defaultValue:
+                                  'Used on {{ count }} attribute definition',
+                              defaultValue_other:
+                                  'Used on {{ count }} attribute definitions',
+                              count: data.definitions.length,
+                          })
                         : t(
                               'entity_type.definitions.none',
                               'No attribute definition usage'

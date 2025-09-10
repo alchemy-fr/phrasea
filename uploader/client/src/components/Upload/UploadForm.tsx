@@ -15,7 +15,8 @@ export default function UploadForm({target, files, onSubmit, onCancel}: Props) {
         <>
             <p>
                 {t('upload_form.selected_files', {
-                    defaultValue: '{{count}} selected files',
+                    defaultValue: '{{count}} selected file',
+                    defaultValue_other: '{{count}} selected files',
                     count: files.length,
                 })}
             </p>

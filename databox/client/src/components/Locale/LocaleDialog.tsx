@@ -140,7 +140,7 @@ export default function LocaleDialog({open, modalIndex}: Props) {
                                     <LocaleIcon locale={l} height="35" />
                                 </ListItemIcon>
                                 <ListItemText
-                                    primary={t('locale', {
+                                    primary={t('locale.current', {
                                         lng: l,
                                         defaultValue: l.toUpperCase(),
                                     })}

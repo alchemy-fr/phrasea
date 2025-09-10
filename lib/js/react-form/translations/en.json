@@ -1,4 +1,11 @@
 {
+  "form": {
+    "translations": {
+      "collection": {
+        "remove": "Remove <1>this translation</1>"
+      }
+    }
+  },
   "lib": {
     "form": {
       "cancel": "Cancel",
@@ -25,9 +32,13 @@
         "saved": "Translations saved!",
         "submit": "Save",
         "tooltip": "Manage translations",
+        "translation": {
+          "label": "Translation {{locale}}"
+        },
         "value": {
           "label": "Translation"
-        }
+        },
+        "value_for_locale": "Translation for {{locale}}"
       }
     }
   }

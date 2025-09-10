@@ -38,16 +38,22 @@ export default function TermsModal({
                         <div className={'terms-url'}>
                             {!text ? (
                                 <>
-                                    <Trans i18nKey={'terms.please_read_accept'}>
-                                        Please read and accept the{' '}
-                                        <a href={url} target={'_blank'}>
-                                            terms
-                                        </a>
-                                    </Trans>
+                                    <Trans
+                                        i18nKey={'terms.please_read_accept'}
+                                        components={{
+                                            link: (
+                                                <a
+                                                    href={url}
+                                                    target={'_blank'}
+                                                />
+                                            ),
+                                        }}
+                                        defaults={`Please read and accept the <link>terms</link>`}
+                                    />
                                 </>
                             ) : (
                                 <a href={url} target={'_blank'}>
-                                    <Trans i18nKey={'terms'}>terms</Trans>
+                                    <Trans i18nKey={'terms.terms'}>terms</Trans>
                                 </a>
                             )}
                         </div>
