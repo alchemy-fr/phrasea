@@ -8,6 +8,10 @@ export type TAttributeFormatContext = {
         type: AttributeType,
         definitionId?: AttributeDefinitionId
     ): AttributeFormat | undefined;
+    getFormatTitle(
+        type: AttributeType,
+        definitionId?: AttributeDefinitionId
+    ): string | undefined;
     changeFormat: (
         type: AttributeType,
         newFormat: AttributeFormat,
@@ -28,6 +32,7 @@ export type {Formats as AttributeFormats};
 export const AttributeFormatContext =
     React.createContext<TAttributeFormatContext>({
         getFormat: () => undefined,
+        getFormatTitle: () => undefined,
         changeFormat: () => {},
         toggleFormat: () => {},
         hasFormats: () => {

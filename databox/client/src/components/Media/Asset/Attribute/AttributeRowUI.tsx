@@ -82,7 +82,13 @@ export default function AttributeRowUI({
                             <>
                                 {!format &&
                                     formatContext.hasFormats(fieldType) && (
-                                        <IconButton onClick={toggleFormat}>
+                                        <IconButton
+                                            onClick={toggleFormat}
+                                            title={formatContext.getFormatTitle(
+                                                fieldType,
+                                                definition.id
+                                            )}
+                                        >
                                             <VisibilityIcon />
                                         </IconButton>
                                     )}

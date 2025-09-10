@@ -1,4 +1,4 @@
-import {useContext} from 'react';
+import React, {useContext} from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -21,8 +21,14 @@ import {Notifications} from '@alchemy/notification';
 import {useModals} from '@alchemy/navigation';
 import ChangeTheme from './ChangeTheme';
 import ThemeEditor from './ThemeEditor';
-import {UserMenu} from '@alchemy/phrasea-ui';
+import {DropdownActions, UserMenu} from '@alchemy/phrasea-ui';
 import {useNotificationUriHandler} from '../../hooks/useNotificationUriHandler.ts';
+import LocaleDialog from '../Locale/LocaleDialog.tsx';
+import i18n from '../../i18n.ts';
+import {getBestLocale} from '@alchemy/i18n/src/Locale/localeHelper.ts';
+import {appLocales, defaultLocale} from '../../../translations/locales.ts';
+import LocaleIcon from '../Locale/LocaleIcon.tsx';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 export const menuHeight = 42;
 
@@ -43,6 +49,10 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
     });
     const notificationUriHandler = useNotificationUriHandler();
     const onTitleClick = () => searchContext.reset();
+
+    const currentLocale =
+        getBestLocale(appLocales, i18n.language ? [i18n.language] : [])! ??
+        defaultLocale;
 
     return (
         <div
@@ -159,57 +169,101 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                     username={user.username}
                                     accountUrl={getAccountUrl()}
                                     onLogout={logout}
-                                    actions={({closeMenu}) => [
-                                        <MenuItem
-                                            key={'change_theme'}
-                                            onClick={() => {
-                                                openModal(ChangeTheme);
-                                                closeMenu();
-                                            }}
-                                        >
-                                            <ListItemIcon>
-                                                <ColorLensIcon />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                                primary={t(
-                                                    'menu.change_theme',
-                                                    'Change theme'
-                                                )}
-                                            />
-                                        </MenuItem>,
-                                        <MenuItem
-                                            key={'theme_editor'}
-                                            onClick={() => {
-                                                openModal(
-                                                    ThemeEditor,
-                                                    {},
-                                                    {
-                                                        forwardedContexts: [
-                                                            {
-                                                                context:
-                                                                    ThemeEditorContext,
-                                                                value: themeEditorContext,
-                                                            },
-                                                        ],
-                                                    }
-                                                );
-                                                closeMenu();
-                                            }}
-                                        >
-                                            <ListItemIcon>
-                                                <ColorLensIcon />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                                primary={t(
-                                                    'menu.theme_editor',
-                                                    'Theme Editor'
-                                                )}
-                                            />
-                                        </MenuItem>,
-                                    ]}
                                 />
                             )}
                         </div>
+
+                        <DropdownActions
+                            mainButton={props => (
+                                <IconButton
+                                    style={{
+                                        color: 'inherit',
+                                    }}
+                                    {...props}
+                                >
+                                    <SettingsIcon />
+                                </IconButton>
+                            )}
+                            anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            sx={{mt: `${menuHeight - 10}px`}}
+                        >
+                            {closeMenu => [
+                                <MenuItem
+                                    key={'change_locale'}
+                                    onClick={() => {
+                                        openModal(LocaleDialog);
+                                        closeMenu();
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <LocaleIcon
+                                            locale={currentLocale}
+                                            height="25"
+                                        />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={t('locale', {
+                                            defaultValue:
+                                                currentLocale.toUpperCase(),
+                                        })}
+                                    />
+                                </MenuItem>,
+                                <MenuItem
+                                    key={'change_theme'}
+                                    onClick={() => {
+                                        openModal(ChangeTheme);
+                                        closeMenu();
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <ColorLensIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={t(
+                                            'menu.change_theme',
+                                            'Change theme'
+                                        )}
+                                    />
+                                </MenuItem>,
+                                <MenuItem
+                                    key={'theme_editor'}
+                                    onClick={() => {
+                                        openModal(
+                                            ThemeEditor,
+                                            {},
+                                            {
+                                                forwardedContexts: [
+                                                    {
+                                                        context:
+                                                            ThemeEditorContext,
+                                                        value: themeEditorContext,
+                                                    },
+                                                ],
+                                            }
+                                        );
+                                        closeMenu();
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <ColorLensIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={t(
+                                            'menu.theme_editor',
+                                            'Theme Editor'
+                                        )}
+                                    />
+                                </MenuItem>,
+                            ]}
+                        </DropdownActions>
 
                         {config.displayServicesMenu && (
                             <div style={{flexGrow: 0}}>

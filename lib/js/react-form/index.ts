@@ -19,6 +19,7 @@ import CheckboxWidget from './src/Widget/CheckboxWidget';
 import KeyTranslationsWidget, {
     getNonEmptyTranslations,
 } from './src/Translations/KeyTranslationsWidget';
+import LocaleSelectWidget from "./src/Locale/LocaleSelectWidget";
 
 export {
     CollectionWidget,
@@ -38,6 +39,7 @@ export {
     SwitchWidget,
     CheckboxWidget,
     getNonEmptyTranslations,
+    LocaleSelectWidget,
 };
 
 export type {AsyncRSelectProps, RSelectProps, SelectOption, RSelectOnCreate};

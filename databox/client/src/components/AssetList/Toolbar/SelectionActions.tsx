@@ -9,7 +9,7 @@ import {
     ToggleButtonGroup,
     Tooltip,
 } from '@mui/material';
-import {useTranslation} from 'react-i18next';
+import {Trans, useTranslation} from 'react-i18next';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -57,9 +57,22 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     },
 }));
 
+export type ItemLabelRendererProps = {
+    values: {
+        total: string;
+        selection: string;
+    };
+    count: number;
+    selectedCount: number;
+};
+
+export type ItemLabelRenderer = (
+    props: ItemLabelRendererProps
+) => React.ReactNode;
+
 export type SelectionActionConfigProps = {
     noActions?: boolean;
-    itemLabel?: string;
+    itemLabel?: ItemLabelRenderer;
 };
 
 export type SelectionActionsProps<Item extends AssetOrAssetContainer> = {
@@ -87,7 +100,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     selectionContext,
     itemLabel,
 }: SelectionActionsProps<Item>) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const navigateToModal = useNavigateToModal();
     const {openModal} = useModals();
     const {isAuthenticated} = useAuth();
@@ -277,6 +290,18 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     }, [selection]);
 
     const selectAllDisabled = (total ?? 0) === 0;
+
+    const locale = i18n.language;
+    const selectionProps: ItemLabelRendererProps = {
+        values: {
+            total: new Intl.NumberFormat(locale, {}).format(total ?? 0),
+            selection: new Intl.NumberFormat(locale, {}).format(
+                selection.length
+            ),
+        },
+        count: total ?? 0,
+        selectedCount: selection.length,
+    };
 
     return (
         <Box
@@ -473,22 +498,44 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     }}
                 >
                     {!loading && total !== undefined ? (
-                        <>
-                            <b>
-                                {selection.length > 0
-                                    ? `${selection.length} / `
-                                    : ''}
-                                {new Intl.NumberFormat('fr-FR', {}).format(
-                                    total
-                                )}
-                            </b>
-                            <span
-                                style={{cursor: 'pointer'}}
-                                onClick={onOpenDebug}
-                            >
-                                {` ${itemLabel ?? t('selection_actions.result', `result`)}${total > 1 ? t('selection_actions.s', `s`) : ''}`}
-                            </span>
-                        </>
+                        <Box
+                            component={'span'}
+                            style={
+                                onOpenDebug ? {cursor: 'pointer'} : undefined
+                            }
+                            onClick={onOpenDebug}
+                            sx={{
+                                strong: {
+                                    whiteSpace: 'nowrap',
+                                },
+                            }}
+                        >
+                            {itemLabel ? (
+                                itemLabel(selectionProps)
+                            ) : selection.length > 0 ? (
+                                <Trans
+                                    i18nKey={
+                                        'selection_actions.x_result_with_selection'
+                                    }
+                                    defaults={`<strong>{{selection}} / {{total}}</strong> result`}
+                                    tOptions={{
+                                        defaultValue_other: `<strong>{{selection}} / {{total}}</strong> results`,
+                                    }}
+                                    count={selectionProps.count}
+                                    values={selectionProps.values}
+                                />
+                            ) : (
+                                <Trans
+                                    i18nKey={'selection_actions.x_result'}
+                                    defaults={`<strong>{{count}}</strong> result`}
+                                    tOptions={{
+                                        defaultValue_other: `<strong>{{total}}</strong> results`,
+                                    }}
+                                    count={selectionProps.count}
+                                    values={selectionProps.values}
+                                />
+                            )}
+                        </Box>
                     ) : (
                         t('common.loading', 'Loading…')
                     )}

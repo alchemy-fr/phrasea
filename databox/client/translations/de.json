@@ -1,4 +1,5 @@
 {
+    "locale": "Deutsch",
     "acl": {
         "delete": "Löschen",
         "form": {

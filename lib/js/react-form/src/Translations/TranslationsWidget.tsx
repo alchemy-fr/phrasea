@@ -3,7 +3,7 @@ import {BaseCollectionProps} from '../Collection/CollectionWidget';
 import IconFormLabel from '../IconFormLabel';
 import {Trans, useTranslation} from 'react-i18next';
 import SortableCollectionWidget from '../Collection/SortableCollectionWidget';
-import LocaleSelectWidget from '../Locale/LocaleSelectWidget';
+import LocaleSelectWidget, {GetLocales} from '../Locale/LocaleSelectWidget';
 import {EmojiFlags} from '@mui/icons-material';
 import {TextFieldProps} from '@mui/material/TextField/TextField';
 import FormRow from '../FormRow';
@@ -20,12 +20,15 @@ const emptyTypedItem: Translation = {
 };
 
 type Props<TFieldValues extends {translations: Translation[]}> = {
+    getLocales: GetLocales;
+    locales?: string[];
+} & {
     inputProps?: TextFieldProps;
 } & BaseCollectionProps<TFieldValues>;
 
 export default function TranslationsWidget<
     TFieldValues extends {translations: Translation[]},
->({name, control, register, errors, max, inputProps}: Props<TFieldValues>) {
+>({getLocales, locales, name, control, register, errors, max, inputProps}: Props<TFieldValues>) {
     const {t} = useTranslation();
 
     return (
@@ -45,7 +48,41 @@ export default function TranslationsWidget<
             />
             <FormFieldErrors field={'fallback' as any} errors={errors} />
 
-            <SortableCollectionWidget
+            {locales ? (<div>
+                    {locales.map((locale, index) => {
+                        const pathValue = `${name}.${index}.value` as any;
+                        const pathLocale = `${name}.${index}.locale` as any
+
+                        return (
+                            <div key={locale}>
+                                <input
+                                    type="hidden"
+                                    {...register(pathLocale)}
+                                    value={locale}
+                                />
+                                <TextField
+                                    sx={{
+                                        mb: 2,
+                                    }}
+                                    fullWidth={true}
+                                    label={t(
+                                        'lib.form.translations.value_for_locale',
+                                        'Translation for {{locale}}',
+                                        {locale}
+                                    )}
+                                    {...register(pathValue)}
+                                    required={false}
+                                    {...(inputProps ?? {})}
+                                />
+                                <FormFieldErrors
+                                    field={pathValue}
+                                    errors={errors}
+                                />
+                            </div>
+                        );
+                    })}
+                </div>
+                ) : (<SortableCollectionWidget
                 errors={errors}
                 emptyItem={emptyTypedItem}
                 max={max}
@@ -95,6 +132,7 @@ export default function TranslationsWidget<
                                         }}
                                     >
                                         <LocaleSelectWidget
+                                            getLocales={getLocales}
                                             control={control}
                                             name={
                                                 `${path}.${index}.locale` as any
@@ -140,7 +178,7 @@ export default function TranslationsWidget<
                         </>
                     );
                 }}
-            />
+            />)}
         </>
     );
 }

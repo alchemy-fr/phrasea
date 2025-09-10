@@ -4,10 +4,12 @@ import {Layout} from '../components/AssetList/Layouts';
 import {getUserPreferences, putUserPreferences} from '../api/user.ts';
 import {DisplayPreferences} from '../components/Media/DisplayContext.tsx';
 import {deepEquals} from '@alchemy/core';
+import {oauthClient} from '../api/api-client.ts';
 
 export type UserPreferences = {
     theme?: ThemeName | undefined;
     layout?: Layout;
+    dataLocale?: string | undefined;
     attrList?: string | undefined;
     display?: DisplayPreferences | undefined;
 };
@@ -81,9 +83,16 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
 
             set({preferences: newPrefs});
             putToStorage(newPrefs);
-            setTimeout(() => {
-                putUserPreferences(name, newPrefs[name]);
-            }, 0);
+
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    if (oauthClient.isAuthenticated()) {
+                        putUserPreferences(name, newPrefs[name]).then(() => {
+                            resolve();
+                        });
+                    }
+                }, 0);
+            });
         },
     })
 );

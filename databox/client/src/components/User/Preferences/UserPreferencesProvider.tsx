@@ -9,6 +9,7 @@ import {useTranslation} from 'react-i18next';
 import {useUserPreferencesStore} from '../../../store/userPreferencesStore.ts';
 import {useAuth} from '@alchemy/react-auth';
 import {useAttributeListStore} from '../../../store/attributeListStore.ts';
+import {updateClientDataLocale} from '../../../store/useDataLocaleStore.ts';
 
 type Props = PropsWithChildren<{}>;
 
@@ -30,6 +31,10 @@ export default function UserPreferencesProvider({children}: Props) {
             });
         }
     }, [loadPreferences, user]);
+
+    React.useEffect(() => {
+        updateClientDataLocale(preferences?.dataLocale);
+    }, [preferences?.dataLocale]);
 
     return (
         <ThemeEditorProvider

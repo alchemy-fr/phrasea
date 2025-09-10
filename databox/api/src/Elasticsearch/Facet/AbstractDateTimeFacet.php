@@ -8,6 +8,7 @@ use App\Attribute\Type\DateTimeAttributeType;
 use App\Elasticsearch\ESFacetInterface;
 use Elastica\Aggregation;
 use Elastica\Query;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class AbstractDateTimeFacet extends AbstractFacet
 {
@@ -25,7 +26,7 @@ abstract class AbstractDateTimeFacet extends AbstractFacet
         return $value;
     }
 
-    public function buildFacet(Query $query): void
+    public function buildFacet(Query $query, TranslatorInterface $translator): void
     {
         $agg = new Aggregation\AutoDateHistogram(
             static::getKey(),
@@ -33,7 +34,7 @@ abstract class AbstractDateTimeFacet extends AbstractFacet
         );
         $agg->setBuckets($this->getAggregationSize());
         $agg->setMinimumInterval($this->getAggregationMinimumInterval());
-        $agg->setMeta($this->getAggregationMeta());
+        $agg->setMeta($this->getAggregationMeta($translator));
         $query->addAggregation($agg);
     }
 

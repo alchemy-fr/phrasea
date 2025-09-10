@@ -139,6 +139,7 @@
         "php": "^8.3",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "ext-intl": "*",
         "ext-imagick": "*",
         "ext-json": "*",
         "ext-sodium": "*",

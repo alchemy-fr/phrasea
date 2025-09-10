@@ -16,16 +16,33 @@ export function getFieldTranslationCount(
 
 export function getFieldTranslationsList(
     translations: Translations | undefined,
-    field: string
+    field: string,
+    locales?: string[],
 ): Translation[] {
     if (getFieldTranslationCount(translations, field) === 0) {
         return [];
     }
 
-    return Object.keys(translations![field]).map(locale => ({
-        locale,
-        value: translations![field][locale],
-    }));
+    const list: Translation[] = [];
+
+    if (locales) {
+        locales.forEach(locale => {
+            list.push({
+                locale,
+                value: translations![field][locale] || '',
+            });
+        });
+        return list;
+    } else {
+        Object.keys(translations![field]).forEach(locale => {
+            list.push({
+                locale,
+                value: translations![field][locale],
+            });
+        });
+    }
+
+    return list;
 }
 
 export function getFieldTranslationsObject(

@@ -1,7 +1,7 @@
 import {StackedModalProps, useParams} from '@alchemy/navigation';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {Basket, BasketAsset} from '../../types';
-import {useTranslation} from 'react-i18next';
+import {Trans, useTranslation} from 'react-i18next';
 import React, {useCallback} from 'react';
 import {getBasket, getBasketAssets} from '../../api/basket';
 import {useCloseModal, useNavigateToModal} from '../Routing/ModalLink';
@@ -150,7 +150,35 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                             loading={pagination.loading}
                             itemToAsset={itemToAsset}
                             loadMore={loadMore}
-                            itemLabel={t('basket_view_dialog.item', `item`)}
+                            itemLabel={selectionProps => (
+                                <>
+                                    {selectionProps.selectedCount > 0 ? (
+                                        <Trans
+                                            i18nKey={
+                                                'basket_view_dialog.x_item_with_selection'
+                                            }
+                                            defaults={`<strong>{{selection}} / {{total}}</strong> item`}
+                                            tOptions={{
+                                                defaultValue_other: `<strong>{{selection}} / {{total}}</strong> items`,
+                                            }}
+                                            count={selectionProps.count}
+                                            values={selectionProps.values}
+                                        />
+                                    ) : (
+                                        <Trans
+                                            i18nKey={
+                                                'basket_view_dialog.x_item'
+                                            }
+                                            defaults={`<strong>{{count}}</strong> item`}
+                                            tOptions={{
+                                                defaultValue_other: `<strong>{{total}}</strong> items`,
+                                            }}
+                                            count={selectionProps.count}
+                                            values={selectionProps.values}
+                                        />
+                                    )}
+                                </>
+                            )}
                             selectionContext={BasketSelectionContext}
                             total={pagination.total}
                             onOpen={onOpen}

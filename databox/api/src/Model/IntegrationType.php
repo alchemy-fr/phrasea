@@ -26,7 +26,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 class IntegrationType
 {
-    private const string GROUP_READ = 'integration-t:read';
+    private const string GROUP_READ = 'int-t:r';
 
     #[ApiProperty(identifier: true)]
     #[Groups(self::GROUP_READ)]

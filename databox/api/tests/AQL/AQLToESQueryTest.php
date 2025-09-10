@@ -246,7 +246,7 @@ class AQLToESQueryTest extends TestCase
             ]],
             ['@createdAt<= (42) - 5 - 5', [
                 'range' => ['createdAt' => [
-                    'lte' => 42 - 5 - 5,
+                    'lte' => (42 - 5 - 5) * 1000,
                 ]],
             ]],
             ['field IN (true, false)', [
@@ -296,7 +296,7 @@ class AQLToESQueryTest extends TestCase
             ]],
             ['@createdAt > now() * 8 - 3', [
                 'range' => ['createdAt' => [
-                    'gt' => MockNowFunction::VALUE * 8 - 3,
+                    'gt' => (MockNowFunction::VALUE * 8 - 3) * 1000,
                 ]],
             ]],
             ['foo MATCHES SUBSTRING("hello", 1, 2)', [
@@ -307,12 +307,12 @@ class AQLToESQueryTest extends TestCase
             ]],
             ['@createdAt > DATE_ADD(NOW(), "PT1H")', [
                 'range' => ['createdAt' => [
-                    'gt' => MockNowFunction::VALUE + 3600,
+                    'gt' => (MockNowFunction::VALUE + 3600) * 1000,
                 ]],
             ]],
             ['@createdAt > DATE_SUB(NOW(), "PT1M")', [
                 'range' => ['createdAt' => [
-                    'gt' => MockNowFunction::VALUE - 60,
+                    'gt' => (MockNowFunction::VALUE - 60) * 1000,
                 ]],
             ]],
             ['foo = SUBSTRING(foo, 1, 2)', [

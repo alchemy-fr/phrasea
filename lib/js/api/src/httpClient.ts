@@ -46,10 +46,12 @@ export function createHttpClient(baseURL: string): HttpClient {
     };
 
     client.setApiLocale = function (locale: string): void {
-        this.defaults.headers.common['Accept-Language'] = locale.replace(
-            /_/g,
-            '-'
-        );
+        const l = locale.replace(/_/g, '-');
+        const languages = [
+            l,
+            ...window.navigator.languages.filter(l => l !== locale)
+        ];
+        this.defaults.headers.common['Accept-Language'] = languages.join(', ');
     };
 
     return client;

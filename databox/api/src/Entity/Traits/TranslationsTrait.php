@@ -20,7 +20,7 @@ trait TranslationsTrait
 
     public function setTranslations(?array $translations): void
     {
-        $this->translations = $translations;
+        $this->translations = $translations ? array_map('array_filter', $translations) : null;
     }
 
     public function getFieldTranslations(string $name): array

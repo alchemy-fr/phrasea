@@ -8,7 +8,8 @@ use Alchemy\CoreBundle\Health\HealthCheckerInterface;
 use Alchemy\CoreBundle\Pusher\PusherFactory;
 use Alchemy\CoreBundle\Pusher\PusherManager;
 use ApiPlatform\Symfony\Security\Exception\AccessDeniedException;
-use ApiPlatform\Symfony\Validator\Exception\ValidationException;
+use ApiPlatform\Symfony\Validator\Exception\ValidationException as DeprecatedValidationException;
+use ApiPlatform\Validator\Exception\ValidationException;
 use Doctrine\DBAL\Types\ConversionException;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Pusher\Pusher;
@@ -189,6 +190,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         NotFoundHttpException::class,
                         AccessDeniedHttpException::class,
                         UnsupportedFormatException::class,
+                        DeprecatedValidationException::class,
                         ValidationException::class,
                         UnauthorizedHttpException::class,
                         AccessDeniedException::class,

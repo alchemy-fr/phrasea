@@ -10,13 +10,17 @@ use App\Elasticsearch\Facet\FacetRegistry;
 use App\Elasticsearch\Facet\OwnerFacet;
 use Elastica\Aggregation\Missing;
 use Elastica\Query;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class FacetHandler
 {
     public const string MISSING_SUFFIX = '::missing';
 
-    public function __construct(private FacetRegistry $facetRegistry, private AttributeTypeRegistry $attributeTypeRegistry)
-    {
+    public function __construct(
+        private FacetRegistry $facetRegistry,
+        private AttributeTypeRegistry $attributeTypeRegistry,
+        private TranslatorInterface $translator,
+    ) {
     }
 
     public function addBuiltInFacets(Query $query): void
@@ -27,7 +31,7 @@ final readonly class FacetHandler
                 continue;
             }
 
-            $facet->buildFacet($query);
+            $facet->buildFacet($query, $this->translator);
             if ($facet->includesMissing()) {
                 $missingAgg = new Missing($facet::getKey().self::MISSING_SUFFIX, $facet->getFieldName());
                 $query->addAggregation($missingAgg);

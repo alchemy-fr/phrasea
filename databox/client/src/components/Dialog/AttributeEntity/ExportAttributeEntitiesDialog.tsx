@@ -84,7 +84,7 @@ export default function ExportAttributeEntitiesDialog({
                         )}
                     </CopyToClipboard>
                     <Button onClick={onClose} sx={{ml: 1}}>
-                        {t('admin:common.close', 'Close')}
+                        {t('dialog.close', 'Close')}
                     </Button>
                 </>
             )}

@@ -1,8 +1,8 @@
 import {AttributeFormatterProps, AvailableFormat} from './types';
-import moment from 'moment/moment';
 import {TextFieldProps} from '@mui/material';
 import React from 'react';
 import TextType from './TextType.tsx';
+import moment from 'moment';
 
 export enum DateFormats {
     Short = 'short',

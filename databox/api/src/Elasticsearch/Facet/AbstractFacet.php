@@ -10,6 +10,7 @@ use App\Elasticsearch\ESFacetInterface;
 use Doctrine\Common\Collections\Collection;
 use Elastica\Aggregation;
 use Elastica\Query;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class AbstractFacet implements FacetInterface
 {
@@ -73,19 +74,20 @@ abstract class AbstractFacet implements FacetInterface
         return true;
     }
 
-    public function buildFacet(Query $query): void
+    public function buildFacet(Query $query, TranslatorInterface $translator): void
     {
         $agg = new Aggregation\Terms(static::getKey());
         $agg->setField($this->getFieldName());
         $agg->setSize($this->getAggregationSize());
-        $agg->setMeta($this->getAggregationMeta());
+        $agg->setMeta($this->getAggregationMeta($translator));
         $query->addAggregation($agg);
     }
 
-    protected function getAggregationMeta(): array
+    protected function getAggregationMeta(TranslatorInterface $translator): array
     {
+        $translationKey = $this->getAggregationTranslationKey();
         $meta = [
-            'title' => $this->getAggregationTitle(),
+            'title' => $translator->trans(sprintf('facet.%s.title', $translationKey)),
             'sortable' => $this->isSortable(),
         ];
         if (TextAttributeType::NAME !== $this->getType()) {
@@ -113,7 +115,7 @@ abstract class AbstractFacet implements FacetInterface
         return true;
     }
 
-    abstract protected function getAggregationTitle(): string;
+    abstract protected function getAggregationTranslationKey(): string;
 
     public function normalizeValueForSearch(mixed $value): mixed
     {

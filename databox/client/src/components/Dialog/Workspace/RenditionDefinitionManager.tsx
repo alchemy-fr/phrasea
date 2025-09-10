@@ -35,6 +35,7 @@ import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
 import UseAsWidget from '../../Form/UseAsWidget.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';
+import {getLocaleOptions} from '../../../api/locale.ts';
 
 function Item({
     data,
@@ -77,8 +78,10 @@ function Item({
         <>
             <FormRow>
                 <TranslatedField<RenditionDefinition>
+                    locales={workspace.enabledLocales}
                     field={'name'}
                     getData={getValues}
+                    getLocales={getLocaleOptions}
                     title={t(
                         'form.rendition_definition.name.translate.title',
                         'Translate Name'

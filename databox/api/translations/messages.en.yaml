@@ -21,3 +21,23 @@ privacy:
     private: Private
     public_for_users: 'Public for users'
     public: Public
+
+facet:
+    collections:
+        title: Collections
+    created_at:
+        title: Created at
+    edited_at:
+        title: Edited at
+    owner:
+        title: Owner
+    privacy:
+        title: Privacy
+    renditions:
+        title: Renditions
+    relevance:
+        title: Relevance
+    tags:
+        title: Tags
+    workspace:
+        title: Workspace

@@ -10,7 +10,6 @@ import AttributeEntitySelect, {
     AttributeEntityOption,
 } from '../../../../Form/AttributeEntitySelect.tsx';
 import BaseType from './BaseType.tsx';
-import {getBestTranslatedValue} from '@alchemy/i18n/src/Locale/localeHelper';
 
 export default class AttributeEntityType
     extends BaseType
@@ -54,20 +53,10 @@ export default class AttributeEntityType
     }
 
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
-        return getTranslatedValue(value) as React.ReactNode;
+        return value?.value as React.ReactNode;
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {
-        return getTranslatedValue(value);
+        return value?.value;
     }
-}
-
-function getTranslatedValue(
-    value: AttributeEntity | undefined
-): string | undefined {
-    if (!value) {
-        return undefined;
-    }
-
-    return getBestTranslatedValue(value.translations, value.value);
 }

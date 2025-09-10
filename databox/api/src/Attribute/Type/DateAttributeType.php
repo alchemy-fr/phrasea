@@ -24,6 +24,13 @@ class DateAttributeType extends DateTimeAttributeType
         return parent::getGroupValueLabel($value);
     }
 
+    public function normalizeElasticsearchValue(?string $value)
+    {
+        $value = parent::normalizeElasticsearchValue($value);
+
+        return $value ? substr($value, 0, 10) : null;
+    }
+
     public function denormalizeValue(?string $value): ?string
     {
         if (null === $value) {

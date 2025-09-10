@@ -11,7 +11,7 @@ type MainButtonProps = {
 
 type Props = {
     mainButton: (props: MainButtonProps) => JSX.Element;
-    children: (closeWrapper: CloseWrapper) => (ReactNode | null)[];
+    children: (closeWrapper: CloseWrapper) => (ReactNode)[];
     onClose?: () => void;
 } & Omit<MenuProps, 'open' | 'onClose' | 'children'>;
 

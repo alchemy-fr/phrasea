@@ -22,3 +22,23 @@ privacy:
   private: Privé
   public_for_users: Ouvert aux utilisateurs
   public: Ouvert
+
+facet:
+    collections:
+        title: Collections
+    created_at:
+        title: Date de création
+    edited_at:
+        title: Date de modification
+    owner:
+        title: Propriétaire
+    privacy:
+        title: Confidentialité
+    renditions:
+        title: Renditions
+    relevance:
+        title: Pertinence
+    tags:
+        title: Étiquettes
+    workspace:
+        title: Espace de travail

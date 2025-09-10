@@ -8,12 +8,12 @@ import {FormProps} from './types';
 import FlagIcon from '@mui/icons-material/Flag';
 import IconFormLabel from './IconFormLabel';
 import {SortableCollectionWidget} from '@alchemy/react-form';
-
-import Flag from '../Ui/Flag';
 import {useDirtyFormPrompt} from '../Dialog/Tabbed/FormTab';
 import {CheckboxWidget} from '@alchemy/react-form';
 import {useCreateSaveTranslations} from '../../hooks/useCreateSaveTranslations.ts';
 import {putWorkspace} from '../../api/collection.ts';
+import {getLocaleOptions} from '../../api/locale.ts';
+import {LocaleSelectWidget} from '@alchemy/react-form';
 
 const emptyLocaleItem = '';
 
@@ -44,7 +44,7 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
 
     useDirtyFormPrompt(forbidNavigation);
 
-    const locales = watch('enabledLocales');
+    const enabledLocales = watch('enabledLocales');
 
     return (
         <>
@@ -53,6 +53,8 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                     <TranslatedField<Workspace>
                         field={'name'}
                         getData={getValues}
+                        locales={enabledLocales}
+                        getLocales={getLocaleOptions}
                         title={t(
                             'form.workspace.title.translate.title',
                             'Translate Title'
@@ -105,30 +107,20 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                         }
                         renderForm={({index, path}) => {
                             return (
-                                <FormRow>
-                                    <TextField
-                                        InputProps={{
-                                            startAdornment: (
-                                                <Flag
-                                                    sx={{
-                                                        mr: 1,
-                                                    }}
-                                                    locale={
-                                                        locales![index] || ''
-                                                    }
-                                                />
-                                            ),
-                                        }}
+                                <FormRow
+                                    sx={{
+                                        maxWidth: 300,
+                                    }}
+                                >
+                                    <LocaleSelectWidget
+                                        getLocales={getLocaleOptions}
+                                        control={control}
+                                        name={`${path}.${index}` as any}
+                                        required={true}
                                         label={t(
                                             'form.workspace.locales.label',
                                             'Locale'
                                         )}
-                                        placeholder={t(
-                                            'form.workspace.locales.placeholder',
-                                            'e.g. fr or fr-FR'
-                                        )}
-                                        {...register(`${path}.${index}` as any)}
-                                        required={true}
                                     />
                                 </FormRow>
                             );
@@ -164,14 +156,20 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                         }
                         renderForm={({index, path}) => {
                             return (
-                                <FormRow>
-                                    <TextField
+                                <FormRow
+                                    sx={{
+                                        maxWidth: 300,
+                                    }}
+                                >
+                                    <LocaleSelectWidget
+                                        getLocales={getLocaleOptions}
+                                        control={control}
+                                        name={`${path}.${index}` as any}
+                                        required={true}
                                         label={t(
                                             'form.workspace.fallback_locales.label',
                                             'Locale'
                                         )}
-                                        {...register(`${path}.${index}` as any)}
-                                        required={true}
                                     />
                                 </FormRow>
                             );

@@ -1,5 +1,5 @@
 import {AttributeFormatterProps} from './types';
-import moment from 'moment/moment';
+import moment from 'moment';
 import {TextFieldProps} from '@mui/material';
 import DateTimeType, {DateFormats} from './DateTimeType.tsx';
 
