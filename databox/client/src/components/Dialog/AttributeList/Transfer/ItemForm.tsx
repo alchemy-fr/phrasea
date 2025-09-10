@@ -30,7 +30,7 @@ type Props = {
 };
 
 export default function ItemForm({item, listId, onChange}: Props) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const updateAttributeListItem = useAttributeListStore(
         state => state.updateAttributeListItem
     );
@@ -69,7 +69,11 @@ export default function ItemForm({item, listId, onChange}: Props) {
         def = definitionIndexBySlug[item.key!];
     }
     const attributeType = def ? getAttributeType(def!.fieldType) : undefined;
-    const formats = attributeType ? attributeType.getAvailableFormats() : [];
+    const formats = attributeType
+        ? attributeType.getAvailableFormats({
+              uiLocale: i18n.language,
+          })
+        : [];
 
     return (
         <form id={formId} onSubmit={handleSubmit}>

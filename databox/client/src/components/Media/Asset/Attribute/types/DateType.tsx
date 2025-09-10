@@ -17,14 +17,18 @@ export default class DateType extends DateTimeType {
         };
     }
 
-    protected format({value, format}: AttributeFormatterProps): string {
+    protected format({
+        value,
+        format,
+        ...options
+    }: AttributeFormatterProps): string {
         if (!value) {
             return '';
         }
 
         const m = moment(typeof value === 'number' ? value * 1000 : value);
 
-        switch (format ?? this.getAvailableFormats()[0].name) {
+        switch (format ?? this.getAvailableFormats(options)[0].name) {
             case DateFormats.Short:
                 return m.format('ll');
             default:

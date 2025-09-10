@@ -4,13 +4,14 @@ import {IconButton} from '@mui/material';
 import {getAttributeType} from './types';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import CopyAttribute, {copyToClipBoardContainerClass} from './CopyAttribute';
+import {useTranslation} from 'react-i18next';
 import React from 'react';
 import {attributesClasses} from './Attributes';
 import {isRtlLocale} from '../../../../lib/lang';
 import {Attribute, AttributeDefinition} from '../../../../types.ts';
 import GestureIcon from '@mui/icons-material/Gesture';
 import {AssetAnnotationRef} from '../Annotations/annotationTypes.ts';
-import {AttributeFormat} from './types/types';
+import {AttributeFormat, AttributeFormatterOptions} from './types/types';
 
 export type BaseAttributeRowUIProps = {
     assetAnnotationsRef?: AssetAnnotationRef;
@@ -36,6 +37,7 @@ export default function AttributeRowUI({
     format,
     assetAnnotationsRef,
 }: Props) {
+    const {i18n} = useTranslation();
     const {nameTranslated, name, fieldType, multiple} = definition;
     const formatter = getAttributeType(fieldType);
     const [overControls, setOverControls] = React.useState(false);
@@ -53,7 +55,12 @@ export default function AttributeRowUI({
     const locale = multiple ? undefined : (attribute as Attribute)?.locale;
     const isRtl = locale ? isRtlLocale(locale) : false;
 
+    const formatterOptions: AttributeFormatterOptions = {
+        uiLocale: i18n.language,
+    };
+
     const valueFormatterProps = {
+        ...formatterOptions,
         value: multiple
             ? ((attribute as Attribute[] | undefined) ?? []).map(a => a.value)
             : (attribute as Attribute)?.value,
@@ -127,6 +134,7 @@ export default function AttributeRowUI({
                         {attribute
                             ? (attribute as Attribute[]).map((a, i: number) => {
                                   const formatProps = {
+                                      ...formatterOptions,
                                       value: a.value,
                                       highlight: a.highlight,
                                       locale: a.locale,

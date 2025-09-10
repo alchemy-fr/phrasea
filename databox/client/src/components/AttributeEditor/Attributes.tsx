@@ -5,7 +5,10 @@ import {useTranslation} from 'react-i18next';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {useContext} from 'react';
 import {AttributeFormatContext} from '../Media/Asset/Attribute/Format/AttributeFormatContext.ts';
-import {AttributeFormatterProps} from '../Media/Asset/Attribute/types/types';
+import {
+    AttributeFormatterOptions,
+    AttributeFormatterProps,
+} from '../Media/Asset/Attribute/types/types';
 import LockIcon from '@mui/icons-material/Lock';
 import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
 
@@ -24,7 +27,7 @@ export default function Attributes({
     setDefinition,
     locale,
 }: Props) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const formatContext = useContext(AttributeFormatContext);
 
     const indeterminateClassName = 'def-indeter';
@@ -32,6 +35,10 @@ export default function Attributes({
         'attribute_editor.definitions.indeterminate',
         'Indeterminate'
     );
+
+    const formatterOptions: AttributeFormatterOptions = {
+        uiLocale: i18n.language,
+    };
 
     return (
         <List
@@ -47,6 +54,7 @@ export default function Attributes({
                 const formatter = getAttributeType(type);
                 const defValue = definitionValues[def.id];
                 const valueFormatterProps: AttributeFormatterProps = {
+                    ...formatterOptions,
                     value: defValue.value?.[l] ?? '',
                     locale,
                     format: formatContext.getFormat(type, def.id),

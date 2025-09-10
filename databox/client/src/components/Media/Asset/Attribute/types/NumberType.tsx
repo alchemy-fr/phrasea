@@ -1,10 +1,16 @@
-import {AttributeFormatterProps, AvailableFormat} from './types';
+import {
+    AttributeFormatterOptions,
+    AttributeFormatterProps,
+    AvailableFormat,
+} from './types';
 import TextType from './TextType';
 import React from 'react';
 import {TextFieldProps} from '@mui/material';
+import {formatNumber} from '../../../../../lib/numbers.ts';
 
 enum Formats {
     Original = 'original',
+    Formatted = 'formatted',
     Integer = 'integer',
     Fixed = 'fixed',
     Scientific = 'scientific',
@@ -18,19 +24,15 @@ export default class NumberType extends TextType {
         };
     }
 
-    formatValue({
-        value,
-        format,
-        highlight,
-    }: AttributeFormatterProps): React.ReactNode {
-        return this.formatValueAsString({value, format, highlight});
+    formatValue(props: AttributeFormatterProps): React.ReactNode {
+        return this.formatValueAsString(props);
     }
 
     formatValueAsString({
         value,
         format,
+        ...options
     }: AttributeFormatterProps): string | undefined {
-        console.log('value', value);
         if (typeof value !== 'number') {
             if (typeof value === 'string') {
                 return value;
@@ -39,9 +41,11 @@ export default class NumberType extends TextType {
             return undefined;
         }
 
-        switch (format ?? this.getAvailableFormats()[0].name) {
+        switch (format ?? this.getAvailableFormats(options)[0].name) {
             case Formats.Integer:
                 return Math.round(value).toString();
+            case Formats.Formatted:
+                return formatNumber(value, options.uiLocale);
             case Formats.Fixed:
                 return value.toFixed(2);
             case Formats.Scientific:
@@ -52,40 +56,35 @@ export default class NumberType extends TextType {
         }
     }
 
-    getAvailableFormats(): AvailableFormat[] {
+    getAvailableFormats(options: AttributeFormatterOptions): AvailableFormat[] {
         return [
             {
                 name: Formats.Original,
                 title: 'Original',
-                example: this.formatValue({
-                    value: 1234.5678,
-                    format: Formats.Original,
-                }),
             },
             {
                 name: Formats.Integer,
                 title: 'Integer',
-                example: this.formatValue({
-                    value: 1234.5678,
-                    format: Formats.Integer,
-                }),
+            },
+            {
+                name: Formats.Formatted,
+                title: 'Formatted',
             },
             {
                 name: Formats.Fixed,
                 title: 'Fixed (2 decimals)',
-                example: this.formatValue({
-                    value: 1234.5678,
-                    format: Formats.Fixed,
-                }),
             },
             {
                 name: Formats.Scientific,
                 title: 'Scientific',
-                example: this.formatValue({
-                    value: 1234.5678,
-                    format: Formats.Scientific,
-                }),
             },
-        ];
+        ].map(f => ({
+            ...f,
+            example: this.formatValue({
+                ...options,
+                value: 1234.5678,
+                format: f.name,
+            }),
+        }));
     }
 }

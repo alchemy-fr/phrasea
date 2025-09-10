@@ -1,12 +1,20 @@
-import {AttributeFormat, AvailableFormat} from './types';
+import {
+    AttributeFormat,
+    AttributeFormatterOptions,
+    AvailableFormat,
+} from './types';
 
 export default abstract class BaseType {
-    getAvailableFormats(): AvailableFormat[] {
+    getAvailableFormats(
+        _options: AttributeFormatterOptions
+    ): AvailableFormat[] {
         return [];
     }
 
-    getDefaultFormat(): AttributeFormat | undefined {
-        const availableFormats = this.getAvailableFormats();
+    getDefaultFormat(
+        options: AttributeFormatterOptions
+    ): AttributeFormat | undefined {
+        const availableFormats = this.getAvailableFormats(options);
         if (availableFormats.length > 0) {
             return availableFormats[0].name;
         }

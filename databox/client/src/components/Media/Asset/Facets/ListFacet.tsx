@@ -23,7 +23,7 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
         useContext(SearchContext)!;
     const condition = conditions.find(_f => _f.id === name);
     const {type} = facet.meta;
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const fieldName = extractField(name);
 
     const queryBuilder = AQLConditionBuilder.fromQuery(
@@ -45,7 +45,9 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
         <>
             <List component="div" disablePadding>
                 {facet.buckets.map(b => {
-                    const labelValue = extractLabelValueFromKey(b.key, type);
+                    const labelValue = extractLabelValueFromKey(b.key, type, {
+                        uiLocale: i18n.language,
+                    });
                     const {value: keyV} = labelValue;
 
                     const selected = Boolean(

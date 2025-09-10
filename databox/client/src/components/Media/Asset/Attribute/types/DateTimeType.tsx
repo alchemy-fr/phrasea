@@ -1,4 +1,8 @@
-import {AttributeFormatterProps, AvailableFormat} from './types';
+import {
+    AttributeFormatterOptions,
+    AttributeFormatterProps,
+    AvailableFormat,
+} from './types';
 import {TextFieldProps} from '@mui/material';
 import React from 'react';
 import TextType from './TextType.tsx';
@@ -40,7 +44,7 @@ export default class DateTimeType extends TextType {
         return value;
     }
 
-    getAvailableFormats(): AvailableFormat[] {
+    getAvailableFormats(options: AttributeFormatterOptions): AvailableFormat[] {
         return [
             {
                 name: DateFormats.Medium,
@@ -65,6 +69,7 @@ export default class DateTimeType extends TextType {
         ].map(f => ({
             ...f,
             example: this.formatValue({
+                ...options,
                 value: '2023-01-01T00:00:00Z',
                 format: f.name,
             }),
@@ -85,14 +90,18 @@ export default class DateTimeType extends TextType {
         };
     }
 
-    protected format({value, format}: AttributeFormatterProps): string {
+    protected format({
+        value,
+        format,
+        ...options
+    }: AttributeFormatterProps): string {
         if (!value) {
             return '';
         }
 
         const m = moment(typeof value === 'number' ? value * 1000 : value);
 
-        switch (format ?? this.getAvailableFormats()[0].name) {
+        switch (format ?? this.getAvailableFormats(options)[0].name) {
             case DateFormats.Short:
                 return m.format('L LT');
             default:

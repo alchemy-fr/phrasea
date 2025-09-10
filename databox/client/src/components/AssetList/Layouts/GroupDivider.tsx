@@ -6,7 +6,10 @@ import {IconButton} from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {groupValueTypes} from '../GroupValue/types';
 import assetClasses from '../classes';
-import {AttributeFormat} from '../../Media/Asset/Attribute/types/types';
+import {
+    AttributeFormat,
+    AttributeFormatterOptions,
+} from '../../Media/Asset/Attribute/types/types';
 import {getAttributeType} from '../../Media/Asset/Attribute/types';
 import {useTranslation} from 'react-i18next';
 import {AttributeType} from '../../../api/types.ts';
@@ -18,8 +21,11 @@ type Props = PropsWithChildren<{
 }>;
 
 export default function GroupDivider({groupValue, top, page}: Props) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const formatContext = React.useContext(AttributeFormatContext);
+    const formatterOptions: AttributeFormatterOptions = {
+        uiLocale: i18n.language,
+    };
 
     const {values, type, name} = groupValue;
 
@@ -75,7 +81,8 @@ export default function GroupDivider({groupValue, top, page}: Props) {
                               : formatAttribute(
                                     type,
                                     v,
-                                    formatContext.getFormat(type)
+                                    formatContext.getFormat(type),
+                                    formatterOptions
                                 )}
                       </span>
                   ))
@@ -87,7 +94,8 @@ export default function GroupDivider({groupValue, top, page}: Props) {
 export function formatAttribute(
     type: AttributeType,
     value: any,
-    format?: AttributeFormat
+    format: AttributeFormat | undefined,
+    formatterOptions: AttributeFormatterOptions
 ): ReactNode | undefined {
     if (!value) {
         return;
@@ -96,6 +104,7 @@ export function formatAttribute(
     const formatter = getAttributeType(type);
 
     return formatter.formatValue({
+        ...formatterOptions,
         value,
         locale: undefined,
         highlight: undefined,

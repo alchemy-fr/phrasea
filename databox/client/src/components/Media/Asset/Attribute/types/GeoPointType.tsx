@@ -1,4 +1,5 @@
 import {
+    AttributeFormatterOptions,
     AttributeFormatterProps,
     AttributeWidgetProps,
     AvailableFormat,
@@ -41,15 +42,14 @@ export default class GeoPointType extends TextType {
     }
 
     formatValue(props: AttributeFormatterProps): React.ReactNode {
-        const {value, format} = props;
-
+        const {value, format, ...options} = props;
         if (!value) {
             return;
         }
 
         const {lng, lat} = value;
 
-        switch (format ?? this.getDefaultFormat()) {
+        switch (format ?? this.getDefaultFormat(options)) {
             case Formats.Map: {
                 const position = {
                     lat,
@@ -84,7 +84,7 @@ export default class GeoPointType extends TextType {
         return value ? `${value.lng}, ${value.lat}` : undefined;
     }
 
-    getAvailableFormats(): AvailableFormat[] {
+    getAvailableFormats(options: AttributeFormatterOptions): AvailableFormat[] {
         return [
             {
                 name: Formats.Coords,
@@ -94,6 +94,13 @@ export default class GeoPointType extends TextType {
                 name: Formats.Map,
                 title: 'Map',
             },
-        ];
+        ].map(f => ({
+            ...f,
+            example: this.formatValue({
+                ...options,
+                value: {lng: 2.2945, lat: 48.8584},
+                format: f.name,
+            }),
+        }));
     }
 }

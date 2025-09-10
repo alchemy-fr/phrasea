@@ -1,4 +1,5 @@
 import {
+    AttributeFormatterOptions,
     AttributeFormatterProps,
     AttributeWidgetProps,
     AvailableFormat,
@@ -35,14 +36,14 @@ export default class ColorType extends TextType {
     formatValue({
         value,
         format,
-        highlight,
+        ...options
     }: AttributeFormatterProps): React.ReactNode {
-        switch (format ?? this.getAvailableFormats()[0].name) {
+        switch (format ?? this.getAvailableFormats(options)[0].name) {
             default:
             case Formats.Box:
                 return <>{value ? <ColorBox color={value} /> : value}</>;
             case Formats.Hex:
-                return <>{replaceHighlight(highlight || value)}</>;
+                return <>{replaceHighlight(options.highlight || value)}</>;
         }
     }
 
@@ -50,12 +51,13 @@ export default class ColorType extends TextType {
         return value.toString();
     }
 
-    getAvailableFormats(): AvailableFormat[] {
+    getAvailableFormats(options: AttributeFormatterOptions): AvailableFormat[] {
         return [
             {
                 name: Formats.Box,
                 title: 'Box',
                 example: this.formatValue({
+                    ...options,
                     value: '#FF0000',
                     format: Formats.Box,
                 }),
@@ -64,6 +66,7 @@ export default class ColorType extends TextType {
                 name: Formats.Hex,
                 title: 'Hexadecimal',
                 example: this.formatValue({
+                    ...options,
                     value: '#FF0000',
                     format: Formats.Hex,
                 }),

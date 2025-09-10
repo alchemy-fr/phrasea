@@ -7,13 +7,19 @@ import {
 import {getAttributeType} from '../types';
 
 import {AttributeType} from '../../../../../api/types.ts';
+import {useTranslation} from 'react-i18next';
 
 type Props = PropsWithChildren<{}>;
 
 export default function AttributeFormatProvider({children}: Props) {
+    const {i18n} = useTranslation();
     const [formats, setFormats] = React.useState<AttributeFormats>(
         {} as AttributeFormats
     );
+
+    const formatterOptions = {
+        uiLocale: i18n.language,
+    };
 
     const value = React.useMemo<TAttributeFormatContext>(() => {
         const getFormat: TAttributeFormatContext['getFormat'] = (
@@ -34,7 +40,7 @@ export default function AttributeFormatProvider({children}: Props) {
             const formatter = getAttributeType(type);
 
             return formatter
-                .getAvailableFormats()
+                .getAvailableFormats(formatterOptions)
                 .find(f => f.name === getFormat(type, definitionId))?.title;
         };
 
@@ -55,7 +61,8 @@ export default function AttributeFormatProvider({children}: Props) {
             definitionId
         ) => {
             const formatter = getAttributeType(type);
-            const availableFormats = formatter.getAvailableFormats();
+            const availableFormats =
+                formatter.getAvailableFormats(formatterOptions);
             const currentFormat = getFormat(type, definitionId);
             const currentIndex = currentFormat
                 ? (availableFormats.findIndex(f => f.name === currentFormat) ??
@@ -73,7 +80,8 @@ export default function AttributeFormatProvider({children}: Props) {
             type: AttributeType
         ) => {
             const formatter = getAttributeType(type);
-            const availableFormats = formatter.getAvailableFormats();
+            const availableFormats =
+                formatter.getAvailableFormats(formatterOptions);
 
             return availableFormats.length > 0;
         };

@@ -1,4 +1,5 @@
 import {
+    AttributeFormatterOptions,
     AttributeFormatterProps,
     AttributeTypeInstance,
     AttributeWidgetProps,
@@ -19,12 +20,16 @@ export default class BooleanType
     extends BaseType
     implements AttributeTypeInstance<boolean>
 {
-    formatValue({value, format}: AttributeFormatterProps): React.ReactNode {
+    formatValue({
+        value,
+        format,
+        ...formatterOptions
+    }: AttributeFormatterProps): React.ReactNode {
         if (false !== value && true !== value) {
             return;
         }
 
-        switch (format ?? this.getDefaultFormat()) {
+        switch (format ?? this.getDefaultFormat(formatterOptions)) {
             default:
             case Formats.Label:
                 return (
@@ -73,7 +78,7 @@ export default class BooleanType
         return '';
     }
 
-    getAvailableFormats(): AvailableFormat[] {
+    getAvailableFormats(options: AttributeFormatterOptions): AvailableFormat[] {
         return [
             {
                 name: Formats.Label,
@@ -91,7 +96,14 @@ export default class BooleanType
                 name: Formats.TrueFalse,
                 title: 'True/False',
             },
-        ];
+        ].map(f => ({
+            ...f,
+            example: this.formatValue({
+                ...options,
+                value: true,
+                format: f.name,
+            }),
+        }));
     }
 
     public getFieldProps(): TextFieldProps {

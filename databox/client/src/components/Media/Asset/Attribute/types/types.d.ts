@@ -22,9 +22,13 @@ export type AttributeFormat = string;
 
 export type AttributeFormatterProps = {
     value: any;
-    highlight?: any;
     format?: AttributeFormat;
+} & AttributeFormatterOptions;
+
+export type AttributeFormatterOptions = {
+    highlight?: any;
     locale?: string | undefined;
+    uiLocale: string;
 };
 
 export type AvailableFormat = {
@@ -36,7 +40,7 @@ export type AvailableFormat = {
 export type AttributeTypeFormatter = {
     formatValue(props: AttributeFormatterProps): React.ReactNode;
     formatValueAsString(props: AttributeFormatterProps): string | undefined;
-    getAvailableFormats(): AvailableFormat[];
+    getAvailableFormats(options: AttributeFormatterOptions): AvailableFormat[];
 };
 export type AttributeTypeWidget<T> = {
     renderWidget(props: AttributeWidgetProps<T>): React.ReactNode;

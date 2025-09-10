@@ -12,13 +12,17 @@ import NotesIcon from '@mui/icons-material/Notes';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
-import {AttributeFormatterProps} from '../Media/Asset/Attribute/types/types';
+import {
+    AttributeFormatterOptions,
+    AttributeFormatterProps,
+} from '../Media/Asset/Attribute/types/types';
 import {useContext} from 'react';
 import {AttributeFormatContext} from '../Media/Asset/Attribute/Format/AttributeFormatContext.ts';
 import {
     AttributeBatchAction,
     AttributeBatchActionEnum,
 } from '../../api/types.ts';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     actions: AttributeBatchAction[];
@@ -29,6 +33,7 @@ export type {Props as ValueDiffProps};
 
 export default function ValueDiff({actions, definitionIndex}: Props) {
     const formatContext = useContext(AttributeFormatContext);
+    const {i18n} = useTranslation();
 
     const actionIcons = {
         [AttributeBatchActionEnum.Delete]: <DeleteIcon />,
@@ -42,6 +47,10 @@ export default function ValueDiff({actions, definitionIndex}: Props) {
         indexedActions[a.definitionId!] ??= [];
         indexedActions[a.definitionId!].push(a);
     });
+
+    const formatterOptions: AttributeFormatterOptions = {
+        uiLocale: i18n.language,
+    };
 
     return (
         <List>
@@ -64,6 +73,7 @@ export default function ValueDiff({actions, definitionIndex}: Props) {
                                     {defActions.map((a, i) => {
                                         const valueFormatterProps: AttributeFormatterProps =
                                             {
+                                                ...formatterOptions,
                                                 value: a.value,
                                                 locale: a.locale,
                                                 format: formatContext.getFormat(

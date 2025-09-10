@@ -13,7 +13,7 @@ import DateHistogramFacet from './Facets/DateHistogramFacet';
 import GeoDistanceFacet from './Facets/GeoDistanceFacet';
 import {getAttributeType} from './Attribute/types';
 import {FilterType} from '../Search/Filter';
-import {AttributeFormat} from './Attribute/types/types';
+import {AttributeFormatterOptions} from './Attribute/types/types';
 import TagsFacet from './Facets/TagsFacet';
 import EntitiesFacet from './Facets/EntitiesFacet.tsx';
 import {BuiltInFilter} from '../Search/search.ts';
@@ -61,7 +61,7 @@ export type TFacets = Record<string, Facet>;
 export function extractLabelValueFromKey(
     key: ResolvedBucketValue,
     type: FilterType | undefined,
-    format?: AttributeFormat
+    formatterOptions: AttributeFormatterOptions
 ): LabelledBucketValue {
     // eslint-disable-next-line no-prototype-builtins
     if (key && typeof key === 'object' && key.hasOwnProperty('value')) {
@@ -81,16 +81,16 @@ export function extractLabelValueFromKey(
     if ([AttributeType.DateTime, AttributeType.Date].includes(type)) {
         return {
             label: at.formatValueAsString({
+                ...formatterOptions,
                 value: key,
-                format,
             })!,
             value: key as BucketValue,
         };
     } else if (type === AttributeType.Boolean) {
         return {
             label: at.formatValueAsString({
+                ...formatterOptions,
                 value: !!key,
-                format,
             })!,
             value: !!key,
         };
@@ -98,8 +98,8 @@ export function extractLabelValueFromKey(
 
     return {
         label: at.formatValueAsString({
+            ...formatterOptions,
             value: key as string,
-            format,
         })!,
         value: key as BucketValue,
     };

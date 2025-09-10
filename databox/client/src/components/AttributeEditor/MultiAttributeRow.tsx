@@ -13,7 +13,10 @@ import {
     Values,
 } from './types.ts';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
-import {AttributeFormatterProps} from '../Media/Asset/Attribute/types/types';
+import {
+    AttributeFormatterOptions,
+    AttributeFormatterProps,
+} from '../Media/Asset/Attribute/types/types';
 import {AttributeFormatContext} from '../Media/Asset/Attribute/Format/AttributeFormatContext.ts';
 import AttributeWidget from './AttributeWidget.tsx';
 import classNames from 'classnames';
@@ -45,9 +48,8 @@ export default function MultiAttributeRow<T>({
     setSelectedValue,
 }: Props<T>) {
     const {id, nameTranslated, name, fieldType: type} = attributeDefinition;
-
     const inputRef = React.useRef<HTMLInputElement | null>(null);
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const formatContext = useContext(AttributeFormatContext);
     const [newValue, setNewValue] = React.useState<T | undefined>();
     const definitionRef = React.useRef<string>(id);
@@ -150,6 +152,9 @@ export default function MultiAttributeRow<T>({
 
     const formatter = getAttributeType(type);
     const itemClassName = 'item';
+    const formatterOptions: AttributeFormatterOptions = {
+        uiLocale: i18n.language,
+    };
 
     return (
         <FormRow
@@ -200,6 +205,7 @@ export default function MultiAttributeRow<T>({
 
             {finalValues.map((v: MultiValueValue<T>, i: number) => {
                 const valueFormatterProps: AttributeFormatterProps = {
+                    ...formatterOptions,
                     value: v.value,
                     locale,
                     format: formatContext.getFormat(type, id),

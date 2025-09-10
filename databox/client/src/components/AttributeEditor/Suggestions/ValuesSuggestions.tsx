@@ -37,7 +37,7 @@ export default function ValuesSuggestions<T>({
     subSelection,
     setSubSelection,
 }: Props<T>) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const [useOriginal, setUseOriginal] = React.useState(false);
     const [displayPercents, setDisplayPercents] = React.useState(false);
     const [anchorEl, setAnchorEl] = React.useState<null | {
@@ -246,6 +246,7 @@ export default function ValuesSuggestions<T>({
                                     {v.value
                                         ? widget.formatValue({
                                               value: v.value,
+                                              uiLocale: i18n.language,
                                           })
                                         : t(
                                               'attribute_editor.suggestions.no_value',

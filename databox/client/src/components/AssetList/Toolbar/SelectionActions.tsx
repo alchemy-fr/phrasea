@@ -40,6 +40,7 @@ import ViewQuiltIcon from '@mui/icons-material/ViewQuilt';
 import ShareAssetDialog from '../../Share/ShareAssetDialog.tsx';
 import {toast} from 'react-toastify';
 import AttributeListSwitcher from '../../AttributeList/AttributeListSwitcher.tsx';
+import {formatNumber} from '../../../lib/numbers.ts';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -294,10 +295,8 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     const locale = i18n.language;
     const selectionProps: ItemLabelRendererProps = {
         values: {
-            total: new Intl.NumberFormat(locale, {}).format(total ?? 0),
-            selection: new Intl.NumberFormat(locale, {}).format(
-                selection.length
-            ),
+            total: formatNumber(total ?? 0, locale),
+            selection: formatNumber(selection.length, locale),
         },
         count: total ?? 0,
         selectedCount: selection.length,
