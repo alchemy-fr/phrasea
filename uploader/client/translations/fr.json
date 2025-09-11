@@ -19,8 +19,8 @@
     },
     "upload_done": {
         "all_files_have_been_uploaded": "Tous les fichiers ont été importés.",
-        "go_back_home": "Retour",
-        "you_re_done": "Vous avez terminé !"
+        "go_back_home": "Retour à l'accueil",
+        "you_re_done": "Terminé !"
     },
     "upload_form": {
         "selected_files_one": "{{count}} fichier sélectionné",
