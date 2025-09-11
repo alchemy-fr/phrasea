@@ -10,7 +10,7 @@ export default function DefaultEmail({
     return (
         <Html>
             <Head/>
-            <Preview>Dropbox reset your password</Preview>
+            <Preview>Phrasea notification</Preview>
             <Body style={main}>
                 <Container style={container}>
                     {children}
