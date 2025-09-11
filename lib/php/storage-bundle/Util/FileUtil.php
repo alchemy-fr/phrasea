@@ -18,6 +18,11 @@ final class FileUtil
         return 1 === preg_match('#^video/#', $mimeType ?? '');
     }
 
+    public static function isAudioType(?string $mimeType): bool
+    {
+        return 1 === preg_match('#^audio/#', $mimeType ?? '');
+    }
+
     public static function guessExtension(?string $type, ?string $path): ?string
     {
         $ext = self::getExtensionFromType($type);
