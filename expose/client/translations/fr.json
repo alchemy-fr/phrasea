@@ -45,7 +45,7 @@
         "logout": "Se déconnecter",
         "not_allowed": "Désolé! Vous n'êtes pas autorisé à accéder à cette publication.",
         "password_required": {
-            "enter_password": "Entrer le mot de passe",
+            "enter_password": "Saisir le mot de passe",
             "submit": "OK"
         }
     },
