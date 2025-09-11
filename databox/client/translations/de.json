@@ -774,7 +774,7 @@
                 "title": "Upload"
             },
             "success": "Dateien hochgeladen!",
-            "title": "Die Assets wurden hinzugefügt",
+            "title": "Assets hinzufügen",
             "quiet": {
                 "label": "Still (keine Benachrichtigung, kein Webhook)"
             },
