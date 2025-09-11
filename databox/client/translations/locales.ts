@@ -1,2 +1,3 @@
-export const appLocales = ['en', 'fr', 'es', 'de', 'zh'];
-export const defaultLocale = 'en';
+import {defaultLocales, rootDefaultLocale} from '@alchemy/i18n';
+
+export {defaultLocales as appLocales, rootDefaultLocale as defaultLocale};

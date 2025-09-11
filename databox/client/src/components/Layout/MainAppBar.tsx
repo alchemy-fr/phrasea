@@ -210,10 +210,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                         />
                                     </ListItemIcon>
                                     <ListItemText
-                                        primary={t('locale', {
-                                            defaultValue:
-                                                currentLocale.toUpperCase(),
-                                        })}
+                                        primary={t('locale.current', 'English')}
                                     />
                                 </MenuItem>,
                                 <MenuItem
