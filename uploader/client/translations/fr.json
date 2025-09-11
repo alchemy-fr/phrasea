@@ -8,5 +8,23 @@
     },
     "targets": {
         "none_available": "Vous n'avez accès à aucune cible de téléchargement."
+    },
+    "download": {
+        "back": "Retour",
+        "your_file_will_be_downloaded": "Votre fichier va être téléchargé!"
+    },
+    "file_picker": {
+        "drag_n_drop_some_files_here_or_click_to_select_files": "Glissez-déposez des fichiers ici ou cliquez pour sélectionner des fichiers",
+        "next": "Suivant"
+    },
+    "upload_done": {
+        "all_files_have_been_uploaded": "Tous les fichiers ont été importés.",
+        "go_back_home": "Retour",
+        "you_re_done": "Vous avez terminé !"
+    },
+    "upload_form": {
+        "selected_files_one": "{{count}} fichier sélectionné",
+        "selected_files_many": "{{count}} fichiers sélectionnés",
+        "selected_files_other": "{{count}} fichiers sélectionnés"
     }
 }
