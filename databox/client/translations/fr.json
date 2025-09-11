@@ -329,7 +329,7 @@
         },
         "item": {
             "create_asset": "Ajouter un nouvel asset à la collection",
-            "create_collection": "Créer une nouvelle collection dans celle-ci",
+            "create_collection": "Créer une sous collection",
             "edit": "Modifier cette collection",
             "delete": "Supprimer",
             "notifications": "Notifications"
@@ -455,7 +455,7 @@
         "export_attribute_entities": {
             "copy_code": "Copier le code",
             "format": "Format",
-            "select_format": "Sélectionner le format",
+            "select_format": "Sélectionner un format",
             "title": "Exporter les entités de l'attribut",
             "locale": "Locale",
             "select_locale": "Sélectionner la locale",
@@ -509,12 +509,12 @@
         "confirm_delete_this_rule": "Confirmer la suppression de cette règle ?",
         "exclude": {
             "helper": "Les assets dans ce {{type}} seront seulement visibles s'ils NE contiennent PAS ces tags.",
-            "label": "Tags à <1>exclure</1>"
+            "label": "Tags à <b>exclure</b>"
         },
         "group": "Groupe",
         "include": {
             "helper": "Les assets dans ce {{type}} seront seulement visibles s'ils contiennent ces tags.",
-            "label": "Tags à <1>inclure</1>"
+            "label": "Tags à <b>inclure</b>"
         },
         "or": "ou",
         "rule_applies_for": "La règle s'applique pour :",
@@ -811,9 +811,9 @@
         },
         "workspace": {
             "fallback_locales": {
-                "add": "Ajouter une langue primaire",
+                "add": "Ajouter une locale",
                 "label": "Langue",
-                "title": "Langue primaire",
+                "title": "Ordre des locales",
                 "remove": "Supprimer <1>cette langue</1>"
             },
             "locales": {
@@ -888,7 +888,7 @@
         },
         "attribute_list_item": {
             "display_empty": {
-                "label": "Afficher même vide"
+                "label": "Afficher même si la valeur est vide"
             },
             "format": {
                 "label": "Format par défaut",
@@ -1358,7 +1358,7 @@
         "download": "Télécharger",
         "delete": "Supprimer",
         "replace": "Remplacer",
-        "upload": "Importer la rendition"
+        "upload": "Importer la Rendition"
     },
     "workspace": {
         "info": {
@@ -1548,7 +1548,7 @@
                 "matches": "Correspond à",
                 "missing": "Est vide",
                 "not_contains": "Ne contient pas",
-                "not_equals": "! = (Non égal)",
+                "not_equals": "! = (différent de)",
                 "not_in": "Non inclus dans",
                 "not_starts_with": "Ne commence pas par",
                 "or": "OU",
@@ -1788,9 +1788,9 @@
     },
     "file_upload": {
         "from_url": {
-            "placeholder": "Entrer l'URL du fichier"
+            "placeholder": "Saisir l'URL du fichier"
         },
-        "upload_from_url": "Importer à partir de l'URL"
+        "upload_from_url": "Importer à partir d'une l'URL"
     },
     "upload": {
         "pending": {
