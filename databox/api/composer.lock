@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "32a05e9a343c8ec7f1d55acfe84472ba",
+    "content-hash": "a9c44806b18a5a599eb41ba62ff3df2a",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -61,7 +61,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -119,7 +119,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -176,7 +176,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -229,7 +229,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -290,7 +290,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -346,7 +346,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -399,7 +399,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -454,14 +454,14 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
-                "reference": "710913d2f155e9811b5e6dade05e3419b2e138a1"
+                "reference": "432c6b85972b687aa51c925e64871b980673b549"
             },
             "require": {
-                "alchemy/auth-bundle": "*",
+                "alchemy/auth-bundle": "@dev",
                 "php": "^8.3",
                 "symfony/framework-bundle": "^6.4",
                 "symfony/notifier": "^6.4.13"
@@ -578,7 +578,7 @@
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
@@ -641,7 +641,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -695,7 +695,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -750,7 +750,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -802,7 +802,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -859,7 +859,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -924,7 +924,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -15299,7 +15299,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-858-entities",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
@@ -18233,6 +18233,7 @@
         "php": "^8.3",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "ext-intl": "*",
         "ext-imagick": "*",
         "ext-json": "*",
         "ext-sodium": "*"
