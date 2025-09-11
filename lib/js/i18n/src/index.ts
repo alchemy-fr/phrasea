@@ -14,8 +14,8 @@ type Options = {
     initReactI18next: ThirdPartyModule;
 };
 
-const defaultLocales = ['en', 'fr', 'de', 'es', 'zh'];
-const rootDefaultLocale = 'en';
+export const defaultLocales = ['en', 'fr', 'de', 'es'];
+export const rootDefaultLocale = 'en';
 const rootDefaultNs = 'app';
 
 export function createI18N({

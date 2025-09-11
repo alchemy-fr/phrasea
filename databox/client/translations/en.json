@@ -1118,7 +1118,7 @@
     }
   },
   "locale": {
-    "current": "",
+    "current": "English",
     "switcher": {
       "app_languages": "App/UI Languages",
       "change_data_locale": {
