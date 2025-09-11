@@ -13,5 +13,51 @@
     "order": {
         "last_post_added": "Neueste",
         "publication_name": "Name"
+    },
+    "asset_proxy": {
+        "unsupported_media_type": "Nicht unterstützer Medientyp"
+    },
+    "download_custom": "{{name}} herunterladen",
+    "download_original": "Originaldatei herunterladen",
+    "download_via_email": {
+        "cta": "Per E-Mail herunterladen",
+        "sent": "Der Download-Link wird Ihnen per E-Mail zugesendet."
+    },
+    "email": {
+        "label": "E-Mail"
+    },
+    "embedded_asset": {
+        "forbidden": "Verboten",
+        "not_found": "Nicht gefunden"
+    },
+    "error": {
+        "invalid_password": "Ungültiges Passwort"
+    },
+    "form": {
+        "continue": "Weiter"
+    },
+    "modal": {
+        "close": "Schliessen",
+        "discard": "Verwerfen"
+    },
+    "publication": {
+        "auth_required": {
+            "sign_in": "Anmelden",
+            "title": "Diese Publikation erfordert eine Authentifizierung"
+        },
+        "logout": "Abmelden",
+        "not_allowed": "Sie haben keinen Zugriff auf diese Publikation.",
+        "password_required": {
+            "enter_password": "Geben Sie Ihr Passwort ein",
+            "submit": "OK"
+        }
+    },
+    "publication_security_proxy": {
+        "sorry_you_cannot_access_this_publication": "Sie haben keinen Zugriff auf diese Publikation"
+    },
+    "terms": {
+        "accept": "Akzeptieren",
+        "please_read_accept": "Bitte lesen und akzeptieren Sie die <link>Nutzungsbedingungen</link>.",
+        "terms": "Nutzungsbedingungen"
     }
 }
