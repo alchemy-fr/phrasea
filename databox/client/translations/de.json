@@ -325,8 +325,8 @@
         "remove_from_basket": "Aus dem Korb entfernen",
         "x_item_one": "<strong>{{count}}</strong> Treffer",
         "x_item_other": "<strong>{{count}}</strong> Treffer",
-        "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> Treffer",
-        "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> Treffer"
+        "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> Element",
+        "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> Elemente"
     },
     "change_theme": {
         "save": "Speichern",
@@ -567,7 +567,7 @@
                 "label": "Ungültige Werte zulassen"
             },
             "field_type": {
-                "label": "Typ des Feldes"
+                "label": "Attributtyp"
             },
             "multiple": {
                 "label": "Mehrere Werte"
@@ -1042,7 +1042,7 @@
         "content": "Die Seite, die Sie suchen, existiert nicht oder wurde entfernt"
     },
     "operations_asset": {
-        "workflow_is_starting": "Der Workflow beginnt!"
+        "workflow_is_starting": "Workflow gestartet!"
     },
     "pagination": {
         "load_more_collections": "Weitere Kollektionen laden"
@@ -1450,7 +1450,7 @@
             },
             "add_condition": "Bedingung hinzufügen",
             "add_condition_group": "Bedingungsgruppe hinzufügen",
-            "field": "Feld",
+            "field": "Attribut",
             "value": "Wert"
         },
         "dialog": {
