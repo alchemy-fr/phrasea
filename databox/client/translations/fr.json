@@ -304,9 +304,9 @@
         "x_item_one": "<strong>{{count}}</strong> résultat",
         "x_item_many": "<strong>{{count}}</strong> résultats",
         "x_item_other": "<strong>{{count}}</strong> résultats",
-        "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> résultat",
-        "x_item_with_selection_many": "<strong>{{selection}} / {{total}}</strong> résultats",
-        "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> résultats"
+        "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> élément",
+        "x_item_with_selection_many": "<strong>{{selection}} / {{total}}</strong> éléments",
+        "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> éléments"
     },
     "change_theme": {
         "save": "Enregistrer",
@@ -569,7 +569,7 @@
                 "label": "Liste d'entités"
             },
             "field_type": {
-                "label": "Type de champ"
+                "label": "Type de l'attribut"
             },
             "multiple": {
                 "label": "Valeurs multiples"
@@ -1564,7 +1564,7 @@
                 "placeholder": "Opérateur"
             },
             "add_condition": "Ajouter une condition",
-            "field": "Champ",
+            "field": "Attribut",
             "value": "Valeur"
         },
         "dialog": {
