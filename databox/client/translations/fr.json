@@ -1051,7 +1051,7 @@
         "title": "Page non trouvée"
     },
     "operations_asset": {
-        "workflow_is_starting": "Le workflow démarre !"
+        "workflow_is_starting": "Workflow démarré !"
     },
     "pagination": {
         "load_more_collections": "Charger plus de collections"
