@@ -40,6 +40,8 @@ class AssetInputTransformer extends AbstractFileInputTransformer
 
     /**
      * @param AssetInput $data
+     *
+     * @return Asset
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {

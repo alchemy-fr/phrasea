@@ -1,14 +1,17 @@
 import {postCollection} from '../../api/collection';
 import {generateUploadId, UploadFiles} from '../../api/uploader/file';
 import {Asset} from '../../types';
-import {NewAssetPostType, postMultipleAssets} from '../../api/asset';
+import {
+    CreateAssetsOptions,
+    NewAssetPostType,
+    postMultipleAssets,
+} from '../../api/asset';
 import {v4 as uuidv4} from 'uuid';
 import {
     CollectionId,
     NewCollectionPath,
     treeViewPathSeparator,
 } from '../../components/Media/Collection/CollectionTree/collectionTree.ts';
-import {AxiosRequestConfig} from 'axios';
 import {AttributeBatchAction} from '../../api/types.ts';
 
 type InputFile = {
@@ -28,9 +31,9 @@ type UploadInput = {
 
 export async function submitFiles(
     data: UploadInput,
-    config?: AxiosRequestConfig
+    options?: CreateAssetsOptions
 ): Promise<Asset[]> {
-    const assets = await createAssets(data, config);
+    const assets = await createAssets(data, options);
 
     UploadFiles(
         data.files.map(f => {
@@ -55,7 +58,7 @@ export async function submitFiles(
 
 async function createAssets(
     {files}: UploadInput,
-    config?: AxiosRequestConfig
+    options?: CreateAssetsOptions
 ): Promise<Asset[]> {
     const indexedFiles: Record<string, InputFile> = {};
     files.forEach(f => {
@@ -84,7 +87,7 @@ async function createAssets(
 
             return data;
         }),
-        config
+        options
     ).then(assets => {
         return assets.map(a => {
             indexedFiles[a.pendingUploadToken!].assetId = a.id;

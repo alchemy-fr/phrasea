@@ -82,7 +82,7 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     private $workspace;
 
-    #[Groups([Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     public ?Collection $storyCollection = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]

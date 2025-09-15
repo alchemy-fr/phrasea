@@ -322,6 +322,7 @@ export type AssetApiInput = {
     sourceFileId?: string;
     pendingUploadToken?: string;
     sequence?: number;
+    isStory?: boolean;
 };
 
 export type NewAssetPostType = {
@@ -342,14 +343,28 @@ export async function postAsset(data: NewAssetPostType): Promise<Asset> {
     return res.data;
 }
 
+export type CreateAssetsOptions = {
+    quiet?: boolean;
+    isStory?: boolean;
+    config?: AxiosRequestConfig;
+};
+
 export async function postMultipleAssets(
     assets: NewAssetPostType[],
-    config?: AxiosRequestConfig
+    {quiet, isStory}: CreateAssetsOptions = {}
 ): Promise<Asset[]> {
+    const config: AxiosRequestConfig = {};
+    if (quiet) {
+        config.headers ??= {};
+        config.headers['X-Webhook-Disabled'] = 'true';
+        config.headers['X-Notification-Disabled'] = 'true';
+    }
+
     const res = await apiClient.post(
         `/assets/multiple`,
         {
             assets,
+            isStory,
         },
         config
     );

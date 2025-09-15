@@ -7,6 +7,7 @@ import {Skeleton, SxProps} from '@mui/material';
 import classNames from 'classnames';
 import {alpha, Theme} from '@mui/material/styles';
 import {videoPlayerSx} from './Players/VideoPlayer.tsx';
+import StoryChip from '../../AssetList/Layouts/StoryChip.tsx';
 
 type Props = {
     asset: Asset;
@@ -19,6 +20,7 @@ function AssetThumb({
         thumbnail,
         thumbnailActive,
         original,
+        storyCollection,
     },
     ...domAttrs
 }: Props) {
@@ -74,6 +76,7 @@ function AssetThumb({
                     />
                 </div>
             )}
+            {storyCollection ? <StoryChip /> : null}
         </div>
     );
 }
@@ -122,6 +125,24 @@ export const thumbSx = (
         '> div': {
             display: 'contents',
         },
+        [`.${assetClasses.storyChip}`]: {
+            'position': 'absolute',
+            'width': '100%',
+            'bottom': theme.spacing(1),
+            'textAlign': 'center',
+            'left': 0,
+            'zIndex': 2,
+            'display': 'inline-block',
+            '.MuiChip-label': {
+                width: 0,
+            },
+            '&:hover': {
+                '.MuiChip-label': {
+                    width: 'auto',
+                },
+            },
+        },
+
         ...createThumbActiveStyle(),
         ...videoPlayerSx(thumbSize, theme),
         ...overridden,

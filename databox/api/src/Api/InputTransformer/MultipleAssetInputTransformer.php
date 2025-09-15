@@ -25,7 +25,20 @@ class MultipleAssetInputTransformer extends AbstractFileInputTransformer
     {
         $assets = [];
         $context[AssetInputTransformer::CONTEXT_CREATION_MICRO_TIME] = microtime(true);
+
+        if ($data->isStory) {
+            $firstAsset = array_shift($data->assets);
+            $firstAsset->isStory = true;
+            $storyAsset = $this->assetInputTransformer->transform($firstAsset, $firstAsset::class, $context);
+            $assets[] = $storyAsset;
+        }
+
         foreach ($data->assets as $asset) {
+            if (isset($storyAsset)) {
+                $asset->destinations = null;
+                $asset->collection = $storyAsset->getStoryCollection();
+            }
+
             $assets[] = $this->assetInputTransformer->transform($asset, $asset::class, $context);
         }
 
