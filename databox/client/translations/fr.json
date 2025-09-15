@@ -301,9 +301,9 @@
     "basket_view_dialog": {
         "item": "élément",
         "remove_from_basket": "Retirer du panier",
-        "x_item_one": "<strong>{{count}}</strong> résultat",
-        "x_item_many": "<strong>{{count}}</strong> résultats",
-        "x_item_other": "<strong>{{count}}</strong> résultats",
+        "x_item_one": "<strong>{{count}}</strong> élément",
+        "x_item_many": "<strong>{{count}}</strong> élément",
+        "x_item_other": "<strong>{{count}}</strong> éléments",
         "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> élément",
         "x_item_with_selection_many": "<strong>{{selection}} / {{total}}</strong> éléments",
         "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> éléments"
