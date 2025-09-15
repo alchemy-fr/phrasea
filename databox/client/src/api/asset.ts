@@ -15,6 +15,7 @@ import {
 import {AxiosRequestConfig} from 'axios';
 import {TFacets} from '../components/Media/Asset/Facets';
 import {AttributeBatchAction, AttributeBatchActionEnum} from './types.ts';
+import {SortWay} from './common.ts';
 
 export interface GetAssetOptions {
     url?: string;
@@ -23,7 +24,7 @@ export interface GetAssetOptions {
     ids?: string[];
     parents?: string[];
     conditions?: string[];
-    order?: Record<string, 'asc' | 'desc'>;
+    order?: Record<string, SortWay>;
     group?: string[] | undefined;
     context?:
         | {

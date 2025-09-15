@@ -17,6 +17,7 @@ type Props = {
     rendition: AssetRendition | undefined;
     renditions: AssetRendition[];
     displayActions: boolean;
+    isStory: boolean;
 };
 
 function AssetViewHeader({
@@ -24,6 +25,7 @@ function AssetViewHeader({
     rendition,
     displayActions,
     renditions,
+    isStory,
 }: Props) {
     const {state} = useLocation() as Location<AssetContextState | undefined>;
     const navigateToModal = useNavigateToModal();
@@ -55,19 +57,21 @@ function AssetViewHeader({
                     defaults={'Asset <strong>{{name}}</strong>'}
                 />
             </div>
-            <Select<string>
-                sx={{ml: 2}}
-                label={''}
-                size={'small'}
-                value={rendition?.id}
-                onChange={e => handleRenditionChange(e.target.value)}
-            >
-                {renditions.map((r: AssetRendition) => (
-                    <MenuItem key={r.id} value={r.id}>
-                        {r.name}
-                    </MenuItem>
-                ))}
-            </Select>
+            {!isStory && (
+                <Select<string>
+                    sx={{ml: 2}}
+                    label={''}
+                    size={'small'}
+                    value={rendition?.id}
+                    onChange={e => handleRenditionChange(e.target.value)}
+                >
+                    {renditions.map((r: AssetRendition) => (
+                        <MenuItem key={r.id} value={r.id}>
+                            {r.name}
+                        </MenuItem>
+                    ))}
+                </Select>
+            )}
             {displayActions ? (
                 <AssetViewActions asset={asset} file={rendition?.file} />
             ) : (
