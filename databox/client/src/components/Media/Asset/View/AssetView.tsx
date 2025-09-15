@@ -7,7 +7,7 @@ import {StackedModalProps, useParams} from '@alchemy/navigation';
 import {Dimensions, filePlayerRelativeWrapperClassName} from '../Players';
 import {Box, Typography} from '@mui/material';
 import FileIntegrations from '../FileIntegrations.tsx';
-import {getAsset} from '../../../../api/asset.ts';
+import {getAsset, getAssets} from '../../../../api/asset.ts';
 import FullPageLoader from '../../../Ui/FullPageLoader.tsx';
 import RouteDialog from '../../../Dialog/RouteDialog.tsx';
 import {getAssetRenditions} from '../../../../api/rendition.ts';
@@ -31,6 +31,8 @@ import {
 } from '../../../Discussion/discussion.ts';
 import {useBindAnnotationMessage} from './useBindAnnotationMessage.ts';
 import AssetViewInfo from '../AssetViewInfo.tsx';
+import {ApiCollectionResponse} from '../../../../api/hydra.ts';
+import StoryCarousel, {storyCarouselHeight} from './StoryCarousel.tsx';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -53,6 +55,7 @@ type Props = {} & StackedModalProps;
 export default function AssetView({modalIndex, open}: Props) {
     const menuWidth = 400;
     const headerHeight = 60;
+    let heightRest = headerHeight;
     const {id: assetId, renditionId} = useParams();
     const assetAnnotationsRef: AssetAnnotationRef = useRef(null);
     const messageFormRef: MessageFormRef = useRef(null);
@@ -62,6 +65,13 @@ export default function AssetView({modalIndex, open}: Props) {
     >();
     const {t} = useTranslation();
     const queryKey = ['assets', assetId];
+    const [storyAssets, setStoryAssets] =
+        React.useState<ApiCollectionResponse<Asset>>();
+    const [currentStoryAsset, setCurrentStoryAsset] = React.useState<
+        Asset | undefined
+    >();
+
+    console.log('currentStoryAsset', currentStoryAsset);
 
     useChannelRegistration(`asset-${assetId}`, `asset_ingested`, () => {
         queryClient.invalidateQueries({queryKey});
@@ -97,13 +107,6 @@ export default function AssetView({modalIndex, open}: Props) {
         [setIntegrationOverlay]
     );
 
-    const dimensions = useMemo<Dimensions>(() => {
-        return {
-            width: winSize.innerWidth - menuWidth - scrollbarWidth,
-            height: winSize.innerHeight - headerHeight - 2,
-        };
-    }, [winSize]);
-
     const [[asset, renditions], rendition] = (
         isSuccess
             ? [
@@ -127,6 +130,28 @@ export default function AssetView({modalIndex, open}: Props) {
         }
     }, [data, previousData, renditionId]);
 
+    const isStory = Boolean(asset?.storyCollection);
+    if (isStory) {
+        heightRest += storyCarouselHeight;
+    }
+
+    const dimensions = useMemo<Dimensions>(() => {
+        return {
+            width: winSize.innerWidth - menuWidth - scrollbarWidth,
+            height: winSize.innerHeight - heightRest - 2,
+        };
+    }, [winSize]);
+
+    React.useEffect(() => {
+        if (asset?.storyCollection) {
+            getAssets({
+                parents: [asset.storyCollection.id],
+            }).then(setStoryAssets);
+        } else {
+            setStoryAssets(undefined);
+        }
+    }, [asset]);
+
     const {
         onNewAnnotation,
         onUpdateAnnotation,
@@ -147,6 +172,9 @@ export default function AssetView({modalIndex, open}: Props) {
 
         return <FullPageLoader />;
     }
+
+    const panelHeight = winSize.innerHeight - headerHeight;
+    const displayedAsset = currentStoryAsset || asset;
 
     return (
         <RouteDialog>
@@ -171,6 +199,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                 rendition={rendition}
                                 renditions={renditions}
                                 displayActions={!integrationOverlay}
+                                isStory={isStory}
                             />
                         ) : (
                             <div></div>
@@ -183,74 +212,104 @@ export default function AssetView({modalIndex, open}: Props) {
                         <>
                             <Box
                                 sx={{
-                                    height: dimensions.height,
                                     display: 'flex',
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
                                 }}
                             >
-                                <Box
-                                    className={
-                                        filePlayerRelativeWrapperClassName
-                                    }
-                                    sx={theme => ({
-                                        position: 'relative',
+                                <div
+                                    style={{
+                                        height: panelHeight,
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        overflowY: 'auto',
-                                        height: dimensions.height,
-                                        width:
-                                            dimensions.width + scrollbarWidth,
-                                        maxWidth:
-                                            dimensions.width + scrollbarWidth,
-                                        backgroundColor:
-                                            getMediaBackgroundColor(theme),
-                                    })}
+                                    }}
                                 >
-                                    {rendition?.file &&
-                                        (!integrationOverlay ||
-                                            !integrationOverlay.replace) && (
-                                            <MemoizedFilePlayer
-                                                assetAnnotationsRef={
-                                                    assetAnnotationsRef
+                                    <Box
+                                        className={
+                                            filePlayerRelativeWrapperClassName
+                                        }
+                                        sx={theme => ({
+                                            position: 'relative',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            overflowY: 'auto',
+                                            height: dimensions.height,
+                                            width:
+                                                dimensions.width +
+                                                scrollbarWidth,
+                                            maxWidth:
+                                                dimensions.width +
+                                                scrollbarWidth,
+                                            backgroundColor:
+                                                getMediaBackgroundColor(theme),
+                                        })}
+                                    >
+                                        {(currentStoryAsset ||
+                                            rendition?.file) &&
+                                            (!integrationOverlay ||
+                                                !integrationOverlay.replace) && (
+                                                <MemoizedFilePlayer
+                                                    assetAnnotationsRef={
+                                                        assetAnnotationsRef
+                                                    }
+                                                    onNewAnnotation={
+                                                        onNewAnnotation
+                                                    }
+                                                    onUpdateAnnotation={
+                                                        onUpdateAnnotation
+                                                    }
+                                                    onDeleteAnnotation={
+                                                        onDeleteAnnotation
+                                                    }
+                                                    annotations={annotations}
+                                                    file={
+                                                        currentStoryAsset
+                                                            ?.original?.file ||
+                                                        currentStoryAsset
+                                                            ?.preview?.file ||
+                                                        currentStoryAsset
+                                                            ?.thumbnail?.file ||
+                                                        rendition?.file
+                                                    }
+                                                    title={displayedAsset.title}
+                                                    dimensions={dimensions}
+                                                    autoPlayable={false}
+                                                    controls={true}
+                                                    zoomEnabled={true}
+                                                />
+                                            )}
+                                        {integrationOverlay &&
+                                            React.createElement(
+                                                integrationOverlay.component,
+                                                {
+                                                    dimensions,
+                                                    ...(integrationOverlay.props ||
+                                                        {}),
                                                 }
-                                                onNewAnnotation={
-                                                    onNewAnnotation
-                                                }
-                                                onUpdateAnnotation={
-                                                    onUpdateAnnotation
-                                                }
-                                                onDeleteAnnotation={
-                                                    onDeleteAnnotation
-                                                }
-                                                annotations={annotations}
-                                                file={rendition.file}
-                                                title={asset.title}
-                                                dimensions={dimensions}
-                                                autoPlayable={false}
-                                                controls={true}
-                                                zoomEnabled={true}
-                                            />
-                                        )}
-                                    {integrationOverlay &&
-                                        React.createElement(
-                                            integrationOverlay.component,
-                                            {
-                                                dimensions,
-                                                ...(integrationOverlay.props ||
-                                                    {}),
-                                            }
-                                        )}
-                                </Box>
+                                            )}
+                                    </Box>
+
+                                    {isStory ? (
+                                        <StoryCarousel
+                                            assets={storyAssets}
+                                            selectedAsset={displayedAsset}
+                                            story={asset}
+                                            onAssetClick={a => {
+                                                setCurrentStoryAsset(a);
+                                            }}
+                                        />
+                                    ) : null}
+                                </div>
+
                                 <Box
                                     sx={theme => ({
                                         width: menuWidth,
                                         maxWidth: menuWidth,
                                         borderLeft: `1px solid ${theme.palette.divider}`,
                                         overflowY: 'auto',
-                                        height: dimensions.height,
+                                        height: panelHeight,
                                     })}
                                 >
                                     <AssetAttributes

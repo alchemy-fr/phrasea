@@ -1,4 +1,4 @@
-import React, {DOMAttributes, ReactNode} from 'react';
+import React, {HTMLAttributes, ReactNode} from 'react';
 import {Asset} from '../../../types';
 import AssetFileIcon from './AssetFileIcon';
 import assetClasses from '../../AssetList/classes';
@@ -11,7 +11,7 @@ import StoryChip from '../../AssetList/Layouts/StoryChip.tsx';
 
 type Props = {
     asset: Asset;
-} & DOMAttributes<HTMLDivElement>;
+} & HTMLAttributes<HTMLDivElement>;
 
 function AssetThumb({
     asset: {
@@ -52,9 +52,12 @@ function AssetThumb({
     return (
         <div
             {...domAttrs}
-            className={classNames({
-                [assetClasses.thumbWrapper]: true,
-            })}
+            className={classNames(
+                {
+                    [assetClasses.thumbWrapper]: true,
+                },
+                [domAttrs.className]
+            )}
         >
             {thumb ? (
                 <div
@@ -126,21 +129,13 @@ export const thumbSx = (
             display: 'contents',
         },
         [`.${assetClasses.storyChip}`]: {
-            'position': 'absolute',
-            'width': '100%',
-            'bottom': theme.spacing(1),
-            'textAlign': 'center',
-            'left': 0,
-            'zIndex': 2,
-            'display': 'inline-block',
-            '.MuiChip-label': {
-                width: 0,
-            },
-            '&:hover': {
-                '.MuiChip-label': {
-                    width: 'auto',
-                },
-            },
+            position: 'absolute',
+            width: '100%',
+            bottom: theme.spacing(1),
+            textAlign: 'center',
+            left: 0,
+            zIndex: 2,
+            display: 'inline-block',
         },
 
         ...createThumbActiveStyle(),
