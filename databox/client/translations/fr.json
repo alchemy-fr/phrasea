@@ -1564,7 +1564,7 @@
                 "placeholder": "Opérateur"
             },
             "add_condition": "Ajouter une condition",
-            "field": "Attribut",
+            "field": "Champ",
             "value": "Valeur"
         },
         "dialog": {
