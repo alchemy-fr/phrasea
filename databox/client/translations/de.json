@@ -323,8 +323,8 @@
     "basket_view_dialog": {
         "item": "Element",
         "remove_from_basket": "Aus dem Korb entfernen",
-        "x_item_one": "<strong>{{count}}</strong> Treffer",
-        "x_item_other": "<strong>{{count}}</strong> Treffer",
+        "x_item_one": "<strong>{{count}}</strong> Element",
+        "x_item_other": "<strong>{{count}}</strong> Elemente",
         "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> Element",
         "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> Elemente"
     },
@@ -1450,7 +1450,7 @@
             },
             "add_condition": "Bedingung hinzufügen",
             "add_condition_group": "Bedingungsgruppe hinzufügen",
-            "field": "Attribut",
+            "field": "Feld",
             "value": "Wert"
         },
         "dialog": {
