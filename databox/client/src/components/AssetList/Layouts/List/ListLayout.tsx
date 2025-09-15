@@ -75,7 +75,10 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                 ...attributesSx(),
                 ...thumbSx(d.thumbSize, theme),
                 [`.${assetClasses.item}`]: {
-                    'p': 2,
+                    'display': 'flex',
+                    'flexDirection': 'row',
+                    'gap': 1,
+                    'marginBottom': '20px',
                     'position': 'relative',
                     [`.${assetClasses.checkBtb}, .${assetClasses.controls}`]: {
                         position: 'absolute',
@@ -89,13 +92,13 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                     },
                     [`.${assetClasses.checkBtb}`]: {
                         transform: `translateX(-10px)`,
-                        left: 15,
-                        top: 15,
+                        left: theme.spacing(1),
+                        top: theme.spacing(1),
                     },
                     [`.${assetClasses.controls}`]: {
                         position: 'absolute',
-                        right: 1,
-                        top: 1,
+                        right: theme.spacing(1),
+                        top: theme.spacing(1),
                     },
                     '&:hover, &.selected': {
                         [`.${assetClasses.checkBtb}, .${assetClasses.controls}`]:
@@ -108,9 +111,10 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                         backgroundColor: alpha(theme.palette.primary.main, 0.1),
                     },
                     [`.${assetClasses.attributes}`]: {
-                        '> div + div': {
-                            mt: 1,
-                        },
+                        p: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1,
                     },
                 },
             };

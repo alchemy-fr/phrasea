@@ -69,15 +69,10 @@ export default function AssetCollectionList({workspace, collections}: Props) {
 export function collectionListSx() {
     return {
         [`.${assetClasses.collectionList}`]: {
-            'display': 'flex',
-            'alignItems': 'center',
-            'flexWrap': 'wrap',
-            '.MuiChip-root': {
-                my: 0.5,
-            },
-            '.MuiChip-root+.MuiChip-root': {
-                ml: 0.5,
-            },
+            display: 'flex',
+            gap: 0.5,
+            alignItems: 'center',
+            flexWrap: 'wrap',
         },
     };
 }

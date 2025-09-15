@@ -87,6 +87,7 @@ export interface Asset
     attributesEditedAt: string;
     groupValue?: GroupValue | undefined;
     topicSubscriptions?: TopicSubscriptions;
+    storyCollection?: Collection | undefined;
 }
 
 type AttrValue = any;

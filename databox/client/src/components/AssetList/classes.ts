@@ -23,6 +23,7 @@ const assetClasses = {
     videoPlayerIsAudio: 'asset-ia',
     videoPlayerActions: 'vp-actions',
     videoPlayerPlaying: 'asset-playing',
+    storyChip: 'story-chip',
 };
 
 export default assetClasses;

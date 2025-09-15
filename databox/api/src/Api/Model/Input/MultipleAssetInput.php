@@ -13,4 +13,6 @@ class MultipleAssetInput extends AbstractOwnerIdInput
      */
     #[Assert\Valid]
     public ?array $assets = null;
+
+    public ?bool $isStory = false;
 }
