@@ -115,7 +115,7 @@
                 "title": "Operationen"
             },
             "renditions": {
-                "title": "Renditionen"
+                "title": "Renditions"
             },
             "title": "Asset {{name}} verwalten",
             "es_doc": {
@@ -488,7 +488,7 @@
     },
     "export": {
         "dialog": {
-            "intro": "Wählen Sie die Renditionen aus, die Sie exportieren möchten:",
+            "intro": "Wählen Sie die Renditions aus, die Sie exportieren möchten:",
             "submit": "Exportieren",
             "title_one": "{{count}} Asset exportieren",
             "title_other": "{{count}} Assets exportieren",
@@ -1206,7 +1206,7 @@
                 "title": "Informationen"
             },
             "rendition_definition": {
-                "title": "Renditionen"
+                "title": "Renditions"
             },
             "tag_rules": {
                 "title": "Tag Regeln"
