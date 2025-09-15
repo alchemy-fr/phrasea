@@ -7,13 +7,16 @@ namespace App\Integration\Core\Happyscribe;
 use Alchemy\StorageBundle\Util\FileUtil;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
+use App\Asset\Attribute\AttributesResolver;
+use App\Asset\FileFetcher;
+use App\Attribute\AttributeInterface;
 use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
+use App\Repository\Core\AttributeDefinitionRepository;
 use App\Storage\RenditionManager;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -26,6 +29,9 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
         private readonly BatchAttributeManager $batchAttributeManager,
         private readonly RenditionManager $renditionManager,
         private HttpClientInterface $happyscribeClient,
+        private FileFetcher $fileFetcher,
+        private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
+        private readonly AttributesResolver $attributesResolver,
     ) {
     }
 
@@ -34,17 +40,36 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
         $asset = $this->getAsset($context);
         $config = $this->getIntegrationConfig($context);
         $this->happyscribeToken = $config['api_key'];
-        $organizationId = $config['organization_id'];
         $this->extension = $config['transcript_format'];
+        $organizationId = $config['organization_id'];
+        $allEnabledLocales = $asset->getWorkspace()->getEnabledLocales();
+        $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
 
         if (!FileUtil::isVideoType($asset->getSource()->getType()) && !FileUtil::isAudioType($asset->getSource()->getType())) {
             return;
         }
 
-        if (in_array(strtolower($$this->extension), ['srt', 'txt', 'json', 'vtt', 'docx', 'pdf', 'html'])) {
-            $this->extension = strtolower($$this->extension);
+        if (in_array(strtolower($this->extension), ['srt', 'txt', 'json', 'vtt', 'docx', 'pdf', 'html'])) {
+            $this->extension = strtolower($this->extension);
         } else {
             throw new \InvalidArgumentException('Invalid transcript format, must be one of srt, vtt, txt, docx, pdf, json, html');
+        }
+
+        $attrDef = $this->attributeDefinitionRepository
+                ->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $config['attribute'])
+                    ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config['attribute'], $asset->getWorkspaceId()));
+
+        $toTranscript = false;
+        foreach ($allEnabledLocales as $locale) {
+            $attribute = $attributeIndex->getAttribute($attrDef->getId(), $locale);
+            if (empty($attribute)) {
+                $toTranscript = true;
+                break;
+            }
+        }
+
+        if (!$toTranscript) {
+            return;
         }
 
         $fileName = $asset->getSource()->getFilename();
@@ -65,12 +90,31 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
 
         $tmpUrl = $responseUploadBody['signedUrl'];
 
+        $fetchedFilePath = $this->fileFetcher->getFile($file);
+
         $res = $this->happyscribeClient->request('PUT', $tmpUrl, [
-            'body' => fopen($file->getPath(), 'r'),
+            'headers' => [
+                'Content-Type' => 'application/octet-stream',
+                'Content-Length' => filesize($fetchedFilePath),
+            ],
+            'body' => fopen($fetchedFilePath, 'r'),
         ]);
 
         if (200 !== $res->getStatusCode()) {
-            throw new \RuntimeException('error when uploading file to signed url,response status : '.$res->getStatusCode());
+            throw new \RuntimeException('error when uploading file to signed url, response status : '.$res->getStatusCode().', message : '.$res->getContent(false));
+        }
+
+        $srcLanguageAttrDef = $this->attributeDefinitionRepository
+                ->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $config['sourceLanguageAttribute'])
+                    ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config['sourceLanguageAttribute'], $asset->getWorkspaceId()));
+
+        $sourceLanguage = $attributeIndex->getAttribute($srcLanguageAttrDef->getId(), AttributeInterface::NO_LOCALE)?->getValue() ?? $config['defaultSourceLanguage'];
+
+        $t = explode('-', $sourceLanguage);
+        $sourceLanguage = $t[0];
+
+        if (2 != strlen($sourceLanguage)) {
+            throw new \InvalidArgumentException('Source language code must be a 2-letter code, eg: en, fr, ...');
         }
 
         // create a transcription
@@ -84,7 +128,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
                     'transcription' => [
                         'name' => $asset->getTitle(),
                         'is_subtitle' => true,
-                        'language' => 'fr-FR',
+                        'language' => strtolower($sourceLanguage),
                         'organization_id' => $organizationId,
                         'tmp_url' => $tmpUrl,
                     ],
@@ -96,7 +140,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
         }
 
         if (200 !== $responseTranscription->getStatusCode()) {
-            throw new \RuntimeException('error when creating transcript,response status : '.$responseTranscription->getStatusCode());
+            throw new \RuntimeException('error when creating transcript,response status : '.$responseTranscription->getStatusCode().' message : '.$responseTranscription->getContent(false));
         }
 
         $responseTranscriptionBody = $responseTranscription->toArray();
@@ -133,14 +177,31 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
 
         $input = new AssetAttributeBatchUpdateInput();
 
-        $i = new AttributeActionInput();
-        $i->name = $config['attribute'];
-        $i->origin = Attribute::ORIGIN_MACHINE;
-        $i->originVendor = HappyscribeIntegration::getName();
-        $i->value = $$this->exportTranscription($transcriptionId);
-        //  $i->locale = $destinationLanguage;
+        foreach ($allEnabledLocales as $locale) {
+            if (!$attrDef->isTranslatable() && AttributeInterface::NO_LOCALE !== $locale) {
+                continue;
+            }
 
-        $input->actions[] = $i;
+            if ($attrDef->isMultiple()) {
+                throw new \InvalidArgumentException(sprintf('Attribute "%s" must be mono-valued', $attrDef->getId()));
+            }
+
+            if (AttributeInterface::NO_LOCALE !== $locale && 1 !== preg_match('/'.$locale.'/', $sourceLanguage)) {
+                $transcriptionContent = $this->translate($transcriptionId, $locale);
+            } else {
+                $transcriptionContent = $this->exportTranscription($transcriptionId);
+            }
+
+            $i = new AttributeActionInput();
+            $i->definitionId = $attrDef->getId();
+            $i->origin = Attribute::ORIGIN_MACHINE;
+            $i->originVendor = HappyscribeIntegration::getName();
+            $i->value = $transcriptionContent;
+            $i->locale = $locale;
+
+            $input->actions[] = $i;
+
+        }
 
         try {
             $this->batchAttributeManager->handleBatch(
@@ -156,9 +217,6 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
 
     private function exportTranscription($transcriptionId)
     {
-        $filesystem = new Filesystem();
-        $subtitleTranscriptTemporaryFile = $filesystem->tempnam('/tmp', 'subtitle', $this->extension);
-
         $resExport = $this->happyscribeClient->request('POST', 'https://www.happyscribe.com/api/v1/exports', [
             'headers' => [
                 'Authorization' => 'Bearer '.$this->happyscribeToken,
@@ -209,13 +267,9 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
             throw new \RuntimeException('exporting transcript failed, status : '.$exportStatus.', message : '.$failureExportMessage);
         }
 
-        $this->happyscribeClient->request('GET', $resCheckExportBody['download_link'], [
-            'sink' => $subtitleTranscriptTemporaryFile,
-        ]);
+        $res = $this->happyscribeClient->request('GET', $resCheckExportBody['download_link']);
 
-        $transcriptContent = file_get_contents($subtitleTranscriptTemporaryFile);
-
-        return $transcriptContent;
+        return $res->getContent();
     }
 
     private function translate($sourceTranscriptionId, $targetLanguage)
@@ -236,7 +290,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
         }
 
         if (200 !== $resTranslate->getStatusCode()) {
-            throw new \RuntimeException('error when translate, response status : '.$resTranslate->getStatusCode());
+            throw new \RuntimeException('error when translate, response status : '.$resTranslate->getStatusCode().'target language'.$targetLanguage);
         }
 
         $resTranslateBody = $resTranslate->toArray();
