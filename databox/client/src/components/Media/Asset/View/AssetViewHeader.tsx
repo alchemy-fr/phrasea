@@ -17,7 +17,7 @@ type Props = {
     rendition: AssetRendition | undefined;
     renditions: AssetRendition[];
     displayActions: boolean;
-    isStory: boolean;
+    currentStoryAsset?: Asset;
 };
 
 function AssetViewHeader({
@@ -25,7 +25,7 @@ function AssetViewHeader({
     rendition,
     displayActions,
     renditions,
-    isStory,
+    currentStoryAsset,
 }: Props) {
     const {state} = useLocation() as Location<AssetContextState | undefined>;
     const navigateToModal = useNavigateToModal();
@@ -35,6 +35,8 @@ function AssetViewHeader({
             renditionId,
         });
     };
+
+    const isMainAsset = !currentStoryAsset || currentStoryAsset.id === asset.id;
 
     return (
         <FlexRow
@@ -57,7 +59,7 @@ function AssetViewHeader({
                     defaults={'Asset <strong>{{name}}</strong>'}
                 />
             </div>
-            {!isStory && (
+            {isMainAsset && (
                 <Select<string>
                     sx={{ml: 2}}
                     label={''}
@@ -72,7 +74,7 @@ function AssetViewHeader({
                     ))}
                 </Select>
             )}
-            {displayActions ? (
+            {isMainAsset && displayActions ? (
                 <AssetViewActions asset={asset} file={rendition?.file} />
             ) : (
                 ''

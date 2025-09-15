@@ -71,8 +71,6 @@ export default function AssetView({modalIndex, open}: Props) {
         Asset | undefined
     >();
 
-    console.log('currentStoryAsset', currentStoryAsset);
-
     useChannelRegistration(`asset-${assetId}`, `asset_ingested`, () => {
         queryClient.invalidateQueries({queryKey});
     });
@@ -176,6 +174,12 @@ export default function AssetView({modalIndex, open}: Props) {
     const panelHeight = winSize.innerHeight - headerHeight;
     const displayedAsset = currentStoryAsset || asset;
 
+    const displayedRenditionFile = currentStoryAsset
+        ? currentStoryAsset.original?.file ||
+          currentStoryAsset.preview?.file ||
+          currentStoryAsset.thumbnail?.file
+        : rendition?.file;
+
     return (
         <RouteDialog>
             {({onClose}) => (
@@ -199,7 +203,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                 rendition={rendition}
                                 renditions={renditions}
                                 displayActions={!integrationOverlay}
-                                isStory={isStory}
+                                currentStoryAsset={currentStoryAsset}
                             />
                         ) : (
                             <div></div>
@@ -246,8 +250,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                                 getMediaBackgroundColor(theme),
                                         })}
                                     >
-                                        {(currentStoryAsset ||
-                                            rendition?.file) &&
+                                        {Boolean(displayedRenditionFile) &&
                                             (!integrationOverlay ||
                                                 !integrationOverlay.replace) && (
                                                 <MemoizedFilePlayer
@@ -265,13 +268,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                                     }
                                                     annotations={annotations}
                                                     file={
-                                                        currentStoryAsset
-                                                            ?.original?.file ||
-                                                        currentStoryAsset
-                                                            ?.preview?.file ||
-                                                        currentStoryAsset
-                                                            ?.thumbnail?.file ||
-                                                        rendition?.file
+                                                        displayedRenditionFile!
                                                     }
                                                     title={displayedAsset.title}
                                                     dimensions={dimensions}
@@ -313,16 +310,16 @@ export default function AssetView({modalIndex, open}: Props) {
                                     })}
                                 >
                                     <AssetAttributes
-                                        asset={asset}
+                                        asset={displayedAsset}
                                         assetAnnotationsRef={
                                             assetAnnotationsRef
                                         }
                                     />
 
-                                    <AssetViewInfo asset={asset} />
+                                    <AssetViewInfo asset={displayedAsset} />
 
                                     <AssetDiscussion
-                                        asset={asset}
+                                        asset={displayedAsset}
                                         onFocus={onMessageFocus}
                                         onMessageDelete={onMessageDelete}
                                         onAttachmentClick={onAttachmentClick}
@@ -345,11 +342,11 @@ export default function AssetView({modalIndex, open}: Props) {
                                         }}
                                         messageFormRef={messageFormRef}
                                     />
-                                    {rendition?.file ? (
+                                    {displayedRenditionFile ? (
                                         <FileIntegrations
-                                            key={rendition.file.id}
+                                            key={displayedRenditionFile.id}
                                             asset={asset}
-                                            file={rendition.file}
+                                            file={displayedRenditionFile}
                                             assetAnnotationsRef={
                                                 assetAnnotationsRef
                                             }
