@@ -1,14 +1,16 @@
 {
-  "lib": {
-    "api": {
-      "error": {
-        "http_error": "Erreur du serveur",
-        "http_unauthorized": "Non autorisé",
-        "session_expired": "Votre session a expiré"
-      },
-      "http_error": {
-        "429": "Trop de requêtes, vous pouvez réessayer dans {{minutes}}min"
-      }
+    "lib": {
+        "api": {
+            "error": {
+                "http_error": "Erreur du serveur",
+                "http_unauthorized": "Non autorisé",
+                "session_expired": "Votre session a expiré",
+                "http_not_found": "Introuvable",
+                "http_bad_request": "Requête invalide"
+            },
+            "http_error": {
+                "429": "Trop de requêtes, vous pouvez réessayer dans {{minutes}}min"
+            }
+        }
     }
-  }
 }

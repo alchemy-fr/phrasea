@@ -13,5 +13,51 @@
     "order": {
         "last_post_added": "Récents",
         "publication_name": "Nom"
+    },
+    "download_custom": "Télécharger {{name}}",
+    "download_original": "Télécharger le fichier original",
+    "download_via_email": {
+        "cta": "Télécharger via email",
+        "sent": "Vous allez recevoir votre lien de téléchargement par email."
+    },
+    "email": {
+        "label": "Email"
+    },
+    "embedded_asset": {
+        "forbidden": "Interdit",
+        "not_found": "Introuvable"
+    },
+    "error": {
+        "invalid_password": "Mot de passe invalide"
+    },
+    "form": {
+        "continue": "Continuer"
+    },
+    "modal": {
+        "close": "Fermer",
+        "discard": "Abandonner"
+    },
+    "publication": {
+        "auth_required": {
+            "sign_in": "Se connecter",
+            "title": "Cette publication nécessite de s'authentifier"
+        },
+        "logout": "Se déconnecter",
+        "not_allowed": "Désolé! Vous n'êtes pas autorisé à accéder à cette publication.",
+        "password_required": {
+            "enter_password": "Saisir le mot de passe",
+            "submit": "OK"
+        }
+    },
+    "publication_security_proxy": {
+        "sorry_you_cannot_access_this_publication": "Désolé ! Vous ne pouvez pas accéder à cette publication."
+    },
+    "terms": {
+        "accept": "Accepter",
+        "please_read_accept": "Merci de lire et d'accepter les <link>conditions</link>",
+        "terms": "Conditions"
+    },
+    "asset_proxy": {
+        "unsupported_media_type": "Type de média non pris en charge"
     }
 }

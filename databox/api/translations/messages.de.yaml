@@ -1,0 +1,42 @@
+facet:
+  workspace:
+    title: Workspace
+  collections:
+    title: Kollektionen
+  created_at:
+    title: Erstellt am
+  edited_at:
+    title: Geändert am
+  owner:
+    title: Besitzer
+  privacy:
+    title: Datenschutz
+  renditions:
+    title: Renditions
+  relevance:
+    title: Relevanz
+  tags:
+    title: Tags
+field_type:
+  types:
+    text: Text
+    textarea: Textfeld
+    json: JSON
+    ip: IP
+    code: Code
+    html: HTML
+    boolean: boolescher Wert
+    color: Farbe
+    keyword: Schlüsselwort
+    number: Zahl
+    date: Datum
+    date_time: Datum und Uhrzeit
+    geo_point: Geopunkt
+    entity: Entität
+privacy:
+  secret: Secret
+  private_in_workspace: Privat im Workspace
+  public_in_workspace: Öffentlich im Workspace
+  private: Privat
+  public_for_users: Öffentlich für Benutzer
+  public: Öffentlich
