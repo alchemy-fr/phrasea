@@ -39,7 +39,7 @@ class AssetVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        if ($this->hasScope($token, $attribute)) {
+        if ($this->tokenHasScope($token, $attribute)) {
             return true;
         }
 

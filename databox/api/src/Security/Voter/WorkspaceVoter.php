@@ -48,7 +48,7 @@ class WorkspaceVoter extends AbstractVoter
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
-        if ($this->hasScope($token, $attribute)) {
+        if ($this->tokenHasScope($token, $attribute)) {
             return true;
         }
 

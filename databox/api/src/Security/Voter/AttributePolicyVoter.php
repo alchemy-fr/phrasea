@@ -35,9 +35,9 @@ class AttributePolicyVoter extends AbstractVoter
         $workspaceReader = fn (): bool => $this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE, self::EDIT, self::DELETE => $workspaceEditor() || $this->hasScope($token, $attribute),
-            self::READ_ADMIN => $workspaceEditor() || $this->hasScope($token, 'read'),
-            self::READ => $workspaceReader() || $this->hasScope($token, $attribute),
+            self::CREATE, self::EDIT, self::DELETE => $workspaceEditor() || $this->tokenHasScope($token, $attribute),
+            self::READ_ADMIN => $workspaceEditor() || $this->tokenHasScope($token, 'read'),
+            self::READ => $workspaceReader() || $this->tokenHasScope($token, $attribute),
             default => false,
         };
     }

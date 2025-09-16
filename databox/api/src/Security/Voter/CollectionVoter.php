@@ -40,7 +40,7 @@ class CollectionVoter extends AbstractVoter
 
     private function doVote(string $attribute, Collection $subject, TokenInterface $token): bool
     {
-        if ($this->hasScope($token, $attribute)) {
+        if ($this->tokenHasScope($token, $attribute)) {
             return true;
         }
 

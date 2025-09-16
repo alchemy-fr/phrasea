@@ -39,19 +39,19 @@ class BasketVoter extends AbstractVoter
         return match ($attribute) {
             self::CREATE => $this->isAuthenticated(),
             self::READ => $isOwner()
-                || $this->hasScope($token, $attribute)
+                || $this->tokenHasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
             self::EDIT => $isOwner()
-                || $this->hasScope($token, $attribute)
+                || $this->tokenHasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             self::SHARE => $isOwner()
-                || $this->hasScope($token, $attribute)
+                || $this->tokenHasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::SHARE, $subject, $token),
             self::DELETE => $isOwner()
-                || $this->hasScope($token, $attribute)
+                || $this->tokenHasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
             self::EDIT_PERMISSIONS => $isOwner()
-                || $this->hasScope($token, $attribute)
+                || $this->tokenHasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
             default => false,
         };

@@ -12,12 +12,16 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Template\AssetDataTemplate;
+use App\Security\ScopeTrait;
+use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\AssetDataTemplateVoter;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Bundle\SecurityBundle\Security;
 
-readonly class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
+class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
 {
-    public function __construct(private Security $security, private ObjectMapping $objectMapping)
+    use ScopeTrait;
+
+    public function __construct(private readonly ObjectMapping $objectMapping)
     {
     }
 
@@ -39,20 +43,22 @@ readonly class AssetDataTemplateExtension implements QueryCollectionExtensionInt
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        $user = $this->security->getUser();
-        if ($user instanceof JwtUser) {
-            AccessControlEntryRepository::joinAcl(
-                $queryBuilder,
-                $user->getId(),
-                $user->getGroups(),
-                $this->objectMapping->getObjectKey(AssetDataTemplate::class),
-                $rootAlias,
-                PermissionInterface::VIEW,
-                false
-            );
-            $queryBuilder->andWhere(sprintf('ace.id IS NOT NULL OR %1$s.ownerId = :uid OR %1$s.public = true', $rootAlias));
-        } else {
-            $queryBuilder->andWhere(sprintf('%1$s.public = true', $rootAlias));
+        if (!$this->hasScope(AbstractVoter::LIST, AssetDataTemplateVoter::getScopePrefix())) {
+            $user = $this->security->getUser();
+            if ($user instanceof JwtUser) {
+                AccessControlEntryRepository::joinAcl(
+                    $queryBuilder,
+                    $user->getId(),
+                    $user->getGroups(),
+                    $this->objectMapping->getObjectKey(AssetDataTemplate::class),
+                    $rootAlias,
+                    PermissionInterface::VIEW,
+                    false
+                );
+                $queryBuilder->andWhere(sprintf('ace.id IS NOT NULL OR %1$s.ownerId = :uid OR %1$s.public = true', $rootAlias));
+            } else {
+                $queryBuilder->andWhere(sprintf('%1$s.public = true', $rootAlias));
+            }
         }
 
         $filters = $context['filters'] ?? [];

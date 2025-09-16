@@ -33,10 +33,10 @@ class EntityListVoter extends AbstractVoter
         $workspaceReader = fn (): bool => $this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE => $workspaceEditor() || $this->hasScope($token, $attribute),
-            self::EDIT => $workspaceEditor() || $this->hasScope($token, $attribute),
-            self::DELETE => $workspaceEditor() || $this->hasScope($token, $attribute),
-            self::READ => $workspaceReader() || $this->hasScope($token, $attribute),
+            self::CREATE => $workspaceEditor() || $this->tokenHasScope($token, $attribute),
+            self::EDIT => $workspaceEditor() || $this->tokenHasScope($token, $attribute),
+            self::DELETE => $workspaceEditor() || $this->tokenHasScope($token, $attribute),
+            self::READ => $workspaceReader() || $this->tokenHasScope($token, $attribute),
             default => false,
         };
     }

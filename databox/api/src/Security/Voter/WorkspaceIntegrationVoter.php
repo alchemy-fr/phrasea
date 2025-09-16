@@ -33,7 +33,7 @@ class WorkspaceIntegrationVoter extends AbstractVoter
         $workspaceReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE, self::DELETE, self::EDIT => $workspaceEditor() || $this->hasScope($token, $attribute),
+            self::CREATE, self::DELETE, self::EDIT => $workspaceEditor() || $this->tokenHasScope($token, $attribute),
             self::READ => $workspaceReader(),
             default => false,
         };

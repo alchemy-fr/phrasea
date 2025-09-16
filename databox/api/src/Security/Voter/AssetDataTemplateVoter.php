@@ -26,6 +26,10 @@ class AssetDataTemplateVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
+        if ($this->tokenHasScope($token, $attribute)) {
+            return true;
+        }
+
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
@@ -37,5 +41,10 @@ class AssetDataTemplateVoter extends AbstractVoter
             self::CREATE => (bool) $userId,
             default => false,
         };
+    }
+
+    public static function getScopePrefix(): string
+    {
+        return 'asset-data-template:';
     }
 }
