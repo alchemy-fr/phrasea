@@ -24,6 +24,8 @@ const assetClasses = {
     videoPlayerActions: 'vp-actions',
     videoPlayerPlaying: 'asset-playing',
     storyChip: 'story-chip',
+    storyThumb: 'story-tb',
+    storyShouldHide: 'story-sh',
 };
 
 export default assetClasses;

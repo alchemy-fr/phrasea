@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import {alpha, Theme} from '@mui/material/styles';
 import {videoPlayerSx} from './Players/VideoPlayer.tsx';
 import StoryChip from '../../Ui/StoryChip.tsx';
+import StoryThumb, {createStoryStyle} from './StoryThumb.tsx';
 
 type Props = {
     asset: Asset;
@@ -15,6 +16,7 @@ type Props = {
 
 function AssetThumb({
     asset: {
+        id,
         resolvedTitle,
         pendingSourceFile,
         thumbnail,
@@ -59,26 +61,30 @@ function AssetThumb({
                 [domAttrs.className]
             )}
         >
+            {storyCollection ? <StoryThumb assetId={id} /> : null}
             {thumb ? (
                 <div
-                    className={
-                        thumbnailActive ? assetClasses.thumbInactive : undefined
-                    }
+                    className={classNames({
+                        [assetClasses.thumbInactive]: thumbnailActive,
+                        [assetClasses.storyShouldHide]: !!storyCollection,
+                    })}
                 >
                     {thumb}
                 </div>
             ) : (
                 ''
             )}
-            {!pendingSourceFile && thumbnailActive?.file && (
-                <div className={assetClasses.thumbActive}>
-                    <FilePlayer
-                        file={thumbnailActive.file}
-                        title={resolvedTitle}
-                        autoPlayable={false}
-                    />
-                </div>
-            )}
+            {!pendingSourceFile &&
+                thumbnailActive?.file &&
+                !storyCollection && (
+                    <div className={assetClasses.thumbActive}>
+                        <FilePlayer
+                            file={thumbnailActive.file}
+                            title={resolvedTitle}
+                            autoPlayable={false}
+                        />
+                    </div>
+                )}
             {storyCollection ? <StoryChip /> : null}
         </div>
     );
@@ -111,6 +117,7 @@ export const thumbSx = (
     theme: Theme,
     overridden: SxProps = {}
 ) => ({
+    ...createStoryStyle(thumbSize, theme),
     [`.${assetClasses.thumbWrapper}`]: {
         'display': 'flex',
         'overflow': 'hidden',
@@ -151,5 +158,6 @@ export const thumbSx = (
         right: 0,
         backgroundColor: alpha(theme.palette.primary.main, 0.3),
         zIndex: 1,
+        pointerEvents: 'none',
     },
 });
