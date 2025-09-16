@@ -7,7 +7,7 @@ import {Skeleton, SxProps} from '@mui/material';
 import classNames from 'classnames';
 import {alpha, Theme} from '@mui/material/styles';
 import {videoPlayerSx} from './Players/VideoPlayer.tsx';
-import StoryChip from '../../AssetList/Layouts/StoryChip.tsx';
+import StoryChip from '../../Ui/StoryChip.tsx';
 
 type Props = {
     asset: Asset;

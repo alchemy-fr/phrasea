@@ -206,7 +206,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                 currentStoryAsset={currentStoryAsset}
                             />
                         ) : (
-                            <div></div>
+                            <></>
                         )
                     }
                     onClose={onClose}

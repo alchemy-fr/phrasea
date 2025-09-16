@@ -49,12 +49,14 @@ class AssetOutput extends AbstractUuidOutput
 
     #[Groups([Asset::GROUP_LIST,
         Asset::GROUP_READ,
+        Asset::GROUP_STORY,
         WebhookSerializationInterface::DEFAULT_GROUP,
         Share::GROUP_PUBLIC_READ])]
     private ?string $title = null;
 
     #[Groups([Asset::GROUP_LIST,
         Asset::GROUP_READ,
+        Asset::GROUP_STORY,
         WebhookSerializationInterface::DEFAULT_GROUP,
         Share::GROUP_READ,
         Share::GROUP_PUBLIC_READ,
@@ -67,7 +69,7 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_READ])]
     public ?Thread $thread = null;
 
-    #[Groups([Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     public ?string $threadKey = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]

@@ -1,7 +1,7 @@
 import BurstModeIcon from '@mui/icons-material/BurstMode';
 import {Chip} from '@mui/material';
 import {useTranslation} from 'react-i18next';
-import assetClasses from '../classes.ts';
+import assetClasses from '../AssetList/classes.ts';
 
 type Props = {};
 

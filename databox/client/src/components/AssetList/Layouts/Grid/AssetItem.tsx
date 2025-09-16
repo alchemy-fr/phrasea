@@ -33,6 +33,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
     onAddToBasket,
     itemComponent,
     itemOverlay,
+    onOpen,
 }: Props<Item>) {
     const disabled = !asset.workspace;
 
@@ -131,7 +132,10 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                     <AssetTagList tags={asset.tags!} />
                 )}
                 {asset.collections && asset.collections.length > 0 && (
-                    <AssetCollectionList collections={asset.collections!} />
+                    <AssetCollectionList
+                        onOpenAsset={onOpen}
+                        collections={asset.collections!}
+                    />
                 )}
             </div>
             {itemOverlay
