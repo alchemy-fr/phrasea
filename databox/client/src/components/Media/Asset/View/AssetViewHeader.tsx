@@ -8,7 +8,7 @@ import {FlexRow} from '@alchemy/phrasea-ui';
 import {useLocation} from '@alchemy/navigation';
 import type {Location} from '@alchemy/navigation';
 import {memo} from 'react';
-import {modalRoutes} from '../../../../routes.ts';
+import {modalRoutes, Routing} from '../../../../routes.ts';
 import {useNavigateToModal} from '../../../Routing/ModalLink.tsx';
 import {AssetContextState} from '../assetTypes.ts';
 
@@ -32,7 +32,7 @@ function AssetViewHeader({
     const handleRenditionChange = (renditionId: string) => {
         navigateToModal(modalRoutes.assets.routes.view, {
             id: asset.id,
-            renditionId,
+            renditionId: renditionId || Routing.UnknownRendition,
         });
     };
 
@@ -59,7 +59,7 @@ function AssetViewHeader({
                     defaults={'Asset <strong>{{name}}</strong>'}
                 />
             </div>
-            {isMainAsset && (
+            {isMainAsset && renditions.length > 0 && (
                 <Select<string>
                     sx={{ml: 2}}
                     label={''}

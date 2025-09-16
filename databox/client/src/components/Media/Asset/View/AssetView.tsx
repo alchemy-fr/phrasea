@@ -75,6 +75,10 @@ export default function AssetView({modalIndex, open}: Props) {
         queryClient.invalidateQueries({queryKey});
     });
 
+    React.useEffect(() => {
+        setCurrentStoryAsset(undefined);
+    }, [assetId]);
+
     const {data, isSuccess, isError} = useModalFetch({
         queryKey,
         staleTime: 2000,
@@ -226,6 +230,8 @@ export default function AssetView({modalIndex, open}: Props) {
                                         height: panelHeight,
                                         display: 'flex',
                                         flexDirection: 'column',
+                                        width:
+                                            dimensions.width + scrollbarWidth,
                                     }}
                                 >
                                     <Box

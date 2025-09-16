@@ -90,7 +90,10 @@ async function createAssets(
         options
     ).then(assets => {
         return assets.map(a => {
-            indexedFiles[a.pendingUploadToken!].assetId = a.id;
+            if (a.pendingUploadToken) {
+                // Story assets does not have pendingUploadToken
+                indexedFiles[a.pendingUploadToken!].assetId = a.id;
+            }
 
             return a;
         });

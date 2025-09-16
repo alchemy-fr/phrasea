@@ -13,6 +13,10 @@ import SharePage from './pages/SharePage.tsx';
 import AttributeListDialog from './components/Dialog/AttributeList/AttributeListDialog.tsx';
 import FileDialog from './components/Dialog/File/FileDialog.tsx';
 
+export enum Routing {
+    UnknownRendition = '_',
+}
+
 const modalRoutes = {
     workspaces: {
         public: false,
@@ -65,10 +69,6 @@ const modalRoutes = {
             manage: {
                 path: 'manage/:tab',
                 component: AssetDialog,
-            },
-            viewGuessRendition: {
-                path: '',
-                component: AssetView,
             },
             view: {
                 path: ':renditionId',

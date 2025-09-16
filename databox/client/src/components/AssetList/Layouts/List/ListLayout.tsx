@@ -151,12 +151,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                         )}
                         <GroupRow asset={asset} top={0}>
                             <div
-                                onDoubleClick={
-                                    onOpen && asset.original
-                                        ? () =>
-                                              onOpen(asset, asset.original!.id)
-                                        : undefined
-                                }
+                                onDoubleClick={() => onOpen?.(asset)}
                                 onContextMenu={
                                     onContextMenuOpen
                                         ? e => onContextMenuOpen!(e, item)

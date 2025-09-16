@@ -30,9 +30,6 @@ export default function StoryCarousel({
                     return {
                         ...thumbSx(h, theme),
                         p: 1,
-                        display: 'flex',
-                        flexDirection: 'row',
-                        gap: 1,
                         overflowX: 'auto',
                         overflowY: 'hidden',
                         bgcolor: 'background.paper',
@@ -41,48 +38,61 @@ export default function StoryCarousel({
                             boxShadow: `inset 0 0 0 2px ${theme.palette.primary.main}`,
                         },
                         ['> div']: {
-                            flex: '0 0 auto',
-                            cursor: 'pointer',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            gap: 1,
+                            ['> span']: {
+                                flex: '0 0 auto',
+                                cursor: 'pointer',
+                            },
                         },
                     };
                 }}
             >
-                <div
-                    onClick={() => onAssetClick(story)}
-                    className={classNames({
-                        [assetClasses.thumbWrapper]: true,
-                        selected: selectedAsset?.id === story.id,
-                    })}
-                >
-                    <AssetThumb asset={story} />
+                <div>
+                    <div
+                        onClick={() => onAssetClick(story)}
+                        className={classNames({
+                            [assetClasses.thumbWrapper]: true,
+                            selected: selectedAsset?.id === story.id,
+                        })}
+                    >
+                        <AssetThumb asset={story} />
+                    </div>
+                    {!assets ? (
+                        <>
+                            {new Array(10).fill(0).map((_, i) => (
+                                <Skeleton
+                                    key={i}
+                                    variant="rectangular"
+                                    width={storyCarouselHeight}
+                                    height={storyCarouselHeight}
+                                />
+                            ))}
+                        </>
+                    ) : (
+                        <>
+                            {assets.result.map(asset => (
+                                <div
+                                    key={asset.id}
+                                    onClick={() => onAssetClick(asset)}
+                                    className={classNames({
+                                        [assetClasses.thumbWrapper]: true,
+                                        selected:
+                                            selectedAsset?.id === asset.id,
+                                    })}
+                                >
+                                    <AssetThumb asset={asset} />
+                                </div>
+                            ))}
+                            {assets.result.length < assets.total && (
+                                <div>
+                                    +{assets.total - assets.result.length} more
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
-                {!assets ? (
-                    <>
-                        {new Array(10).fill(0).map((_, i) => (
-                            <Skeleton key={i} />
-                        ))}
-                    </>
-                ) : (
-                    <>
-                        {assets.result.map(asset => (
-                            <div
-                                key={asset.id}
-                                onClick={() => onAssetClick(asset)}
-                                className={classNames({
-                                    [assetClasses.thumbWrapper]: true,
-                                    selected: selectedAsset?.id === asset.id,
-                                })}
-                            >
-                                <AssetThumb asset={asset} />
-                            </div>
-                        ))}
-                        {assets.result.length < assets.total && (
-                            <div>
-                                +{assets.total - assets.result.length} more
-                            </div>
-                        )}
-                    </>
-                )}
             </Box>
         </>
     );

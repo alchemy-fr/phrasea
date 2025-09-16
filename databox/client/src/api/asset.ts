@@ -40,6 +40,12 @@ export type ESDebug = {
     totalResponseTime: number;
 };
 
+export async function getStoryThumbnails(assetId: string): Promise<string[]> {
+    const res = await apiClient.get(`/assets/${assetId}/story-thumbnails`);
+
+    return res.data.thumbnails;
+}
+
 export async function getAssets(
     options: GetAssetOptions,
     requestConfig?: AxiosRequestConfig

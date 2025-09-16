@@ -62,7 +62,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
     return (
         <ContextMenu id={id} onClose={onClose} contextMenu={contextMenu}>
             {can.open && (
-                <MenuItem onClick={() => onOpen(original!.id)}>
+                <MenuItem onClick={() => onOpen()}>
                     <ListItemIcon>
                         <FileOpenIcon />
                     </ListItemIcon>
