@@ -259,6 +259,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     use ExtraMetadataTrait;
 
     final public const string GROUP_READ = 'asset:r';
+    final public const string GROUP_STORY = 'asset:story';
     final public const string GROUP_LIST = 'asset:i';
     final public const string GROUP_WRITE = 'asset:w';
 

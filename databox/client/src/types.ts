@@ -284,6 +284,7 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
 export interface Collection extends IPermissions, Entity {
     title: string;
     titleTranslated: string;
+    storyAsset?: Asset;
     absoluteTitle?: string;
     absoluteTitleTranslated?: string;
     children?: CollectionOptionalWorkspace[];

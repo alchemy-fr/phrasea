@@ -1,17 +1,23 @@
 import {useContext} from 'react';
-import {Collection, Workspace} from '../../../../types';
+import {Asset, Collection, Workspace} from '../../../../types';
 import {DisplayContext} from '../../DisplayContext';
 import assetClasses from '../../../AssetList/classes';
 import {useTranslation} from 'react-i18next';
 import {WorkspaceChip} from '../../../Ui/WorkspaceChip.tsx';
 import {CollectionChip} from '../../../Ui/CollectionChip.tsx';
+import CollectionStoryChip from '../../../Ui/CollectionStoryChip.tsx';
 
 type Props = {
     workspace?: Workspace;
     collections: Collection[];
+    onOpenAsset?: (asset: Asset) => void;
 };
 
-export default function AssetCollectionList({workspace, collections}: Props) {
+export default function AssetCollectionList({
+    workspace,
+    collections,
+    onOpenAsset,
+}: Props) {
     const {t} = useTranslation();
     const {
         state: {collectionsLimit, displayCollections},
@@ -21,9 +27,25 @@ export default function AssetCollectionList({workspace, collections}: Props) {
         return <></>;
     }
 
-    const r = (c: Collection) => (
-        <CollectionChip size={'small'} key={c.id} label={c.titleTranslated} />
-    );
+    const r = (c: Collection) => {
+        if (c.storyAsset) {
+            return (
+                <CollectionStoryChip
+                    key={c.id}
+                    onOpen={onOpenAsset}
+                    storyAsset={c.storyAsset}
+                />
+            );
+        }
+
+        return (
+            <CollectionChip
+                size={'small'}
+                key={c.id}
+                label={c.titleTranslated}
+            />
+        );
+    };
 
     const rest = collections.length - (collectionsLimit - 1);
     const others =
