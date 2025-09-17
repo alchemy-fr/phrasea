@@ -25,6 +25,7 @@ const assetClasses = {
     videoPlayerPlaying: 'asset-playing',
     storyChip: 'story-chip',
     storyThumb: 'story-tb',
+    storyThumbsLoaded: 'story-tbl',
     storyShouldHide: 'story-sh',
 };
 
