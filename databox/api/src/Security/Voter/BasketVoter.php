@@ -37,19 +37,19 @@ class BasketVoter extends AbstractVoter
         return match ($attribute) {
             self::CREATE => $this->isAuthenticated(),
             self::READ => $isOwner()
-                || $this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute)
+                || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
             self::EDIT => $isOwner()
-                || $this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute)
+                || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             self::SHARE => $isOwner()
-                || $this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute)
+                || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)
                 || $this->hasAcl(PermissionInterface::SHARE, $subject, $token),
             self::DELETE => $isOwner()
-                || $this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute)
+                || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)
                 || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
             self::EDIT_PERMISSIONS => $isOwner()
-                || $this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute)
+                || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
             default => false,
         };

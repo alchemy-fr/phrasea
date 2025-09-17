@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 class RenditionDefinitionInput
 {
-    private const string GRANT_ADMIN_PROP = '"object ? is_granted("'.RenditionDefinitionVoter::READ_ADMIN.'", object) : true"';
+    private const string GRANT_ADMIN_PROP = 'object ? is_granted(\''.RenditionDefinitionVoter::READ_ADMIN.'\', object) : true';
 
     /**
      * @var Workspace|null

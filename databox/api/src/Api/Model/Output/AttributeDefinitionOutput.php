@@ -13,7 +13,6 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\Share;
-use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Annotation\Groups;
 

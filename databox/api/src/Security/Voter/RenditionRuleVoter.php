@@ -36,8 +36,12 @@ class RenditionRuleVoter extends AbstractVoter
         $objectEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $object);
         $objectReader = fn (): bool => $this->security->isGranted(AbstractVoter::READ, $object);
 
+        if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
+            return true;
+        }
+
         return match ($attribute) {
-            self::CREATE, self::DELETE, self::EDIT => $objectEditor() || $this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute),
+            self::CREATE, self::DELETE, self::EDIT => $objectEditor(),
             self::READ => $objectReader(),
             default => false,
         };

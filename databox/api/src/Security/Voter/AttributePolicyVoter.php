@@ -27,7 +27,7 @@ class AttributePolicyVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        if ($this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute)) {
+        if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;
         }
 
@@ -36,9 +36,9 @@ class AttributePolicyVoter extends AbstractVoter
 
         return match ($attribute) {
             self::CREATE, self::EDIT, self::DELETE => $workspaceEditor()
-                || $this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute),
-            self::READ_ADMIN => $workspaceEditor() || $this->tokenHasScope($token, self::SCOPE_PREFIX, 'read'),
-            self::READ => $workspaceReader() || $this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute),
+                || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX),
+            self::READ_ADMIN => $workspaceEditor() || $this->tokenHasScope($token, self::READ, self::SCOPE_PREFIX),
+            self::READ => $workspaceReader() || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX),
             default => false,
         };
     }

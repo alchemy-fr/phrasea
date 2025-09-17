@@ -28,7 +28,7 @@ class AttributeListVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        if ($this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute)) {
+        if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;
         }
 

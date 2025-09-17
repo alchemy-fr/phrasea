@@ -118,7 +118,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     final public const string GROUP_READ = 'renddef:r';
     final public const string GROUP_LIST = 'renddef:i';
     final public const string GROUP_WRITE = 'renddef:w';
-    private const string GRANT_ADMIN_PROP = 'object ? is_granted("'.RenditionDefinitionVoter::READ_ADMIN.'", object) : true';
+    private const string GRANT_ADMIN_PROP = 'object ? is_granted(\''.RenditionDefinitionVoter::READ_ADMIN.'\', object) : true';
 
     /**
      * Override trait for annotation.

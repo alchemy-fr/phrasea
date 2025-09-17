@@ -30,9 +30,9 @@ class RenditionPolicyVoter extends AbstractVoter
         $workspaceEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE, self::EDIT, self::DELETE => $workspaceEditor() || $this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute),
+            self::CREATE, self::EDIT, self::DELETE => $workspaceEditor() || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX),
             self::READ_ADMIN => $workspaceEditor()
-                || $this->tokenHasScope($token, self::SCOPE_PREFIX, self::READ),
+                || $this->tokenHasScope($token, self::READ, self::SCOPE_PREFIX),
             self::READ => true,
             default => false,
         };
