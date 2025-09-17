@@ -3,6 +3,7 @@
 namespace App\Tests\Attribute\Type;
 
 use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\BooleanAttributeType;
 use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\DateTimeAttributeType;
 use App\Attribute\Type\GeoPointAttributeType;
@@ -22,6 +23,7 @@ class AttributeTypeRegistyTestFactory
             new KeywordAttributeType(),
             new DateTimeAttributeType(),
             new DateAttributeType(),
+            new BooleanAttributeType(),
         ] as $service) {
             $iterator[$service::getName()] = $service;
         }

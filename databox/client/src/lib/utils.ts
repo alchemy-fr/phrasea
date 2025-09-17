@@ -12,6 +12,7 @@ export function hasProp<T extends object = object>(
 ): object is T {
     return (
         typeof object === 'object' &&
+        object !== null &&
         Object.prototype.hasOwnProperty.call(object, key)
     );
 }

@@ -402,6 +402,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         $storyCollection?->setStoryAsset($this);
     }
 
+    /**
+     * Used by ES.
+     */
     public function isStory(): bool
     {
         return null !== $this->storyCollection;

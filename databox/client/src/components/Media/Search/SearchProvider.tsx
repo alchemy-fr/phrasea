@@ -1,7 +1,7 @@
 import React, {PropsWithChildren, useCallback, useState} from 'react';
 import {SearchContext, TSearchContext} from './SearchContext';
 import {SortBy} from './Filter';
-import {BuiltInFilter, hashToQuery, queryToHash} from './search';
+import {BuiltInField, hashToQuery, queryToHash} from './search';
 import useHash from '../../../lib/useHash';
 import {
     AQLQuery,
@@ -19,12 +19,12 @@ export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
         ? sortBy
         : [
               {
-                  a: BuiltInFilter.Score,
+                  a: BuiltInField.Score,
                   w: 1,
                   g: false,
               },
               {
-                  a: BuiltInFilter.CreatedAt,
+                  a: BuiltInField.CreatedAt,
                   w: 1,
                   g: false,
               },
@@ -99,19 +99,19 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 !setConditions(p => {
                     const newConditions = removeConditionHelper(
                         p,
-                        BuiltInFilter.Collection
+                        BuiltInField.Collection
                     );
 
                     if (!workspaceId) {
                         return removeConditionHelper(
                             newConditions,
-                            BuiltInFilter.Workspace
+                            BuiltInField.Workspace
                         );
                     }
 
                     return replaceConditionHelper(newConditions, {
-                        id: BuiltInFilter.Workspace,
-                        query: `${BuiltInFilter.Workspace} = "${workspaceId}"`,
+                        id: BuiltInField.Workspace,
+                        query: `${BuiltInField.Workspace} = "${workspaceId}"`,
                     });
                 }) &&
                 forceReload
@@ -128,19 +128,19 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 !setConditions(p => {
                     const newConditions = removeConditionHelper(
                         p,
-                        BuiltInFilter.Workspace
+                        BuiltInField.Workspace
                     );
 
                     if (!collectionId) {
                         return removeConditionHelper(
                             newConditions,
-                            BuiltInFilter.Collection
+                            BuiltInField.Collection
                         );
                     }
 
                     return replaceConditionHelper(newConditions, {
-                        id: BuiltInFilter.Collection,
-                        query: `${BuiltInFilter.Collection} = "${collectionId}"`,
+                        id: BuiltInField.Collection,
+                        query: `${BuiltInField.Collection} = "${collectionId}"`,
                     });
                 }) &&
                 forceReload
@@ -215,7 +215,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
             .filter(q => q && isAQLCondition(q.expression)) as AQLQueryAST[]
     ).map(q => q.expression) as AQLCondition[];
 
-    function filterOfType(type: BuiltInFilter): string[] {
+    function filterOfType(type: BuiltInField): string[] {
         return conditionsAst
             .filter(
                 c =>
@@ -233,8 +233,8 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
             .flat() as string[];
     }
 
-    const workspaces = filterOfType(BuiltInFilter.Workspace);
-    const collections = filterOfType(BuiltInFilter.Collection);
+    const workspaces = filterOfType(BuiltInField.Workspace);
+    const collections = filterOfType(BuiltInField.Collection);
 
     return (
         <SearchContext.Provider
