@@ -129,6 +129,6 @@ class CollectionSearch extends AbstractSearch
 
     protected function getAdminScope(): ?string
     {
-        return CollectionVoter::getScopePrefix().AbstractVoter::LIST;
+        return CollectionVoter::SCOPE_PREFIX.AbstractVoter::LIST;
     }
 }

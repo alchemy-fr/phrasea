@@ -11,10 +11,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AttributeListVoter extends AbstractVoter
 {
-    public static function getScopePrefix(): string
-    {
-        return 'attribute-list:';
-    }
+    private const string SCOPE_PREFIX = 'attribute-list:';
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -31,6 +28,10 @@ class AttributeListVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
+        if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
+            return true;
+        }
+
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
@@ -38,16 +39,12 @@ class AttributeListVoter extends AbstractVoter
         return match ($attribute) {
             self::CREATE => $this->isAuthenticated(),
             self::READ => $isOwner()
-                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
             self::EDIT => $isOwner()
-                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             self::DELETE => $isOwner()
-                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
             self::EDIT_PERMISSIONS => $isOwner()
-                || $this->hasScope($token, $attribute)
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
             default => false,
         };

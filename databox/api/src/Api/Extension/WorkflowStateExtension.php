@@ -12,10 +12,6 @@ use Doctrine\ORM\QueryBuilder;
 
 class WorkflowStateExtension implements QueryCollectionExtensionInterface
 {
-    public function __construct(
-    ) {
-    }
-
     public function applyToCollection(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
