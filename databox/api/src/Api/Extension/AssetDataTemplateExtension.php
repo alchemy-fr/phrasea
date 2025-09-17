@@ -43,7 +43,7 @@ class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        if (!$this->hasScope(AbstractVoter::LIST, AssetDataTemplateVoter::getScopePrefix())) {
+        if (!$this->hasScope(AbstractVoter::LIST, AssetDataTemplateVoter::SCOPE_PREFIX)) {
             $user = $this->security->getUser();
             if ($user instanceof JwtUser) {
                 AccessControlEntryRepository::joinAcl(

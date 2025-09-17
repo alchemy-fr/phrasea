@@ -9,10 +9,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AttributeEntityVoter extends AbstractVoter
 {
-    public static function getScopePrefix(): string
-    {
-        return 'attribute-entity:';
-    }
+    private const string SCOPE_PREFIX = 'attribute-entity:';
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -29,7 +26,7 @@ class AttributeEntityVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        if ($this->tokenHasScope($token, $attribute)) {
+        if ($this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute)) {
             return true;
         }
 

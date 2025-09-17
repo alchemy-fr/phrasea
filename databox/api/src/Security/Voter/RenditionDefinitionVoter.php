@@ -10,11 +10,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class RenditionDefinitionVoter extends AbstractVoter
 {
     final public const string READ_ADMIN = 'READ_ADMIN';
-
-    public static function getScopePrefix(): string
-    {
-        return 'rendition-definition:';
-    }
+    private const string SCOPE_PREFIX = 'rendition-definition:';
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -34,9 +30,9 @@ class RenditionDefinitionVoter extends AbstractVoter
         $workspaceEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE, self::DELETE, self::EDIT => $workspaceEditor() || $this->tokenHasScope($token, $attribute),
+            self::CREATE, self::DELETE, self::EDIT => $workspaceEditor() || $this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute),
             self::READ_ADMIN => $workspaceEditor()
-                || $this->tokenHasScope($token, self::READ),
+                || $this->tokenHasScope($token, self::SCOPE_PREFIX, self::READ),
             self::READ => true,
             default => false,
         };

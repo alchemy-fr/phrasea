@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
-use ApiPlatform\Metadata\ApiProperty;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Attribute\Type\TextAttributeType;
@@ -30,7 +29,6 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public bool $enabled = true;
 
     #[Groups([AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ])]
-    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     public ?AttributePolicy $policy = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST, Share::GROUP_PUBLIC_READ, EntityList::GROUP_READ, EntityList::GROUP_LIST])]

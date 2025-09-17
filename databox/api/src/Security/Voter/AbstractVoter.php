@@ -61,9 +61,4 @@ abstract class AbstractVoter extends Voter
     {
         return $this->security->isGranted(JwtUser::IS_AUTHENTICATED_FULLY);
     }
-
-    public static function getScopePrefix(): string
-    {
-        throw new \RuntimeException(sprintf('%s does not implement %s', static::class, __FUNCTION__));
-    }
 }

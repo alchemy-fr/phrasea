@@ -12,12 +12,8 @@ trait ScopeTrait
 {
     protected Security $security;
 
-    protected function hasScope(?string $scope = null, ?string $scopePrefix = null, bool $applyHierarchy = true): bool
+    protected function hasScope(string $scope, string $scopePrefix, bool $applyHierarchy = true): bool
     {
-        if (empty($scope)) {
-            return false;
-        }
-
         $token = $this->security->getToken();
         if (null === $token) {
             return false;
@@ -26,10 +22,10 @@ trait ScopeTrait
         return $this->tokenHasScope($token, $scope, $scopePrefix, $applyHierarchy);
     }
 
-    protected function tokenHasScope(TokenInterface $token, string $scope, ?string $scopePrefix = null, bool $applyHierarchy = true): bool
+    protected function tokenHasScope(TokenInterface $token, string $scope, string $scopePrefix, bool $applyHierarchy = true): bool
     {
         if (empty($scope)) {
-            return false;
+            throw new \InvalidArgumentException('Scope cannot be empty');
         }
         if (!$token instanceof JwtToken) {
             return false;
@@ -38,7 +34,6 @@ trait ScopeTrait
         $tokenScopes = $token->getScopes();
         $scopes = $applyHierarchy ? $this->getScopesFromHierarchy($scope) : [$scope];
 
-        $scopePrefix ??= static::getScopePrefix();
         $scopes = array_map(fn (string $scope): string => $scopePrefix.strtolower($scope), $scopes);
 
         return !empty(array_intersect($scopes, $tokenScopes));

@@ -15,6 +15,7 @@ class AssetVoter extends AbstractVoter
     final public const string EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
     final public const string EDIT_RENDITIONS = 'EDIT_RENDITIONS';
     final public const string SHARE = 'SHARE';
+    final public const string SCOPE_PREFIX = 'asset:';
 
     protected function getScopeHierarchy(): array
     {
@@ -39,7 +40,7 @@ class AssetVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        if ($this->tokenHasScope($token, $attribute)) {
+        if ($this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute)) {
             return true;
         }
 
@@ -110,10 +111,5 @@ class AssetVoter extends AbstractVoter
         }
 
         return false;
-    }
-
-    public static function getScopePrefix(): string
-    {
-        return 'asset:';
     }
 }

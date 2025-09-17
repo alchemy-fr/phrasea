@@ -8,7 +8,6 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
-use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -140,7 +139,6 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
 
     #[ORM\ManyToOne(targetEntity: AttributePolicy::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: false)]
-    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     #[Assert\NotNull]
     protected ?AttributePolicy $policy = null;
 
@@ -227,7 +225,6 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     private ?array $options = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
-    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private int $position = 0;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => true])]

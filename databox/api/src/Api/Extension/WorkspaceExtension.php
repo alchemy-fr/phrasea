@@ -41,7 +41,7 @@ final class WorkspaceExtension implements QueryCollectionExtensionInterface
             return;
         }
 
-        if ($this->hasScope(AbstractVoter::LIST, WorkspaceVoter::getScopePrefix())) {
+        if ($this->hasScope(AbstractVoter::LIST, WorkspaceVoter::SCOPE_PREFIX)) {
             return;
         }
 

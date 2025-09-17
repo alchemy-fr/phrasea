@@ -12,10 +12,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class CollectionVoter extends AbstractVoter
 {
-    public static function getScopePrefix(): string
-    {
-        return 'collection:';
-    }
+    final public const string SCOPE_PREFIX = 'collection:';
+
     private array $cache = [];
 
     protected function supports(string $attribute, $subject): bool
@@ -40,7 +38,7 @@ class CollectionVoter extends AbstractVoter
 
     private function doVote(string $attribute, Collection $subject, TokenInterface $token): bool
     {
-        if ($this->tokenHasScope($token, $attribute)) {
+        if ($this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute)) {
             return true;
         }
 

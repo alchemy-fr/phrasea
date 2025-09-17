@@ -11,6 +11,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssetDataTemplateVoter extends AbstractVoter
 {
+    final public const string SCOPE_PREFIX = 'asset-data-template:';
+
     protected function supports(string $attribute, $subject): bool
     {
         return $subject instanceof AssetDataTemplate;
@@ -26,7 +28,7 @@ class AssetDataTemplateVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        if ($this->tokenHasScope($token, $attribute)) {
+        if ($this->tokenHasScope($token, self::SCOPE_PREFIX, $attribute)) {
             return true;
         }
 
@@ -41,10 +43,5 @@ class AssetDataTemplateVoter extends AbstractVoter
             self::CREATE => (bool) $userId,
             default => false,
         };
-    }
-
-    public static function getScopePrefix(): string
-    {
-        return 'asset-data-template:';
     }
 }
