@@ -2,6 +2,7 @@
 
 namespace App\Tests\AQL;
 
+use App\Attribute\Type\BooleanAttributeType;
 use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\GeoPointAttributeType;
 use App\Attribute\Type\NumberAttributeType;
@@ -74,6 +75,9 @@ class AQLToESQueryTest extends TestCase
                     ],
                     'attrs._.date_date_s' => [
                         'type' => $attributeTypeRegistry->getStrictType(DateAttributeType::NAME),
+                    ],
+                    'attrs._.bool_boolean_s' => [
+                        'type' => $attributeTypeRegistry->getStrictType(BooleanAttributeType::NAME),
                     ],
                 ],
                 'w' => [],
@@ -239,6 +243,21 @@ class AQLToESQueryTest extends TestCase
             ['@workspace=SUBSTRING("42aa", 0, 2)', [
                 'term' => ['workspaceId' => '42'],
             ]],
+            ['@workspace= NULL', [
+                'term' => ['workspaceId' => null],
+            ]],
+            ['@workspace= null', [
+                'term' => ['workspaceId' => null],
+            ]],
+            ['bool = null', [
+                'term' => ['attrs._.bool_boolean_s' => null],
+            ]],
+            ['bool = true', [
+                'term' => ['attrs._.bool_boolean_s' => true],
+            ]],
+            ['bool = false', [
+                'term' => ['attrs._.bool_boolean_s' => false],
+            ]],
             ['@createdAt<="2025-01-16"', [
                 'range' => ['createdAt' => [
                     'lte' => '2025-01-16',
@@ -255,6 +274,15 @@ class AQLToESQueryTest extends TestCase
                         ['terms' => ['attrs.it.field_text_s.raw' => [true, false]]],
                         ['terms' => ['attrs.de.field_text_s.raw' => [true, false]]],
                         ['terms' => ['attrs._.field_text_s.raw' => [true, false]]],
+                    ],
+                ],
+            ]],
+            ['field IN (true, null)', [
+                'bool' => [
+                    'should' => [
+                        ['terms' => ['attrs.it.field_text_s.raw' => [true, null]]],
+                        ['terms' => ['attrs.de.field_text_s.raw' => [true, null]]],
+                        ['terms' => ['attrs._.field_text_s.raw' => [true, null]]],
                     ],
                 ],
             ]],

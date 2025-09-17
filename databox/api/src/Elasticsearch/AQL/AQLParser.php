@@ -3,12 +3,10 @@
 namespace App\Elasticsearch\AQL;
 
 use hafriedlander\Peg\Compiler;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 readonly class AQLParser
 {
     public function __construct(
-        #[Autowire(param: 'app.debug')]
         private bool $debug = false,
     ) {
     }
