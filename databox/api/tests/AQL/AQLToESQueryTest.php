@@ -250,7 +250,13 @@ class AQLToESQueryTest extends TestCase
                 'term' => ['workspaceId' => null],
             ]],
             ['bool = null', [
-                'term' => ['attrs._.bool_boolean_s' => null],
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'exists' => ['field' => 'attrs._.bool_boolean_s'],
+                        ],
+                    ],
+                ],
             ]],
             ['bool = true', [
                 'term' => ['attrs._.bool_boolean_s' => true],
