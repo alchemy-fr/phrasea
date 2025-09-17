@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import {alpha, Theme} from '@mui/material/styles';
 import {videoPlayerSx} from './Players/VideoPlayer.tsx';
 import StoryChip from '../../Ui/StoryChip.tsx';
-import StoryThumb, {createStoryStyle} from './StoryThumb.tsx';
+import StoryThumb, {createStorySx} from './StoryThumb.tsx';
 
 type Props = {
     asset: Asset;
@@ -117,7 +117,7 @@ export const thumbSx = (
     theme: Theme,
     overridden: SxProps = {}
 ) => ({
-    ...createStoryStyle(thumbSize, theme),
+    ...createStorySx(thumbSize, theme),
     [`.${assetClasses.thumbWrapper}`]: {
         'display': 'flex',
         'overflow': 'hidden',
