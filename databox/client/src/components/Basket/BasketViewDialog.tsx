@@ -22,7 +22,7 @@ import {leftPanelWidth} from '../../themes/base';
 import {ZIndex} from '../../themes/zIndex';
 import Box from '@mui/material/Box';
 import {ActionsContext, OnOpen} from '../AssetList/types';
-import {modalRoutes} from '../../routes';
+import {modalRoutes, Routing} from '../../routes';
 import BasketItem from './BasketItem';
 import {createDefaultActionsContext} from '../AssetList/actionContext.ts';
 
@@ -57,7 +57,7 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
         (asset, renditionId): void => {
             navigateToModal(modalRoutes.assets.routes.view, {
                 id: asset.id,
-                renditionId,
+                renditionId: renditionId || Routing.UnknownRendition,
             });
             // eslint-disable-next-line
         },

@@ -116,8 +116,6 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                 },
                 [`.${assetClasses.title}`]: {
                     fontSize: 14,
-                    p: 1,
-                    height: titleHeight,
                     lineHeight: `${lineHeight}px`,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -133,6 +131,12 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                               display: d.displayTitle ? 'block' : 'none',
                               whiteSpace: 'nowrap',
                           }),
+                },
+                [`.${assetClasses.legend}`]: {
+                    p: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 1,
                 },
             };
         },

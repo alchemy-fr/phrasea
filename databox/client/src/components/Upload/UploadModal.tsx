@@ -76,6 +76,7 @@ export default function UploadModal({
         privacy: Privacy.Secret,
         tags: [],
         quiet: false,
+        isStory: false,
     };
 
     const usedFormSubmit = useFormSubmit<UploadData, Asset[], FormUploadData>({
@@ -87,7 +88,7 @@ export default function UploadModal({
             };
         },
         onSubmit: async (data: UploadData) => {
-            const {quiet} = data;
+            const {quiet, isStory} = data;
 
             if (typeof data.destination === 'object') {
                 data.destination = await createCollection(data.destination);
@@ -150,14 +151,10 @@ export default function UploadModal({
                         attributes,
                     })),
                 },
-                quiet
-                    ? {
-                          headers: {
-                              'X-Webhook-Disabled': 'true',
-                              'X-Notification-Disabled': 'true',
-                          },
-                      }
-                    : undefined
+                {
+                    quiet,
+                    isStory,
+                }
             );
         },
         onSuccess: () => {

@@ -16,8 +16,9 @@ import {FilterType} from '../Search/Filter';
 import {AttributeFormatterOptions} from './Attribute/types/types';
 import TagsFacet from './Facets/TagsFacet';
 import EntitiesFacet from './Facets/EntitiesFacet.tsx';
-import {BuiltInFilter} from '../Search/search.ts';
+import {BuiltInField} from '../Search/search.ts';
 import {AttributeType} from '../../../api/types.ts';
+import BooleanFacet from './Facets/BooleanFacet.tsx';
 
 export type BucketValue = string | number | boolean;
 
@@ -112,14 +113,15 @@ export type FacetGroupProps = {
 
 const facetWidgets: Record<FacetType, React.FC<FacetGroupProps>> = {
     [FacetType.Text]: TextFacet,
-    [FacetType.Boolean]: TextFacet,
+    [FacetType.Boolean]: BooleanFacet,
     [FacetType.DateRange]: DateHistogramFacet,
     [FacetType.GeoDistance]: GeoDistanceFacet,
     [FacetType.Entity]: EntitiesFacet,
 };
 
 const facetWidgetsByKey: Record<string, React.FC<FacetGroupProps>> = {
-    [BuiltInFilter.Tag]: TagsFacet,
+    [BuiltInField.Tag]: TagsFacet,
+    [BuiltInField.IsStory]: BooleanFacet,
 };
 
 function FacetGroup({facet, name}: FacetGroupProps) {

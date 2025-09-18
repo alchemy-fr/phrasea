@@ -1,4 +1,4 @@
-import React, {DOMAttributes, ReactNode} from 'react';
+import React, {HTMLAttributes, ReactNode} from 'react';
 import {Asset} from '../../../types';
 import AssetFileIcon from './AssetFileIcon';
 import assetClasses from '../../AssetList/classes';
@@ -7,18 +7,22 @@ import {Skeleton, SxProps} from '@mui/material';
 import classNames from 'classnames';
 import {alpha, Theme} from '@mui/material/styles';
 import {videoPlayerSx} from './Players/VideoPlayer.tsx';
+import StoryChip from '../../Ui/StoryChip.tsx';
+import StoryThumb, {createStorySx} from './StoryThumb.tsx';
 
 type Props = {
     asset: Asset;
-} & DOMAttributes<HTMLDivElement>;
+} & HTMLAttributes<HTMLDivElement>;
 
 function AssetThumb({
     asset: {
+        id,
         resolvedTitle,
         pendingSourceFile,
         thumbnail,
         thumbnailActive,
         original,
+        storyCollection,
     },
     ...domAttrs
 }: Props) {
@@ -50,30 +54,38 @@ function AssetThumb({
     return (
         <div
             {...domAttrs}
-            className={classNames({
-                [assetClasses.thumbWrapper]: true,
-            })}
+            className={classNames(
+                {
+                    [assetClasses.thumbWrapper]: true,
+                },
+                [domAttrs.className]
+            )}
         >
+            {storyCollection ? <StoryThumb assetId={id} /> : null}
             {thumb ? (
                 <div
-                    className={
-                        thumbnailActive ? assetClasses.thumbInactive : undefined
-                    }
+                    className={classNames({
+                        [assetClasses.thumbInactive]: thumbnailActive,
+                        [assetClasses.storyShouldHide]: !!storyCollection,
+                    })}
                 >
                     {thumb}
                 </div>
             ) : (
                 ''
             )}
-            {!pendingSourceFile && thumbnailActive?.file && (
-                <div className={assetClasses.thumbActive}>
-                    <FilePlayer
-                        file={thumbnailActive.file}
-                        title={resolvedTitle}
-                        autoPlayable={false}
-                    />
-                </div>
-            )}
+            {!pendingSourceFile &&
+                thumbnailActive?.file &&
+                !storyCollection && (
+                    <div className={assetClasses.thumbActive}>
+                        <FilePlayer
+                            file={thumbnailActive.file}
+                            title={resolvedTitle}
+                            autoPlayable={false}
+                        />
+                    </div>
+                )}
+            {storyCollection ? <StoryChip /> : null}
         </div>
     );
 }
@@ -105,6 +117,7 @@ export const thumbSx = (
     theme: Theme,
     overridden: SxProps = {}
 ) => ({
+    ...createStorySx(thumbSize, theme),
     [`.${assetClasses.thumbWrapper}`]: {
         'display': 'flex',
         'overflow': 'hidden',
@@ -122,6 +135,16 @@ export const thumbSx = (
         '> div': {
             display: 'contents',
         },
+        [`.${assetClasses.storyChip}`]: {
+            position: 'absolute',
+            width: '100%',
+            bottom: theme.spacing(1),
+            textAlign: 'center',
+            left: 0,
+            zIndex: 2,
+            display: 'inline-block',
+        },
+
         ...createThumbActiveStyle(),
         ...videoPlayerSx(thumbSize, theme),
         ...overridden,
@@ -135,5 +158,6 @@ export const thumbSx = (
         right: 0,
         backgroundColor: alpha(theme.palette.primary.main, 0.3),
         zIndex: 1,
+        pointerEvents: 'none',
     },
 });

@@ -7,7 +7,7 @@ import {Fab} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import {useAuth} from '@alchemy/react-auth';
 import UploadModal from '../Upload/UploadModal';
-import {modalRoutes} from '../../routes';
+import {modalRoutes, Routing} from '../../routes';
 import {useNavigateToModal} from '../Routing/ModalLink';
 import {OnOpen} from '../AssetList/types';
 import {AssetContextState} from '../Media/Asset/assetTypes.ts';
@@ -38,11 +38,15 @@ export default function AssetSearch({}: Props) {
 
     const onOpen = useCallback<OnOpen>(
         (asset, renditionId): void => {
+            if (!renditionId) {
+                renditionId = asset.original?.id;
+            }
+
             navigateToModal(
                 modalRoutes.assets.routes.view,
                 {
                     id: asset.id,
-                    renditionId,
+                    renditionId: renditionId || Routing.UnknownRendition,
                 },
                 {
                     state: {

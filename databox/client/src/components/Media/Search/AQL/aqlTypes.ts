@@ -21,6 +21,12 @@ export enum AQLOperator {
     WITHIN_RECTANGLE = 'WITHIN_RECTANGLE',
 }
 
+export enum AQLConstant {
+    Null = 'null',
+    True = 'true',
+    False = 'false',
+}
+
 export type AQLField = {field: string};
 export type AQLFunctionCall = {
     type: 'function_call';
@@ -56,7 +62,8 @@ export type AQLScalarValue =
     | AQLEntity
     | boolean
     | number
-    | AQLField;
+    | AQLField
+    | null;
 
 export type AQLOperand = AQLValueOrExpression;
 export type RightOperand = AQLOperand | AQLOperand[] | undefined;

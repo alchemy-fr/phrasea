@@ -5,6 +5,7 @@ namespace App\Elasticsearch\AQL;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
+use App\Attribute\Type\BooleanAttributeType;
 use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\DateTimeAttributeType;
 use App\Attribute\Type\GeoPointAttributeType;
@@ -154,6 +155,17 @@ final readonly class AQLToESQuery
 
             if (null !== $switchOperator) {
                 $operator = $switchOperator;
+            }
+        }
+
+        if ($type instanceof BooleanAttributeType) {
+            if (null === $value) {
+                $operatorSwitches = [
+                    ConditionOperatorEnum::EQUALS->value => ConditionOperatorEnum::MISSING,
+                    ConditionOperatorEnum::NOT_EQUALS->value => ConditionOperatorEnum::EXISTS,
+                ];
+
+                $operator = $operatorSwitches[$operator->value] ?? $operator;
             }
         }
 

@@ -116,7 +116,10 @@ export default function ConditionBuilder({
                                 typeof manyArgs === 'number' ||
                                 manyArgs === true;
 
-                            let rightOperand = p.rightOperand ?? {literal: ''};
+                            let rightOperand =
+                                p.rightOperand !== undefined
+                                    ? p.rightOperand
+                                    : {literal: ''};
 
                             if (
                                 manyArgsDefined &&
@@ -127,7 +130,7 @@ export default function ConditionBuilder({
                                 !manyArgsDefined &&
                                 Array.isArray(rightOperand!)
                             ) {
-                                rightOperand = (rightOperand as AQLValue[])[0];
+                                rightOperand = (rightOperand as AQLValue[])[0]!;
                             }
 
                             if (typeof manyArgs === 'number') {

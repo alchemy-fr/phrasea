@@ -7,7 +7,6 @@ namespace App\Elasticsearch\Facet;
 use Alchemy\AuthBundle\Repository\UserRepositoryInterface;
 use App\Attribute\Type\KeywordAttributeType;
 use App\Entity\Core\Asset;
-use App\Entity\Core\WorkspaceItemPrivacyInterface;
 
 final class OwnerFacet extends AbstractFacet
 {
@@ -69,10 +68,5 @@ final class OwnerFacet extends AbstractFacet
     protected function getAggregationTranslationKey(): string
     {
         return 'owner';
-    }
-
-    protected function getAggregationSize(): int
-    {
-        return count(WorkspaceItemPrivacyInterface::KEYS);
     }
 }

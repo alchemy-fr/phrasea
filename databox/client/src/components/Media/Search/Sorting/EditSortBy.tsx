@@ -34,7 +34,7 @@ import {
     SortableContext,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {BuiltInFilter} from '../search';
+import {BuiltInField} from '../search';
 import {AttributeDefinition} from '../../../../types.ts';
 import {AttributeDefinitionsIndex} from '../../../../store/attributeDefinitionStore.ts';
 
@@ -95,7 +95,7 @@ export default function EditSortBy({
 
     const enabledOrders = orders.filter(s => s.enabled);
     const groupDisabled =
-        enabledOrders.length > 0 && enabledOrders[0].a === BuiltInFilter.Score;
+        enabledOrders.length > 0 && enabledOrders[0].a === BuiltInField.Score;
 
     useEffect(() => {
         setOrders(list);

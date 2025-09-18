@@ -4,7 +4,7 @@ import {AQLQueries, AQLQuery} from './AQL/query.ts';
 const specSep = ';';
 const arraySep = ',';
 
-export enum BuiltInFilter {
+export enum BuiltInField {
     Collection = '@collection',
     CreatedAt = '@createdAt',
     EditedAt = '@editedAt',
@@ -18,6 +18,7 @@ export enum BuiltInFilter {
     Rendition = '@rendition',
     Score = '@score',
     Tag = '@tag',
+    IsStory = '@isStory',
     Workspace = '@workspace',
 }
 

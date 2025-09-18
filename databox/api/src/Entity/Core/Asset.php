@@ -33,6 +33,7 @@ use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
 use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
+use App\Api\Model\Output\StoryThumbnailsOutput;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
 use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\FollowProcessor;
@@ -48,6 +49,7 @@ use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
+use App\Api\Provider\StoryThumbnailsProvider;
 use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Entity\FollowableInterface;
@@ -83,6 +85,12 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'groups' => [self::GROUP_READ, Collection::GROUP_ABSOLUTE_TITLE],
             ],
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
+        ),
+        new Get(
+            uriTemplate: '/assets/{id}/story-thumbnails',
+            output: StoryThumbnailsOutput::class,
+            name: 'story-thumbnails',
+            provider: StoryThumbnailsProvider::class,
         ),
         new Post(
             uriTemplate: '/assets/entities',
@@ -259,6 +267,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     use ExtraMetadataTrait;
 
     final public const string GROUP_READ = 'asset:r';
+    final public const string GROUP_STORY = 'asset:story';
     final public const string GROUP_LIST = 'asset:i';
     final public const string GROUP_WRITE = 'asset:w';
 
@@ -393,6 +402,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         $storyCollection?->setStoryAsset($this);
     }
 
+    /**
+     * Used by ES.
+     */
     public function isStory(): bool
     {
         return null !== $this->storyCollection;
