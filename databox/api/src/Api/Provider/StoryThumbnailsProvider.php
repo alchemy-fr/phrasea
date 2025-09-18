@@ -49,10 +49,8 @@ class StoryThumbnailsProvider implements ProviderInterface
         $options['parents'] = [$storyAsset->getStoryCollection()->getId()];
 
         [$result] = $this->assetSearch->search($userId, $groupIds, $options);
-        dump($result);
         $thumbnails = [];
         foreach ($result as $asset) {
-            dump($asset->getId());
             $renditions = $this->renditionManager->getAssetRenditionsUsedAs('thumbnail', $asset->getId());
             foreach ($renditions as $rendition) {
                 if (str_starts_with($rendition->getFile()?->getType() ?? '', 'image/')) {
