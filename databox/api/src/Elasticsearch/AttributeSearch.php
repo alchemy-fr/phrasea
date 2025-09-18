@@ -425,7 +425,6 @@ class AttributeSearch
         array $options,
     ): Query\AbstractQuery {
         $ast = $this->AQLParser->parse($condition);
-        dump($ast);
         if (null === $ast) {
             throw new BadRequestHttpException(sprintf('Invalid condition: %s', $condition));
         }
