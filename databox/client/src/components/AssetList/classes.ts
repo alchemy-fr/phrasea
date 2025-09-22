@@ -23,7 +23,7 @@ const assetClasses = {
     videoPlayerIsAudio: 'asset-ia',
     videoPlayerActions: 'vp-actions',
     videoPlayerPlaying: 'asset-playing',
-    storyChip: 'story-chip',
+    assetChip: 'asset-chip',
     storyThumb: 'story-tb',
     storyThumbsLoaded: 'story-tbl',
     storyShouldHide: 'story-sh',
