@@ -319,13 +319,13 @@ class AttributeSearch
         $language = $options['locale'] ?? '*';
         $position = $options['context']['position'] ?? null;
 
-        $facetTypes = array_map(fn (AttributeTypeInterface $attributeType): string => $attributeType::getName(), array_filter($this->typeRegistry->getTypes(), fn (AttributeTypeInterface $attributeType): bool => $attributeType->supportsAggregation()));
+        $attributeTypes = array_map(fn (AttributeTypeInterface $attributeType): string => $attributeType::getName(), array_filter($this->typeRegistry->getTypes(), fn (AttributeTypeInterface $attributeType): bool => $attributeType->supportsAggregation()));
 
         /** @var AttributeDefinition[] $attributeDefinitions */
         $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
             ->getSearchableAttributes($userId, $groupIds, [
                 AttributeDefinitionRepository::OPT_FACET_ENABLED => true,
-                AttributeDefinitionRepository::OPT_TYPES => $facetTypes,
+                AttributeDefinitionRepository::OPT_TYPES => $attributeTypes,
             ]);
 
         $facets = [];

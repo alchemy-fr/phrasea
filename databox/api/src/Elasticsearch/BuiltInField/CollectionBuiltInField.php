@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Facet;
+namespace App\Elasticsearch\BuiltInField;
 
 use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\Type\CollectionPathAttributeType;
@@ -13,7 +13,7 @@ use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 
-final class CollectionFacet extends AbstractFacet
+final class CollectionBuiltInField extends AbstractBuiltInField
 {
     use UserLocaleTrait;
 

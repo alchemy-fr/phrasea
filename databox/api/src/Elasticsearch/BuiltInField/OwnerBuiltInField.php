@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Facet;
+namespace App\Elasticsearch\BuiltInField;
 
 use Alchemy\AuthBundle\Repository\UserRepositoryInterface;
 use App\Attribute\Type\KeywordAttributeType;
 use App\Entity\Core\Asset;
 
-final class OwnerFacet extends AbstractFacet
+final class OwnerBuiltInField extends AbstractBuiltInField
 {
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,

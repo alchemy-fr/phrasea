@@ -39,9 +39,10 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         $document = $event->getDocument();
 
         $permFields = $this->assetPermissionComputer->getAssetPermissionFields($asset);
-        foreach ($permFields as $key => $value) {
+        foreach ($permFields->toDocument() as $key => $value) {
             $document->set($key, $value);
         }
+
         $document->set('renditions', $this->compileRenditions($asset));
 
         $attrs = $this->compileAttributes($asset);

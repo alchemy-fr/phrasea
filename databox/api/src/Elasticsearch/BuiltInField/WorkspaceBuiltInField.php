@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Facet;
+namespace App\Elasticsearch\BuiltInField;
 
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
 
-final class WorkspaceFacet extends AbstractEntityFacet
+final class WorkspaceBuiltInField extends AbstractEntityBuiltInField
 {
     use UserLocaleTrait;
 

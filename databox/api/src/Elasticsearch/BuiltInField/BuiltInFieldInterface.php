@@ -2,15 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Facet;
+namespace App\Elasticsearch\BuiltInField;
 
 use App\Api\Filter\Group\GroupValue;
 use App\Entity\Core\Asset;
 use Elastica\Query;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-interface FacetInterface
+#[AutoconfigureTag(self::TAG)]
+interface BuiltInFieldInterface
 {
+    final public const string TAG = 'app.built_in_field';
+
     public function normalizeBucket(array $bucket): ?array;
 
     public function resolveGroupValue(string $name, $value): GroupValue;

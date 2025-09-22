@@ -13,7 +13,7 @@ use App\Api\Traits\UserLocaleTrait;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Asset\Attribute\AttributesResolver;
 use App\Attribute\AttributeTypeRegistry;
-use App\Elasticsearch\Facet\FacetRegistry;
+use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
@@ -43,7 +43,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         private readonly AttributesResolver $attributesResolver,
         private readonly AssetTitleResolver $assetTitleResolver,
         private readonly FieldNameResolver $fieldNameResolver,
-        private readonly FacetRegistry $facetRegistry,
+        private readonly BuiltInFieldRegistry $builtInFieldRegistry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
         private readonly DiscussionManager $discussionManager,
         private readonly NotifierInterface $notifier,
@@ -242,12 +242,12 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
     private function getGroupValue($groupBy, Asset $object, $indexValue): GroupValue
     {
-        $facet = $this->facetRegistry->getFacet($groupBy);
+        $builtInField = $this->builtInFieldRegistry->getBuiltInField($groupBy);
 
-        if (null !== $facet) {
-            $value = $facet->getValueFromAsset($object);
+        if (null !== $builtInField) {
+            $value = $builtInField->getValueFromAsset($object);
 
-            return $facet->resolveGroupValue($groupBy, $value);
+            return $builtInField->resolveGroupValue($groupBy, $value);
         } else {
             ['type' => $type] = $this->fieldNameResolver->getFieldFromName($groupBy);
             $key = $value = $indexValue ?? null;

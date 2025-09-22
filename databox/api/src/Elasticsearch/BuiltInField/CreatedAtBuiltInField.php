@@ -2,29 +2,29 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Facet;
+namespace App\Elasticsearch\BuiltInField;
 
 use App\Entity\Core\Asset;
 
-class EditedAtFacet extends AbstractDateTimeFacet
+class CreatedAtBuiltInField extends AbstractDateTimeBuiltInField
 {
     protected function getAggregationTranslationKey(): string
     {
-        return 'edited_at';
+        return 'created_at';
     }
 
     public static function getKey(): string
     {
-        return '@editedAt';
+        return '@createdAt';
     }
 
     public function getFieldName(): string
     {
-        return 'editedAt';
+        return 'createdAt';
     }
 
     public function getValueFromAsset(Asset $asset): mixed
     {
-        return $asset->getEditedAt();
+        return $asset->getCreatedAt();
     }
 }
