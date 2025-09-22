@@ -20,6 +20,7 @@ use App\Api\Provider\RenditionDefinitionCollectionProvider;
 use App\Controller\Core\RenditionDefinitionSortAction;
 use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use App\Security\Voter\RenditionDefinitionVoter;
 use App\Validator as CustomAssert;
 use App\Validator\SameWorkspaceConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -117,7 +118,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     final public const string GROUP_READ = 'renddef:r';
     final public const string GROUP_LIST = 'renddef:i';
     final public const string GROUP_WRITE = 'renddef:w';
-    private const string GRANT_ADMIN_PROP = "object ? is_granted('READ_ADMIN', object) : true";
+    private const string GRANT_ADMIN_PROP = 'object ? is_granted(\''.RenditionDefinitionVoter::READ_ADMIN.'\', object) : true';
 
     /**
      * Override trait for annotation.

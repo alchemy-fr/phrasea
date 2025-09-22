@@ -11,10 +11,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class WorkspaceVoter extends AbstractVoter
 {
-    public static function getScopePrefix(): string
-    {
-        return 'workspace:';
-    }
+    final public const string SCOPE_PREFIX = 'workspace:';
+
     private array $cache = [];
 
     protected function supports(string $attribute, $subject): bool
@@ -48,7 +46,7 @@ class WorkspaceVoter extends AbstractVoter
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
-        if ($this->hasScope($token, $attribute)) {
+        if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;
         }
 

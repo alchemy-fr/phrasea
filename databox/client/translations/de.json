@@ -1,5 +1,23 @@
 {
-    "locale": {"current": "Deutsch"},
+    "locale": {
+        "current": "Deutsch",
+        "switcher": {
+            "app_languages": "Sprachen",
+            "change_data_locale": {
+                "modal": {
+                    "confirm": "Weiter",
+                    "title": "Die Seite wird neu geladen"
+                }
+            },
+            "data_languages": "Datensprache",
+            "data_locale": {
+                "default": "Standard",
+                "default_description": "UI-Sprache verwenden"
+            },
+            "filter_placeholder": "Suchen...",
+            "title": "Sprache ändern"
+        }
+    },
     "acl": {
         "delete": "Löschen",
         "form": {
@@ -97,7 +115,7 @@
                 "title": "Operationen"
             },
             "renditions": {
-                "title": "Renditionen"
+                "title": "Renditions"
             },
             "title": "Asset {{name}} verwalten",
             "es_doc": {
@@ -156,7 +174,11 @@
         "current": "Aktuell"
     },
     "asset_selection": {
-        "item": "Element"
+        "item": "Element",
+        "x_item_one": "<strong>{{count}}</strong> Asset",
+        "x_item_other": "<strong>{{count}}</strong> Assets",
+        "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> Asset",
+        "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> Assets"
     },
     "attribute": {
         "editor": {
@@ -300,7 +322,11 @@
     },
     "basket_view_dialog": {
         "item": "Element",
-        "remove_from_basket": "Aus dem Korb entfernen"
+        "remove_from_basket": "Aus dem Korb entfernen",
+        "x_item_one": "<strong>{{count}}</strong> Element",
+        "x_item_other": "<strong>{{count}}</strong> Elemente",
+        "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> Element",
+        "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> Elemente"
     },
     "change_theme": {
         "save": "Speichern",
@@ -383,7 +409,8 @@
         "yes": "Ja",
         "close": "Schliessen",
         "edit": "Bearbeiten",
-        "revoke": "Widerrufen"
+        "revoke": "Widerrufen",
+        "id": "ID"
     },
     "copy_assets": {
         "dialog": {
@@ -440,18 +467,28 @@
         },
         "reset": "Zurücksetzen",
         "save": "Speichern",
-        "search": "Suchen"
+        "search": "Suchen",
+        "export_attribute_entities": {
+            "copy_code": "Code kopieren",
+            "format": "Format",
+            "locale": "Locale",
+            "select_format": "Wählen Sie ein Format aus",
+            "select_locale": "Locale auswählen",
+            "title": "Attribut-Entitäten exportieren",
+            "all_locales": "Alle Locales"
+        },
+        "ok": "OK"
     },
     "edit_sort_by": {
         "group_by_sections": "Nach Abschnitten gruppieren",
         "add_group_separators_between_results": "Gruppentrennzeichen zwischen Ergebnissen hinzufügen"
     },
     "editor_panel": {
-        "untranslated": "Unübersetzt"
+        "untranslated": "Nicht übersetzt"
     },
     "export": {
         "dialog": {
-            "intro": "Wählen Sie die Renditionen aus, die Sie exportieren möchten:",
+            "intro": "Wählen Sie die Renditions aus, die Sie exportieren möchten:",
             "submit": "Exportieren",
             "title_one": "{{count}} Asset exportieren",
             "title_other": "{{count}} Assets exportieren",
@@ -487,12 +524,12 @@
         "confirm_delete_this_rule": "Bestätigen, diese Regel zu löschen?",
         "exclude": {
             "helper": "Assets in diesem {{type}} sind nur sichtbar, wenn sie diese Tags NICHT enthalten.",
-            "label": "Tags zum <1>auschliessen</1>"
+            "label": "Tags zum <b>auschliessen</b>"
         },
         "group": "Gruppe",
         "include": {
             "helper": "Assets in diesem {{type}} sind nur sichtbar, wenn sie diese Tags enthalten.",
-            "label": "Tags zum <1>einfügen</1>"
+            "label": "Tags zum <b>einfügen</b>"
         },
         "or": "Oder",
         "rule_applies_for": "Regel gilt für:",
@@ -530,7 +567,7 @@
                 "label": "Ungültige Werte zulassen"
             },
             "field_type": {
-                "label": "Typ des Feldes"
+                "label": "Attributtyp"
             },
             "multiple": {
                 "label": "Mehrere Werte"
@@ -708,6 +745,9 @@
                 "preview": "Vorschau",
                 "thumbnail": "Miniaturbild",
                 "thumbnailActive": "Aktive Miniaturbild"
+            },
+            "substitutable": {
+                "label": "Ersetzbar"
             }
         },
         "save_as": {
@@ -734,16 +774,19 @@
                 "title": "Upload"
             },
             "success": "Dateien hochgeladen!",
-            "title": "Die Assets wurden hinzugefügt",
+            "title": "Assets hinzufügen",
             "quiet": {
                 "label": "Still (keine Benachrichtigung, kein Webhook)"
-            }
+            },
+            "files_to_upload_one": "<strong>{{count}}</strong> Datei zum Hochladen",
+            "files_to_upload_other": "<strong>{{count}}</strong> Dateien zum Hochladen",
+            "reset": "Zurücksetzen"
         },
         "workspace": {
             "fallback_locales": {
                 "add": "Eine Primärsprache hinzufügen",
                 "label": "Sprache",
-                "title": "Primärsprache",
+                "title": "Reihenfolge der Locales",
                 "remove": "<1>Diese Sprache</1> entfernen"
             },
             "locales": {
@@ -999,7 +1042,7 @@
         "content": "Die Seite, die Sie suchen, existiert nicht oder wurde entfernt"
     },
     "operations_asset": {
-        "workflow_is_starting": "Der Workflow beginnt!"
+        "workflow_is_starting": "Workflow gestartet!"
     },
     "pagination": {
         "load_more_collections": "Weitere Kollektionen laden"
@@ -1036,7 +1079,9 @@
     "renditions": {
         "dirty": "Dirty",
         "download": "Download",
-        "delete": "Löschen"
+        "delete": "Löschen",
+        "replace": "Ersetzen",
+        "upload": "Rendition hochladen"
     },
     "replace_asset_with_file_dialog": {
         "please_confirm_replacing_asset": "Bitte bestätigen Sie das Ersetzen des Assets.",
@@ -1089,7 +1134,11 @@
     },
     "selection_actions": {
         "result": "Ergebnis",
-        "s": ""
+        "s": "",
+        "x_result_one": "<strong>{{count}}</strong> Treffer",
+        "x_result_other": "<strong>{{count}}</strong> Treffer",
+        "x_result_with_selection_one": "<strong>{{selection}} / {{total}}</strong> Treffer",
+        "x_result_with_selection_other": "<strong>{{selection}} / {{total}}</strong> Treffer"
     },
     "sort_by": {
         "sort_by": "Sortiere nach"
@@ -1157,7 +1206,7 @@
                 "title": "Informationen"
             },
             "rendition_definition": {
-                "title": "Renditionen"
+                "title": "Renditions"
             },
             "tag_rules": {
                 "title": "Tag Regeln"
@@ -1280,6 +1329,9 @@
         },
         "new": {
             "label": "Neue Entitätenliste"
+        },
+        "list": {
+            "export": "Exportieren"
         }
     },
     "file": {
@@ -1393,7 +1445,8 @@
                 "within_circle_radius": "Radius",
                 "within_rectangle_bottom_right_latitude": "Breitengrad unten rechts",
                 "within_rectangle_top_left_latitude": "Oberer linker Breitengrad",
-                "within_rectangle_top_left_longitude": "Längengrad oben links"
+                "within_rectangle_top_left_longitude": "Längengrad oben links",
+                "placeholder": "Operator"
             },
             "add_condition": "Bedingung hinzufügen",
             "add_condition_group": "Bedingungsgruppe hinzufügen",
@@ -1553,11 +1606,37 @@
     "replace_asset": {
         "dialog": {
             "success": "Die neue Asset-Quelldatei wurde hochgeladen und wird in Kürze ersetzt.",
-            "title": "Asset-Quelldatei ersetzen"
+            "title": "Asset-Quelldatei ersetzen",
+            "submit": "Austauschen"
         }
     },
     "user_preferences": {
         "loading": "Benutzereinstellungen werden geladen…"
     },
-    "Already <1>bold</1>.": "Schon <1>bold</1>."
+    "Already <1>bold</1>.": "Schon <1>bold</1>.",
+    "file_upload": {
+        "from_url": {
+            "placeholder": "Geben Sie die Datei-URL ein"
+        },
+        "upload_from_url": "Von URL hochladen"
+    },
+    "upload": {
+        "pending": {
+            "cancel_upload": "Abbrechen",
+            "empty": "Keine ausstehenden Uploads",
+            "title": "Ausstehende Uploads",
+            "toast": {
+                "message_one": "<strong>{{uploaded}} / {{count}}</strong>  hochgeladen",
+                "message_other": "<strong>{{uploaded}} / {{count}}</strong>  hochgeladen"
+            },
+            "uploaded": "Hochgeladen"
+        }
+    },
+    "upload_rendition": {
+        "dialog": {
+            "submit": "Rendition hochladen",
+            "success": "Die Rendition wurde erfolgreich hochgeladen",
+            "title": "Rendition {{renditionName}} hochladen"
+        }
+    }
 }

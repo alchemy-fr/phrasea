@@ -1,5 +1,23 @@
 {
-    "locale": {"current": "Français"},
+    "locale": {
+        "current": "Français",
+        "switcher": {
+            "change_data_locale": {
+                "modal": {
+                    "confirm": "Continuer",
+                    "title": "La page va être actualisée"
+                }
+            },
+            "data_locale": {
+                "default": "Par défaut",
+                "default_description": "Utiliser la langue de l'interface"
+            },
+            "filter_placeholder": "Rechercher...",
+            "title": "Modifier la langue",
+            "app_languages": "Langues",
+            "data_languages": "Langue des données"
+        }
+    },
     "acl": {
         "delete": "Supprimer",
         "form": {
@@ -126,7 +144,13 @@
         "current": "Actuel"
     },
     "asset_selection": {
-        "item": "élément"
+        "item": "élément",
+        "x_item_one": "<strong>{{count}}</strong> asset",
+        "x_item_many": "<strong>{{total}}</strong> assets",
+        "x_item_other": "<strong>{{total}}</strong> assets",
+        "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> asset",
+        "x_item_with_selection_many": "<strong>{{selection}} / {{total}}</strong> assetq",
+        "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> assets"
     },
     "attribute": {
         "editor": {
@@ -276,7 +300,13 @@
     },
     "basket_view_dialog": {
         "item": "élément",
-        "remove_from_basket": "Retirer du panier"
+        "remove_from_basket": "Retirer du panier",
+        "x_item_one": "<strong>{{count}}</strong> élément",
+        "x_item_many": "<strong>{{count}}</strong> élément",
+        "x_item_other": "<strong>{{count}}</strong> éléments",
+        "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> élément",
+        "x_item_with_selection_many": "<strong>{{selection}} / {{total}}</strong> éléments",
+        "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> éléments"
     },
     "change_theme": {
         "save": "Enregistrer",
@@ -299,7 +329,7 @@
         },
         "item": {
             "create_asset": "Ajouter un nouvel asset à la collection",
-            "create_collection": "Créer une nouvelle collection dans celle-ci",
+            "create_collection": "Créer une sous collection",
             "edit": "Modifier cette collection",
             "delete": "Supprimer",
             "notifications": "Notifications"
@@ -359,7 +389,8 @@
         "yes": "Oui",
         "close": "Fermer",
         "edit": "Editer",
-        "revoke": "Révoquer"
+        "revoke": "Révoquer",
+        "id": "ID"
     },
     "copy_assets": {
         "dialog": {
@@ -420,7 +451,17 @@
         },
         "reset": "Réinitialiser",
         "save": "Enregistrer",
-        "search": "Rechercher"
+        "search": "Rechercher",
+        "export_attribute_entities": {
+            "copy_code": "Copier le code",
+            "format": "Format",
+            "select_format": "Sélectionner un format",
+            "title": "Exporter les entités de l'attribut",
+            "locale": "Locale",
+            "select_locale": "Sélectionner la locale",
+            "all_locales": "Toutes les locales"
+        },
+        "ok": "OK"
     },
     "edit_sort_by": {
         "add_group_separators_between_results": "Ajouter des séparateurs de groupes entre les résultats",
@@ -468,12 +509,12 @@
         "confirm_delete_this_rule": "Confirmer la suppression de cette règle ?",
         "exclude": {
             "helper": "Les assets dans ce {{type}} seront seulement visibles s'ils NE contiennent PAS ces tags.",
-            "label": "Tags à <1>exclure</1>"
+            "label": "Tags à <b>exclure</b>"
         },
         "group": "Groupe",
         "include": {
             "helper": "Les assets dans ce {{type}} seront seulement visibles s'ils contiennent ces tags.",
-            "label": "Tags à <1>inclure</1>"
+            "label": "Tags à <b>inclure</b>"
         },
         "or": "ou",
         "rule_applies_for": "La règle s'applique pour :",
@@ -528,7 +569,7 @@
                 "label": "Liste d'entités"
             },
             "field_type": {
-                "label": "Type de champ"
+                "label": "Type de l'attribut"
             },
             "multiple": {
                 "label": "Valeurs multiples"
@@ -708,6 +749,9 @@
             },
             "buildMode": {
                 "label": "Mode de génération"
+            },
+            "substitutable": {
+                "label": "Substituable"
             }
         },
         "save_as": {
@@ -734,10 +778,14 @@
                 "title": "Ajouter"
             },
             "success": "Assets ajoutés !",
-            "title": "Assets ajoutés",
+            "title": "Ajouter des fichiers",
             "quiet": {
                 "label": "Ne pas déclencher de notification ou de webhook"
-            }
+            },
+            "files_to_upload_one": "<strong>{{count}}</strong> fichier à importer",
+            "files_to_upload_many": "<strong>{{count}}</strong> fichiers à importer",
+            "files_to_upload_other": "<strong>{{count}}</strong> fichiers à importer",
+            "reset": "Réinitialiser"
         },
         "Workspace": {
             "fallback_locales": {
@@ -763,9 +811,9 @@
         },
         "workspace": {
             "fallback_locales": {
-                "add": "Ajouter une langue primaire",
+                "add": "Ajouter une locale",
                 "label": "Langue",
-                "title": "Langue primaire",
+                "title": "Ordre des locales",
                 "remove": "Supprimer <1>cette langue</1>"
             },
             "locales": {
@@ -840,7 +888,7 @@
         },
         "attribute_list_item": {
             "display_empty": {
-                "label": "Afficher même vide"
+                "label": "Afficher même si la valeur est vide"
             },
             "format": {
                 "label": "Format par défaut",
@@ -1003,7 +1051,7 @@
         "title": "Page non trouvée"
     },
     "operations_asset": {
-        "workflow_is_starting": "Le workflow démarre !"
+        "workflow_is_starting": "Workflow démarré !"
     },
     "pagination": {
         "load_more_collections": "Charger plus de collections"
@@ -1100,7 +1148,13 @@
     },
     "selection_actions": {
         "result": "résultat",
-        "s": "s"
+        "s": "s",
+        "x_result_one": "<strong>{{count}}</strong> résultat",
+        "x_result_many": "<strong>{{count}}</strong> résultats",
+        "x_result_other": "<strong>{{count}}</strong> résultats",
+        "x_result_with_selection_one": "<strong>{{selection}} / {{total}}</strong> résultat",
+        "x_result_with_selection_many": "<strong>{{selection}} / {{total}}</strong> résultats",
+        "x_result_with_selection_other": "<strong>{{selection}} / {{total}}</strong> résultats"
     },
     "sort_by": {
         "sort_by": "Trier par"
@@ -1302,7 +1356,9 @@
     "renditions": {
         "dirty": "Les réglages de cette Rendition ont été modifiés après sa création (dirty).",
         "download": "Télécharger",
-        "delete": "Supprimer"
+        "delete": "Supprimer",
+        "replace": "Remplacer",
+        "upload": "Importer la Rendition"
     },
     "workspace": {
         "info": {
@@ -1398,6 +1454,9 @@
             "count_many": "Utilisé sur {{ count }} définitions d'attributs",
             "count_other": "Utilisé sur {{ count }} définitions d'attributs",
             "none": "Pas d'utilisation de définitions d'attributs"
+        },
+        "list": {
+            "export": "Exporter"
         }
     },
     "es_document": {
@@ -1465,7 +1524,8 @@
     "replace_asset": {
         "dialog": {
             "success": "Le nouveau fichier source d'asset a été chargé, remplacement en cours.",
-            "title": "Substituer le fichier source de l'asset"
+            "title": "Substituer le fichier source de l'asset",
+            "submit": "Substituer"
         }
     },
     "search_condition": {
@@ -1488,7 +1548,7 @@
                 "matches": "Correspond à",
                 "missing": "Est vide",
                 "not_contains": "Ne contient pas",
-                "not_equals": "! = (Non égal)",
+                "not_equals": "! = (différent de)",
                 "not_in": "Non inclus dans",
                 "not_starts_with": "Ne commence pas par",
                 "or": "OU",
@@ -1500,7 +1560,8 @@
                 "within_rectangle_bottom_right_latitude": "Latitude bas droite",
                 "within_rectangle_bottom_right_longitude": "Longitude bas droite",
                 "within_rectangle_top_left_latitude": "Latitude haute gauche",
-                "within_rectangle_top_left_longitude": "Longitude haute gauche"
+                "within_rectangle_top_left_longitude": "Longitude haute gauche",
+                "placeholder": "Opérateur"
             },
             "add_condition": "Ajouter une condition",
             "field": "Champ",
@@ -1523,7 +1584,7 @@
             "disable": "Désactiver",
             "edit": "Modifier",
             "enable": "Activer",
-            "remove": "Supprimer"
+            "remove": "Retirer"
         }
     },
     "share": {
@@ -1608,7 +1669,7 @@
     },
     "asset_version_delete": {
         "confirm": "Êtes-vous sûr de vouloir supprimer cette version ?",
-        "confirmed": "Version supprimée!"
+        "confirmed": "Version supprimée !"
     },
     "asset_view": {
         "edit_asset": "Asset <strong> {{name}} </strong>"
@@ -1723,6 +1784,32 @@
                 "helper": "Vous pouvez définir à qui s'adresse ce lien de partage",
                 "label": "Titre"
             }
+        }
+    },
+    "file_upload": {
+        "from_url": {
+            "placeholder": "Saisir l'URL du fichier"
+        },
+        "upload_from_url": "Importer à partir d'une l'URL"
+    },
+    "upload": {
+        "pending": {
+            "cancel_upload": "Annuler",
+            "empty": "Aucun envoi en attente",
+            "title": "Envois en attente",
+            "toast": {
+                "message_one": "<strong>{{uploaded}} / {{count}}</strong>  importé",
+                "message_many": "<strong>{{uploaded}} / {{count}}</strong>  importés",
+                "message_other": "<strong>{{uploaded}} / {{count}}</strong>  importés"
+            },
+            "uploaded": "Importés"
+        }
+    },
+    "upload_rendition": {
+        "dialog": {
+            "submit": "Importer une rendition",
+            "success": "La rendition a été importée avec succès",
+            "title": "Importer la rendition {{renditionName}}"
         }
     }
 }

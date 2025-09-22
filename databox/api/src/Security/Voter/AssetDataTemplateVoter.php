@@ -11,6 +11,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssetDataTemplateVoter extends AbstractVoter
 {
+    final public const string SCOPE_PREFIX = 'asset-data-template:';
+
     protected function supports(string $attribute, $subject): bool
     {
         return $subject instanceof AssetDataTemplate;
@@ -26,6 +28,10 @@ class AssetDataTemplateVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
+        if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
+            return true;
+        }
+
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;

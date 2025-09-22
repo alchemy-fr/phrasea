@@ -8,11 +8,12 @@ use ApiPlatform\Metadata\ApiProperty;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Workspace;
+use App\Security\Voter\RenditionDefinitionVoter;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 class RenditionDefinitionInput
 {
-    private const string GRANT_ADMIN_PROP = "object ? is_granted('READ_ADMIN', object) : true";
+    private const string GRANT_ADMIN_PROP = 'object ? is_granted(\''.RenditionDefinitionVoter::READ_ADMIN.'\', object) : true';
 
     /**
      * @var Workspace|null

@@ -12,12 +12,16 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\Workspace;
+use App\Security\ScopeTrait;
+use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\WorkspaceVoter;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Bundle\SecurityBundle\Security;
 
-final readonly class WorkspaceExtension implements QueryCollectionExtensionInterface
+final class WorkspaceExtension implements QueryCollectionExtensionInterface
 {
-    public function __construct(private Security $security, private ObjectMapping $objectMapping)
+    use ScopeTrait;
+
+    public function __construct(private readonly ObjectMapping $objectMapping)
     {
     }
 
@@ -34,6 +38,10 @@ final readonly class WorkspaceExtension implements QueryCollectionExtensionInter
     private function addWhere(QueryBuilder $queryBuilder, string $resourceClass, array $context): void
     {
         if (Workspace::class !== $resourceClass) {
+            return;
+        }
+
+        if ($this->hasScope(AbstractVoter::LIST, WorkspaceVoter::SCOPE_PREFIX)) {
             return;
         }
 

@@ -293,6 +293,6 @@ class AssetSearch extends AbstractSearch
 
     protected function getAdminScope(): ?string
     {
-        return AssetVoter::getScopePrefix().AbstractVoter::LIST;
+        return AssetVoter::SCOPE_PREFIX.AbstractVoter::LIST;
     }
 }
