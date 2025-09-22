@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Facet;
+namespace App\Elasticsearch\BuiltInField;
 
 use App\Attribute\Type\KeywordAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class PrivacyFacet extends AbstractLabelledFacet
+final class PrivacyBuiltInField extends AbstractLabelledBuiltInField
 {
     public function __construct(private readonly TranslatorInterface $translator)
     {

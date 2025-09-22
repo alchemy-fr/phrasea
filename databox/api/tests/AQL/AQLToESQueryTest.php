@@ -11,12 +11,14 @@ use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\DateNormalizer;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
-use App\Elasticsearch\Facet\CreatedAtFacet;
-use App\Elasticsearch\Facet\FacetRegistry;
-use App\Elasticsearch\Facet\WorkspaceFacet;
+use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
+use App\Elasticsearch\BuiltInField\CreatedAtBuiltInField;
+use App\Elasticsearch\BuiltInField\WorkspaceBuiltInField;
 use App\Tests\Attribute\Type\AttributeTypeRegistyTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Contracts\Service\ServiceLocatorTrait;
+use Symfony\Contracts\Service\ServiceProviderInterface;
 
 class AQLToESQueryTest extends TestCase
 {
@@ -34,11 +36,13 @@ class AQLToESQueryTest extends TestCase
 
         $attributeTypeRegistry = AttributeTypeRegistyTestFactory::create();
 
+        $container = new class([WorkspaceBuiltInField::getKey() => fn () => new WorkspaceBuiltInField($em), CreatedAtBuiltInField::getKey() => fn () => new CreatedAtBuiltInField()]) implements ServiceProviderInterface {
+            use ServiceLocatorTrait;
+        };
+        $builtInFieldRegistry = new BuiltInFieldRegistry($container);
+
         $esQueryConverter = new AQLToESQuery(
-            new FacetRegistry([
-                '@workspace' => new WorkspaceFacet($em),
-                '@createdAt' => new CreatedAtFacet(),
-            ]), $functionRegistry, $attributeTypeRegistry, new DateNormalizer());
+            $builtInFieldRegistry, $functionRegistry, $attributeTypeRegistry, new DateNormalizer());
 
         $fieldClusters = [
             [

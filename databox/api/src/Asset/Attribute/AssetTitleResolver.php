@@ -18,6 +18,7 @@ class AssetTitleResolver
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly LoggerInterface $logger,
+        private readonly AttributesResolver $attributesResolver,
     ) {
     }
 
@@ -46,6 +47,11 @@ class AssetTitleResolver
         }
 
         return $asset->getSource()?->getOriginalName();
+    }
+
+    public function resolveTitleWithoutIndex(Asset $asset, array $preferredLocales): Attribute|string|null
+    {
+        return $this->resolveTitle($asset, $this->attributesResolver->resolveAssetAttributes($asset, true), $preferredLocales);
     }
 
     public function hasTitleOverride(string $workspaceId): bool

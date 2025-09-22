@@ -4,7 +4,7 @@ namespace App\Attribute;
 
 interface AttributeLocaleInterface
 {
-    final public const LOCALES = [
+    final public const array LOCALES = [
         'ar' => 'arabic',
         'bg' => 'bulgarian',
         'bn' => 'bengali',

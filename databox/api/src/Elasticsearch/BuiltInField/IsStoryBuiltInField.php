@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Facet;
+namespace App\Elasticsearch\BuiltInField;
 
 use App\Attribute\Type\BooleanAttributeType;
 use App\Entity\Core\Asset;
 
-final class IsStoryFacet extends AbstractFacet
+final class IsStoryBuiltInField extends AbstractBuiltInField
 {
     protected function getAggregationTranslationKey(): string
     {

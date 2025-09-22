@@ -15,15 +15,15 @@ use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AQL\Function\AQLFunctionInterface;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AQL\Function\Argument;
-use App\Elasticsearch\Facet\FacetInterface;
-use App\Elasticsearch\Facet\FacetRegistry;
+use App\Elasticsearch\BuiltInField\BuiltInFieldInterface;
+use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
 use Elastica\Query;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final readonly class AQLToESQuery
 {
     public function __construct(
-        private FacetRegistry $facetRegistry,
+        private BuiltInFieldRegistry $builtInFieldRegistry,
         private AQLFunctionRegistry $functionRegistry,
         private AttributeTypeRegistry $attributeTypeRegistry,
         private DateNormalizer $dateNormalizer,
@@ -106,7 +106,7 @@ final readonly class AQLToESQuery
     private function createCriteria(array $field, array $data, array $options): Query\AbstractQuery
     {
         $locale = $options['locale'] ?? '*';
-        $facet = $field['facet'] ?? null;
+        $builtInField = $field['builtInField'] ?? null;
         $fieldName = str_replace('{l}', $locale, $field['field']);
         /** @var AttributeTypeInterface $type */
         $type = $field['type'];
@@ -135,7 +135,7 @@ final readonly class AQLToESQuery
         }
 
         if (isset($data['rightOperand'])) {
-            $value = $this->resolveValue($data['rightOperand'], $facet);
+            $value = $this->resolveValue($data['rightOperand'], $builtInField);
         } else {
             $value = null;
         }
@@ -505,7 +505,7 @@ final readonly class AQLToESQuery
         return $scripts;
     }
 
-    private function resolveValue(mixed $data, ?FacetInterface $facet = null): mixed
+    private function resolveValue(mixed $data, ?BuiltInFieldInterface $builtInField = null): mixed
     {
         if (is_array($data)) {
             $type = $data['type'] ?? null;
@@ -517,8 +517,8 @@ final readonly class AQLToESQuery
             } elseif ('value_expression' === $type) {
                 $data = $this->resolveValueExpression($data);
             } elseif (isset($data[0])) {
-                return array_map(function (mixed $data) use ($facet) {
-                    return $this->resolveValue($data, $facet);
+                return array_map(function (mixed $data) use ($builtInField) {
+                    return $this->resolveValue($data, $builtInField);
                 }, $data);
             }
         }
@@ -529,8 +529,8 @@ final readonly class AQLToESQuery
 
         $v = $data['literal'] ?? $data;
 
-        if (null !== $facet) {
-            $v = $facet->normalizeValueForSearch($v);
+        if (null !== $builtInField) {
+            $v = $builtInField->normalizeValueForSearch($v);
         }
 
         return $v;
@@ -542,13 +542,13 @@ final readonly class AQLToESQuery
     private function getFieldNames(array $fieldClusters, string $fieldSlug): array
     {
         if (str_starts_with($fieldSlug, '@')) {
-            $facet = $this->facetRegistry->getFacet($fieldSlug);
-            if (null !== $facet) {
+            $builtInField = $this->builtInFieldRegistry->getBuiltInField($fieldSlug);
+            if (null !== $builtInField) {
                 return [
                     new ClusterGroup([
-                        'field' => $facet->getFieldName(),
-                        'facet' => $facet,
-                        'type' => $this->attributeTypeRegistry->getStrictType($facet->getType()),
+                        'field' => $builtInField->getFieldName(),
+                        'builtInField' => $builtInField,
+                        'type' => $this->attributeTypeRegistry->getStrictType($builtInField->getType()),
                         'locales' => [],
                     ], true),
                 ];

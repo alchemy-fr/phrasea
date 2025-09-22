@@ -21,7 +21,6 @@ export default function StoryThumb({assetId}: Props) {
         initRef.current = true;
         getStoryThumbnails(assetId).then(r => {
             setThumbnails(r);
-            initRef.current = false;
         });
     }, [assetId, initRef, divRef]);
 
