@@ -298,8 +298,8 @@ export function replaceConstants(ast: AQLQueryAST, t: TFunction): void {
             );
         } else if (typeof expression === 'boolean') {
             return expression
-                ? t('aql.constant.true', 'True')
-                : t('aql.constant.false', 'False');
+                ? t('aql.constant.yes', 'Yes')
+                : t('aql.constant.no', 'No');
         } else if (expression === null) {
             return t('aql.constant.null', 'Null');
         }

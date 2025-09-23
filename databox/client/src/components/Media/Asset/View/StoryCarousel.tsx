@@ -29,7 +29,6 @@ export default function StoryCarousel({
 
                     return {
                         ...thumbSx(h, theme),
-                        p: 1,
                         overflowX: 'auto',
                         overflowY: 'hidden',
                         bgcolor: 'background.paper',
@@ -38,10 +37,11 @@ export default function StoryCarousel({
                             boxShadow: `inset 0 0 0 2px ${theme.palette.primary.main}`,
                         },
                         ['> div']: {
-                            display: 'flex',
+                            display: 'inline-flex',
                             flexDirection: 'row',
                             gap: 1,
-                            ['> span']: {
+                            m: 1,
+                            ['> div']: {
                                 flex: '0 0 auto',
                                 cursor: 'pointer',
                             },

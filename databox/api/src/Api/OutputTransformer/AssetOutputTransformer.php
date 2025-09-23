@@ -9,6 +9,7 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\AssetOutput;
+use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Asset\Attribute\AttributesResolver;
@@ -107,6 +108,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
             Asset::GROUP_STORY,
             Share::GROUP_READ,
             Share::GROUP_PUBLIC_READ,
+            ResolveEntitiesOutput::GROUP_READ,
         ], $context)) {
             $attributesIndex = $this->attributesResolver->resolveAssetAttributes($data, true);
             $attributes = $attributesIndex->getFlattenAttributes();
