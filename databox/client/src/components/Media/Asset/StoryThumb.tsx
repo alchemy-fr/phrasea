@@ -52,19 +52,17 @@ export default function StoryThumb({assetId}: Props) {
             })}
         >
             <div>
-                <div>
-                    {thumbnails ? (
-                        thumbnails.map((thumb, index) => (
-                            <img
-                                key={index}
-                                src={thumb}
-                                alt={`Story thumbnail ${index + 1}`}
-                            />
-                        ))
-                    ) : (
-                        <Skeleton variant={'rectangular'} />
-                    )}
-                </div>
+                {thumbnails ? (
+                    thumbnails.map((thumb, index) => (
+                        <img
+                            key={index}
+                            src={thumb}
+                            alt={`Story thumbnail ${index + 1}`}
+                        />
+                    ))
+                ) : (
+                    <Skeleton variant={'rectangular'} />
+                )}
             </div>
         </div>
     );
@@ -72,7 +70,7 @@ export default function StoryThumb({assetId}: Props) {
 
 export function createStorySx(thumbSize: number, theme: Theme): SxProps {
     return {
-        [`.${assetClasses.thumbWrapper} .${assetClasses.storyThumb}`]: {
+        [`.${assetClasses.storyThumb}`]: {
             'display': 'flex',
             'flexDirection': 'column',
             'backgroundColor': theme.palette.background.paper,
@@ -84,33 +82,31 @@ export function createStorySx(thumbSize: number, theme: Theme): SxProps {
             'opacity': 0,
             'transition': 'opacity 1s ease-in-out',
             '> div': {
-                '> div': {
-                    'display': 'flex',
-                    'flexDirection': 'row',
-                    'alignItems': 'center',
-                    'flexShrink': 0,
-                    '> img': {
-                        flexShrink: 0,
-                        display: 'block',
-                    },
+                'height': thumbSize,
+                'display': 'flex',
+                'flexDirection': 'row',
+                'alignItems': 'center',
+                'flexShrink': 0,
+                '> img': {
+                    flexShrink: 0,
+                    display: 'block',
                 },
             },
         },
-        [`.${assetClasses.thumbWrapper} .${assetClasses.storyThumbsLoaded}`]: {
+        [`.${assetClasses.storyThumbsLoaded}`]: {
             backgroundColor: '#000',
         },
-        [`.${assetClasses.thumbWrapper} .MuiSkeleton-root`]: {
+        [`.MuiSkeleton-root`]: {
             width: thumbSize,
             height: thumbSize,
         },
-        [`.${assetClasses.thumbWrapper}:hover .${assetClasses.storyThumb}`]: {
+        [`&:hover .${assetClasses.storyThumb}`]: {
             opacity: '1',
-            height: '100%',
+            height: thumbSize,
         },
 
-        [`.${assetClasses.thumbWrapper}:hover .${assetClasses.storyShouldHide}`]:
-            {
-                display: 'none',
-            },
+        [`&:hover .${assetClasses.storyShouldHide}`]: {
+            display: 'none',
+        },
     };
 }

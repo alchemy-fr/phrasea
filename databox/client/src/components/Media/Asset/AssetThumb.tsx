@@ -14,6 +14,7 @@ import AssetTypeIcon from './AssetTypeIcon.tsx';
 
 type Props = {
     asset: Asset;
+    noStoryCarousel?: boolean;
 } & HTMLAttributes<HTMLDivElement>;
 
 function AssetThumb({
@@ -26,6 +27,7 @@ function AssetThumb({
         original,
         storyCollection,
     },
+    noStoryCarousel,
     ...domAttrs
 }: Props) {
     const {t} = useTranslation();
@@ -70,12 +72,15 @@ function AssetThumb({
                 [domAttrs.className]
             )}
         >
-            {storyCollection ? <StoryThumb assetId={id} /> : null}
+            {!noStoryCarousel && storyCollection ? (
+                <StoryThumb assetId={id} />
+            ) : null}
             {thumb ? (
                 <div
                     className={classNames({
                         [assetClasses.thumbInactive]: thumbnailActive,
-                        [assetClasses.storyShouldHide]: !!storyCollection,
+                        [assetClasses.storyShouldHide]:
+                            !noStoryCarousel && !!storyCollection,
                     })}
                 >
                     {thumb}
@@ -85,7 +90,7 @@ function AssetThumb({
             )}
             {!pendingSourceFile &&
                 thumbnailActive?.file &&
-                !storyCollection && (
+                (!storyCollection || noStoryCarousel) && (
                     <div className={assetClasses.thumbActive}>
                         <FilePlayer
                             file={thumbnailActive.file}
@@ -149,7 +154,6 @@ export const thumbSx = (
     const greyBg = theme.palette.grey[100];
 
     return {
-        ...createStorySx(thumbSize, theme),
         [`.${assetClasses.thumbWrapper}`]: {
             'display': 'flex',
             'overflow': 'hidden',
@@ -179,6 +183,7 @@ export const thumbSx = (
             },
 
             ...createThumbActiveStyle(),
+            ...createStorySx(thumbSize, theme),
             ...videoPlayerSx(thumbSize, theme),
             ...overridden,
         },
