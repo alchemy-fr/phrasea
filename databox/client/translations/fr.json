@@ -742,7 +742,7 @@
             },
             "useAs": {
                 "preview": "Aperçu",
-                "label": "Cette rendition est",
+                "label": "Rendition utilisée pour",
                 "original": "Original",
                 "thumbnail": "Vignette",
                 "thumbnailActive": "Vignette active"
