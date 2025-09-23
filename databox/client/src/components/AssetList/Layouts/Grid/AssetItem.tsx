@@ -133,6 +133,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                 )}
                 {asset.collections && asset.collections.length > 0 && (
                     <AssetCollectionList
+                        asset={asset}
                         onOpenAsset={onOpen}
                         collections={asset.collections!}
                     />

@@ -9,7 +9,11 @@ export type OnAddToBasket = (asset: Asset, e?: MouseEvent) => void;
 export type OnSelectionChange<Item extends AssetOrAssetContainer> = (
     items: Item[]
 ) => void;
-export type OnOpen = (asset: Asset, renditionId?: string) => void;
+export type OnOpen = (
+    asset: Asset,
+    renditionId?: string,
+    storyAssetId?: string
+) => void;
 export type OnToggle<Item extends AssetOrAssetContainer> = (
     item: Item,
     e?: MouseEvent

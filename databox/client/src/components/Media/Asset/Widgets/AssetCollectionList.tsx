@@ -6,14 +6,17 @@ import {useTranslation} from 'react-i18next';
 import {WorkspaceChip} from '../../../Ui/WorkspaceChip.tsx';
 import {CollectionChip} from '../../../Ui/CollectionChip.tsx';
 import CollectionStoryChip from '../../../Ui/CollectionStoryChip.tsx';
+import {OnOpen} from '../../../AssetList/types.ts';
 
 type Props = {
+    asset: Asset;
     workspace?: Workspace;
     collections: Collection[];
-    onOpenAsset?: (asset: Asset) => void;
+    onOpenAsset?: OnOpen;
 };
 
 export default function AssetCollectionList({
+    asset,
     workspace,
     collections,
     onOpenAsset,
@@ -32,6 +35,7 @@ export default function AssetCollectionList({
             return (
                 <CollectionStoryChip
                     key={c.id}
+                    asset={asset}
                     onOpen={onOpenAsset}
                     storyAsset={c.storyAsset}
                 />
