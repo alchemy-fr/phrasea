@@ -1,5 +1,6 @@
 import {create} from 'zustand';
 import {
+    Asset,
     AttributeDefinition,
     AttributeEntity,
     Collection,
@@ -174,6 +175,16 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                     component: NullableBooleanWidget,
                 },
                 getValueFromAsset: asset => asset.privacy,
+            },
+            {
+                slug: BuiltInField.Story,
+                entityIri: 'assets',
+                resolveLabel: (entity: Asset) =>
+                    entity.resolvedTitle ?? entity.title ?? '',
+                searchable: true,
+                fieldType: AttributeType.Id,
+                name: t('built_in_attr.story', 'Story'),
+                multiple: true,
             },
             {
                 slug: BuiltInField.Tag,

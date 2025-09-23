@@ -29,11 +29,11 @@ export default function NullableBooleanWidget({
     const options = useMemo(
         () => [
             {
-                label: t('aql.constant.true', 'True'),
+                label: t('aql.constant.yes', 'Yes'),
                 value: NullableBooleanValue.True,
             },
             {
-                label: t('aql.constant.false', 'False'),
+                label: t('aql.constant.no', 'No'),
                 value: NullableBooleanValue.False,
             },
             {

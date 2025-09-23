@@ -19,6 +19,7 @@ export enum BuiltInField {
     Score = '@score',
     Tag = '@tag',
     IsStory = '@isStory',
+    Story = '@story',
     Workspace = '@workspace',
 }
 

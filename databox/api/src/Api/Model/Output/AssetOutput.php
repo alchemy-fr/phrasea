@@ -51,7 +51,9 @@ class AssetOutput extends AbstractUuidOutput
         Asset::GROUP_READ,
         Asset::GROUP_STORY,
         WebhookSerializationInterface::DEFAULT_GROUP,
-        Share::GROUP_PUBLIC_READ])]
+        Share::GROUP_PUBLIC_READ,
+        ResolveEntitiesOutput::GROUP_READ,
+    ])]
     private ?string $title = null;
 
     #[Groups([Asset::GROUP_LIST,
@@ -60,6 +62,7 @@ class AssetOutput extends AbstractUuidOutput
         WebhookSerializationInterface::DEFAULT_GROUP,
         Share::GROUP_READ,
         Share::GROUP_PUBLIC_READ,
+        ResolveEntitiesOutput::GROUP_READ,
     ])]
     private ?string $resolvedTitle = null;
 
