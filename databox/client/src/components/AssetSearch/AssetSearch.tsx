@@ -7,17 +7,13 @@ import {Fab} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import {useAuth} from '@alchemy/react-auth';
 import UploadModal from '../Upload/UploadModal';
-import {modalRoutes, Routing} from '../../routes';
-import {useNavigateToModal} from '../Routing/ModalLink';
-import {OnOpen} from '../AssetList/types';
-import {AssetContextState} from '../Media/Asset/assetTypes.ts';
+import {useOpenAsset} from './useOpenAsset.ts';
 
 type Props = {};
 
 export default function AssetSearch({}: Props) {
     const resultContext = React.useContext(ResultContext);
     const {openModal} = useModals();
-    const navigateToModal = useNavigateToModal();
     const authContext = useAuth();
 
     const openDebug = resultContext.debug
@@ -36,33 +32,9 @@ export default function AssetSearch({}: Props) {
         });
     }, []);
 
-    const onOpen = useCallback<OnOpen>(
-        (asset, renditionId): void => {
-            if (!renditionId) {
-                renditionId = asset.original?.id;
-            }
-
-            navigateToModal(
-                modalRoutes.assets.routes.view,
-                {
-                    id: asset.id,
-                    renditionId: renditionId || Routing.UnknownRendition,
-                },
-                {
-                    state: {
-                        assetsContext: resultContext.pages
-                            .flat()
-                            .map(a => [
-                                a.id,
-                                a.original?.id,
-                            ]) as AssetContextState,
-                    },
-                }
-            );
-            // eslint-disable-next-line
-        },
-        [navigateToModal, resultContext]
-    );
+    const onOpen = useOpenAsset({
+        resultContext,
+    });
 
     return (
         <>

@@ -3,7 +3,7 @@ import {Asset, AssetRendition} from '../../../../types.ts';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {MemoizedFilePlayer} from '../FilePlayer.tsx';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
-import {StackedModalProps, useParams} from '@alchemy/navigation';
+import {StackedModalProps, useParams, useLocation} from '@alchemy/navigation';
 import {Dimensions, filePlayerRelativeWrapperClassName} from '../Players';
 import {Box, Typography} from '@mui/material';
 import FileIntegrations from '../FileIntegrations.tsx';
@@ -57,6 +57,7 @@ export default function AssetView({modalIndex, open}: Props) {
     const headerHeight = 60;
     let heightRest = headerHeight;
     const {id: assetId, renditionId} = useParams();
+    const {state} = useLocation();
     const assetAnnotationsRef: AssetAnnotationRef = useRef(null);
     const messageFormRef: MessageFormRef = useRef(null);
     const previousData = useRef<DataTuple | undefined>();
@@ -67,17 +68,13 @@ export default function AssetView({modalIndex, open}: Props) {
     const queryKey = ['assets', assetId];
     const [storyAssets, setStoryAssets] =
         React.useState<ApiCollectionResponse<Asset>>();
-    const [currentStoryAsset, setCurrentStoryAsset] = React.useState<
-        Asset | undefined
-    >();
+    const [currentStoryAssetId, setCurrentStoryAssetId] = React.useState<
+        string | undefined
+    >(state?.storyAssetId);
 
     useChannelRegistration(`asset-${assetId}`, `asset_ingested`, () => {
         queryClient.invalidateQueries({queryKey});
     });
-
-    React.useEffect(() => {
-        setCurrentStoryAsset(undefined);
-    }, [assetId]);
 
     const {data, isSuccess, isError} = useModalFetch({
         queryKey,
@@ -176,6 +173,10 @@ export default function AssetView({modalIndex, open}: Props) {
     }
 
     const panelHeight = winSize.innerHeight - headerHeight;
+
+    const currentStoryAsset = currentStoryAssetId
+        ? storyAssets?.result.find(a => a.id === currentStoryAssetId)
+        : undefined;
     const displayedAsset = currentStoryAsset || asset;
 
     const displayedRenditionFile = currentStoryAsset
@@ -300,7 +301,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                             selectedAsset={displayedAsset}
                                             story={asset}
                                             onAssetClick={a => {
-                                                setCurrentStoryAsset(a);
+                                                setCurrentStoryAssetId(a.id);
                                             }}
                                         />
                                     ) : null}

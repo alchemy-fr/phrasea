@@ -8,6 +8,7 @@ use App\Asset\Attribute\Index\AttributeIndex;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetTitleAttribute;
 use App\Entity\Core\Attribute;
+use App\Model\AssetTypeEnum;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -24,9 +25,14 @@ class AssetTitleResolver
 
     public function resolveTitle(Asset $asset, AttributeIndex $attributesIndex, array $preferredLocales): Attribute|string|null
     {
+        $target = $asset->isStory() ? AssetTypeEnum::Story : AssetTypeEnum::Asset;
         if (empty($asset->getTitle()) || $this->hasTitleOverride($asset->getWorkspaceId())) {
             $titleAttrs = $this->getTitleAttributes($asset->getWorkspaceId());
             foreach ($titleAttrs as $attrTitle) {
+                if (!$attrTitle->isForTarget($target)) {
+                    continue;
+                }
+
                 $attributeDefinition = $attrTitle->getDefinition();
                 if ($attributeDefinition->isMultiple()) {
                     $this->logger->warning(sprintf('Cannot use multiple attribute definition "%s" as title', $attributeDefinition->getId()));
