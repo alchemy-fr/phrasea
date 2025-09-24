@@ -93,7 +93,7 @@ final class TranscriptionHappyscribeMessageHandler
         $this->bus->dispatch(new CreateExportMessage($transcriptionId, json_encode($this->config)));
     }
 
-    private function translateAndSave($sourceTranscriptionId, $targetLanguage)
+    private function translateAndSave($sourceTranscriptionId, $targetLanguage): void
     {
         try {
             $resTranslate = $this->happyscribeClient->request('POST', 'https://www.happyscribe.com/api/v1/task/transcription_translation', [
