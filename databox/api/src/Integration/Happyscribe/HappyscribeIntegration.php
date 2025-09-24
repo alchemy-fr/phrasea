@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Integration\Core\Happyscribe;
+namespace App\Integration\Happyscribe;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
@@ -24,19 +24,19 @@ class HappyscribeIntegration extends AbstractIntegration implements WorkflowInte
     public function buildConfiguration(NodeBuilder $builder): void
     {
         $builder
-            ->scalarNode('organization_id')
+            ->scalarNode('organizationId')
                 ->isRequired()
                 ->cannotBeEmpty()
-                ->info('Id of the organization to save the transcription in')
+                ->info('ID of the Happyscribe organization')
             ->end()
-            ->scalarNode('api_key')
+            ->scalarNode('apiKey')
                 ->isRequired()
                 ->cannotBeEmpty()
                 ->info('API key to access the Happyscribe API')
             ->end()
-            ->scalarNode('transcript_format')
+            ->enumNode('transcriptFormat')
                 ->defaultValue('vtt')
-                ->cannotBeEmpty()
+                ->values(['srt', 'vtt', 'txt', 'docx', 'pdf', 'json', 'html'])
                 ->info('Specify the export format of the transcript (srt, vtt, txt, docx, pdf, json, html)')
             ->end()
             ->scalarNode('attribute')
@@ -67,6 +67,6 @@ class HappyscribeIntegration extends AbstractIntegration implements WorkflowInte
 
     public static function getName(): string
     {
-        return 'core.happyscribe';
+        return 'happyscribe';
     }
 }
