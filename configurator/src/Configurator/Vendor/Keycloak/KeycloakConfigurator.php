@@ -103,7 +103,9 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'openid',
             'groups',
         ] as $scope) {
-            $this->keycloakManager->createScope($scope);
+            $this->keycloakManager->createScope($scope, [
+                'type' => 'default',
+            ]);
         }
 
         foreach ($this->getAppScopes() as $app => $appScopes) {
@@ -140,7 +142,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
             if (isset($appScopes[$app])) {
                 foreach ($appScopes[$app] as $scope) {
-                    $this->keycloakManager->addScopeToClient($scope, $clientData['id']);
+                    $this->keycloakManager->addScopeToClient($scope, $clientData['id'], false);
                 }
             }
         }
@@ -170,7 +172,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             );
 
             foreach ($this->getAppScopes()['databox'] as $scope) {
-                $this->keycloakManager->addScopeToClient($scope, $clientData['id']);
+                $this->keycloakManager->addScopeToClient($scope, $clientData['id'], false);
             }
         }
     }
@@ -240,7 +242,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'openid',
             'profile',
         ] as $scope) {
-            $this->keycloakManager->addScopeToClient($scope, $clientData['id']);
+            $this->keycloakManager->addScopeToClient($scope, $clientData['id'], true);
         }
 
         return $clientData;
@@ -318,9 +320,9 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
     private function configureDefaultClientScopes(): void
     {
-        $rolesScope = $this->keycloakManager->getDefaultClientScopesByName('roles');
+        $rolesScope = $this->keycloakManager->getDefaultClientScopeByName('roles');
         if (null === $rolesScope) {
-            throw new \InvalidArgumentException(sprintf('Scope named "roles" not found in client scopes'));
+            throw new \InvalidArgumentException('Scope named "roles" not found in client scopes');
         }
         $scopeId = $rolesScope['id'];
 
