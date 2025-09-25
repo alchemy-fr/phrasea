@@ -109,11 +109,11 @@ final class KeycloakManager
         ]))->toArray();
     }
 
-    public function getDefaultClientScopesByName(string $name): ?array
+    public function getDefaultClientScopeByName(string $name): ?array
     {
         $scopes = $this->getDefaultClientScopes();
         foreach ($scopes as $scope) {
-            if ('roles' === $scope['name']) {
+            if ($name === $scope['name']) {
                 return $scope;
             }
         }
@@ -232,12 +232,19 @@ final class KeycloakManager
         return null;
     }
 
-    public function addScopeToClient(string $scope, string $clientId): void
+    public function addScopeToClient(string $scope, string $clientId, bool $isDefault): void
     {
         $scopeData = $this->getScopeByName($scope);
 
         HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
-            ->request('PUT', UriTemplate::resolve('{realm}/clients/{clientId}/default-client-scopes/{scopeId}', [
+            ->request('DELETE', UriTemplate::resolve('{realm}/clients/{clientId}/'.(!$isDefault ? 'default' : 'optional').'-client-scopes/{scopeId}', [
+                'realm' => $this->keycloakRealm,
+                'clientId' => $clientId,
+                'scopeId' => $scopeData['id'],
+            ])), 404, []);
+
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
+            ->request('PUT', UriTemplate::resolve('{realm}/clients/{clientId}/'.($isDefault ? 'default' : 'optional').'-client-scopes/{scopeId}', [
                 'realm' => $this->keycloakRealm,
                 'clientId' => $clientId,
                 'scopeId' => $scopeData['id'],
