@@ -31,6 +31,7 @@ final readonly class ExportTranscriptionMessageHandler
         $config = json_decode($message->getConfig(), true, 512, JSON_THROW_ON_ERROR);
         $happyscribeToken = $config['apiKey'];
         $exportId = $config['exportId'];
+        $failureExportMessage = '';
 
         $resCheckExport = $this->happyscribeClient->request('GET', 'https://www.happyscribe.com/api/v1/exports/'.$exportId, [
             'headers' => [
