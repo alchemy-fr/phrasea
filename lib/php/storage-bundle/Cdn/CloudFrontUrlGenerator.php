@@ -18,10 +18,10 @@ class CloudFrontUrlGenerator
     public function __construct(
         CloudFrontClient $cloudFrontClient,
         int $ttl,
-        string $cloudFrontUrl = null,
-        string $cloudFrontPrivateKey = null,
-        string $cloudFrontKeyPairId = null,
-        string $pathPrefix = ''
+        ?string $cloudFrontUrl = null,
+        ?string $cloudFrontPrivateKey = null,
+        ?string $cloudFrontKeyPairId = null,
+        string $pathPrefix = '',
     ) {
         $this->cloudFrontClient = $cloudFrontClient;
         $this->cloudFrontUrl = $cloudFrontUrl;
