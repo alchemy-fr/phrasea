@@ -46,11 +46,7 @@ function GridPage<Item extends AssetOrAssetContainer>({
                     <GroupRow key={item.id} asset={asset} top={toolbarHeight}>
                         <Grid
                             item
-                            onDoubleClick={
-                                onOpen && asset.original
-                                    ? () => onOpen(asset, asset.original!.id)
-                                    : undefined
-                            }
+                            onDoubleClick={() => onOpen?.(asset)}
                             onContextMenu={
                                 onContextMenuOpen
                                     ? e => {

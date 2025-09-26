@@ -6,8 +6,8 @@ namespace App\Elasticsearch;
 
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
-use App\Elasticsearch\Facet\FacetRegistry;
-use App\Elasticsearch\Facet\OwnerFacet;
+use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
+use App\Elasticsearch\BuiltInField\OwnerBuiltInField;
 use Elastica\Aggregation\Missing;
 use Elastica\Query;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -17,7 +17,7 @@ final readonly class FacetHandler
     public const string MISSING_SUFFIX = '::missing';
 
     public function __construct(
-        private FacetRegistry $facetRegistry,
+        private BuiltInFieldRegistry $builtInFieldRegistry,
         private AttributeTypeRegistry $attributeTypeRegistry,
         private TranslatorInterface $translator,
     ) {
@@ -25,15 +25,15 @@ final readonly class FacetHandler
 
     public function addBuiltInFacets(Query $query): void
     {
-        foreach ($this->facetRegistry->getAll() as $facet) {
-            if ($facet instanceof OwnerFacet) {
+        foreach ($this->builtInFieldRegistry->getAll() as $item) {
+            if ($item instanceof OwnerBuiltInField) {
                 // We don't want to add the owner facet to the query for now
                 continue;
             }
 
-            $facet->buildFacet($query, $this->translator);
-            if ($facet->includesMissing()) {
-                $missingAgg = new Missing($facet::getKey().self::MISSING_SUFFIX, $facet->getFieldName());
+            $item->buildFacet($query, $this->translator);
+            if ($item->includesMissing()) {
+                $missingAgg = new Missing($item::getKey().self::MISSING_SUFFIX, $item->getFieldName());
                 $query->addAggregation($missingAgg);
             }
         }
@@ -52,13 +52,12 @@ final readonly class FacetHandler
                 continue;
             }
 
-            $facet = $this->facetRegistry->getFacet($k);
-
-            if ($facet) {
+            $builtInField = $this->builtInFieldRegistry->getBuiltInField($k);
+            if ($builtInField) {
                 try {
-                    $f['buckets'] = array_values(array_filter(array_map(fn (array $bucket): ?array => $facet->normalizeBucket($bucket), $f['buckets']), fn ($value): bool => null !== $value));
+                    $f['buckets'] = array_values(array_filter(array_map(fn (array $bucket): ?array => $builtInField->normalizeBucket($bucket), $f['buckets']), fn ($value): bool => null !== $value));
                 } catch (\Throwable $e) {
-                    throw new \Exception(sprintf('Error normalizing buckets with "%s" facet: %s', $facet::getKey(), $e->getMessage()), 0, $e);
+                    throw new \Exception(sprintf('Error normalizing buckets with "%s" facet: %s', $builtInField::getKey(), $e->getMessage()), 0, $e);
                 }
             }
 
@@ -66,7 +65,7 @@ final readonly class FacetHandler
             try {
                 $f['buckets'] = array_values(array_filter(array_map(fn (array $bucket): ?array => $type->normalizeBucket($bucket), $f['buckets']), fn ($value): bool => null !== $value));
             } catch (\Throwable $e) {
-                throw new \Exception(sprintf('Error normalizing buckets with "%s" type: %s', $facet::getKey(), $e->getMessage()), 0, $e);
+                throw new \Exception(sprintf('Error normalizing buckets with "%s" type: %s', $builtInField::getKey(), $e->getMessage()), 0, $e);
             }
 
             if (ESFacetInterface::TYPE_TEXT !== $widget = $type->getFacetType()) {

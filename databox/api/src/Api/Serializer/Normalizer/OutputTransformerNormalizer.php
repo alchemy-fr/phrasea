@@ -28,7 +28,7 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
 
     public function __construct(
         private readonly NormalizerInterface $decorated,
-        #[TaggedIterator('api.output_transformer')]
+        #[TaggedIterator(OutputTransformerInterface::TAG)]
         iterable $transformers,
         ?ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory = null,
     ) {

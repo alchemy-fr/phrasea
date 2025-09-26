@@ -30,6 +30,7 @@ export type UploadData = {
     privacy: Privacy;
     tags: Tag[];
     quiet?: boolean;
+    isStory?: boolean;
 };
 
 export type FormUploadData = {
@@ -180,6 +181,14 @@ export const UploadForm: FC<{
         <>
             {loading && <FullPageLoader />}
             <form id={formId} onSubmit={handleSubmit}>
+                <FormRow>
+                    <SwitchWidget
+                        control={control}
+                        name={'isStory'}
+                        label={t('form.upload.isStory.label', 'Story')}
+                    />
+                </FormRow>
+
                 {!noDestination && (
                     <FormRow>
                         <CollectionTreeWidget

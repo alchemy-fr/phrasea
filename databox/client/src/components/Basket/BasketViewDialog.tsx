@@ -2,9 +2,9 @@ import {StackedModalProps, useParams} from '@alchemy/navigation';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {Basket, BasketAsset} from '../../types';
 import {Trans, useTranslation} from 'react-i18next';
-import React, {useCallback} from 'react';
+import React from 'react';
 import {getBasket, getBasketAssets} from '../../api/basket';
-import {useCloseModal, useNavigateToModal} from '../Routing/ModalLink';
+import {useCloseModal} from '../Routing/ModalLink';
 import AssetList from '../AssetList/AssetList';
 import {BasketSelectionContext} from '../../context/BasketSelectionContext';
 import DisplayProvider from '../Media/DisplayProvider';
@@ -21,10 +21,10 @@ import BasketsPanel from './BasketsPanel';
 import {leftPanelWidth} from '../../themes/base';
 import {ZIndex} from '../../themes/zIndex';
 import Box from '@mui/material/Box';
-import {ActionsContext, OnOpen} from '../AssetList/types';
-import {modalRoutes} from '../../routes';
+import {ActionsContext} from '../AssetList/types';
 import BasketItem from './BasketItem';
 import {createDefaultActionsContext} from '../AssetList/actionContext.ts';
+import {useOpenAsset} from '../AssetSearch/useOpenAsset.ts';
 
 type Props = {} & StackedModalProps;
 
@@ -32,7 +32,6 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
     const {t} = useTranslation();
     const {id} = useParams();
     const closeModal = useCloseModal();
-    const navigateToModal = useNavigateToModal();
 
     const [data, setData] = React.useState<Basket>();
     const [pagination, setPagination] = React.useState<Pagination<BasketAsset>>(
@@ -53,16 +52,7 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
         [loadItems, pagination]
     );
 
-    const onOpen = useCallback<OnOpen>(
-        (asset, renditionId): void => {
-            navigateToModal(modalRoutes.assets.routes.view, {
-                id: asset.id,
-                renditionId,
-            });
-            // eslint-disable-next-line
-        },
-        [navigateToModal]
-    );
+    const onOpen = useOpenAsset({});
 
     React.useEffect(() => {
         getBasket(id!).then(setData);

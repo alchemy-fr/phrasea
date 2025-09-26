@@ -84,6 +84,11 @@ fos_elastica:
                 privacy:
                     property_path: false
                     type: byte
+                stories:
+                    property_path: false
+                    type: keyword
+                isStory:
+                    type: boolean
                 renditions:
                     property_path: false
                     type: keyword

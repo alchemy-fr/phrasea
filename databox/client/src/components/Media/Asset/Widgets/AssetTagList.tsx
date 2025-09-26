@@ -1,7 +1,7 @@
 import {useContext} from 'react';
 import {Tag} from '../../../../types';
 import {DisplayContext} from '../../DisplayContext';
-import TagNode, {tagClassName} from '../../../Ui/TagNode';
+import TagNode from '../../../Ui/TagNode';
 import assetClasses from '../../../AssetList/classes';
 import {useTranslation} from 'react-i18next';
 
@@ -58,13 +58,10 @@ export default function AssetTagList({tags}: Props) {
 export function tagListSx() {
     return {
         [`.${assetClasses.tagList}`]: {
-            px: 1,
             display: 'flex',
+            gap: 0.5,
             alignItems: 'center',
             flexWrap: 'wrap',
-            [`.${tagClassName}+.${tagClassName}`]: {
-                ml: 0.5,
-            },
         },
     };
 }

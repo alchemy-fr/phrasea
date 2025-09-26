@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Facet;
+namespace App\Elasticsearch\BuiltInField;
 
 use App\Attribute\Type\KeywordAttributeType;
 use Doctrine\ORM\EntityManagerInterface;
 
-abstract class AbstractEntityFacet extends AbstractFacet
+abstract class AbstractEntityBuiltInField extends AbstractBuiltInField
 {
     public function __construct(private readonly EntityManagerInterface $em)
     {

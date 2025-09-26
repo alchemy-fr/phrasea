@@ -52,9 +52,9 @@ final class AssetPermissionComputer
         $this->assetCache = new NullAdapter();
     }
 
-    public function getAssetPermissionFields(Asset $asset): array
+    public function getAssetPermissionFields(Asset $asset): AssetPermissionsDTO
     {
-        return $this->assetCache->get($asset->getId(), function () use ($asset): array {
+        return $this->assetCache->get($asset->getId(), function () use ($asset): AssetPermissionsDTO {
             $bestPrivacy = $asset->getPrivacy();
 
             $users = $this->permissionManager->getAllowedUsers($asset, PermissionInterface::VIEW);
@@ -65,8 +65,10 @@ final class AssetPermissionComputer
             }
 
             $collectionsPaths = [];
+            $stories = [];
             foreach ($asset->getCollections() as $collectionAsset) {
                 $collection = $collectionAsset->getCollection();
+
                 [$cBestPrivacy, $absolutePath, $cUsers, $cGroups] = $this->getCollectionHierarchyInfo($collection);
 
                 if (in_array($cBestPrivacy, [
@@ -81,14 +83,27 @@ final class AssetPermissionComputer
                 $collectionsPaths[] = $absolutePath;
                 $users = array_merge($users, $cUsers);
                 $groups = array_merge($groups, $cGroups);
+
+                if (null !== $storyAsset = $collection->getStoryAsset()) {
+                    $stories[] = $storyAsset->getId();
+
+                    $storyPermissions = $this->getAssetPermissionFields($storyAsset);
+
+                    $bestPrivacy = max($bestPrivacy, $storyPermissions->privacy);
+                    $users = array_merge($users, $storyPermissions->users);
+                    $groups = array_merge($groups, $storyPermissions->groups);
+                    $collectionsPaths = array_merge($collectionsPaths, $storyPermissions->collectionPaths);
+                }
+
             }
 
-            return [
-                'privacy' => $bestPrivacy,
-                'users' => array_values(array_unique($users)),
-                'groups' => array_values(array_unique($groups)),
-                'collectionPaths' => array_unique($collectionsPaths),
-            ];
+            return new AssetPermissionsDTO(
+                $bestPrivacy,
+                array_values(array_unique($users)),
+                array_values(array_unique($groups)),
+                array_values(array_unique($collectionsPaths)),
+                array_values(array_unique($stories)),
+            );
         });
     }
 

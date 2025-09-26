@@ -178,10 +178,13 @@ value -> function_call {% id %}
     | number {% id %}
     | quoted_string {% id %}
     | boolean {% id %}
+    | const_null {% id %}
     | field {% id %}
 
 boolean -> "true" {% () => true %}
     | "false" {% () => false %}
+
+const_null -> "null" {% () => null %}
 
 quoted_string -> "\"" (escape_double | [^"]):* "\"" {% d => ({literal: d[1].join('')}) %}
     | "'" (escape_single | [^']):* "'" {% d => ({literal: d[1].join('')}) %}

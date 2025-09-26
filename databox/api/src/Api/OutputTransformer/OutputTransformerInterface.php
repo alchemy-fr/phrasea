@@ -6,9 +6,11 @@ namespace App\Api\OutputTransformer;
 
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
-#[AutoconfigureTag('api.output_transformer')]
+#[AutoconfigureTag(self::TAG)]
 interface OutputTransformerInterface
 {
+    final public const string TAG = 'api.output_transformer';
+
     public function supports(string $outputClass, object $data): bool;
 
     public function transform(object $data, string $outputClass, array &$context = []): object;

@@ -6,9 +6,11 @@ namespace App\Api\InputTransformer;
 
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
-#[AutoconfigureTag('api.input_transformer')]
+#[AutoconfigureTag(self::TAG)]
 interface InputTransformerInterface
 {
+    final public const string TAG = 'api.input_transformer';
+
     public function supports(string $resourceClass, object $data): bool;
 
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable;

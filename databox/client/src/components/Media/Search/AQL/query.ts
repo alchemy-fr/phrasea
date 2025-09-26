@@ -1,6 +1,7 @@
 import {
     AQLAndOrExpression,
     AQLCondition,
+    AQLConstant,
     AQLEntity,
     AQLExpression,
     AQLField,
@@ -20,6 +21,7 @@ import {AttributeDefinitionIndex} from '../../../AttributeEditor/types.ts';
 import {AttributeDefinition} from '../../../../types.ts';
 import {writeEntity} from './entities.tsx';
 import {GetOrRequestEntity} from '../../../../store/entitiesStore.ts';
+import {TFunction} from '@alchemy/i18n';
 
 export type AQLQuery = {
     id: string;
@@ -47,10 +49,7 @@ function expressionToString(
     if (hasProp<AQLAndOrExpression>(expression, 'conditions')) {
         const r = expression.conditions
             .filter(c => {
-                if (
-                    typeof c.leftOperand === 'object' &&
-                    isAQLField(c.leftOperand)
-                ) {
+                if (isAQLField(c.leftOperand)) {
                     return !!c.leftOperand.field;
                 }
 
@@ -149,6 +148,10 @@ function operatorToString(operator: AQLOperator): string {
 }
 
 export function valueToString(value: AQLValueOrExpression): string {
+    if (value === null) {
+        return AQLConstant.Null;
+    }
+
     if (typeof value === 'object') {
         if (isAQLLiteral(value)) {
             return `"${value.literal.replace(/"/g, '\\"')}"`;
@@ -270,6 +273,43 @@ function searchInEntities(
     }
 }
 
+export function replaceConstants(ast: AQLQueryAST, t: TFunction): void {
+    const replace = (expression: any): any => {
+        if (Array.isArray(expression)) {
+            return expression.map((v: any) => replace(v));
+        } else if (isAQLLiteral(expression)) {
+            return expression;
+        } else if (isAQLCondition(expression)) {
+            if (isAQLField(expression.leftOperand)) {
+                if (expression.rightOperand !== undefined) {
+                    expression.rightOperand = replace(expression.rightOperand);
+                }
+            }
+        } else if (isAQLParentheses(expression)) {
+            expression.expression = replace(expression.expression);
+        } else if (isAQLValueExpression(expression)) {
+            expression.leftOperand = replace(expression.leftOperand);
+            expression.rightOperand = replace(expression.rightOperand);
+        } else if (isAQLAndOrExpression(expression)) {
+            expression.conditions = expression.conditions.map(c => replace(c));
+        } else if (isAQLFunctionCall(expression)) {
+            expression.arguments = expression.arguments.map(arg =>
+                replace(arg)
+            );
+        } else if (typeof expression === 'boolean') {
+            return expression
+                ? t('aql.constant.yes', 'Yes')
+                : t('aql.constant.no', 'No');
+        } else if (expression === null) {
+            return t('aql.constant.null', 'Null');
+        }
+
+        return expression;
+    };
+
+    replace(ast.expression);
+}
+
 export function replaceIdFromEntities(
     ast: AQLQueryAST,
     definitionsIndex: AttributeDefinitionIndex,
@@ -301,7 +341,7 @@ export function replaceIdFromEntities(
             return expression;
         } else if (isAQLCondition(expression)) {
             if (isAQLField(expression.leftOperand)) {
-                if (expression.rightOperand) {
+                if (expression.rightOperand !== undefined) {
                     expression.rightOperand = replace(
                         expression.rightOperand,
                         expression.leftOperand.field

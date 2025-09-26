@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Facet;
+namespace App\Elasticsearch\BuiltInField;
 
-abstract class AbstractLabelledFacet extends AbstractFacet
+abstract class AbstractLabelledBuiltInField extends AbstractBuiltInField
 {
     public function normalizeBucket(array $bucket): ?array
     {

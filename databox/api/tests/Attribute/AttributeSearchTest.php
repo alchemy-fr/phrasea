@@ -10,11 +10,12 @@ use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\DateNormalizer;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AttributeSearch;
-use App\Elasticsearch\Facet\FacetRegistry;
+use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Tests\Attribute\Type\AttributeTypeRegistyTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 class AttributeSearchTest extends TestCase
 {
@@ -24,16 +25,16 @@ class AttributeSearchTest extends TestCase
     public function testAttributeClustering(array $definitions, array $expectedClusters): void
     {
         $attributeTypeRegistry = AttributeTypeRegistyTestFactory::create();
-        $facetRegistry = new FacetRegistry([]);
+        $builtInFieldRegistry = new BuiltInFieldRegistry(new ServiceLocator([]));
 
         $fieldNameResolver = new FieldNameResolver(
             $attributeTypeRegistry,
-            $facetRegistry
+            $builtInFieldRegistry
         );
 
         $aqlParser = new AQLParser();
         $aqlToESQuery = new AQLToESQuery(
-            new FacetRegistry([]),
+            $builtInFieldRegistry,
             new AQLFunctionRegistry(),
             $attributeTypeRegistry,
             new DateNormalizer(),

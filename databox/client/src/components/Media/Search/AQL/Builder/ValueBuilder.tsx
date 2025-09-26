@@ -4,6 +4,7 @@ import {useTranslation} from 'react-i18next';
 import {BaseBuilderProps, QBCondition} from './builderTypes.ts';
 import {
     AQLCondition,
+    AQLConstant,
     AQLLiteral,
     AQLValue,
     AQLValueOrExpression,
@@ -64,6 +65,7 @@ export default function ValueBuilder({
     const normValue = (
         value: string | number | boolean
     ): AQLValueOrExpression => {
+        console.log('normValue', value);
         if (typeof value === 'string') {
             if (rawType && [RawType.Date, RawType.DateTime].includes(rawType)) {
                 const date = new Date(value);
@@ -120,11 +122,9 @@ export default function ValueBuilder({
             label:
                 argNames?.[0] ?? t('search_condition.builder.value', 'Value'),
             onChange: e => {
-                const v = normValue(e);
-
                 setExpression(p => ({
                     ...p,
-                    rightOperand: v,
+                    rightOperand: normValue(e),
                 }));
             },
         });
@@ -143,14 +143,12 @@ export default function ValueBuilder({
                     argNames?.[i] ??
                     `${t('search_condition.builder.value', 'Value')} #${i + 1}`,
                 onChange: e => {
-                    const v = normValue(e);
-
                     setExpression(p => ({
                         ...p,
                         rightOperand: (p.rightOperand as AQLValue[]).map(
                             (r, index) => {
                                 if (index === i) {
-                                    return v;
+                                    return normValue(e);
                                 }
                                 return r;
                             }
@@ -209,6 +207,10 @@ function resolveValue(
         } else {
             return `=${valueToString(value)}`;
         }
+    }
+
+    if (typeof value === 'boolean') {
+        return value ? AQLConstant.True : AQLConstant.False;
     }
 
     if (!value) {

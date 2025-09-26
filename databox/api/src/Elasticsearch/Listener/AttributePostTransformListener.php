@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch\Listener;
 
 use App\Elasticsearch\AssetPermissionComputer;
+use App\Elasticsearch\AssetPermissionsDTO;
 use App\Entity\Core\Attribute;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\Console\ConsoleEvents;
@@ -18,6 +19,9 @@ use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 #[AsEventListener(WorkerMessageHandledEvent::class, method: 'reset', priority: -5)]
 final class AttributePostTransformListener implements EventSubscriberInterface
 {
+    /**
+     * @var array{0: string, 1: AssetPermissionsDTO}|null
+     */
     private ?array $lastAssetPermissions = null;
 
     public function __construct(
@@ -40,7 +44,7 @@ final class AttributePostTransformListener implements EventSubscriberInterface
             $this->lastAssetPermissions = [$assetId, $this->assetPermissionComputer->getAssetPermissionFields($asset)];
         }
 
-        foreach ($this->lastAssetPermissions[1] as $key => $value) {
+        foreach ($this->lastAssetPermissions[1]->toDocument() as $key => $value) {
             $document->set($key, $value);
         }
     }

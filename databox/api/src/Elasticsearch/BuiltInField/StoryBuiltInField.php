@@ -2,57 +2,56 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Facet;
+namespace App\Elasticsearch\BuiltInField;
 
 use App\Api\Traits\UserLocaleTrait;
+use App\Asset\Attribute\AssetTitleResolver;
 use App\Attribute\Type\TagAttributeType;
 use App\Entity\Core\Asset;
-use App\Entity\Core\Tag;
+use Doctrine\ORM\EntityManagerInterface;
 
-final class TagFacet extends AbstractEntityFacet
+final class StoryBuiltInField extends AbstractEntityBuiltInField
 {
     use UserLocaleTrait;
 
+    public function __construct(
+        private AssetTitleResolver $assetTitleResolver,
+        private EntityManagerInterface $em,
+    ) {
+        parent::__construct($em);
+    }
+
     /**
-     * @param Tag $value
+     * @param Asset $value
      */
     public function resolveItem($value): array
     {
         return [
-            'name' => $this->resolveLabel($value),
-            'nameTranslated' => $this->resolveTranslatedLabel($value),
-            'color' => $value->getColor(),
+            'title' => $this->resolveLabel($value),
         ];
     }
 
     /**
-     * @param Tag $value
+     * @param Asset $value
      */
     protected function resolveLabel($value): string
     {
-        return $this->resolveTranslatedLabel($value);
-    }
-
-    protected function resolveTranslatedLabel(Tag $value): string
-    {
-        $preferredLocales = $this->getPreferredLocales($value->getWorkspace());
-
-        return $value->getTranslatedField('name', $preferredLocales, $value->getName());
+        return $this->assetTitleResolver->resolveTitleWithoutIndex($value, $this->getPreferredLocales($value->getWorkspace()));
     }
 
     protected function getEntityClass(): string
     {
-        return Tag::class;
+        return Asset::class;
     }
 
     public function getFieldName(): string
     {
-        return 'tags';
+        return 'stories';
     }
 
     public static function getKey(): string
     {
-        return '@tag';
+        return '@story';
     }
 
     public function getType(): string
@@ -67,6 +66,6 @@ final class TagFacet extends AbstractEntityFacet
 
     protected function getAggregationTranslationKey(): string
     {
-        return 'tags';
+        return 'stories';
     }
 }

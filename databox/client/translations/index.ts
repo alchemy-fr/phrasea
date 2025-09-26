@@ -72,9 +72,4 @@ const deMerged = {
     },
 };
 
-export {
-    enMerged as en,
-    frMerged as fr,
-    esMerged as es,
-    deMerged as de,
-};
+export {enMerged as en, frMerged as fr, esMerged as es, deMerged as de};

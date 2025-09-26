@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Facet;
+namespace App\Elasticsearch\BuiltInField;
 
 use App\Attribute\Type\DateAttributeType;
 
-abstract class AbstractDateFacet extends AbstractDateTimeFacet
+abstract class AbstractDateBuiltInField extends AbstractDateTimeBuiltInField
 {
     protected function getAggregationMinimumInterval(): string
     {

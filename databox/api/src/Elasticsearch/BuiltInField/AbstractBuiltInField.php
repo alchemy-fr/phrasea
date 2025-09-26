@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Facet;
+namespace App\Elasticsearch\BuiltInField;
 
 use App\Api\Filter\Group\GroupValue;
 use App\Attribute\Type\TextAttributeType;
@@ -12,7 +12,7 @@ use Elastica\Aggregation;
 use Elastica\Query;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-abstract class AbstractFacet implements FacetInterface
+abstract class AbstractBuiltInField implements BuiltInFieldInterface
 {
     public function getType(): string
     {

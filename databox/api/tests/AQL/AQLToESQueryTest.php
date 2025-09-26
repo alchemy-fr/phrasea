@@ -2,6 +2,7 @@
 
 namespace App\Tests\AQL;
 
+use App\Attribute\Type\BooleanAttributeType;
 use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\GeoPointAttributeType;
 use App\Attribute\Type\NumberAttributeType;
@@ -10,12 +11,14 @@ use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\DateNormalizer;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
-use App\Elasticsearch\Facet\CreatedAtFacet;
-use App\Elasticsearch\Facet\FacetRegistry;
-use App\Elasticsearch\Facet\WorkspaceFacet;
+use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
+use App\Elasticsearch\BuiltInField\CreatedAtBuiltInField;
+use App\Elasticsearch\BuiltInField\WorkspaceBuiltInField;
 use App\Tests\Attribute\Type\AttributeTypeRegistyTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Contracts\Service\ServiceLocatorTrait;
+use Symfony\Contracts\Service\ServiceProviderInterface;
 
 class AQLToESQueryTest extends TestCase
 {
@@ -33,11 +36,13 @@ class AQLToESQueryTest extends TestCase
 
         $attributeTypeRegistry = AttributeTypeRegistyTestFactory::create();
 
+        $container = new class([WorkspaceBuiltInField::getKey() => fn () => new WorkspaceBuiltInField($em), CreatedAtBuiltInField::getKey() => fn () => new CreatedAtBuiltInField()]) implements ServiceProviderInterface {
+            use ServiceLocatorTrait;
+        };
+        $builtInFieldRegistry = new BuiltInFieldRegistry($container);
+
         $esQueryConverter = new AQLToESQuery(
-            new FacetRegistry([
-                '@workspace' => new WorkspaceFacet($em),
-                '@createdAt' => new CreatedAtFacet(),
-            ]), $functionRegistry, $attributeTypeRegistry, new DateNormalizer());
+            $builtInFieldRegistry, $functionRegistry, $attributeTypeRegistry, new DateNormalizer());
 
         $fieldClusters = [
             [
@@ -74,6 +79,9 @@ class AQLToESQueryTest extends TestCase
                     ],
                     'attrs._.date_date_s' => [
                         'type' => $attributeTypeRegistry->getStrictType(DateAttributeType::NAME),
+                    ],
+                    'attrs._.bool_boolean_s' => [
+                        'type' => $attributeTypeRegistry->getStrictType(BooleanAttributeType::NAME),
                     ],
                 ],
                 'w' => [],
@@ -239,6 +247,27 @@ class AQLToESQueryTest extends TestCase
             ['@workspace=SUBSTRING("42aa", 0, 2)', [
                 'term' => ['workspaceId' => '42'],
             ]],
+            ['@workspace= NULL', [
+                'term' => ['workspaceId' => null],
+            ]],
+            ['@workspace= null', [
+                'term' => ['workspaceId' => null],
+            ]],
+            ['bool = null', [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'exists' => ['field' => 'attrs._.bool_boolean_s'],
+                        ],
+                    ],
+                ],
+            ]],
+            ['bool = true', [
+                'term' => ['attrs._.bool_boolean_s' => true],
+            ]],
+            ['bool = false', [
+                'term' => ['attrs._.bool_boolean_s' => false],
+            ]],
             ['@createdAt<="2025-01-16"', [
                 'range' => ['createdAt' => [
                     'lte' => '2025-01-16',
@@ -255,6 +284,15 @@ class AQLToESQueryTest extends TestCase
                         ['terms' => ['attrs.it.field_text_s.raw' => [true, false]]],
                         ['terms' => ['attrs.de.field_text_s.raw' => [true, false]]],
                         ['terms' => ['attrs._.field_text_s.raw' => [true, false]]],
+                    ],
+                ],
+            ]],
+            ['field IN (true, null)', [
+                'bool' => [
+                    'should' => [
+                        ['terms' => ['attrs.it.field_text_s.raw' => [true, null]]],
+                        ['terms' => ['attrs.de.field_text_s.raw' => [true, null]]],
+                        ['terms' => ['attrs._.field_text_s.raw' => [true, null]]],
                     ],
                 ],
             ]],

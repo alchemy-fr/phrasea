@@ -8,7 +8,7 @@ import {FlexRow} from '@alchemy/phrasea-ui';
 import {useLocation} from '@alchemy/navigation';
 import type {Location} from '@alchemy/navigation';
 import {memo} from 'react';
-import {modalRoutes} from '../../../../routes.ts';
+import {modalRoutes, Routing} from '../../../../routes.ts';
 import {useNavigateToModal} from '../../../Routing/ModalLink.tsx';
 import {AssetContextState} from '../assetTypes.ts';
 
@@ -17,6 +17,7 @@ type Props = {
     rendition: AssetRendition | undefined;
     renditions: AssetRendition[];
     displayActions: boolean;
+    currentStoryAsset?: Asset;
 };
 
 function AssetViewHeader({
@@ -24,15 +25,18 @@ function AssetViewHeader({
     rendition,
     displayActions,
     renditions,
+    currentStoryAsset,
 }: Props) {
     const {state} = useLocation() as Location<AssetContextState | undefined>;
     const navigateToModal = useNavigateToModal();
     const handleRenditionChange = (renditionId: string) => {
         navigateToModal(modalRoutes.assets.routes.view, {
             id: asset.id,
-            renditionId,
+            renditionId: renditionId || Routing.UnknownRendition,
         });
     };
+
+    const isMainAsset = !currentStoryAsset || currentStoryAsset.id === asset.id;
 
     return (
         <FlexRow
@@ -55,20 +59,22 @@ function AssetViewHeader({
                     defaults={'Asset <strong>{{name}}</strong>'}
                 />
             </div>
-            <Select<string>
-                sx={{ml: 2}}
-                label={''}
-                size={'small'}
-                value={rendition?.id}
-                onChange={e => handleRenditionChange(e.target.value)}
-            >
-                {renditions.map((r: AssetRendition) => (
-                    <MenuItem key={r.id} value={r.id}>
-                        {r.name}
-                    </MenuItem>
-                ))}
-            </Select>
-            {displayActions ? (
+            {isMainAsset && renditions.length > 0 && (
+                <Select<string>
+                    sx={{ml: 2}}
+                    label={''}
+                    size={'small'}
+                    value={rendition?.id}
+                    onChange={e => handleRenditionChange(e.target.value)}
+                >
+                    {renditions.map((r: AssetRendition) => (
+                        <MenuItem key={r.id} value={r.id}>
+                            {r.name}
+                        </MenuItem>
+                    ))}
+                </Select>
+            )}
+            {isMainAsset && displayActions ? (
                 <AssetViewActions asset={asset} file={rendition?.file} />
             ) : (
                 ''
