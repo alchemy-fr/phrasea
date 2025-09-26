@@ -741,11 +741,11 @@
                 "label": "Utiliser comme vignette active"
             },
             "useAs": {
-                "preview": "Aperçu",
-                "label": "Cette rendition est",
-                "original": "Original",
-                "thumbnail": "Vignette",
-                "thumbnailActive": "Vignette active"
+                "preview": "Affichage Aperçu",
+                "label": "Rendition utilisée pour",
+                "original": "Affichage principal",
+                "thumbnail": "Affichage Vignette",
+                "thumbnailActive": "Affichage Vignette active"
             },
             "buildMode": {
                 "label": "Mode de génération"

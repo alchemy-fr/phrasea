@@ -740,11 +740,11 @@
                 "label": "Baumodus"
             },
             "useAs": {
-                "label": "Diese Rendition ist",
-                "original": "Original",
+                "label": "Verwendete Rendition",
+                "original": "Hauptanzeige",
                 "preview": "Vorschau",
-                "thumbnail": "Miniaturbild",
-                "thumbnailActive": "Aktive Miniaturbild"
+                "thumbnail": "Miniaturansicht",
+                "thumbnailActive": "Aktive Miniaturansicht"
             },
             "substitutable": {
                 "label": "Ersetzbar"
