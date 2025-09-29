@@ -1,4 +1,4 @@
-import amqplib, {Channel, Connection} from 'amqplib';
+import amqplib, {Channel, ChannelModel} from 'amqplib';
 import {getEnv} from './env';
 import {Logger} from 'winston';
 
@@ -17,10 +17,10 @@ export function listenToQueue(
 
     const connect = (): Promise<{
         channel: Channel;
-        connection: Connection;
+        connection: ChannelModel;
     }> => {
         return amqplib.connect(dsn).then(
-            function (conn) {
+            function (conn: ChannelModel) {
                 process.once('SIGINT', conn.close.bind(conn));
                 logger.info(`AMQP: Connected!`);
                 return conn.createChannel().then(c => ({
@@ -48,7 +48,7 @@ export function listenToQueue(
                 channel,
             }: {
                 channel: Channel;
-                connection: Connection;
+                connection: ChannelModel;
             }) => {
                 channel.on('close', () => {
                     logger.info('AMQP: Channel closed, closing connection...');
