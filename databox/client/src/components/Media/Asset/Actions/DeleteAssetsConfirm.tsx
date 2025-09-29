@@ -9,7 +9,7 @@ import {StackedModalProps} from '@alchemy/navigation';
 import {useModalFetch} from '../../../../hooks/useModalFetch.ts';
 import FullPageLoader from '../../../Ui/FullPageLoader.tsx';
 import React from 'react';
-import {Checkbox, FormControlLabel} from '@mui/material';
+import {Alert, Box, Checkbox, FormControlLabel} from '@mui/material';
 import AlertDialog from '../../../Dialog/AlertDialog.tsx';
 import {CollectionChip} from '../../../Ui/CollectionChip.tsx';
 
@@ -136,6 +136,20 @@ export default function DeleteAssetsConfirm({
                     )}
                 </>
             )}
+            {data.shareCount > 0 ? (
+                <Box>
+                    <Alert severity="warning" sx={{mt: 2}}>
+                        <Trans
+                            i18nKey={'asset.delete.shared_warning'}
+                            defaults={`This asset is currently shared. Deleting it will remove access for all users.`}
+                            tOptions={{
+                                defaultValue_other: `<strong>{{count}}</strong> of these assets are currently shared. Deleting them will remove access for all users.`,
+                            }}
+                            count={data.shareCount}
+                        />
+                    </Alert>
+                </Box>
+            ) : null}
         </ConfirmDialog>
     );
 }

@@ -287,6 +287,7 @@ export async function deleteAssets(
 export type PrepareDeleteAssetsOutput = {
     canDelete: boolean;
     collections: Collection[];
+    shareCount: number;
 };
 
 export async function prepareDeleteAssets(
