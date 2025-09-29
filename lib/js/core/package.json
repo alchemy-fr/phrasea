@@ -20,11 +20,11 @@
     "react": "^18.2.0"
   },
   "dependencies": {
-    "@sentry/react": "^7.120.3"
+    "@sentry/react": "^7.120.4"
   },
   "devDependencies": {
-    "@sentry/types": "^7.120.3",
-    "@types/react": "^18.3.18",
-    "pusher-js": "^8.3.0"
+    "@sentry/types": "^7.120.4",
+    "@types/react": "^18.3.24",
+    "pusher-js": "^8.4.0"
   }
 }
