@@ -10,6 +10,7 @@ final readonly class PrepareDeleteAssetsOutput
     public function __construct(
         private bool $canDelete,
         private array $collections,
+        private int $shareCount,
     ) {
     }
 
@@ -23,5 +24,11 @@ final readonly class PrepareDeleteAssetsOutput
     public function isCanDelete(): bool
     {
         return $this->canDelete;
+    }
+
+    #[Groups([Asset::GROUP_LIST])]
+    public function getShareCount(): int
+    {
+        return $this->shareCount;
     }
 }

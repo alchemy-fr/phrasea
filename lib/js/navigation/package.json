@@ -26,11 +26,11 @@
     "react-i18next": "^14.1.1"
   },
   "devDependencies": {
+    "@4rthem/i18next-scanner": "^0.0.1",
     "@alchemy/phrasea-ui": "workspace:*",
     "@jonkoops/matomo-tracker-react": "^0.7.0",
-    "@types/react": "^18.3.18",
+    "@types/react": "^18.3.24",
     "i18next": "24.2.1",
-    "@4rthem/i18next-scanner": "^0.0.1",
     "i18next-scanner-typescript": "^1.2.1",
     "react": "^18.3.1",
     "react-i18next": "^14.1.3"

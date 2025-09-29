@@ -35,19 +35,19 @@
   "dependencies": {
     "react-colorful": "^5.6.1",
     "react-nl2br": "^1.0.4",
-    "react-select": "^5.9.0"
+    "react-select": "^5.10.2"
   },
   "devDependencies": {
+    "@4rthem/i18next-scanner": "^0.0.1",
     "@alchemy/api": "workspace:*",
     "@alchemy/i18n": "workspace:*",
     "@alchemy/navigation": "workspace:*",
     "@alchemy/phrasea-ui": "workspace:*",
-    "@mui/material": "^5.16.14",
+    "@mui/material": "^5.18.0",
     "@types/node": "^10.17.60",
-    "@types/react": "^18.3.18",
-    "@4rthem/i18next-scanner": "^0.0.1",
+    "@types/react": "^18.3.24",
     "i18next-scanner-typescript": "^1.2.1",
-    "react-toastify": "^11.0.3",
-    "typescript": "^5.7.3"
+    "react-toastify": "^11.0.5",
+    "typescript": "^5.9.2"
   }
 }

@@ -10,6 +10,7 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\PrepareDeleteAssetsInput;
 use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Repository\Core\AssetRepository;
+use App\Repository\Core\ShareRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -20,6 +21,7 @@ class PrepareDeleteAssetProcessor implements ProcessorInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly AssetRepository $assetRepository,
+        private readonly ShareRepository $shareRepository,
     ) {
     }
 
@@ -49,6 +51,8 @@ class PrepareDeleteAssetProcessor implements ProcessorInterface
             }
         }
 
-        return new PrepareDeleteAssetsOutput($canDelete, array_values($collections));
+        $shareCount = $this->shareRepository->getShareCount($data->ids);
+
+        return new PrepareDeleteAssetsOutput($canDelete, array_values($collections), $shareCount);
     }
 }

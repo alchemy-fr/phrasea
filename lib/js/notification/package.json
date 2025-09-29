@@ -4,7 +4,7 @@
   "public": true,
   "main": "index.ts",
   "dependencies": {
-    "@novu/react": "^2.6.3"
+    "@novu/react": "^2.6.6"
   },
   "scripts": {
     "lint": "eslint src",
@@ -18,9 +18,9 @@
     "react": "^18.2.0"
   },
   "devDependencies": {
-    "@mui/icons-material": "^5.16.14",
-    "@mui/material": "^5.16.14",
-    "@types/react": "^18.3.18",
+    "@mui/icons-material": "^5.18.0",
+    "@mui/material": "^5.18.0",
+    "@types/react": "^18.3.24",
     "react": "^18.3.1"
   }
 }

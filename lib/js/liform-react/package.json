@@ -20,10 +20,10 @@
   "author": "Nacho Martin",
   "license": "MIT",
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "@mui/icons-material": "^5.16.7",
-    "@mui/material": "^5.16.7"
+    "@mui/material": "^5.16.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "dependencies": {
     "ajv": "^8.17.1",
@@ -36,9 +36,9 @@
     "redux-form": "^8.3.10"
   },
   "devDependencies": {
+    "@mui/icons-material": "^5.18.0",
+    "@mui/material": "^5.18.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "@mui/icons-material": "^5.16.7",
-    "@mui/material": "^5.16.7"
+    "react-dom": "^18.3.1"
   }
 }

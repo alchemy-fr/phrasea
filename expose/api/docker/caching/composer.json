@@ -112,7 +112,7 @@
         "symfony/validator": "^6.3",
         "symfony/yaml": "^6.3",
         "easycorp/easyadmin-bundle": "^4.0,<=4.20.2",
-        "guzzlehttp/guzzle": "^7.2",
+        "php-amqplib/php-amqplib": "^3.7",
         "aws/aws-sdk-php": "^3.325",
         "ramsey/uuid": "^4.2.3",
         "oneup/flysystem-bundle": "^4.4",
