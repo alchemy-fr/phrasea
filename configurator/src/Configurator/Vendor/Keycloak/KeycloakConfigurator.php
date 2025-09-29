@@ -90,10 +90,9 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         }
     }
 
-    public function synchronize()
+    public function synchronize(): void
     {
         $this->configureRealm();
-
         $this->configureClients();
     }
 
@@ -108,15 +107,14 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             ]);
         }
 
-        foreach ($this->getAppScopes() as $app => $appScopes) {
-            foreach ($appScopes as $scope) {
+        foreach ($this->getAppScopes() as $app => $scopes) {
+            foreach ($scopes as $scope) {
                 $this->keycloakManager->createScope($scope, [
                     'description' => sprintf('%s in %s', $scope, ucwords($app)),
                 ]);
             }
         }
 
-        $appScopes = $this->getAppScopes();
         foreach ($this->symfonyApplications as $app) {
             $clientId = getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app)));
             $baseUri = getenv(sprintf('%s_API_URL', strtoupper($app)));
@@ -138,12 +136,6 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
             foreach ($this->getAdminClientServiceAccountRoles()[$app] ?? [] as $role) {
                 $this->keycloakManager->addServiceAccountRole($clientData, $role, 'realm-management');
-            }
-
-            if (isset($appScopes[$app])) {
-                foreach ($appScopes[$app] as $scope) {
-                    $this->keycloakManager->addScopeToClient($scope, $clientData['id'], false);
-                }
             }
         }
 
@@ -172,7 +164,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             );
 
             foreach ($this->getAppScopes()['databox'] as $scope) {
-                $this->keycloakManager->addScopeToClient($scope, $clientData['id'], false);
+                $this->keycloakManager->addScopeToClient($scope, $clientData['id'], true);
             }
         }
     }
@@ -288,7 +280,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'defaultLocale' => getenv('KC_REALM_DEFAULT_LOCALE') ?: 'en',
             'loginTheme' => 'phrasea',
             'smtpServer' => [
-                'auth' => getenv('MAILER_USER') ? true : false,
+                'auth' => (bool) getenv('MAILER_USER'),
                 'from' => getenv('MAIL_FROM') ?: 'noreply@phrasea.io',
                 'fromDisplayName' => getenv('MAIL_FROM_DISPLAY_NAME') ?: 'Phrasea',
                 'replyTo' => getenv('MAIL_REPLY_TO') ?: '',

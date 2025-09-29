@@ -70,7 +70,7 @@ final class KeycloakManager
         ])->getContent(), 409, $data);
     }
 
-    private function getRealm(?string $realm = null)
+    private function getRealm(?string $realm = null): ?array
     {
         $response = $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}', [
             'realm' => $realm ?? $this->keycloakRealm,
@@ -162,6 +162,20 @@ final class KeycloakManager
         ]);
     }
 
+    public function deleteScope(string $name): void
+    {
+        $scope = $this->getScopeByName($name);
+        if (null === $scope) {
+            return;
+        }
+
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
+            ->request('DELETE', UriTemplate::resolve('{realm}/client-scopes/{id}', [
+                'realm' => $this->keycloakRealm,
+                'id' => $scope['id'],
+            ])), 404, []);
+    }
+
     public function createScope(string $name, array $data = []): void
     {
         $scope = $this->getScopeByName($name);
@@ -249,6 +263,33 @@ final class KeycloakManager
                 'clientId' => $clientId,
                 'scopeId' => $scopeData['id'],
             ])), 409, []);
+    }
+
+    public function removeScopeFromClient(string $scope, string $clientId): void
+    {
+        $scopeData = $this->getScopeByName($scope);
+        if (null === $scopeData) {
+            return;
+        }
+
+        HttpClientUtil::debugError(function () use ($clientId, $scopeData) {
+            $uri = UriTemplate::resolve('{realm}/clients/{clientId}/default-client-scopes/{scopeId}', [
+                'realm' => $this->keycloakRealm,
+                'clientId' => $clientId,
+                'scopeId' => $scopeData['id'],
+            ]);
+
+            return $this->getAuthenticatedClient()
+                // /realms/phrasea/clients/b0dea21c-22d5-4a54-bc58-a95f6ef3002b/default-client-scopes/
+                ->request('DELETE', $uri);
+        }, 404, []);
+
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
+            ->request('DELETE', UriTemplate::resolve('{realm}/clients/{clientId}/optional-client-scopes/{scopeId}', [
+                'realm' => $this->keycloakRealm,
+                'clientId' => $clientId,
+                'scopeId' => $scopeData['id'],
+            ])), 404, []);
     }
 
     public function addServiceAccountRole(
