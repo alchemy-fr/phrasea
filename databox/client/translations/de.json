@@ -740,8 +740,8 @@
                 "label": "Baumodus"
             },
             "useAs": {
-                "label": "Verwendete Rendition",
-                "original": "Hauptanzeige",
+                "label": "Rendition für die Anzeige",
+                "original": "Hauptdokument",
                 "preview": "Vorschau",
                 "thumbnail": "Miniaturansicht",
                 "thumbnailActive": "Aktive Miniaturansicht"
