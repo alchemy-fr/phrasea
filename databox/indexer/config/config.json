@@ -1,156 +1,156 @@
 {
-  "databox": {
-    "url": "%env(DATABOX_API_URL)%",
-    "clientId": "%env(DATABOX_CLIENT_ID)%",
-    "clientSecret": "%env(DATABOX_CLIENT_SECRET)%",
-    "ownerId": "%env(DATABOX_OWNER_ID)%",
-    "verifySSL": "%env(bool:DATABOX_VERIFY_SSL)%",
-    "concurrency": "%env(int:DATABOX_CONCURRENCY)%"
-  },
-  "blacklist": ["(^|/)\\..+$"],
-  "locations": [
-    {
-      "name": "test-s3",
-      "type": "s3_amqp",
-      "options": {
-        "amqp": {
-          "dsn": "%env(AMQP_DSN)%"
-        },
-        "s3": {
-          "endpoint": "%env(S3_ENDPOINT)%",
-          "bucketNames": "%env(BUCKET_NAMES)%",
-          "accessKey": "%env(S3_ACCESS_KEY)%",
-          "secretKey": "%env(S3_SECRET_KEY)%"
-        },
-        "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%"
-      }
+    "databox": {
+        "url": "%env(DATABOX_API_URL)%",
+        "clientId": "%env(DATABOX_CLIENT_ID)%",
+        "clientSecret": "%env(DATABOX_CLIENT_SECRET)%",
+        "ownerId": "%env(DATABOX_OWNER_ID)%",
+        "verifySSL": "%env(bool:DATABOX_VERIFY_SSL)%",
+        "concurrency": "%env(int:DATABOX_CONCURRENCY)%"
     },
-    {
-      "name": "my_fs",
-      "type": "fs",
-      "options": {
-        "dir": "%env(WATCH_DIR)%",
-        "dirPrefix": "%env(WATCH_DIR_PREFIX)%",
-        "sourceDir": "%env(WATCH_SOURCE_DIR)%",
-        "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%"
-      },
-      "alternateUrls": [
+    "blacklist": ["(^|/)\\..+$"],
+    "locations": [
         {
-          "name": "indexer",
-          "pathPattern": "indexer://${sourcePath}"
+            "name": "test-s3",
+            "type": "s3_amqp",
+            "options": {
+                "amqp": {
+                    "dsn": "%env(AMQP_DSN)%"
+                },
+                "s3": {
+                    "endpoint": "%env(S3_ENDPOINT)%",
+                    "bucketNames": "%env(BUCKET_NAMES)%",
+                    "accessKey": "%env(S3_ACCESS_KEY)%",
+                    "secretKey": "%env(S3_SECRET_KEY)%"
+                },
+                "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%"
+            }
+        },
+        {
+            "name": "my_fs",
+            "type": "fs",
+            "options": {
+                "dir": "%env(WATCH_DIR)%",
+                "dirPrefix": "%env(WATCH_DIR_PREFIX)%",
+                "sourceDir": "%env(WATCH_SOURCE_DIR)%",
+                "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%"
+            },
+            "alternateUrls": [
+                {
+                    "name": "indexer",
+                    "pathPattern": "indexer://${sourcePath}"
+                }
+            ]
+        },
+        {
+            "name": "phraseanet",
+            "type": "phraseanet",
+            "options": {
+                "url": "%env(PHRASEANET_URL)%",
+                "token": "%env(PHRASEANET_APP_OAUTH_TOKEN)%",
+                "verifySSL": "%env(bool:PHRASEANET_VERIFY_SSL)%",
+                "importFiles": "%env(bool:IMPORT_FILES)%",
+                "searchOrder": "%env(PHRASEANET_SEARCH_ORDER)%",
+                "idempotencePrefixes": {
+                    "asset": "idmp_asset",
+                    "collection": "idmp_collection",
+                    "attributeDefinition": "idmp_attributeDefinition",
+                    "renditionDefinition": "idmp_renditionDefinition"
+                },
+                "sourceFile": "document",
+                "renditions": {
+                    "original": {
+                        "useAsOriginal": true,
+                        "buildMode": 1,
+                        "class": "public"
+                    },
+                    "preview": {
+                        "useAsPreview": true,
+                        "class": "public",
+                        "builders": {
+                            "image": {
+                                "from": "image:preview"
+                            },
+                            "video": {
+                                "from": "video:preview"
+                            },
+                            "document": {
+                                "from": "document:preview"
+                            }
+                        }
+                    },
+                    "thumbnail": {
+                        "useAsThumbnail": true,
+                        "class": "public",
+                        "parent": "preview",
+                        "builders": {
+                            "image": {
+                                "from": "image:thumbnail"
+                            },
+                            "video": {
+                                "from": "video:thumbnail"
+                            },
+                            "document": {
+                                "from": "document:thumbnail"
+                            }
+                        }
+                    }
+                },
+                "databoxMapping": [
+                    {
+                        "databox": "%env(PHRASEANET_DATABOX)%",
+                        "collections": "%env(PHRASEANET_COLLECTIONS)%",
+                        "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%",
+                        "recordsCollectionPath": "%env(PHRASEANET_RECORDS_COLLECTION_PATH)%",
+                        "storiesCollectionPath": "%env(PHRASEANET_STORIES_COLLECTION_PATH)%",
+                        "searchQuery": "",
+                        "copyTo": [
+                            "{% for s in record.getMetadata('Subject', 'no_subject').values %}/classification/{{ record.getMetadata('Creator', 'no_creator').value | escapePath }}/{{ s | escapePath }}\n{% endfor %}"
+                        ],
+                        "fieldMap": {
+                            "Title": {
+                                "values": [
+                                    {
+                                        "locale": "fr",
+                                        "type": "metadata",
+                                        "value": "Titre"
+                                    },
+                                    {
+                                        "locale": "en",
+                                        "type": "metadata",
+                                        "value": "Title"
+                                    }
+                                ]
+                            },
+                            "Subject": {
+                                "type": "string",
+                                "values": [
+                                    {
+                                        "type": "template",
+                                        "value": "{% for v in record.getMetadata('Subject').values %}{{v}}\n{% endfor %}"
+                                    }
+                                ]
+                            },
+                            "Copyright": {
+                                "type": "string",
+                                "values": [
+                                    {
+                                        "type": "template",
+                                        "value": "(c){{record.getMetadata('ArchiveDate', '').value | date('Y')}} {{record.getMetadata('Creator', '').value}}"
+                                    }
+                                ]
+                            },
+                            "Filename": {
+                                "values": [
+                                    {
+                                        "type": "metadata",
+                                        "value": "Filename"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
         }
-      ]
-    },
-    {
-      "name": "phraseanet",
-      "type": "phraseanet",
-      "options": {
-        "url": "%env(PHRASEANET_URL)%",
-        "token": "%env(PHRASEANET_APP_OAUTH_TOKEN)%",
-        "verifySSL": "%env(bool:PHRASEANET_VERIFY_SSL)%",
-        "importFiles": "%env(bool:IMPORT_FILES)%",
-        "searchOrder": "%env(PHRASEANET_SEARCH_ORDER)%",
-        "idempotencePrefixes": {
-          "asset": "idmp_asset",
-          "collection": "idmp_collection",
-          "attributeDefinition": "idmp_attributeDefinition",
-          "renditionDefinition": "idmp_renditionDefinition"
-        },
-        "sourceFile": "document",
-        "renditions": {
-          "original": {
-            "useAsOriginal": true,
-            "buildMode": 1,
-            "class": "public"
-          },
-          "preview": {
-            "useAsPreview": true,
-            "class": "public",
-            "builders": {
-              "image": {
-                "from": "image:preview"
-              },
-              "video": {
-                "from": "video:preview"
-              },
-              "document": {
-                "from": "document:preview"
-              }
-            }
-          },
-          "thumbnail": {
-            "useAsThumbnail": true,
-            "class": "public",
-            "parent": "preview",
-            "builders": {
-              "image": {
-                "from": "image:thumbnail"
-              },
-              "video": {
-                "from": "video:thumbnail"
-              },
-              "document": {
-                "from": "document:thumbnail"
-              }
-            }
-          }
-        },
-        "databoxMapping": [
-          {
-            "databox": "%env(PHRASEANET_DATABOX)%",
-            "collections": "%env(PHRASEANET_COLLECTIONS)%",
-            "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%",
-            "recordsCollectionPath": "%env(PHRASEANET_RECORDS_COLLECTION_PATH)%",
-            "storiesCollectionPath": "%env(PHRASEANET_STORIES_COLLECTION_PATH)%",
-            "searchQuery": "",
-            "copyTo": [
-              "{% for s in record.getMetadata('Subject', 'no_subject').values %}/classification/{{ record.getMetadata('Creator', 'no_creator').value | escapePath }}/{{ s | escapePath }}\n{% endfor %}"
-            ],
-            "fieldMap": {
-              "Title": {
-                "values": [
-                  {
-                    "locale": "fr",
-                    "type": "metadata",
-                    "value": "Titre"
-                  },
-                  {
-                    "locale": "en",
-                    "type": "metadata",
-                    "value": "Title"
-                  }
-                ]
-              },
-              "Subject": {
-                "type": "string",
-                "values": [
-                  {
-                    "type": "template",
-                    "value": "{% for v in record.getMetadata('Subject').values %}{{v}}\n{% endfor %}"
-                  }
-                ]
-              },
-              "Copyright": {
-                "type": "string",
-                "values": [
-                  {
-                    "type": "template",
-                    "value": "(c){{record.getMetadata('ArchiveDate', '').value | date('Y')}} {{record.getMetadata('Creator', '').value}}"
-                  }
-                ]
-              },
-              "Filename": {
-                "values": [
-                  {
-                    "type": "metadata",
-                    "value": "Filename"
-                  }
-                ]
-              }
-            }
-          }
-        ]
-      }
-    }
-  ]
+    ]
 }
