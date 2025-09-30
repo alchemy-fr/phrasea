@@ -17,7 +17,6 @@ type Props = {
 export default function AssetInfoList({data}: Props) {
     const {t} = useTranslation();
     const navigateToModal = useNavigateToModal();
-    console.log('data', data);
 
     return (
         <>

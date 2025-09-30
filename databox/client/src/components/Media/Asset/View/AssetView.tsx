@@ -33,6 +33,7 @@ import {useBindAnnotationMessage} from './useBindAnnotationMessage.ts';
 import AssetViewInfo from '../AssetViewInfo.tsx';
 import {ApiCollectionResponse} from '../../../../api/hydra.ts';
 import StoryCarousel, {storyCarouselHeight} from './StoryCarousel.tsx';
+import AssetAppearsIn from '../AssetAppearsIn.tsx';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -324,6 +325,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                     />
 
                                     <AssetViewInfo asset={displayedAsset} />
+                                    <AssetAppearsIn asset={displayedAsset} />
 
                                     <AssetDiscussion
                                         asset={displayedAsset}

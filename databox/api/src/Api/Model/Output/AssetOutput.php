@@ -90,6 +90,12 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     public ?Collection $storyCollection = null;
 
+    /**
+     * Appears in these stories.
+     */
+    #[Groups([Asset::GROUP_READ])]
+    public ?Collection $stories = null;
+
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private array $tags;
 
