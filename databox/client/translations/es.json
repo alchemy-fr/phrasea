@@ -1,5 +1,7 @@
 {
-    "locale": {"current": "Español"},
+    "locale": {
+        "current": "Español"
+    },
     "acl": {
         "delete": "Eliminar",
         "form": {
@@ -192,7 +194,9 @@
         }
     },
     "attributes": {
-        "values": "{{count}} valores"
+        "values_one": "{{count}} valores",
+        "values_many": "",
+        "values_other": ""
     },
     "attributes_editor_form": {
         "attributes_saved": "¡Attributos guardados!"
@@ -327,7 +331,9 @@
         "dialog": {
             "intro": "¿Dónde quieres copiar los Asset seleccionados?",
             "submit": "Copiar",
-            "title": "Copiar {{count}} Asset",
+            "title_one": "Copiar {{count}} Asset",
+            "title_many": "",
+            "title_other": "",
             "title_plural": "Copiar {{count}} Asset"
         },
         "form": {
