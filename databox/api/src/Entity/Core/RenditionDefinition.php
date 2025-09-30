@@ -14,10 +14,14 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\AssetTypeTargetFilter;
+use App\Api\Filter\InWorkspacesFilter;
+use App\Api\Filter\SearchFilter;
 use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Api\Model\Output\RenditionDefinitionOutput;
-use App\Api\Provider\RenditionDefinitionCollectionProvider;
 use App\Controller\Core\RenditionDefinitionSortAction;
+use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Security\Voter\RenditionDefinitionVoter;
@@ -47,7 +51,20 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: RenditionDefinitionInput::class,
         ),
         new Patch(security: 'is_granted("EDIT", object)'),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'workspaceId' => new QueryParameter(
+                    filter: SearchFilter::class, property: 'workspace'),
+                'workspaceIds' => new QueryParameter(
+                    filter: InWorkspacesFilter::class,
+                    property: 'workspace',
+                ),
+                'target' => new QueryParameter(
+                    filter: AssetTypeTargetFilter::class,
+                    property: 'target',
+                ),
+            ],
+        ),
         new Post(
             normalizationContext: [
                 'groups' => [RenditionDefinition::GROUP_READ],
@@ -88,9 +105,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     input: RenditionDefinitionInput::class,
     output: RenditionDefinitionOutput::class,
     order: ['priority' => 'DESC'],
-    provider: RenditionDefinitionCollectionProvider::class,
 )]
-
 #[ORM\Table]
 #[ORM\Index(columns: ['workspace_id', 'name'], name: 'rend_def_ws_name')]
 #[ORM\UniqueConstraint(name: 'uniq_rend_def_ws_key', columns: ['workspace_id', 'key'])]
@@ -104,6 +119,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     use UpdatedAtTrait;
     use WorkspaceTrait;
     use TranslationsTrait;
+    use AssetTypeTargetTrait;
 
     final public const int BUILD_MODE_NONE = 0;
     final public const int BUILD_MODE_PICK_SOURCE = 1;

@@ -450,6 +450,12 @@ export enum CollectionOrWorkspace {
     Workspace = 'workspace',
 }
 
+export enum AssetType {
+    Asset = 1,
+    Story = 2,
+    Both = 3,
+}
+
 export type Ace = (
     | {
           userType: UserType.Group;

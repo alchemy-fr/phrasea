@@ -1,9 +1,16 @@
-import {AssetRendition, RenditionPolicy, RenditionDefinition} from '../types';
+import {
+    AssetRendition,
+    RenditionPolicy,
+    RenditionDefinition,
+    AssetType,
+} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import apiClient from './api-client';
 
 type GetOptions = {
     workspaceIds?: string[];
+    target?: AssetType | undefined;
+    [key: string]: any;
 };
 
 export enum RenditionBuildMode {

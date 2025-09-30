@@ -22,6 +22,7 @@ use App\Api\Provider\AttributeDefinitionCollectionProvider;
 use App\Attribute\AttributeInterface;
 use App\Attribute\Type\TextAttributeType;
 use App\Controller\Core\AttributeDefinitionSortAction;
+use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\ErrorDisableInterface;
 use App\Entity\Traits\ErrorDisableTrait;
 use App\Entity\Traits\TranslationsTrait;
@@ -123,6 +124,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     use WorkspaceTrait;
     use ErrorDisableTrait;
     use TranslationsTrait;
+    use AssetTypeTargetTrait;
 
     final public const string GROUP_READ = 'attrdef:r';
     final public const string GROUP_LIST = 'attrdef:i';

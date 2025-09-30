@@ -7,6 +7,7 @@ namespace App\Api\InputTransformer;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
+use App\Model\AssetTypeEnum;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
@@ -111,6 +112,9 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
         }
         if (null !== $data->translations) {
             $object->setTranslations($data->translations);
+        }
+        if (null !== $data->target) {
+            $object->setTarget(AssetTypeEnum::tryFrom($data->target) ?? AssetTypeEnum::Asset);
         }
 
         return $object;

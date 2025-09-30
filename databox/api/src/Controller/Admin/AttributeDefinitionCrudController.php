@@ -120,9 +120,10 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
             ->hideOnForm()
             ->hideOnIndex()
         ;
+        yield ChoiceField::new('target');
     }
 
-    private function getFieldTypeChoice()
+    private function getFieldTypeChoice(): array
     {
         $fieldTypeChoices = [];
         foreach ($this->typeRegistry->getTypes() as $name => $type) {

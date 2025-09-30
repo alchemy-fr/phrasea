@@ -114,4 +114,7 @@ class RenditionDefinitionInput
 
     #[Groups([RenditionDefinition::GROUP_WRITE])]
     public ?array $translations = null;
+
+    #[Groups([RenditionDefinition::GROUP_WRITE])]
+    public ?int $target = null;
 }

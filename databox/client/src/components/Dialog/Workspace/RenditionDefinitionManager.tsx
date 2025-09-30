@@ -36,6 +36,7 @@ import UseAsWidget from '../../Form/UseAsWidget.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';
 import {getLocaleOptions} from '../../../api/locale.ts';
+import AssetTypeSelectWidget from '../../Form/AssetTypeSelectWidget.tsx';
 
 function Item({
     data,
@@ -152,6 +153,9 @@ function Item({
                     </FormHelperText>
                     <FormFieldErrors field={'parent'} errors={errors} />
                 </FormGroup>
+            </FormRow>
+            <FormRow>
+                <AssetTypeSelectWidget />
             </FormRow>
             <FormRow>
                 <UseAsWidget getValues={getValues} setValue={setValue} />
