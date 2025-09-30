@@ -1481,11 +1481,11 @@
                 },
                 "delete": {
                     "desc": "Recevoir une notification lorsque l'asset est supprimé",
-                    "label": "Supprimer"
+                    "label": "Suppression"
                 },
                 "update": {
                     "desc": "Recevoir une notification lorsque l'asset est mis à jour",
-                    "label": "Mettre à jour"
+                    "label": "Mise à jour"
                 }
             },
             "collection": {
