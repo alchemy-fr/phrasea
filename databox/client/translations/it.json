@@ -192,7 +192,9 @@
         }
     },
     "attributes": {
-        "values": "Valori"
+        "values_one": "Valori",
+        "values_many": "",
+        "values_other": ""
     },
     "attributes_editor_form": {
         "attributes_saved": "Attributi salvati"
@@ -327,7 +329,9 @@
         "dialog": {
             "intro": "Copia Asset",
             "submit": "Copia",
-            "title": "Copia Asset",
+            "title_one": "Copia Asset",
+            "title_many": "",
+            "title_other": "",
             "title_plural": "Copia Asset"
         },
         "form": {
