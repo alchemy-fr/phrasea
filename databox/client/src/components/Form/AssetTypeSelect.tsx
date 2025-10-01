@@ -1,24 +1,18 @@
-import React, {ReactNode, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
-import {RSelectWidget} from '@alchemy/react-form';
+import {RSelectProps, RSelectWidget} from '@alchemy/react-form';
 import {AssetType} from '../../types.ts';
+import {FieldValues} from 'react-hook-form';
 
-type Props = {
-    onChange: (newValue: number | null | undefined) => void;
-    value?: number | null | undefined;
-    disabled?: boolean;
-    label?: ReactNode;
-};
+type Props<TFieldValues extends FieldValues> = Omit<
+    RSelectProps<TFieldValues, false>,
+    'options' | 'isMulti'
+>;
 
-export default function AssetTypeSelectWidget({
-    onChange,
-    value,
-    disabled,
-    label,
-}: Props) {
+export default function AssetTypeSelect<TFieldValues extends FieldValues>({
+    ...props
+}: Props<TFieldValues>) {
     const {t} = useTranslation();
-
-    const normalizedValue = normalizeValue(value);
 
     const options = useMemo(
         () => [
@@ -28,7 +22,7 @@ export default function AssetTypeSelectWidget({
             },
             {
                 label: t('asset_type.choice.story', 'Stories only'),
-                value: AssetType.Asset.toString(),
+                value: AssetType.Story.toString(),
             },
             {
                 label: t('asset_type.choice.both', 'Both'),
@@ -40,17 +34,10 @@ export default function AssetTypeSelectWidget({
 
     return (
         <RSelectWidget
-            disabled={disabled}
-            label={label}
-            onChange={newValue => {
-                onChange!(
-                    denormalizeValue(
-                        newValue?.value as AssetType | null | undefined
-                    )
-                );
-            }}
-            value={normalizedValue as any}
+            {...props}
             options={options}
+            normalizeValue={normalizeValue}
+            denormalizeValue={denormalizeValue}
         />
     );
 }

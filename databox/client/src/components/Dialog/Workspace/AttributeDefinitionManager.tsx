@@ -45,6 +45,7 @@ import EntityListSelect from '../../Form/EntityListSelect.tsx';
 import {NO_LOCALE} from '../../Media/Asset/Attribute/constants.ts';
 import {AttributeType} from '../../../api/types.ts';
 import {getLocaleOptions} from '../../../api/locale.ts';
+import AssetTypeSelect from '../../Form/AssetTypeSelect.tsx';
 
 function Item({
     usedFormSubmit,
@@ -188,6 +189,18 @@ function Item({
                     />
                     <FormFieldErrors field={'policy'} errors={errors} />
                 </FormGroup>
+            </FormRow>
+            <FormRow>
+                <AssetTypeSelect
+                    control={control}
+                    name={'target'}
+                    required={true}
+                    disabled={submitting}
+                    label={t(
+                        'form.attribute_definition.asset_type.label',
+                        'Asset Type Target'
+                    )}
+                />
             </FormRow>
             <FormRow>
                 <CheckboxWidget

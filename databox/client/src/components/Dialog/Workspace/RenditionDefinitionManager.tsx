@@ -36,7 +36,7 @@ import UseAsWidget from '../../Form/UseAsWidget.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';
 import {getLocaleOptions} from '../../../api/locale.ts';
-import AssetTypeSelectWidget from '../../Form/AssetTypeSelectWidget.tsx';
+import AssetTypeSelect from '../../Form/AssetTypeSelect.tsx';
 
 function Item({
     data,
@@ -117,6 +117,18 @@ function Item({
                 </FormGroup>
             </FormRow>
             <FormRow>
+                <AssetTypeSelect
+                    control={control}
+                    name={'target'}
+                    required={true}
+                    disabled={submitting}
+                    label={t(
+                        'form.rendition_definition.target.label',
+                        'Asset Type Target'
+                    )}
+                />
+            </FormRow>
+            <FormRow>
                 <CheckboxWidget
                     label={t(
                         'form.rendition_definition.substitutable.label',
@@ -153,9 +165,6 @@ function Item({
                     </FormHelperText>
                     <FormFieldErrors field={'parent'} errors={errors} />
                 </FormGroup>
-            </FormRow>
-            <FormRow>
-                <AssetTypeSelectWidget />
             </FormRow>
             <FormRow>
                 <UseAsWidget getValues={getValues} setValue={setValue} />
