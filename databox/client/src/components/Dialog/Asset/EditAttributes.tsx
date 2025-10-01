@@ -10,7 +10,7 @@ export default function EditAttributes({data, onClose, minHeight}: Props) {
     return (
         <AttributesEditorForm
             workspaceId={data.workspace.id}
-            assetId={data.id}
+            asset={data}
             onClose={onClose}
             minHeight={minHeight}
         />

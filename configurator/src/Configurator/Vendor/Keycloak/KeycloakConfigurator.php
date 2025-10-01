@@ -193,6 +193,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             ]), [
                 'asset-data-template',
                 'asset',
+                'attribute-definition',
                 'attribute-entity',
                 'attribute-list',
                 'attribute-policy',

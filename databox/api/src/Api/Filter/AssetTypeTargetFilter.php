@@ -18,7 +18,7 @@ final class AssetTypeTargetFilter extends AbstractFilter
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        if (null === $value) {
+        if (!$value) {
             return;
         }
 

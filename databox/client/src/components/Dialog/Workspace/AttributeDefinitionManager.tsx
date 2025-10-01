@@ -1,6 +1,7 @@
 import React from 'react';
 import {
     AssetType,
+    AssetTypeFilter,
     AttributeDefinition,
     AttributePolicy,
     EntityList,
@@ -505,7 +506,12 @@ export default function AttributeDefinitionManager({
             }
             itemComponent={Item}
             listComponent={ListItem}
-            load={() => getWorkspaceAttributeDefinitions(workspace.id)}
+            load={() =>
+                getWorkspaceAttributeDefinitions({
+                    workspaceId: workspace.id,
+                    target: AssetTypeFilter.All,
+                })
+            }
             workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}

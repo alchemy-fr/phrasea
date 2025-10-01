@@ -16,9 +16,9 @@ import {
     postAssetDataTemplate,
     putAssetDataTemplate,
 } from '../../api/templates';
-import {StackedModalProps, useModals, useFormPrompt} from '@alchemy/navigation';
+import {StackedModalProps, useFormPrompt, useModals} from '@alchemy/navigation';
 import {Privacy} from '../../api/privacy';
-import {Asset} from '../../types';
+import {Asset, AssetTypeFilter} from '../../types';
 import {getAttributeList} from '../Media/Asset/Attribute/AttributeListData.ts';
 import type {TFunction} from '@alchemy/i18n';
 import {CollectionId} from '../Media/Collection/CollectionTree/collectionTree.ts';
@@ -67,6 +67,7 @@ export default function UploadModal({
 
     const usedAttributeEditor = useAttributeEditor({
         workspaceId,
+        target: AssetTypeFilter.Asset,
     });
 
     const usedAssetDataTemplateOptions = useAssetDataTemplateOptions();

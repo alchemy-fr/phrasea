@@ -458,6 +458,12 @@ export enum AssetType {
     Both = 3,
 }
 
+export enum AssetTypeFilter {
+    All = '',
+    Asset = '1',
+    Story = '2',
+}
+
 export type Ace = (
     | {
           userType: UserType.Group;

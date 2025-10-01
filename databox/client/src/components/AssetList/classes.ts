@@ -27,6 +27,7 @@ const assetClasses = {
     storyThumb: 'story-tb',
     storyThumbsLoaded: 'story-tbl',
     storyShouldHide: 'story-sh',
+    assetIcon: 'asset-icon',
 };
 
 export default assetClasses;

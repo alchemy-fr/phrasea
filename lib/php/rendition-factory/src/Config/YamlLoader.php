@@ -36,6 +36,11 @@ final readonly class YamlLoader implements FileLoaderInterface
     {
         $families = [];
         foreach ($data as $familyKey => $familyConfig) {
+            if ('generate' === $familyKey) {
+                return new BuildConfig();
+                continue;
+            }
+
             if (null === $family = FamilyEnum::tryFrom($familyKey)) {
                 throw new ModelException(sprintf('Invalid file type family "%s". Expected one of %s', $familyKey, implode(', ', array_map(fn (FamilyEnum $family) => $family->value, FamilyEnum::cases()))));
             }

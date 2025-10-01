@@ -11,6 +11,7 @@ import StoryThumb, {createStorySx} from './StoryThumb.tsx';
 import BurstModeIcon from '@mui/icons-material/BurstMode';
 import {useTranslation} from 'react-i18next';
 import AssetTypeIcon from './AssetTypeIcon.tsx';
+import LayersIcon from '@mui/icons-material/Layers';
 
 type Props = {
     asset: Asset;
@@ -75,7 +76,7 @@ function AssetThumb({
             {!noStoryCarousel && storyCollection ? (
                 <StoryThumb assetId={id} />
             ) : null}
-            {thumb ? (
+            {thumb || storyCollection ? (
                 <div
                     className={classNames({
                         [assetClasses.thumbInactive]: thumbnailActive,
@@ -83,7 +84,11 @@ function AssetThumb({
                             !noStoryCarousel && !!storyCollection,
                     })}
                 >
-                    {thumb}
+                    {thumb || (
+                        <div className={assetClasses.assetIcon}>
+                            <LayersIcon />
+                        </div>
+                    )}
                 </div>
             ) : (
                 ''
@@ -199,5 +204,18 @@ export const thumbSx = (
                 zIndex: 1,
                 pointerEvents: 'none',
             },
+        [`.${assetClasses.assetIcon}`]: {
+            'width': '100%',
+            'height': '100%',
+            'minWidth': thumbSize,
+            'minHeight': thumbSize,
+            'display': 'flex',
+            'alignItems': 'center',
+            'justifyContent': 'center',
+            '.MuiSvgIcon-root': {
+                fontSize: thumbSize / 3,
+                color: theme.palette.primary.main,
+            },
+        },
     };
 };

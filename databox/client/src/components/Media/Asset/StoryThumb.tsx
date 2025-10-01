@@ -74,7 +74,7 @@ export function createStorySx(thumbSize: number, theme: Theme): SxProps {
             'display': 'flex',
             'flexDirection': 'column',
             'backgroundColor': theme.palette.background.paper,
-            'width': thumbSize,
+            'width': 0,
             'height': 0,
             'overflow': 'hidden',
             'justifyContent': 'center',
@@ -102,6 +102,7 @@ export function createStorySx(thumbSize: number, theme: Theme): SxProps {
         },
         [`&:hover .${assetClasses.storyThumb}`]: {
             opacity: '1',
+            width: thumbSize,
             height: thumbSize,
         },
 

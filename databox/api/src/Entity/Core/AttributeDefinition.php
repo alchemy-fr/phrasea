@@ -8,6 +8,8 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -16,9 +18,11 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\AssetTypeTargetFilter;
+use App\Api\Filter\InWorkspacesFilter;
+use App\Api\Filter\SearchFilter;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
-use App\Api\Provider\AttributeDefinitionCollectionProvider;
 use App\Attribute\AttributeInterface;
 use App\Attribute\Type\TextAttributeType;
 use App\Controller\Core\AttributeDefinitionSortAction;
@@ -51,16 +55,24 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         ),
         new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
         new GetCollection(
+            order: ['workspace' => 'ASC', 'position' => 'ASC', 'name' => 'ASC'],
             normalizationContext: [
                 'groups' => [AttributeDefinition::GROUP_LIST],
             ],
             parameters: [
                 'searchable' => new QueryParameter(
-                    schema: ['type' => 'boolean'],
-                    description: 'Filter searchable attributes',
+                    filter: BooleanFilter::class,
+                    property: 'searchable',
                 ),
                 'workspaceId' => new QueryParameter(
-                    schema: ['type' => 'string'],
+                    filter: SearchFilter::class, property: 'workspace'),
+                'workspaceIds' => new QueryParameter(
+                    filter: InWorkspacesFilter::class,
+                    property: 'workspace',
+                ),
+                'target' => new QueryParameter(
+                    filter: AssetTypeTargetFilter::class,
+                    property: 'target',
                 ),
             ],
         ),
@@ -97,7 +109,6 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     ],
     input: AttributeDefinitionInput::class,
     output: AttributeDefinitionOutput::class,
-    provider: AttributeDefinitionCollectionProvider::class,
 )]
 #[ORM\Table]
 #[ORM\Index(columns: ['searchable'], name: 'searchable_idx')]
@@ -117,6 +128,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     fields: ['workspace', 'name'],
     errorPath: 'name',
 )]
+#[ApiFilter(BooleanFilter::class, properties: ['searchable', 'facetEnabled', 'translatable', 'multiple', 'enabled'])]
 class AttributeDefinition extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface
 {
     use CreatedAtTrait;
