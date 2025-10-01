@@ -32,6 +32,7 @@ import LastErrorsList from './LastErrorsList.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import WorkspaceIntegrationSelect from '../../Form/WorkspaceIntegrationSelect.tsx';
 import InfoRow from '../Info/InfoRow.tsx';
+import {search} from '../../../lib/search.ts';
 
 function Item({
     usedFormSubmit,
@@ -266,6 +267,13 @@ export default function IntegrationManager({
 
     return (
         <DefinitionManager
+            searchFilter={(list, value) =>
+                search<WorkspaceIntegration>(
+                    list,
+                    ['title', 'integrationTitle'],
+                    value
+                )
+            }
             itemComponent={Item}
             listComponent={ListItem}
             load={() => getWorkspaceIntegrations(workspace.id)}

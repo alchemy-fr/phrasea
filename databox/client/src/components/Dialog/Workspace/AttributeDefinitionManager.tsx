@@ -1,7 +1,8 @@
 import React from 'react';
 import {
-    AttributePolicy,
+    AssetType,
     AttributeDefinition,
+    AttributePolicy,
     EntityList,
     Workspace,
 } from '../../../types';
@@ -12,6 +13,7 @@ import {
     putAttributeDefinition,
 } from '../../../api/attributes';
 import {
+    Box,
     FormGroup,
     FormLabel,
     ListItemIcon,
@@ -22,6 +24,7 @@ import {
     CheckboxWidget,
     FormFieldErrors,
     FormRow,
+    SelectOption,
     TranslatedField,
 } from '@alchemy/react-form';
 import DefinitionManager, {
@@ -46,6 +49,10 @@ import {NO_LOCALE} from '../../Media/Asset/Attribute/constants.ts';
 import {AttributeType} from '../../../api/types.ts';
 import {getLocaleOptions} from '../../../api/locale.ts';
 import AssetTypeSelect from '../../Form/AssetTypeSelect.tsx';
+import {search} from '../../../lib/search.ts';
+import AssetTypeFilterSelect, {
+    denormalizeAssetTypeFilterValue,
+} from '../../Form/AssetTypeFilterSelect.tsx';
 
 function Item({
     usedFormSubmit,
@@ -407,6 +414,9 @@ export default function AttributeDefinitionManager({
     onClose,
 }: Props) {
     const {t} = useTranslation();
+    const [assetTypeTarget, setAssetTypeTarget] =
+        React.useState<AssetType | null>(null);
+    const [type, setType] = React.useState<AttributeType | null>(null);
 
     const {addDefinition, updateDefinition} = useAttributeDefinitionStore(
         s => ({
@@ -440,6 +450,59 @@ export default function AttributeDefinitionManager({
 
     return (
         <DefinitionManager
+            searchFilter={(list, value) =>
+                search<AttributeDefinition>(
+                    list,
+                    ['nameTranslated', 'name'],
+                    value
+                )
+            }
+            filter={list =>
+                list.filter(ad => {
+                    return (
+                        (!assetTypeTarget ||
+                            (assetTypeTarget & ad.target) ===
+                                assetTypeTarget) &&
+                        (!type || ad.fieldType === type)
+                    );
+                })
+            }
+            activeFilterCount={(assetTypeTarget ? 1 : 0) + (type ? 1 : 0)}
+            filters={
+                <Box
+                    sx={{
+                        p: 1,
+                    }}
+                >
+                    <AssetTypeFilterSelect
+                        label={t(
+                            'attribute_definitions.filter.asset_type',
+                            'Filter by Asset Type'
+                        )}
+                        value={assetTypeTarget as any}
+                        onChange={newValue =>
+                            setAssetTypeTarget(
+                                denormalizeAssetTypeFilterValue(
+                                    (newValue as SelectOption)?.value
+                                ) as unknown as AssetType
+                            )
+                        }
+                    />
+                    <FieldTypeSelect
+                        label={t(
+                            'attribute_definitions.filter.type',
+                            'Filter by Type'
+                        )}
+                        value={type as any}
+                        onChange={newValue =>
+                            setType(
+                                (newValue as SelectOption)
+                                    ?.value as AttributeType | null
+                            )
+                        }
+                    />
+                </Box>
+            }
             itemComponent={Item}
             listComponent={ListItem}
             load={() => getWorkspaceAttributeDefinitions(workspace.id)}

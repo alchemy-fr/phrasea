@@ -145,6 +145,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     entityIri?: string | undefined;
     resolveLabel?: (entity: object) => string;
     getValueFromAsset?: (asset: Asset) => any;
+    target: AssetType;
 }
 
 export type FieldWidget<P extends {} = any> = {
@@ -185,6 +186,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
     useAsThumbnail?: boolean;
     useAsThumbnailActive?: boolean;
     priority: number;
+    target: AssetType;
 }
 
 export interface AssetRendition extends ApiHydraObjectResponse, Entity {

@@ -9,24 +9,20 @@ type Props<TFieldValues extends FieldValues> = Omit<
     'options' | 'isMulti'
 >;
 
-export default function AssetTypeSelect<TFieldValues extends FieldValues>({
-    ...props
-}: Props<TFieldValues>) {
+export default function AssetTypeFilterSelect<
+    TFieldValues extends FieldValues,
+>({...props}: Props<TFieldValues>) {
     const {t} = useTranslation();
 
     const options = useMemo(
         () => [
             {
-                label: t('asset_type.choice.asset', 'Assets only'),
+                label: t('asset_type.choice.asset', 'Assets'),
                 value: AssetType.Asset.toString(),
             },
             {
-                label: t('asset_type.choice.story', 'Stories only'),
+                label: t('asset_type.choice.story', 'Stories'),
                 value: AssetType.Story.toString(),
-            },
-            {
-                label: t('asset_type.choice.both', 'Both'),
-                value: AssetType.Both.toString(),
             },
         ],
         [t]
@@ -38,7 +34,7 @@ export default function AssetTypeSelect<TFieldValues extends FieldValues>({
             {...props}
             options={options}
             normalizeValue={normalizeValue}
-            denormalizeValue={denormalizeValue}
+            denormalizeValue={denormalizeAssetTypeFilterValue}
         />
     );
 }
@@ -49,7 +45,7 @@ function normalizeValue(
     return value?.toString();
 }
 
-export function denormalizeValue(
+export function denormalizeAssetTypeFilterValue(
     value: AssetType | number | string | undefined | null
 ): AssetType | null | undefined {
     if (value) {

@@ -23,6 +23,7 @@ import React from 'react';
 import {ContentCopy} from '@mui/icons-material';
 import ExportAttributeEntitiesDialog from '../AttributeEntity/ExportAttributeEntitiesDialog.tsx';
 import {useModals} from '@alchemy/navigation';
+import {search} from '../../../lib/search.ts';
 
 function Item({
     usedFormSubmit,
@@ -101,6 +102,9 @@ export default function AttributeEntityManager({
                     `I understand that this entity will be unset on all asset's attributes using it.`
                 ),
             ]}
+            searchFilter={(list, value) =>
+                search<AttributeEntity>(list, ['value'], value)
+            }
             managerFormId={'entity-attribute-manager'}
             itemComponent={Item}
             listComponent={EntityListItem}

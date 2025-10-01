@@ -1,5 +1,11 @@
-import {RenditionPolicy, RenditionDefinition, Workspace} from '../../../types';
 import {
+    RenditionPolicy,
+    RenditionDefinition,
+    Workspace,
+    AssetType,
+} from '../../../types';
+import {
+    Box,
     FormGroup,
     FormHelperText,
     FormLabel,
@@ -11,6 +17,7 @@ import {
     FormFieldErrors,
     FormRow,
     RSelectWidget,
+    SelectOption,
     TranslatedField,
 } from '@alchemy/react-form';
 import DefinitionManager, {
@@ -36,7 +43,11 @@ import UseAsWidget from '../../Form/UseAsWidget.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';
 import {getLocaleOptions} from '../../../api/locale.ts';
-import AssetTypeSelect from '../../Form/AssetTypeSelect.tsx';
+import AssetTypeSelect, {
+    denormalizeValue,
+} from '../../Form/AssetTypeSelect.tsx';
+import {search} from '../../../lib/search.ts';
+import AssetTypeFilterSelect from '../../Form/AssetTypeFilterSelect.tsx';
 
 function Item({
     data,
@@ -250,6 +261,8 @@ export default function RenditionDefinitionManager({
     onClose,
 }: Props) {
     const {t} = useTranslation();
+    const [assetTypeTarget, setAssetTypeTarget] =
+        React.useState<AssetType | null>(null);
 
     const handleSave = async (data: RenditionDefinition) => {
         if (data.id) {
@@ -270,6 +283,44 @@ export default function RenditionDefinitionManager({
 
     return (
         <DefinitionManager
+            searchFilter={(list, value) =>
+                search<RenditionDefinition>(
+                    list,
+                    ['nameTranslated', 'name'],
+                    value
+                )
+            }
+            filter={list =>
+                list.filter(rd => {
+                    return (
+                        !assetTypeTarget ||
+                        (assetTypeTarget & rd.target) === assetTypeTarget
+                    );
+                })
+            }
+            activeFilterCount={assetTypeTarget ? 1 : 0}
+            filters={
+                <Box
+                    sx={{
+                        p: 1,
+                    }}
+                >
+                    <AssetTypeFilterSelect
+                        label={t(
+                            'rendition_definitions.filter.asset_type',
+                            'Filter by Asset Type'
+                        )}
+                        value={assetTypeTarget as any}
+                        onChange={newValue =>
+                            setAssetTypeTarget(
+                                denormalizeValue(
+                                    (newValue as SelectOption)?.value
+                                ) as unknown as AssetType
+                            )
+                        }
+                    />
+                </Box>
+            }
             itemComponent={Item}
             listComponent={ListItem}
             load={() => getWorkspaceRenditionDefinitions(workspace.id)}
