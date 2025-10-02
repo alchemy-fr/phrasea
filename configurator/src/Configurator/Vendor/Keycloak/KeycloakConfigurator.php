@@ -323,6 +323,48 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
     private function configureDefaultClientScopes(): void
     {
+        $this->configureRolesMapping();
+        $this->configureGroupsMapping();
+    }
+
+    private function configureGroupsMapping(): void
+    {
+        $mainScopeName = 'groups';
+        $this->keycloakManager->createScope($mainScopeName, [
+            'type' => 'default',
+            'description' => 'OpenID Connect scope for add user groups to the access token',
+            'attributes' => [
+                'include.in.token.scope' => 'false',
+            ],
+        ]);
+        $mainScope = $this->keycloakManager->getDefaultClientScopeByName($mainScopeName);
+
+        if (null === $mainScope) {
+            throw new \InvalidArgumentException(sprintf('Scope named "%s" not found in client scopes', $mainScopeName));
+        }
+        $scopeId = $mainScope['id'];
+
+        $protocolMapper = $this->keycloakManager->getClientScopeProtocolMapperByName($scopeId, 'groups');
+        $groupMapperData = [
+            'protocol' => 'openid-connect',
+            'protocolMapper' => 'oidc-group-uuid-mapper',
+            'name' => 'groups',
+            'config' => [
+                'claim.name' => 'groups',
+                'id.token.claim' => 'true',
+                'access.token.claim' => 'true',
+                'userinfo.token.claim' => 'true',
+            ],
+        ];
+        if (null === $protocolMapper) {
+            $this->keycloakManager->addClientScopeProtocolMapper($scopeId, $groupMapperData);
+        } else {
+            $this->keycloakManager->putClientScopeProtocolMapper($scopeId, $protocolMapper['id'], $groupMapperData);
+        }
+    }
+
+    private function configureRolesMapping(): void
+    {
         $rolesScope = $this->keycloakManager->getDefaultClientScopeByName('roles');
         if (null === $rolesScope) {
             throw new \InvalidArgumentException('Scope named "roles" not found in client scopes');
@@ -351,26 +393,6 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             $this->keycloakManager->addClientScopeProtocolMapper($scopeId, $rolesMapperData);
         } else {
             $this->keycloakManager->putClientScopeProtocolMapper($scopeId, $protocolMapper['id'], $rolesMapperData);
-        }
-
-        $this->keycloakManager->putClientScopeProtocolMapper($scopeId, $protocolMapper['id'], $rolesMapperData);
-
-        $protocolMapper = $this->keycloakManager->getClientScopeProtocolMapperByName($scopeId, 'groups');
-        $groupMapperData = [
-            'protocol' => 'openid-connect',
-            'protocolMapper' => 'oidc-group-uuid-mapper',
-            'name' => 'groups',
-            'config' => [
-                'claim.name' => 'groups',
-                'id.token.claim' => 'true',
-                'access.token.claim' => 'true',
-                'userinfo.token.claim' => 'true',
-            ],
-        ];
-        if (null === $protocolMapper) {
-            $this->keycloakManager->addClientScopeProtocolMapper($scopeId, $groupMapperData);
-        } else {
-            $this->keycloakManager->putClientScopeProtocolMapper($scopeId, $protocolMapper['id'], $groupMapperData);
         }
     }
 }

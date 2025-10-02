@@ -131,7 +131,8 @@ final class KeycloakManager
 
     public function getClientScopeProtocolMapperByName(string $scopeId, string $protocolName): ?array
     {
-        $protocolMappers = $this->getClientScope($scopeId)['protocolMappers'];
+        $scopeData = $this->getClientScope($scopeId);
+        $protocolMappers = $scopeData['protocolMappers'];
         foreach ($protocolMappers as $protocolMapper) {
             if ($protocolName === $protocolMapper['name']) {
                 return $protocolMapper;
@@ -179,15 +180,17 @@ final class KeycloakManager
     public function createScope(string $name, array $data = []): void
     {
         $scope = $this->getScopeByName($name);
-        $data = array_merge([
+        $data = [
             'name' => $name,
             'protocol' => 'openid-connect',
             'type' => 'none',
+            ...$data,
             'attributes' => [
                 'include.in.token.scope' => 'true',
                 'display.on.consent.screen' => 'false',
+                ...$data['attributes'] ?? [],
             ],
-        ], $data);
+        ];
 
         if (!$scope) {
             $this->getAuthenticatedClient()
