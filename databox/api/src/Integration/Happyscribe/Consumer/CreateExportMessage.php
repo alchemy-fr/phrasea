@@ -6,7 +6,7 @@ namespace App\Integration\Happyscribe\Consumer;
 
 final readonly class CreateExportMessage
 {
-    public function __construct(private string $transcriptionId, private string $config)
+    public function __construct(private string $transcriptionId, private string $integrationId, private string $assetId, private ?string $locale)
     {
     }
 
@@ -15,8 +15,18 @@ final readonly class CreateExportMessage
         return $this->transcriptionId;
     }
 
-    public function getConfig(): string
+    public function getIntegrationId(): string
     {
-        return $this->config;
+        return $this->integrationId;
+    }
+
+    public function getAssetId(): string
+    {
+        return $this->assetId;
+    }
+
+    public function getLocale(): ?string
+    {
+        return $this->locale;
     }
 }

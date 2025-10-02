@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Happyscribe\Consumer;
 
+use App\Integration\IntegrationManager;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
@@ -15,6 +16,7 @@ final readonly class TranslateTranscriptionMessageHandler
     public function __construct(
         private MessageBusInterface $bus,
         private HttpClientInterface $happyscribeClient,
+        private IntegrationManager $integrationManager,
     ) {
     }
 
@@ -23,9 +25,14 @@ final readonly class TranslateTranscriptionMessageHandler
         $failureTranslateMessage = '';
         $translatedTranscriptionId = '';
 
+        $integrationId = $message->getIntegrationId();
         $translateId = $message->getTranslateId();
-        $config = json_decode($message->getConfig(), true, 512, JSON_THROW_ON_ERROR);
-        $happyscribeToken = $config['apiKey'];
+
+        $integration = $this->integrationManager->loadIntegration($integrationId) ?? throw new \RuntimeException('Integration not found: '.$integrationId);
+
+        $integrationConfig = $this->integrationManager->getIntegrationConfiguration($integration);
+
+        $happyscribeToken = $integrationConfig['apiKey'];
 
         $resCheckTranslate = $this->happyscribeClient->request('GET', 'https://www.happyscribe.com/api/v1/task/transcription_translation/'.$translateId, [
             'headers' => [
@@ -34,7 +41,7 @@ final readonly class TranslateTranscriptionMessageHandler
         ]);
 
         if (200 !== $resCheckTranslate->getStatusCode()) {
-            throw new \RuntimeException('error when checking translation task ,response status : '.$resCheckTranslate->getStatusCode());
+            throw new \RuntimeException('Error when checking translation task ,response status : '.$resCheckTranslate->getStatusCode());
         }
 
         $resCheckTranslateBody = $resCheckTranslate->toArray();
@@ -49,17 +56,21 @@ final readonly class TranslateTranscriptionMessageHandler
         }
 
         if (!in_array($checkTranslateStatus, ['done', 'failed'])) {
-            $delay = (int) (3 * $message->getDelay());
+            $retryNumber = $message->getRetry();
+            $delays = [3, 5, 10, 30, 60, 120];
+            $delay = $delays[$retryNumber] ?? 200;
 
-            $this->bus->dispatch(new TranslateTranscriptionMessage($translateId, $message->getConfig(), $delay), [new DelayStamp($delay)]);
+            $delay = $delay * 1000;
+
+            $this->bus->dispatch(new TranslateTranscriptionMessage($translateId, $integrationId, $message->getAssetId(), $message->getLocale(), $retryNumber + 1), [new DelayStamp($delay)]);
 
             return;
         }
 
         if ('done' != $checkTranslateStatus) {
-            throw new \RuntimeException('error when translate : '.$failureTranslateMessage);
+            throw new \RuntimeException('Error when translate: '.$failureTranslateMessage);
         }
 
-        $this->bus->dispatch(new CreateExportMessage($translatedTranscriptionId, json_encode($config)));
+        $this->bus->dispatch(new CreateExportMessage($translatedTranscriptionId, $integrationId, $message->getAssetId(), $message->getLocale()));
     }
 }

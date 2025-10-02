@@ -13,6 +13,8 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 class HappyscribeIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    final public const array ALLOWED_EXTENSIONS = ['srt', 'txt', 'json', 'vtt', 'docx', 'pdf', 'html'];
+
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         yield WorkflowHelper::createIntegrationJob(
@@ -36,7 +38,7 @@ class HappyscribeIntegration extends AbstractIntegration implements WorkflowInte
             ->end()
             ->enumNode('transcriptFormat')
                 ->defaultValue('vtt')
-                ->values(['srt', 'vtt', 'txt', 'docx', 'pdf', 'json', 'html'])
+                ->values(self::ALLOWED_EXTENSIONS)
                 ->info('Specify the export format of the transcript (srt, vtt, txt, docx, pdf, json, html)')
             ->end()
             ->scalarNode('attribute')

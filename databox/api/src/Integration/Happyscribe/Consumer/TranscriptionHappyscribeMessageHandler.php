@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Integration\Happyscribe\Consumer;
 
+use App\Asset\Attribute\AttributesResolver;
 use App\Attribute\AttributeInterface;
 use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
+use App\Integration\IntegrationManager;
 use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -15,40 +17,44 @@ use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[AsMessageHandler]
-final class TranscriptionHappyscribeMessageHandler
+final readonly class TranscriptionHappyscribeMessageHandler
 {
-    private string $happyscribeToken;
-    private array $config;
-
     public function __construct(
         private MessageBusInterface $bus,
         private HttpClientInterface $happyscribeClient,
         private readonly BatchAttributeManager $batchAttributeManager,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private EntityManagerInterface $em,
+        private IntegrationManager $integrationManager,
+        private readonly AttributesResolver $attributesResolver,
     ) {
     }
 
     public function __invoke(TranscriptionHappyscribeMessage $message): void
     {
         $transcriptionId = $message->getTranscriptionId();
-        $conf = $message->getConfig();
-        $this->config = json_decode($conf, true, 512, JSON_THROW_ON_ERROR);
-        $this->happyscribeToken = $this->config['apiKey'];
+        $integrationId = $message->getIntegrationId();
+        $assetId = $message->getAssetId();
+        $sourceLanguage = $message->getSourceLanguage();
 
-        $asset = $this->em->find(Asset::class, $this->config['assetId']);
+        $integration = $this->integrationManager->loadIntegration($integrationId) ?? throw new \RuntimeException('Integration not found: '.$integrationId);
+
+        $integrationConfig = $this->integrationManager->getIntegrationConfiguration($integration);
+
+        $asset = $this->em->find(Asset::class, $assetId);
         $allEnabledLocales = $asset->getWorkspace()->getEnabledLocales();
+        $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
 
         $failureTranscriptMessage = '';
 
         $resCheckTranscript = $this->happyscribeClient->request('GET', 'https://www.happyscribe.com/api/v1/transcriptions/'.$transcriptionId, [
             'headers' => [
-                'Authorization' => 'Bearer '.$this->config['apiKey'],
+                'Authorization' => 'Bearer '.$integrationConfig['apiKey'],
             ],
         ]);
 
         if (200 !== $resCheckTranscript->getStatusCode()) {
-            throw new \RuntimeException('error when checking transcript,response status : '.$resCheckTranscript->getStatusCode());
+            throw new \RuntimeException('Error when checking transcript, response status: '.$resCheckTranscript->getStatusCode());
         }
 
         $resCheckTranscriptBody = $resCheckTranscript->toArray();
@@ -58,47 +64,58 @@ final class TranscriptionHappyscribeMessageHandler
             $failureTranscriptMessage = $resCheckTranscriptBody['failureMessage'];
         }
 
-        if (!in_array($transcriptStatus, ['automatic_done', 'locked', 'failed'])) {
-            $delay = (int) (3 * $message->getDelay());
+        if (!in_array($transcriptStatus, ['automatic_done', 'locked', 'failed'], true)) {
+            $retryNumber = $message->getRetry();
+            $delays = [30, 80, 150, 200];
+            $delay = $delays[$retryNumber] ?? 240;
 
-            $this->bus->dispatch(new TranscriptionHappyscribeMessage($transcriptionId, $message->getConfig(), $delay), [new DelayStamp($delay)]);
+            $delay = $delay * 1000;
+
+            $this->bus->dispatch(new TranscriptionHappyscribeMessage($transcriptionId, $integrationId, $assetId, $sourceLanguage, $retryNumber + 1), [new DelayStamp($delay)]);
 
             return;
         }
 
-        if ('automatic_done' != $transcriptStatus) {
-            throw new \RuntimeException('transcription failed, status : '.$transcriptStatus.', message : '.$failureTranscriptMessage);
+        if ('automatic_done' !== $transcriptStatus) {
+            throw new \RuntimeException('Transcription failed, status: '.$transcriptStatus.', message: '.$failureTranscriptMessage);
         }
 
-        if (!$this->config['isTranslatableAttribute']) {
-            $this->exportAndSaveTranscription($transcriptionId);
+        $attrDef = $this->attributeDefinitionRepository
+                ->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $integrationConfig['attribute'])
+                    ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $integrationConfig['attribute'], $asset->getWorkspaceId()));
+
+        if (!$attrDef->isTranslatable()) {
+            $this->exportAndSaveTranscription($transcriptionId, $integrationId, $assetId);
         } else {
             foreach ($allEnabledLocales as $locale) {
-                if ($this->config['isMultipleAttribute']) {
-                    throw new \InvalidArgumentException(sprintf('Attribute "%s" must be mono-valued', $this->config['attributeId']));
+                $attribute = $attributeIndex->getAttribute($attrDef->getId(), $locale);
+                if (!empty($attribute)) {
+                    continue;
+                }
+                if ($attrDef->isMultiple()) {
+                    throw new \InvalidArgumentException(sprintf('Attribute "%s" must be mono-valued', $integrationConfig['attribute']));
                 }
 
-                if (AttributeInterface::NO_LOCALE !== $locale && 1 !== preg_match('/'.$locale.'/', $this->config['sourceLanguage'])) {
-                    $this->translateAndSave($transcriptionId, $locale);
+                if (AttributeInterface::NO_LOCALE !== $locale && 1 !== preg_match('/'.$locale.'/', $sourceLanguage)) {
+                    $this->translateAndSave($transcriptionId, $integrationConfig['apiKey'], $integrationId, $assetId, $locale);
                 } else {
-                    $this->exportAndSaveTranscription($transcriptionId, $locale);
+                    $this->exportAndSaveTranscription($transcriptionId, $integrationId, $assetId, $locale);
                 }
             }
         }
     }
 
-    private function exportAndSaveTranscription($transcriptionId, $locale = null): void
+    private function exportAndSaveTranscription($transcriptionId, $integrationId, $assetId, $locale = null): void
     {
-        $this->config['locale'] = $locale;
-        $this->bus->dispatch(new CreateExportMessage($transcriptionId, json_encode($this->config)));
+        $this->bus->dispatch(new CreateExportMessage($transcriptionId, $integrationId, $assetId, $locale));
     }
 
-    private function translateAndSave($sourceTranscriptionId, $targetLanguage): void
+    private function translateAndSave($sourceTranscriptionId, $happyScribeToken, $integrationId, $assetId, $targetLanguage): void
     {
         try {
             $resTranslate = $this->happyscribeClient->request('POST', 'https://www.happyscribe.com/api/v1/task/transcription_translation', [
                 'headers' => [
-                    'Authorization' => 'Bearer '.$this->happyscribeToken,
+                    'Authorization' => 'Bearer '.$happyScribeToken,
                 ],
                 'json' => [
                     'source_transcription_id' => $sourceTranscriptionId,
@@ -106,20 +123,19 @@ final class TranscriptionHappyscribeMessageHandler
                 ],
             ]);
         } catch (\Exception $e) {
-            throw new \RuntimeException('error when translate : '.$e->getMessage());
+            throw new \RuntimeException('Error when translate : '.$e->getMessage());
         }
 
         if (200 !== $resTranslate->getStatusCode()) {
-            throw new \RuntimeException('error when translate, response status : '.$resTranslate->getStatusCode().'target language'.$targetLanguage);
+            throw new \RuntimeException('Error when translate, response status : '.$resTranslate->getStatusCode().'target language'.$targetLanguage);
         }
 
         $resTranslateBody = $resTranslate->toArray();
 
-        if ('failed' == $resTranslateBody['state']) {
-            throw new \RuntimeException('failed when translate, : '.$resTranslateBody['failureReason']);
+        if ('failed' === $resTranslateBody['state']) {
+            throw new \RuntimeException('Failed when translate: '.$resTranslateBody['failureReason']);
         }
 
-        $this->config['locale'] = $targetLanguage;
-        $this->bus->dispatch(new TranslateTranscriptionMessage($resTranslateBody['id'], json_encode($this->config)), [new DelayStamp(5 * 1000)]);
+        $this->bus->dispatch(new TranslateTranscriptionMessage($resTranslateBody['id'], $integrationId, $assetId, $targetLanguage), [new DelayStamp(5 * 1000)]);
     }
 }

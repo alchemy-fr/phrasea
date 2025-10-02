@@ -21,9 +21,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class HappyscribeAction extends AbstractIntegrationAction implements IfActionInterface
 {
-    private string $extension;
-    private string $happyscribeToken;
-
     public function __construct(
         private readonly RenditionManager $renditionManager,
         private HttpClientInterface $happyscribeClient,
@@ -38,8 +35,8 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
     {
         $asset = $this->getAsset($context);
         $config = $this->getIntegrationConfig($context);
-        $this->happyscribeToken = $config['apiKey'];
-        $this->extension = $config['transcriptFormat'];
+        $integrationId = $context->getInputs()['integrationId'];
+        $extension = $config['transcriptFormat'];
         $organizationId = $config['organizationId'];
         $allEnabledLocales = $asset->getWorkspace()->getEnabledLocales();
         $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
@@ -48,10 +45,10 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
             return;
         }
 
-        if (in_array(strtolower($this->extension), ['srt', 'txt', 'json', 'vtt', 'docx', 'pdf', 'html'])) {
-            $this->extension = strtolower($this->extension);
+        if (in_array(strtolower($extension), HappyscribeIntegration::ALLOWED_EXTENSIONS, true)) {
+            $extension = strtolower($extension);
         } else {
-            throw new \InvalidArgumentException('Invalid transcript format, must be one of srt, vtt, txt, docx, pdf, json, html');
+            throw new \InvalidArgumentException('Invalid transcript format, must be one of '.implode(', ', HappyscribeIntegration::ALLOWED_EXTENSIONS));
         }
 
         $attrDef = $this->attributeDefinitionRepository
@@ -77,7 +74,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
 
         $responseUpload = $this->happyscribeClient->request('GET', 'https://www.happyscribe.com/api/v1/uploads/new?filename='.$fileName, [
             'headers' => [
-                'Authorization' => 'Bearer '.$this->happyscribeToken,
+                'Authorization' => 'Bearer '.$config['apiKey'],
             ],
         ]);
 
@@ -100,7 +97,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
         ]);
 
         if (200 !== $res->getStatusCode()) {
-            throw new \RuntimeException('error when uploading file to signed url, response status : '.$res->getStatusCode().', message : '.$res->getContent(false));
+            throw new \RuntimeException('Error when uploading file to signed url, response status : '.$res->getStatusCode().', message : '.$res->getContent(false));
         }
 
         $srcLanguageAttrDef = $this->attributeDefinitionRepository
@@ -111,7 +108,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
         $sourceLanguage = trim($sourceLanguage);
 
         if (!in_array(strlen($sourceLanguage), [2, 5])) {
-            $t = explode('-', $sourceLanguage);
+            $t = explode('-', $sourceLanguage, 2);
             $sourceLanguage = $t[0];
 
             if (2 != strlen($sourceLanguage)) {
@@ -122,7 +119,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
         try {
             $responseTranscription = $this->happyscribeClient->request('POST', 'https://www.happyscribe.com/api/v1/transcriptions', [
                 'headers' => [
-                    'Authorization' => 'Bearer '.$this->happyscribeToken,
+                    'Authorization' => 'Bearer '.$config['apiKey'],
                 ],
                 'json' => [
                     'transcription' => [
@@ -136,33 +133,17 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
             ]);
 
         } catch (\Exception $e) {
-            throw new \RuntimeException('Error when creating transcript : '.$e->getMessage());
+            throw new \RuntimeException('Error when creating transcript: '.$e->getMessage());
         }
 
         if (200 !== $responseTranscription->getStatusCode()) {
-            throw new \RuntimeException('error when creating transcript,response status : '.$responseTranscription->getStatusCode().' message : '.$responseTranscription->getContent(false));
+            throw new \RuntimeException('Error when creating transcript,response status: '.$responseTranscription->getStatusCode().' message : '.$responseTranscription->getContent(false));
         }
 
         $responseTranscriptionBody = $responseTranscription->toArray();
         $transcriptionId = $responseTranscriptionBody['id'];
 
-        $this->happyscribeToken =
-        $this->extension = $config['transcriptFormat'];
-        $organizationId = $config['organizationId'];
-
-        $options['apiKey'] = $config['apiKey'];
-        $options['transcriptFormat'] = $config['transcriptFormat'];
-        $options['attribute'] = $config['attribute'];
-        $options['sourceLanguageAttribute'] = $config['sourceLanguageAttribute'];
-        $options['defaultSourceLanguage'] = $config['defaultSourceLanguage'];
-        $options['assetId'] = $asset->getId();
-        $options['workspaceId'] = $asset->getWorkspaceId();
-        $options['sourceLanguage'] = $sourceLanguage;
-        $options['attributeId'] = $attrDef->getId();
-        $options['isTranslatableAttribute'] = $attrDef->isTranslatable();
-        $options['isMultipleAttribute'] = $attrDef->isMultiple();
-
-        $this->bus->dispatch(new TranscriptionHappyscribeMessage($transcriptionId, json_encode($options)), [new DelayStamp(60 * 1000)]);
+        $this->bus->dispatch(new TranscriptionHappyscribeMessage($transcriptionId, $integrationId, $asset->getId(), $sourceLanguage), [new DelayStamp(30 * 1000)]);
     }
 
     private function getRenditionFile(string $assetId, string $renditionName): File

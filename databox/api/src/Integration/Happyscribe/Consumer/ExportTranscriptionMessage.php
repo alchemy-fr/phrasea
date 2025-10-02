@@ -6,22 +6,32 @@ namespace App\Integration\Happyscribe\Consumer;
 
 final readonly class ExportTranscriptionMessage
 {
-    public function __construct(private string $transcriptionId, private string $config, private int $delay = 3000)
+    public function __construct(private string $exportId, private string $integrationId, private string $assetId, private ?string $locale, private int $retry = 0)
     {
     }
 
-    public function getTranscriptionId(): string
+    public function getExportId(): string
     {
-        return $this->transcriptionId;
+        return $this->exportId;
     }
 
-    public function getConfig(): string
+    public function getIntegrationId(): string
     {
-        return $this->config;
+        return $this->integrationId;
     }
 
-    public function getDelay(): int
+    public function getLocale(): ?string
     {
-        return $this->delay;
+        return $this->locale;
+    }
+
+    public function getAssetId(): string
+    {
+        return $this->assetId;
+    }
+
+    public function getRetry(): int
+    {
+        return $this->retry;
     }
 }

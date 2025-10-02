@@ -6,7 +6,7 @@ namespace App\Integration\Happyscribe\Consumer;
 
 final readonly class TranslateTranscriptionMessage
 {
-    public function __construct(private string $translateId, private string $config, private int $delay = 5000)
+    public function __construct(private string $translateId, private string $integrationId, private string $assetId, private ?string $locale, private int $retry = 0)
     {
     }
 
@@ -15,13 +15,23 @@ final readonly class TranslateTranscriptionMessage
         return $this->translateId;
     }
 
-    public function getConfig(): string
+    public function getIntegrationId(): string
     {
-        return $this->config;
+        return $this->integrationId;
     }
 
-    public function getDelay(): int
+    public function getAssetId(): string
     {
-        return $this->delay;
+        return $this->assetId;
+    }
+
+    public function getLocale(): ?string
+    {
+        return $this->locale;
+    }
+
+    public function getRetry(): int
+    {
+        return $this->retry;
     }
 }

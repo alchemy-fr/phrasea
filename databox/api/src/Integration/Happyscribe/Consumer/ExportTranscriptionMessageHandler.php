@@ -7,8 +7,12 @@ namespace App\Integration\Happyscribe\Consumer;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Attribute\BatchAttributeManager;
+use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Integration\Happyscribe\HappyscribeIntegration;
+use App\Integration\IntegrationManager;
+use App\Repository\Core\AttributeDefinitionRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -22,15 +26,24 @@ final readonly class ExportTranscriptionMessageHandler
         private MessageBusInterface $bus,
         private HttpClientInterface $happyscribeClient,
         private readonly BatchAttributeManager $batchAttributeManager,
+        private IntegrationManager $integrationManager,
+        private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
+        private EntityManagerInterface $em,
     ) {
     }
 
     public function __invoke(ExportTranscriptionMessage $message): void
     {
-        $transcriptionId = $message->getTranscriptionId();
-        $config = json_decode($message->getConfig(), true, 512, JSON_THROW_ON_ERROR);
-        $happyscribeToken = $config['apiKey'];
-        $exportId = $config['exportId'];
+        $integrationId = $message->getIntegrationId();
+
+        $integration = $this->integrationManager->loadIntegration($integrationId) ?? throw new \RuntimeException('Integration not found: '.$integrationId);
+
+        $integrationConfig = $this->integrationManager->getIntegrationConfiguration($integration);
+
+        $asset = $this->em->find(Asset::class, $message->getAssetId());
+
+        $happyscribeToken = $integrationConfig['apiKey'];
+        $exportId = $message->getExportId();
         $failureExportMessage = '';
 
         $resCheckExport = $this->happyscribeClient->request('GET', 'https://www.happyscribe.com/api/v1/exports/'.$exportId, [
@@ -40,7 +53,7 @@ final readonly class ExportTranscriptionMessageHandler
         ]);
 
         if (200 !== $resCheckExport->getStatusCode()) {
-            throw new \RuntimeException('error when checking transcript export, response status : '.$resCheckExport->getStatusCode());
+            throw new \RuntimeException('Error when checking transcript export, response status: '.$resCheckExport->getStatusCode());
         }
 
         $resCheckExportBody = $resCheckExport->toArray();
@@ -50,40 +63,48 @@ final readonly class ExportTranscriptionMessageHandler
             $failureExportMessage = $resCheckExportBody['failureMessage'];
         }
 
-        if (!in_array($exportStatus, ['ready', 'expired', 'failed'])) {
-            $delay = (int) (3 * $message->getDelay());
+        if (!in_array($exportStatus, ['ready', 'expired', 'failed'], true)) {
+            $retryNumber = $message->getRetry();
+            $delays = [3, 5, 10, 30, 60, 120];
+            $delay = $delays[$retryNumber] ?? 200;
 
-            $this->bus->dispatch(new ExportTranscriptionMessage($transcriptionId, $message->getConfig(), $delay), [new DelayStamp($delay)]);
+            $delay = $delay * 1000;
+
+            $this->bus->dispatch(new ExportTranscriptionMessage($exportId, $integrationId, $message->getAssetId(), $message->getLocale(), $retryNumber + 1), [new DelayStamp($delay)]);
 
             return;
         }
 
-        if ('ready' != $exportStatus) {
-            throw new \RuntimeException('exporting transcript failed, status : '.$exportStatus.', message : '.$failureExportMessage);
+        if ('ready' !== $exportStatus) {
+            throw new \RuntimeException('Exporting transcript failed, status: '.$exportStatus.', message : '.$failureExportMessage);
         }
 
         $res = $this->happyscribeClient->request('GET', $resCheckExportBody['download_link']);
 
         $transcriptionContent = $res->getContent();
 
+        $attrDef = $this->attributeDefinitionRepository
+                ->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $integrationConfig['attribute'])
+                    ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $integrationConfig['attribute'], $asset->getWorkspaceId()));
+
         $input = new AssetAttributeBatchUpdateInput();
 
         $i = new AttributeActionInput();
-        $i->definitionId = $config['attributeId'];
+        $i->definitionId = $attrDef->getId();
         $i->origin = Attribute::ORIGIN_MACHINE;
         $i->originVendor = HappyscribeIntegration::getName();
         $i->value = $transcriptionContent;
 
-        if ($config['isTranslatableAttribute'] && !empty($config['locale'])) {
-            $i->locale = $config['locale'];
+        if ($attrDef->isTranslatable() && null !== $message->getLocale()) {
+            $i->locale = $message->getLocale();
         }
 
         $input->actions[] = $i;
 
         try {
             $this->batchAttributeManager->handleBatch(
-                $config['workspaceId'],
-                [$config['assetId']],
+                $asset->getWorkspaceId(),
+                [$message->getAssetId()],
                 $input,
                 null
             );
