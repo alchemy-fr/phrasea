@@ -13,7 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class AttributeDataExporter
 {
-    private const string BUILT_IN_ATTRIBUTE_PREFIX = 'databox_';
+    final public const string BUILT_IN_ATTRIBUTE_PREFIX = 'databox_';
 
     public function __construct(
         private EntityManagerInterface $em,

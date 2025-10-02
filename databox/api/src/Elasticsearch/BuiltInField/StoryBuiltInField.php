@@ -8,6 +8,7 @@ use App\Api\Traits\UserLocaleTrait;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Attribute\Type\TagAttributeType;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class StoryBuiltInField extends AbstractEntityBuiltInField
@@ -15,8 +16,8 @@ final class StoryBuiltInField extends AbstractEntityBuiltInField
     use UserLocaleTrait;
 
     public function __construct(
-        private AssetTitleResolver $assetTitleResolver,
-        private EntityManagerInterface $em,
+        private readonly AssetTitleResolver $assetTitleResolver,
+        private readonly EntityManagerInterface $em,
     ) {
         parent::__construct($em);
     }
@@ -36,7 +37,12 @@ final class StoryBuiltInField extends AbstractEntityBuiltInField
      */
     protected function resolveLabel($value): string
     {
-        return $this->assetTitleResolver->resolveTitleWithoutIndex($value, $this->getPreferredLocales($value->getWorkspace()));
+        $attribute = $this->assetTitleResolver->resolveTitleWithoutIndex($value, $this->getPreferredLocales($value->getWorkspace()));
+        if ($attribute instanceof Attribute) {
+            return (string) $attribute->getValue();
+        }
+
+        return $attribute;
     }
 
     protected function getEntityClass(): string

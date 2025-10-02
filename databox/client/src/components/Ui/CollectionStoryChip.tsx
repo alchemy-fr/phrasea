@@ -20,7 +20,7 @@ export default function CollectionStoryChip({
             size={'small'}
             color={'warning'}
             icon={<BurstModeIcon />}
-            label={storyAsset?.title}
+            label={storyAsset?.resolvedTitle ?? storyAsset.title}
         />
     );
 }

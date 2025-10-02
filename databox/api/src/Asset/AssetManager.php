@@ -8,6 +8,7 @@ use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Attribute\AttributeDataExporter;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Workflow\WorkflowState;
 use App\Workflow\Event\AssetIngestWorkflowEvent;
@@ -54,5 +55,14 @@ readonly class AssetManager
                 ]
             );
         });
+    }
+
+    public function turnIntoStory(Asset $asset): void
+    {
+        $storyCollection = new Collection();
+        $storyCollection->setWorkspace($asset->getWorkspace());
+        $storyCollection->setOwnerId($asset->getOwnerId());
+        $this->em->persist($storyCollection);
+        $asset->setStoryCollection($storyCollection);
     }
 }
