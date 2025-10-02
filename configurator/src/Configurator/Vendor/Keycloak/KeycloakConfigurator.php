@@ -46,7 +46,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 'roles' => $adminSubRoles,
             ],
             KeycloakInterface::ROLE_TECH => [
-                'description' => 'Access to Dev/Ops Operations',
+                'description' => 'Access to Dev/Ops tools',
                 'roles' => [],
             ],
         ];
@@ -112,6 +112,9 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 $this->keycloakManager->createScope($scope, [
                     'description' => sprintf('%s in %s', $scope, ucwords($app)),
                 ]);
+
+                $roleName = sprintf('%s-admin', $app);
+                $this->keycloakManager->assignRoleToScope($scope, $roleName);
             }
         }
 
@@ -132,10 +135,12 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 ]
             );
 
-            $this->keycloakManager->addServiceAccountRole($clientData, 'view-users', 'realm-management');
+            $roleName = sprintf('%s-admin', $app);
+            $this->keycloakManager->addServiceAccountRealmRole($clientData, $roleName);
 
+            $this->keycloakManager->addServiceAccountClientRole($clientData, 'view-users', 'realm-management');
             foreach ($this->getAdminClientServiceAccountRoles()[$app] ?? [] as $role) {
-                $this->keycloakManager->addServiceAccountRole($clientData, $role, 'realm-management');
+                $this->keycloakManager->addServiceAccountClientRole($clientData, $role, 'realm-management');
             }
         }
 

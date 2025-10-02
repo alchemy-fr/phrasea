@@ -224,6 +224,22 @@ final class KeycloakManager
         }
     }
 
+    public function assignRoleToScope(string $scopeName, string $roleName): void
+    {
+        $scope = $this->getScopeByName($scopeName);
+        $data = $this->getRoleByName($roleName);
+
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
+            ->request('POST', UriTemplate::resolve('{realm}/client-scopes/{scopeId}/scope-mappings/realm', [
+                'realm' => $this->keycloakRealm,
+                'scopeId' => $scope['id'],
+            ]), [
+                'json' => [[
+                    'id' => $data['id'],
+                ]],
+            ]), 409, []);
+    }
+
     protected function getScopes(): array
     {
         $response = $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}/client-scopes', [
@@ -292,7 +308,7 @@ final class KeycloakManager
             ])), 404, []);
     }
 
-    public function addServiceAccountRole(
+    public function addServiceAccountClientRole(
         array $client,
         string $role,
         string $fromClientId,
@@ -305,9 +321,7 @@ final class KeycloakManager
             ->request('GET', UriTemplate::resolve('{realm}/clients/{clientId}/service-account-user', [
                 'realm' => $this->keycloakRealm,
                 'clientId' => $client['id'],
-            ]), [
-                'json' => $data,
-            ])->toArray();
+            ]))->toArray();
 
         $realmClient = $this->getClientByClientId($fromClientId);
         if (null === $realmClient) {
@@ -328,6 +342,30 @@ final class KeycloakManager
                 'realm' => $this->keycloakRealm,
                 'userId' => $serviceAccountUser['id'],
                 'clientId' => $realmClient['id'],
+            ]), [
+                'json' => [[
+                    'id' => $roleToGrant['id'],
+                    'name' => $roleToGrant['name'],
+                ]],
+            ]);
+    }
+
+    public function addServiceAccountRealmRole(
+        array $client,
+        string $role,
+    ): void {
+        $serviceAccountUser = $this->getAuthenticatedClient()
+            ->request('GET', UriTemplate::resolve('{realm}/clients/{clientId}/service-account-user', [
+                'realm' => $this->keycloakRealm,
+                'clientId' => $client['id'],
+            ]))->toArray();
+
+        $roleToGrant = $this->getRoleByName($role);
+
+        $this->getAuthenticatedClient()
+            ->request('POST', UriTemplate::resolve('{realm}/users/{userId}/role-mappings/realm', [
+                'realm' => $this->keycloakRealm,
+                'userId' => $serviceAccountUser['id'],
             ]), [
                 'json' => [[
                     'id' => $roleToGrant['id'],
@@ -546,7 +584,6 @@ final class KeycloakManager
                     'realm' => $this->keycloakRealm,
                     'name' => $name,
                 ]));
-            $response->toArray();
 
             return $response->toArray();
         } catch (ClientException $e) {
