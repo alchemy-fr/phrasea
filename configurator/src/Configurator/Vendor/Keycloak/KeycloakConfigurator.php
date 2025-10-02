@@ -107,7 +107,8 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             ]);
         }
 
-        foreach ($this->getAppScopes() as $app => $scopes) {
+        $appScopes = $this->getAppScopes();
+        foreach ($appScopes as $app => $scopes) {
             foreach ($scopes as $scope) {
                 $this->keycloakManager->createScope($scope, [
                     'description' => sprintf('%s in %s', $scope, ucwords($app)),
@@ -142,6 +143,10 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             foreach ($this->getAdminClientServiceAccountRoles()[$app] ?? [] as $role) {
                 $this->keycloakManager->addServiceAccountClientRole($clientData, $role, 'realm-management');
             }
+
+            foreach ($appScopes[$app] ?? [] as $scope) {
+                $this->keycloakManager->addScopeToClient($scope, $clientData['id'], false);
+            }
         }
 
         foreach ($this->frontendApplications as $app) {
@@ -167,8 +172,9 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                     'serviceAccountsEnabled' => true,
                 ],
             );
+            $this->keycloakManager->addServiceAccountRealmRole($clientData, 'databox-admin');
 
-            foreach ($this->getAppScopes()['databox'] as $scope) {
+            foreach ($appScopes['databox'] as $scope) {
                 $this->keycloakManager->addScopeToClient($scope, $clientData['id'], true);
             }
         }
