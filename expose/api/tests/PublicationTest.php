@@ -919,8 +919,7 @@ class PublicationTest extends AbstractExposeTestCase
             'title' => 'Foo',
             'description' => <<<DESC
 <div><a onclick="alert('ok')">B</a></div>
-DESC
-            ,
+DESC,
         ]);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(201, $response->getStatusCode());

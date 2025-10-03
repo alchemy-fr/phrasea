@@ -57,7 +57,7 @@ class Configuration implements ConfigurationInterface
                                 ->scalarNode('vhost')
                                     ->isRequired()
                                     ->defaultValue('%env(RABBITMQ_VHOST)%')
-                                ->end()                
+                                ->end()
                             ->end()
                         ->end()
                     ->end()
