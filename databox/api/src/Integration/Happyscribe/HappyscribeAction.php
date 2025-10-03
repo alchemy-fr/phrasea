@@ -111,7 +111,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
             $t = explode('-', $sourceLanguage, 2);
             $sourceLanguage = $t[0];
 
-            if (2 != strlen($sourceLanguage)) {
+            if (2 !== strlen($sourceLanguage)) {
                 throw new \InvalidArgumentException('Source language code must be a 2-letter or 4-letter code, eg: en, fr-FR, ...');
             }
         }
