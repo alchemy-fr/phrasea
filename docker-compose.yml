@@ -392,7 +392,7 @@ services:
   rabbitmq:
     profiles:
       - db
-    image: rabbitmq:3.7.14-management
+    image: rabbitmq:3.13.7-management
     hostname: rabbitmq
     networks:
       - internal

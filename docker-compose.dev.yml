@@ -287,6 +287,7 @@ services:
     command: npx cypress open --e2e --browser chrome --project ./
     environment:
       - DISPLAY=unix${DISPLAY}
+      - DEFAULT_COMMAND_TIMEOUT=15000
     volumes:
       - ./cypress/cypress:/cypress/cypress
       - ./cypress/output:/cypress/output
