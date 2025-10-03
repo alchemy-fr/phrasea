@@ -34,6 +34,7 @@ class OAuthAuthorizationAuthenticator extends AbstractAuthenticator implements A
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly KeycloakUrlGenerator $keycloakUrlGenerator,
         private readonly AuthStateEncoder $authStateEncoder,
+        private readonly JwtExtractor $jwtExtractor,
         private readonly string $clientId,
     ) {
     }
@@ -61,7 +62,12 @@ class OAuthAuthorizationAuthenticator extends AbstractAuthenticator implements A
         $accessTokenBadge = new AccessTokenBadge($accessToken);
         $refreshTokenBadge = new RefreshTokenBadge($refreshToken);
 
-        return new SelfValidatingPassport(new UserBadge($accessToken), [
+        $token = $this->jwtExtractor->parseJwt($accessToken);
+        $user = $this->jwtExtractor->getUserFromToken($token);
+
+        return new SelfValidatingPassport(new UserBadge($user->getUserIdentifier(), function () use ($user): JwtUser|JwtOauthClient {
+            return $user;
+        }), [
             $accessTokenBadge,
             $refreshTokenBadge,
         ]);
