@@ -108,9 +108,6 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                     '&.selected': {
                         backgroundColor: alpha(theme.palette.primary.main, 0.8),
                         boxShadow: theme.shadows[2],
-                        [`.${assetClasses.legend}`]: {
-                            color: theme.palette.primary.contrastText,
-                        },
                         [`.${assetClasses.thumbWrapper}::after`]: {
                             display: 'block',
                             content: '""',

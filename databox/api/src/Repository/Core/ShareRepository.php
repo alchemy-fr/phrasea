@@ -32,10 +32,10 @@ class ShareRepository extends ServiceEntityRepository
     public function getShareCount(array $assetIds): int
     {
         return $this->createQueryBuilder('s')
-            ->select('COUNT(s.asset)')
+            ->select('COUNT(DISTINCT s.asset)')
             ->andWhere('s.asset IN (:assetIds)')
             ->setParameter('assetIds', $assetIds)
-            ->addGroupBy('s.asset')
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR) ?? 0;
     }

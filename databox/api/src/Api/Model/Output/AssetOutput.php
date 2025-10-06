@@ -49,15 +49,20 @@ class AssetOutput extends AbstractUuidOutput
 
     #[Groups([Asset::GROUP_LIST,
         Asset::GROUP_READ,
+        Asset::GROUP_STORY,
         WebhookSerializationInterface::DEFAULT_GROUP,
-        Share::GROUP_PUBLIC_READ])]
+        Share::GROUP_PUBLIC_READ,
+        ResolveEntitiesOutput::GROUP_READ,
+    ])]
     private ?string $title = null;
 
     #[Groups([Asset::GROUP_LIST,
         Asset::GROUP_READ,
+        Asset::GROUP_STORY,
         WebhookSerializationInterface::DEFAULT_GROUP,
         Share::GROUP_READ,
         Share::GROUP_PUBLIC_READ,
+        ResolveEntitiesOutput::GROUP_READ,
     ])]
     private ?string $resolvedTitle = null;
 
@@ -67,7 +72,7 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_READ])]
     public ?Thread $thread = null;
 
-    #[Groups([Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     public ?string $threadKey = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
@@ -82,8 +87,14 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     private $workspace;
 
-    #[Groups([Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     public ?Collection $storyCollection = null;
+
+    /**
+     * Appears in these stories.
+     */
+    #[Groups([Asset::GROUP_READ])]
+    public ?Collection $stories = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private array $tags;

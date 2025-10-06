@@ -96,5 +96,6 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
             ->hideOnForm()
             ->hideOnIndex()
         ;
+        yield ChoiceField::new('target');
     }
 }

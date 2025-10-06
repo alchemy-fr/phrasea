@@ -1,6 +1,6 @@
 import {FormLabel, Skeleton} from '@mui/material';
 import {attributeBatchUpdate} from '../../../../api/asset';
-import {Asset} from '../../../../types';
+import {Asset, AssetTypeFilter} from '../../../../types';
 import {toast} from 'react-toastify';
 import FormTab, {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
 import AttributesEditor from './AttributesEditor';
@@ -12,15 +12,14 @@ import {useTranslation} from 'react-i18next';
 
 type Props = {
     workspaceId: string;
-    assetId: string | string[];
-    multiAssets?: Asset[];
+    asset: Asset;
     onClose: () => void;
     minHeight?: number | undefined;
 };
 
 export default function AttributesEditorForm({
     workspaceId,
-    assetId,
+    asset,
     onClose,
     minHeight,
 }: Props) {
@@ -34,7 +33,10 @@ export default function AttributesEditorForm({
         dirty,
     } = useAttributeEditor({
         workspaceId,
-        assetId: assetId as string,
+        assetId: asset.id,
+        target: asset.storyCollection
+            ? AssetTypeFilter.Story
+            : AssetTypeFilter.Asset,
     });
     useDirtyFormPrompt(dirty);
 
@@ -47,9 +49,9 @@ export default function AttributesEditorForm({
         const actions = getActions();
         try {
             if (actions.length > 0) {
-                await attributeBatchUpdate(assetId, actions);
+                await attributeBatchUpdate(asset.id, actions);
             }
-            await reloadAssetAttributes(assetId as string);
+            await reloadAssetAttributes(asset.id);
 
             toast.success(
                 t(

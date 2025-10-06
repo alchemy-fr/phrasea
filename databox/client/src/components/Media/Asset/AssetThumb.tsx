@@ -1,28 +1,41 @@
-import React, {DOMAttributes, ReactNode} from 'react';
+import React, {HTMLAttributes, ReactNode} from 'react';
 import {Asset} from '../../../types';
 import AssetFileIcon from './AssetFileIcon';
 import assetClasses from '../../AssetList/classes';
 import FilePlayer from './FilePlayer';
-import {Skeleton, SxProps} from '@mui/material';
+import {Chip, Skeleton, SxProps} from '@mui/material';
 import classNames from 'classnames';
 import {alpha, Theme} from '@mui/material/styles';
 import {videoPlayerSx} from './Players/VideoPlayer.tsx';
+import StoryThumb, {createStorySx} from './StoryThumb.tsx';
+import BurstModeIcon from '@mui/icons-material/BurstMode';
+import {useTranslation} from 'react-i18next';
+import AssetTypeIcon from './AssetTypeIcon.tsx';
+import LayersIcon from '@mui/icons-material/Layers';
 
 type Props = {
     asset: Asset;
-} & DOMAttributes<HTMLDivElement>;
+    noStoryCarousel?: boolean;
+} & HTMLAttributes<HTMLDivElement>;
 
 function AssetThumb({
     asset: {
+        id,
         resolvedTitle,
         pendingSourceFile,
         thumbnail,
         thumbnailActive,
         original,
+        storyCollection,
     },
+    noStoryCarousel,
     ...domAttrs
 }: Props) {
+    const {t} = useTranslation();
     let thumb: ReactNode | undefined;
+    const assetFileIcon = original?.file ? (
+        <AssetFileIcon mimeType={original.file.type} />
+    ) : undefined;
 
     if (pendingSourceFile) {
         thumb = (
@@ -44,36 +57,74 @@ function AssetThumb({
             />
         );
     } else if (original?.file) {
-        thumb = <AssetFileIcon mimeType={original.file.type} />;
+        thumb = assetFileIcon;
     }
+
+    const displayAssetTypeChip =
+        thumb && assetFileIcon && assetFileIcon !== thumb;
 
     return (
         <div
             {...domAttrs}
-            className={classNames({
-                [assetClasses.thumbWrapper]: true,
-            })}
+            className={classNames(
+                {
+                    [assetClasses.thumbWrapper]: true,
+                },
+                [domAttrs.className]
+            )}
         >
-            {thumb ? (
+            {!noStoryCarousel && storyCollection ? (
+                <StoryThumb assetId={id} />
+            ) : null}
+            {thumb || storyCollection ? (
                 <div
-                    className={
-                        thumbnailActive ? assetClasses.thumbInactive : undefined
-                    }
+                    className={classNames({
+                        [assetClasses.thumbInactive]: thumbnailActive,
+                        [assetClasses.storyShouldHide]:
+                            !noStoryCarousel && !!storyCollection,
+                    })}
                 >
-                    {thumb}
+                    {thumb || (
+                        <div className={assetClasses.assetIcon}>
+                            <LayersIcon />
+                        </div>
+                    )}
                 </div>
             ) : (
                 ''
             )}
-            {!pendingSourceFile && thumbnailActive?.file && (
-                <div className={assetClasses.thumbActive}>
-                    <FilePlayer
-                        file={thumbnailActive.file}
-                        title={resolvedTitle}
-                        autoPlayable={false}
-                    />
+            {!pendingSourceFile &&
+                thumbnailActive?.file &&
+                (!storyCollection || noStoryCarousel) && (
+                    <div className={assetClasses.thumbActive}>
+                        <FilePlayer
+                            file={thumbnailActive.file}
+                            title={resolvedTitle}
+                            autoPlayable={false}
+                        />
+                    </div>
+                )}
+
+            {storyCollection || displayAssetTypeChip ? (
+                <div className={assetClasses.assetChip}>
+                    {storyCollection ? (
+                        <Chip
+                            color={'info'}
+                            icon={<BurstModeIcon />}
+                            label={t('story.chip.label', 'Story')}
+                        />
+                    ) : (
+                        <Chip
+                            color={'info'}
+                            icon={
+                                <AssetTypeIcon
+                                    mimeType={original!.file!.type}
+                                />
+                            }
+                        />
+                    )}
                 </div>
-            )}
+            ) : null}
         </div>
     );
 }
@@ -104,36 +155,67 @@ export const thumbSx = (
     thumbSize: number,
     theme: Theme,
     overridden: SxProps = {}
-) => ({
-    [`.${assetClasses.thumbWrapper}`]: {
-        'display': 'flex',
-        'overflow': 'hidden',
-        'alignItems': 'center',
-        'position': 'relative',
-        'justifyContent': 'center',
-        'backgroundColor': theme.palette.grey[100],
-        'img': {
-            maxWidth: '100%',
-            maxHeight: '100%',
+) => {
+    const greyBg = theme.palette.grey[100];
+
+    return {
+        [`.${assetClasses.thumbWrapper}`]: {
+            'display': 'flex',
+            'overflow': 'hidden',
+            'alignItems': 'center',
+            'position': 'relative',
+            'justifyContent': 'center',
+            'backgroundColor': greyBg,
+            'img': {
+                maxWidth: '100%',
+                maxHeight: '100%',
+            },
+            'width': thumbSize,
+            'height': thumbSize,
+            'transition': createSizeTransition(theme),
+            '> div': {
+                display: 'contents',
+            },
+            [`.${assetClasses.assetChip}`]: {
+                'display': 'block',
+                'position': 'absolute',
+                'zIndex': 2,
+                'right': theme.spacing(1),
+                'bottom': theme.spacing(1),
+                '.MuiChip-label:empty': {
+                    paddingLeft: 0,
+                },
+            },
+
+            ...createThumbActiveStyle(),
+            ...createStorySx(thumbSize, theme),
+            ...videoPlayerSx(thumbSize, theme),
+            ...overridden,
         },
-        'width': thumbSize,
-        'height': thumbSize,
-        'transition': createSizeTransition(theme),
-        '> div': {
-            display: 'contents',
+        [`.${assetClasses.item}.selected .${assetClasses.thumbWrapper}:after`]:
+            {
+                position: 'absolute',
+                content: '""',
+                top: 0,
+                left: 0,
+                bottom: 0,
+                right: 0,
+                backgroundColor: alpha(theme.palette.primary.main, 0.3),
+                zIndex: 1,
+                pointerEvents: 'none',
+            },
+        [`.${assetClasses.assetIcon}`]: {
+            'width': '100%',
+            'height': '100%',
+            'minWidth': thumbSize,
+            'minHeight': thumbSize,
+            'display': 'flex',
+            'alignItems': 'center',
+            'justifyContent': 'center',
+            '.MuiSvgIcon-root': {
+                fontSize: thumbSize / 3,
+                color: theme.palette.primary.main,
+            },
         },
-        ...createThumbActiveStyle(),
-        ...videoPlayerSx(thumbSize, theme),
-        ...overridden,
-    },
-    [`.${assetClasses.item}.selected .${assetClasses.thumbWrapper}:after`]: {
-        position: 'absolute',
-        content: '""',
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0,
-        backgroundColor: alpha(theme.palette.primary.main, 0.3),
-        zIndex: 1,
-    },
-});
+    };
+};

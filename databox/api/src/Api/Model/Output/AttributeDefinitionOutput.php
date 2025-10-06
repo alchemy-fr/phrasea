@@ -122,4 +122,7 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
 
     #[Groups([AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ])]
     public ?array $translations = null;
+
+    #[Groups([AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ])]
+    public ?int $target = null;
 }

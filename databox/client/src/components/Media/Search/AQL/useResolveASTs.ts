@@ -9,6 +9,7 @@ import {parseAQLQuery} from './AQL.ts';
 import {
     AQLQuery,
     astToString,
+    replaceConstants,
     replaceFieldFromDefinitions,
     replaceIdFromEntities,
 } from './query.ts';
@@ -16,6 +17,7 @@ import {AttributeDefinitionsIndex} from '../../../../store/attributeDefinitionSt
 import {AQLQueryAST} from './aqlTypes.ts';
 import deepmerge from 'deepmerge';
 import {replaceEntities} from './entities.tsx';
+import {useTranslation} from 'react-i18next';
 
 type ResolvedASTs = {
     condition: AQLQuery;
@@ -40,6 +42,7 @@ export function useResolveASTs({
     definitionsIndexBySlug,
     definitionsIndexBySearchSlug,
 }: Props): ResolvedASTs[] {
+    const {t} = useTranslation();
     const index = useEntitiesStore(s => s.index);
     const fetchUnresolved = useEntitiesStore(s => s.fetchUnresolved);
     const requestEntities = useEntitiesStore(s => s.requestEntities);
@@ -84,6 +87,7 @@ export function useResolveASTs({
             );
 
             replaceFieldFromDefinitions(newAst, definitionsIndexBySlug!);
+            replaceConstants(newAst, t);
 
             return {
                 query: replaceEntities(astToString(newAst)),

@@ -1,17 +1,26 @@
 import {useContext} from 'react';
-import {Collection, Workspace} from '../../../../types';
+import {Asset, Collection, Workspace} from '../../../../types';
 import {DisplayContext} from '../../DisplayContext';
 import assetClasses from '../../../AssetList/classes';
 import {useTranslation} from 'react-i18next';
 import {WorkspaceChip} from '../../../Ui/WorkspaceChip.tsx';
 import {CollectionChip} from '../../../Ui/CollectionChip.tsx';
+import CollectionStoryChip from '../../../Ui/CollectionStoryChip.tsx';
+import {OnOpen} from '../../../AssetList/types.ts';
 
 type Props = {
+    asset: Asset;
     workspace?: Workspace;
     collections: Collection[];
+    onOpenAsset?: OnOpen;
 };
 
-export default function AssetCollectionList({workspace, collections}: Props) {
+export default function AssetCollectionList({
+    asset,
+    workspace,
+    collections,
+    onOpenAsset,
+}: Props) {
     const {t} = useTranslation();
     const {
         state: {collectionsLimit, displayCollections},
@@ -21,9 +30,26 @@ export default function AssetCollectionList({workspace, collections}: Props) {
         return <></>;
     }
 
-    const r = (c: Collection) => (
-        <CollectionChip size={'small'} key={c.id} label={c.titleTranslated} />
-    );
+    const r = (c: Collection) => {
+        if (c.storyAsset) {
+            return (
+                <CollectionStoryChip
+                    key={c.id}
+                    asset={asset}
+                    onOpen={onOpenAsset}
+                    storyAsset={c.storyAsset}
+                />
+            );
+        }
+
+        return (
+            <CollectionChip
+                size={'small'}
+                key={c.id}
+                label={c.titleTranslated}
+            />
+        );
+    };
 
     const rest = collections.length - (collectionsLimit - 1);
     const others =
@@ -73,15 +99,10 @@ export default function AssetCollectionList({workspace, collections}: Props) {
 export function collectionListSx() {
     return {
         [`.${assetClasses.collectionList}`]: {
-            'display': 'flex',
-            'alignItems': 'center',
-            'flexWrap': 'wrap',
-            '.MuiChip-root': {
-                my: 0.5,
-            },
-            '.MuiChip-root+.MuiChip-root': {
-                ml: 0.5,
-            },
+            display: 'flex',
+            gap: 0.5,
+            alignItems: 'center',
+            flexWrap: 'wrap',
         },
     };
 }

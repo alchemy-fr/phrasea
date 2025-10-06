@@ -15,6 +15,7 @@ import {
 import {AxiosRequestConfig} from 'axios';
 import {TFacets} from '../components/Media/Asset/Facets';
 import {AttributeBatchAction, AttributeBatchActionEnum} from './types.ts';
+import {SortWay} from './common.ts';
 
 export interface GetAssetOptions {
     url?: string;
@@ -23,7 +24,7 @@ export interface GetAssetOptions {
     ids?: string[];
     parents?: string[];
     conditions?: string[];
-    order?: Record<string, 'asc' | 'desc'>;
+    order?: Record<string, SortWay>;
     group?: string[] | undefined;
     context?:
         | {
@@ -38,6 +39,12 @@ export type ESDebug = {
     esQueryTime: number;
     totalResponseTime: number;
 };
+
+export async function getStoryThumbnails(assetId: string): Promise<string[]> {
+    const res = await apiClient.get(`/assets/${assetId}/story-thumbnails`);
+
+    return res.data.thumbnails;
+}
 
 export async function getAssets(
     options: GetAssetOptions,
@@ -323,6 +330,7 @@ export type AssetApiInput = {
     sourceFileId?: string;
     pendingUploadToken?: string;
     sequence?: number;
+    isStory?: boolean;
 };
 
 export type NewAssetPostType = {
@@ -343,14 +351,28 @@ export async function postAsset(data: NewAssetPostType): Promise<Asset> {
     return res.data;
 }
 
+export type CreateAssetsOptions = {
+    quiet?: boolean;
+    isStory?: boolean;
+    config?: AxiosRequestConfig;
+};
+
 export async function postMultipleAssets(
     assets: NewAssetPostType[],
-    config?: AxiosRequestConfig
+    {quiet, isStory}: CreateAssetsOptions = {}
 ): Promise<Asset[]> {
+    const config: AxiosRequestConfig = {};
+    if (quiet) {
+        config.headers ??= {};
+        config.headers['X-Webhook-Disabled'] = 'true';
+        config.headers['X-Notification-Disabled'] = 'true';
+    }
+
     const res = await apiClient.post(
         `/assets/multiple`,
         {
             assets,
+            isStory,
         },
         config
     );

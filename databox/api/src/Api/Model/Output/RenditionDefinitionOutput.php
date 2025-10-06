@@ -78,4 +78,6 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public ?array $translations = null;
 
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
+    public ?int $target = null;
 }

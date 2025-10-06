@@ -1021,6 +1021,7 @@ const grammar: Grammar = {
         {name: 'value', symbols: ['number'], postprocess: id},
         {name: 'value', symbols: ['quoted_string'], postprocess: id},
         {name: 'value', symbols: ['boolean'], postprocess: id},
+        {name: 'value', symbols: ['const_null'], postprocess: id},
         {name: 'value', symbols: ['field'], postprocess: id},
         {
             name: 'boolean$string$1',
@@ -1052,6 +1053,21 @@ const grammar: Grammar = {
             name: 'boolean',
             symbols: ['boolean$string$2'],
             postprocess: () => false,
+        },
+        {
+            name: 'const_null$string$1',
+            symbols: [
+                {literal: 'n'},
+                {literal: 'u'},
+                {literal: 'l'},
+                {literal: 'l'},
+            ],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'const_null',
+            symbols: ['const_null$string$1'],
+            postprocess: () => null,
         },
         {name: 'quoted_string$ebnf$1', symbols: []},
         {

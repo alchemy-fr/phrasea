@@ -10,6 +10,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AttributeDefinitionVoter extends AbstractVoter
 {
+    private const string SCOPE_PREFIX = 'attribute-definition:';
     final public const string VIEW_ATTRIBUTES = 'VIEW_ATTRIBUTES';
 
     protected function supports(string $attribute, $subject): bool
@@ -28,6 +29,10 @@ class AttributeDefinitionVoter extends AbstractVoter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $workspace = $subject->getWorkspace();
+
+        if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
+            return true;
+        }
 
         return match ($attribute) {
             self::VIEW_ATTRIBUTES => $subject->getPolicy()->isPublic()

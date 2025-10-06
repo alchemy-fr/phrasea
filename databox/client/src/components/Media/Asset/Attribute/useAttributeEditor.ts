@@ -5,7 +5,11 @@ import {
     DefinitionIndex,
     OnChangeHandler,
 } from './AttributesEditor';
-import {Attribute, AttributeDefinition} from '../../../../types';
+import {
+    AssetTypeFilter,
+    Attribute,
+    AttributeDefinition,
+} from '../../../../types';
 import {getWorkspaceAttributeDefinitions} from '../../../../api/attributes';
 import {getAsset, getAssetAttributes} from '../../../../api/asset';
 import {getBatchActions} from './BatchActions';
@@ -15,9 +19,11 @@ import {useAssetStore} from '../../../../store/assetStore.ts';
 export function useAttributeEditor({
     workspaceId,
     assetId,
+    target,
 }: {
     workspaceId: string | undefined;
     assetId?: string | string[] | undefined;
+    target: AssetTypeFilter;
 }) {
     const [dirty, setDirty] = React.useState(false);
     const [state, setState] = useState<{
@@ -38,7 +44,10 @@ export function useAttributeEditor({
             (async () => {
                 setAttributes(undefined);
                 const promises: Promise<any>[] = [
-                    getWorkspaceAttributeDefinitions(workspaceId!),
+                    getWorkspaceAttributeDefinitions({
+                        workspaceId: workspaceId!,
+                        target,
+                    }),
                 ];
                 if (assetId) {
                     promises.push(getAssetAttributes(assetId));

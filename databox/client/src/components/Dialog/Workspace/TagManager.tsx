@@ -17,6 +17,7 @@ import InfoRow from '../Info/InfoRow.tsx';
 import KeyIcon from '@mui/icons-material/Key';
 import {getLocaleOptions} from '../../../api/locale.ts';
 import {useWorkspace} from '../../../hooks/useWorkspace.ts';
+import {search} from '../../../lib/search.ts';
 
 function Item({
     data,
@@ -139,6 +140,9 @@ export default function TagManager({
 
     return (
         <DefinitionManager
+            searchFilter={(list, value) =>
+                search<Tag>(list, ['nameTranslated', 'name'], value)
+            }
             itemComponent={Item}
             listComponent={ListItem}
             load={() =>

@@ -1,4 +1,4 @@
-import {Asset, AttributeDefinition} from '../../types.ts';
+import {Asset, AssetTypeFilter, AttributeDefinition} from '../../types.ts';
 import {getAssets} from '../../api/asset.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import React from 'react';
@@ -34,7 +34,10 @@ export default function AttributeEditorLoader({
             setAssets(r.result);
         });
 
-        getWorkspaceAttributeDefinitions(workspaceId).then(r => {
+        getWorkspaceAttributeDefinitions({
+            workspaceId,
+            target: AssetTypeFilter.All,
+        }).then(r => {
             setAttributeDefinitions(r);
         });
     }, [ids, workspaceId]);

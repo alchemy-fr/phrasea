@@ -1,4 +1,9 @@
-import {AttributePolicy, AttributeDefinition, FieldType} from '../types';
+import {
+    AttributePolicy,
+    AttributeDefinition,
+    FieldType,
+    AssetTypeFilter,
+} from '../types';
 import apiClient from './api-client';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 
@@ -65,12 +70,17 @@ export async function getWorkspaceAttributePolicies(
     return res.data['hydra:member'];
 }
 
-export async function getWorkspaceAttributeDefinitions(
-    workspaceId: string
-): Promise<AttributeDefinition[]> {
+export async function getWorkspaceAttributeDefinitions({
+    workspaceId,
+    target,
+}: {
+    workspaceId: string;
+    target: AssetTypeFilter;
+}): Promise<AttributeDefinition[]> {
     const res = await apiClient.get(attributeDefinitionNS, {
         params: {
             workspaceId,
+            target,
             limit: 100,
         },
     });

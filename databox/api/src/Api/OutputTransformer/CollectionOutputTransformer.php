@@ -46,19 +46,24 @@ class CollectionOutputTransformer implements OutputTransformerInterface
      */
     public function transform($data, string $outputClass, array &$context = []): object
     {
+        $preferredLocales = $this->getPreferredLocales($data->getWorkspace());
+
         $output = new CollectionOutput();
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
-        $output->setTitle($data->getTitle());
-        $preferredLocales = $this->getPreferredLocales($data->getWorkspace());
-        $output->titleTranslated = $data->getTranslatedField('title', $preferredLocales, $data->getTitle());
+        $storyAsset = $data->getStoryAsset();
+        if (null !== $storyAsset) {
+            $output->setStoryAsset($storyAsset);
+        } else {
+            $output->setTitle($data->getTitle());
+            $output->titleTranslated = $data->getTranslatedField('title', $preferredLocales, $data->getTitle());
+        }
         $output->setPrivacy($data->getPrivacy());
         $output->inheritedPrivacy = $data->getInheritedPrivacy();
         $output->setWorkspace($data->getWorkspace());
         $output->setExtraMetadata($data->getExtraMetadata());
         $output->relationExtraMetadata = $data->getRelationExtraMetadata();
-        $output->setStoryAsset($data->getStoryAsset());
         $output->translations = $data->getTranslations();
 
         if ($this->hasGroup([

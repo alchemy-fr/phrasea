@@ -87,6 +87,7 @@ export interface Asset
     attributesEditedAt: string;
     groupValue?: GroupValue | undefined;
     topicSubscriptions?: TopicSubscriptions;
+    storyCollection?: Collection | undefined;
 }
 
 type AttrValue = any;
@@ -144,6 +145,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     entityIri?: string | undefined;
     resolveLabel?: (entity: object) => string;
     getValueFromAsset?: (asset: Asset) => any;
+    target: AssetType;
 }
 
 export type FieldWidget<P extends {} = any> = {
@@ -184,6 +186,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
     useAsThumbnail?: boolean;
     useAsThumbnailActive?: boolean;
     priority: number;
+    target: AssetType;
 }
 
 export interface AssetRendition extends ApiHydraObjectResponse, Entity {
@@ -283,6 +286,7 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
 export interface Collection extends IPermissions, Entity {
     title: string;
     titleTranslated: string;
+    storyAsset?: Asset;
     absoluteTitle?: string;
     absoluteTitleTranslated?: string;
     children?: CollectionOptionalWorkspace[];
@@ -446,6 +450,18 @@ export enum UserType {
 export enum CollectionOrWorkspace {
     Collection = 'collection',
     Workspace = 'workspace',
+}
+
+export enum AssetType {
+    Asset = 1,
+    Story = 2,
+    Both = 3,
+}
+
+export enum AssetTypeFilter {
+    All = '',
+    Asset = '1',
+    Story = '2',
 }
 
 export type Ace = (

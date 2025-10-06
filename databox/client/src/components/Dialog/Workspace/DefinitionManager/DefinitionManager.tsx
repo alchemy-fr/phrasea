@@ -16,7 +16,9 @@ import {
     ListItemButton,
     ListItemIcon,
     ListItemText,
+    ListSubheader,
     Skeleton,
+    TextField,
 } from '@mui/material';
 import {ApiHydraObjectResponse} from '../../../../api/hydra.ts';
 import DialogActions from '@mui/material/DialogActions';
@@ -33,6 +35,7 @@ import ItemForm from './ItemForm.tsx';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {useModals} from '@alchemy/navigation';
 import ConfirmDialog, {ConfirmDialogProps} from '../../../Ui/ConfirmDialog.tsx';
+import FilterDropdown from './FilterDropdown.tsx';
 
 export type DefinitionBase = ApiHydraObjectResponse & Entity;
 
@@ -135,6 +138,10 @@ type Props<D extends DefinitionBase> = {
     setSubManagementState?: SetSubManagementState;
     managerFormId?: string;
     preListBody?: (list: D[] | undefined) => React.ReactNode;
+    searchFilter?: (list: D[], value: string) => D[];
+    filter?: (list: D[]) => D[];
+    activeFilterCount?: number;
+    filters?: React.ReactNode;
     deleteConfirmAssertions?: (
         data: D
     ) => ConfirmDialogProps<any>['assertions'];
@@ -160,6 +167,10 @@ export default function DefinitionManager<D extends DefinitionBase>({
     setSubManagementState: parentSetSubManagementState,
     deleteConfirmAssertions,
     preListBody,
+    searchFilter,
+    filter,
+    activeFilterCount,
+    filters,
 }: Props<D>) {
     const {openModal} = useModals();
     const [listState, setListState] = useState<ListState<D>>({
@@ -192,6 +203,12 @@ export default function DefinitionManager<D extends DefinitionBase>({
     const {loading, list} = listState;
     const {loading: loadingItem, item, action} = itemState;
     const {t} = useTranslation();
+    const [searchTerm, setSearchTerm] = React.useState('');
+    let filteredList =
+        searchFilter && list ? searchFilter(list, searchTerm) : list;
+    if (filter && filteredList) {
+        filteredList = filter(filteredList);
+    }
 
     const newItem = React.useMemo(() => createNewItem(), [item, createNewItem]);
 
@@ -372,6 +389,47 @@ export default function DefinitionManager<D extends DefinitionBase>({
                     component="div"
                     role="list"
                 >
+                    {searchFilter ? (
+                        <ListSubheader
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 1,
+                                p: 1,
+                                zIndex: 2,
+                                bgcolor: 'background.paper',
+                            }}
+                        >
+                            <TextField
+                                type={'search'}
+                                fullWidth
+                                placeholder={t(
+                                    'common.search.placeholder',
+                                    'Search…'
+                                )}
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                size="small"
+                            />
+                            {filters ? (
+                                <div
+                                    style={{
+                                        position: 'relative',
+                                    }}
+                                >
+                                    <FilterDropdown
+                                        activeFilterCount={activeFilterCount}
+                                        children={() => [
+                                            <React.Fragment key={'1'}>
+                                                {filters}
+                                            </React.Fragment>,
+                                        ]}
+                                    />
+                                </div>
+                            ) : null}
+                        </ListSubheader>
+                    ) : null}
                     {preListBody?.(list)}
                     <ListItem disablePadding>
                         <ListItemButton
@@ -387,35 +445,43 @@ export default function DefinitionManager<D extends DefinitionBase>({
                     </ListItem>
                     <Divider />
 
-                    {onSort && list && (
-                        <SortableList<D & SortableItem, any>
-                            list={list as (D & SortableItem & DefinitionBase)[]}
-                            onOrderChange={onOrderChange}
-                            itemComponent={SortableListItem}
-                            itemProps={itemProps!}
-                        />
-                    )}
-
-                    {!onSort &&
-                        list &&
-                        list.map(i => {
-                            return (
-                                <ListItem disablePadding key={i.id}>
-                                    <ListItemButton
-                                        selected={i.id === item?.id}
-                                        onClick={handleItemClick(i)}
-                                    >
-                                        {React.createElement(listComponent, {
-                                            data: i,
-                                            key: i.id,
-                                            onEdit: handleItemClick(i, true),
-                                        })}
-                                    </ListItemButton>
-                                </ListItem>
-                            );
-                        })}
-
-                    {!list &&
+                    {filteredList ? (
+                        onSort ? (
+                            <SortableList<D & SortableItem, any>
+                                list={
+                                    filteredList as (D &
+                                        SortableItem &
+                                        DefinitionBase)[]
+                                }
+                                onOrderChange={onOrderChange}
+                                itemComponent={SortableListItem}
+                                itemProps={itemProps!}
+                            />
+                        ) : (
+                            filteredList.map(i => {
+                                return (
+                                    <ListItem disablePadding key={i.id}>
+                                        <ListItemButton
+                                            selected={i.id === item?.id}
+                                            onClick={handleItemClick(i)}
+                                        >
+                                            {React.createElement(
+                                                listComponent,
+                                                {
+                                                    data: i,
+                                                    key: i.id,
+                                                    onEdit: handleItemClick(
+                                                        i,
+                                                        true
+                                                    ),
+                                                }
+                                            )}
+                                        </ListItemButton>
+                                    </ListItem>
+                                );
+                            })
+                        )
+                    ) : (
                         [0, 1, 2].map(i => (
                             <ListItem key={i}>
                                 <ListItemIcon>
@@ -435,7 +501,8 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                     }
                                 />
                             </ListItem>
-                        ))}
+                        ))
+                    )}
                 </List>
             </Box>
             <Box

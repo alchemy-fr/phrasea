@@ -60,7 +60,7 @@ readonly class AcceptFileAction implements ActionInterface
             }
         } else {
             $collection = null;
-            $collectionId = $formData[self::COLLECTION_DESTINATION] ?? $inputs['collectionId'] ?? null;
+            $collectionId = $inputs['storyCollectionId'] ?? $formData[self::COLLECTION_DESTINATION] ?? $inputs['collectionId'] ?? null;
             if ($collectionId) {
                 $collection = DoctrineUtil::findStrict($this->em, Collection::class, $collectionId);
                 $workspace = $collection->getWorkspace();
