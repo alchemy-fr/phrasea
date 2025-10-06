@@ -173,7 +173,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     private int $buildMode = self::BUILD_MODE_NONE;
 
     #[ORM\Column(type: Types::BOOLEAN)]
-    private bool $useAsOriginal = false;
+    private bool $useAsMain = false;
 
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $useAsPreview = false;
@@ -182,7 +182,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     private bool $useAsThumbnail = false;
 
     #[ORM\Column(type: Types::BOOLEAN)]
-    private bool $useAsThumbnailActive = false;
+    private bool $useAsAnimatedThumbnail = false;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[CustomAssert\ValidRenditionDefinitionConstraint]
@@ -218,14 +218,14 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
         $this->name = $name;
     }
 
-    public function isUseAsOriginal(): bool
+    public function isUseAsMain(): bool
     {
-        return $this->useAsOriginal;
+        return $this->useAsMain;
     }
 
-    public function setUseAsOriginal(bool $useAsOriginal): void
+    public function setUseAsMain(bool $useAsMain): void
     {
-        $this->useAsOriginal = $useAsOriginal;
+        $this->useAsMain = $useAsMain;
     }
 
     public function isUseAsPreview(): bool
@@ -248,14 +248,14 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
         $this->useAsThumbnail = $useAsThumbnail;
     }
 
-    public function isUseAsThumbnailActive(): bool
+    public function isUseAsAnimatedThumbnail(): bool
     {
-        return $this->useAsThumbnailActive;
+        return $this->useAsAnimatedThumbnail;
     }
 
-    public function setUseAsThumbnailActive(bool $useAsThumbnailActive): void
+    public function setUseAsAnimatedThumbnail(bool $useAsAnimatedThumbnail): void
     {
-        $this->useAsThumbnailActive = $useAsThumbnailActive;
+        $this->useAsAnimatedThumbnail = $useAsAnimatedThumbnail;
     }
 
     public function getDefinition(): ?string

@@ -45,10 +45,10 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
             ->add(EntityFilter::new('policy'))
             ->add(TextFilter::new('name'))
             ->add(BooleanFilter::new('substitutable'))
-            ->add(BooleanFilter::new('useAsOriginal'))
+            ->add(BooleanFilter::new('useAsMain'))
             ->add(BooleanFilter::new('useAsPreview'))
             ->add(BooleanFilter::new('useAsThumbnail'))
-            ->add(BooleanFilter::new('useAsThumbnailActive', 'Thumb Active'))
+            ->add(BooleanFilter::new('useAsAnimatedThumbnail', 'Thumb Active'))
             ->add(ChoiceFilter::new('buildMode')
                 ->setChoices(RenditionDefinition::BUILD_MODE_CHOICES)
             )
@@ -76,13 +76,13 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
             ->setNumOfRows(20)
             ->setRequired(false)
             ->hideOnIndex();
-        yield BooleanField::new('useAsOriginal')
+        yield BooleanField::new('useAsMain')
             ->hideOnIndex();
         yield BooleanField::new('useAsPreview')
             ->hideOnIndex();
         yield BooleanField::new('useAsThumbnail')
             ->hideOnIndex();
-        yield Field::new('useAsThumbnailActive', 'Thumb Active')
+        yield Field::new('useAsAnimatedThumbnail', 'Animated Thumbnail')
             ->hideOnIndex();
         yield IntegerField::new('priority');
         yield BooleanField::new('download')

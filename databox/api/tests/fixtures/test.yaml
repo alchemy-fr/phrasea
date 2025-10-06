@@ -119,11 +119,11 @@ App\Entity\Core\RenditionDefinition:
     name: original
     policy: '@t_rc_restricted'
     buildMode: 1
-    useAsOriginal: true
+    useAsMain: true
   t_rd_original_watermarked (extends rendition_definition):
     name: original
     policy: '@t_rc_public'
-    useAsOriginal: true
+    useAsMain: true
   t_rd_preview (extends rendition_definition):
     name: preview
     policy: '@t_rc_public'
@@ -132,10 +132,10 @@ App\Entity\Core\RenditionDefinition:
     name: thumbnail
     policy: '@t_rc_public'
     useAsThumbnail: true
-  t_rd_thumbnailActive (extends rendition_definition):
-    name: thumbnailActive
+  t_rd_animatedThumbnail (extends rendition_definition):
+    name: animatedThumbnail
     policy: '@t_rc_public'
-    useAsThumbnailActive: true
+    useAsAnimatedThumbnail: true
 
 App\Entity\Core\Tag:
     tag_foo:

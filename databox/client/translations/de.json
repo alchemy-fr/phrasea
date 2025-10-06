@@ -720,7 +720,7 @@
             "pickSourceFile": {
                 "label": "Quelldatei auswählen"
             },
-            "useAsOriginal": {
+            "useAsMain": {
                 "label": "Als Original Dokument verwenden"
             },
             "useAsThumbnail": {
@@ -732,7 +732,7 @@
             "policy": {
                 "label": "Richtlinie"
             },
-            "useAsThumbnailActive": {
+            "useAsAnimatedThumbnail": {
                 "label": "Als aktives Miniaturbild verwenden"
             },
             "buildMode": {
@@ -740,10 +740,10 @@
             },
             "useAs": {
                 "label": "Rendition für die Anzeige",
-                "original": "Hauptdokument",
+                "main": "Hauptdokument",
                 "preview": "Vorschau",
                 "thumbnail": "Miniaturansicht",
-                "thumbnailActive": "Aktive Miniaturansicht"
+                "animatedThumbnail": "Aktive Miniaturansicht"
             },
             "substitutable": {
                 "label": "Ersetzbar"

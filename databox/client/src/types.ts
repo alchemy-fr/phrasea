@@ -74,11 +74,11 @@ export interface Asset
     attributes: Attribute[];
     referenceCollection?: Collection | undefined;
     collections: Collection[] | undefined;
-    original: AssetRendition | null;
+    main: AssetRendition | null;
     preview: AssetRendition | null;
     source: File | undefined;
     thumbnail: AssetRendition | null;
-    thumbnailActive: AssetRendition | null;
+    animatedThumbnail: AssetRendition | null;
     createdAt: string;
     updatedAt: string;
     editedAt: string;
@@ -181,10 +181,10 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
     definition: string;
     buildMode?: RenditionBuildMode | string;
     substitutable: boolean;
-    useAsOriginal?: boolean;
+    useAsMain?: boolean;
     useAsPreview?: boolean;
     useAsThumbnail?: boolean;
-    useAsThumbnailActive?: boolean;
+    useAsAnimatedThumbnail?: boolean;
     priority: number;
     target: AssetType;
 }

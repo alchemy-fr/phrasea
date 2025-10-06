@@ -146,7 +146,7 @@ class AssetRendition extends AbstractUuidEntity
     private ?File $file = null;
 
     /**
-     * Homothetic and same format has original.
+     * Homothetic and same format as source.
      */
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     private ?bool $projection = null;

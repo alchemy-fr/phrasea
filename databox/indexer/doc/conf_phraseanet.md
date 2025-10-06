@@ -316,14 +316,14 @@ One can declare a `parent` relation between renditions, the parent rendition **m
 
 If not set, the rendition will be built from the asset file.
 
-### `useAsOriginal`, `useAsPreview`, `useAsThumbnail`, `useAsActiveThumbnail`
+### `useAsMain`, `useAsPreview`, `useAsThumbnail`, `useAsAnimatedThumbnail`
 
-Declare the rendition to be used as original, preview, thumbnail or active thumbnail.
+Declare the rendition to be used as main, preview, thumbnail or animated thumbnail.
 
 ### `buildMode`
 Tells the builder how to "build" the rendition.
 - 0: Do not build the rendition
-- 1: Copy the parent file (if no parent: copy the asset file); Mostly used to copy the asset file to the "original" rendition.
+- 1: Copy the parent file (if no parent: copy the asset file); Mostly used to copy the asset file to the "main" rendition.
 - 2: Build the rendition using build rules defined in `builders` blocks.
 
 ### `class`
@@ -347,8 +347,8 @@ The build settings will be generated from the phraseanet to match the subdef.
 ...
         "sourceFile": "document",
         "renditions": {
-            "original": {
-                "useAsOriginal": true,
+            "main": {
+                "useAsMain": true,
                 "buildMode": 1,
                 "class": "public"
             },

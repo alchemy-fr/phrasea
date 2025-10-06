@@ -245,10 +245,10 @@ function createNewItem(): Partial<RenditionDefinition> {
     return {
         name: '',
         buildMode: RenditionBuildMode.PICK_SOURCE,
-        useAsOriginal: false,
+        useAsMain: false,
         useAsPreview: false,
         useAsThumbnail: false,
-        useAsThumbnailActive: false,
+        useAsAnimatedThumbnail: false,
         policy: null,
     };
 }

@@ -8,7 +8,6 @@ import classNames from 'classnames';
 import {alpha, Theme} from '@mui/material/styles';
 import {videoPlayerSx} from './Players/VideoPlayer.tsx';
 import StoryThumb, {createStorySx} from './StoryThumb.tsx';
-import BurstModeIcon from '@mui/icons-material/BurstMode';
 import {useTranslation} from 'react-i18next';
 import AssetTypeIcon from './AssetTypeIcon.tsx';
 import LayersIcon from '@mui/icons-material/Layers';
@@ -24,8 +23,8 @@ function AssetThumb({
         resolvedTitle,
         pendingSourceFile,
         thumbnail,
-        thumbnailActive,
-        original,
+        animatedThumbnail,
+        main,
         storyCollection,
     },
     noStoryCarousel,
@@ -33,8 +32,8 @@ function AssetThumb({
 }: Props) {
     const {t} = useTranslation();
     let thumb: ReactNode | undefined;
-    const assetFileIcon = original?.file ? (
-        <AssetFileIcon mimeType={original.file.type} />
+    const assetFileIcon = main?.file ? (
+        <AssetFileIcon mimeType={main.file.type} />
     ) : undefined;
 
     if (pendingSourceFile) {
@@ -56,7 +55,7 @@ function AssetThumb({
                 autoPlayable={false}
             />
         );
-    } else if (original?.file) {
+    } else if (main?.file) {
         thumb = assetFileIcon;
     }
 
@@ -79,7 +78,7 @@ function AssetThumb({
             {thumb || storyCollection ? (
                 <div
                     className={classNames({
-                        [assetClasses.thumbInactive]: thumbnailActive,
+                        [assetClasses.thumbInactive]: animatedThumbnail,
                         [assetClasses.storyShouldHide]:
                             !noStoryCarousel && !!storyCollection,
                     })}
@@ -94,11 +93,11 @@ function AssetThumb({
                 ''
             )}
             {!pendingSourceFile &&
-                thumbnailActive?.file &&
+                animatedThumbnail?.file &&
                 (!storyCollection || noStoryCarousel) && (
-                    <div className={assetClasses.thumbActive}>
+                    <div className={assetClasses.animatedThumb}>
                         <FilePlayer
-                            file={thumbnailActive.file}
+                            file={animatedThumbnail.file}
                             title={resolvedTitle}
                             autoPlayable={false}
                         />
@@ -110,17 +109,13 @@ function AssetThumb({
                     {storyCollection ? (
                         <Chip
                             color={'info'}
-                            icon={<BurstModeIcon />}
+                            icon={<LayersIcon />}
                             label={t('story.chip.label', 'Story')}
                         />
                     ) : (
                         <Chip
                             color={'info'}
-                            icon={
-                                <AssetTypeIcon
-                                    mimeType={original!.file!.type}
-                                />
-                            }
+                            icon={<AssetTypeIcon mimeType={main!.file!.type} />}
                         />
                     )}
                 </div>
@@ -131,13 +126,13 @@ function AssetThumb({
 
 export default React.memo(AssetThumb);
 
-export function createThumbActiveStyle(): SxProps {
+export function createAnimatedThumbStyle(): SxProps {
     return {
-        [`.${assetClasses.thumbActive}`]: {
+        [`.${assetClasses.animatedThumb}`]: {
             display: 'none',
         },
         '&:hover': {
-            [`.${assetClasses.thumbActive}`]: {
+            [`.${assetClasses.animatedThumb}`]: {
                 display: 'contents',
             },
             [`.${assetClasses.thumbInactive}`]: {
@@ -187,7 +182,7 @@ export const thumbSx = (
                 },
             },
 
-            ...createThumbActiveStyle(),
+            ...createAnimatedThumbStyle(),
             ...createStorySx(thumbSize, theme),
             ...videoPlayerSx(thumbSize, theme),
             ...overridden,

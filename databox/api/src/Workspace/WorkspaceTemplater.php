@@ -202,10 +202,10 @@ final readonly class WorkspaceTemplater
                 'priority' => $item->getPriority(),
                 'download' => $item->isDownload(),
                 'substituable' => $item->isSubstitutable(),
-                'useAsOriginal' => $item->isUseAsOriginal(),
+                'useAsMain' => $item->isUseAsMain(),
                 'useAsPreview' => $item->isUseAsPreview(),
                 'useAsThumbnail' => $item->isUseAsThumbnail(),
-                'useAsThumbnailActive' => $item->isUseAsThumbnailActive(),
+                'useAsAnimatedThumbnail' => $item->isUseAsAnimatedThumbnail(),
                 'labels' => $item->getLabels(),
                 'definition' => $item->getDefinition(),
             ];
@@ -257,10 +257,10 @@ final readonly class WorkspaceTemplater
             $o->setPriority($item['priority']);
             $o->setDownload($item['download']);
             $o->setSubstitutable($item['substituable']);
-            $o->setUseAsOriginal($item['useAsOriginal']);
+            $o->setUseAsMain($item['useAsMain']);
             $o->setUseAsPreview($item['useAsPreview']);
             $o->setUseAsThumbnail($item['useAsThumbnail']);
-            $o->setUseAsThumbnailActive($item['useAsThumbnailActive']);
+            $o->setUseAsAnimatedThumbnail($item['useAsAnimatedThumbnail']);
             $o->setLabels($item['labels']);
             $o->setDefinition($item['definition']);
             $o->setPolicy($renditionClassMap[$item['policy']]);

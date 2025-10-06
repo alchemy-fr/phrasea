@@ -970,10 +970,10 @@
             },
             "useAs": {
                 "label": "Rendition used for display",
-                "original": "Original",
+                "main": "Original",
                 "preview": "Preview",
                 "thumbnail": "Thumbnail",
-                "thumbnailActive": "Active thumbnail"
+                "animatedThumbnail": "Animated Thumbnail"
             }
         },
         "rendition_policy": {

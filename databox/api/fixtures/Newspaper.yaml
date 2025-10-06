@@ -167,16 +167,16 @@ App\Entity\Core\RenditionDefinition:
     rendition_definition_n (template):
         workspace: '@w_newspaper'
 
-    n_rd_original (extends rendition_definition_n):
-        name: original
+    n_rd_main (extends rendition_definition_n):
+        name: main
         policy: '@n_rc_public'
         buildMode: 1
-        useAsOriginal: true
+        useAsMain: true
     n_rd_preview (extends rendition_definition_n):
         name: preview
         policy: '@n_rc_public'
         useAsPreview: true
-        parent: '@n_rd_original'
+        parent: '@n_rd_main'
         buildMode: 2
         definition: |
             image:
@@ -218,10 +218,10 @@ App\Entity\Core\RenditionDefinition:
                 transformations:
                     - module: pdf_to_image
 
-    n_rd_thumbnailActive (extends rendition_definition_n):
-        name: thumbnailActive
+    n_rd_animatedThumbnail (extends rendition_definition_n):
+        name: animatedThumbnail
         policy: '@n_rc_public'
-        useAsThumbnailActive: true
+        useAsAnimatedThumbnail: true
         parent: '@n_rd_thumbnail'
 
 # Groups:
@@ -374,7 +374,7 @@ App\Entity\Core\AssetRendition:
     asset_rendition_n (template):
 
     ar_img_o{1..50} (extends asset_rendition_n):
-        definition: '@n_rd_original'
+        definition: '@n_rd_main'
         file: '@f_img_o<current()>'
         asset: '@a_img<current()>'
     ar_img_p{1..50} (extends asset_rendition_n):
@@ -386,11 +386,11 @@ App\Entity\Core\AssetRendition:
         file: '@f_img_t<current()>'
         asset: '@a_img<current()>'
     ar_img_ta{1..10} (extends asset_rendition_n):
-        definition: '@n_rd_thumbnailActive'
+        definition: '@n_rd_animatedThumbnail'
         file: '@f_img_ta<current()>'
         asset: '@a_img<current()>'
     ar_audio_o{1..10} (extends asset_rendition_n):
-        definition: '@n_rd_original'
+        definition: '@n_rd_main'
         file: '@f_audio_o<current()>'
         asset: '@a_audio<current()>'
     ar_audio_t{1..10} (extends asset_rendition_n):
@@ -398,7 +398,7 @@ App\Entity\Core\AssetRendition:
         file: '@f_audio_t<current()>'
         asset: '@a_audio<current()>'
     ar_video_o{1..10} (extends asset_rendition_n):
-        definition: '@n_rd_original'
+        definition: '@n_rd_main'
         file: '@f_video_o<current()>'
         asset: '@a_video<current()>'
     ar_video_p{1..10} (extends asset_rendition_n):
@@ -410,7 +410,7 @@ App\Entity\Core\AssetRendition:
         file: '@f_video_t<current()>'
         asset: '@a_video<current()>'
     ar_pdf_o{1..10} (extends asset_rendition_n):
-        definition: '@n_rd_original'
+        definition: '@n_rd_main'
         file: '@f_pdf_o<current()>'
         asset: '@a_pdf<current()>'
     ar_pdf_p{1..10} (extends asset_rendition_n):

@@ -181,7 +181,7 @@ export default function AssetView({modalIndex, open}: Props) {
     const displayedAsset = currentStoryAsset || asset;
 
     const displayedRenditionFile = currentStoryAsset
-        ? currentStoryAsset.original?.file ||
+        ? currentStoryAsset.main?.file ||
           currentStoryAsset.preview?.file ||
           currentStoryAsset.thumbnail?.file
         : rendition?.file;

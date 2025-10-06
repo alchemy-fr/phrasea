@@ -52,13 +52,13 @@ export default function AssetDialog({}: Props) {
                         navigateToModal(modalRoutes.assets.routes.view, {
                             id: data.id,
                             renditionId:
-                                data.original?.id || Routing.UnknownRendition,
+                                data.main?.id || Routing.UnknownRendition,
                         }),
                     id: 'open',
                     props: {
                         data,
                     },
-                    enabled: !!data.original,
+                    enabled: !!data.main,
                 },
                 {
                     title: t('asset.manage.info.title', 'Info'),
