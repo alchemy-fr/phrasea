@@ -4,14 +4,15 @@ import {DisplayContext} from '../Media/DisplayContext';
 import {OnPreviewToggle} from './types';
 
 export function usePreview(resettingValues: any[]) {
-    const d = useContext(DisplayContext)!.state;
+    const displayContext = useContext(DisplayContext);
+    const d = displayContext!.state;
     const previewTimer = useRef<ReturnType<typeof setTimeout>>();
     const [previewAnchorEl, setPreviewAnchorEl] = React.useState<null | {
         asset: Asset;
         anchorEl: HTMLElement;
     }>(null);
-    const previewEnterDelay = 500;
-    const previewLeaveDelay = 400;
+    const previewEnterDelay = 50;
+    const previewLeaveDelay = 100;
 
     React.useEffect(() => {
         // Force preview close on result change
@@ -19,10 +20,7 @@ export function usePreview(resettingValues: any[]) {
     }, resettingValues);
 
     const onPreviewToggle = React.useCallback<OnPreviewToggle>(
-        (asset, display, anchorEl): void => {
-            if (!asset.preview?.file || !d.displayPreview) {
-                return;
-            }
+        ({asset, display, anchorEl, lock}): void => {
             if (previewTimer.current) {
                 clearTimeout(previewTimer.current);
             }
@@ -35,8 +33,16 @@ export function usePreview(resettingValues: any[]) {
                 return;
             }
 
+            if (!asset.preview?.file || !d.displayPreview) {
+                return;
+            }
+
             setPreviewAnchorEl(p => {
                 const deferred = !p || d.previewLocked;
+
+                if (!anchorEl) {
+                    return p;
+                }
 
                 if (!deferred) {
                     return {
@@ -54,13 +60,29 @@ export function usePreview(resettingValues: any[]) {
 
                 return p;
             });
+
+            if (undefined !== lock) {
+                displayContext?.setState(p => ({
+                    ...p,
+                    previewLocked: lock,
+                }));
+            }
+
             // eslint-disable-next-line
         },
         [setPreviewAnchorEl, d]
     );
 
+    const onPreviewHide = React.useCallback((): void => {
+        if (previewTimer.current) {
+            clearTimeout(previewTimer.current);
+        }
+        setPreviewAnchorEl(null);
+    }, [setPreviewAnchorEl, d]);
+
     return {
         previewAnchorEl,
         onPreviewToggle,
+        onPreviewHide,
     };
 }

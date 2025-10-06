@@ -11,14 +11,22 @@ import StoryThumb, {createStorySx} from './StoryThumb.tsx';
 import {useTranslation} from 'react-i18next';
 import AssetTypeIcon from './AssetTypeIcon.tsx';
 import LayersIcon from '@mui/icons-material/Layers';
+import {OnPreviewToggle} from '../../AssetList/types.ts';
 
 type Props = {
     asset: Asset;
     noStoryCarousel?: boolean;
+    onPreviewToggle?: OnPreviewToggle;
 } & HTMLAttributes<HTMLDivElement>;
 
 function AssetThumb({
-    asset: {
+    asset,
+    noStoryCarousel,
+    onPreviewToggle,
+    ...domAttrs
+}: Props) {
+    const {t} = useTranslation();
+    const {
         id,
         resolvedTitle,
         pendingSourceFile,
@@ -26,11 +34,8 @@ function AssetThumb({
         animatedThumbnail,
         main,
         storyCollection,
-    },
-    noStoryCarousel,
-    ...domAttrs
-}: Props) {
-    const {t} = useTranslation();
+    } = asset;
+
     let thumb: ReactNode | undefined;
     const assetFileIcon = main?.file ? (
         <AssetFileIcon mimeType={main.file.type} />
@@ -59,8 +64,7 @@ function AssetThumb({
         thumb = assetFileIcon;
     }
 
-    const displayAssetTypeChip =
-        thumb && assetFileIcon && assetFileIcon !== thumb;
+    const displayAssetTypeChip = Boolean(thumb && assetFileIcon);
 
     return (
         <div
@@ -116,6 +120,31 @@ function AssetThumb({
                         />
                     ) : (
                         <Chip
+                            onMouseOver={e =>
+                                onPreviewToggle?.({
+                                    asset,
+                                    anchorEl: (e.target as HTMLElement).closest(
+                                        `.${assetClasses.thumbWrapper}`
+                                    ) as HTMLElement,
+                                    display: true,
+                                })
+                            }
+                            onMouseLeave={() =>
+                                onPreviewToggle?.({
+                                    asset,
+                                    display: false,
+                                })
+                            }
+                            onClick={e =>
+                                onPreviewToggle?.({
+                                    asset,
+                                    anchorEl: (e.target as HTMLElement).closest(
+                                        `.${assetClasses.thumbWrapper}`
+                                    ) as HTMLElement,
+                                    display: true,
+                                    lock: true,
+                                })
+                            }
                             color={'info'}
                             icon={<AssetTypeIcon mimeType={main!.file!.type} />}
                         />
