@@ -42,7 +42,7 @@ final class StoryBuiltInField extends AbstractEntityBuiltInField
             return (string) $attribute->getValue();
         }
 
-        return $attribute;
+        return $attribute ?? '';
     }
 
     protected function getEntityClass(): string
