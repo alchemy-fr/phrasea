@@ -1,21 +1,6 @@
-import Menu, {MenuProps} from '@mui/material/Menu';
-import React, {JSX, MouseEventHandler, ReactNode} from 'react';
-import {ButtonBaseProps} from '@mui/material';
-
-type CloseWrapper = (handler?: React.MouseEventHandler<HTMLElement>) => React.MouseEventHandler<HTMLElement>;
-
-type MainButtonProps = {
-    open: boolean;
-    className?: string;
-} & Pick<ButtonBaseProps, 'onClick' | 'aria-haspopup' | 'aria-expanded'>;
-
-type Props = {
-    mainButton: (props: MainButtonProps) => JSX.Element;
-    children: (closeWrapper: CloseWrapper) => (ReactNode)[];
-    onClose?: () => void;
-} & Omit<MenuProps, 'open' | 'onClose' | 'children'>;
-
-export type {Props as DropdownActionsProps};
+import Menu from '@mui/material/Menu';
+import React, {MouseEventHandler, ReactNode} from 'react';
+import {CloseWrapper, DropdownActionsProps} from "../types";
 
 export default function DropdownActions({
     mainButton,
@@ -24,7 +9,7 @@ export default function DropdownActions({
     anchorOrigin,
     anchorPosition,
     ...menuProps
-}: Props) {
+}: DropdownActionsProps) {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
     const open = Boolean(anchorEl);

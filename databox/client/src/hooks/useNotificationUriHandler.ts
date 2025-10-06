@@ -1,8 +1,8 @@
 import {useNavigateToModal} from '../components/Routing/ModalLink.tsx';
-import {modalRoutes, routes} from '../routes.ts';
+import {modalRoutes, routes, Routing} from '../routes.ts';
 import type {NotificationUriHandler} from '@alchemy/notification';
 import {getPath, useNavigate} from '@alchemy/navigation';
-import {BuiltInFilter, queryToHash} from '../components/Media/Search/search.ts';
+import {BuiltInField, queryToHash} from '../components/Media/Search/search.ts';
 
 export function useNotificationUriHandler(): NotificationUriHandler {
     const navigateToModal = useNavigateToModal();
@@ -17,9 +17,10 @@ export function useNotificationUriHandler(): NotificationUriHandler {
 
             if (entity === 'assets') {
                 navigateToModal(
-                    modalRoutes.assets.routes.viewGuessRendition,
+                    modalRoutes.assets.routes.view,
                     {
                         id: id,
+                        renditionId: Routing.UnknownRendition,
                     },
                     undefined,
                     hash
@@ -32,7 +33,7 @@ export function useNotificationUriHandler(): NotificationUriHandler {
                     [
                         {
                             id: 'collection',
-                            query: `${BuiltInFilter.Collection} = "${id}"`,
+                            query: `${BuiltInField.Collection} = "${id}"`,
                         },
                     ],
                     [],

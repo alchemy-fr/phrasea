@@ -1,7 +1,9 @@
 import React from 'react';
 import {
-    AttributePolicy,
+    AssetType,
+    AssetTypeFilter,
     AttributeDefinition,
+    AttributePolicy,
     EntityList,
     Workspace,
 } from '../../../types';
@@ -12,6 +14,7 @@ import {
     putAttributeDefinition,
 } from '../../../api/attributes';
 import {
+    Box,
     FormGroup,
     FormLabel,
     ListItemIcon,
@@ -22,6 +25,7 @@ import {
     CheckboxWidget,
     FormFieldErrors,
     FormRow,
+    SelectOption,
     TranslatedField,
 } from '@alchemy/react-form';
 import DefinitionManager, {
@@ -45,6 +49,11 @@ import EntityListSelect from '../../Form/EntityListSelect.tsx';
 import {NO_LOCALE} from '../../Media/Asset/Attribute/constants.ts';
 import {AttributeType} from '../../../api/types.ts';
 import {getLocaleOptions} from '../../../api/locale.ts';
+import AssetTypeSelect from '../../Form/AssetTypeSelect.tsx';
+import {search} from '../../../lib/search.ts';
+import AssetTypeFilterSelect, {
+    denormalizeAssetTypeFilterValue,
+} from '../../Form/AssetTypeFilterSelect.tsx';
 
 function Item({
     usedFormSubmit,
@@ -188,6 +197,18 @@ function Item({
                     />
                     <FormFieldErrors field={'policy'} errors={errors} />
                 </FormGroup>
+            </FormRow>
+            <FormRow>
+                <AssetTypeSelect
+                    control={control}
+                    name={'target'}
+                    required={true}
+                    disabled={submitting}
+                    label={t(
+                        'form.attribute_definition.asset_type.label',
+                        'Asset Type Target'
+                    )}
+                />
             </FormRow>
             <FormRow>
                 <CheckboxWidget
@@ -394,6 +415,9 @@ export default function AttributeDefinitionManager({
     onClose,
 }: Props) {
     const {t} = useTranslation();
+    const [assetTypeTarget, setAssetTypeTarget] =
+        React.useState<AssetType | null>(null);
+    const [type, setType] = React.useState<AttributeType | null>(null);
 
     const {addDefinition, updateDefinition} = useAttributeDefinitionStore(
         s => ({
@@ -427,9 +451,67 @@ export default function AttributeDefinitionManager({
 
     return (
         <DefinitionManager
+            searchFilter={(list, value) =>
+                search<AttributeDefinition>(
+                    list,
+                    ['nameTranslated', 'name'],
+                    value
+                )
+            }
+            filter={list =>
+                list.filter(ad => {
+                    return (
+                        (!assetTypeTarget ||
+                            (assetTypeTarget & ad.target) ===
+                                assetTypeTarget) &&
+                        (!type || ad.fieldType === type)
+                    );
+                })
+            }
+            activeFilterCount={(assetTypeTarget ? 1 : 0) + (type ? 1 : 0)}
+            filters={
+                <Box
+                    sx={{
+                        p: 1,
+                    }}
+                >
+                    <AssetTypeFilterSelect
+                        label={t(
+                            'attribute_definitions.filter.asset_type',
+                            'Filter by Asset Type'
+                        )}
+                        value={assetTypeTarget as any}
+                        onChange={newValue =>
+                            setAssetTypeTarget(
+                                denormalizeAssetTypeFilterValue(
+                                    (newValue as SelectOption)?.value
+                                ) as unknown as AssetType
+                            )
+                        }
+                    />
+                    <FieldTypeSelect
+                        label={t(
+                            'attribute_definitions.filter.type',
+                            'Filter by Type'
+                        )}
+                        value={type as any}
+                        onChange={newValue =>
+                            setType(
+                                (newValue as SelectOption)
+                                    ?.value as AttributeType | null
+                            )
+                        }
+                    />
+                </Box>
+            }
             itemComponent={Item}
             listComponent={ListItem}
-            load={() => getWorkspaceAttributeDefinitions(workspace.id)}
+            load={() =>
+                getWorkspaceAttributeDefinitions({
+                    workspaceId: workspace.id,
+                    target: AssetTypeFilter.All,
+                })
+            }
             workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}

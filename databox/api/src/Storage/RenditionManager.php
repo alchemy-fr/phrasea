@@ -199,6 +199,29 @@ final class RenditionManager
             ->getOneOrNullResult();
     }
 
+    /**
+     * @return AssetRendition[]
+     */
+    public function getAssetRenditionsUsedAs(string $as, string $assetId): array
+    {
+        return $this->em
+            ->createQueryBuilder()
+            ->select('r')
+            ->from(AssetRendition::class, 'r')
+            ->innerJoin('r.definition', 'd')
+            ->innerJoin('d.policy', 'p')
+            ->andWhere('r.asset = :asset')
+            ->andWhere('p.public = true')
+            ->andWhere(sprintf('d.useAs%s = :as', ucfirst($as)))
+            ->setParameters([
+                'asset' => $assetId,
+                'as' => true,
+            ])
+            ->addOrderBy('d.priority', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function getRenditionDefinitionByName(string $workspaceId, string $name): RenditionDefinition
     {
         $definition = $this

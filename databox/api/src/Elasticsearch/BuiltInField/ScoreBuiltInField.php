@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Facet;
+namespace App\Elasticsearch\BuiltInField;
 
 use App\Attribute\Type\NumberAttributeType;
 use App\Entity\Core\Asset;
 
-final class ScoreFacet extends AbstractFacet
+final class ScoreBuiltInField extends AbstractBuiltInField
 {
     protected function getAggregationTranslationKey(): string
     {

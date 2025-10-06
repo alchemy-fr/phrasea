@@ -14,6 +14,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Symfony\Component\Serializer\Attribute\Context;
 
 class CollectionOutput extends AbstractUuidOutput
 {
@@ -90,7 +91,11 @@ class CollectionOutput extends AbstractUuidOutput
     #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private $workspace;
 
-    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[MaxDepth(1)]
+    #[Context(
+        normalizationContext: ['groups' => [Collection::GROUP_READ, Asset::GROUP_STORY, '_']],
+    )]
     private ?Asset $storyAsset;
 
     #[Groups(['_'])]

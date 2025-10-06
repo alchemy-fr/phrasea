@@ -63,6 +63,8 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = (
     creatableProps?: Partial<
         CreatableProps<Option, IsMulti, GroupBase<Option>>
     >;
+    denormalizeValue?: (value: any) => any;
+    normalizeValue?: (value: any) => any;
 } & Partial<CommonProps<Option, IsMulti, GroupBase<Option>>['selectProps']>;
 
 export type {Props as RSelectProps};
@@ -86,10 +88,14 @@ export default function RSelectWidget<
     menuWidth = 300,
     allowCreate,
     creatableProps = {},
+    normalizeValue,
+    denormalizeValue,
     ...rest
 }: Props<TFieldValues, IsMulti>) {
-    const [value, setValue] = useState(initialValue);
+    const [proxyValue, setValue] = useState(initialValue);
     const theme = useTheme();
+
+    const value = normalizeValue ? normalizeValue(proxyValue) : proxyValue;
 
     useEffect(() => {
         setValue(initialValue);
@@ -145,7 +151,8 @@ export default function RSelectWidget<
                                         : allowCreate
                                           ? newValue
                                           : (newValue as Option | null)?.value;
-                                    onChange(v);
+                                    const denormValue = denormalizeValue ? denormalizeValue(v) : v;
+                                    onChange(denormValue);
                                     onChangeProp &&
                                         onChangeProp(newValue as any, meta);
                                 }}

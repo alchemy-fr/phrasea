@@ -1,6 +1,7 @@
 import apiClient from './api-client';
 import {AttributeEntity} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {SortWay} from './common.ts';
 
 const attributeEntityNS = '/attribute-entities';
 
@@ -15,7 +16,7 @@ export async function getAttributeEntities(
     const res = await apiClient.get(attributeEntityNS, {
         params: {
             ...options,
-            [`order[value]`]: 'asc',
+            [`order[value]`]: SortWay.ASC,
         },
     });
 

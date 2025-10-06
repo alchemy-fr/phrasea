@@ -32,3 +32,5 @@ export {
 };
 
 export type {AppDialogProps};
+
+export * from './src/types';

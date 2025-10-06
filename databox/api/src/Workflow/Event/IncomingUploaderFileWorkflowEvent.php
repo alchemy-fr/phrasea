@@ -17,6 +17,7 @@ final class IncomingUploaderFileWorkflowEvent
         string $token,
         ?string $collectionId = null,
         ?string $workspaceId = null,
+        ?string $storyCollectionId = null,
     ): WorkflowEvent {
         $payload = [
             'baseUrl' => $baseUrl,
@@ -29,6 +30,9 @@ final class IncomingUploaderFileWorkflowEvent
         }
         if (null !== $workspaceId) {
             $payload['workspaceId'] = $workspaceId;
+        }
+        if (null !== $storyCollectionId) {
+            $payload['storyCollectionId'] = $storyCollectionId;
         }
 
         return new WorkflowEvent(

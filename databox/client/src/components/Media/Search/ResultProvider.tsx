@@ -11,6 +11,7 @@ import {AQLQueries} from './AQL/query.ts';
 import {useAssetStore} from '../../../store/assetStore.ts';
 import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {ChannelEvent, ChannelType} from '../../../api/channels.ts';
+import {SortWay} from '../../../api/common.ts';
 
 type UserSearchContext = {
     position?: string | undefined;
@@ -39,7 +40,7 @@ async function search(
 
     const order: GetAssetOptions['order'] = {};
     sortBy.forEach(s => {
-        order[s.a] = s.w === 1 ? 'desc' : 'asc';
+        order[s.a] = s.w === 1 ? SortWay.DESC : SortWay.ASC;
     });
 
     const groupBy = sortBy.filter(s => s.g).map(s => s.a);

@@ -18,6 +18,7 @@ import AttributeEntityManager from './AttributeEntityManager.tsx';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import React from 'react';
+import {search} from '../../../lib/search.ts';
 
 function Item({usedFormSubmit}: DefinitionItemFormProps<EntityList>) {
     const {t} = useTranslation();
@@ -145,6 +146,9 @@ export default function EntityListManager({
 
                 return assertions;
             }}
+            searchFilter={(list, value) =>
+                search<EntityList>(list, ['name'], value)
+            }
             itemComponent={Item}
             manageItemComponent={ManageItem}
             listComponent={ListItem}

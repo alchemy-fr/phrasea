@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Facet;
+namespace App\Elasticsearch\BuiltInField;
 
 use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\Type\TagAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Tag;
 
-final class TagFacet extends AbstractEntityFacet
+final class TagBuiltInField extends AbstractEntityBuiltInField
 {
     use UserLocaleTrait;
 

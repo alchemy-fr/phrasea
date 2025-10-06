@@ -99,9 +99,14 @@ field: f:builtin_field | f:field_name
         unset($result['f']);
     }
 
-boolean: "true" | "false"
+boolean: "true" | "false" | "TRUE" | "FALSE"
     function __finalise(&$result) {
-        $result['data'] = $result['text'] === 'true';
+        $result['data'] = strtolower($result['text']) === 'true';
+    }
+
+const_null: "null" | "NULL"
+    function __finalise(&$result) {
+        $result['data'] = null;
     }
 
 operator: ] op:between_operator | ] op:in_operator | ] op:geo_operator | ] op:ending_operator | > op:simple_operator | > op:keyword_operator
@@ -300,7 +305,7 @@ value_or_expr: v:value | ('(' > p:value_expression > ')')
         unset($result['v']);
     }
 
-value: v:function_call | v:number | v:quoted_string | v:boolean | v:field
+value: v:function_call | v:number | v:quoted_string | v:boolean | v:const_null | v:field
     function __finalise(&$result) {
         $result['data'] = $result['v']['data'];
         unset($result['v']);

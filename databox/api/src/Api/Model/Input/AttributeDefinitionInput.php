@@ -126,4 +126,6 @@ class AttributeDefinitionInput
     public $position;
 
     public ?array $translations = null;
+
+    public ?int $target = null;
 }

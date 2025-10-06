@@ -25,7 +25,7 @@ final class InputTransformerProvider implements ProviderInterface
 
     public function __construct(
         private readonly ProviderInterface $decorated,
-        #[TaggedIterator('api.input_transformer')]
+        #[TaggedIterator(InputTransformerInterface::TAG)]
         iterable $transformers,
     ) {
         $this->transformers = $transformers;
