@@ -14,7 +14,7 @@ final class Version20241104171119 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Add configurator_entry table';
     }
 
     public function up(Schema $schema): void

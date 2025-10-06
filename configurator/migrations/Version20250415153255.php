@@ -4,38 +4,21 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
-use App\Configurator\Vendor\Keycloak\KeycloakManager;
-use App\Configurator\Vendor\Keycloak\Migrations\MigrationKeycloakInterface;
+use App\Configurator\Vendor\Keycloak\Migrations\KeycloakMigrationInterface;
+use App\Configurator\Vendor\Keycloak\Migrations\KeycloakMigrationTrait;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250415153255 extends AbstractMigration implements MigrationKeycloakInterface
+final class Version20250415153255 extends AbstractMigration implements KeycloakMigrationInterface
 {
-    private KeycloakManager $keycloakManager;
-    private array $symfonyApplications;
-    private array $frontendApplications;
-
-    public function setKeycloakManager(KeycloakManager $keycloakManager): void
-    {
-        $this->keycloakManager = $keycloakManager;
-    }
-
-    public function setSymfonyApplications(array $symfonyApplications): void
-    {
-        $this->symfonyApplications = $symfonyApplications;
-    }
-
-    public function setFrontendApplications(array $frontendApplications): void
-    {
-        $this->frontendApplications = $frontendApplications;
-    }
+    use KeycloakMigrationTrait;
 
     public function getDescription(): string
     {
-        return '';
+        return 'Update Keycloak realm settings';
     }
 
     public function up(Schema $schema): void
@@ -97,7 +80,6 @@ final class Version20250415153255 extends AbstractMigration implements Migration
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
     }
 
     private function getBooleanEnv(string $name, bool $defaultValue = false): bool
