@@ -4,9 +4,6 @@ import {
     DisplayPreferences,
     PlayingContext,
 } from './DisplayContext';
-import {toast} from 'react-toastify';
-
-import {useTranslation} from 'react-i18next';
 import {useUserPreferencesStore} from '../../store/userPreferencesStore.ts';
 
 type Props = PropsWithChildren<{
@@ -43,48 +40,6 @@ export default function DisplayProvider({children, defaultState = {}}: Props) {
     useEffect(() => {
         updatePreference('display', state);
     }, [state, updatePreference]);
-
-    const {t} = useTranslation();
-
-    useEffect(() => {
-        const handler = (e: KeyboardEvent) => {
-            if (
-                document.activeElement &&
-                document.activeElement?.getAttribute('type') === 'text'
-            ) {
-                return;
-            }
-            if (e.ctrlKey && e.key === 'p') {
-                e.preventDefault();
-                toast.info(
-                    state.previewLocked
-                        ? (t(
-                              'layout.previews_unlocked',
-                              'Previews unlocked'
-                          ) as string)
-                        : (t(
-                              'layout.previews_locked',
-                              'Previews locked'
-                          ) as string),
-                    {
-                        toastId: 'preview_lock',
-                        updateId: 'preview_lock',
-                    }
-                );
-
-                setState(p => ({
-                    ...p,
-                    previewLocked: !p.previewLocked,
-                }));
-            }
-        };
-
-        window.addEventListener('keydown', handler);
-
-        return () => {
-            window.removeEventListener('keydown', handler);
-        };
-    }, [state.previewLocked]);
 
     return (
         <DisplayContext.Provider

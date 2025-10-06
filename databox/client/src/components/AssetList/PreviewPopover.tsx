@@ -8,22 +8,27 @@ import {DisplayContext} from '../Media/DisplayContext';
 import {ZIndex} from '../../themes/zIndex.ts';
 import {getMediaBackgroundColor} from '../../themes/base.ts';
 import {collectionListSx} from '../Media/Asset/Widgets/AssetCollectionList.tsx';
+import IconButton from '@mui/material/IconButton';
+import LockIcon from '@mui/icons-material/Lock';
 
 type Props = {
     anchorEl: HTMLElement | undefined;
     asset: Asset | undefined;
     displayAttributes: boolean;
     zIndex: number | undefined;
+    onHide: () => void;
 };
 
 export default function PreviewPopover({
     asset,
+    onHide,
     anchorEl,
     displayAttributes,
     zIndex = ZIndex.assetPreview,
 }: Props) {
     const {
         state: {previewLocked, previewOptions},
+        setState,
     } = useContext(DisplayContext)!;
     const relativeSize = previewOptions.sizeRatio;
     const width = getRelativeViewWidth(relativeSize);
@@ -86,6 +91,7 @@ export default function PreviewPopover({
                         direction={'row'}
                         style={{
                             maxHeight: height - spacingInt,
+                            position: 'relative',
                         }}
                     >
                         {previewOptions.displayFile && (
@@ -138,6 +144,26 @@ export default function PreviewPopover({
                                     />
                                 </Box>
                             )}
+                        {previewLocked ? (
+                            <IconButton
+                                sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    right: 0,
+                                    zIndex: 1,
+                                    color: theme.palette.error.main,
+                                }}
+                                onClick={() => {
+                                    setState(p => ({
+                                        ...p,
+                                        previewLocked: false,
+                                    }));
+                                    onHide();
+                                }}
+                            >
+                                <LockIcon fontSize={'small'} />
+                            </IconButton>
+                        ) : null}
                     </Stack>
                 </Paper>
             )}

@@ -79,29 +79,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                 ) : (
                     ''
                 )}
-                <AssetThumb
-                    onMouseOver={
-                        onPreviewToggle
-                            ? e =>
-                                  onPreviewToggle(
-                                      asset,
-                                      true,
-                                      e.currentTarget as HTMLElement
-                                  )
-                            : undefined
-                    }
-                    onMouseLeave={
-                        onPreviewToggle
-                            ? e =>
-                                  onPreviewToggle(
-                                      asset,
-                                      false,
-                                      e.currentTarget as HTMLElement
-                                  )
-                            : undefined
-                    }
-                    asset={asset}
-                />
+                <AssetThumb onPreviewToggle={onPreviewToggle} asset={asset} />
             </div>
             <div className={assetClasses.attributes}>
                 <div className={assetClasses.title}>
