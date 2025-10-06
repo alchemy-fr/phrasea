@@ -8,7 +8,7 @@ final readonly class BuildConfig
 {
     public function __construct(
         private array $families,
-        private array $generate,
+        private ?array $generate,
     ) {
     }
 
@@ -17,7 +17,7 @@ final readonly class BuildConfig
         return $this->families[$family->value] ?? null;
     }
 
-    public function getGenerate(): array
+    public function getGenerate(): ?array
     {
         return $this->generate;
     }
