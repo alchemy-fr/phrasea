@@ -124,7 +124,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                         },
                     },
                 },
-                [`.${assetClasses.thumbActive}`]: {
+                [`.${assetClasses.animatedThumb}`]: {
                     display: 'none',
                 },
             };

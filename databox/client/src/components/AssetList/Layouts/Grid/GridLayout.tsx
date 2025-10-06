@@ -111,7 +111,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                         },
                     },
                 },
-                [`.${assetClasses.thumbActive}`]: {
+                [`.${assetClasses.animatedThumb}`]: {
                     display: 'none',
                 },
                 [`.${assetClasses.title}`]: {

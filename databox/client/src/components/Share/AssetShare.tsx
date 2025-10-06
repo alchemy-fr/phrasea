@@ -11,7 +11,7 @@ type Props = {
 };
 
 export default function AssetShare({asset}: Props) {
-    const rendition = asset.preview || asset.thumbnail || asset.original;
+    const rendition = asset.preview || asset.thumbnail || asset.main;
     const theme = useTheme();
 
     const width = theme.breakpoints.values.md;

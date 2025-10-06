@@ -721,7 +721,7 @@
             "pickSourceFile": {
                 "label": "Quelldatei auswählen"
             },
-            "useAsOriginal": {
+            "useAsMain": {
                 "label": "Als Original Dokument verwenden"
             },
             "useAsThumbnail": {
@@ -733,7 +733,7 @@
             "policy": {
                 "label": "Richtlinie"
             },
-            "useAsThumbnailActive": {
+            "useAsAnimatedThumbnail": {
                 "label": "Als aktives Miniaturbild verwenden"
             },
             "buildMode": {
@@ -741,10 +741,10 @@
             },
             "useAs": {
                 "label": "Diese Rendition ist",
-                "original": "Original",
+                "main": "Original",
                 "preview": "Vorschau",
                 "thumbnail": "Miniaturbild",
-                "thumbnailActive": "Aktive Miniaturbild"
+                "animatedThumbnail": "Aktive Miniaturbild"
             },
             "substitutable": {
                 "label": "Ersetzbar"

@@ -7,7 +7,7 @@ const assetClasses = {
     title: 't',
     legend: 'l',
     attributes: 'aa',
-    thumbActive: 'tha',
+    animatedThumb: 'tha',
     thumbInactive: 'thia',
     thumbWrapper: 'tw',
     toggleFormat: 'toggle-format',

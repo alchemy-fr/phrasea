@@ -60,10 +60,10 @@ export async function addMissingRenditionsConf(
 
     // import all subdefs from phraseanet
     dm['renditions'] = {
-        original: {
-            useAsOriginal: true,
+        main: {
+            useAsMain: true,
             buildMode: RenditionBuildMode.COPY_ASSET_FILE,
-            policy: 'original',
+            policy: 'main',
         } as ConfigPhraseanetSubdef,
     };
 
@@ -72,10 +72,10 @@ export async function addMissingRenditionsConf(
             dm.renditions[sd.name] = {
                 policy: sd.class,
                 buildMode: RenditionBuildMode.BUILD_FROM_PARENT,
-                parent: 'original',
+                parent: 'main',
                 useAsPreview: sd.name === 'preview' ? true : undefined,
                 useAsThumbnail: sd.name === 'thumbnail' ? true : undefined,
-                useAsThumbnailActive:
+                useAsAnimatedThumbnail:
                     sd.name === 'thumbnailgif' ? true : undefined,
                 builders: {},
             };
@@ -175,10 +175,10 @@ export async function importSubdefsStructure(
             name: string;
             parent: string | null;
             buildMode: number;
-            useAsOriginal: boolean;
+            useAsMain: boolean;
             useAsPreview: boolean;
             useAsThumbnail: boolean;
-            useAsThumbnailActive: boolean;
+            useAsAnimatedThumbnail: boolean;
             types: Record<string, PhraseanetSubdefStruct>;
             policy: string | null;
             labels: Record<string, string>;
@@ -201,7 +201,7 @@ export async function importSubdefsStructure(
             sdByName[name] = {
                 name: name,
                 parent: rendition.parent ?? null,
-                useAsOriginal: rendition.useAsOriginal ?? false,
+                useAsMain: rendition.useAsMain ?? false,
                 buildMode:
                     rendition.buildMode ??
                     (rendition.builders
@@ -209,7 +209,8 @@ export async function importSubdefsStructure(
                         : RenditionBuildMode.COPY_ASSET_FILE),
                 useAsPreview: rendition.useAsPreview ?? false,
                 useAsThumbnail: rendition.useAsThumbnail ?? false,
-                useAsThumbnailActive: rendition.useAsThumbnailActive ?? false,
+                useAsAnimatedThumbnail:
+                    rendition.useAsAnimatedThumbnail ?? false,
                 types: {} as Record<string, PhraseanetSubdefStruct>,
                 policy: rendition['policy'] ?? null,
                 labels: {},
@@ -323,10 +324,10 @@ export async function importSubdefsStructure(
                 key: `${idempotencePrefixes['renditionDefinition']}${sd.name}`,
                 policy: `/rendition-policies/${policyIndex[sd.policy]}`,
                 buildMode: sd.buildMode,
-                useAsOriginal: sd.useAsOriginal,
+                useAsMain: sd.useAsMain,
                 useAsPreview: sd.useAsPreview,
                 useAsThumbnail: sd.useAsThumbnail,
-                useAsThumbnailActive: sd.name === 'thumbnailgif',
+                useAsAnimatedThumbnail: sd.name === 'thumbnailgif',
                 priority: 0,
                 workspace: `/workspaces/${workspaceId}`,
                 labels: {

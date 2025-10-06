@@ -28,8 +28,8 @@ export type ConfigRenditionBuilder = {
 export type ConfigPhraseanetSubdef = {
     useAsThumbnail?: boolean;
     useAsPreview?: boolean;
-    useAsOriginal?: boolean;
-    useAsThumbnailActive?: boolean;
+    useAsMain?: boolean;
+    useAsAnimatedThumbnail?: boolean;
     buildMode?: number;
     policy?: string;
     parent?: string | null;

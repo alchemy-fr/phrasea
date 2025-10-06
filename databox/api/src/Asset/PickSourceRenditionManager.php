@@ -22,19 +22,19 @@ readonly class PickSourceRenditionManager
      */
     public function assignFileToOriginalRendition(Asset $asset, File $file): array
     {
-        $originalRenditionDefinitions = $this->em->getRepository(RenditionDefinition::class)
+        $definitions = $this->em->getRepository(RenditionDefinition::class)
             ->findBy([
                 'workspace' => $file->getWorkspace()->getId(),
                 'buildMode' => RenditionDefinition::BUILD_MODE_PICK_SOURCE,
             ]);
 
         $renditions = [];
-        foreach ($originalRenditionDefinitions as $originalRenditionDefinition) {
-            $origRendition = $this->renditionManager->getOrCreateRendition($asset, $originalRenditionDefinition);
-            $origRendition->setFile($file);
+        foreach ($definitions as $definition) {
+            $rendition = $this->renditionManager->getOrCreateRendition($asset, $definition);
+            $rendition->setFile($file);
 
-            $this->em->persist($origRendition);
-            $renditions[] = $origRendition;
+            $this->em->persist($rendition);
+            $renditions[] = $rendition;
         }
 
         return $renditions;

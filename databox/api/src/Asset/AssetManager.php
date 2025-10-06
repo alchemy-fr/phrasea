@@ -18,7 +18,7 @@ readonly class AssetManager
 {
     public function __construct(
         private AttributeDataExporter $attributeDataExporter,
-        private PickSourceRenditionManager $originalRenditionManager,
+        private PickSourceRenditionManager $pickSourceRenditionManager,
         private EntityManagerInterface $em,
         private WorkflowOrchestrator $workflowOrchestrator,
         private PostFlushStack $postFlushStack,
@@ -43,7 +43,7 @@ readonly class AssetManager
             $this->attributeDataExporter->importAttributes($asset, $formData, $locale);
         }
 
-        $this->originalRenditionManager->assignFileToOriginalRendition($asset, $file);
+        $this->pickSourceRenditionManager->assignFileToOriginalRendition($asset, $file);
 
         $this->em->persist($asset);
 

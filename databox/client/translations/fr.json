@@ -728,7 +728,7 @@
             "pickSourceFile": {
                 "label": "Sélectionner le fichier source"
             },
-            "useAsOriginal": {
+            "useAsMain": {
                 "label": "Utiliser comme original"
             },
             "useAsPreview": {
@@ -737,15 +737,15 @@
             "useAsThumbnail": {
                 "label": "Utiliser comme vignette"
             },
-            "useAsThumbnailActive": {
+            "useAsAnimatedThumbnail": {
                 "label": "Utiliser comme vignette active"
             },
             "useAs": {
                 "preview": "Aperçu",
                 "label": "Cette rendition est",
-                "original": "Original",
+                "main": "Principale",
                 "thumbnail": "Vignette",
-                "thumbnailActive": "Vignette active"
+                "animatedThumbnail": "Vignette active"
             },
             "buildMode": {
                 "label": "Mode de génération"
