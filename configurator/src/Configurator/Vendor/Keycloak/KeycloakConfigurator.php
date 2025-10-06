@@ -332,7 +332,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         $mainScopeName = 'groups';
         $this->keycloakManager->createScope($mainScopeName, [
             'type' => 'default',
-            'description' => 'OpenID Connect scope for add user groups to the access token',
+            'description' => 'OpenID Connect scope for adding user groups to the access token',
             'attributes' => [
                 'include.in.token.scope' => 'false',
             ],

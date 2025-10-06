@@ -132,7 +132,7 @@ final class KeycloakManager
     public function getClientScopeProtocolMapperByName(string $scopeId, string $protocolName): ?array
     {
         $scopeData = $this->getClientScope($scopeId);
-        $protocolMappers = $scopeData['protocolMappers'];
+        $protocolMappers = $scopeData['protocolMappers'] ?? [];
         foreach ($protocolMappers as $protocolMapper) {
             if ($protocolName === $protocolMapper['name']) {
                 return $protocolMapper;
