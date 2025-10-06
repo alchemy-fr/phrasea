@@ -39,7 +39,7 @@ export default function UseAsWidget({getValues, setValue}: Props) {
         <RSelectWidget
             label={t(
                 'form.rendition_definition.useAs.label',
-                'This rendition is'
+                'Rendition used for display'
             )}
             isMulti={true}
             onChange={newValue => {

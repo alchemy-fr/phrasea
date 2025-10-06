@@ -28,10 +28,14 @@ export default function AssetCollectionList({workspace, collections}: Props) {
     const rest = collections.length - (collectionsLimit - 1);
     const others =
         collectionsLimit > 1
-            ? t('asset.collection_list.others', `+ {{count}} others`, {
+            ? t('asset.collection_list.others', {
+                  defaultValue: `+ {{count}} other`,
+                  defaultValue_other: `+ {{count}} others`,
                   count: rest,
               })
-            : t('asset.collection_list.collections', `+ {{count}} collection`, {
+            : t('asset.collection_list.collections', {
+                  defaultValue: `+ {{count}} collection`,
+                  defaultValue_other: `+ {{count}} collections`,
                   count: rest,
               });
 
