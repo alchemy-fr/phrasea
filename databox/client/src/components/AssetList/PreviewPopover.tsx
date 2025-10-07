@@ -3,7 +3,10 @@ import {Asset} from '../../types';
 import {Box, Paper, Popper, Stack, useTheme} from '@mui/material';
 import FilePlayer from '../Media/Asset/FilePlayer';
 import {getRelativeViewHeight, getRelativeViewWidth} from '../../lib/style';
-import Attributes, {attributesSx} from '../Media/Asset/Attribute/Attributes';
+import Attributes, {
+    attributesClasses,
+    attributesSx,
+} from '../Media/Asset/Attribute/Attributes';
 import {DisplayContext} from '../Media/DisplayContext';
 import {ZIndex} from '../../themes/zIndex.ts';
 import {getMediaBackgroundColor} from '../../themes/base.ts';
@@ -43,6 +46,11 @@ export default function PreviewPopover({
         ? width * (1 - previewRatio)
         : width;
 
+    enum Classes {
+        Attributes = 'ppop-attrs',
+        File = 'ppop-file',
+    }
+
     return (
         <Popper
             keepMounted={true}
@@ -52,6 +60,10 @@ export default function PreviewPopover({
             sx={{
                 pointerEvents: !previewLocked ? 'none' : undefined,
                 zIndex,
+                [`&:not(:has(.${Classes.File})):not(:has(.${attributesClasses.container}))`]:
+                    {
+                        display: 'none',
+                    },
             }}
             modifiers={[
                 {
@@ -76,7 +88,7 @@ export default function PreviewPopover({
                 },
             ]}
         >
-            {asset && (
+            {asset ? (
                 <Paper
                     elevation={6}
                     sx={{
@@ -94,8 +106,9 @@ export default function PreviewPopover({
                             position: 'relative',
                         }}
                     >
-                        {previewOptions.displayFile && (
+                        {previewOptions.displayFile && asset.preview && (
                             <div
+                                className={Classes.File}
                                 style={{
                                     display: 'flex',
                                     justifyContent: 'center',
@@ -123,6 +136,7 @@ export default function PreviewPopover({
                         {displayAttributes &&
                             previewOptions.displayAttributes && (
                                 <Box
+                                    className={Classes.Attributes}
                                     sx={{
                                         'width': attributeWidth,
                                         'maxHeight': height - spacingInt * 2,
@@ -166,7 +180,7 @@ export default function PreviewPopover({
                         ) : null}
                     </Stack>
                 </Paper>
-            )}
+            ) : null}
         </Popper>
     );
 }

@@ -16,6 +16,7 @@ export const typeMap: Record<AttributeType, RawType> = {
     [AttributeType.Boolean]: RawType.Boolean,
     [AttributeType.Code]: RawType.String,
     [AttributeType.CollectionPath]: RawType.String,
+    [AttributeType.Story]: RawType.String,
     [AttributeType.Color]: RawType.String,
     [AttributeType.DateTime]: RawType.DateTime,
     [AttributeType.Date]: RawType.Date,

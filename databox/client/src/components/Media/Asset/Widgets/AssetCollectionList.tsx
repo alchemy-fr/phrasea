@@ -38,6 +38,7 @@ export default function AssetCollectionList({
                     asset={asset}
                     onOpen={onOpenAsset}
                     storyAsset={c.storyAsset}
+                    size={'small'}
                 />
             );
         }

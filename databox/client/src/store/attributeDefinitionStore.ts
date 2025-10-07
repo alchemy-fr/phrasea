@@ -124,8 +124,9 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                     entity.titleTranslated ?? entity.title ?? '',
                 searchable: true,
                 fieldType: AttributeType.CollectionPath,
-                name: t('built_in_attr.collection', 'Collection'),
-                getValueFromAsset: asset => asset.collections,
+                name: t('built_in_attr.collections', 'Collections'),
+                getValueFromAsset: asset =>
+                    asset.collections?.filter(c => !c.storyAsset) ?? [],
                 multiple: true,
             },
             {
@@ -174,7 +175,7 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 widget: {
                     component: NullableBooleanWidget,
                 },
-                getValueFromAsset: asset => asset.privacy,
+                getValueFromAsset: asset => !!asset.storyCollection,
             },
             {
                 slug: BuiltInField.Story,
@@ -182,9 +183,11 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 resolveLabel: (entity: Asset) =>
                     entity.resolvedTitle ?? entity.title ?? '',
                 searchable: true,
-                fieldType: AttributeType.Id,
-                name: t('built_in_attr.story', 'Story'),
+                fieldType: AttributeType.Story,
+                name: t('built_in_attr.stories', 'Stories'),
                 multiple: true,
+                getValueFromAsset: (asset: Asset) =>
+                    asset.collections?.filter(c => !!c.storyAsset) ?? [],
             },
             {
                 slug: BuiltInField.Tag,

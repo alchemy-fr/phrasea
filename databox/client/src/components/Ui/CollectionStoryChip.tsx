@@ -1,26 +1,31 @@
-import BurstModeIcon from '@mui/icons-material/BurstMode';
-import {Chip} from '@mui/material';
+import {Chip, ChipProps} from '@mui/material';
 import {Asset} from '../../types.ts';
 import {OnOpen} from '../AssetList/types.ts';
+import LayersIcon from '@mui/icons-material/Layers';
 
 type Props = {
-    asset: Asset;
+    asset?: Asset;
     storyAsset: Asset;
     onOpen?: OnOpen;
-};
+} & ChipProps;
 
 export default function CollectionStoryChip({
     asset,
     storyAsset,
     onOpen,
+    ...chipProps
 }: Props) {
     return (
         <Chip
-            onClick={() => onOpen?.(storyAsset, undefined, asset.id)}
-            size={'small'}
+            onClick={
+                asset && onOpen
+                    ? () => onOpen(storyAsset, undefined, asset!.id)
+                    : undefined
+            }
             color={'warning'}
-            icon={<BurstModeIcon />}
+            icon={<LayersIcon />}
             label={storyAsset?.resolvedTitle ?? storyAsset.title}
+            {...chipProps}
         />
     );
 }
