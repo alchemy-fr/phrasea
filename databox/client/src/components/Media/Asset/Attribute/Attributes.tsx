@@ -160,6 +160,7 @@ function Attributes({
             onDoubleClick={stopPropagation}
             onClick={stopPropagation}
             onMouseDown={stopPropagation}
+            className={attributesClasses.container}
         >
             {attributeItems.map(ai => {
                 if (ai.type === AttributeListItemType.Definition) {
@@ -227,6 +228,7 @@ function Attributes({
 export default React.memo(Attributes) as typeof Attributes;
 
 export const attributesClasses = {
+    container: 'attr-container',
     controls: 'attr-ctls',
     name: 'attr-name',
     val: 'attr-val',

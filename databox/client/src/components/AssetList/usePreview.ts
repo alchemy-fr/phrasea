@@ -33,7 +33,7 @@ export function usePreview(resettingValues: any[]) {
                 return;
             }
 
-            if (!asset.preview?.file || !d.displayPreview) {
+            if (!d.displayPreview) {
                 return;
             }
 

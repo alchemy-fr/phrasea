@@ -3,7 +3,7 @@ import {Asset} from '../../../types';
 import AssetFileIcon from './AssetFileIcon';
 import assetClasses from '../../AssetList/classes';
 import FilePlayer from './FilePlayer';
-import {Chip, Skeleton, SxProps} from '@mui/material';
+import {Chip, ChipProps, Skeleton, SxProps} from '@mui/material';
 import classNames from 'classnames';
 import {alpha, Theme} from '@mui/material/styles';
 import {videoPlayerSx} from './Players/VideoPlayer.tsx';
@@ -66,6 +66,35 @@ function AssetThumb({
 
     const displayAssetTypeChip = Boolean(thumb && assetFileIcon);
 
+    const chipProps: Pick<
+        ChipProps,
+        'onMouseOver' | 'onMouseLeave' | 'onClick'
+    > = {
+        onMouseOver: e =>
+            onPreviewToggle?.({
+                asset,
+                anchorEl: (e.target as HTMLElement).closest(
+                    `.${assetClasses.thumbWrapper}`
+                ) as HTMLElement,
+                display: true,
+            }),
+        onMouseLeave: () =>
+            onPreviewToggle?.({
+                asset,
+                display: false,
+            }),
+        onClick: e => {
+            onPreviewToggle?.({
+                asset,
+                anchorEl: (e.target as HTMLElement).closest(
+                    `.${assetClasses.thumbWrapper}`
+                ) as HTMLElement,
+                display: true,
+                lock: true,
+            });
+        },
+    };
+
     return (
         <div
             {...domAttrs}
@@ -117,36 +146,13 @@ function AssetThumb({
                             color={'info'}
                             icon={<LayersIcon />}
                             label={t('story.chip.label', 'Story')}
+                            {...chipProps}
                         />
                     ) : (
                         <Chip
-                            onMouseOver={e =>
-                                onPreviewToggle?.({
-                                    asset,
-                                    anchorEl: (e.target as HTMLElement).closest(
-                                        `.${assetClasses.thumbWrapper}`
-                                    ) as HTMLElement,
-                                    display: true,
-                                })
-                            }
-                            onMouseLeave={() =>
-                                onPreviewToggle?.({
-                                    asset,
-                                    display: false,
-                                })
-                            }
-                            onClick={e =>
-                                onPreviewToggle?.({
-                                    asset,
-                                    anchorEl: (e.target as HTMLElement).closest(
-                                        `.${assetClasses.thumbWrapper}`
-                                    ) as HTMLElement,
-                                    display: true,
-                                    lock: true,
-                                })
-                            }
                             color={'info'}
                             icon={<AssetTypeIcon mimeType={main!.file!.type} />}
+                            {...chipProps}
                         />
                     )}
                 </div>
