@@ -150,7 +150,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
 
         selectedAssets.forEach((a: Asset) => {
             wsId = a.workspace?.id;
-            if (a.original?.file?.url) {
+            if (a.main?.file?.url) {
                 canDownload = true;
             }
             if (

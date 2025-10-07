@@ -115,7 +115,7 @@ final class AssetPermissionComputer
             $cGroups = [];
 
             if ($bestPrivacyInParentHierarchy < WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS) {
-                if (null !== $collection->getOwnerId()) {
+                if (!$collection->isStory() && null !== $collection->getOwnerId()) {
                     $cUsers[] = $collection->getOwnerId();
                 }
 

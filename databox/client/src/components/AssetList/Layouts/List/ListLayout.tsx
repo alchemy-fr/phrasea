@@ -41,7 +41,9 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     itemToAsset,
     previewZIndex,
 }: LayoutProps<Item>) {
-    const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
+    const {previewAnchorEl, onPreviewToggle, onPreviewHide} = usePreview([
+        pages,
+    ]);
     const headersRef = React.useRef<HTMLDivElement | null>(null);
     const listRef = React.useRef<List | null>(null);
     const d = React.useContext(DisplayContext)!.state;
@@ -239,6 +241,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
             </AutoSizer>
 
             <PreviewPopover
+                onHide={onPreviewHide}
                 key={previewAnchorEl?.asset.id ?? 'none'}
                 asset={previewAnchorEl?.asset}
                 anchorEl={previewAnchorEl?.anchorEl}

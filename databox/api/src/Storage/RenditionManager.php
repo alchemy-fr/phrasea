@@ -69,7 +69,7 @@ final class RenditionManager
         bool $force = false,
         ?bool $projection = null,
     ): AssetRendition {
-        if (null === $asset->getSource() && $definition->isUseAsOriginal()) {
+        if (null === $asset->getSource() && $definition->isUseAsMain()) {
             $asset->setSource($file);
             $this->em->persist($asset);
         }

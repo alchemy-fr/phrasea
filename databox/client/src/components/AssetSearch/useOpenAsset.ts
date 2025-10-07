@@ -15,7 +15,7 @@ export function useOpenAsset({resultContext}: Props) {
     return useCallback<OnOpen>(
         (asset, renditionId, storyAssetId): void => {
             if (!renditionId) {
-                renditionId = asset.original?.id;
+                renditionId = asset.main?.id;
             }
 
             navigateToModal(
@@ -29,10 +29,7 @@ export function useOpenAsset({resultContext}: Props) {
                         storyAssetId,
                         assetsContext: resultContext?.pages
                             .flat()
-                            .map(a => [
-                                a.id,
-                                a.original?.id,
-                            ]) as AssetContextState,
+                            .map(a => [a.id, a.main?.id]) as AssetContextState,
                     },
                 }
             );

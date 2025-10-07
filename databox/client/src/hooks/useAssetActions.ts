@@ -29,15 +29,14 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
 }: Props<Item>) {
     const {openModal} = useModals();
     const navigateToModal = useNavigateToModal();
-    const {id, original, capabilities} = asset;
+    const {id, main, capabilities} = asset;
 
     return useMemo(
         () => ({
             can: {
-                open:
-                    actionsContext.open && (original || asset.storyCollection),
+                open: actionsContext.open && (main || asset.storyCollection),
                 saveAs: actionsContext.saveAs && asset.source,
-                download: actionsContext.export && original?.file?.url,
+                download: actionsContext.export && main?.file?.url,
                 edit: actionsContext.edit && capabilities.canEdit,
                 editAttributes:
                     actionsContext.edit && capabilities.canEditAttributes,
@@ -66,7 +65,7 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
             },
             onOpen: (renditionId?: string) => {
                 if (!renditionId) {
-                    renditionId = asset.original?.id;
+                    renditionId = asset.main?.id;
                 }
                 navigateToModal(modalRoutes.assets.routes.view, {
                     id: asset.id,

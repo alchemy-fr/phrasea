@@ -3,27 +3,35 @@ import {Asset} from '../../types';
 import {Box, Paper, Popper, Stack, useTheme} from '@mui/material';
 import FilePlayer from '../Media/Asset/FilePlayer';
 import {getRelativeViewHeight, getRelativeViewWidth} from '../../lib/style';
-import Attributes, {attributesSx} from '../Media/Asset/Attribute/Attributes';
+import Attributes, {
+    attributesClasses,
+    attributesSx,
+} from '../Media/Asset/Attribute/Attributes';
 import {DisplayContext} from '../Media/DisplayContext';
 import {ZIndex} from '../../themes/zIndex.ts';
 import {getMediaBackgroundColor} from '../../themes/base.ts';
 import {collectionListSx} from '../Media/Asset/Widgets/AssetCollectionList.tsx';
+import IconButton from '@mui/material/IconButton';
+import LockIcon from '@mui/icons-material/Lock';
 
 type Props = {
     anchorEl: HTMLElement | undefined;
     asset: Asset | undefined;
     displayAttributes: boolean;
     zIndex: number | undefined;
+    onHide: () => void;
 };
 
 export default function PreviewPopover({
     asset,
+    onHide,
     anchorEl,
     displayAttributes,
     zIndex = ZIndex.assetPreview,
 }: Props) {
     const {
         state: {previewLocked, previewOptions},
+        setState,
     } = useContext(DisplayContext)!;
     const relativeSize = previewOptions.sizeRatio;
     const width = getRelativeViewWidth(relativeSize);
@@ -38,6 +46,11 @@ export default function PreviewPopover({
         ? width * (1 - previewRatio)
         : width;
 
+    enum Classes {
+        Attributes = 'ppop-attrs',
+        File = 'ppop-file',
+    }
+
     return (
         <Popper
             keepMounted={true}
@@ -47,6 +60,10 @@ export default function PreviewPopover({
             sx={{
                 pointerEvents: !previewLocked ? 'none' : undefined,
                 zIndex,
+                [`&:not(:has(.${Classes.File})):not(:has(.${attributesClasses.container}))`]:
+                    {
+                        display: 'none',
+                    },
             }}
             modifiers={[
                 {
@@ -71,7 +88,7 @@ export default function PreviewPopover({
                 },
             ]}
         >
-            {asset && (
+            {asset ? (
                 <Paper
                     elevation={6}
                     sx={{
@@ -86,10 +103,12 @@ export default function PreviewPopover({
                         direction={'row'}
                         style={{
                             maxHeight: height - spacingInt,
+                            position: 'relative',
                         }}
                     >
-                        {previewOptions.displayFile && (
+                        {previewOptions.displayFile && asset.preview && (
                             <div
+                                className={Classes.File}
                                 style={{
                                     display: 'flex',
                                     justifyContent: 'center',
@@ -117,6 +136,7 @@ export default function PreviewPopover({
                         {displayAttributes &&
                             previewOptions.displayAttributes && (
                                 <Box
+                                    className={Classes.Attributes}
                                     sx={{
                                         'width': attributeWidth,
                                         'maxHeight': height - spacingInt * 2,
@@ -138,9 +158,29 @@ export default function PreviewPopover({
                                     />
                                 </Box>
                             )}
+                        {previewLocked ? (
+                            <IconButton
+                                sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    right: 0,
+                                    zIndex: 1,
+                                    color: theme.palette.error.main,
+                                }}
+                                onClick={() => {
+                                    setState(p => ({
+                                        ...p,
+                                        previewLocked: false,
+                                    }));
+                                    onHide();
+                                }}
+                            >
+                                <LockIcon fontSize={'small'} />
+                            </IconButton>
+                        ) : null}
                     </Stack>
                 </Paper>
-            )}
+            ) : null}
         </Popper>
     );
 }

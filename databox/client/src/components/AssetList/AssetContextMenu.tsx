@@ -39,7 +39,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
 }: Props<Item>) {
     const {t} = useTranslation();
     const {asset, item} = contextMenu.data;
-    const {id, original} = asset;
+    const {id, main} = asset;
 
     const {
         onDelete,
@@ -90,8 +90,8 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
             ) : (
                 ''
             )}
-            {original?.file?.alternateUrls &&
-                original.file.alternateUrls.map(a => (
+            {main?.file?.alternateUrls &&
+                main.file.alternateUrls.map(a => (
                     <MenuItem key={a.type} onClick={() => openUrl(a.url)}>
                         <ListItemIcon>
                             <LinkIcon />

@@ -28,12 +28,12 @@ App\Entity\Core\RenditionPolicy:
     public: false
 
 App\Entity\Core\RenditionDefinition:
-  m_rd_original:
-    name: original
+  m_rd_main:
+    name: main
     workspace: '@w_marketplace'
     policy: '@m_rc_public'
     buildMode: 1
-    useAsOriginal: true
+    useAsMain: true
   m_rd_preview:
     name: preview
     workspace: '@w_marketplace'
@@ -44,8 +44,8 @@ App\Entity\Core\RenditionDefinition:
     workspace: '@w_marketplace'
     policy: '@m_rc_public'
     useAsThumbnail: true
-  m_rd_thumbnailActive:
-    name: thumbnailActive
+  m_rd_animatedThumbnail:
+    name: animatedThumbnail
     workspace: '@w_marketplace'
     policy: '@m_rc_public'
-    useAsThumbnailActive: true
+    useAsAnimatedThumbnail: true

@@ -3,38 +3,42 @@ import {Asset} from '../../../types';
 import AssetFileIcon from './AssetFileIcon';
 import assetClasses from '../../AssetList/classes';
 import FilePlayer from './FilePlayer';
-import {Chip, Skeleton, SxProps} from '@mui/material';
+import {Chip, ChipProps, Skeleton, SxProps} from '@mui/material';
 import classNames from 'classnames';
 import {alpha, Theme} from '@mui/material/styles';
 import {videoPlayerSx} from './Players/VideoPlayer.tsx';
 import StoryThumb, {createStorySx} from './StoryThumb.tsx';
-import BurstModeIcon from '@mui/icons-material/BurstMode';
 import {useTranslation} from 'react-i18next';
 import AssetTypeIcon from './AssetTypeIcon.tsx';
 import LayersIcon from '@mui/icons-material/Layers';
+import {OnPreviewToggle} from '../../AssetList/types.ts';
 
 type Props = {
     asset: Asset;
     noStoryCarousel?: boolean;
+    onPreviewToggle?: OnPreviewToggle;
 } & HTMLAttributes<HTMLDivElement>;
 
 function AssetThumb({
-    asset: {
+    asset,
+    noStoryCarousel,
+    onPreviewToggle,
+    ...domAttrs
+}: Props) {
+    const {t} = useTranslation();
+    const {
         id,
         resolvedTitle,
         pendingSourceFile,
         thumbnail,
-        thumbnailActive,
-        original,
+        animatedThumbnail,
+        main,
         storyCollection,
-    },
-    noStoryCarousel,
-    ...domAttrs
-}: Props) {
-    const {t} = useTranslation();
+    } = asset;
+
     let thumb: ReactNode | undefined;
-    const assetFileIcon = original?.file ? (
-        <AssetFileIcon mimeType={original.file.type} />
+    const assetFileIcon = main?.file ? (
+        <AssetFileIcon mimeType={main.file.type} />
     ) : undefined;
 
     if (pendingSourceFile) {
@@ -56,12 +60,40 @@ function AssetThumb({
                 autoPlayable={false}
             />
         );
-    } else if (original?.file) {
+    } else if (main?.file) {
         thumb = assetFileIcon;
     }
 
-    const displayAssetTypeChip =
-        thumb && assetFileIcon && assetFileIcon !== thumb;
+    const displayAssetTypeChip = Boolean(thumb && assetFileIcon);
+
+    const chipProps: Pick<
+        ChipProps,
+        'onMouseOver' | 'onMouseLeave' | 'onClick'
+    > = {
+        onMouseOver: e =>
+            onPreviewToggle?.({
+                asset,
+                anchorEl: (e.target as HTMLElement).closest(
+                    `.${assetClasses.thumbWrapper}`
+                ) as HTMLElement,
+                display: true,
+            }),
+        onMouseLeave: () =>
+            onPreviewToggle?.({
+                asset,
+                display: false,
+            }),
+        onClick: e => {
+            onPreviewToggle?.({
+                asset,
+                anchorEl: (e.target as HTMLElement).closest(
+                    `.${assetClasses.thumbWrapper}`
+                ) as HTMLElement,
+                display: true,
+                lock: true,
+            });
+        },
+    };
 
     return (
         <div
@@ -79,7 +111,7 @@ function AssetThumb({
             {thumb || storyCollection ? (
                 <div
                     className={classNames({
-                        [assetClasses.thumbInactive]: thumbnailActive,
+                        [assetClasses.thumbInactive]: animatedThumbnail,
                         [assetClasses.storyShouldHide]:
                             !noStoryCarousel && !!storyCollection,
                     })}
@@ -94,13 +126,15 @@ function AssetThumb({
                 ''
             )}
             {!pendingSourceFile &&
-                thumbnailActive?.file &&
+                animatedThumbnail?.file &&
                 (!storyCollection || noStoryCarousel) && (
-                    <div className={assetClasses.thumbActive}>
+                    <div className={assetClasses.animatedThumb}>
                         <FilePlayer
-                            file={thumbnailActive.file}
+                            file={animatedThumbnail.file}
                             title={resolvedTitle}
-                            autoPlayable={false}
+                            autoPlayable={true}
+                            controls={false}
+                            noInteraction={true}
                         />
                     </div>
                 )}
@@ -110,17 +144,15 @@ function AssetThumb({
                     {storyCollection ? (
                         <Chip
                             color={'info'}
-                            icon={<BurstModeIcon />}
+                            icon={<LayersIcon />}
                             label={t('story.chip.label', 'Story')}
+                            {...chipProps}
                         />
                     ) : (
                         <Chip
                             color={'info'}
-                            icon={
-                                <AssetTypeIcon
-                                    mimeType={original!.file!.type}
-                                />
-                            }
+                            icon={<AssetTypeIcon mimeType={main!.file!.type} />}
+                            {...chipProps}
                         />
                     )}
                 </div>
@@ -131,13 +163,13 @@ function AssetThumb({
 
 export default React.memo(AssetThumb);
 
-export function createThumbActiveStyle(): SxProps {
+export function createAnimatedThumbStyle(): SxProps {
     return {
-        [`.${assetClasses.thumbActive}`]: {
+        [`.${assetClasses.animatedThumb}`]: {
             display: 'none',
         },
         '&:hover': {
-            [`.${assetClasses.thumbActive}`]: {
+            [`.${assetClasses.animatedThumb}`]: {
                 display: 'contents',
             },
             [`.${assetClasses.thumbInactive}`]: {
@@ -187,7 +219,7 @@ export const thumbSx = (
                 },
             },
 
-            ...createThumbActiveStyle(),
+            ...createAnimatedThumbStyle(),
             ...createStorySx(thumbSize, theme),
             ...videoPlayerSx(thumbSize, theme),
             ...overridden,

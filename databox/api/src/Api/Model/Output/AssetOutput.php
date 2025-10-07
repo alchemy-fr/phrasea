@@ -112,7 +112,7 @@ class AssetOutput extends AbstractUuidOutput
     private ?File $source = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
-    private ?AssetRendition $original = null;
+    private ?AssetRendition $main = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $preview = null;
@@ -121,7 +121,7 @@ class AssetOutput extends AbstractUuidOutput
     private ?AssetRendition $thumbnail = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
-    private ?AssetRendition $thumbnailActive = null;
+    private ?AssetRendition $animatedThumbnail = null;
 
     #[Groups(['dates'])]
     private \DateTimeImmutable $editedAt;
@@ -138,14 +138,14 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups(['_'])]
     private ?GroupValue $groupValue = null;
 
-    public function getOriginal(): ?AssetRendition
+    public function getMain(): ?AssetRendition
     {
-        return $this->original;
+        return $this->main;
     }
 
-    public function setOriginal(?AssetRendition $original): void
+    public function setMain(?AssetRendition $main): void
     {
-        $this->original = $original;
+        $this->main = $main;
     }
 
     public function getPreview(): ?AssetRendition
@@ -168,14 +168,14 @@ class AssetOutput extends AbstractUuidOutput
         $this->thumbnail = $thumbnail;
     }
 
-    public function getThumbnailActive(): ?AssetRendition
+    public function getAnimatedThumbnail(): ?AssetRendition
     {
-        return $this->thumbnailActive;
+        return $this->animatedThumbnail;
     }
 
-    public function setThumbnailActive(?AssetRendition $thumbnailActive): void
+    public function setAnimatedThumbnail(?AssetRendition $animatedThumbnail): void
     {
-        $this->thumbnailActive = $thumbnailActive;
+        $this->animatedThumbnail = $animatedThumbnail;
     }
 
     public function getTitle(): ?string

@@ -588,7 +588,7 @@
             "pickSourceFile": {
                 "label": "Seleccionar archivo fuente"
             },
-            "useAsOriginal": {
+            "useAsMain": {
                 "label": "Usar como original"
             },
             "useAsPreview": {
@@ -597,7 +597,7 @@
             "useAsThumbnail": {
                 "label": "Usar como miniatura"
             },
-            "useAsThumbnailActive": {
+            "useAsAnimatedThumbnail": {
                 "label": "Usar como miniatura activa"
             }
         },

@@ -8,10 +8,11 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Tag;
+use App\Model\AssetTypeEnum;
 use App\Repository\Core\TagRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-final readonly class AttributeDataExporter
+final readonly class AttributeDataImporter
 {
     final public const string BUILT_IN_ATTRIBUTE_PREFIX = 'databox_';
 
@@ -44,7 +45,12 @@ final readonly class AttributeDataExporter
                         }
                         break;
                     case 'title':
-                        if (is_string($value)) {
+                        if (is_string($value) && !$asset->isStory()) {
+                            $asset->setTitle($value);
+                        }
+                        break;
+                    case 'story_title':
+                        if (is_string($value) && $asset->isStory()) {
                             $asset->setTitle($value);
                         }
                         break;
@@ -64,6 +70,10 @@ final readonly class AttributeDataExporter
             ]);
 
             if (!$attributeDefinition instanceof AttributeDefinition) {
+                continue;
+            }
+
+            if (!$attributeDefinition->isForTarget($asset->isStory() ? AssetTypeEnum::Story : AssetTypeEnum::Asset)) {
                 continue;
             }
 

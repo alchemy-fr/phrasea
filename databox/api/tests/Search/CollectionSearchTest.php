@@ -193,6 +193,7 @@ class CollectionSearchTest extends AbstractSearchTest
             'title' => 'Foo',
             'ownerId' => KeycloakClientTestMock::USER_UID,
         ]);
+        $this->addUserOnWorkspace(KeycloakClientTestMock::USER_UID, $this->defaultWorkspace->getId());
 
         self::releaseIndex();
 
@@ -206,6 +207,25 @@ class CollectionSearchTest extends AbstractSearchTest
         $this->assertCount(1, $data);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
+    }
+
+    public function testSearchOwnedCollectionsAsOwnerButNotAllowedToWorkspace(): void
+    {
+        $asset = $this->createCollection([
+            'title' => 'Foo',
+            'ownerId' => KeycloakClientTestMock::USER_UID,
+        ]);
+
+        self::releaseIndex();
+
+        $response = $this->request(
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            'GET',
+            '/collections'
+        );
+
+        $data = $this->getDataFromResponse($response, 200);
+        $this->assertCount(0, $data);
     }
 
     public function testSearchNonOwnedCollectionsAsOwner(): void
@@ -233,6 +253,8 @@ class CollectionSearchTest extends AbstractSearchTest
             'title' => 'Foo',
             'ownerId' => 'another_owner',
         ]);
+        $this->addUserOnWorkspace(KeycloakClientTestMock::USER_UID, $this->defaultWorkspace->getId());
+
         self::releaseIndex();
 
         $this->grantUserOnObject(
@@ -261,6 +283,7 @@ class CollectionSearchTest extends AbstractSearchTest
             'title' => 'Foo',
             'ownerId' => 'another_owner',
         ]);
+        $this->addUserOnWorkspace(KeycloakClientTestMock::USER_UID, $this->defaultWorkspace->getId());
         self::releaseIndex();
 
         self::getPermissionManager()->updateOrCreateAce(
