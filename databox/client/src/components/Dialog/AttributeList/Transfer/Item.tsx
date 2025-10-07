@@ -39,8 +39,15 @@ export default function Item({
 
     const getLabel = () => {
         if (data.type === AttributeListItemType.Definition) {
+            if (!def) {
+                return;
+            }
+
             return <AttributeDefinitionLabel data={def!} />;
         } else if (data.type === AttributeListItemType.BuiltIn) {
+            if (!def) {
+                return;
+            }
             return <AttributeDefinitionLabel data={def!} />;
         } else {
             return getItemLabel(data, definitionsIndex);
@@ -54,6 +61,11 @@ export default function Item({
         icon = <HorizontalRuleIcon />;
     }
 
+    const label = getLabel();
+    if (!label) {
+        return null;
+    }
+
     return (
         <ListItemButton
             role="listitem"
@@ -61,7 +73,7 @@ export default function Item({
             selected={selectedItem === data.id}
         >
             {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
-            <ListItemText id={labelId} primary={getLabel()} />
+            <ListItemText id={labelId} primary={label} />
             <ListItemSecondaryAction>
                 <IconButton
                     onMouseDown={stopPropagation}
