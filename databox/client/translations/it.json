@@ -29,18 +29,14 @@
         },
         "collection_list": {
             "collections_one": "Collection",
-            "collections_many": "",
-            "collections_other": "",
-            "collections_plural": "Collections",
+            "collections_other": "Collections",
             "others_one": "Altri",
-            "others_many": "",
-            "others_other": "",
-            "others_plural": "Altri"
+            "others_other": "Altri"
         },
         "delete": {
             "confirm": {
                 "message": "Sei sicuro di voler eliminare questo Asset?",
-                "message_many_plural": "Sei sicuro di voler eliminare questi Asset?",
+                "message_other": "Sei sicuro di voler eliminare questi Asset?",
                 "title": "Conferma eliminazione"
             }
         },
@@ -87,13 +83,9 @@
         },
         "tag_list": {
             "others_one": "Altri",
-            "others_many": "",
-            "others_other": "",
-            "others_plural": "Altri",
+            "others_other": "Altri",
             "tags_one": "Tag",
-            "tags_many": "",
-            "tags_other": "",
-            "tags_plural": "Tag"
+            "tags_other": "Tag"
         },
         "view": {
             "attributes": "Attributi"
@@ -193,7 +185,6 @@
     },
     "attributes": {
         "values_one": "Valori",
-        "values_many": "",
         "values_other": ""
     },
     "attributes_editor_form": {
@@ -330,9 +321,7 @@
             "intro": "Copia Asset",
             "submit": "Copia",
             "title_one": "Copia Asset",
-            "title_many": "",
-            "title_other": "",
-            "title_plural": "Copia Asset"
+            "title_other": "Copia Asset"
         },
         "form": {
             "by_reference": {
@@ -761,9 +750,7 @@
             "intro": "Sposta Asset",
             "submit": "Sposta",
             "title_one": "Sposta Asset",
-            "title_many": "",
-            "title_other": "",
-            "title_plural": "Sposta Asset"
+            "title_other": "Sposta Asset"
         }
     },
     "move_assets_dialog": {

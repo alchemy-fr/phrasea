@@ -46,6 +46,13 @@
             "confirm": "Are you sure you want to delete this shape?"
         }
     },
+    "aql": {
+        "constant": {
+            "no": "No",
+            "null": "Null",
+            "yes": "Yes"
+        }
+    },
     "asset": {
         "actions": {
             "copy": "Copy",
@@ -141,6 +148,7 @@
             "tags_other": "+ {{count}} tags"
         },
         "view": {
+            "appears_in": "Appears in",
             "attributes": "Attributes",
             "discussion": "Discussion",
             "info": "Information"
@@ -185,6 +193,15 @@
         "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> asset",
         "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> assets"
     },
+    "asset_type": {
+        "choice": {
+            "asset": "Assets",
+            "asset_only": "Assets only",
+            "both": "Both",
+            "story": "Stories",
+            "story_only": "Stories only"
+        }
+    },
     "asset_version": {
         "delete": "Delete Version"
     },
@@ -223,6 +240,10 @@
         }
     },
     "attribute_definitions": {
+        "filter": {
+            "asset_type": "Filter by Asset Type",
+            "type": "Filter by Type"
+        },
         "new": {
             "label": "New attribute"
         }
@@ -384,10 +405,12 @@
         "fileType": "File Type",
         "filename": "File Name",
         "id": "ID",
+        "isStory": "Is Story",
         "owner": "Owner",
         "privacy": "Privacy",
         "rendition": "Rendition",
         "score": "Score",
+        "story": "Story",
         "tag": "Tag",
         "workspace": "Workspace"
     },
@@ -619,6 +642,16 @@
         "mustache": "Mustache",
         "smiling": "Smiling"
     },
+    "facet": {
+        "boolean": {
+            "false": {
+                "label": "No ({{n}})"
+            },
+            "true": {
+                "label": "Yes ({{n}})"
+            }
+        }
+    },
     "facets": {
         "missing_with_total": "Missing ({{total}})"
     },
@@ -697,6 +730,9 @@
         "attribute_definition": {
             "allowInvalid": {
                 "label": "Allow invalid values"
+            },
+            "asset_type": {
+                "label": "Asset Type Target"
             },
             "editable": {
                 "label": "Editable"
@@ -929,6 +965,9 @@
             "substitutable": {
                 "label": "Substitutable"
             },
+            "target": {
+                "label": "Asset Type Target"
+            },
             "useAs": {
                 "label": "Rendition used for display",
                 "original": "Original",
@@ -978,6 +1017,9 @@
             },
             "files_to_upload_one": "<strong>{{count}}</strong> file to upload",
             "files_to_upload_other": "<strong>{{count}}</strong> files to upload",
+            "isStory": {
+                "label": "Story"
+            },
             "quiet": {
                 "label": "Quiet (no notification, no webhook)"
             },
@@ -1245,6 +1287,9 @@
         }
     },
     "rendition_definitions": {
+        "filter": {
+            "asset_type": "Filter by Asset Type"
+        },
         "new": {
             "label": "New rendition"
         }
@@ -1458,6 +1503,11 @@
     "sort_by_row": {
         "ascendant": "Ascendant",
         "descendant": "Descendant"
+    },
+    "story": {
+        "chip": {
+            "label": "Story"
+        }
     },
     "tag_rules": {
         "edit_this_rule": "Edit this rule",

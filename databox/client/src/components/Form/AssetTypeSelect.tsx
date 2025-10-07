@@ -17,11 +17,11 @@ export default function AssetTypeSelect<TFieldValues extends FieldValues>({
     const options = useMemo(
         () => [
             {
-                label: t('asset_type.choice.asset', 'Assets only'),
+                label: t('asset_type.choice.asset_only', 'Assets only'),
                 value: AssetType.Asset.toString(),
             },
             {
-                label: t('asset_type.choice.story', 'Stories only'),
+                label: t('asset_type.choice.story_only', 'Stories only'),
                 value: AssetType.Story.toString(),
             },
             {

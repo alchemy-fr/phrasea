@@ -50,7 +50,6 @@
     "asset": {
         "delete": {
             "confirm": {
-                "message_many_plural": "Möchten Sie {{count}} Assets wirklich löschen?",
                 "message_one": "Möchten Sie dieses Asset wirklich löschen?",
                 "message_other": "Möchten Sie diese Assets wirklich löschen?",
                 "title": "Löschen bestätigen",
