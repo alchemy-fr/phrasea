@@ -25,11 +25,11 @@ function BooleanItem({
                     labelValue.value
                         ? t('facet.boolean.true.label', {
                               n: count,
-                              defaultValue: `True ({{n}})`,
+                              defaultValue: `Yes ({{n}})`,
                           })
                         : t('facet.boolean.false.label', {
                               n: count,
-                              defaultValue: `False ({{n}})`,
+                              defaultValue: `No ({{n}})`,
                           })
                 }
             />

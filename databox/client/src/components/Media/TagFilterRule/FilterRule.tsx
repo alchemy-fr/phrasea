@@ -175,7 +175,7 @@ export default function FilterRule({
                                 <FormHelperText>
                                     {t(
                                         'filter_rule.include.helper',
-                                        `Assets in this {{type}} will only be visible if they contains theses tags.`,
+                                        `Assets in this {{type}} will only be visible if they contain these tags.`,
                                         {
                                             type,
                                         }
@@ -206,7 +206,7 @@ export default function FilterRule({
                                 <FormHelperText>
                                     {t(
                                         'filter_rule.exclude.helper',
-                                        `Assets in this {{type}} will only be visible if they DOES NOT contains theses tags.`,
+                                        `Assets in this {{type}} will only be visible if they DOES NOT contain these tags.`,
                                         {
                                             type,
                                         }

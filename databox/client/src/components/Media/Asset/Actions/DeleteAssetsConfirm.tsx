@@ -127,13 +127,13 @@ export default function DeleteAssetsConfirm({
                 </>
             ) : (
                 <>
-                    {t(
-                        'asset.delete.confirm_message',
-                        'Are you sure you want to delete {{count}} assets?',
-                        {
-                            count,
-                        }
-                    )}
+                    {t('asset.delete.confirm_message', {
+                        defaultValue:
+                            'Are you sure you want to delete this asset?',
+                        defaultValue_other:
+                            'Are you sure you want to delete {{count}} assets?',
+                        count,
+                    })}
                 </>
             )}
             {data.shareCount > 0 ? (
