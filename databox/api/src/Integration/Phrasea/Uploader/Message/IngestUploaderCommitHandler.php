@@ -5,7 +5,7 @@ namespace App\Integration\Phrasea\Uploader\Message;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Asset\AssetManager;
-use App\Attribute\AttributeDataExporter;
+use App\Attribute\AttributeDataImporter;
 use App\Border\UploaderClient;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
@@ -26,6 +26,7 @@ final readonly class IngestUploaderCommitHandler
         private WorkflowOrchestrator $workflowOrchestrator,
         private AssetManager $assetManager,
         private EntityManagerInterface $em,
+        private AttributeDataImporter $attributeDataImporter,
     ) {
     }
 
@@ -41,9 +42,10 @@ final readonly class IngestUploaderCommitHandler
         );
 
         $formData = $commit['formData'] ?? [];
+        $formLocale = $commit['formLocale'] ?? null;
         $storyAsset = null;
-        if ($formData[AttributeDataExporter::BUILT_IN_ATTRIBUTE_PREFIX.'is_story'] ?? false) {
-            $storyAsset = $this->createStory($commit['userId'], $formData, $config);
+        if ($formData[AttributeDataImporter::BUILT_IN_ATTRIBUTE_PREFIX.'is_story'] ?? false) {
+            $storyAsset = $this->createStory($commit['userId'], $formData, $formLocale, $config);
         }
 
         $userId = $commit['userId'];
@@ -60,7 +62,7 @@ final readonly class IngestUploaderCommitHandler
         }
     }
 
-    private function createStory(string $userId, array $formData, IntegrationConfig $config): Asset
+    private function createStory(string $userId, array $formData, ?string $formLocale, IntegrationConfig $config): Asset
     {
         $workspace = null;
         if (null !== $config->getWorkspaceId()) {
@@ -90,6 +92,11 @@ final readonly class IngestUploaderCommitHandler
             $storyAsset->addToCollection($collection);
         }
         $this->assetManager->turnIntoStory($storyAsset);
+
+        if (!empty($formData)) {
+            $this->attributeDataImporter->importAttributes($storyAsset, $formData, $formLocale);
+        }
+
         $this->em->persist($storyAsset);
         $this->em->flush();
 
