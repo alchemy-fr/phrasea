@@ -7,7 +7,7 @@ set -e
 
 echo "# Resetting DB with fixtures..."
 
-export PHP_MEMORY_LIMIT=1G
+export DEV_PHP_MEMORY_LIMIT=2G
 
 docker compose run --rm databox-api-php /bin/ash -c 'bin/console doctrine:database:drop --force \
 && bin/console doctrine:database:create \

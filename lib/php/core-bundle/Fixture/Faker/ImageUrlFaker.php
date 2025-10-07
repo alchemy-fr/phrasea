@@ -10,8 +10,18 @@ class ImageUrlFaker extends AbstractCachedFaker
         string $workspaceId,
         string $lock,
         int $size = 1000,
-        $theme = 'landscape',
+        bool $plusOne = false,
+        ?string $theme = null,
     ): string {
+        if (!preg_match('#(\d+)$#', $lock, $matches)) {
+            throw new \InvalidArgumentException(sprintf('Lock must ends with a number, got "%s"', $lock));
+        }
+
+        $lockNumber = $matches[1];
+        if ($plusOne) {
+            ++$lockNumber;
+        }
+
         $ratios = [
             16 / 9,
             1,
@@ -19,7 +29,7 @@ class ImageUrlFaker extends AbstractCachedFaker
             3 / 4,
             9 / 16,
         ];
-        $ratio = $ratios[(int) $lock % count($ratios)];
+        $ratio = $ratios[$lockNumber % count($ratios)];
 
         if ($ratio >= 1) {
             $width = $size;
@@ -31,19 +41,22 @@ class ImageUrlFaker extends AbstractCachedFaker
         $width = round($width);
         $height = round($height);
 
-        $baseUrl = 'https://loremflickr.com';
+        $baseUrl = 'https://picsum.photos';
 
-        $url = sprintf($baseUrl.'/%s/%s/%s?lock=%s',
+        $url = sprintf($baseUrl.'/seed/%s/%s/%s.jpg',
+            $lockNumber,
             $width,
             $height,
-            $theme,
-            $lock
         );
         $extension = 'jpg';
 
+        if ($size <= 0) {
+            throw new \InvalidArgumentException(sprintf('Size must be greater than 0, got %d', $size));
+        }
+
         return $this->download(
             $workspaceId,
-            sprintf('%s-%s-%s-%s', $theme, $lock, $width, $height),
+            sprintf('%s-%s-%s-%s', $theme ?? 'default', $lockNumber, $width, $height),
             $extension,
             $url
         );
