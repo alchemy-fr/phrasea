@@ -77,10 +77,7 @@ export default function ShareSocials(props: Props) {
                     <FacebookIcon size={iconSize} round />
                 </FacebookShareButton>
                 <TwitterShareButton
-                    htmlTitle={t(
-                        'share.socials.twitter.title',
-                        'Share on Twitter'
-                    )}
+                    htmlTitle={t('share.socials.x.title', 'Share on X')}
                     url={url}
                     title={title}
                 >

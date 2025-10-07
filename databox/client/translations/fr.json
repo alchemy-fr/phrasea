@@ -64,10 +64,8 @@
         },
         "delete": {
             "confirm": {
-                "message_one": "Êtes-vous sûr de vouloir supprimer cet Asset ?",
-                "message_many": "Êtes-vous sûr de vouloir supprimer {{count}} Asset ?",
-                "message_other": "",
-                "message_many_plural": "Êtes-vous sûr de vouloir supprimer {{count}} Assets ?",
+                "message_one": "Êtes-vous sûr de vouloir supprimer cet asset ?",
+                "message_other": "Êtes-vous sûr de vouloir supprimer {{count}} assets ?",
                 "title": "Confirmer la suppression"
             }
         },
@@ -146,10 +144,8 @@
     "asset_selection": {
         "item": "élément",
         "x_item_one": "<strong>{{count}}</strong> asset",
-        "x_item_many": "<strong>{{total}}</strong> assets",
         "x_item_other": "<strong>{{total}}</strong> assets",
         "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> asset",
-        "x_item_with_selection_many": "<strong>{{selection}} / {{total}}</strong> assetq",
         "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> assets"
     },
     "attribute": {
@@ -231,7 +227,6 @@
     },
     "attributes": {
         "values_one": "{{count}} valeur",
-        "values_many": "{{count}} valeurs",
         "values_other": "{{count}} valeurs"
     },
     "attributes_editor_form": {
@@ -302,10 +297,8 @@
         "item": "élément",
         "remove_from_basket": "Retirer du panier",
         "x_item_one": "<strong>{{count}}</strong> élément",
-        "x_item_many": "<strong>{{count}}</strong> élément",
         "x_item_other": "<strong>{{count}}</strong> éléments",
         "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> élément",
-        "x_item_with_selection_many": "<strong>{{selection}} / {{total}}</strong> éléments",
         "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> éléments"
     },
     "change_theme": {
@@ -397,9 +390,7 @@
             "intro": "Où voulez-vous dupliquer les assets sélectionnés ?",
             "submit": "Dupliquer",
             "title_one": "Dupliquer {{count}} asset",
-            "title_many": "Dupliquer {{count}} assets",
-            "title_other": "Dupliquer {{count}} assets",
-            "title_plural": "Dupliquer {{count}} Assets"
+            "title_other": "Dupliquer {{count}} assets"
         },
         "form": {
             "by_reference": {
@@ -475,9 +466,7 @@
             "intro": "Sélectionnez les renditions que vous voulez exporter :",
             "submit": "Exporter",
             "title_one": "Exporter {{count}} asset",
-            "title_many": "Exporter {{count}} assets",
-            "title_other": "Exporter {{count}} assets",
-            "title_plural": "Exporter {{count}} Assets"
+            "title_other": "Exporter {{count}} assets"
         }
     },
     "expose_basket_integration": {
@@ -742,10 +731,10 @@
             },
             "useAs": {
                 "preview": "Aperçu",
-                "label": "Cette rendition est",
-                "original": "Original",
+                "label": "Rendition utilisée pour l'affichage",
+                "original": "Principal",
                 "thumbnail": "Vignette",
-                "thumbnailActive": "Vignette active"
+                "thumbnailActive": "Vignette animée"
             },
             "buildMode": {
                 "label": "Mode de génération"
@@ -783,7 +772,6 @@
                 "label": "Ne pas déclencher de notification ou de webhook"
             },
             "files_to_upload_one": "<strong>{{count}}</strong> fichier à importer",
-            "files_to_upload_many": "<strong>{{count}}</strong> fichiers à importer",
             "files_to_upload_other": "<strong>{{count}}</strong> fichiers à importer",
             "reset": "Réinitialiser"
         },
@@ -1037,9 +1025,7 @@
             "intro": "Où voulez-vous déplacer les assets sélectionnés ?",
             "submit": "Déplacer",
             "title_one": "Déplacer {{count}} asset",
-            "title_many": "Déplacer {{count}} assets",
-            "title_other": "Déplacer {{count}} assets",
-            "title_plural": "Déplacer {{count}} Assets"
+            "title_other": "Déplacer {{count}} assets"
         }
     },
     "move_assets_dialog": {
@@ -1150,10 +1136,8 @@
         "result": "résultat",
         "s": "s",
         "x_result_one": "<strong>{{count}}</strong> résultat",
-        "x_result_many": "<strong>{{count}}</strong> résultats",
         "x_result_other": "<strong>{{count}}</strong> résultats",
         "x_result_with_selection_one": "<strong>{{selection}} / {{total}}</strong> résultat",
-        "x_result_with_selection_many": "<strong>{{selection}} / {{total}}</strong> résultats",
         "x_result_with_selection_other": "<strong>{{selection}} / {{total}}</strong> résultats"
     },
     "sort_by": {
@@ -1258,12 +1242,8 @@
         },
         "collection_list": {
             "collections_one": "+ {{count}} collection",
-            "collections_many": "+ {{count}} collections",
             "collections_other": "+ {{count}} collections",
-            "collections_plural": "+ {{count}} collection",
-            "others_plural": "+ {{count}} autres",
             "others_one": "+ {{count}} autre",
-            "others_many": "+ {{count}} autres",
             "others_other": "+ {{count}} autres"
         },
         "manage": {
@@ -1299,16 +1279,13 @@
         },
         "delete": {
             "confirm": {
-                "message_many_plural": "Etes-vous sûr de vouloir supprimer {{count}} assets?",
                 "title": "Confirmer la suppression",
-                "message_one": "Etes-vous sûr de vouloir supprimer cet asset?",
-                "message_many": "Etes-vous sûr de vouloir supprimer ces assets?",
-                "message_other": "",
+                "message_one": "Etes-vous sûr de vouloir supprimer cet asset ?",
+                "message_other": "Etes-vous sûr de vouloir supprimer ces assets ?",
                 "not_allowed": "Vous n'êtes autorisé à supprimer aucun de ces assets"
             },
-            "confirm_message_one": "Êtes-vous sûr de vouloir supprimer l'asset?",
-            "confirm_message_many": "Êtes-vous sûr de vouloir supprimer les  {{count}}  assets?",
-            "confirm_message_other": "Êtes-vous sûr de vouloir supprimer les  {{count}}  assets?",
+            "confirm_message_one": "Êtes-vous sûr de vouloir supprimer l'asset ?",
+            "confirm_message_other": "Êtes-vous sûr de vouloir supprimer les {{count}}  assets ?",
             "hard_delete": "Supprimer définitivement l'asset?",
             "remove_from_collection": "Supprimer de la collection <strong> {{name}} </strong>"
         },
@@ -1335,13 +1312,9 @@
         },
         "tag_list": {
             "others_one": "+ {{count}} autre",
-            "others_many": "+ {{count}} autres",
             "others_other": "+ {{count}} autres",
-            "others_plural": "+ {{count}} autres",
             "tags_one": "+ {{count}} tag",
-            "tags_many": "+ {{count}} tags",
-            "tags_other": "+ {{count}} tags",
-            "tags_plural": "+ {{count}} tag"
+            "tags_other": "+ {{count}} tags"
         },
         "view": {
             "attributes": "Attributs de l'asset",
@@ -1451,7 +1424,6 @@
         },
         "definitions": {
             "count_one": "Utilisé sur {{ count }} définition d'attribut",
-            "count_many": "Utilisé sur {{ count }} définitions d'attributs",
             "count_other": "Utilisé sur {{ count }} définitions d'attributs",
             "none": "Pas d'utilisation de définitions d'attributs"
         },
@@ -1481,11 +1453,11 @@
                 },
                 "delete": {
                     "desc": "Recevoir une notification lorsque l'asset est supprimé",
-                    "label": "Supprimer"
+                    "label": "Suppression"
                 },
                 "update": {
                     "desc": "Recevoir une notification lorsque l'asset est mis à jour",
-                    "label": "Mettre à jour"
+                    "label": "Mise à jour"
                 }
             },
             "collection": {
@@ -1611,7 +1583,7 @@
             "linkedin": {
                 "title": "Partagez sur LinkedIn"
             },
-            "twitter": {
+            "x": {
                 "title": "Partagez sur X"
             },
             "telegram": {
@@ -1798,9 +1770,8 @@
             "empty": "Aucun envoi en attente",
             "title": "Envois en attente",
             "toast": {
-                "message_one": "<strong>{{uploaded}} / {{count}}</strong>  importé",
-                "message_many": "<strong>{{uploaded}} / {{count}}</strong>  importés",
-                "message_other": "<strong>{{uploaded}} / {{count}}</strong>  importés"
+                "message_one": "<strong>{{uploaded}} / {{count}}</strong> importé",
+                "message_other": "<strong>{{uploaded}} / {{count}}</strong> importés"
             },
             "uploaded": "Importés"
         }

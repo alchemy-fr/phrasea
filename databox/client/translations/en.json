@@ -46,6 +46,13 @@
             "confirm": "Are you sure you want to delete this shape?"
         }
     },
+    "aql": {
+        "constant": {
+            "no": "No",
+            "null": "Null",
+            "yes": "Yes"
+        }
+    },
     "asset": {
         "actions": {
             "copy": "Copy",
@@ -62,8 +69,8 @@
         },
         "collection_list": {
             "collections_one": "+ {{count}} collection",
-            "collections_other": "+ {{count}} collection",
-            "others_one": "+ {{count}} others",
+            "collections_other": "+ {{count}} collections",
+            "others_one": "+ {{count}} other",
             "others_other": "+ {{count}} others"
         },
         "delete": {
@@ -71,10 +78,12 @@
                 "not_allowed": "You don't have permission to delete any of these assets",
                 "title": "Confirm delete"
             },
-            "confirm_message_one": "Are you sure you want to delete {{count}} assets?",
+            "confirm_message_one": "Are you sure you want to delete this asset?",
             "confirm_message_other": "Are you sure you want to delete {{count}} assets?",
             "hard_delete": "Delete asset permanently",
-            "remove_from_collection": "Remove from collection <strong>{{name}}</strong>"
+            "remove_from_collection": "Remove from collection <strong>{{name}}</strong>",
+            "shared_warning_one": "This asset is currently shared. Deleting it will remove access for all users.",
+            "shared_warning_other": "<strong>{{count}}</strong> of these assets are currently shared. Deleting them will remove access for all users."
         },
         "es_document": {
             "sync_now": "Sync Now"
@@ -133,12 +142,13 @@
             "label": "Replace"
         },
         "tag_list": {
-            "others_one": "+ {{count}} others",
+            "others_one": "+ {{count}} other",
             "others_other": "+ {{count}} others",
             "tags_one": "+ {{count}} tag",
-            "tags_other": "+ {{count}} tag"
+            "tags_other": "+ {{count}} tags"
         },
         "view": {
+            "appears_in": "Appears in",
             "attributes": "Attributes",
             "discussion": "Discussion",
             "info": "Information"
@@ -183,6 +193,15 @@
         "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> asset",
         "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> assets"
     },
+    "asset_type": {
+        "choice": {
+            "asset": "Assets",
+            "asset_only": "Assets only",
+            "both": "Both",
+            "story": "Stories",
+            "story_only": "Stories only"
+        }
+    },
     "asset_version": {
         "delete": "Delete Version"
     },
@@ -221,6 +240,10 @@
         }
     },
     "attribute_definitions": {
+        "filter": {
+            "asset_type": "Filter by Asset Type",
+            "type": "Filter by Type"
+        },
         "new": {
             "label": "New attribute"
         }
@@ -303,7 +326,7 @@
         }
     },
     "attributes": {
-        "values_one": "{{count}} values",
+        "values_one": "{{count}} value",
         "values_other": "{{count}} values"
     },
     "attributes_editor_form": {
@@ -382,10 +405,12 @@
         "fileType": "File Type",
         "filename": "File Name",
         "id": "ID",
+        "isStory": "Is Story",
         "owner": "Owner",
         "privacy": "Privacy",
         "rendition": "Rendition",
         "score": "Score",
+        "story": "Story",
         "tag": "Tag",
         "workspace": "Workspace"
     },
@@ -473,7 +498,7 @@
         "dialog": {
             "intro": "Where do you want to copy the selected assets?",
             "submit": "Copy",
-            "title_one": "Copy {{count}} assets",
+            "title_one": "Copy {{count}} asset",
             "title_other": "Copy {{count}} assets"
         },
         "form": {
@@ -617,6 +642,16 @@
         "mustache": "Mustache",
         "smiling": "Smiling"
     },
+    "facet": {
+        "boolean": {
+            "false": {
+                "label": "No ({{n}})"
+            },
+            "true": {
+                "label": "Yes ({{n}})"
+            }
+        }
+    },
     "facets": {
         "missing_with_total": "Missing ({{total}})"
     },
@@ -651,12 +686,12 @@
     "filter_rule": {
         "confirm_delete_this_rule": "Confirm delete this rule?",
         "exclude": {
-            "helper": "Assets in this {{type}} will only be visible if they DOES NOT contains theses tags.",
+            "helper": "Assets in this {{type}} will only be visible if they DOES NOT contain these tags.",
             "label": "Tags to <b>exclude</b>"
         },
         "group": "Group",
         "include": {
-            "helper": "Assets in this {{type}} will only be visible if they contains theses tags.",
+            "helper": "Assets in this {{type}} will only be visible if they contain these tags.",
             "label": "Tags to <b>include</b>"
         },
         "or": "or",
@@ -695,6 +730,9 @@
         "attribute_definition": {
             "allowInvalid": {
                 "label": "Allow invalid values"
+            },
+            "asset_type": {
+                "label": "Asset Type Target"
             },
             "editable": {
                 "label": "Editable"
@@ -927,8 +965,11 @@
             "substitutable": {
                 "label": "Substitutable"
             },
+            "target": {
+                "label": "Asset Type Target"
+            },
             "useAs": {
-                "label": "This rendition is",
+                "label": "Rendition used for display",
                 "original": "Original",
                 "preview": "Preview",
                 "thumbnail": "Thumbnail",
@@ -976,6 +1017,9 @@
             },
             "files_to_upload_one": "<strong>{{count}}</strong> file to upload",
             "files_to_upload_other": "<strong>{{count}}</strong> files to upload",
+            "isStory": {
+                "label": "Story"
+            },
             "quiet": {
                 "label": "Quiet (no notification, no webhook)"
             },
@@ -1243,6 +1287,9 @@
         }
     },
     "rendition_definitions": {
+        "filter": {
+            "asset_type": "Filter by Asset Type"
+        },
         "new": {
             "label": "New rendition"
         }
@@ -1439,14 +1486,14 @@
             "tumblr": {
                 "title": "Share on Tumblr"
             },
-            "twitter": {
-                "title": "Share on Twitter"
-            },
             "whatsapp": {
                 "title": "Share on WhatsApp"
             },
             "workplace": {
                 "title": "Share on Workplace"
+            },
+            "x": {
+                "title": "Share on X"
             }
         }
     },
@@ -1456,6 +1503,11 @@
     "sort_by_row": {
         "ascendant": "Ascendant",
         "descendant": "Descendant"
+    },
+    "story": {
+        "chip": {
+            "label": "Story"
+        }
     },
     "tag_rules": {
         "edit_this_rule": "Edit this rule",

@@ -147,7 +147,9 @@ export default function CopyAssetsDialog({
     return (
         <FormDialog
             modalIndex={modalIndex}
-            title={t('copy_assets.dialog.title', 'Copy {{count}} assets', {
+            title={t('copy_assets.dialog.title', {
+                defaultValue: `Copy {{count}} asset`,
+                defaultValue_other: `Copy {{count}} assets`,
                 count,
             })}
             open={open}
