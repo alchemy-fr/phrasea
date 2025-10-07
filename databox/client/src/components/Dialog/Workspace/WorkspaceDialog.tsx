@@ -136,7 +136,7 @@ export default function WorkspaceDialog({}: Props) {
                         'Rendition Policies'
                     ),
                     component: RenditionPolicyManager,
-                    id: 'rendition-classes',
+                    id: 'rendition-policies',
                     props: {
                         data,
                     },
@@ -145,10 +145,10 @@ export default function WorkspaceDialog({}: Props) {
                 {
                     title: t(
                         'workspace.manage.attribute_policy.title',
-                        'Attribute classes'
+                        'Attribute Policies'
                     ),
                     component: AttributePolicyManager,
-                    id: 'attribute-classes',
+                    id: 'attribute-policies',
                     props: {
                         data,
                     },
