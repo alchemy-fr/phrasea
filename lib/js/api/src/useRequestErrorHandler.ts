@@ -97,10 +97,18 @@ export default function useRequestErrorHandler({onError, logout}: Options) {
                 );
                 break;
             default:
-                onError(
-                    t('lib.api.error.http_error', 'Server error') as string,
-                    defaultOptions
-                );
+                if (!status) {
+                    onError(
+                        t('lib.api.error.network', 'Network error') as string,
+                        defaultOptions
+                    );
+                    return;
+                } else {
+                    onError(
+                        t('lib.api.error.http_error', 'Server error') as string,
+                        defaultOptions
+                    );
+                }
                 break;
         }
     }, []);

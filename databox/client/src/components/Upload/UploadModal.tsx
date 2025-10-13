@@ -70,6 +70,11 @@ export default function UploadModal({
         target: AssetTypeFilter.Asset,
     });
 
+    const usedStoryAttributeEditor = useAttributeEditor({
+        workspaceId,
+        target: AssetTypeFilter.Story,
+    });
+
     const usedAssetDataTemplateOptions = useAssetDataTemplateOptions();
 
     const defaultValues: FormUploadData = {
@@ -78,6 +83,9 @@ export default function UploadModal({
         tags: [],
         quiet: false,
         isStory: false,
+        story: {
+            tags: [],
+        },
     };
 
     const usedFormSubmit = useFormSubmit<UploadData, Asset[], FormUploadData>({
@@ -86,10 +94,16 @@ export default function UploadModal({
             return {
                 ...data,
                 tags: data.tags.map(t => t['@id']),
+                story: data.isStory
+                    ? {
+                          ...data.story,
+                          tags: data.story.tags.map(t => t['@id']) ?? [],
+                      }
+                    : undefined,
             };
         },
         onSubmit: async (data: UploadData) => {
-            const {quiet, isStory} = data;
+            const {quiet, isStory, story} = data;
 
             if (typeof data.destination === 'object') {
                 data.destination = await createCollection(data.destination);
@@ -101,6 +115,14 @@ export default function UploadModal({
                       usedAttributeEditor.definitionIndex!
                   )
                 : undefined;
+
+            const storyAttributes =
+                isStory && usedStoryAttributeEditor.attributes
+                    ? getAttributeList(
+                          usedStoryAttributeEditor.attributes,
+                          usedStoryAttributeEditor.definitionIndex!
+                      )
+                    : undefined;
 
             const {saveAsTemplate, usedForm} = usedAssetDataTemplateOptions;
             if (saveAsTemplate) {
@@ -155,6 +177,13 @@ export default function UploadModal({
                 {
                     quiet,
                     isStory,
+                    story: isStory
+                        ? {
+                              ...story,
+                              tags: story?.tags as unknown as string[],
+                              attributes: storyAttributes,
+                          }
+                        : undefined,
                 }
             );
         },
@@ -303,6 +332,7 @@ export default function UploadModal({
                 onChangeCollection={setCollectionId}
                 noDestination={Boolean(workspaceTitle)}
                 usedAttributeEditor={usedAttributeEditor}
+                usedStoryAttributeEditor={usedStoryAttributeEditor}
                 usedAssetDataTemplateOptions={usedAssetDataTemplateOptions}
                 modalIndex={modalIndex}
             />

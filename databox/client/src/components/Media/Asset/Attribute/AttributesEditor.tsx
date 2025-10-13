@@ -1,5 +1,5 @@
 import {Box} from '@mui/material';
-import {AttributeDefinition} from '../../../../types';
+import {AssetTypeFilter, AttributeDefinition} from '../../../../types';
 import AttributeType from './AttributeType';
 import {toArray} from '../../../../lib/utils';
 import React from 'react';
@@ -43,6 +43,7 @@ type Props = {
     definitions: DefinitionIndex;
     onChangeHandler: OnChangeHandler;
     disabled: boolean;
+    assetType: AssetTypeFilter;
 };
 
 export default function AttributesEditor({
@@ -50,6 +51,7 @@ export default function AttributesEditor({
     definitions,
     onChangeHandler,
     disabled,
+    assetType,
 }: Props) {
     const defaultLocale = React.useMemo(() => {
         const firstTranslatableDefinition = toArray(definitions).find(
@@ -70,6 +72,10 @@ export default function AttributesEditor({
                 const d = definitions[defId];
 
                 if (!d.editable || !d.editableInGui) {
+                    return null;
+                }
+
+                if ((d.target & assetType) === 0) {
                     return null;
                 }
 

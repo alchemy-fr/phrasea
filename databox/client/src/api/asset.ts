@@ -354,12 +354,17 @@ export async function postAsset(data: NewAssetPostType): Promise<Asset> {
 export type CreateAssetsOptions = {
     quiet?: boolean;
     isStory?: boolean;
+    story?: {
+        title?: string;
+        tags?: string[];
+        attributes?: AttributeBatchAction[] | undefined;
+    };
     config?: AxiosRequestConfig;
 };
 
 export async function postMultipleAssets(
     assets: NewAssetPostType[],
-    {quiet, isStory}: CreateAssetsOptions = {}
+    {quiet, isStory, story}: CreateAssetsOptions = {}
 ): Promise<Asset[]> {
     const config: AxiosRequestConfig = {};
     if (quiet) {
@@ -373,6 +378,7 @@ export async function postMultipleAssets(
         {
             assets,
             isStory,
+            story,
         },
         config
     );

@@ -3,18 +3,24 @@ import {useAttributeEditor} from '../Media/Asset/Attribute/useAttributeEditor';
 import AttributesEditor from '../Media/Asset/Attribute/AttributesEditor';
 import {FormRow} from '@alchemy/react-form';
 import React from 'react';
+import {AssetTypeFilter} from '../../types.ts';
 
 type Props = {
     usedAttributeEditor: ReturnType<typeof useAttributeEditor>;
+    assetType: AssetTypeFilter;
 };
 
-export default function UploadAttributes({usedAttributeEditor}: Props) {
+export default function UploadAttributes({
+    usedAttributeEditor,
+    assetType,
+}: Props) {
     const {attributes, definitionIndex, onChangeHandler} = usedAttributeEditor;
 
     return (
         <>
             {attributes && definitionIndex ? (
                 <AttributesEditor
+                    assetType={assetType}
                     attributes={attributes}
                     definitions={definitionIndex}
                     disabled={false}

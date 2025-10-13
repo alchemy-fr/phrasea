@@ -1,7 +1,11 @@
 import React, {FC} from 'react';
 import {useTranslation} from 'react-i18next';
-import {FormRow, SelectOption, SwitchWidget} from '@alchemy/react-form';
-import {FormFieldErrors} from '@alchemy/react-form';
+import {
+    FormFieldErrors,
+    FormRow,
+    SelectOption,
+    SwitchWidget,
+} from '@alchemy/react-form';
 import CollectionTreeWidget from '../Form/CollectionTreeWidget';
 import PrivacyField from '../Ui/PrivacyField';
 import {Privacy} from '../../api/privacy';
@@ -17,13 +21,14 @@ import {useAssetDataTemplateOptions} from '../Media/Asset/Attribute/useAssetData
 import {AssetDataTemplate, getAssetDataTemplate} from '../../api/templates';
 import AssetDataTemplateSelect from '../Form/AssetDataTemplateSelect';
 import {OnChangeValue} from 'react-select';
-import {Asset, Attribute, Tag} from '../../types';
+import {Asset, AssetTypeFilter, Attribute, Tag} from '../../types';
 import {AttributeIndex} from '../Media/Asset/Attribute/AttributesEditor';
 import FullPageLoader from '../Ui/FullPageLoader';
 import {useFormPrompt} from '@alchemy/navigation';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
 import {Collection} from '../Media/Collection/CollectionTree/collectionTree.ts';
+import StoryForm from './StoryForm.tsx';
 
 export type UploadData = {
     destination: Collection;
@@ -31,17 +36,26 @@ export type UploadData = {
     tags: Tag[];
     quiet?: boolean;
     isStory?: boolean;
+    story: {
+        title?: string;
+        tags: Tag[];
+    };
 };
 
 export type FormUploadData = {
     tags: string[];
-} & Omit<UploadData, 'tags'>;
+    story: {
+        title?: string;
+        tags: string[];
+    };
+} & Omit<UploadData, 'tags' | 'story'>;
 
 export const UploadForm: FC<{
     workspaceId?: string | undefined;
     collectionId?: string | undefined;
     noDestination?: boolean | undefined;
     usedAttributeEditor: ReturnType<typeof useAttributeEditor>;
+    usedStoryAttributeEditor: ReturnType<typeof useAttributeEditor>;
     usedAssetDataTemplateOptions: ReturnType<
         typeof useAssetDataTemplateOptions
     >;
@@ -58,6 +72,7 @@ export const UploadForm: FC<{
     collectionId,
     noDestination,
     usedAttributeEditor,
+    usedStoryAttributeEditor,
     usedAssetDataTemplateOptions,
     onChangeWorkspace,
     onChangeCollection,
@@ -181,14 +196,6 @@ export const UploadForm: FC<{
         <>
             {loading && <FullPageLoader />}
             <form id={formId} onSubmit={handleSubmit}>
-                <FormRow>
-                    <SwitchWidget
-                        control={control}
-                        name={'isStory'}
-                        label={t('form.upload.isStory.label', 'Story')}
-                    />
-                </FormRow>
-
                 {!noDestination && (
                     <FormRow>
                         <CollectionTreeWidget
@@ -226,74 +233,87 @@ export const UploadForm: FC<{
                     </FormRow>
                 )}
                 {workspaceId && (
-                    <FormRow>
-                        <FormGroup>
-                            <InputLabel>
-                                {t(
-                                    'form.asset.templates.label',
-                                    'Fill with template'
-                                )}
-                            </InputLabel>
-                            <AssetDataTemplateSelect
+                    <>
+                        <FormRow>
+                            <FormGroup>
+                                <InputLabel>
+                                    {t(
+                                        'form.asset.templates.label',
+                                        'Fill with template'
+                                    )}
+                                </InputLabel>
+                                <AssetDataTemplateSelect
+                                    workspaceId={workspaceId}
+                                    collectionId={collectionId}
+                                    onMenuClose={applyTemplates}
+                                    onChange={onTemplateSelect}
+                                />
+                            </FormGroup>
+                        </FormRow>
+                        <WorkspaceContext.Provider
+                            value={{
+                                workspaceId,
+                            }}
+                        >
+                            <FormRow>
+                                <PrivacyField
+                                    control={control}
+                                    name={'privacy'}
+                                />
+                            </FormRow>
+
+                            <StoryForm
                                 workspaceId={workspaceId}
-                                collectionId={collectionId}
-                                onMenuClose={applyTemplates}
-                                onChange={onTemplateSelect}
+                                usedFormSubmit={usedFormSubmit}
+                                usedStoryAttributeEditor={
+                                    usedStoryAttributeEditor
+                                }
                             />
-                        </FormGroup>
-                    </FormRow>
+
+                            <FormRow>
+                                <FormGroup>
+                                    <InputLabel>
+                                        {t('form.asset.tags.label', 'Tags')}
+                                    </InputLabel>
+                                    <TagSelect
+                                        multiple={true}
+                                        workspaceId={workspaceId}
+                                        control={control}
+                                        name={'tags'}
+                                    />
+                                    <FormFieldErrors<FormUploadData>
+                                        field={'tags'}
+                                        errors={errors}
+                                    />
+                                </FormGroup>
+                            </FormRow>
+
+                            <UploadAttributes
+                                usedAttributeEditor={usedAttributeEditor}
+                                assetType={AssetTypeFilter.Asset}
+                            />
+
+                            <FormRow>
+                                <SwitchWidget
+                                    control={control}
+                                    name={'quiet'}
+                                    label={t(
+                                        'form.upload.quiet.label',
+                                        'Quiet (no notification, no webhook)'
+                                    )}
+                                />
+                            </FormRow>
+
+                            <SaveAsTemplateForm
+                                templateId={templateId}
+                                usedAssetDataTemplateOptions={
+                                    usedAssetDataTemplateOptions
+                                }
+                            />
+                        </WorkspaceContext.Provider>
+                    </>
                 )}
-                {workspaceId && (
-                    <FormRow>
-                        <FormGroup>
-                            <InputLabel>
-                                {t('form.asset.tags.label', 'Tags')}
-                            </InputLabel>
-                            <TagSelect
-                                multiple={true}
-                                workspaceId={workspaceId}
-                                control={control}
-                                name={'tags'}
-                            />
-                            <FormFieldErrors<FormUploadData>
-                                field={'tags'}
-                                errors={errors}
-                            />
-                        </FormGroup>
-                    </FormRow>
-                )}
-                <FormRow>
-                    <PrivacyField control={control} name={'privacy'} />
-                </FormRow>
             </form>
-
-            {workspaceId && (
-                <WorkspaceContext.Provider
-                    value={{
-                        workspaceId,
-                    }}
-                >
-                    <UploadAttributes
-                        usedAttributeEditor={usedAttributeEditor}
-                    />
-                </WorkspaceContext.Provider>
-            )}
-
-            <FormRow>
-                <SwitchWidget
-                    control={control}
-                    name={'quiet'}
-                    label={t(
-                        'form.upload.quiet.label',
-                        'Quiet (no notification, no webhook)'
-                    )}
-                />
-            </FormRow>
-
-            <SaveAsTemplateForm
-                templateId={templateId}
-                usedAssetDataTemplateOptions={usedAssetDataTemplateOptions}
-            />
         </>
     );
 };
