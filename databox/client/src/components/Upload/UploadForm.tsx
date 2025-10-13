@@ -290,7 +290,7 @@ export const UploadForm: FC<{
 
                             <UploadAttributes
                                 usedAttributeEditor={usedAttributeEditor}
-                                assetType={AssetTypeFilter.Asset}
+                                assetTypeFilter={AssetTypeFilter.Asset}
                             />
 
                             <FormRow>

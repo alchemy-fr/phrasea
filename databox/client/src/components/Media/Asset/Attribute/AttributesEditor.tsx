@@ -43,7 +43,7 @@ type Props = {
     definitions: DefinitionIndex;
     onChangeHandler: OnChangeHandler;
     disabled: boolean;
-    assetType: AssetTypeFilter;
+    assetTypeFilter: AssetTypeFilter;
 };
 
 export default function AttributesEditor({
@@ -51,7 +51,7 @@ export default function AttributesEditor({
     definitions,
     onChangeHandler,
     disabled,
-    assetType,
+    assetTypeFilter,
 }: Props) {
     const defaultLocale = React.useMemo(() => {
         const firstTranslatableDefinition = toArray(definitions).find(
@@ -75,7 +75,7 @@ export default function AttributesEditor({
                     return null;
                 }
 
-                if ((d.target & assetType) === 0) {
+                if (assetTypeFilter && (d.target & assetTypeFilter) === 0) {
                     return null;
                 }
 

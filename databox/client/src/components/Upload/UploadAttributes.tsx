@@ -7,12 +7,12 @@ import {AssetTypeFilter} from '../../types.ts';
 
 type Props = {
     usedAttributeEditor: ReturnType<typeof useAttributeEditor>;
-    assetType: AssetTypeFilter;
+    assetTypeFilter: AssetTypeFilter;
 };
 
 export default function UploadAttributes({
     usedAttributeEditor,
-    assetType,
+    assetTypeFilter,
 }: Props) {
     const {attributes, definitionIndex, onChangeHandler} = usedAttributeEditor;
 
@@ -20,7 +20,7 @@ export default function UploadAttributes({
         <>
             {attributes && definitionIndex ? (
                 <AttributesEditor
-                    assetType={assetType}
+                    assetTypeFilter={assetTypeFilter}
                     attributes={attributes}
                     definitions={definitionIndex}
                     disabled={false}

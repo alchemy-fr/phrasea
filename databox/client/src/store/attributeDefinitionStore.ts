@@ -1,6 +1,7 @@
 import {create} from 'zustand';
 import {
     Asset,
+    AssetTypeFilter,
     AttributeDefinition,
     AttributeEntity,
     Collection,
@@ -9,7 +10,10 @@ import {
     User,
     Workspace,
 } from '../types';
-import {getAttributeDefinitions} from '../api/attributes.ts';
+import {
+    getAttributeDefinitions,
+    getWorkspaceAttributeDefinitions,
+} from '../api/attributes.ts';
 import {TFunction} from '@alchemy/i18n';
 import {BuiltInField} from '../components/Media/Search/search.ts';
 import WorkspaceSelect from '../components/Form/WorkspaceSelect.tsx';
@@ -20,6 +24,7 @@ import UserSelect from '../components/Form/UserSelect.tsx';
 import RenditionDefinitionSelect from '../components/Form/RenditionDefinitionSelect.tsx';
 import {AttributeType} from '../api/types.ts';
 import NullableBooleanWidget from '../components/Form/NullableBooleanWidget.tsx';
+import React from 'react';
 
 export type AttributeDefinitionsIndex = Record<string, AttributeDefinition>;
 
@@ -27,7 +32,9 @@ type State = {
     definitions: AttributeDefinition[];
     loaded: boolean;
     loading: boolean;
+    locks: Record<string, boolean>;
     load: (t: TFunction, force?: boolean) => Promise<void>;
+    loadWorkspace: (workspaceId: string) => Promise<void>;
     updateDefinition: (definition: AttributeDefinition) => void;
     addDefinition: (definition: AttributeDefinition) => void;
 };
@@ -35,6 +42,7 @@ type State = {
 export const useAttributeDefinitionStore = create<State>((set, getState) => ({
     loaded: false,
     loading: false,
+    locks: {},
     definitions: [],
 
     updateDefinition: definition => {
@@ -70,22 +78,7 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
 
         try {
             const data = getBuiltInFilters(t).concat(
-                (await getAttributeDefinitions()).map(d =>
-                    d.fieldType === AttributeType.Entity
-                        ? {
-                              ...d,
-                              entityIri: 'attribute-entities',
-                              resolveLabel: entity =>
-                                  (entity as AttributeEntity).value,
-                              widget: {
-                                  component: AttributeEntitySelect,
-                                  props: {
-                                      type: d.entityList,
-                                  },
-                              },
-                          }
-                        : d
-                )
+                (await getAttributeDefinitions()).map(normalizeDefinition)
             );
 
             set({
@@ -95,6 +88,49 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
             });
         } finally {
             set({loading: false});
+        }
+    },
+
+    loadWorkspace: async workspaceId => {
+        const state = getState();
+        if (state.locks[workspaceId]) {
+            return;
+        }
+
+        set(p => {
+            const locks = {...p.locks};
+            locks[workspaceId] = true;
+            return {locks};
+        });
+
+        try {
+            const data = (
+                await getWorkspaceAttributeDefinitions({
+                    workspaceId,
+                    target: AssetTypeFilter.All,
+                })
+            ).map(normalizeDefinition);
+
+            set(p => {
+                const locks = {...p.locks};
+                delete locks[workspaceId];
+
+                return {
+                    locks,
+                    definitions: [
+                        ...p.definitions.filter(
+                            d => !data.some(r => r.id === d.id)
+                        ),
+                        ...data,
+                    ],
+                };
+            });
+        } catch (_e: any) {
+            set(p => {
+                const locks = {...p.locks};
+                delete locks[workspaceId];
+                return {locks};
+            });
         }
     },
 }));
@@ -280,26 +316,62 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
     );
 }
 
-export function useIndexBySlug(): AttributeDefinitionsIndex {
-    return useIndexByKey('slug');
+type Filters = {
+    workspaceId?: string;
+    target?: AssetTypeFilter;
+};
+
+export function useIndexBySlug(filters?: Filters): AttributeDefinitionsIndex {
+    return useIndexByKey('slug', filters);
 }
 
-export function useIndexBySearchSlug(): AttributeDefinitionsIndex {
-    return useIndexByKey('searchSlug');
+export function useIndexBySearchSlug(
+    filters?: Filters
+): AttributeDefinitionsIndex {
+    return useIndexByKey('searchSlug', filters);
 }
 
-export function useIndexById(): AttributeDefinitionsIndex {
-    return useIndexByKey('id');
+export function useIndexById(filters?: Filters): AttributeDefinitionsIndex {
+    return useIndexByKey('id', filters);
 }
 
 function useIndexByKey(
-    key: keyof AttributeDefinition
+    key: keyof AttributeDefinition,
+    filters: Filters = {}
 ): AttributeDefinitionsIndex {
     const definitions = useAttributeDefinitionStore(s => s.definitions);
-    const index: AttributeDefinitionsIndex = {};
-    for (const def of definitions) {
-        index[def[key] as string] = def;
-    }
 
-    return index;
+    return React.useMemo(() => {
+        const index: AttributeDefinitionsIndex = {};
+        for (const def of definitions) {
+            if (
+                filters.workspaceId &&
+                (def.workspace as Workspace | undefined)?.id !==
+                    filters.workspaceId
+            ) {
+                continue;
+            }
+            if (filters.target && (def.target & filters.target) === 0) {
+                continue;
+            }
+            index[def[key] as string] = def;
+        }
+
+        return index;
+    }, [definitions, ...Object.values(filters)]);
 }
+const normalizeDefinition = (d: AttributeDefinition): AttributeDefinition =>
+    d.fieldType === AttributeType.Entity
+        ? {
+              ...d,
+              entityIri: 'attribute-entities',
+              resolveLabel: (entity: object) =>
+                  (entity as AttributeEntity).value,
+              widget: {
+                  component: AttributeEntitySelect,
+                  props: {
+                      type: d.entityList,
+                  },
+              },
+          }
+        : d;

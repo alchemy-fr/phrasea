@@ -24,7 +24,7 @@ export default function AttributesEditorForm({
     minHeight,
 }: Props) {
     const {t} = useTranslation();
-    const assetType = asset.storyCollection
+    const assetTypeFilter = asset.storyCollection
         ? AssetTypeFilter.Story
         : AssetTypeFilter.Asset;
 
@@ -38,7 +38,7 @@ export default function AttributesEditorForm({
     } = useAttributeEditor({
         workspaceId,
         assetId: asset.id,
-        target: assetType,
+        target: assetTypeFilter,
     });
     useDirtyFormPrompt(dirty);
 
@@ -102,7 +102,7 @@ export default function AttributesEditorForm({
                             definitions={definitionIndex}
                             disabled={saving}
                             onChangeHandler={onChangeHandler}
-                            assetType={assetType}
+                            assetTypeFilter={assetTypeFilter}
                         />
                     ) : (
                         <>

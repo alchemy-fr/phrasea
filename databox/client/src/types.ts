@@ -459,9 +459,9 @@ export enum AssetType {
 }
 
 export enum AssetTypeFilter {
-    All = '',
-    Asset = '1',
-    Story = '2',
+    All = 0,
+    Asset = 1,
+    Story = 2,
 }
 
 export type Ace = (

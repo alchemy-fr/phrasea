@@ -76,7 +76,7 @@ export default function StoryForm({
 
                         <UploadAttributes
                             usedAttributeEditor={usedStoryAttributeEditor}
-                            assetType={AssetTypeFilter.Story}
+                            assetTypeFilter={AssetTypeFilter.Story}
                         />
                     </AccordionDetails>
                 </Accordion>
