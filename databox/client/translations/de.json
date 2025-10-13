@@ -1625,8 +1625,8 @@
             "empty": "Keine ausstehenden Uploads",
             "title": "Ausstehende Uploads",
             "toast": {
-                "message_one": "<strong>{{uploaded}} / {{count}}</strong>  hochgeladen",
-                "message_other": "<strong>{{uploaded}} / {{count}}</strong>  hochgeladen"
+                "message_one": "<strong>{{uploaded}} / {{count}}</strong> hochgeladen",
+                "message_other": "<strong>{{uploaded}} / {{count}}</strong> hochgeladen"
             },
             "uploaded": "Hochgeladen"
         }
