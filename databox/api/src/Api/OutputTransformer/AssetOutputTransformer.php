@@ -168,10 +168,10 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 ->findAssetRenditions($data->getId());
 
             foreach ([
-                'original',
+                'main',
                 'preview',
                 'thumbnail',
-                'thumbnailActive',
+                'animatedThumbnail',
             ] as $type) {
                 if (null !== $file = $this->getRenditionUsedAsType($renditions, $data, $type, $userId, $groupIds)) {
                     $output->{'set'.ucfirst($type)}($file);

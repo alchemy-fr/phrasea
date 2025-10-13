@@ -15,5 +15,9 @@ class MultipleAssetInput extends AbstractOwnerIdInput
     public ?array $assets = null;
 
     public ?bool $isStory = false;
-    public ?string $storyTitle = null;
+
+    /**
+     * @var AssetStoryInput
+     */
+    public $story;
 }

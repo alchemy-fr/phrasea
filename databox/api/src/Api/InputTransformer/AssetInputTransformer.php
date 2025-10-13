@@ -26,7 +26,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
     final public const string CONTEXT_CREATION_MICRO_TIME = 'micro_time';
 
     public function __construct(
-        private readonly PickSourceRenditionManager $originalRenditionManager,
+        private readonly PickSourceRenditionManager $pickSourceRenditionManager,
         private readonly AttributeInputTransformer $attributeInputProcessor,
         private readonly AssetManager $assetManager,
     ) {

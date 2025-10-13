@@ -6,7 +6,7 @@ namespace App\Asset;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use Alchemy\Workflow\WorkflowOrchestrator;
-use App\Attribute\AttributeDataExporter;
+use App\Attribute\AttributeDataImporter;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
@@ -17,8 +17,8 @@ use Doctrine\ORM\EntityManagerInterface;
 readonly class AssetManager
 {
     public function __construct(
-        private AttributeDataExporter $attributeDataExporter,
-        private PickSourceRenditionManager $originalRenditionManager,
+        private AttributeDataImporter $attributeDataImporter,
+        private PickSourceRenditionManager $pickSourceRenditionManager,
         private EntityManagerInterface $em,
         private WorkflowOrchestrator $workflowOrchestrator,
         private PostFlushStack $postFlushStack,
@@ -40,10 +40,10 @@ readonly class AssetManager
         $asset->setPendingUploadToken(null);
 
         if (!empty($formData)) {
-            $this->attributeDataExporter->importAttributes($asset, $formData, $locale);
+            $this->attributeDataImporter->importAttributes($asset, $formData, $locale);
         }
 
-        $this->originalRenditionManager->assignFileToOriginalRendition($asset, $file);
+        $this->pickSourceRenditionManager->assignFileToOriginalRendition($asset, $file);
 
         $this->em->persist($asset);
 

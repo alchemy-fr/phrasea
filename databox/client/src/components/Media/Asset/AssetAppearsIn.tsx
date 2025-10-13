@@ -56,7 +56,7 @@ function AssetAppearsIn({asset}: Props) {
                                             {
                                                 id: storyAsset!.id,
                                                 renditionId:
-                                                    storyAsset!.original?.id ||
+                                                    storyAsset!.main?.id ||
                                                     Routing.UnknownRendition,
                                             }
                                         );

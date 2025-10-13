@@ -75,6 +75,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
         $this->keycloakManager->addRolesToUser($defaultAdmin['id'], [
             KeycloakInterface::ROLE_ADMIN,
+            KeycloakInterface::ROLE_TECH,
         ]);
         $this->keycloakManager->addClientRolesToUser($defaultAdmin['id'], [
             'realm-admin',

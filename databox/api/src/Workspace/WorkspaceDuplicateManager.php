@@ -63,10 +63,10 @@ class WorkspaceDuplicateManager
             $i->setPolicy($classMap[$item->getPolicy()->getId()]);
             $i->setPriority($item->getPriority());
             $i->setKey($item->getKey());
-            $i->setUseAsOriginal($item->isUseAsOriginal());
+            $i->setUseAsMain($item->isUseAsMain());
             $i->setUseAsPreview($item->isUseAsPreview());
             $i->setUseAsThumbnail($item->isUseAsThumbnail());
-            $i->setUseAsThumbnailActive($item->isUseAsThumbnailActive());
+            $i->setUseAsAnimatedThumbnail($item->isUseAsAnimatedThumbnail());
             $i->setDefinition($item->getDefinition());
             $this->em->persist($i);
         }

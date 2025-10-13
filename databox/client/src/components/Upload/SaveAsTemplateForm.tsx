@@ -57,97 +57,104 @@ export default function SaveAsTemplateForm({
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <FormRow>
-                            <TextField
-                                error={Boolean(errors.name)}
-                                label={t(
-                                    'save_as_template_form.template_name',
-                                    `Template name`
+                        {saveAsTemplate && (
+                            <>
+                                <FormRow>
+                                    <TextField
+                                        error={Boolean(errors.name)}
+                                        label={t(
+                                            'save_as_template_form.template_name',
+                                            `Template name`
+                                        )}
+                                        InputLabelProps={{shrink: true}}
+                                        placeholder={t(
+                                            'save_as_template_form.my_template',
+                                            `My template…`
+                                        )}
+                                        required={true}
+                                        {...register('name', {
+                                            required: true,
+                                        })}
+                                    />
+                                    <FormFieldErrors
+                                        field={'name'}
+                                        errors={errors}
+                                    />
+                                </FormRow>
+                                {templateId && (
+                                    <FormRow>
+                                        <SwitchWidget
+                                            control={control}
+                                            name={'override'}
+                                            label={t(
+                                                'save_as_template_form.replace',
+                                                `Replace applied template`
+                                            )}
+                                        />
+                                    </FormRow>
                                 )}
-                                InputLabelProps={{shrink: true}}
-                                placeholder={t(
-                                    'save_as_template_form.my_template',
-                                    `My template…`
-                                )}
-                                required={true}
-                                {...register('name', {
-                                    required: true,
-                                })}
-                            />
-                            <FormFieldErrors field={'name'} errors={errors} />
-                        </FormRow>
-                        {templateId && (
-                            <FormRow>
-                                <SwitchWidget
-                                    control={control}
-                                    name={'override'}
-                                    label={t(
-                                        'save_as_template_form.replace',
-                                        `Replace applied template`
-                                    )}
-                                />
-                            </FormRow>
+                                <FormRow>
+                                    <SwitchWidget
+                                        control={control}
+                                        name={'rememberCollection'}
+                                        label={t(
+                                            'save_as_template_form.apply_to_collection',
+                                            `Apply to collection`
+                                        )}
+                                    />
+                                </FormRow>
+                                <FormRow>
+                                    <SwitchWidget
+                                        control={control}
+                                        name={'includeCollectionChildren'}
+                                        label={t(
+                                            'save_as_template_form.include_collection_children',
+                                            `Include collection children`
+                                        )}
+                                    />
+                                </FormRow>
+                                <FormRow>
+                                    <SwitchWidget
+                                        control={control}
+                                        name={'rememberAttributes'}
+                                        label={t(
+                                            'save_as_template_form.remember_attributes',
+                                            `Remember Attributes`
+                                        )}
+                                    />
+                                </FormRow>
+                                <FormRow>
+                                    <SwitchWidget
+                                        control={control}
+                                        name={'rememberPrivacy'}
+                                        label={t(
+                                            'save_as_template_form.remember_privacy',
+                                            `Remember Privacy`
+                                        )}
+                                    />
+                                </FormRow>
+                                <FormRow>
+                                    <SwitchWidget
+                                        control={control}
+                                        name={'rememberTags'}
+                                        label={t(
+                                            'save_as_template_form.remember_tags',
+                                            `Remember Tags`
+                                        )}
+                                    />
+                                </FormRow>
+                                <FormRow>
+                                    <SwitchWidget
+                                        control={control}
+                                        name={'public'}
+                                        label={t(
+                                            'save_as_template_form.public',
+                                            `Public`
+                                        )}
+                                    />
+                                </FormRow>
+                            </>
                         )}
-                        <FormRow>
-                            <SwitchWidget
-                                control={control}
-                                name={'rememberCollection'}
-                                label={t(
-                                    'save_as_template_form.apply_to_collection',
-                                    `Apply to collection`
-                                )}
-                            />
-                        </FormRow>
-                        <FormRow>
-                            <SwitchWidget
-                                control={control}
-                                name={'includeCollectionChildren'}
-                                label={t(
-                                    'save_as_template_form.include_collection_children',
-                                    `Include collection children`
-                                )}
-                            />
-                        </FormRow>
-                        <FormRow>
-                            <SwitchWidget
-                                control={control}
-                                name={'rememberAttributes'}
-                                label={t(
-                                    'save_as_template_form.remember_attributes',
-                                    `Remember Attributes`
-                                )}
-                            />
-                        </FormRow>
-                        <FormRow>
-                            <SwitchWidget
-                                control={control}
-                                name={'rememberPrivacy'}
-                                label={t(
-                                    'save_as_template_form.remember_privacy',
-                                    `Remember Privacy`
-                                )}
-                            />
-                        </FormRow>
-                        <FormRow>
-                            <SwitchWidget
-                                control={control}
-                                name={'rememberTags'}
-                                label={t(
-                                    'save_as_template_form.remember_tags',
-                                    `Remember Tags`
-                                )}
-                            />
-                        </FormRow>
-                        <FormRow>
-                            <SwitchWidget
-                                control={control}
-                                name={'public'}
-                                label={t(
-                                    'save_as_template_form.public',
-                                    `Public`
-                                )}
-                            />
-                        </FormRow>
                     </AccordionDetails>
                 </Accordion>
             </FormRow>

@@ -111,7 +111,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                         },
                     },
                 },
-                [`.${assetClasses.thumbActive}`]: {
+                [`.${assetClasses.animatedThumb}`]: {
                     display: 'none',
                 },
                 [`.${assetClasses.title}`]: {
@@ -143,7 +143,9 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
         [d]
     );
 
-    const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
+    const {previewAnchorEl, onPreviewToggle, onPreviewHide} = usePreview([
+        pages,
+    ]);
 
     return (
         <>
@@ -174,6 +176,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
             )}
 
             <PreviewPopover
+                onHide={onPreviewHide}
                 key={previewAnchorEl?.asset.id ?? 'none'}
                 asset={previewAnchorEl?.asset}
                 anchorEl={previewAnchorEl?.anchorEl}

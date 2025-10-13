@@ -15,6 +15,8 @@ on:
                 required: false
             collectionId:
                 required: false
+            storyCollectionId:
+                required: false
 
 jobs:
     border:
