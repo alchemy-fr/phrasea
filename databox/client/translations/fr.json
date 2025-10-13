@@ -1789,9 +1789,9 @@
             "empty": "Aucun envoi en attente",
             "title": "Envois en attente",
             "toast": {
-                "message_one": "<strong>{{uploaded}} / {{count}}</strong> importé",
+                "message_one": "<strong>{{uploaded}} / {{count}}</strong> importé",
                 "message_many": "",
-                "message_other": "<strong>{{uploaded}} / {{count}}</strong> importés"
+                "message_other": "<strong>{{uploaded}} / {{count}}</strong> importés"
             },
             "uploaded": "Importés"
         }
