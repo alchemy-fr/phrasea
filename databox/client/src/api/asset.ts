@@ -2,7 +2,9 @@ import apiClient from './api-client';
 import {
     Asset,
     AssetFileVersion,
+    AssetTypeFilter,
     Attribute,
+    AttributeDefinition,
     Collection,
     ESDocumentState,
     Share,
@@ -391,4 +393,15 @@ export async function deleteAssetShortcut(
     collectionId: string
 ): Promise<void> {
     await apiClient.delete(`/assets/${assetId}/collections/${collectionId}`);
+}
+
+export function isAssetEligibleForAttributeDefinition(
+    asset: Asset,
+    definition: AttributeDefinition
+): boolean {
+    const type = asset.storyCollection
+        ? AssetTypeFilter.Story
+        : AssetTypeFilter.Asset;
+
+    return !(definition.target && (definition.target & type) === 0);
 }

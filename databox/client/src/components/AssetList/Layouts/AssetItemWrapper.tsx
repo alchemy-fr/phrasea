@@ -2,6 +2,7 @@ import {AssetItemProps} from '../types';
 import {AssetOrAssetContainer} from '../../../types';
 import assetClasses from '../classes';
 import React, {PropsWithChildren} from 'react';
+import classNames from 'classnames';
 
 export default function AssetItemWrapper<Item extends AssetOrAssetContainer>({
     itemComponent,
@@ -9,16 +10,21 @@ export default function AssetItemWrapper<Item extends AssetOrAssetContainer>({
     item,
     children,
     selected,
+    disabled,
 }: PropsWithChildren<
     Pick<
         AssetItemProps<Item>,
-        'item' | 'itemComponent' | 'onToggle' | 'selected'
+        'item' | 'itemComponent' | 'onToggle' | 'selected' | 'disabled'
     >
 >) {
     const node = (
         <div
             onMouseDown={e => onToggle(item, e)}
-            className={`${assetClasses.item} ${selected ? 'selected' : ''}`}
+            className={classNames({
+                [assetClasses.item]: true,
+                disabled,
+                selected,
+            })}
         >
             {children}
         </div>

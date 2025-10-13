@@ -25,6 +25,7 @@ import {useTranslation} from 'react-i18next';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
 import {AttributeType} from '../../api/types.ts';
+import {isAssetEligibleForAttributeDefinition} from '../../api/asset.ts';
 
 type Props = {
     attributeDefinitions: AttributeDefinition[];
@@ -444,6 +445,20 @@ export function useAttributeValues<T>({
 
     useDirtyFormPrompt(!saved && history.current > 0, modalIndex);
 
+    const disabledAssets = React.useMemo<Asset[]>(() => {
+        const disabled: Asset[] = [];
+
+        if (definition) {
+            assets.forEach(asset => {
+                if (!isAssetEligibleForAttributeDefinition(asset, definition)) {
+                    disabled.push(asset);
+                }
+            });
+        }
+
+        return disabled;
+    }, [definition]);
+
     return {
         attributeDefinitions: finalAttributeDefinitions,
         inputValueInc: inc,
@@ -459,5 +474,6 @@ export function useAttributeValues<T>({
         redo: history.current < history.history.length - 1 ? redo : undefined,
         onSave,
         createToKey,
+        disabledAssets,
     };
 }

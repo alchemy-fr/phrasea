@@ -105,7 +105,11 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     const navigateToModal = useNavigateToModal();
     const {openModal} = useModals();
     const {isAuthenticated} = useAuth();
-    const {selection, setSelection, itemToAsset} = useContext(selectionContext);
+    const {selection, disabledAssets, setSelection, itemToAsset} =
+        useContext(selectionContext);
+    const realSelectionLength = selection.filter(
+        a => !disabledAssets.some(da => da === a)
+    ).length;
     const selectionLength = selection.length;
     const hasSelection = selectionLength > 0;
     const allSelected =
@@ -296,10 +300,10 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     const selectionProps: ItemLabelRendererProps = {
         values: {
             total: formatNumber(total ?? 0, locale),
-            selection: formatNumber(selection.length, locale),
+            selection: formatNumber(realSelectionLength, locale),
         },
         count: total ?? 0,
-        selectedCount: selection.length,
+        selectedCount: realSelectionLength,
     };
 
     return (
