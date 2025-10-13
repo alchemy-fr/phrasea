@@ -108,7 +108,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     const {selection, disabledAssets, setSelection, itemToAsset} =
         useContext(selectionContext);
     const realSelectionLength = selection.filter(
-        a => !disabledAssets.some(da => da === a)
+        a => !disabledAssets.includes(a)
     ).length;
     const selectionLength = selection.length;
     const hasSelection = selectionLength > 0;

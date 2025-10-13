@@ -233,7 +233,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
 
                     {React.createElement(layouts[layout], {
                         selection,
-                        disabledAssets,
+                        disabledAssets: disabledAssets ?? [],
                         onOpen,
                         onAddToBasket,
                         itemToAsset,
