@@ -25,11 +25,11 @@ class KeycloakClientTestMock implements HttpClientInterface
     private const USERS = [
         self::ADMIN_UID => [
             'username' => 'admin',
-            'roles' => ['admin', 'databox'],
+            'roles' => ['admin', 'databox', 'expose', 'uploader'],
         ],
         self::USER_UID => [
             'username' => 'user',
-            'roles' => ['databox'],
+            'roles' => ['databox', 'expose', 'uploader'],
         ],
     ];
 
