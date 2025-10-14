@@ -34,12 +34,21 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 'roles' => [],
             ],
         ];
+        $defaultRoles = [];
         foreach ($this->symfonyApplications as $app) {
+            $defaultRoles[$app] = [
+                'description' => sprintf('Access to %s app', ucwords($app)),
+            ];
+
             $adminSubRoles[$app.'-admin'] = [
                 'description' => sprintf('Admin access for %s', ucwords($app)),
+                'roles' => [
+                    $app => $defaultRoles[$app],
+                ],
             ];
         }
 
+        $defaultRolesWrapperRole = 'default-roles-'.$this->keycloakManager->getRealmName();
         $roleHierarchy = [
             KeycloakInterface::ROLE_ADMIN => [
                 'description' => 'Can do anything',
@@ -48,6 +57,9 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             KeycloakInterface::ROLE_TECH => [
                 'description' => 'Access to Dev/Ops tools',
                 'roles' => [],
+            ],
+            $defaultRolesWrapperRole => [
+                'roles' => $defaultRoles,
             ],
         ];
         $this->keycloakManager->createRoleHierarchy($roleHierarchy);
