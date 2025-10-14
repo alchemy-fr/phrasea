@@ -23,7 +23,7 @@ cd /path/to/phrasea
 
 2. Upgrade HELM release
 
-Go to Cycloid and change HTML Chart version and phrasea image tag (i.e `3.2.2`)
+Change HTML Chart version and phrasea image tag (i.e `3.2.2`)
 You can also enable Sentry (don't forget DSN for PHP and Client).
 
 If Databox was not enabled before, you need to enable it and uncheck "Run Migrations" from "Deployment Settings (Advanced)"
