@@ -62,7 +62,12 @@ export default function BasketListDialog({modalIndex, open}: Props) {
                 baskets.map(b => (
                     <BasketMenuItem
                         key={b.id}
-                        onClick={() => onSelect(b)}
+                        disabled={!b.capabilities.canEdit}
+                        onClick={
+                            b.capabilities.canEdit
+                                ? () => onSelect(b)
+                                : undefined
+                        }
                         data={b}
                     />
                 ))
