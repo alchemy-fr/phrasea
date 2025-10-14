@@ -13,6 +13,7 @@ type Props = {
     data: Basket;
     selected?: boolean;
     onClick?: () => void;
+    disabled?: boolean;
 } & Pick<ListItemProps, 'onContextMenu'>;
 
 export default function BasketMenuItem({
