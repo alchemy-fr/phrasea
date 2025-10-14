@@ -38,7 +38,9 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
     itemComponent,
     previewZIndex,
 }: LayoutProps<Item>) {
-    const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
+    const {previewAnchorEl, onPreviewToggle, onPreviewHide} = usePreview([
+        pages,
+    ]);
     const {innerWidth, innerHeight} = useWindowSize();
     const d = useContext(DisplayContext)!.state;
     const masonryWidth = innerWidth - leftPanelWidth;
@@ -108,9 +110,6 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                     '&.selected': {
                         backgroundColor: alpha(theme.palette.primary.main, 0.8),
                         boxShadow: theme.shadows[2],
-                        [`.${assetClasses.legend}`]: {
-                            color: theme.palette.primary.contrastText,
-                        },
                         [`.${assetClasses.thumbWrapper}::after`]: {
                             display: 'block',
                             content: '""',
@@ -127,7 +126,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                         },
                     },
                 },
-                [`.${assetClasses.thumbActive}`]: {
+                [`.${assetClasses.animatedThumb}`]: {
                     display: 'none',
                 },
             };
@@ -363,6 +362,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                 />
 
                 <PreviewPopover
+                    onHide={onPreviewHide}
                     key={previewAnchorEl?.asset.id ?? 'none'}
                     asset={previewAnchorEl?.asset}
                     anchorEl={previewAnchorEl?.anchorEl}

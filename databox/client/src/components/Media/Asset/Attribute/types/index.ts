@@ -22,6 +22,7 @@ import PrivacyType from './PrivacyType.tsx';
 import UserType from './UserType.tsx';
 import {AttributeType} from '../../../../../api/types.ts';
 import NumberType from './NumberType.tsx';
+import StoryType from './StoryType.tsx';
 
 export const types: {
     [key in AttributeType]?: AttributeTypeClass;
@@ -29,6 +30,7 @@ export const types: {
     [AttributeType.Boolean]: BooleanType,
     [AttributeType.Code]: CodeType,
     [AttributeType.CollectionPath]: CollectionType,
+    [AttributeType.Story]: StoryType,
     [AttributeType.Color]: ColorType,
     [AttributeType.DateTime]: DateTimeType,
     [AttributeType.Date]: DateType,

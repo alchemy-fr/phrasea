@@ -16,9 +16,9 @@ import {
     postAssetDataTemplate,
     putAssetDataTemplate,
 } from '../../api/templates';
-import {StackedModalProps, useModals, useFormPrompt} from '@alchemy/navigation';
+import {StackedModalProps, useFormPrompt, useModals} from '@alchemy/navigation';
 import {Privacy} from '../../api/privacy';
-import {Asset} from '../../types';
+import {Asset, AssetTypeFilter} from '../../types';
 import {getAttributeList} from '../Media/Asset/Attribute/AttributeListData.ts';
 import type {TFunction} from '@alchemy/i18n';
 import {CollectionId} from '../Media/Collection/CollectionTree/collectionTree.ts';
@@ -67,6 +67,12 @@ export default function UploadModal({
 
     const usedAttributeEditor = useAttributeEditor({
         workspaceId,
+        target: AssetTypeFilter.Asset,
+    });
+
+    const usedStoryAttributeEditor = useAttributeEditor({
+        workspaceId,
+        target: AssetTypeFilter.Story,
     });
 
     const usedAssetDataTemplateOptions = useAssetDataTemplateOptions();
@@ -76,6 +82,10 @@ export default function UploadModal({
         privacy: Privacy.Secret,
         tags: [],
         quiet: false,
+        isStory: false,
+        story: {
+            tags: [],
+        },
     };
 
     const usedFormSubmit = useFormSubmit<UploadData, Asset[], FormUploadData>({
@@ -84,10 +94,16 @@ export default function UploadModal({
             return {
                 ...data,
                 tags: data.tags.map(t => t['@id']),
+                story: data.isStory
+                    ? {
+                          ...data.story,
+                          tags: data.story.tags.map(t => t['@id']) ?? [],
+                      }
+                    : undefined,
             };
         },
         onSubmit: async (data: UploadData) => {
-            const {quiet} = data;
+            const {quiet, isStory, story} = data;
 
             if (typeof data.destination === 'object') {
                 data.destination = await createCollection(data.destination);
@@ -99,6 +115,14 @@ export default function UploadModal({
                       usedAttributeEditor.definitionIndex!
                   )
                 : undefined;
+
+            const storyAttributes =
+                isStory && usedStoryAttributeEditor.attributes
+                    ? getAttributeList(
+                          usedStoryAttributeEditor.attributes,
+                          usedStoryAttributeEditor.definitionIndex!
+                      )
+                    : undefined;
 
             const {saveAsTemplate, usedForm} = usedAssetDataTemplateOptions;
             if (saveAsTemplate) {
@@ -150,14 +174,17 @@ export default function UploadModal({
                         attributes,
                     })),
                 },
-                quiet
-                    ? {
-                          headers: {
-                              'X-Webhook-Disabled': 'true',
-                              'X-Notification-Disabled': 'true',
-                          },
-                      }
-                    : undefined
+                {
+                    quiet,
+                    isStory,
+                    story: isStory
+                        ? {
+                              ...story,
+                              tags: story?.tags as unknown as string[],
+                              attributes: storyAttributes,
+                          }
+                        : undefined,
+                }
             );
         },
         onSuccess: () => {
@@ -305,6 +332,7 @@ export default function UploadModal({
                 onChangeCollection={setCollectionId}
                 noDestination={Boolean(workspaceTitle)}
                 usedAttributeEditor={usedAttributeEditor}
+                usedStoryAttributeEditor={usedStoryAttributeEditor}
                 usedAssetDataTemplateOptions={usedAssetDataTemplateOptions}
                 modalIndex={modalIndex}
             />

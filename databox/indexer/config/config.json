@@ -58,8 +58,8 @@
                 },
                 "sourceFile": "document",
                 "renditions": {
-                    "original": {
-                        "useAsOriginal": true,
+                    "main": {
+                        "useAsMain": true,
                         "buildMode": 1,
                         "class": "public"
                     },

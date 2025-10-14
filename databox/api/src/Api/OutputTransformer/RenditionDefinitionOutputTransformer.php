@@ -38,13 +38,14 @@ class RenditionDefinitionOutputTransformer implements OutputTransformerInterface
         $output->substitutable = $data->isSubstitutable();
         $output->labels = $data->getLabels();
         $output->translations = $data->getTranslations();
+        $output->target = $data->getTarget()->value;
 
         if ($this->isGranted(RenditionDefinitionVoter::READ_ADMIN, $data)) {
             $output->buildMode = $data->getBuildMode();
-            $output->useAsOriginal = $data->isUseAsOriginal();
+            $output->useAsMain = $data->isUseAsMain();
             $output->useAsPreview = $data->isUseAsPreview();
             $output->useAsThumbnail = $data->isUseAsThumbnail();
-            $output->useAsThumbnailActive = $data->isUseAsThumbnailActive();
+            $output->useAsAnimatedThumbnail = $data->isUseAsAnimatedThumbnail();
             $output->definition = $data->getDefinition();
             $output->priority = $data->getPriority();
         }

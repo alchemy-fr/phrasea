@@ -56,6 +56,7 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->fallback = $data->getFallback();
         $output->initialValues = $data->getInitialValues();
         $output->translations = $data->getTranslations();
+        $output->target = $data->getTarget()->value;
         if ($this->isGranted(AbstractVoter::EDIT, $data)) {
             $output->lastErrors = $data->getLastErrors();
         }

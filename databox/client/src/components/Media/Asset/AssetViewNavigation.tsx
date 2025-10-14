@@ -3,7 +3,7 @@ import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {AssetContextState} from './assetTypes.ts';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
-import {modalRoutes} from '../../../routes.ts';
+import {modalRoutes, Routing} from '../../../routes.ts';
 
 type Props = {
     currentId: string;
@@ -26,7 +26,7 @@ export default function AssetViewNavigation({currentId, state}: Props) {
             modalRoutes.assets.routes.view,
             {
                 id,
-                renditionId,
+                renditionId: renditionId || Routing.UnknownRendition,
             },
             {state}
         );

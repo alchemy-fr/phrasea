@@ -284,9 +284,11 @@ services:
 
   cypress:
     entrypoint: ""
-    command: npx cypress open --e2e --browser chrome --project ./
+    command: npx cypress open --browser ${CYPRESS_BROWSER} --project ./
     environment:
-      - DISPLAY=unix${DISPLAY}
+      - DISPLAY=${CYPRESS_DISPLAY}
+      - DEFAULT_COMMAND_TIMEOUT=15000
+      - ELECTRON_EXTRA_LAUNCH_ARGS=${CYPRESS_ELECTRON_EXTRA_LAUNCH_ARGS}
     volumes:
       - ./cypress/cypress:/cypress/cypress
       - ./cypress/output:/cypress/output

@@ -11,23 +11,30 @@ type Props = {
     setValue: UseFormSetValue<FormData>;
 };
 
+enum Values {
+    Main = 'main',
+    Preview = 'preview',
+    Thumbnail = 'thumbnail',
+    AnimatedThumbnail = 'animatedThumbnail',
+}
+
 export default function UseAsWidget({getValues, setValue}: Props) {
     const {t} = useTranslation();
 
     function getResolvedValues(): string[] {
         const values = [];
         const formValues = getValues();
-        if (formValues.useAsOriginal) {
-            values.push('original');
+        if (formValues.useAsMain) {
+            values.push(Values.Main);
         }
         if (formValues.useAsPreview) {
-            values.push('preview');
+            values.push(Values.Preview);
         }
         if (formValues.useAsThumbnail) {
-            values.push('thumbnail');
+            values.push(Values.Thumbnail);
         }
-        if (formValues.useAsThumbnailActive) {
-            values.push('thumbnailActive');
+        if (formValues.useAsAnimatedThumbnail) {
+            values.push(Values.AnimatedThumbnail);
         }
 
         return values;
@@ -39,18 +46,21 @@ export default function UseAsWidget({getValues, setValue}: Props) {
         <RSelectWidget
             label={t(
                 'form.rendition_definition.useAs.label',
-                'This rendition is'
+                'Rendition used for display'
             )}
             isMulti={true}
             onChange={newValue => {
                 const newValues = newValue.map((v: any) => v.value);
 
-                setValue('useAsOriginal', newValues.includes('original'));
-                setValue('useAsPreview', newValues.includes('preview'));
-                setValue('useAsThumbnail', newValues.includes('thumbnail'));
+                setValue('useAsMain', newValues.includes(Values.Main));
+                setValue('useAsPreview', newValues.includes(Values.Preview));
                 setValue(
-                    'useAsThumbnailActive',
-                    newValues.includes('thumbnailActive')
+                    'useAsThumbnail',
+                    newValues.includes(Values.Thumbnail)
+                );
+                setValue(
+                    'useAsAnimatedThumbnail',
+                    newValues.includes(Values.AnimatedThumbnail)
                 );
 
                 setValues(newValues);
@@ -58,32 +68,29 @@ export default function UseAsWidget({getValues, setValue}: Props) {
             value={values as any}
             options={[
                 {
-                    label: t(
-                        'form.rendition_definition.useAs.original',
-                        'Original'
-                    ),
-                    value: 'original',
+                    label: t('form.rendition_definition.useAs.main', 'Main'),
+                    value: Values.Main,
                 },
                 {
                     label: t(
                         'form.rendition_definition.useAs.preview',
                         'Preview'
                     ),
-                    value: 'preview',
+                    value: Values.Preview,
                 },
                 {
                     label: t(
                         'form.rendition_definition.useAs.thumbnail',
                         'Thumbnail'
                     ),
-                    value: 'thumbnail',
+                    value: Values.Thumbnail,
                 },
                 {
                     label: t(
-                        'form.rendition_definition.useAs.thumbnailActive',
+                        'form.rendition_definition.useAs.animatedThumbnail',
                         'Active thumbnail'
                     ),
-                    value: 'thumbnailActive',
+                    value: Values.AnimatedThumbnail,
                 },
             ]}
         />

@@ -16,6 +16,7 @@ export const typeMap: Record<AttributeType, RawType> = {
     [AttributeType.Boolean]: RawType.Boolean,
     [AttributeType.Code]: RawType.String,
     [AttributeType.CollectionPath]: RawType.String,
+    [AttributeType.Story]: RawType.String,
     [AttributeType.Color]: RawType.String,
     [AttributeType.DateTime]: RawType.DateTime,
     [AttributeType.Date]: RawType.Date,
@@ -42,7 +43,7 @@ export function validateQueryAST(
     definitionsIndex: AttributeDefinitionIndex
 ): void {
     function visitNode(node: any): void {
-        if (typeof node === 'object') {
+        if (typeof node === 'object' && node !== null) {
             if (isAQLCondition(node)) {
                 validateConditionType(node, definitionsIndex);
             }
@@ -160,7 +161,7 @@ function validateOfType(
     type: RawType,
     definitionsIndex: AttributeDefinitionIndex
 ): void {
-    if (typeof node === 'object') {
+    if (typeof node === 'object' && node !== null) {
         if (isAQLField(node)) {
             const f = validateField(node, definitionsIndex);
             if (f && typeMap[f.fieldType] !== type) {
@@ -180,7 +181,11 @@ function validateOfType(
         throw new Error(`Value ${valueToString(node)} is not of type string`);
     } else if (type === RawType.Number && typeof node !== 'number') {
         throw new Error(`Value ${valueToString(node)} is not of type number`);
-    } else if (type === RawType.Boolean && typeof node !== 'boolean') {
+    } else if (
+        type === RawType.Boolean &&
+        typeof node !== 'boolean' &&
+        node !== null
+    ) {
         throw new Error(`Value ${valueToString(node)} is not of type boolean`);
     }
 }

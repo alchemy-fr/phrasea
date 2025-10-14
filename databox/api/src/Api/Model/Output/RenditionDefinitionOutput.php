@@ -58,7 +58,7 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
     public ?int $buildMode;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
-    public ?bool $useAsOriginal = null;
+    public ?bool $useAsMain = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public ?bool $useAsPreview = null;
@@ -67,7 +67,7 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
     public ?bool $useAsThumbnail = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
-    public ?bool $useAsThumbnailActive = null;
+    public ?bool $useAsAnimatedThumbnail = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public ?string $definition = null;
@@ -78,4 +78,6 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public ?array $translations = null;
 
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
+    public ?int $target = null;
 }

@@ -9,16 +9,24 @@ export type OnAddToBasket = (asset: Asset, e?: MouseEvent) => void;
 export type OnSelectionChange<Item extends AssetOrAssetContainer> = (
     items: Item[]
 ) => void;
-export type OnOpen = (asset: Asset, renditionId: string) => void;
+
+export type OnOpen = (
+    asset: Asset,
+    renditionId?: string,
+    storyAssetId?: string
+) => void;
+
 export type OnToggle<Item extends AssetOrAssetContainer> = (
     item: Item,
     e?: MouseEvent
 ) => void;
-export type OnPreviewToggle = (
-    asset: Asset,
-    display: boolean,
-    anchorEl: HTMLElement
-) => void;
+
+export type OnPreviewToggle = (props: {
+    asset: Asset;
+    display: boolean;
+    anchorEl?: HTMLElement;
+    lock?: boolean;
+}) => void;
 
 export type ReloadFunc = () => Promise<any>;
 export type LoadMoreFunc = () => Promise<any>;
@@ -41,6 +49,7 @@ export type AssetItemProps<Item extends AssetOrAssetContainer> = {
     item: Item;
     asset: Asset;
     selected: boolean;
+    onOpen?: OnOpen;
 } & AssetActions<Item>;
 
 export type AssetItemCustomComponentProps<Item extends AssetOrAssetContainer> =

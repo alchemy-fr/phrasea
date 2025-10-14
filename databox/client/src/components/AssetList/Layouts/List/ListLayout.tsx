@@ -41,7 +41,9 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     itemToAsset,
     previewZIndex,
 }: LayoutProps<Item>) {
-    const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
+    const {previewAnchorEl, onPreviewToggle, onPreviewHide} = usePreview([
+        pages,
+    ]);
     const headersRef = React.useRef<HTMLDivElement | null>(null);
     const listRef = React.useRef<List | null>(null);
     const d = React.useContext(DisplayContext)!.state;
@@ -75,7 +77,10 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                 ...attributesSx(),
                 ...thumbSx(d.thumbSize, theme),
                 [`.${assetClasses.item}`]: {
-                    'p': 2,
+                    'display': 'flex',
+                    'flexDirection': 'row',
+                    'gap': 1,
+                    'marginBottom': '20px',
                     'position': 'relative',
                     [`.${assetClasses.checkBtb}, .${assetClasses.controls}`]: {
                         position: 'absolute',
@@ -89,13 +94,13 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                     },
                     [`.${assetClasses.checkBtb}`]: {
                         transform: `translateX(-10px)`,
-                        left: 15,
-                        top: 15,
+                        left: theme.spacing(1),
+                        top: theme.spacing(1),
                     },
                     [`.${assetClasses.controls}`]: {
                         position: 'absolute',
-                        right: 1,
-                        top: 1,
+                        right: theme.spacing(1),
+                        top: theme.spacing(1),
                     },
                     '&:hover, &.selected': {
                         [`.${assetClasses.checkBtb}, .${assetClasses.controls}`]:
@@ -108,9 +113,10 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                         backgroundColor: alpha(theme.palette.primary.main, 0.1),
                     },
                     [`.${assetClasses.attributes}`]: {
-                        '> div + div': {
-                            mt: 1,
-                        },
+                        p: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1,
                     },
                 },
             };
@@ -147,12 +153,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                         )}
                         <GroupRow asset={asset} top={0}>
                             <div
-                                onDoubleClick={
-                                    onOpen && asset.original
-                                        ? () =>
-                                              onOpen(asset, asset.original!.id)
-                                        : undefined
-                                }
+                                onDoubleClick={() => onOpen?.(asset)}
                                 onContextMenu={
                                     onContextMenuOpen
                                         ? e => onContextMenuOpen!(e, item)
@@ -240,6 +241,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
             </AutoSizer>
 
             <PreviewPopover
+                onHide={onPreviewHide}
                 key={previewAnchorEl?.asset.id ?? 'none'}
                 asset={previewAnchorEl?.asset}
                 anchorEl={previewAnchorEl?.anchorEl}

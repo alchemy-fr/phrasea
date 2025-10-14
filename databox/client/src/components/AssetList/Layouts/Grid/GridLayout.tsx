@@ -111,13 +111,11 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                         },
                     },
                 },
-                [`.${assetClasses.thumbActive}`]: {
+                [`.${assetClasses.animatedThumb}`]: {
                     display: 'none',
                 },
                 [`.${assetClasses.title}`]: {
                     fontSize: 14,
-                    p: 1,
-                    height: titleHeight,
                     lineHeight: `${lineHeight}px`,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -134,12 +132,20 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                               whiteSpace: 'nowrap',
                           }),
                 },
+                [`.${assetClasses.legend}`]: {
+                    p: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 1,
+                },
             };
         },
         [d]
     );
 
-    const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
+    const {previewAnchorEl, onPreviewToggle, onPreviewHide} = usePreview([
+        pages,
+    ]);
 
     return (
         <>
@@ -170,6 +176,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
             )}
 
             <PreviewPopover
+                onHide={onPreviewHide}
                 key={previewAnchorEl?.asset.id ?? 'none'}
                 asset={previewAnchorEl?.asset}
                 anchorEl={previewAnchorEl?.anchorEl}

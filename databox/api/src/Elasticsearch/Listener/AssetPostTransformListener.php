@@ -39,14 +39,27 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         $document = $event->getDocument();
 
         $permFields = $this->assetPermissionComputer->getAssetPermissionFields($asset);
-        foreach ($permFields as $key => $value) {
+        foreach ($permFields->toDocument() as $key => $value) {
             $document->set($key, $value);
         }
+
         $document->set('renditions', $this->compileRenditions($asset));
 
         $attrs = $this->compileAttributes($asset);
         // Wrap in an array to force replacing the whole field
         $document->set(AttributeInterface::ATTRIBUTES_FIELD, !empty($attrs) ? [$attrs] : null);
+
+        $storyAttrs = [];
+        foreach ($asset->getCollections() as $collectionAsset) {
+            if (null !== $storyAsset = $collectionAsset->getCollection()->getStoryAsset()) {
+                if (!isset($storyAttrs[$storyAsset->getId()])) {
+                    $storyAttrs[$storyAsset->getId()] = $this->compileAttributes($storyAsset);
+                }
+            }
+        }
+        if (!empty($storyAttrs)) {
+            $document->set(AttributeInterface::STORY_ATTRIBUTES_FIELD, $storyAttrs);
+        }
     }
 
     private function compileRenditions(Asset $asset): array

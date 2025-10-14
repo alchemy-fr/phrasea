@@ -69,7 +69,7 @@ final class RenditionManager
         bool $force = false,
         ?bool $projection = null,
     ): AssetRendition {
-        if (null === $asset->getSource() && $definition->isUseAsOriginal()) {
+        if (null === $asset->getSource() && $definition->isUseAsMain()) {
             $asset->setSource($file);
             $this->em->persist($asset);
         }
@@ -197,6 +197,29 @@ final class RenditionManager
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    /**
+     * @return AssetRendition[]
+     */
+    public function getAssetRenditionsUsedAs(string $as, string $assetId): array
+    {
+        return $this->em
+            ->createQueryBuilder()
+            ->select('r')
+            ->from(AssetRendition::class, 'r')
+            ->innerJoin('r.definition', 'd')
+            ->innerJoin('d.policy', 'p')
+            ->andWhere('r.asset = :asset')
+            ->andWhere('p.public = true')
+            ->andWhere(sprintf('d.useAs%s = :as', ucfirst($as)))
+            ->setParameters([
+                'asset' => $assetId,
+                'as' => true,
+            ])
+            ->addOrderBy('d.priority', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 
     public function getRenditionDefinitionByName(string $workspaceId, string $name): RenditionDefinition

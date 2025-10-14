@@ -20,6 +20,7 @@ export enum AttributeType {
     Boolean = 'boolean',
     Code = 'code',
     CollectionPath = 'collection_path',
+    Story = 'story',
     Color = 'color',
     Date = 'date',
     DateTime = 'date_time',

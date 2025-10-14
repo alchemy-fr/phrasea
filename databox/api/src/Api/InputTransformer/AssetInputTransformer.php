@@ -12,7 +12,6 @@ use App\Asset\PickSourceRenditionManager;
 use App\Consumer\Handler\File\CopyFileToAsset;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRelationship;
-use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -27,7 +26,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
     final public const string CONTEXT_CREATION_MICRO_TIME = 'micro_time';
 
     public function __construct(
-        private readonly PickSourceRenditionManager $originalRenditionManager,
+        private readonly PickSourceRenditionManager $pickSourceRenditionManager,
         private readonly AttributeInputTransformer $attributeInputProcessor,
         private readonly AssetManager $assetManager,
     ) {
@@ -40,6 +39,8 @@ class AssetInputTransformer extends AbstractFileInputTransformer
 
     /**
      * @param AssetInput $data
+     *
+     * @return Asset
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
@@ -156,11 +157,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
         $object = $this->processOwnerId($object);
 
         if ($isNew && $data->isStory) {
-            $storyCollection = new Collection();
-            $storyCollection->setWorkspace($workspace);
-            $storyCollection->setOwnerId($object->getOwnerId());
-            $this->em->persist($storyCollection);
-            $object->setStoryCollection($storyCollection);
+            $this->assetManager->turnIntoStory($object);
         }
 
         return $object;

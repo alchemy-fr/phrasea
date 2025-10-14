@@ -8,14 +8,14 @@ use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\TextAttributeType;
-use App\Elasticsearch\Facet\FacetRegistry;
+use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
 use App\Entity\Core\AttributeDefinition;
 
 final readonly class FieldNameResolver
 {
     public function __construct(
         private AttributeTypeRegistry $attributeTypeRegistry,
-        private FacetRegistry $facetRegistry,
+        private BuiltInFieldRegistry $builtInFieldRegistry,
     ) {
     }
 
@@ -52,10 +52,10 @@ final readonly class FieldNameResolver
             ];
         }
 
-        $facet = $this->facetRegistry->getFacet($name);
-        if (null !== $facet) {
-            $type = $this->attributeTypeRegistry->getStrictType($facet->getType());
-            $f = $facet->getFieldName();
+        $builtInField = $this->builtInFieldRegistry->getBuiltInField($name);
+        if (null !== $builtInField) {
+            $type = $this->attributeTypeRegistry->getStrictType($builtInField->getType());
+            $f = $builtInField->getFieldName();
         } else {
             $info = $this->extractField($name);
             $type = $info['type'];

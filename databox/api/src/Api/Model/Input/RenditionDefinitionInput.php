@@ -63,7 +63,7 @@ class RenditionDefinitionInput
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
     #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
-    public $useAsOriginal;
+    public $useAsMain;
 
     /**
      * @var bool
@@ -84,7 +84,7 @@ class RenditionDefinitionInput
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
     #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
-    public $useAsThumbnailActive;
+    public $useAsAnimatedThumbnail;
 
     /**
      * @var string|null
@@ -114,4 +114,7 @@ class RenditionDefinitionInput
 
     #[Groups([RenditionDefinition::GROUP_WRITE])]
     public ?array $translations = null;
+
+    #[Groups([RenditionDefinition::GROUP_WRITE])]
+    public ?int $target = null;
 }

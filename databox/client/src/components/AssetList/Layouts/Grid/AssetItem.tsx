@@ -33,6 +33,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
     onAddToBasket,
     itemComponent,
     itemOverlay,
+    onOpen,
 }: Props<Item>) {
     const disabled = !asset.workspace;
 
@@ -98,29 +99,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                     )}
                 </div>
             </div>
-            <AssetThumb
-                asset={asset}
-                onMouseOver={
-                    onPreviewToggle
-                        ? e =>
-                              onPreviewToggle(
-                                  asset,
-                                  true,
-                                  e.currentTarget as HTMLElement
-                              )
-                        : undefined
-                }
-                onMouseLeave={
-                    onPreviewToggle
-                        ? e =>
-                              onPreviewToggle(
-                                  asset,
-                                  false,
-                                  e.currentTarget as HTMLElement
-                              )
-                        : undefined
-                }
-            />
+            <AssetThumb asset={asset} onPreviewToggle={onPreviewToggle} />
             <div className={assetClasses.legend}>
                 <div className={assetClasses.title}>
                     {asset.titleHighlight
@@ -128,14 +107,14 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                         : (asset.resolvedTitle ?? asset.title)}
                 </div>
                 {asset.tags && asset.tags.length > 0 && (
-                    <div>
-                        <AssetTagList tags={asset.tags!} />
-                    </div>
+                    <AssetTagList tags={asset.tags!} />
                 )}
                 {asset.collections && asset.collections.length > 0 && (
-                    <div>
-                        <AssetCollectionList collections={asset.collections!} />
-                    </div>
+                    <AssetCollectionList
+                        asset={asset}
+                        onOpenAsset={onOpen}
+                        collections={asset.collections!}
+                    />
                 )}
             </div>
             {itemOverlay

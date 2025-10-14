@@ -105,7 +105,12 @@ class AssetVoter extends AbstractVoter
         }
 
         foreach ($subject->getCollections() as $collectionAsset) {
-            if ($this->security->isGranted(AbstractVoter::READ, $collectionAsset->getCollection())) {
+            $collection = $collectionAsset->getCollection();
+            if (null !== $storyAsset = $collection->getStoryAsset()) {
+                if ($this->security->isGranted(AbstractVoter::READ, $storyAsset)) {
+                    return true;
+                }
+            } elseif ($this->security->isGranted(AbstractVoter::READ, $collection)) {
                 return true;
             }
         }

@@ -41,3 +41,7 @@ facet:
         title: Tags
     workspace:
         title: Workspace
+    is_story:
+        title: Is Story
+    stories:
+        title: Stories

@@ -24,6 +24,11 @@ App\Entity\Core\AttributeDefinition:
     attribute_definition_n (template):
         workspace: '@w_newspaper'
 
+    ad_story_title (extends attribute_definition_n):
+        name: Story Title
+        policy: '@n_ap_public'
+        position: 0
+        target: '<(App\Model\AssetTypeEnum::Story)>'
     ad_desc (extends attribute_definition_n):
         name: Description
         policy: '@n_ap_public'
@@ -167,16 +172,16 @@ App\Entity\Core\RenditionDefinition:
     rendition_definition_n (template):
         workspace: '@w_newspaper'
 
-    n_rd_original (extends rendition_definition_n):
-        name: original
+    n_rd_main (extends rendition_definition_n):
+        name: main
         policy: '@n_rc_public'
         buildMode: 1
-        useAsOriginal: true
+        useAsMain: true
     n_rd_preview (extends rendition_definition_n):
         name: preview
         policy: '@n_rc_public'
         useAsPreview: true
-        parent: '@n_rd_original'
+        parent: '@n_rd_main'
         buildMode: 2
         definition: |
             image:
@@ -218,10 +223,10 @@ App\Entity\Core\RenditionDefinition:
                 transformations:
                     - module: pdf_to_image
 
-    n_rd_thumbnailActive (extends rendition_definition_n):
-        name: thumbnailActive
+    n_rd_animatedThumbnail (extends rendition_definition_n):
+        name: animatedThumbnail
         policy: '@n_rc_public'
-        useAsThumbnailActive: true
+        useAsAnimatedThumbnail: true
         parent: '@n_rd_thumbnail'
 
 # Groups:
@@ -266,6 +271,9 @@ App\Entity\Core\Collection:
     collection_n (template):
         workspace: '@w_newspaper'
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+
+    storyc_n{1..10} (extends collection_n):
+        title: null
 
     c_n_special_chars (extends collection_n):
         title: 'D&D \@][ \<ap>++"='
@@ -316,7 +324,7 @@ App\Entity\Core\Asset:
     a_img{1..50} (extends asset_n):
         title: 'Image #<ucwords($current)>'
         ownerId: <keycloakUser("bob")>
-        source: '@f_img_o<current()>'
+        source: '@f_img_m<current()>'
     a_audio{1..10} (extends asset_n):
         title: 'Audio #<ucwords($current)>'
         ownerId: <keycloakUser("bob")>
@@ -329,6 +337,21 @@ App\Entity\Core\Asset:
         title: 'PDF #<ucwords($current)>'
         ownerId: <keycloakUser("jack")>
         source: '@f_pdf_o<current()>'
+    astory{1..10} (extends asset_n):
+        title: 'Story #<ucwords($current)>'
+        ownerId: <keycloakUser("alice")>
+        storyCollection: '@storyc_n<current()>'
+        __calls:
+            - addToCollection (80%?): ['@c_n_entertainment_archives_movies', true, true]
+            - addToCollection (80%?): ['@c_n_entertainment_archives_series', true, true]
+    storya_img{1..20} (extends asset_n):
+        title: 'Image in stories #<ucwords($current)>'
+        ownerId: <keycloakUser("bob")>
+        source: '@f_story_img_m<current()>'
+        __calls:
+            - addToCollection: ['@storyc_n*', true, true]
+            - addToCollection: ['@storyc_n*', true, true]
+            - addToCollection: ['@storyc_n*', true, true]
 
 App\Entity\Core\File:
     file (template):
@@ -336,7 +359,16 @@ App\Entity\Core\File:
         storage: s3_main
         pathPublic: '95%? true : false'
 
-    f_img_o{1..50} (extends file):
+    f_story_img_m{1..20} (extends file):
+        type: image/jpeg
+        path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 1000)>'
+    f_story_img_p{1..20} (extends file):
+        type: image/jpeg
+        path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 500)>'
+    f_story_img_t{1..20} (extends file):
+        type: image/jpeg
+        path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
+    f_img_m{1..50} (extends file):
         type: image/jpeg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 1000)>'
     f_img_p{1..50} (extends file):
@@ -347,7 +379,7 @@ App\Entity\Core\File:
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
     f_img_ta{1..10} (extends file):
         type: image/jpeg
-        path: '<imageUrlRandomRatio(@w_newspaper->id, <current()> + 1, 200)>'
+        path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200, true)>'
     f_audio_o{1..10} (extends file):
         type: audio/mp3
         path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
@@ -373,9 +405,21 @@ App\Entity\Core\File:
 App\Entity\Core\AssetRendition:
     asset_rendition_n (template):
 
-    ar_img_o{1..50} (extends asset_rendition_n):
-        definition: '@n_rd_original'
-        file: '@f_img_o<current()>'
+    ar_story_img_m{1..20} (extends asset_rendition_n):
+        definition: '@n_rd_main'
+        file: '@f_story_img_m<current()>'
+        asset: '@storya_img<current()>'
+    ar_story_img_p{1..20} (extends asset_rendition_n):
+        definition: '@n_rd_preview'
+        file: '@f_story_img_p<current()>'
+        asset: '@storya_img<current()>'
+    ar_story_img_t{1..20} (extends asset_rendition_n):
+        definition: '@n_rd_thumbnail'
+        file: '@f_story_img_t<current()>'
+        asset: '@storya_img<current()>'
+    ar_img_m{1..50} (extends asset_rendition_n):
+        definition: '@n_rd_main'
+        file: '@f_img_m<current()>'
         asset: '@a_img<current()>'
     ar_img_p{1..50} (extends asset_rendition_n):
         definition: '@n_rd_preview'
@@ -386,11 +430,11 @@ App\Entity\Core\AssetRendition:
         file: '@f_img_t<current()>'
         asset: '@a_img<current()>'
     ar_img_ta{1..10} (extends asset_rendition_n):
-        definition: '@n_rd_thumbnailActive'
+        definition: '@n_rd_animatedThumbnail'
         file: '@f_img_ta<current()>'
         asset: '@a_img<current()>'
     ar_audio_o{1..10} (extends asset_rendition_n):
-        definition: '@n_rd_original'
+        definition: '@n_rd_main'
         file: '@f_audio_o<current()>'
         asset: '@a_audio<current()>'
     ar_audio_t{1..10} (extends asset_rendition_n):
@@ -398,7 +442,7 @@ App\Entity\Core\AssetRendition:
         file: '@f_audio_t<current()>'
         asset: '@a_audio<current()>'
     ar_video_o{1..10} (extends asset_rendition_n):
-        definition: '@n_rd_original'
+        definition: '@n_rd_main'
         file: '@f_video_o<current()>'
         asset: '@a_video<current()>'
     ar_video_p{1..10} (extends asset_rendition_n):
@@ -410,7 +454,7 @@ App\Entity\Core\AssetRendition:
         file: '@f_video_t<current()>'
         asset: '@a_video<current()>'
     ar_pdf_o{1..10} (extends asset_rendition_n):
-        definition: '@n_rd_original'
+        definition: '@n_rd_main'
         file: '@f_pdf_o<current()>'
         asset: '@a_pdf<current()>'
     ar_pdf_p{1..10} (extends asset_rendition_n):

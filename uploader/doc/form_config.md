@@ -26,7 +26,8 @@ Set the collection destination of the asset.
 ### Databox reserved keywords
 
 - `databox_title` Set the title of the asset.
-- `databox_tags` Se
+- `databox_tags` Set the tags of the asset (array of tag UUID).
+- `databox_is_story` Set if the asset is a story (boolean).
 
 ## Hard coded form data (Bulk data)
 

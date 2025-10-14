@@ -26,12 +26,12 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
         parent::__construct($registry, AttributeDefinition::class);
     }
 
-    public function createQueryBuilderAcl(?string $userId, array $groupIds, bool $withConditions = true): QueryBuilder
+    public function addAclConditions(QueryBuilder $queryBuilder, ?string $userId, array $groupIds, bool $withConditions = true): QueryBuilder
     {
-        $queryBuilder = $this
-            ->createQueryBuilder('t')
-            ->innerJoin('t.policy', 'c')
-            ->innerJoin('t.workspace', 'w');
+        $rootAlias = $queryBuilder->getRootAliases()[0];
+        $queryBuilder
+            ->innerJoin($rootAlias.'.policy', 'acl_c')
+            ->innerJoin($rootAlias.'.workspace', 'acl_w');
 
         if (null !== $userId) {
             AccessControlEntryRepository::joinAcl(
@@ -39,7 +39,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
                 $userId,
                 $groupIds,
                 'attribute_policy',
-                'c',
+                'acl_c',
                 PermissionInterface::VIEW,
                 false,
                 'ap_ace'
@@ -49,7 +49,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
                 $userId,
                 $groupIds,
                 'workspace',
-                'w',
+                'acl_w',
                 PermissionInterface::VIEW,
                 false,
                 'w_ace',
@@ -57,17 +57,22 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             );
             $queryBuilder->setParameter('uid', $userId);
             if ($withConditions) {
-                $queryBuilder->andWhere('c.public = true OR ap_ace.id IS NOT NULL');
-                $queryBuilder->andWhere('w.public = true OR w.ownerId = :uid OR w_ace.id IS NOT NULL');
+                $queryBuilder->andWhere('acl_c.public = true OR ap_ace.id IS NOT NULL');
+                $queryBuilder->andWhere('acl_w.public = true OR acl_w.ownerId = :uid OR w_ace.id IS NOT NULL');
             }
         } else {
             if ($withConditions) {
-                $queryBuilder->andWhere('c.public = true');
-                $queryBuilder->andWhere('w.public = true');
+                $queryBuilder->andWhere('acl_c.public = true');
+                $queryBuilder->andWhere('acl_w.public = true');
             }
         }
 
         return $queryBuilder;
+    }
+
+    public function createQueryBuilderAcl(?string $userId, array $groupIds, bool $withConditions = true): QueryBuilder
+    {
+        return $this->addAclConditions($this->createQueryBuilder('t'), $userId, $groupIds, $withConditions);
     }
 
     public function getAttributeDefinitionBySlug(string $workspaceId, string $slug): ?AttributeDefinition
@@ -97,15 +102,15 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->addSelect('t.multiple')
             ->addSelect('t.searchBoost')
             ->addSelect('t.translatable')
-            ->addSelect('w.public AS wPublic')
-            ->addSelect('c.public AS cPublic')
-            ->addSelect('w.id AS workspaceId')
-            ->addSelect('w.enabledLocales AS enabledLocales')
+            ->addSelect('acl_w.public AS wPublic')
+            ->addSelect('acl_c.public AS cPublic')
+            ->addSelect('acl_w.id AS workspaceId')
+            ->addSelect('acl_w.enabledLocales AS enabledLocales')
             ->andWhere('t.searchable = true')
         ;
 
         if (null !== $userId) {
-            $queryBuilder->addSelect('w.ownerId AS w_ownerId');
+            $queryBuilder->addSelect('acl_w.ownerId AS w_ownerId');
             $queryBuilder->addSelect('w_ace.id AS w_aceId');
             $queryBuilder->addSelect('ap_ace.id AS ap_aceId');
         }

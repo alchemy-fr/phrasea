@@ -9,11 +9,12 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\AssetOutput;
+use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Asset\Attribute\AttributesResolver;
 use App\Attribute\AttributeTypeRegistry;
-use App\Elasticsearch\Facet\FacetRegistry;
+use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
@@ -43,7 +44,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         private readonly AttributesResolver $attributesResolver,
         private readonly AssetTitleResolver $assetTitleResolver,
         private readonly FieldNameResolver $fieldNameResolver,
-        private readonly FacetRegistry $facetRegistry,
+        private readonly BuiltInFieldRegistry $builtInFieldRegistry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
         private readonly DiscussionManager $discussionManager,
         private readonly NotifierInterface $notifier,
@@ -104,8 +105,10 @@ class AssetOutputTransformer implements OutputTransformerInterface
         if ($this->hasGroup([
             Asset::GROUP_LIST,
             Asset::GROUP_READ,
+            Asset::GROUP_STORY,
             Share::GROUP_READ,
             Share::GROUP_PUBLIC_READ,
+            ResolveEntitiesOutput::GROUP_READ,
         ], $context)) {
             $attributesIndex = $this->attributesResolver->resolveAssetAttributes($data, true);
             $attributes = $attributesIndex->getFlattenAttributes();
@@ -155,44 +158,46 @@ class AssetOutputTransformer implements OutputTransformerInterface
                     $this->lastGroupKey = $groupKey;
                 }
             }
-        }
 
-        $output->setPrivacy($data->getPrivacy());
-        $output->setTags($data->getTags()->getValues());
-        $output->setWorkspace($data->getWorkspace());
+            $output->setPrivacy($data->getPrivacy());
+            $output->setTags($data->getTags()->getValues());
+            $output->setWorkspace($data->getWorkspace());
 
-        $renditions = $this->em
-            ->getRepository(AssetRendition::class)
-            ->findAssetRenditions($data->getId());
+            $renditions = $this->em
+                ->getRepository(AssetRendition::class)
+                ->findAssetRenditions($data->getId());
 
-        foreach ([
-            'original',
-            'preview',
-            'thumbnail',
-            'thumbnailActive',
-        ] as $type) {
-            if (null !== $file = $this->getRenditionUsedAsType($renditions, $data, $type, $userId, $groupIds)) {
-                $output->{'set'.ucfirst($type)}($file);
+            foreach ([
+                'main',
+                'preview',
+                'thumbnail',
+                'animatedThumbnail',
+            ] as $type) {
+                if (null !== $file = $this->getRenditionUsedAsType($renditions, $data, $type, $userId, $groupIds)) {
+                    $output->{'set'.ucfirst($type)}($file);
+                }
             }
-        }
 
-        $output->referenceCollection = $data->getReferenceCollection();
+            $output->referenceCollection = $data->getReferenceCollection();
 
-        $output->setCollections($data->getCollections()->map(function (CollectionAsset $collectionAsset,
-        ): Collection {
-            $collection = $collectionAsset->getCollection();
-            $collection->setRelationExtraMetadata($collectionAsset->getExtraMetadata());
+            $output->setCollections($data->getCollections()->map(function (CollectionAsset $collectionAsset,
+            ): Collection {
+                $collection = $collectionAsset->getCollection();
+                $collection->setRelationExtraMetadata($collectionAsset->getExtraMetadata());
 
-            return $collection;
-        })
-            ->filter(fn (Collection $collection): bool => $this->isGranted(AbstractVoter::LIST, $collection))
-            ->getValues());
+                return $collection;
+            })
+                ->filter(fn (Collection $collection): bool => $this->isGranted(AbstractVoter::LIST, $collection))
+                ->getValues());
 
-        if (null !== $data->getPendingUploadToken()) {
-            $output->setPendingSourceFile(true);
-            $output->setPendingUploadToken($data->getPendingUploadToken());
-        } else {
-            $output->setPendingSourceFile(false);
+            if (null !== $data->getPendingUploadToken()) {
+                $output->setPendingSourceFile(true);
+                $output->setPendingUploadToken($data->getPendingUploadToken());
+            } else {
+                $output->setPendingSourceFile(false);
+            }
+
+            $output->storyCollection = $data->getStoryCollection();
         }
 
         if ($this->hasGroup([Asset::GROUP_LIST, Asset::GROUP_READ], $context)) {
@@ -205,12 +210,12 @@ class AssetOutputTransformer implements OutputTransformerInterface
             ]);
         }
 
-        if ($this->hasGroup([Asset::GROUP_READ], $context)) {
+        if ($this->hasGroup([Asset::GROUP_READ, Asset::GROUP_LIST], $context)) {
             $output->threadKey = $this->discussionManager->getObjectKey($data);
+        }
+        if ($this->hasGroup([Asset::GROUP_READ], $context)) {
             $output->thread = $this->discussionManager->getThreadOfObject($data);
         }
-
-        $output->storyCollection = $data->getStoryCollection();
 
         return $output;
     }
@@ -239,12 +244,12 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
     private function getGroupValue($groupBy, Asset $object, $indexValue): GroupValue
     {
-        $facet = $this->facetRegistry->getFacet($groupBy);
+        $builtInField = $this->builtInFieldRegistry->getBuiltInField($groupBy);
 
-        if (null !== $facet) {
-            $value = $facet->getValueFromAsset($object);
+        if (null !== $builtInField) {
+            $value = $builtInField->getValueFromAsset($object);
 
-            return $facet->resolveGroupValue($groupBy, $value);
+            return $builtInField->resolveGroupValue($groupBy, $value);
         } else {
             ['type' => $type] = $this->fieldNameResolver->getFieldFromName($groupBy);
             $key = $value = $indexValue ?? null;

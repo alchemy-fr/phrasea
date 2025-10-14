@@ -55,6 +55,11 @@ class AttributeListOutputTransformer implements OutputTransformerInterface
 
             $output->items = [];
             foreach ($listItems as $item) {
+                if (null !== $attributeDefinition = $item->getDefinition()) {
+                    if (!$this->security->isGranted(AbstractVoter::READ, $attributeDefinition)) {
+                        continue;
+                    }
+                }
                 $output->items[] = $this->attributeListItemOutputTransformer->createOutput($item);
             }
         }

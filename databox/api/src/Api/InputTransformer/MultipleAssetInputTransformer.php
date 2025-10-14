@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
+use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Entity\Core\Asset;
 
@@ -25,7 +26,28 @@ class MultipleAssetInputTransformer extends AbstractFileInputTransformer
     {
         $assets = [];
         $context[AssetInputTransformer::CONTEXT_CREATION_MICRO_TIME] = microtime(true);
+
+        if ($data->isStory && !empty($data->assets)) {
+            $ref = $data->assets[0];
+            $storyAssetInput = new AssetInput();
+            $storyAssetInput->title = $data->story?->title ?? $data->assets[0]->title ?? 'Story';
+            $storyAssetInput->isStory = true;
+            $storyAssetInput->tags = $data->story?->tags;
+            $storyAssetInput->attributes = $data->story?->attributes;
+            $storyAssetInput->workspace = $ref->workspace;
+            $storyAssetInput->collection = $ref->collection;
+            $storyAssetInput->destinations = $ref->destinations;
+
+            $storyAsset = $this->assetInputTransformer->transform($storyAssetInput, $storyAssetInput::class, $context);
+            $assets[] = $storyAsset;
+        }
+
         foreach ($data->assets as $asset) {
+            if (isset($storyAsset)) {
+                $asset->destinations = null;
+                $asset->collection = $storyAsset->getStoryCollection();
+            }
+
             $assets[] = $this->assetInputTransformer->transform($asset, $asset::class, $context);
         }
 

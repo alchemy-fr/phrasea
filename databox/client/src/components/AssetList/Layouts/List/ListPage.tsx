@@ -46,8 +46,8 @@ function ListPage<Item extends AssetOrAssetContainer>({
                     <GroupRow key={item.id} asset={asset} top={toolbarHeight}>
                         <div
                             onDoubleClick={
-                                onOpen && asset.original
-                                    ? () => onOpen(asset, asset.original!.id)
+                                onOpen && asset.main
+                                    ? () => onOpen(asset, asset.main!.id)
                                     : undefined
                             }
                             onContextMenu={

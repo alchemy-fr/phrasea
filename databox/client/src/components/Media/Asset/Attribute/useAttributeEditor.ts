@@ -1,72 +1,54 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {
     AttributeIndex,
     AttrValue,
     DefinitionIndex,
     OnChangeHandler,
 } from './AttributesEditor';
-import {Attribute, AttributeDefinition} from '../../../../types';
-import {getWorkspaceAttributeDefinitions} from '../../../../api/attributes';
+import {AssetTypeFilter, Attribute} from '../../../../types';
 import {getAsset, getAssetAttributes} from '../../../../api/asset';
 import {getBatchActions} from './BatchActions';
 import {NO_LOCALE} from './constants.ts';
 import {useAssetStore} from '../../../../store/assetStore.ts';
+import {
+    useAttributeDefinitionStore,
+    useIndexById,
+} from '../../../../store/attributeDefinitionStore.ts';
 
-export function useAttributeEditor({
-    workspaceId,
-    assetId,
-}: {
+type Props = {
     workspaceId: string | undefined;
     assetId?: string | string[] | undefined;
-}) {
-    const [dirty, setDirty] = React.useState(false);
-    const [state, setState] = useState<{
-        remoteAttributes: AttributeIndex;
-        definitionIndex: DefinitionIndex;
-    }>();
+    target: AssetTypeFilter;
+};
 
-    const [attributes, setAttributes] = useState<
-        AttributeIndex<string | number> | undefined
-    >();
+export function useAttributeEditor({workspaceId, assetId, target}: Props) {
+    const [dirty, setDirty] = React.useState(false);
+    const [remoteAttributes, setRemoteAttributes] =
+        React.useState<Attribute[]>();
+    const [attributes, setAttributes] =
+        React.useState<AttributeIndex<string | number>>();
 
     const updateAsset = useAssetStore(s => s.update);
+    const loadWorkspaceDefinitions = useAttributeDefinitionStore(
+        s => s.loadWorkspace
+    );
+    const definitionIndex = useIndexById({workspaceId, target});
 
     useEffect(() => {
-        setAttributes(undefined);
+        setAttributes(
+            buildAttributeIndex(definitionIndex, remoteAttributes ?? [])
+        );
+    }, [definitionIndex, remoteAttributes]);
 
+    useEffect(() => {
+        setRemoteAttributes(undefined);
         if (workspaceId) {
-            (async () => {
-                setAttributes(undefined);
-                const promises: Promise<any>[] = [
-                    getWorkspaceAttributeDefinitions(workspaceId!),
-                ];
-                if (assetId) {
-                    promises.push(getAssetAttributes(assetId));
-                }
-
-                const [definitions, attributes]: [
-                    AttributeDefinition[],
-                    Attribute[],
-                ] = (await Promise.all(promises)) as any;
-
-                const definitionIndex: DefinitionIndex = {};
-                for (const ad of definitions) {
-                    definitionIndex[ad.id] = ad;
-                }
-
-                const attributeIndex = buildAttributeIndex(
-                    definitionIndex,
-                    attributes ?? []
-                );
-
-                setAttributes(attributeIndex);
-                setState({
-                    definitionIndex,
-                    remoteAttributes: attributeIndex,
-                });
-            })();
+            loadWorkspaceDefinitions(workspaceId);
+            if (assetId) {
+                getAssetAttributes(assetId).then(setRemoteAttributes);
+            }
         }
-    }, [workspaceId, assetId]);
+    }, [loadWorkspaceDefinitions, workspaceId, assetId]);
 
     const onChangeHandler = useCallback<OnChangeHandler>(
         (defId, locale, value) => {
@@ -95,19 +77,11 @@ export function useAttributeEditor({
         []
     );
 
-    const setRemoteAttributes = React.useCallback(
-        (remoteAttributes: AttributeIndex) => {
-            setState(p => ({
-                ...p!,
-                remoteAttributes,
-            }));
-        },
-        []
-    );
-
     const reset = React.useCallback(() => {
-        setAttributes(state?.remoteAttributes);
-    }, [state?.remoteAttributes]);
+        setAttributes(
+            buildAttributeIndex(definitionIndex, remoteAttributes ?? [])
+        );
+    }, [remoteAttributes]);
 
     return React.useMemo(() => {
         const reloadAssetAttributes = async (assetId: string) => {
@@ -116,25 +90,25 @@ export function useAttributeEditor({
             updateAsset(res);
 
             const attributeIndex = buildAttributeIndex(
-                state!.definitionIndex,
+                definitionIndex,
                 res.attributes
             );
 
             setDirty(false);
-            setRemoteAttributes(attributeIndex);
+            setRemoteAttributes(res.attributes);
             setAttributes(attributeIndex);
         };
 
         const getActions = () =>
             getBatchActions(
                 attributes!,
-                state!.definitionIndex,
-                state!.remoteAttributes
+                definitionIndex,
+                buildAttributeIndex(definitionIndex, remoteAttributes ?? [])
             );
 
         return {
-            definitionIndex: state?.definitionIndex,
-            remoteAttributes: state?.remoteAttributes,
+            definitionIndex,
+            remoteAttributes,
             reloadAssetAttributes,
             attributes,
             onChangeHandler,
@@ -142,7 +116,13 @@ export function useAttributeEditor({
             reset,
             dirty,
         };
-    }, [state, workspaceId, attributes, updateAsset]);
+    }, [
+        definitionIndex,
+        remoteAttributes,
+        workspaceId,
+        attributes,
+        updateAsset,
+    ]);
 }
 
 export function buildAttributeIndex(

@@ -1,6 +1,7 @@
 import apiClient from './api-client';
 import {EntityList} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {SortWay} from './common.ts';
 
 export const entityTypeNS = '/entity-lists';
 
@@ -17,7 +18,7 @@ export async function getEntityLists(
         params: {
             ...(options ?? {}),
             workspace: workspaceId,
-            [`order[value]`]: 'asc',
+            [`order[value]`]: SortWay.ASC,
         },
     });
 

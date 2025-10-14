@@ -50,7 +50,6 @@
     "asset": {
         "delete": {
             "confirm": {
-                "message_many_plural": "Möchten Sie {{count}} Assets wirklich löschen?",
                 "message_one": "Möchten Sie dieses Asset wirklich löschen?",
                 "message_other": "Möchten Sie diese Assets wirklich löschen?",
                 "title": "Löschen bestätigen",
@@ -721,7 +720,7 @@
             "pickSourceFile": {
                 "label": "Quelldatei auswählen"
             },
-            "useAsOriginal": {
+            "useAsMain": {
                 "label": "Als Original Dokument verwenden"
             },
             "useAsThumbnail": {
@@ -733,18 +732,18 @@
             "policy": {
                 "label": "Richtlinie"
             },
-            "useAsThumbnailActive": {
+            "useAsAnimatedThumbnail": {
                 "label": "Als aktives Miniaturbild verwenden"
             },
             "buildMode": {
                 "label": "Baumodus"
             },
             "useAs": {
-                "label": "Diese Rendition ist",
-                "original": "Original",
+                "label": "Rendition für die Anzeige",
+                "main": "Hauptdokument",
                 "preview": "Vorschau",
-                "thumbnail": "Miniaturbild",
-                "thumbnailActive": "Aktive Miniaturbild"
+                "thumbnail": "Miniaturansicht",
+                "animatedThumbnail": "Aktive Miniaturansicht"
             },
             "substitutable": {
                 "label": "Ersetzbar"
@@ -1370,11 +1369,11 @@
                 },
                 "delete": {
                     "desc": "Benachrichtigung erhalten, wenn das Asset gelöscht wird",
-                    "label": "Löschen"
+                    "label": "Löschung"
                 },
                 "update": {
                     "desc": "Benachrichtigung erhalten, wenn das Asset aktualisiert wird",
-                    "label": "Aktualisieren"
+                    "label": "Aktualisierung"
                 }
             },
             "collection": {
@@ -1513,7 +1512,7 @@
             "tumblr": {
                 "title": "Auf Tumblr teilen"
             },
-            "twitter": {
+            "x": {
                 "title": "Auf X teilen"
             },
             "whatsapp": {

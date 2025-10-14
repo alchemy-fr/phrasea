@@ -1,5 +1,7 @@
 {
-    "locale": {"current": "Español"},
+    "locale": {
+        "current": "Español"
+    },
     "acl": {
         "delete": "Eliminar",
         "form": {
@@ -27,20 +29,14 @@
         },
         "collection_list": {
             "collections_one": "+ {{count}} Collection",
-            "collections_many": "",
-            "collections_other": "",
             "collections_plural": "+ {{count}} Collection",
             "others_one": "+ {{count}} otros",
-            "others_many": "",
-            "others_other": "",
-            "others_plural": "+ {{count}} otros"
+            "others_other": "+ {{count}} otros"
         },
         "delete": {
             "confirm": {
                 "message_one": "¿Seguro que quieres eliminar este Asset?",
-                "message_many": "¿Seguro que quieres eliminar {{count}} Asset?",
-                "message_other": "",
-                "message_many_plural": "¿Seguro que quieres eliminar {{count}} Asset?",
+                "message_other": "¿Seguro que quieres eliminar {{count}} Asset?",
                 "title": "Confirmar eliminación"
             }
         },
@@ -87,13 +83,9 @@
         },
         "tag_list": {
             "others_one": "+ {{count}} otros",
-            "others_many": "",
-            "others_other": "",
-            "others_plural": "+ {{count}} otros",
+            "others_other": "+ {{count}} otros",
             "tags_one": "+ {{count}} Tag",
-            "tags_many": "",
-            "tags_other": "",
-            "tags_plural": "+ {{count}} Tag"
+            "tags_other": "+ {{count}} Tag"
         },
         "view": {
             "attributes": "Attributos de Asset"
@@ -192,7 +184,8 @@
         }
     },
     "attributes": {
-        "values": "{{count}} valores"
+        "values_one": "{{count}} valores",
+        "values_other": ""
     },
     "attributes_editor_form": {
         "attributes_saved": "¡Attributos guardados!"
@@ -327,8 +320,8 @@
         "dialog": {
             "intro": "¿Dónde quieres copiar los Asset seleccionados?",
             "submit": "Copiar",
-            "title": "Copiar {{count}} Asset",
-            "title_plural": "Copiar {{count}} Asset"
+            "title_one": "Copiar {{count}} Asset",
+            "title_other": "Copiar {{count}} Asset"
         },
         "form": {
             "by_reference": {
@@ -595,7 +588,7 @@
             "pickSourceFile": {
                 "label": "Seleccionar archivo fuente"
             },
-            "useAsOriginal": {
+            "useAsMain": {
                 "label": "Usar como original"
             },
             "useAsPreview": {
@@ -604,7 +597,7 @@
             "useAsThumbnail": {
                 "label": "Usar como miniatura"
             },
-            "useAsThumbnailActive": {
+            "useAsAnimatedThumbnail": {
                 "label": "Usar como miniatura activa"
             }
         },
@@ -757,9 +750,7 @@
             "intro": "¿Dónde quieres mover los Asset seleccionados?",
             "submit": "Mover",
             "title_one": "Mover {{count}} Asset",
-            "title_many": "",
-            "title_other": "",
-            "title_plural": "Mover {{count}} Asset"
+            "title_other": "Mover {{count}} Asset"
         }
     },
     "move_assets_dialog": {

@@ -10,7 +10,7 @@ import Renditions from './Rendition/Renditions.tsx';
 import InfoAsset from './InfoAsset';
 import AssetFileVersions from './AssetFileVersions';
 import OperationsAsset from './OperationsAsset';
-import {modalRoutes} from '../../../routes';
+import {modalRoutes, Routing} from '../../../routes';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 import AssetWorkflow from './AssetWorkflow.tsx';
 import {useAuth} from '@alchemy/react-auth';
@@ -51,13 +51,14 @@ export default function AssetDialog({}: Props) {
                     onClick: () =>
                         navigateToModal(modalRoutes.assets.routes.view, {
                             id: data.id,
-                            renditionId: data.original?.id,
+                            renditionId:
+                                data.main?.id || Routing.UnknownRendition,
                         }),
                     id: 'open',
                     props: {
                         data,
                     },
-                    enabled: !!data.original,
+                    enabled: !!data.main,
                 },
                 {
                     title: t('asset.manage.info.title', 'Info'),

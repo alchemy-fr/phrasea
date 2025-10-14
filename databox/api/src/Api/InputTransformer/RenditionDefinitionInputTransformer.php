@@ -7,6 +7,7 @@ namespace App\Api\InputTransformer;
 use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
+use App\Model\AssetTypeEnum;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
@@ -56,6 +57,9 @@ class RenditionDefinitionInputTransformer extends AbstractInputTransformer
         }
 
         $object->setParent($data->parent);
+        if (null !== $data->target) {
+            $object->setTarget(AssetTypeEnum::tryFrom($data->target) ?? AssetTypeEnum::Asset);
+        }
 
         if (null !== $data->name) {
             $object->setName($data->name);
@@ -72,8 +76,8 @@ class RenditionDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->buildMode) {
             $object->setBuildMode($data->buildMode);
         }
-        if (null !== $data->useAsOriginal) {
-            $object->setUseAsOriginal($data->useAsOriginal);
+        if (null !== $data->useAsMain) {
+            $object->setUseAsMain($data->useAsMain);
         }
         if (null !== $data->useAsPreview) {
             $object->setUseAsPreview($data->useAsPreview);
@@ -81,8 +85,8 @@ class RenditionDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->useAsThumbnail) {
             $object->setUseAsThumbnail($data->useAsThumbnail);
         }
-        if (null !== $data->useAsThumbnailActive) {
-            $object->setUseAsThumbnailActive($data->useAsThumbnailActive);
+        if (null !== $data->useAsAnimatedThumbnail) {
+            $object->setUseAsAnimatedThumbnail($data->useAsAnimatedThumbnail);
         }
         if (null !== $data->definition) {
             $object->setDefinition($data->definition);

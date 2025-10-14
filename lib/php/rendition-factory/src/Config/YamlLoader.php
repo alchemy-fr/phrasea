@@ -34,6 +34,14 @@ final readonly class YamlLoader implements FileLoaderInterface
 
     private function parseConfig(array $data): BuildConfig
     {
+        if (isset($data['generate'])) {
+            if (!is_array($data['generate'])) {
+                throw new ModelException('Invalid generate configuration. Array expected');
+            }
+
+            return new BuildConfig([], $data['generate']);
+        }
+
         $families = [];
         foreach ($data as $familyKey => $familyConfig) {
             if (null === $family = FamilyEnum::tryFrom($familyKey)) {
@@ -49,7 +57,7 @@ final readonly class YamlLoader implements FileLoaderInterface
             }
         }
 
-        return new BuildConfig($families);
+        return new BuildConfig($families, null);
     }
 
     private function parseFamilyConfig(array $data): FamilyBuildConfig

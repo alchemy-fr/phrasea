@@ -32,10 +32,10 @@ abstract class AbstractSearch
             }
         }
 
-        $aclBoolQuery = new Query\BoolQuery();
-        $should = [];
+        $workspacesQuery = new Query\BoolQuery();
 
-        $publicWorkspaceIds = $this->getPublicWorkspaceIds();
+        $should = [];
+        $permittedWorkspaces = $publicWorkspaceIds = $this->getPublicWorkspaceIds();
         if (null !== $userId) {
             if (!empty($publicWorkspaceIds)) {
                 $publicWorkspaceBoolQuery = new Query\BoolQuery();
@@ -48,6 +48,7 @@ abstract class AbstractSearch
 
             $allowedWorkspaceIds = $this->getAllowedWorkspaceIds($userId, $groupIds);
             if (!empty($allowedWorkspaceIds)) {
+                $permittedWorkspaces = array_merge($permittedWorkspaces, $allowedWorkspaceIds);
                 $workspaceBoolQuery = new Query\BoolQuery();
 
                 $workspaceBoolQuery->addMust(new Query\Terms('workspaceId', $allowedWorkspaceIds));
@@ -74,15 +75,24 @@ abstract class AbstractSearch
             }
         }
 
-        if (!empty($should)) {
-            foreach ($should as $query) {
-                $aclBoolQuery->addShould($query);
-            }
-        } else {
-            $aclBoolQuery->addShould(new Query\Term(['workspaceId' => 'PUBLIC_WS']));
+        $permittedWorkspaces = array_values(array_unique($permittedWorkspaces));
+        if (empty($permittedWorkspaces)) {
+            $workspacesQuery->addMust(new Query\Term(['_id' => '__no_such_id__']));
+
+            return $workspacesQuery;
         }
 
-        return $aclBoolQuery;
+        $workspacesQuery->addMust(new Query\Terms('workspaceId', $permittedWorkspaces));
+
+        if (!empty($should)) {
+            $aclQuery = new Query\BoolQuery();
+            foreach ($should as $query) {
+                $aclQuery->addShould($query);
+            }
+            $workspacesQuery->addMust($aclQuery);
+        }
+
+        return $workspacesQuery;
     }
 
     protected function getAdminScope(): ?string

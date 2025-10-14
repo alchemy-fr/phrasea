@@ -1,7 +1,7 @@
 import {useContext} from 'react';
 import {Tag} from '../../../../types';
 import {DisplayContext} from '../../DisplayContext';
-import TagNode, {tagClassName} from '../../../Ui/TagNode';
+import TagNode from '../../../Ui/TagNode';
 import assetClasses from '../../../AssetList/classes';
 import {useTranslation} from 'react-i18next';
 
@@ -31,8 +31,16 @@ export default function AssetTagList({tags}: Props) {
     const rest = tags.length - (tagsLimit - 1);
     const others =
         tagsLimit > 1
-            ? t('asset.tag_list.others', `+ {{count}} others`, {count: rest})
-            : t('asset.tag_list.tags', `+ {{count}} tag`, {count: rest});
+            ? t('asset.tag_list.others', {
+                  defaultValue: `+ {{count}} other`,
+                  defaultValue_other: `+ {{count}} others`,
+                  count: rest,
+              })
+            : t('asset.tag_list.tags', {
+                  defaultValue: `+ {{count}} tag`,
+                  defaultValue_other: `+ {{count}} tags`,
+                  count: rest,
+              });
     const chips =
         tags.length <= tagsLimit
             ? tags.slice(0, tagsLimit).map(r)
@@ -58,13 +66,10 @@ export default function AssetTagList({tags}: Props) {
 export function tagListSx() {
     return {
         [`.${assetClasses.tagList}`]: {
-            px: 1,
             display: 'flex',
+            gap: 0.5,
             alignItems: 'center',
             flexWrap: 'wrap',
-            [`.${tagClassName}+.${tagClassName}`]: {
-                ml: 0.5,
-            },
         },
     };
 }

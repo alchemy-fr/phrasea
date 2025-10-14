@@ -1,5 +1,10 @@
 import {useCallback, useEffect, useState} from 'react';
-import {Asset, AssetRendition, RenditionDefinition} from '../../../../types.ts';
+import {
+    Asset,
+    AssetRendition,
+    AssetType,
+    RenditionDefinition,
+} from '../../../../types.ts';
 import {DialogTabProps} from '../../Tabbed/TabbedDialog.tsx';
 import ContentTab from '../../Tabbed/ContentTab.tsx';
 import {
@@ -41,6 +46,9 @@ export default function Renditions({data, onClose, minHeight}: Props) {
                 getAssetRenditions(data.id),
                 getRenditionDefinitions({
                     workspaceIds: [data.workspace.id],
+                    target: data.storyCollection
+                        ? AssetType.Story
+                        : AssetType.Asset,
                 }),
             ]);
             setRenditions(r.result);

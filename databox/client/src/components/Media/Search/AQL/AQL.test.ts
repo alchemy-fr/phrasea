@@ -15,6 +15,26 @@ it('parse AQL', function () {
             },
         },
         {
+            query: '@tag = false',
+            result: {
+                expression: {
+                    leftOperand: {field: '@tag'},
+                    operator: '=',
+                    rightOperand: false,
+                },
+            },
+        },
+        {
+            query: '@tag = null',
+            result: {
+                expression: {
+                    leftOperand: {field: '@tag'},
+                    operator: '=',
+                    rightOperand: null,
+                },
+            },
+        },
+        {
             query: '@tag = (1 + 2 )',
             formattedQuery: '@tag = (1 + 2)',
             result: {

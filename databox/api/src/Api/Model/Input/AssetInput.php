@@ -72,4 +72,9 @@ class AssetInput extends AbstractOwnerIdInput
     public ?array $relationExtraMetadata = null;
 
     public ?bool $isStory = null;
+
+    /**
+     * @var AssetStoryInput
+     */
+    public ?array $story = null;
 }

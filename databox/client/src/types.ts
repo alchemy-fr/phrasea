@@ -74,11 +74,11 @@ export interface Asset
     attributes: Attribute[];
     referenceCollection?: Collection | undefined;
     collections: Collection[] | undefined;
-    original: AssetRendition | null;
+    main: AssetRendition | null;
     preview: AssetRendition | null;
     source: File | undefined;
     thumbnail: AssetRendition | null;
-    thumbnailActive: AssetRendition | null;
+    animatedThumbnail: AssetRendition | null;
     createdAt: string;
     updatedAt: string;
     editedAt: string;
@@ -87,6 +87,7 @@ export interface Asset
     attributesEditedAt: string;
     groupValue?: GroupValue | undefined;
     topicSubscriptions?: TopicSubscriptions;
+    storyCollection?: Collection | undefined;
 }
 
 type AttrValue = any;
@@ -144,6 +145,7 @@ export interface AttributeDefinition extends IPermissions, Entity {
     entityIri?: string | undefined;
     resolveLabel?: (entity: object) => string;
     getValueFromAsset?: (asset: Asset) => any;
+    target: AssetType;
 }
 
 export type FieldWidget<P extends {} = any> = {
@@ -179,11 +181,12 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
     definition: string;
     buildMode?: RenditionBuildMode | string;
     substitutable: boolean;
-    useAsOriginal?: boolean;
+    useAsMain?: boolean;
     useAsPreview?: boolean;
     useAsThumbnail?: boolean;
-    useAsThumbnailActive?: boolean;
+    useAsAnimatedThumbnail?: boolean;
     priority: number;
+    target: AssetType;
 }
 
 export interface AssetRendition extends ApiHydraObjectResponse, Entity {
@@ -283,6 +286,7 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
 export interface Collection extends IPermissions, Entity {
     title: string;
     titleTranslated: string;
+    storyAsset?: Asset;
     absoluteTitle?: string;
     absoluteTitleTranslated?: string;
     children?: CollectionOptionalWorkspace[];
@@ -446,6 +450,18 @@ export enum UserType {
 export enum CollectionOrWorkspace {
     Collection = 'collection',
     Workspace = 'workspace',
+}
+
+export enum AssetType {
+    Asset = 1,
+    Story = 2,
+    Both = 3,
+}
+
+export enum AssetTypeFilter {
+    All = 0,
+    Asset = 1,
+    Story = 2,
 }
 
 export type Ace = (

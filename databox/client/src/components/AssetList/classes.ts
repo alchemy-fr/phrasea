@@ -7,7 +7,7 @@ const assetClasses = {
     title: 't',
     legend: 'l',
     attributes: 'aa',
-    thumbActive: 'tha',
+    animatedThumb: 'tha',
     thumbInactive: 'thia',
     thumbWrapper: 'tw',
     toggleFormat: 'toggle-format',
@@ -23,6 +23,11 @@ const assetClasses = {
     videoPlayerIsAudio: 'asset-ia',
     videoPlayerActions: 'vp-actions',
     videoPlayerPlaying: 'asset-playing',
+    assetChip: 'asset-chip',
+    storyThumb: 'story-tb',
+    storyThumbsLoaded: 'story-tbl',
+    storyShouldHide: 'story-sh',
+    assetIcon: 'asset-icon',
 };
 
 export default assetClasses;

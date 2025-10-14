@@ -46,8 +46,9 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
     };
 
     const otherCollections =
-        data.collections?.filter(c => c.id !== data.referenceCollection?.id) ??
-        [];
+        data.collections?.filter(
+            c => c.id !== data.referenceCollection?.id && !c.storyAsset
+        ) ?? [];
 
     return (
         <ContentTab onClose={onClose} minHeight={minHeight}>

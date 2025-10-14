@@ -2,7 +2,7 @@ import {useNavigateToModal} from '../components/Routing/ModalLink.tsx';
 import {useMemo} from 'react';
 import DeleteAssetsConfirm from '../components/Media/Asset/Actions/DeleteAssetsConfirm.tsx';
 import ExportAssetsDialog from '../components/Media/Asset/Actions/ExportAssetsDialog.tsx';
-import {modalRoutes} from '../routes.ts';
+import {modalRoutes, Routing} from '../routes.ts';
 import {Asset, AssetOrAssetContainer} from '../types.ts';
 import {useModals} from '@alchemy/navigation';
 import {ActionsContext, ReloadFunc} from '../components/AssetList/types.ts';
@@ -29,14 +29,14 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
 }: Props<Item>) {
     const {openModal} = useModals();
     const navigateToModal = useNavigateToModal();
-    const {id, original, capabilities} = asset;
+    const {id, main, capabilities} = asset;
 
     return useMemo(
         () => ({
             can: {
-                open: actionsContext.open && original,
+                open: actionsContext.open && (main || asset.storyCollection),
                 saveAs: actionsContext.saveAs && asset.source,
-                download: actionsContext.export && original?.file?.url,
+                download: actionsContext.export && main?.file?.url,
                 edit: actionsContext.edit && capabilities.canEdit,
                 editAttributes:
                     actionsContext.edit && capabilities.canEditAttributes,
@@ -63,10 +63,13 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
                 });
                 onAction?.();
             },
-            onOpen: (renditionId: string) => {
+            onOpen: (renditionId?: string) => {
+                if (!renditionId) {
+                    renditionId = asset.main?.id;
+                }
                 navigateToModal(modalRoutes.assets.routes.view, {
                     id: asset.id,
-                    renditionId,
+                    renditionId: renditionId || Routing.UnknownRendition,
                 });
                 onAction?.();
             },
