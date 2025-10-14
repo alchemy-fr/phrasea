@@ -14,7 +14,7 @@
         <!-- The version we set here we got from the keycloak pom
         see https://github.com/keycloak/keycloak/blob/master/pom.xml
         -->
-        <keycloak.version>26.1.2</keycloak.version>
+        <keycloak.version>26.4.0</keycloak.version>
     </properties>
 
     <repositories>
