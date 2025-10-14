@@ -88,7 +88,7 @@ export default function AttributesEditor({
                     >
                         <AttributeType
                             readOnly={!d.canEdit}
-                            attributes={attributes[defId]}
+                            attributes={attributes[defId] || {}}
                             disabled={disabled}
                             definition={d}
                             onChange={onChangeHandler}
