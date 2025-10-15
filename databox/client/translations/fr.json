@@ -172,6 +172,10 @@
     "attribute_definitions": {
         "new": {
             "label": "Nouvel attribut"
+        },
+        "filter": {
+            "asset_type": "Filtrer par type d'Asset",
+            "type": "Filtrer par type"
         }
     },
     "attribute_editor": {
@@ -291,6 +295,9 @@
         "actions": {
             "delete": "Supprimer le panier",
             "edit": "Editer le panier"
+        },
+        "disabled": {
+            "label": "Vous n'êtes pas autorisé à modifier ce panier"
         }
     },
     "basket_delete": {
@@ -566,7 +573,7 @@
                 "label": "Liste d'entités"
             },
             "field_type": {
-                "label": "Type de l'attribut"
+                "label": "Type de champ"
             },
             "multiple": {
                 "label": "Valeurs multiples"
@@ -609,6 +616,9 @@
             },
             "sortable": {
                 "label": "Triable"
+            },
+            "asset_type": {
+                "label": "Type de l'Asset cible"
             }
         },
         "attribute_entity": {
@@ -749,6 +759,9 @@
             },
             "substitutable": {
                 "label": "Substituable"
+            },
+            "target": {
+                "label": "Type d'Asset cible"
             }
         },
         "save_as": {
@@ -782,7 +795,10 @@
             "files_to_upload_one": "<strong>{{count}}</strong> fichier à importer",
             "files_to_upload_many": "",
             "files_to_upload_other": "<strong>{{count}}</strong> fichiers à importer",
-            "reset": "Réinitialiser"
+            "reset": "Réinitialiser",
+            "isStory": {
+                "label": "Story"
+            }
         },
         "Workspace": {
             "fallback_locales": {
@@ -1303,7 +1319,10 @@
             "confirm_message_many": "",
             "confirm_message_other": "Êtes-vous sûr de vouloir supprimer les {{count}}  assets ?",
             "hard_delete": "Supprimer définitivement l'asset?",
-            "remove_from_collection": "Supprimer de la collection <strong> {{name}} </strong>"
+            "remove_from_collection": "Supprimer de la collection <strong> {{name}} </strong>",
+            "shared_warning_one": "Cet asset est actuellement partagé. Le supprimer supprimera l'accès de tous les utilisateurs.",
+            "shared_warning_many": "",
+            "shared_warning_other": "<strong> {{count}} </strong> de ces Assets sont actuellement partagés. Les supprimer supprimera l'accès de tous les utilisateurs."
         },
         "info": {
             "id": "ID",
@@ -1337,7 +1356,8 @@
         "view": {
             "attributes": "Attributs de l'asset",
             "discussion": "Discussion",
-            "info": "Information"
+            "info": "Information",
+            "appears_in": "Apparaît dans"
         },
         "es_document": {
             "sync_now": "Synchroniser maintenant"
@@ -1345,7 +1365,7 @@
         "not_found": "Asset non trouvé"
     },
     "renditions": {
-        "dirty": "Les réglages de cette Rendition ont été modifiés après sa création (dirty).",
+        "dirty": "Les réglages de cette Rendition ont été modifiés après sa génération (Dirty).",
         "download": "Télécharger",
         "delete": "Supprimer",
         "replace": "Remplacer",
@@ -1407,6 +1427,9 @@
     "rendition_definitions": {
         "new": {
             "label": "Nouvelle rendition"
+        },
+        "filter": {
+            "asset_type": "Filtrer par type d'Asset"
         }
     },
     "annotations": {
@@ -1679,7 +1702,10 @@
         "rendition": "Rendition",
         "score": "Score",
         "tag": "Tag",
-        "workspace": "Workspace"
+        "workspace": "Workspace",
+        "collections": "Collections",
+        "isStory": "Story",
+        "stories": "Stories"
     },
     "file": {
         "dialog": {
@@ -1801,6 +1827,37 @@
             "submit": "Importer une rendition",
             "success": "La rendition a été importée avec succès",
             "title": "Importer la rendition {{renditionName}}"
+        }
+    },
+    "aql": {
+        "constant": {
+            "no": "Non",
+            "null": "Nulle",
+            "yes": "Oui"
+        }
+    },
+    "asset_type": {
+        "choice": {
+            "asset": "Assets",
+            "asset_only": "Assets Uniquement",
+            "both": "Les deux",
+            "story": "Stories",
+            "story_only": "Stories uniquement"
+        }
+    },
+    "facet": {
+        "boolean": {
+            "false": {
+                "label": "Non ({{n}})"
+            },
+            "true": {
+                "label": "Oui ({{n}})"
+            }
+        }
+    },
+    "story": {
+        "chip": {
+            "label": "Story"
         }
     }
 }

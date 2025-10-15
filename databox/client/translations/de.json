@@ -58,7 +58,9 @@
             "confirm_message_one": "Möchten Sie {{count}} Asset wirklich löschen?",
             "confirm_message_other": "Möchten Sie {{count}} Assets wirklich löschen?",
             "hard_delete": "Asset dauerhaft löschen",
-            "remove_from_collection": "Aus Kollektion <strong>{{name}}</strong> entfernen"
+            "remove_from_collection": "Aus Kollektion <strong>{{name}}</strong> entfernen",
+            "shared_warning_one": "Diese Ressource wird momentan geteilt. Beim Löschen wird allen Benutzern der Zugriff entzogen.",
+            "shared_warning_other": "Diese Ressourcen werden momentan geteilt. Beim Löschen wird allen Benutzern der Zugriff entzogen."
         },
         "actions": {
             "delete": "Löschen",
@@ -144,7 +146,8 @@
         "view": {
             "attributes": "Asset Attribute",
             "discussion": "Diskussion",
-            "info": "Information"
+            "info": "Information",
+            "appears_in": "Wird angezeigt in"
         },
         "es_document": {
             "sync_now": "Jetzt synchronisieren"
@@ -195,6 +198,10 @@
     "attribute_definitions": {
         "new": {
             "label": "Neues Attribut"
+        },
+        "filter": {
+            "asset_type": "Nach Asset-Typ filtern",
+            "type": "Nach Typ filtern"
         }
     },
     "attribute_editor": {
@@ -313,6 +320,9 @@
         "actions": {
             "delete": "Korb löschen",
             "edit": "Korb bearbeiten"
+        },
+        "disabled": {
+            "label": "Sie sind nicht berechtigt, diesen Korb zu ändern."
         }
     },
     "basket_delete": {
@@ -615,6 +625,9 @@
             },
             "sortable": {
                 "label": "Sortierbar"
+            },
+            "asset_type": {
+                "label": "Typ des Ziel-Assets"
             }
         },
         "attribute_entity": {
@@ -747,6 +760,9 @@
             },
             "substitutable": {
                 "label": "Ersetzbar"
+            },
+            "target": {
+                "label": "Typ des Ziel-Assets"
             }
         },
         "save_as": {
@@ -779,7 +795,10 @@
             },
             "files_to_upload_one": "<strong>{{count}}</strong> Datei zum Hochladen",
             "files_to_upload_other": "<strong>{{count}}</strong> Dateien zum Hochladen",
-            "reset": "Zurücksetzen"
+            "reset": "Zurücksetzen",
+            "isStory": {
+                "label": "Story"
+            }
         },
         "workspace": {
             "fallback_locales": {
@@ -1073,10 +1092,13 @@
     "rendition_definitions": {
         "new": {
             "label": "Neue Rendition"
+        },
+        "filter": {
+            "asset_type": "Typ des Ziel-Assets"
         }
     },
     "renditions": {
-        "dirty": "Dirty",
+        "dirty": "Die Einstellungen dieser Rendition wurden nach ihrer Generierung geändert (Dirty).",
         "download": "Download",
         "delete": "Löschen",
         "replace": "Ersetzen",
@@ -1290,7 +1312,10 @@
         "id": "ID",
         "owner": "Besitzer",
         "createdAt": "Erstellt am",
-        "editedAt": "Bearbeitet am"
+        "editedAt": "Bearbeitet am",
+        "collections": "Kollektionen",
+        "isStory": "Story",
+        "stories": "Stories"
     },
     "create_share_link": {
         "form": {
@@ -1636,6 +1661,37 @@
             "submit": "Rendition hochladen",
             "success": "Die Rendition wurde erfolgreich hochgeladen",
             "title": "Rendition {{renditionName}} hochladen"
+        }
+    },
+    "aql": {
+        "constant": {
+            "no": "Nein",
+            "null": "ungültig",
+            "yes": "Ja"
+        }
+    },
+    "asset_type": {
+        "choice": {
+            "asset": "Assets",
+            "asset_only": "Nur Assets",
+            "both": "Beide",
+            "story": "Stories",
+            "story_only": "Nur Stories"
+        }
+    },
+    "facet": {
+        "boolean": {
+            "false": {
+                "label": "Nein ({{n}})"
+            },
+            "true": {
+                "label": "Ja ({{n}})"
+            }
+        }
+    },
+    "story": {
+        "chip": {
+            "label": "Story"
         }
     }
 }
