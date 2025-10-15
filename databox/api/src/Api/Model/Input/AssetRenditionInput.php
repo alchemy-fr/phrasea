@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
-class AssetRenditionInput extends AbstractUploadInput
+class AssetRenditionInput
 {
+    use UploadInputTrait;
+
     /**
      * Rendition definition ID. Or provide name.
      *
@@ -21,16 +23,6 @@ class AssetRenditionInput extends AbstractUploadInput
      * @var string|null
      */
     public $name;
-
-    /**
-     * @var AssetSourceInput|null
-     */
-    public $sourceFile;
-
-    /**
-     * @var string|null
-     */
-    public $sourceFileId;
 
     public $substituted;
 
