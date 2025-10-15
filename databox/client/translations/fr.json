@@ -1692,7 +1692,7 @@
         "tag": "Tag",
         "workspace": "Workspace",
         "collections": "Collections",
-        "isStory": "Storie",
+        "isStory": "Story",
         "stories": "Stories"
     },
     "file": {
@@ -1830,7 +1830,7 @@
             "asset_only": "Assets Uniquement",
             "both": "Les deux",
             "story": "Stories",
-            "story_only": "Storie uniquement"
+            "story_only": "Stories uniquement"
         }
     },
     "facet": {
