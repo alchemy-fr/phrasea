@@ -102,18 +102,33 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private array $collections;
 
+    /**
+     * @var FileOutput|null
+     */
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?File $source = null;
 
+    /**
+     * @var AssetRenditionOutput|null
+     */
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $main = null;
 
+    /**
+     * @var AssetRenditionOutput|null
+     */
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $preview = null;
 
+    /**
+     * @var AssetRenditionOutput|null
+     */
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $thumbnail = null;
 
+    /**
+     * @var AssetRenditionOutput|null
+     */
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $animatedThumbnail = null;
 

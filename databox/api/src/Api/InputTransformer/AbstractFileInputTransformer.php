@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Api\InputTransformer;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
+use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
-use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetSourceInput;
 use App\Consumer\Handler\File\ImportFile;
 use App\Entity\Core\File;
@@ -27,24 +27,24 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
     private FileUploadManager $fileUploadManager;
     private RequestStack $requestStack;
 
-    protected function handleFromFile(?string $fileId): ?File
+    protected function handleFromFile(?string $fileId, Workspace $workspace): ?File
     {
         if (null === $fileId) {
             return null;
         }
 
         $file = $this->getEntity(File::class, $fileId);
-        if (!$file->isPathPublic()) {
-            throw new BadRequestHttpException(sprintf('Copy error: File "%s" has a private path', $fileId));
+        if ($file->getWorkspaceId() !== $workspace->getId()) {
+            throw new BadRequestHttpException(sprintf('Copy error: File "%s" does not belong to workspace "%s"', $fileId, $workspace->getId()));
         }
 
         return $file;
     }
 
-    protected function handleUpload(Workspace $workspace, AssetInput $assetInput): ?File
+    protected function handleUpload(?MultipartUploadInput $multipart, Workspace $workspace): ?File
     {
-        if ($assetInput->multipart) {
-            $multipartUpload = $this->uploadManager->handleMultipartUpload($assetInput->multipart);
+        if ($multipart) {
+            $multipartUpload = $this->uploadManager->handleMultipartUpload($multipart);
 
             $file = new File();
             $file->setWorkspace($workspace);

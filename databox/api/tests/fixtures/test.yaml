@@ -115,13 +115,13 @@ App\Entity\Core\RenditionDefinition:
   rendition_definition (template):
     workspace: '@w_test'
 
-  t_rd_original (extends rendition_definition):
-    name: original
-    policy: '@t_rc_restricted'
+  t_rd_main (extends rendition_definition):
+    name: main
+    policy: '@t_rc_public'
     buildMode: 1
     useAsMain: true
-  t_rd_original_watermarked (extends rendition_definition):
-    name: original
+  t_rd_main_watermarked (extends rendition_definition):
+    name: main
     policy: '@t_rc_public'
     useAsMain: true
   t_rd_preview (extends rendition_definition):
