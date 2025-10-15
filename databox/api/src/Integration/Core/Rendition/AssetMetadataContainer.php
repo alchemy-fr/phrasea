@@ -3,10 +3,10 @@
 namespace App\Integration\Core\Rendition;
 
 use Alchemy\RenditionFactory\DTO\Metadata\MetadataContainerInterface;
-use App\Asset\Attribute\AssetTitleResolver;
-use App\Asset\Attribute\AttributesResolver;
-use App\Asset\Attribute\Index\AttributeIndex;
 use App\Entity\Core\Asset;
+use App\Service\Asset\Attribute\AssetTitleResolver;
+use App\Service\Asset\Attribute\AttributesResolver;
+use App\Service\Asset\Attribute\Index\AttributeIndex;
 
 final class AssetMetadataContainer implements MetadataContainerInterface
 {

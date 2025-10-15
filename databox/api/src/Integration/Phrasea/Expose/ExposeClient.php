@@ -2,16 +2,16 @@
 
 namespace App\Integration\Phrasea\Expose;
 
-use App\Asset\Attribute\AssetTitleResolver;
-use App\Asset\Attribute\AttributesResolver;
-use App\Asset\FileFetcher;
 use App\Attribute\AttributeInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Integration\IntegrationToken;
 use App\Integration\IntegrationConfig;
 use App\Integration\Phrasea\PhraseaClientFactory;
-use App\Storage\RenditionManager;
+use App\Service\Asset\Attribute\AssetTitleResolver;
+use App\Service\Asset\Attribute\AttributesResolver;
+use App\Service\Asset\FileFetcher;
+use App\Service\Storage\RenditionManager;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class ExposeClient

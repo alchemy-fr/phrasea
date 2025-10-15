@@ -6,10 +6,10 @@ namespace App\Consumer\Handler\File;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\StorageBundle\Util\FileUtil;
-use App\Asset\AssetManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
+use App\Service\Asset\AssetManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 

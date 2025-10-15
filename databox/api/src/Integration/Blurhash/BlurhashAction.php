@@ -8,15 +8,15 @@ use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
-use App\Asset\FileFetcher;
 use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
-use App\Image\ImageManagerFactory;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
-use App\Storage\RenditionManager;
+use App\Service\Asset\FileFetcher;
+use App\Service\Image\ImageManagerFactory;
+use App\Service\Storage\RenditionManager;
 use kornrunner\Blurhash\Blurhash;
 
 class BlurhashAction extends AbstractIntegrationAction implements IfActionInterface

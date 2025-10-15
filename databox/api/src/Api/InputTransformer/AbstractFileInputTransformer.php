@@ -12,7 +12,7 @@ use App\Consumer\Handler\File\ImportFile;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Http\FileUploadManager;
-use App\Storage\RenditionManager;
+use App\Service\Storage\RenditionManager;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;

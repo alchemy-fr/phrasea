@@ -7,8 +7,8 @@ namespace App\Api\OutputTransformer;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AssetRenditionOutput;
 use App\Api\Traits\UserLocaleTrait;
-use App\Asset\RenditionBuildHashManager;
 use App\Entity\Core\AssetRendition;
+use App\Service\Asset\RenditionBuildHashManager;
 
 final class AssetRenditionOutputTransformer implements OutputTransformerInterface
 {

@@ -9,7 +9,7 @@ use App\Border\Model\FileContent;
 use App\Border\Model\InputFile;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
-use App\Storage\FilePathGenerator;
+use App\Service\Storage\FilePathGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class BorderManager

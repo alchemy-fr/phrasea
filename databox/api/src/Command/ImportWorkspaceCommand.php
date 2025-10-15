@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Entity\Core\Workspace;
-use App\Workspace\WorkspaceTemplater;
+use App\Service\Workspace\WorkspaceTemplater;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

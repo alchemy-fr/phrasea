@@ -6,7 +6,7 @@ namespace App\Security\Voter;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Discussion\Thread;
-use App\Service\DiscussionManager;
+use App\Service\Discussion\DiscussionManager;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class ThreadVoter extends AbstractVoter

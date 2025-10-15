@@ -7,14 +7,14 @@ namespace App\Api\InputTransformer;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetRelationshipInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
-use App\Asset\AssetManager;
-use App\Asset\PickSourceRenditionManager;
 use App\Consumer\Handler\File\CopyFileToAsset;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRelationship;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Service\Asset\AssetManager;
+use App\Service\Asset\PickSourceRenditionManager;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 

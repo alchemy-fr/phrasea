@@ -12,7 +12,7 @@ use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Admin\Field\PrivacyField;
 use App\Entity\Core\Asset;
 use App\Entity\Workflow\WorkflowState;
-use App\Workflow\Event\AssetIngestWorkflowEvent;
+use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;

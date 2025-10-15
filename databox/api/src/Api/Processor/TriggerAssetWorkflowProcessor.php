@@ -10,7 +10,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Workflow\WorkflowState;
-use App\Workflow\Event\AssetIngestWorkflowEvent;
+use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class TriggerAssetWorkflowProcessor implements ProcessorInterface

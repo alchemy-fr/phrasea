@@ -11,8 +11,6 @@ use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Traits\UserLocaleTrait;
-use App\Asset\Attribute\AssetTitleResolver;
-use App\Asset\Attribute\AttributesResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
@@ -26,7 +24,9 @@ use App\Entity\Core\Share;
 use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
-use App\Service\DiscussionManager;
+use App\Service\Asset\Attribute\AssetTitleResolver;
+use App\Service\Asset\Attribute\AttributesResolver;
+use App\Service\Discussion\DiscussionManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AssetOutputTransformer implements OutputTransformerInterface

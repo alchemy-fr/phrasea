@@ -7,7 +7,6 @@ namespace App\Integration\Aws\Translate;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
-use App\Asset\Attribute\AttributesResolver;
 use App\Attribute\AttributeInterface;
 use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Attribute;
@@ -16,6 +15,7 @@ use App\Integration\ApiBudgetLimiter;
 use App\Integration\IfActionInterface;
 use App\Integration\IntegrationConfig;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Service\Asset\Attribute\AttributesResolver;
 use Aws\Translate\TranslateClient;
 
 class TranslateAction extends AbstractIntegrationAction implements IfActionInterface
