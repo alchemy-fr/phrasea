@@ -3,6 +3,10 @@ import {Collection, CollectionOptionalWorkspace, Workspace} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import {clearAssociationIds} from './clearAssociation';
 import {useCollectionStore} from '../store/collectionStore';
+import {
+    NewCollectionPath,
+    treeViewPathSeparator,
+} from '../components/Media/Collection/CollectionTree/collectionTree.ts';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
@@ -131,4 +135,24 @@ export async function moveAssets(
         destination: destIri,
         ids: assetIds,
     });
+}
+
+export async function createCollection(
+    newCollectionPath: NewCollectionPath
+): Promise<string> {
+    const {rootId, path} = newCollectionPath;
+
+    const [workspaceId, parentIri] = rootId.split(treeViewPathSeparator);
+    let parent = parentIri;
+    for (const p of path) {
+        parent = (
+            await postCollection({
+                title: p,
+                parent,
+                workspace: `/workspaces/${workspaceId}`,
+            })
+        )['@id'];
+    }
+
+    return parent;
 }

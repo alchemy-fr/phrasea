@@ -3,7 +3,7 @@ import TabbedDialog from '../Tabbed/TabbedDialog';
 import {useTranslation} from 'react-i18next';
 import {useParams} from '@alchemy/navigation';
 import FullPageLoader from '../../Ui/FullPageLoader';
-import {File} from '../../../types';
+import {ApiFile} from '../../../types';
 import InfoFile from './InfoFile.tsx';
 import {modalRoutes} from '../../../routes';
 import FileMetadata from './FileMetadata.tsx';
@@ -15,7 +15,7 @@ export default function FileDialog({}: Props) {
     const {t} = useTranslation();
     const {id} = useParams();
 
-    const [data, setData] = useState<File>();
+    const [data, setData] = useState<ApiFile>();
 
     useEffect(() => {
         getFile(id!).then(c => setData(c));

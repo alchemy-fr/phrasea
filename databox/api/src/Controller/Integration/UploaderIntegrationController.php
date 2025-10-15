@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Controller\Integration;
 
-use App\Border\Model\Upload\IncomingUpload;
 use App\Integration\IntegrationManager;
 use App\Integration\Phrasea\Uploader\Message\IngestUploaderCommit;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -37,9 +37,21 @@ class UploaderIntegrationController extends AbstractController
         }
 
         $data = json_decode($request->getContent(), true);
-        $incomingUpload = IncomingUpload::fromArray($data);
 
-        $bus->dispatch(new IngestUploaderCommit($integrationId, $incomingUpload->commit_id, $incomingUpload->token));
+        $commitId = $data['commit_id'] ?? null;
+        if (!$commitId) {
+            throw new BadRequestHttpException('Missing commit_id');
+        }
+        $token = $data['token'] ?? null;
+        if (!$token) {
+            throw new BadRequestHttpException('Missing token');
+        }
+
+        $bus->dispatch(new IngestUploaderCommit(
+            $integrationId,
+            $commitId,
+            $token
+        ));
 
         return new Response();
     }

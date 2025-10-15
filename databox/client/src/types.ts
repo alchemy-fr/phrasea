@@ -13,7 +13,7 @@ type AlternateUrl = {
     label?: string;
 };
 
-export interface File extends Entity {
+export interface ApiFile extends Entity {
     url?: string;
     type: string;
     alternateUrls: AlternateUrl[];
@@ -76,14 +76,12 @@ export interface Asset
     collections: Collection[] | undefined;
     main: AssetRendition | null;
     preview: AssetRendition | null;
-    source: File | undefined;
+    source: ApiFile | undefined;
     thumbnail: AssetRendition | null;
     animatedThumbnail: AssetRendition | null;
     createdAt: string;
     updatedAt: string;
     editedAt: string;
-    pendingSourceFile: boolean;
-    pendingUploadToken?: string;
     attributesEditedAt: string;
     groupValue?: GroupValue | undefined;
     topicSubscriptions?: TopicSubscriptions;
@@ -109,7 +107,7 @@ export interface Attribute extends IPermissions, Entity {
 
 export interface AssetFileVersion extends Entity {
     asset: Asset;
-    file: File;
+    file: ApiFile;
     name: string;
     createdAt: string;
 }
@@ -192,7 +190,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
 export interface AssetRendition extends ApiHydraObjectResponse, Entity {
     name: string;
     nameTranslated: string;
-    file: File | undefined;
+    file: ApiFile | undefined;
     ready: boolean;
     dirty?: boolean;
     projection?: boolean;

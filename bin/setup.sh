@@ -77,8 +77,6 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
   mc mb --ignore-existing minio/$DATABOX_S3_BUCKET_NAME \
 "
-## Create Uploader target for client upload
-exec_container uploader-api-php "bin/console app:create-target ${DATABOX_UPLOADER_TARGET_SLUG} 'Databox Uploader' http://databox-api/incoming-uploads"
 
 ## Setup indexer
 ## Create Databox OAuth client for indexer

@@ -5,7 +5,6 @@ import UploadIcon from '@mui/icons-material/Upload';
 import {useFormSubmit} from '@alchemy/api';
 import FormDialog from '../Dialog/FormDialog';
 import {FormUploadData, UploadData, UploadForm} from './UploadForm';
-import {createCollection, submitFiles} from '../../lib/upload/uploader';
 import moment from 'moment';
 import {v4 as uuidv4} from 'uuid';
 import UploadDropzone from './UploadDropzone';
@@ -26,6 +25,8 @@ import {WorkspaceChip} from '../Ui/WorkspaceChip.tsx';
 import {CollectionChip} from '../Ui/CollectionChip.tsx';
 import FileToUploadCard from './FileToUploadCard.tsx';
 import DeleteIcon from '@mui/icons-material/Delete';
+import {createCollection} from '../../api/collection.ts';
+import {uploadAssets} from '../../api/asset.ts';
 
 type FileWrapper = {
     id: string;
@@ -158,22 +159,23 @@ export default function UploadModal({
                 }
             }
 
-            return await submitFiles(
-                {
-                    files: files.map(f => ({
-                        file: f.file,
+            return await uploadAssets(
+                files.map(f => ({
+                    file: f.file,
+                    asset: {
                         tags: data.tags as unknown as string[],
                         title:
                             f.file.name === 'image.png'
                                 ? createPastedImageTitle(t)
                                 : f.file.name.replace(/\.[^/.]+$/, ''),
-                        destination: collectionId
-                            ? `/collections/${collectionId}`
-                            : (data.destination as CollectionId),
+
                         privacy: data.privacy,
                         attributes,
-                    })),
-                },
+                    },
+                })),
+                collectionId
+                    ? `/collections/${collectionId}`
+                    : (data.destination as CollectionId),
                 {
                     quiet,
                     isStory,

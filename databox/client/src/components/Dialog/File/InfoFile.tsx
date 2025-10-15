@@ -1,4 +1,4 @@
-import {File} from '../../../types';
+import {ApiFile} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import InfoRow from '../Info/InfoRow.tsx';
@@ -8,7 +8,7 @@ import {useTranslation} from 'react-i18next';
 import InfoIcon from '@mui/icons-material/Info';
 
 type Props = {
-    data: File;
+    data: ApiFile;
 } & DialogTabProps;
 
 export default function InfoFile({data, onClose, minHeight}: Props) {

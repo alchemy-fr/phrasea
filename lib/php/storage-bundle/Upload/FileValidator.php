@@ -65,7 +65,7 @@ final class FileValidator
         }
 
         if (!$this->hasValidExtension($extension)) {
-           throw $this->createException($extension, $this->getAllowedExtensions(), 'extension');
+            throw $this->createException($extension, $this->getAllowedExtensions(), 'extension');
         }
     }
 

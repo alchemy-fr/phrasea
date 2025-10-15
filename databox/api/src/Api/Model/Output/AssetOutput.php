@@ -78,12 +78,6 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     private int $privacy;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
-    private ?bool $pendingSourceFile = null;
-
-    #[Groups([Asset::GROUP_READ, Asset::GROUP_LIST])]
-    private ?string $pendingUploadToken = null;
-
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     private $workspace;
 
@@ -299,25 +293,5 @@ class AssetOutput extends AbstractUuidOutput
     public function setAttributesEditedAt(\DateTimeImmutable $attributesEditedAt): void
     {
         $this->attributesEditedAt = $attributesEditedAt;
-    }
-
-    public function isPendingSourceFile(): bool
-    {
-        return $this->pendingSourceFile;
-    }
-
-    public function setPendingSourceFile(bool $pendingSourceFile): void
-    {
-        $this->pendingSourceFile = $pendingSourceFile;
-    }
-
-    public function getPendingUploadToken(): ?string
-    {
-        return $this->pendingUploadToken;
-    }
-
-    public function setPendingUploadToken(?string $pendingUploadToken): void
-    {
-        $this->pendingUploadToken = $pendingUploadToken;
     }
 }

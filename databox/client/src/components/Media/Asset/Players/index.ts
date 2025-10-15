@@ -1,4 +1,4 @@
-import {File} from '../../../../types';
+import {ApiFile} from '../../../../types';
 import {
     AssetAnnotation,
     AssetAnnotationRef,
@@ -9,7 +9,7 @@ import {ReactZoomPanPinchContentRef} from 'react-zoom-pan-pinch';
 
 export type FileWithUrl = {
     url: string;
-} & File;
+} & ApiFile;
 
 export type Dimensions = {
     width: number;

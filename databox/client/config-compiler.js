@@ -67,7 +67,6 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
         autoConnectIdP: env.AUTO_CONNECT_IDP,
         baseUrl: env.DATABOX_API_URL,
         uploaderApiBaseUrl: env.UPLOADER_API_URL,
-        uploaderTargetSlug: env.UPLOADER_TARGET_SLUG,
         keycloakUrl: env.KEYCLOAK_URL,
         realmName: env.KEYCLOAK_REALM_NAME,
         clientId: env.CLIENT_ID,

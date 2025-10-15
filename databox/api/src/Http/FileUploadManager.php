@@ -16,7 +16,7 @@ final readonly class FileUploadManager
     {
     }
 
-    public function storeFileUploadFromRequest(Workspace $workspace, UploadedFile $uploadedFile): File
+    public function storeUploadedFile(Workspace $workspace, UploadedFile $uploadedFile): File
     {
         ini_set('max_execution_time', '600');
 

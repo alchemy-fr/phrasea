@@ -6,6 +6,7 @@ import {
 } from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import apiClient from './api-client';
+import type {MultipartUpload} from '@alchemy/api';
 
 type GetOptions = {
     workspaceIds?: string[];
@@ -42,12 +43,20 @@ type RenditionInput = {
     assetId: string;
     substituted?: boolean;
     force?: boolean;
+    multipart?: MultipartUpload;
 };
 
 export async function postRendition(
     data: RenditionInput
 ): Promise<AssetRendition> {
     return (await apiClient.post(renditionNS, data)).data;
+}
+
+export async function putRendition(
+    id: string | undefined,
+    data: Partial<RenditionInput>
+): Promise<AssetRendition> {
+    return (await apiClient.put(`${renditionNS}/${id}`, data)).data;
 }
 
 export async function getRenditionDefinitions(

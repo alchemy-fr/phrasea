@@ -1,23 +1,22 @@
 import React from 'react';
 import {useTranslation} from 'react-i18next';
 import FormDialog from '../../../Dialog/FormDialog';
-import {Asset} from '../../../../types';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {generateUploadId, UploadFiles} from '../../../../api/uploader/file.ts';
 import {toast} from 'react-toastify';
 import SingleFileUploadWidget, {
     AssetUploadForm,
 } from './SingleFileUploadWidget.tsx';
 import UploadIcon from '@mui/icons-material/Upload';
+import apiClient from '../../../../api/api-client.ts';
+import {putRendition} from '../../../../api/rendition.ts';
+import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
 
 type Props = {
-    asset: Asset;
     renditionId: string;
     renditionName: string;
 } & StackedModalProps;
 
 export default function UploadRenditionDialog({
-    asset,
     renditionId,
     renditionName,
     open,
@@ -36,16 +35,14 @@ export default function UploadRenditionDialog({
         }
         setUploading(true);
         try {
-            await UploadFiles([
-                {
-                    id: generateUploadId(),
-                    ...uploadForm,
-                    data: {
-                        targetAsset: asset.id,
-                        targetRendition: renditionId,
-                    },
-                },
-            ]);
+            if (!uploadForm.file) {
+                // TODO support URL
+                return;
+            }
+            const multipart = await multipartUpload(apiClient, uploadForm.file);
+            await putRendition(renditionId, {
+                multipart,
+            });
 
             toast.success(
                 t(

@@ -40,24 +40,19 @@ readonly class AcceptFileAction implements ActionInterface
         $formLocale = $assetData['formLocale'] ?? null;
         $renditionDefId = $data['targetRendition'] ?? null;
 
-        if (null !== $assetId) {
-            $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
-            if ($renditionDefId) {
-                $renditionDefinition = DoctrineUtil::findStrict($this->em, RenditionDefinition::class, $renditionDefId);
-
-                $this->renditionManager->validateSubstitution(
-                    $asset,
-                    $renditionDefinition,
-                    true,
-                    true,
-                );
-            } else {
-                $uploadToken = $data['uploadToken'];
-
-                if ($uploadToken !== $asset->getPendingUploadToken()) {
-                    throw new \InvalidArgumentException('Unexpected upload token');
-                }
+        if ($renditionDefId) {
+            if (null === $assetId) {
+                throw new \InvalidArgumentException('Missing "targetAsset" when "targetRendition" is set');
             }
+            $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
+            $renditionDefinition = DoctrineUtil::findStrict($this->em, RenditionDefinition::class, $renditionDefId);
+
+            $this->renditionManager->validateSubstitution(
+                $asset,
+                $renditionDefinition,
+                true,
+                true,
+            );
         } else {
             $collection = null;
             $collectionId = $inputs['storyCollectionId'] ?? $formData[self::COLLECTION_DESTINATION] ?? $inputs['collectionId'] ?? null;

@@ -37,7 +37,6 @@ readonly class AssetManager
         }
 
         $asset->setSource($file);
-        $asset->setPendingUploadToken(null);
 
         if (!empty($formData)) {
             $this->attributeDataImporter->importAttributes($asset, $formData, $locale);

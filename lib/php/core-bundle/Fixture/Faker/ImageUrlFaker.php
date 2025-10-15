@@ -14,7 +14,7 @@ class ImageUrlFaker extends AbstractCachedFaker
         ?string $theme = null,
     ): string {
         if (!preg_match('#(\d+)$#', $lock, $matches)) {
-            throw new \InvalidArgumentException(sprintf('Lock must ends with a number, got "%s"', $lock));
+            throw new \InvalidArgumentException(sprintf('Lock must end with a number, got "%s"', $lock));
         }
 
         $lockNumber = $matches[1];

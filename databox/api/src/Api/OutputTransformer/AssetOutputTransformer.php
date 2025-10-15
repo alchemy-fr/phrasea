@@ -190,13 +190,6 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 ->filter(fn (Collection $collection): bool => $this->isGranted(AbstractVoter::LIST, $collection))
                 ->getValues());
 
-            if (null !== $data->getPendingUploadToken()) {
-                $output->setPendingSourceFile(true);
-                $output->setPendingUploadToken($data->getPendingUploadToken());
-            } else {
-                $output->setPendingSourceFile(false);
-            }
-
             $output->storyCollection = $data->getStoryCollection();
         }
 
