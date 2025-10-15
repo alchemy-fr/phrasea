@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
-use Alchemy\StorageBundle\Api\Dto\UploadInputTrait;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\Traits\ExtraMetadataDTOTrait;
 use App\Entity\Core\Collection;
@@ -13,10 +12,10 @@ use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class AssetInput extends AbstractUploadInput
+class AssetInput extends AbstractOwnerIdInput
 {
-    use ExtraMetadataDTOTrait;
     use UploadInputTrait;
+    use ExtraMetadataDTOTrait;
 
     public ?string $title = null;
     public ?string $key = null;
@@ -45,17 +44,6 @@ class AssetInput extends AbstractUploadInput
      * @var AttributeInput[]
      */
     public ?array $attributes = null;
-
-    /**
-     * @var AssetSourceInput|null
-     */
-    #[Assert\Valid]
-    public $sourceFile;
-
-    /**
-     * @var string|null
-     */
-    public $sourceFileId;
 
     /**
      * @var AssetRelationshipInput|null

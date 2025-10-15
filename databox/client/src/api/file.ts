@@ -1,5 +1,5 @@
 import apiClient from './api-client';
-import {ApiFile} from '../types';
+import {AlternateUrl, ApiFile} from '../types';
 import {AttributeBatchAction} from './types.ts';
 import {AxiosRequestConfig} from 'axios';
 
@@ -20,6 +20,15 @@ export function fileToDataUri(file: File): Promise<string> {
         reader.readAsDataURL(file);
     });
 }
+
+export type SourceFileInput = {
+    url?: string;
+    originalName?: string;
+    type?: string;
+    isPrivate?: boolean;
+    importFile?: boolean;
+    alternateUrls?: AlternateUrl[];
+};
 
 export type FileOrUrl =
     | {

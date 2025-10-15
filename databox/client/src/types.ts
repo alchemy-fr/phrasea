@@ -7,7 +7,7 @@ import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/De
 import React from 'react';
 import {AttributeType} from './api/types.ts';
 
-type AlternateUrl = {
+export type AlternateUrl = {
     type: string;
     url: string;
     label?: string;

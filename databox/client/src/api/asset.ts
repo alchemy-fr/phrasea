@@ -26,7 +26,7 @@ import {
 import {CollectionId} from '../components/Media/Collection/CollectionTree/collectionTree.ts';
 import {promiseConcurrency} from '../lib/promises.ts';
 import {useUploadStore} from '../store/uploadStore.ts';
-import {CreateAssetsOptions, FileOrUrl} from './file.ts';
+import {CreateAssetsOptions, FileOrUrl, SourceFileInput} from './file.ts';
 
 export interface GetAssetOptions {
     url?: string;
@@ -336,10 +336,11 @@ export type AssetApiInput = {
     tags?: string[];
     collection?: string;
     workspace?: string;
-    sourceFileId?: string;
     sequence?: number;
     isStory?: boolean;
+    sourceFileId?: string;
     multipart?: MultipartUpload;
+    sourceFile?: SourceFileInput;
 };
 
 export type NewAssetInput = {

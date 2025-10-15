@@ -6,7 +6,7 @@ namespace App\Api\Model\Input;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class AssetSourceInput
+class FileSourceInput
 {
     #[Assert\NotBlank]
     public ?string $url = null;

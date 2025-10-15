@@ -35,7 +35,11 @@ export default function ReplaceAssetSourceDialog({
         setUploading(true);
         try {
             if (!uploadForm.file) {
-                // TODO support URL
+                await putAsset(asset.id, {
+                    sourceFile: {
+                        url: uploadForm.url,
+                    },
+                });
                 return;
             }
             const multipart = await multipartUpload(apiClient, uploadForm.file);

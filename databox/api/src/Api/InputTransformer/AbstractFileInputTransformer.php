@@ -8,7 +8,7 @@ use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
-use App\Api\Model\Input\AssetSourceInput;
+use App\Api\Model\Input\FileSourceInput;
 use App\Consumer\Handler\File\ImportFile;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
@@ -71,7 +71,7 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
         return null;
     }
 
-    protected function handleSource(?AssetSourceInput $source, Workspace $workspace): ?File
+    protected function handleSource(?FileSourceInput $source, Workspace $workspace): ?File
     {
         if (null === $source) {
             return null;
