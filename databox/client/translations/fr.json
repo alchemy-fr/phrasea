@@ -172,6 +172,10 @@
     "attribute_definitions": {
         "new": {
             "label": "Nouvel attribut"
+        },
+        "filter": {
+            "asset_type": "Filtrer par type d'Asset",
+            "type": "Filtrer par type"
         }
     },
     "attribute_editor": {
@@ -291,6 +295,9 @@
         "actions": {
             "delete": "Supprimer le panier",
             "edit": "Editer le panier"
+        },
+        "disabled": {
+            "label": "Vous n'êtes pas autorisé à modifier ce panier"
         }
     },
     "basket_delete": {
@@ -1303,7 +1310,10 @@
             "confirm_message_many": "",
             "confirm_message_other": "Êtes-vous sûr de vouloir supprimer les {{count}}  assets ?",
             "hard_delete": "Supprimer définitivement l'asset?",
-            "remove_from_collection": "Supprimer de la collection <strong> {{name}} </strong>"
+            "remove_from_collection": "Supprimer de la collection <strong> {{name}} </strong>",
+            "shared_warning_one": "Cet Assets est actuellement partagés. Le supprimer supprimera l'accès de tous les utilisateurs.",
+            "shared_warning_many": "",
+            "shared_warning_other": "<strong> {{count}} </strong> de ces Assets sont actuellement partagés. Les supprimer supprimera l'accès de tous les utilisateurs."
         },
         "info": {
             "id": "ID",
@@ -1337,7 +1347,8 @@
         "view": {
             "attributes": "Attributs de l'asset",
             "discussion": "Discussion",
-            "info": "Information"
+            "info": "Information",
+            "appears_in": "Apparaît dans"
         },
         "es_document": {
             "sync_now": "Synchroniser maintenant"
@@ -1679,7 +1690,10 @@
         "rendition": "Rendition",
         "score": "Score",
         "tag": "Tag",
-        "workspace": "Workspace"
+        "workspace": "Workspace",
+        "collections": "Collections",
+        "isStory": "Storie",
+        "stories": "Stories"
     },
     "file": {
         "dialog": {
@@ -1801,6 +1815,29 @@
             "submit": "Importer une rendition",
             "success": "La rendition a été importée avec succès",
             "title": "Importer la rendition {{renditionName}}"
+        }
+    },
+    "aql": {
+        "constant": {
+            "no": "Non",
+            "null": "Nulle",
+            "yes": "Oui"
+        }
+    },
+    "asset_type": {
+        "choice": {
+            "asset": "Assets",
+            "asset_only": "Assets Uniquement",
+            "both": "Les deux",
+            "story": "Stories",
+            "story_only": "Storie uniquement"
+        }
+    },
+    "facet": {
+        "boolean": {
+            "false": {
+                "label": "Non ({{n}})"
+            }
         }
     }
 }
