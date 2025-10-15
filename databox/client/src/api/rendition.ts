@@ -52,13 +52,6 @@ export async function postRendition(
     return (await apiClient.post(renditionNS, data)).data;
 }
 
-export async function putRendition(
-    id: string | undefined,
-    data: Partial<RenditionInput>
-): Promise<AssetRendition> {
-    return (await apiClient.put(`${renditionNS}/${id}`, data)).data;
-}
-
 export async function getRenditionDefinitions(
     options: GetOptions = {}
 ): Promise<ApiCollectionResponse<RenditionDefinition>> {

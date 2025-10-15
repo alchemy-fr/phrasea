@@ -8,16 +8,16 @@ import SingleFileUploadWidget, {
 } from './SingleFileUploadWidget.tsx';
 import UploadIcon from '@mui/icons-material/Upload';
 import apiClient from '../../../../api/api-client.ts';
-import {putRendition} from '../../../../api/rendition.ts';
+import {postRendition} from '../../../../api/rendition.ts';
 import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
 
 type Props = {
-    renditionId: string;
+    definitionId: string;
     renditionName: string;
 } & StackedModalProps;
 
 export default function UploadRenditionDialog({
-    renditionId,
+    definitionId,
     renditionName,
     open,
     modalIndex,
@@ -40,7 +40,8 @@ export default function UploadRenditionDialog({
                 return;
             }
             const multipart = await multipartUpload(apiClient, uploadForm.file);
-            await putRendition(renditionId, {
+            await postRendition({
+                definitionId,
                 multipart,
             });
 
