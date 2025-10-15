@@ -1320,7 +1320,7 @@
             "confirm_message_other": "Êtes-vous sûr de vouloir supprimer les {{count}}  assets ?",
             "hard_delete": "Supprimer définitivement l'asset?",
             "remove_from_collection": "Supprimer de la collection <strong> {{name}} </strong>",
-            "shared_warning_one": "Cet Assets est actuellement partagés. Le supprimer supprimera l'accès de tous les utilisateurs.",
+            "shared_warning_one": "Cet asset est actuellement partagé. Le supprimer supprimera l'accès de tous les utilisateurs.",
             "shared_warning_many": "",
             "shared_warning_other": "<strong> {{count}} </strong> de ces Assets sont actuellement partagés. Les supprimer supprimera l'accès de tous les utilisateurs."
         },
