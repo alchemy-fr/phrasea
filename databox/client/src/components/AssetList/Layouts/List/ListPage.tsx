@@ -19,6 +19,7 @@ function ListPage<Item extends AssetOrAssetContainer>({
     onToggle,
     onAddToBasket,
     selection,
+    disabledAssets,
     toolbarHeight,
     itemComponent,
     displayAttributes,
@@ -62,6 +63,7 @@ function ListPage<Item extends AssetOrAssetContainer>({
                                 item={item}
                                 onToggle={onToggle}
                                 selected={selection.includes(item)}
+                                disabled={disabledAssets.includes(item)}
                                 onAddToBasket={onAddToBasket}
                                 onContextMenuOpen={onContextMenuOpen}
                                 displayAttributes={displayAttributes}

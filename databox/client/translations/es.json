@@ -29,13 +29,17 @@
         },
         "collection_list": {
             "collections_one": "+ {{count}} Collection",
+            "collections_many": "",
+            "collections_other": "",
             "collections_plural": "+ {{count}} Collection",
             "others_one": "+ {{count}} otros",
+            "others_many": "",
             "others_other": "+ {{count}} otros"
         },
         "delete": {
             "confirm": {
                 "message_one": "¿Seguro que quieres eliminar este Asset?",
+                "message_many": "",
                 "message_other": "¿Seguro que quieres eliminar {{count}} Asset?",
                 "title": "Confirmar eliminación"
             }
@@ -83,8 +87,10 @@
         },
         "tag_list": {
             "others_one": "+ {{count}} otros",
+            "others_many": "",
             "others_other": "+ {{count}} otros",
             "tags_one": "+ {{count}} Tag",
+            "tags_many": "",
             "tags_other": "+ {{count}} Tag"
         },
         "view": {
@@ -185,6 +191,7 @@
     },
     "attributes": {
         "values_one": "{{count}} valores",
+        "values_many": "",
         "values_other": ""
     },
     "attributes_editor_form": {
@@ -321,6 +328,7 @@
             "intro": "¿Dónde quieres copiar los Asset seleccionados?",
             "submit": "Copiar",
             "title_one": "Copiar {{count}} Asset",
+            "title_many": "",
             "title_other": "Copiar {{count}} Asset"
         },
         "form": {
@@ -750,6 +758,7 @@
             "intro": "¿Dónde quieres mover los Asset seleccionados?",
             "submit": "Mover",
             "title_one": "Mover {{count}} Asset",
+            "title_many": "",
             "title_other": "Mover {{count}} Asset"
         }
     },

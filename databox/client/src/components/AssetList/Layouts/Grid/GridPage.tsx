@@ -18,6 +18,7 @@ function GridPage<Item extends AssetOrAssetContainer>({
     onPreviewToggle,
     onToggle,
     selection,
+    disabledAssets,
     onAddToBasket,
     toolbarHeight,
     page,
@@ -62,6 +63,7 @@ function GridPage<Item extends AssetOrAssetContainer>({
                                 asset={asset}
                                 onAddToBasket={onAddToBasket}
                                 selected={selection.includes(item)}
+                                disabled={disabledAssets.includes(item)}
                                 onContextMenuOpen={onContextMenuOpen}
                                 onOpen={onOpen}
                                 onToggle={onToggle}

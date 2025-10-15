@@ -18,25 +18,26 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
     item,
     asset,
     selected,
+    disabled,
     onToggle,
     onContextMenuOpen,
     onPreviewToggle,
     onAddToBasket,
     itemComponent,
 }: Props<Item>) {
-    const disabled = !asset.workspace;
-
     return (
         <AssetItemWrapper
             item={item}
             itemComponent={itemComponent}
             onToggle={onToggle}
             selected={selected}
+            disabled={disabled}
         >
             <div className={assetClasses.controls}>
                 <Checkbox
                     className={assetClasses.checkBtb}
                     checked={selected}
+                    disabled={disabled}
                     color={'primary'}
                     onMouseDown={stopPropagation}
                     onChange={() =>
