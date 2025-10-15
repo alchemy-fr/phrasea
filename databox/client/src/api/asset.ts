@@ -18,6 +18,15 @@ import {AxiosRequestConfig} from 'axios';
 import {TFacets} from '../components/Media/Asset/Facets';
 import {AttributeBatchAction, AttributeBatchActionEnum} from './types.ts';
 import {SortWay} from './common.ts';
+import type {MultipartUpload} from '@alchemy/api';
+import {
+    multipartUpload,
+    MultipartUploadOptions,
+} from '@alchemy/api/src/multiPartUpload.ts';
+import {CollectionId} from '../components/Media/Collection/CollectionTree/collectionTree.ts';
+import {promiseConcurrency} from '../lib/promises.ts';
+import {useUploadStore} from '../store/uploadStore.ts';
+import {CreateAssetsOptions, FileOrUrl} from './file.ts';
 
 export interface GetAssetOptions {
     url?: string;
@@ -308,12 +317,10 @@ export async function prepareDeleteAssets(
     return res.data;
 }
 
-export async function prepareAssetSubstitution(id: string): Promise<Asset> {
-    const res = await apiClient.put(`/assets/${id}/prepare-substitution`, {});
-    return res.data;
-}
-
-export async function putAsset(id: string, data: Partial<any>): Promise<Asset> {
+export async function putAsset(
+    id: string,
+    data: Partial<AssetApiInput>
+): Promise<Asset> {
     const res = await apiClient.put(`/assets/${id}`, data, {
         headers: {
             'Content-Type': 'application/merge-patch+json',
@@ -330,12 +337,12 @@ export type AssetApiInput = {
     collection?: string;
     workspace?: string;
     sourceFileId?: string;
-    pendingUploadToken?: string;
     sequence?: number;
     isStory?: boolean;
+    multipart?: MultipartUpload;
 };
 
-export type NewAssetPostType = {
+export type NewAssetInput = {
     relationship?:
         | {
               source: string;
@@ -347,45 +354,141 @@ export type NewAssetPostType = {
     attributes?: AttributeBatchAction[] | undefined;
 } & AssetApiInput;
 
-export async function postAsset(data: NewAssetPostType): Promise<Asset> {
+export async function postAsset(data: NewAssetInput): Promise<Asset> {
     const res = await apiClient.post(`/assets`, data);
 
     return res.data;
 }
 
-export type CreateAssetsOptions = {
-    quiet?: boolean;
-    isStory?: boolean;
-    story?: {
-        title?: string;
-        tags?: string[];
-        attributes?: AttributeBatchAction[] | undefined;
-    };
-    config?: AxiosRequestConfig;
+type InputFile = {
+    asset: NewAssetInput;
+} & FileOrUrl;
+
+type InputUploadFile = {
+    file: File;
+    asset: NewAssetInput;
 };
 
-export async function postMultipleAssets(
-    assets: NewAssetPostType[],
-    {quiet, isStory, story}: CreateAssetsOptions = {}
+type FileBeingUploaded = {
+    id: string;
+} & InputUploadFile;
+
+function computeAssetPropsFromDestination(destination: CollectionId) {
+    if (destination.startsWith('/workspaces/')) {
+        return {workspace: destination};
+    } else {
+        return {collection: destination};
+    }
+}
+
+export async function uploadAssets(
+    files: InputFile[],
+    destination: CollectionId,
+    options: CreateAssetsOptions = {}
 ): Promise<Asset[]> {
-    const config: AxiosRequestConfig = {};
-    if (quiet) {
-        config.headers ??= {};
-        config.headers['X-Webhook-Disabled'] = 'true';
-        config.headers['X-Notification-Disabled'] = 'true';
+    const uploadState = useUploadStore.getState();
+
+    const uploads: FileBeingUploaded[] = files
+        .filter(f => Boolean(f.file))
+        .map(
+            f =>
+                ({
+                    ...f,
+                    id: crypto.randomUUID(),
+                }) as FileBeingUploaded
+        );
+
+    uploads.forEach(f => {
+        uploadState.addUpload({
+            id: f.id,
+            file: f.file,
+            progress: 0,
+        });
+    });
+
+    const isStory = options?.isStory;
+    const destinationProp = computeAssetPropsFromDestination(destination);
+
+    let storyAsset: Asset | undefined;
+    if (isStory) {
+        storyAsset = await postAsset({
+            title: options.story?.title,
+            tags: options.story?.tags || [],
+            isStory: true,
+            attributes: options.story?.attributes,
+            ...destinationProp,
+        });
     }
 
-    const res = await apiClient.post(
-        `/assets/multiple`,
-        {
-            assets,
-            isStory,
-            story,
-        },
-        config
+    return await promiseConcurrency(
+        uploads.map(f => {
+            return () =>
+                uploadAsset(
+                    {
+                        ...f,
+                        asset: {
+                            ...f.asset,
+                            ...(!isStory
+                                ? destinationProp
+                                : {
+                                      collection:
+                                          storyAsset?.storyCollection!['@id'],
+                                  }),
+                        },
+                    },
+                    {
+                        ...options,
+                        isStory: false,
+                        story: undefined,
+                    },
+                    {
+                        onProgress: event => {
+                            const progress = event.loaded / event.total!;
+                            uploadState.uploadProgress({
+                                id: f.id,
+                                file: f.file!,
+                                progress,
+                            });
+                        },
+                    }
+                );
+        }),
+        2
+    );
+}
+
+export async function uploadAsset(
+    data: InputUploadFile,
+    options: CreateAssetsOptions = {},
+    multipartUploadOptions: MultipartUploadOptions = {}
+): Promise<Asset> {
+    const multipart = await multipartUpload(
+        apiClient,
+        data.file,
+        multipartUploadOptions
     );
 
-    return res.data.assets;
+    return (
+        await apiClient.post(
+            `/assets`,
+            {
+                ...data.asset,
+                multipart,
+            },
+            {
+                ...options.config,
+                headers: {
+                    ...(options.quiet
+                        ? {
+                              'X-Webhook-Disabled': 'true',
+                              'X-Notification-Disabled': 'true',
+                          }
+                        : {}),
+                    ...options.config?.headers,
+                },
+            }
+        )
+    ).data;
 }
 
 export async function deleteAssetShortcut(

@@ -1,15 +1,6 @@
 import {useEffect, useState} from 'react';
-import Thumb from '../../components/Media/Asset/Thumb';
-
-export function fileToDataUri(file: File): Promise<string> {
-    return new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = event => {
-            resolve(event.target!.result as string);
-        };
-        reader.readAsDataURL(file);
-    });
-}
+import {fileToDataUri} from '../../api/file.ts';
+import Thumb from '../Media/Asset/Thumb.tsx';
 
 type Props = {
     file: File;

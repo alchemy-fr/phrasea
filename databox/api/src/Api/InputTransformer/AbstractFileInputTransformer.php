@@ -7,6 +7,7 @@ namespace App\Api\InputTransformer;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
+use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetSourceInput;
 use App\Consumer\Handler\File\ImportFile;
 use App\Entity\Core\File;
@@ -40,19 +41,14 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
         return $file;
     }
 
-    protected function handleUpload(Workspace $workspace): ?File
+    protected function handleUpload(Workspace $workspace, AssetInput $assetInput): ?File
     {
-        if (null === $request = $this->requestStack->getCurrentRequest()) {
-            return null;
-        }
+        if ($assetInput->multipart) {
+            $multipartUpload = $this->uploadManager->handleMultipartUpload($assetInput->multipart);
 
-        $file = new File();
-        $file->setWorkspace($workspace);
-        $file->setStorage(File::STORAGE_S3_MAIN);
-
-        if ($request->request->has('multipart')) {
-            $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
-
+            $file = new File();
+            $file->setWorkspace($workspace);
+            $file->setStorage(File::STORAGE_S3_MAIN);
             $file->setType($multipartUpload->getType());
             $file->setExtension(FileUtil::guessExtension($multipartUpload->getType(), $multipartUpload->getFilename()));
             $file->setSize($multipartUpload->getSize());
@@ -62,10 +58,14 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
             return $file;
         }
 
+        if (null === $request = $this->requestStack->getCurrentRequest()) {
+            return null;
+        }
+
         /** @var UploadedFile|null $uploadedFile */
         $uploadedFile = $request->files->get('file');
         if (null !== $uploadedFile) {
-            return $this->fileUploadManager->storeFileUploadFromRequest($workspace, $uploadedFile);
+            return $this->fileUploadManager->storeUploadedFile($workspace, $uploadedFile);
         }
 
         return null;

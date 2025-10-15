@@ -1,4 +1,4 @@
-import {Asset, Basket, File, WorkspaceIntegration} from '../../types.ts';
+import {Asset, Basket, ApiFile, WorkspaceIntegration} from '../../types.ts';
 import {SetIntegrationOverlayFunction} from '../Media/Asset/View/AssetView.tsx';
 import {AssetAnnotationRef} from '../Media/Asset/Annotations/annotationTypes.ts';
 
@@ -19,7 +19,7 @@ export type BasketIntegrationActionsProps = {
 
 export type AssetIntegrationActionsProps = {
     asset: Asset;
-    file: File;
+    file: ApiFile;
     setIntegrationOverlay: SetIntegrationOverlayFunction;
     assetAnnotationsRef?: AssetAnnotationRef;
     enableInc: number;

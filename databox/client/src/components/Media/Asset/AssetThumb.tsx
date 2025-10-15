@@ -3,7 +3,7 @@ import {Asset} from '../../../types';
 import AssetFileIcon from './AssetFileIcon';
 import assetClasses from '../../AssetList/classes';
 import FilePlayer from './FilePlayer';
-import {Chip, ChipProps, Skeleton, SxProps} from '@mui/material';
+import {Chip, ChipProps, SxProps} from '@mui/material';
 import classNames from 'classnames';
 import {alpha, Theme} from '@mui/material/styles';
 import {videoPlayerSx} from './Players/VideoPlayer.tsx';
@@ -29,7 +29,6 @@ function AssetThumb({
     const {
         id,
         resolvedTitle,
-        pendingSourceFile,
         thumbnail,
         animatedThumbnail,
         main,
@@ -41,18 +40,7 @@ function AssetThumb({
         <AssetFileIcon mimeType={main.file.type} />
     ) : undefined;
 
-    if (pendingSourceFile) {
-        thumb = (
-            <Skeleton
-                style={{
-                    borderRadius: 0,
-                    transform: 'none',
-                    width: '100%',
-                    height: '100%',
-                }}
-            />
-        );
-    } else if (thumbnail?.file) {
+    if (thumbnail?.file) {
         thumb = (
             <FilePlayer
                 file={thumbnail.file}
@@ -125,8 +113,7 @@ function AssetThumb({
             ) : (
                 ''
             )}
-            {!pendingSourceFile &&
-                animatedThumbnail?.file &&
+            {animatedThumbnail?.file &&
                 (!storyCollection || noStoryCarousel) && (
                     <div className={assetClasses.animatedThumb}>
                         <FilePlayer

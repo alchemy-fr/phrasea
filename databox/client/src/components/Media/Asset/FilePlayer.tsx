@@ -1,4 +1,4 @@
-import {File} from '../../../types';
+import {ApiFile} from '../../../types';
 import {FileTypeEnum, getFileTypeFromMIMEType} from '../../../lib/file';
 import AssetFileIcon from './AssetFileIcon';
 import VideoPlayer from './Players/VideoPlayer';
@@ -8,7 +8,7 @@ import ImagePlayer from './Players/ImagePlayer.tsx';
 import React from 'react';
 
 type Props = {
-    file: File;
+    file: ApiFile;
     autoPlayable?: boolean;
 } & Omit<PlayerProps, 'file'>;
 

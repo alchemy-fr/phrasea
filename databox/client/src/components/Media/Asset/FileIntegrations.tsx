@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useRef, useState} from 'react';
-import {Asset, File, WorkspaceIntegration} from '../../../types';
+import {Asset, ApiFile, WorkspaceIntegration} from '../../../types';
 import {
     Accordion,
     AccordionDetails,
@@ -23,7 +23,7 @@ import {
 } from '../../Integration/types.ts';
 import {AssetAnnotationRef} from './Annotations/annotationTypes.ts';
 
-const supportsImage = (file: File): boolean => {
+const supportsImage = (file: ApiFile): boolean => {
     return (file && file.type.startsWith('image/')) || false;
 };
 
@@ -31,7 +31,7 @@ const integrations: Record<
     string,
     {
         component: FC<AssetIntegrationActionsProps>;
-        supports: (file: File) => boolean;
+        supports: (file: ApiFile) => boolean;
     }
 > = {
     [Integration.RemoveBg]: {
@@ -90,7 +90,7 @@ function IntegrationProxy({
 
 type Props = {
     asset: Asset;
-    file: File;
+    file: ApiFile;
     setIntegrationOverlay: SetIntegrationOverlayFunction;
     assetAnnotationsRef?: AssetAnnotationRef;
 };

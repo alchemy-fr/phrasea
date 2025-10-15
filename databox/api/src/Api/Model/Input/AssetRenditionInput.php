@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
-class AssetRenditionInput
+class AssetRenditionInput extends AbstractUploadInput
 {
     /**
      * Rendition definition ID. Or provide name.

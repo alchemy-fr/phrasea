@@ -1,4 +1,4 @@
-import {Entity, File} from '../../../types';
+import {Entity, ApiFile} from '../../../types';
 import {DataTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import {useTranslation} from 'react-i18next';
@@ -16,7 +16,7 @@ export default function FileMetadata<T extends Entity>({
     minHeight,
 }: Props<T>) {
     const {t} = useTranslation();
-    const [metadata, setMetadata] = useState<File['metadata']>();
+    const [metadata, setMetadata] = useState<ApiFile['metadata']>();
     const [loading, setLoading] = useState(false);
 
     const refresh = useCallback(async () => {

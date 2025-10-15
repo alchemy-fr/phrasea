@@ -1,4 +1,4 @@
-import {File} from '../../../../types.ts';
+import {ApiFile} from '../../../../types.ts';
 import {PlayerProps} from './index.ts';
 import {
     AssetAnnotation,
@@ -8,7 +8,7 @@ import React, {useRef} from 'react';
 import FileToolbar from './FileToolbar.tsx';
 
 type Props = {
-    file: File;
+    file: ApiFile;
     title?: string;
     annotations?: AssetAnnotation[] | undefined;
 } & PlayerProps;

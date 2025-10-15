@@ -9,7 +9,7 @@ use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Basket\Basket;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class BasketInputTransformer extends AbstractFileInputTransformer
+class BasketInputTransformer extends AbstractInputTransformer
 {
     use WithOwnerIdProcessorTrait;
 

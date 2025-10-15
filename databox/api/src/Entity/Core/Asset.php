@@ -41,7 +41,6 @@ use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\MultipleAssetCreateProcessor;
 use App\Api\Processor\PrepareDeleteAssetProcessor;
-use App\Api\Processor\PrepareSubstitutionProcessor;
 use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\ResolveEntitiesProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
@@ -126,16 +125,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/assets/{id}/attributes',
             input: AssetAttributeBatchUpdateInput::class,
             processor: AssetAttributeBatchUpdateProcessor::class,
-        ),
-        new Put(
-            uriTemplate: '/assets/{id}/prepare-substitution',
-            normalizationContext: [
-                'groups' => [self::GROUP_READ],
-            ],
-            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
-            output: AssetOutput::class,
-            provider: AssetCollectionProvider::class,
-            processor: PrepareSubstitutionProcessor::class,
         ),
         new GetCollection(
             parameters: [
@@ -282,7 +271,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     private int $sequence = 0;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
     private ?string $title = null;
 
@@ -291,12 +279,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
      */
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $key = null;
-
-    /**
-     * Token sent to Uploader.
-     */
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    private ?string $pendingUploadToken = null;
 
     #[ORM\OneToMany(mappedBy: 'asset', targetEntity: CollectionAsset::class, cascade: ['remove'])]
     #[ORM\JoinColumn(nullable: true)]
@@ -594,16 +576,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     public function setAttributesEditedAt(?\DateTimeImmutable $attributesEditedAt): void
     {
         $this->attributesEditedAt = $attributesEditedAt;
-    }
-
-    public function getPendingUploadToken(): ?string
-    {
-        return $this->pendingUploadToken;
-    }
-
-    public function setPendingUploadToken(?string $pendingUploadToken): void
-    {
-        $this->pendingUploadToken = $pendingUploadToken;
     }
 
     public function getSequence(): int

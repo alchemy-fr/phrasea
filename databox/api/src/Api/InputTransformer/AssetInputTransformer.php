@@ -76,9 +76,6 @@ class AssetInputTransformer extends AbstractFileInputTransformer
         if ($data->title) {
             $object->setTitle($data->title);
         }
-        if ($data->pendingUploadToken) {
-            $object->setPendingUploadToken($data->pendingUploadToken);
-        }
 
         if (null !== $data->getExtraMetadata()) {
             $object->setExtraMetadata($data->getExtraMetadata());
@@ -113,12 +110,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
         }
 
         if (null !== $file = $this->handleFile($data, $object)) {
-            if (null !== $object->getPendingUploadToken()) {
-                throw new BadRequestHttpException(sprintf('Asset "%s" has pending upload, cannot provide file', $object->getId()));
-            }
-
             $this->renditionManager->resetAssetRenditions($object);
-
             $this->assetManager->assignNewAssetSourceFile($object, $file);
         }
 
@@ -176,7 +168,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             $this->postFlushStackListener->addBusMessage(new CopyFileToAsset($asset->getId(), $file->getId()));
 
             return $file;
-        } elseif (null !== $file = $this->handleUpload($asset->getWorkspace())) {
+        } elseif (null !== $file = $this->handleUpload($asset->getWorkspace(), $data)) {
             return $file;
         }
 

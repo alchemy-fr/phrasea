@@ -132,8 +132,6 @@ class AssetCrudController extends AbstractAclAdminCrudController
             ->onlyOnDetail();
         yield AssociationField::new('fileVersions')
             ->onlyOnDetail();
-        yield TextField::new('pendingUploadToken')
-            ->onlyOnDetail();
         yield JsonField::new('notificationSettings')
             ->hideOnIndex();
         yield BooleanField::new('autoSubscribeOwner')

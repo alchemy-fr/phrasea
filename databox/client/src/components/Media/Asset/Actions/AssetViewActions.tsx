@@ -1,5 +1,5 @@
 import {useAssetActions} from '../../../../hooks/useAssetActions.ts';
-import {Asset, File} from '../../../../types.ts';
+import {Asset, ApiFile} from '../../../../types.ts';
 import {Box, Button} from '@mui/material';
 import GroupButton from '../../../Ui/GroupButton.tsx';
 import EditIcon from '@mui/icons-material/Edit';
@@ -14,7 +14,7 @@ import FollowButton from '../../../Ui/FollowButton.tsx';
 
 type Props = {
     asset: Asset;
-    file: File | undefined;
+    file: ApiFile | undefined;
 };
 
 export default function AssetViewActions({asset, file}: Props) {
