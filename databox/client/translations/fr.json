@@ -573,7 +573,7 @@
                 "label": "Liste d'entités"
             },
             "field_type": {
-                "label": "Type de l'attribut"
+                "label": "Type de champ"
             },
             "multiple": {
                 "label": "Valeurs multiples"
@@ -616,6 +616,9 @@
             },
             "sortable": {
                 "label": "Triable"
+            },
+            "asset_type": {
+                "label": "Type de l'Asset cible"
             }
         },
         "attribute_entity": {
@@ -756,6 +759,9 @@
             },
             "substitutable": {
                 "label": "Substituable"
+            },
+            "target": {
+                "label": "Type d'Asset cible"
             }
         },
         "save_as": {
@@ -789,7 +795,10 @@
             "files_to_upload_one": "<strong>{{count}}</strong> fichier à importer",
             "files_to_upload_many": "",
             "files_to_upload_other": "<strong>{{count}}</strong> fichiers à importer",
-            "reset": "Réinitialiser"
+            "reset": "Réinitialiser",
+            "isStory": {
+                "label": "Story"
+            }
         },
         "Workspace": {
             "fallback_locales": {
@@ -1356,7 +1365,7 @@
         "not_found": "Asset non trouvé"
     },
     "renditions": {
-        "dirty": "Les réglages de cette Rendition ont été modifiés après sa création (dirty).",
+        "dirty": "Les réglages de cette Rendition ont été modifiés après sa génération (Dirty).",
         "download": "Télécharger",
         "delete": "Supprimer",
         "replace": "Remplacer",
@@ -1418,6 +1427,9 @@
     "rendition_definitions": {
         "new": {
             "label": "Nouvelle rendition"
+        },
+        "filter": {
+            "asset_type": "Filtrer par type d'Asset"
         }
     },
     "annotations": {
@@ -1837,7 +1849,15 @@
         "boolean": {
             "false": {
                 "label": "Non ({{n}})"
+            },
+            "true": {
+                "label": "Oui ({{n}})"
             }
+        }
+    },
+    "story": {
+        "chip": {
+            "label": "Story"
         }
     }
 }
