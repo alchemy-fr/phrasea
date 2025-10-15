@@ -41,6 +41,7 @@ class FileOutputTransformer implements OutputTransformerInterface
         $output->setId($data->getId());
         $output->setType($data->getType());
         $output->setSize((int) $data->getSize());
+        $output->analysis = $data->getAnalysis();
 
         if ($this->hasGroup(File::GROUP_METADATA, $context)) {
             $output->metadata = $data->getMetadata();

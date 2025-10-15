@@ -109,4 +109,27 @@ class FileOutput extends AbstractUuidOutput
     {
         $this->alternateUrls = $alternateUrls;
     }
+
+    #[Groups([
+        File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetRendition::GROUP_READ,
+    ])]
+    public ?array $analysis = null;
+
+    #[Groups([
+        File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetRendition::GROUP_READ,
+    ])]
+    public function isAnalysisPending(): bool
+    {
+        return null === $this->analysis;
+    }
 }

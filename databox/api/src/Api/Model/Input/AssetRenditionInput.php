@@ -24,7 +24,7 @@ class AssetRenditionInput
      */
     public $name;
 
-    public $substituted;
+    public ?bool $substituted = null;
 
     public $force;
 }
