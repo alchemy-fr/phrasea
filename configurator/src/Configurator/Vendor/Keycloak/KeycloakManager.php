@@ -33,6 +33,11 @@ final class KeycloakManager
             ]);
     }
 
+    public function getRealmName(): string
+    {
+        return $this->keycloakRealm;
+    }
+
     private function getToken(): string
     {
         if (null === $this->tokens || $this->tokens['expires_at'] < time() + 2) {

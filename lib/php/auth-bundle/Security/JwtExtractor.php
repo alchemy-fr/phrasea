@@ -8,6 +8,7 @@ use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\UnencryptedToken;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 final readonly class JwtExtractor
@@ -16,6 +17,7 @@ final readonly class JwtExtractor
 
     public function __construct(
         private RoleMapper $roleMapper,
+        private array $requiredRoles,
     ) {
         $this->parser = new Parser(new JoseEncoder());
     }
@@ -55,11 +57,20 @@ final readonly class JwtExtractor
             throw new \InvalidArgumentException('Missing "preferred_username" from Keycloak');
         }
 
+        $idpRoles = $claims->get('roles', []);
+        if (!empty($this->requiredRoles)) {
+            foreach ($this->requiredRoles as $requiredRole) {
+                if (!in_array($requiredRole, $idpRoles, true)) {
+                    throw new AccessDeniedHttpException('Missing required role: '.$requiredRole);
+                }
+            }
+        }
+
         return new JwtUser(
             $token->toString(),
             $claims->get('sub'),
             $claims->get('preferred_username'),
-            $this->roleMapper->getRoles($claims->get('roles', [])),
+            $this->roleMapper->getRoles($idpRoles),
             $claims->get('groups', []),
             $scopes,
         );
