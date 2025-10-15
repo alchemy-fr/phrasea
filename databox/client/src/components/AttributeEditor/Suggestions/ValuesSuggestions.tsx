@@ -129,15 +129,20 @@ export default function ValuesSuggestions<T>({
             const key = toKey(value);
 
             setSubSelection(
-                assets.filter(a =>
-                    a.attributes.some(at => {
+                assets.filter(a => {
+                    if (value === undefined) {
+                        return !a.attributes.some(
+                            at => at.definition.id === definition.id
+                        );
+                    }
+                    return a.attributes.some(at => {
                         return (
                             at.definition.id === definition.id &&
                             (at.locale ?? NO_LOCALE) === locale &&
                             toKey(at.value) === key
                         );
-                    })
-                )
+                    });
+                })
             );
         },
         [locale, definition]

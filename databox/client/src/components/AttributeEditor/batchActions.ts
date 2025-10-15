@@ -14,6 +14,7 @@ import {
     AttributeBatchAction,
     AttributeBatchActionEnum,
 } from '../../api/types.ts';
+import {isAssetEligibleForAttributeDefinition} from '../../api/asset.ts';
 
 export function getBatchActions<T>(
     assets: Asset[],
@@ -36,6 +37,10 @@ export function getBatchActions<T>(
         const av = attributes[defId];
         Object.keys(av).forEach((assetId): void => {
             const asset = assets.find(a => a.id === assetId)!;
+            if (!isAssetEligibleForAttributeDefinition(asset, definition)) {
+                return;
+            }
+
             const lv = av[assetId];
             Object.keys(lv).forEach((locale): void => {
                 const currValue = lv[locale];

@@ -8,4 +8,5 @@ export const BasketSelectionContext = React.createContext<
     selection: [],
     setSelection: () => {},
     itemToAsset: item => item.asset,
+    disabledAssets: [],
 });

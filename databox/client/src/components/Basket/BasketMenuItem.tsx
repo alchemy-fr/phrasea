@@ -13,6 +13,7 @@ type Props = {
     data: Basket;
     selected?: boolean;
     onClick?: () => void;
+    disabled?: boolean;
 } & Pick<ListItemProps, 'onContextMenu'>;
 
 export default function BasketMenuItem({
@@ -20,6 +21,7 @@ export default function BasketMenuItem({
     onClick,
     selected,
     onContextMenu,
+    disabled,
 }: Props) {
     const {t} = useTranslation();
 
@@ -30,6 +32,7 @@ export default function BasketMenuItem({
                     selected={selected}
                     role={undefined}
                     onClick={onClick}
+                    disabled={disabled}
                 >
                     <ListItemText
                         className={Classes.ellipsisText}
@@ -40,9 +43,14 @@ export default function BasketMenuItem({
                                   t('basket.default.title', 'My Basket')
                         }
                         secondary={
-                            data.descriptionHighlight
-                                ? replaceHighlight(data.descriptionHighlight)
-                                : data.description
+                            disabled
+                                ? t(
+                                      'basket.disabled.label',
+                                      `You don't have permission to edit this basket`
+                                  )
+                                : data.descriptionHighlight
+                                  ? replaceHighlight(data.descriptionHighlight)
+                                  : data.description
                         }
                         secondaryTypographyProps={{
                             style: {whiteSpace: 'normal'},

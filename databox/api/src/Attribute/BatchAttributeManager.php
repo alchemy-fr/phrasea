@@ -37,6 +37,7 @@ class BatchAttributeManager
     final public const string ACTION_DELETE = 'delete';
     final public const string ACTION_REPLACE = 'replace';
     final public const string ACTION_ADD = 'add';
+    public const string TAGS = 'tags';
 
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -95,7 +96,7 @@ class BatchAttributeManager
 
         foreach ($input->actions as $i => $action) {
             if ($action->definitionId) {
-                if ('tags' !== $action->definitionId) {
+                if (self::TAGS !== $action->definitionId) {
                     $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
 
                     if ($action->value) {
@@ -164,7 +165,7 @@ class BatchAttributeManager
                     }
 
                     if ($action->definitionId) {
-                        if ('tags' === $action->definitionId) {
+                        if (self::TAGS === $action->definitionId) {
                             $this->handleTagAction($action, $ids);
 
                             continue;
@@ -389,10 +390,15 @@ class BatchAttributeManager
             throw new \InvalidArgumentException('Attribute update is provided with many assets ID');
         }
 
-        foreach ($assetsId as $assetId) {
+        $assets = $this->em->getRepository(Asset::class)->findByIds($assetsId);
+        $assets = array_filter($assets, function (Asset $asset) use ($definition): bool {
+            return $asset->getWorkspaceId() === $definition->getWorkspaceId() && $definition->isTargetedForAsset($asset);
+        });
+
+        foreach ($assets as $asset) {
             if (null === $attribute) {
                 $attribute = new Attribute();
-                $attribute->setAsset($this->em->getReference(Asset::class, $assetId));
+                $attribute->setAsset($asset);
                 $attribute->setDefinition($definition);
             }
 

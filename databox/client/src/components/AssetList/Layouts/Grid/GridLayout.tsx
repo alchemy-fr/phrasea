@@ -25,7 +25,6 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
     onAddToBasket,
     onOpen,
     itemComponent,
-    selection,
     loadMore,
     itemToAsset,
     previewZIndex,
@@ -163,7 +162,6 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                         onContextMenuOpen={onContextMenuOpen}
                         onAddToBasket={onAddToBasket}
                         onOpen={onOpen}
-                        selection={selection}
                         {...layoutProps}
                     />
                 ))}

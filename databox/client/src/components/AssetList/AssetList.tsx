@@ -46,6 +46,7 @@ type Props<Item extends AssetOrAssetContainer> = {
     actionsContext?: ActionsContext<Item>;
     itemOverlay?: LayoutCommonProps<Item>;
     subSelection?: Item[];
+    disabledAssets?: Item[];
     onSelectionChange?: OnSelectionChange<Item>;
     defaultSelection?: Item[];
     itemComponent?: AssetItemComponent<Item>;
@@ -66,6 +67,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     onOpenDebug,
     onSelectionChange,
     subSelection,
+    disabledAssets,
     itemComponent,
     actionsContext = createDefaultActionsContext(),
     itemOverlay,
@@ -210,6 +212,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                 <SelectionContext.Provider
                     value={{
                         selection,
+                        disabledAssets: disabledAssets ?? [],
                         setSelection,
                         itemToAsset,
                     }}
@@ -230,6 +233,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
 
                     {React.createElement(layouts[layout], {
                         selection,
+                        disabledAssets: disabledAssets ?? [],
                         onOpen,
                         onAddToBasket,
                         itemToAsset,

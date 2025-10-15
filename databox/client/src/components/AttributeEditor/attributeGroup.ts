@@ -25,6 +25,7 @@ import {useTranslation} from 'react-i18next';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
 import {AttributeType} from '../../api/types.ts';
+import {isAssetEligibleForAttributeDefinition} from '../../api/asset.ts';
 
 type Props = {
     attributeDefinitions: AttributeDefinition[];
@@ -203,17 +204,31 @@ export function useAttributeValues<T>({
         DefinitionValuesIndex<T>
     >(initialDefinitionValues);
 
+    const disabledAssets = React.useMemo<Asset[]>(() => {
+        const disabled: Asset[] = [];
+
+        if (definition) {
+            assets.forEach(asset => {
+                if (!isAssetEligibleForAttributeDefinition(asset, definition)) {
+                    disabled.push(asset);
+                }
+            });
+        }
+
+        return disabled;
+    }, [definition]);
+
     const values = React.useMemo<Values<T> | undefined>(() => {
         if (definition && subSelection.length) {
             return computeValues<T>(
                 definition,
-                subSelection,
+                subSelection.filter(a => !disabledAssets.includes(a)),
                 index,
                 initialIndex,
                 createToKey
             );
         }
-    }, [definition, index, subSelection]);
+    }, [disabledAssets, definition, index, subSelection]);
 
     const reset = React.useCallback(() => {
         setIndex(initialIndex);
@@ -459,5 +474,6 @@ export function useAttributeValues<T>({
         redo: history.current < history.history.length - 1 ? redo : undefined,
         onSave,
         createToKey,
+        disabledAssets,
     };
 }

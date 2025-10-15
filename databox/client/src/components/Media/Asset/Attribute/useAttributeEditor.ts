@@ -25,20 +25,25 @@ export function useAttributeEditor({workspaceId, assetId, target}: Props) {
     const [dirty, setDirty] = React.useState(false);
     const [remoteAttributes, setRemoteAttributes] =
         React.useState<Attribute[]>();
-    const [attributes, setAttributes] =
-        React.useState<AttributeIndex<string | number>>();
 
     const updateAsset = useAssetStore(s => s.update);
     const loadWorkspaceDefinitions = useAttributeDefinitionStore(
         s => s.loadWorkspace
     );
     const definitionIndex = useIndexById({workspaceId, target});
+    const [attributes, setAttributes] = React.useState<
+        AttributeIndex<string | number>
+    >(buildAttributeIndex(definitionIndex, remoteAttributes ?? []));
 
-    useEffect(() => {
+    const reset = React.useCallback(() => {
         setAttributes(
             buildAttributeIndex(definitionIndex, remoteAttributes ?? [])
         );
     }, [definitionIndex, remoteAttributes]);
+
+    useEffect(() => {
+        reset();
+    }, [reset]);
 
     useEffect(() => {
         setRemoteAttributes(undefined);
@@ -76,12 +81,6 @@ export function useAttributeEditor({workspaceId, assetId, target}: Props) {
         },
         []
     );
-
-    const reset = React.useCallback(() => {
-        setAttributes(
-            buildAttributeIndex(definitionIndex, remoteAttributes ?? [])
-        );
-    }, [remoteAttributes]);
 
     return React.useMemo(() => {
         const reloadAssetAttributes = async (assetId: string) => {
