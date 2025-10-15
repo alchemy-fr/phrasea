@@ -65,6 +65,7 @@
         "delete": {
             "confirm": {
                 "message_one": "Êtes-vous sûr de vouloir supprimer cet asset ?",
+                "message_many": "",
                 "message_other": "Êtes-vous sûr de vouloir supprimer {{count}} assets ?",
                 "title": "Confirmer la suppression"
             }
@@ -144,8 +145,10 @@
     "asset_selection": {
         "item": "élément",
         "x_item_one": "<strong>{{count}}</strong> asset",
+        "x_item_many": "",
         "x_item_other": "<strong>{{total}}</strong> assets",
         "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> asset",
+        "x_item_with_selection_many": "",
         "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> assets"
     },
     "attribute": {
@@ -227,6 +230,7 @@
     },
     "attributes": {
         "values_one": "{{count}} valeur",
+        "values_many": "",
         "values_other": "{{count}} valeurs"
     },
     "attributes_editor_form": {
@@ -297,8 +301,10 @@
         "item": "élément",
         "remove_from_basket": "Retirer du panier",
         "x_item_one": "<strong>{{count}}</strong> élément",
+        "x_item_many": "",
         "x_item_other": "<strong>{{count}}</strong> éléments",
         "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> élément",
+        "x_item_with_selection_many": "",
         "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> éléments"
     },
     "change_theme": {
@@ -390,6 +396,7 @@
             "intro": "Où voulez-vous dupliquer les assets sélectionnés ?",
             "submit": "Dupliquer",
             "title_one": "Dupliquer {{count}} asset",
+            "title_many": "",
             "title_other": "Dupliquer {{count}} assets"
         },
         "form": {
@@ -466,6 +473,7 @@
             "intro": "Sélectionnez les renditions que vous voulez exporter :",
             "submit": "Exporter",
             "title_one": "Exporter {{count}} asset",
+            "title_many": "",
             "title_other": "Exporter {{count}} assets"
         }
     },
@@ -772,6 +780,7 @@
                 "label": "Ne pas déclencher de notification ou de webhook"
             },
             "files_to_upload_one": "<strong>{{count}}</strong> fichier à importer",
+            "files_to_upload_many": "",
             "files_to_upload_other": "<strong>{{count}}</strong> fichiers à importer",
             "reset": "Réinitialiser"
         },
@@ -1025,6 +1034,7 @@
             "intro": "Où voulez-vous déplacer les assets sélectionnés ?",
             "submit": "Déplacer",
             "title_one": "Déplacer {{count}} asset",
+            "title_many": "",
             "title_other": "Déplacer {{count}} assets"
         }
     },
@@ -1136,8 +1146,10 @@
         "result": "résultat",
         "s": "s",
         "x_result_one": "<strong>{{count}}</strong> résultat",
+        "x_result_many": "",
         "x_result_other": "<strong>{{count}}</strong> résultats",
         "x_result_with_selection_one": "<strong>{{selection}} / {{total}}</strong> résultat",
+        "x_result_with_selection_many": "",
         "x_result_with_selection_other": "<strong>{{selection}} / {{total}}</strong> résultats"
     },
     "sort_by": {
@@ -1242,8 +1254,10 @@
         },
         "collection_list": {
             "collections_one": "+ {{count}} collection",
+            "collections_many": "",
             "collections_other": "+ {{count}} collections",
             "others_one": "+ {{count}} autre",
+            "others_many": "",
             "others_other": "+ {{count}} autres"
         },
         "manage": {
@@ -1281,10 +1295,12 @@
             "confirm": {
                 "title": "Confirmer la suppression",
                 "message_one": "Etes-vous sûr de vouloir supprimer cet asset ?",
+                "message_many": "",
                 "message_other": "Etes-vous sûr de vouloir supprimer ces assets ?",
                 "not_allowed": "Vous n'êtes autorisé à supprimer aucun de ces assets"
             },
             "confirm_message_one": "Êtes-vous sûr de vouloir supprimer l'asset ?",
+            "confirm_message_many": "",
             "confirm_message_other": "Êtes-vous sûr de vouloir supprimer les {{count}}  assets ?",
             "hard_delete": "Supprimer définitivement l'asset?",
             "remove_from_collection": "Supprimer de la collection <strong> {{name}} </strong>"
@@ -1312,8 +1328,10 @@
         },
         "tag_list": {
             "others_one": "+ {{count}} autre",
+            "others_many": "",
             "others_other": "+ {{count}} autres",
             "tags_one": "+ {{count}} tag",
+            "tags_many": "",
             "tags_other": "+ {{count}} tags"
         },
         "view": {
@@ -1424,6 +1442,7 @@
         },
         "definitions": {
             "count_one": "Utilisé sur {{ count }} définition d'attribut",
+            "count_many": "",
             "count_other": "Utilisé sur {{ count }} définitions d'attributs",
             "none": "Pas d'utilisation de définitions d'attributs"
         },
@@ -1770,8 +1789,9 @@
             "empty": "Aucun envoi en attente",
             "title": "Envois en attente",
             "toast": {
-                "message_one": "<strong>{{uploaded}} / {{count}}</strong> importé",
-                "message_other": "<strong>{{uploaded}} / {{count}}</strong> importés"
+                "message_one": "<strong>{{uploaded}} / {{count}}</strong> importé",
+                "message_many": "",
+                "message_other": "<strong>{{uploaded}} / {{count}}</strong> importés"
             },
             "uploaded": "Importés"
         }
