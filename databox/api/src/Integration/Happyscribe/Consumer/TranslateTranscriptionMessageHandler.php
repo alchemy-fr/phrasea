@@ -28,7 +28,7 @@ final readonly class TranslateTranscriptionMessageHandler
         $integrationId = $message->getIntegrationId();
         $translateId = $message->getTranslateId();
 
-        $integration = $this->integrationManager->loadIntegration($integrationId) ?? throw new \RuntimeException('Integration not found: '.$integrationId);
+        $integration = $this->integrationManager->loadIntegration($integrationId) ?? throw new \InvalidArgumentException('Integration not found: '.$integrationId);
 
         $integrationConfig = $this->integrationManager->getIntegrationConfiguration($integration);
 
@@ -41,7 +41,7 @@ final readonly class TranslateTranscriptionMessageHandler
         ]);
 
         if (200 !== $resCheckTranslate->getStatusCode()) {
-            throw new \RuntimeException('Error when checking translation task ,response status : '.$resCheckTranslate->getStatusCode());
+            throw new \RuntimeException('Error when checking translation task ,response status: '.$resCheckTranslate->getStatusCode());
         }
 
         $resCheckTranslateBody = $resCheckTranslate->toArray();

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Happyscribe;
 
 use Alchemy\StorageBundle\Util\FileUtil;
+use Alchemy\Workflow\Executor\RunContext;
 use App\Asset\Attribute\AttributesResolver;
 use App\Asset\FileFetcher;
 use App\Attribute\AttributeInterface;
@@ -15,23 +16,23 @@ use App\Integration\IfActionInterface;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Storage\RenditionManager;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\DelayStamp;
 
+use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class HappyscribeAction extends AbstractIntegrationAction implements IfActionInterface
 {
     public function __construct(
         private readonly RenditionManager $renditionManager,
-        private HttpClientInterface $happyscribeClient,
-        private FileFetcher $fileFetcher,
+        private readonly HttpClientInterface $happyscribeClient,
+        private readonly FileFetcher $fileFetcher,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly AttributesResolver $attributesResolver,
-        private MessageBusInterface $bus,
+        private readonly MessageBusInterface $bus,
     ) {
     }
 
-    public function doHandle(\Alchemy\Workflow\Executor\RunContext $context): void
+    public function doHandle(RunContext $context): void
     {
         $asset = $this->getAsset($context);
         $config = $this->getIntegrationConfig($context);
@@ -79,7 +80,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
         ]);
 
         if (200 !== $responseUpload->getStatusCode()) {
-            throw new \RuntimeException('Error when getting upload url from Happyscribe, response status : '.$responseUpload->getStatusCode());
+            throw new \RuntimeException('Error when getting upload url from Happyscribe, response status: '.$responseUpload->getStatusCode());
         }
 
         $responseUploadBody = $responseUpload->toArray();
@@ -97,7 +98,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
         ]);
 
         if (200 !== $res->getStatusCode()) {
-            throw new \RuntimeException('Error when uploading file to signed url, response status : '.$res->getStatusCode().', message : '.$res->getContent(false));
+            throw new \RuntimeException('Error when uploading file to signed url, response status: '.$res->getStatusCode().', message: '.$res->getContent(false));
         }
 
         $srcLanguageAttrDef = $this->attributeDefinitionRepository
@@ -112,7 +113,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
             $sourceLanguage = $t[0];
 
             if (2 !== strlen($sourceLanguage)) {
-                throw new \InvalidArgumentException('Source language code must be a 2-letter or 4-letter code, eg: en, fr-FR, ...');
+                throw new \InvalidArgumentException('Source language code must be a 2-letter or 4-letter code, eg: en, fr-FR');
             }
         }
 
@@ -133,11 +134,11 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
             ]);
 
         } catch (\Exception $e) {
-            throw new \RuntimeException('Error when creating transcript: '.$e->getMessage());
+            throw new \RuntimeException('Error when creating transcript: '.$e->getMessage(), previous: $e);
         }
 
         if (200 !== $responseTranscription->getStatusCode()) {
-            throw new \RuntimeException('Error when creating transcript,response status: '.$responseTranscription->getStatusCode().' message : '.$responseTranscription->getContent(false));
+            throw new \RuntimeException('Error when creating transcript,response status: '.$responseTranscription->getStatusCode().' message: '.$responseTranscription->getContent(false));
         }
 
         $responseTranscriptionBody = $responseTranscription->toArray();

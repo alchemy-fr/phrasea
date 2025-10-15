@@ -25,7 +25,7 @@ final readonly class CreateExportMessageHandler
         $transcriptionId = $message->getTranscriptionId();
         $integrationId = $message->getIntegrationId();
 
-        $integration = $this->integrationManager->loadIntegration($integrationId) ?? throw new \RuntimeException('Integration not found: '.$integrationId);
+        $integration = $this->integrationManager->loadIntegration($integrationId) ?? throw new \InvalidArgumentException('Integration not found: '.$integrationId);
 
         $integrationConfig = $this->integrationManager->getIntegrationConfiguration($integration);
 

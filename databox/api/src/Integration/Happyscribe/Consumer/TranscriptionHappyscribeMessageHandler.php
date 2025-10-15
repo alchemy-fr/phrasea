@@ -37,11 +37,11 @@ final readonly class TranscriptionHappyscribeMessageHandler
         $assetId = $message->getAssetId();
         $sourceLanguage = $message->getSourceLanguage();
 
-        $integration = $this->integrationManager->loadIntegration($integrationId) ?? throw new \RuntimeException('Integration not found: '.$integrationId);
+        $integration = $this->integrationManager->loadIntegration($integrationId) ?? throw new \InvalidArgumentException('Integration not found: '.$integrationId);
 
         $integrationConfig = $this->integrationManager->getIntegrationConfiguration($integration);
 
-        $asset = $this->em->find(Asset::class, $assetId);
+        $asset = $this->em->find(Asset::class, $assetId) ?? throw new \InvalidArgumentException('Asset not found: '.$assetId);
         $allEnabledLocales = $asset->getWorkspace()->getEnabledLocales();
         $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
 
@@ -123,11 +123,11 @@ final readonly class TranscriptionHappyscribeMessageHandler
                 ],
             ]);
         } catch (\Exception $e) {
-            throw new \RuntimeException('Error when translate : '.$e->getMessage());
+            throw new \RuntimeException('Error when translate: '.$e->getMessage());
         }
 
         if (200 !== $resTranslate->getStatusCode()) {
-            throw new \RuntimeException('Error when translate, response status : '.$resTranslate->getStatusCode().'target language'.$targetLanguage);
+            throw new \RuntimeException('Error when translate, response status: '.$resTranslate->getStatusCode().'target language'.$targetLanguage);
         }
 
         $resTranslateBody = $resTranslate->toArray();

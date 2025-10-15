@@ -36,11 +36,11 @@ final readonly class ExportTranscriptionMessageHandler
     {
         $integrationId = $message->getIntegrationId();
 
-        $integration = $this->integrationManager->loadIntegration($integrationId) ?? throw new \RuntimeException('Integration not found: '.$integrationId);
+        $integration = $this->integrationManager->loadIntegration($integrationId) ?? throw new \InvalidArgumentException('Integration not found: '.$integrationId);
 
         $integrationConfig = $this->integrationManager->getIntegrationConfiguration($integration);
 
-        $asset = $this->em->find(Asset::class, $message->getAssetId());
+        $asset = $this->em->find(Asset::class, $message->getAssetId()) ?? throw new \InvalidArgumentException('Asset not found: '.$message->getAssetId());
 
         $happyscribeToken = $integrationConfig['apiKey'];
         $exportId = $message->getExportId();
@@ -76,7 +76,7 @@ final readonly class ExportTranscriptionMessageHandler
         }
 
         if ('ready' !== $exportStatus) {
-            throw new \RuntimeException('Exporting transcript failed, status: '.$exportStatus.', message : '.$failureExportMessage);
+            throw new \RuntimeException('Exporting transcript failed, status: '.$exportStatus.', message: '.$failureExportMessage);
         }
 
         $res = $this->happyscribeClient->request('GET', $resCheckExportBody['download_link']);
