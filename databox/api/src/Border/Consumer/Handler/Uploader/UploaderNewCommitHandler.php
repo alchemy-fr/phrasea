@@ -7,7 +7,7 @@ namespace App\Border\Consumer\Handler\Uploader;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Border\Model\Upload\IncomingUpload;
 use App\Border\UploaderClient;
-use App\Workflow\Event\IncomingUploaderFileWorkflowEvent;
+use App\Service\Workflow\Event\IncomingUploaderFileWorkflowEvent;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]

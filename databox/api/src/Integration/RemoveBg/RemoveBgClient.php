@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Integration\RemoveBg;
 
 use Alchemy\CoreBundle\Listener\ClientExceptionListener;
-use App\Asset\FileFetcher;
 use App\Entity\Core\File;
+use App\Service\Asset\FileFetcher;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 readonly class RemoveBgClient

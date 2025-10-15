@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Asset\AssetManager;
 use App\Entity\Core\Asset;
+use App\Service\Asset\AssetManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

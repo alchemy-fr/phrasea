@@ -17,7 +17,7 @@ use App\Controller\Workflow\CancelWorkflowAction;
 use App\Controller\Workflow\GetWorkflowAction;
 use App\Controller\Workflow\RerunJobAction;
 use App\Entity\Core\Asset;
-use App\Workflow\Event\IncomingUploaderFileWorkflowEvent;
+use App\Service\Workflow\Event\IncomingUploaderFileWorkflowEvent;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;

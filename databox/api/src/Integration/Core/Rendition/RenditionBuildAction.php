@@ -6,10 +6,10 @@ namespace App\Integration\Core\Rendition;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\Workflow\Executor\RunContext;
-use App\Asset\RenditionBuilder;
 use App\Entity\Core\RenditionDefinition;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
+use App\Service\Asset\RenditionBuilder;
 
 final class RenditionBuildAction extends AbstractIntegrationAction implements IfActionInterface
 {

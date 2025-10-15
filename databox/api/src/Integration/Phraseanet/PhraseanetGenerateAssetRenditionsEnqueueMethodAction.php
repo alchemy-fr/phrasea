@@ -8,7 +8,7 @@ use Alchemy\Workflow\Executor\RunContext;
 use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
-use App\Workflow\Action\AcceptFileAction;
+use App\Service\Workflow\Action\AcceptFileAction;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\Exception\ClientException;
 

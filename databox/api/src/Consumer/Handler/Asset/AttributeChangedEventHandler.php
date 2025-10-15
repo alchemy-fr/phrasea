@@ -8,7 +8,7 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Entity\Core\Asset;
 use App\Entity\Workflow\WorkflowState;
-use App\Workflow\Event\AttributeUpdateWorkflowEvent;
+use App\Service\Workflow\Event\AttributeUpdateWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;

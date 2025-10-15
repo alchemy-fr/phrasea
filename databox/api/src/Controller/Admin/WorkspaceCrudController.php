@@ -9,7 +9,7 @@ use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\WorkspaceTemplate;
 use App\Repository\Template\WorkspaceTemplateRepository;
-use App\Workspace\WorkspaceTemplater;
+use App\Service\Workspace\WorkspaceTemplater;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
