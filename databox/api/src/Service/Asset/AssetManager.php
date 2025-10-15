@@ -42,7 +42,7 @@ readonly class AssetManager
             $this->attributeDataImporter->importAttributes($asset, $formData, $locale);
         }
 
-        $this->pickSourceRenditionManager->assignFileToOriginalRendition($asset, $file);
+        $this->pickSourceRenditionManager->assignFileToRenditionsPickingSource($asset, $file);
 
         $this->em->persist($asset);
 

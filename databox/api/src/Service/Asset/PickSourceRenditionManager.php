@@ -20,7 +20,7 @@ readonly class PickSourceRenditionManager
     /**
      * @return AssetRendition[]
      */
-    public function assignFileToOriginalRendition(Asset $asset, File $file): array
+    public function assignFileToRenditionsPickingSource(Asset $asset, File $file): array
     {
         $definitions = $this->em->getRepository(RenditionDefinition::class)
             ->findBy([

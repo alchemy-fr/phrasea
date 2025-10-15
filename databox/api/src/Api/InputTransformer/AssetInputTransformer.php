@@ -7,15 +7,14 @@ namespace App\Api\InputTransformer;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetRelationshipInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
-use App\Consumer\Handler\File\CopyFileToAsset;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRelationship;
+use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Service\Asset\AssetManager;
 use App\Service\Asset\PickSourceRenditionManager;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class AssetInputTransformer extends AbstractFileInputTransformer
@@ -29,6 +28,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
         private readonly PickSourceRenditionManager $pickSourceRenditionManager,
         private readonly AttributeInputTransformer $attributeInputProcessor,
         private readonly AssetManager $assetManager,
+        private readonly AssetRenditionInputTransformer $renditionInputTransformer,
     ) {
     }
 
@@ -116,23 +116,11 @@ class AssetInputTransformer extends AbstractFileInputTransformer
 
         if (!empty($data->renditions)) {
             foreach ($data->renditions as $renditionInput) {
-                if ($renditionInput->definitionId) {
-                    $definition = $this->renditionManager->getRenditionDefinitionById(
-                        $workspace->getId(),
-                        $renditionInput->definitionId
-                    );
-                } elseif ($renditionInput->name) {
-                    $definition = $this->renditionManager->getRenditionDefinitionByName(
-                        $workspace->getId(),
-                        $renditionInput->name
-                    );
-                } else {
-                    throw new BadRequestHttpException('Rendition input error: You must provide either "name" or "definitionId"');
-                }
-                $rendition = $this->renditionManager->getOrCreateRendition($object, $definition);
-                $file = $this->handleSource($renditionInput->sourceFile, $workspace);
-                $rendition->setFile($file);
-
+                $rendition = $this->renditionInputTransformer->transform(
+                    $renditionInput,
+                    AssetRendition::class,
+                    ['asset' => $object]
+                );
                 $this->em->persist($rendition);
             }
         }
@@ -157,22 +145,15 @@ class AssetInputTransformer extends AbstractFileInputTransformer
 
     private function handleFile(AssetInput $data, Asset $asset): ?File
     {
-        if (null === $asset->getWorkspace()) {
+        $workspace = $asset->getWorkspace();
+        if (null === $workspace) {
             // Will API will respond 422
             return null;
         }
 
-        if (null !== $file = $this->handleSource($data->sourceFile, $asset->getWorkspace())) {
-            return $file;
-        } elseif (null !== $file = $this->handleFromFile($data->sourceFileId)) {
-            $this->postFlushStackListener->addBusMessage(new CopyFileToAsset($asset->getId(), $file->getId()));
-
-            return $file;
-        } elseif (null !== $file = $this->handleUpload($asset->getWorkspace(), $data)) {
-            return $file;
-        }
-
-        return null;
+        return $this->handleSource($data->sourceFile, $workspace)
+            ?? $this->handleFromFile($data->sourceFileId, $workspace)
+            ?? $this->handleUpload($data->multipart, $workspace);
     }
 
     private function handleRelationship(AssetRelationshipInput $input, Asset $asset): void

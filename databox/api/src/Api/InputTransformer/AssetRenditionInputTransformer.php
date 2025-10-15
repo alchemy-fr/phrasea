@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Api\InputTransformer;
 
 use App\Api\Model\Input\AssetRenditionInput;
-use App\Consumer\Handler\File\CopyFileToRendition;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;
@@ -29,12 +28,12 @@ class AssetRenditionInputTransformer extends AbstractFileInputTransformer
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? null;
 
         if ($isNew) {
-            $asset = $this->getEntity(Asset::class, $data->assetId);
+            $asset = $context['asset'] ?? $this->getEntity(Asset::class, $data->assetId);
             if ($data->definitionId) {
                 $definition = $this->getEntity(RenditionDefinition::class, $data->definitionId);
             } elseif ($data->name) {
                 $definition = $this->renditionManager
-                    ->getRenditionDefinitionByName($object->getAsset()->getWorkspaceId(), $data->name);
+                    ->getRenditionDefinitionByName($asset->getWorkspaceId(), $data->name);
             } else {
                 throw new BadRequestHttpException('Missing "definitionId" or "name"');
             }
@@ -56,13 +55,11 @@ class AssetRenditionInputTransformer extends AbstractFileInputTransformer
         $object->setSubstituted($data->substituted);
 
         $workspace = $object->getAsset()->getWorkspace();
+        $file = $this->handleSource($data->sourceFile, $workspace)
+            ?? $this->handleFromFile($data->sourceFileId, $workspace)
+            ?? $this->handleUpload($data->multipart, $workspace);
 
-        if (null !== $file = $this->handleSource($data->sourceFile, $workspace)) {
-            $object->setFile($file);
-        } elseif (null !== $file = $this->handleFromFile($data->sourceFileId)) {
-            $this->postFlushStackListener->addBusMessage(new CopyFileToRendition($object->getId(), $file->getId()));
-            $object->setFile($file);
-        } elseif (null !== $file = $this->handleUpload($workspace)) {
+        if (null !== $file) {
             $object->setFile($file);
         }
 

@@ -155,6 +155,73 @@ class AssetTest extends AbstractSearchTestCase
         ]);
     }
 
+    public function testCreateAssetUpload(): void
+    {
+        self::enableFixtures();
+
+        $client = static::createClient();
+
+        $url = 'https://foo/dummy.pdf';
+        $renditionUrl = 'https://foo/rendition.pdf';
+        $response = $client->request('POST', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'json' => [
+                'title' => 'Dummy asset',
+                'workspace' => $this->findIriBy(Workspace::class, [
+                    'slug' => 'test-workspace',
+                ]),
+                'sourceFile' => [
+                    'url' => $url,
+                    'originalName' => 'dummy.pdf',
+                    'type' => 'application/pdf',
+                    'isPrivate' => false,
+                    'importFile' => false,
+                ],
+                'renditions' => [
+                    [
+                        'name' => 'main',
+                        'substituted' => true,
+                        'force' => true,
+                        'sourceFile' => [
+                            'url' => $renditionUrl,
+                            'originalName' => 'rendition.pdf',
+                            'type' => 'application/pdf',
+                            'isPrivate' => false,
+                            'importFile' => false,
+                        ],
+                    ],
+                ],
+                'extraMetadata' => [
+                    'foo' => 'bar',
+                ],
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertJsonContains([
+            '@type' => 'asset',
+            'title' => 'Dummy asset',
+            'source' => [
+                'url' => $url,
+                'type' => 'application/pdf',
+            ],
+            'main' => [
+                'file' => [
+                    'url' => $renditionUrl,
+                    'type' => 'application/pdf',
+                ],
+            ],
+            'extraMetadata' => [
+                'foo' => 'bar',
+            ],
+        ]);
+        $this->assertMatchesRegularExpression('~^/assets/'.AlchemyApiTestCase::UUID_REGEX.'$~', $response->toArray()['@id']);
+        $this->assertMatchesResourceItemJsonSchema(Asset::class);
+    }
+
     public function testCreateAssetIsForbiddenWithoutWorkspace(): void
     {
         static::createClient()->request('POST', '/assets', [
