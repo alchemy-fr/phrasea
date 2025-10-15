@@ -88,7 +88,7 @@ export default function UseAsWidget({getValues, setValue}: Props) {
                 {
                     label: t(
                         'form.rendition_definition.useAs.animatedThumbnail',
-                        'Active thumbnail'
+                        'Animated Thumbnail'
                     ),
                     value: Values.AnimatedThumbnail,
                 },
