@@ -10,13 +10,16 @@ import UploadIcon from '@mui/icons-material/Upload';
 import apiClient from '../../../../api/api-client.ts';
 import {postRendition} from '../../../../api/rendition.ts';
 import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
+import {Asset} from '../../../../types.ts';
 
 type Props = {
+    asset: Asset;
     definitionId: string;
     renditionName: string;
 } & StackedModalProps;
 
 export default function UploadRenditionDialog({
+    asset,
     definitionId,
     renditionName,
     open,
@@ -41,6 +44,7 @@ export default function UploadRenditionDialog({
             }
             const multipart = await multipartUpload(apiClient, uploadForm.file);
             await postRendition({
+                assetId: asset.id,
                 definitionId,
                 multipart,
             });

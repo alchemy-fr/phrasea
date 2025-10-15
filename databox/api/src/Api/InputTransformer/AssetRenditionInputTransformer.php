@@ -52,7 +52,9 @@ class AssetRenditionInputTransformer extends AbstractFileInputTransformer
             throw new BadRequestHttpException(sprintf('Cannot substitute rendition "%s"', $object->getDefinition()->getName()));
         }
 
-        $object->setSubstituted($data->substituted);
+        if (null !== $data->substituted) {
+            $object->setSubstituted($data->substituted);
+        }
 
         $workspace = $object->getAsset()->getWorkspace();
         $file = $this->handleSource($data->sourceFile, $workspace)
@@ -60,6 +62,7 @@ class AssetRenditionInputTransformer extends AbstractFileInputTransformer
             ?? $this->handleUpload($data->multipart, $workspace);
 
         if (null !== $file) {
+            $this->em->persist($file);
             $object->setFile($file);
         }
 

@@ -23,7 +23,6 @@ readonly class AssetManager
         private WorkflowOrchestrator $workflowOrchestrator,
         private PostFlushStack $postFlushStack,
     ) {
-
     }
 
     public function assignNewAssetSourceFile(
@@ -44,8 +43,6 @@ readonly class AssetManager
 
         $this->pickSourceRenditionManager->assignFileToRenditionsPickingSource($asset, $file);
 
-        $this->em->persist($asset);
-
         $this->postFlushStack->addCallback(function () use ($asset) {
             $this->workflowOrchestrator->dispatchEvent(
                 AssetIngestWorkflowEvent::createEvent($asset->getId(), $asset->getWorkspaceId()),
@@ -54,6 +51,9 @@ readonly class AssetManager
                 ]
             );
         });
+
+        $this->em->persist($asset);
+        $this->em->persist($file);
     }
 
     public function turnIntoStory(Asset $asset): void

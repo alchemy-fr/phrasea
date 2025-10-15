@@ -75,6 +75,8 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
             return $workflow;
         }
 
+        $hardWrittenJobsId = $workflow->getJobIds();
+
         $integrationWorkflow = clone $workflow;
         $integrationWorkflow->rename($workflow->getName().':'.$workspaceId);
         $jobList = $integrationWorkflow->getJobs();
@@ -151,6 +153,18 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
                         if (null === $neededJobs || in_array($neededJob->getId(), $neededJobs, true)) {
                             $needList->append($neededJob->getId());
                         }
+                    }
+                }
+            }
+        }
+
+        // Prepend hard written dependencies to all jobs
+        if (!empty($hardWrittenJobsId)) {
+            foreach ($integrationWorkflow->getJobs() as $job) {
+                $needList = $job->getNeeds();
+                if (0 === $needList->count() && !in_array($job->getId(), $hardWrittenJobsId, true)) {
+                    foreach ($hardWrittenJobsId as $hardWrittenJobId) {
+                        $needList->append($hardWrittenJobId);
                     }
                 }
             }

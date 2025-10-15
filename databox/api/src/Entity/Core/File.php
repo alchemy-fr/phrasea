@@ -74,7 +74,7 @@ class File extends AbstractUuidEntity implements \Stringable
     private ?string $path = null;
 
     /**
-     * Is path accessible from browser.
+     * Is path accessible from browser or worker.
      */
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $pathPublic = true;
@@ -96,6 +96,9 @@ class File extends AbstractUuidEntity implements \Stringable
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $metadata = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $analysis = null;
 
     public function getPath(): ?string
     {
@@ -219,5 +222,30 @@ class File extends AbstractUuidEntity implements \Stringable
     public function setMetadata(?array $metadata): void
     {
         $this->metadata = $metadata;
+    }
+
+    public function getAnalysis(): ?array
+    {
+        return $this->analysis;
+    }
+
+    public function setAnalysis(?array $analysis): void
+    {
+        $this->analysis = $analysis;
+    }
+
+    public function isAnalysisPending(): bool
+    {
+        return null === $this->analysis;
+    }
+
+    public function isAnalyzed(): bool
+    {
+        return null !== $this->analysis;
+    }
+
+    public function setNoAnalysisNeeded(): void
+    {
+        $this->analysis = [];
     }
 }

@@ -13,12 +13,16 @@ export type AlternateUrl = {
     label?: string;
 };
 
+export type FileAnalysis = Record<string, any>;
+
 export interface ApiFile extends Entity {
     url?: string;
     type: string;
     alternateUrls: AlternateUrl[];
     size: number;
     metadata?: Record<string, any>;
+    analysis?: FileAnalysis | null | undefined;
+    analysisPending: boolean;
 }
 
 export type GroupValue = {
