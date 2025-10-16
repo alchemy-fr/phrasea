@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Action;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
@@ -53,7 +54,7 @@ trait FileUserActionsTrait
             throw new BadRequestHttpException(sprintf('File "%s" and Asset "%s" are not from the same workspace', $parentFile->getId(), $asset->getId()));
         }
 
-        $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
+        $multipartUpload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromRequest($request));
 
         return $this->fileManager->createFileFromMultipartUpload($multipartUpload, $asset->getWorkspace());
     }

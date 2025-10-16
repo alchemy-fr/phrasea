@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use Alchemy\StorageBundle\Upload\UploadManager;
@@ -108,7 +109,7 @@ final class CreateSubDefinitionAction extends AbstractController
 
     private function handleMultipartUpload(Request $request, Asset $asset, string $name): SubDefinition
     {
-        $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
+        $multipartUpload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromRequest($request));
 
         return $this->assetManager->createSubDefinition(
             $asset,

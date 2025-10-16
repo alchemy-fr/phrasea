@@ -23,11 +23,12 @@ class AssetRenditionInputTransformer extends AbstractFileInputTransformer
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var AssetRendition $object */
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? null;
+        $isNew = null === $object;
 
         if ($isNew) {
+            $object = new AssetRendition();
             $asset = $context['asset'] ?? $this->getEntity(Asset::class, $data->assetId);
             if ($data->definitionId) {
                 $definition = $this->getEntity(RenditionDefinition::class, $data->definitionId);
@@ -38,34 +39,29 @@ class AssetRenditionInputTransformer extends AbstractFileInputTransformer
                 throw new BadRequestHttpException('Missing "definitionId" or "name"');
             }
 
-            $object = $this->renditionManager->getOrCreateRendition($asset, $definition);
-            if ($object->isLocked()) {
-                throw new BadRequestHttpException('Cannot update locked rendition');
-            }
-
-            if ($object->isSubstituted() && !$data->force) {
-                throw new BadRequestHttpException('Cannot update rendition that has been substituted without the "force" parameter');
-            }
-        }
-
-        if (!$object->getDefinition()->isSubstitutable()) {
-            throw new BadRequestHttpException(sprintf('Cannot substitute rendition "%s"', $object->getDefinition()->getName()));
-        }
-
-        if (null !== $data->substituted) {
-            $object->setSubstituted($data->substituted);
+            $object->setDefinition($definition);
+            $object->setAsset($asset);
+            $asset->getRenditions()->removeElement($object);
         }
 
         $workspace = $object->getAsset()->getWorkspace();
         $file = $this->handleSource($data->sourceFile, $workspace)
             ?? $this->handleFromFile($data->sourceFileId, $workspace)
             ?? $this->handleUpload($data->multipart, $workspace);
-
         if (null !== $file) {
             $this->em->persist($file);
-            $object->setFile($file);
         }
 
-        return $object;
+        return $this->renditionManager->createOrReplaceRenditionFile(
+            $object->getAsset(),
+            $object->getDefinition(),
+            $file,
+            $file ? null : $object->getBuildHash(),
+            $file ? null : $object->getModuleHashes(),
+            $data->substituted ?? $object->isSubstituted(),
+            $object->isLocked(),
+            $data->force ?? false,
+            $file ? false : $object->getProjection()
+        );
     }
 }

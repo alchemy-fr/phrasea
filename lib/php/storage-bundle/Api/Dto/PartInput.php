@@ -13,4 +13,13 @@ final class PartInput
     #[Assert\NotNull]
     #[Assert\NotBlank]
     public ?string $ETag = null;
+
+    public static function fromArray(array $data): self
+    {
+        $part = new self();
+        $part->PartNumber = $data['PartNumber'] ?? null;
+        $part->ETag = $data['ETag'] ?? null;
+
+        return $part;
+    }
 }

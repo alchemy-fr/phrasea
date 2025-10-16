@@ -109,7 +109,7 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
 
     private function normalizeFile(File $file): void
     {
-        if ($this->fileAnalyzer->requiresAnalysis($file)) {
+        if ($this->fileAnalyzer->preAnalyzeFile($file)) {
             $this->postFlushStackListener->addBusMessage(new AnalyzeFile($file->getId()));
         }
     }

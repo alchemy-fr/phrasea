@@ -96,6 +96,12 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         $envelope = $inMemoryTransport->get()[0];
         $eventMessage = $envelope->getMessage();
         self::assertInstanceOf(JobConsumer::class, $eventMessage);
+        self::assertEquals('analysis', $eventMessage->getJobId());
+        $this->consumeEvent($envelope, $queueName);
+
+        $envelope = $inMemoryTransport->get()[1];
+        $eventMessage = $envelope->getMessage();
+        self::assertInstanceOf(JobConsumer::class, $eventMessage);
         self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':api', $eventMessage->getJobId());
         $this->consumeEvent($envelope, $queueName);
 

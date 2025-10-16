@@ -34,7 +34,9 @@ use Doctrine\ORM\Mapping as ORM;
         ),
         new Put(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
         new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
-        new GetCollection(),
+        new GetCollection(
+            order: ['definition.position' => 'ASC'],
+        ),
         new Post(
             openapiContext: [
                 'requestBody' => [

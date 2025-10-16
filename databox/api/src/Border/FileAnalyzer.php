@@ -3,6 +3,7 @@
 namespace App\Border;
 
 use App\Entity\Core\File;
+use App\Entity\Core\Workspace;
 
 final readonly class FileAnalyzer
 {
@@ -16,7 +17,7 @@ final readonly class FileAnalyzer
             return;
         }
 
-        if (!$this->requiresAnalysis($file)) {
+        if (!$this->preAnalyzeFile($file)) {
             return;
         }
 
@@ -34,14 +35,41 @@ final readonly class FileAnalyzer
         $file->setAnalysis($analysis);
     }
 
-    public function requiresAnalysis(File $file): bool
+    /**
+     * @return bool Whether to proceed File analysis
+     */
+    public function preAnalyzeFile(File $file): bool
     {
-        if (true) {
+        $settings = $this->getWorkspaceAnalyzerSettings($file->getWorkspace());
+        $preAnalyzers = array_filter($settings, fn (array $setting): bool => $setting['preAnalyzer'] ?? false);
+
+        if (!empty($preAnalyzers)) {
+            $analysis = [];
+            foreach ($preAnalyzers as $preAnalyzer) {
+                if ($preAnalyzer['handler']($file)) {
+                    $analysis[$preAnalyzer['name']] = true;
+                }
+            }
+            if (!empty($analysis)) {
+                $file->setAnalysis($analysis);
+
+                return false;
+            }
+        }
+
+        $fileAnalyzers = array_filter($settings, fn (array $setting): bool => !($setting['preAnalyzer'] ?? false));
+        if (!empty($fileAnalyzers)) {
             return true;
         }
 
         $file->setNoAnalysisNeeded();
 
         return false;
+    }
+
+    private function getWorkspaceAnalyzerSettings(Workspace $workspace): array
+    {
+        // TODO
+        return [];
     }
 }
