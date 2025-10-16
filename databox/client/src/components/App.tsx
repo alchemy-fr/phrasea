@@ -8,7 +8,6 @@ import {toast, ToastContainer} from 'react-toastify';
 import {Box, Theme, useMediaQuery} from '@mui/material';
 import apiClient from '../api/api-client';
 import DisplayProvider from './Media/DisplayProvider';
-import uploaderClient from '../api/uploader-client';
 import {ZIndex} from '../themes/zIndex';
 import {useRequestErrorHandler} from '@alchemy/api';
 import {useLocation} from '@alchemy/navigation';
@@ -113,11 +112,9 @@ export default function App() {
 
     React.useEffect(() => {
         apiClient.addErrorListener(onError);
-        uploaderClient.addErrorListener(onError);
 
         return () => {
             apiClient.removeErrorListener(onError);
-            uploaderClient.removeErrorListener(onError);
         };
     }, [onError]);
 

@@ -246,6 +246,6 @@ class File extends AbstractUuidEntity implements \Stringable
 
     public function setNoAnalysisNeeded(): void
     {
-        $this->analysis = [];
+        $this->analysis ??= [];
     }
 }
