@@ -7,6 +7,7 @@ namespace App\Command;
 use App\Documentation\DocumentationGeneratorInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
@@ -24,11 +25,15 @@ class DocumentationDumperCommand extends Command
     {
         parent::configure();
 
-        $this->setDescription('Dump code-generated documentation(s)');
+        $this
+            ->addArgument('destination', InputArgument::REQUIRED, 'Path to the "doc" directory whereto generate documentation')
+            ->setDescription('Dump code-generated documentation(s)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $destination = rtrim($input->getArgument('destination'), '/');
+
         /** @var array<string, DocumentationGeneratorInterface> */
         $chapters = [];
 
@@ -45,13 +50,8 @@ class DocumentationDumperCommand extends Command
             $title = $chapter->getTitle() ?? $chapter->getPath();
             $pathParts = pathinfo($chapter->getPath());
 
-            if (str_starts_with($pathParts['dirname'], '/')) {
-                // getPath() returned a "absolute" path, which will be relative to the phrasea project root
-                $outputDir = __DIR__.'/../../../..'.$pathParts['dirname'];
-            } else {
-                // getPath() returned a "relative" path, which will be relative to the databox/api folder
-                $outputDir = __DIR__.'/../../'.$pathParts['dirname'];
-            }
+            $outputDir = $destination.'/'.$pathParts['dirname'];
+
             $filename = $pathParts['filename'];
             $extension = $pathParts['extension'];
             if (!in_array($extension, ['md', 'xml', 'json'], true)) {

@@ -10,7 +10,7 @@ class InitialValuesDocumentationGenerator extends DocumentationGenerator
 {
     public function getPath(): string
     {
-        return 'doc/_initial_attribute_values.md';
+        return '_initial_attribute_values.md';
     }
 
     public function getTitle(): string

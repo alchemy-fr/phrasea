@@ -21,7 +21,7 @@ class ApiDocumentationGenerator extends DocumentationGenerator
 
     public function getPath(): string
     {
-        return 'doc/_schema.json';
+        return '_schema.json';
     }
 
     public function getTitle(): string

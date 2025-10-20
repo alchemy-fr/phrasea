@@ -14,7 +14,7 @@ class RenditionBuilderDocumentationGenerator extends DocumentationGenerator
 
     public function getPath(): string
     {
-        return 'doc/_rendition_factory.md';
+        return '_rendition_factory.md';
     }
 
     public function getTitle(): string
