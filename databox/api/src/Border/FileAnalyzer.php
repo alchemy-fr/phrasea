@@ -4,8 +4,11 @@ namespace App\Border;
 
 use App\Border\Analyzer\AnalyzerInterface;
 use App\Entity\Core\File;
+use App\Integration\IntegrationInterface;
 use App\Service\Asset\FileFetcher;
 use Psr\Container\ContainerInterface;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\Yaml\Yaml;
 
@@ -38,6 +41,10 @@ final readonly class FileAnalyzer
             $outputs = [];
             foreach ($this->getAnalyzers($file) as $analyzerConfig) {
                 $analyzer = $this->getAnalyzer($analyzerConfig);
+                $analyzerConfig = $this->processConfiguration(
+                    $analyzer,
+                    $analyzerConfig,
+                );
 
                 $output = $analyzer->analyzeFile($file, $filePath, $analyzerConfig);
                 $outputs[] = [
@@ -119,5 +126,23 @@ final readonly class FileAnalyzer
         $data = Yaml::parse($fileAnalyzers);
 
         return $data['analyzers'] ?? [];
+    }
+
+    private function processConfiguration(AnalyzerInterface $analyzer, IntegrationInterface $integration): array
+    {
+        $treeBuilder = new TreeBuilder('root');
+        $children = $treeBuilder->getRootNode()->children();
+        $children
+            ->scalarNode('name')
+                ->cannotBeEmpty()
+                ->isRequired()
+            ->end();
+        $analyzer->buildConfiguration($children);
+
+        $node = $treeBuilder->buildTree();
+
+        $processor = new Processor();
+
+        return $processor->process($node, ['root' => $workspaceIntegration->getConfig()]);
     }
 }
