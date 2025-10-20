@@ -1,6 +1,7 @@
 import {FieldValues, UseFormReturn} from 'react-hook-form';
 import React from 'react';
 import {AxiosError, AxiosInstance} from 'axios';
+import {type IAxiosRetryConfigExtended} from 'axios-retry';
 
 export type RequestMeta = {
     requestStartedAt?: number;
@@ -8,7 +9,7 @@ export type RequestMeta = {
 };
 
 declare module 'axios' {
-    export interface AxiosRequestConfig {
+    export interface AxiosRequestConfig extends IAxiosRetryConfigExtended {
         meta?: RequestMeta;
         errorHandled?: boolean;
         handledErrorStatuses?: number[];
