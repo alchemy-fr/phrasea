@@ -19,6 +19,7 @@ class RunContext extends JobContext
         Inputs $inputs,
         EnvContainer $envs,
         private readonly Outputs $outputs,
+        private ?int $endStatus = null,
     ) {
         parent::__construct($jobState, $output, $inputs, $envs);
     }
@@ -36,5 +37,15 @@ class RunContext extends JobContext
     public function retainJob(bool $retainJob = true): void
     {
         $this->retainJob = $retainJob;
+    }
+
+    public function getEndStatus(): ?int
+    {
+        return $this->endStatus;
+    }
+
+    public function setEndStatus(int $endStatus): void
+    {
+        $this->endStatus = $endStatus;
     }
 }

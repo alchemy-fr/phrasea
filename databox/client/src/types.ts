@@ -21,6 +21,7 @@ export interface ApiFile extends Entity {
     alternateUrls: AlternateUrl[];
     size: number;
     metadata?: Record<string, any>;
+    accepted?: boolean;
     analysis?: FileAnalysis | null | undefined;
     analysisPending: boolean;
 }
@@ -393,6 +394,7 @@ export type LastErrors = {
 export interface Workspace extends IPermissions, Entity {
     name: string;
     nameTranslated: string;
+    fileAnalyzers?: string;
     enabledLocales?: string[] | undefined;
     localeFallbacks?: string[] | undefined;
     owner?: User;

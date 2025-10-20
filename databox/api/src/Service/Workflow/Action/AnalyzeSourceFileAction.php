@@ -7,6 +7,7 @@ namespace App\Service\Workflow\Action;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\Workflow\Executor\Action\ActionInterface;
 use Alchemy\Workflow\Executor\RunContext;
+use Alchemy\Workflow\State\JobState;
 use App\Border\FileAnalyzer;
 use App\Entity\Core\Asset;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,5 +36,9 @@ readonly class AnalyzeSourceFileAction implements ActionInterface
         $this->em->flush();
 
         $context->setOutput('analysis', $file->getAnalysis());
+
+        if (!$file->isAccepted()) {
+            $context->setEndStatus(JobState::STATUS_FAILURE);
+        }
     }
 }

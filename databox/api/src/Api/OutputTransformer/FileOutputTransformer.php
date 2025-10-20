@@ -43,25 +43,35 @@ class FileOutputTransformer implements OutputTransformerInterface
         $output->setSize((int) $data->getSize());
         $output->analysis = $data->getAnalysis();
 
+        if ($data->isAnalyzed()) {
+            $output->accepted = $data->isAccepted();
+        }
+        if (!$data->isAccepted()) {
+            $output->analysis = $data->getAnalysis();
+        }
+
         if ($this->hasGroup(File::GROUP_METADATA, $context)) {
             $output->metadata = $data->getMetadata();
+            $output->analysis = $data->getAnalysis();
         }
 
-        if ($data->isPathPublic()) {
-            $output->setUrl($this->fileUrlResolver->resolveUrl($data));
-        }
-
-        $urls = [];
-        if (null !== $data->getAlternateUrls()) {
-            foreach ($data->getAlternateUrls() as $type => $url) {
-                $urls[] = new AlternateUrlOutput($type, $url, $this->resolveAlternateUrlLabel(
-                    $data->getWorkspaceId(),
-                    $type
-                ));
+        if ($data->isAccepted()) {
+            if ($data->isPathPublic()) {
+                $output->setUrl($this->fileUrlResolver->resolveUrl($data));
             }
-        }
 
-        $output->setAlternateUrls($urls);
+            $urls = [];
+            if (null !== $data->getAlternateUrls()) {
+                foreach ($data->getAlternateUrls() as $type => $url) {
+                    $urls[] = new AlternateUrlOutput($type, $url, $this->resolveAlternateUrlLabel(
+                        $data->getWorkspaceId(),
+                        $type
+                    ));
+                }
+            }
+
+            $output->setAlternateUrls($urls);
+        }
 
         return $output;
     }

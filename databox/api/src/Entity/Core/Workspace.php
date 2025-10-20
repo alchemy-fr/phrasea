@@ -95,6 +95,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     final public const string GROUP_READ = 'workspace:r';
     final public const string GROUP_LIST = 'workspace:i';
+    public const string CONFIG_ANALYZERS = 'analyzers';
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     #[Assert\NotBlank]
@@ -213,6 +214,16 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     public function setConfig(array $config): void
     {
         $this->config = $config;
+    }
+
+    public function getFileAnalyzers(): ?string
+    {
+        return $this->config[self::CONFIG_ANALYZERS] ?? null;
+    }
+
+    public function setFileAnalyzers(?string $analyzers): void
+    {
+        $this->config[self::CONFIG_ANALYZERS] = $analyzers;
     }
 
     public function getEnabledLocales(): array

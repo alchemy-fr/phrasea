@@ -74,6 +74,9 @@ class WorkspaceOutput extends AbstractUuidOutput
     private ?array $localeFallbacks = null;
 
     #[Groups([Workspace::GROUP_READ])]
+    public ?string $fileAnalyzers;
+
+    #[Groups([Workspace::GROUP_READ])]
     public ?array $translations = null;
 
     #[Groups([Workspace::GROUP_LIST, Workspace::GROUP_READ])]

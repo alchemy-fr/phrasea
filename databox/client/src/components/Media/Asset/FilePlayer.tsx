@@ -15,6 +15,10 @@ type Props = {
     autoPlayable?: boolean;
 } & Omit<PlayerProps, 'file'>;
 
+function ErrorIcon() {
+    return null;
+}
+
 export default function FilePlayer({file, autoPlayable, ...playProps}: Props) {
     const mainType = getFileTypeFromMIMEType(file.type);
     const {t} = useTranslation();
@@ -35,6 +39,26 @@ export default function FilePlayer({file, autoPlayable, ...playProps}: Props) {
                     color="info"
                     size="small"
                     icon={<HourglassBottomIcon />}
+                />
+                <AssetFileIcon mimeType={file.type} />
+            </div>
+        );
+    } else if (false === file.accepted) {
+        return (
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexDirection: 'column',
+                    gap: '8px',
+                }}
+            >
+                <Chip
+                    label={t('file.rejected', 'Rejected')}
+                    color="error"
+                    size="small"
+                    icon={<ErrorIcon />}
                 />
                 <AssetFileIcon mimeType={file.type} />
             </div>
