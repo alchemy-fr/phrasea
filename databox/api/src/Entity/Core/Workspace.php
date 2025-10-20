@@ -26,6 +26,7 @@ use App\Entity\Traits\TranslationsTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\WorkspaceRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Validator\ValidAnalyzersOptionsConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -85,6 +86,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: [
     'slug',
 ], message: 'Slug is already taken')]
+#[ValidAnalyzersOptionsConstraint]
 class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
     use CreatedAtTrait;

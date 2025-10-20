@@ -4,7 +4,6 @@ namespace App\Border;
 
 use App\Border\Analyzer\AnalyzerInterface;
 use App\Entity\Core\File;
-use App\Integration\IntegrationInterface;
 use App\Service\Asset\FileFetcher;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -128,7 +127,7 @@ final readonly class FileAnalyzer
         return $data['analyzers'] ?? [];
     }
 
-    private function processConfiguration(AnalyzerInterface $analyzer, IntegrationInterface $integration): array
+    private function processConfiguration(AnalyzerInterface $analyzer, array $config): array
     {
         $treeBuilder = new TreeBuilder('root');
         $children = $treeBuilder->getRootNode()->children();
@@ -143,6 +142,20 @@ final readonly class FileAnalyzer
 
         $processor = new Processor();
 
-        return $processor->process($node, ['root' => $workspaceIntegration->getConfig()]);
+        return $processor->process($node, ['root' => $config]);
+    }
+
+    public function validateAnalyzersConfiguration(array $analyzers): void
+    {
+        foreach ($analyzers['analyzers'] ?? [] as $config) {
+            $analyzer = $this->getAnalyzer($config);
+
+            $config = $this->processConfiguration(
+                $analyzer,
+                $config
+            );
+
+            $analyzer->validateConfiguration($config);
+        }
     }
 }

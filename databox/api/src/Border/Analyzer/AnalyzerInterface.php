@@ -21,4 +21,6 @@ interface AnalyzerInterface
     public function requiresFileContent(File $file, array $config): bool;
 
     public function buildConfiguration(NodeBuilder $builder): void;
+
+    public function validateConfiguration(array $config): void;
 }

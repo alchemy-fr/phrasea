@@ -17,23 +17,33 @@ final readonly class FilenameAnalyzer implements AnalyzerInterface
         $builder
             ->arrayNode('allowed_patterns')
                 ->info('One or more regex patterns that the filename can match.')
+            ->prototype('scalar')->end()
             ->end()
             ->arrayNode('disallowed_patterns')
                 ->info('One or more regex patterns that the filename cannot match.')
+                ->prototype('scalar')->end()
             ->end()
             ->arrayNode('allowed_extensions')
                 ->info('One or more file extensions that are allowed.')
+                ->prototype('scalar')->end()
             ->end()
             ->arrayNode('disallowed_extensions')
                 ->info('One or more file extensions that are not allowed.')
+                ->prototype('scalar')->end()
             ->end()
             ->arrayNode('allowed_mime_types')
                 ->info('One or more MIME types that are allowed.')
+                ->prototype('scalar')->end()
             ->end()
             ->arrayNode('disallowed_mime_types')
                 ->info('One or more MIME types that are not allowed.')
+                ->prototype('scalar')->end()
             ->end()
         ;
+    }
+
+    public function validateConfiguration(array $config): void
+    {
     }
 
     public function analyzeFile(File $file, ?string $path, array $config): AnalysisOutput

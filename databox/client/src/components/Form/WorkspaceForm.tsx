@@ -1,4 +1,4 @@
-import {FormHelperText, Hidden, TextField, Typography} from '@mui/material';
+import {Hidden, TextField} from '@mui/material';
 import React, {FC} from 'react';
 import {Trans, useTranslation} from 'react-i18next';
 import {Workspace} from '../../types';
@@ -15,7 +15,6 @@ import {putWorkspace} from '../../api/collection.ts';
 import {getLocaleOptions} from '../../api/locale.ts';
 import {LocaleSelectWidget} from '@alchemy/react-form';
 import CodeEditorWidget from './CodeEditorWidget.tsx';
-import CodeEditor from '../Media/Asset/Widgets/CodeEditor.tsx';
 
 const emptyLocaleItem = '';
 
@@ -36,23 +35,6 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
     },
 }) {
     const {t} = useTranslation();
-    const analyzersReference = `# Example File Analyzers configuration in YAML
-analyzers:
-  - name: image_dimensions
-    minWidth: 800
-    minHeight: 600
-    maxWidth: 4000
-    maxHeight: 3000
-  - name: filename
-    pattern: "^report_.*\\.pdf$"
-  - name: checksum
-    algorithm: "md5"
-    unique: true
-    treatDuplicateAsError: true
-  - name: antivirus
-  - name: custom_script
-    scriptPath: "/path/to/your/script.sh"
-`;
 
     const createSaveTranslations = useCreateSaveTranslations({
         data,
@@ -207,23 +189,7 @@ analyzers:
                         mode={'yaml'}
                         height={'500px'}
                     />
-                    {analyzersReference ? (
-                        <FormHelperText>
-                            <Typography variant={'body1'}>
-                                {t(
-                                    'form.workspace.fileAnalyzers.help.config_reference',
-                                    'Configuration reference:'
-                                )}
-                            </Typography>
-                            <CodeEditor
-                                mode={'yaml'}
-                                theme={'github'}
-                                height={'200px'}
-                                value={analyzersReference}
-                                readOnly={true}
-                            />
-                        </FormHelperText>
-                    ) : null}
+                    <FormFieldErrors field={'fileAnalyzers'} errors={errors} />
                 </FormRow>
             </form>
         </>
