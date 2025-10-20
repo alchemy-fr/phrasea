@@ -18,6 +18,10 @@ final readonly class ChecksumAnalyzer implements AnalyzerInterface
         return 'checksum';
     }
 
+    public function validateConfiguration(array $config): void
+    {
+    }
+
     public function buildConfiguration(NodeBuilder $builder): void
     {
         $builder
