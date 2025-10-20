@@ -50,6 +50,10 @@ class File extends AbstractUuidEntity implements \Stringable
     final public const string STORAGE_S3_MAIN = 's3_main';
     final public const string STORAGE_URL = 'url';
 
+    final public const string ANALYSIS_SUCCESS = 'success';
+    final public const string ANALYSIS_FAILED = 'failed';
+    final public const string ANALYSIS_SKIPPED = 'skipped';
+
     /**
      * Override trait for annotation.
      */
@@ -242,6 +246,11 @@ class File extends AbstractUuidEntity implements \Stringable
     public function isAnalyzed(): bool
     {
         return null !== $this->analysis;
+    }
+
+    public function isAccepted(): bool
+    {
+        return empty($this->analysis) || self::ANALYSIS_SUCCESS === ($this->analysis['status'] ?? null);
     }
 
     public function setNoAnalysisNeeded(): void

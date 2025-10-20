@@ -64,6 +64,26 @@ class FileOutput extends AbstractUuidOutput
         AssetRendition::GROUP_LIST])]
     private ?array $alternateUrls = [];
 
+    #[Groups([
+        File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetRendition::GROUP_READ,
+    ])]
+    public ?array $analysis = null;
+
+    #[Groups([
+        File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetRendition::GROUP_READ,
+    ])]
+    public ?bool $accepted = null;
+
     #[Groups([File::GROUP_METADATA])]
     public ?array $metadata = null;
 
@@ -118,18 +138,8 @@ class FileOutput extends AbstractUuidOutput
         AssetRendition::GROUP_LIST,
         AssetRendition::GROUP_READ,
     ])]
-    public ?array $analysis = null;
-
-    #[Groups([
-        File::GROUP_LIST,
-        File::GROUP_READ,
-        Asset::GROUP_LIST,
-        Asset::GROUP_READ,
-        AssetRendition::GROUP_LIST,
-        AssetRendition::GROUP_READ,
-    ])]
     public function isAnalysisPending(): bool
     {
-        return null === $this->analysis;
+        return null === $this->accepted;
     }
 }

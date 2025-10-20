@@ -2,13 +2,20 @@
 
 namespace App\Border;
 
+use App\Border\Analyzer\AnalyzerInterface;
 use App\Entity\Core\File;
-use App\Entity\Core\Workspace;
+use App\Service\Asset\FileFetcher;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
+use Symfony\Component\Yaml\Yaml;
 
 final readonly class FileAnalyzer
 {
-    public function __construct()
-    {
+    public function __construct(
+        #[AutowireLocator(services: AnalyzerInterface::TAG, defaultIndexMethod: 'getName')]
+        private ContainerInterface $analyzers,
+        private FileFetcher $fileFetcher,
+    ) {
     }
 
     public function analyzeFile(File $file, bool $force = false): void
@@ -17,59 +24,100 @@ final readonly class FileAnalyzer
             return;
         }
 
-        if (!$this->preAnalyzeFile($file)) {
+        if (!$file->isPathPublic()) {
+            $file->setAnalysis([
+                'status' => File::ANALYSIS_SKIPPED,
+                'message' => 'File analysis skipped for non accessible files.',
+            ]);
+
             return;
         }
 
-        // Simulate analysis process
-        // In a real implementation, this would involve more complex logic
-        // such as extracting metadata, generating thumbnails, etc.
-        $analysis = [
-            'integrity' => [
-                'similar_files' => [],
-                'duplicates' => [],
-                'corrupted' => false,
-            ],
-        ];
+        $filePath = $this->fileFetcher->getFile($file);
+        try {
+            $outputs = [];
+            foreach ($this->getAnalyzers($file) as $analyzerConfig) {
+                $analyzer = $this->getAnalyzer($analyzerConfig);
 
-        $file->setAnalysis($analysis);
+                $output = $analyzer->analyzeFile($file, $filePath, $analyzerConfig);
+                $outputs[] = [
+                    'name' => $analyzerConfig['name'],
+                    'output' => $output->toArray(),
+                ];
+                if (!$output->isSuccessful()) {
+                    $file->setAnalysis([
+                        'status' => File::ANALYSIS_FAILED,
+                        'results' => $outputs,
+                    ]);
+
+                    return;
+                }
+            }
+
+            $file->setAnalysis([
+                'status' => File::ANALYSIS_SUCCESS,
+                'results' => $outputs,
+            ]);
+        } finally {
+            @unlink($filePath);
+        }
     }
 
     /**
      * @return bool Whether to proceed File analysis
      */
-    public function preAnalyzeFile(File $file): bool
+    public function preAnalyzeFile(File $file, bool $force = false): bool
     {
-        $settings = $this->getWorkspaceAnalyzerSettings($file->getWorkspace());
-        $preAnalyzers = array_filter($settings, fn (array $setting): bool => $setting['preAnalyzer'] ?? false);
+        if ($file->isAnalyzed() && !$force) {
+            return false;
+        }
 
-        if (!empty($preAnalyzers)) {
-            $analysis = [];
-            foreach ($preAnalyzers as $preAnalyzer) {
-                if ($preAnalyzer['handler']($file)) {
-                    $analysis[$preAnalyzer['name']] = true;
-                }
+        $outputs = [];
+        $fileContentsRequired = false;
+
+        foreach ($this->getAnalyzers($file) as $analyzerConfig) {
+            $analyzer = $this->getAnalyzer($analyzerConfig);
+
+            if ($analyzer->requiresFileContent($file, $analyzerConfig)) {
+                $fileContentsRequired = true;
+
+                continue;
             }
-            if (!empty($analysis)) {
-                $file->setAnalysis($analysis);
+
+            $output = $analyzer->analyzeFile($file, null, $analyzerConfig);
+            $outputs[] = [
+                'name' => $analyzerConfig['name'],
+                'output' => $output->toArray(),
+            ];
+            if (!$output->isSuccessful()) {
+                $file->setAnalysis($outputs);
 
                 return false;
             }
         }
 
-        $fileAnalyzers = array_filter($settings, fn (array $setting): bool => !($setting['preAnalyzer'] ?? false));
-        if (!empty($fileAnalyzers)) {
-            return true;
-        }
-
-        $file->setNoAnalysisNeeded();
-
-        return false;
+        return $fileContentsRequired;
     }
 
-    private function getWorkspaceAnalyzerSettings(Workspace $workspace): array
+    private function getAnalyzer(array $config): AnalyzerInterface
     {
-        // TODO
-        return [];
+        if (!isset($config['name'])) {
+            throw new \InvalidArgumentException('Analyzer configuration error: "name" is not set.');
+        }
+
+        if (!$this->analyzers->has($config['name'])) {
+            throw new \InvalidArgumentException(sprintf('Analyzer "%s" not found.', $config['name']));
+        }
+
+        /* @var AnalyzerInterface $analyzer */
+        return $this->analyzers->get($config['name']);
+    }
+
+    private function getAnalyzers(File $file): array
+    {
+        $fileAnalyzers = $file->getWorkspace()->getFileAnalyzers();
+        $data = Yaml::parse($fileAnalyzers);
+
+        return $data['analyzers'] ?? [];
     }
 }
