@@ -14,9 +14,6 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 #[AsCommand('app:documentation:dump')]
 class DocumentationDumperCommand extends Command
 {
-    /** @var array<string, DocumentationGeneratorInterface> */
-    private array $chapters = [];
-
     public function __construct(
         #[AutowireIterator(DocumentationGeneratorInterface::TAG)] private readonly iterable $documentations,
     ) {
@@ -27,28 +24,28 @@ class DocumentationDumperCommand extends Command
     {
         parent::configure();
 
-        /** @var DocumentationGeneratorInterface $documentation */
-        foreach ($this->documentations as $documentation) {
-            $k = $documentation->getPath();
-            if (isset($this->chapters[$k])) {
-                throw new \LogicException(sprintf('Chapter "%s" is already registered.', $k));
-            }
-            $this->chapters[$k] = $documentation;
-        }
-
-        $this
-            ->setDescription('Dump code-generated documentation(s)')
-            ->setHelp(sprintf('chapters: <info>%s</info>', join('</info> ; <info>', array_keys($this->chapters))))
-        ;
+        $this->setDescription('Dump code-generated documentation(s)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        foreach ($this->chapters as $chapter) {
+        /** @var array<string, DocumentationGeneratorInterface> */
+        $chapters = [];
+
+        /** @var DocumentationGeneratorInterface $documentation */
+        foreach ($this->documentations as $documentation) {
+            $k = $documentation->getPath();
+            if (isset($chapters[$k])) {
+                throw new \LogicException(sprintf('Chapter "%s" is already registered.', $k));
+            }
+            $chapters[$k] = $documentation;
+        }
+
+        foreach ($chapters as $chapter) {
             $title = $chapter->getTitle() ?? $chapter->getPath();
             $pathParts = pathinfo($chapter->getPath());
 
-            if ('/' === substr($pathParts['dirname'], 0, 1)) {
+            if (str_starts_with($pathParts['dirname'], '/')) {
                 // getPath() returned a "absolute" path, which will be relative to the phrasea project root
                 $outputDir = __DIR__.'/../../../..'.$pathParts['dirname'];
             } else {

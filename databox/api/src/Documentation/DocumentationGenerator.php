@@ -33,7 +33,7 @@ abstract class DocumentationGenerator implements DocumentationGeneratorInterface
         return null;
     }
 
-    /** DocumentationGeneratorInterface[] */
+    /** return DocumentationGeneratorInterface[] */
     public function getChildren(): array
     {
         return [];

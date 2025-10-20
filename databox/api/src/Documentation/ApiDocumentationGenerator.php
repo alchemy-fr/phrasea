@@ -26,7 +26,7 @@ class ApiDocumentationGenerator extends DocumentationGenerator
 
     public function getTitle(): string
     {
-        return 'Api Schema';
+        return 'API Schema';
     }
 
     public function getContent(): string

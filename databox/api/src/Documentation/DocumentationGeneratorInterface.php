@@ -23,6 +23,6 @@ interface DocumentationGeneratorInterface
 
     public function getFooter(): ?string;
 
-    /** DocumentationGeneratorInterface[] */
+    /** return DocumentationGeneratorInterface[] */
     public function getChildren(): array;
 }
