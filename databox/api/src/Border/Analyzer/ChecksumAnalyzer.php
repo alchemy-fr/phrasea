@@ -4,6 +4,7 @@ namespace App\Border\Analyzer;
 
 use App\Entity\Core\File;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 final readonly class ChecksumAnalyzer implements AnalyzerInterface
 {
@@ -15,6 +16,24 @@ final readonly class ChecksumAnalyzer implements AnalyzerInterface
     public static function getName(): string
     {
         return 'checksum';
+    }
+
+    public function buildConfiguration(NodeBuilder $builder): void
+    {
+        $builder
+            ->scalarNode('algorithm')
+                ->defaultValue('sha256')
+                ->info('The hashing algorithm to use.')
+            ->end()
+            ->booleanNode('checkUnique')
+                ->defaultFalse()
+                ->info('Whether to check for uniqueness of the file based on its checksum.')
+            ->end()
+            ->booleanNode('treatDuplicateAsError')
+                ->defaultFalse()
+                ->info('Whether to treat duplicate files as errors instead of warnings.')
+            ->end()
+        ;
     }
 
     public function analyzeFile(File $file, ?string $path, array $config): AnalysisOutput
@@ -37,12 +56,12 @@ final readonly class ChecksumAnalyzer implements AnalyzerInterface
         $errors = [];
         $warnings = [];
 
-        if ($config['unique'] ?? false) {
+        if ($config['checkUnique']) {
             $existingFile = $this->em->getRepository(File::class)->findOneBy(['checksum' => $checksum]);
             if ($existingFile && $existingFile->getId() !== $file->getId()) {
                 $message = sprintf('A file with checksum "%s" already exists (File ID: %d).', $checksum, $existingFile->getId());
 
-                if ($config['treatDuplicateAsError'] ?? false) {
+                if ($config['treatDuplicateAsError']) {
                     $errors[] = $message;
                 } else {
                     $warnings[] = $message;

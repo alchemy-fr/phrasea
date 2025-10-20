@@ -3,6 +3,7 @@
 namespace App\Border\Analyzer;
 
 use App\Entity\Core\File;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag(name: self::TAG)]
@@ -18,4 +19,6 @@ interface AnalyzerInterface
     public function analyzeFile(File $file, ?string $path, array $config): AnalysisOutput;
 
     public function requiresFileContent(File $file, array $config): bool;
+
+    public function buildConfiguration(NodeBuilder $builder): void;
 }
