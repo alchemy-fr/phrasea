@@ -43,7 +43,7 @@
     "sass": "^1.93.2",
     "storybook": "^7.6.20",
     "typescript": "^5.9.2",
-    "vite": "^5.4.20",
+    "vite": "^5.4.21",
     "vite-plugin-dts": "^3.9.1"
   }
 }

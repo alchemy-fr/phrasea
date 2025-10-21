@@ -48,7 +48,7 @@
         "rimraf": "^5.0.10",
         "ts-node": "^10.9.2",
         "typescript": "^5.9.2",
-        "vite": "^5.4.20",
+        "vite": "^5.4.21",
         "vite-plugin-node": "^3.1.0"
     }
 }
