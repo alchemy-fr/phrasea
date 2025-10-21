@@ -180,10 +180,6 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     public function getName(): string
     {
-        if (null !== $this->deletedAt) {
-            return sprintf('(being deleted...) %s', $this->name);
-        }
-
         return $this->name;
     }
 

@@ -91,6 +91,7 @@ export interface Asset
     groupValue?: GroupValue | undefined;
     topicSubscriptions?: TopicSubscriptions;
     storyCollection?: Collection | undefined;
+    deleted?: boolean;
 }
 
 type AttrValue = any;
@@ -289,6 +290,7 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
 export interface Collection extends IPermissions, Entity {
     title: string;
     titleTranslated: string;
+    titleHighlight?: string;
     storyAsset?: Asset;
     absoluteTitle?: string;
     absoluteTitleTranslated?: string;
@@ -302,6 +304,7 @@ export interface Collection extends IPermissions, Entity {
     updatedAt: string;
     owner?: User;
     topicSubscriptions?: TopicSubscriptions;
+    deleted?: boolean;
 }
 
 export interface Basket extends IPermissions, Entity {

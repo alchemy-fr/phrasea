@@ -114,6 +114,8 @@ class AssetCrudController extends AbstractAclAdminCrudController
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')
             ->onlyOnDetail();
+        yield DateTimeField::new('deletedAt')
+            ->onlyOnDetail();
         yield AssociationField::new('tags')
             ->hideOnIndex();
         yield TextField::new('locale')
