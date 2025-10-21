@@ -28,6 +28,15 @@ final readonly class ElasticSearchClient
         ]);
     }
 
+    public function deleteByQuery(string $indexName, array $query): void
+    {
+        $index = $this->getIndexName($indexName);
+
+        $this->request($index.'/_delete_by_query', [
+            'query' => $query,
+        ]);
+    }
+
     public function getIndexName(string $key): string
     {
         return $this->{$key.'Index'}->getName();

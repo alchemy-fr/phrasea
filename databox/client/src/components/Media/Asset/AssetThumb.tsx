@@ -12,6 +12,7 @@ import {useTranslation} from 'react-i18next';
 import AssetTypeIcon from './AssetTypeIcon.tsx';
 import LayersIcon from '@mui/icons-material/Layers';
 import {OnPreviewToggle} from '../../AssetList/types.ts';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 type Props = {
     asset: Asset;
@@ -33,6 +34,7 @@ function AssetThumb({
         animatedThumbnail,
         main,
         storyCollection,
+        deleted,
     } = asset;
 
     let thumb: ReactNode | undefined;
@@ -89,11 +91,12 @@ function AssetThumb({
             className={classNames(
                 {
                     [assetClasses.thumbWrapper]: true,
+                    [assetClasses.deleted]: deleted,
                 },
                 [domAttrs.className]
             )}
         >
-            {!noStoryCarousel && storyCollection ? (
+            {!deleted && !noStoryCarousel && storyCollection ? (
                 <StoryThumb assetId={id} />
             ) : null}
             {thumb || storyCollection ? (
@@ -101,7 +104,7 @@ function AssetThumb({
                     className={classNames({
                         [assetClasses.thumbInactive]: animatedThumbnail,
                         [assetClasses.storyShouldHide]:
-                            !noStoryCarousel && !!storyCollection,
+                            !deleted && !noStoryCarousel && !!storyCollection,
                     })}
                 >
                     {thumb || (
@@ -128,6 +131,13 @@ function AssetThumb({
 
             {storyCollection || displayAssetTypeChip ? (
                 <div className={assetClasses.assetChip}>
+                    {deleted ? (
+                        <Chip
+                            color={'error'}
+                            label={t('asset.chip.deleted', 'Deleted')}
+                            icon={<DeleteIcon />}
+                        />
+                    ) : null}
                     {storyCollection ? (
                         <Chip
                             color={'info'}
@@ -196,7 +206,8 @@ export const thumbSx = (
                 display: 'contents',
             },
             [`.${assetClasses.assetChip}`]: {
-                'display': 'block',
+                'display': 'flex',
+                'gap': 1,
                 'position': 'absolute',
                 'zIndex': 2,
                 'right': theme.spacing(1),
@@ -204,6 +215,10 @@ export const thumbSx = (
                 '.MuiChip-label:empty': {
                     paddingLeft: 0,
                 },
+            },
+
+            [`&.${assetClasses.deleted}`]: {
+                opacity: '0.5',
             },
 
             ...createAnimatedThumbStyle(),

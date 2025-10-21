@@ -5,9 +5,9 @@ import CollectionMoveSection from '../../Media/Collection/CollectionMoveSection'
 import {FormSection} from '@alchemy/react-form';
 import {Alert, Button, Typography} from '@mui/material';
 import {useTranslation} from 'react-i18next';
-import {deleteCollection} from '../../../api/collection';
-import ConfirmDialog from '../../Ui/ConfirmDialog';
 import {useModals} from '@alchemy/navigation';
+import CollectionRestoreConfirmDialog from '../../Media/Collection/CollectionRestoreConfirmDialog.tsx';
+import CollectionDeleteConfirmDialog from '../../Media/Collection/CollectionDeleteConfirmDialog.tsx';
 
 type Props = DataTabProps<Collection>;
 
@@ -16,16 +16,18 @@ export default function Operations({data, onClose, minHeight}: Props) {
     const {openModal} = useModals();
 
     const deleteConfirmCollection = async () => {
-        openModal(ConfirmDialog, {
-            textToType: data.titleTranslated,
-            title: t(
-                'collection_delete.confirm',
-                'Are you sure you want to delete this collection?'
-            ),
-            onConfirm: async () => {
-                await deleteCollection(data.id);
+        openModal(CollectionDeleteConfirmDialog, {
+            collection: data,
+            onConfirm: () => {
+                onClose();
             },
-            onConfirmed: () => {
+        });
+    };
+
+    const restoreConfirmCollection = async () => {
+        openModal(CollectionRestoreConfirmDialog, {
+            collection: data,
+            onConfirm: () => {
                 onClose();
             },
         });
@@ -52,10 +54,27 @@ export default function Operations({data, onClose, minHeight}: Props) {
                         {t('danger_zone', 'Danger zone')}
                     </Alert>
                     <Typography variant={'h2'} sx={{mb: 1}}>
-                        {t('collection_delete.title', 'Delete collection')}
+                        {data.deleted
+                            ? t(
+                                  'collection_restore.title',
+                                  'Restore collection'
+                              )
+                            : t('collection_delete.title', 'Delete collection')}
                     </Typography>
-                    <Button onClick={deleteConfirmCollection} color={'error'}>
-                        {t('collection_delete.title', 'Delete collection')}
+                    <Button
+                        onClick={
+                            data.deleted
+                                ? restoreConfirmCollection
+                                : deleteConfirmCollection
+                        }
+                        color={'error'}
+                    >
+                        {data.deleted
+                            ? t(
+                                  'collection_restore.title',
+                                  'Restore collection'
+                              )
+                            : t('collection_delete.title', 'Delete collection')}
                     </Button>
                 </FormSection>
             )}

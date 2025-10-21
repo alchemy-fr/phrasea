@@ -18,6 +18,8 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import ShareIcon from '@mui/icons-material/Share';
+import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
+import React from 'react';
 
 type Props<Item extends AssetOrAssetContainer> = {
     contextMenu: ContextMenuContext<{
@@ -43,6 +45,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
 
     const {
         onDelete,
+        onRestore,
         onOpen,
         onDownload,
         onInfo,
@@ -199,7 +202,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                 ''
             )}
             <Divider key={'d'} />
-            {actionsContext.delete ? (
+            {actionsContext.delete && !can.restore ? (
                 <MenuItem
                     disabled={!can.delete}
                     onClick={can.delete ? onDelete : undefined}
@@ -209,6 +212,18 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                     </ListItemIcon>
                     <ListItemText
                         primary={t('asset.actions.delete', `Delete`)}
+                    />
+                </MenuItem>
+            ) : actionsContext.restore ? (
+                <MenuItem
+                    disabled={!can.restore}
+                    onClick={can.restore ? onRestore : undefined}
+                >
+                    <ListItemIcon>
+                        <RestoreFromTrashIcon color={'error'} />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary={t('asset.actions.restore', `Restore`)}
                     />
                 </MenuItem>
             ) : (

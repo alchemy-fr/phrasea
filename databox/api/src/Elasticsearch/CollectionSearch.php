@@ -18,6 +18,7 @@ class CollectionSearch extends AbstractSearch
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.collection')]
         private readonly PaginatedFinderInterface $finder,
+        private readonly QueryStringParser $queryStringParser,
     ) {
     }
 
@@ -42,6 +43,19 @@ class CollectionSearch extends AbstractSearch
             'sortName' => ['order' => 'asc'],
         ]);
 
+        if (!empty($options['query'])) {
+            $query->setHighlight([
+                'pre_tags' => ['[hl]'],
+                'post_tags' => ['[/hl]'],
+                'fields' => [
+                    'title' => [
+                        'fragment_size' => 255,
+                        'number_of_fragments' => 1,
+                    ],
+                ],
+            ]);
+        }
+
         $data = $this->finder->findPaginated($query);
         $data->setMaxPerPage((int) $limit);
         $data->setCurrentPage((int) ($options['page'] ?? 1));
@@ -57,6 +71,38 @@ class CollectionSearch extends AbstractSearch
     ): void {
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
 
+        $queryString = trim($options['query'] ?? '');
+        $parsed = $this->queryStringParser->parseQuery($queryString);
+        $deep = $options['deep'] ?? !empty($queryString);
+
+        if (!empty($parsed['should'])) {
+            $searchBool = new Query\BoolQuery();
+            $searchBool->addShould(new Query\MatchQuery('title', $parsed['should']));
+            $boolQuery->addMust($searchBool);
+        }
+        foreach ($parsed['must'] as $must) {
+            $boolQuery->addMust(new Query\MatchQuery('title', $must));
+        }
+
+        $includeDeleted = false;
+        foreach ($parsed['filters'] as $filter) {
+            if (isset($filter['in'])) {
+                switch ($filter['in']) {
+                    case 'all':
+                        $includeDeleted = true;
+                        break;
+                    case 'trash':
+                        $boolQuery->addFilter(new Query\Term(['deleted' => true]));
+                        $includeDeleted = true;
+                        break;
+                }
+            }
+        }
+
+        if (!$includeDeleted) {
+            $boolQuery->addFilter(new Query\Term(['deleted' => false]));
+        }
+
         if (null !== $aclBoolQuery) {
             $boolQuery->addFilter($aclBoolQuery);
         }
@@ -64,52 +110,60 @@ class CollectionSearch extends AbstractSearch
         if (isset($options['parent'])) {
             $options['parents'] = [$options['parent']];
         }
+
         if (isset($options['parents'])) {
             $parentCollections = $this->findCollections($options['parents']);
             $parentsBoolQuery = new Query\BoolQuery();
-            array_map(function (Collection $parentCollection) use ($parentsBoolQuery): void {
+            array_map(function (Collection $parentCollection) use ($parentsBoolQuery, $deep): void {
                 $q = new Query\BoolQuery();
                 $q->addFilter(new Query\Term(['absolutePath' => $parentCollection->getAbsolutePath()]));
-                $q->addFilter(new Query\Term(['pathDepth' => $parentCollection->getPathDepth() + 1]));
+
+                if (!$deep) {
+                    $q->addFilter(new Query\Term(['pathDepth' => $parentCollection->getPathDepth() + 1]));
+                } else {
+                    $q->addFilter(new Query\Range('pathDepth', ['gte' => $parentCollection->getPathDepth() + 1]));
+                }
                 $parentsBoolQuery->addMust($q);
             }, $parentCollections);
 
             $boolQuery->addFilter($parentsBoolQuery);
         } else {
-            $rootLevelQuery = new Query\BoolQuery();
-            $rootLevelQuery->addShould(new Query\Term(['pathDepth' => 0]));
-            if (null !== $userId) {
-                $rootLevelQuery->addShould(new Query\Term(['nlUsers' => $userId]));
-                if (!empty($groupIds)) {
-                    $rootLevelQuery->addShould(new Query\Terms('nlGroups', $groupIds));
+            if (!$deep) {
+                $rootLevelQuery = new Query\BoolQuery();
+                $rootLevelQuery->addShould(new Query\Term(['pathDepth' => 0]));
+                if (null !== $userId) {
+                    $rootLevelQuery->addShould(new Query\Term(['nlUsers' => $userId]));
+                    if (!empty($groupIds)) {
+                        $rootLevelQuery->addShould(new Query\Terms('nlGroups', $groupIds));
+                    }
                 }
-            }
 
-            $publicWorkspaceIds = $this->getPublicWorkspaceIds();
-            if (!empty($publicWorkspaceIds)) {
-                $b = new Query\BoolQuery();
-                $b->addMust(new Query\Terms('workspaceId', $publicWorkspaceIds));
-                $b->addMust(new Query\Term(['privacyRoots' => WorkspaceItemPrivacyInterface::PUBLIC]));
-                $rootLevelQuery->addShould($b);
-            }
-
-            if (null !== $userId) {
-                $allowedWorkspaceIds = $this->getAllowedWorkspaceIds($userId, $groupIds);
-                if (!empty($allowedWorkspaceIds)) {
+                $publicWorkspaceIds = $this->getPublicWorkspaceIds();
+                if (!empty($publicWorkspaceIds)) {
                     $b = new Query\BoolQuery();
-                    $b->addMust(new Query\Terms('workspaceId', $allowedWorkspaceIds));
-                    $b->addMust(new Query\Terms('privacyRoots', [
-                        WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
-                        WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE,
-                        WorkspaceItemPrivacyInterface::PRIVATE,
-                        WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS,
-                        WorkspaceItemPrivacyInterface::PUBLIC,
-                    ]));
+                    $b->addMust(new Query\Terms('workspaceId', $publicWorkspaceIds));
+                    $b->addMust(new Query\Term(['privacyRoots' => WorkspaceItemPrivacyInterface::PUBLIC]));
                     $rootLevelQuery->addShould($b);
                 }
-            }
 
-            $boolQuery->addFilter($rootLevelQuery);
+                if (null !== $userId) {
+                    $allowedWorkspaceIds = $this->getAllowedWorkspaceIds($userId, $groupIds);
+                    if (!empty($allowedWorkspaceIds)) {
+                        $b = new Query\BoolQuery();
+                        $b->addMust(new Query\Terms('workspaceId', $allowedWorkspaceIds));
+                        $b->addMust(new Query\Terms('privacyRoots', [
+                            WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
+                            WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE,
+                            WorkspaceItemPrivacyInterface::PRIVATE,
+                            WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS,
+                            WorkspaceItemPrivacyInterface::PUBLIC,
+                        ]));
+                        $rootLevelQuery->addShould($b);
+                    }
+                }
+
+                $boolQuery->addFilter($rootLevelQuery);
+            }
         }
 
         if (isset($options['workspaces'])) {

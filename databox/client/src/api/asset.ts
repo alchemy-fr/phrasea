@@ -287,18 +287,23 @@ export async function deleteAsset(id: string): Promise<void> {
 }
 
 type DeleteOptions = {
-    collections: string[];
+    collections?: string[];
+    hardDelete?: boolean;
 };
 
 export async function deleteAssets(
     ids: string[],
-    deleteOptions: DeleteOptions
+    deleteOptions: DeleteOptions = {}
 ): Promise<void> {
-    await apiClient.delete(`/assets`, {
-        data: {
-            ids,
-            ...deleteOptions,
-        },
+    await apiClient.post(`/assets/delete-multiple`, {
+        ids,
+        ...deleteOptions,
+    });
+}
+
+export async function restoreAssets(ids: string[]): Promise<void> {
+    await apiClient.post(`/assets/restore-multiple`, {
+        ids,
     });
 }
 

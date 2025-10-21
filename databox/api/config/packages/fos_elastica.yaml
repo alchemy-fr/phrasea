@@ -121,6 +121,11 @@ fos_elastica:
                     type: integer
                 sequence:
                     type: integer
+                deleted:
+                    property_path: isAssetDeleted
+                    type: boolean
+                collectionDeleted:
+                    type: boolean
                 createdAt:
                     type: date
                     fields:
@@ -205,6 +210,8 @@ fos_elastica:
                     type: keyword
                 privacyRoots:
                     type: keyword
+                deleted:
+                    type: boolean
                 createdAt:
                     type: date
             persistence:

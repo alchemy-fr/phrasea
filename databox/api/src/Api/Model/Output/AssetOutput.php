@@ -79,6 +79,9 @@ class AssetOutput extends AbstractUuidOutput
     private int $privacy;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
+    public bool $deleted;
+
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     private $workspace;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
@@ -96,7 +99,7 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_READ, Asset::GROUP_LIST])]
     public ?UserOutput $owner = null;
 
-    #[Groups([Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     public $referenceCollection;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]

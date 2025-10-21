@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
@@ -21,16 +22,19 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\CollectionInput;
+use App\Api\Model\Input\CollectionsDeleteInput;
+use App\Api\Model\Input\CollectionsRestoreInput;
 use App\Api\Model\Input\FollowInput;
 use App\Api\Model\Output\CollectionOutput;
 use App\Api\Model\Output\ESDocumentStateOutput;
+use App\Api\Processor\CollectionsDeleteProcessor;
+use App\Api\Processor\CollectionsRestoreProcessor;
 use App\Api\Processor\FollowProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveCollectionProcessor;
 use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\CollectionProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
-use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\FollowableInterface;
 use App\Entity\ObjectTitleInterface;
 use App\Entity\Traits\DeletedAtTrait;
@@ -49,7 +53,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
+use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
@@ -139,6 +143,22 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: FollowInput::class,
             processor: UnfollowProcessor::class,
         ),
+        new Post(
+            uriTemplate: '/collections/delete-multiple',
+            description: 'Delete multiple collections by IDs',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: CollectionsDeleteInput::class,
+            name: 'collection_delete_multiple',
+            processor: CollectionsDeleteProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/collections/restore-multiple',
+            description: 'Restore multiple collections by IDs',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: CollectionsRestoreInput::class,
+            name: 'collection_restore_multiple',
+            processor: CollectionsRestoreProcessor::class,
+        ),
     ],
     normalizationContext: [
         'enable_max_depth' => true,
@@ -154,8 +174,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: CollectionRepository::class)]
-#[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]
-class Collection extends AbstractUuidEntity implements FollowableInterface, SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, ESIndexableDependencyInterface, ESIndexableDeleteDependencyInterface, ESIndexableInterface, ObjectTitleInterface, \Stringable
+class Collection extends AbstractUuidEntity implements FollowableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, ESIndexableDependencyInterface, ESIndexableDeleteDependencyInterface, ESIndexableInterface, HighlightableModelInterface, ObjectTitleInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -225,6 +244,8 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
     #[Groups(['_'])]
     private ?array $relationExtraMetadata = null;
 
+    private ?array $highlights = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -235,10 +256,6 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
 
     public function getTitle(): ?string
     {
-        if (null !== $this->deletedAt) {
-            return sprintf('(being deleted...) %s', $this->title ?: $this->getId());
-        }
-
         return $this->title;
     }
 
@@ -472,5 +489,23 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, Soft
             throw new \LogicException('Story collection should not have a title');
         }
         $this->storyAsset = $storyAsset;
+    }
+
+    public function isDeleted(): bool
+    {
+        return null !== $this->deletedAt
+            || $this->workspace->isDeleted();
+    }
+
+    public function setElasticHighlights(array $highlights)
+    {
+        $this->highlights = $highlights;
+
+        return $this;
+    }
+
+    public function getElasticHighlights(): ?array
+    {
+        return $this->highlights;
     }
 }

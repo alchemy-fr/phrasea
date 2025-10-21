@@ -41,6 +41,8 @@ import ShareAssetDialog from '../../Share/ShareAssetDialog.tsx';
 import {toast} from 'react-toastify';
 import AttributeListSwitcher from '../../AttributeList/AttributeListSwitcher.tsx';
 import {formatNumber} from '../../../lib/numbers.ts';
+import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
+import RestoreAssetsConfirm from '../../Media/Asset/Actions/RestoreAssetsConfirm.tsx';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -123,6 +125,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
 
     const {
         canDelete,
+        canRestore,
         canDownload,
         canEdit,
         canEditAttributes,
@@ -130,6 +133,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         canShare,
         onShare,
         onDelete,
+        onRestore,
         onCopy,
         onMove,
         onEdit,
@@ -137,6 +141,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         download,
     } = useMemo(() => {
         let canDelete = false;
+        let canRestore = false;
         let canDownload = false;
         let canEdit = false;
         let canEditAttributes = false;
@@ -158,10 +163,14 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                 canDownload = true;
             }
             if (
-                a.capabilities.canDelete ||
-                (a.collections && a.collections.length > 0)
+                !a.deleted &&
+                (a.capabilities.canDelete ||
+                    (a.collections && a.collections.length > 0))
             ) {
                 canDelete = true;
+            }
+            if (a.capabilities.canDelete && a.deleted) {
+                canRestore = true;
             }
             if (a.capabilities.canEdit) {
                 canEdit = true;
@@ -264,6 +273,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
 
         return {
             canDelete,
+            canRestore,
             canDownload,
             canEdit,
             canEditAttributes,
@@ -274,6 +284,14 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                 openModal(DeleteAssetsConfirm, {
                     assetIds: selectedAssets.map(i => i.id),
                     onDelete: () => {
+                        reload?.();
+                    },
+                });
+            },
+            onRestore: () => {
+                openModal(RestoreAssetsConfirm, {
+                    assets: selectedAssets,
+                    onRestore: () => {
                         reload?.();
                     },
                 });
@@ -442,7 +460,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                         ) : (
                             ''
                         )}
-                        {actionsContext.delete ? (
+                        {actionsContext.delete && !canRestore ? (
                             <Button
                                 disabled={!canDelete}
                                 color={'error'}
@@ -451,6 +469,16 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                                 startIcon={<DeleteForeverIcon />}
                             >
                                 {t('asset_actions.delete', 'Delete')}
+                            </Button>
+                        ) : actionsContext.restore ? (
+                            <Button
+                                disabled={!canRestore}
+                                color={'error'}
+                                onClick={onRestore}
+                                variant={'contained'}
+                                startIcon={<RestoreFromTrashIcon />}
+                            >
+                                {t('asset_actions.restore', 'Restore')}
                             </Button>
                         ) : (
                             ''

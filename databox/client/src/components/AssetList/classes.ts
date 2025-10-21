@@ -28,6 +28,7 @@ const assetClasses = {
     storyThumbsLoaded: 'story-tbl',
     storyShouldHide: 'story-sh',
     assetIcon: 'asset-icon',
+    deleted: 'a-deleted',
 };
 
 export default assetClasses;

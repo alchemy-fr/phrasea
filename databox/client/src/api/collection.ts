@@ -18,12 +18,13 @@ export type CollectionOptions = {
     query?: string;
     parent?: string;
     workspaces?: string[];
+    nextUrl?: string;
 };
 
 export async function getCollections(
     options: CollectionOptions
 ): Promise<ApiCollectionResponse<Collection>> {
-    const res = await apiClient.get('/collections', {
+    const res = await apiClient.get(options.nextUrl ?? '/collections', {
         params: {
             ...options,
         },
@@ -90,10 +91,16 @@ export async function putWorkspace(
     return res.data;
 }
 
-export async function deleteCollection(id: string): Promise<void> {
-    await apiClient.delete(`/collections/${id}`);
+export async function deleteCollections(ids: string[]): Promise<void> {
+    await apiClient.post(`/collections/delete-multiple`, {ids});
 
-    useCollectionStore.getState().deleteCollection(id);
+    useCollectionStore.getState().moveCollectionsToTrash(ids);
+}
+
+export async function restoreCollections(ids: string[]): Promise<void> {
+    await apiClient.post(`/collections/restore-multiple`, {ids});
+
+    useCollectionStore.getState().restoreCollections(ids);
 }
 
 export async function addAssetToCollection(
