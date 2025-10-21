@@ -6,62 +6,21 @@ import {FileWithUrl, PlayerProps} from './Players';
 import PDFPlayer from './Players/PDFPlayer';
 import ImagePlayer from './Players/ImagePlayer.tsx';
 import React from 'react';
-import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
-import {Chip} from '@mui/material';
-import {useTranslation} from 'react-i18next';
+import FileAnalysisChip from './FileAnalysisChip.tsx';
 
 type Props = {
     file: ApiFile;
     autoPlayable?: boolean;
 } & Omit<PlayerProps, 'file'>;
 
-function ErrorIcon() {
-    return null;
-}
-
 export default function FilePlayer({file, autoPlayable, ...playProps}: Props) {
     const mainType = getFileTypeFromMIMEType(file.type);
-    const {t} = useTranslation();
 
-    if (file.analysisPending) {
+    if (file.analysisPending || false === file.accepted) {
         return (
-            <div
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexDirection: 'column',
-                    gap: '8px',
-                }}
-            >
-                <Chip
-                    label={t('file.analysis_pending', 'Analysis in progress…')}
-                    color="info"
-                    size="small"
-                    icon={<HourglassBottomIcon />}
-                />
+            <FileAnalysisChip file={file}>
                 <AssetFileIcon mimeType={file.type} />
-            </div>
-        );
-    } else if (false === file.accepted) {
-        return (
-            <div
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexDirection: 'column',
-                    gap: '8px',
-                }}
-            >
-                <Chip
-                    label={t('file.rejected', 'Rejected')}
-                    color="error"
-                    size="small"
-                    icon={<ErrorIcon />}
-                />
-                <AssetFileIcon mimeType={file.type} />
-            </div>
+            </FileAnalysisChip>
         );
     }
 

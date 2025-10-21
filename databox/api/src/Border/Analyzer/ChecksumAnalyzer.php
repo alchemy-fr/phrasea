@@ -6,7 +6,7 @@ use App\Entity\Core\File;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
-final readonly class ChecksumAnalyzer implements AnalyzerInterface
+final readonly class ChecksumAnalyzer extends AbstractAnalyzer
 {
     public function __construct(
         private EntityManagerInterface $em,
@@ -16,10 +16,6 @@ final readonly class ChecksumAnalyzer implements AnalyzerInterface
     public static function getName(): string
     {
         return 'checksum';
-    }
-
-    public function validateConfiguration(array $config): void
-    {
     }
 
     public function buildConfiguration(NodeBuilder $builder): void
@@ -61,7 +57,11 @@ final readonly class ChecksumAnalyzer implements AnalyzerInterface
         $warnings = [];
 
         if ($config['checkUnique']) {
-            $existingFile = $this->em->getRepository(File::class)->findOneBy(['checksum' => $checksum]);
+            $existingFile = $this->em->getRepository(File::class)
+                ->findOneBy([
+                    'checksum' => $checksum,
+                    'workspace' => $file->getWorkspace()->getId(),
+                ]);
             if ($existingFile && $existingFile->getId() !== $file->getId()) {
                 $message = sprintf('A file with checksum "%s" already exists (File ID: %d).', $checksum, $existingFile->getId());
 
