@@ -6,6 +6,7 @@ import KeyIcon from '@mui/icons-material/Key';
 import {Divider, MenuList} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import InfoIcon from '@mui/icons-material/Info';
+import YesNoChip from '../../Ui/YesNoChip.tsx';
 
 type Props = {
     data: ApiFile;
@@ -55,9 +56,9 @@ export default function InfoFile({data, onClose, minHeight}: Props) {
                         <InfoRow
                             label={t('file.info.accepted', `Accepted`)}
                             value={
-                                data.accepted
-                                    ? t('common.yes', 'Yes')
-                                    : t('common.no', 'No')
+                                undefined !== data.accepted ? (
+                                    <YesNoChip value={data.accepted} />
+                                ) : null
                             }
                             icon={<InfoIcon />}
                         />
@@ -65,7 +66,12 @@ export default function InfoFile({data, onClose, minHeight}: Props) {
                             <InfoRow
                                 label={t('file.info.analysis', `Analysis`)}
                                 value={
-                                    <pre>
+                                    <pre
+                                        style={{
+                                            whiteSpace: 'pre-wrap',
+                                            wordBreak: 'break-word',
+                                        }}
+                                    >
                                         {JSON.stringify(data.analysis, null, 2)}
                                     </pre>
                                 }

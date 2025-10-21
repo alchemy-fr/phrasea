@@ -5,7 +5,7 @@ namespace App\Border\Analyzer;
 use App\Entity\Core\File;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
-final readonly class FilenameAnalyzer implements AnalyzerInterface
+final readonly class FilenameAnalyzer extends AbstractAnalyzer
 {
     public static function getName(): string
     {
@@ -40,10 +40,6 @@ final readonly class FilenameAnalyzer implements AnalyzerInterface
                 ->prototype('scalar')->end()
             ->end()
         ;
-    }
-
-    public function validateConfiguration(array $config): void
-    {
     }
 
     public function analyzeFile(File $file, ?string $path, array $config): AnalysisOutput
