@@ -11,16 +11,13 @@ import UploadIcon from '@mui/icons-material/Upload';
 import {putAsset} from '../../../../api/asset.ts';
 import apiClient from '../../../../api/api-client.ts';
 import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
+import {postAttachment} from '../../../../api/attachment.ts';
 
 type Props = {
     asset: Asset;
 } & StackedModalProps;
 
-export default function ReplaceAssetSourceDialog({
-    asset,
-    open,
-    modalIndex,
-}: Props) {
+export default function AddAttachmentDialog({asset, open, modalIndex}: Props) {
     const {t} = useTranslation();
     const [uploading, setUploading] = React.useState(false);
     const {closeModal} = useModals();
@@ -43,14 +40,15 @@ export default function ReplaceAssetSourceDialog({
                 return;
             }
             const multipart = await multipartUpload(apiClient, uploadForm.file);
-            await putAsset(asset.id, {
+            await postAttachment({
+                assetId: asset.id,
                 multipart,
             });
 
             toast.success(
                 t(
-                    'replace_asset.dialog.success',
-                    'New asset source file has been uploaded.'
+                    'attachment.dialog.add.success',
+                    'New attachment has been uploaded.'
                 )
             );
             closeModal();
@@ -62,15 +60,12 @@ export default function ReplaceAssetSourceDialog({
     return (
         <FormDialog
             modalIndex={modalIndex}
-            title={t(
-                'replace_asset.dialog.title',
-                'Substitute asset source file'
-            )}
+            title={t('attachment.dialog.add.title', 'Add attachment to Asset')}
             open={open}
             loading={uploading}
             onSave={upload}
             submitIcon={<UploadIcon />}
-            submitLabel={t('replace_asset.dialog.submit', 'Substitute')}
+            submitLabel={t('attachment.dialog.add.submit', 'Attach')}
             submittable={!!uploadForm}
         >
             <SingleFileUploadWidget onUpload={setUploadForm} />

@@ -209,6 +209,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         }
         if ($this->hasGroup([Asset::GROUP_READ], $context)) {
             $output->thread = $this->discussionManager->getThreadOfObject($data);
+            $output->attachments = $data->getAttachments();
         }
 
         return $output;

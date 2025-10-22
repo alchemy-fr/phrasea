@@ -9,7 +9,7 @@ use App\Entity\Core\AssetRendition;
 use App\Security\RenditionPermissionManager;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class RenditionVoter extends AbstractVoter
+class AssetRenditionVoter extends AbstractVoter
 {
     public function __construct(private readonly RenditionPermissionManager $renditionPermissionManager)
     {

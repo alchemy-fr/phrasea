@@ -4,7 +4,7 @@ import FormDialog from '../../../Dialog/FormDialog';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {toast} from 'react-toastify';
 import SingleFileUploadWidget, {
-    AssetUploadForm,
+    FileUploadForm,
 } from './SingleFileUploadWidget.tsx';
 import UploadIcon from '@mui/icons-material/Upload';
 import apiClient from '../../../../api/api-client.ts';
@@ -29,7 +29,7 @@ export default function UploadRenditionDialog({
     const [uploading, setUploading] = React.useState(false);
     const {closeModal} = useModals();
     const [uploadForm, setUploadForm] = React.useState<
-        AssetUploadForm | undefined
+        FileUploadForm | undefined
     >();
 
     const upload = async () => {
