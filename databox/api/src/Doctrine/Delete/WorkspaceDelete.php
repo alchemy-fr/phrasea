@@ -7,9 +7,12 @@ namespace App\Doctrine\Delete;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use App\Doctrine\SoftDeleteToggler;
 use App\Elasticsearch\IndexCleaner;
+use App\Entity\Core\Asset;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Collection;
+use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
@@ -83,6 +86,7 @@ final readonly class WorkspaceDelete
                 $this->collectionDelete->deleteCollection((string) $c['id'], true);
             }
 
+            $this->deleteDependencies(Asset::class, $workspaceId);
             $this->deleteDependencies(Tag::class, $workspaceId);
             $this->deleteDependencies(RenditionDefinition::class, $workspaceId);
             $this->deleteDependencies(RenditionPolicy::class, $workspaceId);
@@ -92,6 +96,8 @@ final readonly class WorkspaceDelete
             $this->deleteDependencies(AttributePolicy::class, $workspaceId);
             $this->deleteDependencies(WorkspaceIntegration::class, $workspaceId);
             $this->deleteDependencies(WorkspaceSecret::class, $workspaceId);
+            $this->deleteDependencies(AttributeEntity::class, $workspaceId);
+            $this->deleteDependencies(EntityList::class, $workspaceId);
 
             $nFiles = $this->em->getRepository(File::class)
                 ->createQueryBuilder('t')
