@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Doctrine\Delete;
 
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
-use App\Doctrine\SoftDeleteToggler;
+use App\Doctrine\Listener\CollectionListener;
 use App\Elasticsearch\IndexCleaner;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
@@ -18,7 +18,7 @@ final readonly class CollectionDelete
     public function __construct(
         private EntityManagerInterface $em,
         private IndexCleaner $indexCleaner,
-        private SoftDeleteToggler $softDeleteToggler,
+        private CollectionListener $collectionListener,
     ) {
     }
 
@@ -35,15 +35,14 @@ final readonly class CollectionDelete
 
             $this->indexCleaner->removeCollectionFromIndex($collectionId);
 
-            DeferredIndexListener::disable();
-            $this->softDeleteToggler->disable();
-
             $this->em->beginTransaction();
 
             $configuration = $this->em->getConnection()->getConfiguration();
             $logger = $configuration->getSQLLogger();
             $configuration->setSQLLogger();
 
+            DeferredIndexListener::disable();
+            $this->collectionListener->softDeleteEnabled = false;
             try {
                 $this->doDelete($collectionId);
                 $this->em->commit();
@@ -52,7 +51,7 @@ final readonly class CollectionDelete
                 throw $e;
             } finally {
                 DeferredIndexListener::enable();
-                $this->softDeleteToggler->enable();
+                $this->collectionListener->softDeleteEnabled = true;
                 $configuration->setSQLLogger($logger);
             }
         } else {
@@ -90,14 +89,6 @@ final readonly class CollectionDelete
             $this->em->flush();
         }
 
-        $assets = $this->em->getRepository(Asset::class)
-            ->createQueryBuilder('t')
-            ->select('t.id')
-            ->andWhere('t.referenceCollection = :c')
-            ->setParameter('c', $collectionId)
-            ->getQuery()
-            ->toIterable();
-
         $this->em->getRepository(CollectionAsset::class)
             ->createQueryBuilder('t')
             ->delete()
@@ -105,6 +96,14 @@ final readonly class CollectionDelete
             ->setParameter('c', $collectionId)
             ->getQuery()
             ->execute();
+
+        $assets = $this->em->getRepository(Asset::class)
+            ->createQueryBuilder('t')
+            ->select('t.id')
+            ->andWhere('t.referenceCollection = :c')
+            ->setParameter('c', $collectionId)
+            ->getQuery()
+            ->toIterable();
 
         foreach ($assets as $a) {
             $asset = $this->em->find(Asset::class, $a['id']);

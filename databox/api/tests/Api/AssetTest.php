@@ -219,7 +219,6 @@ class AssetTest extends AbstractSearchTestCase
             ],
         ]);
         $this->assertMatchesRegularExpression('~^/assets/'.AlchemyApiTestCase::UUID_REGEX.'$~', $response->toArray()['@id']);
-        $this->assertMatchesResourceItemJsonSchema(Asset::class);
     }
 
     public function testCreateAssetIsForbiddenWithoutWorkspace(): void

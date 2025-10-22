@@ -122,6 +122,10 @@ final readonly class FileAnalyzer
     private function getAnalyzers(File $file): array
     {
         $fileAnalyzers = $file->getWorkspace()->getFileAnalyzers();
+        if (empty($fileAnalyzers)) {
+            return [];
+        }
+
         $data = Yaml::parse($fileAnalyzers);
 
         return $data['analyzers'] ?? [];

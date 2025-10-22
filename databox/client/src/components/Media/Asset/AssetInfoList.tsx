@@ -107,7 +107,7 @@ export default function AssetInfoList({data}: Props) {
                                   navigateToModal(
                                       modalRoutes.files.routes.manage,
                                       {
-                                          tab: 'metadata',
+                                          tab: 'info',
                                           id: data.source!.id,
                                       }
                                   );
