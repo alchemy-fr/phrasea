@@ -60,6 +60,8 @@ RUN mkdir -p var/cache var/logs var/sessions \
     && composer clear-cache
 
 RUN bin/console app:documentation:dump /srv/doc
+RUN ls -la /srv
+RUN ls -la /srv/doc
 
 COPY ./databox/api/docker/entrypoint.d/*.sh /docker/entrypoint.d/
 
