@@ -7,10 +7,10 @@ import {validateUrl} from '../../../../lib/file.ts';
 import FileToUploadCard from '../../../Upload/FileToUploadCard.tsx';
 import {FileOrUrl} from '../../../../api/file.ts';
 
-export type AssetUploadForm = FileOrUrl;
+export type FileUploadForm = FileOrUrl;
 
 type Props = {
-    onUpload?: (upload: AssetUploadForm | undefined) => void;
+    onUpload?: (upload: FileUploadForm | undefined) => void;
 };
 
 export default function SingleFileUploadWidget({onUpload}: Props) {
@@ -22,7 +22,7 @@ export default function SingleFileUploadWidget({onUpload}: Props) {
     const setFile = (file: File | undefined) => {
         setFileProxy(file);
         if (file) {
-            onUpload?.({file} as AssetUploadForm);
+            onUpload?.({file} as FileUploadForm);
         } else {
             onUpload?.(undefined);
         }

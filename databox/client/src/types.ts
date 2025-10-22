@@ -60,6 +60,16 @@ export type ESDocumentState = {
     data: object;
 };
 
+export type AssetAttachment = {
+    asset?: Asset;
+    file: ApiFile;
+    name?: string | undefined;
+    resolvedName: string;
+    priority: number;
+    updatedAt: Readonly<string>;
+    createdAt: Readonly<string>;
+} & Entity;
+
 export interface Asset
     extends IPermissions<{
             canEditAttributes: boolean;
@@ -77,6 +87,7 @@ export interface Asset
     thread?: Thread | undefined;
     workspace: Workspace;
     attributes: Attribute[];
+    attachments: AssetAttachment[];
     referenceCollection?: Collection | undefined;
     collections: Collection[] | undefined;
     main: AssetRendition | null;

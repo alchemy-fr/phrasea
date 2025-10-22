@@ -12,6 +12,7 @@ use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\ExtraMetadataDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
@@ -46,6 +47,12 @@ class AssetOutput extends AbstractUuidOutput
      */
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     protected ?array $attributes = null;
+
+    /**
+     * @var AssetAttachment[]
+     */
+    #[Groups([Asset::GROUP_READ])]
+    public $attachments;
 
     #[Groups([Asset::GROUP_LIST,
         Asset::GROUP_READ,

@@ -324,6 +324,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     #[ORM\OneToMany(mappedBy: 'asset', targetEntity: Attribute::class, cascade: ['persist', 'remove'])]
     private ?DoctrineCollection $attributes = null;
 
+    #[ORM\OneToMany(mappedBy: 'asset', targetEntity: AssetAttachment::class, cascade: ['remove'])]
+    private ?DoctrineCollection $attachments = null;
+
     #[ORM\ManyToOne(targetEntity: File::class, cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: true)]
     private ?File $source = null;
@@ -362,6 +365,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         $this->renditions = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->attributes = new ArrayCollection();
+        $this->attachments = new ArrayCollection();
         $this->fileVersions = new ArrayCollection();
 
         /* @var $now float */
@@ -686,5 +690,10 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     {
         return $this->referenceCollection?->isDeleted()
             || $this->workspace->isDeleted();
+    }
+
+    public function getAttachments(): ?DoctrineCollection
+    {
+        return $this->attachments;
     }
 }
