@@ -7,7 +7,6 @@ namespace App\Consumer\Handler\Asset;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use App\Consumer\Handler\Collection\CollectionsMoveToTrash;
-use App\Consumer\Handler\Collection\DeleteCollection;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Entity\Core\Asset;
 use App\Entity\Core\CollectionAsset;
@@ -42,23 +41,15 @@ readonly class AssetsDeleteHandler
 
         /** @var Asset[] $assets */
         $assets = DoctrineUtil::iterateIds($this->em->getRepository(Asset::class), $message->getIds());
+        DeferredIndexListener::disable();
         if ($message->isHardDelete()) {
-            $collections = [];
-            DeferredIndexListener::disable();
             try {
                 foreach ($assets as $asset) {
-                    if ($asset->getStoryCollection()) {
-                        $collections[$asset->getStoryCollection()->getId()] = true;
-                    }
                     $this->em->remove($asset);
                 }
                 $this->em->flush();
             } finally {
                 DeferredIndexListener::enable();
-            }
-
-            foreach (array_keys($collections) as $id) {
-                $this->bus->dispatch(new DeleteCollection($id));
             }
 
             $this->elasticSearchClient->deleteByQuery(
@@ -71,7 +62,6 @@ readonly class AssetsDeleteHandler
             );
         } else {
             $collections = [];
-            DeferredIndexListener::disable();
             try {
                 foreach ($assets as $asset) {
                     if ($asset->getStoryCollection()) {

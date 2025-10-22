@@ -62,7 +62,18 @@ export default function InfoRow({
                 }}
                 secondary={
                     <>
-                        {onClick ? <a onClick={onClick}>{value}</a> : value}
+                        {onClick ? (
+                            <a
+                                style={{
+                                    cursor: 'pointer',
+                                }}
+                                onClick={onClick}
+                            >
+                                {value}
+                            </a>
+                        ) : (
+                            value
+                        )}
                         {copyValue && (
                             <Box
                                 component={'span'}
