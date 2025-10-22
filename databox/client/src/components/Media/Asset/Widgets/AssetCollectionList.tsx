@@ -43,13 +43,7 @@ export default function AssetCollectionList({
             );
         }
 
-        return (
-            <CollectionChip
-                size={'small'}
-                key={c.id}
-                label={c.titleTranslated}
-            />
-        );
+        return <CollectionChip size={'small'} key={c.id} collection={c} />;
     };
 
     const rest = collections.length - (collectionsLimit - 1);
@@ -87,10 +81,7 @@ export default function AssetCollectionList({
     return (
         <div className={assetClasses.collectionList}>
             {workspace && (
-                <WorkspaceChip
-                    size={'small'}
-                    label={workspace.nameTranslated}
-                />
+                <WorkspaceChip size={'small'} workspace={workspace} />
             )}
             {chips}
         </div>

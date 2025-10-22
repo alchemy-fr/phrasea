@@ -21,6 +21,8 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AssetInput;
+use App\Api\Model\Input\AssetsDeleteInput;
+use App\Api\Model\Input\AssetsRestoreInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\CopyAssetInput;
 use App\Api\Model\Input\FollowInput;
@@ -35,13 +37,15 @@ use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Model\Output\StoryThumbnailsOutput;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
+use App\Api\Processor\AssetsDeleteProcessor;
+use App\Api\Processor\AssetsRestoreProcessor;
 use App\Api\Processor\CopyAssetProcessor;
+use App\Api\Processor\DeleteAssetProcessor;
 use App\Api\Processor\FollowProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\MultipleAssetCreateProcessor;
 use App\Api\Processor\PrepareDeleteAssetProcessor;
-use App\Api\Processor\PrepareSubstitutionProcessor;
 use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\ResolveEntitiesProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
@@ -50,10 +54,10 @@ use App\Api\Provider\AssetCollectionProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Api\Provider\StoryThumbnailsProvider;
-use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Entity\FollowableInterface;
 use App\Entity\ObjectTitleInterface;
+use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\ExtraMetadataTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\NotificationSettingsTrait;
@@ -114,7 +118,10 @@ use Symfony\Component\Validator\Constraints as Assert;
             provider: AssetCollectionProvider::class,
             processor: RemoveAssetFromCollectionProcessor::class,
         ),
-        new Delete(security: 'is_granted("DELETE", object)'),
+        new Delete(
+            security: 'is_granted("DELETE", object)',
+            processor: DeleteAssetProcessor::class,
+        ),
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
         new Put(
@@ -127,22 +134,16 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: AssetAttributeBatchUpdateInput::class,
             processor: AssetAttributeBatchUpdateProcessor::class,
         ),
-        new Put(
-            uriTemplate: '/assets/{id}/prepare-substitution',
-            normalizationContext: [
-                'groups' => [self::GROUP_READ],
-            ],
-            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
-            output: AssetOutput::class,
-            provider: AssetCollectionProvider::class,
-            processor: PrepareSubstitutionProcessor::class,
-        ),
         new GetCollection(
             parameters: [
                 'collection' => new QueryParameter(),
                 'conditions' => new QueryParameter(
                     schema: ['type' => 'array<string>'],
                     description: 'Use AQL condition to filter assets',
+                ),
+                'include_deleted' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'Include deleted assets',
                 ),
                 'ids' => new QueryParameter(
                     schema: ['type' => 'array<string>'],
@@ -216,12 +217,23 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/assets-by-keys',
             controller: DeleteAssetByKeysAction::class,
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
-            name: 'delete_by_key',
+            name: 'asset_delete_by_key',
         ),
-        new Delete(
-            uriTemplate: '/assets',
-            controller: DeleteAssetByIdsAction::class,
-            name: 'delete_by_ids',
+        new Post(
+            uriTemplate: '/assets/delete-multiple',
+            description: 'Delete multiple assets by IDs',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: AssetsDeleteInput::class,
+            name: 'asset_delete_multiple',
+            processor: AssetsDeleteProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/restore-multiple',
+            description: 'Restore multiple assets by IDs',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: AssetsRestoreInput::class,
+            name: 'asset_restore_multiple',
+            processor: AssetsRestoreProcessor::class,
         ),
         new Get(
             uriTemplate: '/assets/{id}/es-document',
@@ -259,6 +271,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    use DeletedAtTrait;
     use WorkspaceTrait;
     use LocaleTrait;
     use OwnerIdTrait;
@@ -282,7 +295,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     private int $sequence = 0;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
     private ?string $title = null;
 
@@ -291,12 +303,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
      */
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $key = null;
-
-    /**
-     * Token sent to Uploader.
-     */
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    private ?string $pendingUploadToken = null;
 
     #[ORM\OneToMany(mappedBy: 'asset', targetEntity: CollectionAsset::class, cascade: ['remove'])]
     #[ORM\JoinColumn(nullable: true)]
@@ -317,6 +323,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
 
     #[ORM\OneToMany(mappedBy: 'asset', targetEntity: Attribute::class, cascade: ['persist', 'remove'])]
     private ?DoctrineCollection $attributes = null;
+
+    #[ORM\OneToMany(mappedBy: 'asset', targetEntity: AssetAttachment::class, cascade: ['remove'])]
+    private ?DoctrineCollection $attachments = null;
 
     #[ORM\ManyToOne(targetEntity: File::class, cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: true)]
@@ -356,6 +365,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         $this->renditions = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->attributes = new ArrayCollection();
+        $this->attachments = new ArrayCollection();
         $this->fileVersions = new ArrayCollection();
 
         /* @var $now float */
@@ -596,16 +606,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         $this->attributesEditedAt = $attributesEditedAt;
     }
 
-    public function getPendingUploadToken(): ?string
-    {
-        return $this->pendingUploadToken;
-    }
-
-    public function setPendingUploadToken(?string $pendingUploadToken): void
-    {
-        $this->pendingUploadToken = $pendingUploadToken;
-    }
-
     public function getSequence(): int
     {
         return $this->sequence;
@@ -672,5 +672,28 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     public function getSourceFileMimeType(): ?string
     {
         return $this->source?->getType();
+    }
+
+    public function isDeleted(): bool
+    {
+        return null !== $this->deletedAt
+            || $this->referenceCollection?->isDeleted()
+            || $this->workspace->isDeleted();
+    }
+
+    public function isAssetDeleted(): bool
+    {
+        return null !== $this->deletedAt;
+    }
+
+    public function isCollectionDeleted(): bool
+    {
+        return $this->referenceCollection?->isDeleted()
+            || $this->workspace->isDeleted();
+    }
+
+    public function getAttachments(): ?DoctrineCollection
+    {
+        return $this->attachments;
     }
 }

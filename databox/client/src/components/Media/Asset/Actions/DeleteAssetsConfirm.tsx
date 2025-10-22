@@ -12,6 +12,8 @@ import React from 'react';
 import {Alert, Box, Checkbox, FormControlLabel} from '@mui/material';
 import AlertDialog from '../../../Dialog/AlertDialog.tsx';
 import {CollectionChip} from '../../../Ui/CollectionChip.tsx';
+import CollectionStoryChip from '../../../Ui/CollectionStoryChip.tsx';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 type Props = {
     assetIds: string[];
@@ -68,6 +70,9 @@ export default function DeleteAssetsConfirm({
             title={t('asset.delete.confirm.title', 'Confirm delete')}
             onConfirm={onDeleteAssets}
             open={open}
+            confirmButtonProps={{
+                startIcon: <DeleteIcon />,
+            }}
         >
             {collections.length > 0 ? (
                 <>
@@ -109,16 +114,42 @@ export default function DeleteAssetsConfirm({
                                     }
                                 }}
                                 label={
-                                    <Trans
-                                        i18nKey="asset.delete.remove_from_collection"
-                                        values={{
-                                            name: collection.absoluteTitleTranslated,
-                                        }}
-                                        defaults={`Remove from collection <strong>{{name}}</strong>`}
-                                        components={{
-                                            strong: <CollectionChip />,
-                                        }}
-                                    />
+                                    collection.storyAsset ? (
+                                        <Trans
+                                            i18nKey="asset.delete.remove_from_story"
+                                            values={{
+                                                name:
+                                                    collection.storyAsset
+                                                        .resolvedTitle ||
+                                                    collection.storyAsset.title,
+                                            }}
+                                            defaults={`Remove from story <strong>{{name}}</strong>`}
+                                            components={{
+                                                strong: (
+                                                    <CollectionStoryChip
+                                                        storyAsset={
+                                                            collection.storyAsset
+                                                        }
+                                                    />
+                                                ),
+                                            }}
+                                        />
+                                    ) : (
+                                        <Trans
+                                            i18nKey="asset.delete.remove_from_collection"
+                                            values={{
+                                                name: collection.absoluteTitleTranslated,
+                                            }}
+                                            defaults={`Remove from collection <strong>{{name}}</strong>`}
+                                            components={{
+                                                strong: (
+                                                    <CollectionChip
+                                                        collection={collection}
+                                                    />
+                                                ),
+                                            }}
+                                        />
+                                    )
                                 }
                                 control={<Checkbox sx={{mr: 1}} />}
                             />

@@ -6,7 +6,7 @@ namespace App\Controller\Core;
 
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
-use App\Workspace\WorkspaceDuplicateManager;
+use App\Service\Workspace\WorkspaceDuplicateManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

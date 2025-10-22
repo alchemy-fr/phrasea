@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use Alchemy\StorageBundle\Upload\UploadManager;
@@ -95,7 +96,7 @@ final class CreateAssetAction extends AbstractController
 
     private function handleMultipartUpload(Request $request, Target $target): Asset
     {
-        $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
+        $multipartUpload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromRequest($request));
 
         /** @var JwtUser $user */
         $user = $this->getUser();

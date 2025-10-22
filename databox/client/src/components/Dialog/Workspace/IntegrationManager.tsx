@@ -193,19 +193,17 @@ function Item({
                     <FormHelperText>
                         <Typography variant={'body1'}>
                             {t(
-                                'form.integration.help.config_refenrece',
+                                'form.integration.help.config_reference',
                                 'Configuration reference:'
                             )}
                         </Typography>
-                        <pre>
-                            <CodeEditor
-                                mode={'yaml'}
-                                theme={'github'}
-                                height={'200px'}
-                                value={integrationHelp.reference}
-                                readOnly={true}
-                            />
-                        </pre>
+                        <CodeEditor
+                            mode={'yaml'}
+                            theme={'github'}
+                            height={'200px'}
+                            value={integrationHelp.reference}
+                            readOnly={true}
+                        />
                         <Button
                             startIcon={<ContentCopyIcon />}
                             onClick={copyReference}

@@ -6,6 +6,7 @@ import {
 } from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import apiClient from './api-client';
+import type {MultipartUpload} from '@alchemy/api';
 
 type GetOptions = {
     workspaceIds?: string[];
@@ -42,6 +43,7 @@ type RenditionInput = {
     assetId: string;
     substituted?: boolean;
     force?: boolean;
+    multipart?: MultipartUpload;
 };
 
 export async function postRendition(

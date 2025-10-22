@@ -9,3 +9,10 @@ on:
                 required: true
 
 jobs:
+    analysis:
+        name: Analyze Source File
+        steps:
+            -   id: analyze_source_file
+                uses: App\Service\Workflow\Action\AnalyzeSourceFileAction
+        outputs:
+            analysis: ${{ steps.analyze_source_file.outputs.analysis }}

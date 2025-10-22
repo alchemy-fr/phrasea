@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Api\InputTransformer;
 
 use App\Api\Model\Input\AssetRenditionInput;
-use App\Consumer\Handler\File\CopyFileToRendition;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;
@@ -24,48 +23,45 @@ class AssetRenditionInputTransformer extends AbstractFileInputTransformer
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var AssetRendition $object */
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? null;
+        $isNew = null === $object;
 
         if ($isNew) {
-            $asset = $this->getEntity(Asset::class, $data->assetId);
+            $object = new AssetRendition();
+            $asset = $context['asset'] ?? $this->getEntity(Asset::class, $data->assetId);
             if ($data->definitionId) {
                 $definition = $this->getEntity(RenditionDefinition::class, $data->definitionId);
             } elseif ($data->name) {
                 $definition = $this->renditionManager
-                    ->getRenditionDefinitionByName($object->getAsset()->getWorkspaceId(), $data->name);
+                    ->getRenditionDefinitionByName($asset->getWorkspaceId(), $data->name);
             } else {
                 throw new BadRequestHttpException('Missing "definitionId" or "name"');
             }
 
-            $object = $this->renditionManager->getOrCreateRendition($asset, $definition);
-            if ($object->isLocked()) {
-                throw new BadRequestHttpException('Cannot update locked rendition');
-            }
-
-            if ($object->isSubstituted() && !$data->force) {
-                throw new BadRequestHttpException('Cannot update rendition that has been substituted without the "force" parameter');
-            }
+            $object->setDefinition($definition);
+            $object->setAsset($asset);
+            $asset->getRenditions()->removeElement($object);
         }
-
-        if (!$object->getDefinition()->isSubstitutable()) {
-            throw new BadRequestHttpException(sprintf('Cannot substitute rendition "%s"', $object->getDefinition()->getName()));
-        }
-
-        $object->setSubstituted($data->substituted);
 
         $workspace = $object->getAsset()->getWorkspace();
-
-        if (null !== $file = $this->handleSource($data->sourceFile, $workspace)) {
-            $object->setFile($file);
-        } elseif (null !== $file = $this->handleFromFile($data->sourceFileId)) {
-            $this->postFlushStackListener->addBusMessage(new CopyFileToRendition($object->getId(), $file->getId()));
-            $object->setFile($file);
-        } elseif (null !== $file = $this->handleUpload($workspace)) {
-            $object->setFile($file);
+        $file = $this->handleSource($data->sourceFile, $workspace)
+            ?? $this->handleFromFile($data->sourceFileId, $workspace)
+            ?? $this->handleUpload($data->multipart, $workspace);
+        if (null !== $file) {
+            $this->em->persist($file);
         }
 
-        return $object;
+        return $this->renditionManager->createOrReplaceRenditionFile(
+            $object->getAsset(),
+            $object->getDefinition(),
+            $file,
+            $file ? null : $object->getBuildHash(),
+            $file ? null : $object->getModuleHashes(),
+            $data->substituted ?? $object->isSubstituted(),
+            $object->isLocked(),
+            $data->force ?? false,
+            $file ? false : $object->getProjection()
+        );
     }
 }

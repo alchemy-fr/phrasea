@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace App\Api\InputTransformer;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
+use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
-use App\Api\Model\Input\AssetSourceInput;
+use App\Api\Model\Input\FileSourceInput;
+use App\Border\FileAnalyzer;
+use App\Consumer\Handler\File\AnalyzeFile;
 use App\Consumer\Handler\File\ImportFile;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Http\FileUploadManager;
-use App\Storage\RenditionManager;
+use App\Service\Storage\RenditionManager;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -25,53 +28,54 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
     private UploadManager $uploadManager;
     private FileUploadManager $fileUploadManager;
     private RequestStack $requestStack;
+    protected FileAnalyzer $fileAnalyzer;
 
-    protected function handleFromFile(?string $fileId): ?File
+    protected function handleFromFile(?string $fileId, Workspace $workspace): ?File
     {
         if (null === $fileId) {
             return null;
         }
 
         $file = $this->getEntity(File::class, $fileId);
-        if (!$file->isPathPublic()) {
-            throw new BadRequestHttpException(sprintf('Copy error: File "%s" has a private path', $fileId));
+        if ($file->getWorkspaceId() !== $workspace->getId()) {
+            throw new BadRequestHttpException(sprintf('Copy error: File "%s" does not belong to workspace "%s"', $fileId, $workspace->getId()));
         }
 
         return $file;
     }
 
-    protected function handleUpload(Workspace $workspace): ?File
+    protected function handleUpload(?MultipartUploadInput $multipart, Workspace $workspace): ?File
     {
-        if (null === $request = $this->requestStack->getCurrentRequest()) {
-            return null;
-        }
+        if ($multipart) {
+            $multipartUpload = $this->uploadManager->handleMultipartUpload($multipart);
 
-        $file = new File();
-        $file->setWorkspace($workspace);
-        $file->setStorage(File::STORAGE_S3_MAIN);
-
-        if ($request->request->has('multipart')) {
-            $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
-
+            $file = new File();
+            $file->setWorkspace($workspace);
+            $file->setStorage(File::STORAGE_S3_MAIN);
             $file->setType($multipartUpload->getType());
             $file->setExtension(FileUtil::guessExtension($multipartUpload->getType(), $multipartUpload->getFilename()));
             $file->setSize($multipartUpload->getSize());
             $file->setOriginalName($multipartUpload->getFilename());
             $file->setPath($multipartUpload->getPath());
+            $this->normalizeFile($file);
 
             return $file;
+        }
+
+        if (null === $request = $this->requestStack->getCurrentRequest()) {
+            return null;
         }
 
         /** @var UploadedFile|null $uploadedFile */
         $uploadedFile = $request->files->get('file');
         if (null !== $uploadedFile) {
-            return $this->fileUploadManager->storeFileUploadFromRequest($workspace, $uploadedFile);
+            return $this->fileUploadManager->storeUploadedFile($workspace, $uploadedFile);
         }
 
         return null;
     }
 
-    protected function handleSource(?AssetSourceInput $source, Workspace $workspace): ?File
+    protected function handleSource(?FileSourceInput $source, Workspace $workspace): ?File
     {
         if (null === $source) {
             return null;
@@ -86,6 +90,7 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
         $file->setPathPublic(!$source->isPrivate);
         $file->setStorage(File::STORAGE_URL);
         $file->setWorkspace($workspace);
+        $this->normalizeFile($file);
 
         if (null !== $source->alternateUrls) {
             foreach ($source->alternateUrls as $altUrl) {
@@ -100,6 +105,13 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
         }
 
         return $file;
+    }
+
+    private function normalizeFile(File $file): void
+    {
+        if ($this->fileAnalyzer->preAnalyzeFile($file)) {
+            $this->postFlushStackListener->addBusMessage(new AnalyzeFile($file->getId()));
+        }
     }
 
     #[Required]
@@ -130,5 +142,11 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
     public function setRequestStack(RequestStack $requestStack): void
     {
         $this->requestStack = $requestStack;
+    }
+
+    #[Required]
+    public function setFileAnalyzer(FileAnalyzer $fileAnalyzer): void
+    {
+        $this->fileAnalyzer = $fileAnalyzer;
     }
 }

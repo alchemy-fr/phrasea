@@ -22,20 +22,24 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import CreateCollection from './Collection/CreateCollection';
-import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
 import ModalLink from '../Routing/ModalLink';
-import ConfirmDialog from '../Ui/ConfirmDialog';
 import {useModals} from '@alchemy/navigation';
 import UploadModal from '../Upload/UploadModal';
 import {modalRoutes} from '../../routes';
 import {useAuth} from '@alchemy/react-auth';
 import {CollectionPager, useCollectionStore} from '../../store/collectionStore';
-import {deleteCollection} from '../../api/collection';
 import LoadMoreCollections from './Collection/LoadMoreCollections';
 import {MoreActionsButton} from '@alchemy/phrasea-ui';
 import {cActionClassName} from './WorkspaceMenuItem';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import {replaceHighlight} from './Asset/Attribute/AttributeHighlights.tsx';
+import {WorkspaceChip} from '../Ui/WorkspaceChip.tsx';
+import CollectionRestoreConfirmDialog from './Collection/CollectionRestoreConfirmDialog.tsx';
+import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
+import CollectionDeleteConfirmDialog from './Collection/CollectionDeleteConfirmDialog.tsx';
+
+export const collectionItemClassName = 'collection-item';
 
 type Props = {
     level: number;
@@ -43,11 +47,11 @@ type Props = {
     titlePath?: string[];
     collection: Collection;
     workspace: Workspace;
+    isSearch?: boolean;
 };
 
-export const collectionItemClassName = 'collection-item';
-
 export default function CollectionMenuItem({
+    isSearch,
     collection,
     absolutePath,
     titlePath,
@@ -99,21 +103,16 @@ export default function CollectionMenuItem({
     const onDelete = (e: MouseEvent): void => {
         e.stopPropagation();
 
-        openModal(ConfirmDialog, {
-            textToType: collection.title,
-            title: t(
-                'collection_delete.confirm',
-                'Are you sure you want to delete this collection?'
-            ),
-            onConfirm: async () => {
-                await deleteCollection(collection.id);
-                toast.success(
-                    t(
-                        'delete.collection.confirmed',
-                        'Collection has been removed!'
-                    ) as string
-                );
-            },
+        openModal(CollectionDeleteConfirmDialog, {
+            collection,
+        });
+    };
+
+    const onRestore = (e: MouseEvent): void => {
+        e.stopPropagation();
+
+        openModal(CollectionRestoreConfirmDialog, {
+            collection,
         });
     };
 
@@ -269,21 +268,41 @@ export default function CollectionMenuItem({
                                     </MenuItem>
                                 ) : null,
                                 collection.capabilities.canDelete ? (
-                                    <MenuItem
-                                        key="delete"
-                                        onClick={closeWrapper(onDelete)}
-                                        aria-label="delete"
-                                    >
-                                        <ListItemIcon>
-                                            <DeleteIcon color={'error'} />
-                                        </ListItemIcon>
-                                        <ListItemText
-                                            primary={t(
-                                                'collection.item.delete',
-                                                'Delete'
-                                            )}
-                                        />
-                                    </MenuItem>
+                                    collection.deleted ? (
+                                        <MenuItem
+                                            key="restore"
+                                            onClick={closeWrapper(onRestore)}
+                                            aria-label="restore"
+                                        >
+                                            <ListItemIcon>
+                                                <RestoreFromTrashIcon
+                                                    color={'error'}
+                                                />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                                primary={t(
+                                                    'collection.item.restore',
+                                                    'Restore'
+                                                )}
+                                            />
+                                        </MenuItem>
+                                    ) : (
+                                        <MenuItem
+                                            key="delete"
+                                            onClick={closeWrapper(onDelete)}
+                                            aria-label="delete"
+                                        >
+                                            <ListItemIcon>
+                                                <DeleteIcon color={'error'} />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                                primary={t(
+                                                    'collection.item.delete',
+                                                    'Delete'
+                                                )}
+                                            />
+                                        </MenuItem>
+                                    )
                                 ) : null,
                             ]}
                         </MoreActionsButton>
@@ -322,7 +341,28 @@ export default function CollectionMenuItem({
                             <FolderIcon />
                         )}
                     </ListItemIcon>
-                    <ListItemText primary={collection.titleTranslated} />
+                    <ListItemText
+                        primary={
+                            collection.titleHighlight
+                                ? replaceHighlight(collection.titleHighlight)
+                                : collection.titleTranslated
+                        }
+                        secondary={
+                            isSearch ? (
+                                <WorkspaceChip
+                                    workspace={collection.workspace}
+                                    size="small"
+                                />
+                            ) : undefined
+                        }
+                        primaryTypographyProps={
+                            collection.deleted
+                                ? {
+                                      style: {textDecoration: 'line-through'},
+                                  }
+                                : undefined
+                        }
+                    />
                 </ListItemButton>
             </ListItem>
 

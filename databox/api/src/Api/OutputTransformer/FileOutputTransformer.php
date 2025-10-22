@@ -7,9 +7,9 @@ namespace App\Api\OutputTransformer;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AlternateUrlOutput;
 use App\Api\Model\Output\FileOutput;
-use App\Asset\FileUrlResolver;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\File;
+use App\Service\Asset\FileUrlResolver;
 use Doctrine\ORM\EntityManagerInterface;
 
 class FileOutputTransformer implements OutputTransformerInterface
@@ -41,26 +41,37 @@ class FileOutputTransformer implements OutputTransformerInterface
         $output->setId($data->getId());
         $output->setType($data->getType());
         $output->setSize((int) $data->getSize());
+        $output->analysis = $data->getAnalysis();
+
+        if ($data->isAnalyzed()) {
+            $output->accepted = $data->isAccepted();
+        }
+        if (!$data->isAccepted()) {
+            $output->analysis = $data->getAnalysis();
+        }
 
         if ($this->hasGroup(File::GROUP_METADATA, $context)) {
             $output->metadata = $data->getMetadata();
+            $output->analysis = $data->getAnalysis();
         }
 
-        if ($data->isPathPublic()) {
-            $output->setUrl($this->fileUrlResolver->resolveUrl($data));
-        }
-
-        $urls = [];
-        if (null !== $data->getAlternateUrls()) {
-            foreach ($data->getAlternateUrls() as $type => $url) {
-                $urls[] = new AlternateUrlOutput($type, $url, $this->resolveAlternateUrlLabel(
-                    $data->getWorkspaceId(),
-                    $type
-                ));
+        if ($data->isAccepted()) {
+            if ($data->isPathPublic()) {
+                $output->setUrl($this->fileUrlResolver->resolveUrl($data));
             }
-        }
 
-        $output->setAlternateUrls($urls);
+            $urls = [];
+            if (null !== $data->getAlternateUrls()) {
+                foreach ($data->getAlternateUrls() as $type => $url) {
+                    $urls[] = new AlternateUrlOutput($type, $url, $this->resolveAlternateUrlLabel(
+                        $data->getWorkspaceId(),
+                        $type
+                    ));
+                }
+            }
+
+            $output->setAlternateUrls($urls);
+        }
 
         return $output;
     }

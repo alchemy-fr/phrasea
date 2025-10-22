@@ -12,6 +12,7 @@ use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\ExtraMetadataDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
@@ -47,6 +48,12 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     protected ?array $attributes = null;
 
+    /**
+     * @var AssetAttachment[]
+     */
+    #[Groups([Asset::GROUP_READ])]
+    public $attachments;
+
     #[Groups([Asset::GROUP_LIST,
         Asset::GROUP_READ,
         Asset::GROUP_STORY,
@@ -78,11 +85,8 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     private int $privacy;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
-    private ?bool $pendingSourceFile = null;
-
-    #[Groups([Asset::GROUP_READ, Asset::GROUP_LIST])]
-    private ?string $pendingUploadToken = null;
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
+    public bool $deleted;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     private $workspace;
@@ -102,24 +106,39 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_READ, Asset::GROUP_LIST])]
     public ?UserOutput $owner = null;
 
-    #[Groups([Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     public $referenceCollection;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private array $collections;
 
+    /**
+     * @var FileOutput|null
+     */
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?File $source = null;
 
+    /**
+     * @var AssetRenditionOutput|null
+     */
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $main = null;
 
+    /**
+     * @var AssetRenditionOutput|null
+     */
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $preview = null;
 
+    /**
+     * @var AssetRenditionOutput|null
+     */
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $thumbnail = null;
 
+    /**
+     * @var AssetRenditionOutput|null
+     */
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $animatedThumbnail = null;
 
@@ -299,25 +318,5 @@ class AssetOutput extends AbstractUuidOutput
     public function setAttributesEditedAt(\DateTimeImmutable $attributesEditedAt): void
     {
         $this->attributesEditedAt = $attributesEditedAt;
-    }
-
-    public function isPendingSourceFile(): bool
-    {
-        return $this->pendingSourceFile;
-    }
-
-    public function setPendingSourceFile(bool $pendingSourceFile): void
-    {
-        $this->pendingSourceFile = $pendingSourceFile;
-    }
-
-    public function getPendingUploadToken(): ?string
-    {
-        return $this->pendingUploadToken;
-    }
-
-    public function setPendingUploadToken(?string $pendingUploadToken): void
-    {
-        $this->pendingUploadToken = $pendingUploadToken;
     }
 }

@@ -1,5 +1,5 @@
 import {useAssetActions} from '../../../../hooks/useAssetActions.ts';
-import {Asset, File} from '../../../../types.ts';
+import {Asset, ApiFile} from '../../../../types.ts';
 import {Box, Button} from '@mui/material';
 import GroupButton from '../../../Ui/GroupButton.tsx';
 import EditIcon from '@mui/icons-material/Edit';
@@ -14,7 +14,7 @@ import FollowButton from '../../../Ui/FollowButton.tsx';
 
 type Props = {
     asset: Asset;
-    file: File | undefined;
+    file: ApiFile | undefined;
 };
 
 export default function AssetViewActions({asset, file}: Props) {
@@ -22,6 +22,7 @@ export default function AssetViewActions({asset, file}: Props) {
     const closeModal = useCloseModal();
     const {
         onDelete,
+        onRestore,
         onDownload,
         onEdit,
         onEditAttr,
@@ -158,11 +159,9 @@ export default function AssetViewActions({asset, file}: Props) {
                             {t('asset_actions.share', 'Share')}
                         </Button>
                     </div>
-                ) : (
-                    ''
-                )}
+                ) : null}
 
-                {can.delete ? (
+                {can.delete && !can.restore ? (
                     <div>
                         <Button
                             color={'error'}
@@ -173,9 +172,18 @@ export default function AssetViewActions({asset, file}: Props) {
                             {t('asset_actions.delete', 'Delete')}
                         </Button>
                     </div>
-                ) : (
-                    ''
-                )}
+                ) : can.restore ? (
+                    <div>
+                        <Button
+                            color={'error'}
+                            onClick={onRestore}
+                            variant={'contained'}
+                            startIcon={<DeleteForeverIcon />}
+                        >
+                            {t('asset_actions.restore', 'Restore')}
+                        </Button>
+                    </div>
+                ) : null}
             </Box>
         </>
     );

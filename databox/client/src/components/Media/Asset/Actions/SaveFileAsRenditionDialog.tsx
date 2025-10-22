@@ -2,7 +2,7 @@ import {FormGroup, FormLabel} from '@mui/material';
 import FormDialog from '../../../Dialog/FormDialog';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import RemoteErrors from '../../../Form/RemoteErrors';
-import {Asset, File} from '../../../../types';
+import {Asset, ApiFile} from '../../../../types';
 import {toast} from 'react-toastify';
 import {FormFieldErrors} from '@alchemy/react-form';
 import {FormRow} from '@alchemy/react-form';
@@ -18,7 +18,7 @@ type FormData = {
 
 type Props = {
     asset: Asset;
-    file: File;
+    file: ApiFile;
 } & StackedModalProps;
 
 export default function SaveFileAsRenditionDialog({

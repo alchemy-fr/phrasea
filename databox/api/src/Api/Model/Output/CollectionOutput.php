@@ -47,6 +47,11 @@ class CollectionOutput extends AbstractUuidOutput
 
     #[Groups([
         Collection::GROUP_LIST,
+    ])]
+    public ?string $titleHighlight = null;
+
+    #[Groups([
+        Collection::GROUP_LIST,
         Collection::GROUP_READ,
         Asset::GROUP_LIST,
         Asset::GROUP_READ,
@@ -106,6 +111,9 @@ class CollectionOutput extends AbstractUuidOutput
 
     #[Groups([Collection::GROUP_READ])]
     public ?array $translations = null;
+
+    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Asset::GROUP_READ, Asset::GROUP_LIST])]
+    public bool $deleted;
 
     public function getTitle(): ?string
     {

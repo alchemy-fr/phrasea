@@ -55,23 +55,21 @@ export default function StoryForm({
                     </AccordionSummary>
                     <AccordionDetails>
                         <FormRow>
-                            <FormRow>
-                                <FormGroup>
-                                    <InputLabel>
-                                        {t('form.asset.tags.label', 'Tags')}
-                                    </InputLabel>
-                                    <TagSelect
-                                        multiple={true}
-                                        workspaceId={workspaceId}
-                                        control={control}
-                                        name={'story.tags'}
-                                    />
-                                    <FormFieldErrors<FormUploadData>
-                                        field={'story.tags' as any}
-                                        errors={errors}
-                                    />
-                                </FormGroup>
-                            </FormRow>
+                            <FormGroup>
+                                <InputLabel>
+                                    {t('form.asset.tags.label', 'Tags')}
+                                </InputLabel>
+                                <TagSelect
+                                    multiple={true}
+                                    workspaceId={workspaceId}
+                                    control={control}
+                                    name={'story.tags'}
+                                />
+                                <FormFieldErrors<FormUploadData>
+                                    field={'story.tags' as any}
+                                    errors={errors}
+                                />
+                            </FormGroup>
                         </FormRow>
 
                         <UploadAttributes

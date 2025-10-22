@@ -7,7 +7,6 @@ import {
     MenuItem,
     Skeleton,
     Stack,
-    TextField,
 } from '@mui/material';
 import {useBasketStore} from '../../store/basketStore';
 import BasketMenuItem from './BasketMenuItem';
@@ -20,18 +19,13 @@ import CreateBasket from './CreateBasket';
 import AddIcon from '@mui/icons-material/Add';
 import {useNavigateToModal} from '../Routing/ModalLink';
 import {modalRoutes} from '../../routes';
-import {LoadingButton} from '@mui/lab';
 import {getBaskets} from '../../api/basket.ts';
-import {
-    createDefaultPagination,
-    createPaginatedLoader,
-    Pagination,
-} from '../../api/pagination.ts';
 import {useContextMenu} from '../../hooks/useContextMenu.ts';
 import ContextMenu from '../Ui/ContextMenu.tsx';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
+import {useSearch} from '../../hooks/useSearch.ts';
+import SearchBar from '../Ui/SearchBar.tsx';
 
 type Props = {
     selected?: string;
@@ -51,36 +45,21 @@ function BasketsPanel({selected}: Props) {
     const {openModal} = useModals();
     const navigateToModal = useNavigateToModal();
 
-    const [searchQuery, setSearchQuery] = React.useState<string>('');
-    const [searchResult, setSearchResult] = React.useState<Pagination<Basket>>({
-        ...createDefaultPagination(),
-        loading: false,
+    const {
+        searchQuery,
+        setSearchQuery,
+        results,
+        searchResult,
+        loadMoreHandler,
+        hasMore: hasLoadMore,
+        searchHandler,
+    } = useSearch({
+        items: baskets,
+        loadItems: load,
+        hasMore: hasMore(),
+        loadMore: loadMore,
+        search: (q, nextUrl) => getBaskets(nextUrl, {query: q}),
     });
-    const [loadedSearchQuery, setLoadedSearchQuery] = React.useState<
-        string | undefined
-    >();
-
-    useEffectOnce(() => {
-        load();
-    }, []);
-
-    const loadItems = React.useCallback(
-        createPaginatedLoader(async next => {
-            const r = await getBaskets(next, {
-                query: searchQuery,
-            });
-            setLoadedSearchQuery(searchQuery);
-
-            return r;
-        }, setSearchResult),
-        [searchQuery]
-    );
-
-    React.useEffect(() => {
-        if (!searchQuery) {
-            setLoadedSearchQuery(undefined);
-        }
-    }, [searchQuery]);
 
     const onDelete = (data: Basket): void => {
         onContextMenuClose();
@@ -114,14 +93,6 @@ function BasketsPanel({selected}: Props) {
         openModal(CreateBasket, {});
     };
 
-    const loadMoreHandler = () =>
-        loadedSearchQuery
-            ? loadItems(searchResult.next || undefined)
-            : loadMore();
-    const hasLoadMore = loadedSearchQuery ? !!searchResult.next : hasMore();
-
-    const results = loadedSearchQuery ? searchResult?.pages.flat() : baskets;
-
     return (
         <div
             style={{
@@ -129,30 +100,13 @@ function BasketsPanel({selected}: Props) {
                 flexGrow: 1,
             }}
         >
-            <Stack sx={{p: 1}} direction={'row'}>
-                <form
-                    onSubmit={e => {
-                        e.preventDefault();
-                        loadItems();
-                    }}
-                >
-                    <TextField
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                        size={'small'}
-                        type={'search'}
-                        placeholder={t('common.search.placeholder', 'Search…')}
-                    />
-                    <LoadingButton
-                        variant={'contained'}
-                        disabled={!searchQuery}
-                        loading={searchResult.loading}
-                        type={'submit'}
-                    >
-                        {t('common.search.submit', 'Search')}
-                    </LoadingButton>
-                </form>
-            </Stack>
+            <SearchBar
+                name={'basket-search'}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                loading={searchResult.loading}
+                searchHandler={searchHandler}
+            />
             {contextMenu ? (
                 <ContextMenu
                     onClose={onContextMenuClose}

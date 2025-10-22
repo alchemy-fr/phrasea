@@ -8,7 +8,7 @@ use App\Entity\Core\File;
 use App\Integration\ApiBudgetLimiter;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationDataManager;
-use App\Storage\FileManager;
+use App\Service\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class RemoveBgProcessor

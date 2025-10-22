@@ -13,7 +13,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Share;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\RenditionPermissionManager;
-use App\Storage\RenditionManager;
+use App\Service\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class ShareReadProvider implements ProviderInterface

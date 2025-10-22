@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Integration\Phraseanet;
 
 use Alchemy\Workflow\Executor\RunContext;
-use App\Asset\FileUrlResolver;
 use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
+use App\Service\Asset\FileUrlResolver;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;

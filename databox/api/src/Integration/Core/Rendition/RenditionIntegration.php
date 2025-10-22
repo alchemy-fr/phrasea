@@ -10,7 +10,7 @@ use App\Integration\AbstractIntegration;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
-use App\Storage\RenditionManager;
+use App\Service\Storage\RenditionManager;
 
 class RenditionIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {

@@ -1,8 +1,8 @@
 import {ReactNode} from 'react';
 import {FaceDetail, TValueConfidence} from './types';
-import {Chip} from '@mui/material';
 import ValueConfidence from './ValueConfidence';
 import {useTranslation} from 'react-i18next';
+import YesNoChip from '../../Ui/YesNoChip.tsx';
 
 type Props = {
     detail: FaceDetail;
@@ -16,7 +16,6 @@ function BooleanAssertion({
     title: string;
     value: TValueConfidence<boolean> | undefined;
 }) {
-    const {t} = useTranslation();
     if (!value) {
         return null;
     }
@@ -26,20 +25,8 @@ function BooleanAssertion({
             title={title}
             value={
                 <>
-                    {value.Value ? (
-                        <Chip
-                            size={'small'}
-                            color={'success'}
-                            label={t('common.yes', `Yes`)}
-                        />
-                    ) : (
-                        <Chip
-                            size={'small'}
-                            color={'error'}
-                            label={t('common.no', `No`)}
-                        />
-                    )}{' '}
-                    (<ValueConfidence confidence={value.Confidence} />)
+                    <YesNoChip value={value.Value} /> (
+                    <ValueConfidence confidence={value.Confidence} />)
                 </>
             }
         />

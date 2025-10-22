@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use App\Consumer\Handler\Asset\AssetDelete;
+use App\Consumer\Handler\Asset\AssetsDelete;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -38,7 +38,7 @@ class DeleteAssetByKeysAction extends AbstractController
 
         foreach ($assets as $asset) {
             $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $asset);
-            $this->bus->dispatch(new AssetDelete($asset->getId()));
+            $this->bus->dispatch(new AssetsDelete($asset->getId()));
         }
 
         return new Response('', 204);

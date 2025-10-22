@@ -10,6 +10,6 @@ export const groupValueTypes: Record<string, (value: any) => React.ReactNode> =
             <TagNode name={value.nameTranslated} color={value.color} />
         ),
         c: (value: Collection) => (
-            <CollectionChip label={value.titleTranslated} />
+            <CollectionChip label={value.titleTranslated} collection={value} />
         ),
     };

@@ -8,13 +8,13 @@ use App\Api\Model\Output\Traits\ExtraMetadataDTOTrait;
 
 class CopyAssetInput extends AbstractOwnerIdInput
 {
+    use IdsInputTrait;
     use ExtraMetadataDTOTrait;
 
     /**
      * Collection or Workspace IRI.
      */
     public ?string $destination = null;
-    public ?array $ids = null;
     public bool $byReference = false;
     public bool $withAttributes = false;
     public bool $withTags = false;

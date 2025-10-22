@@ -8,7 +8,7 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Consumer\Handler\File\ImportFile;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
-use App\Storage\RenditionManager;
+use App\Service\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;

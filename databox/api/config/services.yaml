@@ -107,11 +107,11 @@ services:
         $publicKey: '%env(SECRETS_PUBLIC_KEY)%'
         $secretKey: '%env(SECRETS_SECRET_KEY)%'
 
-    App\Workflow\IntegrationWorkflowRepository:
+    App\Service\Workflow\IntegrationWorkflowRepository:
         decorates: 'alchemy.workflow.workflow_repository.default'
         arguments:
             $decorated: '@.inner'
 
-    Alchemy\RenditionFactory\Templating\TemplateResolverInterface: '@App\Asset\Attribute\TemplateResolver'
+    Alchemy\RenditionFactory\Templating\TemplateResolverInterface: '@App\Service\Asset\Attribute\TemplateResolver'
 
     App\Validator\ValidRenditionDefinitionConstraintValidator: ~

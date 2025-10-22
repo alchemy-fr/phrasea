@@ -74,6 +74,8 @@ class FileCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield JsonField::new('metadata')
             ->onlyOnDetail();
+        yield JsonField::new('analysis')
+            ->onlyOnDetail();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')

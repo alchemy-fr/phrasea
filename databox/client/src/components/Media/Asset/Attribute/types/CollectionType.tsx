@@ -17,12 +17,7 @@ export default class CollectionType
     }
 
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
-        return (
-            <CollectionChip
-                label={value.titleTranslated || value.title}
-                size={'small'}
-            />
-        );
+        return <CollectionChip collection={value} size={'small'} />;
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {

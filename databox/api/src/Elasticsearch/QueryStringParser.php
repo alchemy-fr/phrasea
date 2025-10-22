@@ -8,6 +8,13 @@ class QueryStringParser
 {
     public function parseQuery(string $query): array
     {
+        $filters = [];
+        $query = preg_replace_callback('/(^|\s)in:(all|trash)/s', function (array $r) use (&$filters): string {
+            $filters[] = ['in' => $r[2]];
+
+            return '';
+        }, $query);
+
         $must = [];
         $should = preg_replace_callback('/"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"/s', function (array $r) use (&$must): string {
             $must[] = substr($r[0], 1, -1);
@@ -22,6 +29,7 @@ class QueryStringParser
         return [
             'must' => $must,
             'should' => $should,
+            'filters' => $filters,
         ];
     }
 

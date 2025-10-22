@@ -6,7 +6,7 @@ namespace App\Controller;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\UserPreference;
-use App\User\UserPreferencesManager;
+use App\Service\User\UserPreferencesManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

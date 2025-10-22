@@ -14,6 +14,7 @@ import {useCreateSaveTranslations} from '../../hooks/useCreateSaveTranslations.t
 import {putWorkspace} from '../../api/collection.ts';
 import {getLocaleOptions} from '../../api/locale.ts';
 import {LocaleSelectWidget} from '@alchemy/react-form';
+import CodeEditorWidget from './CodeEditorWidget.tsx';
 
 const emptyLocaleItem = '';
 
@@ -175,6 +176,20 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                             );
                         }}
                     />
+                </FormRow>
+                <FormRow>
+                    <CodeEditorWidget
+                        control={control}
+                        label={t(
+                            'form.workspace.fileAnalyzers.label',
+                            'File Analyzers'
+                        )}
+                        name={'fileAnalyzers'}
+                        disabled={submitting}
+                        mode={'yaml'}
+                        height={'500px'}
+                    />
+                    <FormFieldErrors field={'fileAnalyzers'} errors={errors} />
                 </FormRow>
             </form>
         </>

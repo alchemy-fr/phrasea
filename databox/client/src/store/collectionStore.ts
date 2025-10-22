@@ -27,6 +27,10 @@ type State = {
     tree: Record<string, CollectionPager>;
     updateCollection: (collection: Collection) => void;
     partialUpdateCollection: (id: string, updates: Partial<Collection>) => void;
+    partialUpdateCollections: (
+        ids: string[],
+        updates: Partial<Collection>
+    ) => void;
     load: (
         workspaceId: string,
         parentId?: string,
@@ -38,8 +42,11 @@ type State = {
         workspaceId: string,
         parentId?: string
     ) => void;
-    deleteCollection: (id: string) => void;
+    deleteCollections: (ids: string[]) => void;
+    moveCollectionsToTrash: (ids: string[]) => void;
+    restoreCollections: (ids: string[]) => void;
     moveCollection: (id: string, to: string | undefined) => void;
+    getFreshCollections: (collections: Collection[]) => Collection[];
 };
 
 export const useCollectionStore = create<State>((set, getState) => ({
@@ -182,70 +189,96 @@ export const useCollectionStore = create<State>((set, getState) => ({
 
     updateCollection: collection => {
         getState().partialUpdateCollection(collection.id, collection);
-    },
 
-    partialUpdateCollection: (id, updates) => {
         set(state => {
             const newCollections = {...state.collections};
 
-            const oldColl: CollectionExtended | undefined = newCollections[id];
-            if (!oldColl) {
-                return {};
+            if (!newCollections[collection.id]) {
+                newCollections[collection.id] = {
+                    ...collection,
+                    workspaceId: collection.workspace.id,
+                    parentId: undefined,
+                };
+
+                return {
+                    collections: newCollections,
+                };
             }
 
-            const oldPublic = oldColl.public;
-            const oldShared = oldColl.shared;
+            return {};
+        });
+    },
 
-            updateCollectionByReference(
-                newCollections,
-                {
-                    ...oldColl,
-                    ...updates,
-                },
-                oldColl.workspaceId,
-                oldColl.parentId
+    partialUpdateCollection: (id, updates) => {
+        getState().partialUpdateCollections([id], updates);
+    },
+
+    partialUpdateCollections: (ids, updates) => {
+        set(state => {
+            const newCollections = {...state.collections};
+
+            console.log(
+                'partialUpdateCollections',
+                ids,
+                updates,
+                newCollections
             );
 
-            const applyToChildren = (
-                parentId: string,
-                specs: Record<string, any>
-            ) => {
-                if (state.tree[parentId]) {
-                    state.tree[parentId].items.forEach(c => {
-                        if (newCollections[c.id]) {
-                            Object.keys(specs).forEach(k => {
-                                // @ts-expect-error keys...
-                                newCollections[c.id][k] = specs[k];
-                            });
-
-                            applyToChildren(c.id, specs);
-                        }
-                    });
+            ids.forEach(id => {
+                const oldColl: CollectionExtended | undefined =
+                    newCollections[id];
+                console.log('oldColl', oldColl);
+                if (!oldColl) {
+                    return;
                 }
-            };
 
-            const subSpecs: {
-                public?: boolean;
-                shared?: boolean;
-            } = {};
+                const oldPublic = oldColl.public;
+                const oldShared = oldColl.shared;
 
-            if (!oldPublic && updates.public) {
-                subSpecs.public = true;
-            }
-            if (!oldShared && updates.shared) {
-                subSpecs.shared = true;
-            }
+                updateCollectionByReference(
+                    newCollections,
+                    {
+                        ...oldColl,
+                        ...updates,
+                    },
+                    oldColl.workspaceId,
+                    oldColl.parentId
+                );
 
-            if (Object.keys(subSpecs).length > 0) {
-                applyToChildren(id, subSpecs);
-            }
+                const applyToChildren = (
+                    parentId: string,
+                    specs: Record<string, any>
+                ) => {
+                    if (state.tree[parentId]) {
+                        state.tree[parentId].items.forEach(c => {
+                            if (newCollections[c.id]) {
+                                Object.keys(specs).forEach(k => {
+                                    // @ts-expect-error keys...
+                                    newCollections[c.id][k] = specs[k];
+                                });
 
-            const shouldRefresh =
-                (oldPublic && false === updates.public) ||
-                (oldShared && false === updates.shared);
-            if (shouldRefresh && state.tree[id]) {
-                state.load(oldColl.workspaceId, id);
-            }
+                                applyToChildren(c.id, specs);
+                            }
+                        });
+                    }
+                };
+
+                const subSpecs: {
+                    public?: boolean;
+                    shared?: boolean;
+                } = {};
+
+                if (!oldPublic && updates.public) {
+                    subSpecs.public = true;
+                }
+                if (!oldShared && updates.shared) {
+                    subSpecs.shared = true;
+                }
+
+                if (Object.keys(subSpecs).length > 0) {
+                    applyToChildren(id, subSpecs);
+                }
+            });
 
             return {
                 collections: newCollections,
@@ -301,39 +334,64 @@ export const useCollectionStore = create<State>((set, getState) => ({
         });
     },
 
-    deleteCollection: id => {
+    moveCollectionsToTrash: ids => {
+        getState().partialUpdateCollections(ids, {
+            deleted: true,
+        });
+    },
+
+    restoreCollections: ids => {
+        getState().partialUpdateCollections(ids, {
+            deleted: false,
+        });
+    },
+
+    deleteCollections: ids => {
         set(state => {
             const newCollections = {...state.collections};
-            const collection = newCollections[id];
-            if (!collection) {
-                return {};
-            }
-            const {parentId, workspaceId} = newCollections[id];
-            const pagerId = parentId ?? workspaceId;
-
-            delete newCollections[id];
-
-            if (parentId) {
-                const parentCollection = newCollections[parentId];
-                if (parentCollection) {
-                    newCollections[parentCollection.id].children =
-                        parentCollection.children?.filter(
-                            child => child.id !== id
-                        );
-                }
-            }
-
             const tree = {...state.tree};
-            const pager = tree[pagerId];
-            if (!pager) {
-                return {};
-            }
 
-            tree[pagerId] = {
-                ...pager,
-                items: pager.items.filter(child => child.id !== id),
-                total: (pager.total ?? 1) - 1,
-            };
+            ids.forEach(id => {
+                const collection = newCollections[id];
+                if (!collection) {
+                    return;
+                }
+
+                const c = updateCollectionByReference(
+                    newCollections,
+                    {
+                        ...collection,
+                        deleted: true,
+                    },
+                    collection.workspaceId,
+                    collection.parentId
+                );
+
+                const {parentId, workspaceId} = collection;
+                const pagerId = parentId ?? workspaceId;
+
+                if (parentId) {
+                    const parentCollection = newCollections[parentId];
+                    if (parentCollection) {
+                        newCollections[parentCollection.id].children =
+                            parentCollection.children?.map(child =>
+                                child.id === id ? c : child
+                            );
+                    }
+                }
+
+                const tree = {...state.tree};
+                const pager = tree[pagerId];
+                if (!pager) {
+                    return {};
+                }
+
+                tree[pagerId] = {
+                    ...pager,
+                    items: pager.items.filter(child => child.id !== id),
+                    total: (pager.total ?? 1) - 1,
+                };
+            });
 
             return {
                 tree,
@@ -398,6 +456,11 @@ export const useCollectionStore = create<State>((set, getState) => ({
                 collections: newCollections,
             };
         });
+    },
+
+    getFreshCollections: collections => {
+        const state = getState();
+        return collections.map(c => state.collections[c.id] ?? c);
     },
 }));
 

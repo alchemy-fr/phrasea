@@ -358,6 +358,7 @@ App\Entity\Core\File:
         workspace: '@w_newspaper'
         storage: s3_main
         pathPublic: '95%? true : false'
+        analysis: []
 
     f_story_img_m{1..20} (extends file):
         type: image/jpeg

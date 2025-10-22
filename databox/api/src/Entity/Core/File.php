@@ -50,6 +50,10 @@ class File extends AbstractUuidEntity implements \Stringable
     final public const string STORAGE_S3_MAIN = 's3_main';
     final public const string STORAGE_URL = 'url';
 
+    final public const string ANALYSIS_SUCCESS = 'success';
+    final public const string ANALYSIS_FAILED = 'failed';
+    final public const string ANALYSIS_SKIPPED = 'skipped';
+
     /**
      * Override trait for annotation.
      */
@@ -74,7 +78,7 @@ class File extends AbstractUuidEntity implements \Stringable
     private ?string $path = null;
 
     /**
-     * Is path accessible from browser.
+     * Is path accessible from browser or worker.
      */
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $pathPublic = true;
@@ -96,6 +100,9 @@ class File extends AbstractUuidEntity implements \Stringable
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $metadata = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $analysis = null;
 
     public function getPath(): ?string
     {
@@ -219,5 +226,35 @@ class File extends AbstractUuidEntity implements \Stringable
     public function setMetadata(?array $metadata): void
     {
         $this->metadata = $metadata;
+    }
+
+    public function getAnalysis(): ?array
+    {
+        return $this->analysis;
+    }
+
+    public function setAnalysis(?array $analysis): void
+    {
+        $this->analysis = $analysis;
+    }
+
+    public function isAnalysisPending(): bool
+    {
+        return null === $this->analysis;
+    }
+
+    public function isAnalyzed(): bool
+    {
+        return null !== $this->analysis;
+    }
+
+    public function isAccepted(): bool
+    {
+        return empty($this->analysis) || self::ANALYSIS_SUCCESS === ($this->analysis['status'] ?? null);
+    }
+
+    public function setNoAnalysisNeeded(): void
+    {
+        $this->analysis ??= [];
     }
 }

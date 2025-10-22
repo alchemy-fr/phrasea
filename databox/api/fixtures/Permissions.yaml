@@ -78,6 +78,7 @@ App\Entity\Core\File:
   file_p (template):
     workspace: '@w_newspaper'
     storage: s3_main
+    analysis: []
 
   f_img_o{1..6} (extends file_p):
     type: image/jpeg
