@@ -15,13 +15,13 @@ use App\Repository\Core\AttributeDefinitionRepository;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
-class InitialAttributeValuesResolver
+readonly class InitialAttributeValuesResolver
 {
-    private readonly Environment $twig;
+    private Environment $twig;
 
     public function __construct(
-        private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
-        private readonly AttributeAssigner $attributeAssigner,
+        private AttributeDefinitionRepository $attributeDefinitionRepository,
+        private AttributeAssigner $attributeAssigner,
     ) {
         $this->twig = new Environment(new ArrayLoader(), [
             'autoescape' => false,

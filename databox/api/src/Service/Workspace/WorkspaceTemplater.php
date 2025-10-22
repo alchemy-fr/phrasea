@@ -12,6 +12,7 @@ use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\WorkspaceTemplate;
+use App\Model\AssetTypeEnum;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\String\Slugger\AsciiSlugger;
@@ -114,6 +115,7 @@ final readonly class WorkspaceTemplater
             'public' => $workspace->isPublic(),
             'enabledLocales' => $workspace->getEnabledLocales(),
             'localeFallbacks' => $workspace->getLocaleFallbacks(),
+            'config' => $workspace->getConfig(),
         ];
     }
 
@@ -127,6 +129,9 @@ final readonly class WorkspaceTemplater
         }
         if (array_key_exists('localeFallbacks', $data)) {
             $ws->setLocaleFallbacks($data['localeFallbacks']);
+        }
+        if (array_key_exists('config', $data)) {
+            $ws->setConfig($data['config']);
         }
         $this->em->persist($ws);
     }
@@ -350,6 +355,7 @@ final readonly class WorkspaceTemplater
                 'sortable' => $item->isSortable(),
                 'suggest' => $item->isSuggest(),
                 'translatable' => $item->isTranslatable(),
+                'target' => $item->getTarget()->value,
             ];
         }
 
@@ -377,6 +383,7 @@ final readonly class WorkspaceTemplater
                 $o->setEntityList($this->em->getReference(EntityList::class, $item['entityList']));
             }
             $o->setFallback($item['fallback']);
+            $o->setTarget(AssetTypeEnum::tryFrom((int) $item['target']) ?? AssetTypeEnum::Asset);
             $o->setFieldType($item['fieldType']);
             $o->setFileType($item['fileType']);
             $o->setInitialValues($item['initialValues']);
