@@ -336,7 +336,7 @@ A builder can be defined for each family of renditions (image, video, audio, ...
 Inside the builder, the `from` maps the phrasea rendition-definition - for the family -,
 to the phraseanet subdef.
 
-The `from` value (phraseanet subdef) is a string like `<document_type>:<subdef_name>`, e.g. `video:preview`.
+The `from` value (phraseanet subdef) is a string like `\<document_type>:\<subdef_name>`, e.g. `video:preview`.
 
 The build settings will be generated from the phraseanet to match the subdef.
 
@@ -400,10 +400,10 @@ When using twig expressions in the configuration, the context is the following:
     - `record.created_on` : string
     - `record.updated_on` : string
     - `record.status` : status[] ***use `getStatus()` method***
-    - `record.getStatus(<bit> [, <valueIfTrue> [, <valueIfFalse>]])` : boolean ; Value of sb <bit> (4...63).
+    - `record.getStatus(\<bit> [, \<valueIfTrue> [, \<valueIfFalse>]])` : boolean ; Value of sb \<bit> (4...63).
       Boolean value can be replaced by string value(s) `valueIf...`
     - `record.subdef` : subdef[] ***use `getSubdef()` method***
-    - `record.getSubdef(<name>)` : subdef object
+    - `record.getSubdef(\<name>)` : subdef object
         - `record.getSubdef(...).height` : number
         - `record.getSubdef(...).width` : number
         - `record.getSubdef(...).filesize` : number
@@ -415,7 +415,7 @@ When using twig expressions in the configuration, the context is the following:
         - `record.getSubdef(...).permalink` : permalink object
             - `record.getSubdef(...).permalink.url` : string
     - `record.metadata` : metata[] ***use `getMetadata()` method***
-    - `record.getMetadata(<fieldName> [,<default>])` : metadata object, with default value(s) if the field is not set for this record.
+    - `record.getMetadata(\<fieldName> [,\<default>])` : metadata object, with default value(s) if the field is not set for this record.
         - `record.getMetadata(...).value` : The mono-value (if the field is multi-value : concat values with " ; ").
         - `record.getMetadata(...).values` : The multi-values as array (if the field is mono-value : array with a single value).
 - `collection`: collection object (of the record)
