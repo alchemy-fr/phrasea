@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-You have read [setup guide](./setup.md)
+You have read [setup guide](./01_setup.md)
 
 *mkcert* is installed.
 

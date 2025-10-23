@@ -11,7 +11,7 @@ Service wraps the following end projects:
 
 ### Create "uploader" application on Phraseanet
 
-- Create new application (i.e `uploader`) at https://<alpha.preprod.alchemyasp.com>/developers/application/new/
+- Create new application (i.e `uploader`) at `https://<alpha.preprod.alchemyasp.com>/developers/application/new/`
 - Generate a token
 
 > Note that the token will be link to your user account. Uploader will reach Phraseanet through your user.

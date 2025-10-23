@@ -25,9 +25,9 @@ Upload->Phraseanet: Notify there is a new asset
 note left of Phraseanet: POST /api/v1/upload/enqueue
 Phraseanet->RabbitMQ: Produce message
 note over RabbitMQ
-    [ {"publisher", "id": "..."},
-    {"id": ..., "hash": "..."},
-    {"id": ..., "hash": "..."}]
+    [ \{"publisher", "id": "..."},
+    \{"id": ..., "hash": "..."},
+    \{"id": ..., "hash": "..."}]
 end note
 RabbitMQ->Phraseanet: Consume message
 Phraseanet->Auth_service: Get publisher info (User email, Name ...) 
@@ -60,9 +60,9 @@ Phraseanet->Upload: fetch new commit assets
 note left of Phraseanet: GET /commits
 Phraseanet->RabbitMQ: Produce message
 note over RabbitMQ
-    [ {"publisher", "id": "..."},
-    {"id": ..., "hash": "..."},
-    {"id": ..., "hash": "..."}]
+    [ \{"publisher", "id": "..."},
+    \{"id": ..., "hash": "..."},
+    \{"id": ..., "hash": "..."}]
 end note
 RabbitMQ->Phraseanet: Consume message
 Phraseanet->Auth_service: Get publisher info (User email, Name ...) 
