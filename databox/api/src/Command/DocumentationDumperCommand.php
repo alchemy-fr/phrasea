@@ -54,10 +54,6 @@ class DocumentationDumperCommand extends Command
 
             $filename = $pathParts['filename'];
             $extension = $pathParts['extension'];
-            if (!in_array($extension, ['md', 'xml', 'json'], true)) {
-                $output->writeln(sprintf('<error>Chapter "%s" must have a [md | xml | json] extension, found "%s".</error>', $title, $extension));
-                continue;
-            }
 
             @mkdir($outputDir, 0777, true);
             $outputFile = $outputDir.'/'.$filename.'.'.$extension;
