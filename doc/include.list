@@ -1,3 +1,5 @@
+/bin/setup.sh
+/configs/config.json
 /dashboard/client/README.md
 /databox/README.md
 /databox/indexer/doc

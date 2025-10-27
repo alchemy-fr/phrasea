@@ -28,10 +28,10 @@ indexed in ES as:
 ```
 
 Elasticsearch query: "collection:Appl"
-SHOULD:
-(title[fr]=Appl)_boost=100,
-(title[_]=Appl) _boost=50,
-(title=Appl) _boost=1 (? try in another language)
+ SHOULD:
+    (title[fr]=Appl)_boost=100,
+    (title[_]=Appl) _boost=50,
+    (title=Appl) _boost=1 (? try in another language)
 
 
 ## Metadata
