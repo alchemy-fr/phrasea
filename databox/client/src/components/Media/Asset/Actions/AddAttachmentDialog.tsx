@@ -1,23 +1,28 @@
 import React from 'react';
 import {useTranslation} from 'react-i18next';
 import FormDialog from '../../../Dialog/FormDialog';
-import {Asset} from '../../../../types';
+import {Asset, AssetAttachment} from '../../../../types';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {toast} from 'react-toastify';
 import SingleFileUploadWidget, {
     FileUploadForm,
 } from './SingleFileUploadWidget.tsx';
 import UploadIcon from '@mui/icons-material/Upload';
-import {putAsset} from '../../../../api/asset.ts';
 import apiClient from '../../../../api/api-client.ts';
 import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
 import {postAttachment} from '../../../../api/attachment.ts';
 
 type Props = {
     asset: Asset;
+    onAttachmentAdded?: (attachment: AssetAttachment) => void;
 } & StackedModalProps;
 
-export default function AddAttachmentDialog({asset, open, modalIndex}: Props) {
+export default function AddAttachmentDialog({
+    asset,
+    onAttachmentAdded,
+    open,
+    modalIndex,
+}: Props) {
     const {t} = useTranslation();
     const [uploading, setUploading] = React.useState(false);
     const {closeModal} = useModals();
@@ -31,26 +36,34 @@ export default function AddAttachmentDialog({asset, open, modalIndex}: Props) {
         }
         setUploading(true);
         try {
-            if (!uploadForm.file) {
-                await putAsset(asset.id, {
-                    sourceFile: {
-                        url: uploadForm.url,
-                    },
+            const res = await (async () => {
+                if (!uploadForm.file) {
+                    return await postAttachment({
+                        assetId: asset.id,
+                        sourceFile: {
+                            url: uploadForm.url,
+                        },
+                    });
+                }
+                const multipart = await multipartUpload(
+                    apiClient,
+                    uploadForm.file
+                );
+                return await postAttachment({
+                    assetId: asset.id,
+                    multipart,
                 });
-                return;
-            }
-            const multipart = await multipartUpload(apiClient, uploadForm.file);
-            await postAttachment({
-                assetId: asset.id,
-                multipart,
-            });
+            })();
 
             toast.success(
                 t(
                     'attachment.dialog.add.success',
-                    'New attachment has been uploaded.'
+                    'New attachment has been added.'
                 )
             );
+
+            onAttachmentAdded?.(res);
+
             closeModal();
         } finally {
             setUploading(false);

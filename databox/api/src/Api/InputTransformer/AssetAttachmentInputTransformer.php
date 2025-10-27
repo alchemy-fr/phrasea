@@ -24,7 +24,6 @@ class AssetAttachmentInputTransformer extends AbstractFileInputTransformer
         /** @var AssetAttachment $object */
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? null;
         $isNew = null === $object;
-
         if ($isNew) {
             $object = new AssetAttachment();
             $asset = $context['asset'] ?? $this->getEntity(Asset::class, $data->assetId);
@@ -37,6 +36,7 @@ class AssetAttachmentInputTransformer extends AbstractFileInputTransformer
             ?? $this->handleUpload($data->multipart, $workspace);
         if (null !== $file) {
             $this->em->persist($file);
+            $object->setFile($file);
         }
 
         if (null !== $data->name) {
@@ -45,8 +45,6 @@ class AssetAttachmentInputTransformer extends AbstractFileInputTransformer
         if (null !== $data->priority) {
             $object->setPriority($data->priority);
         }
-
-        $object->setFile($file);
 
         return $object;
     }

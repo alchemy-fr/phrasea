@@ -3,6 +3,7 @@ import {
     AccordionDetails,
     AccordionSummary,
     Box,
+    Divider,
     ListItem,
     ListItemIcon,
     ListItemSecondaryAction,
@@ -22,6 +23,14 @@ import DownloadIcon from '@mui/icons-material/Download';
 import {useModals} from '@alchemy/navigation';
 import Button from '@mui/material/Button';
 import AddAttachmentDialog from './Actions/AddAttachmentDialog.tsx';
+import {DropdownActions} from '@alchemy/phrasea-ui';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import DeleteIcon from '@mui/icons-material/Delete';
+import {deleteAttachment} from '../../../api/attachment.ts';
+import MenuItem from '@mui/material/MenuItem';
+import ConfirmDialog from '../../Ui/ConfirmDialog.tsx';
+import EditIcon from '@mui/icons-material/Edit';
+import RenameAttachmentDialog from './Attachment/RenameAttachmentDialog.tsx';
 
 type Props = {
     asset: Asset;
@@ -31,6 +40,11 @@ function AssetAttachments({asset}: Props) {
     const [expanded, setExpanded] = React.useState(false);
     const {t} = useTranslation();
     const {openModal} = useModals();
+    const [attachments, setAttachments] = React.useState(asset.attachments);
+
+    React.useEffect(() => {
+        setAttachments(asset.attachments);
+    }, [asset]);
 
     return (
         <Accordion expanded={expanded} onChange={() => setExpanded(p => !p)}>
@@ -48,37 +62,147 @@ function AssetAttachments({asset}: Props) {
                     sx={theme => thumbSx(50, theme)}
                     disablePadding={true}
                 >
-                    {asset.attachments?.map((a: AssetAttachment) => {
+                    {attachments?.map((attachment: AssetAttachment) => {
                         return (
-                            <ListItem key={a.id} onClick={() => {}}>
+                            <ListItem key={attachment.id} onClick={() => {}}>
                                 <ListItemIcon>
                                     <AttachFileIcon />
                                 </ListItemIcon>
                                 <ListItemText
-                                    primary={a.resolvedName || a.name}
+                                    primary={
+                                        attachment.resolvedName ||
+                                        attachment.name
+                                    }
                                 />
-                                {a.file.url ? (
-                                    <ListItemSecondaryAction>
+
+                                <ListItemSecondaryAction>
+                                    {attachment.file.url ? (
                                         <IconButton
                                             component={'a'}
-                                            href={a.file.url!}
+                                            href={attachment.file.url!}
                                             target={'_blank'}
                                             rel={'noopener noreferrer'}
                                         >
                                             <DownloadIcon />
                                         </IconButton>
-                                    </ListItemSecondaryAction>
-                                ) : null}
+                                    ) : null}
+                                    <DropdownActions
+                                        disablePortal={false}
+                                        mainButton={({...props}) => (
+                                            <IconButton {...props}>
+                                                <MoreVertIcon />
+                                            </IconButton>
+                                        )}
+                                    >
+                                        {closeMenu => [
+                                            <MenuItem
+                                                key={'rename'}
+                                                onClick={closeMenu(() => {
+                                                    openModal(
+                                                        RenameAttachmentDialog,
+                                                        {
+                                                            attachment,
+                                                            onEdit: (
+                                                                editedAttachment: AssetAttachment
+                                                            ) => {
+                                                                setAttachments(
+                                                                    prev =>
+                                                                        prev.map(
+                                                                            att =>
+                                                                                att.id ===
+                                                                                editedAttachment.id
+                                                                                    ? editedAttachment
+                                                                                    : att
+                                                                        )
+                                                                );
+                                                            },
+                                                        }
+                                                    );
+                                                })}
+                                            >
+                                                <ListItemIcon>
+                                                    <EditIcon />
+                                                </ListItemIcon>
+                                                <ListItemText
+                                                    primary={t(
+                                                        'asset.view.rename_attachment',
+                                                        'Rename Attachment'
+                                                    )}
+                                                />
+                                            </MenuItem>,
+                                            <Divider key={'divider1'} />,
+                                            <MenuItem
+                                                key={'delete'}
+                                                onClick={closeMenu(() => {
+                                                    openModal(ConfirmDialog, {
+                                                        title: t(
+                                                            'asset.view.delete_attachment.confirm_title',
+                                                            'Delete Attachment'
+                                                        ),
+                                                        children: t(
+                                                            'asset.view.delete_attachment.confirm_message',
+                                                            'Are you sure you want to delete this attachment? This action cannot be undone.'
+                                                        ),
+                                                        confirmLabel: t(
+                                                            'asset.view.delete_attachment.confirm_button',
+                                                            'Delete'
+                                                        ),
+                                                        confirmButtonProps: {
+                                                            color: 'error',
+                                                            startIcon: (
+                                                                <DeleteIcon />
+                                                            ),
+                                                        },
+                                                        onConfirm: async () => {
+                                                            setAttachments(
+                                                                prev =>
+                                                                    prev.filter(
+                                                                        att =>
+                                                                            att.id !==
+                                                                            attachment.id
+                                                                    )
+                                                            );
+                                                            deleteAttachment(
+                                                                attachment.id
+                                                            );
+                                                        },
+                                                    });
+                                                })}
+                                            >
+                                                <ListItemIcon>
+                                                    <DeleteIcon />
+                                                </ListItemIcon>
+                                                <ListItemText
+                                                    primary={t(
+                                                        'asset.view.delete_attachment',
+                                                        'Delete Attachment'
+                                                    )}
+                                                />
+                                            </MenuItem>,
+                                        ]}
+                                    </DropdownActions>
+                                </ListItemSecondaryAction>
                             </ListItem>
                         );
                     })}
                 </MenuList>
-                <Box>
+                <Box p={1} textAlign={'center'}>
                     <Button
                         onClick={() => {
-                            openModal(AddAttachmentDialog, {asset});
+                            openModal(AddAttachmentDialog, {
+                                asset,
+                                onAttachmentAdded: (
+                                    attachment: AssetAttachment
+                                ) => {
+                                    setAttachments(prev => [
+                                        ...prev,
+                                        attachment,
+                                    ]);
+                                },
+                            });
                         }}
-                        fullWidth={true}
+                        variant="contained"
+                        startIcon={<AttachFileIcon />}
                     >
                         {t('asset.view.add_attachment', 'Add Attachment')}
                     </Button>

@@ -190,7 +190,7 @@ class File extends AbstractUuidEntity implements \Stringable
 
     public function getFilename(): string
     {
-        return $this->originalName ?? sprintf('%s.%s', $this->getId(), $this->getExtension());
+        return $this->originalName ?? sprintf('%s%s', $this->getId(), $this->getExtensionWithDot());
     }
 
     public function getOriginalName(): ?string

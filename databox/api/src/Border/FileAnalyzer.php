@@ -102,6 +102,13 @@ final readonly class FileAnalyzer
             }
         }
 
+        if (!$fileContentsRequired) {
+            $file->setAnalysis([
+                'status' => File::ANALYSIS_SUCCESS,
+                'results' => $outputs,
+            ]);
+        }
+
         return $fileContentsRequired;
     }
 

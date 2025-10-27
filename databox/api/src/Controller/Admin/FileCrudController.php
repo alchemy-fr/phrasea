@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -62,6 +63,8 @@ class FileCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield AssociationField::new('workspace');
         yield TextField::new('type')
+            ->hideOnIndex();
+        yield BooleanField::new('pathPublic')
             ->hideOnIndex();
         yield IntegerField::new('size')
             ->hideOnIndex();
