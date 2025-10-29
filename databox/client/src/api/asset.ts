@@ -457,7 +457,15 @@ export async function uploadAssets(
                             });
                         },
                     }
-                );
+                ).catch((error: any) => {
+                    uploadState.uploadError({
+                        id: f.id,
+                        file: f.file!,
+                        progress: 1,
+                        error: error.toString(),
+                    });
+                    throw error;
+                });
         }),
         2
     );

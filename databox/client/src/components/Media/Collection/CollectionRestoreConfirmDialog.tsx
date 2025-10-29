@@ -5,8 +5,8 @@ import React from 'react';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import {Collection} from '../../../types.ts';
 import {restoreCollections} from '../../../api/collection.ts';
-import {CollectionChip} from '../../Ui/CollectionChip.tsx';
 import {toast} from 'react-toastify';
+import CollectionOrStoryChip from '../../Ui/CollectionOrStoryChip.tsx';
 
 type Props = {
     collection: Collection;
@@ -49,7 +49,7 @@ export default function CollectionRestoreConfirmDialog({
                 defaults={`Are you sure you want to restore collection <coll/> ?`}
                 components={{
                     coll: (
-                        <CollectionChip
+                        <CollectionOrStoryChip
                             collection={{
                                 ...collection,
                                 deleted: false,

@@ -7,6 +7,7 @@ import {WorkspaceChip} from '../../../Ui/WorkspaceChip.tsx';
 import {CollectionChip} from '../../../Ui/CollectionChip.tsx';
 import CollectionStoryChip from '../../../Ui/CollectionStoryChip.tsx';
 import {OnOpen} from '../../../AssetList/types.ts';
+import CollectionOrStoryChip from '../../../Ui/CollectionOrStoryChip.tsx';
 
 type Props = {
     asset: Asset;
@@ -43,7 +44,9 @@ export default function AssetCollectionList({
             );
         }
 
-        return <CollectionChip size={'small'} key={c.id} collection={c} />;
+        return (
+            <CollectionOrStoryChip size={'small'} key={c.id} collection={c} />
+        );
     };
 
     const rest = collections.length - (collectionsLimit - 1);
