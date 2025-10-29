@@ -8,9 +8,7 @@ import FileToUploadCard from '../../../Upload/FileToUploadCard.tsx';
 import {FileOrUrl} from '../../../../api/file.ts';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 
-export type FileUploadForm = {
-    importFile?: boolean;
-} & FileOrUrl;
+export type FileUploadForm = FileOrUrl;
 
 type Props = {
     onUpload?: (upload: FileUploadForm | undefined) => void;

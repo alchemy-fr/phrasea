@@ -26,7 +26,12 @@ import {
 import {CollectionId} from '../components/Media/Collection/CollectionTree/collectionTree.ts';
 import {promiseConcurrency} from '../lib/promises.ts';
 import {useUploadStore} from '../store/uploadStore.ts';
-import {CreateAssetsOptions, FileOrUrl, SourceFileInput} from './file.ts';
+import {
+    CreateAssetsOptions,
+    FileInputFromUrl,
+    FileOrUrl,
+    SourceFileInput,
+} from './file.ts';
 
 export interface GetAssetOptions {
     url?: string;
@@ -375,6 +380,10 @@ type InputUploadFile = {
     asset: NewAssetInput;
 };
 
+type InputAssetImport = {
+    asset: NewAssetInput;
+} & FileInputFromUrl;
+
 type FileBeingUploaded = {
     id: string;
 } & InputUploadFile;
@@ -412,19 +421,7 @@ export async function uploadAssets(
         });
     });
 
-    const isStory = options?.isStory;
-    const destinationProp = computeAssetPropsFromDestination(destination);
-
-    let storyAsset: Asset | undefined;
-    if (isStory) {
-        storyAsset = await postAsset({
-            title: options.story?.title,
-            tags: options.story?.tags || [],
-            isStory: true,
-            attributes: options.story?.attributes,
-            ...destinationProp,
-        });
-    }
+    const storyAsset = await createStoryAssetIfNeeded(destination, options);
 
     return await promiseConcurrency(
         uploads.map(f => {
@@ -434,12 +431,14 @@ export async function uploadAssets(
                         ...f,
                         asset: {
                             ...f.asset,
-                            ...(!isStory
-                                ? destinationProp
-                                : {
+                            ...(storyAsset
+                                ? {
                                       collection:
                                           storyAsset?.storyCollection!['@id'],
-                                  }),
+                                  }
+                                : computeAssetPropsFromDestination(
+                                      destination
+                                  )),
                         },
                     },
                     {
@@ -469,6 +468,74 @@ export async function uploadAssets(
         }),
         2
     );
+}
+
+function getStoryPropsFromOptions(options: CreateAssetsOptions) {
+    const {story: storyOptions} = options;
+
+    return {
+        title: storyOptions?.title,
+        tags: storyOptions?.tags || [],
+        attributes: storyOptions?.attributes,
+    };
+}
+
+async function createStoryAssetIfNeeded(
+    destination: CollectionId,
+    options: CreateAssetsOptions
+): Promise<Asset | undefined> {
+    if (options.isStory) {
+        return await postAsset({
+            isStory: true,
+            ...getStoryPropsFromOptions(options),
+            ...(destination
+                ? computeAssetPropsFromDestination(destination)
+                : {}),
+        });
+    }
+    return undefined;
+}
+
+export async function importAssets(
+    files: InputAssetImport[],
+    destination: CollectionId,
+    options: CreateAssetsOptions = {}
+): Promise<Asset[]> {
+    const destProps = computeAssetPropsFromDestination(destination);
+
+    const res: {
+        assets: Asset[];
+    } = await apiClient.post(
+        `/assets/multiple`,
+        {
+            isStory: options.isStory,
+            story: options.isStory
+                ? getStoryPropsFromOptions(options)
+                : undefined,
+            assets: files.map(f => ({
+                ...destProps,
+                ...f.asset,
+                sourceFile: {
+                    url: f.url,
+                    importFile: f.importFile,
+                },
+            })),
+        },
+        {
+            ...options.config,
+            headers: {
+                ...(options.quiet
+                    ? {
+                          'X-Webhook-Disabled': 'true',
+                          'X-Notification-Disabled': 'true',
+                      }
+                    : {}),
+                ...options.config?.headers,
+            },
+        }
+    );
+
+    return res.assets;
 }
 
 export async function uploadAsset(

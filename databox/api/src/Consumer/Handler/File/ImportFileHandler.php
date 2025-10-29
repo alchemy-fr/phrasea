@@ -57,12 +57,6 @@ readonly class ImportFileHandler
         }
 
         try {
-            if (isset($headers['Content-Length'])) {
-                $size = Header::parse($headers['Content-Length']);
-                if (null === $file->getSize() && !empty($size)) {
-                    $file->setSize((int) $size[0][0]);
-                }
-            }
             $mimeType = null;
             if (isset($headers['Content-Type'])) {
                 $type = Header::parse($headers['Content-Type']);
@@ -70,6 +64,8 @@ readonly class ImportFileHandler
                     $mimeType = $type[0][0];
                 }
             }
+
+            $file->setSize(filesize($src));
 
             $this->fileAnalyzer->analyzeFileSource($src, $file);
 

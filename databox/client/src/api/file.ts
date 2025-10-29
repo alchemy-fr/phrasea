@@ -30,15 +30,18 @@ export type SourceFileInput = {
     alternateUrls?: AlternateUrl[];
 };
 
-export type FileOrUrl =
-    | {
-          file: File;
-          url?: never;
-      }
-    | {
-          file?: never;
-          url: string;
-      };
+export type FileInputFromFile = {
+    file: File;
+    url?: never;
+};
+
+export type FileInputFromUrl = {
+    file?: never;
+    url: string;
+    importFile?: boolean;
+};
+
+export type FileOrUrl = FileInputFromFile | FileInputFromUrl;
 
 export type UploadedFile = {
     id: string;

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Box, Button} from '@mui/material';
+import {Box, Button, Checkbox, InputLabel, TextField} from '@mui/material';
 import {Trans, useTranslation} from 'react-i18next';
 import UploadIcon from '@mui/icons-material/Upload';
 import {useFormSubmit} from '@alchemy/api';
@@ -26,7 +26,12 @@ import {CollectionChip} from '../Ui/CollectionChip.tsx';
 import FileToUploadCard from './FileToUploadCard.tsx';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {createCollection} from '../../api/collection.ts';
-import {uploadAssets} from '../../api/asset.ts';
+import {importAssets, NewAssetInput, uploadAssets} from '../../api/asset.ts';
+import LinkIcon from '@mui/icons-material/Link';
+import {validateUrl} from '../../lib/file.ts';
+import {CreateAssetsOptions} from '../../api/file.ts';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import {toast} from 'react-toastify';
 
 type FileWrapper = {
     id: string;
@@ -50,6 +55,9 @@ export default function UploadModal({
     titlePath,
     modalIndex,
 }: Props) {
+    const [urlMode, setUrlMode] = React.useState(false);
+    const [url, setUrl] = React.useState('');
+    const [importFiles, setImportFiles] = React.useState(false);
     const {t} = useTranslation();
     const [workspaceId, setWorkspaceId] = React.useState<string | undefined>(
         initWsId
@@ -159,35 +167,69 @@ export default function UploadModal({
                 }
             }
 
-            return await uploadAssets(
-                files.map(f => ({
-                    file: f.file,
-                    asset: {
-                        tags: data.tags as unknown as string[],
-                        title:
-                            f.file.name === 'image.png'
-                                ? createPastedImageTitle(t)
-                                : f.file.name.replace(/\.[^/.]+$/, ''),
+            const destination = collectionId
+                ? `/collections/${collectionId}`
+                : (data.destination as CollectionId);
 
-                        privacy: data.privacy,
-                        attributes,
-                    },
-                })),
-                collectionId
-                    ? `/collections/${collectionId}`
-                    : (data.destination as CollectionId),
-                {
-                    quiet,
-                    isStory,
-                    story: isStory
-                        ? {
-                              ...story,
-                              tags: story?.tags as unknown as string[],
-                              attributes: storyAttributes,
-                          }
-                        : undefined,
-                }
-            );
+            const assetOptions: CreateAssetsOptions = {
+                quiet,
+                isStory,
+                story: isStory
+                    ? {
+                          ...story,
+                          tags: story?.tags as unknown as string[],
+                          attributes: storyAttributes,
+                      }
+                    : undefined,
+            };
+
+            const assetBase: Partial<NewAssetInput> = {
+                tags: data.tags as unknown as string[],
+                privacy: data.privacy,
+                attributes,
+            };
+
+            if (urlMode) {
+                const urls = parseUrls(url);
+                const assets = await importAssets(
+                    urls.map(u => ({
+                        url: u,
+                        importFile: importFiles,
+                        asset: {
+                            ...assetBase,
+                            title: extractTitleFromUrl(u),
+                        },
+                    })),
+                    destination,
+                    assetOptions
+                );
+
+                toast.success(
+                    t('file_upload.asset_created', {
+                        defaultValue: 'Asset created successfully.',
+                        defaultValue_other:
+                            '{{count}} assets created successfully.',
+                        count: urls.length,
+                    })
+                );
+
+                return assets;
+            } else {
+                return await uploadAssets(
+                    files.map(f => ({
+                        file: f.file,
+                        asset: {
+                            ...assetBase,
+                            title:
+                                f.file.name === 'image.png'
+                                    ? createPastedImageTitle(t)
+                                    : f.file.name.replace(/\.[^/.]+$/, ''),
+                        },
+                    })),
+                    destination,
+                    assetOptions
+                );
+            }
         },
         onSuccess: () => {
             closeModal(true);
@@ -256,74 +298,134 @@ export default function UploadModal({
             errors={remoteErrors}
             submitIcon={<UploadIcon />}
             submitLabel={t('form.upload.submit.title', 'Upload')}
-            submittable={files.length > 0}
+            submittable={
+                !urlMode
+                    ? files.length > 0
+                    : url.trim() !== '' &&
+                      url
+                          .split('\n')
+                          .filter(u => u.trim() !== '')
+                          .every(u => validateUrl(u))
+            }
         >
-            <UploadDropzone onDrop={onDrop} />
-            {files.length > 0 && (
+            {!urlMode ? (
                 <>
-                    <Box
+                    <UploadDropzone onDrop={onDrop} />
+                    {files.length > 0 && (
+                        <>
+                            <Box
+                                sx={{
+                                    mb: 2,
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <div style={{flexGrow: 1}}>
+                                    <Trans
+                                        i18nKey={'form.upload.files_to_upload'}
+                                        defaults="<strong>{{count}}</strong> file to upload"
+                                        values={{count: files.length}}
+                                        count={files.length}
+                                        tOptions={{
+                                            defaultValue_other:
+                                                '<strong>{{count}}</strong> files to upload',
+                                        }}
+                                    />
+                                </div>
+                                <Button
+                                    startIcon={<DeleteIcon />}
+                                    variant="outlined"
+                                    color="error"
+                                    onClick={() => setFiles([])}
+                                >
+                                    {t('form.upload.reset', 'Reset')}
+                                </Button>
+                            </Box>
+                            <Box
+                                sx={theme => ({
+                                    'bgcolor': theme.palette.grey[100],
+                                    'maxHeight': 400,
+                                    'overflow': 'auto',
+                                    'p': 1,
+                                    'display': 'grid',
+                                    'alignItems': 'stretch',
+                                    'gridTemplateColumns': {
+                                        xs: `repeat(1, 1fr)`,
+                                        md: `repeat(2, 1fr)`,
+                                    },
+                                    'gridColumnGap': theme.spacing(2),
+                                    'gridRowGap': theme.spacing(2),
+                                    '> div': {
+                                        width: '100%',
+                                        height: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'stretch',
+                                    },
+                                })}
+                            >
+                                {files.map(f => (
+                                    <FileToUploadCard
+                                        key={f.id}
+                                        file={f.file}
+                                        onRemove={() => onFileRemove(f.id)}
+                                    />
+                                ))}
+                            </Box>
+                        </>
+                    )}
+
+                    <Button
                         sx={{
                             mb: 2,
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
+                        }}
+                        variant={'text'}
+                        onClick={() => setUrlMode(true)}
+                        startIcon={<LinkIcon />}
+                    >
+                        {t('file_upload.upload_from_url', `Upload from URL`)}
+                    </Button>
+                </>
+            ) : (
+                <>
+                    <Button
+                        variant={'text'}
+                        onClick={() => setUrlMode(false)}
+                        startIcon={<KeyboardArrowLeftIcon />}
+                        sx={{
+                            mb: 2,
                         }}
                     >
-                        <div style={{flexGrow: 1}}>
-                            <Trans
-                                i18nKey={'form.upload.files_to_upload'}
-                                defaults="<strong>{{count}}</strong> file to upload"
-                                values={{count: files.length}}
-                                count={files.length}
-                                tOptions={{
-                                    defaultValue_other:
-                                        '<strong>{{count}}</strong> files to upload',
-                                }}
-                            />
-                        </div>
-                        <Button
-                            startIcon={<DeleteIcon />}
-                            variant="outlined"
-                            color="error"
-                            onClick={() => setFiles([])}
-                        >
-                            {t('form.upload.reset', 'Reset')}
-                        </Button>
-                    </Box>
-                    <Box
-                        sx={theme => ({
-                            'bgcolor': theme.palette.grey[100],
-                            'maxHeight': 400,
-                            'overflow': 'auto',
-                            'p': 1,
-                            'display': 'grid',
-                            'alignItems': 'stretch',
-                            'gridTemplateColumns': {
-                                xs: `repeat(1, 1fr)`,
-                                md: `repeat(2, 1fr)`,
-                            },
-                            'gridColumnGap': theme.spacing(2),
-                            'gridRowGap': theme.spacing(2),
-                            '> div': {
-                                width: '100%',
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-between',
-                                alignItems: 'stretch',
-                            },
-                        })}
-                    >
-                        {files.map(f => (
-                            <FileToUploadCard
-                                key={f.id}
-                                file={f.file}
-                                onRemove={() => onFileRemove(f.id)}
-                            />
-                        ))}
-                    </Box>
+                        {t('file_upload.back_to_files_upload', `Upload files`)}
+                    </Button>
+
+                    <TextField
+                        fullWidth
+                        type="url"
+                        multiline={true}
+                        placeholder={t(
+                            'file_upload.from_urls.placeholder',
+                            `Enter file URL(s), one per line`
+                        )}
+                        value={url}
+                        onChange={e => setUrl(e.target.value)}
+                        error={Boolean(
+                            url && parseUrls(url).some(u => !validateUrl(u))
+                        )}
+                    />
+
+                    <InputLabel>
+                        <Checkbox
+                            checked={importFiles}
+                            onChange={(_e, checked) => setImportFiles(checked)}
+                        />
+                        {t('file_upload.import_file', `Import file(s)`)}
+                    </InputLabel>
                 </>
             )}
+
             <UploadForm
                 resetForms={resetForms}
                 usedFormSubmit={usedFormSubmit}
@@ -347,4 +449,16 @@ function createPastedImageTitle(t: TFunction): string {
         defaultValue: `Pasted-image-{{date}}`,
         date: moment().format('YYYY-MM-DD_HH-mm-ss'),
     });
+}
+
+function extractTitleFromUrl(url: string): string {
+    const s = url.split('/').filter(Boolean);
+    return s[s.length - 1];
+}
+
+function parseUrls(urls: string): string[] {
+    return urls
+        .split('\n')
+        .map(u => u.trim())
+        .filter(u => u !== '');
 }
