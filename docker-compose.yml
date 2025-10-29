@@ -898,11 +898,6 @@ services:
     image: alchemyfr/zippy-worker:latest
     labels: []
 
-  zippy-cron:
-    extends:
-      service: zippy-worker
-    command: ['/srv/app/docker/cron/start-cron.sh']
-
   keycloak:
     image: ${REGISTRY_NAMESPACE}keycloak:${DOCKER_TAG}
     build:
