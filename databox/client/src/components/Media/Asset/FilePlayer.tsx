@@ -6,7 +6,7 @@ import {FileWithUrl, PlayerProps} from './Players';
 import PDFPlayer from './Players/PDFPlayer';
 import ImagePlayer from './Players/ImagePlayer.tsx';
 import React from 'react';
-import FileAnalysisChip from './FileAnalysisChip.tsx';
+import FileAnalysisChipWrapper from './FileAnalysisChipWrapper.tsx';
 
 type Props = {
     file: ApiFile;
@@ -18,9 +18,9 @@ export default function FilePlayer({file, autoPlayable, ...playProps}: Props) {
 
     if (file.analysisPending || false === file.accepted) {
         return (
-            <FileAnalysisChip file={file}>
+            <FileAnalysisChipWrapper file={file}>
                 <AssetFileIcon mimeType={file.type} />
-            </FileAnalysisChip>
+            </FileAnalysisChipWrapper>
         );
     }
 

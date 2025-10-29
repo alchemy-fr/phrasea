@@ -26,10 +26,10 @@ final readonly class FileAnalyzer
             return;
         }
 
-        if (!$file->isPathPublic()) {
+        if (File::STORAGE_S3_MAIN !== $file->getStorage()) {
             $file->setAnalysis([
                 'status' => File::ANALYSIS_SKIPPED,
-                'message' => 'File analysis skipped for non accessible files.',
+                'message' => 'File analysis skipped because not stored into Databox.',
             ]);
 
             return;
@@ -37,36 +37,41 @@ final readonly class FileAnalyzer
 
         $filePath = $this->fileFetcher->getFile($file);
         try {
-            $outputs = [];
-            foreach ($this->getAnalyzers($file) as $analyzerConfig) {
-                $analyzer = $this->getAnalyzer($analyzerConfig);
-                $analyzerConfig = $this->processConfiguration(
-                    $analyzer,
-                    $analyzerConfig,
-                );
-
-                $output = $analyzer->analyzeFile($file, $filePath, $analyzerConfig);
-                $outputs[] = [
-                    'name' => $analyzerConfig['name'],
-                    'output' => $output->toArray(),
-                ];
-                if (!$output->isSuccessful()) {
-                    $file->setAnalysis([
-                        'status' => File::ANALYSIS_FAILED,
-                        'results' => $outputs,
-                    ]);
-
-                    return;
-                }
-            }
-
-            $file->setAnalysis([
-                'status' => File::ANALYSIS_SUCCESS,
-                'results' => $outputs,
-            ]);
+            $this->analyzeFileSource($filePath, $file);
         } finally {
             @unlink($filePath);
         }
+    }
+
+    public function analyzeFileSource(string $filePath, File $file): void
+    {
+        $outputs = [];
+        foreach ($this->getAnalyzers($file) as $analyzerConfig) {
+            $analyzer = $this->getAnalyzer($analyzerConfig);
+            $analyzerConfig = $this->processConfiguration(
+                $analyzer,
+                $analyzerConfig,
+            );
+
+            $output = $analyzer->analyzeFile($file, $filePath, $analyzerConfig);
+            $outputs[] = [
+                'name' => $analyzerConfig['name'],
+                'output' => $output->toArray(),
+            ];
+            if (!$output->isSuccessful()) {
+                $file->setAnalysis([
+                    'status' => File::ANALYSIS_FAILED,
+                    'results' => $outputs,
+                ]);
+
+                return;
+            }
+        }
+
+        $file->setAnalysis([
+            'status' => File::ANALYSIS_SUCCESS,
+            'results' => $outputs,
+        ]);
     }
 
     /**

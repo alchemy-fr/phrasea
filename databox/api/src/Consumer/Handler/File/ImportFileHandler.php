@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\File;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use App\Border\FileAnalyzer;
 use App\Entity\Core\File;
 use App\Service\Asset\FileFetcher;
 use App\Service\Storage\FileManager;
@@ -22,6 +23,7 @@ readonly class ImportFileHandler
         private FileFetcher $fileFetcher,
         private EntityManagerInterface $em,
         private LoggerInterface $logger,
+        private FileAnalyzer $fileAnalyzer,
     ) {
     }
 
@@ -68,6 +70,8 @@ readonly class ImportFileHandler
                     $mimeType = $type[0][0];
                 }
             }
+
+            $this->fileAnalyzer->analyzeFileSource($src, $file);
 
             $finalPath = $this->fileManager->storeFile(
                 $file->getWorkspace(),

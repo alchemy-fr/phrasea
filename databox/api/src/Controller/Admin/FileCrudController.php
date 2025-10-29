@@ -14,7 +14,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
@@ -70,7 +69,6 @@ class FileCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield TextField::new('checksum')
             ->hideOnIndex();
-        yield Field::new('pathPublic');
         yield TextField::new('extension')
             ->hideOnIndex();
         yield ArrayField::new('alternateUrls')

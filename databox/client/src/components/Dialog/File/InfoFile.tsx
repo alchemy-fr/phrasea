@@ -26,7 +26,7 @@ export default function InfoFile({data, onClose, minHeight}: Props) {
                 <Divider />
                 <InfoRow
                     label={t('file.info.url', `URL`)}
-                    value={data.url}
+                    value={data.url || t('file.info.url_none', `N/A`)}
                     copyValue={data.url}
                     icon={<InfoIcon />}
                 />
@@ -38,8 +38,8 @@ export default function InfoFile({data, onClose, minHeight}: Props) {
                 />
                 <InfoRow
                     label={t('file.info.size', `Size`)}
-                    value={data.size}
-                    copyValue={data.size?.toString()}
+                    value={data.size || t('file.info.size_unknown', `Unknown`)}
+                    copyValue={data.size ? data.size?.toString() : undefined}
                     icon={<InfoIcon />}
                 />
                 {data.analysisPending ? (

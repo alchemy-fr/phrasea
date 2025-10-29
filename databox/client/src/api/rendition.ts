@@ -7,6 +7,7 @@ import {
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import apiClient from './api-client';
 import type {MultipartUpload} from '@alchemy/api';
+import {SourceFileInput} from './file.ts';
 
 type GetOptions = {
     workspaceIds?: string[];
@@ -39,6 +40,7 @@ export async function getAssetRenditions(
 type RenditionInput = {
     name?: string | undefined;
     definitionId?: string | undefined;
+    sourceFile?: SourceFileInput;
     sourceFileId?: string | undefined;
     assetId: string;
     substituted?: boolean;

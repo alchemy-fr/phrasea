@@ -250,7 +250,11 @@ class File extends AbstractUuidEntity implements \Stringable
 
     public function isAccepted(): bool
     {
-        return empty($this->analysis) || self::ANALYSIS_SUCCESS === ($this->analysis['status'] ?? null);
+        return empty($this->analysis)
+            || in_array($this->analysis['status'] ?? null, [
+                self::ANALYSIS_SUCCESS,
+                self::ANALYSIS_SKIPPED,
+            ], true);
     }
 
     public function setNoAnalysisNeeded(): void

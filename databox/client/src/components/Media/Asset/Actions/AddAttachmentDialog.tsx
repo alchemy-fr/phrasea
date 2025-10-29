@@ -42,6 +42,7 @@ export default function AddAttachmentDialog({
                         assetId: asset.id,
                         sourceFile: {
                             url: uploadForm.url,
+                            importFile: uploadForm.importFile,
                         },
                     });
                 }

@@ -1,5 +1,5 @@
 import {Chip} from '@mui/material';
-import React, {PropsWithChildren} from 'react';
+import React from 'react';
 import {ApiFile} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
@@ -7,48 +7,42 @@ import ErrorIcon from '@mui/icons-material/Error';
 import {modalRoutes} from '../../../routes.ts';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 
-type Props = PropsWithChildren<{
+type Props = {
     file: ApiFile;
-}>;
+};
 
-export default function FileAnalysisChip({file, children}: Props) {
+export type {Props as FileAnalysisChipProps};
+
+export default function FileAnalysisChip({file}: Props) {
     const {t} = useTranslation();
     const navigateToModal = useNavigateToModal();
 
-    return (
-        <div
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexDirection: 'column',
-                gap: '8px',
-            }}
-        >
-            {file.analysisPending ? (
-                <Chip
-                    label={t('file.analysis_pending', 'Analysis in progress…')}
-                    color="info"
-                    icon={<HourglassBottomIcon />}
-                />
-            ) : (
-                <Chip
-                    style={{
-                        cursor: 'pointer',
-                    }}
-                    onClick={() => {
-                        navigateToModal(modalRoutes.files.routes.manage, {
-                            tab: 'info',
-                            id: file!.id,
-                        });
-                    }}
-                    label={t('file.rejected', 'Rejected')}
-                    color="error"
-                    icon={<ErrorIcon />}
-                />
-            )}
+    if (file.analysisPending) {
+        return (
+            <Chip
+                label={t('file.analysis_pending', 'Analysis in progress…')}
+                color="info"
+                icon={<HourglassBottomIcon />}
+            />
+        );
+    }
 
-            {children}
-        </div>
-    );
+    if (!file.accepted) {
+        return (
+            <Chip
+                style={{
+                    cursor: 'pointer',
+                }}
+                onClick={() => {
+                    navigateToModal(modalRoutes.files.routes.manage, {
+                        tab: 'info',
+                        id: file!.id,
+                    });
+                }}
+                label={t('file.rejected', 'Rejected')}
+                color="error"
+                icon={<ErrorIcon />}
+            />
+        );
+    }
 }

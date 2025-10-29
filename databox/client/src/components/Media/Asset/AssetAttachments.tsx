@@ -31,6 +31,7 @@ import MenuItem from '@mui/material/MenuItem';
 import ConfirmDialog from '../../Ui/ConfirmDialog.tsx';
 import EditIcon from '@mui/icons-material/Edit';
 import RenameAttachmentDialog from './Attachment/RenameAttachmentDialog.tsx';
+import FileAnalysisChip from './FileAnalysisChip.tsx';
 
 type Props = {
     asset: Asset;
@@ -72,6 +73,13 @@ function AssetAttachments({asset}: Props) {
                                     primary={
                                         attachment.resolvedName ||
                                         attachment.name
+                                    }
+                                    secondary={
+                                        !attachment.file.accepted ? (
+                                            <FileAnalysisChip
+                                                file={attachment.file}
+                                            />
+                                        ) : undefined
                                     }
                                 />
 

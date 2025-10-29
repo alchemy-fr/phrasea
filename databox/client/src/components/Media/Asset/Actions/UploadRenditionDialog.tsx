@@ -39,15 +39,25 @@ export default function UploadRenditionDialog({
         setUploading(true);
         try {
             if (!uploadForm.file) {
-                // TODO support URL
-                return;
+                await postRendition({
+                    assetId: asset.id,
+                    definitionId,
+                    sourceFile: {
+                        url: uploadForm.url,
+                        importFile: uploadForm.importFile,
+                    },
+                });
+            } else {
+                const multipart = await multipartUpload(
+                    apiClient,
+                    uploadForm.file
+                );
+                await postRendition({
+                    assetId: asset.id,
+                    definitionId,
+                    multipart,
+                });
             }
-            const multipart = await multipartUpload(apiClient, uploadForm.file);
-            await postRendition({
-                assetId: asset.id,
-                definitionId,
-                multipart,
-            });
 
             toast.success(
                 t(

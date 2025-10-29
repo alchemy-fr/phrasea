@@ -1,42 +1,43 @@
 import UploadDropzone from '../../../Upload/UploadDropzone.tsx';
-import {Box, Button, TextField} from '@mui/material';
+import {Box, Button, Checkbox, InputLabel, TextField} from '@mui/material';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
 import LinkIcon from '@mui/icons-material/Link';
 import {validateUrl} from '../../../../lib/file.ts';
 import FileToUploadCard from '../../../Upload/FileToUploadCard.tsx';
 import {FileOrUrl} from '../../../../api/file.ts';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 
-export type FileUploadForm = FileOrUrl;
+export type FileUploadForm = {
+    importFile?: boolean;
+} & FileOrUrl;
 
 type Props = {
     onUpload?: (upload: FileUploadForm | undefined) => void;
 };
 
 export default function SingleFileUploadWidget({onUpload}: Props) {
-    const [file, setFileProxy] = React.useState<File | undefined>();
+    const [file, setFile] = React.useState<File | undefined>();
     const [urlMode, setUrlMode] = React.useState(false);
-    const [url, setUrlProxy] = React.useState<string | undefined>();
+    const [importFile, setImportFile] = React.useState(false);
+    const [url, setUrl] = React.useState<string | undefined>();
     const {t} = useTranslation();
 
-    const setFile = (file: File | undefined) => {
-        setFileProxy(file);
-        if (file) {
-            onUpload?.({file} as FileUploadForm);
-        } else {
-            onUpload?.(undefined);
+    React.useEffect(() => {
+        if (!onUpload) {
+            return;
         }
-    };
-
-    const setUrl = (url: string) => {
-        setUrlProxy(url);
-        setFileProxy(undefined);
-        if (url && validateUrl(url)) {
-            onUpload?.({url});
+        if (!urlMode && file) {
+            onUpload({file} as FileUploadForm);
+        } else if (urlMode && url && validateUrl(url)) {
+            onUpload({
+                url: url!,
+                importFile,
+            });
         } else {
-            onUpload?.(undefined);
+            onUpload(undefined);
         }
-    };
+    }, [onUpload, urlMode, url, importFile, file]);
 
     const onDrop = (acceptedFiles: File[]) => {
         setFile(acceptedFiles[0]);
@@ -45,6 +46,17 @@ export default function SingleFileUploadWidget({onUpload}: Props) {
     if (urlMode) {
         return (
             <>
+                <Button
+                    variant={'text'}
+                    onClick={() => setUrlMode(false)}
+                    startIcon={<KeyboardArrowLeftIcon />}
+                    sx={{
+                        mb: 3,
+                    }}
+                >
+                    {t('file_upload.back_to_file_upload', `Upload file`)}
+                </Button>
+
                 <TextField
                     fullWidth
                     type="url"
@@ -56,6 +68,14 @@ export default function SingleFileUploadWidget({onUpload}: Props) {
                     onChange={e => setUrl(e.target.value)}
                     error={Boolean(url && !validateUrl(url))}
                 />
+
+                <InputLabel>
+                    <Checkbox
+                        checked={importFile}
+                        onChange={(_e, checked) => setImportFile(checked)}
+                    />
+                    {t('file_upload.import_file', `Import file`)}
+                </InputLabel>
             </>
         );
     }

@@ -38,6 +38,7 @@ export default function ReplaceAssetSourceDialog({
                 await putAsset(asset.id, {
                     sourceFile: {
                         url: uploadForm.url,
+                        importFile: uploadForm.importFile,
                     },
                 });
                 return;
