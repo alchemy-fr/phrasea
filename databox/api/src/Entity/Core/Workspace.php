@@ -97,7 +97,9 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     final public const string GROUP_READ = 'workspace:r';
     final public const string GROUP_LIST = 'workspace:i';
-    public const string CONFIG_ANALYZERS = 'analyzers';
+    private const int DEFAULT_TRASH_RETENTION_DELAY = 30;
+    private const string CONFIG_ANALYZERS = 'analyzers';
+    private const string TRASH_RETENTION_DELAY = 'trashRetentionDelay';
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     #[Assert\NotBlank]
@@ -222,6 +224,16 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     public function setFileAnalyzers(?string $analyzers): void
     {
         $this->config[self::CONFIG_ANALYZERS] = $analyzers;
+    }
+
+    public function getTrashRetentionDelay(): int
+    {
+        return $this->config[self::TRASH_RETENTION_DELAY] ?? self::DEFAULT_TRASH_RETENTION_DELAY;
+    }
+
+    public function setTrashRetentionDelay(int $days): void
+    {
+        $this->config[self::TRASH_RETENTION_DELAY] = $days;
     }
 
     public function getEnabledLocales(): array

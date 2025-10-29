@@ -63,7 +63,7 @@ final readonly class ChecksumAnalyzer extends AbstractAnalyzer
                     'workspace' => $file->getWorkspace()->getId(),
                 ]);
             if ($existingFile && $existingFile->getId() !== $file->getId()) {
-                $message = sprintf('A file with checksum "%s" already exists (File ID: %d).', $checksum, $existingFile->getId());
+                $message = sprintf('A file with checksum "%s" already exists (File ID: %s).', $checksum, $existingFile->getId());
 
                 if ($config['treatDuplicateAsError']) {
                     $errors[] = $message;

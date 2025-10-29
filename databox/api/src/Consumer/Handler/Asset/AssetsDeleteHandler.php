@@ -7,6 +7,7 @@ namespace App\Consumer\Handler\Asset;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use App\Consumer\Handler\Collection\CollectionsMoveToTrash;
+use App\Doctrine\Delete\AssetDelete;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Entity\Core\Asset;
 use App\Entity\Core\CollectionAsset;
@@ -21,6 +22,7 @@ readonly class AssetsDeleteHandler
         private EntityManagerInterface $em,
         private MessageBusInterface $bus,
         private ElasticSearchClient $elasticSearchClient,
+        private AssetDelete $assetDelete,
     ) {
     }
 
@@ -39,58 +41,44 @@ readonly class AssetsDeleteHandler
             return;
         }
 
+        if ($message->isHardDelete()) {
+            $this->assetDelete->deleteAssets($message->getIds());
+
+            return;
+        }
+
         /** @var Asset[] $assets */
         $assets = DoctrineUtil::iterateIds($this->em->getRepository(Asset::class), $message->getIds());
         DeferredIndexListener::disable();
-        if ($message->isHardDelete()) {
-            try {
-                foreach ($assets as $asset) {
-                    $this->em->remove($asset);
+        $collections = [];
+        try {
+            foreach ($assets as $asset) {
+                if ($asset->getStoryCollection()) {
+                    $collections[$asset->getStoryCollection()->getId()] = true;
                 }
-                $this->em->flush();
-            } finally {
-                DeferredIndexListener::enable();
+                $asset->setDeletedAt(new \DateTimeImmutable());
+                $this->em->persist($asset);
             }
-
-            $this->elasticSearchClient->deleteByQuery(
-                'asset',
-                [
-                    'terms' => [
-                        '_id' => $message->getIds(),
-                    ],
-                ],
-            );
-        } else {
-            $collections = [];
-            try {
-                foreach ($assets as $asset) {
-                    if ($asset->getStoryCollection()) {
-                        $collections[$asset->getStoryCollection()->getId()] = true;
-                    }
-                    $asset->setDeletedAt(new \DateTimeImmutable());
-                    $this->em->persist($asset);
-                }
-                $this->em->flush();
-            } finally {
-                DeferredIndexListener::enable();
-            }
-
-            if (!empty($collections)) {
-                $this->bus->dispatch(new CollectionsMoveToTrash(array_keys($collections)));
-            }
-
-            $this->elasticSearchClient->updateByQuery(
-                'asset',
-                [
-                    'terms' => [
-                        '_id' => $message->getIds(),
-                    ],
-                ],
-                [
-                    'source' => 'ctx._source.deleted=true',
-                    'lang' => 'painless',
-                ]
-            );
+            $this->em->flush();
+        } finally {
+            DeferredIndexListener::enable();
         }
+
+        if (!empty($collections)) {
+            $this->bus->dispatch(new CollectionsMoveToTrash(array_keys($collections)));
+        }
+
+        $this->elasticSearchClient->updateByQuery(
+            'asset',
+            [
+                'terms' => [
+                    '_id' => $message->getIds(),
+                ],
+            ],
+            [
+                'source' => 'ctx._source.deleted=true',
+                'lang' => 'painless',
+            ]
+        );
     }
 }

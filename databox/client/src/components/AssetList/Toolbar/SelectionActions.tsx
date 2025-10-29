@@ -17,7 +17,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import TooltipToggleButton from '../../Ui/TooltipToggleButton';
 import {TSelectionContext} from '../../../context/AssetSelectionContext';
 import {styled} from '@mui/material/styles';
-import DeleteAssetsConfirm from '../../Media/Asset/Actions/DeleteAssetsConfirm';
+import DeleteAssetsConfirmDialog from '../../Media/Asset/Actions/DeleteAssetsConfirmDialog.tsx';
 import DisplayOptionsMenu from './DisplayOptionsMenu';
 import {Asset, AssetOrAssetContainer, StateSetter} from '../../../types';
 import ExportAssetsDialog from '../../Media/Asset/Actions/ExportAssetsDialog';
@@ -281,7 +281,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
             canShare,
             onShare,
             onDelete: () => {
-                openModal(DeleteAssetsConfirm, {
+                openModal(DeleteAssetsConfirmDialog, {
                     assetIds: selectedAssets.map(i => i.id),
                     onDelete: () => {
                         reload?.();

@@ -18,6 +18,8 @@ class WorkspaceInputTransformer extends AbstractInputTransformer
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
+        $this->validator->validate($data, $context);
+
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var Workspace $object */
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Workspace();
@@ -41,6 +43,9 @@ class WorkspaceInputTransformer extends AbstractInputTransformer
         }
         if (null !== $data->fileAnalyzers) {
             $object->setFileAnalyzers($data->fileAnalyzers);
+        }
+        if (null !== $data->trashRetentionDelay) {
+            $object->setTrashRetentionDelay((int) $data->trashRetentionDelay);
         }
 
         if ($isNew) {

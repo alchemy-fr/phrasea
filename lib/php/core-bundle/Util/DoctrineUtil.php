@@ -54,15 +54,11 @@ final readonly class DoctrineUtil
 
     public static function iterateIds(EntityRepository $repo, array $ids): iterable
     {
-        $iterator = $repo->createQueryBuilder('o')
+        return $repo->createQueryBuilder('o')
             ->select('o')
             ->where('o.id IN (:ids)')
             ->setParameter('ids', $ids)
             ->getQuery()
-            ->iterate();
-
-        foreach ($iterator as $item) {
-            yield $item[0];
-        }
+            ->toIterable();
     }
 }

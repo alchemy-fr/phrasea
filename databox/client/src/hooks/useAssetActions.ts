@@ -1,6 +1,6 @@
 import {useNavigateToModal} from '../components/Routing/ModalLink.tsx';
 import {useMemo} from 'react';
-import DeleteAssetsConfirm from '../components/Media/Asset/Actions/DeleteAssetsConfirm.tsx';
+import DeleteAssetsConfirmDialog from '../components/Media/Asset/Actions/DeleteAssetsConfirmDialog.tsx';
 import ExportAssetsDialog from '../components/Media/Asset/Actions/ExportAssetsDialog.tsx';
 import {modalRoutes, Routing} from '../routes.ts';
 import {Asset, AssetOrAssetContainer} from '../types.ts';
@@ -67,7 +67,7 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
                 onAction?.();
             },
             onDelete: () => {
-                openModal(DeleteAssetsConfirm, {
+                openModal(DeleteAssetsConfirmDialog, {
                     assetIds: [id],
                     onDelete,
                 });

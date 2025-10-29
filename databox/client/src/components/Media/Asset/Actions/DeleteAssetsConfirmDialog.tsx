@@ -20,7 +20,7 @@ type Props = {
     onDelete?: () => void;
 } & StackedModalProps;
 
-export default function DeleteAssetsConfirm({
+export default function DeleteAssetsConfirmDialog({
     assetIds,
     onDelete,
     open,
@@ -29,7 +29,7 @@ export default function DeleteAssetsConfirm({
     const {t} = useTranslation();
     const count = assetIds.length;
     const [selection, setSelection] = React.useState<string[]>([]);
-    const [hardDelete, setHardDelete] = React.useState(false);
+    const [moveToTrash, setMoveToTrash] = React.useState(false);
 
     const {data, isSuccess} = useModalFetch<PrepareDeleteAssetsOutput>({
         queryKey: ['assets', assetIds, 'delete'],
@@ -48,7 +48,7 @@ export default function DeleteAssetsConfirm({
 
     const onDeleteAssets = async () => {
         await deleteAssets(assetIds, {
-            collections: !hardDelete ? selection : [],
+            collections: !moveToTrash ? selection : [],
         });
         onDelete && onDelete();
     };
@@ -64,11 +64,15 @@ export default function DeleteAssetsConfirm({
         );
     }
 
+    const disabled =
+        collections.length > 0 && selection.length === 0 && !moveToTrash;
+
     return (
         <ConfirmDialog
             modalIndex={modalIndex}
             title={t('asset.delete.confirm.title', 'Confirm delete')}
             onConfirm={onDeleteAssets}
+            disabled={disabled}
             open={open}
             confirmButtonProps={{
                 startIcon: <DeleteIcon />,
@@ -80,13 +84,17 @@ export default function DeleteAssetsConfirm({
                         sx={{
                             my: 1,
                         }}
-                        checked={hardDelete}
+                        checked={moveToTrash}
                         disabled={!data.canDelete}
-                        onChange={(_e, checked) => setHardDelete(checked)}
+                        onChange={(_e, checked) => setMoveToTrash(checked)}
                         label={
                             <Trans
-                                i18nKey="asset.delete.hard_delete"
-                                defaults={`Delete asset permanently`}
+                                i18nKey="asset.delete.move_to_trash"
+                                defaults={`Move asset to trash`}
+                                tOptions={{
+                                    defaultValue_other: `Move <strong>{{count}} assets</strong> to trash`,
+                                }}
+                                count={count}
                             />
                         }
                         control={<Checkbox color={'error'} sx={{mr: 1}} />}
@@ -97,9 +105,9 @@ export default function DeleteAssetsConfirm({
                                 sx={{
                                     my: 1,
                                 }}
-                                disabled={hardDelete}
+                                disabled={moveToTrash}
                                 checked={
-                                    !hardDelete &&
+                                    !moveToTrash &&
                                     selection.includes(collection.id)
                                 }
                                 onChange={(_e, checked) => {
@@ -158,13 +166,14 @@ export default function DeleteAssetsConfirm({
                 </>
             ) : (
                 <>
-                    {t('asset.delete.confirm_message', {
-                        defaultValue:
-                            'Are you sure you want to delete this asset?',
-                        defaultValue_other:
-                            'Are you sure you want to delete {{count}} assets?',
-                        count,
-                    })}
+                    <Trans
+                        i18nKey="asset.delete.confirm_move_to_trash_message"
+                        defaults={`Are you sure you want to move this asset to trash?`}
+                        tOptions={{
+                            defaultValue_other: `Are you sure you want to move <strong>{{count}} assets</strong> to trash?`,
+                        }}
+                        count={count}
+                    />
                 </>
             )}
             {data.shareCount > 0 ? (

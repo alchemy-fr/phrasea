@@ -178,6 +178,21 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                     />
                 </FormRow>
                 <FormRow>
+                    <TextField
+                        type={'number'}
+                        label={t(
+                            'form.workspace.trashRetentionDelay.label',
+                            'Trash Retention Delay (in days)'
+                        )}
+                        disabled={submitting}
+                        {...register('trashRetentionDelay')}
+                    />
+                    <FormFieldErrors
+                        field={'trashRetentionDelay'}
+                        errors={errors}
+                    />
+                </FormRow>
+                <FormRow>
                     <CodeEditorWidget
                         control={control}
                         label={t(

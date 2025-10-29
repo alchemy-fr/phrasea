@@ -220,7 +220,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
      */
     private ?bool $hasChildren = null;
 
-    #[ORM\OneToMany(mappedBy: 'collection', targetEntity: CollectionAsset::class, cascade: ['persist'])]
+    #[ORM\OneToMany(mappedBy: 'collection', targetEntity: CollectionAsset::class, cascade: ['persist', 'remove'])]
     private ?DoctrineCollection $assets = null;
 
     #[ORM\OneToMany(mappedBy: 'referenceCollection', targetEntity: Asset::class)]

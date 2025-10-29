@@ -77,6 +77,9 @@ class WorkspaceOutput extends AbstractUuidOutput
     public ?string $fileAnalyzers;
 
     #[Groups([Workspace::GROUP_READ])]
+    public ?int $trashRetentionDelay = null;
+
+    #[Groups([Workspace::GROUP_READ])]
     public ?array $translations = null;
 
     #[Groups([Workspace::GROUP_LIST, Workspace::GROUP_READ])]

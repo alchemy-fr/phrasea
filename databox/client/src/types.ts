@@ -409,6 +409,7 @@ export interface Workspace extends IPermissions, Entity {
     name: string;
     nameTranslated: string;
     fileAnalyzers?: string;
+    trashRetentionDelay?: number;
     enabledLocales?: string[] | undefined;
     localeFallbacks?: string[] | undefined;
     owner?: User;

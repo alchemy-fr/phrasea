@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Doctrine\Delete;
 
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Doctrine\Listener\CollectionListener;
 use App\Elasticsearch\IndexCleaner;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
-use App\Entity\Core\CollectionAsset;
 use App\Entity\Template\AssetDataTemplate;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -19,6 +19,7 @@ final readonly class CollectionDelete
         private EntityManagerInterface $em,
         private IndexCleaner $indexCleaner,
         private CollectionListener $collectionListener,
+        private PostFlushStack $postFlushStack,
     ) {
     }
 
@@ -32,8 +33,6 @@ final readonly class CollectionDelete
             if (null === $collection->getDeletedAt()) {
                 throw new \InvalidArgumentException(sprintf('Collection "%s" is not marked as deleted', $collection->getId()));
             }
-
-            $this->indexCleaner->removeCollectionFromIndex($collectionId);
 
             $this->em->beginTransaction();
 
@@ -89,14 +88,6 @@ final readonly class CollectionDelete
             $this->em->flush();
         }
 
-        $this->em->getRepository(CollectionAsset::class)
-            ->createQueryBuilder('t')
-            ->delete()
-            ->andWhere('t.collection = :c')
-            ->setParameter('c', $collectionId)
-            ->getQuery()
-            ->execute();
-
         $assets = $this->em->getRepository(Asset::class)
             ->createQueryBuilder('t')
             ->select('t.id')
@@ -119,6 +110,8 @@ final readonly class CollectionDelete
             $this->em->remove($collection);
             $this->em->flush();
         }
+
+        $this->postFlushStack->addCallback(fn () => $this->indexCleaner->removeCollectionFromIndex($collectionId));
     }
 
     private function deleteDependencies(string $entityClass, string $collectionId): void

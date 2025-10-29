@@ -42,6 +42,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
         $output->translations = $data->getTranslations();
         $output->ownerId = $data->getOwnerId();
         $output->fileAnalyzers = $data->getFileAnalyzers();
+        $output->trashRetentionDelay = $data->getTrashRetentionDelay();
 
         $k = $data->getId().$this->getUserCacheId();
         if (!isset($this->capCache[$k])) {
