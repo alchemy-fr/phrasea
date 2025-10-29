@@ -276,4 +276,14 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     {
         return $this->definition->getWorkspace();
     }
+
+    public function getWorkspaceId(): string
+    {
+        return $this->definition->getWorkspaceId();
+    }
+
+    public function getOwnerId(): ?string
+    {
+        return $this->definition->getOwnerId();
+    }
 }
