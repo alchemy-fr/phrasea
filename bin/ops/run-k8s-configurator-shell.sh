@@ -25,7 +25,6 @@ NS="${1}"
 RELEASE_NAME=phrasea
 CHART_VERSION="${2}"
 
-
 (
   mkdir -p /tmp/phrasea-helm-configure-shell \
   && cd /tmp/phrasea-helm-configure-shell \
@@ -40,7 +39,9 @@ CHART_VERSION="${2}"
       | kubectl -n ${NS} apply -f -
 )
 
-kubectl -n $NS wait --for=condition=Ready pod/${JOB}
-kubectl -n $NS exec -ti ${JOB} -- ash
+POD_NAME=$(kubectl -n $NS get pods --selector=job-name=${JOB} --field-selector=status.phase=Running | grep ${JOB} | awk '{print $1}')
+
+kubectl -n $NS wait --for=condition=Ready pod/${POD_NAME}
+kubectl -n $NS exec -ti ${POD_NAME} -- ash
 
 kubectl -n $NS delete job ${JOB} --force 2> /dev/null

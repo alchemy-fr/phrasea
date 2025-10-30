@@ -46,7 +46,7 @@ Browser->React: GET https://expose.com/123
 React->Browser: Return static page with JS
 note over Browser: React app boots
 Browser->API: GET https://api.expose.com/publications/123
-API->Browser: Returns publication payload {"id": "123", ...}
+API->Browser: Returns publication payload `{"id": "123", ...}`
 note over Browser: React displays the layout
 ​```
 

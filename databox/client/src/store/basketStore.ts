@@ -50,12 +50,18 @@ export const useBasketStore = create<State>((set, getState) => ({
 
         try {
             const data = await getBaskets(undefined, params);
+            const editableBaskets = data.result.filter(
+                b => b.capabilities.canEdit
+            );
 
             set(state => ({
                 baskets: data.result,
                 total: data.total,
                 loading: false,
-                current: data.total === 1 ? data.result[0] : state.current,
+                current:
+                    editableBaskets.length === 1
+                        ? editableBaskets[0]
+                        : state.current,
                 nextUrl: data.next || undefined,
             }));
         } catch (e: any) {

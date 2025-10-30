@@ -29,13 +29,17 @@
         },
         "collection_list": {
             "collections_one": "Collection",
+            "collections_many": "",
             "collections_other": "Collections",
             "others_one": "Altri",
+            "others_many": "",
             "others_other": "Altri"
         },
         "delete": {
             "confirm": {
                 "message": "Sei sicuro di voler eliminare questo Asset?",
+                "message_one": "",
+                "message_many": "",
                 "message_other": "Sei sicuro di voler eliminare questi Asset?",
                 "title": "Conferma eliminazione"
             }
@@ -83,8 +87,10 @@
         },
         "tag_list": {
             "others_one": "Altri",
+            "others_many": "",
             "others_other": "Altri",
             "tags_one": "Tag",
+            "tags_many": "",
             "tags_other": "Tag"
         },
         "view": {
@@ -185,6 +191,7 @@
     },
     "attributes": {
         "values_one": "Valori",
+        "values_many": "",
         "values_other": ""
     },
     "attributes_editor_form": {
@@ -321,6 +328,7 @@
             "intro": "Copia Asset",
             "submit": "Copia",
             "title_one": "Copia Asset",
+            "title_many": "",
             "title_other": "Copia Asset"
         },
         "form": {
@@ -750,6 +758,7 @@
             "intro": "Sposta Asset",
             "submit": "Sposta",
             "title_one": "Sposta Asset",
+            "title_many": "",
             "title_other": "Sposta Asset"
         }
     },

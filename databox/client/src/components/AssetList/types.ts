@@ -49,6 +49,7 @@ export type AssetItemProps<Item extends AssetOrAssetContainer> = {
     item: Item;
     asset: Asset;
     selected: boolean;
+    disabled: boolean;
     onOpen?: OnOpen;
 } & AssetActions<Item>;
 
@@ -68,6 +69,7 @@ type LayoutBaseProps<Item extends AssetOrAssetContainer> = {
     itemToAsset?: ItemToAssetFunc<Item> | undefined;
     itemComponent: AssetItemComponent<Item> | undefined;
     selection: Item[];
+    disabledAssets: Item[];
     toolbarHeight: number;
 } & LayoutCommonProps<Item>;
 

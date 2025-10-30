@@ -34,6 +34,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
     onAddToBasket,
     loadMore,
     selection,
+    disabledAssets,
     itemToAsset,
     itemComponent,
     previewZIndex,
@@ -205,6 +206,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                                         asset={asset}
                                         onAddToBasket={onAddToBasket}
                                         selected={selection.includes(item)}
+                                        disabled={disabledAssets.includes(item)}
                                         onContextMenuOpen={onContextMenuOpen}
                                         onOpen={onOpen}
                                         onToggle={onToggle}

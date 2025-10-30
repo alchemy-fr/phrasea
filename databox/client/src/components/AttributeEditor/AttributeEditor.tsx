@@ -71,6 +71,7 @@ export default function AttributeEditor({
         redo,
         onSave,
         createToKey,
+        disabledAssets,
     } = useAttributeValues({
         attributeDefinitions: remoteAttributeDefinitions,
         assets,
@@ -149,6 +150,7 @@ export default function AttributeEditor({
             <AssetSelectionContext.Provider
                 value={{
                     selection: subSelection!,
+                    disabledAssets: disabledAssets ?? [],
                     setSelection: setSubSelection,
                 }}
             >
@@ -189,6 +191,7 @@ export default function AttributeEditor({
                                 searchBar={false}
                                 pages={pages}
                                 defaultSelection={assets}
+                                disabledAssets={disabledAssets}
                                 subSelection={subSelection}
                                 onSelectionChange={setSubSelection}
                                 previewZIndex={ZIndex.modal + 1}

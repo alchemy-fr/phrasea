@@ -38,6 +38,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     onOpen,
     loadMore,
     selection,
+    disabledAssets,
     itemToAsset,
     previewZIndex,
 }: LayoutProps<Item>) {
@@ -166,6 +167,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                                     item={item}
                                     onToggle={onToggle}
                                     selected={selection.includes(item)}
+                                    disabled={disabledAssets.includes(item)}
                                     onAddToBasket={onAddToBasket}
                                     onContextMenuOpen={onContextMenuOpen}
                                     displayAttributes={d.displayAttributes}

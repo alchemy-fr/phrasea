@@ -224,6 +224,10 @@ export const thumbSx = (
             ...videoPlayerSx(thumbSize, theme),
             ...overridden,
         },
+        [`.${assetClasses.item}.disabled`]: {
+            opacity: 0.5,
+            pointerEvents: 'none',
+        },
         [`.${assetClasses.item}.selected .${assetClasses.thumbWrapper}:after`]:
             {
                 position: 'absolute',

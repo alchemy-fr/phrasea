@@ -2,6 +2,7 @@
 
 namespace App\Entity\Traits;
 
+use App\Entity\Core\Asset;
 use App\Model\AssetTypeEnum;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,6 +20,11 @@ trait AssetTypeTargetTrait
     public function isForTarget(AssetTypeEnum $target): bool
     {
         return ($this->target->value & $target->value) === $target->value;
+    }
+
+    public function isTargetedForAsset(Asset $asset): bool
+    {
+        return $this->isForTarget($asset->isStory() ? AssetTypeEnum::Story : AssetTypeEnum::Asset);
     }
 
     public function setTarget(AssetTypeEnum $target): void
