@@ -360,6 +360,9 @@
         "default": {
             "title": "My Basket"
         },
+        "disabled": {
+            "label": "You don't have permission to edit this basket"
+        },
         "info": {
             "creation_date": "Creation date",
             "id": "ID",
@@ -397,7 +400,7 @@
         "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> items"
     },
     "built_in_attr": {
-        "collection": "Collection",
+        "collections": "Collections",
         "createdAt": "Created At",
         "editedAt": "Edited At",
         "fileMimeType": "File MIME Type",
@@ -410,7 +413,7 @@
         "privacy": "Privacy",
         "rendition": "Rendition",
         "score": "Score",
-        "story": "Story",
+        "stories": "Stories",
         "tag": "Tag",
         "workspace": "Workspace"
     },
@@ -969,11 +972,11 @@
                 "label": "Asset Type Target"
             },
             "useAs": {
+                "animatedThumbnail": "Animated Thumbnail",
                 "label": "Rendition used for display",
-                "main": "Original",
+                "main": "Main",
                 "preview": "Preview",
-                "thumbnail": "Thumbnail",
-                "animatedThumbnail": "Animated Thumbnail"
+                "thumbnail": "Thumbnail"
             }
         },
         "rendition_policy": {
@@ -1142,8 +1145,6 @@
                 "label": "rows"
             }
         },
-        "previews_locked": "Previews locked",
-        "previews_unlocked": "Previews unlocked",
         "view": {
             "grid": "Grid View",
             "list": "List View",
