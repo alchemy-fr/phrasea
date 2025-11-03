@@ -1,26 +1,25 @@
-# Expose service
+# Expose
 
 Expose service is part of the Alchemy ecosystem.
 Its role is to expose assets to the Internet.
 
 Service wraps the following end projects:
-- Expose API (back end)
+- Expose API (backend)
 
 
 ## How it works
 
-Please first have a look at [publication payload reference](./api/README.md)!
-
 First entrypoint is the React app with one main route:
 
-`/p/{id}` (or maybe with a token: `/p/{id}/{token}`)
+`/{publication-id}`
 
 The React app displays a loader while querying the expose API to fetch the publication:
 
-`GET [API_HOST]/p/{id}`
+`GET <API_HOST>/publications/{publication-id}`
 
 If there is no protection, the response will contain all the publication payload.
 Otherwise the response will be limited to protection method:
+
 ```json
 {
   "id": "123",
@@ -30,7 +29,7 @@ Otherwise the response will be limited to protection method:
 
 Then front (React) application will display the according authentication method and request the publication payload again:
 
-- with password: `GET [API_HOST]/p/{id} --header "Authorization: Password {password}"`
+- with password: `GET <API_HOST>/publications/{id} --header "Authorization: Password {password}"`
 
 In this example we access the publication at:
 `https://client-url.com/gallery/123`

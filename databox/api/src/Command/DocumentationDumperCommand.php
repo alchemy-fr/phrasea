@@ -34,7 +34,7 @@ class DocumentationDumperCommand extends Command
     {
         $destination = rtrim($input->getArgument('destination'), '/');
 
-        /** @var array<string, DocumentationGeneratorInterface> */
+        /** @var array<string, DocumentationGeneratorInterface> $chapters */
         $chapters = [];
 
         /** @var DocumentationGeneratorInterface $documentation */
@@ -49,15 +49,10 @@ class DocumentationDumperCommand extends Command
         foreach ($chapters as $chapter) {
             $title = $chapter->getTitle() ?? $chapter->getPath();
             $pathParts = pathinfo($chapter->getPath());
-
             $outputDir = $destination.'/'.$pathParts['dirname'];
-
-            $filename = $pathParts['filename'];
             $extension = $pathParts['extension'];
-
             @mkdir($outputDir, 0777, true);
-            $outputFile = $outputDir.'/'.$filename.'.'.$extension;
-
+            $outputFile = $outputDir.'/'.$pathParts['filename'].'.'.$extension;
             file_put_contents($outputFile, $this->getAsText($chapter, $extension));
             $output->writeln(sprintf('<info>Documentation for chapter "%s" written to "%s".</info>', $title, realpath($outputFile)));
         }
@@ -68,11 +63,6 @@ class DocumentationDumperCommand extends Command
     private function getAsText(DocumentationGeneratorInterface $chapter, string $extension, array $levels = []): string
     {
         $chapter->setLevels($levels);
-
-        $title = str_replace("'", "''", $chapter->getTitle() ?? $chapter->getPath()); // Escape single quotes for YAML frontmatter
-        if (!empty($levels)) {
-            $title = join('.', $levels).': '.$title;
-        }
 
         $text = '';
         if (null !== ($t = $chapter->getHeader())) {

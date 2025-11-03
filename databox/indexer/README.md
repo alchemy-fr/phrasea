@@ -1,3 +1,3 @@
 # Databox Indexer
 
-See [Indexer Documentation](../../doc/tech/databox/indexer.md).
+See [Indexer Documentation](../../doc/tech/databox/indexer/01_intro.md).

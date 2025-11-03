@@ -1,5 +1,5 @@
 ---
-title: Work in Progress User Documentation
+title: User Documentation
 slug: user-documentation
 ---
 

@@ -1,4 +1,9 @@
-# Databox indexer: Phraseanet configuration
+# Databox Indexer: Phraseanet Configuration
+
+## Example Configuration
+
+Below is an example configuration for a Phraseanet location. Explanations for each field are provided after the code block.
+
 ```json lines
 ...
   "locations": [
@@ -98,9 +103,7 @@ Collection-path where to import records as "**main**" assets. The asset name wil
   e.g.: Dispatch by phraseanet collection name, then country and city:
 
     ```json lines
-    ...
     "recordsCollectionPath": "/Collections/{{ collection.name | escapePath }}/{{ record.getMetadata('Country', '_').value | escapePath }}/{{ record.getMetadata('City', '_').value | escapePath }}",
-    ...
     ```
   --> `/Collections/MyPhraseanetCollection/France/Paris/IMG_1234.jpg`
 
@@ -108,9 +111,7 @@ Collection-path where to import records as "**main**" assets. The asset name wil
 - /!\ For backward compatibility: If the `recordsCollectionPath` is a simple string (no twig tags), it will be used as a root path
   **and completd with phraseanet collection name**
     ```json lines
-    ...
     "recordsCollectionPath": "/Collections",
-    ...
     ```
   --> `/Collections/MyPhraseanetCollection/IMG_1234.jpg`
 
@@ -163,10 +164,8 @@ The `storiesCollectionPath` can be a **[Twig](#About-Twig)** expression, allowin
 e.g. 1: Import all stories, **as Phrasea stories**:
 
 ```json lines
-...
 "recordsCollectionPath": "/Collections", # where to import records AND stories
 "importStories": true,
-...
 ```
 --> `/Stories/JO-2024` where "JO-2024" is the name of a phraseanet story.
 
@@ -174,10 +173,8 @@ e.g. 1: Import all stories, **as Phrasea stories**:
 e.g. 2: Import all stories in the same collection, **as Phrasea collections**:
 
 ```json lines
-...
 "importStories": true,
 "storiesCollectionPath": "/Stories",
-...
 ```
 --> `/Stories/JO-2024` where "JO-2024" is the name of a phraseanet story.
 
@@ -185,10 +182,8 @@ e.g. 2: Import all stories in the same collection, **as Phrasea collections**:
 e.g. 3: Dispatch by phraseanet collection name, then country and city:
 
 ```json lines
-...
 "importStories": true,
 "storiesCollectionPath": "/Stories/{{ collection.name | escapePath }}/{{ record.getMetadata('Country', '_').value | escapePath }}/{{ record.getMetadata('City', '_').value | escapePath }}",
-...
 ```
 --> `/Stories/MyPhraseanetCollection/France/Paris/JO-2024` where "JO-2024" is the name of a phraseanet story.
 
@@ -205,21 +200,17 @@ If the asset is to be copied in many places (paths), the twig must generate **on
 - e.g. 1: Two levels dispatch with unique destination (mono-value fields):
 
     ```json lines
-    ...
     "copyTo": [
       "/classification/{{record.getMetadata('Category', 'unknown_category').value | escapePath}}/{{record.getMetadata('SubCategory', 'unknown_subcategory').value | escapePath}}"
     ]
-    ...
     ```
 
 - e.g. 2: Multiples destinations (multi-values field):
 
     ```json lines
-    ...
     "copyTo": [
       "{% for s in record.getMetadata('Keywords', 'no_keyword').values %}/classification/{{ s | escapePath }}\n{% endfor %}"
     ]
-    ...
     ```
   note: The `\n` is used to output one line (= one path) per keyword.
 
@@ -230,13 +221,11 @@ If the asset is to be copied in many places (paths), the twig must generate **on
 
   To dispatch the records in many "classification" places, one can set multiple `copyTo` settings.
     ```json lines
-    ...
     "copyTo": [
       "/classification/author/{{record.getMetadata('Author', 'unknown_author').value | escapePath}},
       "/classification/category/{{record.getMetadata('Category', 'unknown_category').value | escapePath}},
       "/classification/year/{{record.getMetadata('Date', '').value is empty ? 'unknown_date' : {{record.getMetadata('Date').value | date('Y')}}
     ]
-    ...
     ```
 
 ## `fieldMap`
@@ -381,7 +370,6 @@ The build settings will be generated from the phraseanet to match the subdef.
 ...
 ```
 
-
 -------------------
 
 # About Twig
@@ -429,4 +417,4 @@ When using twig expressions in the configuration, the context is the following:
 To prevent twig to crash if a field doest not exists in a record (when trying to access a property like `.value`),
 `getMetadata(...)` will return a "fake" empty metadata object.
 
-Same method applies for subdefs: `record.getSubdef('missingSubdef').permalink.url` will return null. 
+Same method applies for subdefs: `record.getSubdef('missingSubdef').permalink.url` will return null.

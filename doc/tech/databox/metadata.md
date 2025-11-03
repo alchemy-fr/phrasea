@@ -3,21 +3,22 @@
 __All__ metadata (except binary blobs) are extracted from file after upload.
 They are saved _as is_ in json in db `file.metadata`.
 
-Each of 21324 known metadata is identified by a unique `TagGroup:TagName`, e.g.
+Each of the 21,324 known metadata fields is uniquely identified by a `TagGroup:TagName` pair, such as:
 - `ExifIFD:CreateDate`
 - `GPS:GPSLatitude`
 - `IPTC:Keywords`
-- ...
 
+## How Metadata Is Handled
+- After a file is uploaded, all available metadata (except binary blobs) is extracted.
+- The extracted metadata is saved as-is in the database.
+- Each metadata tag is stored under its unique identifier.
 
-## Initial attribute value(s)
-### _Covers Phraseanet "read metadata"_
+## Initial Attribute Values
 
-The initial value(s) of an attribute is defined by its `attribute-definition: Initial Values All` setting.
+The initial value(s) of an attribute are defined by the `attribute-definition: Initial Values All` setting. This setting is expressed in JSON and allows two main types of value sources:
 
-The setting is (for now) expressed as `json`, allowing to specify 2 "types" of source value:
-
-- simple unique `metadata` source:
+### 1. Direct Metadata Source
+A simple, unique metadata tag can be used as the source:
 ```json
 {
     "type": "metadata",
@@ -25,31 +26,34 @@ The setting is (for now) expressed as `json`, allowing to specify 2 "types" of s
 }
 ```
 
-- Computation of text, metadata, tests, math, ... using the twig `templating` language.
+### 2. Computed Value Using Twig Templates
+You can use the Twig templating language to compute values based on file properties, metadata, or asset properties. For example:
 
-One can access to file properties, including metadata tags _via_ the `file` object, or also acces to `asset` properties:
+Access file properties:
 ```json
 {
     "type": "template",
     "value": "{{ file.filename }} (size={{ file.size }})"
 }
 ```
+
+Combine metadata and asset properties:
 ```json
 {
     "type": "template",
     "value": "Copyright: {{ file.metadata('IPTC:Credit').value }} ; Phrasea OwnerId: {{ asset.OwnerId }}"
 }
 ```
-Fetch the first available "CreationDate" from multiple possible tags:
+
+Fetch the first available creation date from multiple tags:
 ```json
 {
     "type": "template",
     "value": "{{ file.metadata('ExifIFD:CreateDate').value ?? file.metadata('IPTC:DateCreated').value ?? file.metadata('IPTC:DigitalCreationDate').value }}"
 }
 ```
-To populate a `multi-values` attribute using twig template, one must generate **one item per line**.
 
-Here is how to populate uppercased keywords:
+To populate a multi-value attribute using a Twig template, generate one item per line. For example, to create a list of uppercased keywords:
 ```json
 {
     "type": "template",
@@ -57,62 +61,29 @@ Here is how to populate uppercased keywords:
 }
 ```
 
-### Short list of commonly used tags:
-```text
-Composite:GPSPosition
-ExifIFD:CreateDate
-ExifIFD:DateTimeOriginal
-ExifIFD:ImageUniqueID
-IPTC:By-line
-IPTC:By-lineTitle
-IPTC:Caption-Abstract
-IPTC:CopyrightNotice
-IPTC:City
-IPTC:Country-PrimaryLocationName
-IPTC:CopyrightNotice
-IPTC:Credit
-IPTC:ImageOrientation
-IPTC:Keywords
-JPEG:Comment
-PDF:Author
-PDF:Keywords
-PDF:PageCount
-PDF:Subject
-PDF:Title
-XMP-dc:Date
-XMP-dc:Description
-XMP-dc:Language
-XMP-dc:Publisher
-XMP-dc:Rights
-XMP-dc:Source
-XMP-dc:Subject
-XMP-dc:Title
-XMP-exif:FlashFired
-XMP-iptcExt:PersonInImage
-XMP-xmp:Author
-XMP-xmp:Keywords
-XMP-xmp:Rating
-XMP-xmp:Title
-```
-for complete list, refer to: `databox/api/var/cache/phpexiftool/Helper.php`
+### Commonly Used Metadata Tags
+A few frequently used tags include:
+- `Composite:GPSPosition`
+- `ExifIFD:CreateDate`
+- `IPTC:Keywords`
+- `PDF:Author`
+- `XMP-dc:Title`
+- `XMP-xmp:Keywords`
 
-:warning: With `initial values` setting, attributes values are created only once, - when a file is added -.
-Changes from dynamic / editable sources (e.g. refering to `asset.title`) will **not** update the related
-attributes.
+For a more comprehensive list, see the helper file in your codebase.
 
-## Fallback attribute value(s) !! wip do not use !!
-A fallback value defines the "virtual" value of an attribute if this attribute is **not set** for the asset.
-This "virtual" computed value is:
-- searchable - if the attribute definition allows it -
-- readable (returned by api)
-- displayed in databox applications
-- not editable
+:warning: **Note:** Initial attribute values are set only once, when a file is first added. If the source (such as `asset.title`) changes later, the attribute will not update automatically.
 
-The fallback value for an attribute is defined **by locale (lng)**, using the same syntax as `initial values`.
+## Fallback Attribute Values (Experimental)
+A fallback value defines a virtual value for an attribute if it is not set for an asset. This value is:
+- Searchable (if allowed by the attribute definition)
+- Readable (returned by the API)
+- Displayed in Databox applications
+- Not editable
 
-The value is computed on asset indexation (thus after editing) and on display.
+Fallback values are defined per locale, using the same syntax as initial values. The value is computed during asset indexing and display.
 
-e.g. fallback for unset "Credit", in EN and FR
+Example fallback for an unset "Credit" attribute in English and French:
 ```json
 {
     "type": "template",
@@ -126,10 +97,7 @@ e.g. fallback for unset "Credit", in EN and FR
 }
 ```
 
-Because the fallback "formula" can refer to other (real) attributes values, it is possible to generate attributes
-that depends on other attributes.
-
-e.g.: fill the "warning" attribute if the Title or Credit is not set
+Fallback formulas can reference other attribute values, allowing for dynamic warnings or computed fields. For example, to fill a "warning" attribute if the Title or Credit is missing:
 ```json
 {
     "type": "template",
@@ -137,17 +105,36 @@ e.g.: fill the "warning" attribute if the Title or Credit is not set
 }
 ```
 
+---
 
+## Example: Metadata Mapping and File Properties
 
+- **Title**: Maps to `file.filename` (editable)
+- **File Size**: Maps to `file.size` (not editable)
+- **Movie Duration**: Maps to `file.length` (editable, keep on new version)
 
+**File object properties:**
+- `filename`
+- `size`
+- `length`
+- `width`
+- `height`
 
+**Example metadata:**
+```json
+{
+  "Title": "Mon fichier"
+}
+```
 
+**Example file property:**
+- `tech.length`
 
 ---
-## old doc to be cleaned
-- Title
-- Length : [00:31:01] [X] Overrive value
 
+## Legacy Notes (To Be Cleaned)
+- Title
+- Length : [00:31:01] [X] Override value
 
 METADATA_MAPPING:
 Title -> file.filename (editable=true)
@@ -166,3 +153,4 @@ FILE:
 - height
 
 tech.length
+
