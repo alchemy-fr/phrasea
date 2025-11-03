@@ -12,7 +12,7 @@ COPY . .
 RUN mvn clean package
 
 
-FROM quay.io/keycloak/keycloak:26.1.2 AS builder
+FROM quay.io/keycloak/keycloak:26.4.0 AS builder
 
 COPY --from=spi-builder /app/group-uuid-mapper/target/group-uuid-mapper.jar /opt/keycloak/providers/
 COPY --from=spi-builder /app/jq-idp-mapper/target/jq-idp-mapper-jar-with-dependencies.jar /opt/keycloak/providers/
@@ -26,7 +26,7 @@ RUN /opt/keycloak/bin/kc.sh build \
 COPY themes/phrasea /opt/keycloak/themes/phrasea
 
 
-FROM quay.io/keycloak/keycloak:26.1.2 AS keycloak
+FROM quay.io/keycloak/keycloak:26.4.0 AS keycloak
 
 ENV KC_SPI_THEME_DEFAULT=phrasea
 
