@@ -1,10 +1,14 @@
-# Setup (with docker-compose)
+---
+title: 'Setup Guide'
+---
 
-## Using a .env.local (custom .env)
+# Setup (with Docker Compose)
 
-It may be easier to deal with a local file to manage our env variables.
+## Using a .env.local (Custom .env)
 
-You can add your `.env.local` at the root of this project and define a command function in your `~/.bashrc`:
+It may be easier to manage your environment variables using a local file.
+
+You can add a `.env.local` file at the root of this project and define a command function in your `~/.bashrc` or `~/.zshrc`:
 
 ```bash
 # ~/.bashrc or ~/.zshrc
@@ -19,38 +23,40 @@ function dc() {
 
 ## Installation
 
-> NB: If one of the port is already allocated, see the [Changing ports](#changing-ports) section and run command again.
+> **Note:** If one of the ports is already allocated, see the [Changing ports](#changing-ports) section and run the command again.
 
-* Pull this repository
+1. Clone this repository
+2. (Optional) Build all images for a fresh version:
 
-* If you need a fresh version of images, build all images:
 ```bash
 bin/build.sh
 ```
 
 ### Secure your installation
 
-Change all the default passwords or secrets you can see in `.env`.
+Change all the default passwords or secrets you find in `.env`.
 
 They often start with `__CHANGE_ME_`.
 
-### Do install
+### Install dependencies and configure projects
 
-* Run (magical) configuration for all projects:
+* Run the following script to set up databases and initial configurations:
+
 ```bash
 bin/setup.sh
 ```
 
-If the stack is already deployed, you should use migrate after a fresh build:
+If the stack is already deployed, you should run the migration after a fresh build:
+
 ```bash
 bin/migrate.sh
 ```
 
-### Configure Let's encrypt
+### Configure Let's Encrypt
 
-First, make sure you have set the `PHRASEA_DOMAIN` to your main domain. A wildcard certificate will be generated on that domain.
+First, make sure you have set the `PHRASEA_DOMAIN` variable to your main domain. A wildcard certificate will be generated for that domain.
 
-Add and configure the following lines to your `env.local`:
+Add and configure the following lines in your `.env.local`:
 
 ```dotenv
 TRAEFIK_PROVIDERS_FILE_FILENAME=
@@ -59,14 +65,15 @@ LETS_ENCRYPT_PROVIDER=gandiv5
 LEGO_GANDIV5_API_KEY=<Your API key>
 ```
 
-Then just update the traefik container:
+Then update the Traefik container:
+
 ```bash
 dc up -d traefik
 ```
 
-and wait for traefik to grab your certificate.
+Wait for Traefik to obtain your certificate.
 
-By default, we are using Let's Encrypt's staging. To get a fresh production certificate, you should set:
+By default, Let's Encrypt's staging environment is used. To get a production certificate, set:
 
 ```dotenv
 LETS_ENCRYPT_CA_SERVER=https://acme-v02.api.letsencrypt.org/directory
@@ -80,27 +87,29 @@ you can use the provided `bin/ops/cron-script.sh` script to add cron jobs to you
 
 ### Changing ports
 
-You can change the services port by overriding the environment variables (see `.env` file).
+You can change service ports by overriding the environment variables (see the `.env` file).
 
 ### Using fixtures
 
-You may want to popupate databases with a set of fixtures:
+You may want to populate databases with a set of fixtures:
+
 ```bash
-# Be careful! This will empty the databases, insert fixtures and run bin/setup.sh again
+# Warning! This will empty the databases, insert fixtures, and run bin/setup.sh again.
 bin/install-fixtures.sh
 ```
 
-* Read group of services documentation to customize environment variables:
+* Read the documentation for each group of services to customize environment variables:
     * [databox](../databox/README.md)
     * [expose](../expose/README.md)
     * [report](../report/README.md)
     * [uploader](../uploader/README.md)
 
 * Start the whole stack:
+
 ```bash
 dc up -d
 ```
 
-## Next:
+## Next steps
 
-If you are a developer: follow [dev setup guide](./dev.md)
+If you are a developer, follow the [dev setup guide](02_dev.md)

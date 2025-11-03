@@ -1,10 +1,14 @@
-# Development setup
+---
+title: 'Development Setup'
+---
+
+# Development Setup
 
 ## Prerequisites
 
-You have read [setup guide](./01_setup.md)
+* You have read [setup guide](01_setup.md)
 
-*mkcert* is installed.
+* *mkcert* is installed.
 
 Install `mkcert`:
 

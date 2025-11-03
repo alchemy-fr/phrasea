@@ -1,4 +1,4 @@
-# Upload Configuration
+# Uploader Configuration
 
 ```json
 {
