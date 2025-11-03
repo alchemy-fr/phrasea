@@ -6,15 +6,15 @@ namespace App\Integration\Happyscribe;
 
 use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Executor\RunContext;
-use App\Asset\Attribute\AttributesResolver;
-use App\Asset\FileFetcher;
 use App\Attribute\AttributeInterface;
 use App\Entity\Core\File;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\Happyscribe\Consumer\TranscriptionHappyscribeMessage;
 use App\Integration\IfActionInterface;
 use App\Repository\Core\AttributeDefinitionRepository;
-use App\Storage\RenditionManager;
+use App\Service\Asset\Attribute\AttributesResolver;
+use App\Service\Asset\FileFetcher;
+use App\Service\Storage\RenditionManager;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 use Symfony\Component\Messenger\Stamp\DelayStamp;

@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Integration\Happyscribe\Consumer;
 
-use App\Asset\Attribute\AttributesResolver;
 use App\Attribute\AttributeInterface;
-use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Integration\IntegrationManager;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Service\Asset\Attribute\AttributesResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -22,11 +21,10 @@ final readonly class TranscriptionHappyscribeMessageHandler
     public function __construct(
         private MessageBusInterface $bus,
         private HttpClientInterface $happyscribeClient,
-        private readonly BatchAttributeManager $batchAttributeManager,
-        private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
+        private AttributeDefinitionRepository $attributeDefinitionRepository,
         private EntityManagerInterface $em,
         private IntegrationManager $integrationManager,
-        private readonly AttributesResolver $attributesResolver,
+        private AttributesResolver $attributesResolver,
     ) {
     }
 
