@@ -242,9 +242,9 @@ services:
       - KC_REALM_USER_EVENT_EXPIRATION
       - KC_REALM_ADMIN_EVENT_ENABLED
       - KC_REALM_ADMIN_EVENT_EXPIRATION
-    working_dir: /var/workspace
+    working_dir: /var/workspace/${LOCAL_DIR}
     volumes:
-      - ./:/var/workspace
+      - ../:/var/workspace
       - ${SSH_AUTH_SOCK}:/ssh-auth-sock
       - ${HOME}/.ssh:/home/app/.ssh
       - ${HOME}/.composer:/home/app/.composer
