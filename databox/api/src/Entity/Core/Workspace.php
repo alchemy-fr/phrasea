@@ -26,6 +26,7 @@ use App\Entity\Traits\TranslationsTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\WorkspaceRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Validator\ValidAnalyzersOptionsConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -85,6 +86,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: [
     'slug',
 ], message: 'Slug is already taken')]
+#[ValidAnalyzersOptionsConstraint]
 class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
     use CreatedAtTrait;
@@ -95,6 +97,9 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     final public const string GROUP_READ = 'workspace:r';
     final public const string GROUP_LIST = 'workspace:i';
+    private const int DEFAULT_TRASH_RETENTION_DELAY = 30;
+    private const string CONFIG_ANALYZERS = 'analyzers';
+    private const string TRASH_RETENTION_DELAY = 'trashRetentionDelay';
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     #[Assert\NotBlank]
@@ -177,10 +182,6 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     public function getName(): string
     {
-        if (null !== $this->deletedAt) {
-            return sprintf('(being deleted...) %s', $this->name);
-        }
-
         return $this->name;
     }
 
@@ -213,6 +214,26 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     public function setConfig(array $config): void
     {
         $this->config = $config;
+    }
+
+    public function getFileAnalyzers(): ?string
+    {
+        return $this->config[self::CONFIG_ANALYZERS] ?? null;
+    }
+
+    public function setFileAnalyzers(?string $analyzers): void
+    {
+        $this->config[self::CONFIG_ANALYZERS] = $analyzers;
+    }
+
+    public function getTrashRetentionDelay(): int
+    {
+        return $this->config[self::TRASH_RETENTION_DELAY] ?? self::DEFAULT_TRASH_RETENTION_DELAY;
+    }
+
+    public function setTrashRetentionDelay(int $days): void
+    {
+        $this->config[self::TRASH_RETENTION_DELAY] = $days;
     }
 
     public function getEnabledLocales(): array

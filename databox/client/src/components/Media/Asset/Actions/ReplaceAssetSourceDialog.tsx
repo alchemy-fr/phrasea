@@ -3,13 +3,14 @@ import {useTranslation} from 'react-i18next';
 import FormDialog from '../../../Dialog/FormDialog';
 import {Asset} from '../../../../types';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {generateUploadId, UploadFiles} from '../../../../api/uploader/file.ts';
 import {toast} from 'react-toastify';
-import {prepareAssetSubstitution} from '../../../../api/asset.ts';
 import SingleFileUploadWidget, {
-    AssetUploadForm,
+    FileUploadForm,
 } from './SingleFileUploadWidget.tsx';
 import UploadIcon from '@mui/icons-material/Upload';
+import {putAsset} from '../../../../api/asset.ts';
+import apiClient from '../../../../api/api-client.ts';
+import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
 
 type Props = {
     asset: Asset;
@@ -24,7 +25,7 @@ export default function ReplaceAssetSourceDialog({
     const [uploading, setUploading] = React.useState(false);
     const {closeModal} = useModals();
     const [uploadForm, setUploadForm] = React.useState<
-        AssetUploadForm | undefined
+        FileUploadForm | undefined
     >();
 
     const upload = async () => {
@@ -33,22 +34,24 @@ export default function ReplaceAssetSourceDialog({
         }
         setUploading(true);
         try {
-            const data = await prepareAssetSubstitution(asset.id);
-            await UploadFiles([
-                {
-                    id: generateUploadId(),
-                    ...uploadForm,
-                    data: {
-                        targetAsset: data.id,
-                        uploadToken: data.pendingUploadToken,
+            if (!uploadForm.file) {
+                await putAsset(asset.id, {
+                    sourceFile: {
+                        url: uploadForm.url,
+                        importFile: uploadForm.importFile,
                     },
-                },
-            ]);
+                });
+                return;
+            }
+            const multipart = await multipartUpload(apiClient, uploadForm.file);
+            await putAsset(asset.id, {
+                multipart,
+            });
 
             toast.success(
                 t(
                     'replace_asset.dialog.success',
-                    'New asset source file has been uploaded and will be replaced soon.'
+                    'New asset source file has been uploaded.'
                 )
             );
             closeModal();

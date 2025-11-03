@@ -58,11 +58,11 @@ export async function postAttributeList(
 }
 
 export async function getAttributeList(id: string): Promise<AttributeList> {
-    return (await apiClient.get(`/attribute-lists/${id}`)).data;
+    return (await apiClient.get(`/${entityType}/${id}`)).data;
 }
 
 export async function deleteAttributeList(id: string): Promise<void> {
-    await apiClient.delete(`/attribute-lists/${id}`);
+    await apiClient.delete(`/${entityType}/${id}`);
 }
 
 type AddToAttributeListInput = {
@@ -75,7 +75,7 @@ export async function addToAttributeList(
 ): Promise<AttributeList> {
     return (
         await apiClient.post(
-            `/attribute-lists/${listId ?? 'default'}/items`,
+            `/${entityType}/${listId ?? 'default'}/items`,
             data
         )
     ).data;
@@ -86,7 +86,7 @@ export async function removeFromAttributeList(
     itemIds: string[]
 ): Promise<AttributeList> {
     return (
-        await apiClient.post(`/attribute-lists/${listId}/remove`, {
+        await apiClient.post(`/${entityType}/${listId}/remove`, {
             items: itemIds,
         })
     ).data;

@@ -12,7 +12,7 @@ use App\Api\Model\Input\EditThreadMessageInput;
 use App\Entity\Discussion\Message;
 use App\Repository\Discussion\MessageRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Service\DiscussionPusher;
+use App\Service\Discussion\DiscussionPusher;
 use Doctrine\ORM\EntityManagerInterface;
 
 class PutMessageProcessor implements ProcessorInterface

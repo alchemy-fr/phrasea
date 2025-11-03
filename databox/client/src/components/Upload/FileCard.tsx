@@ -1,5 +1,4 @@
 import Typography from '@mui/material/Typography';
-import {FileBlobThumb} from '../../lib/upload/fileBlob';
 import {Box, LinearProgress, Paper} from '@mui/material';
 import byteSize from 'byte-size';
 
@@ -7,6 +6,7 @@ import {thumbSx} from '../Media/Asset/AssetThumb.tsx';
 import AssetFileIcon from '../Media/Asset/AssetFileIcon.tsx';
 import {ReactNode} from 'react';
 import assetClasses from '../AssetList/classes.ts';
+import {FileBlobThumb} from './FileBlobThumb.tsx';
 
 type Props = {
     file: File;

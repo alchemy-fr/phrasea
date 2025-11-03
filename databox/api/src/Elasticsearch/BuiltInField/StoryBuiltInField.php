@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Elasticsearch\BuiltInField;
 
 use App\Api\Traits\UserLocaleTrait;
-use App\Asset\Attribute\AssetTitleResolver;
 use App\Attribute\Type\TagAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
+use App\Service\Asset\Attribute\AssetTitleResolver;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class StoryBuiltInField extends AbstractEntityBuiltInField

@@ -6,7 +6,6 @@ namespace App\Integration\Aws\Rekognition;
 
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
-use App\Asset\FileFetcher;
 use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
@@ -16,6 +15,7 @@ use App\Integration\ApiBudgetLimiter;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationDataManager;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Service\Asset\FileFetcher;
 
 final readonly class RekognitionAnalyzer
 {

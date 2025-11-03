@@ -34,6 +34,8 @@ import AssetViewInfo from '../AssetViewInfo.tsx';
 import {ApiCollectionResponse} from '../../../../api/hydra.ts';
 import StoryCarousel, {storyCarouselHeight} from './StoryCarousel.tsx';
 import AssetAppearsIn from '../AssetAppearsIn.tsx';
+import AssetAttachments from '../AssetAttachments.tsx';
+import {Routing} from '../../../../routes.ts';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -111,7 +113,7 @@ export default function AssetView({modalIndex, open}: Props) {
         isSuccess
             ? [
                   data,
-                  renditionId
+                  renditionId !== Routing.UnknownRendition
                       ? data[1].find(r => r.id === renditionId)!
                       : data[1][0],
               ]
@@ -123,7 +125,7 @@ export default function AssetView({modalIndex, open}: Props) {
         if (data) {
             previousData.current = [
                 data,
-                renditionId
+                renditionId !== Routing.UnknownRendition
                     ? data[1].find(r => r.id === renditionId)!
                     : data[1][0],
             ];
@@ -326,6 +328,7 @@ export default function AssetView({modalIndex, open}: Props) {
 
                                     <AssetViewInfo asset={displayedAsset} />
                                     <AssetAppearsIn asset={displayedAsset} />
+                                    <AssetAttachments asset={displayedAsset} />
 
                                     <AssetDiscussion
                                         asset={displayedAsset}

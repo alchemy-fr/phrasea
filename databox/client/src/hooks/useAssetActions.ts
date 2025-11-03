@@ -1,6 +1,6 @@
 import {useNavigateToModal} from '../components/Routing/ModalLink.tsx';
 import {useMemo} from 'react';
-import DeleteAssetsConfirm from '../components/Media/Asset/Actions/DeleteAssetsConfirm.tsx';
+import DeleteAssetsConfirmDialog from '../components/Media/Asset/Actions/DeleteAssetsConfirmDialog.tsx';
 import ExportAssetsDialog from '../components/Media/Asset/Actions/ExportAssetsDialog.tsx';
 import {modalRoutes, Routing} from '../routes.ts';
 import {Asset, AssetOrAssetContainer} from '../types.ts';
@@ -11,12 +11,14 @@ import MoveAssetsDialog from '../components/Media/Asset/Actions/MoveAssetsDialog
 import CopyAssetsDialog from '../components/Media/Asset/Actions/CopyAssetsDialog.tsx';
 import ReplaceAssetSourceDialog from '../components/Media/Asset/Actions/ReplaceAssetSourceDialog.tsx';
 import ShareAssetDialog from '../components/Share/ShareAssetDialog.tsx';
+import RestoreAssetsConfirm from '../components/Media/Asset/Actions/RestoreAssetsConfirm.tsx';
 
 type Props<Item extends AssetOrAssetContainer> = {
     asset: Asset;
     onAction?: () => void;
     actionsContext?: ActionsContext<Item>;
     onDelete?: () => void;
+    onRestore?: () => void;
     reload?: ReloadFunc;
 };
 
@@ -25,6 +27,7 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
     onAction,
     actionsContext = createDefaultActionsContext(),
     onDelete,
+    onRestore,
     reload,
 }: Props<Item>) {
     const {openModal} = useModals();
@@ -40,7 +43,14 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
                 edit: actionsContext.edit && capabilities.canEdit,
                 editAttributes:
                     actionsContext.edit && capabilities.canEditAttributes,
-                delete: actionsContext.delete && capabilities.canDelete,
+                delete:
+                    actionsContext.delete &&
+                    capabilities.canDelete &&
+                    !asset.deleted,
+                restore:
+                    actionsContext.restore &&
+                    capabilities.canDelete &&
+                    asset.deleted,
                 share: capabilities.canShare,
                 substitute: capabilities.canEdit,
             },
@@ -57,9 +67,16 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
                 onAction?.();
             },
             onDelete: () => {
-                openModal(DeleteAssetsConfirm, {
+                openModal(DeleteAssetsConfirmDialog, {
                     assetIds: [id],
                     onDelete,
+                });
+                onAction?.();
+            },
+            onRestore: () => {
+                openModal(RestoreAssetsConfirm, {
+                    assets: [asset],
+                    onRestore,
                 });
                 onAction?.();
             },

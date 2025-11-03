@@ -10,7 +10,7 @@ use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\ApiBudgetLimiter;
 use App\Integration\IfActionInterface;
-use App\Storage\S3Copier;
+use App\Service\Storage\S3Copier;
 
 final class TranscribeAction extends AbstractIntegrationAction implements IfActionInterface
 {

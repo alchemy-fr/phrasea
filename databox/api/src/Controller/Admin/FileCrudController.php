@@ -12,8 +12,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
@@ -63,16 +63,19 @@ class FileCrudController extends AbstractAdminCrudController
         yield AssociationField::new('workspace');
         yield TextField::new('type')
             ->hideOnIndex();
+        yield BooleanField::new('pathPublic')
+            ->hideOnIndex();
         yield IntegerField::new('size')
             ->hideOnIndex();
         yield TextField::new('checksum')
             ->hideOnIndex();
-        yield Field::new('pathPublic');
         yield TextField::new('extension')
             ->hideOnIndex();
         yield ArrayField::new('alternateUrls')
             ->hideOnIndex();
         yield JsonField::new('metadata')
+            ->onlyOnDetail();
+        yield JsonField::new('analysis')
             ->onlyOnDetail();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();

@@ -11,8 +11,6 @@ use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Traits\UserLocaleTrait;
-use App\Asset\Attribute\AssetTitleResolver;
-use App\Asset\Attribute\AttributesResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
@@ -26,7 +24,9 @@ use App\Entity\Core\Share;
 use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
-use App\Service\DiscussionManager;
+use App\Service\Asset\Attribute\AssetTitleResolver;
+use App\Service\Asset\Attribute\AttributesResolver;
+use App\Service\Discussion\DiscussionManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AssetOutputTransformer implements OutputTransformerInterface
@@ -81,6 +81,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         $output->setEditedAt($data->getEditedAt());
         $output->setAttributesEditedAt($data->getAttributesEditedAt());
         $output->setExtraMetadata($data->getExtraMetadata());
+        $output->deleted = $data->isDeleted();
 
         $output->setSource($data->getSource());
 
@@ -190,13 +191,6 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 ->filter(fn (Collection $collection): bool => $this->isGranted(AbstractVoter::LIST, $collection))
                 ->getValues());
 
-            if (null !== $data->getPendingUploadToken()) {
-                $output->setPendingSourceFile(true);
-                $output->setPendingUploadToken($data->getPendingUploadToken());
-            } else {
-                $output->setPendingSourceFile(false);
-            }
-
             $output->storyCollection = $data->getStoryCollection();
         }
 
@@ -215,6 +209,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         }
         if ($this->hasGroup([Asset::GROUP_READ], $context)) {
             $output->thread = $this->discussionManager->getThreadOfObject($data);
+            $output->attachments = $data->getAttachments();
         }
 
         return $output;

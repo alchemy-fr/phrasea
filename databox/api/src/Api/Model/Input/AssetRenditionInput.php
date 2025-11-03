@@ -6,6 +6,8 @@ namespace App\Api\Model\Input;
 
 class AssetRenditionInput
 {
+    use UploadInputTrait;
+
     /**
      * Rendition definition ID. Or provide name.
      *
@@ -22,17 +24,7 @@ class AssetRenditionInput
      */
     public $name;
 
-    /**
-     * @var AssetSourceInput|null
-     */
-    public $sourceFile;
-
-    /**
-     * @var string|null
-     */
-    public $sourceFileId;
-
-    public $substituted;
+    public ?bool $substituted = null;
 
     public $force;
 }

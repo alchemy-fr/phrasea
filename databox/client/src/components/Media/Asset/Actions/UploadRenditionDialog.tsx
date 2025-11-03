@@ -1,24 +1,26 @@
 import React from 'react';
 import {useTranslation} from 'react-i18next';
 import FormDialog from '../../../Dialog/FormDialog';
-import {Asset} from '../../../../types';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {generateUploadId, UploadFiles} from '../../../../api/uploader/file.ts';
 import {toast} from 'react-toastify';
 import SingleFileUploadWidget, {
-    AssetUploadForm,
+    FileUploadForm,
 } from './SingleFileUploadWidget.tsx';
 import UploadIcon from '@mui/icons-material/Upload';
+import apiClient from '../../../../api/api-client.ts';
+import {postRendition} from '../../../../api/rendition.ts';
+import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
+import {Asset} from '../../../../types.ts';
 
 type Props = {
     asset: Asset;
-    renditionId: string;
+    definitionId: string;
     renditionName: string;
 } & StackedModalProps;
 
 export default function UploadRenditionDialog({
     asset,
-    renditionId,
+    definitionId,
     renditionName,
     open,
     modalIndex,
@@ -27,7 +29,7 @@ export default function UploadRenditionDialog({
     const [uploading, setUploading] = React.useState(false);
     const {closeModal} = useModals();
     const [uploadForm, setUploadForm] = React.useState<
-        AssetUploadForm | undefined
+        FileUploadForm | undefined
     >();
 
     const upload = async () => {
@@ -36,16 +38,26 @@ export default function UploadRenditionDialog({
         }
         setUploading(true);
         try {
-            await UploadFiles([
-                {
-                    id: generateUploadId(),
-                    ...uploadForm,
-                    data: {
-                        targetAsset: asset.id,
-                        targetRendition: renditionId,
+            if (!uploadForm.file) {
+                await postRendition({
+                    assetId: asset.id,
+                    definitionId,
+                    sourceFile: {
+                        url: uploadForm.url,
+                        importFile: uploadForm.importFile,
                     },
-                },
-            ]);
+                });
+            } else {
+                const multipart = await multipartUpload(
+                    apiClient,
+                    uploadForm.file
+                );
+                await postRendition({
+                    assetId: asset.id,
+                    definitionId,
+                    multipart,
+                });
+            }
 
             toast.success(
                 t(

@@ -6,7 +6,7 @@ namespace App\Http;
 
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
-use App\Storage\FileManager;
+use App\Service\Storage\FileManager;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -16,7 +16,7 @@ final readonly class FileUploadManager
     {
     }
 
-    public function storeFileUploadFromRequest(Workspace $workspace, UploadedFile $uploadedFile): File
+    public function storeUploadedFile(Workspace $workspace, UploadedFile $uploadedFile): File
     {
         ini_set('max_execution_time', '600');
 

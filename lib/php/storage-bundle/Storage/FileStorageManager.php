@@ -8,7 +8,7 @@ use League\Flysystem\FilesystemOperator;
 
 class FileStorageManager
 {
-    public function __construct(private FilesystemOperator $filesystem)
+    public function __construct(private readonly FilesystemOperator $filesystem)
     {
     }
 

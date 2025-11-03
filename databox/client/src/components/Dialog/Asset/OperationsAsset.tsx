@@ -10,7 +10,11 @@ import {
     ListItemSecondaryAction,
     Typography,
 } from '@mui/material';
-import {deleteAsset, deleteAssetShortcut} from '../../../api/asset';
+import {
+    deleteAssets,
+    deleteAssetShortcut,
+    restoreAssets,
+} from '../../../api/asset';
 import {Trans, useTranslation} from 'react-i18next';
 import {FormSection} from '@alchemy/react-form';
 import ConfirmDialog from '../../Ui/ConfirmDialog.tsx';
@@ -37,7 +41,22 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                 'Are you sure you want to delete this asset?'
             ),
             onConfirm: async () => {
-                await deleteAsset(data.id);
+                await deleteAssets([data.id]);
+            },
+            onConfirmed: () => {
+                onClose();
+            },
+        });
+    };
+    const restoreConfirmAsset = async () => {
+        openModal(ConfirmDialog, {
+            textToType: data.title,
+            title: t(
+                'asset_restore.confirm',
+                'Are you sure you want to restore this asset?'
+            ),
+            onConfirm: async () => {
+                await restoreAssets([data.id]);
             },
             onConfirmed: () => {
                 onClose();
@@ -68,8 +87,12 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                                 workspace: data.workspace.nameTranslated,
                             }}
                             components={{
-                                strong: <CollectionChip />,
-                                i: <WorkspaceChip />,
+                                strong: (
+                                    <CollectionChip
+                                        collection={data.referenceCollection}
+                                    />
+                                ),
+                                i: <WorkspaceChip workspace={data.workspace} />,
                             }}
                             defaults={
                                 'This asset belongs to the collection <strong>{{collection}}</strong> in the workspace <i>{{workspace}}</i>.'
@@ -82,7 +105,9 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                                 workspace: data.workspace.nameTranslated,
                             }}
                             components={{
-                                strong: <WorkspaceChip />,
+                                strong: (
+                                    <WorkspaceChip workspace={data.workspace} />
+                                ),
                             }}
                             defaults={
                                 'This asset belongs to the workspace <strong>{{workspace}}</strong> root collection.'
@@ -112,6 +137,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                                             <ShortcutIcon />
                                         </ListItemIcon>
                                         <CollectionChip
+                                            collection={c}
                                             label={c.absoluteTitleTranslated}
                                         />
 
@@ -159,10 +185,19 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                     {t('danger_zone', 'Danger zone')}
                 </Alert>
                 <Typography variant={'h2'} sx={{mb: 1}}>
-                    {t('asset_delete.title', 'Delete Asset')}
+                    {data.deleted
+                        ? t('asset_restore.title', 'Restore Asset')
+                        : t('asset_delete.title', 'Delete Asset')}
                 </Typography>
-                <Button onClick={deleteConfirmAsset} color={'error'}>
-                    {t('asset_delete.title', 'Delete Asset')}
+                <Button
+                    onClick={
+                        data.deleted ? deleteConfirmAsset : restoreConfirmAsset
+                    }
+                    color={'error'}
+                >
+                    {data.deleted
+                        ? t('asset_restore.title', 'Restore Asset')
+                        : t('asset_delete.title', 'Delete Asset')}
                 </Button>
             </FormSection>
         </ContentTab>

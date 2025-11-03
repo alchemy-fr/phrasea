@@ -72,6 +72,12 @@ By default, we are using Let's Encrypt's staging. To get a fresh production cert
 LETS_ENCRYPT_CA_SERVER=https://acme-v02.api.letsencrypt.org/directory
 ```
 
+### Setup cron jobs
+
+You may want to setup cron jobs to run periodic tasks (like cleaning old data).
+If you plan to deploy the stack with docker-compose on a single host machine,
+you can use the provided `bin/ops/cron-script.sh` script to add cron jobs to your host machine.
+
 ### Changing ports
 
 You can change the services port by overriding the environment variables (see `.env` file).

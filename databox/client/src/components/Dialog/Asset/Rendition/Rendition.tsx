@@ -166,7 +166,7 @@ export function Rendition({
                                 navigateToModal(
                                     modalRoutes.files.routes.manage,
                                     {
-                                        tab: 'metadata',
+                                        tab: 'info',
                                         id: file!.id,
                                     }
                                 );

@@ -7,6 +7,7 @@ import {WorkspaceChip} from '../../../Ui/WorkspaceChip.tsx';
 import {CollectionChip} from '../../../Ui/CollectionChip.tsx';
 import CollectionStoryChip from '../../../Ui/CollectionStoryChip.tsx';
 import {OnOpen} from '../../../AssetList/types.ts';
+import CollectionOrStoryChip from '../../../Ui/CollectionOrStoryChip.tsx';
 
 type Props = {
     asset: Asset;
@@ -44,11 +45,7 @@ export default function AssetCollectionList({
         }
 
         return (
-            <CollectionChip
-                size={'small'}
-                key={c.id}
-                label={c.titleTranslated}
-            />
+            <CollectionOrStoryChip size={'small'} key={c.id} collection={c} />
         );
     };
 
@@ -87,10 +84,7 @@ export default function AssetCollectionList({
     return (
         <div className={assetClasses.collectionList}>
             {workspace && (
-                <WorkspaceChip
-                    size={'small'}
-                    label={workspace.nameTranslated}
-                />
+                <WorkspaceChip size={'small'} workspace={workspace} />
             )}
             {chips}
         </div>

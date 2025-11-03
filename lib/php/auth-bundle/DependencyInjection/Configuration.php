@@ -26,6 +26,11 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->scalarNode('client_id')->defaultValue('%env(ADMIN_CLIENT_ID)%')->end()
                 ->scalarNode('client_secret')->defaultValue('%env(ADMIN_CLIENT_SECRET)%')->end()
+                ->arrayNode('required_roles')
+                    ->defaultValue(['%alchemy_core.app_name%'])
+                    ->scalarPrototype()
+                    ->end()
+                ->end()
             ->end()
         ;
 

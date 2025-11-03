@@ -14,6 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class AssetInput extends AbstractOwnerIdInput
 {
+    use UploadInputTrait;
     use ExtraMetadataDTOTrait;
 
     public ?string $title = null;
@@ -23,8 +24,6 @@ class AssetInput extends AbstractOwnerIdInput
     public ?int $sequence = null;
 
     public ?string $privacyLabel = null;
-
-    public ?string $pendingUploadToken = null;
 
     /**
      * @var Tag[]
@@ -45,17 +44,6 @@ class AssetInput extends AbstractOwnerIdInput
      * @var AttributeInput[]
      */
     public ?array $attributes = null;
-
-    /**
-     * @var AssetSourceInput|null
-     */
-    #[Assert\Valid]
-    public $sourceFile;
-
-    /**
-     * @var string|null
-     */
-    public $sourceFileId;
 
     /**
      * @var AssetRelationshipInput|null

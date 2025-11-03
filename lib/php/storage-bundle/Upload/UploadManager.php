@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Alchemy\StorageBundle\Upload;
 
+use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
+use Alchemy\StorageBundle\Api\Dto\PartInput;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Aws\Api\DateTimeResult;
 use Aws\S3\S3Client;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final readonly class UploadManager
@@ -61,13 +61,21 @@ final readonly class UploadManager
         return (string) $request->getUri();
     }
 
+    /**
+     * @param PartInput[] $parts
+     */
     public function markComplete(string $uploadId, string $filename, array $parts): void
     {
         $params = [
             'Bucket' => $this->uploadBucket,
             'Key' => $this->pathPrefix.$filename,
             'MultipartUpload' => [
-                'Parts' => $parts,
+                'Parts' => array_map(function (PartInput $part): array {
+                    return [
+                        'ETag' => $part->ETag,
+                        'PartNumber' => $part->PartNumber,
+                    ];
+                }, $parts),
             ],
             'UploadId' => $uploadId,
         ];
@@ -93,7 +101,7 @@ final readonly class UploadManager
             'Bucket' => $this->uploadBucket,
             'MaxUploads' => 100,
             // Uncomment this line to test with Minio (see https://github.com/minio/minio/issues/7632#issuecomment-490959779)
-            //            'Prefix' => 'fc/6e/fc6e0e4d-aad6-4f7d-9133-682607991072.jpg',
+            // 'Prefix' => 'fc/6e/fc6e0e4d-aad6-4f7d-9133-682607991072.jpg',
         ]);
 
         if (empty($result['Uploads'])) {
@@ -116,28 +124,17 @@ final readonly class UploadManager
         }
     }
 
-    public function handleMultipartUpload(Request $request): MultipartUpload
+    public function handleMultipartUpload(MultipartUploadInput $multipart): MultipartUpload
     {
-        $multipart = $request->request->all('multipart');
-
-        foreach ([
-            'parts',
-            'uploadId',
-        ] as $key) {
-            if (empty($multipart[$key])) {
-                throw new BadRequestHttpException(sprintf('Missing multipart param: %s', $key));
-            }
-        }
-
-        $multipartUpload = $this->em->getRepository(MultipartUpload::class)->find($multipart['uploadId']);
+        $multipartUpload = $this->em->getRepository(MultipartUpload::class)->find($multipart->uploadId);
         if (!$multipartUpload instanceof MultipartUpload) {
-            throw new NotFoundHttpException('Upload not found');
+            throw new NotFoundHttpException(sprintf('Multipart upload with id "%s" not found', $multipart->uploadId));
         }
 
         $this->markComplete(
             $multipartUpload->getUploadId(),
             $multipartUpload->getPath(),
-            $multipart['parts']
+            $multipart->parts
         );
 
         $multipartUpload->setComplete(true);

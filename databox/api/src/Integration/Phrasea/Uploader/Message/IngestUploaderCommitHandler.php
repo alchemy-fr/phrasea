@@ -4,7 +4,6 @@ namespace App\Integration\Phrasea\Uploader\Message;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\Workflow\WorkflowOrchestrator;
-use App\Asset\AssetManager;
 use App\Attribute\AttributeDataImporter;
 use App\Border\UploaderClient;
 use App\Entity\Core\Asset;
@@ -12,8 +11,9 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationManager;
-use App\Workflow\Action\AcceptFileAction;
-use App\Workflow\Event\IncomingUploaderFileWorkflowEvent;
+use App\Service\Asset\AssetManager;
+use App\Service\Workflow\Action\AcceptFileAction;
+use App\Service\Workflow\Event\IncomingUploaderFileWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 

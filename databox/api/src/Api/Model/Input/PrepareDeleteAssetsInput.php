@@ -6,5 +6,5 @@ namespace App\Api\Model\Input;
 
 class PrepareDeleteAssetsInput
 {
-    public ?array $ids = null;
+    use IdsInputTrait;
 }

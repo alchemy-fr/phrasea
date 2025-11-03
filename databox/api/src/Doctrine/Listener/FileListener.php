@@ -8,6 +8,7 @@ use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Consumer\Handler\File\DeleteFileFromStorage;
 use App\Consumer\Handler\File\DeleteFilesIfOrphan;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
@@ -29,9 +30,10 @@ readonly class FileListener implements EventSubscriber
 
         if ($object instanceof Asset) {
             $this->addFileToDelete($object->getSource());
-        } elseif ($object instanceof AssetRendition) {
-            $this->addFileToDelete($object->getFile());
-        } elseif ($object instanceof AssetFileVersion) {
+        } elseif ($object instanceof AssetRendition
+            || $object instanceof AssetFileVersion
+            || $object instanceof AssetAttachment
+        ) {
             $this->addFileToDelete($object->getFile());
         } elseif ($object instanceof File) {
             $path = null;

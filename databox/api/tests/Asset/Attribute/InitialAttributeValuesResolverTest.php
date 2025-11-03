@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Asset\Attribute;
 
-use App\Asset\Attribute\InitialAttributeValuesResolver;
 use App\Attribute\AttributeAssigner;
 use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\Asset;
@@ -12,6 +11,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\File;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Service\Asset\Attribute\InitialAttributeValuesResolver;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Yaml\Yaml;

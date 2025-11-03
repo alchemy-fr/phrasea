@@ -7,18 +7,23 @@ import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/De
 import React from 'react';
 import {AttributeType} from './api/types.ts';
 
-type AlternateUrl = {
+export type AlternateUrl = {
     type: string;
     url: string;
     label?: string;
 };
 
-export interface File extends Entity {
+export type FileAnalysis = Record<string, any>;
+
+export interface ApiFile extends Entity {
     url?: string;
     type: string;
     alternateUrls: AlternateUrl[];
     size: number;
     metadata?: Record<string, any>;
+    accepted?: boolean;
+    analysis?: FileAnalysis | null | undefined;
+    analysisPending: boolean;
 }
 
 export type GroupValue = {
@@ -55,6 +60,16 @@ export type ESDocumentState = {
     data: object;
 };
 
+export type AssetAttachment = {
+    asset?: Asset;
+    file: ApiFile;
+    name?: string | undefined;
+    resolvedName: string;
+    priority: number;
+    updatedAt: Readonly<string>;
+    createdAt: Readonly<string>;
+} & Entity;
+
 export interface Asset
     extends IPermissions<{
             canEditAttributes: boolean;
@@ -72,22 +87,22 @@ export interface Asset
     thread?: Thread | undefined;
     workspace: Workspace;
     attributes: Attribute[];
+    attachments: AssetAttachment[];
     referenceCollection?: Collection | undefined;
     collections: Collection[] | undefined;
     main: AssetRendition | null;
     preview: AssetRendition | null;
-    source: File | undefined;
+    source: ApiFile | undefined;
     thumbnail: AssetRendition | null;
     animatedThumbnail: AssetRendition | null;
     createdAt: string;
     updatedAt: string;
     editedAt: string;
-    pendingSourceFile: boolean;
-    pendingUploadToken?: string;
     attributesEditedAt: string;
     groupValue?: GroupValue | undefined;
     topicSubscriptions?: TopicSubscriptions;
     storyCollection?: Collection | undefined;
+    deleted?: boolean;
 }
 
 type AttrValue = any;
@@ -109,7 +124,7 @@ export interface Attribute extends IPermissions, Entity {
 
 export interface AssetFileVersion extends Entity {
     asset: Asset;
-    file: File;
+    file: ApiFile;
     name: string;
     createdAt: string;
 }
@@ -192,7 +207,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
 export interface AssetRendition extends ApiHydraObjectResponse, Entity {
     name: string;
     nameTranslated: string;
-    file: File | undefined;
+    file: ApiFile | undefined;
     ready: boolean;
     dirty?: boolean;
     projection?: boolean;
@@ -286,6 +301,7 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
 export interface Collection extends IPermissions, Entity {
     title: string;
     titleTranslated: string;
+    titleHighlight?: string;
     storyAsset?: Asset;
     absoluteTitle?: string;
     absoluteTitleTranslated?: string;
@@ -299,6 +315,7 @@ export interface Collection extends IPermissions, Entity {
     updatedAt: string;
     owner?: User;
     topicSubscriptions?: TopicSubscriptions;
+    deleted?: boolean;
 }
 
 export interface Basket extends IPermissions, Entity {
@@ -391,6 +408,8 @@ export type LastErrors = {
 export interface Workspace extends IPermissions, Entity {
     name: string;
     nameTranslated: string;
+    fileAnalyzers?: string;
+    trashRetentionDelay?: number;
     enabledLocales?: string[] | undefined;
     localeFallbacks?: string[] | undefined;
     owner?: User;

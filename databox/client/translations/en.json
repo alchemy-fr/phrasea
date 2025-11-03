@@ -82,6 +82,7 @@
             "confirm_message_other": "Are you sure you want to delete {{count}} assets?",
             "hard_delete": "Delete asset permanently",
             "remove_from_collection": "Remove from collection <strong>{{name}}</strong>",
+            "remove_from_story": "Remove from story <strong>{{name}}</strong>",
             "shared_warning_one": "This asset is currently shared. Deleting it will remove access for all users.",
             "shared_warning_other": "<strong>{{count}}</strong> of these assets are currently shared. Deleting them will remove access for all users."
         },
@@ -1322,7 +1323,7 @@
     "replace_asset": {
         "dialog": {
             "submit": "Substitute",
-            "success": "New asset source file has been uploaded and will be replaced soon.",
+            "success": "New asset source file has been uploaded.",
             "title": "Substitute asset source file"
         }
     },
