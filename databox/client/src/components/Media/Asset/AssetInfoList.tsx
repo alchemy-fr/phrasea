@@ -9,6 +9,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import {useTranslation} from 'react-i18next';
 import {Asset} from '../../../types.ts';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 
 type Props = {
     data: Asset;
@@ -86,6 +87,28 @@ export default function AssetInfoList({data}: Props) {
                                       {
                                           id: data.referenceCollection!.id,
                                           tab: 'info',
+                                      }
+                                  );
+                              }
+                            : undefined
+                    }
+                />
+                <InfoRow
+                    icon={<InsertDriveFileIcon />}
+                    label={t('asset.info.source_file', `Source File`)}
+                    value={
+                        data.source?.id ??
+                        t('asset.info.source_file.none', 'None')
+                    }
+                    copyValue={data.source?.id}
+                    onClick={
+                        data.source
+                            ? () => {
+                                  navigateToModal(
+                                      modalRoutes.files.routes.manage,
+                                      {
+                                          tab: 'info',
+                                          id: data.source!.id,
                                       }
                                   );
                               }

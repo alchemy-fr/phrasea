@@ -18,6 +18,20 @@ import {AxiosRequestConfig} from 'axios';
 import {TFacets} from '../components/Media/Asset/Facets';
 import {AttributeBatchAction, AttributeBatchActionEnum} from './types.ts';
 import {SortWay} from './common.ts';
+import type {MultipartUpload} from '@alchemy/api';
+import {
+    multipartUpload,
+    MultipartUploadOptions,
+} from '@alchemy/api/src/multiPartUpload.ts';
+import {CollectionId} from '../components/Media/Collection/CollectionTree/collectionTree.ts';
+import {promiseConcurrency} from '../lib/promises.ts';
+import {useUploadStore} from '../store/uploadStore.ts';
+import {
+    CreateAssetsOptions,
+    FileInputFromUrl,
+    FileOrUrl,
+    SourceFileInput,
+} from './file.ts';
 
 export interface GetAssetOptions {
     url?: string;
@@ -278,18 +292,23 @@ export async function deleteAsset(id: string): Promise<void> {
 }
 
 type DeleteOptions = {
-    collections: string[];
+    collections?: string[];
+    hardDelete?: boolean;
 };
 
 export async function deleteAssets(
     ids: string[],
-    deleteOptions: DeleteOptions
+    deleteOptions: DeleteOptions = {}
 ): Promise<void> {
-    await apiClient.delete(`/assets`, {
-        data: {
-            ids,
-            ...deleteOptions,
-        },
+    await apiClient.post(`/assets/delete-multiple`, {
+        ids,
+        ...deleteOptions,
+    });
+}
+
+export async function restoreAssets(ids: string[]): Promise<void> {
+    await apiClient.post(`/assets/restore-multiple`, {
+        ids,
     });
 }
 
@@ -308,12 +327,10 @@ export async function prepareDeleteAssets(
     return res.data;
 }
 
-export async function prepareAssetSubstitution(id: string): Promise<Asset> {
-    const res = await apiClient.put(`/assets/${id}/prepare-substitution`, {});
-    return res.data;
-}
-
-export async function putAsset(id: string, data: Partial<any>): Promise<Asset> {
+export async function putAsset(
+    id: string,
+    data: Partial<AssetApiInput>
+): Promise<Asset> {
     const res = await apiClient.put(`/assets/${id}`, data, {
         headers: {
             'Content-Type': 'application/merge-patch+json',
@@ -329,13 +346,14 @@ export type AssetApiInput = {
     tags?: string[];
     collection?: string;
     workspace?: string;
-    sourceFileId?: string;
-    pendingUploadToken?: string;
     sequence?: number;
     isStory?: boolean;
+    sourceFileId?: string;
+    multipart?: MultipartUpload;
+    sourceFile?: SourceFileInput;
 };
 
-export type NewAssetPostType = {
+export type NewAssetInput = {
     relationship?:
         | {
               source: string;
@@ -347,45 +365,211 @@ export type NewAssetPostType = {
     attributes?: AttributeBatchAction[] | undefined;
 } & AssetApiInput;
 
-export async function postAsset(data: NewAssetPostType): Promise<Asset> {
+export async function postAsset(data: NewAssetInput): Promise<Asset> {
     const res = await apiClient.post(`/assets`, data);
 
     return res.data;
 }
 
-export type CreateAssetsOptions = {
-    quiet?: boolean;
-    isStory?: boolean;
-    story?: {
-        title?: string;
-        tags?: string[];
-        attributes?: AttributeBatchAction[] | undefined;
-    };
-    config?: AxiosRequestConfig;
+type InputFile = {
+    asset: NewAssetInput;
+} & FileOrUrl;
+
+type InputUploadFile = {
+    file: File;
+    asset: NewAssetInput;
 };
 
-export async function postMultipleAssets(
-    assets: NewAssetPostType[],
-    {quiet, isStory, story}: CreateAssetsOptions = {}
-): Promise<Asset[]> {
-    const config: AxiosRequestConfig = {};
-    if (quiet) {
-        config.headers ??= {};
-        config.headers['X-Webhook-Disabled'] = 'true';
-        config.headers['X-Notification-Disabled'] = 'true';
-    }
+type InputAssetImport = {
+    asset: NewAssetInput;
+} & FileInputFromUrl;
 
-    const res = await apiClient.post(
+type FileBeingUploaded = {
+    id: string;
+} & InputUploadFile;
+
+function computeAssetPropsFromDestination(destination: CollectionId) {
+    if (destination.startsWith('/workspaces/')) {
+        return {workspace: destination};
+    } else {
+        return {collection: destination};
+    }
+}
+
+export async function uploadAssets(
+    files: InputFile[],
+    destination: CollectionId,
+    options: CreateAssetsOptions = {}
+): Promise<Asset[]> {
+    const uploadState = useUploadStore.getState();
+
+    const uploads: FileBeingUploaded[] = files
+        .filter(f => Boolean(f.file))
+        .map(
+            f =>
+                ({
+                    ...f,
+                    id: crypto.randomUUID(),
+                }) as FileBeingUploaded
+        );
+
+    uploads.forEach(f => {
+        uploadState.addUpload({
+            id: f.id,
+            file: f.file,
+            progress: 0,
+        });
+    });
+
+    const storyAsset = await createStoryAssetIfNeeded(destination, options);
+
+    return await promiseConcurrency(
+        uploads.map(f => {
+            return () =>
+                uploadAsset(
+                    {
+                        ...f,
+                        asset: {
+                            ...f.asset,
+                            ...(storyAsset
+                                ? {
+                                      collection:
+                                          storyAsset?.storyCollection!['@id'],
+                                  }
+                                : computeAssetPropsFromDestination(
+                                      destination
+                                  )),
+                        },
+                    },
+                    {
+                        ...options,
+                        isStory: false,
+                        story: undefined,
+                    },
+                    {
+                        onProgress: event => {
+                            const progress = event.loaded / event.total!;
+                            uploadState.uploadProgress({
+                                id: f.id,
+                                file: f.file!,
+                                progress,
+                            });
+                        },
+                    }
+                ).catch((error: any) => {
+                    uploadState.uploadError({
+                        id: f.id,
+                        file: f.file!,
+                        progress: 1,
+                        error: error.toString(),
+                    });
+                    throw error;
+                });
+        }),
+        2
+    );
+}
+
+function getStoryPropsFromOptions(options: CreateAssetsOptions) {
+    const {story: storyOptions} = options;
+
+    return {
+        title: storyOptions?.title,
+        tags: storyOptions?.tags || [],
+        attributes: storyOptions?.attributes,
+    };
+}
+
+async function createStoryAssetIfNeeded(
+    destination: CollectionId,
+    options: CreateAssetsOptions
+): Promise<Asset | undefined> {
+    if (options.isStory) {
+        return await postAsset({
+            isStory: true,
+            ...getStoryPropsFromOptions(options),
+            ...(destination
+                ? computeAssetPropsFromDestination(destination)
+                : {}),
+        });
+    }
+    return undefined;
+}
+
+export async function importAssets(
+    files: InputAssetImport[],
+    destination: CollectionId,
+    options: CreateAssetsOptions = {}
+): Promise<Asset[]> {
+    const destProps = computeAssetPropsFromDestination(destination);
+
+    const res: {
+        assets: Asset[];
+    } = await apiClient.post(
         `/assets/multiple`,
         {
-            assets,
-            isStory,
-            story,
+            isStory: options.isStory,
+            story: options.isStory
+                ? getStoryPropsFromOptions(options)
+                : undefined,
+            assets: files.map(f => ({
+                ...destProps,
+                ...f.asset,
+                sourceFile: {
+                    url: f.url,
+                    importFile: f.importFile,
+                },
+            })),
         },
-        config
+        {
+            ...options.config,
+            headers: {
+                ...(options.quiet
+                    ? {
+                          'X-Webhook-Disabled': 'true',
+                          'X-Notification-Disabled': 'true',
+                      }
+                    : {}),
+                ...options.config?.headers,
+            },
+        }
     );
 
-    return res.data.assets;
+    return res.assets;
+}
+
+export async function uploadAsset(
+    data: InputUploadFile,
+    options: CreateAssetsOptions = {},
+    multipartUploadOptions: MultipartUploadOptions = {}
+): Promise<Asset> {
+    const multipart = await multipartUpload(
+        apiClient,
+        data.file,
+        multipartUploadOptions
+    );
+
+    return (
+        await apiClient.post(
+            `/assets`,
+            {
+                ...data.asset,
+                multipart,
+            },
+            {
+                ...options.config,
+                headers: {
+                    ...(options.quiet
+                        ? {
+                              'X-Webhook-Disabled': 'true',
+                              'X-Notification-Disabled': 'true',
+                          }
+                        : {}),
+                    ...options.config?.headers,
+                },
+            }
+        )
+    ).data;
 }
 
 export async function deleteAssetShortcut(

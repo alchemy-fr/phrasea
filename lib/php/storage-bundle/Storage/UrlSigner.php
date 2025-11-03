@@ -14,7 +14,7 @@ final readonly class UrlSigner
         private string $bucketName,
         private int $ttl,
         private CloudFrontUrlGenerator $cloudFrontUrlGenerator,
-        private string $pathPrefix = ''
+        private string $pathPrefix = '',
     ) {
     }
 

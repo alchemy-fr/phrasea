@@ -7,6 +7,7 @@ namespace App\Api\Model\Output;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
@@ -28,7 +29,9 @@ class FileOutput extends AbstractUuidOutput
         Asset::GROUP_READ,
         AssetRendition::GROUP_LIST,
         AssetFileVersion::GROUP_LIST,
-        Share::GROUP_PUBLIC_READ])]
+        Share::GROUP_PUBLIC_READ,
+        AssetAttachment::GROUP_LIST,
+    ])]
     private ?string $type = null;
 
     #[Groups([File::GROUP_LIST,
@@ -37,7 +40,10 @@ class FileOutput extends AbstractUuidOutput
         Asset::GROUP_LIST,
         Asset::GROUP_READ,
         AssetRendition::GROUP_LIST,
-        AssetFileVersion::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
+        AssetFileVersion::GROUP_LIST,
+        Share::GROUP_PUBLIC_READ,
+        AssetAttachment::GROUP_LIST,
+    ])]
     private ?int $size = null;
 
     /**
@@ -51,6 +57,7 @@ class FileOutput extends AbstractUuidOutput
         AssetRendition::GROUP_LIST,
         AssetFileVersion::GROUP_LIST,
         Share::GROUP_PUBLIC_READ,
+        AssetAttachment::GROUP_LIST,
     ])]
     private ?string $url = null;
 
@@ -63,6 +70,28 @@ class FileOutput extends AbstractUuidOutput
         Asset::GROUP_READ,
         AssetRendition::GROUP_LIST])]
     private ?array $alternateUrls = [];
+
+    #[Groups([
+        File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetRendition::GROUP_READ,
+        AssetAttachment::GROUP_LIST,
+    ])]
+    public ?array $analysis = null;
+
+    #[Groups([
+        File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetRendition::GROUP_READ,
+        AssetAttachment::GROUP_LIST,
+    ])]
+    public ?bool $accepted = null;
 
     #[Groups([File::GROUP_METADATA])]
     public ?array $metadata = null;
@@ -108,5 +137,18 @@ class FileOutput extends AbstractUuidOutput
     public function setAlternateUrls(?array $alternateUrls): void
     {
         $this->alternateUrls = $alternateUrls;
+    }
+
+    #[Groups([
+        File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetRendition::GROUP_READ,
+    ])]
+    public function isAnalysisPending(): bool
+    {
+        return null === $this->accepted;
     }
 }

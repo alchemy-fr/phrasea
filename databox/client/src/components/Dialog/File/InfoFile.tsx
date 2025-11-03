@@ -1,4 +1,4 @@
-import {File} from '../../../types';
+import {ApiFile} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import InfoRow from '../Info/InfoRow.tsx';
@@ -6,9 +6,10 @@ import KeyIcon from '@mui/icons-material/Key';
 import {Divider, MenuList} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import InfoIcon from '@mui/icons-material/Info';
+import YesNoChip from '../../Ui/YesNoChip.tsx';
 
 type Props = {
-    data: File;
+    data: ApiFile;
 } & DialogTabProps;
 
 export default function InfoFile({data, onClose, minHeight}: Props) {
@@ -25,7 +26,7 @@ export default function InfoFile({data, onClose, minHeight}: Props) {
                 <Divider />
                 <InfoRow
                     label={t('file.info.url', `URL`)}
-                    value={data.url}
+                    value={data.url || t('file.info.url_none', `N/A`)}
                     copyValue={data.url}
                     icon={<InfoIcon />}
                 />
@@ -37,10 +38,48 @@ export default function InfoFile({data, onClose, minHeight}: Props) {
                 />
                 <InfoRow
                     label={t('file.info.size', `Size`)}
-                    value={data.size}
-                    copyValue={data.size?.toString()}
+                    value={data.size || t('file.info.size_unknown', `Unknown`)}
+                    copyValue={data.size ? data.size?.toString() : undefined}
                     icon={<InfoIcon />}
                 />
+                {data.analysisPending ? (
+                    <InfoRow
+                        label={t(
+                            'file.info.analysis_pending',
+                            `Analysis Pending`
+                        )}
+                        value={t('common.yes', 'Yes')}
+                        icon={<InfoIcon />}
+                    />
+                ) : (
+                    <>
+                        <InfoRow
+                            label={t('file.info.accepted', `Accepted`)}
+                            value={
+                                undefined !== data.accepted ? (
+                                    <YesNoChip value={data.accepted} />
+                                ) : null
+                            }
+                            icon={<InfoIcon />}
+                        />
+                        {data.analysis ? (
+                            <InfoRow
+                                label={t('file.info.analysis', `Analysis`)}
+                                value={
+                                    <pre
+                                        style={{
+                                            whiteSpace: 'pre-wrap',
+                                            wordBreak: 'break-word',
+                                        }}
+                                    >
+                                        {JSON.stringify(data.analysis, null, 2)}
+                                    </pre>
+                                }
+                                icon={<InfoIcon />}
+                            />
+                        ) : null}
+                    </>
+                )}
             </MenuList>
         </ContentTab>
     );

@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace App\Integration\Action;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Upload\UploadManager;
-use App\Asset\FileUrlResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Integration\IntegrationData;
 use App\Integration\IntegrationConfig;
 use App\Security\Voter\AbstractVoter;
-use App\Storage\FileManager;
+use App\Service\Asset\FileUrlResolver;
+use App\Service\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -53,7 +54,7 @@ trait FileUserActionsTrait
             throw new BadRequestHttpException(sprintf('File "%s" and Asset "%s" are not from the same workspace', $parentFile->getId(), $asset->getId()));
         }
 
-        $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
+        $multipartUpload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromRequest($request));
 
         return $this->fileManager->createFileFromMultipartUpload($multipartUpload, $asset->getWorkspace());
     }

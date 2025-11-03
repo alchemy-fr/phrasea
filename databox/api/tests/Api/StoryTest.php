@@ -16,7 +16,7 @@ class StoryTest extends AbstractSearchTestCase
         self::enableFixtures();
 
         $client = static::createClient();
-        list($collectionId, $assetId) = $this->createStory($client);
+        [$collectionId, $assetId] = $this->createStory($client);
 
         $this->checkRelation($client, $assetId, $collectionId);
     }
@@ -28,23 +28,23 @@ class StoryTest extends AbstractSearchTestCase
         $adminAuthorization = 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID);
 
         $client = static::createClient();
-        list($collectionId, $assetId) = $this->createStory($client);
+        [$collectionId, $assetId] = $this->createStory($client);
 
-        $client->request('DELETE', '/collections/'.urlencode($collectionId), [
+        $client->request('DELETE', '/collections/'.$collectionId, [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],
         ]);
         $this->assertResponseStatusCodeSame(204);
 
-        $client->request('GET', '/collections/'.urlencode($collectionId), [
+        $client->request('GET', '/collections/'.$collectionId, [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],
         ]);
         $this->assertResponseStatusCodeSame(404);
 
-        $client->request('GET', '/assets/'.urlencode($assetId), [
+        $client->request('GET', '/assets/'.$assetId, [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],
@@ -59,16 +59,16 @@ class StoryTest extends AbstractSearchTestCase
         $adminAuthorization = 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID);
 
         $client = static::createClient();
-        list($collectionId, $assetId) = $this->createStory($client);
+        [$collectionId, $assetId] = $this->createStory($client);
 
-        $client->request('DELETE', '/assets/'.urlencode($assetId), [
+        $client->request('DELETE', '/assets/'.$assetId, [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],
         ]);
         $this->assertResponseStatusCodeSame(204);
 
-        $client->request('GET', '/assets/'.urlencode($assetId), [
+        $client->request('GET', '/assets/'.$assetId, [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],

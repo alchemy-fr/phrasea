@@ -6,9 +6,10 @@ namespace App\Api\Model\Input;
 
 class MoveAssetInput
 {
+    use IdsInputTrait;
+
     /**
      * Collection or Workspace IRI.
      */
     public ?string $destination = null;
-    public ?array $ids = null;
 }

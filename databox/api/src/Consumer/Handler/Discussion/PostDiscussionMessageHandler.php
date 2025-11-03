@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\Discussion;
 
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
-use App\Asset\ObjectNotifier;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Discussion\Message;
 use App\Entity\ObjectTitleInterface;
 use App\Repository\Discussion\MessageRepository;
-use App\Service\DiscussionManager;
-use App\Service\MentionExtractor;
+use App\Service\Asset\ObjectNotifier;
+use App\Service\Discussion\DiscussionManager;
+use App\Service\Discussion\MentionExtractor;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]

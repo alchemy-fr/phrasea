@@ -6,11 +6,19 @@ namespace App\Repository\Core;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Doctrine\ORM\EntityRepository;
+use App\Entity\Core\Workspace;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 
-class WorkspaceRepository extends EntityRepository
+class WorkspaceRepository extends ServiceEntityRepository
 {
+    public function __construct(
+        ManagerRegistry $registry,
+    ) {
+        parent::__construct($registry, Workspace::class);
+    }
+
     /**
      * @return string[]
      */

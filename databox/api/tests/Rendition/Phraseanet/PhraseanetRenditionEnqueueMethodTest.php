@@ -15,8 +15,8 @@ use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Phraseanet\PhraseanetApiClientFactory;
 use App\Integration\Phraseanet\PhraseanetRenditionIntegration;
+use App\Service\Workflow\Action\AcceptFileAction;
 use App\Tests\FileUploadTrait;
-use App\Workflow\Action\AcceptFileAction;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -98,6 +98,12 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $assetId = $json['id'];
 
         $envelope = $inMemoryTransport->get()[0];
+        $eventMessage = $envelope->getMessage();
+        self::assertInstanceOf(JobConsumer::class, $eventMessage);
+        self::assertEquals('analysis', $eventMessage->getJobId());
+        $this->consumeEvent($envelope, $queueName);
+
+        $envelope = $inMemoryTransport->get()[1];
         $eventMessage = $envelope->getMessage();
         self::assertInstanceOf(JobConsumer::class, $eventMessage);
         $workflowId = $eventMessage->getWorkflowId();

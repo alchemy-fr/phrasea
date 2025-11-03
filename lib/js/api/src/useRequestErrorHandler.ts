@@ -15,14 +15,22 @@ export default function useRequestErrorHandler({onError, logout}: Options) {
     const {t} = useTranslation();
 
     return React.useCallback((error: AxiosError<any>) => {
-        if (error.config?.errorHandled || (axios.isCancel(error) as boolean)) {
+        const config = error.config;
+        if (config?.errorHandled || (axios.isCancel(error) as boolean)) {
             return;
+        }
+
+        const axiosRetry = config?.['axios-retry'];
+        if (axiosRetry && axiosRetry.retries) {
+            if ((axiosRetry.retryCount ?? 0) < axiosRetry.retries!) {
+                return;
+            }
         }
 
         const status = error.response?.status;
         const data = error.response?.data;
 
-        const handledStatuses = error.config?.handledErrorStatuses;
+        const handledStatuses = config?.handledErrorStatuses;
         if (
             handledStatuses &&
             handledStatuses.length > 0 &&

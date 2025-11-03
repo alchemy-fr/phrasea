@@ -3,6 +3,10 @@ import {Collection, CollectionOptionalWorkspace, Workspace} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import {clearAssociationIds} from './clearAssociation';
 import {useCollectionStore} from '../store/collectionStore';
+import {
+    NewCollectionPath,
+    treeViewPathSeparator,
+} from '../components/Media/Collection/CollectionTree/collectionTree.ts';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
@@ -14,12 +18,13 @@ export type CollectionOptions = {
     query?: string;
     parent?: string;
     workspaces?: string[];
+    nextUrl?: string;
 };
 
 export async function getCollections(
     options: CollectionOptions
 ): Promise<ApiCollectionResponse<Collection>> {
-    const res = await apiClient.get('/collections', {
+    const res = await apiClient.get(options.nextUrl ?? '/collections', {
         params: {
             ...options,
         },
@@ -86,10 +91,16 @@ export async function putWorkspace(
     return res.data;
 }
 
-export async function deleteCollection(id: string): Promise<void> {
-    await apiClient.delete(`/collections/${id}`);
+export async function deleteCollections(ids: string[]): Promise<void> {
+    await apiClient.post(`/collections/delete-multiple`, {ids});
 
-    useCollectionStore.getState().deleteCollection(id);
+    useCollectionStore.getState().moveCollectionsToTrash(ids);
+}
+
+export async function restoreCollections(ids: string[]): Promise<void> {
+    await apiClient.post(`/collections/restore-multiple`, {ids});
+
+    useCollectionStore.getState().restoreCollections(ids);
 }
 
 export async function addAssetToCollection(
@@ -131,4 +142,24 @@ export async function moveAssets(
         destination: destIri,
         ids: assetIds,
     });
+}
+
+export async function createCollection(
+    newCollectionPath: NewCollectionPath
+): Promise<string> {
+    const {rootId, path} = newCollectionPath;
+
+    const [workspaceId, parentIri] = rootId.split(treeViewPathSeparator);
+    let parent = parentIri;
+    for (const p of path) {
+        parent = (
+            await postCollection({
+                title: p,
+                parent,
+                workspace: `/workspaces/${workspaceId}`,
+            })
+        )['@id'];
+    }
+
+    return parent;
 }

@@ -5,11 +5,18 @@ declare(strict_types=1);
 namespace App\Repository\Core;
 
 use App\Entity\Core\Collection;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 
-class CollectionRepository extends EntityRepository
+class CollectionRepository extends ServiceEntityRepository
 {
+    public function __construct(
+        ManagerRegistry $registry,
+    ) {
+        parent::__construct($registry, Collection::class);
+    }
+
     public function findByIds(array $ids): array
     {
         return $this->createQueryBuilder('t')

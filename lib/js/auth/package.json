@@ -7,7 +7,7 @@
   "main": "index.ts",
   "license": "MIT",
   "peerDependencies": {
-    "axios": "^1.8.2",
+    "axios": "^1.12.2",
     "react": "^18.2.0"
   },
   "scripts": {

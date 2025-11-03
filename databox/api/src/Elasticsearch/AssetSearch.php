@@ -49,7 +49,8 @@ class AssetSearch extends AbstractSearch
         }
         if (isset($options['parents'])) {
             $parentCollections = $this->findCollections($options['parents']);
-            $paths = array_map(fn (Collection $parentCollection): string => $parentCollection->getAbsolutePath(), $parentCollections);
+            $paths = array_map(fn (Collection $parentCollection,
+            ): string => $parentCollection->getAbsolutePath(), $parentCollections);
 
             $filterQueries[] = new Query\Terms('collectionPaths', $paths);
         }
@@ -120,6 +121,25 @@ class AssetSearch extends AbstractSearch
             $filterQuery->addMust($multiMatch);
         }
 
+        $includeDeleted = false;
+        foreach ($parsed['filters'] as $filter) {
+            if (isset($filter['in'])) {
+                switch ($filter['in']) {
+                    case 'all':
+                        $includeDeleted = true;
+                        break;
+                    case 'trash':
+                        $filterQuery->addFilter(self::createDeleteQuery(true));
+                        $includeDeleted = true;
+                        break;
+                }
+            }
+        }
+
+        if (!$includeDeleted) {
+            $filterQuery->addFilter(self::createDeleteQuery(false));
+        }
+
         $query = new Query();
         $query->setTrackTotalHits();
         $query->setQuery($filterQuery);
@@ -145,7 +165,8 @@ class AssetSearch extends AbstractSearch
 
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
-        $result = new Pagerfanta(new FilteredPager(fn (Asset $asset): bool => $this->isGranted(AbstractVoter::READ, $asset), $adapter));
+        $result = new Pagerfanta(new FilteredPager(fn (Asset $asset,
+        ): bool => $this->isGranted(AbstractVoter::READ, $asset), $adapter));
         $result->setMaxPerPage((int) $limit);
         if ($options['page'] ?? false) {
             $result->setAllowOutOfRangePages(true);
@@ -294,5 +315,19 @@ class AssetSearch extends AbstractSearch
     protected function getAdminScope(): ?string
     {
         return AssetVoter::SCOPE_PREFIX.AbstractVoter::LIST;
+    }
+
+    public static function createDeleteQuery(bool $deleted): Query\BoolQuery
+    {
+        $boolQuery = new Query\BoolQuery();
+        if ($deleted) {
+            $boolQuery->addShould(new Query\Term(['deleted' => true]));
+            $boolQuery->addShould(new Query\Term(['collectionDeleted' => true]));
+        } else {
+            $boolQuery->addMust(new Query\Term(['deleted' => false]));
+            $boolQuery->addMust(new Query\Term(['collectionDeleted' => false]));
+        }
+
+        return $boolQuery;
     }
 }

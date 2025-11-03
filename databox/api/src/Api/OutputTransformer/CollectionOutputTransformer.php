@@ -52,6 +52,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
+        $output->deleted = $data->isDeleted();
         $storyAsset = $data->getStoryAsset();
         if (null !== $storyAsset) {
             $output->setStoryAsset($storyAsset);
@@ -59,6 +60,10 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             $output->setTitle($data->getTitle());
             $output->titleTranslated = $data->getTranslatedField('title', $preferredLocales, $data->getTitle());
         }
+
+        $highlights = $data->getElasticHighlights();
+        $output->titleHighlight = $highlights['title'][0] ?? null;
+
         $output->setPrivacy($data->getPrivacy());
         $output->inheritedPrivacy = $data->getInheritedPrivacy();
         $output->setWorkspace($data->getWorkspace());

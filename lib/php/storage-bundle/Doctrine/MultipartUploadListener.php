@@ -18,7 +18,6 @@ use Doctrine\ORM\Events;
 #[AsDoctrineListener(Events::prePersist)]
 final readonly class MultipartUploadListener implements EventSubscriber
 {
-
     public function __construct(private UploadManager $uploadManager, private PathGenerator $pathGenerator)
     {
     }

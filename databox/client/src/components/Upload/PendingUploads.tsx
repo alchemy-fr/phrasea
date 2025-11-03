@@ -23,7 +23,7 @@ export default function PendingUploads({}: Props) {
             return;
         }
 
-        const pendingUploads = uploads.filter(u => u.progress < 1);
+        const pendingUploads = uploads.filter(u => u.progress < 1 && !u.error);
         const progress =
             uploads.reduce((acc, u) => acc + u.progress * 100, 0) /
             uploads.length /

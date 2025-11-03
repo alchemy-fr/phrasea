@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Doctrine\Delete;
 
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
-use App\Doctrine\SoftDeleteToggler;
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
+use App\Doctrine\Listener\CollectionListener;
 use App\Elasticsearch\IndexCleaner;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
-use App\Entity\Core\CollectionAsset;
 use App\Entity\Template\AssetDataTemplate;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -18,7 +18,8 @@ final readonly class CollectionDelete
     public function __construct(
         private EntityManagerInterface $em,
         private IndexCleaner $indexCleaner,
-        private SoftDeleteToggler $softDeleteToggler,
+        private CollectionListener $collectionListener,
+        private PostFlushStack $postFlushStack,
     ) {
     }
 
@@ -33,17 +34,14 @@ final readonly class CollectionDelete
                 throw new \InvalidArgumentException(sprintf('Collection "%s" is not marked as deleted', $collection->getId()));
             }
 
-            $this->indexCleaner->removeCollectionFromIndex($collectionId);
-
-            DeferredIndexListener::disable();
-            $this->softDeleteToggler->disable();
-
             $this->em->beginTransaction();
 
             $configuration = $this->em->getConnection()->getConfiguration();
             $logger = $configuration->getSQLLogger();
             $configuration->setSQLLogger();
 
+            DeferredIndexListener::disable();
+            $this->collectionListener->softDeleteEnabled = false;
             try {
                 $this->doDelete($collectionId);
                 $this->em->commit();
@@ -52,7 +50,7 @@ final readonly class CollectionDelete
                 throw $e;
             } finally {
                 DeferredIndexListener::enable();
-                $this->softDeleteToggler->enable();
+                $this->collectionListener->softDeleteEnabled = true;
                 $configuration->setSQLLogger($logger);
             }
         } else {
@@ -98,14 +96,6 @@ final readonly class CollectionDelete
             ->getQuery()
             ->toIterable();
 
-        $this->em->getRepository(CollectionAsset::class)
-            ->createQueryBuilder('t')
-            ->delete()
-            ->andWhere('t.collection = :c')
-            ->setParameter('c', $collectionId)
-            ->getQuery()
-            ->execute();
-
         foreach ($assets as $a) {
             $asset = $this->em->find(Asset::class, $a['id']);
             $this->em->remove($asset);
@@ -120,6 +110,8 @@ final readonly class CollectionDelete
             $this->em->remove($collection);
             $this->em->flush();
         }
+
+        $this->postFlushStack->addCallback(fn () => $this->indexCleaner->removeCollectionFromIndex($collectionId));
     }
 
     private function deleteDependencies(string $entityClass, string $collectionId): void

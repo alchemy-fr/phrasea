@@ -3,7 +3,7 @@ import FormDialog from '../../../Dialog/FormDialog';
 import {useFormSubmit} from '@alchemy/api';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import RemoteErrors from '../../../Form/RemoteErrors';
-import {Asset, File} from '../../../../types';
+import {Asset, ApiFile} from '../../../../types';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';
@@ -12,7 +12,7 @@ import {useTranslation} from 'react-i18next';
 
 type Props = {
     asset: Asset;
-    file: File;
+    file: ApiFile;
 } & StackedModalProps;
 
 export default function ReplaceAssetWithFileDialog({

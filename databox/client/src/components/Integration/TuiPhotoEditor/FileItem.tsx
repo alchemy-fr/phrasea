@@ -12,7 +12,7 @@ import {
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {Asset, File, IntegrationData} from '../../../types';
+import {Asset, ApiFile, IntegrationData} from '../../../types';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import {useTranslation} from 'react-i18next';
 
@@ -21,7 +21,7 @@ type Props = {
     data: IntegrationData;
     disabled: boolean;
     selected: boolean;
-    onOpen: (file: File, name: string | null) => void;
+    onOpen: (file: ApiFile, name: string | null) => void;
     onDelete: (id: string) => Promise<void>;
 };
 

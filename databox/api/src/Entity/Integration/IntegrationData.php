@@ -71,7 +71,7 @@ class IntegrationData extends AbstractUuidEntity
     final public const string GROUP_LIST = 'int-data:index';
     final public const string GROUP_WRITE = 'int-data:w';
 
-    #[ORM\ManyToOne(targetEntity: WorkspaceIntegration::class)]
+    #[ORM\ManyToOne(targetEntity: WorkspaceIntegration::class, inversedBy: 'data')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
     private ?WorkspaceIntegration $integration = null;

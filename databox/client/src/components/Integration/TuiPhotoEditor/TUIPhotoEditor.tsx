@@ -20,7 +20,7 @@ import {dataURLtoFile} from '../../../lib/file';
 import {LoadingButton} from '@mui/lab';
 import {toast} from 'react-toastify';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
-import {File} from '../../../types';
+import {ApiFile} from '../../../types';
 import FileItem from './FileItem';
 import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {useIntegrationData} from '../useIntegrationData.ts';
@@ -82,7 +82,7 @@ export default function TUIPhotoEditor({
     const editoRef = useRef<any>();
     const [fileName, setFileName] = useState<string>('');
     const [saving, setSaving] = useState<boolean>(false);
-    const [selectedFile, setSelectedFile] = useState<File>(file);
+    const [selectedFile, setSelectedFile] = useState<ApiFile>(file);
     const [deleting, setDeleting] = useState<string | undefined>();
     const canEdit = asset.capabilities.canEdit;
     const {data, load: loadData} = useIntegrationData({
@@ -166,7 +166,7 @@ export default function TUIPhotoEditor({
     }, [selectedFile, enableInc]);
 
     const onOpen = React.useCallback(
-        (file: File, name: string | null) => {
+        (file: ApiFile, name: string | null) => {
             setSelectedFile(file);
             setFileName(name || '');
         },

@@ -6,7 +6,7 @@ namespace App\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Entity\Discussion\Message;
-use App\Service\DiscussionPusher;
+use App\Service\Discussion\DiscussionPusher;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PreRemoveEventArgs;

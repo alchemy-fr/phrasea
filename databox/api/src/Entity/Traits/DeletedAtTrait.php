@@ -21,4 +21,12 @@ trait DeletedAtTrait
     {
         $this->deletedAt = $deletedAt;
     }
+
+    /**
+     * Used by ES.
+     */
+    public function isDeleted(): bool
+    {
+        return null !== $this->deletedAt;
+    }
 }

@@ -177,6 +177,9 @@ final readonly class JobExecutor
 
             try {
                 $jobCallable($runContext);
+                if (null !== $runContext->getEndStatus()) {
+                    $endStatus = $runContext->getEndStatus();
+                }
             } catch (\Throwable $e) {
                 $endStatus = JobState::STATUS_FAILURE;
                 $jobState->addException($e);

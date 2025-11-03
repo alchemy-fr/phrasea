@@ -1,4 +1,4 @@
-import {File} from '../../../types';
+import {ApiFile} from '../../../types';
 import {FileTypeEnum, getFileTypeFromMIMEType} from '../../../lib/file';
 import AssetFileIcon from './AssetFileIcon';
 import VideoPlayer from './Players/VideoPlayer';
@@ -6,14 +6,23 @@ import {FileWithUrl, PlayerProps} from './Players';
 import PDFPlayer from './Players/PDFPlayer';
 import ImagePlayer from './Players/ImagePlayer.tsx';
 import React from 'react';
+import FileAnalysisChipWrapper from './FileAnalysisChipWrapper.tsx';
 
 type Props = {
-    file: File;
+    file: ApiFile;
     autoPlayable?: boolean;
 } & Omit<PlayerProps, 'file'>;
 
 export default function FilePlayer({file, autoPlayable, ...playProps}: Props) {
     const mainType = getFileTypeFromMIMEType(file.type);
+
+    if (file.analysisPending || false === file.accepted) {
+        return (
+            <FileAnalysisChipWrapper file={file}>
+                <AssetFileIcon mimeType={file.type} />
+            </FileAnalysisChipWrapper>
+        );
+    }
 
     if (file.url) {
         const props: PlayerProps = {

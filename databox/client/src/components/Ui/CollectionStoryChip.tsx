@@ -3,7 +3,7 @@ import {Asset} from '../../types.ts';
 import {OnOpen} from '../AssetList/types.ts';
 import LayersIcon from '@mui/icons-material/Layers';
 
-type Props = {
+export type CollectionStoryChipProps = {
     asset?: Asset;
     storyAsset: Asset;
     onOpen?: OnOpen;
@@ -14,7 +14,7 @@ export default function CollectionStoryChip({
     storyAsset,
     onOpen,
     ...chipProps
-}: Props) {
+}: CollectionStoryChipProps) {
     return (
         <Chip
             onClick={

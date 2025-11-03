@@ -11,6 +11,7 @@ export function createDefaultActionsContext<
         edit: true,
         share: true,
         delete: true,
+        restore: true,
         open: true,
         move: true,
         copy: true,

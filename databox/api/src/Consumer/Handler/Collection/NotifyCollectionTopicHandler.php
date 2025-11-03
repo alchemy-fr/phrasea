@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Collection;
 
-use App\Asset\ObjectNotifier;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
+use App\Service\Asset\ObjectNotifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 

@@ -9,13 +9,13 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\Model\Output\StoryThumbnailsOutput;
-use App\Asset\FileUrlResolver;
 use App\Elasticsearch\AssetSearch;
 use App\Entity\Core\Asset;
 use App\Repository\Core\AssetRepository;
 use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AbstractVoter;
-use App\Storage\RenditionManager;
+use App\Service\Asset\FileUrlResolver;
+use App\Service\Storage\RenditionManager;
 
 class StoryThumbnailsProvider implements ProviderInterface
 {

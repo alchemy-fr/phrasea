@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
-use App\Consumer\Handler\Collection\DeleteCollection;
 use App\Consumer\Handler\Workspace\DeleteWorkspace;
-use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
@@ -30,9 +28,7 @@ readonly class SoftDeleteListener
                 return;
             }
 
-            if ($entity instanceof Collection) {
-                $this->postFlushStack->addBusMessage(new DeleteCollection($entity->getId()));
-            } elseif ($entity instanceof Workspace) {
+            if ($entity instanceof Workspace) {
                 $this->postFlushStack->addBusMessage(new DeleteWorkspace($entity->getId()));
             }
         }

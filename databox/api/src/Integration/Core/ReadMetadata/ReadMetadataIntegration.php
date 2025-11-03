@@ -9,9 +9,9 @@ use App\Integration\AbstractIntegration;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
-use App\Workflow\Action\InitializeAttributesAction;
-use App\Workflow\Action\ReadMetadataAction;
-use App\Workflow\Event\AssetIngestWorkflowEvent;
+use App\Service\Workflow\Action\InitializeAttributesAction;
+use App\Service\Workflow\Action\ReadMetadataAction;
+use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 
 class ReadMetadataIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {

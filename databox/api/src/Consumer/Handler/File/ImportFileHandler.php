@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\File;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use App\Asset\FileFetcher;
+use App\Border\FileAnalyzer;
 use App\Entity\Core\File;
-use App\Storage\FileManager;
+use App\Service\Asset\FileFetcher;
+use App\Service\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Header;
 use Psr\Log\LoggerInterface;
@@ -22,6 +23,7 @@ readonly class ImportFileHandler
         private FileFetcher $fileFetcher,
         private EntityManagerInterface $em,
         private LoggerInterface $logger,
+        private FileAnalyzer $fileAnalyzer,
     ) {
     }
 
@@ -55,12 +57,6 @@ readonly class ImportFileHandler
         }
 
         try {
-            if (isset($headers['Content-Length'])) {
-                $size = Header::parse($headers['Content-Length']);
-                if (null === $file->getSize() && !empty($size)) {
-                    $file->setSize((int) $size[0][0]);
-                }
-            }
             $mimeType = null;
             if (isset($headers['Content-Type'])) {
                 $type = Header::parse($headers['Content-Type']);
@@ -68,6 +64,10 @@ readonly class ImportFileHandler
                     $mimeType = $type[0][0];
                 }
             }
+
+            $file->setSize(filesize($src));
+
+            $this->fileAnalyzer->analyzeFileSource($src, $file);
 
             $finalPath = $this->fileManager->storeFile(
                 $file->getWorkspace(),

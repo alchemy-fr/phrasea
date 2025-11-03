@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace App\Integration\Core\Watermark;
 
 use Alchemy\Workflow\Executor\RunContext;
-use App\Asset\Attribute\AttributesResolver;
-use App\Asset\FileFetcher;
 use App\Attribute\AttributeInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
-use App\Image\ImageManagerFactory;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
 use App\Repository\Core\AttributeDefinitionRepository;
-use App\Storage\FileManager;
-use App\Storage\RenditionManager;
+use App\Service\Asset\Attribute\AttributesResolver;
+use App\Service\Asset\FileFetcher;
+use App\Service\Image\ImageManagerFactory;
+use App\Service\Storage\FileManager;
+use App\Service\Storage\RenditionManager;
 use Intervention\Image\Imagick\Font;
 
 class WatermarkAction extends AbstractIntegrationAction implements IfActionInterface

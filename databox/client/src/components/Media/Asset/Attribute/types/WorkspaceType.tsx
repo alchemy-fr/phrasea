@@ -18,12 +18,7 @@ export default class WorkspaceType
     }
 
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
-        return (
-            <WorkspaceChip
-                label={value.nameTranslated || value.name}
-                size={'small'}
-            />
-        );
+        return <WorkspaceChip workspace={value} size={'small'} />;
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {
