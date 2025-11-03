@@ -1,38 +1,36 @@
-# Form configuration
+# Form Configuration
 
-Form are based on LiForm format.
+Uploader forms are based on the [LiForm format](https://limenius.github.io/liform-react/#/). This allows for flexible, JSON-schema-driven forms that can be customized for different upload scenarios.
 
-See [LiForm documentation](https://limenius.github.io/liform-react/#/)
+## Reserved Keywords
 
-## Reserved keyword
+Certain field names have special meaning in the uploader:
 
-- `__notify`
-Name your field with this keyword in order to send email to user when upload has been processed.
+- `__notify`: If a field is named `__notify`, users can request an email notification when their upload is processed.
 
-```json
-{
-    "properties": {
-        "__notify": {
-            "title": "Notify me when done!",
-            "type": "boolean"
-        }
-    }
-}
-```
+  Example:
+  ```json
+  {
+      "properties": {
+          "__notify": {
+              "title": "Notify me when done!",
+              "type": "boolean"
+          }
+      }
+  }
+  ```
 
-- `collection_destination`
-Set the collection destination of the asset.
+- `collection_destination`: Specifies the collection where the asset will be stored.
 
-### Databox reserved keywords
+### Databox Reserved Keywords
 
-- `databox_title` Set the title of the asset.
-- `databox_tags` Set the tags of the asset (array of tag UUID).
-- `databox_is_story` Set if the asset is a story (boolean).
+- `databox_title`: Sets the title of the asset.
+- `databox_tags`: Sets the tags for the asset (array of tag UUIDs).
+- `databox_is_story`: Indicates if the asset is a story (boolean).
 
-## Hard coded form data (Bulk data)
+## Hard-Coded Form Data (Bulk Data)
 
-Uploader can define custom form data for a specific client.
-In the Bulk data section of the upload (you must be an admin), you can edit the data JSON that will be applied to every assets:
+Uploader can define custom form data for a specific client. In the Bulk Data section (admin only), you can edit the JSON data that will be applied to every asset in a batch:
 
 ```json
 {
@@ -48,7 +46,9 @@ In the Bulk data section of the upload (you must be an admin), you can edit the 
 }
 ```
 
-## Databox examples
+## Databox Example
+
+A typical databox form schema might look like this:
 
 ```json
 {

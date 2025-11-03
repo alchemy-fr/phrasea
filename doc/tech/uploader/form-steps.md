@@ -1,69 +1,56 @@
-# Form steps
+# Form Steps
 
-Form can have multiple steps:
+Uploader supports multi-step forms, allowing for dynamic and conditional form flows. This is useful when the information required from the user depends on previous answers.
 
-1. Client request the form schema:
+## Step-by-Step Example
 
-```bash
-curl -X POST -H "Content-Type: application/json" https://<UPLOAD_HOST>/schema -d'{}'
-```
+1. **Client requests the form schema:**
 
-> Note that JSON data is empty because no form data has been submitted yet.
+   The client initiates the process by requesting the initial form schema.
+   ```bash
+   curl -X POST -H "Content-Type: application/json" https://<UPLOAD_HOST>/schema -d '{}'
+   ```
+   > The JSON data is empty because no form data has been submitted yet.
 
-2. Client receive the form structure:
+2. **Client receives the form structure:**
 
-```json
-{
-  "type": "object",
-  "required": [
-    "databox"
-  ],
-  "properties": {
-    "databox": {
-      "enum": {
-        "foo": "Foo",
-        "bar": "Bar"
-      },
-      "type": "string",
-      "title": "Which data box destination?"
-    }
-  }
-}
-```
+   The server responds with the first step of the form schema.
+   ```json
+   {
+     "type": "object",
+     "required": ["databox"],
+     "properties": {
+       "databox": {
+         "enum": {"foo": "Foo", "bar": "Bar"},
+         "type": "string",
+         "title": "Which data box destination?"
+       }
+     }
+   }
+   ```
 
-3. Client sends the first form data:
+3. **Client submits the first form data:**
 
-```bash
-curl -X POST -H "Content-Type: application/json" https://<UPLOAD_HOST>/schema -d'{
-  "databox": "bar"
-}'
-```
+   ```bash
+   curl -X POST -H "Content-Type: application/json" https://<UPLOAD_HOST>/schema -d '{"databox": "bar"}'
+   ```
 
-4. Depending on the submitted data, the server can now server the next form fields:
+4. **Server responds with the next form fields:**
 
-```json
-{
-  "type": "object",
-  "required": [
-    "title"
-  ],
-  "properties": {
-    "title": {
-      "type": "string",
-      "title": "Title:"
-    },
-    "description": {
-      "type": "string",
-      "title": "Description:"
-    }
-  }
-}
-```
+   Based on the submitted data, the server provides the next set of fields.
+   ```json
+   {
+     "type": "object",
+     "required": ["title"],
+     "properties": {
+       "title": {"type": "string", "title": "Title:"},
+       "description": {"type": "string", "title": "Description:"}
+     }
+   }
+   ```
 
-5. The client submits all the form data, including the previous steps' ones:
+5. **Client submits all form data (including previous steps):**
 
-```bash
-curl -X POST -H "Content-Type: application/json" https://<UPLOAD_HOST>/schema -d'{
-  "databox": "bar"
-}'
-```
+   ```bash
+   curl -X POST -H "Content-Type: application/json" https://<UPLOAD_HOST>/schema -d '{"databox": "bar", "title": "My Asset", "description": "A description"}'
+   ```

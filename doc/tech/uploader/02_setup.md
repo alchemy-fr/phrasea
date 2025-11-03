@@ -22,10 +22,6 @@ CLIENT_ID=<THE_CLIENT_ID>
 CLIENT_SECRET=<A_SECRET>
 ```
 
-- `DEV_MODE`: Set to `false` for production. Use `true` for local development.
-- `CLIENT_ID`: The client ID from Phraseanet.
-- `CLIENT_SECRET`: The client secret/token from Phraseanet.
-
 ## 3. Development Tips
 
 To avoid sending commit requests to the consumer target during development, you can set:
@@ -42,7 +38,3 @@ This prevents actual asset consumption and is useful for testing.
 - [Request Flow](./request_flow.md)
 - [Form Configuration](./form_config.md)
 - [Form Steps](./form-steps.md)
-
----
-
-For more details on the overall architecture, see the [Uploader Introduction](01_intro.md).
