@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Command;
+namespace Alchemy\CoreBundle\Command;
 
-use App\Documentation\DocumentationGeneratorInterface;
+use Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,11 +12,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
-#[AsCommand('app:documentation:dump')]
+#[AsCommand('alchemy:core:documentation:dump')]
 class DocumentationDumperCommand extends Command
 {
     public function __construct(
-        #[AutowireIterator(DocumentationGeneratorInterface::TAG)] private readonly iterable $documentations,
+        #[AutowireIterator(DocumentationGeneratorInterface::TAG)]
+        private readonly iterable $documentations,
     ) {
         parent::__construct();
     }

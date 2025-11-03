@@ -1,3 +1,7 @@
+---
+title: Intro
+---
+
 # Databox
 
 Databox is the very core service in Phrasea.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Documentation;
+namespace Alchemy\CoreBundle\Documentation;
 
 abstract class DocumentationGenerator implements DocumentationGeneratorInterface
 {
@@ -33,7 +33,6 @@ abstract class DocumentationGenerator implements DocumentationGeneratorInterface
         return null;
     }
 
-    /** return DocumentationGeneratorInterface[] */
     public function getChildren(): array
     {
         return [];

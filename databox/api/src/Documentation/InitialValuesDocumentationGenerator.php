@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Documentation;
 
+use Alchemy\CoreBundle\Documentation\DocumentationGenerator;
 use Symfony\Component\Yaml\Yaml;
 
 class InitialValuesDocumentationGenerator extends DocumentationGenerator

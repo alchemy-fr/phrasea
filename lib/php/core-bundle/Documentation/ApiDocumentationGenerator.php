@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Documentation;
+namespace Alchemy\CoreBundle\Documentation;
 
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Documentation;
+namespace Alchemy\CoreBundle\Documentation;
 
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag(DocumentationGeneratorInterface::TAG)]
 interface DocumentationGeneratorInterface
 {
-    final public const string TAG = 'documentation_generator';
+    final public const string TAG = 'alchemy_core.documentation_generator';
 
     public function getPath(): string;
 
@@ -23,6 +23,8 @@ interface DocumentationGeneratorInterface
 
     public function getFooter(): ?string;
 
-    /** return DocumentationGeneratorInterface[] */
+    /**
+     * @return DocumentationGeneratorInterface[]
+     */
     public function getChildren(): array;
 }

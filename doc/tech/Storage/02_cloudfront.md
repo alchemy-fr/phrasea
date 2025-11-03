@@ -1,4 +1,6 @@
-# Setup CloudFront
+# CloudFront
+
+## Setup
 
 ```dotenv
 CLOUD_FRONT_URL=https://xxxxx.cloudfront.net

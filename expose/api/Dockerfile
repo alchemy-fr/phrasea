@@ -15,7 +15,8 @@ COPY --chown=app:app ./expose/api .
 
 RUN mkdir -p var/cache var/logs var/sessions \
     && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
-    && composer clear-cache
+    && composer clear-cache \
+    && bin/console alchemy:core:documentation:dump /srv/app/doc
 
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Documentation;
 
+use Alchemy\CoreBundle\Documentation\DocumentationGenerator;
 use Alchemy\RenditionFactory\RenditionBuilderConfigurationDocumentation;
 
 class RenditionBuilderDocumentationGenerator extends DocumentationGenerator

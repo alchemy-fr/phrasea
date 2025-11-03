@@ -25,6 +25,11 @@ services:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
 
+    _instanceof:
+        Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface:
+            tags:
+                - name: !php/const Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface::TAG
+
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
     App\Controller\:
@@ -60,3 +65,5 @@ services:
         arguments: [ '@app.serializer.decorated_object.inner' ]
         tags:
             - { name: serializer.normalizer, priority: -989 }
+
+    Alchemy\CoreBundle\Documentation\ApiDocumentationGenerator: ~
