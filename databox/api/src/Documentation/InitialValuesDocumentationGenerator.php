@@ -7,16 +7,11 @@ namespace App\Documentation;
 use Alchemy\CoreBundle\Documentation\DocumentationGenerator;
 use Symfony\Component\Yaml\Yaml;
 
-class InitialValuesDocumentationGenerator extends DocumentationGenerator
+final class InitialValuesDocumentationGenerator extends DocumentationGenerator
 {
     public function getPath(): string
     {
         return '_initial_attribute_values.md';
-    }
-
-    public function getTitle(): string
-    {
-        return 'Initial Attribute Values';
     }
 
     public function getContent(): ?string

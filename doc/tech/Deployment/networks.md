@@ -15,7 +15,7 @@ The solution is to run a Keycloak service in the public network and to declare
 Phraseanet as a OAuth client with the grant_type `client_credentials` (M2M authentication).
 So Phraseanet will be able to ask Keycloak an access_token and to authenticate beside Uploader.
 
-![External Uploader](./external-uploader.png "External Uploader")
+![External Uploader](external-uploader.png "External Uploader")
 
 ```sequence
 title External Uploader

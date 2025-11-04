@@ -87,5 +87,5 @@ You can use the following helper to do so automatically:
 
 ## Further reading
 
-- [Debug application with XDEBUG](./xdebug.md)
-- [Deploy to minikube](./minikube.md)
+- [Debug application with XDEBUG](Development/xdebug.md)
+- [Deploy to minikube](Deployment/minikube.md)

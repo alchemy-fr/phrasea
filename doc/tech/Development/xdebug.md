@@ -15,7 +15,7 @@ Each application should have its server configured in PhpStorm.
 Each server name should follow the following pattern: `docker-server-SERVICE` (e.g. `docker-server-databox`).
 Then you need to enable path mappings for the server. See the example below:
 
-![PhpStorm mapping](./xdebug-php-storm.png)
+![PhpStorm mapping](xdebug-php-storm.png)
 
 > Configure the `Absolute path on the server` to `/srv/app` at the application project path (e.g. `~/projects/phrasea/databox/api` in this case).
 

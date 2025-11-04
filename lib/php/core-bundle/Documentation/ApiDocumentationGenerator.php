@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-class ApiDocumentationGenerator extends DocumentationGenerator
+final class ApiDocumentationGenerator extends DocumentationGenerator
 {
     private Application $application;
 
@@ -22,11 +22,6 @@ class ApiDocumentationGenerator extends DocumentationGenerator
     public function getPath(): string
     {
         return '_schema.json';
-    }
-
-    public function getTitle(): string
-    {
-        return 'API Schema';
     }
 
     public function getContent(): string

@@ -48,14 +48,14 @@ class DocumentationDumperCommand extends Command
         }
 
         foreach ($chapters as $chapter) {
-            $title = $chapter->getTitle() ?? $chapter->getPath();
-            $pathParts = pathinfo($chapter->getPath());
+            $path = $chapter->getPath();
+            $pathParts = pathinfo($path);
             $outputDir = $destination.'/'.$pathParts['dirname'];
             $extension = $pathParts['extension'];
             @mkdir($outputDir, 0777, true);
             $outputFile = $outputDir.'/'.$pathParts['filename'].'.'.$extension;
             file_put_contents($outputFile, $this->getAsText($chapter, $extension));
-            $output->writeln(sprintf('<info>Documentation for chapter "%s" written to "%s".</info>', $title, realpath($outputFile)));
+            $output->writeln(sprintf('<info>Documentation for chapter "%s" written to "%s".</info>', $path, realpath($outputFile)));
         }
 
         return Command::SUCCESS;

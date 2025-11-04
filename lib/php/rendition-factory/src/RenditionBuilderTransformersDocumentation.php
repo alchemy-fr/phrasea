@@ -8,17 +8,12 @@ use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-final readonly class RenditionBuilderConfigurationDocumentation
+final readonly class RenditionBuilderTransformersDocumentation
 {
     public function __construct(
         #[TaggedLocator(TransformerModuleInterface::TAG, defaultIndexMethod: 'getName')]
         private ServiceLocator $transformers,
     ) {
-    }
-
-    public static function getName(): string
-    {
-        return 'rendition-factory';
     }
 
     public function generate(): string
@@ -36,7 +31,6 @@ final readonly class RenditionBuilderConfigurationDocumentation
     private function getTransformerDocumentation(string $transformerName, TransformerModuleInterface $transformer): string
     {
         $docToText = function (Documentation $documentation, int $depth = 0) use (&$docToText): string {
-
             $text = '';
             if ($t = $documentation->getHeader()) {
                 $text .= $t."\n";
@@ -66,6 +60,6 @@ final readonly class RenditionBuilderConfigurationDocumentation
 
         $documentation = $transformer->getDocumentation();
 
-        return "## `$transformerName` transformer module\n".$docToText($documentation);
+        return "### $transformerName\n".$docToText($documentation);
     }
 }
