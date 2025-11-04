@@ -99,9 +99,9 @@ bin/install-fixtures.sh
 ```
 
 * Read the documentation for each group of services to customize environment variables:
-    * [databox](./databox/01_intro.md)
-    * [expose](./expose/01_intro.md)
-    * [uploader](./uploader/01_intro.md)
+    * [databox](./Databox/01_intro.md)
+    * [expose](./Expose/01_intro.md)
+    * [uploader](./Uploader/01_intro.md)
 
 * Start the whole stack:
 
