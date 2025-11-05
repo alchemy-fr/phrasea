@@ -30,6 +30,10 @@ services:
             tags:
                 - name: !php/const Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface::TAG
 
+        Alchemy\ConfiguratorBundle\Schema\SchemaProviderInterface:
+            tags:
+                - name: !php/const Alchemy\ConfiguratorBundle\Schema\SchemaProviderInterface::TAG
+
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
     App\Controller\:

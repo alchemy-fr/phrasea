@@ -29,6 +29,7 @@ import {getBestLocale} from '@alchemy/i18n/src/Locale/localeHelper.ts';
 import {appLocales, defaultLocale} from '../../../translations/locales.ts';
 import LocaleIcon from '../Locale/LocaleIcon.tsx';
 import SettingsIcon from '@mui/icons-material/Settings';
+import {parseInlineStyle} from '../../lib/style.ts';
 
 export const menuHeight = 42;
 
@@ -91,11 +92,17 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                 cursor: 'pointer',
                             }}
                         >
-                            {config.logo ? (
+                            {config.logo?.src ? (
                                 <img
-                                    src={config.logo}
+                                    src={config.logo.src}
                                     alt={t('common.databox', `Databox`)}
-                                    style={{maxHeight: 32, maxWidth: 150}}
+                                    style={
+                                        config.logo!.style
+                                            ? parseInlineStyle(
+                                                  config.logo.style
+                                              )
+                                            : {maxHeight: 32, maxWidth: 150}
+                                    }
                                 />
                             ) : (
                                 t('common.databox', `Databox`)

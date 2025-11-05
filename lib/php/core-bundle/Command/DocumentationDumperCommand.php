@@ -54,7 +54,7 @@ class DocumentationDumperCommand extends Command
             $extension = $pathParts['extension'];
             @mkdir($outputDir, 0777, true);
             $outputFile = $outputDir.'/'.$pathParts['filename'].'.'.$extension;
-            file_put_contents($outputFile, $this->getAsText($chapter, $extension));
+            file_put_contents($outputFile, $this->getAsText($chapter, $extension)."\n");
             $output->writeln(sprintf('<info>Documentation for chapter "%s" written to "%s".</info>', $path, realpath($outputFile)));
         }
 
@@ -66,11 +66,11 @@ class DocumentationDumperCommand extends Command
         $chapter->setLevels($levels);
 
         $text = '';
-        if (null !== ($t = $chapter->getHeader())) {
-            $text .= $t."\n";
+        if ($t = trim($chapter->getHeader() ?? '')) {
+            $text .= $t."\n\n";
         }
-        if (null !== ($t = $chapter->getContent())) {
-            $text .= $t."\n";
+        if ($t = trim($chapter->getContent() ?? '')) {
+            $text .= $t."\n\n";
         }
 
         $n = 1;
@@ -79,13 +79,13 @@ class DocumentationDumperCommand extends Command
             if (!empty($subLevels)) {
                 $subLevels[] = $n++;
             }
-            $text .= $this->getAsText($child, $extension, $subLevels);
+            $text .= $this->getAsText($child, $extension, $subLevels)."\n\n";
         }
 
-        if (null !== ($t = $chapter->getFooter())) {
-            $text .= $t."\n";
+        if ($t = trim($chapter->getFooter() ?? '')) {
+            $text .= $t."\n\n";
         }
 
-        return $text;
+        return trim($text);
     }
 }

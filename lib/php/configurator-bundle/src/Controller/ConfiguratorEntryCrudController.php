@@ -8,14 +8,13 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Voter\SuperAdminVoter;
 use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntry;
 use Alchemy\ConfiguratorBundle\Field\FileField;
+use Alchemy\ConfiguratorBundle\Form\Type\ConfigurationKeyType;
 use Alchemy\ConfiguratorBundle\Message\DeployConfig;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -28,8 +27,7 @@ class ConfiguratorEntryCrudController extends AbstractAdminCrudController
 {
     public function __construct(
         private readonly MessageBusInterface $bus,
-    )
-    {
+    ) {
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -65,7 +63,9 @@ class ConfiguratorEntryCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield TextField::new('name');
+        yield TextField::new('name')
+            ->setFormType(ConfigurationKeyType::class)
+        ;
         yield FileField::new('file')
             ->setFormTypeOption('required', false)
             ->setFormTypeOption('mapped', false)
