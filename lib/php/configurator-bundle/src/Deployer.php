@@ -12,8 +12,7 @@ final readonly class Deployer
     public function __construct(
         private JsonDumper $dumper,
         private BucketPusher $pusher,
-    )
-    {
+    ) {
     }
 
     public function deploy(): void

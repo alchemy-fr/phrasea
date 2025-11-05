@@ -10,8 +10,7 @@ final readonly class DeployConfigHandler
 {
     public function __construct(
         private Deployer $deployer,
-    )
-    {
+    ) {
     }
 
     public function __invoke(DeployConfig $message): void

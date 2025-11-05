@@ -177,7 +177,7 @@ services:
       - MAILER_PASSWORD
       - MAILER_SSL
       - MAILER_TLS
-#      - KEYCLOAK_URL
+      - KEYCLOAK_URL
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
       - KEYCLOAK_REALM_NAME
