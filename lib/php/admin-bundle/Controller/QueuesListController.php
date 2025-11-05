@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Alchemy\AdminBundle\Controller;
 
 use PhpAmqpLib\Connection\AMQPSSLConnection;
-use Symfony\Component\HttpFoundation\Response;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class QueuesListController extends AbstractController
 {
@@ -18,7 +18,7 @@ class QueuesListController extends AbstractController
 
     #[Route(path: '/admin/queues/list', name: 'queues_list')]
     public function __invoke(): Response
-    {     
+    {
         $isSsl = in_array(strtolower(getenv('RABBITMQ_SSL') ?: ''), [
             '1', 'y', 'true', 'on',
         ], true);
@@ -43,18 +43,18 @@ class QueuesListController extends AbstractController
 
         $channel = $connection->channel();
         $queuesStatus = [];
-        
+
         foreach ($this->queues as $queueName) {
             list($queueName, $messageCount, $consumerCount) = $channel->queue_declare($queueName, true);
             $queuesStatus[$queueName] = [
-                'queueName'     => $queueName,
-                'messageCount'  => $messageCount,
-                'consumerCount' => $consumerCount
+                'queueName' => $queueName,
+                'messageCount' => $messageCount,
+                'consumerCount' => $consumerCount,
             ];
         }
-        
+
         return $this->render('@AlchemyAdmin/queues_list.html.twig', [
-            'queuesStatus' => $queuesStatus
+            'queuesStatus' => $queuesStatus,
         ]);
     }
 }
