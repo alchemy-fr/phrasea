@@ -98,8 +98,6 @@ services:
       - NOVU_APPLICATION_IDENTIFIER
       - NOVU_WS_URL
       - NOVU_API_URL
-    volumes:
-      - ./configs:/configs
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -157,8 +155,6 @@ services:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-    volumes:
-      - ./configs:/configs
 
   a_s3-php:
     extends:
@@ -1040,8 +1036,6 @@ services:
       - KC_REALM_ADMIN_EVENT_EXPIRATION
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-    volumes:
-      - ./configs:/configs
 
   cypress:
     build: ./cypress

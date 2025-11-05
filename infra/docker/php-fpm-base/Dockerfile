@@ -79,7 +79,8 @@ RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
     && mkdir -p /docker/entrypoint.d \
       /docker/app/conf.d \
       /etc/supervisor.d \
-      /docker/worker
+      /docker/worker \
+      /etc/app
 
 COPY conf.d/* /docker/app/conf.d/
 COPY entrypoint.sh /docker/entrypoint.sh

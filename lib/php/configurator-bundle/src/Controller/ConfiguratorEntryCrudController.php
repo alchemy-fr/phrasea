@@ -10,6 +10,7 @@ use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntry;
 use Alchemy\ConfiguratorBundle\Field\FileField;
 use Alchemy\ConfiguratorBundle\Form\Type\ConfigurationKeyType;
 use Alchemy\ConfiguratorBundle\Message\DeployConfig;
+use Alchemy\ConfiguratorBundle\Service\ConfigurationReference;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -27,6 +28,7 @@ class ConfiguratorEntryCrudController extends AbstractAdminCrudController
 {
     public function __construct(
         private readonly MessageBusInterface $bus,
+        private readonly ConfigurationReference $configurationReference,
     ) {
     }
 
@@ -41,10 +43,29 @@ class ConfiguratorEntryCrudController extends AbstractAdminCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        return $actions->add(Crud::PAGE_INDEX, Action::new('push', 'Push Configuration', 'fa fa-upload')
+        $allowedKeys = array_keys($this->configurationReference->getAllSchemaProperties());
+        dump($allowedKeys);
+
+        return $actions
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->update(Crud::PAGE_INDEX, Action::EDIT, static function (Action $action) use ($allowedKeys) {
+                $action->displayIf(static function (ConfiguratorEntry $entity) use ($allowedKeys) {
+                    return in_array($entity->getName(), $allowedKeys, true);
+                });
+
+                return $action;
+            })
+            ->update(Crud::PAGE_INDEX, Action::DELETE, static function (Action $action) use ($allowedKeys) {
+                $action->displayIf(static function (ConfiguratorEntry $entity) use ($allowedKeys) {
+                    return in_array($entity->getName(), $allowedKeys, true);
+                });
+
+                return $action;
+            })
+            ->add(Crud::PAGE_INDEX, Action::new('push', 'Push Configuration', 'fa fa-upload')
             ->createAsGlobalAction()
             ->linkToCrudAction('configuratorPush')
-        );
+            );
     }
 
     public function configuratorPush(AdminContext $context): Response
@@ -64,6 +85,7 @@ class ConfiguratorEntryCrudController extends AbstractAdminCrudController
     {
         yield IdField::new();
         yield TextField::new('name')
+            ->hideWhenUpdating()
             ->setFormType(ConfigurationKeyType::class)
         ;
         yield FileField::new('file')

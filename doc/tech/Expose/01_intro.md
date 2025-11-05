@@ -91,20 +91,10 @@ EXPOSE_CLIENT_ID=<THE_CLIENT_ID>
 
 ## Analytics
 
-```json
-// configs/config.json
-{
-  "expose": {
-    "analytics": {
-      "provider": "google_analytics|matomo",
-      "options": {
-        "propertyId": "GA123", // google_analytics
-        "siteId": "4242" // For matomo
-      }
-    }
-  }
-}
-```
+Add configuration to enable Analytics:
+
+1. Go to Expose Admin panel > Settings > Global Config
+2. Add the appropriate configuration entries (see [Analytics options](../Configuration/configuration.mdx#analytics))
 
 ## Direct URL access
 

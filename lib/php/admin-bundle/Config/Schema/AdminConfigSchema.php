@@ -1,12 +1,20 @@
 <?php
 
-namespace Alchemy\ConfiguratorBundle\Schema;
+namespace Alchemy\AdminBundle\Config\Schema;
 
+use Alchemy\ConfiguratorBundle\Schema\GlobalConfigurationSchema;
+use Alchemy\ConfiguratorBundle\Schema\SchemaProperty;
+use Alchemy\ConfiguratorBundle\Schema\SchemaProviderInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final class GlobalConfigurationSchema implements SchemaProviderInterface
+final readonly class AdminConfigSchema implements SchemaProviderInterface
 {
-    final public const string LOGO_SRC_REGEX = '#^data:image\\/(png|jpg|jpeg|gif|svg\+xml);base64,[a-zA-Z0-9+/=]+$#';
+    public function __construct(
+        #[Autowire(param: 'alchemy_core.app_name')]
+        private string $serviceName,
+    ) {
+    }
 
     public function getSchema(): array
     {
@@ -21,7 +29,7 @@ final class GlobalConfigurationSchema implements SchemaProviderInterface
                         validationConstraints: [
                             new Assert\AtLeastOneOf([
                                 new Assert\Url(),
-                                new Assert\Regex(self::LOGO_SRC_REGEX),
+                                new Assert\Regex(GlobalConfigurationSchema::LOGO_SRC_REGEX),
                             ]),
                         ]
                     ),
@@ -32,36 +40,16 @@ final class GlobalConfigurationSchema implements SchemaProviderInterface
                     ),
                 ],
             ),
-            new SchemaProperty(
-                name: 'theme',
-                description: 'Theme copied from https://bareynol.github.io/mui-theme-creator/',
-                example: <<<'EOT'
-export const themeOptions = {
-  palette: {
-    type: 'light',
-    primary: {
-      main: '#3f51b5',
-    },
-    secondary: {
-      main: '#f50057',
-    },
-    background: {
-      default: '#793333',
-    },
-  },
-};
-EOT
-            ),
         ];
     }
 
     public function getTitle(): string
     {
-        return 'Global Configuration';
+        return 'Admin Configuration';
     }
 
     public function getRootKey(): string
     {
-        return '';
+        return $this->serviceName.'.admin';
     }
 }

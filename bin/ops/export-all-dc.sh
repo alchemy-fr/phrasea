@@ -15,10 +15,6 @@ mkdir -p "${DIR}"
 
 . "bin/ops/db/db.sh"
 
-cp configs/config.json "${DIR}/config.json"
-  echo "[✓] config.json exported"
-EXPORTED="config.json"
-
 for d in ${DATABASES}; do
   DUMP_FILE="${DIR}/${d}.sql"
   exec_container db "pg_dump --data-only --exclude-table=oauth_client -U ${POSTGRES_USER} ${d}" > ${DUMP_FILE} 2> /dev/null

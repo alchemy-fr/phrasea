@@ -25,6 +25,14 @@ class ValidConfigurationEntryConstraintValidator extends ConstraintValidator
         $key = $value->getName();
 
         $prop = $this->findProperty($key);
+        if (null === $prop) {
+            $this->context
+                ->buildViolation('The configuration key "{{ key }}" is not recognized.')
+                ->setParameter('{{ key }}', $key)
+                ->addViolation();
+
+            return;
+        }
 
         $this->context
             ->getValidator()
@@ -33,7 +41,7 @@ class ValidConfigurationEntryConstraintValidator extends ConstraintValidator
             ->validate($value->getValue(), $prop->validationConstraints, $this->context->getGroup());
     }
 
-    private function findProperty(string $path): SchemaProperty
+    private function findProperty(string $path): ?SchemaProperty
     {
         $props = $this->configurationReference->getAllSchemaProperties();
 
@@ -41,6 +49,6 @@ class ValidConfigurationEntryConstraintValidator extends ConstraintValidator
             return $props[$path];
         }
 
-        throw new \RuntimeException(sprintf('Configuration key "%s" not found in any schema.', $path));
+        return null;
     }
 }

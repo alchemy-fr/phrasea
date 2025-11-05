@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle;
 
-class AdminConfigRegistry
+final readonly class AdminConfigRegistry
 {
-    public function __construct(private readonly string $siteTitle, private readonly ?string $siteLogo)
-    {
+    public function __construct(
+        private string $siteTitle,
+        private ?string $siteLogo,
+    ) {
     }
 
     public function getLayoutParams(): array

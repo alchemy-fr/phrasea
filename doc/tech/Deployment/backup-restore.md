@@ -4,7 +4,6 @@
 
 An export file will contain:
 - all databases as .sql files
-- config.json (from ./configs/)
 
 ### From docker compose
 

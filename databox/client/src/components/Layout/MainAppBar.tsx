@@ -29,7 +29,7 @@ import {getBestLocale} from '@alchemy/i18n/src/Locale/localeHelper.ts';
 import {appLocales, defaultLocale} from '../../../translations/locales.ts';
 import LocaleIcon from '../Locale/LocaleIcon.tsx';
 import SettingsIcon from '@mui/icons-material/Settings';
-import {parseInlineStyle} from '../../lib/style.ts';
+import {parseInlineStyle} from '@alchemy/core';
 
 export const menuHeight = 42;
 

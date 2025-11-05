@@ -249,7 +249,6 @@ services:
       - ${HOME}/.ssh:/home/app/.ssh
       - ${HOME}/.composer:/home/app/.composer
       - dev:/home/app
-      - ./configs:/configs
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}

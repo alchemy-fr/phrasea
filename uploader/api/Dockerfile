@@ -10,6 +10,7 @@ RUN composer install --prefer-dist --no-dev --no-progress --classmap-authoritati
     && rm -rf vendor composer.*
 # End warm up
 
+COPY ./lib/bash/configurator /docker/configurator
 COPY --chown=app:app lib/php /lib/php
 COPY --chown=app:app ./uploader/api .
 
