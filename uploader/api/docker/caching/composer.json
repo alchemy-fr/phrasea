@@ -117,7 +117,6 @@
         "symfony/validator": "^6.3",
         "symfony/web-link": "^6.3",
         "symfony/yaml": "^6.3",
-        "twig/extensions": "^1.5",
         "easycorp/easyadmin-bundle": "^4.0,<=4.20.2",
         "php-amqplib/php-amqplib": "^3.7",
         "aws/aws-sdk-php": "^3.325",
