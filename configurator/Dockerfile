@@ -10,7 +10,7 @@ COPY --chown=app:app lib/php /srv/lib/php
 
 RUN mkdir -p var/cache var/logs var/sessions \
     && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
-    && composer clear-cache \ \
+    && composer clear-cache \
     && bin/console alchemy:core:documentation:dump /srv/app/doc \
     && chown -R app: .
 
