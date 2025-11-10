@@ -34,4 +34,6 @@ interface BuiltInFieldInterface
     public function includesMissing(): bool;
 
     public function normalizeValueForSearch(mixed $value): mixed;
+
+    public function createFilterQuery(mixed $value): ?Query\AbstractQuery;
 }

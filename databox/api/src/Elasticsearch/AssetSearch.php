@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Attribute\AttributeInterface;
+use App\Elasticsearch\BuiltInField\DeletedBuiltInField;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
@@ -27,6 +28,7 @@ class AssetSearch extends AbstractSearch
         private readonly AttributeSearch $attributeSearch,
         private readonly QueryStringParser $queryStringParser,
         private readonly FacetHandler $facetHandler,
+        private readonly DeletedBuiltInField $deletedBuiltInField,
     ) {
     }
 
@@ -86,14 +88,22 @@ class AssetSearch extends AbstractSearch
             $limit = $maxLimit;
         }
 
+        $hasDeletedFilter = false;
         if (null !== $conditions = ($options['conditions'] ?? null)) {
             foreach ($conditions as $condition) {
+                if (str_starts_with($condition, '@deleted')) {
+                    $hasDeletedFilter = true;
+                }
                 $filterQueries[] = $this->attributeSearch->buildConditionQuery(
                     $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds),
                     $condition,
                     $options
                 );
             }
+        }
+
+        if (!$hasDeletedFilter) {
+            $filterQueries[] = $this->deletedBuiltInField->createFilterQuery(false);
         }
 
         $filterQuery = new Query\BoolQuery();
@@ -119,25 +129,6 @@ class AssetSearch extends AbstractSearch
                     AttributeSearch::OPT_STRICT_PHRASE => true,
                 ]));
             $filterQuery->addMust($multiMatch);
-        }
-
-        $includeDeleted = false;
-        foreach ($parsed['filters'] as $filter) {
-            if (isset($filter['in'])) {
-                switch ($filter['in']) {
-                    case 'all':
-                        $includeDeleted = true;
-                        break;
-                    case 'trash':
-                        $filterQuery->addFilter(self::createDeleteQuery(true));
-                        $includeDeleted = true;
-                        break;
-                }
-            }
-        }
-
-        if (!$includeDeleted) {
-            $filterQuery->addFilter(self::createDeleteQuery(false));
         }
 
         $query = new Query();
@@ -315,19 +306,5 @@ class AssetSearch extends AbstractSearch
     protected function getAdminScope(): ?string
     {
         return AssetVoter::SCOPE_PREFIX.AbstractVoter::LIST;
-    }
-
-    public static function createDeleteQuery(bool $deleted): Query\BoolQuery
-    {
-        $boolQuery = new Query\BoolQuery();
-        if ($deleted) {
-            $boolQuery->addShould(new Query\Term(['deleted' => true]));
-            $boolQuery->addShould(new Query\Term(['collectionDeleted' => true]));
-        } else {
-            $boolQuery->addMust(new Query\Term(['deleted' => false]));
-            $boolQuery->addMust(new Query\Term(['collectionDeleted' => false]));
-        }
-
-        return $boolQuery;
     }
 }
