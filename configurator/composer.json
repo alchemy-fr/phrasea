@@ -23,6 +23,7 @@
         "php": ">=8.3",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "alchemy/core-bundle": "@dev",
         "alchemy/configurator-bundle": "@dev",
         "doctrine/doctrine-bundle": "^2.12",
         "doctrine/doctrine-migrations-bundle": "^3.3",

@@ -4,6 +4,7 @@ FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
 WORKDIR /srv/app
 
+COPY --chown=app:app ./.env ./.env.default
 COPY --chown=app:app ./configurator .
 COPY --chown=app:app lib/php /srv/lib/php
 
