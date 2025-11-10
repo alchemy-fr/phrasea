@@ -94,7 +94,7 @@ EXPOSE_CLIENT_ID=<THE_CLIENT_ID>
 Add configuration to enable Analytics:
 
 1. Go to Expose Admin panel > Settings > Global Config
-2. Add the appropriate configuration entries (see [Analytics options](../Configuration/configuration.mdx#analytics))
+2. Add the appropriate configuration entries (see [Analytics options](../Configuration/02_instance.mdx#analytics))
 
 ## Direct URL access
 
