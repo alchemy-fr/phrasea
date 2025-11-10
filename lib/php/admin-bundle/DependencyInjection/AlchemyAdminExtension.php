@@ -37,7 +37,7 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
         $config = $stackConfig[$serviceConfig['name']]['admin'] ?? [];
 
         $config['logo'] ??= [
-            'src' => 'https://www.phraseanet.com/wp-content/uploads/2014/05/PICTO_PHRASEANET.png',
+            'src' => '/bundles/alchemyadmin/phrasea-logo.png',
             'style' => 'max-width: 80px;',
         ];
 
