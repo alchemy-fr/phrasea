@@ -93,7 +93,7 @@ class AssetSearch extends AbstractSearch
         $hasDeletedFilter = false;
         if (null !== $conditions = ($options['conditions'] ?? null)) {
             foreach ($conditions as $condition) {
-                if (str_starts_with($condition, '@deleted')) {
+                if (str_starts_with($condition, DeletedBuiltInField::getKey())) {
                     $hasDeletedFilter = true;
                 }
                 $filterQueries[] = $this->attributeSearch->buildConditionQuery(
