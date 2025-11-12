@@ -35,5 +35,5 @@ interface BuiltInFieldInterface
 
     public function normalizeValueForSearch(mixed $value): mixed;
 
-    public function createFilterQuery(mixed $value): ?Query\AbstractQuery;
+    public function createFilterQuery(mixed $value, array $options): ?Query\AbstractQuery;
 }

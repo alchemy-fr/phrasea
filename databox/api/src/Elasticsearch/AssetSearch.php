@@ -38,6 +38,8 @@ class AssetSearch extends AbstractSearch
         array $options = [],
     ): array {
         $maxLimit = 50;
+        $options['userId'] = $userId;
+        $options['groupIds'] = $groupIds;
 
         $filterQueries = [];
 
@@ -103,7 +105,7 @@ class AssetSearch extends AbstractSearch
         }
 
         if (!$hasDeletedFilter) {
-            $filterQueries[] = $this->deletedBuiltInField->createFilterQuery(false);
+            $filterQueries[] = $this->deletedBuiltInField->createFilterQuery(false, $options);
         }
 
         $filterQuery = new Query\BoolQuery();

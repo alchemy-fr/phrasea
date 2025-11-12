@@ -141,7 +141,7 @@ final readonly class AQLToESQuery
             $value = null;
         }
 
-        if (null !== $builtInField && null !== $filterQuery = $builtInField->createFilterQuery($value)) {
+        if (null !== $builtInField && null !== $filterQuery = $builtInField->createFilterQuery($value, $options)) {
             return $filterQuery;
         }
 
