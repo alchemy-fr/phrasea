@@ -50,13 +50,15 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
 </script>`;
     }
 
+    const uploaderConfig = stackConfig.uploader || {};
+
     return {
         customHTML,
-        maxFileSize: config.uploader.max_upload_file_size,
-        maxCommitSize: config.uploader.max_upload_commit_size,
-        maxFileCount: config.uploader.max_upload_file_count,
+        maxFileSize: uploaderConfig.max_upload_file_size,
+        maxCommitSize: uploaderConfig.max_upload_commit_size,
+        maxFileCount: uploaderConfig.max_upload_file_count,
         autoConnectIdP: env.AUTO_CONNECT_IDP,
-        client: config.uploader.client,
+        client: uploaderConfig.client,
         baseUrl: env.UPLOADER_API_URL,
         keycloakUrl: env.KEYCLOAK_URL,
         realmName: env.KEYCLOAK_REALM_NAME,

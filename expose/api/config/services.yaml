@@ -29,6 +29,9 @@ services:
     _instanceof:
         App\Serializer\Normalizer\EntityNormalizerInterface:
             tags: ['app.entity_normalizer']
+        Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface:
+            tags:
+                - name: !php/const Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface::TAG
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
@@ -130,3 +133,5 @@ services:
                   profile: default
                   version: '2020-05-31'
                   region: '%env(CLOUD_FRONT_REGION)%'
+
+    Alchemy\CoreBundle\Documentation\ApiDocumentationGenerator: ~

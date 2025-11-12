@@ -83,7 +83,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
                             ],
                             'schema' => [
                                 'anyOf' => [
-                                    ['$ref' => '#/components/schemas/SubDefinition'],
+                                    ['$ref' => '#/components/schemas/sub-definition'],
                                     [
                                         'type' => 'object',
                                         'properties' => [
@@ -137,7 +137,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
                         'multipart/form-data' => [
                             'schema' => [
                                 'anyOf' => [
-                                    ['$ref' => '#/components/schemas/SubDefinition'],
+                                    ['$ref' => '#/components/schemas/sub-definition'],
                                     [
                                         'type' => 'object',
                                         'properties' => [

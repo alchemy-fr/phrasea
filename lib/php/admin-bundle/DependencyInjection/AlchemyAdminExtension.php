@@ -2,8 +2,8 @@
 
 namespace Alchemy\AdminBundle\DependencyInjection;
 
+use Alchemy\ConfiguratorBundle\StackConfig;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -32,23 +32,21 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 
-        $jsonConfigSrc = '/configs/config.json';
-        if (file_exists($jsonConfigSrc)) {
-            $rootConfig = json_decode(file_get_contents($jsonConfigSrc), true, 512, JSON_THROW_ON_ERROR);
-            // Add for fresh cache
-            $container->addResource(new FileResource($jsonConfigSrc));
-        } else {
-            $rootConfig = [];
-        }
+        $stackConfig = StackConfig::getConfig();
 
-        $serviceName = $serviceConfig['name'];
-        $config = $rootConfig[$serviceName] ?? [];
+        $config = $stackConfig[$serviceConfig['name']]['admin'] ?? [];
 
-        if (isset($config['admin']['logo']['src'])) {
+        $config['logo'] ??= [
+            'src' => '/bundles/alchemyadmin/phrasea-logo.png',
+            'style' => 'max-width: 80px;',
+        ];
+
+        if (isset($config['logo']['src'])) {
+            $logo = $config['logo'];
             $siteLogo = sprintf(
-                '<img src="%s" width="%s" title="%s" alt="%s" />',
-                $config['admin']['logo']['src'],
-                $config['admin']['logo']['with'],
+                '<img src="%s" style="%s" title="%s" alt="%s" />',
+                $logo['src'],
+                $logo['style'] ?? '',
                 $serviceConfig['title'],
                 $serviceConfig['title']
             );
@@ -60,7 +58,10 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
         $container->setParameter('alchemy_admin.site_logo', $siteLogo);
         $container->setParameter('alchemy_admin.site_title', $siteTitle);
         if ($siteLogo) {
-            $adminSiteTitle = sprintf('<div>%s<div>%s</div></div>',
+            $adminSiteTitle = sprintf('<div>
+    %s
+    <div>%s</div>
+</div>',
                 $siteLogo,
                 $siteTitle
             );
@@ -99,8 +100,7 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
                 'display_avatar' => false,
                 'name_property_path' => 'username',
             ],
-        ]
-        );
+        ]);
 
         if (isset($bundles['TwigBundle'])) {
             $container->prependExtensionConfig('twig', [

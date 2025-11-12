@@ -128,7 +128,3 @@ for d in ${DATABASES}; do
 done
 
 kubectl -n $NS delete pod ${POD} --force 2> /dev/null
-
-echo "[!] config.json cannot be updated automatically, depending on your infra."
-echo "Don't forget to update your ConfigMap with its content:"
-echo "  $ cat $(realpath ${DIR})/config.json"

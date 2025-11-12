@@ -27,14 +27,6 @@ mkdir -p "${DIR}"
 
 tar -C ${DIR} -xf ${PACKAGE}
 
-CONFIG_FILE="${DIR}/config.json"
-if [ ! -f "${CONFIG_FILE}" ]; then
-  echo "File ${CONFIG_FILE} does not exist"
-  exit 2
-fi
-cp "${CONFIG_FILE}" ./configs/config.json
-echo "[✓] config.json copied"
-
 . "bin/ops/db/db.sh"
 
 for d in ${DATABASES}; do

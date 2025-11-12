@@ -84,7 +84,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             HEADER,
             $this->outputFormatsDocumentation->listFormats(self::getSupportedOutputFormats()).
             <<<FOOTER
-            ### List of `ffmpeg` filters:
+            #### List of `ffmpeg` filters:
             FOOTER
         );
 

@@ -1,8 +1,0 @@
-node_modules
-/dist
-Dockerfile
-
-# OSX
-.DS_Store
-
-.idea

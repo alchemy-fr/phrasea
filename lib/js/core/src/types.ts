@@ -23,7 +23,10 @@ export type WindowConfig = {
     analytics?: AnalyticsConfig;
     pusherHost?: Readonly<string>;
     pusherKey?: Readonly<string>;
-    logo: Readonly<string>;
+    logo?: {
+        src?: string;
+        style?: string;
+    };
     novuAppIdentifier?: Readonly<string>;
     novuSocketUrl?: Readonly<string>;
     novuApiUrl?: Readonly<string>;

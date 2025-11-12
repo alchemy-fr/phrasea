@@ -13,10 +13,10 @@ services:
     resource: '../../Controller/*.php'
     tags: [ 'controller.service_arguments' ]
 
-  Alchemy\AdminBundle\Controller\QueuesListController: 
+  Alchemy\AdminBundle\Controller\QueuesListController:
     arguments:
       $queues: '%alchemy_admin.worker_queues%'
-      $rabbitmqConfig: '%alchemy_admin.worker_rabbitmq%' 
+      $rabbitmqConfig: '%alchemy_admin.worker_rabbitmq%'
 
   Alchemy\AdminBundle\Twig\AdminExtension:
     tags:
@@ -43,3 +43,7 @@ services:
   Alchemy\AdminBundle\Filter\ChildPropertyEntityFilter:
 
   Alchemy\AdminBundle\Filter\Configurator\ChildPropertyEntityConfigurator:
+
+  Alchemy\AdminBundle\Config\Schema\AdminConfigSchema:
+      tags:
+          - name: !php/const Alchemy\ConfiguratorBundle\Schema\SchemaProviderInterface::TAG

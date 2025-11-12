@@ -30,3 +30,8 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+
+    _instanceof:
+        Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface:
+            tags:
+                - name: !php/const Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface::TAG

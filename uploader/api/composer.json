@@ -124,8 +124,7 @@
         "symfony/twig-bundle": "^6.3",
         "symfony/validator": "^6.3",
         "symfony/web-link": "^6.3",
-        "symfony/yaml": "^6.3",
-        "twig/extensions": "^1.5"
+        "symfony/yaml": "^6.3"
     },
     "require-dev": {
         "ext-json": "*",

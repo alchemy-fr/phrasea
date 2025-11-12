@@ -1,6 +1,7 @@
 parameters:
   env(VERIFY_SSL): true
   env(KEYCLOAK_REALM_NAME): phrasea
+  env(KEYCLOAK_URL): 'http://define-me'
 
 services:
   _defaults:
