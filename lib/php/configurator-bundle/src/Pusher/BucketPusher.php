@@ -10,8 +10,7 @@ final readonly class BucketPusher
         private S3Client $s3Client,
         private string $bucketName,
         private string $pathPrefix = '',
-    )
-    {
+    ) {
     }
 
     public function pushToBucket(string $path, string $data): void

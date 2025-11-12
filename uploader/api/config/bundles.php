@@ -30,4 +30,5 @@ return [
     Sentry\SentryBundle\SentryBundle::class => ['all' => true],
     Alchemy\MessengerBundle\AlchemyMessengerBundle::class => ['all' => true],
     Alchemy\ConfiguratorBundle\AlchemyConfiguratorBundle::class => ['all' => true],
+    Symfony\UX\TwigComponent\TwigComponentBundle::class => ['all' => true],
 ];

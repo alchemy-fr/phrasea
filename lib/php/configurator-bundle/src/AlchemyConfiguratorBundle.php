@@ -6,12 +6,21 @@ namespace Alchemy\ConfiguratorBundle;
 
 use Alchemy\ConfiguratorBundle\Command\PushConfigToBucketCommand;
 use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
+use Alchemy\ConfiguratorBundle\Documentation\AppConfigDocumentationGenerator;
+use Alchemy\ConfiguratorBundle\Documentation\GlobalConfigDocumentationGenerator;
 use Alchemy\ConfiguratorBundle\Dumper\JsonDumper;
 use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntryRepository;
+use Alchemy\ConfiguratorBundle\Form\Type\ConfigurationKeyType;
 use Alchemy\ConfiguratorBundle\Message\DeployConfigHandler;
 use Alchemy\ConfiguratorBundle\Pusher\BucketPusher;
+use Alchemy\ConfiguratorBundle\Schema\GlobalConfigurationSchema;
+use Alchemy\ConfiguratorBundle\Schema\SchemaProviderInterface;
+use Alchemy\ConfiguratorBundle\Service\ConfigurationReference;
+use Alchemy\ConfiguratorBundle\Validator\ValidConfigurationEntryConstraintValidator;
+use Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface;
 use Aws\S3\S3Client;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
+use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
@@ -70,7 +79,7 @@ class AlchemyConfiguratorBundle extends AbstractBundle
                             ],
                         ],
                     ],
-                ]
+                ],
             ],
         ]);
 
@@ -86,6 +95,10 @@ class AlchemyConfiguratorBundle extends AbstractBundle
 
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
+        if (file_exists(StackConfig::SRC)) {
+            $builder->addResource(new FileResource(StackConfig::SRC));
+        }
+
         $container->parameters()
             ->set('env(CONFIGURATOR_DB_NAME)', 'configurator')
             ->set('env(POSTGRES_USER)', 'user')
@@ -108,7 +121,17 @@ class AlchemyConfiguratorBundle extends AbstractBundle
 
         $services->set(ConfiguratorEntryRepository::class);
         $services->set(PushConfigToBucketCommand::class);
+        $services->set(ValidConfigurationEntryConstraintValidator::class);
         $services->set(JsonDumper::class);
+        $services->set(ConfigurationKeyType::class);
+        $services->set(ConfigurationReference::class);
+        $services->set(GlobalConfigurationSchema::class)
+            ->tag(SchemaProviderInterface::TAG)
+        ;
+        $services->set(AppConfigDocumentationGenerator::class)
+            ->tag(DocumentationGeneratorInterface::TAG);
+        $services->set(GlobalConfigDocumentationGenerator::class)
+            ->tag(DocumentationGeneratorInterface::TAG);
         $services->set(BucketPusher::class);
         $services->set(Deployer::class);
         $services->set(DeployConfigHandler::class);
@@ -116,15 +139,15 @@ class AlchemyConfiguratorBundle extends AbstractBundle
         $services->set($s3ClientId, S3Client::class)
             ->arg(0, [
                 'version' => 'latest',
-                'region'  => $storage['region'],
+                'region' => $storage['region'],
                 'use_path_style_endpoint' => $storage['use_path_style_endpoint'],
                 'endpoint' => $storage['endpoint'],
                 'credentials' => [
-                    'key'    => $storage['access_key'],
-                    'secret' => $storage['secret_key']
+                    'key' => $storage['access_key'],
+                    'secret' => $storage['secret_key'],
                 ],
                 'http' => [
-                    'verify' => '%env(bool:VERIFY_SSL)%'
+                    'verify' => '%env(bool:VERIFY_SSL)%',
                 ],
             ]);
 

@@ -20,6 +20,7 @@ import dashboardImg from './images/dashboard.png';
 import DashboardBar from './DashboardBar';
 import {useAuth} from '@alchemy/react-auth';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import {parseInlineStyle} from '@alchemy/core';
 
 type Props = {};
 
@@ -65,11 +66,17 @@ export default function Dashboard({}: Props) {
                         }}
                     >
                         <div style={{display: 'flex', alignItems: 'center'}}>
-                            {config.logo ? (
+                            {config.logo?.src ? (
                                 <img
-                                    src={config.logo}
+                                    src={config.logo!.src}
                                     alt={STACK_NAME}
-                                    style={{maxHeight: 48, maxWidth: 150}}
+                                    style={
+                                        config.logo!.style
+                                            ? parseInlineStyle(
+                                                  config.logo!.style!
+                                              )
+                                            : {maxHeight: 48, maxWidth: 150}
+                                    }
                                 />
                             ) : (
                                 STACK_NAME

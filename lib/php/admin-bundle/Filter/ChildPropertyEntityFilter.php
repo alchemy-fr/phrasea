@@ -14,7 +14,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Contracts\Filter\FilterInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\FilterDataDto;
-use EasyCorp\Bundle\EasyAdminBundle\Dto\FilterDto;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\FilterTrait;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Filter\Type\EntityFilterType;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
@@ -27,7 +26,6 @@ final class ChildPropertyEntityFilter implements FilterInterface
 
     private string $realPropertyName;
     private string $subPropertyName;
-
 
     public static function new(string $propertyName, string $childPropertyName, string $entityClass, $label = null): self
     {
@@ -43,7 +41,7 @@ final class ChildPropertyEntityFilter implements FilterInterface
             ->setFormTypeOption('translation_domain', 'EasyAdminBundle')
             ->setFormTypeOption('value_type_options.attr.data-child-property', $childPropertyName)
             ->setFormTypeOption('value_type_options.class', $entityClass)
-            ;
+        ;
     }
 
     /**

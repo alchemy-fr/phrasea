@@ -5,11 +5,11 @@ namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-class OutputFormatsDocumentation
+final readonly class OutputFormatsDocumentation
 {
     public function __construct(
         #[TaggedLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')]
-        private readonly ServiceLocator $formats,
+        private ServiceLocator $formats,
     ) {
     }
 
@@ -30,15 +30,18 @@ class OutputFormatsDocumentation
         }
         ksort($formats);
 
-        $text = "### Supported output `format`s.\n";
+        $text = "#### Supported output formats.\n";
         $text .= "| Family | Format | Mime type | Extensions |\n";
         $text .= "|-|-|-|-|\n";
+        $lastFamily = null;
         foreach ($formats as $familyFormats) {
-            $text .= sprintf("| %s ||||\n",
-                $familyFormats[0]->getFamily()->value,
-            );
             foreach ($familyFormats as $format) {
-                $text .= sprintf("|| %s | %s | %s |\n",
+                if (null !== $lastFamily && $lastFamily !== $format->getFamily()->value) {
+                    $text .= "|-|-|-|-|\n";
+                }
+                $lastFamily = $format->getFamily()->value;
+                $text .= sprintf("| %s | %s | %s | %s |\n",
+                    $format->getFamily()->value,
                     $format->getFormat(),
                     $format->getMimeType(),
                     implode(', ', $format->getAllowedExtensions())

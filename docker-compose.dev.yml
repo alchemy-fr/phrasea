@@ -165,7 +165,6 @@ services:
       - ALLOWED_FILE_TYPES=${DATABOX_ALLOWED_FILE_TYPES}
       - ADMIN_CLIENT_ID=${DATABOX_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
-      - KEYCLOAK_URL
       - MAILER_DSN
       - MAIL_FROM
       - MAIL_FROM_DISPLAY_NAME
@@ -178,8 +177,10 @@ services:
       - MAILER_PASSWORD
       - MAILER_SSL
       - MAILER_TLS
+      - KEYCLOAK_URL
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
+      - KEYCLOAK_REALM_NAME
       - EXPOSE_ADMIN_CLIENT_ID
       - EXPOSE_ADMIN_CLIENT_SECRET
       - UPLOADER_ADMIN_CLIENT_ID
@@ -208,7 +209,6 @@ services:
       - DATABOX_DB_NAME
       - EXPOSE_DB_NAME
       - UPLOADER_DB_NAME
-      - KEYCLOAK_REALM_NAME
       - DEFAULT_ADMIN_USERNAME
       - DEFAULT_ADMIN_PASSWORD
       - MATOMO_URL
@@ -242,14 +242,13 @@ services:
       - KC_REALM_USER_EVENT_EXPIRATION
       - KC_REALM_ADMIN_EVENT_ENABLED
       - KC_REALM_ADMIN_EVENT_EXPIRATION
-    working_dir: /var/workspace
+    working_dir: /var/workspace/${LOCAL_DIR}
     volumes:
-      - ./:/var/workspace
+      - ../:/var/workspace
       - ${SSH_AUTH_SOCK}:/ssh-auth-sock
       - ${HOME}/.ssh:/home/app/.ssh
       - ${HOME}/.composer:/home/app/.composer
       - dev:/home/app
-      - ./configs:/configs
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}

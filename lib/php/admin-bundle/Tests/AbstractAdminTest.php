@@ -30,7 +30,13 @@ abstract class AbstractAdminTest extends WebTestCase
         }
 
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals(getenv('KEYCLOAK_URL').'/realms/phrasea/protocol/openid-connect/auth?client_id=test&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%2Fadmin%2Foauth%2Fcheck&state=cj1odHRwJTNBJTJGJTJGbG9jYWxob3N0JTJGYWRtaW4%3D', $response->getTargetUrl());
+        $this->assertEquals(sprintf(
+            '%s/realms/phrasea/protocol/openid-connect/auth?client_id=%s&response_type=code&redirect_uri=%s&state=%s',
+            getenv('KEYCLOAK_URL'),
+            getenv('ADMIN_CLIENT_ID'),
+            urlencode('http://localhost/admin/oauth/check'),
+            'cj1odHRwJTNBJTJGJTJGbG9jYWxob3N0JTJGYWRtaW4%3D',
+        ), $response->getTargetUrl());
 
         $this->logIn($this->client);
         $crawler = $this->client->request('GET', '/admin');

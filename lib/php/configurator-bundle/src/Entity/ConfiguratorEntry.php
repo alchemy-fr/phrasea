@@ -2,6 +2,7 @@
 
 namespace Alchemy\ConfiguratorBundle\Entity;
 
+use Alchemy\ConfiguratorBundle\Validator\ValidConfigurationEntryConstraint;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Doctrine\DBAL\Types\Types;
@@ -15,6 +16,7 @@ use Symfony\Component\Validator\Constraints\NotNull;
 
 #[ORM\Entity(repositoryClass: ConfiguratorEntryRepository::class)]
 #[ORM\Index(columns: ['name'], name: 'configurator_entry_name_idx')]
+#[ValidConfigurationEntryConstraint]
 class ConfiguratorEntry
 {
     use CreatedAtTrait;

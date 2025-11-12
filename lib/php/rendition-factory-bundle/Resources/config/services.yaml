@@ -136,6 +136,6 @@ services:
     Alchemy\RenditionFactory\Format\FormatFactory: ~
     Alchemy\RenditionFactory\Config\ModuleOptionsResolver: ~
 
-    Alchemy\RenditionFactory\RenditionBuilderConfigurationDocumentation: ~
+    Alchemy\RenditionFactory\RenditionBuilderTransformersDocumentation: ~
 
     Alchemy\RenditionFactory\Config\BuildConfigValidator: ~

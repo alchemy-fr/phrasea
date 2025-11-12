@@ -52,14 +52,14 @@ RUN composer install --prefer-dist --no-dev --no-progress --classmap-authoritati
     && rm -rf vendor composer.*
 # End warm up
 
+COPY ./lib/bash/configurator /docker/configurator
 COPY --chown=app:app lib/php /lib/php
 COPY --chown=app:app ./databox/api .
 
 RUN mkdir -p var/cache var/logs var/sessions \
     && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
-    && composer clear-cache
-
-RUN bin/console app:documentation:dump /srv/app/doc
+    && composer clear-cache \
+    && bin/console alchemy:core:documentation:dump /srv/app/doc
 
 COPY ./databox/api/docker/entrypoint.d/*.sh /docker/entrypoint.d/
 
