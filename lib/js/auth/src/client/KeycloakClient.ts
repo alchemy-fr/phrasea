@@ -6,17 +6,20 @@ import {
     LogoutOptions,
     OAuthEvent,
 } from '../types';
+import Keycloak from 'keycloak-js';
 
 export class KeycloakClient {
     private readonly baseUrl: string;
     private readonly realm: string;
     public readonly client: OAuthClient<KeycloakUserInfoResponse>;
+    private readonly keycloak: Keycloak;
 
-    constructor({realm, baseUrl, ...rest}: KeycloakClientOptions) {
+    constructor({realm, baseUrl, clientId, ...rest}: KeycloakClientOptions) {
         this.realm = realm;
         this.baseUrl = baseUrl;
         this.client = new OAuthClient({
             baseUrl: this.getOpenIdConnectBaseUrl(),
+            clientId,
             ...rest,
         });
 
@@ -25,6 +28,19 @@ export class KeycloakClient {
             this.onLogout.bind(this),
             255
         );
+
+        this.keycloak = new Keycloak({
+            url: baseUrl,
+            realm,
+            clientId
+        });
+    }
+
+    public async hasKeycloakSession(): Promise<boolean> {
+        return await this.keycloak.init({
+            onLoad: 'check-sso',
+            silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`
+        });
     }
 
     private async onLogout(event: LogoutEvent): Promise<void> {
