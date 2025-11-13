@@ -9,7 +9,7 @@ title: Description de l'interface Databox Client
 
 ## **L’interface** 
 
-L’interface de gestion des médias se nomme **“Databox”**. Elle se divise en plusieurs zones:
+L’interface **“Databox client”** se divise en plusieurs zones:
 
 ### **La barre latérale**
 

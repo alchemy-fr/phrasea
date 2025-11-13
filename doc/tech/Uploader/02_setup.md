@@ -1,3 +1,7 @@
+---
+title: Setup
+---
+
 # Uploader Setup
 
 This guide explains how to configure the Uploader service to connect with Phraseanet and prepare it for development or production use.
