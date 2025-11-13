@@ -1,6 +1,5 @@
 ---
 title: Databox Client GUI descripion
-slug: databox-client-gui
 ---
 
 # Databox User Documentation

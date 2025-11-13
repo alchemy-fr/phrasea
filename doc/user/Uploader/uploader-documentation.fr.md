@@ -15,7 +15,7 @@ slug: documentation-service-uploader
 - **Multipart upload**: lors de l’upload sont découpés en partie (chunk) et rassemblés côté serveur une fois l’upload fini.
 
 
-# Concept de base 
+# Concepts de base 
 
 - Le service uploader de Phrasea est constitué d’une API et une interface homme machine nommé “Uploader client” et d’un “worker”, c’est trois composant s’appuie sur un file system et une base de données ainsi que des serveur de cache et un bus de message, les composants peuvent être scaler en fonction des besoins.  
 - l’Uploader contient des Targets.   
@@ -44,6 +44,7 @@ Cette section décrit les étapes majeures et des actions déclenchées lors d�
 
 #  Interaction entre l’Uploader et Phrasea Databox.
 
+![uploade sequence](/tech/Uploader/sequence.png)
 
 - un utilisateur s’authentifie.  
 - des targets lui sont présentées.   
@@ -75,8 +76,6 @@ pour l’instant les systèmes testés et éprouvés sont AWS S3 et Minio (faire
 dans une utilisation optimum l’uploader supporte:   
 \- l’upload multi part permettant de transmettre des fichiers de grande taille.  
 \- les capacités techniques comme la taille maximum acceptée sont héritées des capacités du file system.
-
-![uploade sequence](/tech/Uploader/sequence.png)
 
 # Paramétrage
 

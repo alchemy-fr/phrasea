@@ -1,10 +1,9 @@
 ---
 title: Description de l'interface Databox Client
-slug: description-interface-databox-client
 ---
 # Documentation utilisateur Databox
 
-1. # Databox
+# 1.Databox
 
 ## ---
 
