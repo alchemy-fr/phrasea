@@ -6,7 +6,7 @@ title: Databox Client GUI descripion
 
 ---
 
-1. # Databox
+# 1.Databox
 
 ---
 
