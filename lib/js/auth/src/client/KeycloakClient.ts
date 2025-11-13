@@ -13,6 +13,7 @@ export class KeycloakClient {
     private readonly realm: string;
     public readonly client: OAuthClient<KeycloakUserInfoResponse>;
     private readonly keycloak: Keycloak;
+    private initialized: boolean = false;
 
     constructor({realm, baseUrl, clientId, ...rest}: KeycloakClientOptions) {
         this.realm = realm;
@@ -36,11 +37,38 @@ export class KeycloakClient {
         });
     }
 
-    public async hasKeycloakSession(): Promise<boolean> {
-        return await this.keycloak.init({
+    public async initKeycloakSession(): Promise<void> {
+        if (this.initialized) {
+            return;
+        }
+        this.initialized = true;
+
+        if (this.client.isAuthenticated()) {
+            return;
+        }
+
+        const authenticated = await this.keycloak.init({
             onLoad: 'check-sso',
             silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`
         });
+
+        if (authenticated) {
+            const {refreshTokenParsed, tokenParsed, refreshToken, token, idToken} = this.keycloak;
+
+            await this.client.saveTokensFromResponse({
+                id_token: idToken!,
+                access_token: token!,
+                expires_in: tokenParsed!.exp! - tokenParsed!.iat!,
+                refresh_token: refreshToken!,
+                refresh_expires_in: refreshTokenParsed!.exp,
+                token_type: 'Bearer',
+            });
+
+            const tokens = this.client.getTokens();
+            if (tokens) {
+                await this.client.triggerLogin(tokens);
+            }
+        }
     }
 
     private async onLogout(event: LogoutEvent): Promise<void> {
