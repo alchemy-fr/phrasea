@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch\Listener;
 
 use App\Elasticsearch\AssetPermissionComputer;
-use App\Elasticsearch\AssetPermissionsDTO;
+use App\Elasticsearch\Listener\Dto\AssetPermissionsDTO;
 use App\Entity\Core\Attribute;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\Console\ConsoleEvents;

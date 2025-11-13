@@ -1,9 +1,16 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import WorkspaceMenuItem, {
     cActionClassName,
     workspaceItemClassName,
 } from './WorkspaceMenuItem';
-import {alpha, Box, CircularProgress} from '@mui/material';
+import {
+    alpha,
+    Box,
+    CircularProgress,
+    ListItemIcon,
+    ListItemText,
+    MenuItem,
+} from '@mui/material';
 import CollectionMenuItem, {
     collectionItemClassName,
 } from './CollectionMenuItem';
@@ -14,10 +21,15 @@ import {useSearch} from '../../hooks/useSearch.ts';
 import {getCollections} from '../../api/collection.ts';
 import {Collection, Workspace} from '../../types.ts';
 import {useCollectionStore} from '../../store/collectionStore.ts';
+import DeleteIcon from '@mui/icons-material/Delete';
+import {useTranslation} from 'react-i18next';
+import {SearchContext} from './Search/SearchContext.tsx';
+import {BuiltInField} from './Search/search.ts';
 
 type Props = {};
 
 function CollectionsPanel({}: Props) {
+    const searchContext = useContext(SearchContext)!;
     const loadWorkspaces = useWorkspaceStore(state => state.load);
     const loading = useWorkspaceStore(state => state.loading);
     const workspaces = useWorkspaceStore(state => state.workspaces);
@@ -27,6 +39,7 @@ function CollectionsPanel({}: Props) {
     const getFreshCollections = useCollectionStore(
         state => state.getFreshCollections
     );
+    const {t} = useTranslation();
 
     const {
         searchQuery,
@@ -130,6 +143,40 @@ function CollectionsPanel({}: Props) {
                             : workspaces?.map(w => (
                                   <WorkspaceMenuItem data={w} key={w.id} />
                               ))}
+                        <Box
+                            sx={theme => ({
+                                mt: 3,
+                                pt: 1,
+                                color: 'grey',
+                                borderTop: `1px solid ${theme.palette.divider}`,
+                            })}
+                        >
+                            <MenuItem
+                                selected={
+                                    searchContext.workspaces.length === 0 &&
+                                    searchContext.collections.length === 0 &&
+                                    searchContext.conditions.length === 1 &&
+                                    searchContext.conditions[0].id ===
+                                        BuiltInField.Deleted
+                                }
+                                onClick={() => {
+                                    searchContext.resetWithCondition({
+                                        id: BuiltInField.Deleted,
+                                        query: `${BuiltInField.Deleted} = true`,
+                                    });
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <DeleteIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={t(
+                                        'collection_panel.trash',
+                                        'Trash'
+                                    )}
+                                />
+                            </MenuItem>
+                        </Box>
                     </>
                 )}
             </Box>

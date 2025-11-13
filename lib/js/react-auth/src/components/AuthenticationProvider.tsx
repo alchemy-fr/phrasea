@@ -1,8 +1,8 @@
-import React, {PropsWithChildren, useCallback} from 'react';
+import React, {PropsWithChildren, useCallback, useEffect} from 'react';
 import {
     AuthEventHandler,
     AuthTokens,
-    AuthUser,
+    AuthUser, KeycloakClient,
     keycloakNormalizer,
     LoginEvent,
     LogoutEvent,
@@ -27,7 +27,9 @@ type Props<
     onNewTokens?: (tokens: AuthTokens) => void;
     onClear?: () => void;
     oauthClient: OAuthClient<UIR>;
+    keycloakClient?: KeycloakClient;
     normalizeUser?: UserNormalizer<U, UIR>;
+    silentConnect?: boolean;
 }>;
 
 export default function AuthenticationProvider<
@@ -37,6 +39,8 @@ export default function AuthenticationProvider<
     oauthClient,
     children,
     onNewTokens,
+    keycloakClient,
+    silentConnect = true,
     // @ts-expect-error Invalid resolution
     normalizeUser = keycloakNormalizer,
 }: Props<U, UIR>) {
@@ -56,6 +60,14 @@ export default function AuthenticationProvider<
 
         return normalizeUser(jwtDecode<UIR>(tokens.accessToken));
     }, [tokens]);
+
+    useEffect(() => {
+        if (keycloakClient && silentConnect) {
+            (async () => {
+                await keycloakClient!.initKeycloakSession()
+            })();
+        }
+    }, [silentConnect, keycloakClient]);
 
     React.useEffect(() => {
         const loginListener: AuthEventHandler<LoginEvent> = async event => {

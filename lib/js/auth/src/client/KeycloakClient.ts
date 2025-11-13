@@ -6,17 +6,21 @@ import {
     LogoutOptions,
     OAuthEvent,
 } from '../types';
+import Keycloak from 'keycloak-js';
 
 export class KeycloakClient {
     private readonly baseUrl: string;
     private readonly realm: string;
     public readonly client: OAuthClient<KeycloakUserInfoResponse>;
+    private readonly keycloak: Keycloak;
+    private initialized: boolean = false;
 
-    constructor({realm, baseUrl, ...rest}: KeycloakClientOptions) {
+    constructor({realm, baseUrl, clientId, ...rest}: KeycloakClientOptions) {
         this.realm = realm;
         this.baseUrl = baseUrl;
         this.client = new OAuthClient({
             baseUrl: this.getOpenIdConnectBaseUrl(),
+            clientId,
             ...rest,
         });
 
@@ -25,6 +29,46 @@ export class KeycloakClient {
             this.onLogout.bind(this),
             255
         );
+
+        this.keycloak = new Keycloak({
+            url: baseUrl,
+            realm,
+            clientId
+        });
+    }
+
+    public async initKeycloakSession(): Promise<void> {
+        if (this.initialized) {
+            return;
+        }
+        this.initialized = true;
+
+        if (this.client.isAuthenticated()) {
+            return;
+        }
+
+        const authenticated = await this.keycloak.init({
+            onLoad: 'check-sso',
+            silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`
+        });
+
+        if (authenticated) {
+            const {refreshTokenParsed, tokenParsed, refreshToken, token, idToken} = this.keycloak;
+
+            await this.client.saveTokensFromResponse({
+                id_token: idToken!,
+                access_token: token!,
+                expires_in: tokenParsed!.exp! - tokenParsed!.iat!,
+                refresh_token: refreshToken!,
+                refresh_expires_in: refreshTokenParsed!.exp,
+                token_type: 'Bearer',
+            });
+
+            const tokens = this.client.getTokens();
+            if (tokens) {
+                await this.client.triggerLogin(tokens);
+            }
+        }
     }
 
     private async onLogout(event: LogoutEvent): Promise<void> {

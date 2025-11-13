@@ -3,7 +3,6 @@ import {
     Box,
     FormControlLabel,
     FormGroup,
-    IconButton,
     Menu,
     Switch,
     Tooltip,
@@ -17,6 +16,9 @@ import ToggleWithLimit from '../../Media/Search/ToggleWithLimit';
 import ThumbSizeWidget from './ThumbSizeWidget';
 import SizeRatioWidget from './SizeRatioWidget.tsx';
 import {StateSetter} from '../../../types.ts';
+import AttributeListSwitcher from '../../AttributeList/AttributeListSwitcher.tsx';
+import SettingsIcon from '@mui/icons-material/Settings';
+import Button from '@mui/material/Button';
 
 type Props = {};
 
@@ -77,15 +79,16 @@ export default function DisplayOptionsMenu({}: Props) {
     return (
         <>
             <Tooltip title={t('layout.options.more', 'More options')}>
-                <IconButton
+                <Button
                     id={moreBtnId}
                     aria-controls={menuOpen ? 'more-menu' : undefined}
                     aria-haspopup="true"
                     aria-expanded={menuOpen ? 'true' : undefined}
                     onClick={handleMoreClick}
                 >
+                    <SettingsIcon />
                     <ArrowDropDownIcon />
-                </IconButton>
+                </Button>
             </Tooltip>
             <Menu
                 anchorEl={anchorEl}
@@ -95,6 +98,9 @@ export default function DisplayOptionsMenu({}: Props) {
                     'aria-labelledby': moreBtnId,
                 }}
             >
+                <Box sx={{p: 2}}>
+                    <AttributeListSwitcher />
+                </Box>
                 <Box
                     sx={{
                         px: 4,

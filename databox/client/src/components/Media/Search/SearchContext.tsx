@@ -26,6 +26,7 @@ export type TSearchContext = {
     conditions: AQLQueries;
     upsertCondition: (query: AQLQuery) => void;
     removeCondition: (query: AQLQuery) => void;
+    resetWithCondition: (query: AQLQuery) => void;
     sortBy: SortBy[];
     setSortBy: (newSortBy: SortBy[]) => void;
     searchChecksum?: string;

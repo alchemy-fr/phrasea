@@ -303,6 +303,17 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 searchable: true,
                 name: t('built_in_attr.filename', 'File Name'),
             },
+            {
+                slug: BuiltInField.Deleted,
+                fieldType: AttributeType.Boolean,
+                searchable: true,
+                name: t('built_in_attr.deleted', 'Deleted'),
+                widget: {
+                    component: NullableBooleanWidget,
+                },
+                getValueFromAsset: asset =>
+                    asset.deleted || asset.referenceCollection?.deleted,
+            },
         ] as Partial<AttributeDefinition>[]
     ).map(
         d =>

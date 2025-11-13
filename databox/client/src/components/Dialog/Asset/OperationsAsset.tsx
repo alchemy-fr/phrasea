@@ -50,7 +50,6 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
     };
     const restoreConfirmAsset = async () => {
         openModal(ConfirmDialog, {
-            textToType: data.title,
             title: t(
                 'asset_restore.confirm',
                 'Are you sure you want to restore this asset?'
@@ -191,7 +190,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                 </Typography>
                 <Button
                     onClick={
-                        data.deleted ? deleteConfirmAsset : restoreConfirmAsset
+                        !data.deleted ? deleteConfirmAsset : restoreConfirmAsset
                     }
                     color={'error'}
                 >

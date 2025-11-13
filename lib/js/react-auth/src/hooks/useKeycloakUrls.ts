@@ -9,14 +9,16 @@ type Props = {
 export type {Props as UseKeycloakUrlProps};
 
 export function useKeycloakUrls({autoConnectIdP, keycloakClient}: Props) {
+    const getLoginUrl = (redirectUri?: string) =>
+        keycloakClient.client.createAuthorizeUrl({
+            connectTo: autoConnectIdP || undefined,
+            state: btoa(
+                JSON.stringify({r: redirectUri ?? getCurrentPath()})
+            ),
+        });
+
     return {
-        getLoginUrl: (redirectUri?: string) =>
-            keycloakClient.client.createAuthorizeUrl({
-                connectTo: autoConnectIdP || undefined,
-                state: btoa(
-                    JSON.stringify({r: redirectUri ?? getCurrentPath()})
-                ),
-            }),
+        getLoginUrl,
         getAccountUrl: () => `${keycloakClient.getAccountUrl()}`,
     };
 }

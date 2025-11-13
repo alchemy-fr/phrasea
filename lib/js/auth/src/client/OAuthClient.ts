@@ -40,6 +40,7 @@ export class OAuthClient<UIR extends UserInfoResponse> {
     private sessionTimeout: ReturnType<typeof setTimeout> | undefined;
     private autoRefreshTimeout: ReturnType<typeof setTimeout> | undefined;
     private readonly tokenStorageKey: string = 'token';
+    private readonly idTokenStorageKey: string = 'idToken';
     private readonly httpClient: HttpClient;
     private readonly scope?: string;
     public sessionHasExpired: boolean = false;
@@ -100,6 +101,10 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         return this.fetchTokens()?.accessToken;
     }
 
+    public getIdToken(): string | undefined {
+        return this.fetchTokens()?.idToken;
+    }
+
     public getTokenType(): string | undefined {
         return this.fetchTokens()?.tokenType;
     }
@@ -132,6 +137,15 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         }
 
         return jwtDecode<UIR>(accessToken);
+    }
+
+    public getDecodedIdToken(): UIR | undefined {
+        const idToken = this.getIdToken();
+        if (!idToken) {
+            return;
+        }
+
+        return jwtDecode<UIR>(idToken);
     }
 
     public async logout(
@@ -373,6 +387,7 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         return {
             tokenType: res.token_type,
             accessToken: res.access_token,
+            idToken: res.id_token,
             expiresIn: res.expires_in,
             expiresAt: now + res.expires_in,
             refreshToken: res.refresh_token,
@@ -391,7 +406,16 @@ export class OAuthClient<UIR extends UserInfoResponse> {
     private persistTokens(tokens: AuthTokens): void {
         this.tokensCache = tokens;
 
+        if (tokens.idToken) {
+            this.storage.setItem(this.idTokenStorageKey, JSON.stringify(tokens));
+            delete tokens.idToken;
+        }
+
         this.storage.setItem(this.tokenStorageKey, JSON.stringify(tokens));
+
+        if (this.storage.getItem(this.tokenStorageKey) === null) {
+            throw new Error('Failed to persist tokens. Storage may be full or not writable.');
+        }
     }
 
     private fetchTokens(): AuthTokens | undefined {
@@ -402,6 +426,8 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         const t = this.storage.getItem(this.tokenStorageKey);
         if (t) {
             const tokens = JSON.parse(t) as AuthTokens;
+
+            tokens.idToken = this.storage.getItem(this.idTokenStorageKey) || undefined;
 
             this.handleSessionTimeout(tokens);
 

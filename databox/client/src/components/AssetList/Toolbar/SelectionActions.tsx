@@ -21,7 +21,7 @@ import DeleteAssetsConfirmDialog from '../../Media/Asset/Actions/DeleteAssetsCon
 import DisplayOptionsMenu from './DisplayOptionsMenu';
 import {Asset, AssetOrAssetContainer, StateSetter} from '../../../types';
 import ExportAssetsDialog from '../../Media/Asset/Actions/ExportAssetsDialog';
-import GroupButton from '../../Ui/GroupButton';
+import GroupButton, {GroupButtonAction} from '../../Ui/GroupButton';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
 import EditIcon from '@mui/icons-material/Edit';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
@@ -39,7 +39,6 @@ import {useAuth} from '@alchemy/react-auth';
 import ViewQuiltIcon from '@mui/icons-material/ViewQuilt';
 import ShareAssetDialog from '../../Share/ShareAssetDialog.tsx';
 import {toast} from 'react-toastify';
-import AttributeListSwitcher from '../../AttributeList/AttributeListSwitcher.tsx';
 import {formatNumber} from '../../../lib/numbers.ts';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import RestoreAssetsConfirm from '../../Media/Asset/Actions/RestoreAssetsConfirm.tsx';
@@ -125,6 +124,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
 
     const {
         canDelete,
+        canDeletePermanent,
         canRestore,
         canDownload,
         canEdit,
@@ -133,6 +133,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         canShare,
         onShare,
         onDelete,
+        onDeletePermanent,
         onRestore,
         onCopy,
         onMove,
@@ -141,6 +142,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         download,
     } = useMemo(() => {
         let canDelete = false;
+        let canDeletePermanent = false;
         let canRestore = false;
         let canDownload = false;
         let canEdit = false;
@@ -168,6 +170,9 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     (a.collections && a.collections.length > 0))
             ) {
                 canDelete = true;
+            }
+            if (a.capabilities.canDelete) {
+                canDeletePermanent = true;
             }
             if (a.capabilities.canDelete && a.deleted) {
                 canRestore = true;
@@ -273,6 +278,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
 
         return {
             canDelete,
+            canDeletePermanent,
             canRestore,
             canDownload,
             canEdit,
@@ -282,6 +288,15 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
             onShare,
             onDelete: () => {
                 openModal(DeleteAssetsConfirmDialog, {
+                    assetIds: selectedAssets.map(i => i.id),
+                    onDelete: () => {
+                        reload?.();
+                    },
+                });
+            },
+            onDeletePermanent: () => {
+                openModal(DeleteAssetsConfirmDialog, {
+                    hardDelete: true,
                     assetIds: selectedAssets.map(i => i.id),
                     onDelete: () => {
                         reload?.();
@@ -323,6 +338,55 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         count: total ?? 0,
         selectedCount: realSelectionLength,
     };
+
+    const deleteButtonProps: GroupButtonAction = {
+        id: 'delete',
+        disabled: !canDelete,
+        label: t('asset_actions.delete', 'Delete'),
+        onClick: onDelete,
+        startIcon: <DeleteForeverIcon />,
+    };
+    const restoreButtonProps: GroupButtonAction = {
+        id: 'restore',
+        disabled: !canRestore,
+        label: t('asset_actions.restore', 'Restore'),
+        onClick: onRestore,
+        startIcon: <RestoreFromTrashIcon />,
+    };
+    const mainDeleteAction: GroupButtonAction | undefined =
+        actionsContext.delete && !canRestore
+            ? deleteButtonProps
+            : actionsContext.restore
+              ? restoreButtonProps
+              : undefined;
+    const deleteExtraActions: GroupButtonAction[] = [];
+    if (mainDeleteAction) {
+        if (
+            mainDeleteAction !== deleteButtonProps &&
+            actionsContext.delete &&
+            canDelete
+        ) {
+            deleteExtraActions.push(deleteButtonProps);
+        }
+        if (
+            mainDeleteAction !== restoreButtonProps &&
+            actionsContext.restore &&
+            canRestore
+        ) {
+            deleteExtraActions.push(deleteButtonProps);
+        }
+        if (actionsContext.delete && canDeletePermanent) {
+            deleteExtraActions.push({
+                id: 'delete_permanent',
+                label: t(
+                    'asset_actions.delete_permanently',
+                    'Delete Permanently'
+                ),
+                onClick: onDeletePermanent,
+                startIcon: <DeleteForeverIcon />,
+            });
+        }
+    }
 
     return (
         <Box
@@ -460,29 +524,21 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                         ) : (
                             ''
                         )}
-                        {actionsContext.delete && !canRestore ? (
-                            <Button
-                                disabled={!canDelete}
-                                color={'error'}
-                                onClick={onDelete}
-                                variant={'contained'}
-                                startIcon={<DeleteForeverIcon />}
-                            >
-                                {t('asset_actions.delete', 'Delete')}
-                            </Button>
-                        ) : actionsContext.restore ? (
-                            <Button
-                                disabled={!canRestore}
-                                color={'error'}
-                                onClick={onRestore}
-                                variant={'contained'}
-                                startIcon={<RestoreFromTrashIcon />}
-                            >
-                                {t('asset_actions.restore', 'Restore')}
-                            </Button>
-                        ) : (
-                            ''
-                        )}
+
+                        <GroupButton
+                            id={'delete'}
+                            color={'error'}
+                            onClick={mainDeleteAction!.onClick}
+                            startIcon={mainDeleteAction!.startIcon}
+                            disabled={
+                                selection.length === 0 ||
+                                mainDeleteAction!.disabled
+                            }
+                            actions={deleteExtraActions}
+                        >
+                            {mainDeleteAction!.label}
+                        </GroupButton>
+
                         {actionsContext.extraActions?.map(a => {
                             return (
                                 <Button
@@ -625,7 +681,6 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     ''
                 )}
 
-                <AttributeListSwitcher />
                 <DisplayOptionsMenu />
             </Paper>
         </Box>

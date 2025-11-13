@@ -2,8 +2,11 @@
 
 namespace App\Elasticsearch;
 
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
+use App\Elasticsearch\Listener\Dto\AssetPermissionsDTO;
+use App\Elasticsearch\Listener\Dto\CollectionPermissionsDTO;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
@@ -57,8 +60,31 @@ final class AssetPermissionComputer
         return $this->assetCache->get($asset->getId(), function () use ($asset): AssetPermissionsDTO {
             $bestPrivacy = $asset->getPrivacy();
 
-            $users = $this->permissionManager->getAllowedUsers($asset, PermissionInterface::VIEW);
-            $groups = $this->permissionManager->getAllowedGroups($asset, PermissionInterface::VIEW);
+            $users = [];
+            $groups = [];
+            $deleteUsers = [];
+            $deleteGroups = [];
+
+            $aces = $this->permissionManager->getObjectAces($asset);
+            foreach ($aces as $access) {
+                $userId = $access->getUserId();
+                $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
+                if ($access->hasPermission(PermissionInterface::VIEW)) {
+                    if ($isUser) {
+                        $users[] = $userId;
+                    } else {
+                        $groups[] = $userId;
+                    }
+                }
+
+                if ($access->hasPermission(PermissionInterface::DELETE)) {
+                    if ($isUser) {
+                        $deleteUsers[] = $userId;
+                    } else {
+                        $deleteGroups[] = $userId;
+                    }
+                }
+            }
 
             if (null !== $asset->getOwnerId()) {
                 $users[] = $asset->getOwnerId();
@@ -69,29 +95,40 @@ final class AssetPermissionComputer
             foreach ($asset->getCollections() as $collectionAsset) {
                 $collection = $collectionAsset->getCollection();
 
-                [$cBestPrivacy, $absolutePath, $cUsers, $cGroups] = $this->getCollectionHierarchyInfo($collection);
-
-                if (in_array($cBestPrivacy, [
+                $collectionInfo = $this->getCollectionHierarchyInfo($collection);
+                $collectionBestPrivacy = $collectionInfo->bestPrivacy;
+                if (in_array($collectionBestPrivacy, [
                     WorkspaceItemPrivacyInterface::PRIVATE,
                     WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
                 ], true)) {
                     // Private collections does not expose its assets
-                    $cBestPrivacy = WorkspaceItemPrivacyInterface::SECRET;
+                    $collectionBestPrivacy = WorkspaceItemPrivacyInterface::SECRET;
                 }
-                $bestPrivacy = max($bestPrivacy, $cBestPrivacy);
+                $bestPrivacy = max($bestPrivacy, $collectionBestPrivacy);
 
-                $collectionsPaths[] = $absolutePath;
-                $users = array_merge($users, $cUsers);
-                $groups = array_merge($groups, $cGroups);
+                $collectionsPaths[] = $collectionInfo->absolutePath;
+                $users = array_merge($users, $collectionInfo->users);
+                $groups = array_merge($groups, $collectionInfo->groups);
 
                 if (null !== $storyAsset = $collection->getStoryAsset()) {
                     $stories[] = $storyAsset->getId();
 
                     $storyPermissions = $this->getAssetPermissionFields($storyAsset);
 
-                    $bestPrivacy = max($bestPrivacy, $storyPermissions->privacy);
+                    $storyBestPrivacy = $storyPermissions->privacy;
+                    if (in_array($storyBestPrivacy, [
+                        WorkspaceItemPrivacyInterface::PRIVATE,
+                        WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
+                    ], true)) {
+                        // Private stories does not expose its assets
+                        $storyBestPrivacy = WorkspaceItemPrivacyInterface::SECRET;
+                    }
+
+                    $bestPrivacy = max($bestPrivacy, $storyBestPrivacy);
                     $users = array_merge($users, $storyPermissions->users);
                     $groups = array_merge($groups, $storyPermissions->groups);
+                    $deleteUsers = array_merge($deleteUsers, $storyPermissions->deleteUsers);
+                    $deleteGroups = array_merge($deleteGroups, $storyPermissions->deleteGroups);
                     $collectionsPaths = array_merge($collectionsPaths, $storyPermissions->collectionPaths);
                 }
 
@@ -101,40 +138,67 @@ final class AssetPermissionComputer
                 $bestPrivacy,
                 array_values(array_unique($users)),
                 array_values(array_unique($groups)),
+                array_values(array_unique($deleteUsers)),
+                array_values(array_unique($deleteGroups)),
                 array_values(array_unique($collectionsPaths)),
                 array_values(array_unique($stories)),
             );
         });
     }
 
-    private function getCollectionHierarchyInfo(Collection $collection): array
+    private function getCollectionHierarchyInfo(Collection $collection): CollectionPermissionsDTO
     {
-        return $this->collectionCache->get($collection->getId(), function () use ($collection): array {
+        return $this->collectionCache->get($collection->getId(), function () use ($collection): CollectionPermissionsDTO {
             $bestPrivacyInParentHierarchy = $collection->getBestPrivacyInParentHierarchy();
-            $cUsers = [];
-            $cGroups = [];
+            $users = [];
+            $groups = [];
+            $deleteUsers = [];
+            $deleteGroups = [];
 
             if ($bestPrivacyInParentHierarchy < WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS) {
                 if (!$collection->isStory() && null !== $collection->getOwnerId()) {
-                    $cUsers[] = $collection->getOwnerId();
+                    $users[] = $collection->getOwnerId();
                 }
 
-                $cUsers = array_merge($cUsers, $this->permissionManager->getAllowedUsers($collection, PermissionInterface::VIEW));
-                $cGroups = array_merge($cGroups, $this->permissionManager->getAllowedGroups($collection, PermissionInterface::VIEW));
+                $aces = $this->permissionManager->getObjectAces($collection);
+                foreach ($aces as $access) {
+                    $userId = $access->getUserId();
+                    $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
+                    if ($access->hasPermission(PermissionInterface::VIEW)) {
+                        if ($isUser) {
+                            $users[] = $userId;
+                        } else {
+                            $groups[] = $userId;
+                        }
+                    }
+
+                    if ($access->hasPermission(PermissionInterface::EDIT)
+                        || $access->hasPermission(PermissionInterface::DELETE)) {
+                        if ($isUser) {
+                            $deleteUsers[] = $userId;
+                        } else {
+                            $deleteGroups[] = $userId;
+                        }
+                    }
+                }
 
                 if (null !== $parent = $collection->getParent()) {
-                    [, , $pUsers, $pGroups] = $this->getCollectionHierarchyInfo($parent);
-                    $cUsers = array_merge($cUsers, $pUsers);
-                    $cGroups = array_merge($cGroups, $pGroups);
+                    $parentInfo = $this->getCollectionHierarchyInfo($parent);
+                    $users = array_merge($users, $parentInfo->users);
+                    $groups = array_merge($groups, $parentInfo->groups);
+                    $deleteUsers = array_merge($deleteUsers, $parentInfo->deleteUsers);
+                    $deleteGroups = array_merge($deleteGroups, $parentInfo->deleteGroups);
                 }
             }
 
-            return [
+            return new CollectionPermissionsDTO(
                 $bestPrivacyInParentHierarchy,
                 $collection->getAbsolutePath(),
-                array_values(array_unique($cUsers)),
-                array_values(array_unique($cGroups)),
-            ];
+                array_values(array_unique($users)),
+                array_values(array_unique($groups)),
+                array_values(array_unique($deleteUsers)),
+                array_values(array_unique($deleteGroups)),
+            );
         });
     }
 }

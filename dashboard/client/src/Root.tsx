@@ -1,4 +1,4 @@
-import {oauthClient} from './lib/apiClient';
+import {keycloakClient, oauthClient} from './lib/apiClient';
 import {
     AuthenticationProvider,
     SessionExpireContainer,
@@ -28,7 +28,10 @@ export default function Root({}: Props) {
     }
 
     return (
-        <AuthenticationProvider oauthClient={oauthClient}>
+        <AuthenticationProvider
+            oauthClient={oauthClient}
+            keycloakClient={keycloakClient}
+        >
             {hasCode && <FullPageLoader />}
             <SessionExpireContainer />
             <Dashboard />
