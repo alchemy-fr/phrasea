@@ -1,3 +1,11 @@
+---
+status: WIP
+title: Scopes vs Roles
+---
+
+> **Status:** _Work In Progress_  
+> This documentation page is currently being drafted and may be updated frequently.
+
 # Keycloak: Roles vs Scopes
 
 ## 1. Real-Life Analogy
@@ -53,5 +61,5 @@ No, these concepts exist in most **modern authorization protocols** (OAuth 2.0, 
 ---
 
 ## 5. Practical Use Case
-- **Role**: "Jennifer is an `admin` in the Keycloak realm → she can manage users."
-- **Scope**: "The 'Mobile App' requests the `asset` scope → it can read user's name and email, but cannot modify his data."
+- **Role**: "Jennifer is an `admin` in the Keycloak realm → she can manage users"
+- **Scope**: "The 'Mobile App' requests the `basket:list`, `basket:read` scopes → it can list and read user's baskets, but cannot modify them."

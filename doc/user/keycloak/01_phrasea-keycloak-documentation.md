@@ -15,7 +15,7 @@ During installation, a dedicated realm named **Phrasea** is created, containing 
 
 ## Roles and Scopes
 
-You can start by reading this explanation of the difference between Scopes and Roles [here](./scopes-vs-roles).
+You can start by reading this explanation of the difference between Scopes and Roles [here](/user/keycloak/keycloak-scopes-vs-roles).
 
 ### Roles
 
@@ -185,7 +185,7 @@ commit:list in Uploader
 ## Implementation Details
 
 - **Environment Variables:**  
-  The integration may rely on [environment variables](/tech/setup-guide) for Keycloak endpoints, client secrets, and realm configuration documentation generator.
+  The integration may rely on [environment variables](/tech/Configuration/env_var#authentication-and-identity-provider-settings) for Keycloak endpoints, client secrets, and realm configuration documentation generator.
 
 ## References
 
