@@ -1,5 +1,5 @@
 ---
-title: Databox Client GUI descripion
+title: Databox Client descripion
 ---
 
 # Databox User Documentation

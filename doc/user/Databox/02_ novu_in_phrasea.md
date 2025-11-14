@@ -2,6 +2,10 @@
 status: WIP (Work In Progress)
 title: phrasea notification
 ---
+
+> **Status:** _Work In Progress_  
+> This documentation page is currently being drafted and may be updated frequently.
+
 # Phrasea’s notifications.
 
 # Implementation of Novu framework In Phrasea.
@@ -28,8 +32,4 @@ For more information on Novu, please refer to the official Novu's [documentation
 | expose-zippy-download-link | When a user download assets from  | the requester user | Nobody | email |
 | expose-download-link | When a user received  | the requester user | Nobody | email |
 
-## 
-
-| redaction status | wip |
-| :---- | :---- |
-
+##

@@ -1,5 +1,5 @@
 ---
-title: Description de l'interface Databox Client
+title: Description de Databox Client
 ---
 # Documentation utilisateur Databox
 
