@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@novu/framework':
         specifier: latest
-        version: 2.7.1(next@15.5.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(zod-to-json-schema@3.24.6(zod@3.25.76))(zod@3.25.76)
+        version: 2.8.0(next@15.5.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(zod-to-json-schema@3.24.6(zod@3.25.76))(zod@3.25.76)
       '@novu/nextjs':
         specifier: ^2.6.6
         version: 2.6.6(next@15.5.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -366,8 +366,8 @@ packages:
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
 
-  '@novu/framework@2.7.1':
-    resolution: {integrity: sha512-AZNZrPiyNKMIRLhfXz7pLGOyskoKUb6oL9ndcfrizcLEF2HbfeInwoLP2et3REOPxveji2zuR0jfHugF75bEwA==}
+  '@novu/framework@2.8.0':
+    resolution: {integrity: sha512-9Eo0Xs+g221Y2M+zw8amBW4ZlzGtxOuyztPGyxlGLhqgM0YaMBJ1e1ZugOM/5aa0FGRV504WxWv/PuIY340w2A==}
     peerDependencies:
       '@nestjs/common': '>=10.0.0'
       '@sveltejs/kit': '>=1.27.3'
@@ -1638,6 +1638,10 @@ packages:
     resolution: {integrity: sha512-p/nXbhSEcu3pZRdkW1OfJhpsVtW1gd4Wa1fnQc9YLiTfAjn0312eMKimbdIQzuZl9aa9xUGaRlP9T/CJE/ditQ==}
     engines: {node: '>=0.10.0'}
 
+  jsonrepair@3.13.1:
+    resolution: {integrity: sha512-WJeiE0jGfxYmtLwBTEk8+y/mYcaleyLXWaqp5bJu0/ZTSeG0KQq/wWQ8pmnkKenEdN6pdnn6QtcoSUkbqDHWNw==}
+    hasBin: true
+
   jsx-ast-utils@3.3.5:
     resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
     engines: {node: '>=4.0'}
@@ -2669,7 +2673,7 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@novu/framework@2.7.1(next@15.5.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(zod-to-json-schema@3.24.6(zod@3.25.76))(zod@3.25.76)':
+  '@novu/framework@2.8.0(next@15.5.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(zod-to-json-schema@3.24.6(zod@3.25.76))(zod@3.25.76)':
     dependencies:
       ajv: 8.17.1
       ajv-formats: 2.1.1(ajv@8.17.1)
@@ -2677,6 +2681,7 @@ snapshots:
       chalk: 4.1.2
       cross-fetch: 4.1.0
       json-schema-to-ts: 3.1.1
+      jsonrepair: 3.13.1
       liquidjs: 10.21.1
       pluralize: 8.0.0
       sanitize-html: 2.17.0
@@ -3571,7 +3576,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.44.1(eslint@8.57.1)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.44.1(eslint@8.57.1)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -3593,7 +3598,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.44.1(eslint@8.57.1)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.44.1(eslint@8.57.1)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1))(eslint@8.57.1)
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -4122,6 +4127,8 @@ snapshots:
       minimist: 1.2.8
 
   jsonpointer@5.0.1: {}
+
+  jsonrepair@3.13.1: {}
 
   jsx-ast-utils@3.3.5:
     dependencies:
