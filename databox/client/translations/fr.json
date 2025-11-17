@@ -1,6 +1,6 @@
 {
     "locale": {
-        "current": "Français",
+        "current": "Anglais",
         "switcher": {
             "change_data_locale": {
                 "modal": {
@@ -133,7 +133,9 @@
         "share": "Partager",
         "substitute_file": "Remplacer le fichier",
         "unselect_all": "Désélectionner tout",
-        "share_multiple": "Vous ne pouvez partager qu'un asset à la fois"
+        "share_multiple": "Vous ne pouvez partager qu'un asset à la fois",
+        "delete_permanently": "Supprimer définitivement",
+        "restore": "Restaurer"
     },
     "asset_dropzone": {
         "drop_the_files_here": "Déposez les fichiers ici…",
@@ -338,7 +340,8 @@
             "create_collection": "Créer une sous collection",
             "edit": "Modifier cette collection",
             "delete": "Supprimer",
-            "notifications": "Notifications"
+            "notifications": "Notifications",
+            "restore": "Restaurer"
         },
         "manage": {
             "acl": {
@@ -363,11 +366,21 @@
             "notifications": {
                 "title": "Notifications"
             }
+        },
+        "delete": {
+            "confirm_message": "Voulez-vous vraiment supprimer la collection <coll/> ?"
+        },
+        "restore": {
+            "confirm": {
+                "title": "Confirmer la restauration de la collection"
+            },
+            "confirm_message": "Êtes-vous sûr de vouloir restaurer la collection <coll/> ?"
         }
     },
     "collection_delete": {
         "confirm": "Êtes-vous sûr de vouloir supprimer cette collection ?",
-        "title": "Supprimer la collection"
+        "title": "Supprimer la collection",
+        "confirmed": "La collection a été supprimée !"
     },
     "collection_move": {
         "intro": "Sélectionnez la destination où déplacer cette collection :",
@@ -512,7 +525,7 @@
     "filter_rule": {
         "confirm_delete_this_rule": "Confirmer la suppression de cette règle ?",
         "exclude": {
-            "helper": "Les assets dans ce {{type}} seront seulement visibles s'ils NE contiennent PAS ces tags.",
+            "helper": "Les Assets dans ce {{type}} seront seulement visibles s'ils NE contiennent PAS ces tags.",
             "label": "Tags à <b>exclure</b>"
         },
         "group": "Groupe",
@@ -540,7 +553,7 @@
         },
         "asset_create": {
             "title": "Créer un asset dans",
-            "title_with_parent": "Créer un asset sous"
+            "title_with_parent": "Créer un Asset sous"
         },
         "asset_edit": {
             "success": "Asset modifié !"
@@ -844,6 +857,12 @@
                 "translate": {
                     "title": "Traduction du titre"
                 }
+            },
+            "fileAnalyzers": {
+                "label": "Analyseurs de fichiers"
+            },
+            "trashRetentionDelay": {
+                "label": "Délai de conservation dans la corbeille (en jours)"
             }
         },
         "attributelist_create": {
@@ -856,7 +875,8 @@
             },
             "help": {
                 "config_refenrece": "Configuration de Référence:",
-                "copy_reference": "Copier la référence"
+                "copy_reference": "Copier la référence",
+                "config_reference": "Configuration de référence :"
             },
             "if": {
                 "placeholder": "Condition pour exécuter l'intégration",
@@ -1266,7 +1286,8 @@
             "move": "Déplacer",
             "replace_source_file": "Remplacer le fichier source",
             "share": "Partager",
-            "copy": "Copier"
+            "copy": "Copier",
+            "restore": "Restaurer"
         },
         "collection_list": {
             "collections_one": "+ {{count}} collection",
@@ -1313,18 +1334,31 @@
                 "message_one": "Etes-vous sûr de vouloir supprimer cet asset ?",
                 "message_many": "",
                 "message_other": "Etes-vous sûr de vouloir supprimer ces assets ?",
-                "not_allowed": "Vous n'êtes autorisé à supprimer aucun de ces assets"
+                "not_allowed": "Vous n'êtes autorisé à supprimer aucun de ces assets",
+                "text_to_type": {
+                    "delete": "Supprimer"
+                }
             },
             "confirm_message_one": "Êtes-vous sûr de vouloir supprimer l'asset ?",
             "confirm_message_many": "",
             "confirm_message_other": "Êtes-vous sûr de vouloir supprimer les {{count}}  assets ?",
             "hard_delete_one": "Supprimer définitivement l'asset?",
             "hard_delete_many": "",
-            "hard_delete_other": "",
+            "hard_delete_other": "Supprimer définitivement les assets <strong> {{count}} </strong>",
             "remove_from_collection": "Supprimer de la collection <strong> {{name}} </strong>",
             "shared_warning_one": "Cet asset est actuellement partagé. Le supprimer supprimera l'accès de tous les utilisateurs.",
             "shared_warning_many": "",
-            "shared_warning_other": "<strong> {{count}} </strong> de ces Assets sont actuellement partagés. Les supprimer supprimera l'accès de tous les utilisateurs."
+            "shared_warning_other": "<strong> {{count}} </strong> de ces Assets sont actuellement partagés. Les supprimer supprimera l'accès de tous les utilisateurs.",
+            "confirm_hard_delete_message_one": "Êtes-vous sûr de vouloir supprimer <strong> définitivement </strong> l'assets <strong> {{count}} </strong> ? Cette action ne peut pas être annulée.",
+            "confirm_hard_delete_message_many": "",
+            "confirm_hard_delete_message_other": "Êtes-vous sûr de vouloir supprimer <strong> définitivement </strong> les assets <strong> {{count}} </strong> ? Cette action ne peut pas être annulée.",
+            "confirm_move_to_trash_message_one": "Êtes-vous sûr de vouloir déplacer l'asset <strong> {{count}} </strong> vers la corbeille ?",
+            "confirm_move_to_trash_message_many": "",
+            "confirm_move_to_trash_message_other": "Êtes-vous sûr de vouloir déplacer les assets <strong> {{count}} </strong> vers la corbeille ?",
+            "move_to_trash_one": "Déplacer l'Asset <strong> {{count}} </strong> vers la corbeille",
+            "move_to_trash_many": "",
+            "move_to_trash_other": "Déplacer les Assets <strong> {{count}} </strong> vers la corbeille",
+            "remove_from_story": "Supprimer la Story <strong> {{name}} </strong>"
         },
         "info": {
             "id": "ID",
@@ -1336,7 +1370,11 @@
             "collections": {
                 "none": "Aucun"
             },
-            "workspace": "Workspace"
+            "workspace": "Workspace",
+            "source_file": {
+                "label": "Fichier source",
+                "none": "Aucun"
+            }
         },
         "operations": {
             "last_asset_workflows": "Derniers workflows de l'asset",
@@ -1359,12 +1397,34 @@
             "attributes": "Attributs de l'asset",
             "discussion": "Discussion",
             "info": "Information",
-            "appears_in": "Apparaît dans"
+            "appears_in": "Apparaît dans",
+            "add_attachment": "Ajouter un fichier lié",
+            "attachments": "Fichier lié",
+            "delete_attachment": {
+                "confirm_button": "Supprimer",
+                "confirm_message": "Êtes-vous sûr de vouloir supprimer ce Fichier lié? Cette action ne peut pas être annulée.",
+                "confirm_title": "Supprimer le Fichier lié"
+            },
+            "rename_attachment": "Renommer le Fichier lié"
         },
         "es_document": {
             "sync_now": "Synchroniser maintenant"
         },
-        "not_found": "Asset non trouvé"
+        "not_found": "Asset non trouvé",
+        "chip": {
+            "deleted": "Supprimer"
+        },
+        "restore": {
+            "confirm": {
+                "title": "Confirmer la restauration"
+            },
+            "confirm_message_one": "Êtes-vous sûr de vouloir restaurer l'Asset {{count}} ?",
+            "confirm_message_many": "",
+            "confirm_message_other": "Êtes-vous sûr de vouloir restaurer les Assets {{count}} ?",
+            "deleted_collection": "Restaurer",
+            "deleted_collection_or_story_warning": "Remarque : Certain Assets ne peuvent pas être restaurées car leurs collections de référence ou leur Stories ont été supprimées :",
+            "no_restorable_assets": "Aucune des Assets sélectionnées ne peut être restaurée car leurs collections de référence ont été supprimées."
+        }
     },
     "renditions": {
         "dirty": "Les réglages de cette Rendition ont été modifiés après sa génération (Dirty).",
@@ -1707,7 +1767,8 @@
         "workspace": "Workspace",
         "collections": "Collections",
         "isStory": "Story",
-        "stories": "Stories"
+        "stories": "Stories",
+        "deleted": "Supprimé"
     },
     "file": {
         "dialog": {
@@ -1719,7 +1780,12 @@
             "id": "ID",
             "size": "Taille",
             "type": "Type",
-            "url": "URL"
+            "url": "URL",
+            "accepted": "Accepté",
+            "analysis": "Analyse",
+            "analysis_pending": "Analyse en attente",
+            "size_unknown": "Inconnu",
+            "url_none": "N/A"
         },
         "manage": {
             "info": {
@@ -1729,7 +1795,9 @@
                 "title": "Métadonnées"
             },
             "title": "Gérer le fichier {{name}}"
-        }
+        },
+        "analysis_pending": "Analyse en cours…",
+        "rejected": "Rejeté"
     },
     "integrations": {
         "new": {
@@ -1809,13 +1877,22 @@
         "from_url": {
             "placeholder": "Saisir l'URL du fichier"
         },
-        "upload_from_url": "Importer à partir d'une l'URL"
+        "upload_from_url": "Importer à partir d'une l'URL",
+        "asset_created_one": "{{count}} Asset créés avec succès.",
+        "asset_created_many": "",
+        "asset_created_other": "{{count}} Assets créés avec succès.",
+        "back_to_file_upload": "Télécharger un fichier",
+        "back_to_files_upload": "Charger des fichiers",
+        "from_urls": {
+            "placeholder": "Entrez les URL de fichier, une par ligne"
+        },
+        "import_file": "Importer un fichier"
     },
     "upload": {
         "pending": {
             "cancel_upload": "Annuler",
-            "empty": "Aucun envoi en attente",
-            "title": "Envois en attente",
+            "empty": "Aucun envoi de fichier en attente",
+            "title": "Envois de fichier en attente",
             "toast": {
                 "message_one": "<strong>{{uploaded}} / {{count}}</strong> importé",
                 "message_many": "",
@@ -1860,6 +1937,35 @@
     "story": {
         "chip": {
             "label": "Story"
+        }
+    },
+    "asset_restore": {
+        "confirm": "Êtes-vous sûr de vouloir restaurer cet Asset ?",
+        "title": "Restaurer l'Asset"
+    },
+    "attachment": {
+        "dialog": {
+            "add": {
+                "submit": "Joindre",
+                "success": "Un nouveau Fichier Lié a été ajoutée.",
+                "title": "Ajouter un Fichier Lié à Asset"
+            }
+        }
+    },
+    "collection_panel": {
+        "trash": "Corbeille"
+    },
+    "collection_restore": {
+        "confirmed": "La collection a été restaurée !",
+        "title": "Restaurer la collection"
+    },
+    "rename_attachment": {
+        "dialog": {
+            "success": "Le fichier lié a été renommée.",
+            "title": "Renommer le fichier lié"
+        },
+        "form": {
+            "label": "Nom du fichier lié"
         }
     }
 }
