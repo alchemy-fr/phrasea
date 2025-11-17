@@ -60,6 +60,10 @@ class AssetVoter extends AbstractVoter
 
                 return $this->security->isGranted(AbstractVoter::EDIT, $subject->getWorkspace());
             case self::READ:
+                if ($subject->isDeleted()) {
+                    return $this->security->isGranted(AbstractVoter::DELETE, $subject);
+                }
+
                 return $isOwner()
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)

@@ -21,6 +21,7 @@ export enum BuiltInField {
     IsStory = '@isStory',
     Story = '@story',
     Workspace = '@workspace',
+    Deleted = '@deleted',
 }
 
 function encodeSortBy(sortBy: SortBy): string {

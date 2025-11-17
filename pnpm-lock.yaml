@@ -714,6 +714,9 @@ importers:
       jwt-decode:
         specifier: ^4.0.0
         version: 4.0.0
+      keycloak-js:
+        specifier: ^26.2.1
+        version: 26.2.1
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -5566,6 +5569,7 @@ packages:
 
   bootstrap@4.6.2:
     resolution: {integrity: sha512-51Bbp/Uxr9aTuy6ca/8FbFloBUJZLHwnhTcnjIeRn2suQWsWzcuJhGjKDB5eppVte/8oCdOL3VuwxvZDUggwGQ==}
+    deprecated: This version of Bootstrap is no longer supported. Please upgrade to the latest version.
     peerDependencies:
       jquery: 1.9.1 - 3
       popper.js: ^1.16.1
@@ -8478,6 +8482,9 @@ packages:
 
   kdbush@3.0.0:
     resolution: {integrity: sha512-hRkd6/XW4HTsA9vjVpY9tuXJYLSlelnkTmVFu4M9/7MIYQtFcHpbugAU7UbOfjOiVSVYl2fqgBuJ32JUmRo5Ew==}
+
+  keycloak-js@26.2.1:
+    resolution: {integrity: sha512-bZt6fQj/TLBAmivXSxSlqAJxBx/knNZDQGJIW4ensGYGN4N6tUKV8Zj3Y7/LOV8eIpvWsvqV70fbACihK8Ze0Q==}
 
   keycode@2.2.1:
     resolution: {integrity: sha512-Rdgz9Hl9Iv4QKi8b0OlCRQEzp4AgVxyCtz5S/+VIHezDmrDhkp2N2TqBWOLz0/gbeREXOOiI9/4b8BY9uw2vFg==}
@@ -21098,6 +21105,8 @@ snapshots:
   jwt-decode@4.0.0: {}
 
   kdbush@3.0.0: {}
+
+  keycloak-js@26.2.1: {}
 
   keycode@2.2.1: {}
 

@@ -36,6 +36,7 @@ export type AuthEventHandler<E extends AuthEvent = AuthEvent> = (
 ) => Promise<void>;
 
 export type TokenResponse = {
+    id_token?: string;
     access_token: string;
     refresh_token?: string;
     token_type: string;
@@ -47,6 +48,7 @@ export type TokenResponse = {
 
 export type AuthTokens = {
     accessToken: string;
+    idToken?: string;
     expiresIn: number;
     expiresAt: number;
     refreshToken?: string;

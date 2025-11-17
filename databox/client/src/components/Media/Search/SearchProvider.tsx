@@ -86,27 +86,26 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         return expr;
     }
 
-    function removeConditionHelper(
+    function removeConditionsHelper(
         conditions: AQLQueries,
-        id: string
+        ids: string[]
     ): AQLQueries {
-        return conditions.filter(c => c.id !== id);
+        return conditions.filter(c => !ids.includes(c.id));
     }
 
     const selectWorkspace = useCallback<TSearchContext['selectWorkspace']>(
         (workspaceId, _title, forceReload): void => {
             if (
                 !setConditions(p => {
-                    const newConditions = removeConditionHelper(
-                        p,
-                        BuiltInField.Collection
-                    );
+                    const newConditions = removeConditionsHelper(p, [
+                        BuiltInField.Collection,
+                        BuiltInField.Deleted,
+                    ]);
 
                     if (!workspaceId) {
-                        return removeConditionHelper(
-                            newConditions,
-                            BuiltInField.Workspace
-                        );
+                        return removeConditionsHelper(newConditions, [
+                            BuiltInField.Workspace,
+                        ]);
                     }
 
                     return replaceConditionHelper(newConditions, {
@@ -126,16 +125,15 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         (collectionId, _title, forceReload): void => {
             if (
                 !setConditions(p => {
-                    const newConditions = removeConditionHelper(
-                        p,
-                        BuiltInField.Workspace
-                    );
+                    const newConditions = removeConditionsHelper(p, [
+                        BuiltInField.Workspace,
+                        BuiltInField.Deleted,
+                    ]);
 
                     if (!collectionId) {
-                        return removeConditionHelper(
-                            newConditions,
-                            BuiltInField.Collection
-                        );
+                        return removeConditionsHelper(newConditions, [
+                            BuiltInField.Collection,
+                        ]);
                     }
 
                     return replaceConditionHelper(newConditions, {
@@ -208,6 +206,10 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         setConditions(prev => prev.filter(c => c.id !== condition.id));
     };
 
+    const resetWithCondition = (condition: AQLQuery): void => {
+        setConditions(_p => [condition]);
+    };
+
     const conditionsAst = (
         conditions
             .filter(q => !q.disabled)
@@ -244,6 +246,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 collections,
                 workspaces,
                 removeCondition,
+                resetWithCondition,
                 upsertCondition,
                 conditions,
                 query,

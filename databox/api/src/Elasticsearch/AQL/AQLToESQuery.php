@@ -107,6 +107,7 @@ final readonly class AQLToESQuery
     {
         $locale = $options['locale'] ?? '*';
         $builtInField = $field['builtInField'] ?? null;
+
         $fieldName = str_replace('{l}', $locale, $field['field']);
         /** @var AttributeTypeInterface $type */
         $type = $field['type'];
@@ -138,6 +139,10 @@ final readonly class AQLToESQuery
             $value = $this->resolveValue($data['rightOperand'], $builtInField);
         } else {
             $value = null;
+        }
+
+        if (null !== $builtInField && null !== $filterQuery = $builtInField->createFilterQuery($value, $options)) {
+            return $filterQuery;
         }
 
         if ($type instanceof DateTimeAttributeType && null !== $value) {
