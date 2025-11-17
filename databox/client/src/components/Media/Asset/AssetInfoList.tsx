@@ -95,7 +95,7 @@ export default function AssetInfoList({data}: Props) {
                 />
                 <InfoRow
                     icon={<InsertDriveFileIcon />}
-                    label={t('asset.info.source_file', `Source File`)}
+                    label={t('asset.info.source_file.label', `Source File`)}
                     value={
                         data.source?.id ??
                         t('asset.info.source_file.none', 'None')

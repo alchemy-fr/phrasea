@@ -64,8 +64,12 @@
             "move": "Move",
             "open": "Open",
             "replace_source_file": "Replace source file",
+            "restore": "Restore",
             "save_as": "Save as",
             "share": "Share"
+        },
+        "chip": {
+            "deleted": "Deleted"
         },
         "collection_list": {
             "collections_one": "+ {{count}} collection",
@@ -76,11 +80,19 @@
         "delete": {
             "confirm": {
                 "not_allowed": "You don't have permission to delete any of these assets",
+                "text_to_type": {
+                    "delete": "Delete"
+                },
                 "title": "Confirm delete"
             },
-            "confirm_message_one": "Are you sure you want to delete this asset?",
-            "confirm_message_other": "Are you sure you want to delete {{count}} assets?",
-            "hard_delete": "Delete asset permanently",
+            "confirm_hard_delete_message_one": "Are you sure you want to <strong>permanently</strong> delete this asset? This action cannot be undone.",
+            "confirm_hard_delete_message_other": "Are you sure you want to <strong>permanently</strong> delete <strong>{{count}} assets</strong>? This action cannot be undone.",
+            "confirm_move_to_trash_message_one": "Are you sure you want to move this asset to trash?",
+            "confirm_move_to_trash_message_other": "Are you sure you want to move <strong>{{count}} assets</strong> to trash?",
+            "hard_delete_one": "Permanently delete asset",
+            "hard_delete_other": "Permanently delete <strong>{{count}} assets</strong>",
+            "move_to_trash_one": "Move asset to trash",
+            "move_to_trash_other": "Move <strong>{{count}} assets</strong> to trash",
             "remove_from_collection": "Remove from collection <strong>{{name}}</strong>",
             "remove_from_story": "Remove from story <strong>{{name}}</strong>",
             "shared_warning_one": "This asset is currently shared. Deleting it will remove access for all users.",
@@ -99,6 +111,10 @@
             "last_attribute_modification_date": "Last attribute modification date",
             "last_modification_date": "Last Modification date",
             "owner": "Owner",
+            "source_file": {
+                "label": "Source File",
+                "none": "None"
+            },
             "workspace": "Workspace"
         },
         "manage": {
@@ -142,6 +158,16 @@
         "replace": {
             "label": "Replace"
         },
+        "restore": {
+            "confirm": {
+                "title": "Confirm restore"
+            },
+            "confirm_message_one": "Are you sure you want to restore this asset?",
+            "confirm_message_other": "Are you sure you want to restore {{count}} assets?",
+            "deleted_collection": "Restore",
+            "deleted_collection_or_story_warning": "Note: Some assets cannot be restored because their reference collections or story have been deleted:",
+            "no_restorable_assets": "None of the selected assets can be restored because their reference collections have been deleted."
+        },
         "tag_list": {
             "others_one": "+ {{count}} other",
             "others_other": "+ {{count}} others",
@@ -149,20 +175,30 @@
             "tags_other": "+ {{count}} tags"
         },
         "view": {
+            "add_attachment": "Add Attachment",
             "appears_in": "Appears in",
+            "attachments": "Attachments",
             "attributes": "Attributes",
+            "delete_attachment": {
+                "confirm_button": "Delete",
+                "confirm_message": "Are you sure you want to delete this attachment? This action cannot be undone.",
+                "confirm_title": "Delete Attachment"
+            },
             "discussion": "Discussion",
-            "info": "Information"
+            "info": "Information",
+            "rename_attachment": "Rename Attachment"
         }
     },
     "asset_actions": {
         "copy": "Copy",
         "delete": "Delete",
+        "delete_permanently": "Delete Permanently",
         "download": "Download",
         "edit": "Edit",
         "edit_attributes": "Edit attributes",
         "export": "Export",
         "move": "Move",
+        "restore": "Restore",
         "select_all": "Select all",
         "share": "Share",
         "share_multiple": "You can only share one asset at a time",
@@ -188,6 +224,10 @@
     "asset_file_versions": {
         "current": "Current"
     },
+    "asset_restore": {
+        "confirm": "Are you sure you want to restore this asset?",
+        "title": "Restore Asset"
+    },
     "asset_selection": {
         "x_item_one": "<strong>{{count}}</strong> asset",
         "x_item_other": "<strong>{{total}}</strong> assets",
@@ -212,6 +252,15 @@
     },
     "asset_view": {
         "edit_asset": "Asset <strong>{{name}}</strong>"
+    },
+    "attachment": {
+        "dialog": {
+            "add": {
+                "submit": "Attach",
+                "success": "New attachment has been added.",
+                "title": "Add attachment to Asset"
+            }
+        }
     },
     "attribute": {
         "editor": {
@@ -403,6 +452,7 @@
     "built_in_attr": {
         "collections": "Collections",
         "createdAt": "Created At",
+        "deleted": "Deleted",
         "editedAt": "Edited At",
         "fileMimeType": "File MIME Type",
         "fileSize": "File Size",
@@ -428,6 +478,9 @@
         "read_only": "Read only"
     },
     "collection": {
+        "delete": {
+            "confirm_message": "Are you sure you want to delete collection <coll/> ?"
+        },
         "info": {
             "absolute_path": "Absolute Path",
             "creation_date": "Creation date",
@@ -441,7 +494,8 @@
             "create_collection": "Create sub collection",
             "delete": "Delete",
             "edit": "Edit",
-            "notifications": "Notifications"
+            "notifications": "Notifications",
+            "restore": "Restore"
         },
         "manage": {
             "acl": {
@@ -466,10 +520,16 @@
                 "title": "Tag rules"
             },
             "title": "Manage collection {{name}}"
+        },
+        "restore": {
+            "confirm": {
+                "title": "Confirm restore collection"
+            },
+            "confirm_message": "Are you sure you want to restore collection <coll/> ?"
         }
     },
     "collection_delete": {
-        "confirm": "Are you sure you want to delete this collection?",
+        "confirmed": "Collection has been deleted!",
         "title": "Delete collection"
     },
     "collection_move": {
@@ -478,6 +538,13 @@
             "label": "Move collection"
         },
         "title": "Move collection"
+    },
+    "collection_panel": {
+        "trash": "Trash"
+    },
+    "collection_restore": {
+        "confirmed": "Collection has been restored!",
+        "title": "Restore collection"
     },
     "common": {
         "cancel": "Cancel",
@@ -559,9 +626,6 @@
     "delete": {
         "basket": {
             "confirmed": "Basket has been removed!"
-        },
-        "collection": {
-            "confirmed": "Collection has been removed!"
         }
     },
     "dialog": {
@@ -660,16 +724,22 @@
         "missing_with_total": "Missing ({{total}})"
     },
     "file": {
+        "analysis_pending": "Analysis in progress…",
         "dialog": {
             "metadata": {
                 "refresh": "Refresh"
             }
         },
         "info": {
+            "accepted": "Accepted",
+            "analysis": "Analysis",
+            "analysis_pending": "Analysis Pending",
             "id": "ID",
             "size": "Size",
+            "size_unknown": "Unknown",
             "type": "Type",
-            "url": "URL"
+            "url": "URL",
+            "url_none": "N/A"
         },
         "manage": {
             "info": {
@@ -679,12 +749,21 @@
                 "title": "Metadata"
             },
             "title": "Manage File {{name}}"
-        }
+        },
+        "rejected": "Rejected"
     },
     "file_upload": {
+        "asset_created_one": "Asset created successfully.",
+        "asset_created_other": "{{count}} assets created successfully.",
+        "back_to_file_upload": "Upload file",
+        "back_to_files_upload": "Upload files",
         "from_url": {
             "placeholder": "Enter file URL"
         },
+        "from_urls": {
+            "placeholder": "Enter file URL(s), one per line"
+        },
+        "import_file": "Import file",
         "upload_from_url": "Upload from URL"
     },
     "filter_rule": {
@@ -904,7 +983,7 @@
                 "label": "Last errors:"
             },
             "help": {
-                "config_refenrece": "Configuration reference:",
+                "config_reference": "Configuration reference:",
                 "copy_reference": "Copy reference"
             },
             "if": {
@@ -1040,6 +1119,9 @@
                 "remove": "Remove <1>this locale</1>",
                 "title": "Fallbacks locales"
             },
+            "fileAnalyzers": {
+                "label": "File Analyzers"
+            },
             "locales": {
                 "add": "Add locale",
                 "label": "Locale",
@@ -1054,6 +1136,9 @@
                 "translate": {
                     "title": "Translate Title"
                 }
+            },
+            "trashRetentionDelay": {
+                "label": "Trash Retention Delay (in days)"
             }
         },
         "workspace_edit": {
@@ -1280,6 +1365,15 @@
         "bg_removed": "{{title}} - BG removed",
         "remove_bg": "Remove BG",
         "use_slider_to_compare": "Use slider to compare"
+    },
+    "rename_attachment": {
+        "dialog": {
+            "success": "Attachment has been renamed.",
+            "title": "Rename Attachment"
+        },
+        "form": {
+            "label": "Attachment Name"
+        }
     },
     "rendition_definition": {
         "build_mode": {

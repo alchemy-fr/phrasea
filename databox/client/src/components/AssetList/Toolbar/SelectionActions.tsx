@@ -525,19 +525,21 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                             ''
                         )}
 
-                        <GroupButton
-                            id={'delete'}
-                            color={'error'}
-                            onClick={mainDeleteAction!.onClick}
-                            startIcon={mainDeleteAction!.startIcon}
-                            disabled={
-                                selection.length === 0 ||
-                                mainDeleteAction!.disabled
-                            }
-                            actions={deleteExtraActions}
-                        >
-                            {mainDeleteAction!.label}
-                        </GroupButton>
+                        {mainDeleteAction ? (
+                            <GroupButton
+                                id={'delete'}
+                                color={'error'}
+                                onClick={mainDeleteAction!.onClick}
+                                startIcon={mainDeleteAction!.startIcon}
+                                disabled={
+                                    selection.length === 0 ||
+                                    mainDeleteAction!.disabled
+                                }
+                                actions={deleteExtraActions}
+                            >
+                                {mainDeleteAction!.label}
+                            </GroupButton>
+                        ) : null}
 
                         {actionsContext.extraActions?.map(a => {
                             return (
