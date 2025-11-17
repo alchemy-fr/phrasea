@@ -57,7 +57,8 @@
             },
             "confirm_message_one": "Möchten Sie {{count}} Asset wirklich löschen?",
             "confirm_message_other": "Möchten Sie {{count}} Assets wirklich löschen?",
-            "hard_delete": "Asset dauerhaft löschen",
+            "hard_delete_one": "Asset dauerhaft löschen",
+            "hard_delete_other": "",
             "remove_from_collection": "Aus Kollektion <strong>{{name}}</strong> entfernen",
             "shared_warning_one": "Diese Ressource wird momentan geteilt. Beim Löschen wird allen Benutzern der Zugriff entzogen.",
             "shared_warning_other": "Diese Ressourcen werden momentan geteilt. Beim Löschen wird allen Benutzern der Zugriff entzogen."
