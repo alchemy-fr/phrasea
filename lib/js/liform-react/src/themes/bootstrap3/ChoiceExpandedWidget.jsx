@@ -32,8 +32,7 @@ const renderChoice = field => {
                             value={value}
                             checked={field.input.value === value}
                             onChange={e => field.input.onChange(value)}
-                        />
-                        {' '}
+                        />{' '}
                         {name}
                     </label>
                 </div>

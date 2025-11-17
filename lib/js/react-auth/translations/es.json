@@ -1,19 +1,19 @@
 {
-  "lib": {
-    "auth": {
-      "sess_exp": {
-        "about_to_expire": {
-          "intro": "¿Todavía estás aquí? ¿Quieres mantener tu sesión activa?",
-          "logout": "Cerrar sesión",
-          "stay": "¡Mantenerme dentro!",
-          "title": "Tu sesión está a punto de expirar"
-        },
-        "expired": {
-          "intro": "¡No olvides guardar tu contenido antes de volver a iniciar sesión!",
-          "sign_in": "Cerrar",
-          "title": "Tu sesión ha expirado"
+    "lib": {
+        "auth": {
+            "sess_exp": {
+                "about_to_expire": {
+                    "intro": "¿Todavía estás aquí? ¿Quieres mantener tu sesión activa?",
+                    "logout": "Cerrar sesión",
+                    "stay": "¡Mantenerme dentro!",
+                    "title": "Tu sesión está a punto de expirar"
+                },
+                "expired": {
+                    "intro": "¡No olvides guardar tu contenido antes de volver a iniciar sesión!",
+                    "sign_in": "Cerrar",
+                    "title": "Tu sesión ha expirado"
+                }
+            }
         }
-      }
     }
-  }
 }

@@ -373,7 +373,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
             actionsContext.restore &&
             canRestore
         ) {
-            deleteExtraActions.push(deleteButtonProps);
+            deleteExtraActions.push(restoreButtonProps);
         }
         if (actionsContext.delete && canDeletePermanent) {
             deleteExtraActions.push({

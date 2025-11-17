@@ -14,7 +14,7 @@ import {
 } from './localeHelper';
 import {WithTranslations} from '../types';
 import LoadingButton from '../LoadingButton';
-import {GetLocales} from "../Locale/LocaleSelectWidget";
+import {GetLocales} from '../Locale/LocaleSelectWidget';
 
 type Model = {
     fallback: string;
@@ -67,7 +67,11 @@ export default function FieldTranslationsEditDialog<
     } = useFormSubmit({
         defaultValues: {
             fallback: data[field] || '',
-            translations: getFieldTranslationsList(data.translations, field, locales),
+            translations: getFieldTranslationsList(
+                data.translations,
+                field,
+                locales
+            ),
         },
         onSubmit: async (d: Model) => {
             return await onUpdate({

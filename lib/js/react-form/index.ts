@@ -19,7 +19,7 @@ import CheckboxWidget from './src/Widget/CheckboxWidget';
 import KeyTranslationsWidget, {
     getNonEmptyTranslations,
 } from './src/Translations/KeyTranslationsWidget';
-import LocaleSelectWidget from "./src/Locale/LocaleSelectWidget";
+import LocaleSelectWidget from './src/Locale/LocaleSelectWidget';
 
 export {
     CollectionWidget,

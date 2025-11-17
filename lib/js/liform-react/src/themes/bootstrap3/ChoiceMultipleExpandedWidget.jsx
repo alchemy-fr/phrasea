@@ -49,8 +49,7 @@ const renderChoice = field => {
                                     field.input.value
                                 )
                             }
-                        />
-                        {' '}
+                        />{' '}
                         {name}
                     </label>
                 </div>

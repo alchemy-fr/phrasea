@@ -19,7 +19,9 @@
     },
     "scripts": {
         "cs": "vendor/bin/php-cs-fixer fix",
-        "test": "echo 'This project has no test...'"
+        "test": [
+            "vendor/bin/var-dump-check --symfony --exclude vendor ."
+        ]
     },
     "autoload": {
         "psr-4": {

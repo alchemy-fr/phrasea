@@ -1,49 +1,49 @@
 {
-  "name": "@alchemy/visual-workflow",
-  "version": "1.0.0",
-  "scripts": {
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
-    "lint": "eslint src",
-    "lint:fix": "eslint --fix src",
-    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
-    "cs": "pnpm lint:fix && pnpm format"
-  },
-  "main": "./src/index.ts",
-  "dependencies": {
-    "reactflow": "^11.11.4"
-  },
-  "peerDependencies": {
-    "@mui/icons-material": "^5.16.7",
-    "@mui/lab": "^5.0.0-alpha.168",
-    "@mui/material": "^5.16.7",
-    "moment": "^2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "@mui/icons-material": "^5.18.0",
-    "@mui/lab": "5.0.0-alpha.173",
-    "@mui/material": "^5.18.0",
-    "@storybook/addon-essentials": "^7.6.20",
-    "@storybook/addon-interactions": "^7.6.20",
-    "@storybook/addon-links": "^7.6.20",
-    "@storybook/blocks": "^7.6.20",
-    "@storybook/react": "^7.6.20",
-    "@storybook/react-vite": "^7.6.20",
-    "@storybook/testing-library": "0.0.14-next.2",
-    "@types/node": "^18.19.127",
-    "@types/react": "^18.3.24",
-    "@types/react-dom": "^18.3.7",
-    "@vitejs/plugin-react": "^3.1.0",
-    "moment": "^2.30.1",
-    "prop-types": "^15.8.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "sass": "^1.93.2",
-    "storybook": "^7.6.20",
-    "typescript": "^5.9.2",
-    "vite": "^5.4.21",
-    "vite-plugin-dts": "^3.9.1"
-  }
+    "name": "@alchemy/visual-workflow",
+    "version": "1.0.0",
+    "scripts": {
+        "storybook": "storybook dev -p 6006",
+        "build-storybook": "storybook build",
+        "lint": "eslint src",
+        "lint:fix": "eslint --fix src",
+        "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+        "cs": "pnpm lint:fix && pnpm format"
+    },
+    "main": "./src/index.ts",
+    "dependencies": {
+        "reactflow": "^11.11.4"
+    },
+    "peerDependencies": {
+        "@mui/icons-material": "^5.16.7",
+        "@mui/lab": "^5.0.0-alpha.168",
+        "@mui/material": "^5.16.7",
+        "moment": "^2",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
+    },
+    "devDependencies": {
+        "@mui/icons-material": "^5.18.0",
+        "@mui/lab": "5.0.0-alpha.173",
+        "@mui/material": "^5.18.0",
+        "@storybook/addon-essentials": "^7.6.20",
+        "@storybook/addon-interactions": "^7.6.20",
+        "@storybook/addon-links": "^7.6.20",
+        "@storybook/blocks": "^7.6.20",
+        "@storybook/react": "^7.6.20",
+        "@storybook/react-vite": "^7.6.20",
+        "@storybook/testing-library": "0.0.14-next.2",
+        "@types/node": "^18.19.127",
+        "@types/react": "^18.3.24",
+        "@types/react-dom": "^18.3.7",
+        "@vitejs/plugin-react": "^3.1.0",
+        "moment": "^2.30.1",
+        "prop-types": "^15.8.1",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "sass": "^1.93.2",
+        "storybook": "^7.6.20",
+        "typescript": "^5.9.2",
+        "vite": "^5.4.21",
+        "vite-plugin-dts": "^3.9.1"
+    }
 }

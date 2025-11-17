@@ -1,7 +1,7 @@
 import {IconButton} from '@mui/material';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import DropdownActions from './DropdownActions';
-import {DropdownActionsProps} from "../types";
+import {DropdownActionsProps} from '../types';
 
 type Props = Omit<DropdownActionsProps, 'mainButton'>;
 

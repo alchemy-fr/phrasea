@@ -1,32 +1,32 @@
 {
-  "name": "@alchemy/react-ps",
-  "version": "1.0.0",
-  "description": "Phrasea React components",
-  "keywords": [],
-  "license": "MIT",
-  "scripts": {
-    "prebuild": "pnpm run svgr",
-    "svgr": "svgr -d src/icons -- src/**/*.svg",
-    "lint": "eslint src",
-    "lint:fix": "eslint --fix src",
-    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
-    "cs": "pnpm lint:fix && pnpm format"
-  },
-  "main": "./src/index.ts",
-  "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
-  },
-  "devDependencies": {
-    "@svgr/cli": "^6.5.1",
-    "@types/jest": "^23.3.14",
-    "@types/js-cookie": "^3.0.6",
-    "@types/node": "^10.17.60",
-    "@types/react": "^18.3.24",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "ts-jest": "^23.10.5",
-    "ts-node": "^7.0.1",
-    "typescript": "^5.9.2"
-  }
+    "name": "@alchemy/react-ps",
+    "version": "1.0.0",
+    "description": "Phrasea React components",
+    "keywords": [],
+    "license": "MIT",
+    "scripts": {
+        "prebuild": "pnpm run svgr",
+        "svgr": "svgr -d src/icons -- src/**/*.svg",
+        "lint": "eslint src",
+        "lint:fix": "eslint --fix src",
+        "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+        "cs": "pnpm lint:fix && pnpm format"
+    },
+    "main": "./src/index.ts",
+    "peerDependencies": {
+        "react": "^18.0.0",
+        "react-dom": "^18.0.0"
+    },
+    "devDependencies": {
+        "@svgr/cli": "^6.5.1",
+        "@types/jest": "^23.3.14",
+        "@types/js-cookie": "^3.0.6",
+        "@types/node": "^10.17.60",
+        "@types/react": "^18.3.24",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "ts-jest": "^23.10.5",
+        "ts-node": "^7.0.1",
+        "typescript": "^5.9.2"
+    }
 }

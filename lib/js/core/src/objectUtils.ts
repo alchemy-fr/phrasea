@@ -25,7 +25,9 @@ export function deepEquals(a: any, b: any): boolean {
         const keysB = Object.keys(b);
 
         if (keysA.length !== keysB.length) return false;
-        return keysA.every(key => keysB.includes(key) && deepEquals(a[key], b[key]));
+        return keysA.every(
+            key => keysB.includes(key) && deepEquals(a[key], b[key])
+        );
     }
 
     // Fallback for other types (e.g., functions, symbols)

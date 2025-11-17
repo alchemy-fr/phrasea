@@ -1,19 +1,19 @@
 {
-  "lib": {
-    "auth": {
-      "sess_exp": {
-        "about_to_expire": {
-          "intro": "Are you still here? Do you want to keep your session alive?",
-          "logout": "Logout",
-          "stay": "Keep me in!",
-          "title": "You session is about to expire"
-        },
-        "expired": {
-          "intro": "Don't forget to save your contents before signing in again!",
-          "sign_in": "Close",
-          "title": "You session has expired"
+    "lib": {
+        "auth": {
+            "sess_exp": {
+                "about_to_expire": {
+                    "intro": "Are you still here? Do you want to keep your session alive?",
+                    "logout": "Logout",
+                    "stay": "Keep me in!",
+                    "title": "You session is about to expire"
+                },
+                "expired": {
+                    "intro": "Don't forget to save your contents before signing in again!",
+                    "sign_in": "Close",
+                    "title": "You session has expired"
+                }
+            }
         }
-      }
     }
-  }
 }
