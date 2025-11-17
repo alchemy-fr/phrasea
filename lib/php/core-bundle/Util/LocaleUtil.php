@@ -15,7 +15,7 @@ final readonly class LocaleUtil
     {
         $availableLocales = array_map(self::normalizeLocale(...), $availableLocales);
 
-        foreach ($locales as $l) {
+        foreach ($locales as $i => $l) {
             $l = self::normalizeLocale($l);
 
             if (in_array($l, $availableLocales, true)) {
@@ -30,12 +30,19 @@ final readonly class LocaleUtil
                 }
 
                 $l = $lang;
+            } else {
+                $nextLocales = array_slice($locales, $i + 1);
+                foreach ($nextLocales as $nextLocale) {
+                    if (str_starts_with($nextLocale, $l.'_')) {
+                        if (in_array($nextLocale, $availableLocales, true)) {
+                            return $nextLocale;
+                        }
+                    }
+                }
             }
 
             foreach ($availableLocales as $availableLocale) {
-                [$lang] = explode('_', $availableLocale);
-
-                if ($lang === $l) {
+                if (str_starts_with($availableLocale, $l.'_')) {
                     return $availableLocale;
                 }
             }

@@ -64,7 +64,7 @@ export default function AuthenticationProvider<
     useEffect(() => {
         if (keycloakClient && silentConnect) {
             (async () => {
-                await keycloakClient!.initKeycloakSession()
+                await keycloakClient!.initKeycloakSession();
             })();
         }
     }, [silentConnect, keycloakClient]);

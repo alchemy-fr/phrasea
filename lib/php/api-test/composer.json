@@ -19,7 +19,9 @@
     "scripts": {
         "rector": "vendor/bin/rector",
         "cs": "vendor/bin/php-cs-fixer fix",
-        "test": "echo 'This project has no test...'"
+        "test": [
+            "vendor/bin/var-dump-check --symfony src"
+        ]
     },
     "autoload": {
         "psr-4": {
@@ -33,6 +35,7 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.17",
+        "php-parallel-lint/php-var-dump-check": "v0.5",
         "rector/rector": "^1.0.4"
     }
 }

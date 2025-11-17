@@ -407,7 +407,7 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         this.tokensCache = tokens;
 
         if (tokens.idToken) {
-            this.storage.setItem(this.idTokenStorageKey, JSON.stringify(tokens));
+            this.storage.setItem(this.idTokenStorageKey, JSON.stringify(tokens.idToken));
             delete tokens.idToken;
         }
 

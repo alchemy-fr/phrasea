@@ -54,13 +54,12 @@ export class KeycloakClient {
 
         if (authenticated) {
             const {refreshTokenParsed, tokenParsed, refreshToken, token, idToken} = this.keycloak;
-
             await this.client.saveTokensFromResponse({
                 id_token: idToken!,
                 access_token: token!,
                 expires_in: tokenParsed!.exp! - tokenParsed!.iat!,
                 refresh_token: refreshToken!,
-                refresh_expires_in: refreshTokenParsed!.exp,
+                refresh_expires_in: refreshTokenParsed!.exp! - refreshTokenParsed!.iat!,
                 token_type: 'Bearer',
             });
 

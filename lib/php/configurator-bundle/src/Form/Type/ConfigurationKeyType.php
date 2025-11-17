@@ -41,8 +41,6 @@ class ConfigurationKeyType extends AbstractType
             $choices[$schema->getTitle()] = $subChoices;
         }
 
-        dump($choices);
-
         $resolver->setDefaults([
             'choices' => $choices,
             'placeholder' => 'Select a configuration key',

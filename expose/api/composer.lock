@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "02b87a05ad093c41372ac7ddc33d9a11",
+    "content-hash": "bcfdea56ec5597ccbfd34a7b39a11968",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "4f5f9af21e0718483b33dce3dbe2079d6f5999d4"
+                "reference": "0e33889acd6f3fbfe678e1aae7f5021ce4c545b1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/4f5f9af21e0718483b33dce3dbe2079d6f5999d4",
-                "reference": "4f5f9af21e0718483b33dce3dbe2079d6f5999d4",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/0e33889acd6f3fbfe678e1aae7f5021ce4c545b1",
+                "reference": "0e33889acd6f3fbfe678e1aae7f5021ce4c545b1",
                 "shasum": ""
             },
             "require": {
@@ -57,15 +57,15 @@
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
                 "source": "https://github.com/alchemy-fr/acl-bundle/tree/main"
             },
-            "time": "2025-11-12T15:38:42+00:00"
+            "time": "2025-11-12T20:03:46+00:00"
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-985-delete",
+            "version": "dev-cleanup",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
-                "reference": "5bfeebb1f366d344263d808daf6d195e399ec36e"
+                "reference": "0f664d8bae0f5b793fd615e8842660274fd19ef6"
             },
             "require": {
                 "alchemy/auth-bundle": "@dev",
@@ -76,6 +76,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
+                "php-parallel-lint/php-var-dump-check": "v0.5",
                 "phpunit/phpunit": "^9.5",
                 "rector/rector": "^1.0.4"
             },
@@ -101,7 +102,8 @@
                     "vendor/bin/php-cs-fixer fix"
                 ],
                 "test": [
-                    "./vendor/bin/phpunit"
+                    "vendor/bin/var-dump-check --symfony --exclude vendor .",
+                    "vendor/bin/phpunit"
                 ]
             },
             "license": [
@@ -119,11 +121,11 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-985-delete",
+            "version": "dev-cleanup",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
-                "reference": "f85a67bc0d43c44090865bba945a943b8ac9d13d"
+                "reference": "b292f5f7c779b57c9803c32381c26587d83e498c"
             },
             "require": {
                 "lcobucci/jwt": "^5.0",
@@ -134,6 +136,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
+                "php-parallel-lint/php-var-dump-check": "v0.5",
                 "rector/rector": "^1.0.4"
             },
             "type": "symfony-bundle",
@@ -158,7 +161,7 @@
                     "vendor/bin/php-cs-fixer fix"
                 ],
                 "test": [
-                    "echo 'This project has no test...'"
+                    "vendor/bin/var-dump-check --symfony --exclude vendor ."
                 ]
             },
             "license": [
@@ -176,11 +179,11 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-PS-985-delete",
+            "version": "dev-cleanup",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
-                "reference": "7c83928ab786e0e67547696f6c2b15175770686f"
+                "reference": "0e4c4fc1ccd8937ddb5df1f8861e9cf35e371bba"
             },
             "require": {
                 "alchemy/core-bundle": "@dev",
@@ -191,6 +194,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
+                "php-parallel-lint/php-var-dump-check": "v0.5",
                 "rector/rector": "^1.0.4"
             },
             "type": "symfony-bundle",
@@ -215,7 +219,7 @@
                     "vendor/bin/php-cs-fixer fix"
                 ],
                 "test": [
-                    "echo 'This project has no test...'"
+                    "vendor/bin/var-dump-check --symfony src"
                 ]
             },
             "license": [
@@ -230,11 +234,11 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-985-delete",
+            "version": "dev-cleanup",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
-                "reference": "fb806183c52a0fe08c8ad73e46109f65247ff013"
+                "reference": "7885e0849951991ca1921eeb4068e8eda11dd93c"
             },
             "require": {
                 "php": "^8.3",
@@ -247,6 +251,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
+                "php-parallel-lint/php-var-dump-check": "v0.5",
                 "phpunit/phpunit": "^9.5",
                 "pusher/pusher-php-server": "^7.2.4",
                 "rector/rector": "^1.0.4"
@@ -276,7 +281,8 @@
                     "vendor/bin/php-cs-fixer fix"
                 ],
                 "test": [
-                    "./vendor/bin/phpunit"
+                    "vendor/bin/var-dump-check --symfony --exclude vendor .",
+                    "vendor/bin/phpunit"
                 ]
             },
             "license": [
@@ -291,11 +297,11 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-985-delete",
+            "version": "dev-cleanup",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
-                "reference": "23b6381289d6ebe392f782d1d92245bff458020c"
+                "reference": "3227b3591f5b827dd2df2045918483604c3e0da5"
             },
             "require": {
                 "php": "^8.3",
@@ -326,7 +332,7 @@
                     "vendor/bin/php-cs-fixer fix"
                 ],
                 "test": [
-                    "echo 'This project has no test...'"
+                    "vendor/bin/var-dump-check --symfony --exclude vendor ."
                 ]
             },
             "license": [
@@ -344,11 +350,11 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-985-delete",
+            "version": "dev-cleanup",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
-                "reference": "432c6b85972b687aa51c925e64871b980673b549"
+                "reference": "488812e48f3903808068edcf0be5eb4adb66f840"
             },
             "require": {
                 "alchemy/auth-bundle": "@dev",
@@ -358,6 +364,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
+                "php-parallel-lint/php-var-dump-check": "v0.5",
                 "rector/rector": "^1.0.4"
             },
             "type": "symfony-bundle",
@@ -382,7 +389,7 @@
                     "vendor/bin/php-cs-fixer fix"
                 ],
                 "test": [
-                    "echo 'This project has no test...'"
+                    "vendor/bin/var-dump-check --symfony src"
                 ]
             },
             "license": [
@@ -400,11 +407,11 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-PS-985-delete",
+            "version": "dev-cleanup",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-bundle",
-                "reference": "87420d1eaf87ef97f1afb381bc47608c0c09d005"
+                "reference": "d75438af9c7012b8aafc4bb041e54cb9e1b3a6f3"
             },
             "require": {
                 "alchemy/report-sdk": "@dev",
@@ -414,6 +421,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
+                "php-parallel-lint/php-var-dump-check": "v0.5",
                 "rector/rector": "^1.0.4"
             },
             "type": "symfony-bundle",
@@ -438,7 +446,7 @@
                     "vendor/bin/php-cs-fixer fix"
                 ],
                 "test": [
-                    "echo 'This project has no test...'"
+                    "vendor/bin/var-dump-check --symfony src"
                 ]
             },
             "license": [
@@ -453,11 +461,11 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-PS-985-delete",
+            "version": "dev-cleanup",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-sdk",
-                "reference": "7dad5890cba8ab8d22163912a4e8821a089bf613"
+                "reference": "9ff0797fe669c3ae35a643ca00c69a5f428f851d"
             },
             "require": {
                 "opis/json-schema": "^1.0",
@@ -466,6 +474,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
+                "php-parallel-lint/php-var-dump-check": "v0.5",
                 "phpunit/phpunit": "^9.5",
                 "rector/rector": "^1.0.4"
             },
@@ -491,7 +500,8 @@
                     "vendor/bin/php-cs-fixer fix"
                 ],
                 "test": [
-                    "./vendor/bin/phpunit"
+                    "vendor/bin/var-dump-check --symfony src",
+                    "vendor/bin/phpunit"
                 ]
             },
             "license": [
@@ -506,11 +516,11 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-985-delete",
+            "version": "dev-cleanup",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
-                "reference": "f37b3b86eece9b2140023485c615bd9df44a084e"
+                "reference": "ce70909797d809397e77c9d4e009d7dbb80d4d71"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.20",
@@ -522,7 +532,8 @@
                 "symfony/mime": "^6|^7"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.17"
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "php-parallel-lint/php-var-dump-check": "v0.5"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -546,7 +557,7 @@
                     "vendor/bin/php-cs-fixer fix"
                 ],
                 "test": [
-                    "echo 'This project has no test...'"
+                    "vendor/bin/var-dump-check --symfony --exclude vendor ."
                 ]
             },
             "license": [
@@ -836,16 +847,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.359.10",
+            "version": "3.359.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "10989892e99083c73e8421b85b5d6f7d2ca0f2f5"
+                "reference": "c3b6f1fcba1b5da263e701354638a7086dbb09ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/10989892e99083c73e8421b85b5d6f7d2ca0f2f5",
-                "reference": "10989892e99083c73e8421b85b5d6f7d2ca0f2f5",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c3b6f1fcba1b5da263e701354638a7086dbb09ec",
+                "reference": "c3b6f1fcba1b5da263e701354638a7086dbb09ec",
                 "shasum": ""
             },
             "require": {
@@ -927,9 +938,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.359.10"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.359.13"
             },
-            "time": "2025-11-11T19:08:54+00:00"
+            "time": "2025-11-14T19:13:12+00:00"
         },
         {
             "name": "brick/math",
@@ -1763,16 +1774,16 @@
         },
         {
             "name": "doctrine/doctrine-migrations-bundle",
-            "version": "3.6.0",
+            "version": "3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineMigrationsBundle.git",
-                "reference": "49ecc564568d7da101779112579e78b677fbc94a"
+                "reference": "1e380c6dd8ac8488217f39cff6b77e367f1a644b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineMigrationsBundle/zipball/49ecc564568d7da101779112579e78b677fbc94a",
-                "reference": "49ecc564568d7da101779112579e78b677fbc94a",
+                "url": "https://api.github.com/repos/doctrine/DoctrineMigrationsBundle/zipball/1e380c6dd8ac8488217f39cff6b77e367f1a644b",
+                "reference": "1e380c6dd8ac8488217f39cff6b77e367f1a644b",
                 "shasum": ""
             },
             "require": {
@@ -1828,7 +1839,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/DoctrineMigrationsBundle/issues",
-                "source": "https://github.com/doctrine/DoctrineMigrationsBundle/tree/3.6.0"
+                "source": "https://github.com/doctrine/DoctrineMigrationsBundle/tree/3.7.0"
             },
             "funding": [
                 {
@@ -1844,7 +1855,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-11-07T19:40:03+00:00"
+            "time": "2025-11-15T19:02:59+00:00"
         },
         {
             "name": "doctrine/event-manager",
@@ -11814,11 +11825,11 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-985-delete",
+            "version": "dev-cleanup",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
-                "reference": "9d9d43d7c3fb746bad7d85f7ec7019b78181d701"
+                "reference": "8e64ffccd1d005593f10bd30ff46fbbc84cd46b8"
             },
             "require": {
                 "php": "^8.3",
@@ -11827,6 +11838,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
+                "php-parallel-lint/php-var-dump-check": "v0.5",
                 "rector/rector": "^1.0.4"
             },
             "type": "library",
@@ -11848,7 +11860,7 @@
                     "vendor/bin/php-cs-fixer fix"
                 ],
                 "test": [
-                    "echo 'This project has no test...'"
+                    "vendor/bin/var-dump-check --symfony src"
                 ]
             },
             "license": [
@@ -15829,16 +15841,16 @@
         },
         {
             "name": "theseer/tokenizer",
-            "version": "1.2.3",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/theseer/tokenizer.git",
-                "reference": "737eda637ed5e28c3413cb1ebe8bb52cbf1ca7a2"
+                "reference": "d74205c497bfbca49f34d4bc4c19c17e22db4ebb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/theseer/tokenizer/zipball/737eda637ed5e28c3413cb1ebe8bb52cbf1ca7a2",
-                "reference": "737eda637ed5e28c3413cb1ebe8bb52cbf1ca7a2",
+                "url": "https://api.github.com/repos/theseer/tokenizer/zipball/d74205c497bfbca49f34d4bc4c19c17e22db4ebb",
+                "reference": "d74205c497bfbca49f34d4bc4c19c17e22db4ebb",
                 "shasum": ""
             },
             "require": {
@@ -15867,7 +15879,7 @@
             "description": "A small library for converting tokenized PHP source code into XML and potentially other formats",
             "support": {
                 "issues": "https://github.com/theseer/tokenizer/issues",
-                "source": "https://github.com/theseer/tokenizer/tree/1.2.3"
+                "source": "https://github.com/theseer/tokenizer/tree/1.3.0"
             },
             "funding": [
                 {
@@ -15875,7 +15887,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-03-03T12:36:25+00:00"
+            "time": "2025-11-13T13:44:09+00:00"
         }
     ],
     "aliases": [],
