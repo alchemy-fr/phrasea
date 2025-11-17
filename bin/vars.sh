@@ -18,7 +18,6 @@ databox/indexer
 "
 
 PHP_LIBS="
-e
 lib/php/api-test
 lib/php/auth-bundle
 lib/php/configurator-bundle
