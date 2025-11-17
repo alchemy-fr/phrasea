@@ -53,15 +53,25 @@
                 "message_one": "Möchten Sie dieses Asset wirklich löschen?",
                 "message_other": "Möchten Sie diese Assets wirklich löschen?",
                 "title": "Löschen bestätigen",
-                "not_allowed": "Sie sind nicht berechtigt, eines dieser Assets zu löschen"
+                "not_allowed": "Sie sind nicht berechtigt, eines dieser Assets zu löschen",
+                "text_to_type": {
+                    "delete": "Löschen"
+                }
             },
             "confirm_message_one": "Möchten Sie {{count}} Asset wirklich löschen?",
             "confirm_message_other": "Möchten Sie {{count}} Assets wirklich löschen?",
             "hard_delete_one": "Asset dauerhaft löschen",
-            "hard_delete_other": "",
+            "hard_delete_other": "Assets dauerhaft löschen",
             "remove_from_collection": "Aus Kollektion <strong>{{name}}</strong> entfernen",
-            "shared_warning_one": "Diese Ressource wird momentan geteilt. Beim Löschen wird allen Benutzern der Zugriff entzogen.",
-            "shared_warning_other": "Diese Ressourcen werden momentan geteilt. Beim Löschen wird allen Benutzern der Zugriff entzogen."
+            "shared_warning_one": "Dieser Asset ist zurzeit freigegeben. Beim Löschen wird allen Benutzern der Zugriff entzogen.",
+            "shared_warning_other": "<strong>{{count}}</strong> dieser Assets sind zurzeit freigegeben. Beim Löschen wird allen Benutzern der Zugriff entzogen.",
+            "confirm_hard_delete_message_one": "Sind Sie sicher, dass Sie diesen Asset <strong>dauerhaft</strong> löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+            "confirm_hard_delete_message_other": "Sind Sie sicher, dass Sie diese Assets <strong>dauerhaft</strong> löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+            "confirm_move_to_trash_message_one": "Sind Sie sicher, dass Sie diesen Asset in den Papierkorb verschieben möchten?",
+            "confirm_move_to_trash_message_other": "Sind Sie sicher, dass Sie <strong>{{count}} Assets</strong> in den Papierkorb verschieben möchten?",
+            "move_to_trash_one": "Asset in den Papierkorb verschieben",
+            "move_to_trash_other": "<strong>{{count}} Assets</strong> in den Papierkorb verschieben",
+            "remove_from_story": "Aus der Story <strong>{{name}}</strong> entfernen"
         },
         "actions": {
             "delete": "Löschen",
@@ -74,7 +84,8 @@
             "copy": "Kopieren",
             "info": "Informationen",
             "move": "Verschieben",
-            "share": "Teilen"
+            "share": "Teilen",
+            "restore": "Wiederherstellen"
         },
         "collection_list": {
             "collections_one": "+ {{count}} Kollektion",
@@ -94,7 +105,11 @@
             "collections": {
                 "none": "Keine"
             },
-            "workspace": "Workspace"
+            "workspace": "Workspace",
+            "source_file": {
+                "label": "Quelldatei",
+                "none": "Kein"
+            }
         },
         "manage": {
             "acl": {
@@ -148,12 +163,33 @@
             "attributes": "Asset Attribute",
             "discussion": "Diskussion",
             "info": "Information",
-            "appears_in": "Wird angezeigt in"
+            "appears_in": "Wird angezeigt in",
+            "add_attachment": "Anhang hinzufügen",
+            "attachments": "Anhänge",
+            "delete_attachment": {
+                "confirm_button": "Löschen",
+                "confirm_message": "Sind Sie sicher, dass Sie diesen Anhang löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+                "confirm_title": "Anhang löschen"
+            },
+            "rename_attachment": "Anhang umbenennen"
         },
         "es_document": {
             "sync_now": "Jetzt synchronisieren"
         },
-        "not_found": "Asset nicht gefunden"
+        "not_found": "Asset nicht gefunden",
+        "chip": {
+            "deleted": "Löschen"
+        },
+        "restore": {
+            "confirm": {
+                "title": "Wiederherstellung bestätigen"
+            },
+            "confirm_message_one": "Sind Sie sicher, dass Sie diesen Asset wiederherstellen möchten?",
+            "confirm_message_other": "Sind Sie sicher, dass Sie {{count}} Assets wiederherstellen möchten?",
+            "deleted_collection": "Wiederherstellen",
+            "deleted_collection_or_story_warning": "Hinweis: Einige Assets können nicht wiederhergestellt werden, da ihre Referenzsammlungen oder Stories gelöscht wurden:",
+            "no_restorable_assets": "Kein einziger der ausgewählten Assets kann wiederhergestellt werden, da ihre Referenzsammlungen gelöscht wurden."
+        }
     },
     "asset_actions": {
         "copy": "Kopieren",
@@ -167,7 +203,9 @@
         "share": "Teilen",
         "substitute_file": "Datei ersetzen",
         "unselect_all": "Alle abwählen",
-        "share_multiple": "Sie können jeweils nur ein Asset teilen"
+        "share_multiple": "Sie können jeweils nur ein Asset teilen",
+        "delete_permanently": "Dauerhaft löschen",
+        "restore": "Wiederherstellen"
     },
     "asset_dropzone": {
         "drop_the_files_here": "Legen Sie die Dateien hier ab…",
@@ -362,7 +400,8 @@
             "edit": "Diese Kollektion bearbeiten",
             "create_collection": "Neue Kollektion in dieser erstellen",
             "delete": "Löschen",
-            "notifications": "Benachrichtigungen"
+            "notifications": "Benachrichtigungen",
+            "restore": "Wiederherstellen"
         },
         "manage": {
             "acl": {
@@ -387,11 +426,21 @@
             "notifications": {
                 "title": "Benachrichtigungen"
             }
+        },
+        "delete": {
+            "confirm_message": "Sind Sie sicher, dass Sie die Kollektion <coll/> löschen möchten?"
+        },
+        "restore": {
+            "confirm": {
+                "title": "Kollektionswiederherstellung bestätigen"
+            },
+            "confirm_message": "Sind Sie sicher, dass Sie die Kollektion <coll/> wiederherstellen möchten?"
         }
     },
     "collection_delete": {
         "title": "Kollektion löschen",
-        "confirm": "Wollen Sie diese Kollektion sicher löschen?"
+        "confirm": "Wollen Sie diese Kollektion sicher löschen?",
+        "confirmed": "Kollektion wurde gelöscht!"
     },
     "collection_move": {
         "intro": "Wählen Sie das Ziel aus, an das diese Kollektion verschoben werden soll:",
@@ -823,6 +872,12 @@
                 "translate": {
                     "title": "Titel übersetzen"
                 }
+            },
+            "fileAnalyzers": {
+                "label": "Datei-Analyseprogramme"
+            },
+            "trashRetentionDelay": {
+                "label": "Aufbewahrungsdauer für den Papierkorb (in Tagen)"
             }
         },
         "workspace_edit": {
@@ -879,7 +934,8 @@
             },
             "help": {
                 "config_refenrece": "Konfigurationsreferenz:",
-                "copy_reference": "Referenz kopieren"
+                "copy_reference": "Referenz kopieren",
+                "config_reference": "Konfigurationsreferenz"
             },
             "integration": {
                 "label": "Integration"
@@ -1316,7 +1372,8 @@
         "editedAt": "Bearbeitet am",
         "collections": "Kollektionen",
         "isStory": "Story",
-        "stories": "Stories"
+        "stories": "Stories",
+        "deleted": "Gelöscht"
     },
     "create_share_link": {
         "form": {
@@ -1369,7 +1426,12 @@
             "type": "Typ",
             "id": "ID",
             "size": "Grösse",
-            "url": "URL"
+            "url": "URL",
+            "accepted": "Akzeptiert",
+            "analysis": "Analyse",
+            "analysis_pending": "Analyse ausstehend",
+            "size_unknown": "Unbekannt",
+            "url_none": "N/A"
         },
         "manage": {
             "title": "Datei {{name}} verwalten",
@@ -1379,7 +1441,9 @@
             "metadata": {
                 "title": "Metadaten"
             }
-        }
+        },
+        "analysis_pending": "Analyse läuft…",
+        "rejected": "Abgelehnt"
     },
     "integrations": {
         "new": {
@@ -1643,7 +1707,15 @@
         "from_url": {
             "placeholder": "Geben Sie die Datei-URL ein"
         },
-        "upload_from_url": "Von URL hochladen"
+        "upload_from_url": "Von URL hochladen",
+        "asset_created_one": "Asset erfolgreich erstellt.",
+        "asset_created_other": "{{count}} Assets erfolgreich erstellt.",
+        "back_to_file_upload": "Datei hochladen",
+        "back_to_files_upload": "Dateien hochladen",
+        "from_urls": {
+            "placeholder": "Datei-URL(s) eingeben, eine pro Zeile"
+        },
+        "import_file": "Datei importieren"
     },
     "upload": {
         "pending": {
@@ -1693,6 +1765,35 @@
     "story": {
         "chip": {
             "label": "Story"
+        }
+    },
+    "asset_restore": {
+        "confirm": "Sind Sie sicher, dass Sie diesen Asset wiederherstellen möchten?",
+        "title": "Asset wiederherstellen"
+    },
+    "attachment": {
+        "dialog": {
+            "add": {
+                "submit": "Anhängen",
+                "success": "Neuer Anhang wurde hinzugefügt.",
+                "title": "Anhang zum Asset hinzufügen"
+            }
+        }
+    },
+    "collection_panel": {
+        "trash": "Papierkorb"
+    },
+    "collection_restore": {
+        "confirmed": "Kollektion wurde wiederhergestellt!",
+        "title": "Kollektion wiederherstellen"
+    },
+    "rename_attachment": {
+        "dialog": {
+            "success": "Anhang wurde umbenannt.",
+            "title": "Anhang umbenennen"
+        },
+        "form": {
+            "label": "Anhangsname"
         }
     }
 }
