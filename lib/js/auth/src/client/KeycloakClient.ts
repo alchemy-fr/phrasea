@@ -33,7 +33,7 @@ export class KeycloakClient {
         this.keycloak = new Keycloak({
             url: baseUrl,
             realm,
-            clientId
+            clientId,
         });
     }
 
@@ -49,17 +49,24 @@ export class KeycloakClient {
 
         const authenticated = await this.keycloak.init({
             onLoad: 'check-sso',
-            silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`
+            silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
         });
 
         if (authenticated) {
-            const {refreshTokenParsed, tokenParsed, refreshToken, token, idToken} = this.keycloak;
+            const {
+                refreshTokenParsed,
+                tokenParsed,
+                refreshToken,
+                token,
+                idToken,
+            } = this.keycloak;
             await this.client.saveTokensFromResponse({
                 id_token: idToken!,
                 access_token: token!,
                 expires_in: tokenParsed!.exp! - tokenParsed!.iat!,
                 refresh_token: refreshToken!,
-                refresh_expires_in: refreshTokenParsed!.exp! - refreshTokenParsed!.iat!,
+                refresh_expires_in:
+                    refreshTokenParsed!.exp! - refreshTokenParsed!.iat!,
                 token_type: 'Bearer',
             });
 

@@ -1,38 +1,38 @@
 {
-  "name": "@alchemy/auth",
-  "version": "0.0.1",
-  "public": true,
-  "description": "Auth library",
-  "keywords": [],
-  "main": "index.ts",
-  "license": "MIT",
-  "peerDependencies": {
-    "axios": "^1.12.2",
-    "react": "^18.2.0"
-  },
-  "scripts": {
-    "lint": "eslint src",
-    "lint:fix": "eslint --fix src",
-    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
-    "cs": "pnpm lint:fix && pnpm format",
-    "test": "jest"
-  },
-  "dependencies": {
-    "@alchemy/api": "workspace:*",
-    "@alchemy/storage": "workspace:*",
-    "js-cookie": "^3.0.5",
-    "jwt-decode": "^4.0.0",
-    "keycloak-js": "^26.2.1"
-  },
-  "devDependencies": {
-    "@types/jest": "^23.3.14",
-    "@types/js-cookie": "^3.0.6",
-    "@types/node": "^10.17.60",
-    "axios": "^1.12.2",
-    "axios-mock-adapter": "^2.1.0",
-    "jest": "^23.6.0",
-    "ts-jest": "^23.10.5",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
-  }
+    "name": "@alchemy/auth",
+    "version": "0.0.1",
+    "public": true,
+    "description": "Auth library",
+    "keywords": [],
+    "main": "index.ts",
+    "license": "MIT",
+    "peerDependencies": {
+        "axios": "^1.12.2",
+        "react": "^18.2.0"
+    },
+    "scripts": {
+        "lint": "eslint src",
+        "lint:fix": "eslint --fix src",
+        "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+        "cs": "pnpm lint:fix && pnpm format",
+        "test": "jest"
+    },
+    "dependencies": {
+        "@alchemy/api": "workspace:*",
+        "@alchemy/storage": "workspace:*",
+        "js-cookie": "^3.0.5",
+        "jwt-decode": "^4.0.0",
+        "keycloak-js": "^26.2.1"
+    },
+    "devDependencies": {
+        "@types/jest": "^23.3.14",
+        "@types/js-cookie": "^3.0.6",
+        "@types/node": "^10.17.60",
+        "axios": "^1.12.2",
+        "axios-mock-adapter": "^2.1.0",
+        "jest": "^23.6.0",
+        "ts-jest": "^23.10.5",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.9.2"
+    }
 }

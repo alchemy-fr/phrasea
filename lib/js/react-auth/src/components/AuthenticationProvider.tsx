@@ -2,7 +2,8 @@ import React, {PropsWithChildren, useCallback, useEffect} from 'react';
 import {
     AuthEventHandler,
     AuthTokens,
-    AuthUser, KeycloakClient,
+    AuthUser,
+    KeycloakClient,
     keycloakNormalizer,
     LoginEvent,
     LogoutEvent,

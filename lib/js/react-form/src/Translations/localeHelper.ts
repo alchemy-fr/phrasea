@@ -17,7 +17,7 @@ export function getFieldTranslationCount(
 export function getFieldTranslationsList(
     translations: Translations | undefined,
     field: string,
-    locales?: string[],
+    locales?: string[]
 ): Translation[] {
     if (getFieldTranslationCount(translations, field) === 0) {
         return [];

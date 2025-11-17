@@ -151,7 +151,9 @@ export default function RSelectWidget<
                                         : allowCreate
                                           ? newValue
                                           : (newValue as Option | null)?.value;
-                                    const denormValue = denormalizeValue ? denormalizeValue(v) : v;
+                                    const denormValue = denormalizeValue
+                                        ? denormalizeValue(v)
+                                        : v;
                                     onChange(denormValue);
                                     onChangeProp &&
                                         onChangeProp(newValue as any, meta);

@@ -407,14 +407,19 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         this.tokensCache = tokens;
 
         if (tokens.idToken) {
-            this.storage.setItem(this.idTokenStorageKey, JSON.stringify(tokens.idToken));
+            this.storage.setItem(
+                this.idTokenStorageKey,
+                JSON.stringify(tokens.idToken)
+            );
             delete tokens.idToken;
         }
 
         this.storage.setItem(this.tokenStorageKey, JSON.stringify(tokens));
 
         if (this.storage.getItem(this.tokenStorageKey) === null) {
-            throw new Error('Failed to persist tokens. Storage may be full or not writable.');
+            throw new Error(
+                'Failed to persist tokens. Storage may be full or not writable.'
+            );
         }
     }
 
@@ -427,7 +432,8 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         if (t) {
             const tokens = JSON.parse(t) as AuthTokens;
 
-            tokens.idToken = this.storage.getItem(this.idTokenStorageKey) || undefined;
+            tokens.idToken =
+                this.storage.getItem(this.idTokenStorageKey) || undefined;
 
             this.handleSessionTimeout(tokens);
 
