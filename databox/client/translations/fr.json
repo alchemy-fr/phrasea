@@ -1344,20 +1344,20 @@
             "confirm_message_other": "Êtes-vous sûr de vouloir supprimer les {{count}}  assets ?",
             "hard_delete_one": "Supprimer définitivement l'asset?",
             "hard_delete_many": "",
-            "hard_delete_other": "Supprimer définitivement les assets <strong> {{count}} </strong>",
+            "hard_delete_other": "Supprimer définitivement les <strong> {{count}} Assets</strong>",
             "remove_from_collection": "Supprimer de la collection <strong> {{name}} </strong>",
             "shared_warning_one": "Cet asset est actuellement partagé. Le supprimer supprimera l'accès de tous les utilisateurs.",
             "shared_warning_many": "",
             "shared_warning_other": "<strong> {{count}} </strong> de ces Assets sont actuellement partagés. Les supprimer supprimera l'accès de tous les utilisateurs.",
-            "confirm_hard_delete_message_one": "Êtes-vous sûr de vouloir supprimer <strong> définitivement </strong> l'assets <strong> {{count}} </strong> ? Cette action ne peut pas être annulée.",
+            "confirm_hard_delete_message_one": "Êtes-vous sûr de vouloir supprimer <strong> définitivement {{count}} Assets </strong> ? Cette action ne peut pas être annulée.",
             "confirm_hard_delete_message_many": "",
-            "confirm_hard_delete_message_other": "Êtes-vous sûr de vouloir supprimer <strong> définitivement </strong> les assets <strong> {{count}} </strong> ? Cette action ne peut pas être annulée.",
-            "confirm_move_to_trash_message_one": "Êtes-vous sûr de vouloir déplacer l'asset <strong>{{count}}</strong>vers la corbeille ?",
+            "confirm_hard_delete_message_other": "Êtes-vous sûr de vouloir supprimer <strong> définitivement {{count}} Assets </strong> ? Cette action ne peut pas être annulée.",
+            "confirm_move_to_trash_message_one": "Êtes-vous sûr de vouloir déplacer <strong>{{count}} Asset</strong> vers la corbeille ?",
             "confirm_move_to_trash_message_many": "",
             "confirm_move_to_trash_message_other": "Êtes-vous sûr de vouloir déplacer les assets <strong> {{count}} </strong> vers la corbeille ?",
-            "move_to_trash_one": "Déplacer l'Asset <strong> {{count}} </strong> vers la corbeille",
+            "move_to_trash_one": "Déplacer <strong> {{count}} </strong>Asset vers la corbeille",
             "move_to_trash_many": "",
-            "move_to_trash_other": "Déplacer les Assets <strong> {{count}} </strong> vers la corbeille",
+            "move_to_trash_other": "Déplacer les <strong> {{count}} Assets</strong> vers la corbeille",
             "remove_from_story": "Supprimer la Story <strong> {{name}} </strong>"
         },
         "info": {
@@ -1412,15 +1412,15 @@
         },
         "not_found": "Asset non trouvé",
         "chip": {
-            "deleted": "Supprimer"
+            "deleted": "Supprimé"
         },
         "restore": {
             "confirm": {
                 "title": "Confirmer la restauration"
             },
-            "confirm_message_one": "Êtes-vous sûr de vouloir restaurer l'Asset {{count}} ?",
+            "confirm_message_one": "Êtes-vous sûr de vouloir restaurer {{count}} Asset ?",
             "confirm_message_many": "",
-            "confirm_message_other": "Êtes-vous sûr de vouloir restaurer les Assets {{count}} ?",
+            "confirm_message_other": "Êtes-vous sûr de vouloir restaurer les {{count}} Assets ?",
             "deleted_collection": "Restaurer",
             "deleted_collection_or_story_warning": "Remarque: Certains Assets ne peuvent pas être restaurés car leurs collections de référence ou leur Stories ont été supprimées:",
             "no_restorable_assets": "Aucun des Assets sélectionnés ne peut être restauré car leurs collections de référence ont été supprimées."
