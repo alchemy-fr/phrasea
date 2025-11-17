@@ -1352,7 +1352,7 @@
             "confirm_hard_delete_message_one": "Êtes-vous sûr de vouloir supprimer <strong> définitivement </strong> l'assets <strong> {{count}} </strong> ? Cette action ne peut pas être annulée.",
             "confirm_hard_delete_message_many": "",
             "confirm_hard_delete_message_other": "Êtes-vous sûr de vouloir supprimer <strong> définitivement </strong> les assets <strong> {{count}} </strong> ? Cette action ne peut pas être annulée.",
-            "confirm_move_to_trash_message_one": "Êtes-vous sûr de vouloir déplacer l'asset <strong> {{count}} </strong> vers la corbeille ?",
+            "confirm_move_to_trash_message_one": "Êtes-vous sûr de vouloir déplacer l'asset <strong>{{count}}</strong>vers la corbeille ?",
             "confirm_move_to_trash_message_many": "",
             "confirm_move_to_trash_message_other": "Êtes-vous sûr de vouloir déplacer les assets <strong> {{count}} </strong> vers la corbeille ?",
             "move_to_trash_one": "Déplacer l'Asset <strong> {{count}} </strong> vers la corbeille",
@@ -1402,10 +1402,10 @@
             "attachments": "Fichier lié",
             "delete_attachment": {
                 "confirm_button": "Supprimer",
-                "confirm_message": "Êtes-vous sûr de vouloir supprimer ce Fichier lié? Cette action ne peut pas être annulée.",
-                "confirm_title": "Supprimer le Fichier lié"
+                "confirm_message": "Êtes-vous sûr de vouloir supprimer ce fichier lié? Cette action ne peut pas être annulée.",
+                "confirm_title": "Supprimer le fichier lié"
             },
-            "rename_attachment": "Renommer le Fichier lié"
+            "rename_attachment": "Renommer le fichier lié"
         },
         "es_document": {
             "sync_now": "Synchroniser maintenant"
@@ -1918,7 +1918,7 @@
     "asset_type": {
         "choice": {
             "asset": "Assets",
-            "asset_only": "Assets Uniquement",
+            "asset_only": "Assets uniquement",
             "both": "Les deux",
             "story": "Stories",
             "story_only": "Stories uniquement"
@@ -1947,8 +1947,8 @@
         "dialog": {
             "add": {
                 "submit": "Joindre",
-                "success": "Un nouveau Fichier Lié a été ajoutée.",
-                "title": "Ajouter un Fichier Lié à Asset"
+                "success": "Un nouveau fichier lié a été ajoutée.",
+                "title": "Ajouter un fichier lié à Asset"
             }
         }
     },
