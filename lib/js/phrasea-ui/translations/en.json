@@ -1,10 +1,10 @@
 {
-  "lib": {
-    "ui": {
-      "menu": {
-        "account": "My account",
-        "logout": "Logout"
-      }
+    "lib": {
+        "ui": {
+            "menu": {
+                "account": "My account",
+                "logout": "Logout"
+            }
+        }
     }
-  }
 }

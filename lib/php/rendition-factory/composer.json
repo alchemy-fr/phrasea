@@ -18,8 +18,10 @@
     },
     "scripts": {
         "rector": "vendor/bin/rector",
-        "test": "./vendor/bin/phpunit",
-        "cs": "vendor/bin/php-cs-fixer fix"
+        "cs": "vendor/bin/php-cs-fixer fix",
+        "test": [
+            "vendor/bin/var-dump-check --symfony src"
+        ]
     },
     "repositories": [
         {
@@ -58,6 +60,7 @@
         "symfony/var-dumper": "^6.4.11",
         "rector/rector": "^1.2.4",
         "colinodell/psr-testlogger": "^1.2",
-        "symfony/mime": "^7.1"
+        "symfony/mime": "^7.1",
+        "php-parallel-lint/php-var-dump-check": "v0.5"
     }
 }

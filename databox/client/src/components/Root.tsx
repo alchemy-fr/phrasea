@@ -6,7 +6,7 @@ import {
     RouteWrapperProps,
 } from '@alchemy/navigation';
 import UserPreferencesProvider from './User/Preferences/UserPreferencesProvider';
-import {oauthClient} from '../api/api-client';
+import {keycloakClient, oauthClient} from '../api/api-client';
 import {
     AuthenticationProvider,
     MatomoUser,
@@ -20,7 +20,10 @@ type Props = {};
 
 export default function Root({}: Props) {
     return (
-        <AuthenticationProvider oauthClient={oauthClient}>
+        <AuthenticationProvider
+            oauthClient={oauthClient}
+            keycloakClient={keycloakClient}
+        >
             <MatomoUser />
 
             <AttributeFormatProvider>

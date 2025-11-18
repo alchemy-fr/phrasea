@@ -18,7 +18,6 @@ databox/indexer
 "
 
 PHP_LIBS="
-lib/php/admin-bundle
 lib/php/api-test
 lib/php/auth-bundle
 lib/php/configurator-bundle
@@ -29,6 +28,7 @@ lib/php/rendition-factory
 lib/php/rendition-factory-bundle
 lib/php/report-bundle
 lib/php/report-sdk
+lib/php/storage-bundle
 lib/php/test-bundle
 lib/php/webhook-bundle
 lib/php/workflow

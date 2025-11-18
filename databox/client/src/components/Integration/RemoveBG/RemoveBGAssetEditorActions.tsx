@@ -1,7 +1,6 @@
 import {useEffect, useState} from 'react';
 import {Button, Typography} from '@mui/material';
 import {ObjectType, runIntegrationAction} from '../../../api/integrations';
-import ReactCompareImage from 'react-compare-image';
 import {IntegrationOverlayCommonProps} from '../../Media/Asset/View/AssetView.tsx';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import IntegrationPanelContent from '../Common/IntegrationPanelContent';
@@ -10,6 +9,10 @@ import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {useIntegrationData} from '../useIntegrationData.ts';
 import {AssetIntegrationActionsProps, Integration} from '../types.ts';
 import {useTranslation} from 'react-i18next';
+import {
+    ReactCompareSlider,
+    ReactCompareSliderImage,
+} from 'react-compare-slider';
 
 function RemoveBgComparison({
     left,
@@ -27,10 +30,25 @@ function RemoveBgComparison({
                 maxHeight: dimensions.height,
             }}
         >
-            <ReactCompareImage
-                aspectRatio={'taller'}
-                leftImage={left}
-                rightImage={right}
+            <ReactCompareSlider
+                boundsPadding={0}
+                position={50}
+                itemOne={<ReactCompareSliderImage src={left} alt="Original" />}
+                itemTwo={
+                    <ReactCompareSliderImage
+                        src={right}
+                        alt="BG Removed"
+                        style={{
+                            backgroundColor: 'white',
+                            backgroundImage:
+                                'linear-gradient(45deg, #ccc 25%, transparent 25%),linear-gradient(-45deg, #ccc 25%, transparent 25%),linear-gradient(45deg, transparent 75%, #ccc 75%),linear-gradient(-45deg, transparent 75%, #ccc 75%)',
+                            backgroundPosition:
+                                '0 0, 0 10px, 10px -10px, -10px 0px',
+                            backgroundSize: '20px 20px',
+                            width: '100%',
+                        }}
+                    />
+                }
             />
         </div>
     );

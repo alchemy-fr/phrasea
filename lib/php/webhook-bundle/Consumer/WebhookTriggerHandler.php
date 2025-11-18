@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Alchemy\WebhookBundle\Consumer;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\WebhookBundle\Webhook\WebhookApiClientFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 
@@ -57,7 +57,7 @@ final readonly class WebhookTriggerHandler
             } else {
                 $res = '';
                 foreach ($response->getHeaders() as $h => $v) {
-                    $res .= $h.': '. implode(',', $v) ."\n";
+                    $res .= $h.': '.implode(',', $v)."\n";
                 }
                 $res .= "\n\n";
                 $res .= $response->getContent();

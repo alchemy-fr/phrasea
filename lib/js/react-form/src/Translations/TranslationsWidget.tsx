@@ -28,7 +28,16 @@ type Props<TFieldValues extends {translations: Translation[]}> = {
 
 export default function TranslationsWidget<
     TFieldValues extends {translations: Translation[]},
->({getLocales, locales, name, control, register, errors, max, inputProps}: Props<TFieldValues>) {
+>({
+    getLocales,
+    locales,
+    name,
+    control,
+    register,
+    errors,
+    max,
+    inputProps,
+}: Props<TFieldValues>) {
     const {t} = useTranslation();
 
     return (
@@ -48,10 +57,11 @@ export default function TranslationsWidget<
             />
             <FormFieldErrors field={'fallback' as any} errors={errors} />
 
-            {locales ? (<div>
+            {locales ? (
+                <div>
                     {locales.map((locale, index) => {
                         const pathValue = `${name}.${index}.value` as any;
-                        const pathLocale = `${name}.${index}.locale` as any
+                        const pathLocale = `${name}.${index}.locale` as any;
 
                         return (
                             <div key={locale}>
@@ -82,103 +92,108 @@ export default function TranslationsWidget<
                         );
                     })}
                 </div>
-                ) : (<SortableCollectionWidget
-                errors={errors}
-                emptyItem={emptyTypedItem}
-                max={max}
-                control={control}
-                label={
-                    <IconFormLabel startIcon={<EmojiFlags />}>
-                        {t(
-                            'lib.form.translations.collection.title',
-                            'Translations'
-                        )}
-                    </IconFormLabel>
-                }
-                path={name}
-                register={register}
-                addLabel={t(
-                    'lib.form.translations.collection.add',
-                    'Add new translation'
-                )}
-                removeLabel={
-                    <Trans t={t} i18nKey="form.translations.collection.remove">
-                        Remove <Hidden smDown>this translation</Hidden>
-                    </Trans>
-                }
-                renderForm={({index, path}) => {
-                    return (
-                        <>
-                            <FormRow>
-                                {Boolean(max) && index >= max! ? (
-                                    <Alert
-                                        sx={{
-                                            mb: 2,
-                                        }}
-                                        severity={'warning'}
-                                    >
-                                        {t(
-                                            'lib.form.translations.disabled_translation',
-                                            'This translation is disabled'
-                                        )}
-                                    </Alert>
-                                ) : (
-                                    ''
-                                )}
-                                <Stack direction={'row'}>
-                                    <div
-                                        style={{
-                                            width: 300,
-                                        }}
-                                    >
-                                        <LocaleSelectWidget
-                                            getLocales={getLocales}
-                                            control={control}
-                                            name={
-                                                `${path}.${index}.locale` as any
-                                            }
-                                            placeholder={t(
-                                                'lib.form.translations.locale.placeholder',
-                                                'Select locale'
+            ) : (
+                <SortableCollectionWidget
+                    errors={errors}
+                    emptyItem={emptyTypedItem}
+                    max={max}
+                    control={control}
+                    label={
+                        <IconFormLabel startIcon={<EmojiFlags />}>
+                            {t(
+                                'lib.form.translations.collection.title',
+                                'Translations'
+                            )}
+                        </IconFormLabel>
+                    }
+                    path={name}
+                    register={register}
+                    addLabel={t(
+                        'lib.form.translations.collection.add',
+                        'Add new translation'
+                    )}
+                    removeLabel={
+                        <Trans
+                            t={t}
+                            i18nKey="form.translations.collection.remove"
+                        >
+                            Remove <Hidden smDown>this translation</Hidden>
+                        </Trans>
+                    }
+                    renderForm={({index, path}) => {
+                        return (
+                            <>
+                                <FormRow>
+                                    {Boolean(max) && index >= max! ? (
+                                        <Alert
+                                            sx={{
+                                                mb: 2,
+                                            }}
+                                            severity={'warning'}
+                                        >
+                                            {t(
+                                                'lib.form.translations.disabled_translation',
+                                                'This translation is disabled'
                                             )}
-                                            required={true}
-                                        />
-                                        <FormFieldErrors
-                                            field={
-                                                `${path}.${index}.locale` as any
-                                            }
-                                            errors={errors}
-                                        />
-                                    </div>
-                                    <div>
-                                        <TextField
-                                            label={t(
-                                                'lib.form.translations.value.label',
-                                                'Translation'
-                                            )}
-                                            required={true}
-                                            {...register(
-                                                `${path}.${index}.value` as any
-                                            )}
-                                            {...(inputProps ?? {})}
-                                        />
-                                        <FormFieldErrors
-                                            field={
-                                                `${path}.${index}.value` as any
-                                            }
-                                            errors={errors}
-                                        />
-                                    </div>
-                                </Stack>
-                                <FormFieldErrors
-                                    field={`${path}.${index}.value` as any}
-                                    errors={errors}
-                                />
-                            </FormRow>
-                        </>
-                    );
-                }}
-            />)}
+                                        </Alert>
+                                    ) : (
+                                        ''
+                                    )}
+                                    <Stack direction={'row'}>
+                                        <div
+                                            style={{
+                                                width: 300,
+                                            }}
+                                        >
+                                            <LocaleSelectWidget
+                                                getLocales={getLocales}
+                                                control={control}
+                                                name={
+                                                    `${path}.${index}.locale` as any
+                                                }
+                                                placeholder={t(
+                                                    'lib.form.translations.locale.placeholder',
+                                                    'Select locale'
+                                                )}
+                                                required={true}
+                                            />
+                                            <FormFieldErrors
+                                                field={
+                                                    `${path}.${index}.locale` as any
+                                                }
+                                                errors={errors}
+                                            />
+                                        </div>
+                                        <div>
+                                            <TextField
+                                                label={t(
+                                                    'lib.form.translations.value.label',
+                                                    'Translation'
+                                                )}
+                                                required={true}
+                                                {...register(
+                                                    `${path}.${index}.value` as any
+                                                )}
+                                                {...(inputProps ?? {})}
+                                            />
+                                            <FormFieldErrors
+                                                field={
+                                                    `${path}.${index}.value` as any
+                                                }
+                                                errors={errors}
+                                            />
+                                        </div>
+                                    </Stack>
+                                    <FormFieldErrors
+                                        field={`${path}.${index}.value` as any}
+                                        errors={errors}
+                                    />
+                                </FormRow>
+                            </>
+                        );
+                    }}
+                />
+            )}
         </>
     );
 }

@@ -56,7 +56,7 @@
         "react-ace": "^10.1.0",
         "react-circle-flags": "^0.0.23",
         "react-colorful": "^5.6.1",
-        "react-compare-image": "^3.5.9",
+        "react-compare-slider": "^3.1.0",
         "react-dnd": "^16.0.1",
         "react-dnd-html5-backend": "^16.0.1",
         "react-dom": "^18.3.1",
@@ -84,7 +84,7 @@
     },
     "scripts": {
         "dev": "vite",
-        "build": "tsc && vite build",
+        "build": "tsc && vite build && cp ./silent-check-sso.html ./dist/",
         "lint": "eslint src",
         "lint:fix": "eslint --fix src",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",

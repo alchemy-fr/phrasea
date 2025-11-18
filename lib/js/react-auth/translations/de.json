@@ -1,19 +1,19 @@
 {
-  "lib": {
-    "auth": {
-      "sess_exp": {
-        "about_to_expire": {
-          "intro": "Bist du noch da? Möchtest du deine Sitzung aktiv halten?",
-          "logout": "Abmelden",
-          "stay": "Angemeldet bleiben!",
-          "title": "Deine Sitzung läuft bald ab"
-        },
-        "expired": {
-          "intro": "Vergiss nicht, deine Inhalte zu speichern, bevor du dich erneut anmeldest!",
-          "sign_in": "Schließen",
-          "title": "Deine Sitzung ist abgelaufen"
+    "lib": {
+        "auth": {
+            "sess_exp": {
+                "about_to_expire": {
+                    "intro": "Bist du noch da? Möchtest du deine Sitzung aktiv halten?",
+                    "logout": "Abmelden",
+                    "stay": "Angemeldet bleiben!",
+                    "title": "Deine Sitzung läuft bald ab"
+                },
+                "expired": {
+                    "intro": "Vergiss nicht, deine Inhalte zu speichern, bevor du dich erneut anmeldest!",
+                    "sign_in": "Schließen",
+                    "title": "Deine Sitzung ist abgelaufen"
+                }
+            }
         }
-      }
     }
-  }
 }

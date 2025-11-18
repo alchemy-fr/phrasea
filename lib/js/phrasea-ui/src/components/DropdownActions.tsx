@@ -1,6 +1,6 @@
 import Menu from '@mui/material/Menu';
 import React, {MouseEventHandler, ReactNode} from 'react';
-import {CloseWrapper, DropdownActionsProps} from "../types";
+import {CloseWrapper, DropdownActionsProps} from '../types';
 
 export default function DropdownActions({
     mainButton,

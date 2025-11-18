@@ -27,13 +27,13 @@ const renderArrayFields = (
                         {idx !== count - 1 && count > 1 ? (
                             <button
                                 className="btn btn-primary"
-                                type={"button"}
+                                type={'button'}
                                 onClick={e => {
                                     e.preventDefault();
                                     swap(idx, idx + 1);
                                 }}
                             >
-                                <KeyboardArrowDownIcon/>
+                                <KeyboardArrowDownIcon />
                             </button>
                         ) : (
                             ''
@@ -41,13 +41,13 @@ const renderArrayFields = (
                         {idx !== 0 && count > 1 ? (
                             <button
                                 className="btn btn-primary"
-                                type={"button"}
+                                type={'button'}
                                 onClick={e => {
                                     e.preventDefault();
                                     swap(idx, idx - 1);
                                 }}
                             >
-                                <KeyboardArrowUpIcon/>
+                                <KeyboardArrowUpIcon />
                             </button>
                         ) : (
                             ''
@@ -55,13 +55,13 @@ const renderArrayFields = (
 
                         <button
                             className="btn btn-danger"
-                            type={"button"}
+                            type={'button'}
                             onClick={e => {
                                 e.preventDefault();
                                 remove(idx);
                             }}
                         >
-                            <DeleteIcon/>
+                            <DeleteIcon />
                         </button>
                     </div>
                     {renderField(
