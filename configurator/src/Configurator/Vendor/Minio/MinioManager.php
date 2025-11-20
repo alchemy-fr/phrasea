@@ -43,6 +43,7 @@ final readonly class MinioManager
             throw new \RuntimeException('S3_ENDPOINT environment variable is not set.');
         }
         $this->serviceWaiter->waitForService($output, $s3Endpoint, successCodes: [200, 403]);
+        $this->serviceWaiter->waitForService($output, getenv('MINIO_CONSOLE_URL'));
     }
 
     public function configureAmqpNotification(OutputInterface $output, string $bucketName, string $vhost): void
