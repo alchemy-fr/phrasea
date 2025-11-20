@@ -45,7 +45,7 @@ class QueuesListController extends AbstractController
         $queuesStatus = [];
 
         foreach ($this->queues as $queueName) {
-            list($queueName, $messageCount, $consumerCount) = $channel->queue_declare($queueName, true);
+            [$queueName, $messageCount, $consumerCount] = $channel->queue_declare($queueName, true);
             $queuesStatus[$queueName] = [
                 'queueName' => $queueName,
                 'messageCount' => $messageCount,
