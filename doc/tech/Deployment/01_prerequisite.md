@@ -32,6 +32,8 @@ Phrasea can be deployed using Docker/Docker Compose or on a Kubernetes cluster, 
 
 Allows rapid deployment of Phrasea in development or local environments. The stack includes external services such as **PostgreSQL**, **Redis**, **Elasticsearch**, and **Minio**. with Docker Compose **profiles**, you can select which services to start, offering  flexibility depending on the needs of each environment, but the stack scaling will be only in vertical mode.
 
+Operating System: Linux (recommended: Ubuntu 22.04 LTS, Debian 11, or CentOS 7/8)
+
 Minimal requisited version: 
   - docker version: 28.5.2  
   - docker compose: 2.40.3  
@@ -264,3 +266,8 @@ Disk capacity for temporary volumes: 100 GB
 
   - not applicable
 
+#### Production Considerations
+
+Security: Use TLS for all external traffic (configure Traefik with Let’s Encrypt or your own certificates).
+Monitoring: Set up logging and monitoring for containers (e.g., Prometheus, Grafana).
+Backups: Implement regular backups for PostgreSQL and object storage.
