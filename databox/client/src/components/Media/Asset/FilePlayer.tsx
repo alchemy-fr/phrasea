@@ -10,10 +10,16 @@ import FileAnalysisChipWrapper from './FileAnalysisChipWrapper.tsx';
 
 type Props = {
     file: ApiFile;
+    trackingId?: string;
     autoPlayable?: boolean;
 } & Omit<PlayerProps, 'file'>;
 
-export default function FilePlayer({file, autoPlayable, ...playProps}: Props) {
+export default function FilePlayer({
+    file,
+    trackingId,
+    autoPlayable,
+    ...playProps
+}: Props) {
     const mainType = getFileTypeFromMIMEType(file.type);
 
     if (file.analysisPending || false === file.accepted) {
@@ -32,18 +38,19 @@ export default function FilePlayer({file, autoPlayable, ...playProps}: Props) {
 
         switch (mainType) {
             case FileTypeEnum.Image:
-                return <ImagePlayer {...props} />;
+                return <ImagePlayer {...props} trackingId={trackingId} />;
             case FileTypeEnum.Audio:
             case FileTypeEnum.Video:
                 return (
                     <VideoPlayer
                         {...props}
                         autoPlayable={autoPlayable || false}
+                        trackingId={trackingId}
                     />
                 );
             case FileTypeEnum.Document:
                 if (file.type === 'application/pdf') {
-                    return <PDFPlayer {...props} />;
+                    return <PDFPlayer {...props} trackingId={trackingId} />;
                 }
         }
     }

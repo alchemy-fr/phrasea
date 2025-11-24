@@ -42,10 +42,13 @@ function AssetThumb({
         <AssetFileIcon mimeType={main.file.type} />
     ) : undefined;
 
+    const trackingId = `thumb_${asset.trackingId}`;
+
     if (thumbnail?.file) {
         thumb = (
             <FilePlayer
                 file={thumbnail.file}
+                trackingId={trackingId}
                 title={resolvedTitle}
                 autoPlayable={false}
             />
@@ -121,6 +124,7 @@ function AssetThumb({
                     <div className={assetClasses.animatedThumb}>
                         <FilePlayer
                             file={animatedThumbnail.file}
+                            trackingId={trackingId}
                             title={resolvedTitle}
                             autoPlayable={true}
                             controls={false}

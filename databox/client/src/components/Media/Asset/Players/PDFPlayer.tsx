@@ -14,10 +14,12 @@ import PdfView from './PdfView.tsx';
 
 type Props = {
     controls?: boolean | undefined;
+    trackingId?: string;
 } & PlayerProps;
 
 export default function PDFPlayer({
     file,
+    trackingId,
     controls,
     dimensions: forcedDimensions,
     onLoad,
@@ -69,6 +71,9 @@ export default function PDFPlayer({
             annotations={pageAnnotations}
             annotationEnabled={true}
             page={pageNumber}
+            data-track-content
+            data-content-name={trackingId}
+            data-content-piece={file.url}
             preToolbarActions={
                 controls ? (
                     <>

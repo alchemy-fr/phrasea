@@ -246,6 +246,7 @@ services:
       - ALLOWED_FILE_TYPES=${DATABOX_ALLOWED_FILE_TYPES}
       - SOKETI_KEY
       - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}
+      - MATOMO_SITE_ID
     labels:
       - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
 
@@ -263,7 +264,7 @@ services:
       - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
       - CLIENT_ID=${EXPOSE_CLIENT_ID}
       - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
-      - MATOMO_SITE_ID=${EXPOSE_MATOMO_SITE_ID}
+      - MATOMO_SITE_ID
       - ALLOWED_FRAME_ANCESTORS=${EXPOSE_ALLOWED_FRAME_ANCESTORS}
     labels:
       - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
@@ -317,7 +318,7 @@ services:
       - CLOUD_FRONT_KEY_PAIR_ID=${EXPOSE_CLOUD_FRONT_KEY_PAIR_ID}
       - CLOUD_FRONT_TTL=${EXPOSE_CLOUD_FRONT_TTL}
       - MATOMO_URL
-      - MATOMO_SITE_ID=${EXPOSE_MATOMO_SITE_ID}
+      - MATOMO_SITE_ID
       - MATOMO_AUTH_TOKEN
       - PHRASEANET_APP_OAUTH_TOKEN
       - PHRASEANET_URL
@@ -661,6 +662,9 @@ services:
       - SOKETI_APP_ID
       - SOKETI_KEY
       - SOKETI_SECRET
+      - MATOMO_URL
+      - MATOMO_SITE_ID
+      - MATOMO_AUTH_TOKEN
     depends_on:
       - redis
       - elasticsearch
@@ -671,6 +675,7 @@ services:
       - webhook-endpoint.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - zippy.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - matomo.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-worker:
     extends:
