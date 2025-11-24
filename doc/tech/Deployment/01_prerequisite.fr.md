@@ -1,6 +1,7 @@
 ---
-title: phrasea technical Prerequisites
+title: Pré-requis techniques Phrasea
 status: WIP (Rédaction en cours)
+slug: prerequisite
 ---
 # Pré-requis techniques.
 
