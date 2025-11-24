@@ -1,6 +1,6 @@
 import React, {ElementType, FunctionComponent, PropsWithChildren} from 'react';
 import type {ActionFunction, LoaderFunction} from 'react-router-dom';
-import {NavigateOptions} from "react-router-dom";
+import {NavigateOptions} from 'react-router-dom';
 
 export type RouteDefinition = {
     path: string;
@@ -47,4 +47,4 @@ export type NavigateToOverlayProps = {
     params?: RouteParameters;
     options?: NavigateOptions;
     hash?: string;
-}
+};

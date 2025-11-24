@@ -6,7 +6,8 @@
                 "http_unauthorized": "Non autorisé",
                 "session_expired": "Votre session a expiré",
                 "http_not_found": "Introuvable",
-                "http_bad_request": "Requête invalide"
+                "http_bad_request": "Requête invalide",
+                "network": "Erreur réseau"
             },
             "http_error": {
                 "429": "Trop de requêtes, vous pouvez réessayer dans {{minutes}}min"

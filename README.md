@@ -1,42 +1,51 @@
-# Phrasea services
+![Logo](https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/Images/Logo_PHRASEA_textegris_blanc.png)
 
-Welcome to the mono-repository of Phrasea services!
-This repository contains all the services to facilitate development but each group of services can be deployed alone.
+> It's DAM Smart!
 
-## Setup
+[![License](https://img.shields.io/github/license/alchemy-fr/phrasea)](./LICENSE)
+[![Issues](https://img.shields.io/github/issues/alchemy-fr/phrasea)](https://github.com/alchemy/phrasea/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/alchemy-fr/phrasea)](https://github.com/alchemy/phrasea/pulls)
+[![Last Commit](https://img.shields.io/github/last-commit/alchemy-fr/phrasea)](https://github.com/alchemy/phrasea/commits/main)
 
-- [Installation guide](./doc/setup.md)
+Phrasea is a powerful open-source Digital Asset Management (DAM) platform designed for organizations that require advanced control over digital assets. It offers fine-grained permissions for users and groups, robust integrations with external tools and AI providers, and flexible deployment options: SaaS, On-premise, or Hybrid mode. Phrasea is one of the few vendors in the market to support all three models.
 
-## Development
+## Key Features
 
-- [Setup guide for development](./doc/dev.md) (requires [setup](./doc/setup.md) first)
+- Fine-grained permissions for users and groups
+- Advanced integrations with external tools and AI providers
+- Scalable architecture for large organizations
+- Flexible deployment: SaaS, On-premise, or Hybrid
+- RESTful APIs for automation and interoperability
+- Powerful search and metadata management
+- Collaboration tools for teams: comments, annotations, and versioning
 
-## RabbitMQ Management
+## Getting Started
 
-Access `https://rabbitmq-console.phrasea.local`
+To set up your environment, follow the installation guide:
 
-## Running multiple instances of services
+- [Installation guide](./doc/tech/01_setup.md)
 
-You may need to deploy to different expose services (with their specific network/security rules).
-In that case, you need to assign a unique `APP_ID` to each instance. This `APP_ID` will be stored in report service.
+## Documentation
 
-# Further reading
+Documentation is available in the [`doc` folder](./doc/).
 
-- [Private/public networks](./doc/networks.md)
-- [S3 Storage](./doc/storage/s3.md)
-- [Cloud Front](./doc/storage/cloudfront.md)
-- [Backup and Restore](./doc/backup-restore.md)
-- [Permissions](./doc/permissions.md)
+## Contributing
 
-## Infra
+We welcome contributions from the community! Please read our guidelines:
 
-- [Operating tasks](./doc/infra-operating-tasks.md)
+- Fork the repository and create your branch
+- Submit pull requests with clear descriptions
+- Report issues or feature requests via GitHub Issues
 
-## Logs
+## License
 
-Install ELK stack to get report-api logs available in Kibana.
+This project is licensed under the terms of the [LICENSE](./LICENSE) file.
 
-```bash
-# set COMPOSE_FILE=docker-compose.yml:docker-compose.elk.yml
-dc up -d
-```
+## Community & Support
+
+- For help, refer to the [documentation](./doc/)
+- For questions, open an issue or join our community channels (add link if available)
+
+---
+
+Phrasea: The flexible DAM for modern organizations.

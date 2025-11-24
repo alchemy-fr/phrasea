@@ -1,4 +1,4 @@
-import {CSSProperties} from "react";
+import {CSSProperties} from 'react';
 
 export function parseInlineStyle(style: string): CSSProperties {
     const template = document.createElement('template');

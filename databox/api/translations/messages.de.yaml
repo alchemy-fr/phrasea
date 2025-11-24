@@ -17,6 +17,10 @@ facet:
     title: Relevanz
   tags:
     title: Tags
+  is_story:
+    title: Story
+  stories:
+    title: Stories
 field_type:
   types:
     text: Text

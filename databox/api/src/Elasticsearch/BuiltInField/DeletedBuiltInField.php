@@ -51,8 +51,6 @@ final class DeletedBuiltInField extends AbstractBuiltInField
         $boolQuery = new Query\BoolQuery();
         if (null === $value) {
             $boolQuery->addShould($this->createIsNotDeletedQuery());
-            $userId = $options['userId'] ?? null;
-            $groupIds = $options['groupIds'] ?? [];
             $deletePermissionQuery = $this->createDeletePermissionQuery($userId, $groupIds);
             $boolQuery->addShould($deletePermissionQuery);
         } else {

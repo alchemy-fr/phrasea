@@ -47,17 +47,21 @@ final readonly class RenditionBuilder
         if (null !== $parentDefinition = $renditionDefinition->getParent()) {
             $parentRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $parentDefinition);
             if (null === $parentRendition) {
-                throw new \LogicException(sprintf('Parent rendition "%s" not found for asset "%s"', $parentDefinition->getName(), $asset->getId()));
+                throw new RenditionBuildException(false, sprintf('Parent rendition "%s" not found for asset "%s"', $parentDefinition->getName(), $asset->getId()));
             }
 
             if (false === $parentRendition->getProjection()) {
                 $isProjection = false;
             }
             $source = $parentRendition->getFile();
+
+            if (null === $source) {
+                throw new \LogicException(sprintf('Parent rendition "%s" of Asset "%s" has no source file', $parentRendition->getId(), $asset->getId()));
+            }
         } else {
             $source = $asset->getSource();
             if (null === $source) {
-                throw new \LogicException(sprintf('No source file found for asset "%s"', $asset->getId()));
+                throw new RenditionBuildException(false, sprintf('Asset "%s" has no source file', $asset->getId()));
             }
         }
 
