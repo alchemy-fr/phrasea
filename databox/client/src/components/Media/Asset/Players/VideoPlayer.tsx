@@ -48,10 +48,12 @@ function stopPropagationIfNoCtrl(e: MouseEvent) {
 type Props = {
     autoPlayable: boolean;
     controls?: boolean | undefined;
+    trackingId?: string;
 } & PlayerProps;
 
 export default function VideoPlayer({
     file,
+    trackingId,
     onLoad,
     autoPlayable,
     noInteraction,
@@ -145,6 +147,9 @@ export default function VideoPlayer({
                 progressInterval={duration ? (duration < 60 ? 100 : 1000) : 5}
                 muted={autoPlay}
                 controls={hasControls}
+                data-track-content
+                data-content-name={trackingId}
+                data-content-piece={file.url}
             />
             {!hasControls && progress && (
                 <LinearProgress

@@ -281,6 +281,9 @@ export default function AssetView({modalIndex, open}: Props) {
                                                         displayedRenditionFile!
                                                     }
                                                     title={displayedAsset.title}
+                                                    trackingId={
+                                                        displayedAsset.trackingId
+                                                    }
                                                     dimensions={dimensions}
                                                     autoPlayable={false}
                                                     controls={true}

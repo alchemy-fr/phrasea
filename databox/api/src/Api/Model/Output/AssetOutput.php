@@ -151,6 +151,9 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_READ])]
     public ?array $topicSubscriptions = null;
 
+    #[Groups([Asset::GROUP_READ])]
+    public ?string $trackingId = null;
+
     /**
      * Used for result grouping.
      */

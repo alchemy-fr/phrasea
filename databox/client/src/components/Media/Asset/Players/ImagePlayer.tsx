@@ -10,12 +10,14 @@ import FileToolbar from './FileToolbar.tsx';
 type Props = {
     file: ApiFile;
     title?: string;
+    trackingId?: string;
     annotations?: AssetAnnotation[] | undefined;
 } & PlayerProps;
 
 export default function ImagePlayer({
     file,
     title,
+    trackingId,
     onLoad,
     controls,
     ...playerProps
@@ -44,6 +46,9 @@ export default function ImagePlayer({
             src={file.url}
             alt={title}
             onLoad={pOnLoad}
+            data-track-content
+            data-content-name={trackingId}
+            data-content-piece={file.url}
         />
     );
 
