@@ -19,17 +19,17 @@ elle s’adresse aux personnes suivantes :
 
   1. ## Déploiement 
 
-     2. ### Docker Compose 
+     1.2. ### Docker Compose 
 
         Permet de déployer rapidement Phrasea dans des environnements de développement ou locaux. La stack inclut des services externes tels que **PostgreSQL**, **Redis**, **Elasticsearch**, et **Minio**. Grâce à la fonctionnalité des **profils** dans Docker Compose, il est possible de sélectionner quels services démarrer, offrant ainsi une grande flexibilité selon les besoins de chaque environnement.
 
 
-     3. ### Kubernetes
+     1.3. ### Kubernetes
 
         Kubernetes est idéal pour les déploiements à grande échelle et en production. Phrasea utilise Kubernetes pour orchestrer les conteneurs et permet également de déléguer certaines parties de la stack à des services externes. Il est fortement recommandé de déléguer les **datastores primaires**, comme **PostgreSQL** et le stockage objet de type S3 (servi par **Minio**), à des services externes pour une meilleure gestion des performances et de la résilience.
 
 
-     4. ### Modération au sujet des déploiements docker et kubernetes
+     1.4. ### Modération au sujet des déploiements docker et kubernetes
 
         Les conteneurs utilisés dans le **Docker Compose** et les **charts Helm** fournis avec Phrasea sont principalement destinés aux environnements de développement et de test. Une personnalisation supplémentaire est nécessaire pour rendre ces conteneurs **"production ready"**. Cela inclut l'optimisation des configurations, la sécurisation des accès, la gestion des ressources, et la mise en place de pratiques de résilience et de monitoring adaptées à la production. Il est donc essentiel d'effectuer ces ajustements avant tout déploiement en production.
 
@@ -62,21 +62,21 @@ elle s’adresse aux personnes suivantes :
      
 
         * **Dashboard**  
-          [Image Docker du Dashboard](https://hub.docker.com/repository/docker/alchemyfr/ps-dashboard/tags)
+          [Image Docker du Dashboard](https://hub.docker.com/r/alchemyfr/ps-dashboard/tags)
 
 
         * **Keycloak**  
-          [Image Docker de Keycloak](https://hub.docker.com/repository/docker/alchemyfr/ps-keycloak/tags)
+          [Image Docker de Keycloak](https://hub.docker.com/r/alchemyfr/ps-keycloak/tags)
 
         * **Configurator**
-          [Image Docker du Configurator](https://hub.docker.com/repository/docker/alchemyfr/ps-configurator)
+          [Image Docker du Configurator](https://hub.docker.com/r/alchemyfr/ps-configurator)
 
 
         * **Service Databox**  
           [API PHP Databox](https://hub.docker.com/r/alchemyfr/ps-databox-api-php/tags)  
           [Worker Databox](https://hub.docker.com/r/alchemyfr/ps-databox-worker/tags)  
-          [Client Databox](https://hub.docker.com/repository/docker/alchemyfr/ps-databox-client/tags)  
-          [API Nginx Databox](https://hub.docker.com/repository/docker/alchemyfr/ps-databox-api-nginx/tags)
+          [Client Databox](https://hub.docker.com/r/alchemyfr/ps-databox-client/tags)  
+          [API Nginx Databox](https://hub.docker.com/r/alchemyfr/ps-databox-api-nginx/tags)
 
         **Databox indexer** (build local uniquement)
 
@@ -84,14 +84,14 @@ elle s’adresse aux personnes suivantes :
         * **Service Uploader**  
           [API PHP Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-api-php/tags)  
           [Worker Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-worker/tags)  
-          [Client Uploader](https://hub.docker.com/repository/docker/alchemyfr/ps-uploader-client/tags)  
-          [API Nginx Uploader](https://hub.docker.com/repository/docker/alchemyfr/ps-uploader-api-nginx/tags)
+          [Client Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-client/tags)  
+          [API Nginx Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-api-nginx/tags)
 
         * **Service Expose**  
           [API PHP Expose](https://hub.docker.com/r/alchemyfr/ps-expose-api-php/tags)  
           [Worker Expose](https://hub.docker.com/r/alchemyfr/ps-expose-worker/tags)  
-          [Client Expose](https://hub.docker.com/repository/docker/alchemyfr/ps-expose-client/tags)  
-          [API Nginx Expose](https://hub.docker.com/repository/docker/alchemyfr/ps-expose-api-nginx/tags)
+          [Client Expose](https://hub.docker.com/r/alchemyfr/ps-expose-client/tags)  
+          [API Nginx Expose](https://hub.docker.com/r/alchemyfr/ps-expose-api-nginx/tags)
 
 
        * **Service de notification Novu**
@@ -107,7 +107,7 @@ elle s’adresse aux personnes suivantes :
 
     
         * **Service Report**  
-          [API Report](https://hub.docker.com/repository/docker/alchemyfr/ps-report-api/tags)
+          [API Report](https://hub.docker.com/r/alchemyfr/ps-report-api/tags)
 
           1. **autres containers**  
             Images référencées dans la stack Docker Compose et Helm qui **ne sont pas des images Phrasea, généré par alchemy,** elles sont toutefois nécessaire lors d’un déploiement de développement ou de test et comme expliqué précédemment ces images sont destiné a être remplacé par des services extérieures.  
@@ -231,7 +231,7 @@ elle s’adresse aux personnes suivantes :
 
 2. # Schéma d’Architecture  de Phrasea.
 
-![Technical Information](technical-information.svg)
+![Technical Information](./technical-information.svg)
 
 # 3 Pré-requis capacitaire d’infrastructure
 
