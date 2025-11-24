@@ -5,21 +5,19 @@ slug: prerequisite
 ---
 # Pré-requis techniques.
 
-# 1.Objectif
+# 1. Objectif
 
 Présenter l'architecture technique de la solution logicielle Phrasea.
 
- Il décrit les différents modules qui la composent, ainsi que les dépendances logicielles et les services externes nécessaires à son implémentation.
+cette section décrit les différents modules qui la composent, ainsi que les dépendances logicielles et les services externes nécessaires à son deployement.
 
-Il s’adresse aux personnes suivantes :
+elle s’adresse aux personnes suivantes :
 
 * Les services informatiques désireux de déployer Phrasea sur leur infrastructure.  
 * Les architectes applicatifs des projets désirant intégrer Phrasea.  
 * Les architectes techniques des projets désirant intégrer Phrasea. 
 
   1. ## Déploiement 
-
-     
 
      2. ### Docker Compose 
 
@@ -40,109 +38,108 @@ Il s’adresse aux personnes suivantes :
 
      5. ### Source de l'application Phrasea
 
-        Le code source de l'application Phrasea est disponible sur GitHub :
+      Le code source de l'application Phrasea est disponible sur GitHub :
 
-* [**Sources de l’application**](https://github.com/alchemy-fr/phrasea)
-
-
-  6. ### Déploiement avec Docker Compose
-
-     Un fichier Docker Compose est disponible pour faciliter le déploiement de Phrasea dans des environnements de développement :
-
-* [**Docker Compose déploiement**](https://github.com/alchemy-fr/phrasea/blob/master/docker-compose.yml)
+      * [**Sources de l’application**](https://github.com/alchemy-fr/phrasea)
 
 
-  7. ### Déploiement avec Helm
+     6. ### Déploiement avec Docker Compose
 
-     Pour des déploiements en production sur Kubernetes, vous pouvez utiliser les charts Helm disponibles :
+       Un fichier Docker Compose est disponible pour faciliter le déploiement de Phrasea dans des environnements de développement :
 
-* [**Phrasea Helm déploiement**](https://github.com/alchemy-fr/alchemy-helm-charts-repo/tree/main/charts/phrasea)
+        * [**Docker Compose déploiement**](https://github.com/alchemy-fr/phrasea/blob/master/docker-compose.yml)
 
 
-  8. ### Liste des images Docker Phrasea
+      7. ### Déploiement avec Helm
+
+        Pour des déploiements en production sur Kubernetes, vous pouvez utiliser les charts Helm disponibles :
+
+        * [**Phrasea Helm déploiement**](https://github.com/alchemy-fr/alchemy-helm-charts-repo/tree/main/charts/phrasea)
+
+
+      8. ### Liste des images Docker Phrasea
 
      
 
-* **Dashboard**  
-  [Image Docker du Dashboard](https://hub.docker.com/repository/docker/alchemyfr/ps-dashboard/tags)
+        * **Dashboard**  
+          [Image Docker du Dashboard](https://hub.docker.com/repository/docker/alchemyfr/ps-dashboard/tags)
 
 
-* **Keycloak**  
-  [Image Docker de Keycloak](https://hub.docker.com/repository/docker/alchemyfr/ps-keycloak/tags)  
-  [Image Docker du Configurator](https://hub.docker.com/repository/docker/alchemyfr/ps-configurator)
+        * **Keycloak**  
+          [Image Docker de Keycloak](https://hub.docker.com/repository/docker/alchemyfr/ps-keycloak/tags)
+
+        * **Configurator**
+          [Image Docker du Configurator](https://hub.docker.com/repository/docker/alchemyfr/ps-configurator)
 
 
-* **Service Databox**  
-  [API PHP Databox](https://hub.docker.com/r/alchemyfr/ps-databox-api-php/tags)  
-  [Worker Databox](https://hub.docker.com/r/alchemyfr/ps-databox-worker/tags)  
-  [Client Databox](https://hub.docker.com/repository/docker/alchemyfr/ps-databox-client/tags)  
-  [API Nginx Databox](https://hub.docker.com/repository/docker/alchemyfr/ps-databox-api-nginx/tags)
+        * **Service Databox**  
+          [API PHP Databox](https://hub.docker.com/r/alchemyfr/ps-databox-api-php/tags)  
+          [Worker Databox](https://hub.docker.com/r/alchemyfr/ps-databox-worker/tags)  
+          [Client Databox](https://hub.docker.com/repository/docker/alchemyfr/ps-databox-client/tags)  
+          [API Nginx Databox](https://hub.docker.com/repository/docker/alchemyfr/ps-databox-api-nginx/tags)
 
-  Databox indexer (build local uniquement)
-
-
-* **Service Uploader**  
-  [API PHP Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-api-php/tags)  
-  [Worker Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-worker/tags)  
-  [Client Uploader](https://hub.docker.com/repository/docker/alchemyfr/ps-uploader-client/tags)  
-  [API Nginx Uploader](https://hub.docker.com/repository/docker/alchemyfr/ps-uploader-api-nginx/tags)
+        **Databox indexer** (build local uniquement)
 
 
-* **Service Expose**  
-  [API PHP Expose](https://hub.docker.com/r/alchemyfr/ps-expose-api-php/tags)  
-  [Worker Expose](https://hub.docker.com/r/alchemyfr/ps-expose-worker/tags)  
-  [Client Expose](https://hub.docker.com/repository/docker/alchemyfr/ps-expose-client/tags)  
-  [API Nginx Expose](https://hub.docker.com/repository/docker/alchemyfr/ps-expose-api-nginx/tags)
+        * **Service Uploader**  
+          [API PHP Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-api-php/tags)  
+          [Worker Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-worker/tags)  
+          [Client Uploader](https://hub.docker.com/repository/docker/alchemyfr/ps-uploader-client/tags)  
+          [API Nginx Uploader](https://hub.docker.com/repository/docker/alchemyfr/ps-uploader-api-nginx/tags)
+
+        * **Service Expose**  
+          [API PHP Expose](https://hub.docker.com/r/alchemyfr/ps-expose-api-php/tags)  
+          [Worker Expose](https://hub.docker.com/r/alchemyfr/ps-expose-worker/tags)  
+          [Client Expose](https://hub.docker.com/repository/docker/alchemyfr/ps-expose-client/tags)  
+          [API Nginx Expose](https://hub.docker.com/repository/docker/alchemyfr/ps-expose-api-nginx/tags)
 
 
-* **Service de notification Novu**
+       * **Service de notification Novu**
 
-              [Novu-bridge](https://hub.docker.com/r/alchemyfr/ps-novu-bridge/tags) 
+          [Novu-bridge](https://hub.docker.com/r/alchemyfr/ps-novu-bridge/tags) 
 
-             service de notification en SAAS ou hosté localement 
+          service de notification en SAAS ou hosté localement
+          Le container Novu-bridge est obligatoirement déployé sur la stack. 
 
-             Le container Novu-bridge est obligatoirement déployé sur la stack. 
-
-- Pour le service Backend, il est possible d’utiliser le service saas de Novu  
-- ou de déployer une stack Novu Backend, pas de déploiement Helm fourni, uniquement du docker compose en mode développement. Aucune information d’authentification ne transite par cette stack.  
+            - Pour le service Backend, il est possible d’utiliser le service saas de Novu  
+            - ou de déployer une stack Novu Backend, pas de déploiement Helm fourni, uniquement du docker      compose en mode développement. Aucune information d’authentification ne transite par cette stack.  
                 
 
     
-* **Service Report**  
-  [API Report](https://hub.docker.com/repository/docker/alchemyfr/ps-report-api/tags)
+        * **Service Report**  
+          [API Report](https://hub.docker.com/repository/docker/alchemyfr/ps-report-api/tags)
 
-1. **traefik**  
-   Images référencées dans la stack Docker Compose et Helm qui **ne sont pas des images Phrasea, généré par alchemy,** elles sont toutefois nécessaire lors d’un déploiement de développement ou de test et comme expliqué précédemment ces images sont destiné a être remplacé par des services extérieures.  
-2. Mise en réseaux   
-3. **.5.5** – Traefik, un reverse proxy et load balancer incluant la mécanique de certification let’s encrypt pour certains provider
+          1. **autres containers**  
+            Images référencées dans la stack Docker Compose et Helm qui **ne sont pas des images Phrasea, généré par alchemy,** elles sont toutefois nécessaire lors d’un déploiement de développement ou de test et comme expliqué précédemment ces images sont destiné a être remplacé par des services extérieures.  
+          2. Mise en réseaux   
+            3. **.5.5** – Traefik, un reverse proxy et load balancer incluant la mécanique de certification let’s encrypt pour certains provider
 
-   Magasin de Données Primaires.    
+        Magasin de Données Primaires.    
 
-4. **postgres:14.4-alpine** – PostgreSQL,  base de données relationnelle.  
-5. **minio/minio**  
-   **.2021-11-24T23-19-33Z.hotfix.1d85a4563** – MinIO, un service de stockage objet compatible S3.
+            4. **postgreSQL:14.4-alpine** – PostgreSQL,  base de données relationnelle.  
+            5. **minio/minio**  **.2021-11-24T23-19-33Z.hotfix.1d85a4563** – MinIO, un service de stockage objet compatible S3.
 
-   Serveur de cache et Bus de données
+        Serveur de cache et Bus de données
 
-6. **redis:5.0.5-alpine** – Redis, une base de données en mémoire pour la gestion de cache.  
-7. **rabbitmq:3.7.14-management** – RabbitMQ, service de gestion de files d'attente de messages.  
-8. **elasticsearch:7.17.3** – Elasticsearch, Moteur de recherche et d'analyse distribué.  
-9. **quay.io/soketi/soketi:330e1a60197d2b5798a3b3a2bcd211ec124148d8-16-alpine** – Soketi, un serveur WebSocket.
+      6. **redis:5.0.5-alpine** – Redis, une base de données en mémoire pour la gestion de cache.  
+      7. **rabbitmq:3.7.14-management** – RabbitMQ, service de gestion de files d'attente de messages.  
+      8. **elasticsearch:7.17.3** – Elasticsearch, Moteur de recherche et d'analyse distribué.  
+      9. **quay.io/soketi/soketi:330e1a60197d2b5798a3b3a2bcd211ec124148d8-16-alpine** – Soketi, un serveur WebSocket.
 
-    Outils complémentaire  la stack de développement et de test :
+          Outils complémentaire  la stack de développement et de test :
 
-10. **mariadb:10.4.10-bionic** – MariaDB, un serveur de base de données relationnelle utilisé lors du déploiement de la stack Matomo en locale  .  
-11. **dpage/pgadmin4:8.6** – PgAdmin, un outil de gestion pour PostgreSQL.  
-12. **phpmyadmin/phpmyadmin** – PhpMyAdmin, un outil de gestion pour MySQL/MariaDB.  
-13. **mailhog/mailhog** – MailHog, un serveur SMTP pour capturer les emails en développement.  
-14. **elastichq/elasticsearch-hq** – Elasticsearch HQ, une interface pour requeter  Elasticsearch.  
-15. **grafana/k6:0.26.2** – k6, un outil de test de charge pour les performances.  
-16. **influxdb:1.8** – InfluxDB, une base de données de séries temporelles.  
-17. **grafana/grafana:8.4.2** – Grafana, une plateforme de visualisation de données.  
-18. **mendhak/http-https-echo:23** – Un service HTTP/HTTPS d'écho pour le testing.  
-19. **jwilder/dockerize:0.6.1** – Dockerize, un utilitaire pour orchestrer les services Docker.  
-20. **minio/mc .2020-09-18T00-13-21Z** – MinIO Client, un utilitaire de gestion pour MinIO.  
-21. **Novu** back-end infrastructures
+      10. **mariadb:10.4.10-bionic** – MariaDB, un serveur de base de données relationnelle utilisé lors du déploiement de la stack Matomo en locale  .  
+      11. **dpage/pgadmin4:8.6** – PgAdmin, un outil de gestion pour PostgreSQL.  
+      12. **phpmyadmin/phpmyadmin** – PhpMyAdmin, un outil de gestion pour MySQL/MariaDB.  
+      13. **mailhog/mailhog** – MailHog, un serveur SMTP pour capturer les emails en développement.  
+      14. **elastichq/elasticsearch-hq** – Elasticsearch HQ, une interface pour requeter  Elasticsearch.  
+      15. **grafana/k6:0.26.2** – k6, un outil de test de charge pour les performances.  
+      16. **influxdb:1.8** – InfluxDB, une base de données de séries temporelles.  
+      17. **grafana/grafana:8.4.2** – Grafana, une plateforme de visualisation de données.  
+      18. **mendhak/http-https-echo:23** – Un service HTTP/HTTPS d'écho pour le testing.  
+      19. **jwilder/dockerize:0.6.1** – Dockerize, un utilitaire pour orchestrer les services Docker.  
+      20. **minio/mc .2020-09-18T00-13-21Z** – MinIO Client, un utilitaire de gestion pour MinIO.  
+      21. **Novu** back-end infrastructures
 
     2. ## Technologies utilisées
 
@@ -154,14 +151,14 @@ Il s’adresse aux personnes suivantes :
 
         
 
-      2. ### Front-End
+    2. ### Front-End
 
     * Technologies Web :  
       * HTML5, CSS3, et JavaScript sont les bases de l’interface utilisateur, permettant de créer des interfaces web interactives et accessibles.  
     * Framework JavaScript :  
       * Material UI et  React pour les clients consommant l’api Phrasea.
 
-      3. ### Base de Données
+    3. ### Base de Données
 
     * SGBD Relationnel :  
       * PostgreSQL la bases de données relationnelles stocke  et/ou référence les différents objets Phrasea, c’est un primary datastore, à ce titre les containers utilisés dans la stack docker ou K8s ne sont là que pour développement et test, un service externe est recommandé en production.  
@@ -256,50 +253,42 @@ les metrics a prendre en compte sont
 
   ## Développement et Test.
 
-  CPU:  6 CPU 
-
-  Ram: 16 Go
-
-  Capacité Disque pour la gestion de image docker: 100 Go
-
-  Capacité Disque des volumes temporaire: 100 Go
-
- 
+  - CPU:  6 CPU 
+  - Ram: 16 Go
+  - Capacité Disque pour la gestion de image docker: 100 Go
+  - Capacité Disque des volumes temporaire: 100 Go
 
 ## Production
 
 ### Images Phrasea déployé avec Docker Compose et ou Helm 
 
-CPU: 6 Cpu  
-Ram: 16 Go  
-Capacité Disque pour la gestion de image docker: 100 Go  
-Capacité Disque des volumes temporaire: 100 Go
+ - CPU: 6 Cpu  
+ - Ram: 16 Go  
+ - Capacité Disque pour la gestion de image docker: 100 Go  
+ - Capacité Disque des volumes temporaire: 100 Go
 
 ### Service managé
 
 - Postgresql:
 
-   		CPU: 2 CPU
-
-  		Ram: 8 Go
-
-  		Disque: 50 Go
+  - CPU: 2 CPU
+  - Ram: 8 Go
+  - Disque: 50 Go
 
 
 - Object Storage:
 
-					non applicable
+	- non applicable
 
 # 4 Orchestration du déploiement
 
 ## Prérequis docker compose
 
-    docker version: 28.5.2  
-		docker compose: 2.40.3  
+  - Docker version: 28.5.2  
+  - Docker compose: 2.40.3  
  
 
 ## Prérequis Kubernetes helm
 
-    Kubernetes version : 1.29  
-		Helm Version: v3.17.1  
-
+  - Kubernetes version : 1.29  
+  - Helm Version: v3.17.1  

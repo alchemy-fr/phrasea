@@ -250,24 +250,22 @@ Disk capacity for temporary volumes: 100 GB
 
 - PostgreSQL:
 
-           CPU: 2 CPU
-
-          RAM: 8 GB
-
-          Disk: 50 GB
+  - CPU: 2 CPU
+  - RAM: 8 GB
+  - Disk: 50 GB
 
 - Object Storage:
 
-                    not applicable
+  - not applicable
 
 ## 4. Deployment Orchestration
 
 ### Docker Compose Prerequisites
 
-- docker version: 28.5.2  
-- docker compose: 2.40.3  
+  - docker version: 28.5.2  
+  - docker compose: 2.40.3  
 
 ### Kubernetes Helm Prerequisites
 
-- Kubernetes version: 1.29  
-- Helm Version: v3.17.1  
+  - Kubernetes version: 1.29  
+  - Helm Version: v3.17.1  
