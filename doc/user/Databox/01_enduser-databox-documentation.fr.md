@@ -1,5 +1,6 @@
 ---
 title: Description de Databox Client
+status: En attente de relecture
 ---
 # Documentation utilisateur Databox
 

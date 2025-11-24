@@ -1,7 +1,7 @@
 ---
-status: WIP (Work In Progress)
+status: En attente de relecture
 title: Documentation utilisateur
-slug: documentation-utilisateur
+slug: user-documentation
 ---
 
 # Introduction

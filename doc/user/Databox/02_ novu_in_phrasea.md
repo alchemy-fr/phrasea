@@ -1,5 +1,5 @@
 ---
-status: WIP (Work In Progress)
+status: pending review
 title: phrasea notification
 ---
 
