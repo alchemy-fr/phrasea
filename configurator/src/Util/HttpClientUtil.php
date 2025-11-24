@@ -44,8 +44,9 @@ abstract class HttpClientUtil
         return false;
     }
 
-    public static function waitForHostPort(OutputInterface $output, string $host, int $port, int $timeout = self::DEFAULT_TIMEOUT, int $waitMicroseconds = 200_000): void
+    public static function waitForHostPort(OutputInterface $output, string $host, int $port, ?int $timeout = null, int $waitMicroseconds = 200_000): void
     {
+        $timeout = self::resolveTimeout($timeout);
         $progressIndicator = self::createProgressIndicator($output, sprintf('Waiting for host %s:%d to be ready...', $host, $port));
         $attempts = 0;
         $maxAttempts = (int) ($timeout / ($waitMicroseconds / 1_000_000));
@@ -68,11 +69,13 @@ abstract class HttpClientUtil
         OutputInterface $output,
         HttpClientInterface $client,
         string $url,
-        int $timeout = self::DEFAULT_TIMEOUT,
+        ?int $timeout = null,
         int $waitMicroseconds = 200_000,
         array $successCodes = self::DEFAULT_SUCCESS_CODES,
         array $unexpectedCodes = self::DEFAULT_UNEXPECTED_CODES,
     ): void {
+        $timeout = self::resolveTimeout($timeout);
+
         if (empty($url)) {
             throw new \InvalidArgumentException('URL is empty.');
         }
@@ -126,5 +129,10 @@ abstract class HttpClientUtil
         $progressIndicator->start($message);
 
         return $progressIndicator;
+    }
+
+    private static function resolveTimeout(?int $timeout): int
+    {
+        return $timeout ?? (getenv('SERVICE_WAIT_TIMEOUT') ? (int) getenv('SERVICE_WAIT_TIMEOUT') : self::DEFAULT_TIMEOUT);
     }
 }

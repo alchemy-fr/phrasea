@@ -953,6 +953,7 @@ services:
     profiles:
       - configurator
     environment:
+      - SERVICE_WAIT_TIMEOUT=${CONFIGURATOR_SERVICE_WAIT_TIMEOUT}
       - APP_ENV
       - KEYCLOAK_URL
       - KEYCLOAK_INTERNAL_URL
@@ -1052,6 +1053,12 @@ services:
       - REPORT_DB_NAME
       - KEYCLOAK_DB_NAME
       - KEYCLOAK2_DB_NAME
+      - NOVU_API_URL
+      - NOVU_DASHBOARD_USERNAME
+      - NOVU_DASHBOARD_PASSWORD
+      - NOVU_APPLICATION_IDENTIFIER
+      - NOVU_SUBSCRIBER_ID
+      - NOVU_SECRET_KEY
     depends_on:
       - keycloak
       - minio
@@ -1060,6 +1067,7 @@ services:
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - rabbitmq-console.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio-console.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
@@ -1123,7 +1131,7 @@ services:
       - mongodb:/data/db
 
   novu-api:
-    image: ghcr.io/novuhq/novu/api:${NOVU_VERSION}
+    image: ${NOVU_API_IMAGE}:${NOVU_VERSION}
     depends_on:
       mongodb:
         condition: service_started
