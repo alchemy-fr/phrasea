@@ -16,7 +16,7 @@ final readonly class ServiceWaiter
     public function waitForService(
         OutputInterface $output,
         string $url,
-        int $timeout = HttpClientUtil::DEFAULT_TIMEOUT,
+        ?int $timeout = null,
         int $waitMicroseconds = 200_000,
         array $successCodes = HttpClientUtil::DEFAULT_SUCCESS_CODES,
         array $unexpectedCodes = HttpClientUtil::DEFAULT_UNEXPECTED_CODES,
