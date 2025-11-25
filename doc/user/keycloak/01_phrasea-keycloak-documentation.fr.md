@@ -215,9 +215,6 @@ Scope commun à tous les services
 |-------------|-------------------------|
 | commit:list	| commit:list dans Uploader |
 
-Optionnel  
-commit:list dans Uploader
-
 ## Détails d’implémentation
 
 - **Variables d’environnement :**  

@@ -217,9 +217,6 @@ common scope to all service
 |-------------|-------------------------|
 | commit:list	| commit:list in Uploader |
 
-Optionnel
-commit:list in Uploader
-
 ## Implementation Details
 
 - **Environment Variables:**  

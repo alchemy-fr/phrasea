@@ -12,7 +12,7 @@ title: phrasea notification
 
 Novu is an open-source notification infrastructure designed to help developers and product teams build, manage, and deliver multi-channel notifications.  
 It provides the tools and framework to handle application's communication needs in one place, across various channels.  
-Phrasea uses Novu’s  to send events notification happening in the DAM eg when a new asset is added to the DAM
+Phrasea uses Novu to send event notifications happening in the DAM, e.g., when a new asset is added to the DAM.
 
 For more information on Novu, please refer to the official Novu's [documentation](https://docs.novu.co/platform/concepts/notifications).
 
