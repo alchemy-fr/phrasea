@@ -64,8 +64,8 @@ class SavedSearch extends AbstractUuidEntity implements WithOwnerIdInterface, Ac
     use CreatedAtTrait;
     use UpdatedAtTrait;
     final public const string OBJECT_TYPE = 'saved_search';
-    final public const string GROUP_READ = 'ssearch:read';
-    final public const string GROUP_LIST = 'ssearch:index';
+    final public const string GROUP_READ = 'ssearch:r';
+    final public const string GROUP_LIST = 'ssearch:i';
     final public const string GROUP_WRITE = 'ssearch:w';
 
     #[Assert\NotBlank]

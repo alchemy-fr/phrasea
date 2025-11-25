@@ -1,6 +1,7 @@
 import {SortBy} from './Filter';
 import React, {RefObject} from 'react';
 import {AQLQueries, AQLQuery} from './AQL/query.ts';
+import {SavedSearch} from '../../../types.ts';
 
 export type TSearchContext = {
     workspaceId?: string;
@@ -20,6 +21,7 @@ export type TSearchContext = {
     setQuery: (query: string, force?: boolean) => void;
     searchId?: string | undefined;
     setSearchId: (id: string | undefined) => void;
+    loadSearch: (savedSearch: SavedSearch) => void;
     inputQuery: RefObject<string>;
     setInputQuery: (query: string) => void;
     geolocation?: string | undefined;

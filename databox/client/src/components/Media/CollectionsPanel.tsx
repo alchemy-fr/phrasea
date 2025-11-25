@@ -25,6 +25,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import {useTranslation} from 'react-i18next';
 import {SearchContext} from './Search/SearchContext.tsx';
 import {BuiltInField} from './Search/search.ts';
+import SavedSearchList from './Search/SavedSearch/SavedSearchList.tsx';
 
 type Props = {};
 
@@ -72,6 +73,7 @@ function CollectionsPanel({}: Props) {
                 loading={searchResult.loading}
                 searchHandler={searchHandler}
             />
+            <SavedSearchList />
             <Box
                 sx={theme => ({
                     [`.${workspaceItemClassName}`]: {

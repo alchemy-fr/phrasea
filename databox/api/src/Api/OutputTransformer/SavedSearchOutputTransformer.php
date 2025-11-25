@@ -40,6 +40,7 @@ class SavedSearchOutputTransformer implements OutputTransformerInterface
 
         $output->title = $data->getTitle();
         $output->public = $data->isPublic();
+        $output->data = $data->getData();
 
         if ($this->hasGroup([
             SavedSearch::GROUP_READ,
