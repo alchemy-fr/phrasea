@@ -34,6 +34,10 @@ class SavedSearchInputTransformer extends AbstractFileInputTransformer
             $object->setTitle($data->title);
         }
 
+        if (null !== $data->data) {
+            $object->setData($data->data);
+        }
+
         return $this->processOwnerId($object);
     }
 }
