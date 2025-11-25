@@ -13,6 +13,40 @@ title: Keycloak Authentication Integration in Phrasea
 Phrasea relies on [Keycloak](https://www.keycloak.org/documentation) with [OpenID Connect](https://openid.net/connect/) for authentication management across its various  services. 
 During installation, a dedicated realm named **Phrasea** is created, containing individual clients for each Phrasea services.
 
+### Authentication and Authorization
+
+* Keycloak supports user authentication via standard protocols like OAuth2, OpenID Connect, and SAML. This facilitates integration with web, mobile applications, and APIs.  
+* Keycloak allows role-based authorization management, offering granular user permission management, which can be aligned with roles defined in the Phrasea database (administrators, editors, viewers, etc.).
+
+### User and Group Management
+
+* Keycloak manages users and groups, allowing segmentation based on needs. Each user can be assigned to one or more groups, and permissions can be attributed to these groups.  
+* User information (such as email addresses, usernames, and roles) can be synchronized with Phrasea, ensuring a smooth and centralized user experience.
+
+### Single Sign-On (SSO)
+
+* Keycloak provides SSO, allowing users to log in once to access all Phrasea-related applications, both internal and external. This improves user experience and simplifies session management.  
+* User sessions can be managed centrally, and Keycloak also allows session revocation if needed (e.g., when a user leaves the organization).
+
+### Federation and Integration with External IdPs
+
+* Keycloak can connect to external identity providers (IdP) such as Microsoft Active Directory, or other SAML and OpenID Connect compatible providers. This allows using existing identities without creating new accounts for Phrasea.  
+* Federation simplifies authentication for organizations already using other IAM systems.
+
+### Advanced Security Features
+
+* Multi-factor authentication (MFA): Keycloak supports two-factor authentication, enhancing security by requiring a second verification (such as a mobile app or token).  
+* Session and token management: Keycloak allows configuring session and token lifetimes and can force token revocation in case of compromise.  
+* Audit and Logs: Keycloak provides logging capabilities to track logins, authentication failures, and other security events, which is essential for compliance requirements.
+
+### Configuration
+
+* When deploying the stack, Phrasea runs a configurator that sets up a realm and clients dedicated to this installation. These clients are used by the various Phrasea services.  
+* A root Keycloak account and a master admin account for the application are also initialized.  
+* Interconnections with the client's IdP are declared manually at a later stage.  
+* Phrasea can be configured with OAuth2 or OpenID Connect for user authentication, centralizing identity management and facilitating integration with third-party providers.
+
+
 ## Roles and Scopes
 
 You can start by reading this explanation of the difference between Scopes and Roles [here](/user/keycloak/keycloak-scopes-vs-roles).

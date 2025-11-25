@@ -7,7 +7,7 @@ networks:
 
 services:
   traefik:
-    image: traefik:3.2.1
+    image: ${TRAEFIK_IMAGE_TAG}
     networks:
       - internal
     ports:
