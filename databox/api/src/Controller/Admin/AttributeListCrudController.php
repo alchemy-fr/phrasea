@@ -60,7 +60,8 @@ class AttributeListCrudController extends AbstractAclAdminCrudController
         yield TextField::new('title');
         yield TextareaField::new('description')
             ->hideOnIndex();
-        yield BooleanField::new('public');
+        yield BooleanField::new('public')
+            ->renderAsSwitch(false);
         yield DateTimeField::new('updatedAt')
             ->hideOnForm();
         yield DateTimeField::new('createdAt')
