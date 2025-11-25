@@ -62,10 +62,10 @@ class DashboardController extends AbstractAdminDashboardController
     public function configureMenuItems(): iterable
     {
         $submenu1 = [
-            MenuItem::linkToRoute('Asset permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'asset']),
-            MenuItem::linkToRoute('Collection permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'collection']),
-            MenuItem::linkToRoute('Workspace permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'workspace']),
-            MenuItem::linkToRoute('Basket permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'basket']),
+            MenuItem::linkToRoute('Asset permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Asset::OBJECT_TYPE]),
+            MenuItem::linkToRoute('Collection permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Collection::OBJECT_TYPE]),
+            MenuItem::linkToRoute('Workspace permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Workspace::OBJECT_TYPE]),
+            MenuItem::linkToRoute('Basket permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Basket::OBJECT_TYPE]),
             MenuItem::linkToCrud('All permissions (advanced)', '', AccessControlEntry::class),
         ];
 
