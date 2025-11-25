@@ -18,7 +18,7 @@ It offers everything you expect from a DAM: import with or without pre-indexing,
 
 **Phrasea's Strengths in a Few Words…**
 
-* API-First Architecture. Based on services: each module is isolated and can be deployed independently. Docker/Kubernetes deployment: Containerized deployment ensures a consistent installation, scalable, and eazy control over the infrastructure.
+* API-First Architecture. Based on services: each module is isolated and can be deployed independently. Docker/Kubernetes deployment: Containerized deployment ensures a consistent installation, scalable, and easy control over the infrastructure.
 * the solutions is available in both SaaS and On-Premise modes.  
 * Professional support available via the publisher Alchemy (maintenance contracts, support hour packages, hosting offers, specific development, training, etc.).  
 * Modern, responsive, and multilingual interface.  
