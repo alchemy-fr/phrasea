@@ -1,5 +1,5 @@
 ---
-title: Databox Client descripion
+title: Databox Client description
 status: pending review
 ---
 
