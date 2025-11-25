@@ -15,6 +15,9 @@ import {
 import SaveIcon from '@mui/icons-material/Save';
 import SaveSearchDialog from '../SavedSearch/SaveSearchDialog.tsx';
 import {TSearchContext} from '../SearchContext.tsx';
+import {getSearchData, putSavedSearch} from '../../../../api/savedSearch.ts';
+import {LoadingButton} from '@mui/lab';
+import {toast} from 'react-toastify';
 
 type Props = {
     search: TSearchContext;
@@ -26,6 +29,10 @@ export default function SearchConditions({search}: Props) {
     const {load, loaded} = useAttributeDefinitionStore();
     const definitionsIndexBySlug = useIndexBySlug();
     const definitionsIndexBySearchSlug = useIndexBySearchSlug();
+    const [updatingSearch, setUpdatingSearch] = React.useState(false);
+    const [lastSavedChecksum, setLastSavedChecksum] = React.useState<
+        string | undefined
+    >(search.searchId ? search.searchChecksum : undefined);
 
     React.useEffect(() => {
         if (!loaded) {
@@ -39,6 +46,24 @@ export default function SearchConditions({search}: Props) {
         definitionsIndexBySlug,
         definitionsIndexBySearchSlug,
     });
+
+    const updateSearch = async () => {
+        setUpdatingSearch(true);
+        try {
+            await putSavedSearch(search.searchId!, {
+                data: getSearchData(search),
+            });
+            setLastSavedChecksum(search.searchChecksum);
+            toast.success(
+                t(
+                    'search.update_success',
+                    'Search was updated successfully!'
+                ) as string
+            );
+        } finally {
+            setUpdatingSearch(false);
+        }
+    };
 
     return (
         <Box
@@ -71,17 +96,30 @@ export default function SearchConditions({search}: Props) {
             >
                 {t('search_condition.add_condition', 'Add Condition')}
             </Button>
-            <Button
+            <LoadingButton
+                loading={updatingSearch}
+                disabled={
+                    updatingSearch ||
+                    (!!lastSavedChecksum &&
+                        lastSavedChecksum === search.searchChecksum)
+                }
                 startIcon={<SaveIcon />}
                 onClick={() => {
-                    openModal(SaveSearchDialog, {
-                        search,
-                        onCreate: () => {}, // TODO
-                    });
+                    search.searchId
+                        ? updateSearch()
+                        : openModal(SaveSearchDialog, {
+                              search,
+                              onCreate: savedSearch => {
+                                  search.setSearchId(savedSearch.id);
+                                  setLastSavedChecksum(search.searchChecksum);
+                              },
+                          });
                 }}
             >
-                {t('search.save_search', 'Save Search')}
-            </Button>
+                {search.searchId
+                    ? t('search.update_search', 'Update Search')
+                    : t('search.save_search', 'Save Search')}
+            </LoadingButton>
         </Box>
     );
 }

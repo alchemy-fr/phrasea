@@ -1,6 +1,7 @@
 import apiClient from './api-client';
-import {SavedSearch} from '../types';
+import {SavedSearch, SavedSearchData} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {TSearchContext} from '../components/Media/Search/SearchContext.tsx';
 
 const entityType = 'saved-searches';
 
@@ -43,4 +44,13 @@ export async function getSavedSearch(id: string): Promise<SavedSearch> {
 
 export async function deleteSavedSearch(id: string): Promise<void> {
     await apiClient.delete(`/${entityType}/${id}`);
+}
+
+export function getSearchData(searchContext: TSearchContext): SavedSearchData {
+    return {
+        query: searchContext.query,
+        conditions: searchContext.conditions,
+        sortBy: searchContext.sortBy,
+        geolocationEnabled: !!searchContext.geolocation,
+    };
 }

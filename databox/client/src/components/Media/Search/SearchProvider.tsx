@@ -34,7 +34,8 @@ export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
 export default function SearchProvider({children}: PropsWithChildren<{}>) {
     const [hash, setHash] = useHash();
     const [reloadInc, setReloadInc] = useState(0);
-    const {query, conditions, sortBy, geolocation} = hashToQuery(hash);
+    const {searchId, query, conditions, sortBy, geolocation} =
+        hashToQuery(hash);
     const inputQuery = React.useRef<string>('');
 
     const setInputQuery = React.useCallback(
@@ -57,11 +58,21 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         ): boolean => {
             return setHash(
                 queryToHash(
+                    searchId,
                     newQuery ?? inputQuery.current ?? query,
                     handler(conditions),
                     sortBy,
                     geolocation
                 )
+            );
+        },
+        [setHash, searchId, query, conditions, sortBy, geolocation]
+    );
+
+    const setSearchId = useCallback(
+        (newSearchId?: string): boolean => {
+            return setHash(
+                queryToHash(newSearchId, query, conditions, sortBy, geolocation)
             );
         },
         [setHash, query, conditions, sortBy, geolocation]
@@ -151,9 +162,11 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
 
     const setSortBy = useCallback<TSearchContext['setSortBy']>(
         (newValue): void => {
-            setHash(queryToHash(query, conditions, newValue, geolocation));
+            setHash(
+                queryToHash(searchId, query, conditions, newValue, geolocation)
+            );
         },
-        [setHash, query, conditions, geolocation]
+        [setHash, searchId, query, conditions, geolocation]
     );
 
     const setQuery = useCallback(
@@ -161,6 +174,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
             if (
                 !setHash(
                     queryToHash(
+                        searchId,
                         typeof handler === 'string' ? handler : handler(query),
                         conditions,
                         sortBy,
@@ -171,14 +185,14 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 setReloadInc(p => p + 1);
             }
         },
-        [setHash, query, conditions, sortBy, geolocation]
+        [setHash, searchId, query, conditions, sortBy, geolocation]
     );
 
     const setGeoLocation = React.useCallback(
         (position: string | undefined) => {
-            setHash(queryToHash(query, conditions, sortBy, position));
+            setHash(queryToHash(searchId, query, conditions, sortBy, position));
         },
-        [setHash, query, conditions, sortBy, geolocation]
+        [setHash, searchId, query, conditions, sortBy, geolocation]
     );
 
     const upsertCondition = (condition: AQLQuery): void => {
@@ -241,6 +255,8 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
     return (
         <SearchContext.Provider
             value={{
+                searchId,
+                setSearchId,
                 selectWorkspace,
                 selectCollection,
                 collections,
