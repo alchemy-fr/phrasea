@@ -356,6 +356,16 @@ export interface AttributeList extends IPermissions, Entity {
     owner?: User;
 }
 
+export interface SavedSearch extends IPermissions, Entity {
+    title: string;
+    exclusive?: boolean; // if true, only items in this list well be shown otherwise all attributes
+    public?: boolean;
+    createdAt: string;
+    updatedAt: string;
+    data: object;
+    owner?: User;
+}
+
 export interface Thread extends Entity {
     id: string;
     key: string;
