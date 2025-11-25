@@ -29,6 +29,8 @@ run_container_as expose-api-php "bin/setup.sh" app &
 pids+=($!)
 run_container_as databox-api-php "bin/setup.sh" app &
 pids+=($!)
+run_container novu-bridge "pnpm sync" &
+pids+=($!)
 
 for pid in "${pids[@]}"; do
     wait "$pid"

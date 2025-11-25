@@ -1064,6 +1064,7 @@ services:
       - minio
       - rabbitmq
       - db
+      - novu-api
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}

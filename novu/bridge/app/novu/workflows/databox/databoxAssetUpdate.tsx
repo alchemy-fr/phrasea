@@ -1,7 +1,20 @@
 import {workflow} from "@novu/framework";
 import {z} from "zod";
 
-export const databoxAssetUpdate = workflow(
+const payloadSchema = z.object({
+    url: z
+        .string()
+        .default('/null')
+        .describe("The resource URL"),
+    title: z
+        .string()
+        .describe("The Asset title"),
+    author: z
+        .string()
+        .describe("The author of the message"),
+});
+
+export const databoxAssetUpdate = workflow<typeof payloadSchema>(
     "databox-asset-update",
     async ({step, payload}) => {
         await step.inApp("In-App Step", async () => {
@@ -15,17 +28,6 @@ export const databoxAssetUpdate = workflow(
         });
     },
     {
-        payloadSchema: z.object({
-            url: z
-                .string()
-                .default('/null')
-                .describe("The resource URL"),
-            title: z
-                .string()
-                .describe("The Asset title"),
-            author: z
-                .string()
-                .describe("The author of the message"),
-        })
+        payloadSchema: payloadSchema
     },
 );
