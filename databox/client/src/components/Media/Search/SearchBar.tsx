@@ -7,13 +7,11 @@ import GeoPointFilter from './GeoPointFilter';
 import SearchAutoComplete from './SearchAutoComplete.tsx';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import SearchConditions from './AQL/SearchConditions.tsx';
-import {ResultContext} from './ResultContext.tsx';
 
 type Props = {};
 
 export default function SearchBar({}: Props) {
     const search = useContext(SearchContext)!;
-    const result = useContext(ResultContext)!;
     const [filtersEnabled, setFiltersEnabled] = React.useState(false);
 
     return (
@@ -49,12 +47,7 @@ export default function SearchBar({}: Props) {
                         px: 1,
                     }}
                 >
-                    <SearchConditions
-                        result={result}
-                        onDelete={search.removeCondition}
-                        onUpsert={search.upsertCondition}
-                        conditions={search.conditions}
-                    />
+                    <SearchConditions search={search} />
                 </Box>
             )}
         </Box>

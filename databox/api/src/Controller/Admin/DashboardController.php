@@ -40,6 +40,7 @@ use App\Entity\Integration\IntegrationToken;
 use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
+use App\Entity\SavedSearch\SavedSearch;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use App\Entity\Template\WorkspaceTemplate;
@@ -97,9 +98,10 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Basket Assets', '', BasketAsset::class),
         ];
 
-        $attributeList = [
+        $lists = [
             MenuItem::linkToCrud('Attribute Lists', '', AttributeList::class),
             MenuItem::linkToCrud('Lists Items', '', AttributeListItem::class),
+            MenuItem::linkToCrud('Saved Searches', '', SavedSearch::class),
         ];
 
         $submenuTemplates = [
@@ -139,7 +141,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Permission', 'fas fa-lock')->setSubItems($submenu1);
         yield MenuItem::subMenu('Core', 'fas fa-database')->setSubItems($submenu2);
         yield MenuItem::subMenu('Basket', 'fas fa-basket-shopping')->setSubItems($basket);
-        yield MenuItem::subMenu('Attribute List', 'fas fa-list')->setSubItems($attributeList);
+        yield MenuItem::subMenu('Lists', 'fas fa-list')->setSubItems($lists);
         yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenu3);
         yield MenuItem::subMenu('Template', 'fas fa-align-justify')->setSubItems($submenuTemplates);
         yield MenuItem::subMenu('Integration', 'fas fa-gear')->setSubItems($submenu4);
