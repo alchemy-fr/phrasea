@@ -9,6 +9,8 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\AttributePolicy;
+use App\Entity\Core\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -38,7 +40,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
                 $queryBuilder,
                 $userId,
                 $groupIds,
-                'attribute_policy',
+                AttributePolicy::OBJECT_TYPE,
                 'acl_c',
                 PermissionInterface::VIEW,
                 false,
@@ -48,7 +50,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
                 $queryBuilder,
                 $userId,
                 $groupIds,
-                'workspace',
+                Workspace::OBJECT_TYPE,
                 'acl_w',
                 PermissionInterface::VIEW,
                 false,

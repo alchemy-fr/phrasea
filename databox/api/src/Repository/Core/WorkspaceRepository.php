@@ -59,7 +59,7 @@ class WorkspaceRepository extends ServiceEntityRepository
             $queryBuilder,
             $userId,
             $groupIds,
-            'workspace',
+            Workspace::OBJECT_TYPE,
             'w',
             PermissionInterface::VIEW,
             false,

@@ -92,7 +92,7 @@ class AttributeListRepository extends ServiceEntityRepository
                 $queryBuilder,
                 $userId,
                 $groupIds,
-                'attribute_list',
+                AttributeList::OBJECT_TYPE,
                 't',
                 PermissionInterface::VIEW,
                 false,

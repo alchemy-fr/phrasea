@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Api\Extension;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
-use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
@@ -20,10 +19,6 @@ use Doctrine\ORM\QueryBuilder;
 final class WorkspaceExtension implements QueryCollectionExtensionInterface
 {
     use ScopeTrait;
-
-    public function __construct(private readonly ObjectMapping $objectMapping)
-    {
-    }
 
     public function applyToCollection(
         QueryBuilder $queryBuilder,
@@ -53,7 +48,7 @@ final class WorkspaceExtension implements QueryCollectionExtensionInterface
                 $queryBuilder,
                 $user->getId(),
                 $user->getGroups(),
-                $this->objectMapping->getObjectKey(Workspace::class),
+                Workspace::OBJECT_TYPE,
                 $rootAlias,
                 PermissionInterface::VIEW,
                 false
