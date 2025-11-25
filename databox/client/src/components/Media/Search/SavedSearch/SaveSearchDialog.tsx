@@ -7,7 +7,7 @@ import {TSearchContext} from '../SearchContext.tsx';
 import {SavedSearch} from '../../../../types.ts';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
-import {postSavedSearch} from '../../../../api/savedSearch.ts';
+import {getSearchData, postSavedSearch} from '../../../../api/savedSearch.ts';
 import {LoadingButton} from '@mui/lab';
 import SavedSearchFields from './SavedSearchFields.tsx';
 
@@ -33,12 +33,7 @@ export default function SaveSearchDialog({
         onSubmit: async data => {
             const d = {
                 ...data,
-                data: {
-                    query: search.query,
-                    conditions: search.conditions,
-                    sortBy: search.sortBy,
-                    geolocationEnabled: !!search.geolocation,
-                },
+                data: getSearchData(search),
             };
 
             return await postSavedSearch(d);

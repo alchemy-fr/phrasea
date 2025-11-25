@@ -43,48 +43,75 @@ enum Flag {
     Disabled = '_',
 }
 
+enum SearchQueryParam {
+    SearchId = 'id',
+    Query = 'q',
+    Condition = 'f',
+    SortBy = 's',
+    Geolocation = 'l',
+}
+
 export function queryToHash(
+    searchId: string | undefined,
     query: string,
     conditions: AQLQueries,
     sortBy: SortBy[],
     geolocation: string | undefined
 ): string {
-    let hash = '';
+    const hashParts: string[] = [];
+    if (searchId) {
+        hashParts.push(
+            `${SearchQueryParam.SearchId}=${encodeURIComponent(searchId)}`
+        );
+    }
     if (query) {
-        hash += `q=${encodeURIComponent(query)}`;
+        hashParts.push(
+            `${SearchQueryParam.Query}=${encodeURIComponent(query)}`
+        );
     }
     if (conditions && conditions.length > 0) {
-        hash += `${hash ? '&' : ''}${conditions
-            .map(
-                q =>
-                    `f=${encodeURIComponent(q.id)}${q.inversed ? Flag.Inversed : ''}${q.disabled ? Flag.Disabled : ''}:${encodeURIComponent(q.query)}`
-            )
-            .join('&')}`;
+        hashParts.push(
+            conditions
+                .map(
+                    q =>
+                        `${SearchQueryParam.Condition}=${encodeURIComponent(q.id)}${q.inversed ? Flag.Inversed : ''}${q.disabled ? Flag.Disabled : ''}:${encodeURIComponent(q.query)}`
+                )
+                .join('&')
+        );
     }
     if (sortBy && sortBy.length > 0) {
-        hash += `${hash ? '&' : ''}s=${encodeURIComponent(
-            sortBy.map(encodeSortBy).join(arraySep)
-        )}`;
+        hashParts.push(
+            `${SearchQueryParam.SortBy}=${encodeURIComponent(
+                sortBy.map(encodeSortBy).join(arraySep)
+            )}`
+        );
     }
     if (geolocation) {
-        hash += `${hash ? '&' : ''}l=${encodeURIComponent(geolocation)}`;
+        hashParts.push(
+            `${SearchQueryParam.Geolocation}=${encodeURIComponent(geolocation)}`
+        );
     }
 
-    return hash;
+    return hashParts.join('&');
 }
 
 export function hashToQuery(hash: string): {
+    searchId: string | undefined;
     query: string;
     conditions: AQLQuery[];
     sortBy: SortBy[];
     geolocation: string | undefined;
 } {
     const params = new URLSearchParams(hash.substring(1));
+    const searchId = params.get(SearchQueryParam.SearchId);
+    const sortBy = params.get(SearchQueryParam.SortBy);
+    const geoLoc = params.get(SearchQueryParam.Geolocation);
 
     return {
-        query: decodeURIComponent(params.get('q') || ''),
-        conditions: params.has('f')
-            ? params.getAll('f').map(q => {
+        searchId: searchId ? decodeURIComponent(searchId) : undefined,
+        query: decodeURIComponent(params.get(SearchQueryParam.Query) || ''),
+        conditions: params.has(SearchQueryParam.Condition)
+            ? params.getAll(SearchQueryParam.Condition).map(q => {
                   const [id, ...query] = q.split(':');
                   const field = id.replace(/[!_]$/, '');
                   const flags = id.substring(field.length);
@@ -97,13 +124,11 @@ export function hashToQuery(hash: string): {
                   } as AQLQuery;
               })
             : [],
-        sortBy: params.get('s')
-            ? decodeURIComponent(params.get('s') as string)
+        sortBy: sortBy
+            ? decodeURIComponent(sortBy as string)
                   .split(arraySep)
                   .map(decodeSortBy)
             : [],
-        geolocation: params.get('l')
-            ? decodeURIComponent(params.get('l') as string)
-            : undefined,
+        geolocation: geoLoc ? geoLoc : undefined,
     };
 }

@@ -18,6 +18,8 @@ export type TSearchContext = {
     workspaces: string[];
     query: string;
     setQuery: (query: string, force?: boolean) => void;
+    searchId?: string | undefined;
+    setSearchId: (id: string | undefined) => void;
     inputQuery: RefObject<string>;
     setInputQuery: (query: string) => void;
     geolocation?: string | undefined;
