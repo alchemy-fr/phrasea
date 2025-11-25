@@ -29,7 +29,7 @@ Phrasea can be deployed using Docker/Docker Compose or on a Kubernetes cluster. 
 
 #### Docker Compose
 
-Enables rapid deployment of Phrasea in development or local environments. The stack includes external services such as **PostgreSQL**, **Redis**, **Elasticsearch**, and **Minio**. With Docker Compose [**profiles**](/tech/Configuration/env_var#docker-compose), you can select which services to start, offering flexibility depending on the needs of each environment. However, stack scaling will only be vertical.
+Enables rapid deployment of Phrasea in development or local environments. The stack includes external services such as **PostgreSQL**, **Redis**, **Elasticsearch**, and **MinIO**. With Docker Compose [**profiles**](/tech/Configuration/env_var#docker-compose), you can select which services to start, offering flexibility depending on the needs of each environment. However, stack scaling will only be vertical.
 
 **Operating System:** Linux Ubuntu 24.04 LTS, Debian 11
 
@@ -56,7 +56,7 @@ Minimum required versions:
 #### Note on Docker and Kubernetes deployments
 The containers provided in **Docker Compose** and **Helm charts** for Phrasea are primarily designed for development and testing purposes. To ensure these containers are suitable for production, further customization is required. This includes optimizing configurations, securing access, managing resources, and implementing resilience and monitoring practices appropriate for production environments. These adjustments are essential before deploying to production.
 
-It is strongly recommended to delegate **primary datastores**—such as **PostgreSQL** and S3-compatible object storage (served by **Minio**)—to external managed services for improved performance, reliability, and scalability.
+It is strongly recommended to delegate **primary datastores**—such as **PostgreSQL** and S3-compatible object storage (served by **MinIO**)—to external managed services for improved performance, reliability, and scalability.
 
 ### Phrasea Docker Images
 
@@ -133,9 +133,9 @@ For the **Kubernetes** context, refer to [values.yaml](https://github.com/alchem
 - **Redis** – in-memory database for cache management.
     - [Version and Setting](/tech/Configuration/env_var#redis)
 - **RabbitMQ** – message queue management service.
-    - [Version and Setting](/tech/Configuration/env_var#rabbitmq)
+    - [Version and Setting](/tech/Configuration/env_var#rabbitmq-message-broker-settings)
 - **Elasticsearch** – distributed search and analytics engine.
-    - [Version and Setting](/tech/Configuration/env_var#elasticsearch)
+    - [Version and Setting](/tech/Configuration/env_var#elasticsearch-settings)
 - **Soketi** – WebSocket server.
     - [Version and Setting](/tech/Configuration/env_var#soketi)
 
@@ -151,7 +151,7 @@ For the **Kubernetes** context, refer to [values.yaml](https://github.com/alchem
 - **Grafana** – data visualization platform for k6 test results.
 - **Mendhak** – HTTP/HTTPS echo service for testing.
 - **Jwilder** – Dockerize, utility for orchestrating Docker services.
-- **Minio-MC** – MinIO Client, management utility for MinIO.
+- **MinIO-MC** – MinIO Client, management utility for MinIO.
 - **Novu** – Novu Notification framework backend infrastructure.
 
 ## Technologies Used
@@ -189,7 +189,7 @@ For the **Kubernetes** context, refer to [values.yaml](https://github.com/alchem
 ### File Management and Storage
 
 * Object Storage:  
-  * S3-type object storage is used to store assets and renditions. It is a primary datastore; Minio used in the Docker or Kubernetes stack is only for development and testing. An external service and backup solution are recommended in production.  
+  * S3-type object storage is used to store assets and renditions. It is a primary datastore; MinIO used in the Docker or Kubernetes stack is only for development and testing. An external service and backup solution are recommended in production.  
 * Block Storage: 
   * Local block storage is used for temporary files.
   * Network Attached Storage, NFS, or other shared storage solutions are used for sharing data between containers.

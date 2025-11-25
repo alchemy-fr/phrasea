@@ -3,6 +3,10 @@ status: WIP
 title: Keycloak Authentication Integration in Phrasea
 ---
 
+> **Status:** _Work In Progress_  
+> This documentation page is currently being drafted and may be updated frequently.
+
+
 # Keycloak Authentication Integration in Phrasea
 
 > **Status:** _Work In Progress_  

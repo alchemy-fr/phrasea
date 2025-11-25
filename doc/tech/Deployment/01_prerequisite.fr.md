@@ -1,294 +1,267 @@
 ---
-title: Pré-requis techniques Phrasea
-status: WIP (Rédaction en cours)
+title: Prérequis techniques
+status: en attente de relecture
 slug: prerequisite
 ---
-# Pré-requis techniques.
+# Prérequis techniques Phrasea
 
-# 1. Objectif
+## Objectif
 
-Présenter l'architecture technique de la solution logicielle Phrasea.
+Présenter l’architecture technique de la solution logicielle Phrasea.
 
-cette section décrit les différents modules qui la composent, ainsi que les dépendances logicielles et les services externes nécessaires à son deployement.
+Cette page décrit les différents modules qui la composent, ainsi que les dépendances logicielles et services externes nécessaires à sa mise en œuvre.
 
-elle s’adresse aux personnes suivantes :
+Elle s’adresse :
 
-* Les services informatiques désireux de déployer Phrasea sur leur infrastructure.  
-* Les architectes applicatifs des projets désirant intégrer Phrasea.  
-* Les architectes techniques des projets désirant intégrer Phrasea. 
+* Aux équipes informatiques souhaitant déployer Phrasea sur leur infrastructure  
+* Aux architectes applicatifs désirant intégrer Phrasea  
+* Aux architectes techniques désirant intégrer Phrasea  
 
-  1. ## Déploiement 
+### Source de l’application Phrasea
 
-     1.2. ### Docker Compose 
+Le code source de l’application Phrasea est disponible sur GitHub :
 
-        Permet de déployer rapidement Phrasea dans des environnements de développement ou locaux. La stack inclut des services externes tels que **PostgreSQL**, **Redis**, **Elasticsearch**, et **Minio**. Grâce à la fonctionnalité des **profils** dans Docker Compose, il est possible de sélectionner quels services démarrer, offrant ainsi une grande flexibilité selon les besoins de chaque environnement.
+* [**Source de l’application**](https://github.com/alchemy-fr/phrasea)
 
+### Orchestration du déploiement
 
-     1.3. ### Kubernetes
+Phrasea peut être déployé avec Docker/Docker Compose ou sur un cluster Kubernetes. Chaque technologie offre des fonctionnalités de scalabilité et présente ses propres avantages et inconvénients. Selon vos besoins en scalabilité et gestion d’infrastructure, vous pouvez choisir la méthode de déploiement la plus adaptée à votre projet.
 
-        Kubernetes est idéal pour les déploiements à grande échelle et en production. Phrasea utilise Kubernetes pour orchestrer les conteneurs et permet également de déléguer certaines parties de la stack à des services externes. Il est fortement recommandé de déléguer les **datastores primaires**, comme **PostgreSQL** et le stockage objet de type S3 (servi par **Minio**), à des services externes pour une meilleure gestion des performances et de la résilience.
+#### Docker Compose
 
+Permet un déploiement rapide de Phrasea en environnement de développement ou local. La stack inclut des services externes comme **PostgreSQL**, **Redis**, **Elasticsearch** et **MinIO**. Grâce aux [**profils**](/tech/Configuration/env_var#docker-compose) Docker Compose, vous pouvez sélectionner les services à démarrer, offrant une flexibilité selon les besoins de chaque environnement. Cependant, la scalabilité de la stack sera uniquement verticale.
 
-     1.4. ### Modération au sujet des déploiements docker et kubernetes
+**Système d’exploitation :** Linux Ubuntu 24.04 LTS, Debian 11
 
-        Les conteneurs utilisés dans le **Docker Compose** et les **charts Helm** fournis avec Phrasea sont principalement destinés aux environnements de développement et de test. Une personnalisation supplémentaire est nécessaire pour rendre ces conteneurs **"production ready"**. Cela inclut l'optimisation des configurations, la sécurisation des accès, la gestion des ressources, et la mise en place de pratiques de résilience et de monitoring adaptées à la production. Il est donc essentiel d'effectuer ces ajustements avant tout déploiement en production.
+**Versions minimales requises :** 
+  - Docker : 28.5.2  
+  - Docker Compose : 2.40.3  
+  
+Le fichier Docker Compose est inclus dans le dépôt GitHub Phrasea pour faciliter le déploiement en environnement de développement :
 
-        En fonction de vos exigences en matière de scalabilité et de gestion d'infrastructure, vous pouvez choisir la méthode qui correspond le mieux à votre projet.
+* [**Déploiement Docker Compose**](https://github.com/alchemy-fr/phrasea/blob/master/docker-compose.yml)
 
+Vous pouvez également consulter la [page de description des variables d’environnement](/tech/Configuration/env_var#app_env) pour plus d’informations sur les variables disponibles.
 
-     5. ### Source de l'application Phrasea
+#### Kubernetes
 
-      Le code source de l'application Phrasea est disponible sur GitHub :
+Kubernetes est idéal pour les besoins à grande échelle. Phrasea peut être déployé sur plusieurs nœuds pour une scalabilité horizontale.
+Pour les déploiements Kubernetes, utilisez les charts Helm disponibles :
+* [**Déploiement Helm Phrasea**](https://github.com/alchemy-fr/phrasea-helm-charts)
 
-      * [**Sources de l’application**](https://github.com/alchemy-fr/phrasea)
+Versions minimales requises :
+  - Kubernetes : 1.29  
+  - Helm : v3.17.1  
 
+#### Remarque sur les déploiements Docker et Kubernetes
+Les conteneurs fournis dans **Docker Compose** et les **charts Helm** pour Phrasea sont principalement conçus pour le développement et les tests. Pour garantir que ces conteneurs soient adaptés à la production, une personnalisation supplémentaire est nécessaire : optimisation des configurations, sécurisation des accès, gestion des ressources, résilience et supervision adaptées à la production. Ces ajustements sont essentiels avant tout déploiement en production.
 
-     6. ### Déploiement avec Docker Compose
+Il est fortement recommandé de déléguer les **datastores principaux**—tels que **PostgreSQL** et le stockage objet compatible S3 (servi par **MinIO**)—à des services managés externes pour améliorer les performances, la fiabilité et la scalabilité.
 
-       Un fichier Docker Compose est disponible pour faciliter le déploiement de Phrasea dans des environnements de développement :
+### Images Docker Phrasea
 
-        * [**Docker Compose déploiement**](https://github.com/alchemy-fr/phrasea/blob/master/docker-compose.yml)
+* **Dashboard**  
+  - [Image Docker Dashboard](https://hub.docker.com/r/alchemyfr/ps-dashboard/tags)
 
+* **Keycloak**  
+  - [Image Docker Keycloak](https://hub.docker.com/r/alchemyfr/ps-keycloak/tags)  
+  - [Image Docker Configurator](https://hub.docker.com/r/alchemyfr/ps-configurator)
 
-      7. ### Déploiement avec Helm
+* **Service Databox**  
+  - [API PHP Databox](https://hub.docker.com/r/alchemyfr/ps-databox-api-php/tags)  
+  - [Worker Databox](https://hub.docker.com/r/alchemyfr/ps-databox-worker/tags)  
+  - [Client Databox](https://hub.docker.com/r/alchemyfr/ps-databox-client/tags)  
+  - [API Nginx Databox](https://hub.docker.com/r/alchemyfr/ps-databox-api-nginx/tags)
+  - Indexeur Databox (build local uniquement)
 
-        Pour des déploiements en production sur Kubernetes, vous pouvez utiliser les charts Helm disponibles :
+* **Service Uploader**  
+  - [API PHP Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-api-php/tags)  
+  - [Worker Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-worker/tags)  
+  - [Client Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-client/tags)  
+  - [API Nginx Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-api-nginx/tags)
 
-        * [**Phrasea Helm déploiement**](https://github.com/alchemy-fr/alchemy-helm-charts-repo/tree/main/charts/phrasea)
+* **Service Expose**  
+  - [API PHP Expose](https://hub.docker.com/r/alchemyfr/ps-expose-api-php/tags)  
+  - [Worker Expose](https://hub.docker.com/r/alchemyfr/ps-expose-worker/tags)  
+  - [Client Expose](https://hub.docker.com/r/alchemyfr/ps-expose-client/tags)  
+  - [API Nginx Expose](https://hub.docker.com/r/alchemyfr/ps-expose-api-nginx/tags)
 
+* **Service Zippy** 
+   - [API Zippy](https://hub.docker.com/r/alchemyfr/zippy-api/tags)
+   - [Cron Zippy](https://hub.docker.com/r/alchemyfr/zippy-cron/tags)
+   - [Worker Zippy](https://hub.docker.com/r/alchemyfr/zippy-worker/tags)
 
-      8. ### Liste des images Docker Phrasea
+  Zippy est un service externe développé par Alchemy et utilisé dans Phrasea Databox et Phrasea Expose.
+  Zippy est dédié à l’export de fichiers vers plusieurs destinations, par exemple des fichiers zip téléchargeables.
+  Dépôt source GitHub Zippy : [Zippy](https://github.com/alchemy-fr/zippy-svc).  
 
-     
+* **Service de notification Novu**
 
-        * **Dashboard**  
-          [Image Docker du Dashboard](https://hub.docker.com/r/alchemyfr/ps-dashboard/tags)
+  - [Novu-bridge](https://hub.docker.com/r/alchemyfr/ps-novu-bridge/tags) 
 
+  Pour les notifications envoyées par l’application, Phrasea utilise le service Novu Notification. Ce service est divisé en deux parties distinctes : l’infrastructure backend et le Novu bridge, qui communique avec le backend Novu.
 
-        * **Keycloak**  
-          [Image Docker de Keycloak](https://hub.docker.com/r/alchemyfr/ps-keycloak/tags)
+  - Le conteneur Novu-bridge doit être déployé dans la stack.
+  - Pour le service backend, vous pouvez utiliser l’offre SaaS Novu  
+  - ou déployer votre propre stack backend Novu (pas de déploiement Helm fourni, uniquement Docker Compose pour le développement et les tests).
 
-        * **Configurator**
-          [Image Docker du Configurator](https://hub.docker.com/r/alchemyfr/ps-configurator)
+   Plus d’informations sur Novu et son implémentation dans Phrasea [ici](../../user/Databox/02_%20novu_in_phrasea.md)
 
+* **Service Report**  
+  - [API Report](https://hub.docker.com/r/alchemyfr/ps-report-api/tags)
 
-        * **Service Databox**  
-          [API PHP Databox](https://hub.docker.com/r/alchemyfr/ps-databox-api-php/tags)  
-          [Worker Databox](https://hub.docker.com/r/alchemyfr/ps-databox-worker/tags)  
-          [Client Databox](https://hub.docker.com/r/alchemyfr/ps-databox-client/tags)  
-          [API Nginx Databox](https://hub.docker.com/r/alchemyfr/ps-databox-api-nginx/tags)
+### Images externes
+Les images référencées dans la stack Docker Compose et Helm ne sont **pas des images Phrasea générées par Alchemy**, mais sont nécessaires pour les déploiements de développement ou de test. Comme expliqué précédemment, ces images sont destinées à être remplacées par des services externes.
+   
+Pour la version exacte déployée dans le contexte **Docker Compose**, référez-vous à la valeur d’environnement.
+Pour le contexte **Kubernetes**, consultez [values.yaml](https://github.com/alchemy-fr/phrasea-helm-charts/blob/main/charts/phrasea/values.yaml).   
 
-        **Databox indexer** (build local uniquement)
+#### Réseau  
+- **Traefik** reverse proxy et load balancer, incluant la certification Let's Encrypt pour certains providers 
+    - [Version et configuration](/tech/Configuration/env_var#traefik-reverse-proxy-settings)
 
+#### Datastores principaux
 
-        * **Service Uploader**  
-          [API PHP Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-api-php/tags)  
-          [Worker Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-worker/tags)  
-          [Client Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-client/tags)  
-          [API Nginx Uploader](https://hub.docker.com/r/alchemyfr/ps-uploader-api-nginx/tags)
+- **PostgreSQL** – base de données relationnelle.
+    - [Version et configuration](/tech/Configuration/env_var#database-settings)
 
-        * **Service Expose**  
-          [API PHP Expose](https://hub.docker.com/r/alchemyfr/ps-expose-api-php/tags)  
-          [Worker Expose](https://hub.docker.com/r/alchemyfr/ps-expose-worker/tags)  
-          [Client Expose](https://hub.docker.com/r/alchemyfr/ps-expose-client/tags)  
-          [API Nginx Expose](https://hub.docker.com/r/alchemyfr/ps-expose-api-nginx/tags)
+- **MinIO** – service de stockage objet compatible S3.
+    - [Version et configuration](/tech/Configuration/env_var#s3_endpoint)
 
+#### Moteur de recherche, serveur de cache et bus applicatif
 
-       * **Service de notification Novu**
+- **Redis** – base de données en mémoire pour la gestion du cache.
+    - [Version et configuration](/tech/Configuration/env_var#redis)
+- **RabbitMQ** – service de gestion de files de messages.
+    - [Version et configuration](/tech/Configuration/env_var#rabbitmq-message-broker-settings)
+- **Elasticsearch** – moteur de recherche et d’analyse distribué.
+    - [Version et configuration](/tech/Configuration/env_var#elasticsearch-settings)
+- **Soketi** – serveur WebSocket.
+    - [Version et configuration](/tech/Configuration/env_var#soketi)
 
-          [Novu-bridge](https://hub.docker.com/r/alchemyfr/ps-novu-bridge/tags) 
+#### Outils additionnels utiles pour le développement et les tests de la stack :
 
-          service de notification en SAAS ou hosté localement
-          Le container Novu-bridge est obligatoirement déployé sur la stack. 
+- **MariaDB** – serveur de base de données relationnelle utilisé pour le déploiement local de la stack Matomo.
+- **PgAdmin** – outil de gestion pour PostgreSQL.
+- **phpMyAdmin** – outil de gestion pour MySQL/MariaDB.
+- **Mailhog** – serveur SMTP et interface client mail pour capturer les emails en développement.
+- **Elasticsearch-HQ** – interface pour interroger Elasticsearch.
+- **k6** – outil de test de charge et de performance.
+- **InfluxDB** – base de données de séries temporelles utilisée par k6.
+- **Grafana** – plateforme de visualisation des données pour les résultats de tests k6.
+- **Mendhak** – service d’écho HTTP/HTTPS pour les tests.
+- **Jwilder** – Dockerize, utilitaire pour orchestrer les services Docker.
+- **Minio-MC** – MinIO Client, utilitaire de gestion pour MinIO.
+- **Novu** – infrastructure backend du framework de notification Novu.
 
-            - Pour le service Backend, il est possible d’utiliser le service saas de Novu  
-            - ou de déployer une stack Novu Backend, pas de déploiement Helm fourni, uniquement du docker      compose en mode développement. Aucune information d’authentification ne transite par cette stack.  
-                
+## Technologies utilisées
 
-    
-        * **Service Report**  
-          [API Report](https://hub.docker.com/r/alchemyfr/ps-report-api/tags)
+### Back-end
 
-          1. **autres containers**  
-            Images référencées dans la stack Docker Compose et Helm qui **ne sont pas des images Phrasea, généré par alchemy,** elles sont toutefois nécessaire lors d’un déploiement de développement ou de test et comme expliqué précédemment ces images sont destiné a être remplacé par des services extérieures.  
-          2. Mise en réseaux   
-            3. **.5.5** – Traefik, un reverse proxy et load balancer incluant la mécanique de certification let’s encrypt pour certains provider
+* Langage de programmation :  
+  * Phrasea est développé en PHP avec le framework Symfony.  
+  * Node.js pour certains modules (indexeur)
 
-        Magasin de Données Primaires.    
+### Front-End
 
-            4. **postgreSQL:14.4-alpine** – PostgreSQL,  base de données relationnelle.  
-            5. **minio/minio**  **.2021-11-24T23-19-33Z.hotfix.1d85a4563** – MinIO, un service de stockage objet compatible S3.
+* Technologies web :  
+  * HTML5, CSS3 et JavaScript forment la base de l’interface utilisateur, permettant des interfaces web interactives et accessibles.  
+* Framework JavaScript :  
+  * React et Material UI sont utilisés pour les clients consommant l’API Phrasea.
 
-        Serveur de cache et Bus de données
+### Base de données
 
-      6. **redis:5.0.5-alpine** – Redis, une base de données en mémoire pour la gestion de cache.  
-      7. **rabbitmq:3.7.14-management** – RabbitMQ, service de gestion de files d'attente de messages.  
-      8. **elasticsearch:7.17.3** – Elasticsearch, Moteur de recherche et d'analyse distribué.  
-      9. **quay.io/soketi/soketi:330e1a60197d2b5798a3b3a2bcd211ec124148d8-16-alpine** – Soketi, un serveur WebSocket.
+* PostgreSQL est la base de données relationnelle qui stocke et/ou référence les différents objets Phrasea. C’est un datastore principal ; les conteneurs utilisés dans la stack Docker ou K8s sont uniquement pour le développement et les tests. Un service externe est recommandé en production.  
+    Le serveur de base de données contient une base par service :  
+     - Base Configurator  
+     - Base Keycloak  
+     - Base Databox  
+     - Base Uploader  
+     - Base Expose  
+     - Base Report
 
-          Outils complémentaire  la stack de développement et de test :
+### Moteur de recherche
 
-      10. **mariadb:10.4.10-bionic** – MariaDB, un serveur de base de données relationnelle utilisé lors du déploiement de la stack Matomo en locale  .  
-      11. **dpage/pgadmin4:8.6** – PgAdmin, un outil de gestion pour PostgreSQL.  
-      12. **phpmyadmin/phpmyadmin** – PhpMyAdmin, un outil de gestion pour MySQL/MariaDB.  
-      13. **mailhog/mailhog** – MailHog, un serveur SMTP pour capturer les emails en développement.  
-      14. **elastichq/elasticsearch-hq** – Elasticsearch HQ, une interface pour requeter  Elasticsearch.  
-      15. **grafana/k6:0.26.2** – k6, un outil de test de charge pour les performances.  
-      16. **influxdb:1.8** – InfluxDB, une base de données de séries temporelles.  
-      17. **grafana/grafana:8.4.2** – Grafana, une plateforme de visualisation de données.  
-      18. **mendhak/http-https-echo:23** – Un service HTTP/HTTPS d'écho pour le testing.  
-      19. **jwilder/dockerize:0.6.1** – Dockerize, un utilitaire pour orchestrer les services Docker.  
-      20. **minio/mc .2020-09-18T00-13-21Z** – MinIO Client, un utilitaire de gestion pour MinIO.  
-      21. **Novu** back-end infrastructures
+* Elasticsearch :  
+  * Pour optimiser la recherche, l’indexation des assets/collections et la scalabilité, Phrasea utilise Elasticsearch.  
+  * La dénormalisation des objets contenus dans le SGBDR est réalisée dans différents index, permettant des recherches textuelles sur les objets pertinents.
 
-    2. ## Technologies utilisées
+### Gestion des fichiers et stockage
 
-       1. ### Back-end
+* Stockage objet :  
+  * Un stockage objet de type S3 est utilisé pour stocker les assets et les rendus. C’est un datastore principal ; MinIO utilisé dans la stack Docker ou Kubernetes est uniquement pour le développement et les tests. Un service externe et une solution de sauvegarde sont recommandés en production.  
+* Stockage bloc : 
+  * Le stockage bloc local est utilisé pour les fichiers temporaires.
+  * Un stockage réseau partagé (NAS, NFS, etc.) est utilisé pour le partage de données entre les conteneurs.
+  
 
-    * Langage de Programmation :  
-      * Phrasea est développé en PHP avec le Framework Symfony.  
-      * NodeJs pour certain module (indexeur)
+### Gestion des utilisateurs et sécurité
 
-        
+* Système de gestion des identités (IAM)
 
-    2. ### Front-End
+Intégration de Keycloak dans Phrasea. Plus d’informations [ici](/user/keycloak/01_phrasea-keycloak-documentation)
 
-    * Technologies Web :  
-      * HTML5, CSS3, et JavaScript sont les bases de l’interface utilisateur, permettant de créer des interfaces web interactives et accessibles.  
-    * Framework JavaScript :  
-      * Material UI et  React pour les clients consommant l’api Phrasea.
+### Chiffrement
 
-    3. ### Base de Données
+* Les données en transit sont chiffrées via TLS/SSL pour sécuriser les communications entre les utilisateurs et les applications.
 
-    * SGBD Relationnel :  
-      * PostgreSQL la bases de données relationnelles stocke  et/ou référence les différents objets Phrasea, c’est un primary datastore, à ce titre les containers utilisés dans la stack docker ou K8s ne sont là que pour développement et test, un service externe est recommandé en production.  
-        le serveur de base de données contient une  bases de données par services   
-        Base de Données Configurator  
-        Base de données Keycloack  
-        Base de données databox  
-        Base de données Uploader  
-        Base de données de Expose  
-        Base de Données report
+## Schéma d’architecture
 
-      4. ### Moteur de Recherche
+![Schéma technique](./technical-architecture.svg)
 
-    * Elasticsearch :  
-      * Pour optimiser la recherche et l'indexation des assets/collection et la scalabilité Phrasea utilise  Elasticsearch.  
-      * Une dé-normalisation des objets contenus dans le SGBD est effectuée dans différents index, permettant des recherches textuelles sur les objets le nécessitant.
+## Prérequis de capacité d’infrastructure
 
-      5. ### Gestion des Fichiers et Stockage
+Les prérequis de capacité sont des données minimales à adapter selon la finalité de la plateforme ; ils sont donnés à titre indicatif et nécessitent une adaptation au contexte d’usage final.
 
-    * Stockage d'Objets :  
-      * Object storage type S3  est utilisé pour stocker les assets et les renditions, c’est un primary datastore, à ce titre Minio utilisés dans la stack docker ou K8s n’est la que pour développement et test, un service externe et sa solution de sauvegarde est recommandé en production.  
-      * Network Attached Storage, NFS ou d'autres solutions de stockage partagées est employées pour un stockage local des fichiers temporaires.
+Métriques à considérer :
 
-      ### 
+- Service(s) Phrasea déployé(s)  
+- Nombre d’utilisateurs en écriture simultanés  
+- Nombre d’utilisateurs en lecture simultanés  
+- Volume de stockage requis pour les documents  
+- Volume des index de documents  
+- Nombre de rendus à générer  
+- Nombre de versions attendues par document  
+- Nombre de processus parallélisés déployés  
+- SLA souhaité  
+- Durée de rétention des logs
 
-      6. ### Gestion des Utilisateurs et Sécurité
+### Développement et test
 
-    * Système de Gestion des Identités (IAM) 
+CPU : 6 CPU  
+RAM : 16 Go  
+Capacité disque pour la gestion des images Docker : 100 Go  
+Capacité disque pour les volumes temporaires : 100 Go
 
-    Intégration de Keycloak dans Phrasea
+### Production
 
-      Authentification et Autorisation
+#### Images Phrasea déployées avec Docker Compose et Kubernetes
 
-    * Keycloak prend en charge l'authentification des utilisateurs via des protocoles standards comme OAuth2, OpenID Connect, et SAML. Cela facilite l'intégration avec des applications web, mobiles et des API.  
-    * Keycloak permet de gérer les autorisations par rôle, offrant ainsi une gestion granulaire des permissions des utilisateurs, qui peut être alignée avec les rôles définis dans la base de données Phrasea (administrateurs, éditeurs, visionneurs, etc.).
+CPU : 6 CPU  
+RAM : 16 Go  
+Capacité disque pour la gestion des images Docker : 100 Go  
+Capacité disque pour les volumes temporaires : 100 Go
 
-      Gestion des Utilisateurs et des Groupes
+#### Service managé
 
-    * Keycloak permet de gérer des utilisateurs et des groupes, ce qui permet de segmenter les utilisateurs en fonction de leurs besoins. Chaque utilisateur peut être assigné à un ou plusieurs groupes, et les permissions peuvent être attribuées à ces groupes.  
-    * Les informations sur les utilisateurs (comme les adresses e-mail, les noms d'utilisateur, et les rôles) peuvent être synchronisées avec Phrasea, garantissant une expérience utilisateur fluide et centralisée.
+- PostgreSQL :
 
-      Single Sign-On (SSO)
+  - CPU : 2 CPU
+  - RAM : 8 Go
+  - Taille du disque : selon les besoins
 
-    * Keycloak fournit le SSO, permettant aux utilisateurs de se connecter une seule fois pour accéder à toutes les applications liées à Phrasea, tant en interne qu’en externe. Cela améliore l'expérience utilisateur et simplifie la gestion des sessions.  
-    * Les sessions utilisateur peuvent être gérées de manière centralisée, et Keycloak permet également la révocation de sessions en cas de besoin (par exemple, si un utilisateur quitte l'organisation).
+- Stockage objet :
 
-      Fédération et Intégration avec les IdP Externes
+  - CPU : 2 CPU
+  - RAM : 8 Go
+  - Taille du disque : selon les besoins
 
-    * Keycloak peut se connecter à des fournisseurs d'identité externes (IdP) tels que Microsoft Active Directory, ou d’autres fournisseurs compatibles SAML et OpenID Connect. Cela permet d'utiliser des identités existantes sans créer de nouveaux comptes pour Phrasea.  
-    * La fédération simplifie l'authentification pour les organisations utilisant déjà d'autres systèmes IAM.
+#### Points d’attention pour la production
 
-      Fonctionnalités de Sécurité Avancées
-
-    * Authentification à plusieurs facteurs (MFA) : Keycloak prend en charge l'authentification à deux facteurs, renforçant la sécurité en exigeant une seconde vérification (comme une application mobile ou un token).  
-    * Gestion des sessions et des jetons : Keycloak permet de configurer la durée de vie des sessions et des jetons, et peut forcer la révocation de jetons en cas de compromission.  
-    * Audit et Logs : Keycloak offre des capacités de logging pour suivre les connexions, les échecs d'authentification, et les autres événements de sécurité, ce qui est essentiel pour les exigences de conformité
-
-      Paramétrages 
-
-    * Au déploiement de la stack, Phrasea joue un  configurateur paramétrant un royaume et les clients dédiés à cette installation. Ces clients sont exploités par les différents services de Phrasea.   
-    * Un compte root keycloack et ainsi qu’un compte master admin de l’application sont aussi initialisés.  
-    * la déclaration des interconnections avec l’idp du client est faite manuellement dans un second temps  
-    * Phrasea peut être configuré avec OAuth2 ou OpenID Connect pour l’authentification des utilisateurs, permettant de centraliser la gestion des identités et de faciliter l’intégration avec des fournisseurs tiers.
-
-      Chiffrement 
-
-    * Le chiffrement des données en transit est assuré par TLS/SSL pour sécuriser les communications entre les utilisateurs et l'application. 
-
-      
-
-2. # Schéma d’Architecture  de Phrasea.
-
-![Technical Information](./technical-information.svg)
-
-# 3 Pré-requis capacitaire d’infrastructure
-
-Les pré requis capacitaires sont des données minimales à adapter en fonction de la destination de la plateforme, ils sont données à titre indicatif et nécessite une adaptation au context d’utilisation finale.
-
-les metrics a prendre en compte sont  
- 
-
-- Service Phrasea mis en œuvre.  
-- Nombre d'utilisateurs simultanés en écriture.   
-- Nombre d'utilisateurs simultanés en lecture.  
-  - Volumétrie de stockage pour les documents.   
-    - Volumétrie des index de document.  
-      - Nombre de renditions à générer.  
-      - Nombre de versions attendues par document.    
-- Nombre de traitements parallélisés mis en place.  
-- SLA désiré.  
-- Durée de rétention des logs.
-
-  ## Développement et Test.
-
-  - CPU:  6 CPU 
-  - Ram: 16 Go
-  - Capacité Disque pour la gestion de image docker: 100 Go
-  - Capacité Disque des volumes temporaire: 100 Go
-
-## Production
-
-### Images Phrasea déployé avec Docker Compose et ou Helm 
-
- - CPU: 6 Cpu  
- - Ram: 16 Go  
- - Capacité Disque pour la gestion de image docker: 100 Go  
- - Capacité Disque des volumes temporaire: 100 Go
-
-### Service managé
-
-- Postgresql:
-
-  - CPU: 2 CPU
-  - Ram: 8 Go
-  - Disque: 50 Go
-
-
-- Object Storage:
-
-	- non applicable
-
-# 4 Orchestration du déploiement
-
-## Prérequis docker compose
-
-  - Docker version: 28.5.2  
-  - Docker compose: 2.40.3  
- 
-
-## Prérequis Kubernetes helm
-
-  - Kubernetes version : 1.29  
-  - Helm Version: v3.17.1  
+* Sécurité : Utilisez TLS pour tout le trafic externe (configurez Traefik avec Let’s Encrypt ou vos propres certificats).
+* Supervision : Mettez en place la collecte des logs et la supervision pour capturer la sortie standard des conteneurs (ex : Fluent Bit, Prometheus, Grafana).
+* APM : Vous pouvez utiliser le service SaaS [Sentry](https://sentry.io/welcome/) pour capturer les erreurs de la stack ; les agents front-end et back-end sont installés dans les images Phrasea.
+  Configurez vos [identifiants Sentry ici](/tech/Configuration/env_var#php_sentry_dsn).
+* Sauvegardes : Mettez en place des sauvegardes régulières pour PostgreSQL et le stockage objet.
+* Elasticsearch n’est pas un datastore principal, mais le temps d’indexation peut être significatif si le nombre d’assets est important. Sauvegarder les index Elasticsearch permet une reprise rapide après incident. Il est aussi conseillé d’utiliser un cluster externe pour Elasticsearch.
+* La base RabbitMQ doit être persistée en cas de panne et de redémarrage du conteneur.
