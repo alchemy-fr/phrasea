@@ -51,6 +51,15 @@ export function getSearchData(searchContext: TSearchContext): SavedSearchData {
         query: searchContext.query,
         conditions: searchContext.conditions,
         sortBy: searchContext.sortBy,
-        geolocationEnabled: !!searchContext.geolocation,
+    };
+}
+
+export function extractSearchData(
+    searchData: SavedSearchData
+): Pick<TSearchContext, 'query' | 'conditions' | 'sortBy'> {
+    return {
+        query: searchData.query || '',
+        conditions: searchData.conditions,
+        sortBy: searchData.sortBy,
     };
 }

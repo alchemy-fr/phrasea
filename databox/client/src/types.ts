@@ -362,7 +362,6 @@ export type SavedSearchData = {
     query?: string;
     conditions: AQLQueries;
     sortBy: SortBy[];
-    geolocationEnabled?: boolean;
 };
 
 export interface SavedSearch extends IPermissions, Entity {

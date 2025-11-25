@@ -52,6 +52,20 @@ const modalRoutes = {
             },
         },
     },
+    savedSearch: {
+        public: false,
+        path: '/saved-searches/:id',
+        routes: {
+            manage: {
+                path: 'manage/:tab',
+                component: BasketDialog, // TODO
+            },
+            view: {
+                path: 'view',
+                component: BasketViewDialog, // TODO
+            },
+        },
+    },
     attributeList: {
         public: false,
         path: '/attribute-lists/:id',

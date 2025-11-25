@@ -13,6 +13,8 @@ import {
 } from './AQL/query.ts';
 import {parseAQLQuery} from './AQL/AQL.ts';
 import {AQLCondition, AQLQueryAST} from './AQL/aqlTypes.ts';
+import {SavedSearch} from '../../../types.ts';
+import {extractSearchData} from '../../../api/savedSearch.ts';
 
 export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
     return sortBy.length > 0
@@ -78,9 +80,26 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         [setHash, query, conditions, sortBy, geolocation]
     );
 
+    const loadSearch = useCallback(
+        (savedSearch: SavedSearch): boolean => {
+            const payload = extractSearchData(savedSearch.data);
+
+            return setHash(
+                queryToHash(
+                    savedSearch.id,
+                    payload.query,
+                    payload.conditions,
+                    payload.sortBy,
+                    geolocation
+                )
+            );
+        },
+        [setHash, geolocation]
+    );
+
     const reset = useCallback((): boolean => {
         return setHash('');
-    }, [setHash, query, conditions, sortBy, geolocation]);
+    }, [setHash]);
 
     function replaceConditionHelper(
         conditions: AQLQueries,
@@ -257,6 +276,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
             value={{
                 searchId,
                 setSearchId,
+                loadSearch,
                 selectWorkspace,
                 selectCollection,
                 collections,
