@@ -137,7 +137,7 @@ Pour le contexte **Kubernetes**, consultez [values.yaml](https://github.com/alch
 - **Elasticsearch** – moteur de recherche et d’analyse distribué.
     - [Version et configuration](/tech/Configuration/env_var#elasticsearch-settings)
 - **Soketi** – serveur WebSocket.
-    - [Version et configuration](/tech/Configuration/env_var#soketi)
+    - [Version et configuration](/tech/Configuration/env_var#soketi-websocket-server-settings)
 
 #### Outils additionnels utiles pour le développement et les tests de la stack :
 
