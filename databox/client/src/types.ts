@@ -6,6 +6,8 @@ import {RenditionBuildMode} from './api/rendition.ts';
 import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/DefinitionManager.tsx';
 import React from 'react';
 import {AttributeType} from './api/types.ts';
+import {SortBy} from './components/Media/Search/Filter';
+import {AQLQueries} from './components/Media/Search/AQL/query.ts';
 
 export type AlternateUrl = {
     type: string;
@@ -356,13 +358,20 @@ export interface AttributeList extends IPermissions, Entity {
     owner?: User;
 }
 
+export type SavedSearchData = {
+    query?: string;
+    conditions: AQLQueries;
+    sortBy: SortBy[];
+    geolocationEnabled?: boolean;
+};
+
 export interface SavedSearch extends IPermissions, Entity {
     title: string;
     exclusive?: boolean; // if true, only items in this list well be shown otherwise all attributes
     public?: boolean;
     createdAt: string;
     updatedAt: string;
-    data: object;
+    data: SavedSearchData;
     owner?: User;
 }
 

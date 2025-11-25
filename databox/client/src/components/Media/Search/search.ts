@@ -57,7 +57,7 @@ export function queryToHash(
         hash += `${hash ? '&' : ''}${conditions
             .map(
                 q =>
-                    `f=${q.id}${q.inversed ? Flag.Inversed : ''}${q.disabled ? Flag.Disabled : ''}:${encodeURIComponent(q.query)}`
+                    `f=${encodeURIComponent(q.id)}${q.inversed ? Flag.Inversed : ''}${q.disabled ? Flag.Disabled : ''}:${encodeURIComponent(q.query)}`
             )
             .join('&')}`;
     }

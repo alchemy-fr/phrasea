@@ -6,7 +6,7 @@ use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use Alchemy\AdminBundle\Filter\UserChoiceFilter;
-use App\Entity\AttributeList\AttributeList;
+use App\Entity\SavedSearch\SavedSearch;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -26,7 +26,7 @@ class SavedSearchCrudController extends AbstractAclAdminCrudController
 
     public static function getEntityFqcn(): string
     {
-        return AttributeList::class;
+        return SavedSearch::class;
     }
 
     public function configureCrud(Crud $crud): Crud
