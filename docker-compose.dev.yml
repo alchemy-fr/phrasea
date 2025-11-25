@@ -312,7 +312,6 @@ services:
     volumes:
       - ./novu/bridge:/usr/src/app
 
-
 volumes:
   dev:
     driver: local
