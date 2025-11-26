@@ -131,13 +131,13 @@ For the **Kubernetes** context, refer to [values.yaml](https://github.com/alchem
 #### Search Engine, Cache Server, and Application Bus
 
 - **Redis** – in-memory database for cache management.
-    - [Version and Setting](/tech/Configuration/env_var#redis)
+    - [Version and Setting](/tech/Configuration/env_var#redis-cache-settings)
 - **RabbitMQ** – message queue management service.
     - [Version and Setting](/tech/Configuration/env_var#rabbitmq-message-broker-settings)
 - **Elasticsearch** – distributed search and analytics engine.
     - [Version and Setting](/tech/Configuration/env_var#elasticsearch-settings)
 - **Soketi** – WebSocket server.
-    - [Version and Setting](/tech/Configuration/env_var#soketi)
+    - [Version and Setting](/tech/Configuration/env_var#soketi-websocket-server-settings)
 
 #### Additional tools useful for development and stack testing:
 

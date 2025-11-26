@@ -131,7 +131,7 @@ Pour le contexte **Kubernetes**, consultez [values.yaml](https://github.com/alch
 #### Moteur de recherche, serveur de cache et bus applicatif
 
 - **Redis** – base de données en mémoire pour la gestion du cache.
-    - [Version et configuration](/tech/Configuration/env_var#redis)
+    - [Version et configuration](/tech/Configuration/env_var#redis-cache-settings)
 - **RabbitMQ** – service de gestion de files de messages.
     - [Version et configuration](/tech/Configuration/env_var#rabbitmq-message-broker-settings)
 - **Elasticsearch** – moteur de recherche et d’analyse distribué.
