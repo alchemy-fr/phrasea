@@ -18,6 +18,7 @@ import {TSearchContext} from '../SearchContext.tsx';
 import {getSearchData, putSavedSearch} from '../../../../api/savedSearch.ts';
 import {LoadingButton} from '@mui/lab';
 import {toast} from 'react-toastify';
+import {useSavedSearchStore} from '../../../../store/savedSearchStore.ts';
 
 type Props = {
     search: TSearchContext;
@@ -27,12 +28,17 @@ export default function SearchConditions({search}: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const {load, loaded} = useAttributeDefinitionStore();
+    const updateSavedSearch = useSavedSearchStore(state => state.updateItem);
     const definitionsIndexBySlug = useIndexBySlug();
     const definitionsIndexBySearchSlug = useIndexBySearchSlug();
     const [updatingSearch, setUpdatingSearch] = React.useState(false);
     const [lastSavedChecksum, setLastSavedChecksum] = React.useState<
         string | undefined
     >(search.searchId ? search.searchChecksum : undefined);
+
+    React.useEffect(() => {
+        setLastSavedChecksum(search.searchChecksum);
+    }, [search.searchId]);
 
     React.useEffect(() => {
         if (!loaded) {
@@ -50,9 +56,11 @@ export default function SearchConditions({search}: Props) {
     const updateSearch = async () => {
         setUpdatingSearch(true);
         try {
-            await putSavedSearch(search.searchId!, {
-                data: getSearchData(search),
-            });
+            updateSavedSearch(
+                await putSavedSearch(search.searchId!, {
+                    data: getSearchData(search),
+                })
+            );
             setLastSavedChecksum(search.searchChecksum);
             toast.success(
                 t(
