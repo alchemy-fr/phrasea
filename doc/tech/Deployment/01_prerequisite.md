@@ -34,8 +34,8 @@ Enables rapid deployment of Phrasea in development or local environments. The st
 **Operating System:** Linux Ubuntu 24.04 LTS, Debian 11
 
 **Minimum required versions:** 
-  - Docker: 28.5.2  
-  - Docker Compose: 2.40.3  
+  - Docker: 28.5.2
+  - Docker Compose: 2.40.3
   
 The Docker Compose file is included in the Phrasea GitHub repository to facilitate deployment in development environments:
 
@@ -210,13 +210,13 @@ Integration of Keycloak in Phrasea. More information [here](../../user/keycloak/
 
 ## Infrastructure Capacity Prerequisites
 
-Capacity prerequisites are minimum data to be adapted according to the platform's purpose; they are given as an indication and require adaptation to the final usage context.
+Capacity requirements depend on your platform’s purpose and expected workload. The recommended CPU cores and RAM are **indicative baselines** and must be adjusted based on your specific use case. Phrasea is designed to scale horizontally, allowing you to start with modest resources and expand as needed for production workloads.
 
 Metrics to consider:
 
 - Phrasea service(s) deployed  
-- Number of concurrent write users  
-- Number of concurrent read users  
+- Number of concurrent write  
+- Number of concurrent read  
 - Storage volume required for documents  
 - Volume of document indexes  
 - Number of renditions to generate  
@@ -227,7 +227,7 @@ Metrics to consider:
 
 #### Phrasea images deployed with Docker Compose and Kubernetes
 
-CPU: 6 CPUs  
+CPU: 6 Cores  
 RAM: 16 GB  
 Disk capacity for Docker image management: 100 GB  
 Disk capacity for temporary volumes: 100 GB
@@ -236,13 +236,13 @@ Disk capacity for temporary volumes: 100 GB
 
 - PostgreSQL:
 
-  - CPU: 2 CPUs
+  - CPU: 2 Cores
   - RAM: 8 GB
   - Disk size: depends on needs
 
 - Object Storage:
 
-  - CPU: 2 CPUs
+  - CPU: 2 Cores
   - RAM: 8 GB
   - Disk size: depends on needs
 

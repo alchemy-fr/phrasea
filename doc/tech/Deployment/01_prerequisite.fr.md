@@ -34,8 +34,8 @@ Permet un déploiement rapide de Phrasea en environnement de développement ou l
 **Système d’exploitation :** Linux Ubuntu 24.04 LTS, Debian 11
 
 **Versions minimales requises :** 
-  - Docker : 28.5.2  
-  - Docker Compose : 2.40.3  
+  - Docker : 28.5.2
+  - Docker Compose : 2.40.3
   
 Le fichier Docker Compose est inclus dans le dépôt GitHub Phrasea pour faciliter le déploiement en environnement de développement :
 
@@ -211,7 +211,7 @@ Intégration de Keycloak dans Phrasea. Plus d’informations [ici](../../user/ke
 
 ## Prérequis de capacité d’infrastructure
 
-Les prérequis de capacité sont des données minimales à adapter selon la finalité de la plateforme ; ils sont donnés à titre indicatif et nécessitent une adaptation au contexte d’usage final.
+Les besoins en capacité dépendent de l'usage prévu de la plateforme et de la charge attendue. Les recommandations en termes de cœurs CPU et de RAM sont des **valeurs indicatives** et doivent être ajustées en fonction de votre contexte spécifique. Phrasea est conçu pour une montée en charge horizontale, ce qui permet de démarrer avec des ressources modestes et de les étendre selon les besoins en production.
 
 Métriques à considérer :
 
@@ -226,18 +226,9 @@ Métriques à considérer :
 - SLA souhaité  
 - Durée de rétention des logs
 
-### Développement et test
-
-CPU : 6 CPU  
-RAM : 16 Go  
-Capacité disque pour la gestion des images Docker : 100 Go  
-Capacité disque pour les volumes temporaires : 100 Go
-
-### Production
-
 #### Images Phrasea déployées avec Docker Compose et Kubernetes
 
-CPU : 6 CPU  
+CPU : 6 Coeurs  
 RAM : 16 Go  
 Capacité disque pour la gestion des images Docker : 100 Go  
 Capacité disque pour les volumes temporaires : 100 Go
@@ -246,13 +237,13 @@ Capacité disque pour les volumes temporaires : 100 Go
 
 - PostgreSQL :
 
-  - CPU : 2 CPU
+  - CPU : 2 Coeurs
   - RAM : 8 Go
   - Taille du disque : selon les besoins
 
 - Stockage objet :
 
-  - CPU : 2 CPU
+  - CPU : 2 Coeurs
   - RAM : 8 Go
   - Taille du disque : selon les besoins
 
