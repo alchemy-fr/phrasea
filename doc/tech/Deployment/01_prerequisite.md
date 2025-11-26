@@ -29,7 +29,7 @@ Phrasea can be deployed using Docker/Docker Compose or on a Kubernetes cluster. 
 
 #### Docker Compose
 
-Enables rapid deployment of Phrasea in development or local environments. The stack includes external services such as **PostgreSQL**, **Redis**, **Elasticsearch**, and **MinIO**. With Docker Compose [**profiles**](/tech/Configuration/env_var#docker-compose), you can select which services to start, offering flexibility depending on the needs of each environment. However, stack scaling will only be vertical.
+Enables rapid deployment of Phrasea in development or local environments. The stack includes external services such as **PostgreSQL**, **Redis**, **Elasticsearch**, and **MinIO**. With Docker Compose [**profiles**](../Configuration/01_env_var.mdx#docker-compose), you can select which services to start, offering flexibility depending on the needs of each environment. However, stack scaling will only be vertical.
 
 **Operating System:** Linux Ubuntu 24.04 LTS, Debian 11
 
@@ -41,7 +41,7 @@ The Docker Compose file is included in the Phrasea GitHub repository to facilita
 
 * [**Docker Compose Deployment**](https://github.com/alchemy-fr/phrasea/blob/master/docker-compose.yml)
 
-You can also refer to the environment variable description [page](/tech/Configuration/env_var#app_env) for information about available environment variables.
+You can also refer to the environment variable description [page](../Configuration/env_var#app_env) for information about available environment variables.
 
 #### Kubernetes
 
@@ -92,7 +92,7 @@ It is strongly recommended to delegate **primary datastores**—such as **Postgr
    - [Zippy Worker](https://hub.docker.com/r/alchemyfr/zippy-worker/tags)
 
   Zippy is an external service developed by Alchemy and used in Phrasea Databox and Phrasea Expose.
-  Zippy is dedicated to exporting files to several destinations, e.g., downloadable zip files.
+  Zippy is dedicated to exporting files to several destinations, e.g., downloadable archive files.
   Zippy [GitHub source repository](https://github.com/alchemy-fr/zippy-svc).  
 
 * **Novu Notification Service**
@@ -118,26 +118,26 @@ For the **Kubernetes** context, refer to [values.yaml](https://github.com/alchem
 
 #### Network  
 - **Traefik** reverse proxy and load balancer, including Let's Encrypt certification for some providers 
-    - [Version and Setting](/tech/Configuration/env_var#traefik-reverse-proxy-settings)
+    - [Version and Setting](../Configuration/01_env_var.mdx#traefik-reverse-proxy-settings)
 
 #### Primary Datastores
 
 - **PostgreSQL** – relational database.
-    - [Version and Setting](/tech/Configuration/env_var#database-settings)
+    - [Version and Setting](../Configuration/01_env_var.mdx#database-settings)
 
 - **MinIO** – S3-compatible object storage service.
-    - [Version and Setting](/tech/Configuration/env_var#s3_endpoint)
+    - [Version and Setting](../Configuration/01_env_var.mdx#s3_endpoint)
 
 #### Search Engine, Cache Server, and Application Bus
 
 - **Redis** – in-memory database for cache management.
-    - [Version and Setting](/tech/Configuration/env_var#redis-cache-settings)
+    - [Version and Setting](../Configuration/01_env_var.mdx#redis-cache-settings)
 - **RabbitMQ** – message queue management service.
-    - [Version and Setting](/tech/Configuration/env_var#rabbitmq-message-broker-settings)
+    - [Version and Setting](../Configuration/01_env_var.mdx#rabbitmq-message-broker-settings)
 - **Elasticsearch** – distributed search and analytics engine.
-    - [Version and Setting](/tech/Configuration/env_var#elasticsearch-settings)
+    - [Version and Setting](../Configuration/01_env_var.mdx#elasticsearch-settings)
 - **Soketi** – WebSocket server.
-    - [Version and Setting](/tech/Configuration/env_var#soketi-websocket-server-settings)
+    - [Version and Setting](../Configuration/01_env_var.mdx#soketi-websocket-server-settings)
 
 #### Additional tools useful for development and stack testing:
 
@@ -164,10 +164,9 @@ For the **Kubernetes** context, refer to [values.yaml](https://github.com/alchem
 
 ### Front-End
 
-* Web Technologies:  
-  * HTML5, CSS3, and JavaScript form the foundation of the user interface, enabling interactive and accessible web interfaces.  
-* JavaScript Framework:  
-  * React and Material UI are used for clients consuming the Phrasea API.
+Clients consuming the Phrasea API are written with:
+* React / Typescript
+* Material UI
 
 ### Database
 
@@ -199,7 +198,7 @@ For the **Kubernetes** context, refer to [values.yaml](https://github.com/alchem
 
 * Identity Management System (IAM)
 
-Integration of Keycloak in Phrasea. More information [here](/user/keycloak/01_phrasea-keycloak-documentation)
+Integration of Keycloak in Phrasea. More information [here](../../user/keycloak/01_phrasea-keycloak-documentation)
 
 ### Encryption
 
@@ -225,15 +224,6 @@ Metrics to consider:
 - Number of parallel processes deployed  
 - Desired SLA (Service Level Agreement)  
 - Log retention period
-
-### Development and Test
-
-CPU: 6 CPUs  
-RAM: 16 GB  
-Disk capacity for Docker image management: 100 GB  
-Disk capacity for temporary volumes: 100 GB
-
-### Production
 
 #### Phrasea images deployed with Docker Compose and Kubernetes
 
@@ -261,7 +251,7 @@ Disk capacity for temporary volumes: 100 GB
 * Security: Use TLS for all external traffic (configure Traefik with Let’s Encrypt or your own certificates).
 * Monitoring: Set up logging and monitoring for capturing containers' standard output (e.g., Fluent Bit, Prometheus, Grafana).
 * APM: You can use the [Sentry](https://sentry.io/welcome/) SaaS service for capturing stack errors; both front-end and back-end agents are installed in Phrasea's images.
-  Set up your Sentry [credentials here](/tech/Configuration/env_var#php_sentry_dsn).
+  Set up your Sentry [credentials here](../Configuration/01_env_var.mdx#php_sentry_dsn).
 * Backups: Implement regular backups for PostgreSQL and object storage.
 * Elasticsearch is not a primary datastore, but indexation time can be significant when the number of assets is large. Backing up Elasticsearch indexes allows for quick recovery after a failure. It is also advisable to use an external cluster for Elasticsearch.
 * RabbitMQ database needs to be persisted in case of failure and container restart.

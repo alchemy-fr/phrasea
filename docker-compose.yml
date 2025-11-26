@@ -7,7 +7,7 @@ networks:
 
 services:
   traefik:
-    image: ${TRAEFIK_IMAGE_TAG}
+    image: ${TRAEFIK_IMAGE}
     networks:
       - internal
     ports:
@@ -364,7 +364,7 @@ services:
   redis:
     profiles:
       - db
-    image: ${REDIS_IMAGE_TAG}
+    image: ${REDIS_IMAGE}
     networks:
       - internal
     volumes:
@@ -373,7 +373,7 @@ services:
   db:
     profiles:
       - db
-    image: ${POSTGRES_IMAGE_TAG}
+    image: ${POSTGRES_IMAGE}
     hostname: postgres
     networks:
       - internal
@@ -386,7 +386,7 @@ services:
   rabbitmq:
     profiles:
       - db
-    image: ${RABBITMQ_IMAGE_TAG}
+    image: ${RABBITMQ_IMAGE}
     hostname: rabbitmq
     networks:
       - internal
@@ -425,7 +425,7 @@ services:
   minio:
     profiles:
       - db
-    image: ${MINIO_IMAGE_TAG}
+    image: ${MINIO_IMAGE}
     networks:
       - internal
     command: server /data --console-address ":9001"
@@ -448,7 +448,7 @@ services:
   minio-mc:
     profiles:
       - setup
-    image: ${MINIO_MC_IMAGE_TAG}
+    image: ${MINIO_MC_IMAGE}
     networks:
       - internal
     command: exit 0
@@ -778,7 +778,7 @@ services:
   elasticsearch:
     profiles:
       - databox
-    image: ${ELASTICSEARCH_IMAGE_TAG}
+    image: ${ELASTICSEARCH_IMAGE}
     networks:
       - internal
     volumes:
@@ -1064,7 +1064,7 @@ services:
   soketi:
     profiles:
       - soketi
-    image: ${SOKETI_IMAGE_TAG}
+    image: ${SOKETI_IMAGE}
     networks:
       - internal
     environment:

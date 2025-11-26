@@ -41,7 +41,7 @@ Cette section décrit les étapes principales et les actions déclenchées lors 
 
 ### Interaction entre l’Uploader et Phrasea Databox
 
-![uploade sequence](/tech/Uploader/sequence.png)
+![uploade sequence](../../tech/Uploader/sequence.png)
 
 - Un utilisateur s’authentifie.  
 - Des Targets lui sont présentées, selon son groupe d’appartenance.  
@@ -103,7 +103,7 @@ Le paramétrage côté Uploader se fait via l’interface d’administration :
 
 ![][image3]
 
-```json
+```yaml
 # URL de base de l’API Uploader
 baseUrl:
 # ID de la collection cible (optionnel)
@@ -122,7 +122,7 @@ En mode Push, le fonctionnement de l’Uploader avec Phraseanet est identique da
 ### Form-editor
 
 Dans l’interface client Uploader ou depuis Uploader admin/form-editor  
-Documentation et exemple de [formulaire](https://github.com/alchemy-fr/phrasea/blob/master/doc/tech/Uploader/form_config.md)  
+Documentation et exemple de [formulaire](../../tech/Uploader/form_config.md)  
    
 Cliquer sur une Target.
 

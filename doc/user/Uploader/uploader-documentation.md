@@ -41,7 +41,7 @@ This section describes the main steps and actions triggered when adding files wi
 
 ### Interaction between Uploader and Phrasea Databox
 
-![uploade sequence](/tech/Uploader/sequence.png)
+![uploade sequence](../../tech/Uploader/sequence.png)
 
 - A user authenticates.  
 - Targets are presented to them, according to their group membership.  
@@ -103,7 +103,7 @@ Configuration on the Uploader side is done via the admin interface:
 
 ![][image3]
 
-```json
+```yaml
 # Base URL of the Uploader API
 baseUrl:
 # Target collection ID (optional)
@@ -122,7 +122,7 @@ In Push mode, the operation of the Uploader with Phraseanet is identical in mech
 ### Form-editor
 
 In the Uploader client interface or from Uploader admin/form-editor  
-Documentation and example [form](https://github.com/alchemy-fr/phrasea/blob/master/doc/tech/Uploader/form_config.md)  
+Documentation and example [form](../../tech/Uploader/form_config.md)  
    
 Click on a Target.
 

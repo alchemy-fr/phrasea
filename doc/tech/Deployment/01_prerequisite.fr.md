@@ -29,7 +29,7 @@ Phrasea peut être déployé avec Docker/Docker Compose ou sur un cluster Kubern
 
 #### Docker Compose
 
-Permet un déploiement rapide de Phrasea en environnement de développement ou local. La stack inclut des services externes comme **PostgreSQL**, **Redis**, **Elasticsearch** et **MinIO**. Grâce aux [**profils**](/tech/Configuration/env_var#docker-compose) Docker Compose, vous pouvez sélectionner les services à démarrer, offrant une flexibilité selon les besoins de chaque environnement. Cependant, la scalabilité de la stack sera uniquement verticale.
+Permet un déploiement rapide de Phrasea en environnement de développement ou local. La stack inclut des services externes comme **PostgreSQL**, **Redis**, **Elasticsearch** et **MinIO**. Grâce aux [**profils**](../Configuration/01_env_var.mdx#docker-compose) Docker Compose, vous pouvez sélectionner les services à démarrer, offrant une flexibilité selon les besoins de chaque environnement. Cependant, la scalabilité de la stack sera uniquement verticale.
 
 **Système d’exploitation :** Linux Ubuntu 24.04 LTS, Debian 11
 
@@ -41,7 +41,7 @@ Le fichier Docker Compose est inclus dans le dépôt GitHub Phrasea pour facilit
 
 * [**Déploiement Docker Compose**](https://github.com/alchemy-fr/phrasea/blob/master/docker-compose.yml)
 
-Vous pouvez également consulter la [page de description des variables d’environnement](/tech/Configuration/env_var#app_env) pour plus d’informations sur les variables disponibles.
+Vous pouvez également consulter la [page de description des variables d’environnement](../Configuration/01_env_var.mdx#app_env) pour plus d’informations sur les variables disponibles.
 
 #### Kubernetes
 
@@ -118,26 +118,26 @@ Pour le contexte **Kubernetes**, consultez [values.yaml](https://github.com/alch
 
 #### Réseau  
 - **Traefik** reverse proxy et load balancer, incluant la certification Let's Encrypt pour certains providers 
-    - [Version et configuration](/tech/Configuration/env_var#traefik-reverse-proxy-settings)
+    - [Version et configuration](../Configuration/01_env_var.mdx#traefik-reverse-proxy-settings)
 
 #### Datastores principaux
 
 - **PostgreSQL** – base de données relationnelle.
-    - [Version et configuration](/tech/Configuration/env_var#database-settings)
+    - [Version et configuration](../Configuration/01_env_var.mdx#database-settings)
 
 - **MinIO** – service de stockage objet compatible S3.
-    - [Version et configuration](/tech/Configuration/env_var#s3_endpoint)
+    - [Version et configuration](../Configuration/01_env_var.mdx#s3_endpoint)
 
 #### Moteur de recherche, serveur de cache et bus applicatif
 
 - **Redis** – base de données en mémoire pour la gestion du cache.
-    - [Version et configuration](/tech/Configuration/env_var#redis-cache-settings)
+    - [Version et configuration](../Configuration/01_env_var.mdx#redis-cache-settings)
 - **RabbitMQ** – service de gestion de files de messages.
-    - [Version et configuration](/tech/Configuration/env_var#rabbitmq-message-broker-settings)
+    - [Version et configuration](../Configuration/01_env_var.mdx#rabbitmq-message-broker-settings)
 - **Elasticsearch** – moteur de recherche et d’analyse distribué.
-    - [Version et configuration](/tech/Configuration/env_var#elasticsearch-settings)
+    - [Version et configuration](../Configuration/01_env_var.mdx#elasticsearch-settings)
 - **Soketi** – serveur WebSocket.
-    - [Version et configuration](/tech/Configuration/env_var#soketi-websocket-server-settings)
+    - [Version et configuration](../Configuration/01_env_var.mdx#soketi-websocket-server-settings)
 
 #### Outils additionnels utiles pour le développement et les tests de la stack :
 
@@ -199,7 +199,7 @@ Pour le contexte **Kubernetes**, consultez [values.yaml](https://github.com/alch
 
 * Système de gestion des identités (IAM)
 
-Intégration de Keycloak dans Phrasea. Plus d’informations [ici](/user/keycloak/01_phrasea-keycloak-documentation)
+Intégration de Keycloak dans Phrasea. Plus d’informations [ici](../../user/keycloak/01_phrasea-keycloak-documentation)
 
 ### Chiffrement
 
@@ -261,7 +261,7 @@ Capacité disque pour les volumes temporaires : 100 Go
 * Sécurité : Utilisez TLS pour tout le trafic externe (configurez Traefik avec Let’s Encrypt ou vos propres certificats).
 * Supervision : Mettez en place la collecte des logs et la supervision pour capturer la sortie standard des conteneurs (ex : Fluent Bit, Prometheus, Grafana).
 * APM : Vous pouvez utiliser le service SaaS [Sentry](https://sentry.io/welcome/) pour capturer les erreurs de la stack ; les agents front-end et back-end sont installés dans les images Phrasea.
-  Configurez vos [identifiants Sentry ici](/tech/Configuration/env_var#php_sentry_dsn).
+  Configurez vos [identifiants Sentry ici](../Configuration/01_env_var.mdx#php_sentry_dsn).
 * Sauvegardes : Mettez en place des sauvegardes régulières pour PostgreSQL et le stockage objet.
 * Elasticsearch n’est pas un datastore principal, mais le temps d’indexation peut être significatif si le nombre d’assets est important. Sauvegarder les index Elasticsearch permet une reprise rapide après incident. Il est aussi conseillé d’utiliser un cluster externe pour Elasticsearch.
 * La base RabbitMQ doit être persistée en cas de panne et de redémarrage du conteneur.
