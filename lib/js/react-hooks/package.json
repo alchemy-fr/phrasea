@@ -1,35 +1,35 @@
 {
-  "name": "@alchemy/react-hooks",
-  "version": "1.0.0",
-  "public": true,
-  "scripts": {
-    "lint": "eslint src",
-    "lint:fix": "eslint --fix src",
-    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
-    "cs": "pnpm lint:fix && pnpm format"
-  },
-  "files": [
-    "src/createStateSetterProxy.ts",
-    "src/useDebounce.ts",
-    "src/useDebounceLoader.ts",
-    "src/useDebounceScroll.ts",
-    "src/useEffectOnce.ts",
-    "src/useTimeout.ts",
-    "src/useUniqueId.ts",
-    "src/useWindowSize.ts",
-    "src/useUpdateEffect.ts",
-    "src/useMountEffect.ts",
-    "src/useElementResize.ts",
-    "src/deep.ts"
-  ],
-  "peerDependencies": {
-    "axios": "^1.12.2",
-    "react": "^18.2.0"
-  },
-  "devDependencies": {
-    "@types/node": "^10.17.60",
-    "@types/react": "^18.3.24",
-    "axios": "^1.12.2",
-    "react": "^18.3.1"
-  }
+    "name": "@alchemy/react-hooks",
+    "version": "1.0.0",
+    "public": true,
+    "scripts": {
+        "lint": "eslint src",
+        "lint:fix": "eslint --fix src",
+        "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+        "cs": "pnpm lint:fix && pnpm format"
+    },
+    "files": [
+        "src/createStateSetterProxy.ts",
+        "src/useDebounce.ts",
+        "src/useDebounceLoader.ts",
+        "src/useDebounceScroll.ts",
+        "src/useEffectOnce.ts",
+        "src/useTimeout.ts",
+        "src/useUniqueId.ts",
+        "src/useWindowSize.ts",
+        "src/useUpdateEffect.ts",
+        "src/useMountEffect.ts",
+        "src/useElementResize.ts",
+        "src/deep.ts"
+    ],
+    "peerDependencies": {
+        "axios": "^1.12.2",
+        "react": "^18.2.0"
+    },
+    "devDependencies": {
+        "@types/node": "^10.17.60",
+        "@types/react": "^18.3.24",
+        "axios": "^1.12.2",
+        "react": "^18.3.1"
+    }
 }

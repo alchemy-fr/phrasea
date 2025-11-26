@@ -62,6 +62,5 @@ class WebhookCrudController extends AbstractAdminCrudController
             ->onlyOnIndex();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
-
     }
 }

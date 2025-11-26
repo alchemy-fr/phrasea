@@ -44,7 +44,6 @@ class ConfiguratorEntryCrudController extends AbstractAdminCrudController
     public function configureActions(Actions $actions): Actions
     {
         $allowedKeys = array_keys($this->configurationReference->getAllSchemaProperties());
-        dump($allowedKeys);
 
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)

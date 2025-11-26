@@ -8,7 +8,7 @@ import FieldTranslationsEditDialog, {
 } from './FieldTranslationsEditDialog';
 import {getFieldTranslationCount} from './localeHelper';
 import {WithTranslations} from '../types';
-import {GetLocales} from "../Locale/LocaleSelectWidget";
+import {GetLocales} from '../Locale/LocaleSelectWidget';
 
 type Props<T extends WithTranslations> = {
     getLocales: GetLocales;

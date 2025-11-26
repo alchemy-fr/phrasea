@@ -6,7 +6,8 @@
                 "http_unauthorized": "Unberechtigt",
                 "session_expired": "Ihre Sitzung ist abgelaufen",
                 "http_bad_request": "Fehlerhafte Anfrage",
-                "http_not_found": "Nicht gefunden"
+                "http_not_found": "Nicht gefunden",
+                "network": "Netzwerkfehler"
             },
             "http_error": {
                 "429": "Zu viele Anfragen, Sie können es in {{minutes}} Minuten erneut versuchen"

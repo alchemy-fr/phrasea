@@ -50,15 +50,17 @@ export default React.memo(function OverlayRouterProvider({
 
     return (
         <OverlayRouteContext.Provider value={contextValue}>
-            {matches !== null ? renderMatches(matches.map(
-                (match) => ({
-                    ...match,
-                    params: {
-                        ...match.params,
-                        ...extraParams,
-                    },
-                })
-            )) : null}
+            {matches !== null
+                ? renderMatches(
+                      matches.map(match => ({
+                          ...match,
+                          params: {
+                              ...match.params,
+                              ...extraParams,
+                          },
+                      }))
+                  )
+                : null}
         </OverlayRouteContext.Provider>
     );
 });

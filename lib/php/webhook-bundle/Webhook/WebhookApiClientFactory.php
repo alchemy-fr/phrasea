@@ -15,7 +15,7 @@ class WebhookApiClientFactory
     public function create(): HttpClientInterface
     {
         return $this->client->withOptions([
-            'max_redirects' => 0,            
+            'max_redirects' => 0,
         ]);
     }
 }

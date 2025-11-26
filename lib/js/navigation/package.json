@@ -1,38 +1,38 @@
 {
-  "name": "@alchemy/navigation",
-  "version": "1.0.0",
-  "public": true,
-  "main": "index.ts",
-  "files": [
-    "src/proxy/MatomoRouteWrapper.tsx",
-    "translations/*.json"
-  ],
-  "scripts": {
-    "lint": "eslint src",
-    "lint:fix": "eslint --fix src",
-    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
-    "cs": "pnpm lint:fix && pnpm format",
-    "translate": "i18next-scanner --config ../i18n/i18next-scanner.config.js"
-  },
-  "dependencies": {
-    "@alchemy/core": "workspace:*",
-    "@remix-run/router": "1.11.0",
-    "react-router-dom": "6.18.0"
-  },
-  "peerDependencies": {
-    "@alchemy/phrasea-ui": "workspace:*",
-    "@jonkoops/matomo-tracker-react": "^0.7.0",
-    "react": "^18.2.0",
-    "react-i18next": "^14.1.1"
-  },
-  "devDependencies": {
-    "@4rthem/i18next-scanner": "^0.0.1",
-    "@alchemy/phrasea-ui": "workspace:*",
-    "@jonkoops/matomo-tracker-react": "^0.7.0",
-    "@types/react": "^18.3.24",
-    "i18next": "24.2.1",
-    "i18next-scanner-typescript": "^1.2.1",
-    "react": "^18.3.1",
-    "react-i18next": "^14.1.3"
-  }
+    "name": "@alchemy/navigation",
+    "version": "1.0.0",
+    "public": true,
+    "main": "index.ts",
+    "files": [
+        "src/proxy/MatomoRouteWrapper.tsx",
+        "translations/*.json"
+    ],
+    "scripts": {
+        "lint": "eslint src",
+        "lint:fix": "eslint --fix src",
+        "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+        "cs": "pnpm lint:fix && pnpm format",
+        "translate": "i18next-scanner --config ../i18n/i18next-scanner.config.js"
+    },
+    "dependencies": {
+        "@alchemy/core": "workspace:*",
+        "@remix-run/router": "1.11.0",
+        "react-router-dom": "6.18.0"
+    },
+    "peerDependencies": {
+        "@alchemy/phrasea-ui": "workspace:*",
+        "@jonkoops/matomo-tracker-react": "^0.7.0",
+        "react": "^18.2.0",
+        "react-i18next": "^14.1.1"
+    },
+    "devDependencies": {
+        "@4rthem/i18next-scanner": "^0.0.1",
+        "@alchemy/phrasea-ui": "workspace:*",
+        "@jonkoops/matomo-tracker-react": "^0.7.0",
+        "@types/react": "^18.3.24",
+        "i18next": "24.2.1",
+        "i18next-scanner-typescript": "^1.2.1",
+        "react": "^18.3.1",
+        "react-i18next": "^14.1.3"
+    }
 }

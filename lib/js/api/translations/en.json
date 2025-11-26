@@ -1,17 +1,17 @@
 {
-  "lib": {
-    "api": {
-      "error": {
-        "http_bad_request": "Bad Request",
-        "http_error": "Server error",
-        "http_not_found": "Not Found",
-        "http_unauthorized": "Unauthorized",
-        "session_expired": "Your session has expired",
-        "network": "Network error"
-      },
-      "http_error": {
-        "429": "Too many requests, you can retry in {{minutes}}min"
-      }
+    "lib": {
+        "api": {
+            "error": {
+                "http_bad_request": "Bad Request",
+                "http_error": "Server error",
+                "http_not_found": "Not Found",
+                "http_unauthorized": "Unauthorized",
+                "network": "Network error",
+                "session_expired": "Your session has expired"
+            },
+            "http_error": {
+                "429": "Too many requests, you can retry in {{minutes}}min"
+            }
+        }
     }
-  }
 }

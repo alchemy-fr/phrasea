@@ -22,18 +22,21 @@ uploader-api-php
 "
 
 for s in ${SF_SERVICES}; do
-    docker compose run -T --rm ${s} su app -c "composer install --no-interaction && composer test"
+  docker compose run -T --rm ${s} su app -c "composer install --no-interaction && composer test"
 done
 
-LIBS="
-admin-bundle
-api-test
-auth-bundle
-report-bundle
-report-sdk
-"
-for lib in ${LIBS}; do
-    docker compose run -T --rm uploader-api-php su app -c "composer install && cd vendor/alchemy/${lib} && composer install --no-interaction && composer test"
-done
+. bin/vars.sh
 
-docker compose run -T --rm databox-api-php su app -c "cd vendor/alchemy/workflow && composer install --no-interaction && composer test"
+export APP_ENV=test
+
+excluded_dirs="api-test report-bundle report-sdk"
+
+for lib in ${PHP_LIBS}; do
+  dir=$(basename ${lib})
+  if [[ ${excluded_dirs} =~ (^|[[:space:]])"$dir"($|[[:space:]]) ]] ; then
+    echo "Skipping ${dir}"
+    continue
+  fi
+  echo "Testing PHP lib: ${lib}"
+  docker compose exec -T databox-api-php su app -c "cd vendor/alchemy/${dir} && composer install --no-interaction && composer test"
+done

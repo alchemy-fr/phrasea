@@ -49,7 +49,7 @@ export function createHttpClient(baseURL: string): HttpClient {
         const l = locale.replace(/_/g, '-');
         const languages = [
             l,
-            ...window.navigator.languages.filter(l => l !== locale)
+            ...window.navigator.languages.filter(l => l !== locale),
         ];
         this.defaults.headers.common['Accept-Language'] = languages.join(', ');
     };

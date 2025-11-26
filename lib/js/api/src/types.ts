@@ -59,7 +59,7 @@ export type HttpClient = {
 export type MultipartUpload = {
     uploadId: string;
     parts: UploadPart[];
-}
+};
 export type UploadPart = {
     ETag: string;
     PartNumber: number;

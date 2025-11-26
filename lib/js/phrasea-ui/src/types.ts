@@ -1,8 +1,10 @@
-import React, {JSX, ReactNode} from "react";
-import {MenuProps} from "@mui/material/Menu";
-import {ButtonBaseProps} from "@mui/material";
+import React, {JSX, ReactNode} from 'react';
+import {MenuProps} from '@mui/material/Menu';
+import {ButtonBaseProps} from '@mui/material';
 
-export type CloseWrapper = (handler?: React.MouseEventHandler<HTMLElement>) => React.MouseEventHandler<HTMLElement>;
+export type CloseWrapper = (
+    handler?: React.MouseEventHandler<HTMLElement>
+) => React.MouseEventHandler<HTMLElement>;
 
 export type MainButtonProps = {
     open: boolean;

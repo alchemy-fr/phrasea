@@ -1,34 +1,34 @@
 {
-  "name": "@alchemy/theme-editor",
-  "version": "0.0.1",
-  "public": true,
-  "description": "MUI Theme editor",
-  "keywords": [],
-  "main": "index.ts",
-  "license": "MIT",
-  "scripts": {
-    "lint": "eslint src",
-    "lint:fix": "eslint --fix src",
-    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
-    "cs": "pnpm lint:fix && pnpm format"
-  },
-  "peerDependencies": {
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
-    "@mui/material": "^5.16.7",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "dependencies": {
-    "@alchemy/storage": "workspace:*"
-  },
-  "devDependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@mui/material": "^5.18.0",
-    "@types/react": "^18.3.24",
-    "@types/react-dom": "^18.3.7",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  }
+    "name": "@alchemy/theme-editor",
+    "version": "0.0.1",
+    "public": true,
+    "description": "MUI Theme editor",
+    "keywords": [],
+    "main": "index.ts",
+    "license": "MIT",
+    "scripts": {
+        "lint": "eslint src",
+        "lint:fix": "eslint --fix src",
+        "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+        "cs": "pnpm lint:fix && pnpm format"
+    },
+    "peerDependencies": {
+        "@emotion/react": "^11.11.1",
+        "@emotion/styled": "^11.11.0",
+        "@mui/material": "^5.16.7",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
+    },
+    "dependencies": {
+        "@alchemy/storage": "workspace:*"
+    },
+    "devDependencies": {
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.1",
+        "@mui/material": "^5.18.0",
+        "@types/react": "^18.3.24",
+        "@types/react-dom": "^18.3.7",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1"
+    }
 }

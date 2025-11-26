@@ -38,7 +38,7 @@ export function createPusher({
 type ChannelSubscription = {
     channel: Channel;
     events: Record<string, number>;
-}
+};
 
 const subscribedChannels: Record<string, ChannelSubscription> = {};
 
@@ -46,7 +46,7 @@ export function registerPusherWs(
     pusher: Pusher,
     channelName: string,
     event: string,
-    callback: PusherEventCallback,
+    callback: PusherEventCallback
 ): UnregisterWebSocket {
     channelName = normalizeChannel(channelName);
     if (!(pusher as any).connecting) {
@@ -57,10 +57,12 @@ export function registerPusherWs(
         pusher.connect();
     }
 
-    const sub = subscribedChannels[channelName] ?? (subscribedChannels[channelName] = {
-        channel: pusher.subscribe(channelName),
-        events: {},
-    });
+    const sub =
+        subscribedChannels[channelName] ??
+        (subscribedChannels[channelName] = {
+            channel: pusher.subscribe(channelName),
+            events: {},
+        });
 
     sub.events[event] ??= 0;
     sub.events[event]++;

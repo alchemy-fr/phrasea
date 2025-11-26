@@ -23,9 +23,7 @@ export default function FormFieldErrors<T extends FieldValues = FieldValues>({
                     {t('lib.form.error.required', 'This field is required')}
                 </FormError>
             )}
-            {error && (
-                <FormError>{error!.message as string}</FormError>
-            )}
+            {error && <FormError>{error!.message as string}</FormError>}
         </>
     );
 }

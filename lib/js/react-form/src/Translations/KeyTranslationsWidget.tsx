@@ -53,21 +53,25 @@ export default function KeyTranslationsWidget<
                                     {renderLocale(l)}
                                 </div>
                                 <div>
-                                    {renderField ? renderField({
-                                        locale: l,
-                                        register,
-                                    }) : <TextField
-                                        label={t(
-                                            'lib.form.translations.translation.label',
-                                            {
-                                                defaultValue:
-                                                    'Translation {{locale}}',
-                                                locale: l.toUpperCase(),
-                                            }
-                                        )}
-                                        {...register(`${path}.${l}` as any)}
-                                        {...(inputProps ?? {})}
-                                    />}
+                                    {renderField ? (
+                                        renderField({
+                                            locale: l,
+                                            register,
+                                        })
+                                    ) : (
+                                        <TextField
+                                            label={t(
+                                                'lib.form.translations.translation.label',
+                                                {
+                                                    defaultValue:
+                                                        'Translation {{locale}}',
+                                                    locale: l.toUpperCase(),
+                                                }
+                                            )}
+                                            {...register(`${path}.${l}` as any)}
+                                            {...(inputProps ?? {})}
+                                        />
+                                    )}
                                     <FormFieldErrors
                                         field={`${path}.${l}` as any}
                                         errors={errors}
