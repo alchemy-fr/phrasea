@@ -9,6 +9,7 @@ import {
     CircularProgress,
     ListItemIcon,
     ListItemText,
+    ListSubheader,
     MenuItem,
 } from '@mui/material';
 import CollectionMenuItem, {
@@ -118,6 +119,9 @@ function CollectionsPanel({}: Props) {
                     },
                 })}
             >
+                <ListSubheader>
+                    {t('workspaces.list.title', 'Workspaces')}
+                </ListSubheader>
                 {loading ? (
                     <FlexRow
                         style={{

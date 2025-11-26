@@ -57,7 +57,7 @@ export default function LeftPanel() {
                     {...a11yProps(TabEnum.facets)}
                 />
                 <Tab
-                    label={t('left_panel.tree', `Tree`)}
+                    label={t('left_panel.navigation', `Navigation`)}
                     {...a11yProps(TabEnum.tree)}
                 />
                 {isAuthenticated() ? (

@@ -16,6 +16,7 @@ export enum PermissionObject {
     Asset = 'asset',
     Workspace = 'workspace',
     Basket = 'basket',
+    SavedSearch = 'saved_search',
     AttributePolicy = 'attribute_policy',
     AttributeList = 'attribute_list',
 }
