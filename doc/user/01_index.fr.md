@@ -1,7 +1,7 @@
 ---
 status: En attente de relecture
 title: Documentation utilisateur
-slug: user-documentation
+slug: documentation-utilisateur
 ---
 
 # Introduction

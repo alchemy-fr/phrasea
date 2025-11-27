@@ -1,6 +1,5 @@
 ---
 title: Technical Prerequisites
-status: pending review
 slug: prerequisite
 ---
 # Phrasea Technical Prerequisites
