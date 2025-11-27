@@ -1,6 +1,5 @@
 ---
 title: Prérequis techniques
-status: en attente de relecture
 slug: prerequisite
 ---
 # Prérequis techniques Phrasea
@@ -255,4 +254,4 @@ Capacité disque pour les volumes temporaires : 100 Go
   Configurez vos [identifiants Sentry ici](../Configuration/01_env_var.mdx#php_sentry_dsn).
 * Sauvegardes : Mettez en place des sauvegardes régulières pour PostgreSQL et le stockage objet.
 * Elasticsearch n’est pas un datastore principal, mais le temps d’indexation peut être significatif si le nombre d’assets est important. Sauvegarder les index Elasticsearch permet une reprise rapide après incident. Il est aussi conseillé d’utiliser un cluster externe pour Elasticsearch.
-* La base RabbitMQ doit être persistée en cas de panne et de redémarrage du conteneur.
+* La base de données des messages RabbitMQ doit être persistée pour éviter une perte de messages en cas de redémarrage du conteneur.
