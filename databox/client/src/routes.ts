@@ -12,6 +12,7 @@ import AttributeEditorView from './components/AttributeEditor/AttributeEditorVie
 import SharePage from './pages/SharePage.tsx';
 import AttributeListDialog from './components/Dialog/AttributeList/AttributeListDialog.tsx';
 import FileDialog from './components/Dialog/File/FileDialog.tsx';
+import SavedSearchDialog from './components/Dialog/SavedSearch/SavedSearchDialog.tsx';
 
 export enum Routing {
     UnknownRendition = '_',
@@ -49,6 +50,16 @@ const modalRoutes = {
             view: {
                 path: 'view',
                 component: BasketViewDialog,
+            },
+        },
+    },
+    savedSearch: {
+        public: false,
+        path: '/saved-searches/:id',
+        routes: {
+            manage: {
+                path: 'manage/:tab',
+                component: SavedSearchDialog,
             },
         },
     },

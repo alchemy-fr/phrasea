@@ -123,6 +123,7 @@ class AttributeList extends AbstractUuidEntity implements WithOwnerIdInterface, 
     use OwnerIdTrait;
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const string OBJECT_TYPE = 'attribute_list';
     final public const string GROUP_READ = 'attribute-list:read';
     final public const string GROUP_LIST = 'attribute-list:index';
     final public const string GROUP_WRITE = 'attribute-list:w';

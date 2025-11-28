@@ -4,21 +4,20 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use Alchemy\AdminBundle\Filter\UserChoiceFilter;
-use App\Entity\AttributeList\AttributeList;
+use App\Entity\SavedSearch\SavedSearch;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
-class AttributeListCrudController extends AbstractAclAdminCrudController
+class SavedSearchCrudController extends AbstractAclAdminCrudController
 {
     public function __construct(
         private readonly UserChoiceField $userChoiceField,
@@ -28,14 +27,14 @@ class AttributeListCrudController extends AbstractAclAdminCrudController
 
     public static function getEntityFqcn(): string
     {
-        return AttributeList::class;
+        return SavedSearch::class;
     }
 
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('Attribute List')
-            ->setEntityLabelInPlural('Attribute Lists')
+            ->setEntityLabelInSingular('Saved Search')
+            ->setEntityLabelInPlural('Saved Searches')
             ->setSearchFields(['id', 'title'])
             ->setPaginatorPageSize(100)
             ->setDefaultSort(['title' => 'ASC']);
@@ -58,15 +57,14 @@ class AttributeListCrudController extends AbstractAclAdminCrudController
             ->hideOnForm();
         yield $this->userChoiceField->create('ownerId', 'Owner');
         yield TextField::new('title');
-        yield TextareaField::new('description')
-            ->hideOnIndex();
         yield BooleanField::new('public')
-            ->renderAsSwitch(false);
+            ->renderAsSwitch(false)
+        ;
         yield DateTimeField::new('updatedAt')
             ->hideOnForm();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
-        yield AssociationField::new('definitions')
-            ->onlyOnDetail();
+        yield JsonField::new('data')
+        ->hideOnIndex();
     }
 }
