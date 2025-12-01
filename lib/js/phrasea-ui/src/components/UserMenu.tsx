@@ -9,29 +9,39 @@ import UserAvatar from './UserAvatar';
 import DropdownActions from './DropdownActions';
 
 type Props = {
+    variant?: 'menu' | 'icon-button';
     actions?: (props: {closeMenu: () => void}) => ReactNode[];
     accountUrl?: string;
     onLogout?: () => void;
-    menuHeight: number;
     username: string;
 };
 
 export default function UserMenu({
+    variant = 'icon-button',
     actions,
     accountUrl,
     onLogout,
-    menuHeight,
     username,
 }: Props) {
     const {t} = useTranslation();
 
+    const isMenu = variant === 'menu';
+
     return (
         <DropdownActions
             mainButton={props => (
+                isMenu ? (
+                    <MenuItem {...props}>
+                        <ListItemIcon>
+                            <UserAvatar size={30} username={username} />
+                        </ListItemIcon>
+                        <ListItemText primary={username} />
+                    </MenuItem>
+                ) : (
                 <IconButton {...props}>
-                    <UserAvatar size={menuHeight - 8} username={username} />
+                    <UserAvatar size={40} username={username} />
                 </IconButton>
-            )}
+            ))}
             anchorOrigin={{
                 vertical: 'top',
                 horizontal: 'right',
@@ -39,9 +49,8 @@ export default function UserMenu({
             keepMounted
             transformOrigin={{
                 vertical: 'top',
-                horizontal: 'right',
+                horizontal: isMenu ? 'left': 'right',
             }}
-            sx={{mt: `${menuHeight - 10}px`}}
         >
             {closeMenu => {
                 return [

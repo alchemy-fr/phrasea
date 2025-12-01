@@ -9,7 +9,8 @@ export type CloseWrapper = (
 export type MainButtonProps = {
     open: boolean;
     className?: string;
-} & Pick<ButtonBaseProps, 'onClick' | 'aria-haspopup' | 'aria-expanded'>;
+    onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+} & Pick<ButtonBaseProps, 'aria-haspopup' | 'aria-expanded'>;
 
 export type DropdownActionsProps = {
     mainButton: (props: MainButtonProps) => JSX.Element;

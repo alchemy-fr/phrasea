@@ -18,7 +18,6 @@ import {
 } from 'react-virtualized';
 import AssetItem from './AssetItem.tsx';
 import GroupRow from '../GroupRow.tsx';
-import {menuHeight} from '../../../Layout/MainAppBar.tsx';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
 import {CellMeasurerCache} from 'react-virtualized/dist/es/CellMeasurer';
 import LoadMoreButton from '../../LoadMoreButton.tsx';
@@ -49,7 +48,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     const listRef = React.useRef<List | null>(null);
     const d = React.useContext(DisplayContext)!.state;
     const {innerHeight} = useWindowSize();
-    const height = innerHeight - toolbarHeight - menuHeight;
+    const height = innerHeight - toolbarHeight;
     const firstItem: Item | undefined = pages[0]?.[0];
     const firstAsset = firstItem
         ? itemToAsset

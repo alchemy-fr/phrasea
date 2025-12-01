@@ -16,7 +16,7 @@ export default function FilterDropdown({activeFilterCount, ...props}: Props) {
                 vertical: 'bottom',
                 horizontal: 'left',
             }}
-            mainButton={({...props}) => (
+            mainButton={props => (
                 <Badge
                     anchorOrigin={{
                         vertical: 'top',
