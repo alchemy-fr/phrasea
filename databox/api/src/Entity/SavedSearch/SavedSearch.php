@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Entity\SavedSearch;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
@@ -30,7 +29,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'saved-search',
     operations: [
-        new GetCollection(security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")'),
+        new GetCollection(),
         new Get(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
