@@ -22,10 +22,7 @@ export default function Logo({}: Props) {
                     fontSize: 20,
                     p: 2,
                     color: theme.palette.primary.main,
-                    display: {
-                        xs: 'none',
-                        md: 'flex',
-                    },
+                    display: 'flex',
                 })}
             >
                 {config.logo?.src ? (

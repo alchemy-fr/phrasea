@@ -166,30 +166,33 @@ export default function User({}: Props) {
                             primary={t('menu.theme_editor', 'Theme Editor')}
                         />
                     </MenuItem>,
+                    config.displayServicesMenu ? (
+                        <DashboardMenu
+                            dashboardBaseUrl={config.dashboardBaseUrl}
+                            children={({icon, open, onClick, ...props}) => {
+                                return (
+                                    <MenuItem
+                                        selected={open}
+                                        style={{
+                                            color: 'inherit',
+                                        }}
+                                        {...props}
+                                        onClick={onClick}
+                                    >
+                                        <ListItemIcon>{icon}</ListItemIcon>
+                                        <ListItemText
+                                            primary={t(
+                                                'menu.services',
+                                                'Services'
+                                            )}
+                                        />
+                                    </MenuItem>
+                                );
+                            }}
+                        />
+                    ) : null,
                 ]}
             </DropdownActions>
-
-            {config.displayServicesMenu && (
-                <DashboardMenu
-                    dashboardBaseUrl={config.dashboardBaseUrl}
-                    children={({icon, open, ...props}) => {
-                        return (
-                            <MenuItem
-                                selected={open}
-                                style={{
-                                    color: 'inherit',
-                                }}
-                                {...props}
-                            >
-                                <ListItemIcon>{icon}</ListItemIcon>
-                                <ListItemText
-                                    primary={t('menu.services', 'Services')}
-                                />
-                            </MenuItem>
-                        );
-                    }}
-                />
-            )}
         </Box>
     );
 }

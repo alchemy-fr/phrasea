@@ -4,13 +4,13 @@ import WorkspaceMenuItem, {
     workspaceItemClassName,
 } from './WorkspaceMenuItem';
 import {
-    alpha,
     Box,
     CircularProgress,
+    ListItem,
+    ListItemButton,
     ListItemIcon,
     ListItemText,
     ListSubheader,
-    MenuItem,
 } from '@mui/material';
 import CollectionMenuItem, {
     collectionItemClassName,
@@ -77,9 +77,24 @@ function CollectionsPanel({}: Props) {
             <SavedSearchList />
             <Box
                 sx={theme => ({
+                    '.MuiListItem-root': {
+                        borderRadius: 3,
+                        mx: 1,
+                        overflow: 'hidden',
+                        width: 'auto',
+                        minWidth: 35,
+                    },
+                    '.MuiListItemSecondaryAction-root': {
+                        zIndex: 1,
+                        right: theme.spacing(1),
+                    },
+                    '.MuiListItemIcon-root': {
+                        color: 'inherit',
+                    },
                     [`.${workspaceItemClassName}`]: {
-                        'backgroundColor': theme.palette.primary.main,
-                        'color': theme.palette.primary.contrastText,
+                        '.MuiListItemButton-root': {
+                            pl: 1,
+                        },
                         [`.${cActionClassName}`]: {
                             visibility: 'hidden',
                         },
@@ -88,16 +103,6 @@ function CollectionsPanel({}: Props) {
                                 visibility: 'visible',
                             },
                         },
-                        '.MuiListItemSecondaryAction-root': {
-                            zIndex: 1,
-                        },
-                        [`.MuiListItemButton-root.Mui-selected`]: {
-                            backgroundColor: theme.palette.secondary.main,
-                            color: theme.palette.secondary.contrastText,
-                        },
-                    },
-                    '.MuiListItemIcon-root': {
-                        color: 'inherit',
                     },
                     [`.${collectionItemClassName}`]: {
                         [`.${cActionClassName}`]: {
@@ -108,13 +113,6 @@ function CollectionsPanel({}: Props) {
                             [`.${cActionClassName}`]: {
                                 visibility: 'visible',
                             },
-                        },
-                        [`&:hover .MuiListItemSecondaryAction-root`]: {
-                            bgcolor: alpha(theme.palette.common.white, 0.85),
-                            borderRadius: 50,
-                        },
-                        '.MuiListItemIcon-root': {
-                            minWidth: 35,
                         },
                     },
                 })}
@@ -153,35 +151,37 @@ function CollectionsPanel({}: Props) {
                             sx={theme => ({
                                 mt: 3,
                                 pt: 1,
-                                color: 'grey',
                                 borderTop: `1px solid ${theme.palette.divider}`,
                             })}
                         >
-                            <MenuItem
-                                selected={
-                                    searchContext.workspaces.length === 0 &&
-                                    searchContext.collections.length === 0 &&
-                                    searchContext.conditions.length === 1 &&
-                                    searchContext.conditions[0].id ===
-                                        BuiltInField.Deleted
-                                }
-                                onClick={() => {
-                                    searchContext.resetWithCondition({
-                                        id: BuiltInField.Deleted,
-                                        query: `${BuiltInField.Deleted} = true`,
-                                    });
-                                }}
-                            >
-                                <ListItemIcon>
-                                    <DeleteIcon />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary={t(
-                                        'collection_panel.trash',
-                                        'Trash'
-                                    )}
-                                />
-                            </MenuItem>
+                            <ListItem disablePadding>
+                                <ListItemButton
+                                    selected={
+                                        searchContext.workspaces.length === 0 &&
+                                        searchContext.collections.length ===
+                                            0 &&
+                                        searchContext.conditions.length === 1 &&
+                                        searchContext.conditions[0].id ===
+                                            BuiltInField.Deleted
+                                    }
+                                    onClick={() => {
+                                        searchContext.resetWithCondition({
+                                            id: BuiltInField.Deleted,
+                                            query: `${BuiltInField.Deleted} = true`,
+                                        });
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <DeleteIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={t(
+                                            'collection_panel.trash',
+                                            'Trash'
+                                        )}
+                                    />
+                                </ListItemButton>
+                            </ListItem>
                         </Box>
                     </>
                 )}

@@ -330,7 +330,9 @@ export default function CollectionMenuItem({
                     selected={Boolean(selected || currentInSelectedHierarchy)}
                     role={undefined}
                     onClick={onClick}
-                    style={{paddingLeft: `${10 + level * 10}px`}}
+                    sx={{
+                        pl: 1 + level,
+                    }}
                 >
                     <ListItemIcon>
                         {collection.public ? (

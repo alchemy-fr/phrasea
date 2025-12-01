@@ -2,6 +2,9 @@ import {Theme, ThemeOptions} from '@mui/material';
 
 const baseTheme: ThemeOptions = {
     typography: {
+        allVariants: {
+            fontFamily: '"Manrope", sans-serif',
+        },
         h1: {
             fontSize: 24,
             fontWeight: 600,
@@ -14,6 +17,22 @@ const baseTheme: ThemeOptions = {
     palette: {
         common: {
             white: '#FFF',
+        },
+    },
+    components: {
+        MuiButton: {
+            styleOverrides: {
+                root: {
+                    textTransform: 'none',
+                },
+            },
+        },
+        MuiTab: {
+            styleOverrides: {
+                root: {
+                    textTransform: 'none',
+                },
+            },
         },
     },
 };

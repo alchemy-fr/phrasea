@@ -29,19 +29,20 @@ export default function LeftMenu({}: Props) {
                     borderRight: `1px solid ${theme.palette.divider}`,
                 })}
             >
-                <div style={{}}>
+                <div>
                     <Logo />
                 </div>
 
-                <div
-                    style={{
+                <Box
+                    sx={{
                         flexGrow: 1,
                         overflow: 'auto',
                         position: 'relative',
+                        pb: 3,
                     }}
                 >
                     <LeftPanel />
-                </div>
+                </Box>
 
                 <div>
                     <User />

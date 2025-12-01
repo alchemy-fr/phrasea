@@ -33,7 +33,7 @@ export default function UserMenu({
                 isMenu ? (
                     <MenuItem {...props}>
                         <ListItemIcon>
-                            <UserAvatar size={30} username={username} />
+                            <UserAvatar size={25} username={username} />
                         </ListItemIcon>
                         <ListItemText primary={username} />
                     </MenuItem>

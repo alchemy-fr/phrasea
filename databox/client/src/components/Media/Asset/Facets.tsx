@@ -19,6 +19,7 @@ import EntitiesFacet from './Facets/EntitiesFacet.tsx';
 import {BuiltInField} from '../Search/search.ts';
 import {AttributeType} from '../../../api/types.ts';
 import BooleanFacet from './Facets/BooleanFacet.tsx';
+import {Classes} from './types.ts';
 
 export type BucketValue = string | number | boolean;
 
@@ -134,13 +135,7 @@ function FacetGroup({facet, name}: FacetGroupProps) {
 
     return (
         <>
-            <ListItem
-                sx={{
-                    backgroundColor: 'primary.main',
-                    color: 'primary.contrastText',
-                }}
-                disablePadding
-            >
+            <ListItem className={Classes.facetGroup} disablePadding>
                 <ListItemButton onClick={() => setOpen(o => !o)}>
                     <ListItemText primary={facet.meta.title} />
                     {open ? <ExpandLess /> : <ExpandMore />}
@@ -163,13 +158,12 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
             component="nav"
             aria-labelledby="nested-list-subheader"
             sx={theme => ({
-                root: {
-                    width: '100%',
-                    maxWidth: 360,
-                    backgroundColor: theme.palette.background.paper,
-                },
-                nested: {
-                    paddingLeft: theme.spacing(4),
+                [`.${Classes.facetGroup}`]: {
+                    'borderBottom': `1px solid ${theme.palette.divider}`,
+                    '.MuiListItemText-primary': {
+                        fontSize: theme.typography.subtitle2.fontSize,
+                        fontWeight: 'bold',
+                    },
                 },
             })}
         >
