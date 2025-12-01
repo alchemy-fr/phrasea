@@ -106,7 +106,6 @@ final class AssetPermissionComputer
                 }
                 $bestPrivacy = max($bestPrivacy, $collectionBestPrivacy);
 
-                $collectionsPaths[] = $collectionInfo->absolutePath;
                 $users = array_merge($users, $collectionInfo->users);
                 $groups = array_merge($groups, $collectionInfo->groups);
 
@@ -130,8 +129,9 @@ final class AssetPermissionComputer
                     $deleteUsers = array_merge($deleteUsers, $storyPermissions->deleteUsers);
                     $deleteGroups = array_merge($deleteGroups, $storyPermissions->deleteGroups);
                     $collectionsPaths = array_merge($collectionsPaths, $storyPermissions->collectionPaths);
+                } else {
+                    $collectionsPaths[] = $collectionInfo->absolutePath;
                 }
-
             }
 
             return new AssetPermissionsDTO(
