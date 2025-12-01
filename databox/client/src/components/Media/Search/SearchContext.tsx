@@ -35,6 +35,7 @@ export type TSearchContext = {
     setSortBy: (newSortBy: SortBy[]) => void;
     searchChecksum?: string;
     reloadInc: number;
+    hasSearch: boolean;
 };
 
 export const SearchContext = React.createContext<TSearchContext | undefined>(

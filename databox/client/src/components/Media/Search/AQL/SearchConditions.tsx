@@ -34,10 +34,12 @@ export default function SearchConditions({search}: Props) {
     const [updatingSearch, setUpdatingSearch] = React.useState(false);
     const [lastSavedChecksum, setLastSavedChecksum] = React.useState<
         string | undefined
-    >(search.searchId ? search.searchChecksum : undefined);
+    >(search.searchId && search.hasSearch ? search.searchChecksum : undefined);
 
     React.useEffect(() => {
-        setLastSavedChecksum(search.searchChecksum);
+        if (search.searchId && search.hasSearch) {
+            setLastSavedChecksum(search.searchChecksum);
+        }
     }, [search.searchId]);
 
     React.useEffect(() => {
@@ -108,6 +110,7 @@ export default function SearchConditions({search}: Props) {
                 loading={updatingSearch}
                 disabled={
                     updatingSearch ||
+                    !search.hasSearch ||
                     (!!lastSavedChecksum &&
                         lastSavedChecksum === search.searchChecksum)
                 }

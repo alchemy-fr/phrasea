@@ -270,6 +270,14 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
 
     const workspaces = filterOfType(BuiltInField.Workspace);
     const collections = filterOfType(BuiltInField.Collection);
+    const hasSearch = Boolean(
+        query ||
+            conditions.length > 0 ||
+            (sortBy.length > 0 &&
+                (sortBy[0].a !== BuiltInField.Score ||
+                    sortBy[1]?.a !== BuiltInField.CreatedAt)) ||
+            geolocation
+    );
 
     return (
         <SearchContext.Provider
@@ -289,12 +297,15 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 setQuery,
                 inputQuery,
                 setInputQuery,
-                searchChecksum: JSON.stringify({
-                    query,
-                    conditions,
-                    sortBy: resolvedSortBy,
-                    geolocation,
-                }),
+                hasSearch,
+                searchChecksum: hasSearch
+                    ? JSON.stringify({
+                          query,
+                          conditions,
+                          sortBy: resolvedSortBy,
+                          geolocation,
+                      })
+                    : undefined,
                 reloadInc,
                 sortBy,
                 reset,
