@@ -54,7 +54,6 @@ export default function App({}: Props) {
                 )}
                 {user ? (
                     <UserMenu
-                        menuHeight={50}
                         username={user?.username}
                         accountUrl={getAccountUrl()}
                         onLogout={() =>
