@@ -7,7 +7,6 @@ namespace App\Elasticsearch;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
-use App\Elasticsearch\BuiltInField\OwnerBuiltInField;
 use Elastica\Aggregation\Missing;
 use Elastica\Query;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -26,8 +25,7 @@ final readonly class FacetHandler
     public function addBuiltInFacets(Query $query): void
     {
         foreach ($this->builtInFieldRegistry->getAll() as $item) {
-            if ($item instanceof OwnerBuiltInField) {
-                // We don't want to add the owner facet to the query for now
+            if (!$item->isFacet()) {
                 continue;
             }
 

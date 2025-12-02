@@ -74,6 +74,11 @@ abstract class AbstractBuiltInField implements BuiltInFieldInterface
         return true;
     }
 
+    public function isFacet(): bool
+    {
+        return true;
+    }
+
     public function buildFacet(Query $query, TranslatorInterface $translator): void
     {
         $agg = new Aggregation\Terms(static::getKey());

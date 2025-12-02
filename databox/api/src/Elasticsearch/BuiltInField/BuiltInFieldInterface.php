@@ -25,6 +25,8 @@ interface BuiltInFieldInterface
 
     public function isSortable(): bool;
 
+    public function isFacet(): bool;
+
     public function getValueFromAsset(Asset $asset): mixed;
 
     public function buildFacet(Query $query, TranslatorInterface $translator): void;

@@ -46,7 +46,7 @@ class StoryThumbnailsProvider implements ProviderInterface
         $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
         $options = $context['filters'] ?? [];
-        $options['parents'] = [$storyAsset->getStoryCollection()->getId()];
+        $options['story'] = $storyAsset->getId();
 
         [$result] = $this->assetSearch->search($userId, $groupIds, $options);
         $thumbnails = [];

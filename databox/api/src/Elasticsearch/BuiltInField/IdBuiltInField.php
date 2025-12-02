@@ -39,4 +39,9 @@ final class IdBuiltInField extends AbstractBuiltInField
     {
         return new Query\Term(['_id' => $value]);
     }
+
+    public function isFacet(): bool
+    {
+        return false;
+    }
 }

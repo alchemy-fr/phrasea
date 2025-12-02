@@ -90,4 +90,9 @@ final class DeletedBuiltInField extends AbstractBuiltInField
 
         return $isNotDeletedQuery;
     }
+
+    public function isFacet(): bool
+    {
+        return false;
+    }
 }

@@ -51,6 +51,11 @@ class AssetSearch extends AbstractSearch
         if (isset($options['parent'])) {
             $options['parents'] = [$options['parent']];
         }
+
+        if (isset($options['story'])) {
+            $filterQueries[] = new Query\Term(['stories' => $options['story']]);
+        }
+
         if (isset($options['parents'])) {
             $parentCollections = $this->findCollections($options['parents']);
             $paths = array_map(fn (Collection $parentCollection,

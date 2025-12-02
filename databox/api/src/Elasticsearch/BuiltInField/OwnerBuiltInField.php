@@ -69,4 +69,9 @@ final class OwnerBuiltInField extends AbstractBuiltInField
     {
         return 'owner';
     }
+
+    public function isFacet(): bool
+    {
+        return false;
+    }
 }
