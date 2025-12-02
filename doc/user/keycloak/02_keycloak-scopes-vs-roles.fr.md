@@ -1,5 +1,5 @@
 ---
-status: WIP
+status: En attente de relecture
 title: Scopes vs Rôles
 ---
 

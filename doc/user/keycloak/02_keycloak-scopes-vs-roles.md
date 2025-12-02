@@ -1,6 +1,7 @@
 ---
-status: WIP
-title: Scopes vs Roles
+status: pending review
+title: Scopes Vs Roles
+
 ---
 
 > **Status:** _Work In Progress_  

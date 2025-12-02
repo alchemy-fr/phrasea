@@ -1,5 +1,5 @@
 ---
-status: WIP
+status: en attente de relecture
 title: Intégration de l’authentification Keycloak dans Phrasea
 ---
 

@@ -1,6 +1,5 @@
 ---
 title: Technical Prerequisites
-slug: prerequisite
 ---
 # Phrasea Technical Prerequisites
 
