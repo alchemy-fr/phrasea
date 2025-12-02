@@ -1,6 +1,5 @@
 ---
 title: Prérequis techniques
-slug: prerequisite
 ---
 # Prérequis techniques Phrasea
 

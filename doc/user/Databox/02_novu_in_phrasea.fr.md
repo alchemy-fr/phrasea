@@ -1,10 +1,10 @@
 ---
 status: en attente de relecture
-title: notification phrasea
+title: Notification Phrasea
 ---
 
 > **Statut :** _Travail en cours_  
-> Cette page de documentation est en cours de rédaction et peut être fréquemment mise à jour.
+> Cette page est en cours de rédaction et peut être fréquemment mise à jour.
 
 # Notifications dans Phrasea
 

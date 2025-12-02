@@ -1,6 +1,5 @@
 ---
 title: Uploader Service Documentation
-slug: documentation-service-uploader
 status: WIP
 ---
 > **Status:** _Work In Progress_  

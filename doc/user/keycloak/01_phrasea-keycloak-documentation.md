@@ -1,5 +1,5 @@
 ---
-status: WIP
+status: pending review
 title: Keycloak Authentication Integration in Phrasea
 ---
 

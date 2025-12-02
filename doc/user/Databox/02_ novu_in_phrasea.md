@@ -1,10 +1,10 @@
 ---
 status: pending review
-title: phrasea notification
+title: Phrasea notification
 ---
 
 > **Status:** _Work In Progress_  
-> This documentation page is currently being drafted and may be updated frequently.
+> This page is currently being drafted and may be updated frequently.
 
 # Phrasea’s notifications.
 
@@ -17,8 +17,6 @@ Phrasea uses Novu to send event notifications happening in the DAM, e.g., when a
 For more information on Novu, please refer to the official Novu's [documentation](https://docs.novu.co/platform/concepts/notifications).
 
 # List of available Notifications 
-
- 
 
 | Workflow | Description | Who is the default receiver | who can subscribe | Channel |
 | :---- | :---- | :---- | :---- | :---- |
