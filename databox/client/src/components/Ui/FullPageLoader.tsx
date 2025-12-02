@@ -4,7 +4,7 @@ export default function FullPageLoader() {
     return (
         <Backdrop
             sx={theme => ({
-                color: theme.palette.common.white,
+                color: theme.palette.background.default,
                 zIndex: theme.zIndex.drawer + 1,
             })}
             open={true}

@@ -43,7 +43,7 @@ export default function SectionDivider({
                     zIndex: ZIndex.sectionDivider,
                     position: undefined !== top ? 'sticky' : undefined,
                     top,
-                    backgroundColor: theme.palette.common.white,
+                    backgroundColor: theme.palette.background.default,
                 },
                 rootSx
             )}

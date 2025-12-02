@@ -9,9 +9,6 @@ const defaultTheme: ThemeOptions = {
         secondary: {
             main: '#007EA7',
         },
-        common: {
-            white: '#e7eaea',
-        },
     },
 };
 

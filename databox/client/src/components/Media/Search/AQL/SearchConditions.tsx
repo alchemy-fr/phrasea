@@ -1,5 +1,5 @@
 import {generateQueryId} from './query.ts';
-import {Box, Button} from '@mui/material';
+import {Button} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import React from 'react';
 import SearchCondition from './SearchCondition.tsx';
@@ -76,11 +76,7 @@ export default function SearchConditions({search}: Props) {
     };
 
     return (
-        <Box
-            sx={{
-                mr: -1,
-            }}
-        >
+        <>
             {asts.map(resolvedAst => {
                 return (
                     <SearchCondition
@@ -131,6 +127,6 @@ export default function SearchConditions({search}: Props) {
                     ? t('search.update_search', 'Update Search')
                     : t('search.save_search', 'Save Search')}
             </LoadingButton>
-        </Box>
+        </>
     );
 }

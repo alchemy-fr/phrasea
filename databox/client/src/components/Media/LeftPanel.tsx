@@ -49,13 +49,11 @@ export default function LeftPanel() {
         setTab(newValue);
     };
 
-    const authenticated = isAuthenticated();
-
     React.useEffect(() => {
-        if (!authenticated && tab === TabEnum.baskets) {
+        if (!isAuthenticated && tab === TabEnum.baskets) {
             setTab(TabEnum.facets);
         }
-    }, [authenticated]);
+    }, [isAuthenticated]);
 
     return (
         <>
@@ -78,7 +76,7 @@ export default function LeftPanel() {
                     label={t('left_panel.navigation', `Navigation`)}
                     {...a11yProps(TabEnum.tree)}
                 />
-                {authenticated ? (
+                {isAuthenticated ? (
                     <Tab
                         label={t('left_panel.baskets', `Baskets`)}
                         {...a11yProps(TabEnum.baskets)}
@@ -95,7 +93,7 @@ export default function LeftPanel() {
                     ''
                 )}
             </TabPanel>
-            {authenticated ? (
+            {isAuthenticated ? (
                 <TabPanel value={tab} index={TabEnum.baskets}>
                     <BasketsPanel />
                 </TabPanel>

@@ -171,7 +171,7 @@ export default function CollectionMenuItem({
                                     <Divider key="divider1" />
                                 ) : null,
                                 collection.capabilities.canEdit &&
-                                authContext!.isAuthenticated() ? (
+                                authContext!.isAuthenticated ? (
                                     <MenuItem
                                         key="create-asset"
                                         onClick={closeWrapper(() =>

@@ -182,7 +182,7 @@ function AssetAttachments({asset}: Props) {
                                                 </ListItemIcon>
                                                 <ListItemText
                                                     primary={t(
-                                                        'asset.view.delete_attachment',
+                                                        'asset.view.delete_attachment.button',
                                                         'Delete Attachment'
                                                     )}
                                                 />

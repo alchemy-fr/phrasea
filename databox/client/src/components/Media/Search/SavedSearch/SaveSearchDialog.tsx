@@ -10,6 +10,7 @@ import {useFormSubmit} from '@alchemy/api';
 import {getSearchData, postSavedSearch} from '../../../../api/savedSearch.ts';
 import {LoadingButton} from '@mui/lab';
 import SavedSearchFields from './SavedSearchFields.tsx';
+import {useSavedSearchStore} from '../../../../store/savedSearchStore.ts';
 
 type Props = {
     search: TSearchContext;
@@ -24,6 +25,7 @@ export default function SaveSearchDialog({
 }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
+    const addItem = useSavedSearchStore(state => state.add);
 
     const usedFormSubmit = useFormSubmit<SavedSearch>({
         defaultValues: {
@@ -36,7 +38,10 @@ export default function SaveSearchDialog({
                 data: getSearchData(search),
             };
 
-            return await postSavedSearch(d);
+            const item = await postSavedSearch(d);
+            addItem(item);
+
+            return item;
         },
         onSuccess: data => {
             onCreate(data);

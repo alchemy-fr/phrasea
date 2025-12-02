@@ -54,91 +54,101 @@ export default function SavedSearchList({}: Props) {
                 {t('saved_search.list.title', 'Saved Searches')}
             </ListSubheader>
 
-            {results.map(search => (
-                <ListItem
-                    key={search.id}
-                    secondaryAction={
-                        <span className={cActionClassName}>
-                            <MoreActionsButton
-                                disablePortal={false}
-                                anchorOrigin={{
-                                    vertical: 'bottom',
-                                    horizontal: 'left',
-                                }}
-                            >
-                                {closeWrapper => [
-                                    search.capabilities.canEdit ? (
-                                        <MenuItem
-                                            key="edit"
-                                            onClick={closeWrapper()}
-                                            component={ModalLink}
-                                            route={
-                                                modalRoutes.savedSearch.routes
-                                                    .manage
-                                            }
-                                            params={{
-                                                id: search.id,
-                                                tab: 'edit',
-                                            }}
-                                            aria-label="edit"
-                                        >
-                                            <ListItemIcon>
-                                                <EditIcon />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                                primary={t(
-                                                    'saved_search.item.edit',
-                                                    'Edit'
-                                                )}
-                                            />
-                                        </MenuItem>
-                                    ) : null,
-                                    search.capabilities.canDelete ? (
-                                        <MenuItem
-                                            key="delete"
-                                            onClick={closeWrapper(() =>
-                                                onDelete(search.id)
-                                            )}
-                                            aria-label="delete"
-                                        >
-                                            <ListItemIcon>
-                                                <DeleteIcon color={'error'} />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                                primary={t(
-                                                    'saved_search.item.delete',
-                                                    'Delete'
-                                                )}
-                                            />
-                                        </MenuItem>
-                                    ) : null,
-                                ]}
-                            </MoreActionsButton>
-                        </span>
-                    }
-                    disablePadding
-                >
-                    <ListItemButton
-                        selected={searchContext!.searchId === search.id}
-                        onClick={() => {
-                            console.log('search', search);
-                            searchContext!.loadSearch(search);
-                        }}
-                        role={undefined}
+            {results.map(search => {
+                const capabilities = search.capabilities;
+
+                return (
+                    <ListItem
+                        key={search.id}
+                        secondaryAction={
+                            Boolean(
+                                capabilities.canEdit || capabilities.canDelete
+                            ) && (
+                                <span className={cActionClassName}>
+                                    <MoreActionsButton
+                                        disablePortal={false}
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'left',
+                                        }}
+                                    >
+                                        {closeWrapper => [
+                                            capabilities.canEdit ? (
+                                                <MenuItem
+                                                    key="edit"
+                                                    onClick={closeWrapper()}
+                                                    component={ModalLink}
+                                                    route={
+                                                        modalRoutes.savedSearch
+                                                            .routes.manage
+                                                    }
+                                                    params={{
+                                                        id: search.id,
+                                                        tab: 'edit',
+                                                    }}
+                                                    aria-label="edit"
+                                                >
+                                                    <ListItemIcon>
+                                                        <EditIcon />
+                                                    </ListItemIcon>
+                                                    <ListItemText
+                                                        primary={t(
+                                                            'saved_search.item.edit',
+                                                            'Edit'
+                                                        )}
+                                                    />
+                                                </MenuItem>
+                                            ) : null,
+                                            capabilities.canDelete ? (
+                                                <MenuItem
+                                                    key="delete"
+                                                    onClick={closeWrapper(() =>
+                                                        onDelete(search.id)
+                                                    )}
+                                                    aria-label="delete"
+                                                >
+                                                    <ListItemIcon>
+                                                        <DeleteIcon
+                                                            color={'error'}
+                                                        />
+                                                    </ListItemIcon>
+                                                    <ListItemText
+                                                        primary={t(
+                                                            'saved_search.item.delete',
+                                                            'Delete'
+                                                        )}
+                                                    />
+                                                </MenuItem>
+                                            ) : null,
+                                        ]}
+                                    </MoreActionsButton>
+                                </span>
+                            )
+                        }
+                        disablePadding
                     >
-                        <ListItemIcon>
-                            <PageviewIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary={
-                                search.title
-                                    ? replaceHighlight(search.title)
-                                    : search.title
-                            }
-                        />
-                    </ListItemButton>
-                </ListItem>
-            ))}
+                        <ListItemButton
+                            selected={searchContext!.searchId === search.id}
+                            onClick={() => {
+                                console.log('search', search);
+                                searchContext!.loadSearch(search);
+                            }}
+                            role={undefined}
+                        >
+                            <ListItemIcon>
+                                <PageviewIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={
+                                    search.title
+                                        ? replaceHighlight(search.title)
+                                        : search.title
+                                }
+                            />
+                        </ListItemButton>
+                    </ListItem>
+                );
+            })}
         </>
     );
 }

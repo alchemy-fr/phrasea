@@ -5,6 +5,9 @@ const baseTheme: ThemeOptions = {
         allVariants: {
             fontFamily: '"Manrope", sans-serif',
         },
+        body1: {
+            fontSize: 14,
+        },
         h1: {
             fontSize: 24,
             fontWeight: 600,
@@ -15,6 +18,9 @@ const baseTheme: ThemeOptions = {
         },
     },
     palette: {
+        background: {
+            default: '#f7f7f8',
+        },
         common: {
             white: '#FFF',
         },

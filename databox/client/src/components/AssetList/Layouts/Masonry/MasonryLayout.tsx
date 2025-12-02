@@ -56,7 +56,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
     const layoutSx = React.useCallback(
         (theme: Theme) => {
             return {
-                backgroundColor: theme.palette.common.white,
+                backgroundColor: theme.palette.background.default,
                 ...thumbSx(columnWidth, theme, {
                     'height': 'auto',
                     'img': {

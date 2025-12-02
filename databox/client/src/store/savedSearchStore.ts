@@ -6,6 +6,7 @@ import {
     getSavedSearches,
     GetSavedSearchOptions,
 } from '../api/savedSearch.ts';
+import {replaceList} from './storeUtils.ts';
 
 type State = {
     searches: SavedSearch[];
@@ -96,9 +97,9 @@ export const useSavedSearchStore = create<State>((set, getState) => ({
         }
     },
 
-    add(list) {
+    add(item) {
         set(state => ({
-            searches: [list].concat(state.searches),
+            searches: [item].concat(state.searches),
         }));
     },
 
@@ -111,19 +112,13 @@ export const useSavedSearchStore = create<State>((set, getState) => ({
     },
 
     loadItem: async (id: string) => {
-        const list = await getSavedSearch(id!);
+        const item = await getSavedSearch(id!);
         set(state => {
             return {
-                searches: replaceList(state.searches, list),
+                searches: replaceList(state.searches, item),
             };
         });
 
-        return list;
+        return item;
     },
 }));
-
-function replaceList(prev: SavedSearch[], list: SavedSearch): SavedSearch[] {
-    return prev.some(l => l.id === list.id)
-        ? prev.map(l => (l.id === list.id ? list : l))
-        : prev.concat([list]);
-}

@@ -48,10 +48,15 @@ export default function SearchCondition({
                     'bgcolor': condition.disabled
                         ? 'warning.main'
                         : 'primary.main',
-                    'fontFamily': 'Courier New',
+                    '.MuiChip-label': {
+                        my: -1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: theme.spacing(0.5),
+                    },
                     '.entity': {
                         border: `1px solid ${theme.palette.primary.contrastText}`,
-                        p: 0.5,
+                        px: 0.5,
                         borderRadius: 2,
                     },
                 })}
