@@ -20,7 +20,9 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
+use App\Repository\Core\AssetRenditionRepository;
 use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
@@ -88,24 +90,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         $highlights = $data->getElasticHighlights();
 
         if ($this->hasGroup([
-            Asset::GROUP_READ,
             Asset::GROUP_LIST,
-        ], $context)) {
-            $output->owner = $this->transformUser($data->getOwnerId());
-        }
-
-        if ($user instanceof JwtUser && $this->hasGroup([
-            Asset::GROUP_READ,
-        ], $context)) {
-            $output->topicSubscriptions = $this->notifier->getTopicSubscriptions(
-                $data->getTopicKeys(),
-                $user->getId(),
-            );
-        }
-
-        if ($this->hasGroup([
-            Asset::GROUP_LIST,
-            Asset::GROUP_READ,
             Asset::GROUP_STORY,
             Share::GROUP_READ,
             Share::GROUP_PUBLIC_READ,
@@ -166,14 +151,11 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
             $renditions = $this->em
                 ->getRepository(AssetRendition::class)
-                ->findAssetRenditions($data->getId());
+                ->findAssetRenditions($data->getId(), [
+                    AssetRenditionRepository::OPT_USED_AS => true,
+                ]);
 
-            foreach ([
-                'main',
-                'preview',
-                'thumbnail',
-                'animatedThumbnail',
-            ] as $type) {
+            foreach (RenditionDefinition::BUILT_IN_RENDITIONS as $type) {
                 if (null !== $file = $this->getRenditionUsedAsType($renditions, $data, $type, $userId, $groupIds)) {
                     $output->{'set'.ucfirst($type)}($file);
                 }
@@ -194,20 +176,32 @@ class AssetOutputTransformer implements OutputTransformerInterface
             $output->storyCollection = $data->getStoryCollection();
         }
 
-        if ($this->hasGroup([Asset::GROUP_LIST, Asset::GROUP_READ], $context)) {
-            $output->setCapabilities([
+        if ($this->hasGroup([Asset::GROUP_LIST], $context)) {
+            $capabilities = [
                 'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
                 'canEditAttributes' => $this->isGranted(AssetVoter::EDIT_ATTRIBUTES, $data),
                 'canShare' => $this->isGranted(AssetVoter::SHARE, $data),
                 'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
-                'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
-            ]);
-        }
+            ];
 
-        if ($this->hasGroup([Asset::GROUP_READ, Asset::GROUP_LIST], $context)) {
+            if ($this->hasGroup([Asset::GROUP_READ], $context)) {
+                $capabilities['canEditPermissions'] = $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data);
+            }
+
+            $output->setCapabilities($capabilities);
+
+            $output->owner = $this->transformUser($data->getOwnerId());
             $output->threadKey = $this->discussionManager->getObjectKey($data);
         }
+
         if ($this->hasGroup([Asset::GROUP_READ], $context)) {
+            if ($user instanceof JwtUser) {
+                $output->topicSubscriptions = $this->notifier->getTopicSubscriptions(
+                    $data->getTopicKeys(),
+                    $user->getId(),
+                );
+            }
+
             $output->thread = $this->discussionManager->getThreadOfObject($data);
             $output->attachments = $data->getAttachments();
         }

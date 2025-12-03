@@ -67,15 +67,18 @@ class EntityAttributeType extends TextAttributeType
                 ];
             }
 
-            foreach ($entity->getSynonyms() as $locale => $synonyms) {
-                if (empty($synonyms)) {
-                    continue;
-                }
+            $synonyms = $entity->getSynonyms();
+            if (!empty($synonyms)) {
+                foreach ($synonyms as $locale => $synonym) {
+                    if (empty($synonym)) {
+                        continue;
+                    }
 
-                $output[$locale] ??= [
-                    'id' => $entityId,
-                ];
-                $output[$locale]['synonyms'] = $synonyms;
+                    $output[$locale] ??= [
+                        'id' => $entityId,
+                    ];
+                    $output[$locale]['synonyms'] = $synonym;
+                }
             }
 
             return $output;

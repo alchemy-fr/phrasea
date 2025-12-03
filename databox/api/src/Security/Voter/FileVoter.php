@@ -40,7 +40,7 @@ class FileVoter extends AbstractVoter
 
         foreach ($rows as $row) {
             $asset = $this->em->find(Asset::class, $row['id']);
-            if ($this->security->isGranted($attribute, $asset)) {
+            if ($this->security->isGranted($attribute, $asset, $token)) {
                 return true;
             }
         }
@@ -56,7 +56,7 @@ class FileVoter extends AbstractVoter
 
         foreach ($rows as $row) {
             $asset = $this->em->find(Asset::class, $row['id']);
-            if ($this->security->isGranted($attribute, $asset)) {
+            if ($this->security->isGranted($attribute, $asset, $token)) {
                 return true;
             }
         }

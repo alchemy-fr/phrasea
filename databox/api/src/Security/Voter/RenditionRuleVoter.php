@@ -33,8 +33,8 @@ class RenditionRuleVoter extends AbstractVoter
             RenditionRule::TYPE_WORKSPACE => DoctrineUtil::findStrict($this->em, Workspace::class, $subject->getObjectId()),
             RenditionRule::TYPE_COLLECTION => DoctrineUtil::findStrict($this->em, Collection::class, $subject->getObjectId()),
         };
-        $objectEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $object);
-        $objectReader = fn (): bool => $this->security->isGranted(AbstractVoter::READ, $object);
+        $objectEditor = fn (): bool => $this->security->isGranted(self::EDIT, $object, $token);
+        $objectReader = fn (): bool => $this->security->isGranted(self::READ, $object, $token);
 
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;

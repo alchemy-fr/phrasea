@@ -39,15 +39,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'workspace',
     operations: [
         new Get(
-            normalizationContext: [
-                'groups' => [Workspace::GROUP_READ],
-            ],
             security: 'is_granted("READ", object)'
         ),
         new Put(
-            normalizationContext: [
-                'groups' => [Workspace::GROUP_READ],
-            ],
             securityPostDenormalize: 'is_granted("EDIT", object)'
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
@@ -58,7 +52,11 @@ use Symfony\Component\Validator\Constraints as Assert;
             read: true,
             name: 'flush'
         ),
-        new GetCollection(),
+        new GetCollection(
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST],
+            ],
+        ),
         new Get(
             uriTemplate: '/workspaces-by-slug/{slug}',
             uriVariables: [
@@ -68,14 +66,11 @@ use Symfony\Component\Validator\Constraints as Assert;
             name: 'get_by_slug'
         ),
         new Post(
-            normalizationContext: [
-                'groups' => [Workspace::GROUP_READ],
-            ],
             securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
         ),
     ],
     normalizationContext: [
-        'groups' => [Workspace::GROUP_LIST],
+        'groups' => [self::GROUP_LIST, self::GROUP_READ],
     ],
     input: WorkspaceInput::class,
     output: WorkspaceOutput::class,

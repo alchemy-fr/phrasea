@@ -124,6 +124,12 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     final public const int BUILD_MODE_NONE = 0;
     final public const int BUILD_MODE_PICK_SOURCE = 1;
     final public const int BUILD_MODE_CUSTOM = 2;
+    final public const array BUILT_IN_RENDITIONS = [
+        'main',
+        'preview',
+        'thumbnail',
+        'animatedThumbnail',
+    ];
 
     public const array BUILD_MODE_CHOICES = [
         'None' => RenditionDefinition::BUILD_MODE_NONE,

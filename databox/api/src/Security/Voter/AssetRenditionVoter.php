@@ -45,7 +45,7 @@ class AssetRenditionVoter extends AbstractVoter
                 $userId,
                 $groupIds
             ),
-            self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(AssetVoter::EDIT_RENDITIONS, $subject->getAsset()),
+            self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(AssetVoter::EDIT_RENDITIONS, $subject->getAsset(), $token),
             default => false,
         };
     }

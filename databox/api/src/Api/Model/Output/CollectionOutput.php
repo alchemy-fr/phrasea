@@ -31,16 +31,13 @@ class CollectionOutput extends AbstractUuidOutput
             'canEditPermissions' => 'boolean',
         ],
     ])]
-    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    #[Groups([Collection::GROUP_LIST, Workspace::GROUP_LIST])]
     protected array $capabilities = [];
 
     #[Groups([
         Collection::GROUP_LIST,
-        Collection::GROUP_READ,
         Asset::GROUP_LIST,
-        Asset::GROUP_READ,
         Workspace::GROUP_LIST,
-        Workspace::GROUP_READ,
         ResolveEntitiesOutput::GROUP_READ,
     ])]
     private ?string $title = null;
@@ -52,31 +49,28 @@ class CollectionOutput extends AbstractUuidOutput
 
     #[Groups([
         Collection::GROUP_LIST,
-        Collection::GROUP_READ,
         Asset::GROUP_LIST,
-        Asset::GROUP_READ,
         Workspace::GROUP_LIST,
-        Workspace::GROUP_READ,
         ResolveEntitiesOutput::GROUP_READ,
     ])]
     public ?string $titleTranslated = null;
 
-    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    #[Groups([Collection::GROUP_LIST, Workspace::GROUP_LIST])]
     private ?string $ownerId = null;
 
     #[Groups([Collection::GROUP_READ])]
     public ?UserOutput $owner = null;
 
-    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    #[Groups([Collection::GROUP_LIST, Workspace::GROUP_LIST])]
     private int $privacy;
 
-    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    #[Groups([Collection::GROUP_LIST, Workspace::GROUP_LIST])]
     public ?int $inheritedPrivacy = null;
 
-    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    #[Groups([Collection::GROUP_LIST, Workspace::GROUP_LIST])]
     public bool $shared;
 
-    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    #[Groups([Collection::GROUP_LIST, Workspace::GROUP_LIST])]
     public bool $public;
 
     #[Groups([Collection::GROUP_ABSOLUTE_TITLE])]
@@ -93,13 +87,13 @@ class CollectionOutput extends AbstractUuidOutput
     private $children;
 
     #[MaxDepth(1)]
-    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    #[Groups([Collection::GROUP_LIST, Workspace::GROUP_LIST])]
     private $workspace;
 
-    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([Collection::GROUP_LIST, Workspace::GROUP_LIST, Asset::GROUP_LIST])]
     #[MaxDepth(1)]
     #[Context(
-        normalizationContext: ['groups' => [Collection::GROUP_READ, Asset::GROUP_STORY, '_']],
+        normalizationContext: ['groups' => [Collection::GROUP_LIST, Asset::GROUP_STORY, '_']],
     )]
     private ?Asset $storyAsset;
 
@@ -112,7 +106,7 @@ class CollectionOutput extends AbstractUuidOutput
     #[Groups([Collection::GROUP_READ])]
     public ?array $translations = null;
 
-    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Asset::GROUP_READ, Asset::GROUP_LIST])]
+    #[Groups([Collection::GROUP_LIST, Asset::GROUP_LIST])]
     public bool $deleted;
 
     public function getTitle(): ?string

@@ -11,14 +11,14 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\Workspace;
-use App\Security\ScopeTrait;
+use App\Security\ScopeAwareTrait;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\WorkspaceVoter;
 use Doctrine\ORM\QueryBuilder;
 
 final class WorkspaceExtension implements QueryCollectionExtensionInterface
 {
-    use ScopeTrait;
+    use ScopeAwareTrait;
 
     public function applyToCollection(
         QueryBuilder $queryBuilder,

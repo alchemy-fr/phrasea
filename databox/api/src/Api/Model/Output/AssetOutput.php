@@ -39,13 +39,13 @@ class AssetOutput extends AbstractUuidOutput
             'canEditPermissions' => 'boolean',
         ],
     ])]
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST])]
     protected array $capabilities = [];
 
     /**
      * @var AttributeOutput[]
      */
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
+    #[Groups([Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     protected ?array $attributes = null;
 
     /**
@@ -54,8 +54,8 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_READ])]
     public $attachments;
 
-    #[Groups([Asset::GROUP_LIST,
-        Asset::GROUP_READ,
+    #[Groups([
+        Asset::GROUP_LIST,
         Asset::GROUP_STORY,
         WebhookSerializationInterface::DEFAULT_GROUP,
         Share::GROUP_PUBLIC_READ,
@@ -63,8 +63,8 @@ class AssetOutput extends AbstractUuidOutput
     ])]
     private ?string $title = null;
 
-    #[Groups([Asset::GROUP_LIST,
-        Asset::GROUP_READ,
+    #[Groups([
+        Asset::GROUP_LIST,
         Asset::GROUP_STORY,
         WebhookSerializationInterface::DEFAULT_GROUP,
         Share::GROUP_READ,
@@ -73,73 +73,67 @@ class AssetOutput extends AbstractUuidOutput
     ])]
     private ?string $resolvedTitle = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST])]
     private ?string $titleHighlight = null;
 
     #[Groups([Asset::GROUP_READ])]
     public ?Thread $thread = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST])]
     public ?string $threadKey = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
+    #[Groups([Asset::GROUP_LIST, WebhookSerializationInterface::DEFAULT_GROUP])]
     private int $privacy;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
+    #[Groups([Asset::GROUP_LIST, WebhookSerializationInterface::DEFAULT_GROUP])]
     public bool $deleted;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
+    #[Groups([Asset::GROUP_LIST, WebhookSerializationInterface::DEFAULT_GROUP])]
     private $workspace;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST])]
     public ?Collection $storyCollection = null;
 
-    /**
-     * Appears in these stories.
-     */
-    #[Groups([Asset::GROUP_READ])]
-    public ?Collection $stories = null;
-
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST])]
     private array $tags;
 
-    #[Groups([Asset::GROUP_READ, Asset::GROUP_LIST])]
+    #[Groups([Asset::GROUP_LIST])]
     public ?UserOutput $owner = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST])]
     public $referenceCollection;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST])]
     private array $collections;
 
     /**
      * @var FileOutput|null
      */
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
+    #[Groups([Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     private ?File $source = null;
 
     /**
      * @var AssetRenditionOutput|null
      */
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
+    #[Groups([Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $main = null;
 
     /**
      * @var AssetRenditionOutput|null
      */
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
+    #[Groups([Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $preview = null;
 
     /**
      * @var AssetRenditionOutput|null
      */
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
+    #[Groups([Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $thumbnail = null;
 
     /**
      * @var AssetRenditionOutput|null
      */
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
+    #[Groups([Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $animatedThumbnail = null;
 
     #[Groups(['dates'])]

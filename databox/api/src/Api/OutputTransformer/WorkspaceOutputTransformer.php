@@ -36,35 +36,32 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
         $output->nameTranslated = $data->getTranslatedField('name', $this->getPreferredLocales($data), $data->getName());
         $output->setSlug($data->getSlug());
         $output->setEnabledLocales($data->getEnabledLocales());
-        $output->setLocaleFallbacks($data->getLocaleFallbacks());
         $output->setPublic($data->isPublic());
         $output->setCreatedAt($data->getCreatedAt());
-        $output->translations = $data->getTranslations();
         $output->ownerId = $data->getOwnerId();
-        $output->fileAnalyzers = $data->getFileAnalyzers();
-        $output->trashRetentionDelay = $data->getTrashRetentionDelay();
-
-        $k = $data->getId().$this->getUserCacheId();
-        if (!isset($this->capCache[$k])) {
-            $this->capCache[$k] = [
-                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
-                'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
-            ];
-        }
 
         if ($this->hasGroup([
             Workspace::GROUP_READ,
         ], $context)) {
+            $output->setLocaleFallbacks($data->getLocaleFallbacks());
+            $output->fileAnalyzers = $data->getFileAnalyzers();
+            $output->trashRetentionDelay = $data->getTrashRetentionDelay();
+            $output->translations = $data->getTranslations();
             $output->owner = $this->transformUser($data->getOwnerId());
         }
 
         if ($this->hasGroup([
-            Collection::GROUP_READ,
             Collection::GROUP_LIST,
             Workspace::GROUP_LIST,
-            Workspace::GROUP_LIST,
         ], $context)) {
+            $k = $data->getId().$this->getUserCacheId();
+            if (!isset($this->capCache[$k])) {
+                $this->capCache[$k] = [
+                    'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                    'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                    'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
+                ];
+            }
             $output->setCapabilities($this->capCache[$k]);
         }
 

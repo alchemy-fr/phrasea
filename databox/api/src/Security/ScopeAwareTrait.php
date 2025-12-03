@@ -4,13 +4,13 @@ namespace App\Security;
 
 use Alchemy\AuthBundle\Security\Token\JwtToken;
 use App\Security\Voter\AbstractVoter;
-use Symfony\Bundle\SecurityBundle\Security;
+use App\Security\Voter\MemoryCacheSecurity;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\Service\Attribute\Required;
 
-trait ScopeTrait
+trait ScopeAwareTrait
 {
-    protected Security $security;
+    protected MemoryCacheSecurity $security;
 
     protected function hasScope(string $scope, string $scopePrefix, bool $applyHierarchy = true): bool
     {
@@ -20,6 +20,12 @@ trait ScopeTrait
         }
 
         return $this->tokenHasScope($token, $scope, $scopePrefix, $applyHierarchy);
+    }
+
+    #[Required]
+    public function setSecurity(MemoryCacheSecurity $security): void
+    {
+        $this->security = $security;
     }
 
     protected function tokenHasScope(TokenInterface $token, string $scope, string $scopePrefix, bool $applyHierarchy = true): bool
@@ -37,12 +43,6 @@ trait ScopeTrait
         $scopes = array_map(fn (string $scope): string => $scopePrefix.strtolower($scope), $scopes);
 
         return !empty(array_intersect($scopes, $tokenScopes));
-    }
-
-    #[Required]
-    public function setSecurity(Security $security): void
-    {
-        $this->security = $security;
     }
 
     private function getScopesFromHierarchy(string $attribute): array

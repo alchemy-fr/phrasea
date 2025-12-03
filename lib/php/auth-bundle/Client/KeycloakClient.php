@@ -113,9 +113,9 @@ final readonly class KeycloakClient
                     ...$options,
                     'access_token' => $accessToken,
                 ]));
-            }, handleHttpException: false);
+            }, nonHandledCodes: [404]);
         } catch (HttpExceptionInterface $e) {
-            if (404 === $e->getResponse()?->getStatusCode()) {
+            if (404 === $e->getResponse()->getStatusCode()) {
                 return null;
             }
 
@@ -146,9 +146,9 @@ final readonly class KeycloakClient
                 return $this->keycloakClient->request('GET', sprintf('%s/%s', $this->urlGenerator->getGroupsApiUrl(), $groupId), $this->getRequestOptions(array_merge($options, [
                     'access_token' => $accessToken,
                 ])));
-            });
+            }, nonHandledCodes: [404]);
         } catch (HttpExceptionInterface $e) {
-            if (404 === $e->getStatusCode()) {
+            if (404 === $e->getResponse()->getStatusCode()) {
                 return null;
             }
 
@@ -196,20 +196,22 @@ final readonly class KeycloakClient
         return $requestOptions;
     }
 
-    private function wrapRequest(callable $handler, bool $handleHttpException = true): array
+    private function wrapRequest(callable $handler, array $nonHandledCodes = []): array
     {
         try {
             $response = $handler();
 
             return $response->toArray();
         } catch (HttpExceptionInterface $e) {
-            if ($handleHttpException) {
-                if (null !== $statusCode = $e->getResponse()?->getStatusCode()) {
-                    throw match ($statusCode) {
-                        403 => new AccessDeniedHttpException($e->getResponse()->getContent(false), $e),
-                        default => new HttpException($statusCode, $e->getResponse()->getContent(false), $e),
-                    };
+            if (null !== $statusCode = $e->getResponse()?->getStatusCode()) {
+                if (in_array($statusCode, $nonHandledCodes, true)) {
+                    throw $e;
                 }
+
+                throw match ($statusCode) {
+                    403 => new AccessDeniedHttpException($e->getResponse()->getContent(false), $e),
+                    default => new HttpException($statusCode, $e->getResponse()->getContent(false), $e),
+                };
             }
 
             throw $e;

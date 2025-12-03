@@ -33,10 +33,6 @@ for d in ${DATABASES}; do
   DUMP_FILE="${DIR}/${d}.sql"
 
   if [ ! -f "${DUMP_FILE}" ]; then
-    if [ "${d}" == "auth" ]; then
-      continue
-    fi
-
     echo "File ${DUMP_FILE} does not exist"
     exit 2
   fi

@@ -115,9 +115,11 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
                     if ($type->supportsTranslations()) {
                         if ($isMultiple) {
                             foreach ($v as $item) {
-                                foreach ($item as $locale => $translation) {
-                                    $data[$locale][$fieldName] ??= [];
-                                    $data[$locale][$fieldName][] = $translation;
+                                if (is_array($item)) {
+                                    foreach ($item as $locale => $translation) {
+                                        $data[$locale][$fieldName] ??= [];
+                                        $data[$locale][$fieldName][] = $translation;
+                                    }
                                 }
                             }
                         } else {
