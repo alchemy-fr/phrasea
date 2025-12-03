@@ -165,6 +165,9 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
                         fontWeight: 'bold',
                     },
                 },
+                '.MuiListItemText-secondary': {
+                    wordWrap: 'break-word',
+                },
             })}
         >
             {Object.keys(facets)
