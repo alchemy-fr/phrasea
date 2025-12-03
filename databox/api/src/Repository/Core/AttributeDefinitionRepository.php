@@ -36,6 +36,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->innerJoin($rootAlias.'.workspace', 'acl_w');
 
         if (null !== $userId) {
+            $queryBuilder->addGroupBy($rootAlias.'.id');
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
                 $userId,

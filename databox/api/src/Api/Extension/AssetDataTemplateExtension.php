@@ -41,6 +41,7 @@ class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
         if (!$this->hasScope(AbstractVoter::LIST, AssetDataTemplateVoter::SCOPE_PREFIX)) {
             $user = $this->security->getUser();
             if ($user instanceof JwtUser) {
+                $queryBuilder->addGroupBy($rootAlias.'.id');
                 AccessControlEntryRepository::joinAcl(
                     $queryBuilder,
                     $user->getId(),

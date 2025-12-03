@@ -275,7 +275,7 @@ class BatchAttributeManager
                             } else {
                                 $sub = $this->em
                                     ->createQueryBuilder()
-                                    ->select('ad.id')
+                                    ->select('DISTINCT ad.id')
                                     ->from(AttributeDefinition::class, 'ad')
                                     ->andWhere('ad.workspace = :ws')
                                     ->andWhere('ad.editable = true')

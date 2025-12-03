@@ -44,6 +44,7 @@ final class WorkspaceExtension implements QueryCollectionExtensionInterface
 
         $user = $this->security->getUser();
         if ($user instanceof JwtUser) {
+            $queryBuilder->addGroupBy($rootAlias.'.id');
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
                 $user->getId(),

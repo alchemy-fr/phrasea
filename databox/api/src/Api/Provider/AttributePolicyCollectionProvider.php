@@ -39,6 +39,7 @@ class AttributePolicyCollectionProvider extends AbstractCollectionProvider
         }
 
         if (!$this->isAdmin()) {
+            $queryBuilder->addGroupBy('t.id');
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
                 $user->getId(),

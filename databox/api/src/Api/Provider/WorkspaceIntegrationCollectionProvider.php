@@ -73,6 +73,7 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
 
             $user = $this->security->getUser();
             if ($user instanceof JwtUser) {
+                $queryBuilder->addGroupBy('t.id');
                 AccessControlEntryRepository::joinAcl(
                     $queryBuilder,
                     $user->getId(),
