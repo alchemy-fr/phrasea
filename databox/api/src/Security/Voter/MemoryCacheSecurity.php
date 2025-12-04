@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use App\Entity\Core\Workspace;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -50,7 +51,7 @@ final class MemoryCacheSecurity
             }
         }
 
-        if (null === $subject) {
+        if (!$subject instanceof Workspace) {
             return $this->accessDecisionManager->decide($token, [$attribute], $subject);
         }
 

@@ -28,15 +28,22 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
         parent::__construct($registry, AttributeDefinition::class);
     }
 
-    public function addAclConditions(QueryBuilder $queryBuilder, ?string $userId, array $groupIds, bool $withConditions = true): QueryBuilder
-    {
+    public function addAclConditions(
+        QueryBuilder $queryBuilder,
+        ?string $userId,
+        array $groupIds,
+        bool $withConditions = true,
+        bool $withGroupBy = true,
+    ): QueryBuilder {
         $rootAlias = $queryBuilder->getRootAliases()[0];
         $queryBuilder
             ->innerJoin($rootAlias.'.policy', 'acl_c')
             ->innerJoin($rootAlias.'.workspace', 'acl_w');
 
         if (null !== $userId) {
-            $queryBuilder->addGroupBy($rootAlias.'.id');
+            if ($withGroupBy) {
+                $queryBuilder->addGroupBy($rootAlias.'.id');
+            }
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
                 $userId,
@@ -73,9 +80,9 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
         return $queryBuilder;
     }
 
-    public function createQueryBuilderAcl(?string $userId, array $groupIds, bool $withConditions = true): QueryBuilder
+    public function createQueryBuilderAcl(?string $userId, array $groupIds, bool $withConditions = true, bool $withGroupBy = true): QueryBuilder
     {
-        return $this->addAclConditions($this->createQueryBuilder('t'), $userId, $groupIds, $withConditions);
+        return $this->addAclConditions($this->createQueryBuilder('t'), $userId, $groupIds, $withConditions, $withGroupBy);
     }
 
     public function getAttributeDefinitionBySlug(string $workspaceId, string $slug): ?AttributeDefinition
@@ -99,7 +106,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     public function getSearchableAttributesWithPermission(?string $userId, array $groupIds): iterable
     {
         $queryBuilder = $this
-            ->createQueryBuilderAcl($userId, $groupIds, withConditions: false)
+            ->createQueryBuilderAcl($userId, $groupIds, withConditions: false, withGroupBy: false)
             ->select('t.fieldType')
             ->addSelect('t.slug')
             ->addSelect('t.multiple')
@@ -110,6 +117,12 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->addSelect('acl_w.id AS workspaceId')
             ->addSelect('acl_w.enabledLocales AS enabledLocales')
             ->andWhere('t.searchable = true')
+            ->addGroupBy('t.id')
+            ->addGroupBy('acl_c.id')
+            ->addGroupBy('acl_w.id')
+            ->addGroupBy('acl_c.id')
+            ->addGroupBy('ap_ace.id')
+            ->addGroupBy('w_ace.id')
         ;
 
         if (null !== $userId) {
