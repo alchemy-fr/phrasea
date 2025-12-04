@@ -130,7 +130,6 @@ export default function SavedSearchList({}: Props) {
                         <ListItemButton
                             selected={searchContext!.searchId === search.id}
                             onClick={() => {
-                                console.log('search', search);
                                 searchContext!.loadSearch(search);
                             }}
                             role={undefined}

@@ -49,7 +49,7 @@ export default function UserMenu({
             keepMounted
             transformOrigin={{
                 vertical: 'top',
-                horizontal: isMenu ? 'left': 'right',
+                horizontal: isMenu ? 'left' : 'right',
             }}
         >
             {closeMenu => {
