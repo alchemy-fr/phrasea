@@ -145,6 +145,8 @@ fos_elastica:
                 driver: orm
                 model: App\Entity\Core\Asset
                 listener: { enabled: false }
+                elastica_to_model_transformer:
+                    query_builder_method: createElasticaToModelQueryBuilder
                 provider:
                     query_builder_method: getESQueryBuilder
 

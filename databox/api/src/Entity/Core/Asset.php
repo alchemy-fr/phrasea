@@ -138,6 +138,9 @@ use Symfony\Component\Validator\Constraints as Assert;
             processor: AssetAttributeBatchUpdateProcessor::class,
         ),
         new GetCollection(
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST],
+            ],
             parameters: [
                 'collection' => new QueryParameter(),
                 'conditions' => new QueryParameter(
