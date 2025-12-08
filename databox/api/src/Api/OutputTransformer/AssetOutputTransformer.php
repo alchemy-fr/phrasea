@@ -66,7 +66,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         $output = new AssetOutput();
         $output->setId($data->getId());
 
-        if (in_array(BasketAsset::GROUP_LIST, $context['groups'], true)) {
+        if ($this->hasGroup(BasketAsset::GROUP_LIST, $context)) {
             if (!$this->isGranted(AbstractVoter::READ, $data)) {
                 return $output;
             }

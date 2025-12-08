@@ -32,7 +32,7 @@ class AssetDataTemplateProvider implements OutputTransformerInterface
         $output->collection = $data->getCollection();
         $output->includeCollectionChildren = $data->isIncludeCollectionChildren();
 
-        if (isset($context['groups']) && in_array(AssetDataTemplate::GROUP_READ, $context['groups'], true)) {
+        if ($this->hasGroup([AssetDataTemplate::GROUP_READ], $context)) {
             $output->attributes = array_filter($data->getAttributes()->getValues(), fn (TemplateAttribute $attribute): bool => $this->security->isGranted(AbstractVoter::READ, $attribute));
         }
 
