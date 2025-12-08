@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\Core\WorkspaceRepository;
 use Elastica\Query;
 use Symfony\Contracts\Service\Attribute\Required;
 
@@ -15,7 +14,7 @@ abstract class AbstractSearch
 {
     use SecurityAwareTrait;
 
-    protected EntityManagerInterface $em;
+    protected WorkspaceRepository $workspaceRepository;
 
     private ?array $allowedWorkspaces = null;
     private ?array $publicWorkspaceIds = null;
@@ -106,7 +105,7 @@ abstract class AbstractSearch
             return $this->allowedWorkspaces;
         }
 
-        return $this->allowedWorkspaces = $this->em->getRepository(Workspace::class)->getAllowedWorkspaceIds($userId, $groupIds);
+        return $this->allowedWorkspaces = $this->workspaceRepository->getAllowedWorkspaceIds($userId, $groupIds);
     }
 
     protected function getPublicWorkspaceIds(): array
@@ -115,24 +114,12 @@ abstract class AbstractSearch
             return $this->publicWorkspaceIds;
         }
 
-        return $this->publicWorkspaceIds = $this->em->getRepository(Workspace::class)->getPublicWorkspaceIds();
-    }
-
-    protected function findEntityByIds(string $entityName, array $ids): array
-    {
-        return $this->em
-            ->createQueryBuilder()
-            ->select('t')
-            ->from($entityName, 't')
-            ->where('t.id IN (:ids)')
-            ->setParameter('ids', $ids)
-            ->getQuery()
-            ->getResult();
+        return $this->publicWorkspaceIds = $this->workspaceRepository->getPublicWorkspaceIds();
     }
 
     #[Required]
-    public function setEm(EntityManagerInterface $em): void
+    public function setWorkspaceRepository(WorkspaceRepository $workspaceRepository): void
     {
-        $this->em = $em;
+        $this->workspaceRepository = $workspaceRepository;
     }
 }
