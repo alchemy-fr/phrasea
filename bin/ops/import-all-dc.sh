@@ -29,16 +29,26 @@ tar -C ${DIR} -xf ${PACKAGE}
 
 . "bin/ops/db/db.sh"
 
-for d in ${DATABASES}; do
-  DUMP_FILE="${DIR}/${d}.sql"
+function import_db() {
+  local db_name="$1"
+  echo "## Importing ${db_name} database..."
+  local dump_file="${DIR}/${db_name}.sql"
 
-  if [ ! -f "${DUMP_FILE}" ]; then
-    echo "File ${DUMP_FILE} does not exist"
+  if [ ! -f "${dump_file}" ]; then
+    echo "File ${dump_file} does not exist"
     exit 2
   fi
-  exec_container db "psql -U ${POSTGRES_USER} -d ${d}" < ${DUMP_FILE}
 
-  echo "[✓] ${d} database imported"
+  exec_container db "psql -U ${POSTGRES_USER} -d ${db_name}" < ${dump_file}
+  echo "[✓] ${db_name} database imported"
+}
+
+for d in ${DATABASES}; do
+  import_db "${d}"
 done
+
+if [ -f "${DIR}/keycloak.sql" ]; then
+  import_db "keycloak"
+fi
 
 echo "Complete."
