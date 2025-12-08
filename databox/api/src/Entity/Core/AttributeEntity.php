@@ -34,13 +34,20 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
-        new GetCollection(),
+        new GetCollection(
+            normalizationContext: [
+                'groups' => [
+                    self::GROUP_LIST,
+                ],
+            ],
+        ),
         new Post(
             securityPostDenormalize: 'is_granted("CREATE", object)'
         ),
     ],
     normalizationContext: [
         'groups' => [
+            self::GROUP_READ,
             self::GROUP_LIST,
         ],
     ],
@@ -77,15 +84,16 @@ class AttributeEntity extends AbstractUuidEntity
 
     #[ORM\Column(type: Types::TEXT, nullable: false)]
     #[Groups([
-        self::GROUP_LIST, self::GROUP_READ,
+        self::GROUP_LIST,
         ResolveEntitiesOutput::GROUP_READ,
+        Asset::GROUP_LIST,
     ])]
     #[Assert\NotBlank]
     private ?string $value = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups([
-        self::GROUP_LIST, self::GROUP_READ,
+        self::GROUP_LIST,
     ])]
     #[Assert\Type('array')]
     #[Assert\All([
@@ -102,7 +110,11 @@ class AttributeEntity extends AbstractUuidEntity
     private int $position = 0;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups([self::GROUP_LIST, self::GROUP_READ])]
+    #[Groups([
+        self::GROUP_LIST,
+        ResolveEntitiesOutput::GROUP_READ,
+        Asset::GROUP_LIST,
+    ])]
     private ?array $translations = null;
 
     public function getValue(): ?string

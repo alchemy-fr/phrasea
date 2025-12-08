@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Elasticsearch\BuiltInField;
 
 use App\Api\Traits\UserLocaleTrait;
-use App\Attribute\Type\TagAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Tag;
 
@@ -53,11 +52,6 @@ final class TagBuiltInField extends AbstractEntityBuiltInField
     public static function getKey(): string
     {
         return '@tag';
-    }
-
-    public function getType(): string
-    {
-        return TagAttributeType::NAME;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

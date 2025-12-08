@@ -81,17 +81,20 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(
             uriTemplate: '/assets/suggest',
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST],
+            ],
             name: 'suggestions',
             provider: SearchSuggestionCollectionProvider::class,
         ),
         new Get(
-            normalizationContext: [
-                'groups' => [self::GROUP_READ, Collection::GROUP_ABSOLUTE_TITLE],
-            ],
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
         new Get(
             uriTemplate: '/assets/{id}/story-thumbnails',
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST],
+            ],
             output: StoryThumbnailsOutput::class,
             name: 'story-thumbnails',
             provider: StoryThumbnailsProvider::class,
@@ -168,16 +171,16 @@ use Symfony\Component\Validator\Constraints as Assert;
             ]
         ),
         new Post(
-            normalizationContext: [
-                'groups' => [self::GROUP_READ, Collection::GROUP_ABSOLUTE_TITLE],
-            ],
             securityPostDenormalize: 'is_granted("CREATE", object)',
             validate: true,
         ),
         new Post(
             uriTemplate: '/assets/multiple',
             normalizationContext: [
-                'groups' => [self::GROUP_LIST],
+                'groups' => [
+                    self::GROUP_LIST,
+                    Collection::GROUP_ABSOLUTE_TITLE,
+                ],
             ],
             input: MultipleAssetInput::class,
             output: MultipleAssetOutput::class,
@@ -258,7 +261,11 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
     ],
     normalizationContext: [
-        'groups' => [self::GROUP_LIST],
+        'groups' => [
+            self::GROUP_LIST,
+            self::GROUP_READ,
+            Collection::GROUP_ABSOLUTE_TITLE,
+        ],
     ],
     input: AssetInput::class,
     output: AssetOutput::class,

@@ -67,9 +67,6 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(
-            normalizationContext: [
-                'groups' => [self::GROUP_READ],
-            ],
             security: 'is_granted("EDIT", object)',
         ),
         new Patch(security: 'is_granted("EDIT", object)'),

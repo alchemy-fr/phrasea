@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\AttributeInterface;
@@ -99,26 +100,30 @@ class EntityAttributeType extends TextAttributeType
         ];
     }
 
-    public function normalizeBucket(array $bucket): ?array
+    public function normalizeBuckets(array $buckets): array
     {
-        $entity = $this->getEntityFromValue($bucket['key']);
-        if (null === $entity) {
-            return null;
-        }
+        $entities = DoctrineUtil::getIndexFromIds($this->repository, array_map(fn ($b) => $b['key'], $buckets));
 
-        $translatedValue = $this->getTranslatedValue($entity);
+        return array_map(function (array $bucket) use ($entities): ?array {
+            $entity = $entities[$bucket['key']] ?? null;
+            if (null === $entity) {
+                return null;
+            }
 
-        $bucket['key'] = [
-            'value' => $bucket['key'],
-            'label' => $translatedValue,
-            'item' => [
-                'id' => $entity->getId(),
-                'value' => $entity->getValue(),
-                'translatedValue' => $translatedValue,
-            ],
-        ];
+            $translatedValue = $this->getTranslatedValue($entity);
 
-        return $bucket;
+            $bucket['key'] = [
+                'value' => $bucket['key'],
+                'label' => $translatedValue,
+                'item' => [
+                    'id' => $entity->getId(),
+                    'value' => $entity->getValue(),
+                    'translatedValue' => $translatedValue,
+                ],
+            ];
+
+            return $bucket;
+        }, $buckets);
     }
 
     protected function getTranslatedValue(AttributeEntity $entity): ?string
@@ -156,7 +161,7 @@ class EntityAttributeType extends TextAttributeType
         return $this->repository->find($value);
     }
 
-    public function denormalizeValue(?string $value): ?array
+    public function denormalizeValue(?string $value)
     {
         $entity = $this->getEntityFromValue($value);
         if (!$entity instanceof AttributeEntity) {

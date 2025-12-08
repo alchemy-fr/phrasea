@@ -19,23 +19,26 @@ readonly class UpdateSubscribersHandler
 
     public function __invoke(UpdateSubscribers $message): void
     {
-        $subscribers = array_map(function (string $subscriber): array {
-            $subscriber = ['subscriberId' => $subscriber];
+        $userIds = $message->getSubscribers();
+        $users = $this->userRepository->getUsersByIds(array_map(fn (string $id): string => $id, $userIds));
 
-            $user = $this->userRepository->getUser($subscriber['subscriberId']);
+        $subscribers = array_map(function (string $userId) use ($users): array {
+            $output = ['subscriberId' => $userId];
+
+            $user = $users[$userId] ?? null;
             if (null !== $user) {
-                $subscriber['email'] = $user['email'] ?? null;
-                if (null === $subscriber['email'] && isset($user['username']) && filter_var($user['username'], FILTER_VALIDATE_EMAIL)) {
-                    $subscriber['email'] = $user['username'];
+                $output['email'] = $user['email'] ?? null;
+                if (null === $output['email'] && isset($user['username']) && filter_var($user['username'], FILTER_VALIDATE_EMAIL)) {
+                    $output['email'] = $user['username'];
                 }
 
                 foreach (['firstName', 'lastName'] as $key) {
-                    $subscriber[$key] ??= $user[$key] ?? null;
+                    $output[$key] ??= $user[$key] ?? null;
                 }
             }
 
-            return $subscriber;
-        }, $message->getSubscribers());
+            return $output;
+        }, $userIds);
 
         $this->novuClient->upsertSubscribers($subscribers);
     }

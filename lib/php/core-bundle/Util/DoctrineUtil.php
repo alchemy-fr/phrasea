@@ -61,4 +61,20 @@ final readonly class DoctrineUtil
             ->getQuery()
             ->toIterable();
     }
+
+    public static function getIndexFromIds(
+        EntityRepository $repo,
+        array $ids,
+    ): array {
+        $results = $repo->findBy([
+            'id' => array_filter($ids, fn ($v) => !empty($v)),
+        ]);
+
+        $index = [];
+        foreach ($results as $entity) {
+            $index[$entity->getId()] = $entity;
+        }
+
+        return $index;
+    }
 }

@@ -131,6 +131,25 @@ final readonly class KeycloakClient
         ]);
     }
 
+    public function getUsersByIds(string $accessToken, array $ids, array $options = []): array
+    {
+        $users = $this->get($this->urlGenerator->getUsersApiUrl(), [
+            ...$options,
+            'access_token' => $accessToken,
+            'query' => [
+                'search' => 'id:'.implode(' ', $ids),
+                ...$options['query'] ?? [],
+            ],
+        ]);
+
+        $indexedUsers = [];
+        foreach ($users as $user) {
+            $indexedUsers[$user['id']] = $user;
+        }
+
+        return $indexedUsers;
+    }
+
     public function getGroups(string $accessToken, array $options = []): array
     {
         return $this->get($this->urlGenerator->getGroupsApiUrl(), [

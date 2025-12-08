@@ -32,12 +32,24 @@ class ResolveEntitiesProcessor implements ProcessorInterface
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): ResolveEntitiesOutput
     {
         $userIri = '/users/';
+        $userIriLength = strlen($userIri);
+
+        $users = [];
+        foreach ($data->entities as $iri) {
+            if (str_starts_with($iri, $userIri)) {
+                $users[] = substr($iri, $userIriLength);
+            }
+        }
+
+        if (!empty($users)) {
+            $fetchedUsers = $this->userRepository->getUsersByIds($users);
+        }
 
         $entities = [];
         foreach ($data->entities as $iri) {
             try {
                 if (str_starts_with($iri, $userIri)) {
-                    $entities[$iri] = $this->userRepository->getUser(substr($iri, strlen($userIri)));
+                    $entities[$iri] = $fetchedUsers[substr($iri, $userIriLength)] ?? null;
                 } else {
                     $entities[$iri] = $this->iriConverter->getResourceFromIri($iri);
                 }

@@ -14,7 +14,14 @@ use App\Entity\Core\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 
+#[AsEventListener(KernelEvents::TERMINATE, method: 'reset', priority: -5)]
+#[AsEventListener(ConsoleEvents::TERMINATE, method: 'reset', priority: -5)]
+#[AsEventListener(WorkerMessageHandledEvent::class, method: 'reset', priority: -5)]
 class AttributeDefinitionRepository extends ServiceEntityRepository
 {
     use SecurityAwareTrait;
@@ -22,6 +29,8 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     public const string OPT_SKIP_PERMS = 'skip_perms';
     public const string OPT_FACET_ENABLED = 'facet_enabled';
     public const string OPT_SUGGEST_ENABLED = 'suggest_enabled';
+
+    private array $fbAttrCache = [];
 
     public function __construct(ManagerRegistry $registry)
     {
@@ -195,7 +204,11 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
      */
     public function getWorkspaceFallbackDefinitions(string $workspaceId): array
     {
-        return $this
+        if (isset($this->fbAttrCache[$workspaceId])) {
+            return $this->fbAttrCache[$workspaceId];
+        }
+
+        return $this->fbAttrCache[$workspaceId] = $this
             ->createQueryBuilder('d')
             ->andWhere('d.fallback IS NOT NULL')
             ->andWhere('d.workspace = :workspace')
@@ -259,5 +272,10 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->setParameter('ids', $ids)
             ->getQuery()
             ->getResult();
+    }
+
+    public function reset(): void
+    {
+        $this->fbAttrCache = [];
     }
 }
