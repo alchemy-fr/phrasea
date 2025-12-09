@@ -15,15 +15,23 @@ type Props = PropsWithChildren<{}>;
 
 export default function UserPreferencesProvider({children}: Props) {
     const {t} = useTranslation();
-    const {user} = useAuth();
+    const {user, isAuthenticated, hasSession} = useAuth();
+    const loadingRef = React.useRef(false);
 
     const preferences = useUserPreferencesStore(s => s.preferences);
     const loadPreferences = useUserPreferencesStore(s => s.load);
-    const isLoading = useUserPreferencesStore(s => s.loading);
+    const loading = useUserPreferencesStore(s => s.loading);
     const setCurrentAttrList = useAttributeListStore(s => s.setCurrent);
+
+    if (hasSession && !isAuthenticated) {
+        loadingRef.current = true;
+    }
+
+    const isLoading = loading || loadingRef.current;
 
     React.useEffect(() => {
         if (user) {
+            loadingRef.current = false;
             loadPreferences().then(up => {
                 if (up.attrList) {
                     setCurrentAttrList(up.attrList);
@@ -58,7 +66,7 @@ export default function UserPreferencesProvider({children}: Props) {
                         },
                     },
                     'body': {
-                        backgroundColor: theme.palette.common.white,
+                        backgroundColor: theme.palette.background.default,
                     },
                     [`.${Classes.ellipsisText} .MuiListItemText-secondary`]: {
                         textOverflow: 'ellipsis',

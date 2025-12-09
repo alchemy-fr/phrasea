@@ -52,7 +52,7 @@ export default function Preview<T>({
                 <>
                     <Box
                         sx={{
-                            bgcolor: 'common.white',
+                            bgcolor: 'background.default',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',

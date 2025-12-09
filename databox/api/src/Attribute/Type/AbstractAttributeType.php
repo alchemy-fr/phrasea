@@ -95,9 +95,9 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return null;
     }
 
-    public function normalizeBucket(array $bucket): ?array
+    public function normalizeBuckets(array $buckets): array
     {
-        return $bucket;
+        return $buckets;
     }
 
     public function getElasticSearchTextSubField(): ?string

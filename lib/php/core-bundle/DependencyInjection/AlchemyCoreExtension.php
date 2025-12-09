@@ -252,6 +252,11 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                     'authorizationUrl' => '%env(KEYCLOAK_URL)%/realms/%env(KEYCLOAK_REALM_NAME)%/protocol/openid-connect/auth',
                     'flow' => 'authorizationCode',
                 ],
+                'collection' => [
+                    'pagination' => [
+                        'items_per_page_parameter_name' => 'limit',
+                    ],
+                ],
             ]);
         }
     }

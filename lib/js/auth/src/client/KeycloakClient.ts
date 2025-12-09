@@ -43,7 +43,7 @@ export class KeycloakClient {
         }
         this.initialized = true;
 
-        if (this.client.isAuthenticated()) {
+        if (await this.client.isAuthenticated()) {
             return;
         }
 
@@ -60,7 +60,8 @@ export class KeycloakClient {
                 token,
                 idToken,
             } = this.keycloak;
-            await this.client.saveTokensFromResponse({
+
+            this.client.saveTokensFromResponse({
                 id_token: idToken!,
                 access_token: token!,
                 expires_in: tokenParsed!.exp! - tokenParsed!.iat!,

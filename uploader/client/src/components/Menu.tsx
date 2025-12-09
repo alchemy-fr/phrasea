@@ -104,7 +104,7 @@ export default function Menu({children}: Props) {
                             <ListItemText primary="Target Data Editor" />
                         </MenuItem>
                     )}
-                    {isAuthenticated() && (
+                    {isAuthenticated && (
                         <>
                             <Divider />
                             <MenuItem

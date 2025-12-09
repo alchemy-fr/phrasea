@@ -37,7 +37,7 @@ class AttributeDefinitionVoter extends AbstractVoter
         return match ($attribute) {
             self::VIEW_ATTRIBUTES => $subject->getPolicy()->isPublic()
                 || $this->hasAcl(PermissionInterface::VIEW, $subject->getPolicy(), $token),
-            self::READ, self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(self::EDIT, $workspace),
+            self::READ, self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(self::EDIT, $workspace, $token),
             default => false,
         };
     }

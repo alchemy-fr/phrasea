@@ -44,7 +44,6 @@ final class KeycloakManager
             $response = $this->keycloakClient->request('POST', UriTemplate::resolve('/realms/{realm}/protocol/openid-connect/token', [
                 'realm' => 'master',
             ]), [
-                'base_uri' => getenv('KEYCLOAK_URL'),
                 'body' => [
                     'client_id' => 'admin-cli',
                     'grant_type' => 'password',

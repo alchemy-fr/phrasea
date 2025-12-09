@@ -39,6 +39,7 @@ export interface GetAssetOptions {
     workspaces?: string[];
     ids?: string[];
     parents?: string[];
+    story?: string;
     conditions?: string[];
     order?: Record<string, SortWay>;
     group?: string[] | undefined;

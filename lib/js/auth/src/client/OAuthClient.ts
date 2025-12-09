@@ -36,11 +36,12 @@ export class OAuthClient<UIR extends UserInfoResponse> {
     public readonly baseUrl: string;
     private listeners: Record<string, OrderedListener[]> = {};
     private readonly storage: IStorage;
-    private tokensCache: AuthTokens | undefined;
+    private initialized: boolean = false;
+    private initPromise: Promise<AuthTokens | undefined> | undefined;
+    private tokens: AuthTokens | undefined;
     private sessionTimeout: ReturnType<typeof setTimeout> | undefined;
     private autoRefreshTimeout: ReturnType<typeof setTimeout> | undefined;
-    private readonly tokenStorageKey: string = 'token';
-    private readonly idTokenStorageKey: string = 'idToken';
+    private readonly refreshTokenStorageKey: string;
     private readonly httpClient: HttpClient;
     private readonly scope?: string;
     public sessionHasExpired: boolean = false;
@@ -53,7 +54,7 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         clientSecret,
         baseUrl,
         storage,
-        tokenStorageKey,
+        refreshTokenStorageKey = 'token',
         httpClient,
         scope,
         cookiesOptions,
@@ -67,7 +68,7 @@ export class OAuthClient<UIR extends UserInfoResponse> {
             new CookieStorage({
                 cookiesOptions,
             });
-        this.tokenStorageKey = tokenStorageKey ?? 'token';
+        this.refreshTokenStorageKey = refreshTokenStorageKey;
         this.httpClient = httpClient ?? createHttpClient(this.baseUrl);
         this.scope = scope;
         this.autoRefreshToken = autoRefreshToken ?? true;
@@ -93,35 +94,30 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         return false;
     }
 
-    public isTokenPersisted(): boolean {
-        return Boolean(this.storage.getItem(this.tokenStorageKey));
-    }
-
     public getAccessToken(): string | undefined {
-        return this.fetchTokens()?.accessToken;
-    }
-
-    public getIdToken(): string | undefined {
-        return this.fetchTokens()?.idToken;
+        return this.tokens?.accessToken;
     }
 
     public getTokenType(): string | undefined {
-        return this.fetchTokens()?.tokenType;
+        return this.tokens?.tokenType;
     }
 
-    public getRefreshToken(): string | undefined {
-        return this.fetchTokens()?.refreshToken;
+    public getRefreshToken(): string | null {
+        return this.storage.getItem(this.refreshTokenStorageKey);
     }
 
-    public isAuthenticated(): boolean {
-        return this.isValidSession(this.fetchTokens());
+    public async isAuthenticated(): Promise<boolean> {
+        return this.isValidSession(await this.initSession());
+    }
+
+    public hasSession(): boolean {
+        return !!this.getRefreshToken();
     }
 
     public isAccessTokenValid(): boolean {
-        const tokens = this.fetchTokens();
-        if (tokens) {
+        if (this.tokens) {
             return (
-                tokens.expiresAt >
+                this.tokens.expiresAt >
                 Math.ceil(new Date().getTime() / 1000) +
                     this.tokenValidityOffset
             );
@@ -140,7 +136,7 @@ export class OAuthClient<UIR extends UserInfoResponse> {
     }
 
     public getDecodedIdToken(): UIR | undefined {
-        const idToken = this.getIdToken();
+        const idToken = this.tokens?.idToken;
         if (!idToken) {
             return;
         }
@@ -152,8 +148,8 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         options: LogoutOptions = {}
     ): Promise<LogoutEvent | undefined> {
         this.clearSessionTimeout();
-        this.storage.removeItem(this.tokenStorageKey);
-        this.tokensCache = undefined;
+        this.storage.removeItem(this.refreshTokenStorageKey);
+        this.tokens = undefined;
 
         if (!options.noEvent) {
             const event = {
@@ -294,16 +290,6 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         return res;
     }
 
-    public async wrapPromiseWithValidToken<T = any>(
-        callback: (tokens: AuthTokens) => Promise<T>
-    ): Promise<T> {
-        if (!this.isAccessTokenValid()) {
-            await this.getTokenFromRefreshToken();
-        }
-
-        return await callback(this.fetchTokens()!);
-    }
-
     public createAuthorizeUrl({
         redirectPath = '/auth',
         connectTo,
@@ -320,7 +306,7 @@ export class OAuthClient<UIR extends UserInfoResponse> {
     }
 
     public getTokens(): AuthTokens | undefined {
-        return this.fetchTokens();
+        return this.tokens;
     }
 
     private async triggerEvent<E extends AuthEvent = AuthEvent>(
@@ -392,9 +378,7 @@ export class OAuthClient<UIR extends UserInfoResponse> {
             expiresAt: now + res.expires_in,
             refreshToken: res.refresh_token,
             refreshExpiresIn: res.refresh_expires_in,
-            refreshExpiresAt: res.refresh_expires_in
-                ? now + res.refresh_expires_in
-                : undefined,
+            refreshExpiresAt: now + res.refresh_expires_in,
             deviceToken: res.device_token,
             deviceTokenExpiresIn: res.device_token_expires_in,
             deviceTokenExpiresAt: res.device_token_expires_in
@@ -404,41 +388,47 @@ export class OAuthClient<UIR extends UserInfoResponse> {
     }
 
     private persistTokens(tokens: AuthTokens): void {
-        this.tokensCache = tokens;
+        this.tokens = {
+            ...tokens,
+        };
 
-        if (tokens.idToken) {
-            this.storage.setItem(
-                this.idTokenStorageKey,
-                JSON.stringify(tokens.idToken)
-            );
-            delete tokens.idToken;
-        }
+        this.storage.setItem(this.refreshTokenStorageKey, tokens.refreshToken, {
+            expires: new Date(tokens.refreshExpiresAt * 1000),
+        });
 
-        this.storage.setItem(this.tokenStorageKey, JSON.stringify(tokens));
-
-        if (this.storage.getItem(this.tokenStorageKey) === null) {
-            throw new Error(
-                'Failed to persist tokens. Storage may be full or not writable.'
-            );
+        if (this.storage.getItem(this.refreshTokenStorageKey) === null) {
+            console.error('Failed to persist token. Storage may be full or not writable.');
         }
     }
 
-    private fetchTokens(): AuthTokens | undefined {
-        if (this.tokensCache) {
-            return this.tokensCache;
+    public async initSession(): Promise<AuthTokens | undefined> {
+        if (this.initialized) {
+            return this.tokens;
         }
 
-        const t = this.storage.getItem(this.tokenStorageKey);
-        if (t) {
-            const tokens = JSON.parse(t) as AuthTokens;
+        if (!this.hasSession()) {
+            this.initialized = true;
 
-            tokens.idToken =
-                this.storage.getItem(this.idTokenStorageKey) || undefined;
-
-            this.handleSessionTimeout(tokens);
-
-            return (this.tokensCache = tokens);
+            return;
         }
+
+        if (this.initPromise) {
+            return await this.initPromise;
+        }
+
+        this.initPromise = new Promise<AuthTokens | undefined>((resolve, reject) => {
+            this.getTokenFromRefreshToken().then(() => {
+                this.initialized = true;
+                resolve(this.tokens);
+            }).catch((reason) => {
+                this.initialized = true;
+                reject(reason);
+            }).finally(() => {
+                this.initPromise = undefined;
+            });
+        });
+
+        return await this.initPromise;
     }
 
     private async getToken(
@@ -478,9 +468,9 @@ export class OAuthClient<UIR extends UserInfoResponse> {
 
 type OnTokenError = (error: AxiosError) => void;
 
-export function configureClientAuthentication(
+export function configureClientAuthentication<UIR extends UserInfoResponse>(
     client: AxiosInstance,
-    oauthClient: OAuthClient<any>,
+    oauthClient: OAuthClient<UIR>,
     refreshMethod: GrantTypeRefreshMethod = GrantTypeRefreshMethod.refreshToken,
     onTokenError?: OnTokenError
 ): void {
@@ -489,9 +479,9 @@ export function configureClientAuthentication(
     );
 }
 
-export function configureClientCredentials401Retry(
+export function configureClientCredentials401Retry<UIR extends UserInfoResponse>(
     client: AxiosInstance,
-    oauthClient: OAuthClient<any>
+    oauthClient: OAuthClient<UIR>
 ): void {
     client.interceptors.response.use(
         r => r,
@@ -522,8 +512,8 @@ export function configureClientCredentials401Retry(
     );
 }
 
-function createAxiosInterceptor(
-    oauthClient: OAuthClient<any>,
+function createAxiosInterceptor<UIR extends UserInfoResponse>(
+    oauthClient: OAuthClient<UIR>,
     refreshMethod: GrantTypeRefreshMethod,
     onTokenError?: OnTokenError
 ) {
@@ -534,7 +524,7 @@ function createAxiosInterceptor(
 
         if (
             refreshMethod === GrantTypeRefreshMethod.refreshToken &&
-            !oauthClient.isAuthenticated()
+            !await oauthClient.isAuthenticated()
         ) {
             return config;
         }

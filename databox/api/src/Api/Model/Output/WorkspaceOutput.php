@@ -22,46 +22,36 @@ class WorkspaceOutput extends AbstractUuidOutput
     #[Groups([
         '_',
         Workspace::GROUP_LIST,
-        Workspace::GROUP_READ,
         Collection::GROUP_LIST,
-        Collection::GROUP_READ,
     ])]
     protected array $capabilities = [];
 
     #[Groups([
         Workspace::GROUP_LIST,
-        Workspace::GROUP_READ,
         Collection::GROUP_LIST,
-        Collection::GROUP_READ,
         Asset::GROUP_LIST,
-        Asset::GROUP_READ,
         WebhookSerializationInterface::DEFAULT_GROUP,
         RenditionDefinition::GROUP_LIST,
-        ResolveEntitiesOutput::GROUP_READ,
         AttributeDefinition::GROUP_LIST,
-        AttributeDefinition::GROUP_READ,
+        ResolveEntitiesOutput::GROUP_READ,
     ])]
     private string $name;
 
     #[Groups([
         Workspace::GROUP_LIST,
-        Workspace::GROUP_READ,
         Collection::GROUP_LIST,
-        Collection::GROUP_READ,
         Asset::GROUP_LIST,
-        Asset::GROUP_READ,
         WebhookSerializationInterface::DEFAULT_GROUP,
         RenditionDefinition::GROUP_LIST,
-        ResolveEntitiesOutput::GROUP_READ,
         AttributeDefinition::GROUP_LIST,
-        AttributeDefinition::GROUP_READ,
+        ResolveEntitiesOutput::GROUP_READ,
     ])]
     public ?string $nameTranslated;
 
-    #[Groups([Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    #[Groups([Workspace::GROUP_LIST])]
     private string $slug;
 
-    #[Groups([Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    #[Groups([Workspace::GROUP_LIST])]
     private bool $public;
 
     #[Groups([
@@ -82,7 +72,7 @@ class WorkspaceOutput extends AbstractUuidOutput
     #[Groups([Workspace::GROUP_READ])]
     public ?array $translations = null;
 
-    #[Groups([Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    #[Groups([Workspace::GROUP_LIST])]
     public ?string $ownerId = null;
 
     #[Groups([Workspace::GROUP_READ])]

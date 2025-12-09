@@ -13,6 +13,7 @@ use App\Api\Model\Output\CollectionOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Elasticsearch\CollectionSearch;
 use App\Entity\Core\Collection;
+use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\Voter\AbstractVoter;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
@@ -65,7 +66,12 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->titleHighlight = $highlights['title'][0] ?? null;
 
         $output->setPrivacy($data->getPrivacy());
-        $output->inheritedPrivacy = $data->getInheritedPrivacy();
+        if ($this->hasGroup([
+            Collection::GROUP_LIST,
+            Workspace::GROUP_LIST,
+        ], $context)) {
+            $output->inheritedPrivacy = $data->getInheritedPrivacy();
+        }
         $output->setWorkspace($data->getWorkspace());
         $output->setExtraMetadata($data->getExtraMetadata());
         $output->relationExtraMetadata = $data->getRelationExtraMetadata();

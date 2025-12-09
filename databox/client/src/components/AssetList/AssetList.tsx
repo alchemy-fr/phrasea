@@ -1,4 +1,10 @@
-import React, {Context, MouseEvent, useCallback, useEffect} from 'react';
+import React, {
+    Context,
+    MouseEvent,
+    useCallback,
+    useContext,
+    useEffect,
+} from 'react';
 import {Asset, AssetOrAssetContainer, StateSetter} from '../../types';
 import AssetToolbar from './AssetToolbar';
 import {
@@ -30,6 +36,7 @@ import {createDefaultActionsContext} from './actionContext.ts';
 import useUpdateEffect from '@alchemy/react-hooks/src/useUpdateEffect';
 import {useContextMenu} from '../../hooks/useContextMenu.ts';
 import {useAssetStore} from '../../store/assetStore.ts';
+import {DisplayContext} from '../Media/DisplayContext.tsx';
 
 type Props<Item extends AssetOrAssetContainer> = {
     pages: Item[][];
@@ -72,18 +79,18 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     actionsContext = createDefaultActionsContext(),
     itemOverlay,
     previewZIndex,
-    layout: defaultLayout,
     selectionContext:
         SelectionContext = AssetSelectionContext as unknown as Context<
             TSelectionContext<Item>
         >,
     ...selectionActionsProps
 }: Props<Item>) {
+    const displayContext = useContext(DisplayContext)!;
+    const {
+        state: {layout},
+    } = displayContext;
     const [selection, setSelectionPrivate] =
         React.useState<Item[]>(defaultSelection);
-    const [layout, setLayout] = React.useState<Layout>(
-        defaultLayout ?? Layout.Grid
-    );
     const listRef = React.useRef<HTMLDivElement | null>(null);
     const [toolbarHeight, setToolbarHeight] = React.useState(0);
 
@@ -220,12 +227,10 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                     <AssetToolbar
                         total={total}
                         loading={loading ?? false}
-                        layout={layout}
-                        setLayout={setLayout}
                         pages={pages}
                         reload={reload}
                         onOpenDebug={onOpenDebug}
-                        selectionContext={SelectionContext}
+                        selectionContextDefinition={SelectionContext}
                         searchBar={searchBar}
                         actionsContext={actionsContext}
                         {...selectionActionsProps}

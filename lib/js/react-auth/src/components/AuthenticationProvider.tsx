@@ -161,10 +161,6 @@ export default function AuthenticationProvider<
         [setTokens, setRedirectPath]
     );
 
-    const isAuthenticated = (): boolean => {
-        return oauthClient.isValidSession(tokens);
-    };
-
     return (
         <AuthenticationContext.Provider
             value={{
@@ -175,7 +171,8 @@ export default function AuthenticationProvider<
                 setRedirectPath,
                 redirectPath,
                 clearRedirectPath,
-                isAuthenticated,
+                isAuthenticated: oauthClient.isValidSession(tokens),
+                hasSession: oauthClient.hasSession(),
                 refreshToken: tokens ? refreshToken : undefined,
             }}
         >

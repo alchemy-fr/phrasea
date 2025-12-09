@@ -10,6 +10,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\AttributePolicy;
+use App\Entity\Core\Workspace;
 
 class AttributePolicyCollectionProvider extends AbstractCollectionProvider
 {
@@ -38,11 +39,12 @@ class AttributePolicyCollectionProvider extends AbstractCollectionProvider
         }
 
         if (!$this->isAdmin()) {
+            $queryBuilder->addGroupBy('t.id');
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
                 $user->getId(),
                 $user->getGroups(),
-                'workspace',
+                Workspace::OBJECT_TYPE,
                 'w',
                 PermissionInterface::EDIT,
                 false

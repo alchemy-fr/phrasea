@@ -85,8 +85,8 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
             putToStorage(newPrefs);
 
             return new Promise(resolve => {
-                setTimeout(() => {
-                    if (oauthClient.isAuthenticated()) {
+                setTimeout(async () => {
+                    if (await oauthClient.isAuthenticated()) {
                         putUserPreferences(name, newPrefs[name]).then(() => {
                             resolve();
                         });

@@ -141,7 +141,7 @@ export default function SearchConditionDialog({
             maxWidth={'lg'}
             onClose={closeModal}
             title={
-                isNew
+                !isNew
                     ? t(
                           'search_condition.dialog.edit_condition',
                           'Edit Condition'

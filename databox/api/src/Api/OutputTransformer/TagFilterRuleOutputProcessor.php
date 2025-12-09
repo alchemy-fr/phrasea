@@ -9,11 +9,11 @@ use Alchemy\AuthBundle\Repository\UserRepository;
 use App\Api\Model\Output\TagFilterRuleOutput;
 use App\Entity\Core\TagFilterRule;
 
-class TagFilterRuleOutputProcessor implements OutputTransformerInterface
+final readonly class TagFilterRuleOutputProcessor implements OutputTransformerInterface
 {
     public function __construct(
-        private readonly UserRepository $userRepository,
-        private readonly GroupRepository $groupRepository,
+        private UserRepository $userRepository,
+        private GroupRepository $groupRepository,
     ) {
     }
 

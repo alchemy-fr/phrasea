@@ -5,6 +5,7 @@ import {
     PlayingContext,
 } from './DisplayContext';
 import {useUserPreferencesStore} from '../../store/userPreferencesStore.ts';
+import {Layout} from '../AssetList/Layouts';
 
 type Props = PropsWithChildren<{
     defaultState?: Partial<DisplayPreferences>;
@@ -17,6 +18,7 @@ export default function DisplayProvider({children, defaultState = {}}: Props) {
 
     const [state, setState] = useState<DisplayPreferences>({
         ...defaultState,
+        layout: Layout.Grid,
         thumbSize: 200,
         displayTitle: true,
         displayTags: true,

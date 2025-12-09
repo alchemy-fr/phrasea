@@ -6,7 +6,7 @@ export function useForceLogin(props: UseKeycloakUrlProps): void {
 
     const {getLoginUrl} = useKeycloakUrls(props);
 
-    if (!isAuthenticated()) {
+    if (!isAuthenticated) {
         document.location.href = getLoginUrl();
     }
 }

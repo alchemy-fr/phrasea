@@ -12,7 +12,6 @@ import {useTranslation} from 'react-i18next';
 type Props = PropsWithChildren<{}>;
 
 export default function DashboardBar({children}: Props) {
-    const menuHeight = 42;
     const {t} = useTranslation();
     const {getLoginUrl, getAccountUrl} = useKeycloakUrls({
         autoConnectIdP: config.autoConnectIdP,
@@ -39,7 +38,6 @@ export default function DashboardBar({children}: Props) {
                         </MenuItem>
                     ) : (
                         <UserMenu
-                            menuHeight={menuHeight}
                             username={user?.username}
                             accountUrl={getAccountUrl()}
                             onLogout={logout}

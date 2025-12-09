@@ -11,14 +11,14 @@ use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
-use App\Security\ScopeTrait;
+use App\Security\ScopeAwareTrait;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetDataTemplateVoter;
 use Doctrine\ORM\QueryBuilder;
 
 class AttributeDefinitionExtension implements QueryCollectionExtensionInterface
 {
-    use ScopeTrait;
+    use ScopeAwareTrait;
 
     public function __construct(
         private readonly ObjectMapping $objectMapping,

@@ -47,7 +47,7 @@ export default function AssetSearch({}: Props) {
                 onOpenDebug={openDebug}
                 onOpen={onOpen}
             />
-            {authContext.isAuthenticated() && (
+            {authContext.isAuthenticated && (
                 <Fab
                     onClick={openUpload}
                     color="primary"

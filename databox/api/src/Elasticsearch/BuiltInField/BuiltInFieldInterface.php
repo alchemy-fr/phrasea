@@ -15,7 +15,7 @@ interface BuiltInFieldInterface
 {
     final public const string TAG = 'app.built_in_field';
 
-    public function normalizeBucket(array $bucket): ?array;
+    public function normalizeBuckets(array $buckets): array;
 
     public function resolveGroupValue(string $name, $value): GroupValue;
 
@@ -24,6 +24,8 @@ interface BuiltInFieldInterface
     public static function getKey(): string;
 
     public function isSortable(): bool;
+
+    public function isFacet(): bool;
 
     public function getValueFromAsset(Asset $asset): mixed;
 

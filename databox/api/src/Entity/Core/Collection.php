@@ -63,19 +63,10 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'collection',
     operations: [
         new Get(
-            normalizationContext: [
-                'groups' => [
-                    self::GROUP_READ,
-                    self::GROUP_ABSOLUTE_TITLE,
-                ],
-            ],
             security: 'is_granted("'.AbstractVoter::READ.'", object)'
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(
-            normalizationContext: [
-                'groups' => [self::GROUP_READ],
-            ],
             security: 'is_granted("EDIT", object)',
         ),
         new Patch(security: 'is_granted("EDIT", object)'),
@@ -101,6 +92,12 @@ use Symfony\Component\Validator\Constraints as Assert;
             processor: MoveCollectionProcessor::class
         ),
         new GetCollection(
+            normalizationContext: [
+                'groups' => [
+                    self::GROUP_LIST,
+                    self::GROUP_CHILDREN,
+                ],
+            ],
             parameters: [
                 'workspaces' => new QueryParameter(
                     schema: ['type' => 'array<string>'],
@@ -114,12 +111,9 @@ use Symfony\Component\Validator\Constraints as Assert;
                     schema: ['type' => 'string'],
                     description: 'Parent collection',
                 ),
-            ]
+            ],
         ),
         new Post(
-            normalizationContext: [
-                'groups' => [self::GROUP_READ],
-            ],
             securityPostDenormalize: 'is_granted("CREATE", object)'
         ),
         new Get(
@@ -164,7 +158,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         'enable_max_depth' => true,
         'groups' => [
             self::GROUP_LIST,
-            self::GROUP_CHILDREN,
+            self::GROUP_READ,
+            self::GROUP_ABSOLUTE_TITLE,
         ],
     ],
     input: CollectionInput::class,
@@ -186,6 +181,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
     use NotificationSettingsTrait;
     use ExtraMetadataTrait;
     use TranslationsTrait;
+    final public const string OBJECT_TYPE = 'collection';
 
     final public const string GROUP_READ = 'coll:r';
     final public const string GROUP_LIST = 'coll:i';

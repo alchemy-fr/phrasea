@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Api\Provider;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
-use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
@@ -24,7 +23,6 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
     use SecurityAwareTrait;
 
     public function __construct(
-        private ObjectMapping $objectMapping,
         private IntegrationRegistry $integrationRegistry,
     ) {
     }
@@ -75,11 +73,12 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
 
             $user = $this->security->getUser();
             if ($user instanceof JwtUser) {
+                $queryBuilder->addGroupBy('t.id');
                 AccessControlEntryRepository::joinAcl(
                     $queryBuilder,
                     $user->getId(),
                     $user->getGroups(),
-                    $this->objectMapping->getObjectKey(Workspace::class),
+                    Workspace::OBJECT_TYPE,
                     'w',
                     PermissionInterface::VIEW,
                     false

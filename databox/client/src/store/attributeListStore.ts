@@ -15,6 +15,7 @@ import {
     sortAttributeList,
 } from '../api/attributeList';
 import {putUserPreferences} from '../api/user.ts';
+import {replaceList} from './storeUtils.ts';
 
 type State = {
     lists: AttributeList[];
@@ -340,15 +341,6 @@ export const useAttributeListStore = create<State>((set, getState) => ({
         }
     },
 }));
-
-function replaceList(
-    prev: AttributeList[],
-    list: AttributeList
-): AttributeList[] {
-    return prev.some(l => l.id === list.id)
-        ? prev.map(l => (l.id === list.id ? list : l))
-        : prev.concat([list]);
-}
 
 export function attributeDefinitionToItem(
     definition: AttributeDefinition

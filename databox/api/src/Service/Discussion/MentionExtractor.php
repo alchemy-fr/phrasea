@@ -17,14 +17,6 @@ final readonly class MentionExtractor
             return [];
         }
 
-        $mentions = [];
-        foreach ($matches[1] as $match) {
-            $user = $this->userRepository->getUser($match);
-            if ($user) {
-                $mentions[$user['id']] = $user['username'];
-            }
-        }
-
-        return $mentions;
+        return array_map(fn (array $u): string => $u['username'], $this->userRepository->getUsersByIds($matches[1]));
     }
 }

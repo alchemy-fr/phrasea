@@ -8,6 +8,7 @@ final readonly class KeycloakUrlGenerator
 {
     public function __construct(
         private string $baseUrl,
+        private ?string $internalBaseUrl,
         private string $realm,
     ) {
     }
@@ -20,7 +21,7 @@ final readonly class KeycloakUrlGenerator
 
         return sprintf(
             '%s/logout?client_id=%s&post_logout_redirect_uri=%s',
-            $this->getOpenIdConnectBaseUrl(),
+            $this->getOpenIdConnectBaseUrl(false),
             urlencode($clientId),
             urlencode($redirectUri)
         );
@@ -31,9 +32,18 @@ final readonly class KeycloakUrlGenerator
         return $this->getOpenIdConnectBaseUrl().'/userinfo';
     }
 
-    public function getRealmInfo(): string
+    public function getRealmInfoUrl(bool $internal): string
     {
-        return $this->baseUrl.'/realms/'.$this->realm;
+        return $this->getBaseUrl($internal).'/realms/'.$this->realm;
+    }
+
+    private function getBaseUrl(bool $internal): string
+    {
+        if (!$internal || !$this->internalBaseUrl) {
+            return $this->baseUrl;
+        }
+
+        return $this->internalBaseUrl;
     }
 
     public function getTokenUrl(): string
@@ -43,17 +53,17 @@ final readonly class KeycloakUrlGenerator
 
     public function getAuthorizeUrl(string $clientId, string $redirectUri, string $state = ''): string
     {
-        return $this->getOpenIdConnectBaseUrl().sprintf(
+        return $this->getOpenIdConnectBaseUrl(false).sprintf(
             '/auth?client_id=%s&response_type=code&redirect_uri=%s',
             urlencode($clientId),
             urlencode($redirectUri),
         ).(!empty($state) ? '&state='.urlencode($state) : '');
     }
 
-    private function getOpenIdConnectBaseUrl(): string
+    private function getOpenIdConnectBaseUrl(bool $internal = true): string
     {
         return sprintf('%s/realms/%s/protocol/openid-connect',
-            $this->baseUrl,
+            $this->getBaseUrl($internal),
             $this->realm,
         );
     }
@@ -71,7 +81,7 @@ final readonly class KeycloakUrlGenerator
     private function getAdminApiBaseUrl(): string
     {
         return sprintf('%s/admin/realms/%s',
-            $this->baseUrl,
+            $this->getBaseUrl(true),
             $this->realm,
         );
     }

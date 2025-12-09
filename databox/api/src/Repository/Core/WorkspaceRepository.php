@@ -25,9 +25,9 @@ class WorkspaceRepository extends ServiceEntityRepository
     public function getPublicWorkspaceIds(): array
     {
         return array_map(fn (array $row): string => (string) $row['id'], $this
-            ->createQueryBuilder('w')
-            ->select('w.id')
-            ->andWhere('w.public = true')
+            ->createQueryBuilder('t')
+            ->select('t.id')
+            ->andWhere('t.public = true')
             ->getQuery()
             ->getResult()
         );
@@ -40,7 +40,7 @@ class WorkspaceRepository extends ServiceEntityRepository
     {
         return array_map(fn (array $row): string => (string) $row['id'], $this
             ->createAllowedWorkspacesQueryBuilder($userId, $groupIds)
-            ->select('DISTINCT w.id')
+            ->select('DISTINCT t.id')
             ->getQuery()
             ->getResult()
         );
@@ -48,24 +48,25 @@ class WorkspaceRepository extends ServiceEntityRepository
 
     private function createAllowedWorkspacesQueryBuilder(?string $userId, ?array $groupIds = null): QueryBuilder
     {
-        $queryBuilder = $this->createQueryBuilder('w');
+        $queryBuilder = $this->createQueryBuilder('t');
 
         if (null === $userId) {
             return $queryBuilder
-                ->andWhere('w.public = true');
+                ->andWhere('t.public = true');
         }
 
+        $queryBuilder->addGroupBy('t.id');
         AccessControlEntryRepository::joinAcl(
             $queryBuilder,
             $userId,
             $groupIds,
-            'workspace',
-            'w',
+            Workspace::OBJECT_TYPE,
+            't',
             PermissionInterface::VIEW,
             false,
         );
 
-        $queryBuilder->andWhere('w.public = true OR ace.id IS NOT NULL OR w.ownerId = :uid');
+        $queryBuilder->andWhere('t.public = true OR ace.id IS NOT NULL OR t.ownerId = :uid');
 
         return $queryBuilder;
     }

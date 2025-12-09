@@ -30,8 +30,8 @@ class EntityListVoter extends AbstractVoter
             return true;
         }
 
-        $workspaceEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $subject->getWorkspace());
-        $workspaceReader = fn (): bool => $this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace());
+        $workspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace(), $token);
+        $workspaceReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getWorkspace(), $token);
 
         return match ($attribute) {
             self::CREATE, self::EDIT, self::DELETE => $workspaceEditor(),
