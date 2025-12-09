@@ -1,3 +1,6 @@
+parameters:
+    keycloak_url: '%env(KEYCLOAK_URL)%'
+
 # see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
     secret: '%env(APP_SECRET)%'
@@ -18,10 +21,8 @@ framework:
             verify_host: '%env(bool:VERIFY_HOST)%'
         scoped_clients:
             keycloak.client:
-                base_uri: '%env(KEYCLOAK_URL)%/admin/realms/'
+                base_uri: '%env(default:keycloak_url:KEYCLOAK_INTERNAL_URL)%/admin/realms/'
 
-    #esi: true
-    #fragments: true
     php_errors:
         log: true
 

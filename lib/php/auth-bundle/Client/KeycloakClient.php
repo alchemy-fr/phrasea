@@ -251,7 +251,7 @@ final readonly class KeycloakClient
     public function getJwtPublicKey(): string
     {
         return $this->keycloakRealmCache->get('keycloak_public_key', function (ItemInterface $item): string {
-            $data = $this->keycloakClient->request('GET', $this->urlGenerator->getRealmInfo())->toArray();
+            $data = $this->keycloakClient->request('GET', $this->urlGenerator->getRealmInfoUrl(true))->toArray();
 
             return $data['public_key'];
         });

@@ -37,7 +37,7 @@ final class JwtValidator implements JwtValidatorInterface
                 new Sha256(),
                 InMemory::plainText($this->getPublicKey())
             ),
-            new IssuedBy($this->keycloakUrlGenerator->getRealmInfo()),
+            new IssuedBy($this->keycloakUrlGenerator->getRealmInfoUrl(false)),
         );
     }
 
