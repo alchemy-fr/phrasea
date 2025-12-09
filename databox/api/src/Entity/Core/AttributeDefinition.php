@@ -109,6 +109,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     ],
     input: AttributeDefinitionInput::class,
     output: AttributeDefinitionOutput::class,
+    paginationClientItemsPerPage: true,
+    paginationMaximumItemsPerPage: 1000,
 )]
 #[ORM\Table]
 #[ORM\Index(columns: ['searchable'], name: 'searchable_idx')]
