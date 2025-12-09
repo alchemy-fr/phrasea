@@ -8,7 +8,6 @@ import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
 import {useUserPreferencesStore} from '../../../store/userPreferencesStore.ts';
 import {useAuth} from '@alchemy/react-auth';
-import {useAttributeListStore} from '../../../store/attributeListStore.ts';
 import {updateClientDataLocale} from '../../../store/useDataLocaleStore.ts';
 
 type Props = PropsWithChildren<{}>;
@@ -21,7 +20,6 @@ export default function UserPreferencesProvider({children}: Props) {
     const preferences = useUserPreferencesStore(s => s.preferences);
     const loadPreferences = useUserPreferencesStore(s => s.load);
     const loading = useUserPreferencesStore(s => s.loading);
-    const setCurrentAttrList = useAttributeListStore(s => s.setCurrent);
 
     if (hasSession && !isAuthenticated) {
         loadingRef.current = true;
@@ -32,11 +30,7 @@ export default function UserPreferencesProvider({children}: Props) {
     React.useEffect(() => {
         if (user) {
             loadingRef.current = false;
-            loadPreferences().then(up => {
-                if (up.attrList) {
-                    setCurrentAttrList(up.attrList);
-                }
-            });
+            loadPreferences();
         }
     }, [loadPreferences, user]);
 

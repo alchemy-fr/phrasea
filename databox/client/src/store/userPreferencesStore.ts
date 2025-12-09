@@ -10,7 +10,7 @@ export type UserPreferences = {
     theme?: ThemeName | undefined;
     layout?: Layout;
     dataLocale?: string | undefined;
-    attrList?: string | undefined;
+    attrList?: string | null | undefined;
     display?: DisplayPreferences | undefined;
 };
 
@@ -37,6 +37,7 @@ type UserPreferencesStore = {
     preferences: UserPreferences;
     loading: boolean;
     loaded: boolean;
+    userLoaded: boolean;
     load: () => Promise<UserPreferences>;
     updatePreference: <T extends keyof UserPreferences>(
         name: T,
@@ -49,23 +50,32 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
         preferences: getFromStorage(),
         loading: false,
         loaded: false,
+        userLoaded: false,
         load: async () => {
-            if (get().loaded) {
-                return get().preferences;
-            }
-            set({loading: true});
-            try {
-                const userPreferences = await getUserPreferences();
-                putToStorage(userPreferences);
-                set({
-                    preferences: userPreferences,
-                    loading: false,
-                    loaded: true,
-                });
+            if (await oauthClient.isAuthenticated()) {
+                if (get().userLoaded) {
+                    return get().preferences;
+                }
 
-                return userPreferences;
-            } finally {
-                set({loading: false});
+                set({loading: true});
+                try {
+                    const userPreferences = await getUserPreferences();
+                    putToStorage(userPreferences);
+                    set({
+                        preferences: userPreferences,
+                        loading: false,
+                        loaded: true,
+                        userLoaded: true,
+                    });
+
+                    return userPreferences;
+                } finally {
+                    set({loading: false});
+                }
+            } else {
+                set({loaded: true});
+
+                return get().preferences;
             }
         },
         updatePreference: async (name, handler) => {
@@ -90,6 +100,8 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
                         putUserPreferences(name, newPrefs[name]).then(() => {
                             resolve();
                         });
+                    } else {
+                        resolve();
                     }
                 }, 0);
             });

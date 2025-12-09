@@ -168,6 +168,7 @@ export default function User({}: Props) {
                     </MenuItem>,
                     config.displayServicesMenu ? (
                         <DashboardMenu
+                            key={'services_menu'}
                             dashboardBaseUrl={config.dashboardBaseUrl}
                             children={({icon, open, onClick, ...props}) => {
                                 return (
