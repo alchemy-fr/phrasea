@@ -4,6 +4,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {AssetContextState} from './assetTypes.ts';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 import {modalRoutes, Routing} from '../../../routes.ts';
+import React, {useCallback, useEffect} from 'react';
 
 type Props = {
     currentId: string;
@@ -13,11 +14,38 @@ type Props = {
 export default function AssetViewNavigation({currentId, state}: Props) {
     const navigateToModal = useNavigateToModal();
     const {assetsContext} = state ?? {};
+    const currentIndex = assetsContext?.findIndex(t => t[0] === currentId) ?? 0;
+
+    const handleKeyDown = useCallback(
+        (event: KeyboardEvent) => {
+            if (!assetsContext) {
+                return;
+            }
+
+            if (event.key === 'ArrowLeft') {
+                if (currentIndex > 0) {
+                    goTo(currentIndex - 1);
+                }
+            } else if (event.key === 'ArrowRight') {
+                if (currentIndex < assetsContext.length - 1) {
+                    goTo(currentIndex + 1);
+                }
+            }
+        },
+        [currentIndex, assetsContext]
+    );
+
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [handleKeyDown]);
+
     if (!assetsContext) {
         return null;
     }
-
-    const currentIndex = assetsContext.findIndex(t => t[0] === currentId);
 
     const goTo = (index: number) => {
         const [id, renditionId] = assetsContext[index];
