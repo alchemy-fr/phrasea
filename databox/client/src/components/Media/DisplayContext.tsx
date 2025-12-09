@@ -34,6 +34,7 @@ export type TDisplayContext = {
     playing: PlayingContext | undefined;
     state: DisplayPreferences;
     setState: StateSetter<DisplayPreferences>;
+    inOverflowDiv: boolean;
 };
 
 export const DisplayContext = React.createContext<TDisplayContext | null>(null);

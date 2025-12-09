@@ -102,12 +102,14 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                         <ListItemText primary={a.label || a.type} />
                     </MenuItem>
                 ))}
-            <MenuItem onClick={onInfo}>
-                <ListItemIcon>
-                    <InfoIcon />
-                </ListItemIcon>
-                <ListItemText primary={t('asset.actions.info', 'Info')} />
-            </MenuItem>
+            {actionsContext.info ? (
+                <MenuItem onClick={onInfo}>
+                    <ListItemIcon>
+                        <InfoIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={t('asset.actions.info', 'Info')} />
+                </MenuItem>
+            ) : null}
             {can.download && (
                 <MenuItem onClick={onDownload}>
                     <ListItemIcon>

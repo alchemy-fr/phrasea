@@ -16,5 +16,6 @@ export function createDefaultActionsContext<
         move: true,
         copy: true,
         replace: true,
+        info: true,
     };
 }

@@ -12,6 +12,7 @@ export type UserPreferences = {
     dataLocale?: string | undefined;
     attrList?: string | null | undefined;
     display?: DisplayPreferences | undefined;
+    displayBatchEdit?: DisplayPreferences | undefined;
 };
 
 export type UpdatePreferenceHandlerArg<T extends keyof UserPreferences> =

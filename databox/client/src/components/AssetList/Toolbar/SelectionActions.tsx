@@ -84,7 +84,27 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     }
                 >
                     <span>
-                        <Badge badgeContent={selectionLength} color="secondary">
+                        <Badge
+                            anchorOrigin={{
+                                horizontal: 'right',
+                                vertical: 'top',
+                            }}
+                            slotProps={{
+                                badge: {
+                                    style: {
+                                        right: 6,
+                                        top: 10,
+                                    },
+                                },
+                                root: {
+                                    style: {
+                                        marginRight: 6,
+                                    },
+                                },
+                            }}
+                            badgeContent={selectionLength}
+                            color="secondary"
+                        >
                             <Checkbox
                                 indeterminate={!allSelected && hasSelection}
                                 checked={allSelected}

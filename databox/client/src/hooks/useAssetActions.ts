@@ -128,13 +128,15 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
                 });
                 onAction?.();
             },
-            onInfo: () => {
-                navigateToModal(modalRoutes.assets.routes.manage, {
-                    tab: 'info',
-                    id: asset.id,
-                });
-                onAction?.();
-            },
+            onInfo: actionsContext.info
+                ? () => {
+                      navigateToModal(modalRoutes.assets.routes.manage, {
+                          tab: 'info',
+                          id: asset.id,
+                      });
+                      onAction?.();
+                  }
+                : undefined,
             onEditAttr: () => {
                 navigateToModal(modalRoutes.assets.routes.manage, {
                     tab: 'attributes',
