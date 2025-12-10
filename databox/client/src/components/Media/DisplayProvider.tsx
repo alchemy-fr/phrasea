@@ -51,7 +51,6 @@ export default function DisplayProvider({
         },
     });
 
-    console.log('state', state);
     useEffect(() => {
         updatePreference(displayPrefKey, state);
     }, [state, updatePreference, displayPrefKey]);

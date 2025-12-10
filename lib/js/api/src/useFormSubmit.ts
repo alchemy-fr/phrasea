@@ -87,9 +87,12 @@ export default function useFormSubmit<
                     e.response &&
                     [400, 500].includes(e.response.status)
                 ) {
+                    const resData = e.response!.data;
+
                     setRemoteErrors(p =>
                         p.concat(
-                            e.response!.data[hydraDescriptionKey] as string
+                            (resData[hydraDescriptionKey] as string) ??
+                                resData['title']
                         )
                     );
                 }

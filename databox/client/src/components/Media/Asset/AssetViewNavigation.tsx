@@ -4,7 +4,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {AssetContextState} from './assetTypes.ts';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 import {modalRoutes, Routing} from '../../../routes.ts';
-import React, {useCallback, useEffect} from 'react';
+import React, {useEffect} from 'react';
 
 type Props = {
     currentId: string;
@@ -16,8 +16,21 @@ export default function AssetViewNavigation({currentId, state}: Props) {
     const {assetsContext} = state ?? {};
     const currentIndex = assetsContext?.findIndex(t => t[0] === currentId) ?? 0;
 
-    const handleKeyDown = useCallback(
-        (event: KeyboardEvent) => {
+    const goTo = (index: number) => {
+        const [id, renditionId] = assetsContext![index];
+
+        navigateToModal(
+            modalRoutes.assets.routes.view,
+            {
+                id,
+                renditionId: renditionId || Routing.UnknownRendition,
+            },
+            {state}
+        );
+    };
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
             if (!assetsContext) {
                 return;
             }
@@ -31,34 +44,17 @@ export default function AssetViewNavigation({currentId, state}: Props) {
                     goTo(currentIndex + 1);
                 }
             }
-        },
-        [currentIndex, assetsContext]
-    );
-
-    useEffect(() => {
+        };
         window.addEventListener('keydown', handleKeyDown);
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [handleKeyDown]);
+    }, [assetsContext, currentIndex]);
 
     if (!assetsContext) {
         return null;
     }
-
-    const goTo = (index: number) => {
-        const [id, renditionId] = assetsContext[index];
-
-        navigateToModal(
-            modalRoutes.assets.routes.view,
-            {
-                id,
-                renditionId: renditionId || Routing.UnknownRendition,
-            },
-            {state}
-        );
-    };
 
     return (
         <Box

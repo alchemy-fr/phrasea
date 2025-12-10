@@ -37,6 +37,7 @@ export type Publication = {
     description?: string;
     translations?: Translations;
     date: string;
+    enabled: boolean;
 };
 
 export type WebVTT = {
