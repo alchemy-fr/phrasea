@@ -93,6 +93,13 @@ export default function PublicationIndex({}: Props) {
                                             <h5 className="mt-0">
                                                 {getTranslatedTitle(p)}
                                             </h5>
+                                            {!p.enabled && (
+                                                <div className="alert alert-warning mb-1">
+                                                    This publication is
+                                                    currently disabled. Only
+                                                    administrators can see it.
+                                                </div>
+                                            )}
                                             {p.date ? (
                                                 <time>
                                                     {moment(p.date).format(

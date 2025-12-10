@@ -4,6 +4,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {AssetContextState} from './assetTypes.ts';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 import {modalRoutes, Routing} from '../../../routes.ts';
+import React, {useEffect} from 'react';
 
 type Props = {
     currentId: string;
@@ -13,14 +14,10 @@ type Props = {
 export default function AssetViewNavigation({currentId, state}: Props) {
     const navigateToModal = useNavigateToModal();
     const {assetsContext} = state ?? {};
-    if (!assetsContext) {
-        return null;
-    }
-
-    const currentIndex = assetsContext.findIndex(t => t[0] === currentId);
+    const currentIndex = assetsContext?.findIndex(t => t[0] === currentId) ?? 0;
 
     const goTo = (index: number) => {
-        const [id, renditionId] = assetsContext[index];
+        const [id, renditionId] = assetsContext![index];
 
         navigateToModal(
             modalRoutes.assets.routes.view,
@@ -31,6 +28,33 @@ export default function AssetViewNavigation({currentId, state}: Props) {
             {state}
         );
     };
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (!assetsContext) {
+                return;
+            }
+
+            if (event.key === 'ArrowLeft') {
+                if (currentIndex > 0) {
+                    goTo(currentIndex - 1);
+                }
+            } else if (event.key === 'ArrowRight') {
+                if (currentIndex < assetsContext.length - 1) {
+                    goTo(currentIndex + 1);
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [assetsContext, currentIndex]);
+
+    if (!assetsContext) {
+        return null;
+    }
 
     return (
         <Box

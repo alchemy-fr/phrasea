@@ -102,6 +102,7 @@ export type ActionsContext<Item extends AssetOrAssetContainer> = {
     share?: boolean;
     delete?: boolean;
     restore?: boolean;
+    info?: boolean;
     open?: boolean;
     saveAs?: boolean;
 };

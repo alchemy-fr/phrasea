@@ -8,6 +8,7 @@ import AddIcon from '@mui/icons-material/Add';
 import {useAuth} from '@alchemy/react-auth';
 import UploadModal from '../Upload/UploadModal';
 import {useOpenAsset} from './useOpenAsset.ts';
+import NoSearchResult from './NoSearchResult.tsx';
 
 type Props = {};
 
@@ -46,6 +47,7 @@ export default function AssetSearch({}: Props) {
                 loadMore={resultContext.loadMore}
                 onOpenDebug={openDebug}
                 onOpen={onOpen}
+                noResultsMessage={<NoSearchResult />}
             />
             {authContext.isAuthenticated && (
                 <Fab

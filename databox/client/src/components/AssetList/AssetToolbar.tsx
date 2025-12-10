@@ -1,4 +1,4 @@
-import {Box, LinearProgress} from '@mui/material';
+import {Box} from '@mui/material';
 import {ZIndex} from '../../themes/zIndex';
 import SearchBar from '../Media/Search/SearchBar';
 import SelectionActions, {
@@ -10,6 +10,7 @@ import TotalResults from './Toolbar/TotalResults.tsx';
 import React, {Context, useContext} from 'react';
 import DisplaySettingButton from './Toolbar/DisplaySettingButton.tsx';
 import {TSelectionContext} from '../../context/AssetSelectionContext.tsx';
+import AnimatedLoader from './AnimatedLoader.tsx';
 
 type SelectionContextDefinition<Item extends AssetOrAssetContainer> = Context<
     TSelectionContext<Item>
@@ -70,18 +71,17 @@ export default function AssetToolbar<Item extends AssetOrAssetContainer>({
                     </div>
                 </Box>
             </Box>
-            {selectionActionsProps.loading && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        left: '0',
-                        right: '0',
-                        zIndex: 100,
-                    }}
-                >
-                    <LinearProgress />
-                </div>
-            )}
+            <div
+                style={{
+                    position: 'absolute',
+                    left: '0',
+                    right: '0',
+                    zIndex: 100,
+                    textAlign: 'center',
+                }}
+            >
+                <AnimatedLoader loading={selectionActionsProps.loading} />
+            </div>
         </>
     );
 }

@@ -58,6 +58,7 @@ type Props<Item extends AssetOrAssetContainer> = {
     defaultSelection?: Item[];
     itemComponent?: AssetItemComponent<Item>;
     previewZIndex?: number;
+    noResultsMessage?: React.ReactNode;
 } & SelectionActionConfigProps &
     LayoutCommonProps<Item>;
 
@@ -79,6 +80,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     actionsContext = createDefaultActionsContext(),
     itemOverlay,
     previewZIndex,
+    noResultsMessage,
     selectionContext:
         SelectionContext = AssetSelectionContext as unknown as Context<
             TSelectionContext<Item>
@@ -235,22 +237,23 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                         actionsContext={actionsContext}
                         {...selectionActionsProps}
                     />
-
-                    {React.createElement(layouts[layout], {
-                        selection,
-                        disabledAssets: disabledAssets ?? [],
-                        onOpen,
-                        onAddToBasket,
-                        itemToAsset,
-                        onContextMenuOpen,
-                        onToggle,
-                        pages,
-                        loadMore,
-                        toolbarHeight,
-                        itemComponent,
-                        previewZIndex,
-                        itemOverlay,
-                    } as LayoutProps<Item>)}
+                    {!loading && (pages[0]?.length ?? 0) === 0
+                        ? noResultsMessage
+                        : React.createElement(layouts[layout], {
+                              selection,
+                              disabledAssets: disabledAssets ?? [],
+                              onOpen,
+                              onAddToBasket,
+                              itemToAsset,
+                              onContextMenuOpen,
+                              onToggle,
+                              pages,
+                              loadMore,
+                              toolbarHeight,
+                              itemComponent,
+                              previewZIndex,
+                              itemOverlay,
+                          } as LayoutProps<Item>)}
 
                     {contextMenu ? (
                         <AssetContextMenu
