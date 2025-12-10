@@ -1,0 +1,16 @@
+alchemy_track:
+    entities_map:
+        1: App\Entity\Core\AssetTitleAttribute
+        2: App\Entity\Core\AttributeDefinition
+        3: App\Entity\Core\AttributePolicy
+        4: App\Entity\Core\EntityList
+        5: App\Entity\Core\RenditionDefinition
+        6: App\Entity\Core\RenditionPolicy
+        7: App\Entity\Core\RenditionRule
+        8: App\Entity\Core\Tag
+        9: App\Entity\Core\TagFilterRule
+        10: App\Entity\Core\Workspace
+        11: App\Entity\Integration\WorkspaceEnv
+        12: App\Entity\Integration\WorkspaceIntegration
+        13: App\Entity\Integration\WorkspaceSecret
+        14: App\Entity\Template\WorkspaceTemplate

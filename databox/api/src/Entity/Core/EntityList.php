@@ -7,6 +7,7 @@ namespace App\Entity\Core;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -59,7 +60,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     fields: ['workspace', 'name'],
     message: 'This entity type already exists in the workspace.'
 )]
-class EntityList extends AbstractUuidEntity implements \Stringable
+class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

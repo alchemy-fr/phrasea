@@ -7,6 +7,7 @@ namespace App\Entity\Integration;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use App\Entity\Traits\NullableWorkspaceTrait;
@@ -19,7 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(name: 'uniq_key', columns: ['workspace_id', 'name'])]
 #[ORM\Entity]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
-class WorkspaceSecret extends AbstractUuidEntity
+class WorkspaceSecret extends AbstractUuidEntity implements LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
