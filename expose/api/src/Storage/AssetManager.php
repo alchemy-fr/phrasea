@@ -125,6 +125,10 @@ class AssetManager
         $subDefinition->setSize($size);
         $subDefinition->setAsset($asset);
 
+        if (isset($options['clientAnnotations'])) {
+            $subDefinition->setClientAnnotations($options['clientAnnotations']);
+        }
+
         if ($options['use_as_preview'] ?? false) {
             $asset->setPreviewDefinition($subDefinition);
         }

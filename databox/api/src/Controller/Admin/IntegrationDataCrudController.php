@@ -32,12 +32,12 @@ class IntegrationDataCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setSearchFields(['id', 'integration']);
+            ->setSearchFields(['id', 'value']);
     }
 
     public function configureActions(Actions $actions): Actions
     {
-        return $actions
+        return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
         ;
@@ -48,6 +48,9 @@ class IntegrationDataCrudController extends AbstractAdminCrudController
         return $filters
             ->add(EntityFilter::new('integration'))
             ->add(TextFilter::new('name'))
+            ->add(TextFilter::new('objectType'))
+            ->add(TextFilter::new('objectId'))
+            ->add(TextFilter::new('value'))
         ;
     }
 

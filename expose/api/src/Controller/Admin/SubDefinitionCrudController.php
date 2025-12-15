@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use App\Entity\SubDefinition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -49,23 +50,21 @@ class SubDefinitionCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $name = TextField::new('name');
-        $path = TextField::new('path');
-        $size = IntegerField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
-        $mimeType = TextField::new('mimeType');
-        $createdAt = DateTimeField::new('createdAt');
-        $asset = AssociationField::new('asset');
-        $id = IdField::new();
-
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $name, $asset, $size, $path, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $path, $size, $mimeType, $createdAt, $asset];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$name, $path, $size, $mimeType, $createdAt, $asset];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$name, $path, $size, $mimeType, $createdAt, $asset];
-        }
+        yield IdField::new();
+        yield AssociationField::new('asset')
+            ->hideOnForm()
+        ;
+        yield TextField::new('name');
+        yield TextField::new('path')
+            ->hideOnIndex();
+        yield IntegerField::new('size')
+            ->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
+        yield TextField::new('mimeType');
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm()
+        ;
+        yield JsonField::new('clientAnnotations')
+            ->hideOnIndex();
 
         return [];
     }

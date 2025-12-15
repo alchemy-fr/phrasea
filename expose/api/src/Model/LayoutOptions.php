@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Model;
 
+use App\Entity\Publication;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class LayoutOptions extends AbstractOptions
@@ -11,17 +12,17 @@ class LayoutOptions extends AbstractOptions
     /**
      * Compatible with [gallery].
      */
-    #[Groups(['profile:read', 'publication:admin:read'])]
+    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
     private ?bool $displayMap = null;
 
     /**
      * Display pins on map instead of thumbnails
      * Compatible with [mapbox].
      */
-    #[Groups(['profile:read', 'publication:admin:read'])]
+    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
     private ?bool $displayMapPins = null;
 
-    #[Groups(['profile:read', 'publication:admin:read'])]
+    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
     private ?string $logoUrl = null;
 
     public function jsonSerialize(): array

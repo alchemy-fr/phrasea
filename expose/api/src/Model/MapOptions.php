@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace App\Model;
 
+use App\Entity\Publication;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class MapOptions extends AbstractOptions
 {
-    #[Groups(['profile:read', 'publication:admin:read'])]
+    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
     private ?float $lat = null;
 
-    #[Groups(['profile:read', 'publication:admin:read'])]
+    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
     private ?float $lng = null;
 
-    #[Groups(['profile:read', 'publication:admin:read'])]
+    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
     private ?int $zoom = null;
 
-    #[Groups(['profile:read', 'publication:admin:read'])]
+    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
     private ?string $mapLayout = null;
 
     public function jsonSerialize(): array
