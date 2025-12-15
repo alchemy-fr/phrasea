@@ -127,7 +127,6 @@ final class ExposeSynchronizer
                 $exposeAssetId = $assetToSync->exposeAsset->id;
                 if ($assetToSync->exposeAsset->fileId !== $fileId) {
                     $this->exposeClient->deleteAsset($config, $token, $assetToSync->exposeAsset->id);
-                    unset($assetToSync);
 
                     $exposeAssetId = $this->exposeClient->postAsset($config, $token, $publicationId, $asset, [
                         'clientAnnotations' => json_encode([

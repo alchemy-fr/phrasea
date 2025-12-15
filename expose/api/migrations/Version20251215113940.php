@@ -14,7 +14,7 @@ final class Version20251215113940 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Add client_annotations column to sub_definition table';
     }
 
     public function up(Schema $schema): void
