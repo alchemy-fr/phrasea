@@ -25,6 +25,7 @@ class WorkspaceSecret extends AbstractUuidEntity implements LoggableChangeSetInt
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use NullableWorkspaceTrait;
+    final public const int OBJECT_INDEX = 11;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     #[Groups(['secret:index'])]

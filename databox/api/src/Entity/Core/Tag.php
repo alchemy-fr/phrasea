@@ -82,6 +82,7 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringab
     use LocaleTrait;
     use WorkspaceTrait;
     use TranslationsTrait;
+    final public const int OBJECT_INDEX = 19;
 
     final public const string GROUP_READ = 'tag:r';
     final public const string GROUP_LIST = 'tag:i';

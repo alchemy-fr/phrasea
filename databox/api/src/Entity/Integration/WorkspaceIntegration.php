@@ -70,6 +70,7 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
     use OwnerIdTrait;
     use NullableWorkspaceTrait;
     use ErrorDisableTrait;
+    final public const int OBJECT_INDEX = 10;
 
     final public const string GROUP_READ = 'wi:read';
     final public const string GROUP_LIST = 'wi:index';

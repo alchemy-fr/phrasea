@@ -4,16 +4,19 @@ namespace App\Service\Log;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Mapping\ObjectMapping;
+use Alchemy\TrackBundle\AlchemyTrackBundle;
 use Alchemy\TrackBundle\Service\AbstractLogManager;
 use App\Entity\Log\ActionLog;
 use App\Model\ActionLogTypeEnum;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 final readonly class ActionLogManager extends AbstractLogManager
 {
     public function __construct(
+        #[Autowire(service: AlchemyTrackBundle::OBJECT_MAPPING_SERVICE_ID)]
         protected ObjectMapping $objectMapping,
         protected EntityManagerInterface $em,
         Security $security,
@@ -22,8 +25,13 @@ final readonly class ActionLogManager extends AbstractLogManager
         parent::__construct($security, $requestStack);
     }
 
-    public function logAction(ActionLogTypeEnum $action, ?AbstractUuidEntity $object, array $data = [], array $meta = []): ActionLog
-    {
+    public function createLogAction(
+        ActionLogTypeEnum $action,
+        ?AbstractUuidEntity $object,
+        array $data = [],
+        array $meta = [],
+        bool $inOnFlush = false,
+    ): ActionLog {
         $log = new ActionLog();
         $log->setAction($action);
         $log->setObjectId($object->getId());
@@ -32,7 +40,14 @@ final readonly class ActionLogManager extends AbstractLogManager
 
         $this->fillLog($log, $meta);
 
-        $this->em->persist($log);
+        if ($inOnFlush) {
+            $unitOfWork = $this->em->getUnitOfWork();
+            $unitOfWork->persist($log);
+            $metadata = $this->em->getClassMetadata($log::class);
+            $unitOfWork->computeChangeSet($metadata, $log);
+        } else {
+            $this->em->persist($log);
+        }
 
         return $log;
     }

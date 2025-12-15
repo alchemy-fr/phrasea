@@ -90,6 +90,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     use OwnerIdTrait;
     use DeletedAtTrait;
     use TranslationsTrait;
+    final public const int OBJECT_INDEX = 3;
     final public const string OBJECT_TYPE = 'workspace';
 
     final public const string GROUP_READ = 'workspace:r';

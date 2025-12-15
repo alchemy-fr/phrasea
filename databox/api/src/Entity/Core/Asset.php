@@ -288,6 +288,8 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     use WorkspacePrivacyTrait;
     use NotificationSettingsTrait;
     use ExtraMetadataTrait;
+
+    final public const int OBJECT_INDEX = 1;
     final public const string OBJECT_TYPE = 'asset';
 
     final public const string GROUP_READ = 'asset:r';

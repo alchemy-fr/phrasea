@@ -18,6 +18,7 @@ class WorkspaceTemplate extends AbstractUuidEntity implements \Stringable, Logga
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const int OBJECT_INDEX = 12;
     final public const string GROUP_READ = 'workspace_template:read';
     final public const string GROUP_LIST = 'workspace_template:index';
 

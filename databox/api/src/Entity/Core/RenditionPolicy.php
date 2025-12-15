@@ -52,6 +52,7 @@ class RenditionPolicy extends AbstractUuidEntity implements \Stringable, Loggabl
 {
     use CreatedAtTrait;
     use WorkspaceTrait;
+    final public const int OBJECT_INDEX = 17;
     final public const string GROUP_READ = 'rendpol:r';
     final public const string GROUP_LIST = 'rendpol:i';
 

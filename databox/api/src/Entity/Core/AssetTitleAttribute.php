@@ -18,6 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 class AssetTitleAttribute extends AbstractUuidEntity implements LoggableChangeSetInterface
 {
     use AssetTypeTargetTrait;
+    final public const int OBJECT_INDEX = 13;
 
     #[ORM\ManyToOne(targetEntity: Workspace::class)]
     #[ORM\JoinColumn(nullable: false)]

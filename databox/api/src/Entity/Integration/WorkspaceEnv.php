@@ -26,6 +26,8 @@ class WorkspaceEnv extends AbstractUuidEntity implements LoggableChangeSetInterf
     use UpdatedAtTrait;
     use NullableWorkspaceTrait;
 
+    final public const int OBJECT_INDEX = 9;
+
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     #[Groups(['env:index'])]
     #[Assert\NotBlank]

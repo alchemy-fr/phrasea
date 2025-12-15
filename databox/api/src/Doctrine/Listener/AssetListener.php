@@ -9,6 +9,8 @@ use App\Consumer\Handler\Search\IndexAssetAttributes;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\File;
+use App\Model\ActionLogTypeEnum;
+use App\Service\Log\ActionLogManager;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
@@ -22,6 +24,7 @@ class AssetListener
 
     public function __construct(
         private readonly PostFlushStack $postFlushStack,
+        private readonly ActionLogManager $actionLogManager,
     ) {
     }
 
@@ -44,15 +47,40 @@ class AssetListener
             if ($entityUpdate instanceof Asset && !$entityUpdate->isNoFileVersion()) {
                 $changeSet = $uow->getEntityChangeSet($entityUpdate);
                 $fileChange = $changeSet['source'] ?? null;
-                if ($fileChange && $fileChange[0] instanceof File) {
-                    $assetFileVersion = new AssetFileVersion();
-                    $assetFileVersion->setAsset($entityUpdate);
-                    $assetFileVersion->setFile($fileChange[0]);
+                if ($fileChange) {
+                    $this->actionLogManager->createLogAction(
+                        ActionLogTypeEnum::AssetSubstituted,
+                        $entityUpdate,
+                        [
+                            'oldSourceId' => $fileChange[0]->getId(),
+                            'newSourceId' => $fileChange[1]->getId(),
+                        ],
+                        inOnFlush: true,
+                    );
 
-                    $uow->persist($assetFileVersion);
+                    if ($fileChange[0] instanceof File) {
+                        $assetFileVersion = new AssetFileVersion();
+                        $assetFileVersion->setAsset($entityUpdate);
+                        $assetFileVersion->setFile($fileChange[0]);
 
-                    $metadata = $em->getClassMetadata($assetFileVersion::class);
-                    $uow->computeChangeSet($metadata, $assetFileVersion);
+                        $uow->persist($assetFileVersion);
+
+                        $metadata = $em->getClassMetadata($assetFileVersion::class);
+                        $uow->computeChangeSet($metadata, $assetFileVersion);
+                    }
+                }
+
+                $refCollection = $changeSet['referenceCollection'] ?? false;
+                if ($refCollection) {
+                    $this->actionLogManager->createLogAction(
+                        ActionLogTypeEnum::AssetMoved,
+                        $entityUpdate,
+                        [
+                            'oldCollectionId' => $refCollection[0]->getId(),
+                            'newCollectionId' => $refCollection[1]->getId(),
+                        ],
+                        inOnFlush: true,
+                    );
                 }
             }
         }

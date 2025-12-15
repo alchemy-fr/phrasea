@@ -31,7 +31,6 @@ abstract readonly class AbstractLogManager
 
         if ($user instanceof UserInterface) {
             $log->setUserId($user->getUserIdentifier());
-            //            $log->setImpersonatorId() // TODO;
         }
     }
 }

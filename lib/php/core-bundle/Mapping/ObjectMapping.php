@@ -57,7 +57,6 @@ final readonly class ObjectMapping
     public function getObjectKey($object): string|int
     {
         $className = self::getRealClass($object);
-        dump($className);
 
         if (false === $key = array_search($className, $this->map, true)) {
             $reflection = new \ReflectionClass($className);

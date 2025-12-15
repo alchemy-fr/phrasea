@@ -57,6 +57,7 @@ class AttributePolicy extends AbstractUuidEntity implements AclObjectInterface, 
 {
     use CreatedAtTrait;
     use WorkspaceTrait;
+    final public const int OBJECT_INDEX = 4;
     final public const string OBJECT_TYPE = 'attribute_policy';
     final public const string GROUP_READ = 'attrpol:r';
     final public const string GROUP_LIST = 'attrpol:i';

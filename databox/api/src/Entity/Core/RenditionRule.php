@@ -62,6 +62,7 @@ class RenditionRule extends AbstractUuidEntity implements LoggableChangeSetInter
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const int OBJECT_INDEX = 18;
     final public const string GROUP_READ = 'rendrule:r';
     final public const string GROUP_LIST = 'rendrule:i';
 

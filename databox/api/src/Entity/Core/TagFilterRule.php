@@ -55,6 +55,7 @@ class TagFilterRule extends AbstractUuidEntity implements LoggableChangeSetInter
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const int OBJECT_INDEX = 20;
 
     final public const string GROUP_READ = 'tfr:read';
     final public const string GROUP_LIST = 'tfr:index';

@@ -65,6 +65,7 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    final public const int OBJECT_INDEX = 15;
     public const int TYPE_LENGTH = 100;
 
     final public const string GROUP_READ = 'entity-list:r';

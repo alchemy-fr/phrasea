@@ -121,6 +121,7 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
     use WorkspaceTrait;
     use TranslationsTrait;
     use AssetTypeTargetTrait;
+    final public const int OBJECT_INDEX = 16;
 
     final public const int BUILD_MODE_NONE = 0;
     final public const int BUILD_MODE_PICK_SOURCE = 1;

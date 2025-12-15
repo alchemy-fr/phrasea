@@ -140,6 +140,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     use ErrorDisableTrait;
     use TranslationsTrait;
     use AssetTypeTargetTrait;
+    final public const int OBJECT_INDEX = 14;
 
     final public const string GROUP_READ = 'attrdef:r';
     final public const string GROUP_LIST = 'attrdef:i';
