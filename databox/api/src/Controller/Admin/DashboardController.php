@@ -41,6 +41,7 @@ use App\Entity\Integration\IntegrationToken;
 use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
+use App\Entity\Log\ActionLog;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
@@ -140,6 +141,7 @@ class DashboardController extends AbstractAdminDashboardController
         ];
 
         $logs = [
+            MenuItem::linkToCrud('Action Log', '', ActionLog::class),
             MenuItem::linkToCrud('Change Log', '', ChangeLog::class),
         ];
 

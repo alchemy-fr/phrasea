@@ -18,6 +18,8 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 class AlchemyTrackBundle extends AbstractBundle
 {
+    final public const string OBJECT_MAPPING_SERVICE_ID = 'alchemy_track.object_mapping';
+
     public function configure(DefinitionConfigurator $definition): void
     {
         $definition->rootNode()
@@ -39,8 +41,6 @@ class AlchemyTrackBundle extends AbstractBundle
                 ->autowire()
                 ->autoconfigure();
 
-        $objectMappingServiceId = 'alchemy_track.object_mapping';
-
         if (array_any(array_keys($config['entities_map']), fn ($v) => !is_numeric($v))) {
             throw new \InvalidArgumentException('The "entities_map" configuration keys must be positive integers.');
         }
@@ -53,16 +53,17 @@ class AlchemyTrackBundle extends AbstractBundle
             $entityMap[(int) $key] = $className;
         }
 
-        $services->set($objectMappingServiceId)
+        $services->set(self::OBJECT_MAPPING_SERVICE_ID)
             ->class(ObjectMapping::class)
+            ->public()
             ->arg('$map', $config['entities_map']);
 
         $services->set(ChangeLogManager::class)
-            ->arg('$objectMapping', service($objectMappingServiceId));
+            ->arg('$objectMapping', service(self::OBJECT_MAPPING_SERVICE_ID));
         $services->set(LoggableChangeSetListener::class);
         $services->set(ChangeLogCrudController::class)
-            ->arg('$objectMapping', service($objectMappingServiceId));
+            ->arg('$objectMapping', service(self::OBJECT_MAPPING_SERVICE_ID));
         $services->set(ObjectTypeChoiceField::class)
-            ->arg('$objectMapping', service($objectMappingServiceId));
+            ->arg('$objectMapping', service(self::OBJECT_MAPPING_SERVICE_ID));
     }
 }

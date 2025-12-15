@@ -7,7 +7,7 @@ namespace App\Api\Provider;
 use ApiPlatform\Metadata\Operation;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
-use App\Entity\Core\FieldType;
+use App\Model\FieldType;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FieldTypeProvider extends AbstractCollectionProvider
