@@ -52,8 +52,8 @@ class AssetListener
                         ActionLogTypeEnum::AssetSubstituted,
                         $entityUpdate,
                         [
-                            'oldSourceId' => $fileChange[0]->getId(),
-                            'newSourceId' => $fileChange[1]->getId(),
+                            'oldSourceId' => $fileChange[0]?->getId(),
+                            'newSourceId' => $fileChange[1]?->getId(),
                         ],
                         inOnFlush: true,
                     );
