@@ -1,14 +1,16 @@
 {
-    "name": "studio",
+    "name": "@alchemy/novu-bridge",
     "version": "0.1.0",
     "private": true,
     "scripts": {
         "dev": "next dev --port=3000",
         "build": "next build",
         "start": "next start",
+        "lint": "npx eslint",
+        "lint:fix": "npx eslint --fix",
         "sync": "npx novu@2.7.0 sync --bridge-url=${NOVU_BRIDGE_URL}/api/novu --secret-key=${NOVU_SECRET_KEY} --api-url=${NOVU_API_URL}",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
-        "cs": "echo todo"
+        "cs": "pnpm lint:fix"
     },
     "dependencies": {
         "@novu/framework": "latest",
@@ -26,6 +28,8 @@
         "@types/react": "^19.2.7",
         "@types/react-dom": "^19.2.3",
         "@typescript-eslint/parser": "^6.21.0",
+        "eslint": "^8.57.1",
+        "eslint-config-next": "^14.2.33",
         "postcss": "^8.5.6",
         "tailwindcss": "^4.1.17",
         "typescript": "^5.9.3"
