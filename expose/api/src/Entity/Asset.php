@@ -333,7 +333,7 @@ class Asset implements MediaInterface, \Stringable
     private ?string $mimeType = null;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
-    #[Groups(['publication:admin:read'])]
+    #[Groups([Publication::GROUP_ADMIN_READ])]
     private ?string $ownerId = null;
 
     /**

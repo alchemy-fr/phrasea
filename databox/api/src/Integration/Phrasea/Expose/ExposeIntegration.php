@@ -62,6 +62,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
         Request $request,
         IntegrationConfig $config,
     ): ?Response {
+        $userId = $this->getStrictUser()->getId();
         switch ($action) {
             case 'sync':
                 $integrationToken = $this->getIntegrationToken($config->getWorkspaceIntegration());
@@ -77,7 +78,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
 
                 $integrationData = $this->integrationDataManager->storeData(
                     $config->getWorkspaceIntegration(),
-                    $this->getStrictUser()->getId(),
+                    $userId,
                     $basket,
                     self::DATA_PUBLICATION_ID,
                     $publicationId,
@@ -92,7 +93,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 $intData = $this->integrationDataManager->getById(
                     $config->getWorkspaceIntegration(),
                     $data['id'],
-                    $this->getStrictUser()->getId(),
+                    $userId,
                 );
 
                 $this->bus->dispatch(new SyncBasket($intData->getId()));
@@ -112,7 +113,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                     $intData = $this->integrationDataManager->getById(
                         $config->getWorkspaceIntegration(),
                         $id,
-                        $this->getStrictUser()->getId(),
+                        $userId,
                     );
                     $publicationId = $intData->getValue();
 
@@ -122,7 +123,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                 $this->integrationDataManager->deleteById(
                     $config->getWorkspaceIntegration(),
                     $id,
-                    $this->getStrictUser()->getId(),
+                    $userId,
                 );
                 break;
             default:

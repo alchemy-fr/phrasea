@@ -237,7 +237,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                         actionsContext={actionsContext}
                         {...selectionActionsProps}
                     />
-                    {!loading && (pages[0]?.length ?? 0) === 0
+                    {pages[0] && !loading && (pages[0]?.length ?? 0) === 0
                         ? noResultsMessage
                         : React.createElement(layouts[layout], {
                               selection,

@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use App\Controller\CreateSubDefinitionAction;
+use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Repository\SubDefinitionRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -176,6 +177,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 class SubDefinition implements MediaInterface
 {
+    use ClientAnnotationsTrait;
+
     final public const string THUMBNAIL = 'thumbnail';
     final public const string PREVIEW = 'preview';
     final public const string POSTER = 'poster';

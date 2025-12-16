@@ -100,9 +100,13 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
 
     const forceSync = async (id: string) => {
         setSyncForced(p => p.concat([id]));
-        await runIntegrationAction('force-sync', integration.id, {
-            id,
-        });
+        try {
+            await runIntegrationAction('force-sync', integration.id, {
+                id,
+            });
+        } finally {
+            setSyncForced(p => p.filter(sid => sid !== id));
+        }
     };
 
     const actionTr: Record<string, string> = {
