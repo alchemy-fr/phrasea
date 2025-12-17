@@ -7,6 +7,7 @@ namespace App\Entity\Core;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -113,13 +114,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'policy.workspace', 'parent.workspace'],
 )]
-class RenditionDefinition extends AbstractUuidEntity implements \Stringable
+class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSetInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
     use TranslationsTrait;
     use AssetTypeTargetTrait;
+    final public const int OBJECT_INDEX = 16;
 
     final public const int BUILD_MODE_NONE = 0;
     final public const int BUILD_MODE_PICK_SOURCE = 1;

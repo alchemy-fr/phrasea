@@ -1,0 +1,22 @@
+alchemy_track:
+    entities_map:
+        !php/const:App\Entity\Core\Asset::OBJECT_INDEX: App\Entity\Core\Asset
+        !php/const:App\Entity\Core\Collection::OBJECT_INDEX: App\Entity\Core\Collection
+        !php/const:App\Entity\Core\Workspace::OBJECT_INDEX: App\Entity\Core\Workspace
+        !php/const:App\Entity\Core\AttributePolicy::OBJECT_INDEX: App\Entity\Core\AttributePolicy
+        !php/const:App\Entity\Template\AssetDataTemplate::OBJECT_INDEX: App\Entity\Template\AssetDataTemplate
+        !php/const:App\Entity\Basket\Basket::OBJECT_INDEX: App\Entity\Basket\Basket
+        !php/const:App\Entity\AttributeList\AttributeList::OBJECT_INDEX: App\Entity\AttributeList\AttributeList
+        !php/const:App\Entity\SavedSearch\SavedSearch::OBJECT_INDEX: App\Entity\SavedSearch\SavedSearch
+        !php/const:App\Entity\Integration\WorkspaceEnv::OBJECT_INDEX: App\Entity\Integration\WorkspaceEnv
+        !php/const:App\Entity\Integration\WorkspaceIntegration::OBJECT_INDEX: App\Entity\Integration\WorkspaceIntegration
+        !php/const:App\Entity\Integration\WorkspaceSecret::OBJECT_INDEX: App\Entity\Integration\WorkspaceSecret
+        !php/const:App\Entity\Template\WorkspaceTemplate::OBJECT_INDEX: App\Entity\Template\WorkspaceTemplate
+        !php/const:App\Entity\Core\AssetTitleAttribute::OBJECT_INDEX: App\Entity\Core\AssetTitleAttribute
+        !php/const:App\Entity\Core\AttributeDefinition::OBJECT_INDEX: App\Entity\Core\AttributeDefinition
+        !php/const:App\Entity\Core\EntityList::OBJECT_INDEX: App\Entity\Core\EntityList
+        !php/const:App\Entity\Core\RenditionDefinition::OBJECT_INDEX: App\Entity\Core\RenditionDefinition
+        !php/const:App\Entity\Core\RenditionPolicy::OBJECT_INDEX: App\Entity\Core\RenditionPolicy
+        !php/const:App\Entity\Core\RenditionRule::OBJECT_INDEX: App\Entity\Core\RenditionRule
+        !php/const:App\Entity\Core\Tag::OBJECT_INDEX: App\Entity\Core\Tag
+        !php/const:App\Entity\Core\TagFilterRule::OBJECT_INDEX: App\Entity\Core\TagFilterRule

@@ -529,7 +529,7 @@ services:
   pgadmin:
     profiles:
       - tools
-    image: dpage/pgadmin4:9.0.0
+    image: dpage/pgadmin4:9.11.0
     networks:
       - internal
     environment:

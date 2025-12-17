@@ -101,6 +101,13 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/track-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/api-test",
             "options": {
                 "symlink": true
@@ -152,6 +159,7 @@
         "alchemy/messenger-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",
         "alchemy/notify-bundle": "@dev",
+        "alchemy/track-bundle": "@dev",
         "alchemy/rendition-factory": "@dev",
         "alchemy/rendition-factory-bundle": "@dev",
         "alchemy/storage-bundle": "*",

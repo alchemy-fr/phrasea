@@ -181,6 +181,8 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
     use NotificationSettingsTrait;
     use ExtraMetadataTrait;
     use TranslationsTrait;
+
+    final public const int OBJECT_INDEX = 2;
     final public const string OBJECT_TYPE = 'collection';
 
     final public const string GROUP_READ = 'coll:r';
