@@ -15,6 +15,7 @@
     "dependencies": {
         "@alchemy/api": "workspace:*",
         "@alchemy/auth": "workspace:*",
+        "@alchemy/phrasea-framework": "workspace:*",
         "@alchemy/core": "workspace:*",
         "@alchemy/i18n": "workspace:*",
         "@alchemy/liform-react": "workspace:*",

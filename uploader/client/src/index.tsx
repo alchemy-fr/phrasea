@@ -5,13 +5,13 @@ import Root from './Root.tsx';
 import config from './config';
 import {initSentry} from '@alchemy/core';
 import React from 'react';
-import {AppGlobalStyles} from '@alchemy/phrasea-ui';
+import {AppGlobalTheme} from '@alchemy/phrasea-framework';
 
 initSentry(config);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
-        <AppGlobalStyles />
+        <AppGlobalTheme />
         <Root />
     </React.StrictMode>
 );

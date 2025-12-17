@@ -2,7 +2,8 @@ import React, {PropsWithChildren} from 'react';
 import ThemeEditorContext from './ThemeEditorContext';
 import {createTheme, Theme, ThemeOptions, ThemeProvider} from '@mui/material';
 import {mergeDeep} from '@alchemy/core';
-import {TThemeEditorContext} from './themeEditorTypes';
+
+import {TThemeEditorContext} from '../types';
 
 type Props = PropsWithChildren<{
     defaultTheme: ThemeOptions;

@@ -51,9 +51,3 @@ const baseTheme: ThemeOptions = {
 };
 
 export default baseTheme;
-
-export const leftPanelWidth = 360;
-
-export function getMediaBackgroundColor(theme: Theme): string {
-    return theme.palette.grey[200];
-}

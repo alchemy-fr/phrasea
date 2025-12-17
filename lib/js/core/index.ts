@@ -4,6 +4,7 @@ import {createPusher, registerPusherWs} from './src/pusher';
 import {deepEquals} from './src/objectUtils';
 import {parseInlineStyle} from './src/style';
 import {isObject, mergeDeep} from './src/merge';
+import {resolveSx} from './src/sxUtils';
 
 export {
     initSentry,
@@ -16,6 +17,7 @@ export {
     parseInlineStyle,
     mergeDeep,
     isObject,
+    resolveSx,
 };
 
 export * from './src/types';

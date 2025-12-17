@@ -9,10 +9,10 @@ import Attributes, {
 } from '../Media/Asset/Attribute/Attributes';
 import {DisplayContext} from '../Media/DisplayContext';
 import {ZIndex} from '../../themes/zIndex.ts';
-import {getMediaBackgroundColor} from '../../themes/base.ts';
 import {collectionListSx} from '../Media/Asset/Widgets/AssetCollectionList.tsx';
 import IconButton from '@mui/material/IconButton';
 import LockIcon from '@mui/icons-material/Lock';
+import {getMediaBackgroundColor} from '../uiVars.ts';
 
 type Props = {
     anchorEl: HTMLElement | undefined;

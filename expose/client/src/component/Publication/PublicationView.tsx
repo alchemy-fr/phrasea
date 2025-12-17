@@ -1,6 +1,7 @@
 import React from 'react';
 import {usePublication} from '../../hooks/usePublication.ts';
 import PublicationProxy from './PublicationProxy.tsx';
+import GridLayout from './layouts/grid/GridLayout.tsx';
 
 type Props = {
     id: string;
@@ -18,6 +19,8 @@ export default function PublicationView({id}: Props) {
             loading={loading}
             errorCode={errorCode}
             load={load}
-        ></PublicationProxy>
+        >
+            <GridLayout data={publication!} />
+        </PublicationProxy>
     );
 }

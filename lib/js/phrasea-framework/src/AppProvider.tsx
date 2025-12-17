@@ -1,5 +1,4 @@
 import {PropsWithChildren} from 'react';
-import {AppGlobalStyles} from '@alchemy/phrasea-ui';
 import AnalyticsProvider from './AnalyticsProvider';
 import {MatomoInstance} from '@jonkoops/matomo-tracker-react/src/types.ts';
 import {ToastContainer} from 'react-toastify';
@@ -8,26 +7,30 @@ import {ModalStack} from '@alchemy/navigation';
 import {KeycloakClient, OAuthClient} from '@alchemy/auth';
 import UserHookCaller from './UserHookCaller';
 import type {WindowConfig} from '@alchemy/core'
+import {AppGlobalTheme} from './Theme/AppGlobalTheme';
 
 type Props = PropsWithChildren<{
     config: WindowConfig;
     matomo: MatomoInstance | undefined;
     oauthClient: OAuthClient<any>;
     keycloakClient: KeycloakClient;
+    includeGlobalStyles?: boolean;
 }>;
 
 export function AppProvider({
     config,
     oauthClient,
     keycloakClient,
-    matomo, children
+    matomo,
+    children,
+    includeGlobalStyles = true,
 }: Props) {
     const css = config.globalCSS;
 
     return (
         <>
             {css && <style>{css}</style>}
-            <AppGlobalStyles />
+            {includeGlobalStyles && <AppGlobalTheme />}
             <AnalyticsProvider matomo={matomo}>
                 <ToastContainer position={'bottom-left'} />
                 <AuthenticationProvider

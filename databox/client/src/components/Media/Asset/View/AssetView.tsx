@@ -11,10 +11,8 @@ import {getAsset, getAssets} from '../../../../api/asset.ts';
 import FullPageLoader from '../../../Ui/FullPageLoader.tsx';
 import RouteDialog from '../../../Dialog/RouteDialog.tsx';
 import {getAssetRenditions} from '../../../../api/rendition.ts';
-import {scrollbarWidth} from '../../../../constants.ts';
 import AssetAttributes from '../AssetAttributes.tsx';
 import {useTranslation} from 'react-i18next';
-import {getMediaBackgroundColor} from '../../../../themes/base.ts';
 import {useModalFetch} from '../../../../hooks/useModalFetch.ts';
 import {useChannelRegistration} from '../../../../lib/pusher.ts';
 import {queryClient} from '../../../../lib/query.ts';
@@ -36,6 +34,7 @@ import StoryCarousel, {storyCarouselHeight} from './StoryCarousel.tsx';
 import AssetAppearsIn from '../AssetAppearsIn.tsx';
 import AssetAttachments from '../AssetAttachments.tsx';
 import {Routing} from '../../../../routes.ts';
+import {getMediaBackgroundColor, scrollbarWidth} from '../../../uiVars.ts';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
