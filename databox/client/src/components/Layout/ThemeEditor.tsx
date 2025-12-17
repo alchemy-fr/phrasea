@@ -1,6 +1,6 @@
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {MuiThemeEditor} from '@alchemy/theme-editor';
+import {MuiThemeEditor} from '@alchemy/phrasea-framework';
 
 type Props = {} & StackedModalProps;
 

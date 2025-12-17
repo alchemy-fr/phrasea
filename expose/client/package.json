@@ -13,13 +13,13 @@
         "translate": "i18next-scanner --config ../../lib/js/i18n/i18next-scanner.config.js"
     },
     "dependencies": {
-        "@alchemy/api": "workspace:*",
+        "@alchemy/phrasea-framework": "workspace:*",
+        "@alchemy/react-auth": "workspace:*",
         "@alchemy/auth": "workspace:*",
-        "@alchemy/core": "workspace:*",
         "@alchemy/i18n": "workspace:*",
+        "@alchemy/api": "workspace:*",
         "@alchemy/navigation": "workspace:*",
         "@alchemy/phrasea-ui": "workspace:*",
-        "@alchemy/react-auth": "workspace:*",
         "@alchemy/react-ps": "workspace:*",
         "@jonkoops/matomo-tracker-react": "^0.7.0",
         "@mikecousins/react-pdf": "^5.5.1",

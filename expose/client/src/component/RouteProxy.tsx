@@ -1,7 +1,6 @@
 import type {RouteProxyProps} from '@alchemy/navigation';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
-import config from '../config.ts';
-import {keycloakClient} from '../lib/api-client.ts';
+import {config, keycloakClient} from '../init.ts';
 
 export default function RouteProxy({
     component: Component,

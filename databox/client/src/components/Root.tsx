@@ -6,38 +6,33 @@ import {
     RouteWrapperProps,
 } from '@alchemy/navigation';
 import UserPreferencesProvider from './User/Preferences/UserPreferencesProvider';
-import {keycloakClient, oauthClient} from '../api/api-client';
-import {
-    AuthenticationProvider,
-    MatomoUser,
-    SessionExpireContainer,
-} from '@alchemy/react-auth';
+import {SessionExpireContainer} from '@alchemy/react-auth';
 import {modalRoutes, routes} from '../routes';
 import RouteProxy from './Routing/RouteProxy';
 import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFormatProvider.tsx';
+import React from 'react';
+import {QueryClientProvider} from '@tanstack/react-query';
+import {queryClient} from '../lib/query.ts';
 
 type Props = {};
 
 export default function Root({}: Props) {
     return (
-        <AuthenticationProvider
-            oauthClient={oauthClient}
-            keycloakClient={keycloakClient}
-        >
-            <MatomoUser />
-
-            <AttributeFormatProvider>
-                <UserPreferencesProvider>
-                    <RouterProvider
-                        routes={routes}
-                        options={{
-                            RouteProxyComponent: RouteProxy,
-                            WrapperComponent: WrapperComponent,
-                        }}
-                    />
-                </UserPreferencesProvider>
-            </AttributeFormatProvider>
-        </AuthenticationProvider>
+        <>
+            <QueryClientProvider client={queryClient}>
+                <AttributeFormatProvider>
+                    <UserPreferencesProvider>
+                        <RouterProvider
+                            routes={routes}
+                            options={{
+                                RouteProxyComponent: RouteProxy,
+                                WrapperComponent: WrapperComponent,
+                            }}
+                        />
+                    </UserPreferencesProvider>
+                </AttributeFormatProvider>
+            </QueryClientProvider>
+        </>
     );
 }
 

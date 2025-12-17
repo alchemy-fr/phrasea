@@ -1,7 +1,7 @@
 import React, {FormEvent, useRef} from 'react';
 import {Button, Modal} from 'react-bootstrap';
 import {Trans} from 'react-i18next';
-import apiClient from '../../../lib/api-client';
+import {apiClient} from '../../../init.ts';
 
 type Props = {
     url: string;

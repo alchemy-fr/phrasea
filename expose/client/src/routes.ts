@@ -1,11 +1,11 @@
-import config from './config';
-import PublicationIndex from './component/index/PublicationIndex';
+import {config} from './init.ts';
 import {compileRoutes} from '@alchemy/navigation';
 import PublicationPage from './pages/PublicationPage';
 import AssetPage from './pages/AssetPage';
 import AppAuthorizationCodePage from './pages/AppAuthorizationCodePage';
 import {NotFoundPage} from '@alchemy/phrasea-ui';
 import EmbeddedAssetPage from './pages/EmbeddedAssetPage';
+import IndexPage from './pages/IndexPage.tsx';
 
 const routes = {
     index: {
@@ -34,7 +34,7 @@ const routes = {
 };
 
 if (!config.disableIndexPage) {
-    routes.index.component = PublicationIndex;
+    routes.index.component = IndexPage;
 }
 
 const compiledRoutes = compileRoutes(routes) as typeof routes;

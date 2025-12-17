@@ -15,6 +15,7 @@ import DropdownActions, {
     dropdownActionsOpenClassName,
 } from './src/components/DropdownActions';
 import DashboardMenu from './src/components/DashboardMenu/DashboardMenu';
+import {AppGlobalStyles} from './src/AppGlobalStyles';
 
 export {
     NotFoundPage,
@@ -30,7 +31,8 @@ export {
     MoreActionsButton,
     DropdownActions,
     dropdownActionsOpenClassName,
-    DashboardMenu
+    DashboardMenu,
+    AppGlobalStyles,
 };
 
 export type {AppDialogProps};

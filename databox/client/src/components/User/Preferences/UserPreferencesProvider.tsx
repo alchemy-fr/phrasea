@@ -1,7 +1,7 @@
 import React, {PropsWithChildren} from 'react';
 import {createCachedThemeOptions} from '../../../lib/theme';
 import {CssBaseline, GlobalStyles} from '@mui/material';
-import {ThemeEditorProvider} from '@alchemy/theme-editor';
+import {ThemeEditorProvider} from '@alchemy/phrasea-framework';
 import {Classes} from '../../../classes.ts';
 import {scrollbarWidth} from '../../../constants.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';

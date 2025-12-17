@@ -57,7 +57,6 @@ export function setSentryUser(
           }
         | undefined
 ) {
-    console.log('setSentryUser', user);
     Sentry.setUser(
         user
             ? {

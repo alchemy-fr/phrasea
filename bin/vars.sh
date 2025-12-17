@@ -49,6 +49,5 @@ lib/js/react-form
 lib/js/react-hooks
 lib/js/react-ps
 lib/js/storage
-lib/js/theme-editor
 lib/js/visual-workflow
 "

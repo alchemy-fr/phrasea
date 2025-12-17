@@ -1,5 +1,4 @@
-import config from '../../config';
-import {keycloakClient, oauthClient} from '../../lib/api-client';
+import {config, keycloakClient, oauthClient} from '../../init.ts';
 import FormLayout from './FormLayout';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
 import {inIframe, openLoginWindow} from '@alchemy/auth';

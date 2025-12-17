@@ -1,7 +1,7 @@
 import {ModalStack} from '@alchemy/navigation';
 import {
     AuthenticationProvider,
-    MatomoUser,
+    UserHookCaller,
     SessionExpireContainer,
 } from '@alchemy/react-auth';
 import UploaderUserProvider from './context/UploaderUserProvider';
@@ -22,7 +22,7 @@ export default function Root({}: Props) {
                 keycloakClient={keycloakClient}
             >
                 <SessionExpireContainer />
-                <MatomoUser />
+                <UserHookCaller />
                 <UploaderUserProvider>
                     <ModalStack>
                         <App />

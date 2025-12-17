@@ -4,6 +4,7 @@
     "private": true,
     "dependencies": {
         "@alchemy/api": "workspace:*",
+        "@alchemy/phrasea-framework": "workspace:*",
         "@alchemy/auth": "workspace:*",
         "@alchemy/core": "workspace:*",
         "@alchemy/i18n": "workspace:*",
@@ -14,7 +15,6 @@
         "@alchemy/react-form": "workspace:*",
         "@alchemy/react-hooks": "workspace:*",
         "@alchemy/react-ps": "workspace:*",
-        "@alchemy/theme-editor": "workspace:*",
         "@alchemy/visual-workflow": "workspace:*",
         "@algolia/autocomplete-core": "^1.19.4",
         "@algolia/autocomplete-theme-classic": "^1.19.4",
