@@ -34,7 +34,7 @@ import {Entity, StateSetter, Workspace} from '../../../../types.ts';
 import ItemForm from './ItemForm.tsx';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {useModals} from '@alchemy/navigation';
-import ConfirmDialog, {ConfirmDialogProps} from '../../../Ui/ConfirmDialog.tsx';
+import {ConfirmDialog, ConfirmDialogProps} from '@alchemy/phrasea-framework';
 import FilterDropdown from './FilterDropdown.tsx';
 
 export type DefinitionBase = ApiHydraObjectResponse & Entity;

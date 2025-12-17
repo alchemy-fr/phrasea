@@ -6,7 +6,7 @@ import FormDialog from '../Dialog/FormDialog.tsx';
 import {StackedModalProps, useModals, useFormPrompt} from '@alchemy/navigation';
 import {createAssetShare} from '../../api/asset.ts';
 import {useFormSubmit} from '@alchemy/api';
-import RemoteErrors from '../Form/RemoteErrors.tsx';
+import {RemoteErrors} from '@alchemy/react-form';
 import {dateToStringDate} from '../../lib/date.ts';
 
 type Props = {

@@ -10,7 +10,7 @@ import MessageForm, {BaseMessageFormProps} from './MessageForm.tsx';
 import {Box, Skeleton} from '@mui/material';
 import DiscussionMessage from './DiscussionMessage.tsx';
 import {useChannelRegistration} from '../../lib/pusher.ts';
-import ConfirmDialog from '../Ui/ConfirmDialog.tsx';
+import {ConfirmDialog} from '@alchemy/phrasea-framework';
 import {toast} from 'react-toastify';
 import {useModals, useLocation} from '@alchemy/navigation';
 

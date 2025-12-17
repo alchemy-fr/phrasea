@@ -1,36 +1,13 @@
-import React, {PropsWithChildren, ReactNode, useState} from 'react';
+import React, {useState} from 'react';
 import {Button, Checkbox, FormControlLabel, TextField} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import CheckIcon from '@mui/icons-material/Check';
-import {LoadingButton, LoadingButtonProps} from '@mui/lab';
+import {LoadingButton} from '@mui/lab';
 import {AxiosError} from 'axios';
 import {AppDialog} from '@alchemy/phrasea-ui';
-import type {AppDialogProps} from '@alchemy/phrasea-ui';
-import RemoteErrors from '../Form/RemoteErrors';
-import {StackedModalProps, useModals} from '@alchemy/navigation';
-
-type ConfirmOptions = {[key: string]: ReactNode};
-type ConfirmOptionValues<CO extends ConfirmOptions> = {
-    [key in keyof CO]: boolean;
-};
-
-type Props<CO extends ConfirmOptions> = PropsWithChildren<
-    {
-        onCancel?: (() => void) | undefined;
-        onConfirm: (options: ConfirmOptionValues<CO>) => Promise<void | false>;
-        onConfirmed?: () => void;
-        title?: ReactNode;
-        options?: CO;
-        confirmLabel?: ReactNode;
-        disabled?: boolean;
-        textToType?: string | undefined;
-        assertions?: ReactNode[] | undefined;
-        confirmButtonProps?: LoadingButtonProps | undefined;
-        maxWidth?: AppDialogProps['maxWidth'];
-    } & StackedModalProps
->;
-
-export type {Props as ConfirmDialogProps};
+import {useModals} from '@alchemy/navigation';
+import {ConfirmDialogProps, ConfirmOptions, ConfirmOptionValues} from './types';
+import {RemoteErrors} from '@alchemy/react-form';
 
 export default function ConfirmDialog<CO extends ConfirmOptions>({
     onCancel,
@@ -47,7 +24,7 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
     assertions,
     children,
     confirmButtonProps,
-}: Props<CO>) {
+}: ConfirmDialogProps<CO>) {
     const {closeModal} = useModals();
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);

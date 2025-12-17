@@ -2,7 +2,7 @@ import {Typography} from '@mui/material';
 import FormDialog from '../../../Dialog/FormDialog';
 import {useFormSubmit} from '@alchemy/api';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
-import RemoteErrors from '../../../Form/RemoteErrors';
+import {RemoteErrors} from '@alchemy/react-form';
 import {Asset, ApiFile} from '../../../../types';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';

@@ -2,9 +2,8 @@ import {Trans} from 'react-i18next';
 import React from 'react';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {TermsConfig} from '../../types.ts';
-import {Button} from 'react-bootstrap';
 import {useTranslation} from 'react-i18next';
-import {Typography} from '@mui/material';
+import {Button, Typography} from '@mui/material';
 
 type Props = {
     accepted: boolean;

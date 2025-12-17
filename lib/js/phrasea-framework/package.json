@@ -19,6 +19,8 @@
         "react-toastify": "^11.0.3",
         "react-i18next": "^14.1.1",
         "@mui/material": "^5.16.7",
+        "@mui/lab": "5.0.0-alpha.173",
+        "@mui/icons-material": "^5.18.0",
         "@alchemy/api": "workspace:*",
         "@alchemy/auth": "workspace:*",
         "@alchemy/phrasea-ui": "workspace:*",
@@ -26,9 +28,13 @@
         "@alchemy/react-auth": "workspace:*",
         "@alchemy/i18n": "workspace:*",
         "@alchemy/navigation": "workspace:*",
-        "@alchemy/storage": "workspace:*"
+        "@alchemy/storage": "workspace:*",
+        "@alchemy/react-form": "workspace:*",
+        "@alchemy/notification": "workspace:*",
+        "react-circle-flags": "^0.0.23"
     },
     "devDependencies": {
+        "axios": "^1.12.2",
         "@types/react": "^18.0.28",
         "@types/react-dom": "^18.0.11",
         "@types/react": "^18.3.24"

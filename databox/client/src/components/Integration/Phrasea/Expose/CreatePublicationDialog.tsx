@@ -1,7 +1,7 @@
 import {TextField} from '@mui/material';
 import FormDialog from '../../../Dialog/FormDialog';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
-import RemoteErrors from '../../../Form/RemoteErrors';
+import {RemoteErrors} from '@alchemy/react-form';
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import {useFormSubmit} from '@alchemy/api';

@@ -28,7 +28,7 @@ export default function PublicationProxy({
     }
 
     if (loading) {
-        return <FullPageLoader />;
+        return <FullPageLoader backdrop={false} />;
     }
 
     if (!publication) {

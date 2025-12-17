@@ -3,7 +3,7 @@ import {Breakpoint, Button} from '@mui/material';
 import {PropsWithChildren, ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import SaveIcon from '@mui/icons-material/Save';
-import RemoteErrors from '../Form/RemoteErrors';
+import {RemoteErrors} from '@alchemy/react-form';
 import {LoadingButton} from '@mui/lab';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 

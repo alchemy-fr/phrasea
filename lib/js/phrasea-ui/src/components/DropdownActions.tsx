@@ -14,7 +14,7 @@ export default function DropdownActions({
 
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget?.parentElement);
+        setAnchorEl(event.currentTarget);
     };
     const handleClose = () => {
         onClose?.();

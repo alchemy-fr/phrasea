@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import {useBasketStore} from '../../store/basketStore';
 import BasketMenuItem from './BasketMenuItem';
-import ConfirmDialog from '../Ui/ConfirmDialog';
 import {toast} from 'react-toastify';
 import {useModals} from '@alchemy/navigation';
 import {Basket} from '../../types';
@@ -26,6 +25,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import {useSearch} from '../../hooks/useSearch.ts';
 import SearchBar from '../Ui/SearchBar.tsx';
+import {ConfirmDialog} from '@alchemy/phrasea-framework';
 
 type Props = {
     selected?: string;

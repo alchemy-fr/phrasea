@@ -20,6 +20,7 @@ import KeyTranslationsWidget, {
     getNonEmptyTranslations,
 } from './src/Translations/KeyTranslationsWidget';
 import LocaleSelectWidget from './src/Locale/LocaleSelectWidget';
+import RemoteErrors from './src/RemoteErrors';
 
 export {
     CollectionWidget,
@@ -40,6 +41,7 @@ export {
     CheckboxWidget,
     getNonEmptyTranslations,
     LocaleSelectWidget,
+    RemoteErrors,
 };
 
 export type {AsyncRSelectProps, RSelectProps, SelectOption, RSelectOnCreate};

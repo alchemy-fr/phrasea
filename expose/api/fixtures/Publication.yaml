@@ -38,23 +38,27 @@ App\Entity\Publication:
     slug: gallery-pub
     profile: '@pr-1'
     config: '@config-gallery'
+    cover: '@a_img1'
 
   pub_download:
     title: Download publication
     slug: download-pub
     profile: '@pr-1'
     config: '@config-download'
+    cover: '@a_img2'
 
   pub_grid:
     title: Grid publication
     slug: grid-pub
     profile: '@pr-1'
     config: '@config-grid'
+    cover: '@a_img3'
 
   pub_password:
     title: Password protected publication
     profile: '@pr-1'
     config: '@password-protected'
+    cover: '@a_img4'
 
   pub_auth:
     title: Auth protected publication
