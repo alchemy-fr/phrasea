@@ -2,7 +2,7 @@ import {PropsWithChildren, useCallback, useEffect} from 'react';
 import {useDropzone} from 'react-dropzone';
 import UploadModal from '../../Upload/UploadModal';
 import {Backdrop, Typography} from '@mui/material';
-import {retrieveImageFromClipboardAsBlob} from '../../../lib/ImagePaste';
+import {retrieveImageFromClipboardAsBlob} from '../../../lib/ImagePaste.ts';
 import {useModals} from '@alchemy/navigation';
 import {useAccept} from '../../Upload/UploadDropzone';
 import {useAuth} from '@alchemy/react-auth';

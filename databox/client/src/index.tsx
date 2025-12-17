@@ -15,6 +15,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             matomo={matomo}
             oauthClient={oauthClient}
             keycloakClient={keycloakClient}
+            includeGlobalStyles={false}
         >
             <Root />
         </AppProvider>

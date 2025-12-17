@@ -28,6 +28,7 @@
         "@sentry/types": "^7.120.4",
         "@types/react": "^18.3.24",
         "pusher-js": "^8.4.0",
-        "@jonkoops/matomo-tracker-react": "^0.7.0"
+        "@jonkoops/matomo-tracker-react": "^0.7.0",
+        "@mui/material": "^5.16.7"
     }
 }

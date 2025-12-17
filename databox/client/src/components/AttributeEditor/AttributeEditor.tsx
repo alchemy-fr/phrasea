@@ -7,7 +7,6 @@ import Attributes from './Attributes.tsx';
 import {useAttributeValues} from './attributeGroup.ts';
 import DefinitionsSkeleton from './DefinitionsSkeleton.tsx';
 import SuggestionPanel from './Suggestions/SuggestionPanel.tsx';
-import {scrollbarWidth} from '../../constants.ts';
 import EditorPanel from './EditorPanel.tsx';
 import {SelectedValue, SetAttributeValue} from './types.ts';
 import {Resizable} from 're-resizable';
@@ -22,6 +21,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import {useTabShortcut} from './shortcuts.ts';
 import AssetToggleOverlay from './AssetToggleOverlay.tsx';
 import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
+import {scrollbarWidth} from '../uiVars.ts';
 
 type Props = {
     assets: Asset[];

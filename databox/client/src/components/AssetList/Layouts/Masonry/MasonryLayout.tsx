@@ -16,13 +16,13 @@ import {
     Masonry,
 } from 'react-virtualized';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
-import {leftPanelWidth} from '../../../../themes/base.ts';
 import LoadMoreButton from '../../LoadMoreButton.tsx';
 import {
     createSizeTransition,
     thumbSx,
 } from '../../../Media/Asset/AssetThumb.tsx';
 import {FileTypeEnum, getFileTypeFromMIMEType} from '../../../../lib/file.ts';
+import {leftPanelWidth} from '../../../uiVars.ts';
 
 export default function MasonryLayout<Item extends AssetOrAssetContainer>({
     pages,

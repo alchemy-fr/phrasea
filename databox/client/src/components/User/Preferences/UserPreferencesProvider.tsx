@@ -1,14 +1,14 @@
 import React, {PropsWithChildren} from 'react';
-import {createCachedThemeOptions} from '../../../lib/theme';
-import {CssBaseline, GlobalStyles} from '@mui/material';
+import {createCachedThemeOptions} from '@alchemy/phrasea-framework';
 import {ThemeEditorProvider} from '@alchemy/phrasea-framework';
 import {Classes} from '../../../classes.ts';
-import {scrollbarWidth} from '../../../constants.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
+import {AppGlobalTheme} from '@alchemy/phrasea-framework';
 import {useTranslation} from 'react-i18next';
 import {useUserPreferencesStore} from '../../../store/userPreferencesStore.ts';
 import {useAuth} from '@alchemy/react-auth';
 import {updateClientDataLocale} from '../../../store/useDataLocaleStore.ts';
+import {scrollbarWidth} from '../../uiVars.ts';
 
 type Props = PropsWithChildren<{}>;
 
@@ -44,24 +44,9 @@ export default function UserPreferencesProvider({children}: Props) {
                 preferences.theme ?? 'default'
             )}
         >
-            <CssBaseline />
-            <GlobalStyles
-                styles={theme => ({
-                    '*': {
-                        '*::-webkit-scrollbar': {
-                            width: scrollbarWidth,
-                        },
-                        '*::-webkit-scrollbar-track': {
-                            borderRadius: 10,
-                        },
-                        '*::-webkit-scrollbar-thumb': {
-                            borderRadius: scrollbarWidth,
-                            backgroundColor: theme.palette.primary.main,
-                        },
-                    },
-                    'body': {
-                        backgroundColor: theme.palette.background.default,
-                    },
+            <AppGlobalTheme
+                scrollbarWidth={scrollbarWidth}
+                styles={() => ({
                     [`.${Classes.ellipsisText} .MuiListItemText-secondary`]: {
                         textOverflow: 'ellipsis',
                         wordBreak: 'break-all',
@@ -69,19 +54,19 @@ export default function UserPreferencesProvider({children}: Props) {
                         whiteSpace: 'nowrap',
                     },
                 })}
-            />
-
-            {!isLoading ? (
-                children
-            ) : (
-                <FullPageLoader
-                    backdrop={false}
-                    message={t(
-                        'user_preferences.loading',
-                        'Loading user preferences…'
-                    )}
-                />
-            )}
+            >
+                {!isLoading ? (
+                    children
+                ) : (
+                    <FullPageLoader
+                        backdrop={false}
+                        message={t(
+                            'user_preferences.loading',
+                            'Loading user preferences…'
+                        )}
+                    />
+                )}
+            </AppGlobalTheme>
         </ThemeEditorProvider>
     );
 }

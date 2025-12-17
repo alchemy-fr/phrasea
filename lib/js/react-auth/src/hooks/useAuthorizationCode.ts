@@ -83,6 +83,7 @@ export function useAuthorizationCode({
                             dState.hasOwnProperty('r') &&
                             typeof dState.r === 'string'
                         ) {
+                            console.log('dState', dState);
                             doNavigate(dState.r);
 
                             return;

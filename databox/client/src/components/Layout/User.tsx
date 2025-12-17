@@ -5,7 +5,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LocaleDialog from '../Locale/LocaleDialog.tsx';
 import {ListItemIcon, ListItemText} from '@mui/material';
 import LocaleIcon from '../Locale/LocaleIcon.tsx';
-import ChangeTheme from './ChangeTheme.tsx';
+import ChangeThemeDialog from './ChangeThemeDialog.tsx';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import ThemeEditor from './ThemeEditor.tsx';
 import React, {useContext} from 'react';
@@ -132,7 +132,7 @@ export default function User({}: Props) {
                     <MenuItem
                         key={'change_theme'}
                         onClick={closeWrapper(() => {
-                            openModal(ChangeTheme);
+                            openModal(ChangeThemeDialog);
                         })}
                     >
                         <ListItemIcon>

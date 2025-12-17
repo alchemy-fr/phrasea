@@ -1,20 +1,14 @@
-import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogTitle,
-    List,
-    ListItemButton,
-} from '@mui/material';
+import {Button, List, ListItemButton} from '@mui/material';
 import {useTranslation} from 'react-i18next';
-import themes from '../../themes';
-import {ThemeName} from '../../lib/theme';
+import {themes} from '@alchemy/phrasea-framework';
+import type {ThemeName} from '@alchemy/phrasea-framework';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useUserPreferencesStore} from '../../store/userPreferencesStore.ts';
+import {AppDialog} from '@alchemy/phrasea-ui';
 
 type Props = {} & StackedModalProps;
 
-export default function ChangeTheme({open}: Props) {
+export default function ChangeThemeDialog({open}: Props) {
     const {t} = useTranslation();
     const preferences = useUserPreferencesStore(s => s.preferences);
     const updatePreference = useUserPreferencesStore(s => s.updatePreference);
@@ -29,11 +23,21 @@ export default function ChangeTheme({open}: Props) {
 
     return (
         <>
-            <Dialog onClose={onClose} open={open}>
-                <DialogTitle>
-                    {t('change_theme.title', 'Choose a theme')}
-                </DialogTitle>
-                <List sx={{pt: 0}}>
+            <AppDialog
+                maxWidth={'xs'}
+                title={t('change_theme.title', 'Choose a theme')}
+                onClose={onClose}
+                open={open}
+                actions={({onClose}) => {
+                    return (
+                        <Button onClick={onClose}>
+                            {t('dialog.close', 'Close')}
+                        </Button>
+                    );
+                }}
+                disablePadding={true}
+            >
+                <List>
                     {(Object.keys(themes) as ThemeName[]).map(
                         (t: ThemeName) => (
                             <ListItemButton
@@ -46,12 +50,7 @@ export default function ChangeTheme({open}: Props) {
                         )
                     )}
                 </List>
-                <DialogActions>
-                    <Button autoFocus onClick={onClose}>
-                        {t('dialog.close', 'Close')}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            </AppDialog>
         </>
     );
 }

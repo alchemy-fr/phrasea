@@ -18,13 +18,13 @@ import {
 } from '../../api/pagination';
 import {Button} from '@mui/material';
 import BasketsPanel from './BasketsPanel';
-import {leftPanelWidth} from '../../themes/base';
 import {ZIndex} from '../../themes/zIndex';
 import Box from '@mui/material/Box';
 import {ActionsContext} from '../AssetList/types';
 import BasketItem from './BasketItem';
 import {createDefaultActionsContext} from '../AssetList/actionContext.ts';
 import {useOpenAsset} from '../AssetSearch/useOpenAsset.ts';
+import {leftPanelWidth} from '../uiVars.ts';
 
 type Props = {} & StackedModalProps;
 

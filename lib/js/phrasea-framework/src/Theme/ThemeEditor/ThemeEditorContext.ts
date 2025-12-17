@@ -1,4 +1,5 @@
 import React from 'react';
-import {TThemeEditorContext} from './themeEditorTypes';
+
+import {TThemeEditorContext} from '../types';
 
 export default React.createContext<TThemeEditorContext | undefined>(undefined);

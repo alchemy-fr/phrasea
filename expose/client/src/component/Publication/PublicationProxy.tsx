@@ -43,12 +43,14 @@ export default function PublicationProxy({
         enabled,
     } = publication!;
 
-    if (securityMethods[securityMethod]) {
-        return React.createElement(securityMethods[securityMethod], {
-            error: authorizationError,
-            onAuthorization: load,
-            securityContainerId,
-        });
+    if (!authorized) {
+        if (securityMethods[securityMethod]) {
+            return React.createElement(securityMethods[securityMethod], {
+                error: authorizationError,
+                onAuthorization: load,
+                securityContainerId,
+            });
+        }
     }
 
     if (!authorized || authorizationError === AuthorizationError.NotAllowed) {
