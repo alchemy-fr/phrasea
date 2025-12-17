@@ -17,7 +17,7 @@ import i18n from '../../i18n.ts';
 import {Notifications} from '@alchemy/notification';
 import {DropdownActions, UserMenu} from '@alchemy/phrasea-ui';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
-import {ThemeEditorContext} from '@alchemy/theme-editor';
+import {ThemeEditorContext} from '@alchemy/phrasea-framework';
 import {getBestLocale} from '@alchemy/i18n/src/Locale/localeHelper.ts';
 import {useModals} from '@alchemy/navigation';
 import LoginIcon from '@mui/icons-material/Login';

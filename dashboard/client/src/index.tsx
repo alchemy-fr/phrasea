@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import React from 'react';
 import {CssBaseline, GlobalStyles, responsiveFontSizes} from '@mui/material';
-import {ThemeEditorProvider} from '@alchemy/theme-editor';
+import {ThemeEditorProvider} from '@alchemy/phrasea-framework';
 import {scrollbarWidth, theme} from './theme';
 import Root from './Root';
 

@@ -1,0 +1,36 @@
+{
+    "name": "@alchemy/phrasea-framework",
+    "version": "0.0.1",
+    "public": true,
+    "description": "Phrasea Framework library",
+    "keywords": [],
+    "scripts": {
+        "lint": "eslint src",
+        "lint:fix": "eslint --fix src",
+        "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+        "cs": "pnpm lint:fix && pnpm format"
+    },
+    "main": "index.ts",
+    "license": "MIT",
+    "dependencies": {
+        "@jonkoops/matomo-tracker-react": "^0.7.0",
+        "react": "^18.2.0",
+        "react-router-dom": "6.18.0",
+        "react-toastify": "^11.0.3",
+        "react-i18next": "^14.1.1",
+        "@mui/material": "^5.16.7",
+        "@alchemy/api": "workspace:*",
+        "@alchemy/auth": "workspace:*",
+        "@alchemy/phrasea-ui": "workspace:*",
+        "@alchemy/core": "workspace:*",
+        "@alchemy/react-auth": "workspace:*",
+        "@alchemy/i18n": "workspace:*",
+        "@alchemy/navigation": "workspace:*",
+        "@alchemy/storage": "workspace:*"
+    },
+    "devDependencies": {
+        "@types/react": "^18.0.28",
+        "@types/react-dom": "^18.0.11",
+        "@types/react": "^18.3.24"
+    }
+}

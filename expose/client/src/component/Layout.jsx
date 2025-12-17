@@ -4,7 +4,7 @@ import {getCurrentPath, Link} from '@alchemy/navigation';
 import config from '../config';
 import {Logo} from './Logo';
 import {Trans} from 'react-i18next';
-import {keycloakClient} from '../lib/api-client';
+import {keycloakClient} from '../init.ts';
 
 class Layout extends PureComponent {
     // static propTypes = {

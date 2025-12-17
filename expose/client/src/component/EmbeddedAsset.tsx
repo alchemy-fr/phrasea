@@ -1,33 +1,32 @@
 import React, {useEffect} from 'react';
-import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {Asset} from '../types';
 import AssetProxy from './layouts/shared-components/AssetProxy';
-import {loadAsset} from './api';
-import PublicationSecurityProxy from './security/PublicationSecurityProxy';
-import {logAssetView} from '../lib/log';
-import ErrorPage from './ErrorPage';
-import {useTranslation} from 'react-i18next';
+import {loadAsset, logAssetView} from '../api/assetApi.ts';
+import PublicationProxy from './Publication/PublicationProxy.tsx';
+import {Box} from '@mui/material';
 
 type Props = {
     id: string;
 };
 
 export default function EmbeddedAsset({id}: Props) {
-    const {t} = useTranslation();
     const [data, setData] = React.useState<Asset | undefined>();
-    const [error, setError] = React.useState<string | undefined>();
+    const [errorCode, setErrorCode] = React.useState<number | undefined>();
+    const [loading, setLoading] = React.useState(false);
 
     const load = React.useCallback(async () => {
+        setLoading(true);
         try {
             const asset = await loadAsset(id);
             setData(asset);
         } catch (e: any) {
-            if ([403, 404, 401].includes(e.response?.status)) {
-                setError(e.response.status.toString());
-                return;
+            if (e.response?.status) {
+                setErrorCode(e.response.status);
             } else {
-                setError(e.toString());
+                setErrorCode(500);
             }
+        } finally {
+            setLoading(false);
         }
     }, [id]);
 
@@ -41,35 +40,15 @@ export default function EmbeddedAsset({id}: Props) {
         }
     }, [data?.id]);
 
-    if (error) {
-        if (['401', '403'].includes(error)) {
-            return (
-                <ErrorPage
-                    title={t('embedded_asset.forbidden', `Forbidden`)}
-                    code={error}
-                />
-            );
-        } else if ('404' === error) {
-            return (
-                <ErrorPage
-                    title={t('embedded_asset.not_found', `Not found`)}
-                    code={error}
-                />
-            );
-        }
-    }
-
-    if (!data) {
-        return <FullPageLoader backdrop={false} />;
-    }
-
-    const {publication} = data;
-
     return (
-        <>
-            {publication && publication.authorized && (
-                <style>
-                    {`
+        <PublicationProxy
+            publication={data?.publication}
+            loading={loading}
+            load={load}
+            errorCode={errorCode}
+        >
+            <style>
+                {`
                 html {
                     height: 100%;
                 }
@@ -78,28 +57,27 @@ export default function EmbeddedAsset({id}: Props) {
                     overflow: hidden;
                 }
             `}
-                </style>
-            )}
-            {publication && publication.cssLink ? (
-                <link
-                    rel="stylesheet"
-                    type="text/css"
-                    href={publication.cssLink}
-                />
-            ) : (
-                ''
-            )}
-            <PublicationSecurityProxy publication={publication} reload={load}>
-                {publication.authorized && (
-                    <div className={'embedded-asset'}>
-                        <AssetProxy
-                            asset={data}
-                            fluid={true}
-                            isCurrent={true}
-                        />
-                    </div>
-                )}
-            </PublicationSecurityProxy>
-        </>
+            </style>
+            <Box
+                sx={{
+                    'width': '100%',
+                    'height': '100%',
+                    'overflow': 'hidden',
+                    '.asset-px': {
+                        'height': '100%',
+                        'width': '100%',
+                        'img': {
+                            maxWidth: '100%',
+                            maxHeight: '100%',
+                        },
+                        '.video-container, .video-js, video': {
+                            maxHeight: '100%',
+                        },
+                    },
+                }}
+            >
+                <AssetProxy asset={data!} fluid={true} isCurrent={true} />
+            </Box>
+        </PublicationProxy>
     );
 }

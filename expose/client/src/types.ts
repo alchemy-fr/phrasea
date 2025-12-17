@@ -1,6 +1,6 @@
 import type {Translations} from '@alchemy/i18n';
 
-type TermsConfig = {
+export type TermsConfig = {
     text?: string;
     url?: string;
     enabled: boolean;
@@ -17,13 +17,17 @@ type LayoutOptions = {
     logoUrl?: string;
 };
 
+export enum AuthorizationError {
+    NotAllowed = 'not_allowed',
+}
+
 export type Publication = {
     id: string;
     slug: string;
     cssLink?: string;
     authorized: boolean;
     securityContainerId: string;
-    authorizationError?: string;
+    authorizationError?: AuthorizationError;
     securityMethod: SecurityMethod;
     parent?: Publication | undefined;
     downloadViaEmail?: boolean;
@@ -31,6 +35,7 @@ export type Publication = {
     title: string;
     assets: Asset[];
     cover?: Asset;
+    terms?: TermsConfig;
     children?: Publication[];
     layoutOptions: LayoutOptions;
     downloadTerms?: TermsConfig;
@@ -76,3 +81,8 @@ type SubDefinition = {
     mimeType: string;
     createdAt: string;
 };
+
+export enum SortBy {
+    Date = 'date',
+    Name = 'name',
+}

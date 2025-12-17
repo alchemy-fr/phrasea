@@ -6,6 +6,7 @@ export type AnalyticsConfig = {
 };
 
 export type WindowConfig = {
+    globalCSS?: Readonly<string | undefined>;
     autoConnectIdP: Readonly<string | undefined>;
     sentryDsn?: Readonly<string | undefined>;
     sentryEnvironment: Readonly<string>;

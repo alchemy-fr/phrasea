@@ -17,7 +17,6 @@
         "@alchemy/core": "workspace:*",
         "@alchemy/phrasea-ui": "workspace:*",
         "@alchemy/react-auth": "workspace:*",
-        "@alchemy/theme-editor": "workspace:*",
         "@mui/icons-material": "^5.18.0",
         "@mui/material": "^5.18.0",
         "react": "^18.3.1",

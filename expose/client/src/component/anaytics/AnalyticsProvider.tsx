@@ -1,10 +1,12 @@
 import {PropsWithChildren} from 'react';
-import {matomo} from '../../lib/matomo';
 import {MatomoProvider} from '@jonkoops/matomo-tracker-react';
+import {MatomoInstance} from '@jonkoops/matomo-tracker-react/src/types.ts';
 
-type Props = PropsWithChildren<{}>;
+type Props = PropsWithChildren<{
+    matomo?: MatomoInstance | undefined;
+}>;
 
-export default function AnalyticsProvider({children}: Props) {
+export default function AnalyticsProvider({matomo, children}: Props) {
     if (matomo) {
         return <MatomoProvider value={matomo}>{children}</MatomoProvider>;
     }
