@@ -98,6 +98,13 @@ final readonly class CollectionDelete
 
         foreach ($assets as $a) {
             $asset = $this->em->find(Asset::class, $a['id']);
+            if (null !== $asset->getStoryCollection()) {
+                $this->doDelete($asset->getStoryCollection()->getId());
+                $asset = $this->em->find(Asset::class, $a['id']);
+                if (null === $asset) {
+                    continue;
+                }
+            }
             $this->em->remove($asset);
             $this->em->flush();
             $this->em->clear();
