@@ -23,9 +23,6 @@ abstract class AbstractChangeLog extends AbstractLog
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
     private ?string $userId = null;
 
-    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
-    private ?string $impersonatorId = null;
-
     #[ORM\Column(type: Types::JSON, nullable: false)]
     protected array $changes = [];
 
@@ -67,18 +64,6 @@ abstract class AbstractChangeLog extends AbstractLog
     public function setUserId(?string $userId): void
     {
         $this->userId = $userId;
-    }
-
-    public function getImpersonatorId(): ?string
-    {
-        return $this->impersonatorId;
-    }
-
-    public function setImpersonatorId(?string $impersonatorId): self
-    {
-        $this->impersonatorId = $impersonatorId;
-
-        return $this;
     }
 
     public function getChanges(): array

@@ -18,11 +18,11 @@ final readonly class ActionLogManager extends AbstractLogManager
     public function __construct(
         #[Autowire(service: AlchemyTrackBundle::OBJECT_MAPPING_SERVICE_ID)]
         protected ObjectMapping $objectMapping,
-        protected EntityManagerInterface $em,
+        EntityManagerInterface $em,
         Security $security,
         RequestStack $requestStack,
     ) {
-        parent::__construct($security, $requestStack);
+        parent::__construct($em, $security, $requestStack);
     }
 
     public function createLogAction(
@@ -38,16 +38,7 @@ final readonly class ActionLogManager extends AbstractLogManager
         $log->setObjectType($this->objectMapping->getObjectKey($object));
         $log->setData($data);
 
-        $this->fillLog($log, $meta);
-
-        if ($inOnFlush) {
-            $unitOfWork = $this->em->getUnitOfWork();
-            $unitOfWork->persist($log);
-            $metadata = $this->em->getClassMetadata($log::class);
-            $unitOfWork->computeChangeSet($metadata, $log);
-        } else {
-            $this->em->persist($log);
-        }
+        $this->fillLog($log, $meta, persist: true, inOnFlush: $inOnFlush);
 
         return $log;
     }

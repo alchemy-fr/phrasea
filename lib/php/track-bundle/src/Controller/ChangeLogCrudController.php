@@ -46,7 +46,6 @@ class ChangeLogCrudController extends AbstractAdminCrudController
 
         return $filters
             ->add('userId')
-            ->add('impersonatorId')
             ->add(ChoiceFilter::new('objectType')
                 ->setChoices($objectTypeChoices))
             ->add('objectId')
@@ -75,7 +74,6 @@ class ChangeLogCrudController extends AbstractAdminCrudController
         yield DateTimeField::new('date')->hideOnForm();
         yield ChoiceField::new('action')->setChoices(TrackActionTypeEnum::getChoices());
         yield CodeField::new('userId');
-        yield CodeField::new('impersonatorId');
         yield $this->objectTypeChoiceField->create('objectType', 'Object Type');
         yield TextField::new('objectId', 'Object ID');
         yield JsonField::new('meta')->hideOnIndex();

@@ -2,7 +2,6 @@
 
 namespace Alchemy\TrackBundle\Doctrine;
 
-use Alchemy\TrackBundle\Entity\ChangeLog;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use Alchemy\TrackBundle\Model\TrackActionTypeEnum;
 use Alchemy\TrackBundle\Service\ChangeLogManager;
@@ -29,33 +28,36 @@ final class LoggableChangeSetListener
         $em = $args->getObjectManager();
         $uow = $em->getUnitOfWork();
 
+        foreach ($uow->getScheduledEntityInsertions() as $entity) {
+            if ($entity instanceof LoggableChangeSetInterface) {
+                $this->changeLogManager->createChangeLog(
+                    TrackActionTypeEnum::CREATE,
+                    $entity,
+                );
+            }
+        }
+
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
             if ($entity instanceof LoggableChangeSetInterface) {
                 $changeSet = $uow->getEntityChangeSet($entity);
 
                 if (!empty($changeSet)) {
-                    $log = $this->changeLogManager->createChangeLog(
+                    $this->changeLogManager->createChangeLog(
                         TrackActionTypeEnum::UPDATE,
                         $entity,
                         [],
                         $changeSet
                     );
-
-                    $em->persist($log);
-                    $uow->computeChangeSet($em->getClassMetadata(ChangeLog::class), $log);
                 }
             }
         }
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
             if ($entity instanceof LoggableChangeSetInterface) {
-                $log = $this->changeLogManager->createChangeLog(
+                $this->changeLogManager->createChangeLog(
                     TrackActionTypeEnum::DELETE,
                     $entity
                 );
-
-                $em->persist($log);
-                $uow->computeChangeSet($em->getClassMetadata(ChangeLog::class), $log);
             }
         }
     }
