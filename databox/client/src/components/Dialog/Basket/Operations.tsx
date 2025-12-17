@@ -3,9 +3,9 @@ import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import {Alert, Button, Typography} from '@mui/material';
 import {useTranslation} from 'react-i18next';
-import ConfirmDialog from '../../Ui/ConfirmDialog';
 import {useModals} from '@alchemy/navigation';
 import {useBasketStore} from '../../../store/basketStore.ts';
+import {ConfirmDialog} from '@alchemy/phrasea-framework';
 
 type Props = {
     data: Basket;

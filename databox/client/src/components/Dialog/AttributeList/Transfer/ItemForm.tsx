@@ -12,7 +12,8 @@ import {useDirtyFormPrompt} from '../../Tabbed/FormTab.tsx';
 import {useTranslation} from 'react-i18next';
 import {FormFieldErrors, FormRow, SwitchWidget} from '@alchemy/react-form';
 import {putAttributeListItem} from '../../../../api/attributeList.ts';
-import RemoteErrors from '../../../Form/RemoteErrors.tsx';
+
+import {RemoteErrors} from '@alchemy/react-form';
 import {LoadingButton} from '@mui/lab';
 import {getAttributeType} from '../../../Media/Asset/Attribute/types';
 import {

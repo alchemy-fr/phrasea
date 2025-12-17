@@ -9,8 +9,8 @@ import {
     FormFieldErrors,
     FormRow,
     KeyTranslationsWidget,
+    RemoteErrors,
 } from '@alchemy/react-form';
-import RemoteErrors from '../Form/RemoteErrors.tsx';
 import KeyIcon from '@mui/icons-material/Key';
 import InfoRow from '../Dialog/Info/InfoRow.tsx';
 

@@ -10,19 +10,19 @@ import {
     TextField,
 } from '@mui/material';
 import React from 'react';
-import {StackedModalProps, useModals} from '@alchemy/navigation';
+import {useModals} from '@alchemy/navigation';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
-import {appLocales} from '../../../translations/locales.ts';
-import LocaleIcon from './LocaleIcon.tsx';
 import {
     useDataLocale,
     useUpdateDataLocale,
 } from '../../store/useDataLocaleStore.ts';
 import {getLocales, Locale} from '../../api/locale.ts';
-import ConfirmDialog from '../Ui/ConfirmDialog.tsx';
+import {ConfirmDialog, LocaleDialogProps} from '@alchemy/phrasea-framework';
+import {appLocales} from '../../../translations/locales.ts';
+import {LocaleIcon} from '@alchemy/phrasea-framework';
 
-type Props = {} & StackedModalProps;
+type Props = LocaleDialogProps;
 
 export default function LocaleDialog({open, modalIndex}: Props) {
     const {t, i18n} = useTranslation();

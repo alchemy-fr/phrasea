@@ -7,7 +7,7 @@ import CollectionTreeWidget from '../../../Form/CollectionTreeWidget';
 import {copyAssets} from '../../../../api/collection';
 import {FormFieldErrors} from '@alchemy/react-form';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
-import RemoteErrors from '../../../Form/RemoteErrors';
+import {RemoteErrors} from '@alchemy/react-form';
 import {FormRow} from '@alchemy/react-form';
 import {SwitchWidget} from '@alchemy/react-form';
 import {Asset} from '../../../../types';

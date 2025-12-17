@@ -8,9 +8,9 @@ import {
     AssetFileVersionSkeleton,
 } from './AssetFileVersion';
 import {useTranslation} from 'react-i18next';
-import ConfirmDialog from '../../Ui/ConfirmDialog.tsx';
 import {toast} from 'react-toastify';
 import {useModals} from '@alchemy/navigation';
+import {ConfirmDialog} from '@alchemy/phrasea-framework';
 
 type Props = {
     data: Asset;

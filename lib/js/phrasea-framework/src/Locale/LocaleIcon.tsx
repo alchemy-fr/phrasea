@@ -8,7 +8,7 @@ type Props = {
     height?: ImgHTMLAttributes<any>['height'];
 };
 
-export default function LocaleIcon({region, locale, height = 25}: Props) {
+export function LocaleIcon({region, locale, height = 25}: Props) {
     let countryCode = region;
     if (!countryCode) {
         const parts = locale.replace(/-/g, '_').split('_');

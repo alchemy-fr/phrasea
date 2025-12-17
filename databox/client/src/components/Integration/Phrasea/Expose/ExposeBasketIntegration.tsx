@@ -17,7 +17,7 @@ import {
 import {useModals} from '@alchemy/navigation';
 import CreatePublicationDialog from './CreatePublicationDialog.tsx';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ConfirmDialog from '../../../Ui/ConfirmDialog.tsx';
+import {ConfirmDialog} from '@alchemy/phrasea-framework';
 import React from 'react';
 import {useChannelRegistration} from '../../../../lib/pusher.ts';
 import {useTranslation} from 'react-i18next';

@@ -43,6 +43,11 @@ export type Publication = {
     translations?: Translations;
     date: string;
     enabled: boolean;
+    capabilities: {
+        edit: boolean;
+        delete: boolean;
+        operator: boolean;
+    };
 };
 
 export type WebVTT = {

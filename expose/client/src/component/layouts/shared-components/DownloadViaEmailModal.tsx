@@ -1,14 +1,18 @@
 import React, {FormEvent, useRef} from 'react';
-import {Button, Modal} from 'react-bootstrap';
 import {Trans} from 'react-i18next';
 import {apiClient} from '../../../init.ts';
+import {AppDialog} from '@alchemy/phrasea-ui';
+import {StackedModalProps} from '@alchemy/navigation';
+import {useTranslation} from 'react-i18next';
+import {Button} from '@mui/material';
 
 type Props = {
     url: string;
-    onClose?: () => void;
-};
+    onClose: () => void;
+} & StackedModalProps;
 
-export default function DownloadViaEmailModal({url, onClose}: Props) {
+export default function DownloadViaEmailModal({url, onClose, open}: Props) {
+    const {t} = useTranslation();
     const [email, setEmail] = React.useState('');
     const [submitting, setSubmitting] = React.useState(false);
     const [sent, setSent] = React.useState(false);
@@ -32,73 +36,62 @@ export default function DownloadViaEmailModal({url, onClose}: Props) {
 
     return (
         <>
-            <Modal show={true} onHide={onClose}>
-                <form onSubmit={onSubmit}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>
-                            <Trans i18nKey={'download_via_email.cta'}>
-                                Download via email
-                            </Trans>
-                        </Modal.Title>
-                    </Modal.Header>
-
-                    <Modal.Body>
+            <AppDialog
+                open={open}
+                onClose={onClose}
+                title={t('download_via_email.cta', 'Download via email')}
+                actions={({onClose}) => (
+                    <>
                         {sent ? (
-                            <p>
-                                <Trans i18nKey={'download_via_email.sent'}>
-                                    You will receive your download link by
-                                    email.
-                                </Trans>
-                            </p>
-                        ) : (
-                            <div className="form-group">
-                                <label htmlFor="email">
-                                    <Trans i18nKey={'email.label'}>Email</Trans>
-                                </label>
-                                <input
-                                    disabled={submitting}
-                                    id={'email'}
-                                    className={'form-control'}
-                                    ref={emailRef}
-                                    type="email"
-                                    required
-                                    onChange={e => setEmail(e.target.value)}
-                                    value={email}
-                                />
-                            </div>
-                        )}
-                    </Modal.Body>
-
-                    <Modal.Footer>
-                        {sent ? (
-                            <Button variant="secondary" onClick={onClose}>
-                                <Trans i18nKey={'modal.close'}>Close</Trans>
+                            <Button onClick={onClose}>
+                                {t('common.close', 'Close')}
                             </Button>
                         ) : (
                             <>
-                                <Button
-                                    onClick={onClose}
-                                    disabled={submitting}
-                                    variant="secondary"
-                                >
-                                    <Trans i18nKey={'modal.discard'}>
-                                        Discard
-                                    </Trans>
+                                <Button onClick={onClose} disabled={submitting}>
+                                    {t('common.discard', 'Discard')}
                                 </Button>
                                 <Button
-                                    variant="primary"
+                                    color="primary"
                                     disabled={submitting}
                                     type={'submit'}
                                 >
-                                    <Trans i18nKey={'form.continue'}>
-                                        Continue
-                                    </Trans>
+                                    {t(
+                                        'download_via_email.continue',
+                                        'Continue'
+                                    )}
                                 </Button>
                             </>
                         )}
-                    </Modal.Footer>
+                    </>
+                )}
+            >
+                <form onSubmit={onSubmit}>
+                    {sent ? (
+                        <p>
+                            <Trans i18nKey={'download_via_email.sent'}>
+                                You will receive your download link by email.
+                            </Trans>
+                        </p>
+                    ) : (
+                        <div className="form-group">
+                            <label htmlFor="email">
+                                <Trans i18nKey={'email.label'}>Email</Trans>
+                            </label>
+                            <input
+                                disabled={submitting}
+                                id={'email'}
+                                className={'form-control'}
+                                ref={emailRef}
+                                type="email"
+                                required
+                                onChange={e => setEmail(e.target.value)}
+                                value={email}
+                            />
+                        </div>
+                    )}
                 </form>
-            </Modal>
+            </AppDialog>
         </>
     );
 }

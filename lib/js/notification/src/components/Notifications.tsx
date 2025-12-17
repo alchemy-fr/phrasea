@@ -10,11 +10,12 @@ type Props = {
     userId: string;
     uriHandler?: NotificationUriHandler;
     children: (props: {
+        open: boolean;
         bellIcon: React.ReactNode;
         onClick: (event: React.MouseEvent<HTMLElement>) => void;
     }) => React.ReactNode;
     popoverId?: string;
-    popoverProps?: PopoverProps;
+    popoverProps?: Partial<PopoverProps>;
 };
 
 export default function Notifications({
@@ -48,6 +49,7 @@ export default function Notifications({
                 routerPush={uriHandler}
             >
                 {children({
+                    open,
                     bellIcon: <Bell />,
                     onClick: handlePopoverOpen,
                 })}

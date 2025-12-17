@@ -17,7 +17,7 @@ import {
 } from '../../../api/asset';
 import {Trans, useTranslation} from 'react-i18next';
 import {FormSection} from '@alchemy/react-form';
-import ConfirmDialog from '../../Ui/ConfirmDialog.tsx';
+import {ConfirmDialog} from '@alchemy/phrasea-framework';
 import {useModals} from '@alchemy/navigation';
 import ShortcutIcon from '@mui/icons-material/Shortcut';
 import {WorkspaceChip} from '../../Ui/WorkspaceChip.tsx';

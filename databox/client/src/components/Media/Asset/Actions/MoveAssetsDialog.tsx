@@ -6,7 +6,7 @@ import CollectionTreeWidget from '../../../Form/CollectionTreeWidget';
 import {moveAssets} from '../../../../api/collection';
 import {FormFieldErrors} from '@alchemy/react-form';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
-import RemoteErrors from '../../../Form/RemoteErrors';
+import {RemoteErrors} from '@alchemy/react-form';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';

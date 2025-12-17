@@ -1,9 +1,14 @@
 import {Box} from '@mui/material';
 import React from 'react';
 import Logo from './Logo.tsx';
-import User from './User.tsx';
 import {ZIndex} from '../../themes/zIndex.ts';
 import LeftPanel from '../Media/LeftPanel.tsx';
+import {config, keycloakClient} from '../../init.ts';
+import {CommonAppLeftMenu} from '@alchemy/phrasea-framework';
+import ChangeThemeDialog from './ChangeThemeDialog.tsx';
+import LocaleDialog from '../Locale/LocaleDialog.tsx';
+import {appLocales} from '../../../translations/locales.ts';
+import {rootDefaultLocale} from '@alchemy/i18n';
 
 type Props = {
     leftPanelOpen: boolean;
@@ -45,7 +50,14 @@ export default function LeftMenu({}: Props) {
                 </Box>
 
                 <div>
-                    <User />
+                    <CommonAppLeftMenu
+                        keycloakClient={keycloakClient}
+                        appLocales={appLocales}
+                        defaultLocale={rootDefaultLocale}
+                        ChangeThemeDialog={ChangeThemeDialog}
+                        LocaleDialogComponent={LocaleDialog}
+                        config={config}
+                    />
                 </div>
             </Box>
         </>

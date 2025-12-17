@@ -4,7 +4,7 @@ import {SavedSearch} from '../../../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {FormFieldErrors, FormRow, SwitchWidget} from '@alchemy/react-form';
-import RemoteErrors from '../../../Form/RemoteErrors.tsx';
+import {RemoteErrors} from '@alchemy/react-form';
 
 type Props = {
     usedFormSubmit: UseFormSubmitReturn<SavedSearch>;

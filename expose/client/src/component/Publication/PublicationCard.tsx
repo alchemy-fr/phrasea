@@ -1,15 +1,12 @@
 import * as React from 'react';
 import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
-import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {Publication} from '../../types.ts';
+import {Button, CardActionArea} from '@mui/material';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     publication: Publication;
@@ -18,39 +15,41 @@ type Props = {
 
 export default function PublicationCard({publication, onClick}: Props) {
     const previewUrl = publication.cover?.previewUrl;
+    const {t} = useTranslation();
 
     return (
-        <Card sx={{maxWidth: 345}} onClick={() => onClick(publication.id)}>
-            <CardHeader
-                action={
-                    <IconButton aria-label="settings">
-                        <MoreVertIcon />
-                    </IconButton>
-                }
-                title={publication.title}
-                subheader={publication.date}
-            />
-            {previewUrl ? (
+        <Card>
+            <CardActionArea onClick={() => onClick(publication.id)}>
                 <CardMedia
                     component="img"
                     height="194"
                     image={previewUrl}
                     alt={publication.title}
                 />
-            ) : null}
-            <CardContent>
-                <Typography variant="body2" color="text.secondary">
-                    {publication.description}
-                </Typography>
-            </CardContent>
-            <CardActions disableSpacing>
-                <IconButton aria-label="add to favorites">
-                    <FavoriteIcon />
-                </IconButton>
-                <IconButton aria-label="share">
-                    <ShareIcon />
-                </IconButton>
-            </CardActions>
+                <CardContent>
+                    <Typography gutterBottom variant="h5" component="div">
+                        {publication.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        {publication.description}
+                    </Typography>
+                </CardContent>
+            </CardActionArea>
+            {publication.capabilities.edit ||
+                (publication.capabilities.delete && (
+                    <CardActions>
+                        {publication.capabilities.edit && (
+                            <Button size="small" color="primary">
+                                {t('publication_card.edit', 'Edit')}
+                            </Button>
+                        )}
+                        {publication.capabilities.delete && (
+                            <Button size="small" color="error">
+                                {t('publication_card.delete', 'Delete')}
+                            </Button>
+                        )}
+                    </CardActions>
+                ))}
         </Card>
     );
 }

@@ -4,7 +4,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import {LoadingButton} from '@mui/lab';
 import SaveIcon from '@mui/icons-material/Save';
-import RemoteErrors from '../../Form/RemoteErrors';
+import {RemoteErrors} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import {useFormPrompt} from '@alchemy/navigation';
 
