@@ -6,6 +6,7 @@ use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntry;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
+use Alchemy\TrackBundle\Entity\ChangeLog;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
@@ -40,6 +41,8 @@ use App\Entity\Integration\IntegrationToken;
 use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
+use App\Entity\Log\ActionLog;
+use App\Entity\SavedSearch\SavedSearch;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use App\Entity\Template\WorkspaceTemplate;
@@ -62,10 +65,10 @@ class DashboardController extends AbstractAdminDashboardController
     public function configureMenuItems(): iterable
     {
         $submenu1 = [
-            MenuItem::linkToRoute('Asset permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'asset']),
-            MenuItem::linkToRoute('Collection permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'collection']),
-            MenuItem::linkToRoute('Workspace permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'workspace']),
-            MenuItem::linkToRoute('Basket permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'basket']),
+            MenuItem::linkToRoute('Asset permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Asset::OBJECT_TYPE]),
+            MenuItem::linkToRoute('Collection permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Collection::OBJECT_TYPE]),
+            MenuItem::linkToRoute('Workspace permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Workspace::OBJECT_TYPE]),
+            MenuItem::linkToRoute('Basket permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Basket::OBJECT_TYPE]),
             MenuItem::linkToCrud('All permissions (advanced)', '', AccessControlEntry::class),
         ];
 
@@ -97,9 +100,10 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Basket Assets', '', BasketAsset::class),
         ];
 
-        $attributeList = [
+        $lists = [
             MenuItem::linkToCrud('Attribute Lists', '', AttributeList::class),
             MenuItem::linkToCrud('Lists Items', '', AttributeListItem::class),
+            MenuItem::linkToCrud('Saved Searches', '', SavedSearch::class),
         ];
 
         $submenuTemplates = [
@@ -136,16 +140,22 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Threads', '', Thread::class),
         ];
 
+        $logs = [
+            MenuItem::linkToCrud('Action Log', '', ActionLog::class),
+            MenuItem::linkToCrud('Change Log', '', ChangeLog::class),
+        ];
+
         yield MenuItem::subMenu('Permission', 'fas fa-lock')->setSubItems($submenu1);
         yield MenuItem::subMenu('Core', 'fas fa-database')->setSubItems($submenu2);
         yield MenuItem::subMenu('Basket', 'fas fa-basket-shopping')->setSubItems($basket);
-        yield MenuItem::subMenu('Attribute List', 'fas fa-list')->setSubItems($attributeList);
+        yield MenuItem::subMenu('Lists', 'fas fa-list')->setSubItems($lists);
         yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenu3);
         yield MenuItem::subMenu('Template', 'fas fa-align-justify')->setSubItems($submenuTemplates);
         yield MenuItem::subMenu('Integration', 'fas fa-gear')->setSubItems($submenu4);
         yield MenuItem::subMenu('Workflow', 'fas fa-gears')->setSubItems($workflows);
         yield MenuItem::subMenu('Webhook', 'fas fa-network-wired')->setSubItems($webhookSubMenu);
         yield MenuItem::subMenu('Discussions', 'fas fa-message')->setSubItems($discussions);
+        yield MenuItem::subMenu('Logs', 'fa fa-history')->setSubItems($logs);
         yield MenuItem::linkToRoute('Notification', 'fas fa-bell', 'alchemy_notify_admin_index');
         yield MenuItem::linkToCrud('Global Config', 'fa fa-gear', ConfiguratorEntry::class);
         yield $this->createDevMenu();

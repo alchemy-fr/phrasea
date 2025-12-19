@@ -152,7 +152,7 @@ export default function AssetView({modalIndex, open}: Props) {
     React.useEffect(() => {
         if (asset?.storyCollection) {
             getAssets({
-                parents: [asset.storyCollection.id],
+                story: asset!.id,
             }).then(setStoryAssets);
         } else {
             setStoryAssets(undefined);

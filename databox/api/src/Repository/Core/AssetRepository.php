@@ -81,4 +81,14 @@ class AssetRepository extends ServiceEntityRepository
             ->addOrderBy($alias.'.id', 'ASC')
         ;
     }
+
+    public function createElasticaToModelQueryBuilder(string $alias = 't'): QueryBuilder
+    {
+        return $this
+            ->createQueryBuilder($alias)
+            ->select($alias.', f, w')
+            ->leftJoin($alias.'.source', 'f')
+            ->leftJoin($alias.'.workspace', 'w')
+        ;
+    }
 }

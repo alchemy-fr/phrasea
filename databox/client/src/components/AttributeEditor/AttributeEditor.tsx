@@ -125,7 +125,7 @@ export default function AttributeEditor({
                 },
             ],
         };
-    }, []);
+    }, [t]);
 
     const setAttributeValue = React.useCallback<SetAttributeValue>(
         (value, options) => {
@@ -178,12 +178,15 @@ export default function AttributeEditor({
                         }}
                     >
                         <DisplayProvider
+                            inOverflowDiv={true}
+                            displayPrefKey={'displayBatchEdit'}
                             defaultState={{
                                 thumbSize: defaultThumbSize,
                                 displayTitle: false,
-                                displayPreview: false,
+                                displayPreview: true,
                                 displayCollections: false,
                                 displayTags: false,
+                                displayAttributes: false,
                             }}
                         >
                             <AssetList

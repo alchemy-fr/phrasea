@@ -6,20 +6,22 @@ namespace App\Elasticsearch\BuiltInField;
 
 abstract class AbstractLabelledBuiltInField extends AbstractBuiltInField
 {
-    public function normalizeBucket(array $bucket): ?array
+    public function normalizeBuckets(array $buckets): array
     {
-        $newKey = [
-            'value' => $bucket['key'],
-            'label' => $this->resolveLabel($bucket['key']),
-        ];
+        return array_map(function (array $bucket): ?array {
+            $newKey = [
+                'value' => $bucket['key'],
+                'label' => $this->resolveLabel($bucket['key']),
+            ];
 
-        $item = $this->resolveItem($bucket['key']);
-        if (null !== $item) {
-            $newKey['item'] = $item;
-        }
+            $item = $this->resolveItem($bucket['key']);
+            if (null !== $item) {
+                $newKey['item'] = $item;
+            }
 
-        $bucket['key'] = $newKey;
+            $bucket['key'] = $newKey;
 
-        return $bucket;
+            return $bucket;
+        }, $buckets);
     }
 }

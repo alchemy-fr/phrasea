@@ -41,6 +41,9 @@
     "alchemy/test-bundle": {
         "version": "dev-PS-462-databox-enqueue-renditions"
     },
+    "alchemy/track-bundle": {
+        "version": "dev-PS-995-track-changes"
+    },
     "alchemy/webhook-bundle": {
         "version": "dev-master"
     },

@@ -113,9 +113,9 @@ final readonly class KeycloakClient
                     ...$options,
                     'access_token' => $accessToken,
                 ]));
-            }, handleHttpException: false);
+            }, nonHandledCodes: [404]);
         } catch (HttpExceptionInterface $e) {
-            if (404 === $e->getResponse()?->getStatusCode()) {
+            if (404 === $e->getResponse()->getStatusCode()) {
                 return null;
             }
 
@@ -129,6 +129,25 @@ final readonly class KeycloakClient
             ...$options,
             'access_token' => $accessToken,
         ]);
+    }
+
+    public function getUsersByIds(string $accessToken, array $ids, array $options = []): array
+    {
+        $users = $this->get($this->urlGenerator->getUsersApiUrl(), [
+            ...$options,
+            'access_token' => $accessToken,
+            'query' => [
+                'search' => 'id:'.implode(' ', $ids),
+                ...$options['query'] ?? [],
+            ],
+        ]);
+
+        $indexedUsers = [];
+        foreach ($users as $user) {
+            $indexedUsers[$user['id']] = $user;
+        }
+
+        return $indexedUsers;
     }
 
     public function getGroups(string $accessToken, array $options = []): array
@@ -146,9 +165,9 @@ final readonly class KeycloakClient
                 return $this->keycloakClient->request('GET', sprintf('%s/%s', $this->urlGenerator->getGroupsApiUrl(), $groupId), $this->getRequestOptions(array_merge($options, [
                     'access_token' => $accessToken,
                 ])));
-            });
+            }, nonHandledCodes: [404]);
         } catch (HttpExceptionInterface $e) {
-            if (404 === $e->getStatusCode()) {
+            if (404 === $e->getResponse()->getStatusCode()) {
                 return null;
             }
 
@@ -196,20 +215,22 @@ final readonly class KeycloakClient
         return $requestOptions;
     }
 
-    private function wrapRequest(callable $handler, bool $handleHttpException = true): array
+    private function wrapRequest(callable $handler, array $nonHandledCodes = []): array
     {
         try {
             $response = $handler();
 
             return $response->toArray();
         } catch (HttpExceptionInterface $e) {
-            if ($handleHttpException) {
-                if (null !== $statusCode = $e->getResponse()?->getStatusCode()) {
-                    throw match ($statusCode) {
-                        403 => new AccessDeniedHttpException($e->getResponse()->getContent(false), $e),
-                        default => new HttpException($statusCode, $e->getResponse()->getContent(false), $e),
-                    };
+            if (null !== $statusCode = $e->getResponse()?->getStatusCode()) {
+                if (in_array($statusCode, $nonHandledCodes, true)) {
+                    throw $e;
                 }
+
+                throw match ($statusCode) {
+                    403 => new AccessDeniedHttpException($e->getResponse()->getContent(false), $e),
+                    default => new HttpException($statusCode, $e->getResponse()->getContent(false), $e),
+                };
             }
 
             throw $e;
@@ -230,7 +251,7 @@ final readonly class KeycloakClient
     public function getJwtPublicKey(): string
     {
         return $this->keycloakRealmCache->get('keycloak_public_key', function (ItemInterface $item): string {
-            $data = $this->keycloakClient->request('GET', $this->urlGenerator->getRealmInfo())->toArray();
+            $data = $this->keycloakClient->request('GET', $this->urlGenerator->getRealmInfoUrl(true))->toArray();
 
             return $data['public_key'];
         });

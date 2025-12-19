@@ -171,7 +171,7 @@ export default function CollectionMenuItem({
                                     <Divider key="divider1" />
                                 ) : null,
                                 collection.capabilities.canEdit &&
-                                authContext!.isAuthenticated() ? (
+                                authContext!.isAuthenticated ? (
                                     <MenuItem
                                         key="create-asset"
                                         onClick={closeWrapper(() =>
@@ -330,7 +330,9 @@ export default function CollectionMenuItem({
                     selected={Boolean(selected || currentInSelectedHierarchy)}
                     role={undefined}
                     onClick={onClick}
-                    style={{paddingLeft: `${10 + level * 10}px`}}
+                    sx={{
+                        pl: 1 + level,
+                    }}
                 >
                     <ListItemIcon>
                         {collection.public ? (

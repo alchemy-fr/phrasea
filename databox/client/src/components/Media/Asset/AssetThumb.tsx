@@ -187,7 +187,7 @@ export const thumbSx = (
     theme: Theme,
     overridden: SxProps = {}
 ) => {
-    const greyBg = theme.palette.grey[100];
+    const greyBg = theme.palette.grey[200];
 
     return {
         [`.${assetClasses.thumbWrapper}`]: {

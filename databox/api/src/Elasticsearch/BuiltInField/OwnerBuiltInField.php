@@ -15,21 +15,27 @@ final class OwnerBuiltInField extends AbstractBuiltInField
     ) {
     }
 
-    public function normalizeBucket(array $bucket): ?array
+    public function normalizeBuckets(array $buckets): array
     {
-        $user = $this->userRepository->getUser($bucket['key']);
-        if (null === $user) {
-            return null;
-        }
+        $users = $this->userRepository->getUsersByIds(array_map(function (array $bucket): string {
+            return $bucket['key'];
+        }, $buckets));
 
-        $newKey = [
-            'value' => $bucket['key'],
-            'label' => $this->resolveLabel($user),
-        ];
+        return array_map(function (array $bucket) use ($users): ?array {
+            $user = $users[$bucket['key']] ?? null;
+            if (null === $user) {
+                return null;
+            }
 
-        $bucket['key'] = $newKey;
+            $newKey = [
+                'value' => $bucket['key'],
+                'label' => $this->resolveLabel($user),
+            ];
 
-        return $bucket;
+            $bucket['key'] = $newKey;
+
+            return $bucket;
+        }, $buckets);
     }
 
     /**
@@ -68,5 +74,10 @@ final class OwnerBuiltInField extends AbstractBuiltInField
     protected function getAggregationTranslationKey(): string
     {
         return 'owner';
+    }
+
+    public function isFacet(): bool
+    {
+        return true;
     }
 }

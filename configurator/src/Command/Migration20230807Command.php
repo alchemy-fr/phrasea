@@ -361,7 +361,7 @@ provider');
                 'saml' => [
                     'allowCreate' => 'true',
                     'guiOrder' => '',
-                    'entityId' => getenv('KEYCLOAK_URL').'/realms/'.$this->keycloakRealm,
+                    'entityId' => (getenv('KEYCLOAK_INTERNAL_URL') ?: getenv('KEYCLOAK_URL')).'/realms/'.$this->keycloakRealm,
                     'idpEntityId' => $options['entity_id'],
                     'singleSignOnServiceUrl' => $options['sso_url'],
                     'singleLogoutServiceUrl' => '',

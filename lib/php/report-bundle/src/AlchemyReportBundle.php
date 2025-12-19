@@ -46,6 +46,7 @@ class AlchemyReportBundle extends AbstractBundle
             ->arg('$appId', '%alchemy_core.app_id%')
             ->arg('$client', service('report.client'))
         ;
+        $services->set(SendLogCommand::class);
 
         $isTest = 'test' === $builder->getParameter('kernel.environment');
 

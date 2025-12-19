@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Validator\SameWorkspaceConstraint;
 use Doctrine\DBAL\Types\Types;
@@ -14,9 +15,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'definition.workspace']
 )]
-class AssetTitleAttribute extends AbstractUuidEntity
+class AssetTitleAttribute extends AbstractUuidEntity implements LoggableChangeSetInterface
 {
     use AssetTypeTargetTrait;
+    final public const int OBJECT_INDEX = 13;
 
     #[ORM\ManyToOne(targetEntity: Workspace::class)]
     #[ORM\JoinColumn(nullable: false)]

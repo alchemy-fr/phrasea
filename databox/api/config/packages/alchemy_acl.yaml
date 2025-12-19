@@ -1,9 +1,10 @@
 alchemy_acl:
   objects:
-    asset: App\Entity\Core\Asset
-    collection: App\Entity\Core\Collection
-    workspace: App\Entity\Core\Workspace
-    attribute_policy: App\Entity\Core\AttributePolicy
-    data_template: App\Entity\Template\AssetDataTemplate
-    basket: App\Entity\Basket\Basket
-    attribute_list: App\Entity\AttributeList\AttributeList
+    !php/const:App\Entity\Core\Asset::OBJECT_TYPE: App\Entity\Core\Asset
+    !php/const:App\Entity\Core\Collection::OBJECT_TYPE: App\Entity\Core\Collection
+    !php/const:App\Entity\Core\Workspace::OBJECT_TYPE: App\Entity\Core\Workspace
+    !php/const:App\Entity\Core\AttributePolicy::OBJECT_TYPE: App\Entity\Core\AttributePolicy
+    !php/const:App\Entity\Template\AssetDataTemplate::OBJECT_TYPE: App\Entity\Template\AssetDataTemplate
+    !php/const:App\Entity\Basket\Basket::OBJECT_TYPE: App\Entity\Basket\Basket
+    !php/const:App\Entity\AttributeList\AttributeList::OBJECT_TYPE: App\Entity\AttributeList\AttributeList
+    !php/const:App\Entity\SavedSearch\SavedSearch::OBJECT_TYPE: App\Entity\SavedSearch\SavedSearch

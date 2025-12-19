@@ -11,9 +11,14 @@ type Props = {};
 
 export default function AttributeListSwitcher({}: Props) {
     const {t} = useTranslation();
+    const load = useAttributeListStore(state => state.load);
     const current = useAttributeListStore(state => state.current);
-    const loadingCurrent = useAttributeListStore(state => state.loadingCurrent);
+    const loaded = useAttributeListStore(state => state.loaded);
     const {openModal} = useModals();
+
+    React.useEffect(() => {
+        load();
+    }, [load]);
 
     const openList = () => {
         openModal(SelectAttributeListDialog, {});
@@ -31,7 +36,7 @@ export default function AttributeListSwitcher({}: Props) {
                 aria-label="Select attributeList action"
                 aria-haspopup="menu"
                 onClick={openList}
-                loading={loadingCurrent}
+                loading={!loaded}
                 loadingPosition={'start'}
                 endIcon={<ArrowDropDownIcon />}
             >

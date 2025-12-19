@@ -38,10 +38,10 @@ export type AuthEventHandler<E extends AuthEvent = AuthEvent> = (
 export type TokenResponse = {
     id_token?: string;
     access_token: string;
-    refresh_token?: string;
+    refresh_token: string;
     token_type: string;
     expires_in: number;
-    refresh_expires_in?: number;
+    refresh_expires_in: number;
     device_token?: string;
     device_token_expires_in?: number;
 };
@@ -51,9 +51,9 @@ export type AuthTokens = {
     idToken?: string;
     expiresIn: number;
     expiresAt: number;
-    refreshToken?: string;
-    refreshExpiresIn?: number;
-    refreshExpiresAt?: number;
+    refreshToken: string;
+    refreshExpiresIn: number;
+    refreshExpiresAt: number;
     deviceToken?: string;
     deviceTokenExpiresIn?: number;
     deviceTokenExpiresAt?: number;
@@ -107,7 +107,7 @@ export type OAuthClientOptions = {
     clientId: string;
     clientSecret?: string;
     baseUrl: string;
-    tokenStorageKey?: string;
+    refreshTokenStorageKey?: string;
     httpClient?: HttpClient;
     scope?: string | undefined;
     cookiesOptions?: CookieStorageOptions['cookiesOptions'];

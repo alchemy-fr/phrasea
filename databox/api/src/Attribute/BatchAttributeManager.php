@@ -17,6 +17,7 @@ use App\Consumer\Handler\Search\IndexAssetAttributes;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\AttributePolicy;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AssetVoter;
 use Doctrine\DBAL\ArrayParameterType;
@@ -274,7 +275,7 @@ class BatchAttributeManager
                             } else {
                                 $sub = $this->em
                                     ->createQueryBuilder()
-                                    ->select('ad.id')
+                                    ->select('DISTINCT ad.id')
                                     ->from(AttributeDefinition::class, 'ad')
                                     ->andWhere('ad.workspace = :ws')
                                     ->andWhere('ad.editable = true')
@@ -491,7 +492,7 @@ class BatchAttributeManager
             $queryBuilder,
             $user->getId(),
             $user->getGroups(),
-            'attribute_policy',
+            AttributePolicy::OBJECT_TYPE,
             'ap',
             PermissionInterface::EDIT,
             false

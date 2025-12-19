@@ -8,6 +8,7 @@ use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -39,15 +40,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'workspace',
     operations: [
         new Get(
-            normalizationContext: [
-                'groups' => [Workspace::GROUP_READ],
-            ],
             security: 'is_granted("READ", object)'
         ),
         new Put(
-            normalizationContext: [
-                'groups' => [Workspace::GROUP_READ],
-            ],
             securityPostDenormalize: 'is_granted("EDIT", object)'
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
@@ -58,7 +53,11 @@ use Symfony\Component\Validator\Constraints as Assert;
             read: true,
             name: 'flush'
         ),
-        new GetCollection(),
+        new GetCollection(
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST],
+            ],
+        ),
         new Get(
             uriTemplate: '/workspaces-by-slug/{slug}',
             uriVariables: [
@@ -68,14 +67,11 @@ use Symfony\Component\Validator\Constraints as Assert;
             name: 'get_by_slug'
         ),
         new Post(
-            normalizationContext: [
-                'groups' => [Workspace::GROUP_READ],
-            ],
             securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
         ),
     ],
     normalizationContext: [
-        'groups' => [Workspace::GROUP_LIST],
+        'groups' => [self::GROUP_LIST, self::GROUP_READ],
     ],
     input: WorkspaceInput::class,
     output: WorkspaceOutput::class,
@@ -87,13 +83,15 @@ use Symfony\Component\Validator\Constraints as Assert;
     'slug',
 ], message: 'Slug is already taken')]
 #[ValidAnalyzersOptionsConstraint]
-class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable
+class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use OwnerIdTrait;
     use DeletedAtTrait;
     use TranslationsTrait;
+    final public const int OBJECT_INDEX = 3;
+    final public const string OBJECT_TYPE = 'workspace';
 
     final public const string GROUP_READ = 'workspace:r';
     final public const string GROUP_LIST = 'workspace:i';

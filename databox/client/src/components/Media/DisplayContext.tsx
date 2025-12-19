@@ -1,5 +1,6 @@
 import React from 'react';
 import {StateSetter} from '../../types.ts';
+import {Layout} from '../AssetList/Layouts';
 
 export type PlayingContext = {
     stop: VoidFunction;
@@ -25,6 +26,7 @@ export type DisplayPreferences = {
     tagsLimit: number;
     thumbSize: number;
     titleRows: number;
+    layout: Layout;
 };
 
 export type TDisplayContext = {
@@ -32,6 +34,7 @@ export type TDisplayContext = {
     playing: PlayingContext | undefined;
     state: DisplayPreferences;
     setState: StateSetter<DisplayPreferences>;
+    inOverflowDiv: boolean;
 };
 
 export const DisplayContext = React.createContext<TDisplayContext | null>(null);

@@ -39,9 +39,9 @@ abstract class AbstractBuiltInField implements BuiltInFieldInterface
         return new GroupValue($name, $this->getType(), $this->resolveKey($item), [$this->resolveItem($item) ?? $this->resolveLabel($item)]);
     }
 
-    public function normalizeBucket(array $bucket): ?array
+    public function normalizeBuckets(array $buckets): array
     {
-        return $bucket;
+        return $buckets;
     }
 
     protected function resolveCollectionItem($item)
@@ -70,6 +70,11 @@ abstract class AbstractBuiltInField implements BuiltInFieldInterface
     }
 
     public function isSortable(): bool
+    {
+        return true;
+    }
+
+    public function isFacet(): bool
     {
         return true;
     }

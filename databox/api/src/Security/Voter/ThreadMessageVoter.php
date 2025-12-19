@@ -27,7 +27,7 @@ class ThreadMessageVoter extends AbstractVoter
     {
         switch ($attribute) {
             case self::READ:
-                return $this->security->isGranted(self::READ, $subject->getThread());
+                return $this->security->isGranted(self::READ, $subject->getThread(), $token);
             case self::EDIT:
             case self::DELETE:
                 $user = $token->getUser();

@@ -193,12 +193,20 @@ class Publication extends PureComponent {
         const Layout = layouts[data.layout];
 
         return (
-            <Layout
-                data={data}
-                assetId={this.props.assetId}
-                options={data.layoutOptions}
-                mapOptions={data.mapOptions}
-            />
+            <>
+                {!data.enabled && (
+                    <div className="alert alert-warning m-3">
+                        This publication is currently disabled. Only
+                        administrators can see it.
+                    </div>
+                )}
+                <Layout
+                    data={data}
+                    assetId={this.props.assetId}
+                    options={data.layoutOptions}
+                    mapOptions={data.mapOptions}
+                />
+            </>
         );
     }
 

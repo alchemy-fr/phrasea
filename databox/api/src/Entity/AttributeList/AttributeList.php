@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Entity\AttributeList;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
@@ -37,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'attribute-list',
     operations: [
-        new GetCollection(security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")'),
+        new GetCollection(),
         new Get(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
@@ -123,6 +122,8 @@ class AttributeList extends AbstractUuidEntity implements WithOwnerIdInterface, 
     use OwnerIdTrait;
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const int OBJECT_INDEX = 7;
+    final public const string OBJECT_TYPE = 'attribute_list';
     final public const string GROUP_READ = 'attribute-list:read';
     final public const string GROUP_LIST = 'attribute-list:index';
     final public const string GROUP_WRITE = 'attribute-list:w';

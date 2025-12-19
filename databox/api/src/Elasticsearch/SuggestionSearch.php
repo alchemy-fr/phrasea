@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
-use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
 use Elastica\Collapse;
 use Elastica\Query;
@@ -27,6 +26,7 @@ class SuggestionSearch extends AbstractSearch
         private readonly Index $assetIndex,
         #[Autowire(service: 'fos_elastica.index.attribute')]
         private readonly Index $attributeIndex,
+        private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly string $kernelEnv,
     ) {
     }
@@ -51,8 +51,7 @@ class SuggestionSearch extends AbstractSearch
         $queryString = preg_replace('#^"(.*)$#', '$1', $queryString);
         $queryString = preg_replace('#(.*)"$#', '$1', $queryString);
 
-        /** @var AttributeDefinition[] $suggestAttributes */
-        $suggestAttributes = $this->em->getRepository(AttributeDefinition::class)
+        $suggestAttributes = $this->attributeDefinitionRepository
             ->getSearchableAttributes($userId, $groupIds, [
                 AttributeDefinitionRepository::OPT_SUGGEST_ENABLED => true,
             ]);

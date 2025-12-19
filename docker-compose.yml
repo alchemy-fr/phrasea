@@ -7,7 +7,7 @@ networks:
 
 services:
   traefik:
-    image: traefik:3.2.1
+    image: ${TRAEFIK_IMAGE}
     networks:
       - internal
     ports:
@@ -139,6 +139,7 @@ services:
       - SENTRY_DSN=${PHP_SENTRY_DSN}
       - SENTRY_ENVIRONMENT
       - KEYCLOAK_URL
+      - KEYCLOAK_INTERNAL_URL
       - KEYCLOAK_REALM_NAME
       - CONFIGURATOR_DB_NAME
       - CONFIGURATOR_S3_ENDPOINT=${S3_ENDPOINT}
@@ -365,7 +366,7 @@ services:
   redis:
     profiles:
       - db
-    image: redis:7.4.1-alpine3.20
+    image: ${REDIS_IMAGE}
     networks:
       - internal
     volumes:
@@ -374,7 +375,7 @@ services:
   db:
     profiles:
       - db
-    image: postgres:14.4-alpine
+    image: ${POSTGRES_IMAGE}
     hostname: postgres
     networks:
       - internal
@@ -387,7 +388,7 @@ services:
   rabbitmq:
     profiles:
       - db
-    image: rabbitmq:3.13.7-management
+    image: ${RABBITMQ_IMAGE}
     hostname: rabbitmq
     networks:
       - internal
@@ -426,7 +427,7 @@ services:
   minio:
     profiles:
       - db
-    image: minio/minio:RELEASE.2021-11-24T23-19-33Z.hotfix.1d85a4563
+    image: ${MINIO_IMAGE}
     networks:
       - internal
     command: server /data --console-address ":9001"
@@ -449,7 +450,7 @@ services:
   minio-mc:
     profiles:
       - setup
-    image: minio/mc:RELEASE.2020-09-18T00-13-21Z
+    image: ${MINIO_MC_IMAGE}
     networks:
       - internal
     command: exit 0
@@ -529,7 +530,7 @@ services:
   pgadmin:
     profiles:
       - tools
-    image: dpage/pgadmin4:9.0.0
+    image: dpage/pgadmin4:9.11.0
     networks:
       - internal
     environment:
@@ -783,7 +784,7 @@ services:
   elasticsearch:
     profiles:
       - databox
-    image: elasticsearch:7.17.28
+    image: ${ELASTICSEARCH_IMAGE}
     networks:
       - internal
     volumes:
@@ -971,6 +972,7 @@ services:
     environment:
       - APP_ENV
       - KEYCLOAK_URL
+      - KEYCLOAK_INTERNAL_URL
       - KEYCLOAK_REALM_NAME
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
@@ -1015,6 +1017,7 @@ services:
       - MAILER_SSL
       - MAILER_TLS
       - DEFAULT_ADMIN_USERNAME
+      - DEFAULT_ADMIN_EMAIL
       - DEFAULT_ADMIN_PASSWORD
       - INDEXER_DATABOX_CLIENT_ID
       - INDEXER_DATABOX_CLIENT_SECRET
@@ -1069,7 +1072,7 @@ services:
   soketi:
     profiles:
       - soketi
-    image: quay.io/soketi/soketi:330e1a60197d2b5798a3b3a2bcd211ec124148d8-16-alpine
+    image: ${SOKETI_IMAGE}
     networks:
       - internal
     environment:

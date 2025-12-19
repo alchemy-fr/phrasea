@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -109,6 +110,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     ],
     input: AttributeDefinitionInput::class,
     output: AttributeDefinitionOutput::class,
+    paginationClientItemsPerPage: true,
+    paginationMaximumItemsPerPage: 1000,
 )]
 #[ORM\Table]
 #[ORM\Index(columns: ['searchable'], name: 'searchable_idx')]
@@ -129,7 +132,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     errorPath: 'name',
 )]
 #[ApiFilter(BooleanFilter::class, properties: ['searchable', 'facetEnabled', 'translatable', 'multiple', 'enabled'])]
-class AttributeDefinition extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface
+class AttributeDefinition extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -137,6 +140,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     use ErrorDisableTrait;
     use TranslationsTrait;
     use AssetTypeTargetTrait;
+    final public const int OBJECT_INDEX = 14;
 
     final public const string GROUP_READ = 'attrdef:r';
     final public const string GROUP_LIST = 'attrdef:i';

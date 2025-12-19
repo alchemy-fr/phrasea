@@ -55,6 +55,13 @@ EOF
 
 kubectl -n $NS wait --for=condition=Ready pod/${POD}
 
+function export_db() {
+  local db_name="$1"
+  local dump_file="$2"
+
+  kubectl -n $NS exec -i ${POD} -- pg_dump -U ${DB_USER} --host ${DB_HOST} --port ${DB_PORT} ${db_name} > ${dump_file} 2> /dev/null
+}
+
 for d in ${DATABASES}; do
   DUMP_FILE="${DIR}/${d}.sql"
 
@@ -64,15 +71,27 @@ for d in ${DATABASES}; do
   fi
 
   APP_POD=$(kubectl -n $NS get pod -l tier=${dpod}-api-php -o jsonpath="{.items[0].metadata.name}") || continue
-  DB_NAME=$(kubectl -n $NS exec ${APP_POD} -- /bin/ash -c 'echo $DB_NAME')
+  DB_NAME=$(kubectl -n $NS exec ${APP_POD} -- /bin/sh -c 'echo $DB_NAME')
   if [ -z "${DB_NAME}" ]; then
     DB_NAME="${d}"
   fi
 
-  kubectl -n $NS exec -i ${POD} -- pg_dump -U ${DB_USER} --host ${DB_HOST} --port ${DB_PORT} ${DB_NAME} > ${DUMP_FILE} 2> /dev/null
+  export_db "${DB_NAME}" "${DIR}/${d}.sql"
+
   EXPORTED="${EXPORTED} ${d}.sql"
   echo "[✓] ${d} database exported"
 done
+
+# Get Keycloak database
+APP_POD=$(kubectl -n $NS get pod -l tier=keycloak -o jsonpath="{.items[0].metadata.name}") || continue
+echo "${APP_POD}"
+KC_DB_URL=$(kubectl -n $NS exec ${APP_POD} -- /bin/sh -c 'echo $KC_DB_URL')
+DB_NAME=$(echo ${KC_DB_URL} | sed -e 's/.*\///' -e 's/\?.*//')
+echo ${DB_NAME}
+
+export_db "${DB_NAME}" "${DIR}/keycloak.sql"
+EXPORTED="${EXPORTED} keycloak.sql"
+echo "[✓] keycloak database exported"
 
 kubectl -n $NS delete pod ${POD} --force 2> /dev/null
 

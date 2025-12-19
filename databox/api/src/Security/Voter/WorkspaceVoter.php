@@ -13,8 +13,6 @@ class WorkspaceVoter extends AbstractVoter
 {
     final public const string SCOPE_PREFIX = 'workspace:';
 
-    private array $cache = [];
-
     protected function supports(string $attribute, $subject): bool
     {
         return $subject instanceof Workspace && !is_numeric($attribute);
@@ -34,13 +32,6 @@ class WorkspaceVoter extends AbstractVoter
      * @param Workspace $subject
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
-    {
-        $key = sprintf('%s:%s:%s', $attribute, $subject->getId(), spl_object_id($token));
-
-        return $this->cache[$key] ?? ($this->cache[$key] = $this->doVote($attribute, $subject, $token));
-    }
-
-    private function doVote(string $attribute, Workspace $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;

@@ -32,6 +32,7 @@ export default function PreviewPopover({
     const {
         state: {previewLocked, previewOptions},
         setState,
+        inOverflowDiv,
     } = useContext(DisplayContext)!;
     const relativeSize = previewOptions.sizeRatio;
     const width = getRelativeViewWidth(relativeSize);
@@ -55,7 +56,7 @@ export default function PreviewPopover({
         <Popper
             keepMounted={true}
             open={Boolean(asset && anchorEl)}
-            placement="bottom"
+            placement="bottom-start"
             anchorEl={anchorEl}
             sx={{
                 pointerEvents: !previewLocked ? 'none' : undefined,
@@ -65,28 +66,32 @@ export default function PreviewPopover({
                         display: 'none',
                     },
             }}
-            modifiers={[
-                {
-                    name: 'flip',
-                    enabled: true,
-                    options: {
-                        altBoundary: true,
-                        rootBoundary: 'document',
-                        padding: 8,
-                    },
-                },
-                {
-                    name: 'preventOverflow',
-                    enabled: true,
-                    options: {
-                        altAxis: true,
-                        altBoundary: true,
-                        tether: true,
-                        rootBoundary: 'document',
-                        padding: 8,
-                    },
-                },
-            ]}
+            modifiers={
+                !inOverflowDiv
+                    ? [
+                          {
+                              name: 'flip',
+                              enabled: true,
+                              options: {
+                                  altBoundary: true,
+                                  rootBoundary: 'viewport',
+                                  padding: 8,
+                              },
+                          },
+                          {
+                              name: 'preventOverflow',
+                              enabled: true,
+                              options: {
+                                  altAxis: true,
+                                  altBoundary: true,
+                                  tether: true,
+                                  rootBoundary: 'viewport',
+                                  padding: 8,
+                              },
+                          },
+                      ]
+                    : undefined
+            }
         >
             {asset ? (
                 <Paper

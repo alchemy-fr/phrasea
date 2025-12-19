@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use App\Repository\Core\CollectionRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\CollectionVoter;
 use Elastica\Query;
@@ -19,6 +21,7 @@ class CollectionSearch extends AbstractSearch
         #[Autowire(service: 'fos_elastica.finder.collection')]
         private readonly PaginatedFinderInterface $finder,
         private readonly QueryStringParser $queryStringParser,
+        private readonly CollectionRepository $collectionRepository,
     ) {
     }
 
@@ -107,12 +110,12 @@ class CollectionSearch extends AbstractSearch
             $boolQuery->addFilter($aclBoolQuery);
         }
 
-        if (isset($options['parent'])) {
+        if (!empty($options['parent'])) {
             $options['parents'] = [$options['parent']];
         }
 
-        if (isset($options['parents'])) {
-            $parentCollections = $this->findCollections($options['parents']);
+        if (!empty($options['parents'])) {
+            $parentCollections = DoctrineUtil::getFromIds($this->collectionRepository, $options['parents']);
             $parentsBoolQuery = new Query\BoolQuery();
             array_map(function (Collection $parentCollection) use ($parentsBoolQuery, $deep): void {
                 $q = new Query\BoolQuery();
@@ -171,14 +174,6 @@ class CollectionSearch extends AbstractSearch
                 new Query\Terms('workspaceId', $options['workspaces'])
             );
         }
-    }
-
-    /**
-     * @return Collection[]
-     */
-    private function findCollections(array $ids): array
-    {
-        return $this->findEntityByIds(Collection::class, $ids);
     }
 
     protected function getAdminScope(): ?string

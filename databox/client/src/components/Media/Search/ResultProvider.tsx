@@ -113,7 +113,6 @@ export default function ResultProvider({children}: Props) {
 
     const doSearch = async (nextUrl?: string) => {
         setLoading(true);
-
         try {
             const r = await search(
                 searchContext.query,

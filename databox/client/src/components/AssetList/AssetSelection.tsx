@@ -19,6 +19,7 @@ export default function AssetSelection({assets, onSelectionChange}: Props) {
             defaultState={{
                 thumbSize: 100,
                 displayAttributes: false,
+                layout: Layout.List,
             }}
         >
             <AssetList
@@ -26,7 +27,6 @@ export default function AssetSelection({assets, onSelectionChange}: Props) {
                 total={assets.length}
                 searchBar={false}
                 onSelectionChange={onSelectionChange}
-                layout={Layout.List}
                 noActions={true}
                 itemLabel={selectionProps => (
                     <>

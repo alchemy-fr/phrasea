@@ -13,7 +13,7 @@ export default function RouteProxy({
         autoConnectIdP: config.autoConnectIdP,
     });
 
-    if (!isPublic && !isAuthenticated()) {
+    if (!isPublic && !isAuthenticated) {
         document.location.href = getLoginUrl();
 
         return <></>;

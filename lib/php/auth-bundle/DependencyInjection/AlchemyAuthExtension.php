@@ -39,6 +39,7 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
 
         $def = $container->findDefinition(KeycloakUrlGenerator::class);
         $def->setArgument('$baseUrl', $config['keycloak']['url']);
+        $def->setArgument('$internalBaseUrl', $config['keycloak']['internal_url']);
         $def->setArgument('$realm', $config['keycloak']['realm']);
 
         $def = $container->findDefinition(LogoutListener::class);
@@ -60,11 +61,13 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
     {
         $bundles = $container->getParameter('kernel.bundles');
 
+        $container->setParameter('alchemy_auth.keycloak_url', '%env(KEYCLOAK_URL)%');
+
         $container->prependExtensionConfig('framework', [
             'http_client' => [
                 'scoped_clients' => [
                     'keycloak.client' => [
-                        'base_uri' => '%env(KEYCLOAK_URL)%',
+                        'base_uri' => '%env(default:alchemy_auth.keycloak_url:KEYCLOAK_INTERNAL_URL)%',
                         'verify_peer' => '%env(bool:VERIFY_SSL)%',
                     ],
                 ],

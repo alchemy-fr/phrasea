@@ -1,5 +1,5 @@
 import {Bell, Inbox, InboxContent} from '@novu/react';
-import {IconButton, Popover} from '@mui/material';
+import {Popover, PopoverProps} from '@mui/material';
 import React from 'react';
 import {NotificationUriHandler} from '../types';
 
@@ -9,6 +9,12 @@ type Props = {
     apiUrl: string;
     userId: string;
     uriHandler?: NotificationUriHandler;
+    children: (props: {
+        bellIcon: React.ReactNode;
+        onClick: (event: React.MouseEvent<HTMLElement>) => void;
+    }) => React.ReactNode;
+    popoverId?: string;
+    popoverProps?: PopoverProps;
 };
 
 export default function Notifications({
@@ -17,6 +23,9 @@ export default function Notifications({
     apiUrl,
     userId,
     uriHandler,
+    children,
+    popoverId = 'notifications-popover',
+    popoverProps,
 }: Props) {
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
@@ -28,7 +37,6 @@ export default function Notifications({
         setAnchorEl(null);
     };
     const open = Boolean(anchorEl);
-    const popoverId = 'notifications-popover';
 
     return (
         <>
@@ -39,18 +47,10 @@ export default function Notifications({
                 backendUrl={apiUrl}
                 routerPush={uriHandler}
             >
-                <IconButton
-                    aria-owns={open ? popoverId : undefined}
-                    aria-haspopup="true"
-                    onClick={handlePopoverOpen}
-                    sx={{
-                        '.nt-text-foreground': {
-                            color: 'primary.contrastText',
-                        },
-                    }}
-                >
-                    <Bell />
-                </IconButton>
+                {children({
+                    bellIcon: <Bell />,
+                    onClick: handlePopoverOpen,
+                })}
 
                 <Popover
                     id={popoverId}
@@ -61,8 +61,8 @@ export default function Notifications({
                         horizontal: 'right',
                     }}
                     transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
+                        vertical: 'bottom',
+                        horizontal: 'left',
                     }}
                     onClose={handlePopoverClose}
                     slotProps={{
@@ -78,6 +78,7 @@ export default function Notifications({
                             },
                         },
                     }}
+                    {...popoverProps}
                 >
                     <InboxContent />
                 </Popover>

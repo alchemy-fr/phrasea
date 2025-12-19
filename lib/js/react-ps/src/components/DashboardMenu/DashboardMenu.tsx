@@ -8,6 +8,9 @@ type Props = {
     bodyPadding?: number;
 };
 
+/**
+ * @deprecated Use DashboardMenu from @alchemy/phrasea-ui instead
+ */
 export default function DashboardMenu({
     dashboardBaseUrl,
     style = {},

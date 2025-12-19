@@ -11,7 +11,7 @@ export type IStorage = {
 };
 
 export type StorageSetOptions = {
-    expires?: number;
+    expires?: number | Date | undefined;
 };
 
 export type CookieStorageOptions = {

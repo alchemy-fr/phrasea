@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
 use App\Elasticsearch\BuiltInField\DeletedBuiltInField;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use App\Repository\Core\CollectionRepository;
 use App\Security\TagFilterManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
@@ -29,6 +31,7 @@ class AssetSearch extends AbstractSearch
         private readonly QueryStringParser $queryStringParser,
         private readonly FacetHandler $facetHandler,
         private readonly DeletedBuiltInField $deletedBuiltInField,
+        private readonly CollectionRepository $collectionRepository,
     ) {
     }
 
@@ -51,10 +54,14 @@ class AssetSearch extends AbstractSearch
         if (isset($options['parent'])) {
             $options['parents'] = [$options['parent']];
         }
+
+        if (isset($options['story'])) {
+            $filterQueries[] = new Query\Term(['stories' => $options['story']]);
+        }
+
         if (isset($options['parents'])) {
-            $parentCollections = $this->findCollections($options['parents']);
-            $paths = array_map(fn (Collection $parentCollection,
-            ): string => $parentCollection->getAbsolutePath(), $parentCollections);
+            $parentCollections = DoctrineUtil::getFromIds($this->collectionRepository, $options['parents']);
+            $paths = array_map(fn (Collection $parentCollection): string => $parentCollection->getAbsolutePath(), $parentCollections);
 
             $filterQueries[] = new Query\Terms('collectionPaths', $paths);
         }
@@ -177,21 +184,6 @@ class AssetSearch extends AbstractSearch
         return [$result, $facets, $esQuery, $searchTime];
     }
 
-    /**
-     * @return Collection[]
-     */
-    private function findCollections(array $ids): array
-    {
-        return $this->em
-            ->createQueryBuilder()
-            ->select('t')
-            ->from(Collection::class, 't')
-            ->where('t.id IN (:ids)')
-            ->setParameter('ids', $ids)
-            ->getQuery()
-            ->getResult();
-    }
-
     private function buildTagFilterQuery(?string $userId, array $groupIds): ?Query\BoolQuery
     {
         $ruleSet = $this->tagFilterManager->getUserRules($userId, $groupIds);
@@ -203,7 +195,7 @@ class AssetSearch extends AbstractSearch
             if (empty($rules['include']) && empty($rules['exclude'])) {
                 continue;
             }
-            $workspace = $this->findWorkspace($wId);
+            $workspace = $this->workspaceRepository->find($wId);
             if ($workspace instanceof Workspace) {
                 if (!empty($rules['include'])) {
                     $query->addMust($this->createIncludeQuery('workspaceId', $workspace->getId(), $rules['include']));
@@ -221,7 +213,7 @@ class AssetSearch extends AbstractSearch
                 continue;
             }
 
-            $collection = $this->findCollection($cId);
+            $collection = $this->collectionRepository->find($cId);
             if ($collection instanceof Collection) {
                 $path = $collection->getAbsolutePath();
                 if (!empty($rules['include'])) {
@@ -269,11 +261,6 @@ class AssetSearch extends AbstractSearch
         $query->setSort($sort);
     }
 
-    private function findWorkspace(string $id): ?Workspace
-    {
-        return $this->em->find(Workspace::class, $id);
-    }
-
     private function createIncludeQuery(string $termCol, string $termValue, array $include): Query\BoolQuery
     {
         $query = new Query\BoolQuery();
@@ -298,11 +285,6 @@ class AssetSearch extends AbstractSearch
         $query->addFilter(new Query\Terms('tags', $exclude));
 
         return $query;
-    }
-
-    private function findCollection(string $id): ?Collection
-    {
-        return $this->em->find(Collection::class, $id);
     }
 
     protected function getAdminScope(): ?string

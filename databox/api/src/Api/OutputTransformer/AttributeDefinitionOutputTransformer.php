@@ -16,6 +16,7 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
     use UserLocaleTrait;
+    use GroupsHelperTrait;
 
     public function __construct(private readonly FieldNameResolver $fieldNameResolver)
     {
@@ -57,16 +58,19 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->initialValues = $data->getInitialValues();
         $output->translations = $data->getTranslations();
         $output->target = $data->getTarget()->value;
-        if ($this->isGranted(AbstractVoter::EDIT, $data)) {
-            $output->lastErrors = $data->getLastErrors();
-        }
         $output->key = $data->getKey();
-        $output->labels = $data->getLabels();
-        $output->editable = $data->isEditable();
-        $output->editableInGui = $data->isEditableInGui();
-        $output->canEdit = $data->getPolicy()->isEditable()
-            || $this->isGranted(PermissionInterface::EDIT, $data->getPolicy());
         $output->position = $data->getPosition();
+
+        if ($this->hasGroup(AttributeDefinition::GROUP_LIST, $context)) {
+            $output->labels = $data->getLabels();
+            $output->editable = $data->isEditable();
+            $output->editableInGui = $data->isEditableInGui();
+            if ($this->isGranted(AbstractVoter::EDIT, $data)) {
+                $output->lastErrors = $data->getLastErrors();
+            }
+            $output->canEdit = $data->getPolicy()->isEditable()
+                || $this->isGranted(PermissionInterface::EDIT, $data->getPolicy());
+        }
 
         return $output;
     }

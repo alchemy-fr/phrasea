@@ -86,6 +86,7 @@ class OAuthAuthorizationAuthenticator extends AbstractAuthenticator implements A
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         $state = $request->query->get('state');
+
         if ($state) {
             [
                 'redirect' => $redirect,
@@ -121,7 +122,11 @@ class OAuthAuthorizationAuthenticator extends AbstractAuthenticator implements A
 
     public function start(Request $request, ?AuthenticationException $authException = null)
     {
-        $state = $this->authStateEncoder->encodeState($request->getUri());
+        $redirectUrl = $request->getUri();
+        if ($request->get('code')) {
+            $redirectUrl = '/';
+        }
+        $state = $this->authStateEncoder->encodeState($redirectUrl);
 
         return new RedirectResponse($this->keycloakUrlGenerator->getAuthorizeUrl(
             $this->clientId,

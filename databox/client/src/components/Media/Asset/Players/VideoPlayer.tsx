@@ -194,7 +194,7 @@ export function videoPlayerSx(thumbSize: number, theme: Theme): SxProps {
             minWidth: thumbSize,
             minHeight: thumbSize,
             [`&.${assetClasses.videoPlayerIsAudio}`]: {
-                backgroundColor: theme.palette.common.white,
+                backgroundColor: theme.palette.background.default,
             },
             [`.${assetClasses.videoPlayerActions}`]: {
                 'pointerEvents': 'none',

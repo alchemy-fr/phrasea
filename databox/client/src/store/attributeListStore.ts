@@ -14,7 +14,11 @@ import {
     removeFromAttributeList,
     sortAttributeList,
 } from '../api/attributeList';
-import {putUserPreferences} from '../api/user.ts';
+import {replaceList} from './storeUtils.ts';
+import {
+    UserPreferences,
+    useUserPreferencesStore,
+} from './userPreferencesStore.ts';
 
 type State = {
     lists: AttributeList[];
@@ -55,6 +59,9 @@ export const useAttributeListStore = create<State>((set, getState) => ({
             return;
         }
 
+        const preferences = await useUserPreferencesStore.getState().load();
+        const prefAttrList = preferences['attrList'];
+
         set({
             loading: true,
         });
@@ -68,6 +75,9 @@ export const useAttributeListStore = create<State>((set, getState) => ({
                 loading: false,
                 loaded: true,
                 nextUrl: data.next || undefined,
+                current: prefAttrList
+                    ? data.result.find(at => at.id === prefAttrList)
+                    : undefined,
             });
         } catch (e: any) {
             set({loading: false});
@@ -80,13 +90,18 @@ export const useAttributeListStore = create<State>((set, getState) => ({
     },
 
     setCurrent: async id => {
-        const prefKey = 'attrList';
+        const updatePref = (value: UserPreferences['attrList']) =>
+            useUserPreferencesStore
+                .getState()
+                .updatePreference('attrList', value);
+
         if (!id) {
             set({
                 current: undefined,
                 loadingCurrent: false,
             });
-            putUserPreferences(prefKey, null);
+
+            await updatePref(null);
 
             return;
         }
@@ -108,9 +123,9 @@ export const useAttributeListStore = create<State>((set, getState) => ({
                 current: list,
                 loadingCurrent: false,
             });
-            putUserPreferences(prefKey, id);
+            await updatePref(id);
         } catch (e: any) {
-            putUserPreferences(prefKey, null);
+            await updatePref(null);
             set({
                 current: undefined,
                 loadingCurrent: false,
@@ -340,15 +355,6 @@ export const useAttributeListStore = create<State>((set, getState) => ({
         }
     },
 }));
-
-function replaceList(
-    prev: AttributeList[],
-    list: AttributeList
-): AttributeList[] {
-    return prev.some(l => l.id === list.id)
-        ? prev.map(l => (l.id === list.id ? list : l))
-        : prev.concat([list]);
-}
 
 export function attributeDefinitionToItem(
     definition: AttributeDefinition

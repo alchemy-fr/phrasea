@@ -26,12 +26,12 @@ class TemplateAttributeVoter extends AbstractVoter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         return match ($attribute) {
-            self::READ => $this->security->isGranted(self::READ, $subject->getTemplate())
+            self::READ => $this->security->isGranted(self::READ, $subject->getTemplate(), $token)
                 && (
                     $subject->getDefinition()->getPolicy()->isPublic()
                     || $this->hasAcl(PermissionInterface::VIEW, $subject->getDefinition()->getPolicy(), $token)
                 ),
-            self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(AbstractVoter::EDIT, $subject->getTemplate()),
+            self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(self::EDIT, $subject->getTemplate(), $token),
             default => false,
         };
     }

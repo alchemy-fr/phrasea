@@ -17,7 +17,6 @@ import {
 } from 'react-virtualized';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
 import {leftPanelWidth} from '../../../../themes/base.ts';
-import {menuHeight} from '../../../Layout/MainAppBar.tsx';
 import LoadMoreButton from '../../LoadMoreButton.tsx';
 import {
     createSizeTransition,
@@ -45,7 +44,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
     const {innerWidth, innerHeight} = useWindowSize();
     const d = useContext(DisplayContext)!.state;
     const masonryWidth = innerWidth - leftPanelWidth;
-    const masonryHeight = innerHeight - toolbarHeight - menuHeight;
+    const masonryHeight = innerHeight - toolbarHeight;
     const columnWidth = d.thumbSize;
     const spacer = 8;
     const colCount = Math.floor(masonryWidth / (columnWidth + spacer));
@@ -57,7 +56,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
     const layoutSx = React.useCallback(
         (theme: Theme) => {
             return {
-                backgroundColor: theme.palette.common.white,
+                backgroundColor: theme.palette.background.default,
                 ...thumbSx(columnWidth, theme, {
                     'height': 'auto',
                     'img': {

@@ -7,6 +7,7 @@ namespace App\Entity\Integration;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
@@ -62,13 +63,14 @@ use Symfony\Component\Yaml\Yaml;
 #[ORM\Entity]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 #[ValidIntegrationOptionsConstraint]
-class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, WithOwnerIdInterface
+class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, WithOwnerIdInterface, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use OwnerIdTrait;
     use NullableWorkspaceTrait;
     use ErrorDisableTrait;
+    final public const int OBJECT_INDEX = 10;
 
     final public const string GROUP_READ = 'wi:read';
     final public const string GROUP_LIST = 'wi:index';

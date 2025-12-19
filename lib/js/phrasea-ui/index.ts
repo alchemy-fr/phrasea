@@ -14,6 +14,7 @@ import MoreActionsButton from './src/components/MoreActionsButton';
 import DropdownActions, {
     dropdownActionsOpenClassName,
 } from './src/components/DropdownActions';
+import DashboardMenu from './src/components/DashboardMenu/DashboardMenu';
 
 export {
     NotFoundPage,
@@ -29,6 +30,7 @@ export {
     MoreActionsButton,
     DropdownActions,
     dropdownActionsOpenClassName,
+    DashboardMenu
 };
 
 export type {AppDialogProps};

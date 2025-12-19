@@ -29,6 +29,7 @@ export function useNotificationUriHandler(): NotificationUriHandler {
                 return;
             } else if (entity === 'collections') {
                 const searchHash = queryToHash(
+                    undefined,
                     '',
                     [
                         {

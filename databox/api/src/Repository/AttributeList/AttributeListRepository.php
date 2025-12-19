@@ -88,11 +88,12 @@ class AttributeListRepository extends ServiceEntityRepository
         ;
 
         if (null !== $userId) {
+            $queryBuilder->addGroupBy('t.id');
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
                 $userId,
                 $groupIds,
-                'attribute_list',
+                AttributeList::OBJECT_TYPE,
                 't',
                 PermissionInterface::VIEW,
                 false,

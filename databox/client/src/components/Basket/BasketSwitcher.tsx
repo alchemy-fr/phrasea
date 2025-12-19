@@ -8,13 +8,13 @@ import {useTranslation} from 'react-i18next';
 import {LoadingButton} from '@alchemy/react-form';
 import {useNavigateToModal} from '../Routing/ModalLink';
 import {modalRoutes} from '../../routes';
-import React, {useContext} from 'react';
-import {TSelectionContext} from '../../context/AssetSelectionContext';
+import React from 'react';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import {AssetOrAssetContainer} from '../../types';
+import {ParentSelectionContext} from '../AssetList/Toolbar/SelectionActions.tsx';
 
 type Props<Item extends AssetOrAssetContainer> = {
-    selectionContext: React.Context<TSelectionContext<Item>>;
+    selectionContext: ParentSelectionContext<Item>;
 };
 
 export default function BasketSwitcher<Item extends AssetOrAssetContainer>({
@@ -26,7 +26,7 @@ export default function BasketSwitcher<Item extends AssetOrAssetContainer>({
     const loadingCurrent = useBasketStore(state => state.loadingCurrent);
     const {openModal} = useModals();
     const navigateToModal = useNavigateToModal();
-    const {selection, itemToAsset, setSelection} = useContext(selectionContext);
+    const {selection, itemToAsset, setSelection} = selectionContext;
     const hasSelection = selection.length > 0;
 
     const openList = () => {

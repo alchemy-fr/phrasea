@@ -30,8 +30,8 @@ class AttributeEntityVoter extends AbstractVoter
             return true;
         }
 
-        $typeEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $subject->getList());
-        $typeReader = fn (): bool => $this->security->isGranted(AbstractVoter::READ, $subject->getList());
+        $typeEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getList(), $token);
+        $typeReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getList(), $token);
 
         return match ($attribute) {
             self::CREATE, self::DELETE, self::EDIT => $typeEditor(),

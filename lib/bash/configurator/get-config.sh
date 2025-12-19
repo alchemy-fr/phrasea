@@ -27,11 +27,16 @@ function fetch_config() {
     if [ "$VERIFY_SSL" = "0" ] || [ "$VERIFY_SSL" = "false" ]; then
       WGET_OPTS="${WGET_OPTS} --no-check-certificate"
     fi
-    wget \
+
+    is_200_ok=$(wget \
       ${WGET_OPTS} \
-      -q \
+      --server-response \
       -O ${OUTPUT_FILE} \
-      --no-verbose "${BASE_URL}${FILE_KEY}" || (echo "{}" > ${OUTPUT_FILE})
+      --no-verbose "${BASE_URL}${FILE_KEY}" 2>&1 | grep -c 'HTTP/1.1 200 OK')
+
+    if [ "$is_200_ok" -eq 0 ]; then
+      echo "{}" > ${OUTPUT_FILE}
+    fi
   else
     CURL_OPTS=""
     if [ "$VERIFY_SSL" = "0" ] || [ "$VERIFY_SSL" = "false" ]; then

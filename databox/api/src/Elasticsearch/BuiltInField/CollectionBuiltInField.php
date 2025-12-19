@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\BuiltInField;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\Type\CollectionPathAttributeType;
 use App\Entity\Core\Asset;
@@ -28,21 +29,51 @@ final class CollectionBuiltInField extends AbstractBuiltInField
         return CollectionPathAttributeType::getName();
     }
 
-    public function normalizeBucket(array $bucket): ?array
+    private static function extractIdFromPath(string $path): string
     {
-        $label = $this->normalizeCollectionPath($bucket['key']);
-        if (null === $label) {
-            return null;
-        }
+        $parts = explode('/', $path);
 
-        $parts = explode('/', $bucket['key']);
+        return $parts[array_key_last($parts)];
+    }
 
-        $bucket['key'] = [
-            'value' => $parts[array_key_last($parts)],
-            'label' => $label,
-        ];
+    public function normalizeBuckets(array $buckets): array
+    {
+        $ids = array_map(function (array $bucket): string {
+            return self::extractIdFromPath($bucket['key']);
+        }, $buckets);
 
-        return $bucket;
+        $collections = DoctrineUtil::getIndexFromIds($this->em->getRepository(Collection::class), $ids);
+
+        return array_map(function (array $bucket) use ($collections): ?array {
+            $id = self::extractIdFromPath($bucket['key']);
+
+            $collection = $collections[$id] ?? null;
+            if (null === $collection) {
+                return null;
+            }
+            $preferredLocales = $this->getPreferredLocales($collection->getWorkspace());
+            $levels = [];
+            $pColl = $collection;
+            while ($pColl) {
+                if (!$this->security->isGranted(AbstractVoter::READ, $pColl)) {
+                    break;
+                }
+
+                $levels[] = $pColl->getTranslatedField('title', $preferredLocales, $pColl->getTitle()) ?? $pColl->getId();
+                $pColl = $pColl->getParent();
+            }
+
+            if (empty($levels)) {
+                return null;
+            }
+
+            $bucket['key'] = [
+                'value' => $collection->getId(),
+                'label' => implode(' / ', array_reverse($levels)),
+            ];
+
+            return $bucket;
+        }, $buckets);
     }
 
     /**
@@ -92,34 +123,6 @@ final class CollectionBuiltInField extends AbstractBuiltInField
     protected function getAggregationTranslationKey(): string
     {
         return 'collections';
-    }
-
-    private function normalizeCollectionPath(string $path): ?string
-    {
-        $ids = explode('/', $path);
-        $id = $ids[array_key_last($ids)];
-
-        $collection = $this->em->find(Collection::class, $id);
-        if (null === $collection) {
-            return null;
-        }
-        $preferredLocales = $this->getPreferredLocales($collection->getWorkspace());
-        $levels = [];
-        $pColl = $collection;
-        while ($pColl) {
-            if (!$this->security->isGranted(AbstractVoter::READ, $pColl)) {
-                break;
-            }
-
-            $levels[] = $pColl->getTranslatedField('title', $preferredLocales, $pColl->getTitle()) ?? $pColl->getId();
-            $pColl = $pColl->getParent();
-        }
-
-        if (empty($levels)) {
-            return null;
-        }
-
-        return implode(' / ', array_reverse($levels));
     }
 
     public function normalizeValueForSearch(mixed $value): mixed

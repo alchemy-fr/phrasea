@@ -61,7 +61,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                 ...collectionListSx(),
                 ...thumbSx(d.thumbSize, theme),
                 p: 2,
-                backgroundColor: theme.palette.common.white,
+                backgroundColor: theme.palette.background.default,
                 [`.${sectionDividerClassname}`]: {
                     margin: `0 -${theme.spacing(1)}`,
                     width: `calc(100% + ${theme.spacing(2)})`,

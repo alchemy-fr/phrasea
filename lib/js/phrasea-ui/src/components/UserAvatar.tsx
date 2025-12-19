@@ -47,6 +47,7 @@ export default function UserAvatar({size, username, ...props}: Props) {
             style={{
                 width: size,
                 height: size,
+                fontSize: size / 1.5,
                 backgroundColor: getUsernameColor(username),
                 color: '#FFF',
             }}

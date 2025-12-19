@@ -101,7 +101,7 @@ final readonly class UploadManager
             'Bucket' => $this->uploadBucket,
             'MaxUploads' => 100,
             // Uncomment this line to test with Minio (see https://github.com/minio/minio/issues/7632#issuecomment-490959779)
-            //            'Prefix' => 'fc/6e/fc6e0e4d-aad6-4f7d-9133-682607991072.jpg',
+            // 'Prefix' => 'fc/6e/fc6e0e4d-aad6-4f7d-9133-682607991072.jpg',
         ]);
 
         if (empty($result['Uploads'])) {

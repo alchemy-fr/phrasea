@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -57,10 +58,11 @@ use Ramsey\Uuid\Doctrine\UuidType;
 #[SameWorkspaceConstraint(
     properties: ['allowed.workspace']
 )]
-class RenditionRule extends AbstractUuidEntity
+class RenditionRule extends AbstractUuidEntity implements LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const int OBJECT_INDEX = 18;
     final public const string GROUP_READ = 'rendrule:r';
     final public const string GROUP_LIST = 'rendrule:i';
 

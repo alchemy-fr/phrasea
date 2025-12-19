@@ -4,6 +4,7 @@ namespace App\Integration\Phrasea\Expose;
 
 use App\Attribute\AttributeInterface;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Integration\IntegrationToken;
 use App\Integration\IntegrationConfig;
@@ -11,7 +12,6 @@ use App\Integration\Phrasea\PhraseaClientFactory;
 use App\Service\Asset\Attribute\AssetTitleResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\FileFetcher;
-use App\Service\Storage\RenditionManager;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class ExposeClient
@@ -22,7 +22,6 @@ final readonly class ExposeClient
         private FileFetcher $fileFetcher,
         private AssetTitleResolver $assetTitleResolver,
         private AttributesResolver $attributesResolver,
-        private RenditionManager $renditionManager,
     ) {
     }
 
@@ -64,8 +63,13 @@ final readonly class ExposeClient
         ;
     }
 
-    public function postAsset(IntegrationConfig $config, IntegrationToken $integrationToken, string $publicationId, Asset $asset, array $extraData = []): void
-    {
+    public function postAsset(
+        IntegrationConfig $config,
+        IntegrationToken $integrationToken,
+        string $publicationId,
+        Asset $asset,
+        array $extraData = [],
+    ): string {
         $attributesIndex = $this->attributesResolver->resolveAssetAttributes($asset, true);
         $resolvedTitleAttr = $this->assetTitleResolver->resolveTitle($asset, $attributesIndex, []);
         if ($resolvedTitleAttr instanceof Attribute) {
@@ -209,47 +213,53 @@ final readonly class ExposeClient
                 ->toArray()
             ;
 
-            foreach ([
-                'preview',
-                'thumbnail',
-            ] as $renditionName) {
-                if (null !== $rendition = $this->renditionManager->getAssetRenditionUsedAs($renditionName, $asset->getId())) {
-                    $file = $rendition->getFile();
-                    $subDefFetchedFile = $this->fileFetcher->getFile($file);
-                    try {
-                        $subDefResponse = $this->create($config, $integrationToken)
-                            ->request('POST', '/sub-definitions', [
-                                'json' => [
-                                    'asset_id' => $pubAsset['id'],
-                                    'name' => $renditionName,
-                                    'use_as_preview' => 'preview' === $renditionName,
-                                    'use_as_thumbnail' => 'thumbnail' === $renditionName,
-                                    'use_as_poster' => 'poster' === $renditionName,
-                                    'upload' => [
-                                        'type' => $file->getType(),
-                                        'size' => $file->getSize(),
-                                        'name' => $file->getOriginalName(),
-
-                                    ],
-                                ],
-                            ])
-                            ->toArray()
-                        ;
-
-                        $this->uploadClient->request('PUT', $subDefResponse['uploadURL'], [
-                            'headers' => [
-                                'Content-Type' => $file->getType(),
-                                'Content-Length' => filesize($subDefFetchedFile),
-                            ],
-                            'body' => fopen($subDefFetchedFile, 'r'),
-                        ]);
-                    } finally {
-                        @unlink($subDefFetchedFile);
-                    }
-                }
-            }
         } finally {
             @unlink($fetchedFilePath);
+        }
+
+        return $pubAsset['id'];
+    }
+
+    public function postSubDefinition(
+        IntegrationConfig $config,
+        IntegrationToken $integrationToken,
+        string $assetId,
+        string $renditionName,
+        AssetRendition $rendition,
+        array $extraData = [],
+    ): void {
+        $file = $rendition->getFile();
+        $subDefFetchedFile = $this->fileFetcher->getFile($file);
+        try {
+            $subDefResponse = $this->create($config, $integrationToken)
+                ->request('POST', '/sub-definitions', [
+                    'json' => [
+                        'asset_id' => $assetId,
+                        'name' => $renditionName,
+                        'use_as_preview' => 'preview' === $renditionName,
+                        'use_as_thumbnail' => 'thumbnail' === $renditionName,
+                        'use_as_poster' => 'poster' === $renditionName,
+                        'upload' => [
+                            'type' => $file->getType(),
+                            'size' => $file->getSize(),
+                            'name' => $file->getOriginalName(),
+
+                        ],
+                        ...$extraData,
+                    ],
+                ])
+                ->toArray()
+            ;
+
+            $this->uploadClient->request('PUT', $subDefResponse['uploadURL'], [
+                'headers' => [
+                    'Content-Type' => $file->getType(),
+                    'Content-Length' => filesize($subDefFetchedFile),
+                ],
+                'body' => fopen($subDefFetchedFile, 'r'),
+            ]);
+        } finally {
+            @unlink($subDefFetchedFile);
         }
     }
 
@@ -257,6 +267,13 @@ final readonly class ExposeClient
     {
         $this->create($config, $integrationToken)
             ->request('DELETE', '/assets/'.$assetId)
+        ;
+    }
+
+    public function deleteSubDefinition(IntegrationConfig $config, IntegrationToken $integrationToken, string $subDefinitionId): void
+    {
+        $this->create($config, $integrationToken)
+            ->request('DELETE', '/sub-definitions/'.$subDefinitionId)
         ;
     }
 
