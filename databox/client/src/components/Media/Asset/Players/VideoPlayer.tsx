@@ -1,4 +1,4 @@
-import {MouseEvent, useContext, useState} from 'react';
+import {MouseEvent, useContext, useState, useEffect, useRef} from 'react';
 import {createStrictDimensions, PlayerProps, StrictDimensions} from './index';
 import ReactPlayer from 'react-player/lazy';
 import {IconButton, LinearProgress, SxProps} from '@mui/material';
@@ -10,6 +10,7 @@ import {FileTypeEnum, getFileTypeFromMIMEType} from '../../../../lib/file';
 import {Theme} from '@mui/material/styles';
 import assetClasses from '../../../AssetList/classes.ts';
 import classNames from 'classnames';
+import {useMatomo} from '@jonkoops/matomo-tracker-react';
 
 type Progress = {
     played: number;
@@ -48,7 +49,6 @@ function stopPropagationIfNoCtrl(e: MouseEvent) {
 type Props = {
     autoPlayable: boolean;
     controls?: boolean | undefined;
-    trackingId?: string;
 } & PlayerProps;
 
 export default function VideoPlayer({
@@ -73,6 +73,9 @@ export default function VideoPlayer({
     );
     const videoDimensions = getRatioDimensions(dimensions, ratio);
     const autoPlay = autoPlayable && d?.playVideos;
+    const playerRef = useRef<ReactPlayer | null>(null);
+
+    const {pushInstruction} = useMatomo();
 
     const onPlay = (e: MouseEvent) => {
         if (e.ctrlKey) {
@@ -91,6 +94,19 @@ export default function VideoPlayer({
     const PlayComponent = play ? PauseIcon : PlayCircleIcon;
 
     const hasControls = !noInteraction && controls;
+
+    useEffect(() => {
+        if (playerRef.current) {
+            const videoElement = playerRef.current.getInternalPlayer();
+
+            if (trackingId !== undefined && videoElement) {
+                pushInstruction('MediaAnalytics::scanForMedia');
+
+                videoElement.setAttribute('data-matomo-resource', file.url);
+                videoElement.setAttribute('data-matomo-title', trackingId);
+            }
+        }
+    }, []);
 
     return (
         <div
@@ -124,6 +140,7 @@ export default function VideoPlayer({
                 </div>
             )}
             <ReactPlayer
+                ref={playerRef}
                 url={file.url}
                 {...videoDimensions}
                 playing={play || (!isAudio && autoPlay)}
@@ -147,9 +164,6 @@ export default function VideoPlayer({
                 progressInterval={duration ? (duration < 60 ? 100 : 1000) : 5}
                 muted={autoPlay}
                 controls={hasControls}
-                data-track-content
-                data-content-name={trackingId}
-                data-content-piece={file.url}
             />
             {!hasControls && progress && (
                 <LinearProgress

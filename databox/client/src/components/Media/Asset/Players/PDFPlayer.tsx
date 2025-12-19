@@ -11,6 +11,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
 import FileToolbar from './FileToolbar.tsx';
 import PdfView from './PdfView.tsx';
+import {useMatomo} from '@jonkoops/matomo-tracker-react';
 
 type Props = {
     controls?: boolean | undefined;
@@ -19,7 +20,6 @@ type Props = {
 
 export default function PDFPlayer({
     file,
-    trackingId,
     controls,
     dimensions: forcedDimensions,
     onLoad,
@@ -34,6 +34,7 @@ export default function PDFPlayer({
     const dimensions = createStrictDimensions(
         forcedDimensions ?? {width: d?.thumbSize ?? 200}
     );
+    const {pushInstruction} = useMatomo();
     const pdfDimensions = getRatioDimensions(dimensions, ratio);
     const onDocLoad = useCallback(
         (pdf: any) => {
@@ -71,9 +72,6 @@ export default function PDFPlayer({
             annotations={pageAnnotations}
             annotationEnabled={true}
             page={pageNumber}
-            data-track-content
-            data-content-name={trackingId}
-            data-content-piece={file.url}
             preToolbarActions={
                 controls ? (
                     <>
@@ -111,6 +109,17 @@ export default function PDFPlayer({
                         maxHeight: dimensions.height,
                         position: 'relative',
                         backgroundColor: '#FFF',
+                    }}
+                    onClick={() => {
+                        if (playerProps.trackingId) {
+                            pushInstruction(
+                                'trackContentInteraction',
+                                'click',
+                                playerProps.trackingId,
+                                file.url,
+                                ''
+                            );
+                        }
                     }}
                 >
                     <PdfView

@@ -17,5 +17,8 @@ framework:
             token.cache:
                 adapter: cache.adapter.redis
                 provider: '%env(REDIS_URL)%'
+            analytics.cache:
+                adapter: cache.adapter.redis
+                provider: '%env(REDIS_URL)%'    
 
         default_pdo_provider: 'doctrine.dbal.default_connection'

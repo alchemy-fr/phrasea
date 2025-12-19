@@ -699,6 +699,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
 
     public function getTrackingID(): string
     {
-        return $this->workspace->getId().'_'.$this->getId();
+        return $this->getId();
     }
 }

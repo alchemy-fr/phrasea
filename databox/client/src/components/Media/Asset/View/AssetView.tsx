@@ -36,6 +36,7 @@ import StoryCarousel, {storyCarouselHeight} from './StoryCarousel.tsx';
 import AssetAppearsIn from '../AssetAppearsIn.tsx';
 import AssetAttachments from '../AssetAttachments.tsx';
 import {Routing} from '../../../../routes.ts';
+import {useMatomo} from '@jonkoops/matomo-tracker-react';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -68,6 +69,8 @@ export default function AssetView({modalIndex, open}: Props) {
         AssetAnnotation[] | undefined
     >();
     const {t} = useTranslation();
+    const {pushInstruction} = useMatomo();
+
     const queryKey = ['assets', assetId];
     const [storyAssets, setStoryAssets] =
         React.useState<ApiCollectionResponse<Asset>>();
@@ -78,6 +81,8 @@ export default function AssetView({modalIndex, open}: Props) {
     useChannelRegistration(`asset-${assetId}`, `asset_ingested`, () => {
         queryClient.invalidateQueries({queryKey});
     });
+
+    const containerRef = React.useRef<HTMLDivElement | null>(null);
 
     const {data, isSuccess, isError} = useModalFetch({
         queryKey,
@@ -167,13 +172,7 @@ export default function AssetView({modalIndex, open}: Props) {
         messageFormRef,
     });
 
-    if (!isSuccess && !isError && !previousData.current) {
-        if (!open) {
-            return null;
-        }
-
-        return <FullPageLoader />;
-    }
+    const isImpressionTrackedRef = useRef(false);
 
     const panelHeight = winSize.innerHeight - headerHeight;
 
@@ -187,6 +186,26 @@ export default function AssetView({modalIndex, open}: Props) {
           currentStoryAsset.preview?.file ||
           currentStoryAsset.thumbnail?.file
         : rendition?.file;
+
+    React.useEffect(() => {
+        if (asset !== undefined && !isImpressionTrackedRef.current) {
+            pushInstruction(
+                'trackContentImpression',
+                asset?.trackingId,
+                displayedRenditionFile?.url
+            );
+
+            isImpressionTrackedRef.current = true;
+        }
+    }, [asset]);
+
+    if (!isSuccess && !isError && !previousData.current) {
+        if (!open) {
+            return null;
+        }
+
+        return <FullPageLoader />;
+    }
 
     return (
         <RouteDialog>
@@ -230,6 +249,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                 }}
                             >
                                 <div
+                                    ref={containerRef}
                                     style={{
                                         height: panelHeight,
                                         display: 'flex',

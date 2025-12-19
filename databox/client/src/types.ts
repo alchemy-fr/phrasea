@@ -103,7 +103,7 @@ export interface Asset
     topicSubscriptions?: TopicSubscriptions;
     storyCollection?: Collection | undefined;
     deleted?: boolean;
-    trackingId?: string | undefined;
+    trackingId: string | undefined;
 }
 
 type AttrValue = any;
