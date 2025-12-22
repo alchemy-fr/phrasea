@@ -89,4 +89,9 @@ class JwtUser implements JwtInterface, JwtUserInterface
     {
         return $this->scopes;
     }
+
+    public function __toString(): string
+    {
+        return $this->username;
+    }
 }
