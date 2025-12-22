@@ -46,7 +46,6 @@ function AssetThumb({
         thumb = (
             <FilePlayer
                 file={thumbnail.file}
-                trackingId={asset.trackingId}
                 title={resolvedTitle}
                 autoPlayable={false}
             />
@@ -122,7 +121,6 @@ function AssetThumb({
                     <div className={assetClasses.animatedThumb}>
                         <FilePlayer
                             file={animatedThumbnail.file}
-                            trackingId={asset.trackingId}
                             title={resolvedTitle}
                             autoPlayable={true}
                             controls={false}

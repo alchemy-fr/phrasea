@@ -22,7 +22,7 @@ import {
     Integration,
 } from '../../Integration/types.ts';
 import {AssetAnnotationRef} from './Annotations/annotationTypes.ts';
-import MatomoAssetEditorActions from '../../Integration/Matomo/MatomoAssetEditorActions';
+import MatomoAssetActions from '../../Integration/Matomo/MatomoAssetActions.tsx';
 
 const supportsImage = (file: ApiFile): boolean => {
     return (file && file.type.startsWith('image/')) || false;
@@ -52,7 +52,7 @@ const integrations: Record<
         supports: supportsImage,
     },
     [Integration.Matomo]: {
-        component: MatomoAssetEditorActions,
+        component: MatomoAssetActions,
         supports: supportsAll,
     },
 };

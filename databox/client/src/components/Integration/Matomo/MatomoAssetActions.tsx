@@ -1,8 +1,8 @@
 import {useEffect, useState} from 'react';
-import {runIntegrationAction} from '../../../api/integrations';
+import {runIntegrationAction} from '../../../api/integrations.ts';
 import {AssetIntegrationActionsProps} from '../types.ts';
 import {useTranslation} from 'react-i18next';
-import IntegrationPanelContent from '../Common/IntegrationPanelContent';
+import IntegrationPanelContent from '../Common/IntegrationPanelContent.tsx';
 import {Typography} from '@mui/material';
 
 type Props = {} & AssetIntegrationActionsProps;
@@ -28,7 +28,7 @@ type Stat = {
     avg_media_length: string;
 };
 
-export default function MatomoAssetEditorActions({
+export default function MatomoAssetActions({
     asset,
     file,
     integration,
@@ -227,7 +227,7 @@ export default function MatomoAssetEditorActions({
                 <Typography>
                     {t(
                         'matomo.assetView.noStats',
-                        'Aucune statistique disponible pour ce fichier.'
+                        'No statistics are available for this asset'
                     )}
                 </Typography>
             </IntegrationPanelContent>

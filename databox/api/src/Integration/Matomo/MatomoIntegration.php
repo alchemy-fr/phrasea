@@ -4,32 +4,21 @@ declare(strict_types=1);
 
 namespace App\Integration\Matomo;
 
-use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
 use App\Integration\UserActionsIntegrationInterface;
-use App\Integration\WorkflowHelper;
-use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class MatomoIntegration extends AbstractIntegration implements WorkflowIntegrationInterface, UserActionsIntegrationInterface
+class MatomoIntegration extends AbstractIntegration implements UserActionsIntegrationInterface
 {
     private const string ACTION_PROCESS = 'process';
 
     public function __construct(
         private readonly MatomoProcessor $matomoProcessor,
     ) {
-    }
-
-    public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
-    {
-        yield WorkflowHelper::createIntegrationJob(
-            $config,
-            MatomoAction::class,
-        );
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

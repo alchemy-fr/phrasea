@@ -10,7 +10,6 @@ import FileToolbar from './FileToolbar.tsx';
 type Props = {
     file: ApiFile;
     title?: string;
-    trackingId?: string;
     annotations?: AssetAnnotation[] | undefined;
 } & PlayerProps;
 

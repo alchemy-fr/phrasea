@@ -15,7 +15,6 @@ import {useMatomo} from '@jonkoops/matomo-tracker-react';
 
 type Props = {
     controls?: boolean | undefined;
-    trackingId?: string;
 } & PlayerProps;
 
 export default function PDFPlayer({

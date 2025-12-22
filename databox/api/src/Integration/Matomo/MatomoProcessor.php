@@ -9,7 +9,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final class MatomoProcessor
+final readonly class MatomoProcessor
 {
     public function __construct(
         private readonly HttpClientInterface $matomoClient,
@@ -23,15 +23,23 @@ final class MatomoProcessor
         $matomoSiteId = $config['matomoSiteId'];
         $matomoAuthToken = $config['matomoAuthToken'];
 
-        if (empty($baseUrl) || empty($matomoSiteId) || empty($matomoAuthToken)) {
-            throw new \InvalidArgumentException('Matomo configuration is incomplete.');
+        if (empty($baseUrl)) {
+            throw new \InvalidArgumentException('matomoUrl integration configuration is not defined.');
+        }
+
+        if (empty($matomoSiteId)) {
+            throw new \InvalidArgumentException('matomoSiteId integration configuration is not defined.');
+        }
+
+        if (empty($matomoAuthToken)) {
+            throw new \InvalidArgumentException('matomoAuthToken integration configuration is not defined.');
         }
 
         return $this->analyticsCache->get('analytics_'.$trackingId, function (ItemInterface $item) use ($trackingId, $type, $baseUrl, $matomoSiteId, $matomoAuthToken) {
             $item->expiresAfter(300);
 
-            if (false !== strpos($type, 'video') || false !== strpos($type, 'audio')) {
-                if (false !== strpos($type, 'video')) {
+            if (str_contains($type, 'video') || str_contains($type, 'audio')) {
+                if (str_contains($type, 'video')) {
                     $method = 'MediaAnalytics.getVideoTitles';
                 } else {
                     $method = 'MediaAnalytics.getAudioTitles';
