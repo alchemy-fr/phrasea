@@ -21,3 +21,10 @@ export type ZoomStepState = {
     current: number;
     maxReached: number;
 };
+
+export enum FilePlayerClasses {
+    VideoPlayer = 'fp-video-player',
+    IsAudio = 'fp-is-audio',
+    Controls = 'fp-controls',
+    Playing = 'fp-playing',
+}

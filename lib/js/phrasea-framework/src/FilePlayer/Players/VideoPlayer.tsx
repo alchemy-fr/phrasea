@@ -1,15 +1,15 @@
-import {MouseEvent, useState} from 'react';
-import ReactPlayer from 'react-player/lazy';
+import {MouseEvent, useRef, useState} from 'react';
+import ReactPlayer from 'react-player';
 import {IconButton, LinearProgress} from '@mui/material';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseIcon from '@mui/icons-material/Pause';
 import {
     FileTypeEnum,
     getFileTypeFromMIMEType,
-    getSizeCase,
+    getRatioDimensions,
 } from '@alchemy/core';
 import classNames from 'classnames';
-import {FilePlayerProps} from '../types';
+import {FilePlayerClasses, FilePlayerProps} from '../types';
 
 type Progress = {
     played: number;
@@ -30,7 +30,9 @@ export default function VideoPlayer({
     autoPlayable,
     noInteraction,
     controls,
+    dimensions,
 }: Props) {
+    const playerRef = useRef<HTMLVideoElement | null>(null);
     const [progress, setProgress] = useState<Progress>();
     const [duration, setDuration] = useState<number>();
     const [play, setPlay] = useState(false);
@@ -48,16 +50,22 @@ export default function VideoPlayer({
 
     const PlayComponent = play ? PauseIcon : PlayCircleIcon;
 
+    const videoDimensions = getRatioDimensions(dimensions, ratio);
     const hasControls = !noInteraction && controls;
 
     return (
         <div
+            className={classNames({
+                [FilePlayerClasses.VideoPlayer]: true,
+                [FilePlayerClasses.IsAudio]: isAudio,
+                [FilePlayerClasses.Playing]: play,
+            })}
             style={{
                 pointerEvents: hasControls ? 'auto' : undefined,
             }}
         >
             {!controls && !autoPlayable && !noInteraction && (
-                <div>
+                <div className={FilePlayerClasses.Controls}>
                     <IconButton
                         onClick={onPlay}
                         onMouseDown={stopPropagationIfNoCtrl}
@@ -68,26 +76,37 @@ export default function VideoPlayer({
                 </div>
             )}
             <ReactPlayer
-                url={file.url}
+                ref={playerRef}
+                src={file.url}
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    maxWidth: dimensions.width,
+                    maxHeight: dimensions.height,
+                }}
                 playing={play || (!isAudio && autoPlayable)}
                 loop={true}
-                onReady={player => {
+                onReady={() => {
                     onLoad && onLoad();
-                    const internalPlayer = player.getInternalPlayer();
-                    setRatio(
-                        internalPlayer.videoHeight / internalPlayer.videoWidth
-                    );
-                    setDuration(player.getDuration());
+                    const internalPlayer = playerRef.current;
+                    if (internalPlayer) {
+                        setRatio(
+                            internalPlayer.videoHeight /
+                                internalPlayer.videoWidth
+                        );
+                        setDuration(internalPlayer.duration);
+                    }
                 }}
                 onPlay={() => setPlay(true)}
                 onPause={() => setPlay(false)}
-                onProgress={({played, loaded}) => {
+                onProgress={(e) => {
+                    const {played, buffered} = e.currentTarget;
+
                     setProgress({
-                        played,
-                        loaded,
+                        played: played.end(0),
+                        loaded: buffered.end(0),
                     });
                 }}
-                progressInterval={duration ? (duration < 60 ? 100 : 1000) : 5}
                 muted={autoPlayable}
                 controls={hasControls}
             />

@@ -32,7 +32,7 @@
         "react-circle-flags": "^0.0.23",
         "react-i18next": "^14.1.1",
         "react-pdf": "^9.2.1",
-        "react-player": "^2.16.1",
+        "react-player": "^3.4.0",
         "react-router-dom": "6.18.0",
         "react-toastify": "^11.0.3"
     },

@@ -12,6 +12,7 @@ import {LocaleIcon} from './src/Locale/LocaleIcon';
 import {CommonAppTopMenu} from './src/Menu/CommonAppTopMenu';
 import FilePlayer from './src/FilePlayer/FilePlayer';
 import {getIconFromType} from './src/FilePlayer/fileIcon';
+import {videoPlayerSx} from './src/FilePlayer/styles';
 export {
     AppProvider,
     initApp,
@@ -27,8 +28,10 @@ export {
     CommonAppTopMenu,
     FilePlayer,
     getIconFromType,
+videoPlayerSx,
 };
 export type {WindowConfig};
+
 
 export * from './src/Theme/types';
 export * from './src/Dialog/types';
