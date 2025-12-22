@@ -572,9 +572,6 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
-      react-grid-gallery:
-        specifier: ^0.5.6
-        version: 0.5.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-i18next:
         specifier: ^14.1.3
         version: 14.1.3(i18next@24.2.1(typescript@5.9.2))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5242,9 +5239,6 @@ packages:
     resolution: {integrity: sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==}
     engines: {node: '>= 8'}
 
-  aphrodite@0.5.0:
-    resolution: {integrity: sha512-bPcR/68OdLg+16XDYAaKnlGJufxrbOw86ucElS7qHm7Y6ZNvMT/D/VDEEfodjFgfyRyoTeKmSaikULG92kSYvQ==}
-
   app-root-dir@1.0.2:
     resolution: {integrity: sha512-jlpIfsOoNoafl92Sz//64uQHGSyMrD2vYG5d8o2a4qGvyNCvXur7bzIsWtAC/6flI2RYAp3kv8rsfBtaLm7w0g==}
 
@@ -6862,9 +6856,6 @@ packages:
     resolution: {integrity: sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==}
     engines: {node: '>=10'}
 
-  exenv@1.2.2:
-    resolution: {integrity: sha512-Z+ktTxTwv9ILfgKCk32OX3n/doe+OcLTRtqK9pcL+JsP3J1/VW8Uvl4ZjLlKqeW4rzK4oesDOGMEMRIZqtP4Iw==}
-
   exit@0.1.2:
     resolution: {integrity: sha512-Zk/eNKV2zbjpKzrsQ+n1G6poVbErQxJ0LBOJXaKZ1EViLzH+hrLu9cdXI4zw9dBQJslwBEpbQ2P1oS7nDxs6jQ==}
     engines: {node: '>= 0.8.0'}
@@ -7706,10 +7697,6 @@ packages:
 
   inline-style-parser@0.1.1:
     resolution: {integrity: sha512-7NXolsK4CAS5+xvdj5OMMbI962hU/wvwoxk+LWR9Ek9bVtyuuYScDN6eS0rUm6TxApFpw7CX1o4uJzcd4AyD3Q==}
-
-  inline-style-prefixer@2.0.5:
-    resolution: {integrity: sha512-rlgoApaAAv66JeDFqGYaXwglnlxjyIr7RMaFZqJw4opT0WKnZVXhXMC9SAfuMpN7NELPaImUhJmOO3hAamSlfw==}
-    engines: {node: '>=0.12'}
 
   inline-style-prefixer@3.0.8:
     resolution: {integrity: sha512-ne8XIyyqkRaNJ1JfL1NYzNdCNxq+MCBQhC8NgOQlzNm2vv3XxlP0VSLQUbSRCF6KPEoveCVEpayHoHzcMyZsMQ==}
@@ -9883,11 +9870,6 @@ packages:
       react: ^16.6.3
       react-dom: ^16.6.3
 
-  react-grid-gallery@0.5.6:
-    resolution: {integrity: sha512-x+JYmt8iHVzcoeji7hG33IQdzJ4LmcOpgg0zS/mAPf7FsGtSgo/UpfhUPWduhDBglMTG1xbbw/z/kiZb7J9Pcg==}
-    peerDependencies:
-      react: ^15.0 || ^16.0
-
   react-hook-form@7.63.0:
     resolution: {integrity: sha512-ZwueDMvUeucovM2VjkCf7zIHcs1aAlDimZu2Hvel5C5907gUzMpm4xCrQXtRzCvsBqFjonB4m3x4LzCFI1ZKWA==}
     engines: {node: '>=18.0.0'}
@@ -9917,13 +9899,6 @@ packages:
     peerDependencies:
       react: ^16.8.0
       react-dom: ^16.8.0
-
-  react-images@0.5.19:
-    resolution: {integrity: sha512-B3d4W1uFJj+m17K8S65iAyEJShKGBjPk7n7N1YsPiAydEm8mIq9a6CoeQFMY1d7N2QMs6FBCjT9vELyc5jP5JA==}
-    deprecated: This beta version is no longer supported. Please update to 1.1.0-beta.4
-    peerDependencies:
-      react: ^15.0 || ^16.0
-      react-dom: ^15.0 || ^16.0
 
   react-images@1.1.7:
     resolution: {integrity: sha512-9paR4bdP/SPTbJ/8cLa6+7+pcq8PGN4/8UjTfztQKBRzGxH0BtHrB7oj/7As2RmYMkOsVIMNfDaWzZZK4faIRA==}
@@ -10000,12 +9975,6 @@ packages:
     peerDependencies:
       react: '>=16.6.0'
 
-  react-prop-toggle@1.0.2:
-    resolution: {integrity: sha512-JmerjAXs7qJ959+d0Ygt7Cb2+4fG+n3I2VXO6JO0AcAY1vkRN/JpZKAN67CMXY889xEJcfylmMPhzvf6nWO68Q==}
-    peerDependencies:
-      react: ^16.3.0
-      react-dom: ^16.3.0
-
   react-property@1.0.1:
     resolution: {integrity: sha512-1tKOwxFn3dXVomH6pM9IkLkq2Y8oh+fh/lYW3MJ/B03URswUTqttgckOlbxY2XHF3vPG6uanSc4dVsLW/wk3wQ==}
 
@@ -10067,9 +10036,6 @@ packages:
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
-
-  react-scrolllock@2.0.7:
-    resolution: {integrity: sha512-Gzpu8+ulxdYcybAgJOFTXc70xs7SBZDQbZNpKzchZUgLCJKjz6lrgESx6LHHZgfELx1xYL4yHu3kYQGQPFas/g==}
 
   react-select@5.10.2:
     resolution: {integrity: sha512-Z33nHdEFWq9tfnfVXaiM12rbJmk+QjFEztWLtmXqQhz6Al4UZZ9xc0wiatmGtUOCCnHN0WizL3tCMYRENX4rVQ==}
@@ -16896,11 +16862,6 @@ snapshots:
       normalize-path: 3.0.0
       picomatch: 2.3.1
 
-  aphrodite@0.5.0:
-    dependencies:
-      asap: 2.0.6
-      inline-style-prefixer: 2.0.5
-
   app-root-dir@1.0.2: {}
 
   append-transform@0.4.0:
@@ -18792,8 +18753,6 @@ snapshots:
       signal-exit: 3.0.7
       strip-final-newline: 2.0.0
 
-  exenv@1.2.2: {}
-
   exit@0.1.2: {}
 
   expand-brackets@0.1.5:
@@ -19816,11 +19775,6 @@ snapshots:
     optional: true
 
   inline-style-parser@0.1.1: {}
-
-  inline-style-prefixer@2.0.5:
-    dependencies:
-      bowser: 1.9.4
-      hyphenate-style-name: 1.1.0
 
   inline-style-prefixer@3.0.8:
     dependencies:
@@ -22637,14 +22591,6 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  react-grid-gallery@0.5.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-images: 0.5.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-    transitivePeerDependencies:
-      - react-dom
-
   react-hook-form@7.63.0(react@18.3.1):
     dependencies:
       react: 18.3.1
@@ -22673,15 +22619,6 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       react-input-position: 1.3.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-
-  react-images@0.5.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      aphrodite: 0.5.0
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-scrolllock: 2.0.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-transition-group: 2.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
   react-images@1.1.7(@types/react@18.3.24)(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
@@ -22782,11 +22719,6 @@ snapshots:
       react: 18.3.1
       react-fast-compare: 3.2.2
 
-  react-prop-toggle@1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
   react-property@1.0.1: {}
 
   react-redux@9.2.0(@types/react@18.3.24)(react@18.3.1)(redux@4.2.1):
@@ -22841,14 +22773,6 @@ snapshots:
     dependencies:
       '@remix-run/router': 1.11.0
       react: 18.3.1
-
-  react-scrolllock@2.0.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      exenv: 1.2.2
-      react-prop-toggle: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-    transitivePeerDependencies:
-      - react
-      - react-dom
 
   react-select@5.10.2(@types/react@18.3.24)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
