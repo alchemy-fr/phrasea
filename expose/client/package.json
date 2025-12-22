@@ -27,6 +27,7 @@
         "@mikecousins/react-pdf": "^5.5.1",
         "@mui/icons-material": "^5.18.0",
         "@mui/material": "^5.18.0",
+        "@mui/system": "^5.18.0",
         "axios": "^1.12.2",
         "classnames": "^2.5.1",
         "mapbox-gl": "^1.13.3",
@@ -40,9 +41,7 @@
         "react-toastify": "^11.0.5",
         "sass": "^1.93.2",
         "sass-loader": "^8.0.2",
-        "universal-cookie": "^4.0.4",
-        "video.js": "^7.21.7",
-        "videojs-font": "^4.2.0"
+        "universal-cookie": "^4.0.4"
     },
     "devDependencies": {
         "@4rthem/i18next-scanner": "^0.0.1",

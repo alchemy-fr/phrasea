@@ -1,15 +1,16 @@
-import {Box, IconButton, useMediaQuery, useTheme} from '@mui/material';
+import {Box, IconButton, Theme, useMediaQuery, useTheme} from '@mui/material';
 import {Asset, Thumb} from '../../../types.ts';
 import {getPath, Link, useNavigate} from '@alchemy/navigation';
 import {useEffect, useMemo} from 'react';
 import {routes} from '../../../routes.ts';
-import {FilePlayer} from '@alchemy/phrasea-framework';
+import {FilePlayer, videoPlayerSx} from '@alchemy/phrasea-framework';
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import CloseIcon from '@mui/icons-material/Close';
 import classnames from 'classnames';
 import AssetLegend from './AssetLegend.tsx';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
+import {SystemCssProperties} from '@mui/system';
 
 type Props = {
     thumbs: Thumb[];
@@ -190,7 +191,7 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                         })}
                     >
                         <Box
-                            sx={_theme => ({
+                            sx={theme => ({
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center',
@@ -201,6 +202,9 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                                 img: {
                                     maxHeight: mediaHeight,
                                 },
+                                ...(videoPlayerSx(
+                                    theme
+                                ) as SystemCssProperties<Theme>),
                             })}
                         >
                             <FilePlayer
@@ -241,6 +245,8 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                     sx={theme => ({
                         display: 'flex',
                         flexDirection: 'row',
+                        maxWidth: '100vw',
+                        overflow: 'auto',
                         gap: 1,
                         p: thumbPadding,
                         justifyContent: 'center',
