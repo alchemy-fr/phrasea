@@ -542,6 +542,9 @@ importers:
       '@alchemy/react-auth':
         specifier: workspace:*
         version: link:../../lib/js/react-auth
+      '@alchemy/react-form':
+        specifier: workspace:*
+        version: link:../../lib/js/react-form
       '@alchemy/react-ps':
         specifier: workspace:*
         version: link:../../lib/js/react-ps
@@ -560,6 +563,9 @@ importers:
       axios:
         specifier: ^1.12.2
         version: 1.12.2
+      classnames:
+        specifier: ^2.5.1
+        version: 2.5.1
       mapbox-gl:
         specifier: ^1.13.3
         version: 1.13.3

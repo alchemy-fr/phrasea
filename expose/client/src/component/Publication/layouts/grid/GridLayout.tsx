@@ -12,8 +12,6 @@ export default function GridLayout({publication, assetId}: LayoutProps) {
         assets: publication.assets,
     });
 
-    console.log('assetId', assetId);
-
     const openedAsset = assetId
         ? publication.assets.find(a => a.id === assetId)
         : undefined;
