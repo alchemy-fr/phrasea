@@ -545,6 +545,9 @@ importers:
       '@alchemy/react-form':
         specifier: workspace:*
         version: link:../../lib/js/react-form
+      '@alchemy/react-hooks':
+        specifier: workspace:*
+        version: link:../../lib/js/react-hooks
       '@alchemy/react-ps':
         specifier: workspace:*
         version: link:../../lib/js/react-ps

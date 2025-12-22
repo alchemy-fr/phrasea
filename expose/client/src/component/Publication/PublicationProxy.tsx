@@ -19,20 +19,16 @@ export default function PublicationProxy({
     publication,
     children,
     errorCode,
-    loading,
     load,
+    loading,
 }: Props) {
     const {t} = useTranslation();
     if (errorCode) {
         return <PublicationError errorCode={errorCode} />;
     }
 
-    if (loading) {
-        return <FullPageLoader backdrop={false} />;
-    }
-
     if (!publication) {
-        return null;
+        return <FullPageLoader backdrop={false} />;
     }
 
     const {
@@ -49,6 +45,7 @@ export default function PublicationProxy({
                 error: authorizationError,
                 onAuthorization: load,
                 securityContainerId,
+                loading: loading ?? false,
             });
         }
     }

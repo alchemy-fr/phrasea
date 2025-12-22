@@ -4,27 +4,21 @@ import {useTranslation} from 'react-i18next';
 import {
     Avatar,
     Box,
-    Button,
     Container,
     Paper,
     TextField,
     Typography,
 } from '@mui/material';
-import {FormRow, RemoteErrors} from '@alchemy/react-form';
+import {FormRow, LoadingButton, RemoteErrors} from '@alchemy/react-form';
 import LockIcon from '@mui/icons-material/Lock';
-
-type Props = {
-    onAuthorization: () => void;
-    authorization?: string;
-    securityContainerId: string;
-    error?: string;
-};
+import {SecurityMethodProps} from './methods.tsx';
 
 export default function PasswordMethod({
     securityContainerId,
     onAuthorization,
     error,
-}: Props) {
+    loading,
+}: SecurityMethodProps) {
     const [password, setPassword] = React.useState('');
     const {t} = useTranslation();
     const onSubmit = (e: FormEvent) => {
@@ -83,6 +77,8 @@ export default function PasswordMethod({
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
                                 type="password"
+                                required={true}
+                                disabled={loading}
                             />
                         </FormRow>
 
@@ -91,17 +87,19 @@ export default function PasswordMethod({
                                 <RemoteErrors errors={[translatedError]} />
                             ) : null}
 
-                            <Button
+                            <LoadingButton
                                 type="submit"
                                 variant="contained"
                                 color="primary"
                                 fullWidth={true}
+                                disabled={loading}
+                                loading={loading}
                             >
                                 {t(
                                     'publication.security.password.form.submit.label',
                                     `Enter`
                                 )}
-                            </Button>
+                            </LoadingButton>
                         </FormRow>
                     </form>
                 </Box>

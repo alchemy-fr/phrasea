@@ -1,3 +1,5 @@
+import {StrictDimensions} from '@alchemy/core';
+
 export type AssetFile = {
     id: string;
     name: string;
@@ -12,6 +14,7 @@ export type FilePlayerProps = {
     title: string | undefined;
     controls?: boolean | undefined;
     autoPlayable?: boolean | undefined;
+    dimensions: StrictDimensions;
 };
 
 export type ZoomStepState = {

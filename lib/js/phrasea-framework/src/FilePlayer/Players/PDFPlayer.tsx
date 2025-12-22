@@ -11,15 +11,10 @@ import {getRatioDimensions} from '@alchemy/core';
 
 type Props = FilePlayerProps;
 
-export default function PDFPlayer({file, controls, onLoad}: Props) {
+export default function PDFPlayer({file, controls, onLoad, dimensions}: Props) {
     const [ratio, setRatio] = useState<number>();
     const [numPages, setNumPages] = useState<number>();
     const [pageNumber, setPageNumber] = useState<number>(1);
-
-    const dimensions = {
-        width: 800,
-        height: 600,
-    };
 
     const pdfDimensions = getRatioDimensions(dimensions, ratio);
     const onDocLoad = useCallback(
