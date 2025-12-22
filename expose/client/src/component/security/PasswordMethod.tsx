@@ -1,6 +1,17 @@
 import React, {FormEvent} from 'react';
 import {storePassword} from '../../lib/credential';
 import {useTranslation} from 'react-i18next';
+import {
+    Avatar,
+    Box,
+    Button,
+    Container,
+    Paper,
+    TextField,
+    Typography,
+} from '@mui/material';
+import {FormRow, RemoteErrors} from '@alchemy/react-form';
+import LockIcon from '@mui/icons-material/Lock';
 
 type Props = {
     onAuthorization: () => void;
@@ -30,34 +41,71 @@ export default function PasswordMethod({
     const translatedError = error ? (errors[error] ?? error) : undefined;
 
     return (
-        <div className={'container'}>
-            <form onSubmit={onSubmit}>
-                <div className="form-group">
-                    <label htmlFor="password">
+        <Container maxWidth={'xs'}>
+            <Paper
+                sx={{
+                    p: 3,
+                    mt: 5,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: 3,
+                    }}
+                >
+                    <Avatar
+                        sx={{
+                            bgcolor: 'primary.main',
+                            width: 56,
+                            height: 56,
+                        }}
+                    >
+                        <LockIcon fontSize={'large'} />
+                    </Avatar>
+                    <Typography variant="body1">
                         {t(
-                            'publication.password_required.enter_password',
-                            `Enter password`
+                            'publication.security.password.intro',
+                            `This publication is protected by a password. Please enter the password to access it.`
                         )}
-                    </label>
-                    <input
-                        className={'form-control'}
-                        id={'password'}
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        type="password"
-                    />
-                </div>
-                {translatedError && error !== 'missing_password' ? (
-                    <ul className="errors">
-                        <li>{translatedError}</li>
-                    </ul>
-                ) : (
-                    ''
-                )}
-                <button type={'submit'} className={'btn btn-primary'}>
-                    {t('publication.password_required.submit', `OK`)}
-                </button>
-            </form>
-        </div>
+                    </Typography>
+                    <form onSubmit={onSubmit} style={{width: '100%'}}>
+                        <FormRow>
+                            <TextField
+                                label={t(
+                                    'publication.security.password.form.password.label',
+                                    `Password`
+                                )}
+                                variant="outlined"
+                                fullWidth
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                type="password"
+                            />
+                        </FormRow>
+
+                        <FormRow>
+                            {translatedError && error !== 'missing_password' ? (
+                                <RemoteErrors errors={[translatedError]} />
+                            ) : null}
+
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                fullWidth={true}
+                            >
+                                {t(
+                                    'publication.security.password.form.submit.label',
+                                    `Enter`
+                                )}
+                            </Button>
+                        </FormRow>
+                    </form>
+                </Box>
+            </Paper>
+        </Container>
     );
 }

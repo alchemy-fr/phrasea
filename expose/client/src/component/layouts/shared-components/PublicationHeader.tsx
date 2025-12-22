@@ -3,9 +3,13 @@ import ZippyDownloadButton from './ZippyDownloadButton';
 import moment from 'moment';
 import {Publication} from '../../../types.ts';
 import {getTranslatedDescription, getTranslatedTitle} from '../../../i18n.ts';
-import {Container, Typography} from '@mui/material';
+import {Breadcrumbs, Container, Typography} from '@mui/material';
 import {config} from '../../../init.ts';
 import AppBar from '../../UI/AppBar.tsx';
+import {getPath, Link} from '@alchemy/navigation';
+import {routes} from '../../../routes.ts';
+import {useTranslation} from 'react-i18next';
+import HomeIcon from '@mui/icons-material/Home';
 
 type Props = {
     publication: Publication;
@@ -13,6 +17,7 @@ type Props = {
 
 export default function PublicationHeader({publication}: Props) {
     const {assets, description, layoutOptions, date} = publication;
+    const {t} = useTranslation();
 
     return (
         <Container
@@ -28,14 +33,30 @@ export default function PublicationHeader({publication}: Props) {
                         flexGrow: 1,
                     }}
                 >
-                    {layoutOptions.logoUrl && (
-                        <div className={'logo'}>
-                            <img src={layoutOptions.logoUrl} alt={''} />
+                    <Breadcrumbs aria-label="breadcrumb">
+                        {!config.disableIndexPage && (
+                            <Link
+                                style={{
+                                    display: 'flex',
+                                }}
+                                to={getPath(routes.index)}
+                                title={t('publicationHeader.homeLink', 'Home')}
+                            >
+                                <HomeIcon fontSize="small" color={'primary'} />
+                            </Link>
+                        )}
+
+                        <div>
+                            {layoutOptions.logoUrl && (
+                                <div className={'logo'}>
+                                    <img src={layoutOptions.logoUrl} alt={''} />
+                                </div>
+                            )}
+                            <Typography variant={'h1'}>
+                                {getTranslatedTitle(publication)}
+                            </Typography>
                         </div>
-                    )}
-                    <Typography variant={'h1'}>
-                        {getTranslatedTitle(publication)}
-                    </Typography>
+                    </Breadcrumbs>
                     <Typography variant={'caption'}>
                         {moment(date).format('LLLL')}
                     </Typography>
