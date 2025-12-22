@@ -11,16 +11,6 @@ export type FileWithUrl = {
     url: string;
 } & ApiFile;
 
-export type Dimensions = {
-    width: number;
-    height?: number;
-};
-
-export type StrictDimensions = {
-    width: number;
-    height: number;
-};
-
 export function createStrictDimensions({
     width,
     height,

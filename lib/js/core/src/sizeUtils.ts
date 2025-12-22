@@ -1,3 +1,5 @@
+import {StrictDimensions} from './types';
+
 type Step<T> = {
     [size: string | number]: T;
 };
@@ -26,4 +28,27 @@ export function getSizeCase<T extends string>(
     }
 
     return undefined;
+}
+
+export function getRatioDimensions(
+    dimensions: StrictDimensions,
+    ratio: number | undefined
+): StrictDimensions {
+    if (!ratio) {
+        return dimensions;
+    }
+
+    const {width, height} = dimensions;
+
+    if (width * ratio > height) {
+        return {
+            width: height / ratio,
+            height: height,
+        };
+    }
+
+    return {
+        width: width,
+        height: width * ratio,
+    };
 }

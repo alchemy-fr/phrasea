@@ -8,7 +8,7 @@ type Props = {
     assetId?: string;
 };
 
-export default function PublicationView({id}: Props) {
+export default function PublicationView({id, assetId}: Props) {
     const {publication, errorCode, load, loading} = usePublication({
         id,
     });
@@ -20,7 +20,7 @@ export default function PublicationView({id}: Props) {
             errorCode={errorCode}
             load={load}
         >
-            <GridLayout data={publication!} />
+            <GridLayout publication={publication!} assetId={assetId} />
         </PublicationProxy>
     );
 }

@@ -1,13 +1,13 @@
 import {Box} from '@mui/material';
 import {Logo} from '../Logo.tsx';
-import React from 'react';
+import React, {PropsWithChildren} from 'react';
 import {config, keycloakClient} from '../../init.ts';
 import {appLocales} from '../../i18n.ts';
 import {CommonAppTopMenu} from '@alchemy/phrasea-framework';
 
-type Props = {};
+type Props = PropsWithChildren<{}>;
 
-export default function AppBar({}: Props) {
+export default function AppBar({children}: Props) {
     return (
         <Box
             sx={{
@@ -16,14 +16,15 @@ export default function AppBar({}: Props) {
                 flexDirection: 'row',
             }}
         >
-            <h1 style={{}}>
-                <Logo />
-            </h1>
-            <div
-                style={{
-                    flexGrow: 1,
-                }}
-            ></div>
+            {children ?? (
+                <h1
+                    style={{
+                        flexGrow: 1,
+                    }}
+                >
+                    <Logo />
+                </h1>
+            )}
             <div>
                 <CommonAppTopMenu
                     keycloakClient={keycloakClient}

@@ -13,30 +13,32 @@
     "main": "index.ts",
     "license": "MIT",
     "dependencies": {
-        "@jonkoops/matomo-tracker-react": "^0.7.0",
-        "react": "^18.2.0",
-        "react-router-dom": "6.18.0",
-        "react-toastify": "^11.0.3",
-        "react-i18next": "^14.1.1",
-        "@mui/material": "^5.16.7",
-        "@mui/lab": "5.0.0-alpha.173",
-        "@mui/icons-material": "^5.18.0",
         "@alchemy/api": "workspace:*",
         "@alchemy/auth": "workspace:*",
-        "@alchemy/phrasea-ui": "workspace:*",
         "@alchemy/core": "workspace:*",
-        "@alchemy/react-auth": "workspace:*",
         "@alchemy/i18n": "workspace:*",
         "@alchemy/navigation": "workspace:*",
-        "@alchemy/storage": "workspace:*",
-        "@alchemy/react-form": "workspace:*",
         "@alchemy/notification": "workspace:*",
-        "react-circle-flags": "^0.0.23"
+        "@alchemy/phrasea-ui": "workspace:*",
+        "@alchemy/react-auth": "workspace:*",
+        "@alchemy/react-form": "workspace:*",
+        "@alchemy/storage": "workspace:*",
+        "@jonkoops/matomo-tracker-react": "^0.7.0",
+        "@mui/icons-material": "^5.18.0",
+        "@mui/lab": "5.0.0-alpha.173",
+        "@mui/material": "^5.16.7",
+        "classnames": "^2.5.1",
+        "react": "^18.2.0",
+        "react-circle-flags": "^0.0.23",
+        "react-i18next": "^14.1.1",
+        "react-pdf": "^9.2.1",
+        "react-player": "^2.16.1",
+        "react-router-dom": "6.18.0",
+        "react-toastify": "^11.0.3"
     },
     "devDependencies": {
-        "axios": "^1.12.2",
-        "@types/react": "^18.0.28",
+        "@types/react": "^18.3.24",
         "@types/react-dom": "^18.0.11",
-        "@types/react": "^18.3.24"
+        "axios": "^1.12.2"
     }
 }

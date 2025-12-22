@@ -3,46 +3,60 @@ import ZippyDownloadButton from './ZippyDownloadButton';
 import moment from 'moment';
 import {Publication} from '../../../types.ts';
 import {getTranslatedDescription, getTranslatedTitle} from '../../../i18n.ts';
-import {Typography} from '@mui/material';
+import {Container, Typography} from '@mui/material';
 import {config} from '../../../init.ts';
+import AppBar from '../../UI/AppBar.tsx';
 
 type Props = {
-    data: Publication;
+    publication: Publication;
 };
 
-export default function PublicationHeader({data}: Props) {
-    const {assets, description, layoutOptions, date} = data;
+export default function PublicationHeader({publication}: Props) {
+    const {assets, description, layoutOptions, date} = publication;
 
     return (
-        <div className={'pub-header'}>
-            <div
-                style={{
-                    position: 'relative',
-                }}
-            >
-                {layoutOptions.logoUrl && (
-                    <div className={'logo'}>
-                        <img src={layoutOptions.logoUrl} alt={''} />
-                    </div>
-                )}
-                <Typography variant={'h1'}>
-                    {getTranslatedTitle(data)}
-                </Typography>
-                <Typography variant={'caption'}>
-                    {moment(date).format('LLLL')}
-                </Typography>
-            </div>
+        <Container
+            sx={{
+                pt: 1,
+                pb: 6,
+            }}
+        >
+            <AppBar>
+                <div
+                    style={{
+                        position: 'relative',
+                        flexGrow: 1,
+                    }}
+                >
+                    {layoutOptions.logoUrl && (
+                        <div className={'logo'}>
+                            <img src={layoutOptions.logoUrl} alt={''} />
+                        </div>
+                    )}
+                    <Typography variant={'h1'}>
+                        {getTranslatedTitle(publication)}
+                    </Typography>
+                    <Typography variant={'caption'}>
+                        {moment(date).format('LLLL')}
+                    </Typography>
+                </div>
 
-            {description && (
-                <Description descriptionHtml={getTranslatedDescription(data)} />
-            )}
-            {data.downloadEnabled &&
-                config.zippyEnabled &&
-                assets.length > 0 && (
-                    <div className={'download-archive'}>
-                        <ZippyDownloadButton id={data.id} data={data} />
-                    </div>
+                {description && (
+                    <Description
+                        descriptionHtml={getTranslatedDescription(publication)}
+                    />
                 )}
-        </div>
+                {publication.downloadEnabled &&
+                    config.zippyEnabled &&
+                    assets.length > 0 && (
+                        <div className={'download-archive'}>
+                            <ZippyDownloadButton
+                                id={publication.id}
+                                data={publication}
+                            />
+                        </div>
+                    )}
+            </AppBar>
+        </Container>
     );
 }

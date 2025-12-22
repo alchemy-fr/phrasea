@@ -91,3 +91,10 @@ export enum SortBy {
     Date = 'date',
     Name = 'name',
 }
+
+export type Thumb = {
+    id: string;
+    src: string;
+    alt: string;
+    path: string;
+};
