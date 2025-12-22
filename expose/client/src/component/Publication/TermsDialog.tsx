@@ -23,7 +23,7 @@ export default function TermsDialog({
             modalIndex={0}
             open={!accepted}
             onClose={() => {}}
-            title={'Publication'}
+            title={t('terms.terms_and_conditions', 'Terms and Conditions')}
             actions={({onClose}) => {
                 return (
                     <>

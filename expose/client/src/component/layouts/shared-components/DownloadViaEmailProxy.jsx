@@ -1,7 +1,6 @@
 import React from 'react';
 import DownloadViaEmailModal from './DownloadViaEmailModal';
 import {isTermsAccepted, setAcceptedTerms} from '../../../lib/credential';
-import TermsModal from './TermsModal';
 
 export const downloadContainerDefaultState = {
     displayDownloadTerms: false,
