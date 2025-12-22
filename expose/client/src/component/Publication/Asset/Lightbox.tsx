@@ -1,4 +1,4 @@
-import {Box, IconButton} from '@mui/material';
+import {Box, IconButton, useMediaQuery, useTheme} from '@mui/material';
 import {Asset, Thumb} from '../../../types.ts';
 import {getPath, Link, useNavigate} from '@alchemy/navigation';
 import {useEffect, useMemo} from 'react';
@@ -9,6 +9,7 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import CloseIcon from '@mui/icons-material/Close';
 import classnames from 'classnames';
 import AssetLegend from './AssetLegend.tsx';
+import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
 
 type Props = {
     thumbs: Thumb[];
@@ -25,7 +26,6 @@ enum Classes {
 
 export default function Lightbox({publicationId, thumbs, asset}: Props) {
     const navigate = useNavigate();
-    console.log('asset', asset);
 
     const {close, goNext, goPrevious} = useMemo(() => {
         const handler = (inc: number) => () => {
@@ -72,7 +72,17 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
         };
     }, [goNext, goPrevious, close]);
 
+    const {innerWidth: windowWidth, innerHeight: windowHeight} =
+        useWindowSize();
+    const theme = useTheme();
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
     const thumbHeight = 80;
+    const thumbPadding = 2;
+    const thumbOuterHeight =
+        thumbHeight + parseFloat(theme.spacing(thumbPadding)) * 2;
+    const mediaHeight = isSmallScreen
+        ? windowHeight * 0.6
+        : windowHeight - thumbOuterHeight;
 
     return (
         <div
@@ -167,8 +177,8 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                             bottom: 0,
                             left: 0,
                             maxWidth: '100%',
-                            height: `calc(100vh - ${thumbHeight}px - ${theme.spacing(2)})`,
-                            maxHeight: `calc(100vh - ${thumbHeight}px - ${theme.spacing(2)})`,
+                            height: `calc(100vh - ${thumbHeight}px - ${theme.spacing(2 * thumbPadding)})`,
+                            maxHeight: `calc(100vh - ${thumbHeight}px - ${theme.spacing(2 * thumbPadding)})`,
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
@@ -180,18 +190,18 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                         })}
                     >
                         <Box
-                            sx={{
+                            sx={_theme => ({
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 flexShrink: 1,
                                 maxWidth: '100%',
                                 minWidth: 0,
-                                maxHeight: {
-                                    xs: '60vh',
-                                    md: '100%',
+                                maxHeight: mediaHeight,
+                                img: {
+                                    maxHeight: mediaHeight,
                                 },
-                            }}
+                            })}
                         >
                             <FilePlayer
                                 file={{
@@ -201,6 +211,10 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                                     url: asset.previewUrl,
                                 }}
                                 title={asset.title ?? 'Asset'}
+                                dimensions={{
+                                    width: windowWidth,
+                                    height: mediaHeight,
+                                }}
                             />
                         </Box>
                         <Box
@@ -228,9 +242,10 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                         display: 'flex',
                         flexDirection: 'row',
                         gap: 1,
-                        p: 1,
+                        p: thumbPadding,
                         justifyContent: 'center',
-                        img: {
+                        [`.${Classes.Thumbnail}`]: {
+                            display: 'block',
                             borderRadius: 2,
                             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
                             maxHeight: thumbHeight,

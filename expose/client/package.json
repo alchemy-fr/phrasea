@@ -16,6 +16,7 @@
         "@alchemy/api": "workspace:*",
         "@alchemy/auth": "workspace:*",
         "@alchemy/react-form": "workspace:*",
+        "@alchemy/react-hooks": "workspace:*",
         "@alchemy/i18n": "workspace:*",
         "@alchemy/navigation": "workspace:*",
         "@alchemy/phrasea-framework": "workspace:*",

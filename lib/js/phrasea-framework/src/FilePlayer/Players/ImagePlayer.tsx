@@ -15,7 +15,6 @@ export default function ImagePlayer({
         <img
             style={{
                 maxWidth: '100%',
-                maxHeight: '100%',
                 display: 'block',
                 ...(isSvg ? {width: '100%'} : {}),
             }}
