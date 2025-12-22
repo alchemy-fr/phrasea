@@ -21,7 +21,7 @@ import {
     createSizeTransition,
     thumbSx,
 } from '../../../Media/Asset/AssetThumb.tsx';
-import {FileTypeEnum, getFileTypeFromMIMEType} from '../../../../lib/file.ts';
+import {FileTypeEnum, getFileTypeFromMIMEType} from '@alchemy/core';
 import {leftPanelWidth} from '../../../uiVars.ts';
 
 export default function MasonryLayout<Item extends AssetOrAssetContainer>({

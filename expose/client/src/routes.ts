@@ -1,7 +1,6 @@
 import {config} from './init.ts';
 import {compileRoutes} from '@alchemy/navigation';
 import PublicationPage from './pages/PublicationPage';
-import AssetPage from './pages/AssetPage';
 import AppAuthorizationCodePage from './pages/AppAuthorizationCodePage';
 import {NotFoundPage} from '@alchemy/phrasea-ui';
 import EmbeddedAssetPage from './pages/EmbeddedAssetPage';
@@ -18,7 +17,7 @@ const routes = {
         routes: {
             asset: {
                 path: ':assetId',
-                component: AssetPage,
+                component: () => null,
             },
         },
     },

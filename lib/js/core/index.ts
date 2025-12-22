@@ -5,7 +5,8 @@ import {deepEquals} from './src/objectUtils';
 import {parseInlineStyle} from './src/style';
 import {isObject, mergeDeep} from './src/merge';
 import {resolveSx} from './src/sxUtils';
-
+import {dataURLtoFile, getFileTypeFromMIMEType, validateUrl} from './src/fileUtils';
+import {getRatioDimensions, getSizeCase} from './src/sizeUtils';
 export {
     initSentry,
     logError,
@@ -18,6 +19,10 @@ export {
     mergeDeep,
     isObject,
     resolveSx,
+    getFileTypeFromMIMEType,
+    dataURLtoFile,
+    validateUrl,
+    getSizeCase,
+    getRatioDimensions,
 };
-
 export * from './src/types';

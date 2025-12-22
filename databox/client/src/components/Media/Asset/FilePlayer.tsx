@@ -1,5 +1,5 @@
 import {ApiFile} from '../../../types';
-import {FileTypeEnum, getFileTypeFromMIMEType} from '../../../lib/file';
+import {FileTypeEnum, getFileTypeFromMIMEType} from '@alchemy/core';
 import AssetFileIcon from './AssetFileIcon';
 import VideoPlayer from './Players/VideoPlayer';
 import {FileWithUrl, PlayerProps} from './Players';

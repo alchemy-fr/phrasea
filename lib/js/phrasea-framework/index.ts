@@ -10,6 +10,8 @@ import {CommonAppLeftMenu} from './src/Menu/CommonAppLeftMenu';
 import ConfirmDialog from './src/Dialog/ConfirmDialog';
 import {LocaleIcon} from './src/Locale/LocaleIcon';
 import {CommonAppTopMenu} from './src/Menu/CommonAppTopMenu';
+import FilePlayer from './src/FilePlayer/FilePlayer';
+import {getIconFromType} from './src/FilePlayer/fileIcon';
 export {
     AppProvider,
     initApp,
@@ -23,9 +25,12 @@ export {
     ConfirmDialog,
     LocaleIcon,
     CommonAppTopMenu,
+    FilePlayer,
+    getIconFromType,
 };
 export type {WindowConfig};
 
 export * from './src/Theme/types';
 export * from './src/Dialog/types';
 export * from './src/Locale/types';
+export * from './src/FilePlayer/types';

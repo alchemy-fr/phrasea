@@ -1,6 +1,6 @@
 import {SvgIconProps} from '@mui/material';
-import {getIconFromType} from '@alchemy/phrasea-framework';
 import React from 'react';
+import {getIconFromType} from './fileIcon';
 
 type Props = {
     mimeType: string | undefined;

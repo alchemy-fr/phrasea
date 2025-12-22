@@ -43,3 +43,21 @@ export type RegisterWebSocketOptions = {
 };
 export type PusherEventCallback = (data: any) => void;
 export type UnregisterWebSocket = () => void;
+
+export enum FileTypeEnum {
+    Unknown,
+    Document,
+    Audio,
+    Video,
+    Image,
+}
+
+export type Dimensions = {
+    width: number;
+    height?: number;
+};
+
+export type StrictDimensions = {
+    width: number;
+    height: number;
+};
