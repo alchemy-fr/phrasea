@@ -13,6 +13,10 @@ export function videoPlayerSx(theme: Theme): SxProps {
             [`&.${FilePlayerClasses.IsAudio}`]: {
                 backgroundColor: theme.palette.background.default,
             },
+            'audio': {
+                minWidth: `min(100vw, 320px)`,
+                minHeight: 50,
+            },
             [`.${FilePlayerClasses.Controls}`]: {
                 'pointerEvents': 'none',
                 'display': 'flex',
