@@ -1,7 +1,7 @@
 import {Box, IconButton, Theme, useMediaQuery, useTheme} from '@mui/material';
 import {Asset, Thumb} from '../../../types.ts';
 import {getPath, Link, useNavigate} from '@alchemy/navigation';
-import {useEffect, useMemo} from 'react';
+import {useEffect, useMemo, useRef} from 'react';
 import {routes} from '../../../routes.ts';
 import {FilePlayer, videoPlayerSx} from '@alchemy/phrasea-framework';
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
@@ -60,8 +60,10 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
             if (event.key === 'Escape') {
                 close();
             } else if (event.key === 'ArrowRight') {
+                event.preventDefault();
                 goNext();
             } else if (event.key === 'ArrowLeft') {
+                event.preventDefault();
                 goPrevious();
             }
         };
@@ -87,6 +89,35 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
     const mediaHeight = isSmallScreen
         ? windowHeight * 0.6
         : windowHeight - thumbOuterHeight;
+
+    const thumbsContainerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const container = thumbsContainerRef.current;
+        if (!container) {
+            return;
+        }
+        const onWheel = (e: WheelEvent) => {
+            if (e.deltaY === 0) return;
+            e.preventDefault();
+            container.scrollLeft += e.deltaY;
+        };
+        container.addEventListener('wheel', onWheel, {passive: false});
+
+        return () => {
+            container.removeEventListener('wheel', onWheel);
+        };
+    }, [thumbsContainerRef]);
+
+    useEffect(() => {
+        thumbsContainerRef.current
+            ?.querySelector(`#t_${asset.id}`)
+            ?.scrollIntoView({
+                behavior: 'smooth',
+                inline: 'center',
+                block: 'nearest',
+            });
+    }, [asset]);
 
     return (
         <div
@@ -250,39 +281,47 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                     </Box>
                 </Box>
                 <Box
-                    sx={theme => ({
-                        display: 'flex',
-                        flexDirection: 'row',
+                    ref={thumbsContainerRef}
+                    sx={_theme => ({
                         maxWidth: '100vw',
                         overflow: 'auto',
-                        gap: 1,
-                        p: thumbPadding,
-                        justifyContent: 'center',
-                        [`.${Classes.Thumbnail}`]: {
-                            display: 'block',
-                            borderRadius: 2,
-                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                            maxHeight: thumbHeight,
-                            [`&.${Classes.SelectedThumbnail}`]: {
-                                outline: `3px solid ${theme.palette.primary.contrastText}`,
-                            },
-                        },
                     })}
                 >
-                    {thumbs.map(t => (
-                        <Link to={t.path} key={t.id}>
-                            <img
-                                key={t.id}
-                                src={t.src}
-                                alt={t.alt}
-                                className={classnames({
-                                    [Classes.Thumbnail]: true,
-                                    [Classes.SelectedThumbnail]:
-                                        t.id === asset.id,
-                                })}
-                            />
-                        </Link>
-                    ))}
+                    <Box
+                        sx={theme => ({
+                            display: 'flex',
+                            flexDirection: 'row',
+                            gap: 1,
+                            width: 'fit-content',
+                            p: thumbPadding,
+                            justifyContent: 'center',
+                            [`.${Classes.Thumbnail}`]: {
+                                minWidth: 0,
+                                display: 'block',
+                                borderRadius: 2,
+                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                                maxHeight: thumbHeight,
+                                [`&.${Classes.SelectedThumbnail}`]: {
+                                    outline: `3px solid ${theme.palette.primary.contrastText}`,
+                                },
+                            },
+                        })}
+                    >
+                        {thumbs.map(t => (
+                            <Link id={`t_${t.id}`} to={t.path} key={t.id}>
+                                <img
+                                    key={t.id}
+                                    src={t.src}
+                                    alt={t.alt}
+                                    className={classnames({
+                                        [Classes.Thumbnail]: true,
+                                        [Classes.SelectedThumbnail]:
+                                            t.id === asset.id,
+                                    })}
+                                />
+                            </Link>
+                        ))}
+                    </Box>
                 </Box>
             </Box>
         </div>
