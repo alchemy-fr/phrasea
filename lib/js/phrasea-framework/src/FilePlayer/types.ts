@@ -28,4 +28,5 @@ export enum FilePlayerClasses {
     IsAudio = 'fp-is-audio',
     Controls = 'fp-controls',
     Playing = 'fp-playing',
+    VideoPlayControl = 'fp-video-play-control',
 }

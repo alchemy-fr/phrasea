@@ -6,20 +6,11 @@ import {
 import {BaseAnnotationProps} from '../Annotations/AnnotateWrapper.tsx';
 import {RefObject} from 'react';
 import {ReactZoomPanPinchContentRef} from 'react-zoom-pan-pinch';
+import {Dimensions} from '@alchemy/core';
 
 export type FileWithUrl = {
     url: string;
 } & ApiFile;
-
-export function createStrictDimensions({
-    width,
-    height,
-}: Dimensions): StrictDimensions {
-    return {
-        width,
-        height: height ?? width,
-    };
-}
 
 export type PlayerProps = {
     file: FileWithUrl;

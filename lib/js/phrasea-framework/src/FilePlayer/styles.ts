@@ -13,11 +13,11 @@ export function videoPlayerSx(theme: Theme): SxProps {
             [`&.${FilePlayerClasses.IsAudio}`]: {
                 backgroundColor: theme.palette.background.default,
             },
-            'audio': {
+            audio: {
                 minWidth: `min(100vw, 320px)`,
                 minHeight: 50,
             },
-            [`.${FilePlayerClasses.Controls}`]: {
+            [`.${FilePlayerClasses.VideoPlayControl}`]: {
                 'pointerEvents': 'none',
                 'display': 'flex',
                 'flexDirection': 'column',
@@ -42,11 +42,11 @@ export function videoPlayerSx(theme: Theme): SxProps {
             },
 
             [`&.${FilePlayerClasses.Playing}`]: {
-                [`.${FilePlayerClasses.Controls}`]: {
+                [`.${FilePlayerClasses.VideoPlayControl}`]: {
                     opacity: 0,
                 },
                 '&:hover': {
-                    [`.${FilePlayerClasses.Controls}`]: {
+                    [`.${FilePlayerClasses.VideoPlayControl}`]: {
                         opacity: 1,
                     },
                 },

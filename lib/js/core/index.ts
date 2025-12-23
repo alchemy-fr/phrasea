@@ -6,7 +6,7 @@ import {parseInlineStyle} from './src/style';
 import {isObject, mergeDeep} from './src/merge';
 import {resolveSx} from './src/sxUtils';
 import {dataURLtoFile, getFileTypeFromMIMEType, validateUrl} from './src/fileUtils';
-import {getRatioDimensions, getSizeCase} from './src/sizeUtils';
+import {createStrictDimensions, getRatioDimensions, getSizeCase} from './src/sizeUtils';
 export {
     initSentry,
     logError,
@@ -24,5 +24,6 @@ export {
     validateUrl,
     getSizeCase,
     getRatioDimensions,
+    createStrictDimensions,
 };
 export * from './src/types';
