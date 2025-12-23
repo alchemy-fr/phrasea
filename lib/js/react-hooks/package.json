@@ -20,6 +20,7 @@
         "src/useUpdateEffect.ts",
         "src/useMountEffect.ts",
         "src/useElementResize.ts",
+        "src/useContainerWidth.ts",
         "src/deep.ts"
     ],
     "peerDependencies": {

@@ -97,4 +97,11 @@ export type Thumb = {
     src: string;
     alt: string;
     path: string;
+    width?: number;
+    height?: number;
 };
+
+export type ThumbWithDimensions = {
+    width: number;
+    height: number;
+} & Omit<Thumb, 'width' | 'height'>;

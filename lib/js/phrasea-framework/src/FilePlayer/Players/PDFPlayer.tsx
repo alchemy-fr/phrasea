@@ -6,8 +6,9 @@ import {IconButton} from '@mui/material';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import PdfView from './PdfView.tsx';
-import {FilePlayerProps} from '../types';
+import {FilePlayerClasses, FilePlayerProps} from '../types';
 import {getRatioDimensions} from '@alchemy/core';
+import classNames from 'classnames';
 
 type Props = FilePlayerProps;
 
@@ -32,6 +33,9 @@ export default function PDFPlayer({file, controls, onLoad, dimensions}: Props) {
     return (
         <>
             <div
+                className={classNames({
+                    [FilePlayerClasses.PlayerControls]: true, // TODO move to controls
+                })}
                 style={{
                     position: 'relative',
                     backgroundColor: '#FFF',
@@ -47,8 +51,7 @@ export default function PDFPlayer({file, controls, onLoad, dimensions}: Props) {
                         current: 1,
                         maxReached: 1,
                     }}
-                    onRenderSuccess={() => {
-                    }}
+                    onRenderSuccess={() => {}}
                 />
             </div>
             {controls ? (
