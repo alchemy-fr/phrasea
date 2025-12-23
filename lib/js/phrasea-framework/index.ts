@@ -13,6 +13,7 @@ import {CommonAppTopMenu} from './src/Menu/CommonAppTopMenu';
 import FilePlayer from './src/FilePlayer/FilePlayer';
 import {getIconFromType} from './src/FilePlayer/fileIcon';
 import {videoPlayerSx} from './src/FilePlayer/styles';
+import AssetTypeIcon from './src/FilePlayer/AssetTypeIcon';
 export {
     AppProvider,
     initApp,
@@ -28,7 +29,8 @@ export {
     CommonAppTopMenu,
     FilePlayer,
     getIconFromType,
-videoPlayerSx,
+    videoPlayerSx,
+    AssetTypeIcon,
 };
 export type {WindowConfig};
 

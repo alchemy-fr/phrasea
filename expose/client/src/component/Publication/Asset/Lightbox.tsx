@@ -15,6 +15,7 @@ import classnames from 'classnames';
 import AssetLegend from './AssetLegend.tsx';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
 import {SystemCssProperties} from '@mui/system';
+import AssetIconThumbnail, {thumbSx} from './AssetIconThumbnail.tsx';
 
 type Props = {
     thumbs: Thumb[];
@@ -26,6 +27,7 @@ enum Classes {
     Controls = 'lb-controls',
     Arrow = 'lb-arrow',
     Thumbnail = 'lb-thumbnail',
+    ThumbnailContainer = 'lb-thumbnail-container',
     SelectedThumbnail = 'lb-thumbnail-selected',
 }
 
@@ -300,30 +302,45 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                             width: 'fit-content',
                             p: thumbPadding,
                             justifyContent: 'center',
-                            [`.${Classes.Thumbnail}`]: {
-                                minWidth: 0,
-                                display: 'block',
+                            [`.${Classes.ThumbnailContainer}`]: {
+                                backgroundColor: theme.palette.background.paper,
                                 borderRadius: 2,
+                                overflow: 'hidden',
                                 boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                                maxHeight: thumbHeight,
                                 [`&.${Classes.SelectedThumbnail}`]: {
                                     outline: `3px solid ${theme.palette.primary.contrastText}`,
                                 },
+                                [`img`]: {
+                                    minWidth: 0,
+                                    display: 'block',
+                                    maxHeight: thumbHeight,
+                                },
                             },
+                            ...thumbSx(theme, 30),
                         })}
                     >
                         {thumbs.map(t => (
-                            <Link id={`t_${t.id}`} to={t.path} key={t.id}>
-                                <img
-                                    key={t.id}
-                                    src={t.src}
-                                    alt={t.alt}
-                                    className={classnames({
-                                        [Classes.Thumbnail]: true,
-                                        [Classes.SelectedThumbnail]:
-                                            t.id === asset.id,
-                                    })}
-                                />
+                            <Link
+                                id={`t_${t.id}`}
+                                to={t.path}
+                                key={t.id}
+                                className={classnames({
+                                    [Classes.ThumbnailContainer]: true,
+                                    [Classes.SelectedThumbnail]:
+                                        t.id === asset.id,
+                                })}
+                            >
+                                {t.src ? (
+                                    <img key={t.id} src={t.src} alt={t.alt} />
+                                ) : (
+                                    <AssetIconThumbnail
+                                        mimeType={t.mimeType}
+                                        style={{
+                                            width: thumbHeight,
+                                            height: thumbHeight,
+                                        }}
+                                    />
+                                )}
                             </Link>
                         ))}
                     </Box>
