@@ -16,6 +16,7 @@ import AssetLegend from './AssetLegend.tsx';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
 import {SystemCssProperties} from '@mui/system';
 import AssetIconThumbnail, {thumbSx} from './AssetIconThumbnail.tsx';
+import classNames from 'classnames';
 
 type Props = {
     thumbs: Thumb[];
@@ -25,6 +26,7 @@ type Props = {
 enum Classes {
     Lightbox = 'lightbox',
     Controls = 'lb-controls',
+    Close = 'lb-close',
     Arrow = 'lb-arrow',
     Thumbnail = 'lb-thumbnail',
     ThumbnailContainer = 'lb-thumbnail-container',
@@ -178,14 +180,17 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                                 fontSize: 45,
                             },
                         },
-                        [`&:hover:not(:has(.${FilePlayerClasses.PlayerControls}:hover)) .${Classes.Controls}`]:
+                        [`&:hover .${Classes.Controls}`]: {
+                            opacity: 1,
+                        },
+                        [`&:hover:has(.${FilePlayerClasses.PlayerControls}:hover) .${Classes.Arrow}`]:
                             {
-                                opacity: 1,
+                                display: 'none',
                             },
                     }}
                 >
                     <Box
-                        className={Classes.Controls}
+                        className={classNames(Classes.Controls, Classes.Close)}
                         sx={theme => ({
                             top: theme.spacing(2),
                             right: theme.spacing(2),
