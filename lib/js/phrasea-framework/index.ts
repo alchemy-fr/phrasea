@@ -14,6 +14,7 @@ import FilePlayer from './src/FilePlayer/FilePlayer';
 import {getIconFromType} from './src/FilePlayer/fileIcon';
 import {videoPlayerSx} from './src/FilePlayer/styles';
 import AssetTypeIcon from './src/FilePlayer/AssetTypeIcon';
+import PdfView from './src/FilePlayer/Players/PdfView'
 export {
     AppProvider,
     initApp,
@@ -31,6 +32,7 @@ export {
     getIconFromType,
     videoPlayerSx,
     AssetTypeIcon,
+    PdfView,
 };
 export type {WindowConfig};
 

@@ -37,7 +37,6 @@ export default function VideoPlayer({
     const type = getFileTypeFromMIMEType(file.type);
     const isAudio = type === FileTypeEnum.Audio;
     const [play, setPlay] = useState(!isAudio && autoPlayable);
-    const [ratio, setRatio] = useState<number>();
 
     const onPlay = (e: MouseEvent) => {
         if (e.ctrlKey) {
@@ -49,7 +48,6 @@ export default function VideoPlayer({
 
     const PlayComponent = play ? PauseIcon : PlayCircleIcon;
 
-    const videoDimensions = getRatioDimensions(dimensions, ratio);
     const hasControls = !noInteraction && controls;
 
     const onUpdate = (e: SyntheticEvent<HTMLVideoElement>) => {
@@ -76,7 +74,7 @@ export default function VideoPlayer({
             }}
         >
             {!controls && !autoPlayable && !noInteraction && (
-                <div className={FilePlayerClasses.Controls}>
+                <div className={FilePlayerClasses.VideoPlayControl}>
                     <IconButton
                         onClick={onPlay}
                         onMouseDown={stopPropagationIfNoCtrl}
@@ -97,16 +95,7 @@ export default function VideoPlayer({
                 }}
                 playing={play}
                 loop={true}
-                onReady={() => {
-                    onLoad?.();
-                    const internalPlayer = playerRef.current;
-                    if (internalPlayer) {
-                        setRatio(
-                            internalPlayer.videoHeight /
-                                internalPlayer.videoWidth
-                        );
-                    }
-                }}
+                onReady={onLoad}
                 onPlay={() => setPlay(true)}
                 onPause={() => setPlay(false)}
                 onProgress={onUpdate}

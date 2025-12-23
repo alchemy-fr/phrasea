@@ -1,4 +1,4 @@
-import {StrictDimensions} from './types';
+import {Dimensions, StrictDimensions} from './types';
 
 type Step<T> = {
     [size: string | number]: T;
@@ -50,5 +50,12 @@ export function getRatioDimensions(
     return {
         width: width,
         height: width * ratio,
+    };
+}
+
+export function createStrictDimensions({width, height}: Dimensions): StrictDimensions {
+    return {
+        width,
+        height: height ?? width,
     };
 }

@@ -1,5 +1,6 @@
 import {MouseEvent, useContext, useState} from 'react';
-import {createStrictDimensions, PlayerProps} from './index';
+import {createStrictDimensions} from '@alchemy/core';
+import {PlayerProps} from './index.ts';
 import ReactPlayer from 'react-player/lazy';
 import {IconButton, LinearProgress, SxProps} from '@mui/material';
 import {DisplayContext} from '../../DisplayContext';
