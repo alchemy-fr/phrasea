@@ -1,4 +1,4 @@
-import {MouseEvent, useRef, useState} from 'react';
+import {MouseEvent, SyntheticEvent, useRef, useState} from 'react';
 import ReactPlayer from 'react-player';
 import {IconButton, LinearProgress} from '@mui/material';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
@@ -34,11 +34,10 @@ export default function VideoPlayer({
 }: Props) {
     const playerRef = useRef<HTMLVideoElement | null>(null);
     const [progress, setProgress] = useState<Progress>();
-    const [duration, setDuration] = useState<number>();
-    const [play, setPlay] = useState(false);
-    const [ratio, setRatio] = useState<number>();
     const type = getFileTypeFromMIMEType(file.type);
     const isAudio = type === FileTypeEnum.Audio;
+    const [play, setPlay] = useState(!isAudio && autoPlayable);
+    const [ratio, setRatio] = useState<number>();
 
     const onPlay = (e: MouseEvent) => {
         if (e.ctrlKey) {
@@ -52,6 +51,17 @@ export default function VideoPlayer({
 
     const videoDimensions = getRatioDimensions(dimensions, ratio);
     const hasControls = !noInteraction && controls;
+
+    const onUpdate = (e: SyntheticEvent<HTMLVideoElement>) => {
+        const player = e.currentTarget;
+
+        setProgress({
+            played: player.currentTime / player.duration,
+            loaded:
+                player.buffered?.end(player.buffered?.length - 1) /
+                player.duration,
+        });
+    }
 
     return (
         <div
@@ -84,29 +94,23 @@ export default function VideoPlayer({
                     maxWidth: dimensions.width,
                     maxHeight: dimensions.height,
                 }}
-                playing={play || (!isAudio && autoPlayable)}
+                playing={play}
                 loop={true}
                 onReady={() => {
-                    onLoad && onLoad();
+                    onLoad?.();
                     const internalPlayer = playerRef.current;
                     if (internalPlayer) {
                         setRatio(
                             internalPlayer.videoHeight /
                                 internalPlayer.videoWidth
                         );
-                        setDuration(internalPlayer.duration);
                     }
                 }}
                 onPlay={() => setPlay(true)}
                 onPause={() => setPlay(false)}
-                onProgress={(e) => {
-                    const {played, buffered} = e.currentTarget;
-
-                    setProgress({
-                        played: played.end(0),
-                        loaded: buffered.end(0),
-                    });
-                }}
+                onProgress={onUpdate}
+                onTimeUpdate={onUpdate}
+                onProgressCapture={() => {}}
                 muted={autoPlayable}
                 controls={hasControls}
             />
@@ -119,6 +123,11 @@ export default function VideoPlayer({
                         left: 0,
                         right: 0,
                         zIndex: 1,
+                    }}
+                    sx={{
+                        '.MuiLinearProgress-bar': {
+                            transition: 'transform .2s linear',
+                        },
                     }}
                     value={progress ? progress.played * 100 : undefined}
                     valueBuffer={progress ? progress.loaded * 100 : undefined}

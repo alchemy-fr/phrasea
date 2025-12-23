@@ -67,8 +67,11 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
         };
 
         window.addEventListener('keydown', handleKeyDown);
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
 
         return () => {
+            document.body.style.overflow = originalOverflow;
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, [goNext, goPrevious, close]);
@@ -100,11 +103,15 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
         >
             <Box
                 sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100vh',
+                    'display': 'flex',
+                    'flexDirection': 'column',
+                    'justifyContent': 'center',
+                    'alignItems': 'center',
+                    'height': '100vh',
+
+                    '*::-webkit-scrollbar-thumb': {
+                        backgroundColor: theme.palette.common.white,
+                    },
                 }}
             >
                 <Box
@@ -214,6 +221,7 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                                     type: asset.mimeType,
                                     url: asset.previewUrl,
                                 }}
+                                controls={true}
                                 title={asset.title ?? 'Asset'}
                                 dimensions={{
                                     width: windowWidth,

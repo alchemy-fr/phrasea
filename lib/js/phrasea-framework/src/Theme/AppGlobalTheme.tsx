@@ -20,7 +20,8 @@ export function AppGlobalTheme({
     children,
     styles,
     themeOptions,
-    scrollbarWidth = 8}: Props) {
+    scrollbarWidth = 8
+}: Props) {
     return (
         <ThemeEditorProvider defaultTheme={themeOptions ?? baseTheme}>
             <CssBaseline />
@@ -36,6 +37,7 @@ export function AppGlobalTheme({
                         '*': {
                             '*::-webkit-scrollbar': {
                                 width: scrollbarWidth,
+                                height: scrollbarWidth,
                             },
                             '*::-webkit-scrollbar-track': {
                                 borderRadius: 10,
