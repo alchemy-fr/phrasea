@@ -23,6 +23,7 @@ export type ZoomStepState = {
 };
 
 export enum FilePlayerClasses {
+    PlayerControls = 'fp-player-controls',
     VideoPlayer = 'fp-video-player',
     IsAudio = 'fp-is-audio',
     Controls = 'fp-controls',

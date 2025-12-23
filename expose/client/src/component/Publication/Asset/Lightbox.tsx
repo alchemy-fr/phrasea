@@ -3,7 +3,11 @@ import {Asset, Thumb} from '../../../types.ts';
 import {getPath, Link, useNavigate} from '@alchemy/navigation';
 import {useEffect, useMemo, useRef} from 'react';
 import {routes} from '../../../routes.ts';
-import {FilePlayer, videoPlayerSx} from '@alchemy/phrasea-framework';
+import {
+    FilePlayer,
+    FilePlayerClasses,
+    videoPlayerSx,
+} from '@alchemy/phrasea-framework';
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import CloseIcon from '@mui/icons-material/Close';
@@ -123,7 +127,7 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
         <div
             className={Classes.Lightbox}
             style={{
-                position: 'absolute',
+                position: 'fixed',
                 top: 0,
                 left: 0,
                 bottom: 0,
@@ -172,9 +176,10 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                                 fontSize: 45,
                             },
                         },
-                        [`&:hover .${Classes.Controls}`]: {
-                            opacity: 1,
-                        },
+                        [`&:hover:not(:has(.${FilePlayerClasses.PlayerControls}:hover)) .${Classes.Controls}`]:
+                            {
+                                opacity: 1,
+                            },
                     }}
                 >
                     <Box

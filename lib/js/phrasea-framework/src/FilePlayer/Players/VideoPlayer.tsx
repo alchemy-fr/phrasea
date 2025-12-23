@@ -66,6 +66,7 @@ export default function VideoPlayer({
     return (
         <div
             className={classNames({
+                [FilePlayerClasses.PlayerControls]: true, // TODO move to controls
                 [FilePlayerClasses.VideoPlayer]: true,
                 [FilePlayerClasses.IsAudio]: isAudio,
                 [FilePlayerClasses.Playing]: play,
