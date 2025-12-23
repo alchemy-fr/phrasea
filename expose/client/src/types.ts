@@ -94,7 +94,8 @@ export enum SortBy {
 
 export type Thumb = {
     id: string;
-    src: string;
+    src?: string;
+    mimeType: string;
     alt: string;
     path: string;
     width?: number;

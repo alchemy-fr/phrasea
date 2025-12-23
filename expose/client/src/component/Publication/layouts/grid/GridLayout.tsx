@@ -10,6 +10,8 @@ import {buildLayoutFlat} from './buildLayout.ts';
 import {ThumbWithDimensions} from '../../../../types.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {ImageExtended} from './types.ts';
+import {Classes} from '../../types.ts';
+import AssetIconThumbnail, {thumbSx} from '../../Asset/AssetIconThumbnail.tsx';
 
 type Props = {
     rowHeight?: number;
@@ -36,6 +38,14 @@ export default function GridLayout({
             const resolvedThumbs = await Promise.all(
                 thumbs.map(a => {
                     return new Promise(resolve => {
+                        if (!a.src) {
+                            return resolve({
+                                ...a,
+                                width: rowHeight,
+                                height: rowHeight,
+                            } as ThumbWithDimensions);
+                        }
+
                         const img = new Image();
                         img.onload = () => {
                             resolve({
@@ -88,10 +98,21 @@ export default function GridLayout({
             ) : null}
             <Box
                 ref={containerRef}
-                sx={{
+                sx={theme => ({
                     display: 'flex',
                     flexWrap: 'wrap',
-                }}
+                    [`.${Classes.thumbContainer}`]: {
+                        backgroundColor: theme.palette.background.paper,
+                        overflow: 'hidden',
+                        margin: `${margin}px`,
+                        img: {
+                            maxWidth: 'none',
+                            marginTop: 0,
+                            display: 'block',
+                        },
+                    },
+                    ...thumbSx(theme),
+                })}
             >
                 {!resolvedThumbs ? (
                     <FullPageLoader backdrop={false} />
@@ -101,23 +122,31 @@ export default function GridLayout({
                             to={t.path}
                             key={t.id}
                             style={{
-                                margin,
                                 width: t.viewportWidth,
                                 height: t.scaledHeight,
-                                overflow: 'hidden',
                             }}
+                            className={Classes.thumbContainer}
                         >
-                            <img
-                                src={t.src}
-                                alt={t.alt}
-                                style={{
-                                    maxWidth: 'none',
-                                    width: t.scaledWidth,
-                                    height: t.scaledHeight,
-                                    marginLeft: t.marginLeft,
-                                    marginTop: 0,
-                                }}
-                            />
+                            {t.src ? (
+                                <img
+                                    src={t.src}
+                                    alt={t.alt}
+                                    style={{
+                                        width: t.scaledWidth,
+                                        height: t.scaledHeight,
+                                        marginLeft: t.marginLeft,
+                                    }}
+                                />
+                            ) : (
+                                <AssetIconThumbnail
+                                    style={{
+                                        width: t.scaledWidth,
+                                        height: t.scaledHeight,
+                                        marginLeft: t.marginLeft,
+                                    }}
+                                    mimeType={t.mimeType}
+                                />
+                            )}
                         </Link>
                     ))
                 )}
