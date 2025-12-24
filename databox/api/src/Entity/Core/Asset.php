@@ -709,4 +709,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     {
         return $this->attachments;
     }
+
+    public function getTrackingID(): string
+    {
+        return $this->getId();
+    }
 }

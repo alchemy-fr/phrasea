@@ -105,6 +105,7 @@ export interface Asset
     topicSubscriptions?: TopicSubscriptions;
     storyCollection?: Collection | undefined;
     deleted?: boolean;
+    trackingId: string;
 }
 
 type AttrValue = any;

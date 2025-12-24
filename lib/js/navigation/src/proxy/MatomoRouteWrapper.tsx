@@ -4,13 +4,14 @@ import {useLocation} from 'react-router-dom';
 import {RouteWrapperProps} from '../types';
 
 export default function MatomoRouteWrapper({children}: RouteWrapperProps) {
-    const {trackPageView, enableLinkTracking} = useMatomo();
+    const {trackPageView, enableLinkTracking, pushInstruction} = useMatomo();
     enableLinkTracking();
 
     const location = useLocation();
 
     React.useEffect(() => {
         trackPageView && trackPageView();
+        pushInstruction('trackVisibleContentImpressions');
     }, [location]);
 
     return children as JSX.Element;

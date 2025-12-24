@@ -127,6 +127,7 @@ export default function PreviewPopover({
                                 <FilePlayer
                                     key={asset.id}
                                     file={asset.preview!.file!}
+                                    trackingId={asset.trackingId}
                                     dimensions={{
                                         width: previewWidth,
                                         height: height - spacingInt * 2,
