@@ -20,7 +20,7 @@ export const basic = workflow(
         await step.email("send-email", async () => {
             return {
                 subject,
-                body: render(<DefaultEmail>
+                body: await render(<DefaultEmail>
                     <Section>
                         <Text>
                             {content}

@@ -16,20 +16,24 @@ final readonly class Configurator
     private iterable $configurators;
 
     public function __construct(
-        #[TaggedIterator('app.configurator')]
+        #[TaggedIterator('app.configurator', defaultPriorityMethod: 'getPriority')]
         iterable $configurators,
     ) {
         $this->configurators = $configurators;
     }
 
-    public function configure(OutputInterface $output, array $presets): void
+    public function configure(OutputInterface $output, array $presets, array $filters = []): void
     {
         foreach ($this->configurators as $configurator) {
+            if (!empty($filters) && !in_array($configurator::getName(), $filters, true)) {
+                continue;
+            }
+
             $output->writeln(sprintf('Configuring %s...', $configurator::class));
             try {
                 $configurator->configure($output, $presets);
             } catch (ClientException $e) {
-                dump($e->getResponse()->getContent(false));
+                echo $e->getResponse()->getContent(false);
                 throw $e;
             }
         }
