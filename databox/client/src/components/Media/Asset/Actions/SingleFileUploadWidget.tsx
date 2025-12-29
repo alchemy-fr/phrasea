@@ -3,7 +3,7 @@ import {Box, Button, Checkbox, InputLabel, TextField} from '@mui/material';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
 import LinkIcon from '@mui/icons-material/Link';
-import {validateUrl} from '../../../../lib/file.ts';
+import {validateUrl} from '@alchemy/core';
 import FileToUploadCard from '../../../Upload/FileToUploadCard.tsx';
 import {FileOrUrl} from '../../../../api/file.ts';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';

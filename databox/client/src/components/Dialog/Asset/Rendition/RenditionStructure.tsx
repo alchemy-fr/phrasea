@@ -1,5 +1,5 @@
 import {ReactNode} from 'react';
-import {Dimensions} from '../../../Media/Asset/Players';
+import {Dimensions} from '@alchemy/core';
 import {Box, Card, CardContent, CardMedia, Typography} from '@mui/material';
 
 type Props = {

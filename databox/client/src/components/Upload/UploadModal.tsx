@@ -28,7 +28,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import {createCollection} from '../../api/collection.ts';
 import {importAssets, NewAssetInput, uploadAssets} from '../../api/asset.ts';
 import LinkIcon from '@mui/icons-material/Link';
-import {validateUrl} from '../../lib/file.ts';
+import {validateUrl} from '@alchemy/core';
 import {CreateAssetsOptions} from '../../api/file.ts';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import {toast} from 'react-toastify';
