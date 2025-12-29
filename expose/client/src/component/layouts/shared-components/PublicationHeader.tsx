@@ -22,8 +22,8 @@ export default function PublicationHeader({publication}: Props) {
     return (
         <Container
             sx={{
-                pt: 1,
-                pb: 6,
+                mt: 1,
+                mb: 4,
             }}
         >
             <AppBar>
@@ -62,11 +62,6 @@ export default function PublicationHeader({publication}: Props) {
                     </Typography>
                 </div>
 
-                {description && (
-                    <Description
-                        descriptionHtml={getTranslatedDescription(publication)}
-                    />
-                )}
                 {publication.downloadEnabled &&
                     config.zippyEnabled &&
                     assets.length > 0 && (
@@ -78,6 +73,12 @@ export default function PublicationHeader({publication}: Props) {
                         </div>
                     )}
             </AppBar>
+
+            {description && (
+                <Description
+                    descriptionHtml={getTranslatedDescription(publication)}
+                />
+            )}
         </Container>
     );
 }

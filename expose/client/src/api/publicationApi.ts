@@ -18,5 +18,6 @@ export function getPasswordHeaders(): RawAxiosRequestHeaders {
     if (passwords) {
         headers['X-Passwords'] = passwords;
     }
+
     return headers;
 }

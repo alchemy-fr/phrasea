@@ -1,5 +1,5 @@
 import React, {PropsWithChildren} from 'react';
-import {isTermsAccepted, setAcceptedTerms} from '../../lib/credential';
+import {isTermsAccepted, setAcceptedTerms} from '../../lib/credential.ts';
 import {Publication} from '../../types.ts';
 import TermsDialog from './TermsDialog.tsx';
 
