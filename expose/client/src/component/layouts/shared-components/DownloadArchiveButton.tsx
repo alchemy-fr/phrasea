@@ -18,7 +18,7 @@ export default function DownloadArchiveButton({publication}: Props) {
         <>
             <Button
                 onClick={onDownload}
-                variant={'contained'}
+                variant={'outlined'}
                 startIcon={<ArchiveIcon />}
             >
                 {t('downloadArchiveButton.downloadArchive', 'Download Archive')}
