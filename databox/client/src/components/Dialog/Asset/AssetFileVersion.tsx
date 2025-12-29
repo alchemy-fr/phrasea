@@ -1,7 +1,7 @@
 import {ReactNode} from 'react';
 import {Asset, AssetFileVersion} from '../../../types';
 import FilePlayer from '../../Media/Asset/FilePlayer';
-import {Dimensions} from '../../Media/Asset/Players';
+import {Dimensions} from '@alchemy/core';
 import {
     Button,
     Card,

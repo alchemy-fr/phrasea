@@ -1,4 +1,4 @@
-import {Dimensions} from '../../../Media/Asset/Players';
+import {Dimensions} from '@alchemy/core';
 import {RenditionStructure} from './RenditionStructure.tsx';
 import {Skeleton} from '@mui/material';
 

@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import {ObjectType, runIntegrationAction} from '../../../api/integrations';
 import SaveIcon from '@mui/icons-material/Save';
-import {dataURLtoFile} from '../../../lib/file';
+import {dataURLtoFile} from '@alchemy/core';
 import {LoadingButton} from '@mui/lab';
 import {toast} from 'react-toastify';
 import FileOpenIcon from '@mui/icons-material/FileOpen';

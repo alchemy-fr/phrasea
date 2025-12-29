@@ -3,7 +3,7 @@ import {Box, Button} from '@mui/material';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
-import {Dimensions} from '../Media/Asset/Players';
+import {Dimensions} from '@alchemy/core';
 import React from 'react';
 import FileProgressCard from './FileProgressCard.tsx';
 
