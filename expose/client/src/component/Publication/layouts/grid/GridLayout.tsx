@@ -29,7 +29,7 @@ export default function GridLayout({
         React.useState<ImageExtended<ThumbWithDimensions>[]>();
 
     const thumbs = useThumbs({
-        publicationId: publication.id,
+        publication: publication,
         assets: publication.assets,
     });
 
@@ -93,7 +93,7 @@ export default function GridLayout({
                 <Lightbox
                     thumbs={thumbs}
                     asset={openedAsset}
-                    publicationId={publication.id}
+                    publication={publication}
                 />
             ) : null}
             <Box

@@ -6,7 +6,6 @@ import {AuthenticationProvider} from '@alchemy/react-auth';
 import {ModalStack} from '@alchemy/navigation';
 import {KeycloakClient, OAuthClient} from '@alchemy/auth';
 import UserHookCaller from './UserHookCaller';
-import type {WindowConfig} from '@alchemy/core'
 import {AppGlobalTheme} from './Theme/AppGlobalTheme';
 
 type Props = PropsWithChildren<{

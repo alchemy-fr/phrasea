@@ -7,19 +7,25 @@ import Typography from '@mui/material/Typography';
 import {Publication} from '../../types.ts';
 import {Button, CardActionArea} from '@mui/material';
 import {useTranslation} from 'react-i18next';
+import {getPath, Link} from '@alchemy/navigation';
+import {routes} from '../../routes.ts';
 
 type Props = {
     publication: Publication;
-    onClick: (id: string) => void;
 };
 
-export default function PublicationCard({publication, onClick}: Props) {
+export default function PublicationCard({publication}: Props) {
     const previewUrl = publication.cover?.previewUrl;
     const {t} = useTranslation();
 
     return (
         <Card>
-            <CardActionArea onClick={() => onClick(publication.id)}>
+            <CardActionArea
+                component={Link}
+                to={getPath(routes.publication, {
+                    id: publication.slug || publication.id,
+                })}
+            >
                 <CardMedia
                     component="img"
                     height="194"

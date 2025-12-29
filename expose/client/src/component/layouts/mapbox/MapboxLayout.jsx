@@ -2,7 +2,7 @@ import React from 'react';
 // import { PropTypes } from 'prop-types'
 import mapboxgl from 'mapbox-gl';
 import config from '../../../config';
-import Description from '../shared-components/Description';
+import Description from '../../Publication/Description';
 import {getBrowserLanguage} from './browserLang';
 import PublicationHeader from '../shared-components/PublicationHeader';
 import AssetProxy from '../shared-components/AssetProxy';

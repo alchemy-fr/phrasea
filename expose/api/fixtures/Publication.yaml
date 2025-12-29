@@ -1,17 +1,17 @@
 App\Entity\PublicationConfig:
-  config-1:
+  config_1:
     enabled: true
     publiclyListed: true
     downloadEnabled: true
-  config-download:
+  config_download:
     enabled: true
     publiclyListed: true
     layout: download
-  config-gallery:
+  config_gallery:
     enabled: true
     publiclyListed: true
     layout: gallery
-  config-grid:
+  config_grid:
     enabled: true
     publiclyListed: true
     layout: grid
@@ -28,40 +28,40 @@ App\Entity\PublicationConfig:
     securityMethod: authentication
 
 App\Entity\PublicationProfile:
-  pr-1:
+  pr_1:
     name: 'Profile #1'
-    config: '@config-1'
+    config: '@config_1'
 
 App\Entity\Publication:
   pub_gallery:
     title: Gallery publication
     slug: gallery-pub
-    profile: '@pr-1'
-    config: '@config-gallery'
+    profile: '@pr_1'
+    config: '@config_gallery'
     cover: '@a_img1'
 
   pub_download:
     title: Download publication
     slug: download-pub
-    profile: '@pr-1'
-    config: '@config-download'
+    profile: '@pr_1'
+    config: '@config_download'
     cover: '@a_img2'
 
   pub_grid:
     title: Grid publication
     slug: grid-pub
-    profile: '@pr-1'
-    config: '@config-grid'
+    profile: '@pr_1'
+    config: '@config_grid'
     cover: '@a_img3'
 
   pub_password:
     title: Password protected publication
-    profile: '@pr-1'
+    profile: '@pr_1'
     config: '@password-protected'
     cover: '@a_img4'
 
   pub_auth:
     title: Auth protected publication
     slug: auth-protected
-    profile: '@pr-1'
+    profile: '@pr_1'
     config: '@auth-protected'

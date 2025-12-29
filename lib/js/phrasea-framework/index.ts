@@ -1,6 +1,5 @@
 import {AppProvider} from './src/AppProvider';
 import {initApp} from './src/init';
-import {WindowConfig} from '@alchemy/core';
 import ThemeEditorProvider from './src/Theme/ThemeEditor/ThemeEditorProvider';
 import MuiThemeEditor from './src/Theme/ThemeEditor/MuiThemeEditor';
 import ThemeEditorContext from './src/Theme/ThemeEditor/ThemeEditorContext';
@@ -34,8 +33,6 @@ export {
     AssetTypeIcon,
     PdfView,
 };
-export type {WindowConfig};
-
 
 export * from './src/Theme/types';
 export * from './src/Dialog/types';
