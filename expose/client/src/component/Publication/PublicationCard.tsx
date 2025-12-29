@@ -23,7 +23,10 @@ export default function PublicationCard({publication, onClick}: Props) {
                 <CardMedia
                     component="img"
                     height="194"
-                    image={previewUrl}
+                    image={
+                        previewUrl ??
+                        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgMBgOb3pAAAAABJRU5ErkJggg=='
+                    }
                     alt={publication.title}
                 />
                 <CardContent>
