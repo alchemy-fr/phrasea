@@ -1,0 +1,71 @@
+App\Entity\PublicationConfig:
+    test_config:
+        enabled: true
+        publiclyListed: true
+        downloadEnabled: true
+
+App\Entity\Publication:
+    test_pub:
+        title: Test publication
+        description: This is a test publication.
+        slug: test-pub
+        config: '@test_config'
+
+App\Entity\Asset:
+  test_asset (template):
+    size: 42
+    publication: '@test_pub'
+    originalName: 'original'
+
+  test_a_image_wide (extends test_asset):
+    title: 'A wide image'
+    description: 'This is a wide image'
+    mimeType: image/jpeg
+    path: '<image(1000, 100, "1", "test")>'
+
+  test_a_image_tall (extends test_asset):
+    title: 'A tall image'
+    description: 'This is a tall image'
+    mimeType: image/jpeg
+    path: '<image(100, 1000, "2", "test")>'
+
+  test_a_audio_test (extends test_asset):
+    title: 'A test audio'
+    description: 'This is a test audio'
+    mimeType: audio/mp3
+    path: '<randomMedia("assets", "mp3", 1)>'
+
+  test_a_video_classic (extends test_asset):
+    title: 'A classic video'
+    description: 'This is a classic video'
+    mimeType: video/mp4
+    path: '<mediaUrl("https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/video-classic.mp4")>'
+    webVTT:
+        - locale: fr
+          label: FR
+          content: |
+            WEBVTT
+
+            00:01.000 --> 00:04.000
+            - Ceci est un sous titre en français.
+
+            00:05.000 --> 00:09.000
+            - Une première répblique !
+            - Une deuxième.
+        - locale: en
+          label: EN
+          content: |
+            WEBVTT
+
+            00:01.000 --> 00:04.000
+            - This is an english subtitle
+
+            00:05.000 --> 00:09.000
+            - A sentence !
+            - A second one.
+
+  test_a_video_tall (extends test_asset):
+    title: 'A tall video'
+    description: 'This is a tall video'
+    mimeType: video/mp4
+    path: '<mediaUrl("https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/video-tall.mp4")>'

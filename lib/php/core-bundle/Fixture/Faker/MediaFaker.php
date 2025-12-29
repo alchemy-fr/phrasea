@@ -37,4 +37,9 @@ class MediaFaker extends AbstractCachedFaker
 
         return $this->download($workspaceId, md5($url), $type, $url);
     }
+
+    public function mediaUrl(string $url, ?string $extension = null): string
+    {
+        return $this->download('media', md5($url), $extension ?? pathinfo($url, PATHINFO_EXTENSION), $url);
+    }
 }

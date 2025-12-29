@@ -13,6 +13,10 @@ class ImageUrlFaker extends AbstractCachedFaker
         bool $plusOne = false,
         ?string $theme = null,
     ): string {
+        if ($size <= 0) {
+            throw new \InvalidArgumentException(sprintf('Size must be greater than 0, got %d', $size));
+        }
+
         if (!preg_match('#(\d+)$#', $lock, $matches)) {
             throw new \InvalidArgumentException(sprintf('Lock must end with a number, got "%s"', $lock));
         }
@@ -38,6 +42,17 @@ class ImageUrlFaker extends AbstractCachedFaker
             $width = $size * $ratio;
             $height = $size;
         }
+
+        return $this->image($width, $height, $lockNumber, $workspaceId, $theme);
+    }
+
+    public function image(
+        float|int $width,
+        float|int $height,
+        string $lockNumber,
+        string $pathPrefix,
+        ?string $theme = null,
+    ): string {
         $width = round($width);
         $height = round($height);
 
@@ -50,12 +65,8 @@ class ImageUrlFaker extends AbstractCachedFaker
         );
         $extension = 'jpg';
 
-        if ($size <= 0) {
-            throw new \InvalidArgumentException(sprintf('Size must be greater than 0, got %d', $size));
-        }
-
         return $this->download(
-            $workspaceId,
+            $pathPrefix,
             sprintf('%s-%s-%s-%s', $theme ?? 'default', $lockNumber, $width, $height),
             $extension,
             $url
