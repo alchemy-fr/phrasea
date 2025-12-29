@@ -19,6 +19,8 @@ export default function PublicationHeader({publication}: Props) {
     const {assets, description, layoutOptions, date} = publication;
     const {t} = useTranslation();
 
+    const downloadArchiveEnabled =
+        publication.downloadEnabled && assets.length > 0;
     return (
         <Container
             sx={{
@@ -61,25 +63,36 @@ export default function PublicationHeader({publication}: Props) {
                         {moment(date).format('LLLL')}
                     </Typography>
                 </div>
+            </AppBar>
 
-                {publication.downloadEnabled &&
-                    config.zippyEnabled &&
-                    assets.length > 0 && (
+            {(description || downloadArchiveEnabled) && (
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        gap: 2,
+                        mt: 2,
+                    }}
+                >
+                    <div
+                        style={{
+                            flexGrow: 1,
+                        }}
+                    >
+                        {Boolean(description) && (
+                            <Description
+                                descriptionHtml={getTranslatedDescription(
+                                    publication
+                                )}
+                            />
+                        )}
+                    </div>
+
+                    {downloadArchiveEnabled && (
                         <div>
                             <DownloadArchiveButton publication={publication} />
                         </div>
                     )}
-            </AppBar>
-
-            {description && (
-                <Box
-                    sx={{
-                        mt: 2,
-                    }}
-                >
-                    <Description
-                        descriptionHtml={getTranslatedDescription(publication)}
-                    />
                 </Box>
             )}
         </Container>
