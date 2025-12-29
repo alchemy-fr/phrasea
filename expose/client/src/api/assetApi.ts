@@ -1,6 +1,6 @@
 import {apiClient} from '../init.ts';
-import {getPasswordHeaders} from './publicationApi.ts';
 import {Asset} from '../types.ts';
+import {getPasswordHeaders} from './publicationApi.ts';
 
 export async function loadAsset(id: string): Promise<Asset> {
     return (

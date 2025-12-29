@@ -5,17 +5,17 @@ const termsCookieName = 'terms';
 
 const cookies = new Cookies();
 
-export function getPasswords() {
+export function getPasswords(): string | undefined {
     return cookies.get(passwordCookieName);
 }
 
-export function isTermsAccepted(key) {
+export function isTermsAccepted(key: string): boolean {
     const terms = getTerms();
 
     return true === terms[key];
 }
 
-export function setAcceptedTerms(key) {
+export function setAcceptedTerms(key: string): void {
     const terms = getTerms();
     terms[key] = true;
     cookies.set(termsCookieName, terms, {path: '/'});
@@ -26,7 +26,10 @@ function getTerms() {
     return termsCookie || {};
 }
 
-export function storePassword(securityContainerId, password) {
+export function storePassword(
+    securityContainerId: string,
+    password: string
+): void {
     const passwords = decodePassword();
 
     passwords[securityContainerId] = password;
