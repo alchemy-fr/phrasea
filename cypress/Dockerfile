@@ -1,4 +1,9 @@
-FROM cypress/included:13.6.2
+FROM cypress/included:15.8.1
+
+RUN apt-get update \
+    && apt-get install -y \
+      libcanberra-gtk3-module \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /cypress
 

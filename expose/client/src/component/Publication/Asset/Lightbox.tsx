@@ -31,6 +31,7 @@ enum Classes {
     Thumbnail = 'lb-thumbnail',
     ThumbnailContainer = 'lb-thumbnail-container',
     SelectedThumbnail = 'lb-thumbnail-selected',
+    MediaContainer = 'lb-media-container',
 }
 
 export default function Lightbox({publicationId, thumbs, asset}: Props) {
@@ -147,7 +148,6 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                     'justifyContent': 'center',
                     'alignItems': 'center',
                     'height': '100vh',
-
                     '*::-webkit-scrollbar-thumb': {
                         backgroundColor: theme.palette.common.white,
                     },
@@ -241,6 +241,7 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                         })}
                     >
                         <Box
+                            className={Classes.MediaContainer}
                             sx={theme => ({
                                 display: 'flex',
                                 justifyContent: 'center',

@@ -52,12 +52,11 @@ export default function VideoPlayer({
 
     const onUpdate = (e: SyntheticEvent<HTMLVideoElement>) => {
         const player = e.currentTarget;
+        const buffered = player.buffered;
 
         setProgress({
             played: player.currentTime / player.duration,
-            loaded:
-                player.buffered?.end(player.buffered?.length - 1) /
-                player.duration,
+            loaded: buffered && buffered.length > 0 ? buffered.end(buffered.length - 1) / player.duration : 0,
         });
     }
 
