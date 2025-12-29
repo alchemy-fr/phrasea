@@ -1,18 +1,18 @@
-import {initSentry, WindowConfig} from '@alchemy/core';
+import {initSentry} from '@alchemy/core';
 import {configureClientAuthentication, KeycloakClient} from '@alchemy/auth';
 import {createHttpClient} from '@alchemy/api';
 import {createInstance} from '@jonkoops/matomo-tracker-react';
 
-type Props<T extends WindowConfig> = {
-    config?: T;
+type Props = {
+    config?: WindowConfig;
     appName: string;
 };
 
-export function initApp<T extends WindowConfig>({
+export function initApp({
     config: overriddenConfig,
     appName,
-}: Props<T>) {
-    const config = overriddenConfig ?? window?.config ?? {};
+}: Props) {
+    const config = overriddenConfig ?? window?.config ?? ({} as WindowConfig);
     config.appName = appName;
 
     initSentry(config);

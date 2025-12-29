@@ -1,14 +1,12 @@
 import {Accept} from 'react-dropzone';
-import {WindowConfig} from '@alchemy/core';
+import {WindowConfigBase} from '@alchemy/core';
 
 declare global {
-    interface Window {
-        config: {
-            uploaderApiBaseUrl: Readonly<string>;
-            uploaderTargetSlug: Readonly<string>;
-            requestSignatureTtl: Readonly<string>;
-            allowedTypes: Readonly<Accept | undefined>;
-        } & WindowConfig;
+    interface WindowConfig extends WindowConfigBase {
+        uploaderApiBaseUrl: Readonly<string>;
+        uploaderTargetSlug: Readonly<string>;
+        requestSignatureTtl: Readonly<string>;
+        allowedTypes: Readonly<Accept | undefined>;
     }
 }
 

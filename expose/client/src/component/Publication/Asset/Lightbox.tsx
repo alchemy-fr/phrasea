@@ -1,7 +1,7 @@
 import {Box, IconButton, Theme, useMediaQuery, useTheme} from '@mui/material';
-import {Asset, Thumb} from '../../../types.ts';
+import {Asset, Publication, Thumb} from '../../../types.ts';
 import {getPath, Link, useNavigate} from '@alchemy/navigation';
-import {useEffect, useMemo, useRef} from 'react';
+import React, {useEffect, useMemo, useRef} from 'react';
 import {routes} from '../../../routes.ts';
 import {
     FilePlayer,
@@ -17,25 +17,31 @@ import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
 import {SystemCssProperties} from '@mui/system';
 import AssetIconThumbnail, {thumbSx} from './AssetIconThumbnail.tsx';
 import classNames from 'classnames';
+import {useTracker} from '../../../hooks/useTracker.ts';
 
 type Props = {
     thumbs: Thumb[];
     asset: Asset;
-    publicationId: string;
+    publication: Publication;
 };
 enum Classes {
     Lightbox = 'lightbox',
     Controls = 'lb-controls',
     Close = 'lb-close',
     Arrow = 'lb-arrow',
-    Thumbnail = 'lb-thumbnail',
     ThumbnailContainer = 'lb-thumbnail-container',
     SelectedThumbnail = 'lb-thumbnail-selected',
     MediaContainer = 'lb-media-container',
 }
 
-export default function Lightbox({publicationId, thumbs, asset}: Props) {
+export default function Lightbox({publication, thumbs, asset}: Props) {
     const navigate = useNavigate();
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useTracker({
+        containerRef,
+        asset,
+    });
 
     const {close, goNext, goPrevious} = useMemo(() => {
         const handler = (inc: number) => () => {
@@ -45,7 +51,7 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
 
             navigate(
                 getPath(routes.publication.routes.asset, {
-                    id: publicationId,
+                    id: publication.slug || publication.id,
                     assetId: thumbs[newIndex].id,
                 })
             );
@@ -57,12 +63,12 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
             close: () => {
                 navigate(
                     getPath(routes.publication, {
-                        id: publicationId,
+                        id: publication.slug || publication.id,
                     })
                 );
             },
         };
-    }, [thumbs, navigate, publicationId, asset]);
+    }, [thumbs, navigate, publication, asset]);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -241,6 +247,7 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                         })}
                     >
                         <Box
+                            ref={containerRef}
                             className={Classes.MediaContainer}
                             sx={theme => ({
                                 display: 'flex',
@@ -271,6 +278,7 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                                     width: windowWidth,
                                     height: mediaHeight,
                                 }}
+                                webVTTLinks={asset.webVTTLinks}
                             />
                         </Box>
                         <Box
@@ -289,7 +297,10 @@ export default function Lightbox({publicationId, thumbs, asset}: Props) {
                                 overflow: 'auto',
                             }}
                         >
-                            <AssetLegend asset={asset} />
+                            <AssetLegend
+                                publication={publication}
+                                asset={asset}
+                            />
                         </Box>
                     </Box>
                 </Box>

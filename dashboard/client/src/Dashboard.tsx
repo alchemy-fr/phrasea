@@ -20,7 +20,7 @@ import dashboardImg from './images/dashboard.png';
 import DashboardBar from './DashboardBar';
 import {useAuth} from '@alchemy/react-auth';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import {parseInlineStyle} from '@alchemy/core';
+import {parseInlineStyle} from '@alchemy/core/src/declaration';
 
 type Props = {};
 

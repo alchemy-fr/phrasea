@@ -26,6 +26,7 @@ export type Publication = {
     slug: string;
     cssLink?: string;
     authorized: boolean;
+    archiveDownloadUrl?: string;
     securityContainerId: string;
     authorizationError?: AuthorizationError;
     securityMethod: SecurityMethod;

@@ -1,9 +1,11 @@
 import React, {useEffect} from 'react';
-import {Asset} from '../types';
-import AssetProxy from './layouts/shared-components/AssetProxy';
-import {loadAsset, logAssetView} from '../api/assetApi.ts';
-import PublicationProxy from './Publication/PublicationProxy.tsx';
+import {Asset} from '../../../types.ts';
+import {loadAsset, logAssetView} from '../../../api/assetApi.ts';
+import PublicationProxy from '../PublicationProxy.tsx';
 import {Box} from '@mui/material';
+import {FilePlayer} from '@alchemy/phrasea-framework';
+import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 
 type Props = {
     id: string;
@@ -13,6 +15,9 @@ export default function EmbeddedAsset({id}: Props) {
     const [data, setData] = React.useState<Asset | undefined>();
     const [errorCode, setErrorCode] = React.useState<number | undefined>();
     const [loading, setLoading] = React.useState(false);
+
+    const {innerWidth: windowWidth, innerHeight: windowHeight} =
+        useWindowSize();
 
     const load = React.useCallback(async () => {
         setLoading(true);
@@ -76,7 +81,24 @@ export default function EmbeddedAsset({id}: Props) {
                     },
                 }}
             >
-                <AssetProxy asset={data!} fluid={true} isCurrent={true} />
+                {data ? (
+                    <FilePlayer
+                        file={{
+                            id: data.id,
+                            name: data.title ?? 'Asset',
+                            type: data.mimeType,
+                            url: data.previewUrl,
+                        }}
+                        controls={true}
+                        title={data.title ?? 'Asset'}
+                        dimensions={{
+                            width: windowWidth,
+                            height: windowHeight,
+                        }}
+                    />
+                ) : (
+                    <FullPageLoader />
+                )}
             </Box>
         </PublicationProxy>
     );

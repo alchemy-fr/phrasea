@@ -1,4 +1,4 @@
-import Description from '../shared-components/Description';
+import Description from '../../Publication/Description.tsx';
 import {Trans} from 'react-i18next';
 import {getThumbPlaceholder} from '../shared-components/placeholders';
 import {Asset} from '../../../types.ts';

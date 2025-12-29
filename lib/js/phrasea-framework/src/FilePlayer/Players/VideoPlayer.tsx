@@ -1,4 +1,4 @@
-import {MouseEvent, SyntheticEvent, useRef, useState} from 'react';
+import {MouseEvent, SyntheticEvent, useMemo, useRef, useState} from 'react';
 import ReactPlayer from 'react-player';
 import {IconButton, LinearProgress} from '@mui/material';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
@@ -6,7 +6,6 @@ import PauseIcon from '@mui/icons-material/Pause';
 import {
     FileTypeEnum,
     getFileTypeFromMIMEType,
-    getRatioDimensions,
 } from '@alchemy/core';
 import classNames from 'classnames';
 import {FilePlayerClasses, FilePlayerProps} from '../types';
@@ -31,6 +30,7 @@ export default function VideoPlayer({
     noInteraction,
     controls,
     dimensions,
+    webVTTLinks,
 }: Props) {
     const playerRef = useRef<HTMLVideoElement | null>(null);
     const [progress, setProgress] = useState<Progress>();
@@ -56,9 +56,23 @@ export default function VideoPlayer({
 
         setProgress({
             played: player.currentTime / player.duration,
-            loaded: buffered && buffered.length > 0 ? buffered.end(buffered.length - 1) / player.duration : 0,
+            loaded:
+                buffered && buffered.length > 0
+                    ? buffered.end(buffered.length - 1) / player.duration
+                    : 0,
         });
-    }
+    };
+
+    const tracks = useMemo(() => {
+        return webVTTLinks?.map(webVTTLink => ({
+            kind: webVTTLink.kind ?? 'subtitles',
+            src: webVTTLink.url,
+            language: webVTTLink.locale,
+            srclang: webVTTLink.locale,
+            label: webVTTLink.label,
+            id: webVTTLink.id,
+        }));
+    }, [webVTTLinks]);
 
     return (
         <div
@@ -102,7 +116,19 @@ export default function VideoPlayer({
                 onProgressCapture={() => {}}
                 muted={autoPlayable}
                 controls={hasControls}
-            />
+                crossOrigin={'use-credentials'}
+            >
+                {tracks &&
+                    tracks.map(track => (
+                        <track
+                            key={track.id}
+                            kind={track.kind}
+                            src={track.src}
+                            srcLang={track.srclang}
+                            label={track.label}
+                        />
+                    ))}
+            </ReactPlayer>
             {!hasControls && progress && (
                 <LinearProgress
                     variant={progress ? 'buffer' : 'indeterminate'}

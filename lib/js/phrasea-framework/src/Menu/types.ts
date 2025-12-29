@@ -1,4 +1,3 @@
-import {WindowConfig} from '../../../core';
 import {KeycloakClient} from '@alchemy/auth';
 import React from 'react';
 import {LocaleDialogProps} from '../Locale/types';

@@ -1,4 +1,4 @@
-import {WindowConfig} from '@alchemy/core';
+import {WindowConfig} from '@alchemy/core/src/declaration';
 
 declare global {
     interface Window {

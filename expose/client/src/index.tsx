@@ -1,5 +1,4 @@
 import ReactDOM from 'react-dom/client';
-import './scss/index.scss';
 import './i18n';
 import React from 'react';
 import {AppProvider, initApp} from '@alchemy/phrasea-framework';

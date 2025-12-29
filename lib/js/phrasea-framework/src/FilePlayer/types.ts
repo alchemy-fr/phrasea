@@ -7,6 +7,14 @@ export type AssetFile = {
     url: string;
 };
 
+export type WebVTTLink = {
+    id: string;
+    kind?: 'subtitles' | 'captions' | 'descriptions' | 'chapters' | 'metadata';
+    label: string;
+    locale: string;
+    url: string;
+};
+
 export type FilePlayerProps = {
     file: AssetFile;
     onLoad?: (() => void) | undefined;
@@ -15,6 +23,7 @@ export type FilePlayerProps = {
     controls?: boolean | undefined;
     autoPlayable?: boolean | undefined;
     dimensions: StrictDimensions;
+    webVTTLinks?: WebVTTLink[];
 };
 
 export type ZoomStepState = {

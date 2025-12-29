@@ -1,6 +1,6 @@
 import React from 'react';
 // import { PropTypes } from 'prop-types'
-import Description from '../shared-components/Description';
+import Description from '../../Publication/Description';
 import Gallery from 'react-grid-gallery';
 import Carousel, {Modal, ModalGateway} from 'react-images';
 import squareImg from '../../../images/square.svg';

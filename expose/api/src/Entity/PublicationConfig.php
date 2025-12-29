@@ -131,6 +131,7 @@ class PublicationConfig implements MergeableValueObjectInterface
             'copyrightText',
             'css',
             'downloadTerms',
+            'downloadEnabled',
             'downloadViaEmail',
             'enabled',
             'expiresAt',

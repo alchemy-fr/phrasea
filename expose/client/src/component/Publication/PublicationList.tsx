@@ -7,8 +7,6 @@ import {DropdownActions, FullPageLoader} from '@alchemy/phrasea-ui';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import PublicationCard from './PublicationCard.tsx';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
-import {getPath, useNavigate} from '@alchemy/navigation';
-import {routes} from '../../routes.ts';
 import AppBar from '../UI/AppBar.tsx';
 
 type Props = {};
@@ -18,7 +16,6 @@ export default function PublicationList({}: Props) {
     const [data, setData] = React.useState<Publication[] | undefined>();
     const [sortBy, setSortBy] = React.useState<SortBy>(SortBy.Date);
     const {t} = useTranslation();
-    const navigate = useNavigate();
 
     const orders = useMemo(
         () => ({
@@ -123,16 +120,7 @@ export default function PublicationList({}: Props) {
                     {data
                         ? data.map((p: Publication) => (
                               <Grid xs={12} sm={6} md={4} key={p.id}>
-                                  <PublicationCard
-                                      onClick={id =>
-                                          navigate(
-                                              getPath(routes.publication, {
-                                                  id,
-                                              })
-                                          )
-                                      }
-                                      publication={p}
-                                  />
+                                  <PublicationCard publication={p} />
                               </Grid>
                           ))
                         : null}

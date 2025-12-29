@@ -1,7 +1,7 @@
 import React from 'react';
 import ImageGallery from 'react-image-gallery';
 // import { PropTypes } from 'prop-types'
-import Description from '../shared-components/Description';
+import Description from '../../Publication/Description';
 import {defaultMapProps, initMapbox} from '../mapbox/MapboxLayout';
 import mapboxgl from 'mapbox-gl';
 import DownloadButton from '../shared-components/DownloadButton';

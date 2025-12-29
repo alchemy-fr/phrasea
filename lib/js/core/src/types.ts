@@ -5,7 +5,7 @@ export type AnalyticsConfig = {
     };
 };
 
-export type WindowConfig = {
+export interface WindowConfigBase {
     globalCSS?: Readonly<string | undefined>;
     autoConnectIdP: Readonly<string | undefined>;
     sentryDsn?: Readonly<string | undefined>;
@@ -31,7 +31,15 @@ export type WindowConfig = {
     novuAppIdentifier?: Readonly<string>;
     novuSocketUrl?: Readonly<string>;
     novuApiUrl?: Readonly<string>;
-};
+}
+
+declare global {
+    interface WindowConfig extends WindowConfigBase {}
+
+    interface Window {
+        config: WindowConfig;
+    }
+}
 
 export type SentryConfig = Pick<
     WindowConfig,

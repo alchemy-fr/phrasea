@@ -1,14 +1,14 @@
-import {Asset, Thumb} from '../types.ts';
+import {Asset, Publication, Thumb} from '../types.ts';
 import {useMemo} from 'react';
 import {routes} from '../routes.ts';
 import {getPath} from '@alchemy/navigation';
 
 type Props = {
-    publicationId: string;
+    publication: Publication;
     assets: Asset[];
 };
 
-export function useThumbs({publicationId, assets}: Props): Thumb[] {
+export function useThumbs({publication, assets}: Props): Thumb[] {
     return useMemo(() => {
         return assets.map(a => ({
             id: a.id,
@@ -16,9 +16,9 @@ export function useThumbs({publicationId, assets}: Props): Thumb[] {
             mimeType: a.mimeType,
             alt: a.title || 'Image',
             path: getPath(routes.publication.routes.asset, {
-                id: publicationId,
+                id: publication.slug || publication.id,
                 assetId: a.id,
             }),
         }));
-    }, [publicationId, assets]);
+    }, [publication, assets]);
 }

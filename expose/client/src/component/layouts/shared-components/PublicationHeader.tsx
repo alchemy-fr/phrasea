@@ -1,15 +1,15 @@
-import Description from './Description';
-import ZippyDownloadButton from './ZippyDownloadButton';
+import Description from '../../Publication/Description.tsx';
 import moment from 'moment';
 import {Publication} from '../../../types.ts';
 import {getTranslatedDescription, getTranslatedTitle} from '../../../i18n.ts';
-import {Breadcrumbs, Container, Typography} from '@mui/material';
+import {Box, Breadcrumbs, Container, Typography} from '@mui/material';
 import {config} from '../../../init.ts';
 import AppBar from '../../UI/AppBar.tsx';
 import {getPath, Link} from '@alchemy/navigation';
 import {routes} from '../../../routes.ts';
 import {useTranslation} from 'react-i18next';
 import HomeIcon from '@mui/icons-material/Home';
+import DownloadArchiveButton from './DownloadArchiveButton.tsx';
 
 type Props = {
     publication: Publication;
@@ -65,19 +65,22 @@ export default function PublicationHeader({publication}: Props) {
                 {publication.downloadEnabled &&
                     config.zippyEnabled &&
                     assets.length > 0 && (
-                        <div className={'download-archive'}>
-                            <ZippyDownloadButton
-                                id={publication.id}
-                                data={publication}
-                            />
+                        <div>
+                            <DownloadArchiveButton publication={publication} />
                         </div>
                     )}
             </AppBar>
 
             {description && (
-                <Description
-                    descriptionHtml={getTranslatedDescription(publication)}
-                />
+                <Box
+                    sx={{
+                        mt: 2,
+                    }}
+                >
+                    <Description
+                        descriptionHtml={getTranslatedDescription(publication)}
+                    />
+                </Box>
             )}
         </Container>
     );
