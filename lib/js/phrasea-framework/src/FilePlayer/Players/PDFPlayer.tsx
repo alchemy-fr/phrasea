@@ -8,16 +8,21 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import PdfView from './PdfView.tsx';
 import {FilePlayerClasses, FilePlayerProps, ZoomStepState} from '../types';
 import {createStrictDimensions, getRatioDimensions} from '@alchemy/core';
-import classNames from 'classnames';
+import ZoomOutIcon from '@mui/icons-material/ZoomOut';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
 
 type Props = FilePlayerProps;
 
-export default function PDFPlayer({file, controls, onLoad, dimensions: forcedDimensions}: Props) {
+export default function PDFPlayer({
+    file,
+    controls,
+    onLoad,
+    dimensions: forcedDimensions,
+}: Props) {
     const [ratio, setRatio] = useState<number>();
     const [numPages, setNumPages] = useState<number>();
     const [pageNumber, setPageNumber] = useState<number>(1);
-    const dimensions = createStrictDimensions(
-        forcedDimensions ?? {width: 200});
+    const dimensions = createStrictDimensions(forcedDimensions ?? {width: 200});
     const [zoomStep, setZoomStep] = useState<ZoomStepState>({
         current: 1,
         maxReached: 1,
@@ -39,13 +44,25 @@ export default function PDFPlayer({file, controls, onLoad, dimensions: forcedDim
     const increaseZoomStep = useCallback(
         (inc: number): void => {
             setZoomStep(p => {
-                const current =
-                    p.current < 1 || p.current + inc > 1
-                        ? p.current + inc
-                        : p.current + inc / 10;
-                if (current === p.current) {
-                    return p;
+                const zoomSteps = [
+                    0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                ];
+
+                let step = 0;
+                for (let i = 0; i < zoomSteps.length; i++) {
+                    if (p.current >= zoomSteps[i]) {
+                        step = i;
+                    }
                 }
+
+                step += inc;
+                if (step < 0) {
+                    step = 0;
+                } else if (step >= zoomSteps.length) {
+                    step = zoomSteps.length - 1;
+                }
+
+                const current = zoomSteps[step];
 
                 return {
                     current,
@@ -62,8 +79,6 @@ export default function PDFPlayer({file, controls, onLoad, dimensions: forcedDim
             maxReached: p.current,
         }));
     }, [file.url, pageNumber]);
-
-    console.log('zoomStep', zoomStep);
 
     return (
         <>
@@ -95,6 +110,7 @@ export default function PDFPlayer({file, controls, onLoad, dimensions: forcedDim
                             alignItems: 'center',
                             gap: 1,
                             padding: 1,
+                            userSelect: 'none',
                         }}
                         className={FilePlayerClasses.PlayerControls}
                     >
@@ -103,18 +119,23 @@ export default function PDFPlayer({file, controls, onLoad, dimensions: forcedDim
                                 onClick={() => increaseZoomStep(-1)}
                                 disabled={zoomStep.current <= 0.1}
                             >
-                                <span style={{fontSize: '18px'}}>-</span>
+                                <ZoomOutIcon />
                             </IconButton>
                         </div>
-                        <div>
-                            <span>{Math.round(zoomStep.current * 100)}%</span>
+                        <div
+                            style={{
+                                minWidth: 40,
+                                textAlign: 'center',
+                            }}
+                        >
+                            {Math.round(zoomStep.current * 100)}%
                         </div>
                         <div>
                             <IconButton
                                 onClick={() => increaseZoomStep(1)}
                                 disabled={zoomStep.current >= 10}
                             >
-                                <span style={{fontSize: '18px'}}>+</span>
+                                <ZoomInIcon />
                             </IconButton>
                         </div>
                         <div>

@@ -79,7 +79,6 @@ describe('Visit publication', () => {
             .should('have.prop', 'paused', true)
             .and('have.prop', 'ended', false);
 
-        // Wait for video metadata to load
         cy.get('video').then($video => {
             return new Cypress.Promise(resolve => {
                 $video.on('loadedmetadata', () => {
@@ -102,6 +101,21 @@ describe('Visit publication', () => {
         assertDimensionsEquals(1073.96555, 1073.96555 * ratio, 'video');
 
         cy.get('body').trigger('keydown', {key: 'ArrowRight'});
+        cy.contains('A tall video');
+        cy.contains('This is a tall video');
+        cy.get('.lb-media-container video').should('be.visible');
+        cy.get('video')
+            .should('have.prop', 'paused', true)
+            .and('have.prop', 'ended', false);
+
+        cy.get('video').then($video => {
+            return new Cypress.Promise(resolve => {
+                $video.on('loadedmetadata', () => {
+                    resolve();
+                });
+            });
+        });
+
         ratio = 4096 / 2160;
         cy.viewport(320, 480); // Mobile
         cy.get('.lightbox').should('be.visible');
@@ -115,8 +129,39 @@ describe('Visit publication', () => {
         cy.get('.lightbox').should('be.visible');
         assertDimensionsEquals(362.81555, 362.81555 * ratio, 'video');
 
-        cy.contains('A tall video');
-        cy.contains('This is a tall video');
+        cy.get('body').trigger('keydown', {key: 'ArrowRight'});
+        cy.contains('A one page PDF document');
+        cy.contains('This is a one page PDF document');
+
+        ratio = 11 / 8.5;
+        cy.viewport(320, 480); // Mobile
+        cy.get('.lightbox').should('be.visible');
+        assertDimensionsEquals(222, 222 * ratio, '.react-pdf__Document');
+
+        cy.viewport(768, 1024); // Tablet
+        cy.get('.lightbox').should('be.visible');
+        assertDimensionsEquals(222, 222 * ratio, '.react-pdf__Document');
+
+        cy.viewport(1280, 800); // Desktop
+        cy.get('.lightbox').should('be.visible');
+        assertDimensionsEquals(531, 531 * ratio, '.react-pdf__Document');
+
+        cy.get('body').trigger('keydown', {key: 'ArrowRight'});
+        cy.contains('A two page PDF document');
+        cy.contains('This is a two page PDF document');
+
+        ratio = 8.50 / 11.93;
+        cy.viewport(320, 480); // Mobile
+        cy.get('.lightbox').should('be.visible');
+        assertDimensionsEquals(320, 320 * ratio, '.react-pdf__Document');
+
+        cy.viewport(768, 1024); // Tablet
+        cy.get('.lightbox').should('be.visible');
+        assertDimensionsEquals(768, 768 * ratio, '.react-pdf__Document');
+
+        cy.viewport(1280, 800); // Desktop
+        cy.get('.lightbox').should('be.visible');
+        assertDimensionsEquals(965, 965 * ratio, '.react-pdf__Document');
 
         // Close lightbox
         cy.get('.lb-close').click();

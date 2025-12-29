@@ -104,7 +104,18 @@ export default function PublicationList({}: Props) {
                         '.MuiGrid2-root': {
                             'display': 'flex',
                             '> div': {
+                                display: 'flex',
                                 width: '100%',
+                                flexGrow: 1,
+                            },
+                            '.MuiCardActionArea-root': {
+                                display: 'flex',
+                                flexDirection: 'column',
+                                height: '100%',
+                                justifyContent: 'space-between',
+                            },
+                            '.MuiCardContent-root': {
+                                flexGrow: 1,
                             },
                         },
                     }}

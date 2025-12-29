@@ -13,8 +13,8 @@ class MediaFaker extends AbstractCachedFaker
     ): string {
         $urls = [
             'mp4' => [
-                'https://www.learningcontainer.com/download/sample-mp4-video-file-download-for-testing/?wpdmdl=2727&refresh=6282e5734c9491652745587',
-                'https://download.samplelib.com/mp4/sample-5s.mp4',
+                'https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/video-classic.mp4',
+                'https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/video-tall.mp4',
             ],
             'avi' => [
                 'https://jsoncompare.org/LearningContainer/SampleFiles/Video/AVI/Sample-AVI-Video-File-for-Testing.avi',
@@ -25,9 +25,8 @@ class MediaFaker extends AbstractCachedFaker
                 'https://download.samplelib.com/mp3/sample-12s.mp3',
             ],
             'pdf' => [
-                'https://pdfobject.com/pdf/sample.pdf',
-                'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-                'https://assets.ctfassets.net/wm1n7oady8a5/6tJdKFW6ukyIE4Y8sSuYo4/86aa1e4178bef579ac8674eefa1f6bc5/A4-booklet-landscape.en.pdf',
+                'https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/one-page.pdf',
+                'https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/two-page.pdf',
             ],
         ][$type];
 

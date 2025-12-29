@@ -69,3 +69,15 @@ App\Entity\Asset:
     description: 'This is a tall video'
     mimeType: video/mp4
     path: '<mediaUrl("https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/video-tall.mp4")>'
+
+  test_pdf_one_page (extends test_asset):
+    title: 'A one page PDF document'
+    description: 'This is a one page PDF document'
+    mimeType: application/pdf
+    path: '<mediaUrl("https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/one-page.pdf")>'
+
+  test_pdf_two_page (extends test_asset):
+    title: 'A two page PDF document'
+    description: 'This is a two page PDF document'
+    mimeType: application/pdf
+    path: '<mediaUrl("https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/two-page.pdf")>'
