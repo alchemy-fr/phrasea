@@ -13,7 +13,6 @@ export async function uploadMultipartFile(
     onProgress: (event: AxiosProgressEvent) => void
 ): Promise<UploadedAsset> {
     const fileUID = getUniqueFileId(file.file, fileChunkSize);
-    console.log('fileUID', fileUID);
     const resumableUpload = uploadStateStorage.getUpload(userId, fileUID);
     const uploadParts = [];
 

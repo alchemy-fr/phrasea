@@ -1,18 +1,23 @@
 import React from 'react';
-import {Box, IconButton} from '@mui/material';
+import {Box, IconButton, Tooltip} from '@mui/material';
 import {AssetTypeIcon} from '@alchemy/phrasea-framework';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ErrorIcon from '@mui/icons-material/Error';
 
 type Props = {
     file: File;
+    error?: string;
     onRemove?: (file: File) => void;
     uploadProgress?: number;
 };
 
-export default function FileCard({file, onRemove, uploadProgress}: Props) {
+export default function FileCard({
+    file,
+    error,
+    onRemove,
+    uploadProgress,
+}: Props) {
     const [src, setSrc] = React.useState<string>();
-
-    console.log('uploadProgress', uploadProgress);
 
     React.useEffect(() => {
         if (file.type.indexOf('image/') === 0 && file.size < 15728640) {
@@ -45,6 +50,11 @@ export default function FileCard({file, onRemove, uploadProgress}: Props) {
                     height: '100%',
                     objectFit: 'cover',
                 },
+                ...(error
+                    ? {
+                          borderColor: theme.palette.error.main,
+                      }
+                    : {}),
             })}
             title={file.name}
         >
@@ -68,6 +78,24 @@ export default function FileCard({file, onRemove, uploadProgress}: Props) {
                 >
                     <DeleteIcon />
                 </IconButton>
+            ) : null}
+            {error ? (
+                <Tooltip title={error}>
+                    <Box
+                        sx={theme => ({
+                            'position': 'absolute',
+                            'top': theme.spacing(0.5),
+                            'right': theme.spacing(0.5),
+                            'zIndex': 1,
+                            'backgroundColor': theme.palette.background.paper,
+                            '&:hover': {
+                                backgroundColor: theme.palette.background.paper,
+                            },
+                        })}
+                    >
+                        <ErrorIcon color="error" />
+                    </Box>
+                </Tooltip>
             ) : null}
             {undefined !== uploadProgress ? (
                 <div

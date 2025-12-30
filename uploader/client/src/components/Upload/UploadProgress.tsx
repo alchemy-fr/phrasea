@@ -4,9 +4,10 @@ import {Box, Button, Container, LinearProgress} from '@mui/material';
 import FileList from './FileList.tsx';
 import FileCard from './FileCard.tsx';
 import {useTranslation} from 'react-i18next';
+import {UploadedFile} from '../../types.ts';
 
 type Props = {
-    files: File[];
+    files: UploadedFile[];
     onNext: () => void;
     onCancel?: () => void;
     uploadBatch: UploadBatch;
@@ -48,10 +49,12 @@ export default function UploadProgress({
             >
                 <FileList>
                     {files.map((file, index) => {
+                        const fileWrapper = uploadBatch.getFile(file);
                         return (
                             <FileCard
                                 key={index}
                                 file={file}
+                                error={fileWrapper?.error}
                                 uploadProgress={uploadBatch.getFileProgress(
                                     file
                                 )}

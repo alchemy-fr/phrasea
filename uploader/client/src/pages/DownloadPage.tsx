@@ -15,13 +15,11 @@ export default function DownloadPage({}: Props) {
     const navigate = useNavigate();
     const {id} = useParams();
 
-    console.log('done', done);
-
     const baseSchema: LiFormSchema = {
         required: ['url'],
         properties: {
             url: {
-                title: 'Asset URL',
+                title: t('download.file_url', 'File URL'),
                 type: 'string',
                 widget: 'url',
             },
@@ -65,9 +63,20 @@ export default function DownloadPage({}: Props) {
             </Box>
 
             {done ? (
-                <Alert severity={'success'}>
+                <Alert
+                    severity={'success'}
+                    action={
+                        <Button
+                            color={'success'}
+                            variant={'contained'}
+                            onClick={() => setDone(false)}
+                        >
+                            {t('download.done.restart', `Download Another`)}
+                        </Button>
+                    }
+                >
                     {t(
-                        'download.your_file_will_be_downloaded',
+                        'download.done.your_file_will_be_downloaded',
                         `Your file will be downloaded!`
                     )}
                 </Alert>

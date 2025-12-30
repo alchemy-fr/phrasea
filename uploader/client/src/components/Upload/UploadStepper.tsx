@@ -26,7 +26,6 @@ type Props = {
 export default function UploadStepper({target}: Props) {
     const {t} = useTranslation();
     const [step, setStep] = React.useState(Step.Files);
-    console.log('step', step);
     const [files, setFiles] = React.useState<UploadedFile[]>([]);
     const uploadBatch = React.useMemo(
         () => new UploadBatch(target.id),
