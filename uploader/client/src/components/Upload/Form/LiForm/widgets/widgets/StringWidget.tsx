@@ -1,6 +1,9 @@
 import React from 'react';
+import {WidgetProps} from '../types';
 import BaseInputWidget from './BaseInputWidget';
 
-export default function StringWidget(props) {
+const StringWidget: React.FC<WidgetProps> = props => {
     return <BaseInputWidget type="text" {...props} />;
-}
+};
+
+export default StringWidget;

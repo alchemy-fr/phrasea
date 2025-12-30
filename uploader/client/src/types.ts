@@ -31,10 +31,12 @@ export type LiFormSchema = {} & LiFormField;
 export type LiFormField = {
     required?: string[];
     propertyOrder?: number;
+    uniqueItems?: boolean;
     widget?: string;
     format?: string;
     defaultValue?: any;
     type?: string;
+    oneOf?: LiFormField[];
     allOf?: LiFormField[];
     title?: string;
     description?: string;

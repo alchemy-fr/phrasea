@@ -24,6 +24,7 @@
         "@alchemy/react-auth": "workspace:*",
         "@alchemy/react-ps": "workspace:*",
         "@mui/icons-material": "^5.18.0",
+        "react-hook-form": "^7.63.0",
         "@mui/material": "^5.18.0",
         "classnames": "^2.5.1",
         "axios": "^1.12.2",

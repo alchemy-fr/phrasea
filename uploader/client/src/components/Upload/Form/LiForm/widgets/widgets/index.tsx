@@ -19,7 +19,6 @@ import TimeWidget from './TimeWidget';
 import DateTimeWidget from './DateTimeWidget';
 import CompatibleDateWidget from './CompatibleDateWidget';
 import CompatibleDateTimeWidget from './CompatibleDateTimeWidget';
-import FileWidget from './FileWidget';
 import OneOfChoiceWidget from './oneOfChoiceWidget';
 
 export default {
@@ -45,6 +44,5 @@ export default {
     'time': TimeWidget,
     'compatible-date': CompatibleDateWidget,
     'compatible-datetime': CompatibleDateTimeWidget,
-    'file': FileWidget,
     'oneOf': OneOfChoiceWidget,
 };
