@@ -9,16 +9,16 @@ import {
     ESDocumentState,
     Share,
 } from '../types';
-import {
-    ApiCollectionResponse,
-    getAssetsHydraCollection,
-    getHydraCollection,
-} from './hydra';
 import {AxiosRequestConfig} from 'axios';
 import {TFacets} from '../components/Media/Asset/Facets';
 import {AttributeBatchAction, AttributeBatchActionEnum} from './types.ts';
 import {SortWay} from './common.ts';
-import type {MultipartUpload} from '@alchemy/api';
+import {
+    getHydraCollection,
+    HydraCollectionResponse,
+    MultipartUpload,
+    NormalizedCollectionResponse,
+} from '@alchemy/api';
 import {
     multipartUpload,
     MultipartUploadOptions,
@@ -63,11 +63,25 @@ export async function getStoryThumbnails(assetId: string): Promise<string[]> {
     return res.data.thumbnails;
 }
 
+export function getAssetsHydraCollection(
+    response: HydraCollectionResponse<
+        Asset,
+        {
+            facets: TFacets;
+        }
+    >
+) {
+    return {
+        ...getHydraCollection(response),
+        facets: response.facets,
+    };
+}
+
 export async function getAssets(
     options: GetAssetOptions,
     requestConfig?: AxiosRequestConfig
 ): Promise<
-    ApiCollectionResponse<
+    NormalizedCollectionResponse<
         Asset,
         {
             facets: TFacets;
@@ -103,7 +117,7 @@ export async function getSearchSuggestions(
     query: string,
     requestConfig?: AxiosRequestConfig
 ): Promise<
-    ApiCollectionResponse<
+    NormalizedCollectionResponse<
         SearchSuggestion,
         {
             debug: ESDebug;
@@ -214,7 +228,7 @@ const assetFileVersionEntity = 'asset-file-versions';
 
 export async function getAssetFileVersions(
     assetId: string | string[]
-): Promise<ApiCollectionResponse<AssetFileVersion>> {
+): Promise<NormalizedCollectionResponse<AssetFileVersion>> {
     const res = await apiClient.get(`/${assetFileVersionEntity}`, {
         params: {
             assetId,

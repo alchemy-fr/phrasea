@@ -1,6 +1,6 @@
 import apiClient from './api-client';
 import {TagFilterRule} from '../types';
-import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 
 type TagFilterRuleOptions = {
     collectionId?: string;
@@ -9,7 +9,7 @@ type TagFilterRuleOptions = {
 
 export async function getTagFilterRules(
     options: TagFilterRuleOptions
-): Promise<ApiCollectionResponse<TagFilterRule>> {
+): Promise<NormalizedCollectionResponse<TagFilterRule>> {
     const res = await apiClient.get('/tag-filter-rules', {
         params: {
             ...options,

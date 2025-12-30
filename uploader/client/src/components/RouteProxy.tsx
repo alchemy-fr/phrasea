@@ -1,11 +1,10 @@
 import type {RouteProxyProps} from '@alchemy/navigation';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
-import config from '../config.ts';
-import {keycloakClient} from '../lib/apiClient.ts';
+import {config, keycloakClient} from '../init.ts';
 
 export default function RouteProxy({
     component: Component,
-    public: isPublic,
+    public: isPublic = false,
 }: RouteProxyProps) {
     const {isAuthenticated} = useAuth();
     const {getLoginUrl} = useKeycloakUrls({
@@ -16,7 +15,7 @@ export default function RouteProxy({
     if (!isPublic && !isAuthenticated) {
         document.location.href = getLoginUrl();
 
-        return <></>;
+        return null;
     }
 
     return <Component />;

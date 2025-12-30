@@ -5,7 +5,7 @@ import {
     AssetTypeFilter,
 } from '../types';
 import apiClient from './api-client';
-import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 
 export const attributePolicyNS = '/attribute-policies';
 export const attributeDefinitionNS = '/attribute-definitions';
@@ -42,7 +42,7 @@ export async function postAttributePolicy(
 
 export async function getAttributePolicies(
     workspaceId: string
-): Promise<ApiCollectionResponse<AttributePolicy>> {
+): Promise<NormalizedCollectionResponse<AttributePolicy>> {
     const res = await apiClient.get(attributePolicyNS, {
         params: {
             workspaceId,

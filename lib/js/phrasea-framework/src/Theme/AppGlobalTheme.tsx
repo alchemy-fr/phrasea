@@ -28,6 +28,10 @@ export function AppGlobalTheme({
             <GlobalStyles
                 styles={theme => {
                     return {
+                        'a': {
+                            color: theme.palette.primary.main,
+                            textDecorationColor: theme.palette.primary.main,
+                        },
                         'input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active':
                             {
                                 WebkitBoxShadow: `0 0 0 30px ${theme.palette.grey[100]} inset !important`,

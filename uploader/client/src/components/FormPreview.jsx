@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 // import PropTypes from "prop-types";
-import AssetLiForm from './AssetLiForm';
+import AssetLiForm from './Upload/AssetLiForm';
 
 export default class FormPreview extends Component {
     // static propTypes = {

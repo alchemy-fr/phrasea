@@ -1,6 +1,6 @@
 import apiClient from './api-client';
 import {Basket, BasketAsset, Entity} from '../types';
-import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {clearAssociationIds} from './clearAssociation';
 
 export type GetBasketOptions = {
@@ -11,7 +11,7 @@ export type GetBasketOptions = {
 export async function getBaskets(
     nextUrl?: string | undefined,
     params: GetBasketOptions = {}
-): Promise<ApiCollectionResponse<Basket>> {
+): Promise<NormalizedCollectionResponse<Basket>> {
     const res = await apiClient.get(nextUrl ?? '/baskets', {
         params,
     });
@@ -23,7 +23,7 @@ export async function getBasketAssets(
     id: string,
     next?: string,
     params: GetBasketOptions = {}
-): Promise<ApiCollectionResponse<BasketAsset>> {
+): Promise<NormalizedCollectionResponse<BasketAsset>> {
     const res = await apiClient.get(next || `/baskets/${id}/assets`, {
         params,
     });

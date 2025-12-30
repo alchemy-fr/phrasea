@@ -11,6 +11,7 @@ export default function Logo({}: Props) {
     const {t} = useTranslation();
     const searchContext = useContext(SearchContext)!;
     const onTitleClick = () => searchContext.reset();
+    const appName = t('common.databox', `Databox`);
 
     return (
         <>
@@ -29,7 +30,7 @@ export default function Logo({}: Props) {
                     <img
                         onClick={onTitleClick}
                         src={config.logo.src}
-                        alt={t('common.databox', `Databox`)}
+                        alt={appName}
                         style={{
                             cursor: 'pointer',
                             ...(config.logo!.style
@@ -52,9 +53,9 @@ export default function Logo({}: Props) {
                                 marginRight: 8,
                             }}
                             src="https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/Images/phrasea-logo.png"
-                            alt="Databox"
+                            alt={appName}
                         />
-                        {t('common.databox', `Databox`)}
+                        {appName}
                     </div>
                 )}
             </Typography>

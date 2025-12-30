@@ -1,6 +1,6 @@
 import apiClient from './api-client';
 import {Collection, CollectionOptionalWorkspace, Workspace} from '../types';
-import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {clearAssociationIds} from './clearAssociation';
 import {useCollectionStore} from '../store/collectionStore';
 import {
@@ -23,7 +23,7 @@ export type CollectionOptions = {
 
 export async function getCollections(
     options: CollectionOptions
-): Promise<ApiCollectionResponse<Collection>> {
+): Promise<NormalizedCollectionResponse<Collection>> {
     const res = await apiClient.get(options.nextUrl ?? '/collections', {
         params: {
             ...options,

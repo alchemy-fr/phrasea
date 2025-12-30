@@ -1,7 +1,7 @@
 import apiClient from './api-client';
-import {ApiCollectionResponse, getHydraCollection} from './hydra.ts';
 import {SelectOption} from '@alchemy/react-form';
 import i18n from '../i18n.ts';
+import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 
 export type Locale = {
     id: string;
@@ -36,7 +36,7 @@ export async function getLocales(): Promise<Locale[]> {
     }) as Promise<Locale[]>);
 }
 
-async function doGetLocales(): Promise<ApiCollectionResponse<Locale>> {
+async function doGetLocales(): Promise<NormalizedCollectionResponse<Locale>> {
     const res = await apiClient.get('/locales');
 
     return getHydraCollection(res.data);
