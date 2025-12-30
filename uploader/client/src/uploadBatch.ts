@@ -9,6 +9,7 @@ import {
     UploadFormData,
 } from './types.ts';
 import {uploadMultipartFile} from './multiPartUpload.ts';
+import {getAxiosError} from '@alchemy/api';
 
 type OnProgressListener = (e: {
     totalLoaded: number;
@@ -79,6 +80,10 @@ export default class UploadBatch {
         }
 
         return 0;
+    }
+
+    public getFile(file: File): AbortableFile | undefined {
+        return this.files.find(f => f.file === file);
     }
 
     resetListeners() {
@@ -188,6 +193,12 @@ export default class UploadBatch {
             );
             this.onFileComplete(res, index);
         } catch (err: any) {
+            const error = getAxiosError(err);
+            if (error && error.code === 400) {
+                this.onFileError(error.message, index);
+                return;
+            }
+
             if (navigator && !navigator.onLine) {
                 return new Promise((resolve, reject) => {
                     const retryCallback = async () => {
@@ -204,7 +215,7 @@ export default class UploadBatch {
                     );
                     this.failedUploads.push(retryCallback);
                 });
-            } else if (retry < 10) {
+            } else if (retry < 5) {
                 if (!axios.isCancel(err)) {
                     return await this.uploadFile(index, retry + 1);
                 } else {

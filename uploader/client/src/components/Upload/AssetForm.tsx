@@ -54,7 +54,7 @@ export default function AssetForm({
                     }
 
                     setSchema(fetchedSchema);
-                } else {
+                } else if (!baseSchema) {
                     onComplete({}, undefined);
                 }
             } catch (e: any) {

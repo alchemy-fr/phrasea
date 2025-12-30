@@ -51,6 +51,7 @@ export type FormSchema = {
 };
 
 export type UploadFormData = Record<string, any>;
+
 export type AbortableFile = {
     file: File;
     abortController: AbortController | null;
