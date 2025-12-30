@@ -35,7 +35,7 @@ export const renderField = ({
     usedFormSubmit,
     fieldSchema,
     fieldName,
-    prefix = '',
+    prefix,
     context = {},
     required = false,
 }: Props) => {
@@ -54,7 +54,7 @@ export const renderField = ({
     return React.createElement(widgets[widget as WidgetType], {
         usedFormSubmit,
         key: fieldName,
-        fieldName: widget === 'oneOf' ? fieldName : newFieldName,
+        fieldName: widget === 'oneOf' ? fieldName! : newFieldName!,
         label:
             fieldSchema.showLabel === false
                 ? ''
@@ -62,6 +62,5 @@ export const renderField = ({
         required: required,
         schema: fieldSchema,
         context,
-        prefix,
     });
 };
