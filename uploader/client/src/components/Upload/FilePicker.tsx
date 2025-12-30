@@ -1,15 +1,24 @@
-import React from 'react';
+import React, {useCallback, useMemo} from 'react';
 import Dropzone from 'react-dropzone';
 import filesize from 'filesize';
-import {Alert} from '@mui/material';
+import {
+    Box,
+    Button,
+    Container,
+    Divider,
+    Paper,
+    Typography,
+} from '@mui/material';
 import {routes} from '../../routes.ts';
-import config from '../../config.ts';
 import {toast} from 'react-toastify';
 import {StateSetter, Target, UploadedFile} from '../../types.ts';
 import {getPath, Link} from '@alchemy/navigation';
-import AssetUpload from '../AssetUpload';
-import {Button} from '@mui/material';
-import {useTranslation} from 'react-i18next';
+import {Trans, useTranslation} from 'react-i18next';
+import {config} from '../../init.ts';
+import classnames from 'classnames';
+import {RemoteErrors} from '@alchemy/react-form';
+import FileCard from './FileCard.tsx';
+import FileList from './FileList.tsx';
 
 type Props = {
     target: Target;
@@ -18,6 +27,12 @@ type Props = {
     onSubmit: () => void;
 };
 
+enum Classes {
+    Dropzone = 'dropzone',
+    DropzoneEmpty = 'dropzone-empty',
+    DragOver = 'drag-over',
+}
+
 export default function FilePicker({target, files, setFiles, onSubmit}: Props) {
     const {t} = useTranslation();
     const allowedTypes = config.allowedTypes;
@@ -25,15 +40,20 @@ export default function FilePicker({target, files, setFiles, onSubmit}: Props) {
 
     const totalSize = files.reduce((acc, file) => acc + file.size, 0);
 
-    const errors = React.useMemo(() => {
+    const errors = useMemo(() => {
         const errors: string[] = [];
 
         if (maxCommitSize) {
             if (totalSize > maxCommitSize) {
                 errors.push(
-                    `Total max file size exceeded (${filesize(
-                        totalSize
-                    )} > ${filesize(maxCommitSize)})`
+                    t(
+                        'file_picker.total_max_file_size_exceeded',
+                        `Total max file size exceeded ({{actualSize}} > {{maxSize}})`,
+                        {
+                            actualSize: filesize(totalSize),
+                            maxSize: filesize(maxCommitSize),
+                        }
+                    )
                 );
             }
         }
@@ -42,19 +62,29 @@ export default function FilePicker({target, files, setFiles, onSubmit}: Props) {
             const fileCount = files.length;
             if (fileCount > maxFileCount) {
                 errors.push(
-                    `Total max file count exceeded (${fileCount} > ${maxFileCount})`
+                    t(
+                        'file_picker.total_max_file_count_exceeded',
+                        `Total max file count exceeded ({{fileCount}} > {{maxFileCount}})`,
+                        {
+                            fileCount,
+                            maxFileCount,
+                        }
+                    )
                 );
             }
         }
 
         return errors;
-    }, [files]);
+    }, [files, t]);
 
     const canSubmit = files.length > 0 && errors.length === 0;
 
-    const removeFile = React.useCallback((index: number) => {
-        setFiles(p => p.filter((_file, i) => i !== index));
-    }, []);
+    const removeFile = useCallback(
+        (index: number) => {
+            setFiles(p => p.filter((_file, i) => i !== index));
+        },
+        [setFiles]
+    );
 
     const onDrop = React.useCallback(
         (acceptedFiles: File[]) => {
@@ -63,9 +93,15 @@ export default function FilePicker({target, files, setFiles, onSubmit}: Props) {
                     .map((f): UploadedFile | undefined => {
                         if (maxFileSize && f.size > maxFileSize) {
                             toast.error(
-                                `Size of ${f.name} is higher than ${filesize(
-                                    maxFileSize
-                                )} (${filesize(f.size)})`
+                                t(
+                                    '',
+                                    `Size of {{filename}} is higher than the maximum allowed size of ({{actualSize}} > {{maxSize}})`,
+                                    {
+                                        filename: f.name,
+                                        actualSize: filesize(f.size),
+                                        maxSize: filesize(maxFileSize),
+                                    }
+                                )
                             );
 
                             return;
@@ -90,28 +126,50 @@ export default function FilePicker({target, files, setFiles, onSubmit}: Props) {
 
     return (
         <>
-            <div className="upload-container">
+            <Container
+                sx={theme => ({
+                    [`.${Classes.Dropzone}`]: {
+                        textAlign: 'center',
+                        p: 2,
+                        border: `2px dashed ${theme.palette.divider}`,
+                        borderRadius: theme.shape.borderRadius,
+                        minHeight: 186,
+                        cursor: 'pointer',
+                    },
+                    [`.${Classes.DragOver}`]: {
+                        backgroundColor: theme.palette.action.hover,
+                    },
+                    [`.${Classes.DropzoneEmpty}`]: {
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    },
+                })}
+            >
                 <Dropzone
                     onDrop={onDrop}
                     multiple={maxFileCount !== 1}
                     accept={allowedTypes || undefined}
                 >
                     {({getRootProps, getInputProps, isDragActive}) => {
-                        const classes = ['Upload'];
-                        if (isDragActive) {
-                            classes.push('drag-over');
-                        }
                         return (
-                            <div
+                            <Paper
                                 {...getRootProps()}
-                                className={classes.join(' ')}
+                                className={classnames(
+                                    {
+                                        [Classes.DragOver]: isDragActive,
+                                        [Classes.DropzoneEmpty]:
+                                            files.length === 0,
+                                    },
+                                    Classes.Dropzone
+                                )}
                             >
                                 <input {...getInputProps()} />
                                 {files.length > 0 ? (
-                                    <div className="file-collection">
+                                    <FileList>
                                         {files.map((file, index) => {
                                             return (
-                                                <AssetUpload
+                                                <FileCard
                                                     key={file.id}
                                                     onRemove={() =>
                                                         removeFile(index)
@@ -120,61 +178,112 @@ export default function FilePicker({target, files, setFiles, onSubmit}: Props) {
                                                 />
                                             );
                                         })}
-                                    </div>
+                                    </FileList>
                                 ) : (
-                                    <p>
+                                    <Typography
+                                        variant={'body1'}
+                                        sx={{
+                                            fontSize: 18,
+                                        }}
+                                    >
                                         {t(
                                             'file_picker.drag_n_drop_some_files_here_or_click_to_select_files',
                                             `Drag 'n' drop some files here, or click to select files`
                                         )}
-                                    </p>
+                                    </Typography>
                                 )}
-                            </div>
+                            </Paper>
                         );
                     }}
                 </Dropzone>
 
-                <ul className="specs">
-                    <li>
-                        {`Files: ${files.length}`}
-                        {maxFileCount ? ` / ${maxFileCount}` : ''}
-                    </li>
-                    <li>
-                        {`Total size: ${filesize(totalSize)}`}
-                        {maxCommitSize ? ` / ${filesize(maxCommitSize)}` : ''}
-                    </li>
-                    {maxFileSize ? (
-                        <li>{`Max file size: ${filesize(maxFileSize)}`}</li>
-                    ) : (
-                        ''
-                    )}
-                </ul>
-
-                {errors.map(err => (
-                    <Alert>{err}</Alert>
-                ))}
-                <Button
-                    size="large"
-                    onClick={onSubmit}
-                    disabled={!canSubmit}
-                    variant={'contained'}
+                <Box
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                    }}
                 >
-                    {t('file_picker.next', `Next`)}
-                </Button>
-
-                <hr />
-                <p>
-                    or just{' '}
-                    <Link
-                        to={getPath(routes.download, {
-                            id: target.id,
-                        })}
+                    <div style={{flexGrow: 1}}></div>
+                    <Typography
+                        variant={'caption'}
+                        sx={{
+                            mt: 2,
+                            textAlign: 'right',
+                        }}
                     >
-                        download
-                    </Link>{' '}
-                    URLs.
-                </p>
-            </div>
+                        <div>
+                            {t('file_picker.file_count', {
+                                defaultValue: `You have selected {{count}} file`,
+                                defaultValue_other: `You have selected {{count}} files`,
+                                count: files.length,
+                            })}
+                        </div>
+                        <div>
+                            {maxCommitSize
+                                ? t('file_picker.total_size', {
+                                      defaultValue: `Total size: {{size}} / {{maxCommitSize}}`,
+                                      size: filesize(totalSize),
+                                      maxCommitSize: filesize(maxCommitSize),
+                                  })
+                                : t('file_picker.total_size_no_limit', {
+                                      defaultValue: `Total size: {{size}}`,
+                                      size: filesize(totalSize),
+                                  })}
+                        </div>
+
+                        {maxFileSize ? (
+                            <div>
+                                {t('file_picker.max_file_size', {
+                                    defaultValue: `Max file size: {{size}}`,
+                                    size: filesize(maxFileSize),
+                                })}
+                            </div>
+                        ) : null}
+                    </Typography>
+                </Box>
+
+                <RemoteErrors errors={errors} />
+                <Box
+                    sx={{
+                        textAlign: 'center',
+                        mt: 2,
+                    }}
+                >
+                    <Button
+                        sx={{
+                            px: 5,
+                        }}
+                        size="large"
+                        onClick={onSubmit}
+                        disabled={!canSubmit}
+                        variant={'contained'}
+                        color={'primary'}
+                    >
+                        {t('file_picker.next', `Next`)}
+                    </Button>
+                </Box>
+
+                <Divider
+                    sx={{
+                        my: 3,
+                    }}
+                />
+                <Typography variant={'body2'}>
+                    <Trans
+                        i18nKey={'file_picker.alternative_upload_methods'}
+                        defaults={'or just <l>download</l> URLs.'}
+                        components={{
+                            l: (
+                                <Link
+                                    to={getPath(routes.download, {
+                                        id: target.id,
+                                    })}
+                                />
+                            ),
+                        }}
+                    />
+                </Typography>
+            </Container>
         </>
     );
 }

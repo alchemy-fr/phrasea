@@ -25,8 +25,8 @@ export interface WindowConfigBase {
     pusherHost?: Readonly<string>;
     pusherKey?: Readonly<string>;
     logo?: {
-        src?: string;
-        style?: string;
+        src?: Readonly<string>;
+        style?: Readonly<string>;
     };
     novuAppIdentifier?: Readonly<string>;
     novuSocketUrl?: Readonly<string>;

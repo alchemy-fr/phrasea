@@ -64,3 +64,28 @@ export type UploadPart = {
     ETag: string;
     PartNumber: number;
 };
+
+export interface ApiHydraObjectResponse {
+    '@id': string;
+    '@type': string;
+}
+
+export type NormalizedCollectionResponse<T, E extends {} = {}> = {
+    total: number;
+    first?: string | null;
+    previous?: string | null;
+    next?: string | null;
+    last?: string | null;
+    result: T[];
+} & E;
+
+export type HydraCollectionResponse<T, E extends {} = {}> = {
+    'hydra:totalItems': number;
+    'hydra:view'?: {
+        'hydra:first': string;
+        'hydra:previous': string;
+        'hydra:next': string;
+        'hydra:last': string;
+    };
+    'hydra:member': T[];
+} & E;

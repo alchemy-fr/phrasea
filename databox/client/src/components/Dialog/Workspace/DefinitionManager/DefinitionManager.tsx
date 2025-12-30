@@ -20,7 +20,6 @@ import {
     Skeleton,
     TextField,
 } from '@mui/material';
-import {ApiHydraObjectResponse} from '../../../../api/hydra.ts';
 import DialogActions from '@mui/material/DialogActions';
 import {useTranslation} from 'react-i18next';
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -32,7 +31,7 @@ import SortableList, {
 } from '../../../Ui/Sortable/SortableList.tsx';
 import {Entity, StateSetter, Workspace} from '../../../../types.ts';
 import ItemForm from './ItemForm.tsx';
-import {UseFormSubmitReturn} from '@alchemy/api';
+import {ApiHydraObjectResponse, UseFormSubmitReturn} from '@alchemy/api';
 import {useModals} from '@alchemy/navigation';
 import {ConfirmDialog, ConfirmDialogProps} from '@alchemy/phrasea-framework';
 import FilterDropdown from './FilterDropdown.tsx';

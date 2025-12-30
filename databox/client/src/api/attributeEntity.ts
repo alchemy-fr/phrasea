@@ -1,6 +1,6 @@
 import apiClient from './api-client';
 import {AttributeEntity} from '../types';
-import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {SortWay} from './common.ts';
 
 const attributeEntityNS = '/attribute-entities';
@@ -12,7 +12,7 @@ type AttributeEntityOptions = {
 
 export async function getAttributeEntities(
     options: AttributeEntityOptions
-): Promise<ApiCollectionResponse<AttributeEntity>> {
+): Promise<NormalizedCollectionResponse<AttributeEntity>> {
     const res = await apiClient.get(attributeEntityNS, {
         params: {
             ...options,

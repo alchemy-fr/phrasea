@@ -26,45 +26,6 @@
   flex-direction: column;
 }
 
-.Upload {
-  background: #dcdcdc;
-
-  padding: 30px;
-  border: 1px solid #AAA;
-  border-radius: 30px;
-
-  margin-bottom: 15px;
-
-  &.drag-over {
-    background: #939393;
-  }
-}
-
-.file-collection {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  align-content: center;
-  flex-wrap: wrap;
-}
-
-.file-icon {
-  $width: 150px;
-  $height: 150px;
-  width: $width;
-  height: $height;
-  margin: 10px;
-  border-radius: 10px;
-  position: relative;
-  overflow: hidden;
-
-  img {
-    object-fit: cover;
-    width: $width;
-    height: $height;
-  }
-}
-
 .upload-ok {
   box-sizing: border-box;
   border: 1px solid green;

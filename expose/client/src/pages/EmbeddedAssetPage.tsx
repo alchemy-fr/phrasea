@@ -1,5 +1,5 @@
 import {useParams} from '@alchemy/navigation';
-import EmbeddedAsset from '../component/Publication/Asset/EmbeddedAsset.tsx';
+import EmbeddedAsset from '../components/Publication/Asset/EmbeddedAsset.tsx';
 
 type Props = {};
 

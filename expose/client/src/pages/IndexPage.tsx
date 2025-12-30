@@ -1,4 +1,4 @@
-import PublicationList from '../component/Publication/PublicationList.tsx';
+import PublicationList from '../components/Publication/PublicationList.tsx';
 
 type Props = {};
 

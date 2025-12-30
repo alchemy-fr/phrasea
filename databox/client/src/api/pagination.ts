@@ -1,5 +1,5 @@
 import {StateSetter} from '../types';
-import {ApiCollectionResponse} from './hydra';
+import {NormalizedCollectionResponse} from '@alchemy/api';
 import {LoadMoreFunc} from '../components/AssetList/types';
 
 export type Pagination<T> = {
@@ -20,8 +20,10 @@ export function createDefaultPagination<T>(firstPage?: T[]): Pagination<T> {
 
 type Loader<T> = (
     next?: string | undefined
-) => Promise<ApiCollectionResponse<T>>;
-type PaginatedLoader<T> = (next?: string) => Promise<ApiCollectionResponse<T>>;
+) => Promise<NormalizedCollectionResponse<T>>;
+type PaginatedLoader<T> = (
+    next?: string
+) => Promise<NormalizedCollectionResponse<T>>;
 
 export function createLoadMore<T>(
     paginatedLoader: PaginatedLoader<T>,
@@ -38,7 +40,7 @@ export function createPaginatedLoader<T>(
     loader: Loader<T>,
     setter: StateSetter<Pagination<T>>
 ): PaginatedLoader<T> {
-    return async (next?: string): Promise<ApiCollectionResponse<T>> => {
+    return async (next?: string): Promise<NormalizedCollectionResponse<T>> => {
         if (next) {
             setter(p => ({
                 ...p,

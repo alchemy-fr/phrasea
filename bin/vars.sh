@@ -40,7 +40,6 @@ lib/js/api
 lib/js/auth
 lib/js/core
 lib/js/i18n
-lib/js/liform-react
 lib/js/navigation
 lib/js/notification
 lib/js/phrasea-ui

@@ -5,7 +5,6 @@ import {
     getMessage,
     getThreadMessages,
 } from '../../api/discussion.ts';
-import {ApiCollectionResponse} from '../../api/hydra.ts';
 import MessageForm, {BaseMessageFormProps} from './MessageForm.tsx';
 import {Box, Skeleton} from '@mui/material';
 import DiscussionMessage from './DiscussionMessage.tsx';
@@ -15,6 +14,7 @@ import {toast} from 'react-toastify';
 import {useModals, useLocation} from '@alchemy/navigation';
 
 import {useTranslation} from 'react-i18next';
+import {NormalizedCollectionResponse} from '@alchemy/api';
 
 export type BaseThreadProps = {
     onMessageDelete?: (message: ThreadMessage) => void;
@@ -35,7 +35,7 @@ export default function Thread({
     const ref = React.useRef<HTMLDivElement | null>(null);
     const appendedMessages = useRef<Record<string, true>>({});
     const [messages, setMessages] =
-        React.useState<ApiCollectionResponse<ThreadMessage>>();
+        React.useState<NormalizedCollectionResponse<ThreadMessage>>();
     const {openModal} = useModals();
     const {t} = useTranslation();
     const location = useLocation();

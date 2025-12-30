@@ -1,11 +1,11 @@
-import {ApiCollectionResponse, getHydraCollection} from './hydra.ts';
+import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 import {ThreadMessage} from '../types.ts';
 import apiClient from './api-client.ts';
 
 export async function getThreadMessages(
     threadId: string,
     nextUrl?: string
-): Promise<ApiCollectionResponse<ThreadMessage>> {
+): Promise<NormalizedCollectionResponse<ThreadMessage>> {
     const res = await apiClient.get(nextUrl || `/threads/${threadId}/messages`);
 
     return getHydraCollection(res.data);

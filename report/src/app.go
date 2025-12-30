@@ -18,13 +18,13 @@ import (
 var conn *pgx.Conn
 
 type logJson struct {
-    AppName string
-    AppId string
-    Action string
-    Item string
-    User string
-    EventDate int
-    Payload map[string]string
+    AppName string `json:"appName"`
+    AppId string `json:"appId"`
+    Action string `json:"action"`
+    Item string `json:"item"`
+    User string `json:"user"`
+    EventDate int `json:"eventDate"`
+    Payload json.RawMessage `json:"payload"`
 }
 
 var logQueue chan logJson

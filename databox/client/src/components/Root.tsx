@@ -1,6 +1,5 @@
 import {
     MatomoRouteWrapper,
-    ModalStack,
     OverlayOutlet,
     RouterProvider,
     RouteWrapperProps,
@@ -39,17 +38,15 @@ export default function Root({}: Props) {
 function WrapperComponent({children}: RouteWrapperProps) {
     return (
         <>
-            <ModalStack>
-                <SessionExpireContainer />
-                <MatomoRouteWrapper>
-                    <OverlayOutlet
-                        routes={modalRoutes}
-                        queryParam={'_m'}
-                        RouteProxyComponent={RouteProxy}
-                    />
-                    {children}
-                </MatomoRouteWrapper>
-            </ModalStack>
+            <SessionExpireContainer />
+            <MatomoRouteWrapper>
+                <OverlayOutlet
+                    routes={modalRoutes}
+                    queryParam={'_m'}
+                    RouteProxyComponent={RouteProxy}
+                />
+                {children}
+            </MatomoRouteWrapper>
         </>
     );
 }

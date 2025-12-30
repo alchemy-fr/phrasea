@@ -1,5 +1,5 @@
 import apiClient from './api-client';
-import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {Attribute, Entity, Tag} from '../types';
 import {AttributeBatchAction} from './types.ts';
 
@@ -38,7 +38,7 @@ type GetAssetDataTemplatesOptions = {
 
 export async function getAssetDataTemplates(
     options?: GetAssetDataTemplatesOptions
-): Promise<ApiCollectionResponse<AssetDataTemplate>> {
+): Promise<NormalizedCollectionResponse<AssetDataTemplate>> {
     const res = await apiClient.get(assetDataTemplateNS, {
         params: {
             ...(options ?? {}),

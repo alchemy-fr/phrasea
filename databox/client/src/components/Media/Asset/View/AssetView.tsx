@@ -30,12 +30,12 @@ import {
 } from '../../../Discussion/discussion.ts';
 import {useBindAnnotationMessage} from './useBindAnnotationMessage.ts';
 import AssetViewInfo from '../AssetViewInfo.tsx';
-import {ApiCollectionResponse} from '../../../../api/hydra.ts';
 import StoryCarousel, {storyCarouselHeight} from './StoryCarousel.tsx';
 import AssetAppearsIn from '../AssetAppearsIn.tsx';
 import AssetAttachments from '../AssetAttachments.tsx';
 import {Routing} from '../../../../routes.ts';
 import {getMediaBackgroundColor, scrollbarWidth} from '../../../uiVars.ts';
+import {NormalizedCollectionResponse} from '@alchemy/api';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -70,7 +70,7 @@ export default function AssetView({modalIndex, open}: Props) {
     const {t} = useTranslation();
     const queryKey = ['assets', assetId];
     const [storyAssets, setStoryAssets] =
-        React.useState<ApiCollectionResponse<Asset>>();
+        React.useState<NormalizedCollectionResponse<Asset>>();
     const [currentStoryAssetId, setCurrentStoryAssetId] = React.useState<
         string | undefined
     >(state?.storyAssetId);

@@ -4,7 +4,6 @@ import {
     IntegrationType,
     WorkspaceIntegration,
 } from '../types';
-import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import apiClient from './api-client';
 import {AxiosRequestConfig} from 'axios';
 
@@ -25,7 +24,7 @@ export async function getIntegrationsOfContext(
     context: IntegrationContext,
     workspaceId?: string | undefined,
     data: Record<string, any> = {}
-): Promise<ApiCollectionResponse<WorkspaceIntegration>> {
+): Promise<NormalizedCollectionResponse<WorkspaceIntegration>> {
     const res = await apiClient.get(integrationNS, {
         params: {
             context,
@@ -42,7 +41,7 @@ export async function getWorkspaceIntegrationData(
     integrationId: string,
     next?: string,
     config?: AxiosRequestConfig
-): Promise<ApiCollectionResponse<IntegrationData>> {
+): Promise<NormalizedCollectionResponse<IntegrationData>> {
     const res = await apiClient.get(
         next || `${integrationNS}/${integrationId}/data`,
         config
@@ -55,7 +54,7 @@ export async function getIntegrationTokens(
     integrationId: string,
     next?: string,
     config?: AxiosRequestConfig
-): Promise<ApiCollectionResponse<IntegrationToken>> {
+): Promise<NormalizedCollectionResponse<IntegrationToken>> {
     const res = await apiClient.get(
         next || `${integrationNS}/${integrationId}/tokens`,
         config

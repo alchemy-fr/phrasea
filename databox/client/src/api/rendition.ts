@@ -4,7 +4,7 @@ import {
     RenditionDefinition,
     AssetType,
 } from '../types';
-import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import apiClient from './api-client';
 import type {MultipartUpload} from '@alchemy/api';
 import {SourceFileInput} from './file.ts';
@@ -27,7 +27,7 @@ export const renditionNS = '/renditions';
 
 export async function getAssetRenditions(
     assetId: string
-): Promise<ApiCollectionResponse<AssetRendition>> {
+): Promise<NormalizedCollectionResponse<AssetRendition>> {
     const res = await apiClient.get(renditionNS, {
         params: {
             assetId,
@@ -56,7 +56,7 @@ export async function postRendition(
 
 export async function getRenditionDefinitions(
     options: GetOptions = {}
-): Promise<ApiCollectionResponse<RenditionDefinition>> {
+): Promise<NormalizedCollectionResponse<RenditionDefinition>> {
     const res = await apiClient.get(renditionDefinitionNS, {
         params: options,
     });
@@ -95,7 +95,7 @@ export async function postRenditionDefinition(
 
 export async function getRenditionPolicies(
     workspaceId: string
-): Promise<ApiCollectionResponse<RenditionPolicy>> {
+): Promise<NormalizedCollectionResponse<RenditionPolicy>> {
     const res = await apiClient.get(renditionPolicyNS, {
         params: {
             workspaceId,

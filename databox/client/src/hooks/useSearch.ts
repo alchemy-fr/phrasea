@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
     createDefaultPagination,
     createPaginatedLoader,
@@ -6,7 +6,7 @@ import {
 } from '../api/pagination.ts';
 import {Entity} from '../types.ts';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
-import {ApiCollectionResponse} from '../api/hydra.ts';
+import {NormalizedCollectionResponse} from '@alchemy/api';
 
 type Props<T extends Entity, I extends Entity = T> = {
     items: I[];
@@ -16,7 +16,7 @@ type Props<T extends Entity, I extends Entity = T> = {
     search: (
         query?: string,
         next?: string
-    ) => Promise<ApiCollectionResponse<T>>;
+    ) => Promise<NormalizedCollectionResponse<T>>;
 };
 
 export function useSearch<T extends Entity, I extends Entity = T>({
@@ -31,7 +31,7 @@ export function useSearch<T extends Entity, I extends Entity = T>({
         ...createDefaultPagination<T>(),
         loading: false,
     });
-    const [loadedSearchQuery, setLoadedSearchQuery] = React.useState<
+    const [loadedSearchQuery, setLoadedSearchQuery] = useState<
         string | undefined
     >();
 
@@ -39,7 +39,7 @@ export function useSearch<T extends Entity, I extends Entity = T>({
         loadItems();
     }, []);
 
-    const searchHandler = React.useCallback(
+    const searchHandler = useCallback(
         createPaginatedLoader<T>(async next => {
             const r = await search(searchQuery, next);
             setLoadedSearchQuery(searchQuery);
@@ -49,7 +49,7 @@ export function useSearch<T extends Entity, I extends Entity = T>({
         [searchQuery]
     );
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (!searchQuery) {
             setLoadedSearchQuery(undefined);
         }
