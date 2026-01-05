@@ -66,80 +66,93 @@ export default function FormSchemaForm({formSchema}: Props) {
                 'flexDirection': 'row',
                 'gap': 2,
                 '> div': {
-                    width: '50%',
-                    p: 2,
-                    position: 'sticky',
-                    top: 0,
+                    'width': '50%',
+                    'p': 2,
+                    'position': 'relative',
+                    '> div': {
+                        position: 'sticky',
+                        top: 0,
+                    },
                 },
             }}
         >
             <Paper>
-                <form onSubmit={handleSubmit}>
-                    <FormRow>
-                        <Controller
-                            control={control}
-                            name={'data'}
-                            render={({field: {onChange, value}}) => {
-                                return (
-                                    <AceEditor
-                                        theme="github"
-                                        fontSize={15}
-                                        mode={'json'}
-                                        showPrintMargin={true}
-                                        showGutter={true}
-                                        highlightActiveLine={true}
-                                        value={value}
-                                        onChange={(value, event) => {
-                                            onChange(value, event);
-                                        }}
-                                        editorProps={{$blockScrolling: true}}
-                                        setOptions={{
-                                            enableBasicAutocompletion: false,
-                                            enableLiveAutocompletion: true,
-                                            enableSnippets: true,
-                                            showLineNumbers: true,
-                                            tabSize: 2,
-                                            useWorker: false,
-                                        }}
-                                        width={'100%'}
-                                        height={'700px'}
-                                    />
-                                );
-                            }}
-                        />
-                    </FormRow>
-                    <FormRow>
-                        <Button type={'submit'} variant={'contained'}>
-                            {t('form_editor.save_form', 'Save Form')}
-                        </Button>
-                    </FormRow>
-                    {error ? <RemoteErrors errors={[error]} /> : null}
-                </form>
+                <div>
+                    <form onSubmit={handleSubmit}>
+                        <FormRow>
+                            <Controller
+                                control={control}
+                                name={'data'}
+                                render={({field: {onChange, value}}) => {
+                                    return (
+                                        <AceEditor
+                                            theme="github"
+                                            fontSize={15}
+                                            mode={'json'}
+                                            showPrintMargin={true}
+                                            showGutter={true}
+                                            highlightActiveLine={true}
+                                            value={value}
+                                            onChange={(value, event) => {
+                                                onChange(value, event);
+                                            }}
+                                            editorProps={{
+                                                $blockScrolling: true,
+                                            }}
+                                            setOptions={{
+                                                enableBasicAutocompletion: false,
+                                                enableLiveAutocompletion: true,
+                                                enableSnippets: true,
+                                                showLineNumbers: true,
+                                                tabSize: 2,
+                                                useWorker: false,
+                                            }}
+                                            width={'100%'}
+                                            height={'700px'}
+                                        />
+                                    );
+                                }}
+                            />
+                        </FormRow>
+                        <FormRow>
+                            <Button type={'submit'} variant={'contained'}>
+                                {t('form_editor.save_form', 'Save Form')}
+                            </Button>
+                        </FormRow>
+                        {error ? <RemoteErrors errors={[error]} /> : null}
+                    </form>
+                </div>
             </Paper>
             <Paper>
-                {lastValidSchema ? (
-                    <AssetLiForm
-                        schema={lastValidSchema}
-                        onSubmit={async data => {
-                            openModal(AlertDialog, {
-                                title: t(
-                                    'form_editor.form_submitted_title',
-                                    'Form Submitted'
-                                ),
-                                children: (
-                                    <Trans
-                                        i18nKey="form_editor.form_submitted"
-                                        values={{
-                                            json: JSON.stringify(data, null, 2),
-                                        }}
-                                        components={{pre: <pre />}}
-                                        defaults={`Form submitted with data:<pre>{{json}}}</pre>`}
-                                    />
-                                ),
-                            });
-                        }}
-                    />
-                ) : null}
+                <div>
+                    {lastValidSchema ? (
+                        <AssetLiForm
+                            schema={lastValidSchema}
+                            onSubmit={async data => {
+                                openModal(AlertDialog, {
+                                    title: t(
+                                        'form_editor.form_submitted_title',
+                                        'Form Submitted'
+                                    ),
+                                    children: (
+                                        <Trans
+                                            i18nKey="form_editor.form_submitted"
+                                            values={{
+                                                json: JSON.stringify(
+                                                    data,
+                                                    null,
+                                                    2
+                                                ),
+                                            }}
+                                            components={{pre: <pre />}}
+                                            defaults={`Form submitted with data:<pre>{{json}}}</pre>`}
+                                        />
+                                    ),
+                                });
+                            }}
+                        />
+                    ) : null}
+                </div>
             </Paper>
         </Box>
     );
