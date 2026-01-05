@@ -13,7 +13,7 @@ export type CommonMenuProps = {
 export type SettingDropdownBaseProps = {
     config: WindowConfig;
     defaultLocale?: string;
-    appLocales: string[];
+    appLocales?: string[];
     LocaleDialogComponent?: React.ComponentType<LocaleDialogProps>;
     ChangeThemeDialog?: React.ComponentType<any>;
 };
@@ -23,3 +23,13 @@ export type SettingDropdownProps = {
     anchorOrigin?: DropdownActionsProps['anchorOrigin'];
     transformOrigin?: DropdownActionsProps['transformOrigin'];
 } & SettingDropdownBaseProps;
+export type AppLogoProps = {
+    appTitle: string;
+    onClick?: () => void;
+    config: {
+        logo?: {
+            src?: string;
+            style?: string;
+        };
+    };
+};

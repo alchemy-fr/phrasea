@@ -1,5 +1,6 @@
 import {
     Alert,
+    Box,
     Chip,
     Container,
     Grid,
@@ -10,7 +11,6 @@ import {
 } from '@mui/material';
 import Service from './Service';
 import ClientApp from './ClientApp.tsx';
-import config from './config.ts';
 import SellIcon from '@mui/icons-material/Sell';
 import keycloakImg from './images/keycloak.png';
 import databoxImg from './images/databox.png';
@@ -20,11 +20,11 @@ import dashboardImg from './images/dashboard.png';
 import DashboardBar from './DashboardBar';
 import {useAuth} from '@alchemy/react-auth';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import {parseInlineStyle} from '@alchemy/core/src/declaration';
+import {config} from './init.ts';
 
 type Props = {};
 
-export default function Dashboard({}: Props) {
+export default function App({}: Props) {
     const theme = useTheme();
     const isLarge = useMediaQuery(theme.breakpoints.up('sm'));
     const {user} = useAuth();
@@ -55,50 +55,29 @@ export default function Dashboard({}: Props) {
 
     return (
         <Container>
-            {isLarge && (
-                <DashboardBar>
-                    <Typography
-                        variant={'h1'}
-                        sx={{
-                            '.MuiChip-root': {
-                                ml: 2,
-                            },
-                        }}
-                    >
-                        <div style={{display: 'flex', alignItems: 'center'}}>
-                            {config.logo?.src ? (
-                                <img
-                                    src={config.logo!.src}
-                                    alt={STACK_NAME}
-                                    style={
-                                        config.logo!.style
-                                            ? parseInlineStyle(
-                                                  config.logo!.style!
-                                              )
-                                            : {maxHeight: 48, maxWidth: 150}
-                                    }
-                                />
-                            ) : (
-                                STACK_NAME
-                            )}
+            {isLarge && <DashboardBar />}
 
-                            {user ? (
-                                <Chip
-                                    icon={<SellIcon />}
-                                    label={STACK_VERSION}
-                                    color={'info'}
-                                    component="a"
-                                    href="/git-log.html"
-                                    target={'_blank'}
-                                    clickable
-                                />
-                            ) : (
-                                ''
-                            )}
-                        </div>
-                    </Typography>
-                </DashboardBar>
-            )}
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    mt: 2,
+                    gap: 2,
+                }}
+            >
+                <Typography variant={'h1'}>{STACK_NAME}</Typography>
+                {user ? (
+                    <Chip
+                        icon={<SellIcon />}
+                        label={STACK_VERSION}
+                        color={'info'}
+                        component="a"
+                        href="/git-log.html"
+                        target={'_blank'}
+                        clickable
+                    />
+                ) : null}
+            </Box>
 
             {user && isLarge && DEV_MODE && (
                 <Alert

@@ -1,14 +1,15 @@
 import {Box} from '@mui/material';
-import React from 'react';
-import Logo from './Logo.tsx';
+import React, {useContext} from 'react';
 import {ZIndex} from '../../themes/zIndex.ts';
 import LeftPanel from '../Media/LeftPanel.tsx';
 import {config, keycloakClient} from '../../init.ts';
-import {CommonAppLeftMenu} from '@alchemy/phrasea-framework';
+import {AppLogo, CommonAppLeftMenu} from '@alchemy/phrasea-framework';
 import ChangeThemeDialog from './ChangeThemeDialog.tsx';
 import LocaleDialog from '../Locale/LocaleDialog.tsx';
 import {appLocales} from '../../../translations/locales.ts';
 import {rootDefaultLocale} from '@alchemy/i18n';
+import {SearchContext} from '../Media/Search/SearchContext.tsx';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     leftPanelOpen: boolean;
@@ -17,6 +18,9 @@ type Props = {
 
 export default function LeftMenu({}: Props) {
     const menuWidth = 320;
+    const searchContext = useContext(SearchContext)!;
+    const onTitleClick = () => searchContext.reset();
+    const {t} = useTranslation();
 
     return (
         <>
@@ -35,7 +39,11 @@ export default function LeftMenu({}: Props) {
                 })}
             >
                 <div>
-                    <Logo />
+                    <AppLogo
+                        config={config}
+                        appTitle={t('common.databox', `Databox`)}
+                        onClick={() => onTitleClick}
+                    />
                 </div>
 
                 <Box

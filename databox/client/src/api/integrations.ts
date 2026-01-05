@@ -1,3 +1,4 @@
+import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 import {
     IntegrationData,
     IntegrationToken,

@@ -1,18 +1,19 @@
 import {Box} from '@mui/material';
 import React from 'react';
-import Logo from './Logo.tsx';
 import {config, keycloakClient} from '../init.ts';
-import {CommonAppLeftMenu} from '@alchemy/phrasea-framework';
+import {AppLogo, CommonAppLeftMenu} from '@alchemy/phrasea-framework';
 import {defaultLocales as appLocales, rootDefaultLocale} from '@alchemy/i18n';
 import Menu from './Menu.tsx';
 import {routes} from '../routes.ts';
 import {getPath, useNavigate} from '@alchemy/navigation';
+import {useTranslation} from 'react-i18next';
 
 type Props = {};
 
 export default function LeftMenu({}: Props) {
     const menuWidth = 320;
     const navigate = useNavigate();
+    const {t} = useTranslation();
 
     return (
         <>
@@ -31,7 +32,11 @@ export default function LeftMenu({}: Props) {
                 })}
             >
                 <div>
-                    <Logo onClick={() => navigate(getPath(routes.index))} />
+                    <AppLogo
+                        config={config}
+                        appTitle={t('common.uploader', `Uploader`)}
+                        onClick={() => navigate(getPath(routes.index))}
+                    />
                 </div>
 
                 <Box
