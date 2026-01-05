@@ -23,7 +23,7 @@ class CommitTest extends AbstractUploaderTestCase
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
-        $this->assertEquals('/assets/'.$assetId, $json['assets'][0]);
+        $this->assertEquals($assetId, $json['assets'][0]['id']);
     }
 
     public function testGetCommitListOK(): void
