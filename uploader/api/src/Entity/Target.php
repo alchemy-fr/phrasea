@@ -31,17 +31,21 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
     ],
     normalizationContext: [
-        'groups' => ['target:index'],
+        'groups' => [self::GROUP_INDEX],
     ],
     denormalizationContext: [
-        'groups' => ['target:write'],
+        'groups' => [self::GROUP_WRITE],
     ]
 )]
 #[ORM\Table]
 #[ORM\Entity]
 class Target extends AbstractUuidEntity implements \Stringable
 {
-    #[Groups(['target:index'])]
+    final public const string GROUP_INDEX = 'target:i';
+    final public const string GROUP_READ = 'target:r';
+    public const string GROUP_WRITE = 'target:w';
+
+    #[Groups([self::GROUP_INDEX])]
     #[Assert\Regex('/^[a-z][a-z0-9_-]+/')]
     #[ORM\Column(type: Types::STRING, length: 100, unique: true, nullable: true)]
     protected ?string $slug = null;
@@ -49,50 +53,50 @@ class Target extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 1000)]
     #[Assert\Length(max: 1000)]
     #[Assert\NotBlank]
-    #[Groups(['target:index'])]
+    #[Groups([self::GROUP_INDEX, FormSchema::GROUP_INDEX])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
-    #[Groups(['target:read'])]
+    #[Groups([self::GROUP_READ])]
     private bool $enabled = true;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $hidden = false;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['target:index'])]
+    #[Groups([self::GROUP_INDEX])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Assert\Url]
-    #[Groups(['target:write'])]
+    #[Groups([self::GROUP_WRITE])]
     private ?string $targetUrl = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
-    #[Groups(['target:write'])]
+    #[Groups([self::GROUP_WRITE])]
     private ?string $defaultDestination = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     #[Assert\Length(max: 100)]
-    #[Groups(['target:write'])]
+    #[Groups([self::GROUP_WRITE])]
     private ?string $authorizationScheme = null;
 
     #[ORM\Column(type: Types::STRING, length: 2000, nullable: true)]
     #[Assert\Length(max: 2000)]
-    #[Groups(['target:write'])]
+    #[Groups([self::GROUP_WRITE])]
     private ?string $authorizationKey = null;
 
     /**
      * Null value allows everyone.
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups(['target:write'])]
+    #[Groups([self::GROUP_WRITE])]
     private ?array $allowedGroups = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    #[Groups(['target:index'])]
+    #[Groups([self::GROUP_INDEX])]
     private readonly \DateTimeImmutable $createdAt;
 
     #[ORM\OneToOne(mappedBy: 'target', targetEntity: TargetParams::class)]
@@ -109,7 +113,7 @@ class Target extends AbstractUuidEntity implements \Stringable
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    #[Groups(['target:index'])]
+    #[Groups([self::GROUP_INDEX])]
     public function getId(): string
     {
         return parent::getId();

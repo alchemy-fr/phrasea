@@ -3,6 +3,8 @@ import AppAuthorizationCodePage from './pages/AppAuthorizationCodePage';
 import TargetListPage from './pages/TargetListPage.tsx';
 import DownloadPage from './pages/DownloadPage.tsx';
 import UploadPage from './pages/UploadPage.tsx';
+import FormSchemaIndex from './pages/FormSchemaIndexPage.tsx';
+import FormSchemaEditPage from './pages/FormSchemaEditPage.tsx';
 
 const routes = {
     index: {
@@ -20,9 +22,18 @@ const routes = {
     admin: {
         path: 'admin',
         routes: {
-            formEditor: {
-                path: 'form-editor',
-                // component: FormEditor as unknown as React.FC,
+            formSchema: {
+                path: 'form-schemas',
+                routes: {
+                    index: {
+                        path: '',
+                        component: FormSchemaIndex,
+                    },
+                    edit: {
+                        path: ':id/edit',
+                        component: FormSchemaEditPage,
+                    },
+                },
             },
             targetDataEditor: {
                 path: 'target-data-editor',

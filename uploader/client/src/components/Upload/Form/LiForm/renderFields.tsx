@@ -1,7 +1,8 @@
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {LiFormSchema, UploadFormData} from '../../../../types.ts';
-import {renderField} from './renderField.ts';
+import {renderField} from './renderField.tsx';
 import React from 'react';
+import {FormRow} from '@alchemy/react-form';
 
 export const isRequired = (
     schema: LiFormSchema,
@@ -49,12 +50,14 @@ export function renderFields({schema, ...props}: Props) {
 
         return (
             <React.Fragment key={name}>
-                {renderField({
-                    ...props,
-                    fieldSchema: field,
-                    fieldName: name,
-                    required: isRequired(schema, name),
-                })}
+                <FormRow>
+                    {renderField({
+                        ...props,
+                        fieldSchema: field,
+                        fieldName: name,
+                        required: isRequired(schema, name),
+                    })}
+                </FormRow>
             </React.Fragment>
         );
     });

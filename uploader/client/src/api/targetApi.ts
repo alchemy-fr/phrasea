@@ -1,10 +1,6 @@
 import {getHydraCollection} from '@alchemy/api';
 import {apiClient} from '../init';
-import {FormSchema, Target} from '../types.ts';
-
-export async function getFormSchema(targetId: string): Promise<FormSchema> {
-    return (await apiClient.get(`/targets/${targetId}/form-schema`)).data;
-}
+import {Target} from '../types.ts';
 
 export async function getTargets() {
     return getHydraCollection<Target>((await apiClient.get(`/targets`)).data);

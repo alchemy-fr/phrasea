@@ -1,6 +1,5 @@
 import {FormSchema, LiFormSchema} from '../../types.ts';
 import React, {useEffect, useState} from 'react';
-import {getFormSchema} from '../../api/targetApi.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import AssetLiForm from './AssetLiForm.tsx';
 import {apiClient} from '../../init.ts';
@@ -8,6 +7,7 @@ import {OnSubmitForm} from './UploadStepper.tsx';
 import {getAxiosError} from '@alchemy/api';
 import {toast} from 'react-toastify';
 import {RemoteErrors} from '@alchemy/react-form';
+import {getFormSchemaByTarget} from '../../api/formSchemaApi.ts';
 
 type Props = {
     targetId: string;
@@ -34,7 +34,7 @@ export default function AssetForm({
     useEffect(() => {
         (async () => {
             try {
-                const fetchedSchema = await getFormSchema(targetId);
+                const fetchedSchema = await getFormSchemaByTarget(targetId);
                 setSchemaLoaded(true);
                 if (fetchedSchema) {
                     if (baseSchema) {

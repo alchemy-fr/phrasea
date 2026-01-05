@@ -1,16 +1,19 @@
 import React, {useContext} from 'react';
-import {getPath, useNavigate} from '@alchemy/navigation';
+import {getPath, useLocation, useNavigate} from '@alchemy/navigation';
 import UploaderUserContext from '../context/UploaderUserContext';
 import {routes} from '../routes';
 import {List, ListItemIcon, ListItemText, MenuItem} from '@mui/material';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 import TrackChangesIcon from '@mui/icons-material/TrackChanges';
+import {useTranslation} from 'react-i18next';
 
 type Props = {};
 
 export default function Menu({}: Props) {
     const {uploaderUser} = useContext(UploaderUserContext);
     const navigate = useNavigate();
+    const location = useLocation();
+    const {t} = useTranslation();
 
     const perms = uploaderUser?.permissions;
 
@@ -37,12 +40,17 @@ export default function Menu({}: Props) {
             >
                 {perms?.form_schema && (
                     <MenuItem
-                        onClick={goTo(getPath(routes.admin.routes.formEditor))}
+                        onClick={goTo(getPath(routes.admin.routes.formSchema))}
+                        selected={location.pathname.startsWith(
+                            getPath(routes.admin.routes.formSchema)
+                        )}
                     >
                         <ListItemIcon>
                             <FormatAlignJustifyIcon />
                         </ListItemIcon>
-                        <ListItemText primary="Form Editor" />
+                        <ListItemText
+                            primary={t('menu.form_editor', `Form Editor`)}
+                        />
                     </MenuItem>
                 )}
                 {perms?.target_data && (
@@ -50,11 +58,19 @@ export default function Menu({}: Props) {
                         onClick={goTo(
                             getPath(routes.admin.routes.targetDataEditor)
                         )}
+                        selected={location.pathname.startsWith(
+                            getPath(routes.admin.routes.targetDataEditor)
+                        )}
                     >
                         <ListItemIcon>
                             <TrackChangesIcon />
                         </ListItemIcon>
-                        <ListItemText primary="Target Data Editor" />
+                        <ListItemText
+                            primary={t(
+                                'menu.target_data_editor',
+                                `Target Data Editor`
+                            )}
+                        />
                     </MenuItem>
                 )}
             </List>

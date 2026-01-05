@@ -3,7 +3,7 @@ import {LiFormSchema, UploadFormData} from '../../types.ts';
 import {Box, Button} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {UseFormSubmitReturn} from '@alchemy/api';
-import {renderField} from './Form/LiForm/renderField.ts';
+import {renderField} from './Form/LiForm/renderField.tsx';
 import {RemoteErrors} from '@alchemy/react-form';
 
 type Props = {

@@ -14,6 +14,7 @@ import {getIconFromType} from './src/FilePlayer/fileIcon';
 import {videoPlayerSx} from './src/FilePlayer/styles';
 import AssetTypeIcon from './src/FilePlayer/AssetTypeIcon';
 import PdfView from './src/FilePlayer/Players/PdfView'
+import AlertDialog from './src/Dialog/AlertDialog';
 export {
     AppProvider,
     initApp,
@@ -25,6 +26,7 @@ export {
     ThemeEditorContext,
     CommonAppLeftMenu,
     ConfirmDialog,
+    AlertDialog,
     LocaleIcon,
     CommonAppTopMenu,
     FilePlayer,
@@ -33,7 +35,6 @@ export {
     AssetTypeIcon,
     PdfView,
 };
-
 export * from './src/Theme/types';
 export * from './src/Dialog/types';
 export * from './src/Locale/types';
