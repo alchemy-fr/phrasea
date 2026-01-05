@@ -18,6 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -38,6 +39,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ]
 )]
 #[ORM\Entity]
+#[UniqueEntity(fields: ['target'], message: 'This target already has associated parameters.')]
 class TargetParams implements AclObjectInterface
 {
     public const string GROUP_INDEX = 'targetparams:i';

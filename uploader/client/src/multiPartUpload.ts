@@ -1,4 +1,4 @@
-import {getUniqueFileId, uploadStateStorage} from './uploadStateStorage';
+import {getUniqueFileId, uploadStateStorage} from './uploadStateStorage.ts';
 import {multipartUpload} from '@alchemy/api/src/multiPartUpload';
 import {AbortableFile, UploadedAsset} from './types.ts';
 import {apiClient} from './init.ts';

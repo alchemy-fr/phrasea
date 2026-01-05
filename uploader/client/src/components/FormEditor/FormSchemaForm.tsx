@@ -15,7 +15,8 @@ import {getPath, useModals, useNavigate} from '@alchemy/navigation';
 import {AlertDialog} from '@alchemy/phrasea-framework';
 import {postFormSchema, putFormSchema} from '../../api/formSchemaApi.ts';
 import {routes} from '../../routes.ts';
-import TargetSelectWidget from './TargetSelectWidget.tsx';
+import TargetSelectWidget from '../TargetSelectWidget.tsx';
+import {targetEntity} from '../../api/targetApi.ts';
 
 type Props = {
     formSchema: Partial<FormSchema>;
@@ -41,7 +42,9 @@ export default function FormSchemaForm({formSchema}: Props) {
     } = useFormSubmit({
         defaultValues: {
             ...formSchema,
-            target: formSchema.target ? `/targets/${formSchema.target.id}` : '',
+            target: formSchema.target
+                ? `/${targetEntity}/${formSchema.target.id}`
+                : '',
             data: JSON.stringify(formSchema.data, null, 2),
         },
         onSubmit: async data => {

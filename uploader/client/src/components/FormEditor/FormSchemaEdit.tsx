@@ -37,12 +37,12 @@ export default function FormSchemaEdit({formId}: Props) {
                 >
                     {form
                         ? t(
-                              'form_editor.editing_form_schema',
+                              'form_editor.edit.title',
                               'Editing Form Schema: {{name}}',
                               {name: form.target.name}
                           )
                         : t(
-                              'form_editor.creating_form_schema',
+                              'form_editor.create.title',
                               'Creating New Form Schema'
                           )}
                 </Typography>

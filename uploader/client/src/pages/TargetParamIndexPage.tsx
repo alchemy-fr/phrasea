@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react';
-import {FormSchema} from '../types.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {
     Box,
@@ -17,18 +16,20 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import {useTranslation} from 'react-i18next';
 import {getPath, Link, useModals} from '@alchemy/navigation';
 import {routes} from '../routes.ts';
-import {deleteFormSchema, listFormSchemas} from '../api/formSchemaApi.ts';
+import {deleteTargetParam} from '../api/targetParamApi.ts';
 import {ConfirmDialog} from '@alchemy/phrasea-framework';
+import {TargetParam} from '../types.ts';
+import {listTargetParams} from '../api/targetParamApi.ts';
 
 type Props = {};
 
-export default function FormSchemaIndexPage({}: Props) {
-    const [list, setList] = useState<FormSchema[]>();
+export default function TargetParamIndexPage({}: Props) {
+    const [list, setList] = useState<TargetParam[]>();
     const {t} = useTranslation();
     const {openModal} = useModals();
 
     useEffect(() => {
-        listFormSchemas().then(res => setList(res.result));
+        listTargetParams().then(res => setList(res.result));
     }, []);
 
     if (!list) {
@@ -43,7 +44,7 @@ export default function FormSchemaIndexPage({}: Props) {
                     my: 2,
                 }}
             >
-                {t('form_schema.list.title', 'Form Schemas')}
+                {t('target_param.list.title', 'Target Params')}
             </Typography>
             <Paper
                 sx={{
@@ -57,10 +58,7 @@ export default function FormSchemaIndexPage({}: Props) {
                             textAlign: 'center',
                         }}
                     >
-                        {t(
-                            'form_schema.list.empty',
-                            'No form schemas found. Click the button below to create a new one.'
-                        )}
+                        {t('target_param.list.empty', 'None')}
                     </Typography>
                 ) : (
                     <List>
@@ -72,14 +70,14 @@ export default function FormSchemaIndexPage({}: Props) {
                                         <IconButton
                                             component={Link}
                                             to={getPath(
-                                                routes.admin.routes.formSchema
+                                                routes.admin.routes.targetParam
                                                     .routes.edit,
                                                 {
                                                     id: form.id,
                                                 }
                                             )}
                                             title={t(
-                                                'form_schema.list.edit',
+                                                'target_param.list.edit',
                                                 'Edit'
                                             )}
                                         >
@@ -89,19 +87,19 @@ export default function FormSchemaIndexPage({}: Props) {
                                             onClick={() => {
                                                 openModal(ConfirmDialog, {
                                                     title: t(
-                                                        'form_schema.list.delete_confirm_title',
+                                                        'target_param.list.delete_confirm_title',
                                                         'Delete Form Schema'
                                                     ),
                                                     children: t(
-                                                        'form_schema.list.delete_confirm_message',
-                                                        'Are you sure you want to delete the form schema for {{name}}?',
+                                                        'target_param.list.delete_confirm_message',
+                                                        'Are you sure you want to delete the params of target {{name}}?',
                                                         {
                                                             name: form.target
                                                                 .name,
                                                         }
                                                     ),
                                                     onConfirm: async () => {
-                                                        await deleteFormSchema(
+                                                        await deleteTargetParam(
                                                             form.id
                                                         );
                                                         setList(prevList =>
@@ -115,7 +113,7 @@ export default function FormSchemaIndexPage({}: Props) {
                                                 });
                                             }}
                                             title={t(
-                                                'form_schema.list.delete',
+                                                'target_param.list.delete',
                                                 'Delete'
                                             )}
                                         >
@@ -124,10 +122,7 @@ export default function FormSchemaIndexPage({}: Props) {
                                     </>
                                 }
                             >
-                                <ListItemText
-                                    primary={form.target.name}
-                                    secondary={form.locale || 'All locales'}
-                                />
+                                <ListItemText primary={form.target.name} />
                             </ListItem>
                         ))}
                     </List>
@@ -137,14 +132,14 @@ export default function FormSchemaIndexPage({}: Props) {
                     <Button
                         component={Link}
                         to={getPath(
-                            routes.admin.routes.formSchema.routes.create
+                            routes.admin.routes.targetParam.routes.create
                         )}
                         fullWidth
                         variant={'contained'}
                     >
                         {t(
-                            'form_schema.list.create_button',
-                            'Create New Form Schema'
+                            'target_param.list.create_button',
+                            'Create New Target Params'
                         )}
                     </Button>
                 </Box>
