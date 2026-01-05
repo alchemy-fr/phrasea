@@ -105,6 +105,7 @@ const ArrayWidget: React.FC<WidgetProps> = ({
                 context={context}
                 multiple
                 usedFormSubmit={usedFormSubmit}
+                label={label}
             />
         );
     }
