@@ -1,6 +1,6 @@
 import React from 'react';
 import {LiFormField, UploadFormData} from '../../../../types.ts';
-import widgets from './widgets';
+import widgets from './widgets/widgets';
 import {mergeDeep} from '@alchemy/core';
 import {UseFormSubmitReturn} from '@alchemy/api';
 
@@ -50,6 +50,15 @@ export const renderField = ({
     const widget = guessWidget(fieldSchema);
 
     const newFieldName = prefix ? prefix + fieldName : fieldName;
+
+    const WidgetComponent = widgets[widget as WidgetType];
+    if (!WidgetComponent) {
+        return (
+            <div key={fieldName}>
+                Unsupported widget type: {widget} for field {fieldName}
+            </div>
+        );
+    }
 
     return React.createElement(widgets[widget as WidgetType], {
         usedFormSubmit,

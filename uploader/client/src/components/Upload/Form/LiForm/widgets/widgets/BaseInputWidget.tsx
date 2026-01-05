@@ -16,6 +16,7 @@ export default function BaseInputWidget({
     normalizer,
     required,
     type,
+    ...props
 }: Props) {
     return (
         <>
@@ -28,6 +29,7 @@ export default function BaseInputWidget({
                 helperText={schema.description}
                 type={type}
                 {...register(fieldName, {setValueAs: normalizer})}
+                {...props}
             />
             <FormFieldErrors field={fieldName} errors={errors} />
         </>

@@ -31,7 +31,11 @@ export default function AssetLiForm({schema, onSubmit, onCancel}: Props) {
             return data;
         },
     });
+    const {reset} = usedFormSubmit;
 
+    React.useEffect(() => {
+        reset(initialValues);
+    }, [reset, schema]);
     const {handleSubmit, submitting} = usedFormSubmit;
 
     const compiledSchema = compileSchema(schema);

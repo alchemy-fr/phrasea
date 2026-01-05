@@ -5,6 +5,7 @@ import './scss/index.scss';
 import {AppProvider, initApp} from '@alchemy/phrasea-framework';
 import {oauthClient, keycloakClient, matomo, config} from './init.ts';
 import App from './components/App.tsx';
+import UploaderUserProvider from './context/UploaderUserProvider.tsx';
 
 initApp(config);
 
@@ -16,7 +17,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             oauthClient={oauthClient}
             keycloakClient={keycloakClient}
         >
-            <App />
+            <UploaderUserProvider>
+                <App />
+            </UploaderUserProvider>
         </AppProvider>
     </React.StrictMode>
 );

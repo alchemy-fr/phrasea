@@ -35,6 +35,7 @@ export type LiFormField = {
     widget?: string;
     format?: string;
     defaultValue?: any;
+    placeholder?: string;
     type?: string;
     oneOf?: LiFormField[];
     allOf?: LiFormField[];
@@ -50,6 +51,8 @@ export type LiFormField = {
 export type FormSchema = {
     id: string;
     data: LiFormSchema;
+    target: Target;
+    locale?: string;
 };
 
 export type UploadFormData = Record<string, any>;

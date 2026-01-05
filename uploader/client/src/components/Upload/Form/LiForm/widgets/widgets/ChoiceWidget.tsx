@@ -8,6 +8,7 @@ import {
     FormHelperText,
 } from '@mui/material';
 import {FormFieldErrors} from '@alchemy/react-form';
+import {useTranslation} from 'react-i18next';
 
 interface ChoiceWidgetProps extends WidgetProps {
     multiple?: boolean;
@@ -24,7 +25,8 @@ const ChoiceWidget: React.FC<ChoiceWidgetProps> = ({
     required,
     multiple,
 }) => {
-    const options = schema.enum!;
+    const {t} = useTranslation();
+    const options = schema.enum ?? [];
     const optionNames = schema.enum_titles || options;
 
     return (
@@ -32,7 +34,6 @@ const ChoiceWidget: React.FC<ChoiceWidgetProps> = ({
             fullWidth
             required={required}
             error={!!errors?.[fieldName]}
-            margin="normal"
         >
             <InputLabel id={`label-${fieldName}`}>{label}</InputLabel>
             <Select
@@ -45,7 +46,11 @@ const ChoiceWidget: React.FC<ChoiceWidgetProps> = ({
             >
                 {schema.defaultValue !== false && (
                     <MenuItem value="">
-                        <em>{schema.defaultValue}</em>
+                        <em>
+                            {schema.defaultValue ||
+                                schema.placeholder ||
+                                t('form.selectPlaceholder', 'Choose an option')}
+                        </em>
                     </MenuItem>
                 )}
                 {options.map((value: string, idx: number) => (
