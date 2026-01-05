@@ -124,7 +124,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
     ],
     normalizationContext: [
-        'groups' => ['asset:read'],
+        'groups' => [self::GROUP_READ],
     ],
     denormalizationContext: [
         'groups' => ['asset:write'],
@@ -133,32 +133,33 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
 class Asset extends AbstractUuidEntity
 {
+    public const string GROUP_READ = 'asset:r';
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $path = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups('asset:read')]
+    #[Groups(self::GROUP_READ)]
     private ?array $data = [];
 
     /**
      * Dynamic signed URL.
      */
     #[ApiProperty]
-    #[Groups(['asset:read'])]
+    #[Groups([self::GROUP_READ])]
     private ?string $url = null;
 
-    #[Groups('asset:read')]
+    #[Groups(self::GROUP_READ)]
     #[ORM\Column(type: Types::BIGINT, options: ['unsigned' => true])]
     private ?string $size = null;
 
     #[ApiProperty(iris: ['http://schema.org/name'])]
     #[ORM\Column(type: Types::STRING, length: 255)]
-    #[Groups('asset:read')]
+    #[Groups(self::GROUP_READ)]
     private ?string $originalName = null;
 
     #[ApiProperty]
     #[ORM\Column(type: Types::STRING, length: 255)]
-    #[Groups('asset:read')]
+    #[Groups(self::GROUP_READ)]
     private ?string $mimeType = null;
 
     #[ORM\ManyToOne(targetEntity: Target::class)]
@@ -169,13 +170,13 @@ class Asset extends AbstractUuidEntity
     private ?Commit $commit = null;
 
     #[ORM\Column(type: Types::BOOLEAN)]
-    #[Groups('asset:read')]
+    #[Groups(self::GROUP_READ)]
     #[ApiFilter(filterClass: BooleanFilter::class)]
     private bool $acknowledged = false;
 
     #[ApiProperty]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    #[Groups('asset:read')]
+    #[Groups(self::GROUP_READ)]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
@@ -187,7 +188,7 @@ class Asset extends AbstractUuidEntity
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    #[Groups('asset:read')]
+    #[Groups(self::GROUP_READ)]
     public function getId(): string
     {
         return parent::getId();
@@ -238,13 +239,13 @@ class Asset extends AbstractUuidEntity
         return null !== $this->commit;
     }
 
-    #[Groups('asset:read')]
+    #[Groups(self::GROUP_READ)]
     public function getFormData(): ?array
     {
         return $this->commit?->getFormData();
     }
 
-    #[Groups('asset:read')]
+    #[Groups(self::GROUP_READ)]
     public function getFormLocale(): ?string
     {
         return $this->commit?->getFormLocale();

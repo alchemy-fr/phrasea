@@ -23,3 +23,13 @@ export async function putFormSchema(
 ): Promise<FormSchema> {
     return (await apiClient.put(`/form-schemas/${id}`, data)).data;
 }
+
+export async function postFormSchema(
+    data: Partial<FormSchema>
+): Promise<FormSchema> {
+    return (await apiClient.post(`/form-schemas`, data)).data;
+}
+
+export async function deleteFormSchema(id: string): Promise<void> {
+    await apiClient.delete(`/form-schemas/${id}`);
+}

@@ -6,5 +6,5 @@ namespace Alchemy\WebhookBundle\Normalizer;
 
 interface WebhookSerializationInterface
 {
-    final public const DEFAULT_GROUP = 'Webhook';
+    final public const string DEFAULT_GROUP = 'Webhook';
 }

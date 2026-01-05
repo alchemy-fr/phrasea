@@ -7,7 +7,7 @@ import {useTranslation} from 'react-i18next';
 import {getFormSchema} from '../../api/formSchemaApi.ts';
 
 type Props = {
-    formId: string;
+    formId?: string;
 };
 
 export default function FormSchemaEdit({formId}: Props) {
@@ -15,12 +15,14 @@ export default function FormSchemaEdit({formId}: Props) {
     const {t} = useTranslation();
 
     useEffect(() => {
-        getFormSchema(formId).then(schema => {
-            setForm(schema);
-        });
+        if (formId) {
+            getFormSchema(formId).then(schema => {
+                setForm(schema);
+            });
+        }
     }, [formId]);
 
-    if (!form) {
+    if (!form && formId) {
         return <FullPageLoader backdrop={false} />;
     }
 
@@ -33,13 +35,33 @@ export default function FormSchemaEdit({formId}: Props) {
                         my: 2,
                     }}
                 >
-                    {t(
-                        'form_editor.editing_form_schema',
-                        'Editing Form Schema: {{name}}',
-                        {name: form.target.name}
-                    )}
+                    {form
+                        ? t(
+                              'form_editor.editing_form_schema',
+                              'Editing Form Schema: {{name}}',
+                              {name: form.target.name}
+                          )
+                        : t(
+                              'form_editor.creating_form_schema',
+                              'Creating New Form Schema'
+                          )}
                 </Typography>
-                <FormSchemaForm formSchema={form} />
+                <FormSchemaForm
+                    formSchema={
+                        form || {
+                            data: {
+                                required: [],
+                                properties: {
+                                    my_field: {
+                                        title: 'My Field',
+                                        type: 'string',
+                                    },
+                                },
+                            },
+                            locale: '',
+                        }
+                    }
+                />
             </Container>
         </>
     );

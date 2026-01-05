@@ -45,8 +45,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("'.ScopeVoter::PREFIX.ScopeInterface::SCOPE_COMMIT_LIST.'") or is_granted("'.JwtUser::ROLE_ADMIN.'")'
         ),
     ],
-    normalizationContext: ['groups' => ['commit:read']],
-    denormalizationContext: ['groups' => ['commit:write']],
+    normalizationContext: ['groups' => [self::GROUP_READ]],
+    denormalizationContext: ['groups' => [self::GROUP_WRITE]],
     order: [
         'acknowledged' => 'ASC',
         'createdAt' => 'ASC',
@@ -56,52 +56,54 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: CommitRepository::class)]
 class Commit extends AbstractUuidEntity
 {
+    public const string GROUP_READ = 'commit:r';
+    public const string GROUP_WRITE = 'commit:w';
     /**
      * @var Asset[]|Collection
      */
     #[ORM\OneToMany(mappedBy: 'commit', targetEntity: Asset::class, cascade: ['remove'])]
-    #[Groups(['commit:read', 'commit:write'])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?Collection $assets = null;
 
     #[ORM\ManyToOne(targetEntity: Target::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
-    #[Groups(['asset:read', 'commit:read', 'commit:write'])]
+    #[Groups(['asset:read', self::GROUP_READ, self::GROUP_WRITE])]
     #[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: ['target'])]
     private ?Target $target = null;
 
     #[ApiProperty(writable: false)]
-    #[Groups(['asset:read', 'commit:read'])]
+    #[Groups(['asset:read', self::GROUP_READ])]
     #[ORM\Column(type: Types::BIGINT, options: ['unsigned' => true])]
     private ?string $totalSize = null;
 
     #[ORM\Column(type: Types::JSON)]
-    #[Groups(['asset:read', 'commit:read', 'commit:write'])]
+    #[Groups(['asset:read', self::GROUP_READ, self::GROUP_WRITE])]
     private array $formData = [];
 
     #[ORM\Column(type: Types::STRING, length: 5, nullable: true)]
-    #[Groups(['asset:read', 'commit:read'])]
+    #[Groups(['asset:read', self::GROUP_READ])]
     private ?string $formLocale = null;
 
-    #[Groups(['commit:write'])]
+    #[Groups([self::GROUP_WRITE])]
     public ?string $schemaId = null;
 
-    #[Groups(['asset:read', 'commit:read', 'commit:write'])]
+    #[Groups(['asset:read', self::GROUP_READ, self::GROUP_WRITE])]
     #[ORM\Column(type: Types::JSON)]
     private array $options = [];
 
     #[ORM\Column(type: Types::STRING, length: 255)]
-    #[Groups(['asset:read', 'commit:read', 'commit:write'])]
+    #[Groups(['asset:read', self::GROUP_READ, self::GROUP_WRITE])]
     private ?string $userId = null;
 
     #[ApiProperty(writable: false)]
     #[ORM\Column(type: Types::STRING, length: 255)]
-    #[Groups(['commit:read'])]
+    #[Groups([self::GROUP_READ])]
     private ?string $token = null;
 
     #[ApiProperty(writable: false)]
     #[ORM\Column(type: Types::BOOLEAN)]
-    #[Groups(['asset:read', 'commit:read'])]
+    #[Groups(['asset:read', self::GROUP_READ])]
     #[ApiFilter(filterClass: BooleanFilter::class)]
     private bool $acknowledged = false;
 
@@ -109,26 +111,26 @@ class Commit extends AbstractUuidEntity
      * If set, this email will be notified when asset consumer acknowledges the commit.
      */
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
-    #[Groups(['commit:read', 'commit:write'])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private bool $notify = false;
 
     #[ORM\Column(type: Types::STRING, length: 5, nullable: true)]
-    #[Groups(['asset:read', 'commit:read', 'commit:write'])]
+    #[Groups(['asset:read', self::GROUP_READ, self::GROUP_WRITE])]
     private ?string $locale = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups(['asset:read', 'commit:read'])]
+    #[Groups(['asset:read', self::GROUP_READ])]
     private ?\DateTimeImmutable $acknowledgedAt = null;
 
     #[ApiProperty]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    #[Groups(['asset:read', 'commit:read'])]
+    #[Groups(['asset:read', self::GROUP_READ])]
     private readonly \DateTimeImmutable $createdAt;
 
     /**
      * Not mapped.
      */
-    #[Groups(['commit:write'])]
+    #[Groups([self::GROUP_WRITE])]
     private array $files = [];
 
     public function __construct()
@@ -138,7 +140,7 @@ class Commit extends AbstractUuidEntity
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    #[Groups(['asset:read', 'commit:read'])]
+    #[Groups(['asset:read', self::GROUP_READ])]
     public function getId(): string
     {
         return parent::getId();

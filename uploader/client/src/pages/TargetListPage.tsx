@@ -5,7 +5,7 @@ import {routes} from '../routes.ts';
 import {Alert, Container} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {Target} from '../types.ts';
-import {getTargets} from '../api/targetApi.ts';
+import {listTargets} from '../api/targetApi.ts';
 import Grid from '@mui/material/Unstable_Grid2';
 import TargetCard from '../components/TargetCard.tsx';
 
@@ -15,7 +15,7 @@ export default function TargetListPage() {
     const {t} = useTranslation();
 
     useEffect(() => {
-        getTargets().then(r => setTargets(r.result));
+        listTargets().then(r => setTargets(r.result));
     }, []);
 
     useEffect(() => {
