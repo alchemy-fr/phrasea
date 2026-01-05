@@ -55,6 +55,14 @@ export type FormSchema = {
     locale?: string;
 };
 
+export type TargetParamData = Record<string, any>;
+
+export type TargetParam = {
+    id: string;
+    data: TargetParamData;
+    target: Target;
+};
+
 export type UploadFormData = Record<string, any>;
 
 export type AbortableFile = {

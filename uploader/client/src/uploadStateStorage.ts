@@ -1,12 +1,24 @@
 const uploadStorage = window.localStorage;
 const key = 'uploadState';
 
-class UploadStateStorage {
-    cache;
-    writeTimeout;
+type UploadCache = {
+    [userId: string]: {
+        [fileUID: string]: {
+            u: string; // uploadId
+            c: Array<{
+                etag: string;
+                n: number; // partNumber
+            }>;
+        };
+    };
+};
 
-    getUpload(userId, fileUID) {
-        const d = this.getData();
+class UploadStateStorage {
+    cache: UploadCache = {};
+    writeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    getUpload(userId: string, fileUID: string) {
+        const d = {...this.getData()};
 
         if (!d[userId]) {
             return;
@@ -15,8 +27,8 @@ class UploadStateStorage {
         return d[userId][fileUID];
     }
 
-    initUpload(userId, fileUID, uploadId) {
-        const d = this.getData();
+    initUpload(userId: string, fileUID: string, uploadId: string): void {
+        const d = {...this.getData()};
 
         d[userId] = d[userId] || {};
         d[userId][fileUID] = {
@@ -27,7 +39,12 @@ class UploadStateStorage {
         this.setData(d);
     }
 
-    updateUpload(userId, fileUID, chunkETag, partNumber) {
+    updateUpload(
+        userId: string,
+        fileUID: string,
+        chunkETag: string,
+        partNumber: number
+    ): void {
         console.debug('updateUpload', userId, fileUID, chunkETag, partNumber);
         const d = this.getData();
         const list = d[userId][fileUID].c;
@@ -37,13 +54,13 @@ class UploadStateStorage {
         this.setData(d);
     }
 
-    removeUpload(userId, fileUID) {
+    removeUpload(userId: string, fileUID: string): void {
         const d = this.getData();
         delete d[userId][fileUID];
         this.setData(d);
     }
 
-    getData() {
+    getData(): UploadCache {
         if (this.cache) {
             return this.cache;
         }
@@ -52,7 +69,7 @@ class UploadStateStorage {
         return (this.cache = item ? JSON.parse(item) : {});
     }
 
-    setData(data) {
+    setData(data: UploadCache): void {
         this.cache = data;
 
         if (this.writeTimeout) {
@@ -65,10 +82,12 @@ class UploadStateStorage {
     }
 }
 
-export function getUniqueFileId(file, fileChunkSize) {
+export function getUniqueFileId(file: File, fileChunkSize: number): string {
     const relativePath =
         file.webkitRelativePath ||
+        // @ts-expect-error - old browsers
         file.relativePath ||
+        // @ts-expect-error - old browsers
         file.fileName ||
         file.name;
 

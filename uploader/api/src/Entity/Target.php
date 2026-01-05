@@ -53,7 +53,7 @@ class Target extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 1000)]
     #[Assert\Length(max: 1000)]
     #[Assert\NotBlank]
-    #[Groups([self::GROUP_INDEX, FormSchema::GROUP_INDEX])]
+    #[Groups([self::GROUP_INDEX, FormSchema::GROUP_INDEX, TargetParams::GROUP_INDEX])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]

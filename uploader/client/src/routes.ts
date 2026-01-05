@@ -5,6 +5,8 @@ import DownloadPage from './pages/DownloadPage.tsx';
 import UploadPage from './pages/UploadPage.tsx';
 import FormSchemaIndex from './pages/FormSchemaIndexPage.tsx';
 import FormSchemaEditPage from './pages/FormSchemaEditPage.tsx';
+import TargetParamIndexPage from './pages/TargetParamIndexPage.tsx';
+import TargetParamEditPage from './pages/TargetParamEditPage.tsx';
 
 const routes = {
     index: {
@@ -39,9 +41,22 @@ const routes = {
                     },
                 },
             },
-            targetDataEditor: {
-                path: 'target-data-editor',
-                // component: TargetDataEditor as unknown as React.FC,
+            targetParam: {
+                path: 'target-param',
+                routes: {
+                    index: {
+                        path: '',
+                        component: TargetParamIndexPage,
+                    },
+                    edit: {
+                        path: ':id/edit',
+                        component: TargetParamEditPage,
+                    },
+                    create: {
+                        path: 'create',
+                        component: TargetParamEditPage,
+                    },
+                },
             },
         },
     },

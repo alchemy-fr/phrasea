@@ -55,11 +55,9 @@ export default function Menu({}: Props) {
                 )}
                 {perms?.target_data && (
                     <MenuItem
-                        onClick={goTo(
-                            getPath(routes.admin.routes.targetDataEditor)
-                        )}
+                        onClick={goTo(getPath(routes.admin.routes.targetParam))}
                         selected={location.pathname.startsWith(
-                            getPath(routes.admin.routes.targetDataEditor)
+                            getPath(routes.admin.routes.targetParam)
                         )}
                     >
                         <ListItemIcon>

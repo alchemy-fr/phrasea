@@ -1,12 +1,12 @@
 import {useCallback} from 'react';
-import {Target} from '../../types';
+import {Target} from '../types.ts';
 import {FieldValues} from 'react-hook-form';
 import {
     AsyncRSelectProps,
     AsyncRSelectWidget,
     SelectOption,
 } from '@alchemy/react-form';
-import {listTargets} from '../../api/targetApi.ts';
+import {listTargets} from '../api/targetApi.ts';
 
 type Props<TFieldValues extends FieldValues> = AsyncRSelectProps<
     TFieldValues,
