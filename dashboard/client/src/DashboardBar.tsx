@@ -1,50 +1,19 @@
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import {PropsWithChildren} from 'react';
-import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
-import config from './config.ts';
-import {keycloakClient} from './lib/apiClient.ts';
-import MenuItem from '@mui/material/MenuItem';
-import Box from '@mui/material/Box';
-import {UserMenu} from '@alchemy/phrasea-ui';
+import React, {PropsWithChildren} from 'react';
+import {HorizontalAppBar} from '@alchemy/phrasea-framework';
+import {config, keycloakClient} from './init.ts';
 import {useTranslation} from 'react-i18next';
 
 type Props = PropsWithChildren<{}>;
 
 export default function DashboardBar({children}: Props) {
     const {t} = useTranslation();
-    const {getLoginUrl, getAccountUrl} = useKeycloakUrls({
-        autoConnectIdP: config.autoConnectIdP,
-        keycloakClient,
-    });
-
-    const {user, logout} = useAuth();
-
     return (
-        <AppBar position="sticky">
-            <Toolbar>
-                <div
-                    style={{
-                        flexGrow: 1,
-                    }}
-                >
-                    {children}
-                </div>
-
-                <Box sx={{flexGrow: 0}}>
-                    {!user ? (
-                        <MenuItem component={'a'} href={getLoginUrl()}>
-                            {t('menu.sign_in', 'Sign In')}
-                        </MenuItem>
-                    ) : (
-                        <UserMenu
-                            username={user?.username}
-                            accountUrl={getAccountUrl()}
-                            onLogout={logout}
-                        />
-                    )}
-                </Box>
-            </Toolbar>
-        </AppBar>
+        <HorizontalAppBar
+            config={config}
+            keycloakClient={keycloakClient}
+            appTitle={t('common.dashboard', `Dashboard`)}
+        >
+            {children}
+        </HorizontalAppBar>
     );
 }

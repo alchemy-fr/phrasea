@@ -26,8 +26,7 @@ export default function SettingDropdown({
     const {t, i18n} = useTranslation();
     const {openModal} = useModals();
 
-    const currentLocale =
-        getBestLocale(appLocales, i18n.language ? [i18n.language] : [])! ??
+    const currentLocale =  getBestLocale(appLocales ?? [], i18n.language ? [i18n.language] : [])! ??
         defaultLocale;
 
     return (
@@ -45,7 +44,7 @@ export default function SettingDropdown({
                 }}
             >
                 {closeWrapper => [
-                    <MenuItem
+                    appLocales ? <MenuItem
                         key={'change_locale'}
                         onClick={closeWrapper(() => {
                             openModal(LocaleDialogComponent, {
@@ -59,7 +58,7 @@ export default function SettingDropdown({
                         <ListItemText
                             primary={t('locale.current', 'English')}
                         />
-                    </MenuItem>,
+                    </MenuItem> : null,
                     ChangeThemeDialog ? (
                         <MenuItem
                             key={'change_theme'}

@@ -1,18 +1,9 @@
-import Typography from '@mui/material/Typography';
 import React from 'react';
-import {useTranslation} from 'react-i18next';
 import {parseInlineStyle} from '@alchemy/core';
-import {config} from '../init.ts';
+import {Typography} from '@mui/material';
+import {AppLogoProps} from './types';
 
-type Props = {
-    onClick?: () => void;
-};
-
-export default function Logo({onClick}: Props) {
-    const {t} = useTranslation();
-
-    const appName = t('common.uploader', `Uploader`);
-
+export function AppLogo({appTitle, config, onClick}: AppLogoProps) {
     return (
         <>
             <Typography
@@ -30,9 +21,9 @@ export default function Logo({onClick}: Props) {
                 {config.logo?.src ? (
                     <img
                         src={config.logo.src}
-                        alt={appName}
+                        alt={appTitle}
                         style={{
-                            cursor: 'pointer',
+                            cursor: onClick ? 'pointer' : undefined,
                             ...(config.logo!.style
                                 ? parseInlineStyle(config.logo.style)
                                 : {maxHeight: 32, maxWidth: 150}),
@@ -50,11 +41,15 @@ export default function Logo({onClick}: Props) {
                             style={{
                                 height: 32,
                                 marginRight: 8,
+                                cursor: onClick ? 'pointer' : undefined,
+                                ...(config.logo?.style
+                                    ? parseInlineStyle(config.logo!.style)
+                                    : {maxHeight: 32, maxWidth: 150}),
                             }}
                             src="https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/Images/phrasea-logo.png"
-                            alt={appName}
+                            alt={appTitle}
                         />
-                        {appName}
+                        {appTitle}
                     </div>
                 )}
             </Typography>

@@ -15,6 +15,8 @@ import {videoPlayerSx} from './src/FilePlayer/styles';
 import AssetTypeIcon from './src/FilePlayer/AssetTypeIcon';
 import PdfView from './src/FilePlayer/Players/PdfView'
 import AlertDialog from './src/Dialog/AlertDialog';
+import {AppLogo} from './src/Menu/AppLogo';
+import HorizontalAppBar from './src/Menu/HorizontalAppBar';
 export {
     AppProvider,
     initApp,
@@ -34,6 +36,8 @@ export {
     videoPlayerSx,
     AssetTypeIcon,
     PdfView,
+    AppLogo,
+    HorizontalAppBar,
 };
 export * from './src/Theme/types';
 export * from './src/Dialog/types';

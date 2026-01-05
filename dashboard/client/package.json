@@ -15,6 +15,7 @@
         "@alchemy/api": "workspace:*",
         "@alchemy/auth": "workspace:*",
         "@alchemy/core": "workspace:*",
+        "@alchemy/phrasea-framework": "workspace:*",
         "@alchemy/phrasea-ui": "workspace:*",
         "@alchemy/react-auth": "workspace:*",
         "@mui/icons-material": "^5.18.0",

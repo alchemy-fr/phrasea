@@ -44,6 +44,9 @@ importers:
       '@alchemy/core':
         specifier: workspace:*
         version: link:../../lib/js/core
+      '@alchemy/phrasea-framework':
+        specifier: workspace:*
+        version: link:../../lib/js/phrasea-framework
       '@alchemy/phrasea-ui':
         specifier: workspace:*
         version: link:../../lib/js/phrasea-ui
