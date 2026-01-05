@@ -2,7 +2,7 @@ import {getHydraCollection} from '@alchemy/api';
 import {apiClient} from '../init';
 import {Target} from '../types.ts';
 
-export async function getTargets() {
+export async function listTargets() {
     return getHydraCollection<Target>((await apiClient.get(`/targets`)).data);
 }
 

@@ -2,21 +2,23 @@ import {useFormSubmit} from '@alchemy/api';
 import {FormSchema, LiFormSchema} from '../../types.ts';
 import {toast} from 'react-toastify';
 import {Trans, useTranslation} from 'react-i18next';
-import {Box, Button, Paper} from '@mui/material';
+import {Box, Button, Paper, TextField} from '@mui/material';
 import AssetLiForm from '../Upload/AssetLiForm.tsx';
 import React from 'react';
-import {FormRow, RemoteErrors} from '@alchemy/react-form';
+import {FormFieldErrors, FormRow, RemoteErrors} from '@alchemy/react-form';
 import {Controller} from 'react-hook-form';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/mode-json';
-import {useModals} from '@alchemy/navigation';
+import {getPath, useModals, useNavigate} from '@alchemy/navigation';
 import {AlertDialog} from '@alchemy/phrasea-framework';
-import {putFormSchema} from '../../api/formSchemaApi.ts';
+import {postFormSchema, putFormSchema} from '../../api/formSchemaApi.ts';
+import {routes} from '../../routes.ts';
+import TargetSelectWidget from './TargetSelectWidget.tsx';
 
 type Props = {
-    formSchema: FormSchema;
+    formSchema: Partial<FormSchema>;
 };
 
 export default function FormSchemaForm({formSchema}: Props) {
@@ -26,20 +28,48 @@ export default function FormSchemaForm({formSchema}: Props) {
     >();
     const [error, setError] = React.useState<string>();
     const {openModal} = useModals();
+    const navigate = useNavigate();
+    const idRef = React.useRef(formSchema.id);
 
-    const {handleSubmit, watch, control} = useFormSubmit({
+    const {
+        handleSubmit,
+        watch,
+        control,
+        register,
+        remoteErrors,
+        formState: {errors},
+    } = useFormSubmit({
         defaultValues: {
+            ...formSchema,
+            target: formSchema.target ? `/targets/${formSchema.target.id}` : '',
             data: JSON.stringify(formSchema.data, null, 2),
         },
         onSubmit: async data => {
-            return await putFormSchema(formSchema.id, {
+            const d = {
+                ...data,
                 data: JSON.parse(data.data) as LiFormSchema,
-            });
+                id: undefined,
+            };
+
+            if (formSchema.id) {
+                return await putFormSchema(formSchema.id, d);
+            } else {
+                return await postFormSchema(d);
+            }
         },
-        onSuccess: async _data => {
+        onSuccess: async data => {
             toast.success(
                 t('form_editor.form_saved', 'Form saved successfully')
             );
+
+            if (!idRef.current) {
+                idRef.current = data.id;
+                navigate(
+                    getPath(routes.admin.routes.formSchema.routes.edit, {
+                        id: data.id,
+                    })
+                );
+            }
         },
     });
 
@@ -65,6 +95,7 @@ export default function FormSchemaForm({formSchema}: Props) {
                 'display': 'flex',
                 'flexDirection': 'row',
                 'gap': 2,
+                'pb': 5,
                 '> div': {
                     'width': '50%',
                     'p': 2,
@@ -79,6 +110,27 @@ export default function FormSchemaForm({formSchema}: Props) {
             <Paper>
                 <div>
                     <form onSubmit={handleSubmit}>
+                        <FormRow>
+                            <TargetSelectWidget
+                                label={t('form_editor.target.label', 'Target')}
+                                control={control}
+                                name={'target'}
+                            />
+                            <FormFieldErrors field={'target'} errors={errors} />
+                        </FormRow>
+                        <FormRow>
+                            <TextField
+                                error={Boolean(errors.locale)}
+                                {...register('locale')}
+                                label={t('form_editor.locale.label', 'Locale')}
+                                fullWidth
+                                helperText={t(
+                                    'form_editor.locale.helper',
+                                    'Optional locale for this form schema (e.g., en, fr, etc.). Leave empty for all locales.'
+                                )}
+                            />
+                            <FormFieldErrors field={'locale'} errors={errors} />
+                        </FormRow>
                         <FormRow>
                             <Controller
                                 control={control}
@@ -114,12 +166,13 @@ export default function FormSchemaForm({formSchema}: Props) {
                                 }}
                             />
                         </FormRow>
+                        {error ? <RemoteErrors errors={[error]} /> : null}
+                        <RemoteErrors errors={remoteErrors} />
                         <FormRow>
                             <Button type={'submit'} variant={'contained'}>
                                 {t('form_editor.save_form', 'Save Form')}
                             </Button>
                         </FormRow>
-                        {error ? <RemoteErrors errors={[error]} /> : null}
                     </form>
                 </div>
             </Paper>

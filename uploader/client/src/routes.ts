@@ -33,6 +33,10 @@ const routes = {
                         path: ':id/edit',
                         component: FormSchemaEditPage,
                     },
+                    create: {
+                        path: 'create',
+                        component: FormSchemaEditPage,
+                    },
                 },
             },
             targetDataEditor: {

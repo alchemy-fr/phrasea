@@ -8,7 +8,7 @@ export default function FormSchemaEditPage({}: Props) {
 
     return (
         <>
-            <FormSchemaEdit formId={id!} />
+            <FormSchemaEdit formId={id} />
         </>
     );
 }

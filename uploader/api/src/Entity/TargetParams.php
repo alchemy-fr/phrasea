@@ -31,36 +31,38 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(security: 'is_granted("EDIT_TARGET_DATA")'),
     ],
     normalizationContext: [
-        'groups' => ['targetparams:index'],
+        'groups' => [self::GROUP_INDEX],
     ],
     denormalizationContext: [
-        'groups' => ['targetparams:write'],
+        'groups' => [self::GROUP_WRITE],
     ]
 )]
 #[ORM\Entity]
 class TargetParams implements AclObjectInterface
 {
+    public const string GROUP_INDEX = 'targetparams:i';
+    public const string GROUP_WRITE = 'targetparams:w';
     /**
      * @var Uuid
      */
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[Groups(['targetparams:index'])]
+    #[Groups([self::GROUP_INDEX])]
     protected $id;
 
     #[ORM\OneToOne(targetEntity: Target::class, inversedBy: 'targetParams')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['targetparams:index', 'targetparams:write'])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
     #[Assert\NotNull]
     #[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     private ?Target $target = null;
 
     #[ORM\Column(type: Types::JSON)]
-    #[Groups(['targetparams:index', 'targetparams:write'])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
     private array $data = [];
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    #[Groups(['targetparams:index'])]
+    #[Groups([self::GROUP_INDEX])]
     #[Gedmo\Timestampable(on: 'create')]
     private ?\DateTimeImmutable $createdAt = null;
 
