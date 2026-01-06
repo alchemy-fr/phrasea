@@ -5,6 +5,7 @@ import {CommonAppLeftMenu} from './CommonAppLeftMenu';
 import {resolveSx} from '../../../core';
 import {useState} from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 
 type Props = AppMenuProps;
 
@@ -48,7 +49,7 @@ export default function VerticalAppMenu({
                 })}
                 onClick={() => setOpen(o => !o)}
             >
-                <MenuIcon />
+                {open ? <KeyboardArrowLeftIcon/> : <MenuIcon />}
             </IconButton>
             <Box
                 sx={theme => ({

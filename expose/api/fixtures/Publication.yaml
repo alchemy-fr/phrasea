@@ -1,67 +1,104 @@
 App\Entity\PublicationConfig:
-  config_1:
-    enabled: true
-    publiclyListed: true
-    downloadEnabled: true
-  config_download:
-    enabled: true
-    publiclyListed: true
-    layout: download
-  config_gallery:
-    enabled: true
-    publiclyListed: true
-    layout: gallery
-  config_grid:
-    enabled: true
-    publiclyListed: true
-    layout: grid
-  password-protected:
-    enabled: true
-    publiclyListed: true
-    layout: grid
-    securityMethod: password
-    password: xxx
-  auth-protected:
-    enabled: true
-    publiclyListed: true
-    layout: grid
-    securityMethod: authentication
+    config_1:
+        enabled: true
+        publiclyListed: true
+        downloadEnabled: true
+    config_download:
+        enabled: true
+        publiclyListed: true
+        layout: download
+    config_gallery:
+        enabled: true
+        publiclyListed: true
+        layout: gallery
+    config_grid:
+        enabled: true
+        publiclyListed: true
+        layout: grid
+    password-protected:
+        enabled: true
+        publiclyListed: true
+        layout: grid
+        securityMethod: password
+        password: xxx
+    auth-protected:
+        enabled: true
+        publiclyListed: true
+        layout: grid
+        securityMethod: authentication
 
 App\Entity\PublicationProfile:
-  pr_1:
-    name: 'Profile #1'
-    config: '@config_1'
+    pr_1:
+        name: 'Profile #1'
+        config: '@config_1'
 
 App\Entity\Publication:
-  pub_gallery:
-    title: Gallery publication
-    slug: gallery-pub
-    profile: '@pr_1'
-    config: '@config_gallery'
-    cover: '@a_img1'
+    pub_gallery:
+        title: Gallery publication
+        slug: gallery-pub
+        profile: '@pr_1'
+        config: '@config_gallery'
+        cover: '@a_img1'
 
-  pub_download:
-    title: Download publication
-    slug: download-pub
-    profile: '@pr_1'
-    config: '@config_download'
-    cover: '@a_img2'
+    pub_download:
+        title: Download publication
+        slug: download-pub
+        profile: '@pr_1'
+        config: '@config_download'
+        cover: '@a_img2'
 
-  pub_grid:
-    title: Grid publication
-    slug: grid-pub
-    profile: '@pr_1'
-    config: '@config_grid'
-    cover: '@a_img3'
+    pub_grid:
+        title: Grid publication
+        slug: grid-pub
+        profile: '@pr_1'
+        config: '@config_grid'
+        cover: '@a_img3'
 
-  pub_password:
-    title: Password protected publication
-    profile: '@pr_1'
-    config: '@password-protected'
-    cover: '@a_img4'
+    pub_password:
+        title: Password protected publication
+        profile: '@pr_1'
+        config: '@password-protected'
+        cover: '@a_img4'
 
-  pub_auth:
-    title: Auth protected publication
-    slug: auth-protected
-    profile: '@pr_1'
-    config: '@auth-protected'
+    pub_auth:
+        title: Auth protected publication
+        slug: auth-protected
+        profile: '@pr_1'
+        config: '@auth-protected'
+
+    pub_tree1:
+        title: Tree Root Publication 1
+        slug: tree-root-1
+        profile: '@pr_1'
+        config: '@password-protected'
+
+    pub_tree2:
+        title: Tree Root Publication 2
+        slug: tree-root-2
+        profile: '@pr_1'
+        config: '@auth-protected'
+
+    pub_tree3:
+        title: Tree Root Publication 3
+        slug: tree-root-3
+        profile: '@pr_1'
+        config: '@auth-protected'
+
+    pub_tree1_1:
+        parent: '@pub_tree1'
+        title: Tree Child Publication 1.1
+        slug: tree-child-1-1
+        profile: '@pr_1'
+        config: '@auth-protected'
+
+    pub_tree1_2:
+        parent: '@pub_tree1'
+        title: Tree Child Publication 1.2
+        slug: tree-child-1-2
+        profile: '@pr_1'
+
+    pub_tree2_1:
+        parent: '@pub_tree2'
+        title: Tree Child Publication 2.1
+        slug: tree-child-2-1
+        profile: '@pr_1'
