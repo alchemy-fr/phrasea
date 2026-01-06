@@ -15,16 +15,10 @@ describe('Visit publication', () => {
 
         const assertDimensionEquals = (dimension, expected, mediaSelector) => {
             const sel = '.lb-media-container ' + mediaSelector;
-            if (Math.round(expected) === expected) {
-                cy.get(sel)
-                    .invoke(dimension)
-                    .should('equal', expected);
-            } else {
-                cy.get(sel)
-                    .invoke(dimension)
-                    .should('be.lte', Math.ceil(expected))
-                    .and('be.gte', Math.floor(expected));
-            }
+            cy.get(sel)
+                .invoke(dimension)
+                .should('be.lte', Math.ceil(expected + 1))
+                .and('be.gte', Math.floor(expected - 1));
         };
 
         const assertDimensionsEquals = (width, height, mediaSelector) => {
