@@ -264,6 +264,7 @@ jobs:
           docker compose build cypress &
           docker compose up -d --wait expose-api-php --wait-timeout 200 &
           wait
+          docker compose exec expose-api-php bin/console hautelook:fixtures:load -n
           docker compose restart expose-api-nginx
           docker compose run --rm cypress
 
