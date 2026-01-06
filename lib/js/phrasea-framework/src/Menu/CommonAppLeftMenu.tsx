@@ -61,7 +61,7 @@ export function CommonAppLeftMenu({
                     <ListItemIcon>
                         <LoginIcon />
                     </ListItemIcon>
-                    <ListItemText primary={t('menu.sign_in', 'Sign in')} />
+                    <ListItemText primary={t('menu.sign_in', 'Sign In')} />
                 </MenuItem>
             ) : (
                 <UserMenu

@@ -69,7 +69,7 @@ export function CommonAppTopMenu({
                     component={'a'}
                     href={getLoginUrl()}
                 >
-                    {t('menu.sign_in', 'Sign in')}
+                    {t('menu.sign_in', 'Sign In')}
                 </Button>
             ) : (
                 <UserMenu
