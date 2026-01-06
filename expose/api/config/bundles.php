@@ -11,7 +11,7 @@ return [
     ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class => ['all' => true],
     Nelmio\Alice\Bridge\Symfony\NelmioAliceBundle::class => ['dev' => true, 'test' => true],
     Fidry\AliceDataFixtures\Bridge\Symfony\FidryAliceDataFixturesBundle::class => ['dev' => true, 'test' => true],
-    Hautelook\AliceBundle\HautelookAliceBundle::class => ['dev' => true, 'test' => true],
+    Hautelook\AliceBundle\HautelookAliceBundle::class => ['all' => true],
     Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['dev' => true, 'test' => true],
     Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true, 'test' => true],
     Oneup\FlysystemBundle\OneupFlysystemBundle::class => ['all' => true],
