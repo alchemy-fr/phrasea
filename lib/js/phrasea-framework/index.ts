@@ -16,7 +16,8 @@ import AssetTypeIcon from './src/FilePlayer/AssetTypeIcon';
 import PdfView from './src/FilePlayer/Players/PdfView'
 import AlertDialog from './src/Dialog/AlertDialog';
 import {AppLogo} from './src/Menu/AppLogo';
-import HorizontalAppBar from './src/Menu/HorizontalAppBar';
+import HorizontalAppMenu from './src/Menu/HorizontalAppMenu';
+import VerticalAppMenu from './src/Menu/VerticalAppMenu';
 export {
     AppProvider,
     initApp,
@@ -37,7 +38,8 @@ export {
     AssetTypeIcon,
     PdfView,
     AppLogo,
-    HorizontalAppBar,
+    HorizontalAppMenu,
+    VerticalAppMenu,
 };
 export * from './src/Theme/types';
 export * from './src/Dialog/types';
