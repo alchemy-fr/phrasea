@@ -10,8 +10,12 @@ export default function DashboardBar({children}: Props) {
     return (
         <HorizontalAppMenu
             config={config}
-            keycloakClient={keycloakClient}
-            appTitle={t('common.dashboard', `Dashboard`)}
+            logoProps={{
+                appTitle: t('common.dashboard', `Dashboard`),
+            }}
+            commonMenuProps={{
+                keycloakClient,
+            }}
         >
             {children}
         </HorizontalAppMenu>
