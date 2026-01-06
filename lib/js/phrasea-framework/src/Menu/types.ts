@@ -1,8 +1,9 @@
 import {KeycloakClient} from '@alchemy/auth';
-import React from 'react';
+import React, {PropsWithChildren} from 'react';
 import {LocaleDialogProps} from '../Locale/types';
 import {NotificationUriHandler} from '@alchemy/notification';
 import {DropdownActionsProps} from '@alchemy/phrasea-ui';
+import {Theme} from '@mui/material';
 
 export type CommonMenuProps = {
     config: WindowConfig;
@@ -23,9 +24,10 @@ export type SettingDropdownProps = {
     anchorOrigin?: DropdownActionsProps['anchorOrigin'];
     transformOrigin?: DropdownActionsProps['transformOrigin'];
 } & SettingDropdownBaseProps;
+
 export type AppLogoProps = {
     appTitle: string;
-    onClick?: () => void;
+    onLogoClick?: () => void;
     config: {
         logo?: {
             src?: string;
@@ -33,3 +35,10 @@ export type AppLogoProps = {
         };
     };
 };
+
+export type AppMenuProps = PropsWithChildren<{
+    config: WindowConfig;
+    sx?: React.CSSProperties | ((theme: Theme) => React.CSSProperties);
+    commonMenuProps: Omit<CommonMenuProps, 'config'>;
+    logoProps: Omit<AppLogoProps, 'config'>;
+}>;

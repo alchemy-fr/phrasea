@@ -3,17 +3,16 @@ import {parseInlineStyle} from '@alchemy/core';
 import {Typography} from '@mui/material';
 import {AppLogoProps} from './types';
 
-export function AppLogo({appTitle, config, onClick}: AppLogoProps) {
+export function AppLogo({appTitle, config, onLogoClick}: AppLogoProps) {
     return (
         <>
             <Typography
                 variant="h1"
                 noWrap
                 component="div"
-                onClick={onClick}
+                onClick={onLogoClick}
                 sx={theme => ({
                     fontSize: 20,
-                    p: 2,
                     color: theme.palette.primary.main,
                     display: 'flex',
                 })}
@@ -23,7 +22,7 @@ export function AppLogo({appTitle, config, onClick}: AppLogoProps) {
                         src={config.logo.src}
                         alt={appTitle}
                         style={{
-                            cursor: onClick ? 'pointer' : undefined,
+                            cursor: onLogoClick ? 'pointer' : undefined,
                             ...(config.logo!.style
                                 ? parseInlineStyle(config.logo.style)
                                 : {maxHeight: 32, maxWidth: 150}),
@@ -41,7 +40,7 @@ export function AppLogo({appTitle, config, onClick}: AppLogoProps) {
                             style={{
                                 height: 32,
                                 marginRight: 8,
-                                cursor: onClick ? 'pointer' : undefined,
+                                cursor: onLogoClick ? 'pointer' : undefined,
                                 ...(config.logo?.style
                                     ? parseInlineStyle(config.logo!.style)
                                     : {maxHeight: 32, maxWidth: 150}),
