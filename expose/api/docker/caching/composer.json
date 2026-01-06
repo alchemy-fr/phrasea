@@ -90,6 +90,7 @@
         "doctrine/doctrine-bundle": "^2.9",
         "doctrine/doctrine-migrations-bundle": "^3",
         "doctrine/orm": "^2",
+        "hautelook/alice-bundle": "^2.10",
         "exercise/htmlpurifier-bundle": "^4.0",
         "lcobucci/clock": "^3.2",
         "nelmio/cors-bundle": "^2.1",
@@ -131,7 +132,6 @@
     "require-dev": {
         "alchemy/api-test": "@dev",
         "friendsofphp/php-cs-fixer": "^3.17",
-        "hautelook/alice-bundle": "^2.10",
         "php-parallel-lint/php-var-dump-check": "v0.5",
         "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "^9.5",

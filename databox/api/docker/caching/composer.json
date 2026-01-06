@@ -101,6 +101,13 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/track-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/api-test",
             "options": {
                 "symlink": true
