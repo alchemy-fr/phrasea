@@ -33,7 +33,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Delete(security: 'is_granted("DELETE", object)'),
         new GetCollection(
             normalizationContext: [
-                'groups' => [self::GROUP_LIST],
+                'groups' => [self::GROUP_INDEX],
             ],
         ),
         new Post(security: 'is_granted("profile:create")'),
@@ -54,25 +54,26 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     use CapabilitiesTrait;
     use ClientAnnotationsTrait;
 
-    final public const string GROUP_ADMIN_READ = 'profile:admin:read';
-    final public const string GROUP_READ = 'profile:read';
-    final public const string GROUP_LIST = 'profile:index';
+    private const string GROUP_PREFIX = 'profile:';
+    final public const string GROUP_READ = self::GROUP_PREFIX.'read';
+    final public const string GROUP_ADMIN_READ = 'admin:'.self::GROUP_READ;
+    final public const string GROUP_INDEX = self::GROUP_PREFIX.'index';
 
     /**
      * @var Uuid
      */
     #[ApiProperty(identifier: true)]
-    #[Groups([self::GROUP_LIST, self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_READ, Publication::GROUP_READ])]
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     private UuidInterface $id;
 
     #[ORM\Column(type: Types::STRING, length: 150)]
-    #[Groups([self::GROUP_LIST, self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $name = null;
 
     #[ORM\Embedded(class: PublicationConfig::class)]
-    #[Groups([self::GROUP_LIST, self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_READ, Publication::GROUP_READ])]
     private PublicationConfig $config;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]

@@ -290,7 +290,8 @@ class Asset implements MediaInterface, \Stringable
     use ClientAnnotationsTrait;
 
     final public const string GET_ASSET_ROUTE_NAME = 'get_asset';
-    final public const string GROUP_READ = 'asset:read';
+    final public const string GROUP_READ = 'asset:r';
+    final public const string GROUP_ADMIN_READ = 'admin:'.self::GROUP_READ;
 
     /**
      * @var Uuid
@@ -329,7 +330,7 @@ class Asset implements MediaInterface, \Stringable
     private ?string $originalName = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
-    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_LIST])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_INDEX])]
     private ?string $mimeType = null;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
@@ -376,7 +377,7 @@ class Asset implements MediaInterface, \Stringable
     private ?float $lng = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups(['asset:admin:read'])]
+    #[Groups([Asset::GROUP_ADMIN_READ])]
     #[Assert\All([
         new Assert\Collection(
             fields: [
@@ -424,19 +425,19 @@ class Asset implements MediaInterface, \Stringable
     private ?string $url = null;
 
     #[ApiProperty(writable: false)]
-    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_LIST])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_INDEX])]
     private ?string $downloadUrl = null;
 
     #[ApiProperty(writable: false)]
-    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_LIST])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_INDEX])]
     private ?string $thumbUrl = null;
 
     #[ApiProperty(writable: false)]
-    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_LIST])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_INDEX])]
     private ?string $previewUrl = null;
 
     #[ApiProperty(writable: false)]
-    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_LIST])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_INDEX])]
     private ?string $posterUrl = null;
 
     #[ApiProperty(writable: false)]
