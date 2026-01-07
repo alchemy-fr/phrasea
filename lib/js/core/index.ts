@@ -4,7 +4,7 @@ import {createPusher, registerPusherWs} from './src/pusher';
 import {deepEquals} from './src/objectUtils';
 import {parseInlineStyle} from './src/style';
 import {isObject, mergeDeep} from './src/merge';
-import {resolveSx} from './src/sxUtils';
+import {resolveSx, sumSpacing} from './src/sxUtils';
 import {dataURLtoFile, getFileTypeFromMIMEType, validateUrl} from './src/fileUtils';
 import {createStrictDimensions, getRatioDimensions, getSizeCase} from './src/sizeUtils';
 export {
@@ -25,5 +25,6 @@ export {
     getSizeCase,
     getRatioDimensions,
     createStrictDimensions,
+    sumSpacing,
 };
 export * from './src/types';

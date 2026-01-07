@@ -7,20 +7,17 @@ namespace App\Doctrine;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
-use Alchemy\AuthBundle\Security\Voter\ScopeVoter;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Publication;
 use App\Security\ScopeInterface;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Bundle\SecurityBundle\Security;
 
-class PublicationExtension implements QueryCollectionExtensionInterface
+final class PublicationExtension implements QueryCollectionExtensionInterface
 {
-    public function __construct(private readonly Security $security)
-    {
-    }
+    use SecurityAwareTrait;
 
     public function applyToCollection(
         QueryBuilder $queryBuilder,
@@ -40,7 +37,7 @@ class PublicationExtension implements QueryCollectionExtensionInterface
 
         if (
             !$this->security->isGranted(JwtUser::ROLE_ADMIN)
-            && !$this->security->isGranted(ScopeVoter::PREFIX.ScopeInterface::SCOPE_PUBLISH)
+            && !$this->hasScope(ScopeInterface::SCOPE_PUBLISH)
         ) {
             $queryBuilder->leftJoin($rootAlias.'.profile', 'p');
 

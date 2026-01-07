@@ -33,14 +33,13 @@ export function AppLogo({appTitle, config, onLogoClick}: AppLogoProps) {
                         style={{
                             display: 'flex',
                             alignItems: 'center',
-                            cursor: 'pointer',
+                            cursor: onLogoClick ? 'pointer' : undefined,
                         }}
                     >
                         <img
                             style={{
                                 height: 32,
                                 marginRight: 8,
-                                cursor: onLogoClick ? 'pointer' : undefined,
                                 ...(config.logo?.style
                                     ? parseInlineStyle(config.logo!.style)
                                     : {maxHeight: 32, maxWidth: 150}),

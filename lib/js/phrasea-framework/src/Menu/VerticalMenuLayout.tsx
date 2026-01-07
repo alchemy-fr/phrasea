@@ -1,9 +1,11 @@
 import {PropsWithChildren, ReactNode, useState} from 'react';
-import {IconButton, Theme, useMediaQuery} from '@mui/material';
+import {IconButton, Theme, useMediaQuery, useTheme} from '@mui/material';
 import {AppMenuProps} from './types';
 import VerticalAppMenu from './VerticalAppMenu';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import MenuIcon from '@mui/icons-material/Menu';
+import Box from '@mui/material/Box';
+import {sumSpacing} from '@alchemy/core';
 
 type Props = PropsWithChildren<{
     header?: ReactNode;
@@ -17,10 +19,11 @@ export default function VerticalMenuLayout({
     ...appMenuProps
 }: Props) {
     const menuWidth = 320;
-    const isSmallView = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down('md')
-    );
+    const theme = useTheme();
+    const isSmallView = useMediaQuery(theme.breakpoints.down('md'));
     const [open, setOpen] = useState(!isSmallView);
+
+    const buttonWidth = 40;
 
     return (
         <div
@@ -52,7 +55,7 @@ export default function VerticalMenuLayout({
                         boxShadow: 1,
                         transition: 'transform 0.3s ease-in-out',
                         transform: !open
-                            ? `translateX(${theme.spacing(7)})`
+                            ? `translateX(${theme.spacing(sumSpacing(theme, 2, buttonWidth))})`
                             : `translateX(${theme.spacing(-2)})`,
                     })}
                     onClick={() => setOpen(o => !o)}
@@ -63,18 +66,19 @@ export default function VerticalMenuLayout({
                     {menuChildren}
                 </VerticalAppMenu>
             </div>
-            <div style={{
-                flexGrow: 1,
-            }}>
-
             <div
                 style={{
-                    marginLeft: !open || isSmallView ? 50 : 0,
+                    flexGrow: 1,
                 }}
             >
-                {header}
-            </div>
-            {children}
+                <Box
+                    sx={theme => ({
+                        marginLeft: !open || isSmallView ? sumSpacing(theme, 4, buttonWidth) : 0,
+                    })}
+                >
+                    {header}
+                </Box>
+                {children}
             </div>
         </div>
     );

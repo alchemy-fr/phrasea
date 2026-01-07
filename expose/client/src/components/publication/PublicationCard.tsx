@@ -5,11 +5,12 @@ import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Typography from '@mui/material/Typography';
 import {Publication} from '../../types.ts';
-import {Button, CardActionArea} from '@mui/material';
+import {Button, CardActionArea, Tooltip} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {getPath, Link} from '@alchemy/navigation';
 import {routes} from '../../routes.ts';
-
+import {getTranslatedDescription, getTranslatedTitle} from '../../i18n.ts';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 type Props = {
     publication: Publication;
 };
@@ -26,6 +27,39 @@ export default function PublicationCard({publication}: Props) {
                     id: publication.slug || publication.id,
                 })}
             >
+                {(!publication.enabled || !publication.publiclyListed) && (
+                    <Tooltip
+                        sx={theme => ({
+                            position: 'absolute',
+                            zIndex: 1,
+                            top: theme.spacing(1),
+                            right: theme.spacing(1),
+                            color: theme.palette.error.main,
+                        })}
+                        title={
+                            <>
+                                {!publication.enabled && (
+                                    <div>
+                                        {t(
+                                            'publication_card.disabled_tooltip',
+                                            'This publication is disabled, only operators can access it.'
+                                        )}
+                                    </div>
+                                )}
+                                {!publication.publiclyListed && (
+                                    <div>
+                                        {t(
+                                            'publication_card.unlisted',
+                                            'This publication is not listed, you can see it because you have such permisions'
+                                        )}
+                                    </div>
+                                )}
+                            </>
+                        }
+                    >
+                        <VisibilityOffIcon />
+                    </Tooltip>
+                )}
                 <CardMedia
                     component="img"
                     height="194"
@@ -35,15 +69,20 @@ export default function PublicationCard({publication}: Props) {
                     }
                     sx={theme => ({
                         bgcolor: theme.palette.grey[200],
+                        ...(!publication.enabled
+                            ? {
+                                  opacity: 0.5,
+                              }
+                            : {}),
                     })}
                     alt={publication.title}
                 />
                 <CardContent>
                     <Typography gutterBottom variant="h5" component="div">
-                        {publication.title}
+                        {getTranslatedTitle(publication)}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        {publication.description}
+                        {getTranslatedDescription(publication)}
                     </Typography>
                 </CardContent>
             </CardActionArea>

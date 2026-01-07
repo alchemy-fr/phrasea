@@ -1,5 +1,5 @@
 App\Entity\PublicationConfig:
-    config_1:
+    config_download_enabled:
         enabled: true
         publiclyListed: true
         downloadEnabled: true
@@ -15,22 +15,41 @@ App\Entity\PublicationConfig:
         enabled: true
         publiclyListed: true
         layout: grid
-    password-protected:
+    config_pasword:
         enabled: true
         publiclyListed: true
         layout: grid
         securityMethod: password
         password: xxx
-    auth-protected:
+    config_auth:
         enabled: true
         publiclyListed: true
         layout: grid
         securityMethod: authentication
+    config_terms:
+        enabled: true
+        publiclyListed: true
+        terms: '@terms_config_1'
+    config_download_via_email:
+        enabled: true
+        publiclyListed: true
+        downloadEnabled: true
+        downloadViaEmail: true
+    config_disabled:
+        enabled: false
+    config_unlisted:
+        enabled: true
+        publiclyListed: false
+
+App\Entity\TermsConfig:
+    terms_config_1:
+        text: 'These are the terms and conditions for using this publication.'
+        url: 'https://example.com/terms-and-conditions'
 
 App\Entity\PublicationProfile:
     pr_1:
         name: 'Profile #1'
-        config: '@config_1'
+        config: '@config_download_enabled'
 
 App\Entity\Publication:
     pub_gallery:
@@ -60,36 +79,36 @@ App\Entity\Publication:
     pub_password:
         title: Password protected publication
         profile: '@pr_1'
-        config: '@password-protected'
+        config: '@config_pasword'
         cover: '@a_img4'
 
     pub_auth:
         title: Auth protected publication
         description: 'A publication protected by authentication'
-        slug: auth-protected
+        slug: config_auth
         profile: '@pr_1'
-        config: '@auth-protected'
+        config: '@config_auth'
 
     pub_tree1:
         title: Tree Root Publication 1
         description: 'The first root publication in a tree structure'
         slug: tree-root-1
         profile: '@pr_1'
-        config: '@password-protected'
+        config: '@config_pasword'
 
     pub_tree2:
         title: Tree Root Publication 2
         description: 'The second root publication in a tree structure'
         slug: tree-root-2
         profile: '@pr_1'
-        config: '@auth-protected'
+        config: '@config_auth'
 
     pub_tree3:
         title: Tree Root Publication 3
         description: 'The third root publication in a tree structure'
         slug: tree-root-3
         profile: '@pr_1'
-        config: '@auth-protected'
+        config: '@config_auth'
 
     pub_tree1_1:
         parent: '@pub_tree1'
@@ -97,7 +116,7 @@ App\Entity\Publication:
         description: 'First child of the first root publication'
         slug: tree-child-1-1
         profile: '@pr_1'
-        config: '@auth-protected'
+        config: '@config_auth'
 
     pub_tree1_2:
         parent: '@pub_tree1'
@@ -113,9 +132,37 @@ App\Entity\Publication:
         slug: tree-child-1-2-1
         profile: '@pr_1'
 
+    pub_tree1_2_1_1:
+        parent: '@pub_tree1_2_1'
+        title: Tree Child Publication 1.2.1.1
+        description: 'Child of the child of the second child of the first root publication'
+        slug: tree-child-1-2-1-1
+        profile: '@pr_1'
+
     pub_tree2_1:
         parent: '@pub_tree2'
         title: Tree Child Publication 2.1
         description: 'First child of the second root publication'
         slug: tree-child-2-1
         profile: '@pr_1'
+
+    pub_terms:
+        title: Terms and Conditions publication
+        description: 'A publication that requires acceptance of terms and conditions before access.'
+        config: '@config_terms'
+        slug: terms
+    pub_download_via_email:
+        title: Download via Email publication
+        description: 'A publication that allows users to download content via email.'
+        config: '@config_download_via_email'
+        slug: download-via-email
+    pub_disabled:
+        title: Disabled publication
+        description: 'This publication is disabled and should not be accessible to users.'
+        config: '@config_disabled'
+        slug: disabled
+    pub_unlisted:
+        title: Unlisted publication
+        description: 'This publication is unlisted and should not appear in public listings.'
+        config: '@config_unlisted'
+        slug: unlisted

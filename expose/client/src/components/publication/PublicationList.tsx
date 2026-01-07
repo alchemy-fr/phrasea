@@ -7,7 +7,7 @@ import {DropdownActions, FullPageLoader} from '@alchemy/phrasea-ui';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import PublicationCard from './PublicationCard.tsx';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
-import AppBar from '../UI/AppBar.tsx';
+import AppBar from '../ui/AppBar.tsx';
 
 type Props = {};
 

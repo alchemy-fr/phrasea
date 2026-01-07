@@ -1,6 +1,6 @@
 import React, {FormEvent, useRef} from 'react';
 import {Trans} from 'react-i18next';
-import {apiClient} from '../../../init.ts';
+import {apiClient} from '../../../../init.ts';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps} from '@alchemy/navigation';
 import {useTranslation} from 'react-i18next';

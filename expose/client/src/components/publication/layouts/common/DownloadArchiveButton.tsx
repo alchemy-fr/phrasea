@@ -1,6 +1,6 @@
 import {Button} from '@mui/material';
 import {useTranslation} from 'react-i18next';
-import {Publication} from '../../../types.ts';
+import {Publication} from '../../../../types.ts';
 import ArchiveIcon from '@mui/icons-material/Archive';
 
 type Props = {
