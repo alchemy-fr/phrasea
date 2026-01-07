@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Doctrine;
+namespace App\Doctrine\Listener;
 
 use App\Entity\Asset;
 use App\Entity\Publication;
@@ -17,9 +17,9 @@ use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::prePersist)]
 #[AsDoctrineListener(Events::preUpdate)]
-class DescriptionListener implements EventSubscriber
+readonly class DescriptionListener implements EventSubscriber
 {
-    public function __construct(private readonly \HTMLPurifier $purifier)
+    public function __construct(private \HTMLPurifier $purifier)
     {
     }
 
