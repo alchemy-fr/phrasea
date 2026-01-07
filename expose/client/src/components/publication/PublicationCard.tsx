@@ -7,10 +7,10 @@ import Typography from '@mui/material/Typography';
 import {Publication} from '../../types.ts';
 import {Button, CardActionArea, Tooltip} from '@mui/material';
 import {useTranslation} from 'react-i18next';
-import {getPath, Link} from '@alchemy/navigation';
-import {routes} from '../../routes.ts';
+import {Link} from '@alchemy/navigation';
 import {getTranslatedDescription, getTranslatedTitle} from '../../i18n.ts';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import {getPublicationPath} from '../../hooks/useNavigateToPublication.ts';
 type Props = {
     publication: Publication;
 };
@@ -23,9 +23,7 @@ export default function PublicationCard({publication}: Props) {
         <Card>
             <CardActionArea
                 component={Link}
-                to={getPath(routes.publication, {
-                    id: publication.slug || publication.id,
-                })}
+                to={getPublicationPath(publication)}
             >
                 {(!publication.enabled || !publication.publiclyListed) && (
                     <Tooltip

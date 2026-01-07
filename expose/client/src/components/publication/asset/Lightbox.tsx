@@ -1,8 +1,7 @@
 import {Box, IconButton, Theme, useMediaQuery, useTheme} from '@mui/material';
 import {Asset, Publication, Thumb} from '../../../types.ts';
-import {getPath, Link, useNavigate} from '@alchemy/navigation';
+import {Link} from '@alchemy/navigation';
 import React, {useEffect, useMemo, useRef} from 'react';
-import {routes} from '../../../routes.ts';
 import {
     FilePlayer,
     FilePlayerClasses,
@@ -18,6 +17,7 @@ import {SystemCssProperties} from '@mui/system';
 import AssetIconThumbnail, {thumbSx} from './AssetIconThumbnail.tsx';
 import classNames from 'classnames';
 import {useTracker} from '../../../hooks/useTracker.ts';
+import {useNavigateToPublication} from '../../../hooks/useNavigateToPublication.ts';
 
 type Props = {
     thumbs: Thumb[];
@@ -35,7 +35,7 @@ enum Classes {
 }
 
 export default function Lightbox({publication, thumbs, asset}: Props) {
-    const navigate = useNavigate();
+    const navigateToPublication = useNavigateToPublication();
     const containerRef = useRef<HTMLDivElement>(null);
 
     useTracker({
@@ -49,26 +49,17 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
             const newIndex =
                 (currentIndex + inc + thumbs.length) % thumbs.length;
 
-            navigate(
-                getPath(routes.publication.routes.asset, {
-                    id: publication.slug || publication.id,
-                    assetId: thumbs[newIndex].id,
-                })
-            );
+            navigateToPublication(publication, thumbs[newIndex].id);
         };
 
         return {
             goNext: handler(1),
             goPrevious: handler(-1),
             close: () => {
-                navigate(
-                    getPath(routes.publication, {
-                        id: publication.slug || publication.id,
-                    })
-                );
+                navigateToPublication(publication);
             },
         };
-    }, [thumbs, navigate, publication, asset]);
+    }, [thumbs, navigateToPublication, publication, asset]);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {

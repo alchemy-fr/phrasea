@@ -52,6 +52,13 @@ export type Publication = {
         delete: boolean;
         operator: boolean;
     };
+    urls?: PublicationUrl[];
+    copyrightText?: string;
+};
+
+export type PublicationUrl = {
+    text: string;
+    url: string;
 };
 
 export type WebVTT = {

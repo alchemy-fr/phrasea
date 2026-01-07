@@ -19,6 +19,7 @@ import {AppLogo} from './src/Menu/AppLogo';
 import HorizontalAppMenu from './src/Menu/HorizontalAppMenu';
 import VerticalAppMenu from './src/Menu/VerticalAppMenu';
 import VerticalMenuLayout from './src/Menu/VerticalMenuLayout';
+import NavigationTree from './src/Tree/NavigationTree';
 export {
     AppProvider,
     initApp,
@@ -42,8 +43,11 @@ export {
     HorizontalAppMenu,
     VerticalAppMenu,
     VerticalMenuLayout,
+    NavigationTree,
 };
+
 export * from './src/Theme/types';
 export * from './src/Dialog/types';
 export * from './src/Locale/types';
 export * from './src/FilePlayer/types';
+export * from './src/Tree/types';

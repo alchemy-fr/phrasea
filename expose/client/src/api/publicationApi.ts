@@ -1,7 +1,7 @@
 import {Publication} from '../types.ts';
 import {apiClient} from '../init.ts';
 import {RawAxiosRequestHeaders} from 'axios';
-import {getPasswords} from '../lib/credential';
+import {getPasswords} from '../lib/password.ts';
 
 export async function loadPublication(id: string): Promise<Publication> {
     return (

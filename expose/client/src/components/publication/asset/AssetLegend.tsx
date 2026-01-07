@@ -2,6 +2,7 @@ import {Asset, Publication} from '../../../types.ts';
 import {Box, Button, Typography} from '@mui/material';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import {useTranslation} from 'react-i18next';
+import {useDownload} from '../../../hooks/useDownload.ts';
 
 type Props = {
     publication: Publication;
@@ -10,38 +11,43 @@ type Props = {
 
 export default function AssetLegend({publication, asset}: Props) {
     const {t} = useTranslation();
-    if (!asset.title && !asset.description) {
+
+    const onDownload = useDownload({
+        url: asset.downloadUrl,
+        publication,
+    });
+
+    if (!asset.title && !asset.description && !publication.downloadEnabled) {
         return null;
     }
 
     return (
-        <div>
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+            }}
+        >
             {asset.title ? (
-                <Typography
-                    variant={'h1'}
-                    sx={{
-                        mb: 2,
-                    }}
-                >
-                    {asset.title}
-                </Typography>
+                <Typography variant={'h1'}>{asset.title}</Typography>
             ) : null}
 
             {publication.downloadEnabled && asset.downloadUrl && (
-                <Box sx={{mb: 2}}>
+                <div>
                     <Button
                         variant={'contained'}
-                        href={asset.downloadUrl}
+                        onClick={onDownload}
                         startIcon={<GetAppIcon />}
                     >
                         {t('publication.asset.download', 'Download')}
                     </Button>
-                </Box>
+                </div>
             )}
 
             {asset.description ? (
                 <Typography variant={'body1'}>{asset.description}</Typography>
             ) : null}
-        </div>
+        </Box>
     );
 }

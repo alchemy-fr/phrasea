@@ -5,31 +5,38 @@ import {TermsConfig} from '../../../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {Box, Button, Typography} from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
+import {StackedModalProps, useModals} from '@alchemy/navigation';
 
 type Props = {
-    accepted: boolean;
     terms: TermsConfig;
     onAccept: () => void;
-};
+} & StackedModalProps;
 
-export default function TermsDialog({
-    accepted,
+export default function DownloadTermsDialog({
     onAccept,
     terms: {text, url},
+    open,
+    modalIndex,
 }: Props) {
     const {t} = useTranslation();
+    const {closeModal} = useModals();
 
     return (
         <AppDialog
-            hideCloseButton={true}
-            modalIndex={0}
+            modalIndex={modalIndex}
             maxWidth={'sm'}
-            open={!accepted}
-            onClose={() => {}}
-            title={t('terms.dialog.title', 'Terms and Conditions')}
+            open={open}
+            onClose={closeModal}
+            title={t(
+                'download_terms.dialog.title',
+                'Download Terms and Conditions'
+            )}
             actions={({onClose}) => {
                 return (
                     <>
+                        <Button onClick={onClose}>
+                            {t('download_terms.dialog.cancel', 'Cancel')}
+                        </Button>
                         <Button
                             startIcon={<CheckIcon />}
                             variant={'contained'}
@@ -38,7 +45,10 @@ export default function TermsDialog({
                                 onClose();
                             }}
                         >
-                            {t('terms.dialog.title.accept', 'Accept')}
+                            {t(
+                                'download_terms.dialog.accept',
+                                'Accept & Download'
+                            )}
                         </Button>
                     </>
                 );
@@ -54,30 +64,34 @@ export default function TermsDialog({
                     />
                 )}
                 {url && (
-                    <Typography variant={'body1'}>
+                    <Typography variant={'body1'} component={'div'}>
                         {!text ? (
                             <>
                                 <Trans
                                     i18nKey={
-                                        'terms.dialog.title.please_read_accept'
+                                        'download_terms.dialog.please_read_accept'
                                     }
                                     components={{
                                         link: (
                                             <a href={url} target={'_blank'} />
                                         ),
                                     }}
-                                    defaults={`Please Read and Accept the <link>Terms</link>`}
+                                    defaults={`Please Read and Accept the Download <link>Terms</link>`}
                                 />
                             </>
                         ) : (
                             <Box sx={{mt: 2}}>
-                                <a
+                                <Button
+                                    variant={'outlined'}
                                     href={url}
                                     target={'_blank'}
                                     rel={'noopener noreferrer'}
                                 >
-                                    {t('terms.dialog.title.terms_cta', 'Terms')}
-                                </a>
+                                    {t(
+                                        'download_terms.dialog.terms_cta',
+                                        'View Download Terms'
+                                    )}
+                                </Button>
                             </Box>
                         )}
                     </Typography>

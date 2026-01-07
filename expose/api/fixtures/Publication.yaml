@@ -29,7 +29,9 @@ App\Entity\PublicationConfig:
     config_terms:
         enabled: true
         publiclyListed: true
+        downloadEnabled: true
         terms: '@terms_config_1'
+        downloadTerms: '@terms_config_download'
     config_download_via_email:
         enabled: true
         publiclyListed: true
@@ -43,7 +45,10 @@ App\Entity\PublicationConfig:
 
 App\Entity\TermsConfig:
     terms_config_1:
-        text: 'These are the terms and conditions for using this publication.'
+        text: 'These are the terms and conditions for USING this publication.'
+        url: 'https://example.com/terms-and-conditions'
+    terms_config_download:
+        text: 'These are the terms and conditions for DOWNLOADING content from this publication.'
         url: 'https://example.com/terms-and-conditions'
 
 App\Entity\PublicationProfile:
