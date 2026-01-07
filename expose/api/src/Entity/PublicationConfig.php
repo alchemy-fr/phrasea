@@ -193,7 +193,7 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     public function setTerms(TermsConfig $terms): void
     {
-        $this->terms->mergeWith($terms);
+        $this->terms = $this->terms->mergeWith($terms);
     }
 
     public function getDownloadTerms(): TermsConfig
@@ -203,7 +203,7 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     public function setDownloadTerms(TermsConfig $terms): void
     {
-        $this->downloadTerms->mergeWith($terms);
+        $this->downloadTerms = $this->downloadTerms->mergeWith($terms);
     }
 
     public function getSecurityMethod(): ?string
