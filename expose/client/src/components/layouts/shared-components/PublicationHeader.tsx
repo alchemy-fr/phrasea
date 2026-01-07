@@ -1,15 +1,19 @@
 import Description from '../../Publication/Description.tsx';
 import moment from 'moment';
 import {Publication} from '../../../types.ts';
-import {getTranslatedDescription, getTranslatedTitle} from '../../../i18n.ts';
+import {
+    appLocales,
+    getTranslatedDescription,
+    getTranslatedTitle,
+} from '../../../i18n.ts';
 import {Box, Breadcrumbs, Container, Typography} from '@mui/material';
-import {config} from '../../../init.ts';
-import AppBar from '../../UI/AppBar.tsx';
-import {getPath, Link} from '@alchemy/navigation';
+import {config, keycloakClient} from '../../../init.ts';
+import {getPath, Link, useNavigate} from '@alchemy/navigation';
 import {routes} from '../../../routes.ts';
 import {useTranslation} from 'react-i18next';
 import HomeIcon from '@mui/icons-material/Home';
 import DownloadArchiveButton from './DownloadArchiveButton.tsx';
+import {VerticalMenuLayout} from '@alchemy/phrasea-framework';
 
 type Props = {
     publication: Publication;
@@ -18,21 +22,37 @@ type Props = {
 export default function PublicationHeader({publication}: Props) {
     const {assets, description, layoutOptions, date} = publication;
     const {t} = useTranslation();
+    const navigate = useNavigate();
 
     const downloadArchiveEnabled =
         publication.downloadEnabled && assets.length > 0;
+
+    const parents: Publication[] = [];
+    let currentParent = publication.parent;
+    let hasParent = publication.hasParent;
+    while (currentParent) {
+        hasParent = currentParent.hasParent;
+        parents.unshift(currentParent);
+        currentParent = currentParent.parent;
+    }
+
     return (
-        <Container
-            sx={{
-                mt: 1,
-                mb: 4,
+        <VerticalMenuLayout
+            config={config}
+            logoProps={{
+                appTitle: t('common.expose', 'Expose'),
+                onLogoClick: () => {
+                    navigate(getPath(routes.index));
+                },
             }}
-        >
-            <AppBar>
-                <div
-                    style={{
-                        position: 'relative',
-                        flexGrow: 1,
+            commonMenuProps={{
+                keycloakClient,
+                appLocales,
+            }}
+            header={
+                <Container
+                    sx={{
+                        py: 2,
                     }}
                 >
                     <Breadcrumbs aria-label="breadcrumb">
@@ -48,6 +68,21 @@ export default function PublicationHeader({publication}: Props) {
                             </Link>
                         )}
 
+                        {hasParent && (
+                            <div>
+                                <>...</>
+                            </div>
+                        )}
+
+                        {parents.map(p => (
+                            <Link
+                                key={p.id}
+                                to={getPath(routes.publication, {id: p.id})}
+                            >
+                                {getTranslatedTitle(p)}
+                            </Link>
+                        ))}
+
                         <div>
                             {layoutOptions.logoUrl && (
                                 <div className={'logo'}>
@@ -62,39 +97,48 @@ export default function PublicationHeader({publication}: Props) {
                     <Typography variant={'caption'}>
                         {moment(date).format('LLLL')}
                     </Typography>
-                </div>
-            </AppBar>
-
-            {(description || downloadArchiveEnabled) && (
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        gap: 2,
-                        mt: 2,
-                    }}
-                >
-                    <div
-                        style={{
-                            flexGrow: 1,
+                </Container>
+            }
+        >
+            <Container
+                sx={{
+                    mt: 1,
+                    mb: 4,
+                }}
+            >
+                {(description || downloadArchiveEnabled) && (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            gap: 2,
+                            mt: 2,
                         }}
                     >
-                        {Boolean(description) && (
-                            <Description
-                                descriptionHtml={getTranslatedDescription(
-                                    publication
-                                )}
-                            />
-                        )}
-                    </div>
-
-                    {downloadArchiveEnabled && (
-                        <div>
-                            <DownloadArchiveButton publication={publication} />
+                        <div
+                            style={{
+                                flexGrow: 1,
+                            }}
+                        >
+                            {Boolean(description) && (
+                                <Description
+                                    descriptionHtml={getTranslatedDescription(
+                                        publication
+                                    )}
+                                />
+                            )}
                         </div>
-                    )}
-                </Box>
-            )}
-        </Container>
+
+                        {downloadArchiveEnabled && (
+                            <div>
+                                <DownloadArchiveButton
+                                    publication={publication}
+                                />
+                            </div>
+                        )}
+                    </Box>
+                )}
+            </Container>
+        </VerticalMenuLayout>
     );
 }

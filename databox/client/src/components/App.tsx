@@ -12,7 +12,7 @@ import {setSentryUser} from '@alchemy/core';
 import {useAuth} from '@alchemy/react-auth';
 import AssetSearch from './AssetSearch/AssetSearch';
 import PendingUploads from './Upload/PendingUploads.tsx';
-import LeftMenu from './Layout/LeftMenu.tsx';
+import AppLayout from './Layout/AppLayout.tsx';
 
 function isDrawer(locationSearch: string): boolean {
     return locationSearch.includes('_m=');
@@ -46,26 +46,14 @@ const AppProxy = React.memo(
                 <SearchProvider>
                     <ResultProvider>
                         <AssetDropzone>
-                            <div
-                                style={{
-                                    height: '100vh',
-                                    display: 'flex',
-                                }}
+                            <AppLayout
+                                leftPanelOpen={leftPanelOpen}
+                                toggleLeftPanel={toggleLeftPanel}
                             >
-                                <LeftMenu
-                                    leftPanelOpen={leftPanelOpen}
-                                    toggleLeftPanel={toggleLeftPanel}
-                                />
-                                <div
-                                    style={{
-                                        flexGrow: 1,
-                                    }}
-                                >
-                                    <DisplayProvider>
-                                        <AssetSearch />
-                                    </DisplayProvider>
-                                </div>
-                            </div>
+                                <DisplayProvider>
+                                    <AssetSearch />
+                                </DisplayProvider>
+                            </AppLayout>
                         </AssetDropzone>
                     </ResultProvider>
                 </SearchProvider>

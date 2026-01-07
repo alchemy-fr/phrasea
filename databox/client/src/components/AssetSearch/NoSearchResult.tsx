@@ -1,13 +1,13 @@
 import {Trans} from 'react-i18next';
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
-import {Avatar, Typography} from '@mui/material';
+import {Avatar, Container, Typography} from '@mui/material';
 import {FlexRow} from '@alchemy/phrasea-ui';
 
 type Props = {};
 
 export default function NoSearchResult({}: Props) {
     return (
-        <div
+        <Container
             style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -60,6 +60,6 @@ export default function NoSearchResult({}: Props) {
                     </ul>
                 </div>
             </div>
-        </div>
+        </Container>
     );
 }

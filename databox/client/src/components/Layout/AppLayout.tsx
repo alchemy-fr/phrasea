@@ -1,6 +1,6 @@
-import React, {useContext} from 'react';
+import React, {PropsWithChildren, useContext} from 'react';
 import {config, keycloakClient} from '../../init.ts';
-import {VerticalAppMenu} from '@alchemy/phrasea-framework';
+import {VerticalMenuLayout} from '@alchemy/phrasea-framework';
 import ChangeThemeDialog from './ChangeThemeDialog.tsx';
 import LocaleDialog from '../Locale/LocaleDialog.tsx';
 import {appLocales} from '../../../translations/locales.ts';
@@ -9,18 +9,18 @@ import {SearchContext} from '../Media/Search/SearchContext.tsx';
 import {useTranslation} from 'react-i18next';
 import LeftPanel from '../Media/LeftPanel.tsx';
 
-type Props = {
+type Props = PropsWithChildren<{
     leftPanelOpen: boolean;
     toggleLeftPanel?: () => void;
-};
+}>;
 
-export default function LeftMenu({}: Props) {
+export default function AppLayout({children}: Props) {
     const searchContext = useContext(SearchContext)!;
     const onLogoClick = () => searchContext.reset();
     const {t} = useTranslation();
 
     return (
-        <VerticalAppMenu
+        <VerticalMenuLayout
             config={config}
             logoProps={{
                 onLogoClick,
@@ -33,8 +33,9 @@ export default function LeftMenu({}: Props) {
                 ChangeThemeDialog,
                 LocaleDialogComponent: LocaleDialog,
             }}
+            menuChildren={<LeftPanel />}
         >
-            <LeftPanel />
-        </VerticalAppMenu>
+            {children}
+        </VerticalMenuLayout>
     );
 }
