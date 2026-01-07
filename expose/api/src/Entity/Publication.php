@@ -210,14 +210,6 @@ class Publication implements AclObjectInterface, \Stringable
     private PublicationConfig $config;
 
     /**
-     * Virtual property.
-     *
-     * @deprecated
-     */
-    #[Groups([Publication::GROUP_WRITE])]
-    private ?string $parentId = null;
-
-    /**
      * URL slug.
      */
     #[Groups(['_', self::GROUP_INDEX, self::GROUP_READ, self::GROUP_READ])]
@@ -504,9 +496,9 @@ class Publication implements AclObjectInterface, \Stringable
     }
 
     #[Groups([self::GROUP_READ])]
-    public function hasParent(): bool
+    public function getParentId(): ?string
     {
-        return null !== $this->parent;
+        return $this->parent?->getId();
     }
 
     #[Groups([self::GROUP_READ])]
@@ -539,16 +531,6 @@ class Publication implements AclObjectInterface, \Stringable
     public function setOwnerId(?string $ownerId): void
     {
         $this->ownerId = $ownerId;
-    }
-
-    public function getParentId(): ?string
-    {
-        return $this->parentId;
-    }
-
-    public function setParentId(?string $parentId): void
-    {
-        $this->parentId = $parentId;
     }
 
     public function getConfig(): PublicationConfig

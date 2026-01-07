@@ -32,7 +32,7 @@ export type Publication = {
     securityMethod: SecurityMethod;
     parent?: Publication | undefined;
     rootPublication?: Publication | undefined;
-    hasParent: boolean;
+    parentId?: string;
     downloadViaEmail?: boolean;
     downloadEnabled?: boolean;
     title: string;
@@ -46,6 +46,7 @@ export type Publication = {
     translations?: Translations;
     date: string;
     enabled: boolean;
+    publiclyListed: boolean;
     capabilities: {
         edit: boolean;
         delete: boolean;

@@ -1,5 +1,5 @@
 import {useParams} from '@alchemy/navigation';
-import PublicationView from '../components/Publication/PublicationView.tsx';
+import PublicationView from '../components/publication/PublicationView.tsx';
 
 type Props = {};
 

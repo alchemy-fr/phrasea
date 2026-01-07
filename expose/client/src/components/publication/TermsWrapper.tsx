@@ -1,7 +1,7 @@
 import React, {PropsWithChildren} from 'react';
 import {isTermsAccepted, setAcceptedTerms} from '../../lib/credential.ts';
 import {Publication} from '../../types.ts';
-import TermsDialog from './TermsDialog.tsx';
+import TermsDialog from './layouts/common/TermsDialog.tsx';
 
 type Props = PropsWithChildren<{
     publication: Publication;

@@ -1,17 +1,16 @@
-import PublicationHeader from '../../../layouts/shared-components/PublicationHeader.tsx';
 import React from 'react';
 import {Box} from '@mui/material';
 import {useThumbs} from '../../../../hooks/useThumbs.tsx';
 import {Link} from '@alchemy/navigation';
 import {LayoutProps} from '../types.ts';
-import Lightbox from '../../Asset/Lightbox.tsx';
+import Lightbox from '../../asset/Lightbox.tsx';
 import {useContainerWidth} from '@alchemy/react-hooks/src/useContainerWidth.ts';
 import {buildLayoutFlat} from './buildLayout.ts';
 import {ThumbWithDimensions} from '../../../../types.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {ImageExtended} from './types.ts';
 import {Classes} from '../../types.ts';
-import AssetIconThumbnail, {thumbSx} from '../../Asset/AssetIconThumbnail.tsx';
+import AssetIconThumbnail, {thumbSx} from '../../asset/AssetIconThumbnail.tsx';
 
 type Props = {
     rowHeight?: number;
@@ -88,7 +87,6 @@ export default function GridLayout({
 
     return (
         <>
-            <PublicationHeader publication={publication} />
             {openedAsset ? (
                 <Lightbox
                     thumbs={thumbs}

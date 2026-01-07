@@ -6,3 +6,7 @@ export function resolveSx<T extends Theme, Style>(
 ): Style {
     return typeof sx === 'function' ? sx(theme) : (sx ?? {} as Style);
 }
+
+export function sumSpacing(theme: Theme, spacing: number, addedValue: number): string {
+    return `${(addedValue + parseInt(theme.spacing(spacing)))}px`;
+}

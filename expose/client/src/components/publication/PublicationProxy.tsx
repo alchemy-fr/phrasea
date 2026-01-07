@@ -4,9 +4,9 @@ import {securityMethods} from '../security/methods.tsx';
 import React, {PropsWithChildren} from 'react';
 import ErrorPage from '../ErrorPage.tsx';
 import {useTranslation} from 'react-i18next';
-import {Alert} from '@mui/material';
 import TermsWrapper from './TermsWrapper.tsx';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
+import PublicationHeader from './layouts/common/PublicationHeader.tsx';
 
 type Props = PropsWithChildren<{
     publication: Publication | undefined;
@@ -36,7 +36,6 @@ export default function PublicationProxy({
         securityContainerId,
         authorizationError,
         securityMethod,
-        enabled,
     } = publication!;
 
     if (!authorized) {
@@ -70,15 +69,11 @@ export default function PublicationProxy({
                     href={publication.cssLink}
                 />
             ) : null}
-            {!enabled && (
-                <Alert>
-                    {t(
-                        'publication.disabled',
-                        'This publication is currently disabled. Only administrators can see it.'
-                    )}
-                </Alert>
-            )}
-            <TermsWrapper publication={publication}>{children}</TermsWrapper>
+            <PublicationHeader publication={publication}>
+                <TermsWrapper publication={publication}>
+                    {children}
+                </TermsWrapper>
+            </PublicationHeader>
         </>
     );
 }

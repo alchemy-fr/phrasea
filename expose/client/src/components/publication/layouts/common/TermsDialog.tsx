@@ -1,7 +1,7 @@
 import {Trans} from 'react-i18next';
 import React from 'react';
 import {AppDialog} from '@alchemy/phrasea-ui';
-import {TermsConfig} from '../../types.ts';
+import {TermsConfig} from '../../../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {Button, Typography} from '@mui/material';
 
