@@ -31,6 +31,8 @@ export type Publication = {
     authorizationError?: AuthorizationError;
     securityMethod: SecurityMethod;
     parent?: Publication | undefined;
+    rootPublication?: Publication | undefined;
+    hasParent: boolean;
     downloadViaEmail?: boolean;
     downloadEnabled?: boolean;
     title: string;

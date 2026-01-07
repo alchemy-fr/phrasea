@@ -35,6 +35,7 @@ App\Entity\PublicationProfile:
 App\Entity\Publication:
     pub_gallery:
         title: Gallery publication
+        description: 'A publication with gallery layout and a long description to test the display of text in the publication overview page. This description should be sufficiently lengthy to observe how text wrapping and overflow are handled in the user interface.'
         slug: gallery-pub
         profile: '@pr_1'
         config: '@config_gallery'
@@ -42,6 +43,7 @@ App\Entity\Publication:
 
     pub_download:
         title: Download publication
+        description: 'A publication with download layout'
         slug: download-pub
         profile: '@pr_1'
         config: '@config_download'
@@ -49,6 +51,7 @@ App\Entity\Publication:
 
     pub_grid:
         title: Grid publication
+        description: 'A publication with grid layout'
         slug: grid-pub
         profile: '@pr_1'
         config: '@config_grid'
@@ -62,24 +65,28 @@ App\Entity\Publication:
 
     pub_auth:
         title: Auth protected publication
+        description: 'A publication protected by authentication'
         slug: auth-protected
         profile: '@pr_1'
         config: '@auth-protected'
 
     pub_tree1:
         title: Tree Root Publication 1
+        description: 'The first root publication in a tree structure'
         slug: tree-root-1
         profile: '@pr_1'
         config: '@password-protected'
 
     pub_tree2:
         title: Tree Root Publication 2
+        description: 'The second root publication in a tree structure'
         slug: tree-root-2
         profile: '@pr_1'
         config: '@auth-protected'
 
     pub_tree3:
         title: Tree Root Publication 3
+        description: 'The third root publication in a tree structure'
         slug: tree-root-3
         profile: '@pr_1'
         config: '@auth-protected'
@@ -87,6 +94,7 @@ App\Entity\Publication:
     pub_tree1_1:
         parent: '@pub_tree1'
         title: Tree Child Publication 1.1
+        description: 'First child of the first root publication'
         slug: tree-child-1-1
         profile: '@pr_1'
         config: '@auth-protected'
@@ -94,11 +102,20 @@ App\Entity\Publication:
     pub_tree1_2:
         parent: '@pub_tree1'
         title: Tree Child Publication 1.2
+        description: 'Second child of the first root publication'
         slug: tree-child-1-2
+        profile: '@pr_1'
+
+    pub_tree1_2_1:
+        parent: '@pub_tree1_2'
+        title: Tree Child Publication 1.2.1
+        description: 'Child of the second child of the first root publication'
+        slug: tree-child-1-2-1
         profile: '@pr_1'
 
     pub_tree2_1:
         parent: '@pub_tree2'
         title: Tree Child Publication 2.1
+        description: 'First child of the second root publication'
         slug: tree-child-2-1
         profile: '@pr_1'

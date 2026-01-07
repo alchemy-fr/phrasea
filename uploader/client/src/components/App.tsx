@@ -7,6 +7,7 @@ import {routes} from '../routes.ts';
 import RouteProxy from './RouteProxy.tsx';
 import React from 'react';
 import LeftMenu from './LeftMenu.tsx';
+import {VerticalMenuLayout} from '@alchemy/phrasea-framework';
 
 type Props = {};
 
@@ -28,12 +29,7 @@ function WrapperComponent({children}: RouteWrapperProps) {
     return (
         <>
             <MatomoRouteWrapper>
-                <div
-                    style={{
-                        height: '100vh',
-                        display: 'flex',
-                    }}
-                >
+                <VerticalMenuLayout>
                     <LeftMenu />
                     <div
                         style={{
@@ -42,7 +38,7 @@ function WrapperComponent({children}: RouteWrapperProps) {
                     >
                         {children}
                     </div>
-                </div>
+                </VerticalMenuLayout>
             </MatomoRouteWrapper>
         </>
     );

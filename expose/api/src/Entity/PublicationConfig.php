@@ -17,7 +17,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Embeddable]
 class PublicationConfig implements MergeableValueObjectInterface
 {
-    final public const SECURITY_METHOD_NONE = null;
     final public const string SECURITY_METHOD_PASSWORD = 'password';
     final public const string SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
@@ -275,9 +274,7 @@ class PublicationConfig implements MergeableValueObjectInterface
     public function setPassword(?string $password): void
     {
         if (!empty($password)) {
-            if (self::SECURITY_METHOD_NONE === $this->securityMethod) {
-                $this->setSecurityMethod(self::SECURITY_METHOD_PASSWORD);
-            }
+            $this->setSecurityMethod(self::SECURITY_METHOD_PASSWORD);
             $this->securityOptions['password'] = $password;
         } else {
             unset($this->securityOptions['password']);

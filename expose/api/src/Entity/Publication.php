@@ -501,6 +501,23 @@ class Publication implements AclObjectInterface, \Stringable
         return $this->parent;
     }
 
+    #[Groups([self::GROUP_READ])]
+    public function hasParent(): bool
+    {
+        return null !== $this->parent;
+    }
+
+    #[Groups([self::GROUP_READ])]
+    public function getRootPublication(): ?self
+    {
+        $parent = $this;
+        while ($parent->parent) {
+            $parent = $parent->parent;
+        }
+
+        return $parent !== $this ? $parent : null;
+    }
+
     public function setParent(?self $parent): void
     {
         $this->parent = $parent;

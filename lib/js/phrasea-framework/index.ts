@@ -18,6 +18,7 @@ import AlertDialog from './src/Dialog/AlertDialog';
 import {AppLogo} from './src/Menu/AppLogo';
 import HorizontalAppMenu from './src/Menu/HorizontalAppMenu';
 import VerticalAppMenu from './src/Menu/VerticalAppMenu';
+import VerticalMenuLayout from './src/Menu/VerticalMenuLayout';
 export {
     AppProvider,
     initApp,
@@ -40,6 +41,7 @@ export {
     AppLogo,
     HorizontalAppMenu,
     VerticalAppMenu,
+    VerticalMenuLayout,
 };
 export * from './src/Theme/types';
 export * from './src/Dialog/types';
