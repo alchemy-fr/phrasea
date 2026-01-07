@@ -69,11 +69,11 @@ export default function PublicationProxy({
                     href={publication.cssLink}
                 />
             ) : null}
-            <PublicationHeader publication={publication}>
-                <TermsWrapper publication={publication}>
+            <TermsWrapper publication={publication}>
+                <PublicationHeader publication={publication}>
                     {children}
-                </TermsWrapper>
-            </PublicationHeader>
+                </PublicationHeader>
+            </TermsWrapper>
         </>
     );
 }

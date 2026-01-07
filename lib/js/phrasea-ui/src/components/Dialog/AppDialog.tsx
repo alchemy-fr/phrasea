@@ -27,7 +27,7 @@ const Transition = React.forwardRef(function Transition(
 
 export interface DialogTitleProps {
     children?: React.ReactNode;
-    onClose: () => void;
+    onClose: (() => void) | undefined;
 }
 
 export const AppDialogTitle = (props: DialogTitleProps) => {
@@ -77,6 +77,7 @@ type Props = PropsWithChildren<
         title?: ReactNode;
         actions?: (args: ActionArgs) => React.ReactNode;
         onClose: () => void;
+        hideCloseButton?: boolean;
         loading?: boolean;
         maxWidth?: Breakpoint | false;
         fullScreen?: boolean;
@@ -94,6 +95,7 @@ export default function AppDialog({
     actions,
     loading,
     onClose,
+    hideCloseButton,
     disablePadding,
     fullScreen,
     open = true,
@@ -119,7 +121,9 @@ export default function AppDialog({
             disableEscapeKeyDown={disableEscapeKeyDown}
         >
             {title && (
-                <AppDialogTitle onClose={handleClose}>{title}</AppDialogTitle>
+                <AppDialogTitle onClose={!hideCloseButton ? handleClose : undefined}>
+                    {title}
+                </AppDialogTitle>
             )}
             <DialogContent
                 dividers

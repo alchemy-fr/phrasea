@@ -3,7 +3,8 @@ import React from 'react';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {TermsConfig} from '../../../../types.ts';
 import {useTranslation} from 'react-i18next';
-import {Button, Typography} from '@mui/material';
+import {Box, Button, Typography} from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
 
 type Props = {
     accepted: boolean;
@@ -20,7 +21,9 @@ export default function TermsDialog({
 
     return (
         <AppDialog
+            hideCloseButton={true}
             modalIndex={0}
+            maxWidth={'sm'}
             open={!accepted}
             onClose={() => {}}
             title={t('terms.terms_and_conditions', 'Terms and Conditions')}
@@ -28,6 +31,8 @@ export default function TermsDialog({
                 return (
                     <>
                         <Button
+                            startIcon={<CheckIcon />}
+                            variant={'contained'}
                             onClick={() => {
                                 onAccept();
                                 onClose();
@@ -63,13 +68,15 @@ export default function TermsDialog({
                                 />
                             </>
                         ) : (
-                            <a
-                                href={url}
-                                target={'_blank'}
-                                rel={'noopener noreferrer'}
-                            >
-                                {t('terms.terms_cta', 'Terms')}
-                            </a>
+                            <Box sx={{mt: 2}}>
+                                <a
+                                    href={url}
+                                    target={'_blank'}
+                                    rel={'noopener noreferrer'}
+                                >
+                                    {t('terms.terms_cta', 'Terms')}
+                                </a>
+                            </Box>
                         )}
                     </Typography>
                 )}

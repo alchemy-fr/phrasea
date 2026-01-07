@@ -19,6 +19,13 @@ class TermsConfig implements MergeableValueObjectInterface
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_READ])]
     private ?string $url = null;
 
+    /**
+     * @template T of MergeableValueObjectInterface
+     *
+     * @param T $object
+     *
+     * @return T
+     */
     public function mergeWith(MergeableValueObjectInterface $object): MergeableValueObjectInterface
     {
         $clone = clone $this;

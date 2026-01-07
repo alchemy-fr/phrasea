@@ -14,12 +14,12 @@ export default function TermsWrapper({publication, children}: Props) {
         isTermsAccepted('p_' + publication.id)
     );
 
-    console.log('accepted', accepted, terms);
-
     const acceptTerms = () => {
         setAcceptedTerms('p_' + publication.id);
         setAccepted(true);
     };
+
+    const displayPublication = !terms?.enabled || accepted;
 
     return (
         <>
@@ -30,7 +30,18 @@ export default function TermsWrapper({publication, children}: Props) {
                     onAccept={acceptTerms}
                 />
             )}
-            {children}
+            {displayPublication ? (
+                children
+            ) : (
+                <div
+                    style={{
+                        filter: 'blur(30px)',
+                        pointerEvents: 'none',
+                    }}
+                >
+                    {children}
+                </div>
+            )}
         </>
     );
 }
