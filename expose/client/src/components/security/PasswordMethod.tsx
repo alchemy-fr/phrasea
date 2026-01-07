@@ -1,5 +1,5 @@
 import React, {FormEvent} from 'react';
-import {storePassword} from '../../lib/credential.ts';
+import {storePassword} from '../../lib/password.ts';
 import {useTranslation} from 'react-i18next';
 import {
     Avatar,

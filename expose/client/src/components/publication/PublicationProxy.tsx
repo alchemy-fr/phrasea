@@ -6,7 +6,7 @@ import ErrorPage from '../ErrorPage.tsx';
 import {useTranslation} from 'react-i18next';
 import TermsWrapper from './TermsWrapper.tsx';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
-import PublicationHeader from './layouts/common/PublicationHeader.tsx';
+import PublicationStructure from './layouts/common/PublicationStructure.tsx';
 
 type Props = PropsWithChildren<{
     publication: Publication | undefined;
@@ -70,9 +70,9 @@ export default function PublicationProxy({
                 />
             ) : null}
             <TermsWrapper publication={publication}>
-                <PublicationHeader publication={publication}>
+                <PublicationStructure publication={publication}>
                     {children}
-                </PublicationHeader>
+                </PublicationStructure>
             </TermsWrapper>
         </>
     );

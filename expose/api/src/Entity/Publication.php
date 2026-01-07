@@ -540,7 +540,6 @@ class Publication implements AclObjectInterface, \Stringable
 
     public function setConfig(PublicationConfig $config): void
     {
-        dump($config);
         $this->config = $config;
     }
 

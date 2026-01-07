@@ -15,12 +15,14 @@ import HomeIcon from '@mui/icons-material/Home';
 import DownloadArchiveButton from './DownloadArchiveButton.tsx';
 import {VerticalMenuLayout} from '@alchemy/phrasea-framework';
 import React, {PropsWithChildren} from 'react';
+import PublicationsTree from './PublicationsTree.tsx';
+import {getPublicationPath} from '../../../../hooks/useNavigateToPublication.ts';
 
 type Props = PropsWithChildren<{
     publication: Publication;
 }>;
 
-export default function PublicationHeader({publication, children}: Props) {
+export default function PublicationStructure({publication, children}: Props) {
     const {assets, description, layoutOptions, date, enabled} = publication;
     const {t} = useTranslation();
     const navigate = useNavigate();
@@ -41,6 +43,11 @@ export default function PublicationHeader({publication, children}: Props) {
     return (
         <VerticalMenuLayout
             config={config}
+            menuChildren={
+                <>
+                    <PublicationsTree publication={publication} />
+                </>
+            }
             logoProps={{
                 appTitle: t('common.expose', 'Expose'),
                 onLogoClick: !config.disableIndexPage
@@ -82,9 +89,7 @@ export default function PublicationHeader({publication, children}: Props) {
                             {rootPublication &&
                                 rootPublication.id !== publication.id && (
                                     <Link
-                                        to={getPath(routes.publication, {
-                                            id: rootPublication.id,
-                                        })}
+                                        to={getPublicationPath(rootPublication)}
                                     >
                                         {getTranslatedTitle(rootPublication)}
                                     </Link>
@@ -98,10 +103,7 @@ export default function PublicationHeader({publication, children}: Props) {
                                 )}
 
                             {parents.map(p => (
-                                <Link
-                                    key={p.id}
-                                    to={getPath(routes.publication, {id: p.id})}
-                                >
+                                <Link key={p.id} to={getPublicationPath(p)}>
                                     {getTranslatedTitle(p)}
                                 </Link>
                             ))}
@@ -167,13 +169,14 @@ export default function PublicationHeader({publication, children}: Props) {
                                 )}
                             </div>
 
-                            {downloadArchiveEnabled && (
-                                <div>
-                                    <DownloadArchiveButton
-                                        publication={publication}
-                                    />
-                                </div>
-                            )}
+                            {downloadArchiveEnabled &&
+                                publication.archiveDownloadUrl && (
+                                    <div>
+                                        <DownloadArchiveButton
+                                            publication={publication}
+                                        />
+                                    </div>
+                                )}
                         </Box>
                     )}
                 </Container>

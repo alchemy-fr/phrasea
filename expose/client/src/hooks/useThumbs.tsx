@@ -1,7 +1,6 @@
 import {Asset, Publication, Thumb} from '../types.ts';
 import {useMemo} from 'react';
-import {routes} from '../routes.ts';
-import {getPath} from '@alchemy/navigation';
+import {getPublicationAssetPath} from './useNavigateToPublication.ts';
 
 type Props = {
     publication: Publication;
@@ -15,10 +14,7 @@ export function useThumbs({publication, assets}: Props): Thumb[] {
             src: a.thumbUrl || undefined,
             mimeType: a.mimeType,
             alt: a.title || 'Image',
-            path: getPath(routes.publication.routes.asset, {
-                id: publication.slug || publication.id,
-                assetId: a.id,
-            }),
+            path: getPublicationAssetPath(publication, a.id),
         }));
     }, [publication, assets]);
 }
