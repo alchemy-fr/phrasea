@@ -31,7 +31,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             $object->setAuthorized($isAuthorized);
             if (!$isAuthorized) {
                 if ($object->isPubliclyListed()) {
-                    $context['groups'] = [Publication::GROUP_LIST];
+                    $context['groups'] = [Publication::GROUP_INDEX];
                 } else {
                     $context['groups'] = ['_'];
                 }

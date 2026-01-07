@@ -33,7 +33,7 @@ class DownloadRequest
      * @var Uuid
      */
     #[ApiProperty(identifier: true)]
-    #[Groups(['publication:index', 'publication:index', Publication::GROUP_READ, Asset::GROUP_READ])]
+    #[Groups([Publication::GROUP_INDEX, Publication::GROUP_READ, Asset::GROUP_READ])]
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     private UuidInterface $id;
