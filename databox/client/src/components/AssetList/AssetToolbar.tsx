@@ -11,6 +11,8 @@ import React, {Context, useContext} from 'react';
 import DisplaySettingButton from './Toolbar/DisplaySettingButton.tsx';
 import {TSelectionContext} from '../../context/AssetSelectionContext.tsx';
 import AnimatedLoader from './AnimatedLoader.tsx';
+import classNames from 'classnames';
+import {MenuClasses} from '@alchemy/phrasea-framework';
 
 type SelectionContextDefinition<Item extends AssetOrAssetContainer> = Context<
     TSelectionContext<Item>
@@ -31,7 +33,10 @@ export default function AssetToolbar<Item extends AssetOrAssetContainer>({
     return (
         <>
             <Box
-                className={assetClasses.assetToolbar}
+                className={classNames(
+                    assetClasses.assetToolbar,
+                    MenuClasses.PageHeader
+                )}
                 component="div"
                 sx={() => ({
                     position: 'sticky',

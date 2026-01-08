@@ -51,3 +51,4 @@ export * from './src/Dialog/types';
 export * from './src/Locale/types';
 export * from './src/FilePlayer/types';
 export * from './src/Tree/types';
+export * from './src/Menu/types';

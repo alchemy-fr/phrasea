@@ -1,6 +1,6 @@
-import {PropsWithChildren, ReactNode, useState} from 'react';
-import {IconButton, Theme, useMediaQuery, useTheme} from '@mui/material';
-import {AppMenuProps} from './types';
+import {PropsWithChildren, ReactNode, useEffect, useState} from 'react';
+import {IconButton, useMediaQuery, useTheme} from '@mui/material';
+import {AppMenuProps, MenuClasses} from './types';
 import VerticalAppMenu from './VerticalAppMenu';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -8,20 +8,21 @@ import Box from '@mui/material/Box';
 import {sumSpacing} from '@alchemy/core';
 
 type Props = PropsWithChildren<{
-    header?: ReactNode;
     menuChildren?: ReactNode;
-}> & Omit<AppMenuProps, 'children'>;
+    defaultOpen?: boolean;
+}> &
+    Omit<AppMenuProps, 'children'>;
 
 export default function VerticalMenuLayout({
-    header,
     children,
     menuChildren,
+    defaultOpen = true,
     ...appMenuProps
 }: Props) {
     const menuWidth = 320;
     const theme = useTheme();
-    const isSmallView = useMediaQuery(theme.breakpoints.down('md'));
-    const [open, setOpen] = useState(!isSmallView);
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const [open, setOpen] = useState(!isSmallScreen && defaultOpen);
 
     const buttonWidth = 40;
 
@@ -36,27 +37,27 @@ export default function VerticalMenuLayout({
                 style={{
                     zIndex: 151,
                     flexShrink: 0,
-                    position: isSmallView ? 'absolute' : undefined,
+                    position: isSmallScreen ? 'absolute' : undefined,
                     transition: 'transform 0.3s ease-in-out',
                     transform: !open
-                        ? `translateX(-${menuWidth}px)`
+                        ? `translateX(max(-${menuWidth}px, -100vw))`
                         : 'translateX(0)',
-                    marginRight: open ? 0 : -menuWidth,
-                    width: menuWidth,
+                    marginRight: !isSmallScreen ? (open ? 0 : -menuWidth) : undefined,
+                    width: `min(${menuWidth}px, 100vw)`,
                 }}
             >
                 <IconButton
                     sx={theme => ({
                         position: 'absolute',
-                        top: theme.spacing(2),
-                        right: 0,
+                        top: theme.spacing(1),
+                        left: `min(${menuWidth}px, 100vw)`,
                         zIndex: 151,
                         bgcolor: 'background.paper',
                         boxShadow: 1,
                         transition: 'transform 0.3s ease-in-out',
                         transform: !open
-                            ? `translateX(${theme.spacing(sumSpacing(theme, 2, buttonWidth))})`
-                            : `translateX(${theme.spacing(-2)})`,
+                            ? `translateX(${theme.spacing(1)})`
+                            : `translateX(${sumSpacing(theme, -1, -buttonWidth)})`,
                     })}
                     onClick={() => setOpen(o => !o)}
                 >
@@ -66,20 +67,19 @@ export default function VerticalMenuLayout({
                     {menuChildren}
                 </VerticalAppMenu>
             </div>
-            <div
-                style={{
+            <Box
+                sx={{
                     flexGrow: 1,
+                    [`.${MenuClasses.PageHeader}`]: {
+                        marginLeft:
+                            !open || isSmallScreen
+                                ? sumSpacing(theme, 2, buttonWidth)
+                                : 0,
+                    },
                 }}
             >
-                <Box
-                    sx={theme => ({
-                        marginLeft: !open || isSmallView ? sumSpacing(theme, 4, buttonWidth) : 0,
-                    })}
-                >
-                    {header}
-                </Box>
                 {children}
-            </div>
+            </Box>
         </div>
     );
 }

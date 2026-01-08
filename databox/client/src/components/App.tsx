@@ -21,18 +21,19 @@ function isDrawer(locationSearch: string): boolean {
 const AppProxy = React.memo(
     ({locationSearch}: {locationSearch: string}) => {
         const alreadyRendered = useRef(false);
-        const isSmallView = useMediaQuery((theme: Theme) =>
+        const isSmallScreen = useMediaQuery((theme: Theme) =>
             theme.breakpoints.down('md')
         );
 
-        const [leftPanelOpen, setLeftPanelOpen] = React.useState(!isSmallView);
+        const [leftPanelOpen, setLeftPanelOpen] =
+            React.useState(!isSmallScreen);
         const toggleLeftPanel = React.useCallback(() => {
             setLeftPanelOpen(p => !p);
         }, []);
 
         useEffect(() => {
-            setLeftPanelOpen(!isSmallView);
-        }, [isSmallView]);
+            setLeftPanelOpen(!isSmallScreen);
+        }, [isSmallScreen]);
 
         if (isDrawer(locationSearch) && !alreadyRendered.current) {
             return null;

@@ -42,3 +42,7 @@ export type AppMenuProps = PropsWithChildren<{
     commonMenuProps: Omit<CommonMenuProps, 'config'>;
     logoProps: Omit<AppLogoProps, 'config'>;
 }>;
+
+export enum MenuClasses {
+    PageHeader = 'Menu-PageHeader',
+}
