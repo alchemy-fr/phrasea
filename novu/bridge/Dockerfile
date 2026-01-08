@@ -1,4 +1,4 @@
-FROM node:23.10.0-alpine3.20
+FROM node:25.2.1-alpine3.22
 
 RUN apk add --no-cache g++ make py3-pip
 
@@ -9,7 +9,7 @@ RUN npm --no-update-notifier --no-fund --global \
       install \
       pm2 \
       pnpm@10.6.3 \
-      novu@2.6.6 \
+      novu@2.7.0 \
     && pnpm --version
 
 # Set non-root user
