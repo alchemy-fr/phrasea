@@ -25,7 +25,6 @@ export default function VerticalAppMenu({
                     flexGrow: 0,
                     height: '100vh',
                     borderRight: `1px solid ${theme.palette.divider}`,
-
                     ...resolveSx(sx, theme),
                 })}
             >

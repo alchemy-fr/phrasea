@@ -3,7 +3,6 @@ import {Target} from '../types.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {useParams} from '@alchemy/navigation';
 import UploadStepper from '../components/Upload/UploadStepper.tsx';
-import {Container} from '@mui/material';
 import {getTarget} from '../api/targetApi.ts';
 
 type Props = {};
@@ -20,9 +19,5 @@ export default function UploadPage({}: Props) {
         return <FullPageLoader backdrop={false} />;
     }
 
-    return (
-        <Container>
-            <UploadStepper target={target} />
-        </Container>
-    );
+    return <UploadStepper target={target} />;
 }

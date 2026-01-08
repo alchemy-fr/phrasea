@@ -6,9 +6,10 @@ import FilePicker from './FilePicker.tsx';
 import UploadForm from './UploadForm.tsx';
 import UploadDone from './UploadDone.tsx';
 import {useFormPrompt} from '@alchemy/navigation';
-import {Typography} from '@mui/material';
+import {Container, Typography} from '@mui/material';
 import UploadProgress from './UploadProgress.tsx';
 import {useTranslation} from 'react-i18next';
+import {MenuClasses} from '@alchemy/phrasea-framework';
 
 enum Step {
     Files,
@@ -82,17 +83,21 @@ export default function UploadStepper({target}: Props) {
 
     return (
         <>
-            <Typography
-                variant={'h2'}
-                sx={{
-                    textAlign: 'center',
-                    fontSize: 20,
-                    mt: 3,
-                    mb: 3,
-                }}
-            >
-                {target.name}
-            </Typography>
+            <div className={MenuClasses.PageHeader}>
+                <Container>
+                    <Typography
+                        variant={'h2'}
+                        sx={{
+                            textAlign: 'center',
+                            fontSize: 20,
+                            mt: 3,
+                            mb: 3,
+                        }}
+                    >
+                        {target.name}
+                    </Typography>
+                </Container>
+            </div>
 
             {step === Step.Files && (
                 <FilePicker

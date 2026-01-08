@@ -13,7 +13,7 @@ import {routes} from '../../../../routes.ts';
 import {useTranslation} from 'react-i18next';
 import HomeIcon from '@mui/icons-material/Home';
 import DownloadArchiveButton from './DownloadArchiveButton.tsx';
-import {VerticalMenuLayout} from '@alchemy/phrasea-framework';
+import {MenuClasses, VerticalMenuLayout} from '@alchemy/phrasea-framework';
 import React, {PropsWithChildren} from 'react';
 import PublicationsTree from './PublicationsTree.tsx';
 import {getPublicationPath} from '../../../../hooks/useNavigateToPublication.ts';
@@ -43,6 +43,7 @@ export default function PublicationStructure({publication, children}: Props) {
     return (
         <VerticalMenuLayout
             config={config}
+            defaultOpen={false}
             menuChildren={
                 <>
                     <PublicationsTree publication={publication} />
@@ -60,75 +61,62 @@ export default function PublicationStructure({publication, children}: Props) {
                 keycloakClient,
                 appLocales,
             }}
-            header={
-                <>
-                    <Container
-                        sx={{
-                            py: 2,
-                        }}
-                    >
-                        <Breadcrumbs aria-label="breadcrumb">
-                            {!config.disableIndexPage && (
-                                <Link
-                                    style={{
-                                        display: 'flex',
-                                    }}
-                                    to={getPath(routes.index)}
-                                    title={t(
-                                        'publicationHeader.homeLink',
-                                        'Home'
-                                    )}
-                                >
-                                    <HomeIcon
-                                        fontSize="small"
-                                        color={'primary'}
-                                    />
+        >
+            <div className={MenuClasses.PageHeader}>
+                <Container
+                    sx={{
+                        py: 2,
+                    }}
+                >
+                    <Breadcrumbs aria-label="breadcrumb">
+                        {!config.disableIndexPage && (
+                            <Link
+                                style={{
+                                    display: 'flex',
+                                }}
+                                to={getPath(routes.index)}
+                                title={t('publicationHeader.homeLink', 'Home')}
+                            >
+                                <HomeIcon fontSize="small" color={'primary'} />
+                            </Link>
+                        )}
+
+                        {rootPublication &&
+                            rootPublication.id !== publication.id && (
+                                <Link to={getPublicationPath(rootPublication)}>
+                                    {getTranslatedTitle(rootPublication)}
                                 </Link>
                             )}
 
-                            {rootPublication &&
-                                rootPublication.id !== publication.id && (
-                                    <Link
-                                        to={getPublicationPath(rootPublication)}
-                                    >
-                                        {getTranslatedTitle(rootPublication)}
-                                    </Link>
-                                )}
+                        {lastKnownParentId &&
+                            lastKnownParentId != rootPublication!.id && (
+                                <div>
+                                    <>...</>
+                                </div>
+                            )}
 
-                            {lastKnownParentId &&
-                                lastKnownParentId != rootPublication!.id && (
-                                    <div>
-                                        <>...</>
-                                    </div>
-                                )}
+                        {parents.map(p => (
+                            <Link key={p.id} to={getPublicationPath(p)}>
+                                {getTranslatedTitle(p)}
+                            </Link>
+                        ))}
 
-                            {parents.map(p => (
-                                <Link key={p.id} to={getPublicationPath(p)}>
-                                    {getTranslatedTitle(p)}
-                                </Link>
-                            ))}
-
-                            <div>
-                                {layoutOptions.logoUrl && (
-                                    <div className={'logo'}>
-                                        <img
-                                            src={layoutOptions.logoUrl}
-                                            alt={''}
-                                        />
-                                    </div>
-                                )}
-                                <Typography variant={'h1'}>
-                                    {getTranslatedTitle(publication)}
-                                </Typography>
-                            </div>
-                        </Breadcrumbs>
-                        <Typography variant={'caption'}>
-                            {moment(date).format('LLLL')}
-                        </Typography>
-                    </Container>
-                </>
-            }
-        >
+                        <div>
+                            {layoutOptions.logoUrl && (
+                                <div className={'logo'}>
+                                    <img src={layoutOptions.logoUrl} alt={''} />
+                                </div>
+                            )}
+                            <Typography variant={'h1'}>
+                                {getTranslatedTitle(publication)}
+                            </Typography>
+                        </div>
+                    </Breadcrumbs>
+                    <Typography variant={'caption'}>
+                        {moment(date).format('LLLL')}
+                    </Typography>
+                </Container>
+            </div>
             <Box
                 sx={{
                     display: 'flex',
