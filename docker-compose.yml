@@ -64,7 +64,9 @@ services:
       - AWS_ASSUME_ROLE_ARN=${LEGO_AWS_ASSUME_ROLE_ARN}
       - AWS_PROFILE=${LEGO_AWS_PROFILE}
       - AWS_SDK_LOAD_CONFIG=${LEGO_AWS_SDK_LOAD_CONFIG}
-
+      - SCW_PROJECT_ID=${LEGO_SCW_PROJECT_ID}
+      - SCW_SECRET_KEY=${LEGO_SCW_SECRET_KEY}
+      - SCW_ACCESS_KEY=${LEGO_SCW_ACCESS_KEY}
   a_client:
     profiles:
       - none
@@ -118,12 +120,12 @@ services:
       - internal
     depends_on:
       - rabbitmq
-      - db
     environment:
       - APP_ENV
       - TRUSTED_PROXIES
       - VERIFY_SSL
       - VERIFY_HOST
+      - POSTGRES_HOST
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - RABBITMQ_HOST
@@ -192,6 +194,7 @@ services:
       - DELETE_ASSET_GRACEFUL_TIME=${UPLOADER_DELETE_ASSET_GRACEFUL_TIME}
       - NEWRELIC_APP_NAME=uploader-api
       - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
+      - DB_NAME=${UPLOADER_DB_NAME}
     volumes:
       - uploader:/var/data/upload
     extra_hosts:
@@ -322,6 +325,7 @@ services:
       - MATOMO_AUTH_TOKEN
       - PHRASEANET_APP_OAUTH_TOKEN
       - PHRASEANET_URL
+      - DB_NAME=${EXPOSE_DB_NAME}
     extra_hosts:
       - zippy.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -364,7 +368,7 @@ services:
 
   redis:
     profiles:
-      - db
+      - datastore
     image: ${REDIS_IMAGE}
     networks:
       - internal
@@ -386,7 +390,7 @@ services:
 
   rabbitmq:
     profiles:
-      - db
+      - datastore
     image: ${RABBITMQ_IMAGE}
     hostname: rabbitmq
     networks:
@@ -425,7 +429,7 @@ services:
 
   minio:
     profiles:
-      - db
+      - s3storage
     image: ${MINIO_IMAGE}
     networks:
       - internal
@@ -662,6 +666,7 @@ services:
       - SOKETI_APP_ID
       - SOKETI_KEY
       - SOKETI_SECRET
+      - DB_NAME=${DATABOX_DB_NAME}
     depends_on:
       - redis
       - elasticsearch
@@ -992,8 +997,8 @@ services:
       - DASHBOARD_CLIENT_URL=${DASHBOARD_CLIENT_URL}
       - POSTGRES_USER
       - POSTGRES_PASSWORD
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
+      - POSTGRES_HOST
+      - POSTGRES_PORT
       - CONFIGURATOR_DB_NAME
       - AUTH_DB_NAME
       - DATABOX_DB_NAME
