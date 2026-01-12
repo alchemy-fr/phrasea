@@ -3,6 +3,7 @@ import {usePublication} from '../../hooks/usePublication.ts';
 import PublicationProxy from './PublicationProxy.tsx';
 import GridLayout from './layouts/grid/GridLayout.tsx';
 import {logPublicationView} from '../../api/assetApi.ts';
+import PublicationStructure from './layouts/common/PublicationStructure.tsx';
 
 type Props = {
     id: string;
@@ -27,7 +28,9 @@ export default function PublicationView({id, assetId}: Props) {
             errorCode={errorCode}
             load={load}
         >
-            <GridLayout publication={publication!} assetId={assetId} />
+            <PublicationStructure publication={publication!}>
+                <GridLayout publication={publication!} assetId={assetId} />
+            </PublicationStructure>
         </PublicationProxy>
     );
 }

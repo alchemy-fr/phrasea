@@ -10,21 +10,13 @@ class ImageUrlFaker extends AbstractCachedFaker
         string $workspaceId,
         string $lock,
         int $size = 1000,
-        bool $plusOne = false,
         ?string $theme = null,
     ): string {
         if ($size <= 0) {
             throw new \InvalidArgumentException(sprintf('Size must be greater than 0, got %d', $size));
         }
 
-        if (!preg_match('#(\d+)$#', $lock, $matches)) {
-            throw new \InvalidArgumentException(sprintf('Lock must end with a number, got "%s"', $lock));
-        }
-
-        $lockNumber = $matches[1];
-        if ($plusOne) {
-            ++$lockNumber;
-        }
+        $lockNumber = $this->extractLockNumber($lock);
 
         $ratios = [
             16 / 9,
@@ -43,7 +35,7 @@ class ImageUrlFaker extends AbstractCachedFaker
             $height = $size;
         }
 
-        return $this->image($width, $height, $lockNumber, $workspaceId, $theme);
+        return $this->image($width, $height, $lock, $workspaceId, $theme);
     }
 
     public function image(
@@ -56,20 +48,88 @@ class ImageUrlFaker extends AbstractCachedFaker
         $width = round($width);
         $height = round($height);
 
-        $baseUrl = 'https://picsum.photos';
-
-        $url = sprintf($baseUrl.'/seed/%s/%s/%s.jpg',
-            $lockNumber,
-            $width,
-            $height,
-        );
+        $totalVariants = 42;
+        $lockNumber = $this->extractLockNumber($lockNumber);
+        $lockNorm = ($lockNumber % $totalVariants) + 1;
         $extension = 'jpg';
 
-        return $this->download(
+        $theme ??= 'nature';
+        $orientation = $width >= $height ? 'landscape' : 'portrait';
+        $url = sprintf('https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/images/%s/%s/%d.%s', $theme, $orientation, $lockNorm, $extension);
+
+        $cachePath = sprintf('%s/%s-%d', $theme, $orientation, $lockNorm);
+        $imageSrc = $this->download(
             $pathPrefix,
-            sprintf('%s-%s-%s-%s', $theme ?? 'default', $lockNumber, $width, $height),
+            $cachePath,
             $extension,
-            $url
+            $url,
         );
+
+        if (extension_loaded('imagick')) {
+            $croppedCacheKKey = $cachePath.sprintf('-%d-%d', $width, $height);
+            if (null !== $cached = $this->getCachedFile($croppedCacheKKey, $extension)) {
+                $fd = fopen($cached, 'r');
+                if (!is_resource($fd)) {
+                    throw new \RuntimeException(sprintf('Cannot open cached file "%s"', $cached));
+                }
+                try {
+                    $newPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');
+                    $this->fileStorageManager->storeStream($newPath, $fd);
+
+                    return $newPath;
+                } finally {
+                    fclose($fd);
+                }
+            }
+            $stream = $this->fileStorageManager->getStream($imageSrc);
+            $tmpImage = tempnam(sys_get_temp_dir(), 'img');
+            file_put_contents($tmpImage, $stream);
+            fclose($stream);
+
+            $width = (int) $width;
+            $height = (int) $height;
+            $imagick = new \Imagick($tmpImage);
+
+            $imagick->cropThumbnailImage($width, $height);
+            $imagick->setImagePage(0, 0, 0, 0);
+
+            try {
+                $imagick->writeImage($tmpImage);
+
+                $fd = fopen($tmpImage, 'r');
+                if (!is_resource($fd)) {
+                    throw new \RuntimeException(sprintf('Cannot open temporary file "%s"', $tmpImage));
+                }
+
+                try {
+                    $this->cacheFile(
+                        $croppedCacheKKey,
+                        $extension,
+                        $fd,
+                        $cacheKey
+                    );
+
+                    $newPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');
+                    $this->fileStorageManager->storeStream($newPath, $fd);
+
+                    return $newPath;
+                } finally {
+                    fclose($fd);
+                }
+            } finally {
+                unlink($tmpImage);
+            }
+        }
+
+        return $imageSrc;
+    }
+
+    private function extractLockNumber(string $lock): int
+    {
+        if (!preg_match('#(\d+)$#', $lock, $matches)) {
+            throw new \InvalidArgumentException(sprintf('Lock must end with a number, got "%s"', $lock));
+        }
+
+        return (int) $matches[1];
     }
 }

@@ -6,9 +6,9 @@ namespace Alchemy\StorageBundle\Storage;
 
 use League\Flysystem\FilesystemOperator;
 
-class FileStorageManager
+readonly class FileStorageManager
 {
-    public function __construct(private readonly FilesystemOperator $filesystem)
+    public function __construct(private FilesystemOperator $filesystem)
     {
     }
 
