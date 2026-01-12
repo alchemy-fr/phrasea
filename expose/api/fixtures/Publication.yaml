@@ -45,10 +45,10 @@ App\Entity\PublicationConfig:
 
 App\Entity\TermsConfig:
     terms_config_1:
-        text: 'These are the terms and conditions for USING this publication.'
+        text: 'These are the terms and conditions for \<strong>USING</strong> this publication.'
         url: 'https://example.com/terms-and-conditions'
     terms_config_download:
-        text: 'These are the terms and conditions for DOWNLOADING content from this publication.'
+        text: 'These are the terms and conditions for \<strong>DOWNLOADING</strong> content from this publication.'
         url: 'https://example.com/terms-and-conditions'
 
 App\Entity\PublicationProfile:
@@ -59,7 +59,7 @@ App\Entity\PublicationProfile:
 App\Entity\Publication:
     pub_gallery:
         title: Gallery publication
-        description: 'A publication with gallery layout and a long description to test the display of text in the publication overview page. This description should be sufficiently lengthy to observe how text wrapping and overflow are handled in the user interface.'
+        description: 'A publication with \<strong>gallery layout</strong> and a long description to test the display of text in the publication overview page. This description should be sufficiently lengthy to observe how text wrapping and overflow are handled in the user interface.'
         slug: gallery-pub
         profile: '@pr_1'
         config: '@config_gallery'

@@ -52,3 +52,4 @@ export * from './src/Locale/types';
 export * from './src/FilePlayer/types';
 export * from './src/Tree/types';
 export * from './src/Menu/types';
+export * from './src/apiCache';

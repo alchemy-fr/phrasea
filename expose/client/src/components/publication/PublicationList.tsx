@@ -8,6 +8,7 @@ import SwapVertIcon from '@mui/icons-material/SwapVert';
 import PublicationCard from './PublicationCard.tsx';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 import AppBar from '../ui/AppBar.tsx';
+import {wrapCached} from '@alchemy/phrasea-framework';
 
 type Props = {};
 
@@ -32,15 +33,23 @@ export default function PublicationList({}: Props) {
     );
 
     const loadPublications = React.useCallback(async () => {
-        setLoading(true);
-        try {
-            const res = await apiClient.get(
-                `/publications?${orders[sortBy].query}`
-            );
-            setData(res.data['hydra:member']);
-        } finally {
-            setLoading(false);
-        }
+        setData(
+            await wrapCached(
+                `publications_${sortBy}`,
+                5 * 60 * 1000,
+                async () => {
+                    setLoading(true);
+                    try {
+                        const res = await apiClient.get(
+                            `/publications?${orders[sortBy].query}`
+                        );
+                        return res.data['hydra:member'];
+                    } finally {
+                        setLoading(false);
+                    }
+                }
+            )
+        );
     }, [sortBy, orders]);
 
     React.useEffect(() => {

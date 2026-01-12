@@ -3,6 +3,7 @@ import {Box, Button, Typography} from '@mui/material';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import {useTranslation} from 'react-i18next';
 import {useDownload} from '../../../hooks/useDownload.ts';
+import Description from '../layouts/common/Description.tsx';
 
 type Props = {
     publication: Publication;
@@ -46,7 +47,9 @@ export default function AssetLegend({publication, asset}: Props) {
             )}
 
             {asset.description ? (
-                <Typography variant={'body1'}>{asset.description}</Typography>
+                <Typography variant={'body1'} component={'div'}>
+                    <Description descriptionHtml={asset.description} />
+                </Typography>
             ) : null}
         </Box>
     );
