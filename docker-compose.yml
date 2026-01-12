@@ -351,7 +351,7 @@ services:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
     volumes:
-      - expose-nginx-cache:/var/cache/nginx
+      - expose_nginx_cache:/var/cache/nginx
     networks:
       - internal
     depends_on:
@@ -1238,7 +1238,7 @@ volumes:
   pgadmin:
   rabbitmq:
   elasticsearch:
-  expose-nginx-cache:
+  expose_nginx_cache:
   zippy:
   cypress_output:
   mongodb:

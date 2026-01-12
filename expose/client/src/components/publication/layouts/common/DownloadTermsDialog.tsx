@@ -41,8 +41,8 @@ export default function DownloadTermsDialog({
                             startIcon={<CheckIcon />}
                             variant={'contained'}
                             onClick={() => {
-                                onAccept();
                                 onClose();
+                                onAccept();
                             }}
                         >
                             {t(

@@ -2,6 +2,7 @@ import {useModals} from '@alchemy/navigation';
 import {Publication} from '../types.ts';
 import DownloadTermsDialog from '../components/publication/layouts/common/DownloadTermsDialog.tsx';
 import {isTermsAccepted, setAcceptedTerms} from '../lib/terms.ts';
+import DownloadViaEmailDialog from '../components/publication/layouts/common/DownloadViaEmailDialog.tsx';
 
 type Props = {
     url: string;
@@ -18,6 +19,14 @@ export function useDownload({url, publication, newWindow}: Props) {
         }
 
         const dl = () => {
+            if (publication.downloadViaEmail) {
+                openModal(DownloadViaEmailDialog, {
+                    url,
+                });
+
+                return;
+            }
+
             const link = document.createElement('a');
             link.href = url;
             link.download = '';
@@ -31,7 +40,7 @@ export function useDownload({url, publication, newWindow}: Props) {
 
         const termsKey = `pd_${publication.id}`;
 
-        if (publication.downloadTerms && !isTermsAccepted(termsKey)) {
+        if (publication.downloadTerms?.enabled && !isTermsAccepted(termsKey)) {
             openModal(DownloadTermsDialog, {
                 terms: publication.downloadTerms,
                 onAccept: () => {
