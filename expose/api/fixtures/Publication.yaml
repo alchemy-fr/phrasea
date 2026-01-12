@@ -171,3 +171,10 @@ App\Entity\Publication:
         description: 'This publication is unlisted and should not appear in public listings.'
         config: '@config_unlisted'
         slug: unlisted
+    one_asset_publication:
+        title: One Asset Publication
+        description: 'A publication containing a single asset.'
+        slug: one-asset-publication
+        profile: '@pr_1'
+        config: '@config_download_enabled'
+        cover: '@a_img5'

@@ -56,6 +56,14 @@ App\Entity\Asset:
         path: '<imageUrlRandomRatio("assets", <current()>, 1000)>'
         originalName: '<current()>.jpg'
 
+    single_video (extends asset):
+        publication: '@one_asset_publication'
+        title: 'Single Publication Video'
+        description: 'A video asset associated with a single publication.'
+        mimeType: video/mp4
+        path: '<randomMedia("assets", "mp4", "s1")>'
+        originalName: 'single-video.mp4'
+
 App\Entity\SubDefinition:
     sd_video_poster{1..10}:
         asset: '@a_video<current()>'

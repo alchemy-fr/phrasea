@@ -11,6 +11,7 @@ import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {ImageExtended} from './types.ts';
 import {Classes} from '../../types.ts';
 import AssetIconThumbnail, {thumbSx} from '../../asset/AssetIconThumbnail.tsx';
+import SingleAssetLayout from './SingleAssetLayout.tsx';
 
 type Props = {
     rowHeight?: number;
@@ -80,6 +81,10 @@ export default function GridLayout({
 
         loadThumbs();
     }, [thumbs, rowHeight, containerWidth]);
+
+    if (publication.assets.length === 1) {
+        return <SingleAssetLayout publication={publication} />;
+    }
 
     const openedAsset = assetId
         ? publication.assets.find(a => a.id === assetId)
