@@ -45,6 +45,7 @@ export default function TargetListPage() {
                         container
                         spacing={2}
                         sx={{
+                            'mt': 2,
                             '.MuiGrid2-root': {
                                 'display': 'flex',
                                 '> div': {
