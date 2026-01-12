@@ -12,7 +12,7 @@ App\Entity\Asset:
         path: '<randomMedia("assets", "mp3", <current()>)>'
         originalName: '<current()>.mp3'
 
-    a_video{1..100} (extends asset):
+    a_video{1..10} (extends asset):
         title: 'Video <current()>'
         description: 'Video <current()> <realText()>'
         mimeType: video/mp4
@@ -57,16 +57,9 @@ App\Entity\Asset:
         originalName: '<current()>.jpg'
 
 App\Entity\SubDefinition:
-    sd_video_poster{1..100}:
+    sd_video_poster{1..10}:
         asset: '@a_video<current()>'
         mimeType: image/jpeg
         size: 42
         name: poster
         path: '<imageUrlRandomRatio("assets", <current()>, 1000)>'
-
-    sd_video_thumb{1..100}:
-        asset: '@a_video<current()>'
-        mimeType: image/jpeg
-        size: 42
-        name: thumb
-        path: '<imageUrlRandomRatio("assets", <current()>, 300)>'
