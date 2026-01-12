@@ -272,7 +272,7 @@ class Publication implements AclObjectInterface, \Stringable
         return $this->createdAt;
     }
 
-    #[Groups([self::GROUP_READ, self::GROUP_INDEX])]
+    #[Groups([self::GROUP_READ, self::GROUP_INDEX, Asset::GROUP_READ])]
     public function isEnabled(): bool
     {
         if ($this->profile && null === $this->config->isEnabled()) {
@@ -553,7 +553,7 @@ class Publication implements AclObjectInterface, \Stringable
         $this->profile = $profile;
     }
 
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     public function getTerms(): TermsConfig
     {
         if ($this->profile) {
@@ -563,7 +563,7 @@ class Publication implements AclObjectInterface, \Stringable
         return $this->config->getTerms();
     }
 
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     public function getDownloadTerms(): TermsConfig
     {
         if ($this->profile) {
@@ -573,7 +573,7 @@ class Publication implements AclObjectInterface, \Stringable
         return $this->config->getDownloadTerms();
     }
 
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     public function isDownloadViaEmail(): bool
     {
         if (null !== $this->config->getDownloadViaEmail()) {
@@ -587,7 +587,7 @@ class Publication implements AclObjectInterface, \Stringable
         return false;
     }
 
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     public function isDownloadEnabled(): bool
     {
         if (null !== $this->config->getDownloadEnabled()) {

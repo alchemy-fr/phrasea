@@ -2,10 +2,11 @@ import React, {useEffect} from 'react';
 import {Asset} from '../../../types.ts';
 import {loadAsset, logAssetView} from '../../../api/assetApi.ts';
 import PublicationProxy from '../PublicationProxy.tsx';
-import {Box} from '@mui/material';
+import {Alert, Box} from '@mui/material';
 import {FilePlayer} from '@alchemy/phrasea-framework';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     id: string;
@@ -15,6 +16,7 @@ export default function EmbeddedAsset({id}: Props) {
     const [data, setData] = React.useState<Asset | undefined>();
     const [errorCode, setErrorCode] = React.useState<number | undefined>();
     const [loading, setLoading] = React.useState(false);
+    const {t} = useTranslation();
 
     const {innerWidth: windowWidth, innerHeight: windowHeight} =
         useWindowSize();
@@ -44,6 +46,8 @@ export default function EmbeddedAsset({id}: Props) {
             logAssetView(data.id);
         }
     }, [data?.id]);
+
+    const enabled = data?.publication.enabled;
 
     return (
         <PublicationProxy
@@ -81,6 +85,23 @@ export default function EmbeddedAsset({id}: Props) {
                     },
                 }}
             >
+                {!enabled && (
+                    <Alert
+                        severity={'warning'}
+                        sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            zIndex: 10,
+                        }}
+                    >
+                        {t(
+                            'embeded_asset.publication_disabled',
+                            'Publication of this asset is disabled. Only administrators can see it.'
+                        )}
+                    </Alert>
+                )}
                 {data ? (
                     <FilePlayer
                         file={{

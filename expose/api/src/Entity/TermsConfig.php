@@ -12,11 +12,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class TermsConfig implements MergeableValueObjectInterface
 {
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_READ, Asset::GROUP_READ])]
     private ?string $text = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_READ, Asset::GROUP_READ])]
     private ?string $url = null;
 
     /**
@@ -65,7 +65,7 @@ class TermsConfig implements MergeableValueObjectInterface
         $this->url = $url;
     }
 
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_READ, Asset::GROUP_READ])]
     public function isEnabled(): bool
     {
         return null !== $this->text
