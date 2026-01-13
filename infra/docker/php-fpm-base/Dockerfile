@@ -1,4 +1,4 @@
-FROM php:8.3.11-fpm-alpine3.20
+FROM php:8.5.1-fpm-alpine3.22
 
 RUN apk add --no-cache --virtual .persistent-deps \
         fcgi \
@@ -14,10 +14,10 @@ RUN apk add --no-cache --virtual .persistent-deps \
 
 ENV APP_ENV=prod \
     PHP_MEMORY_LIMIT=132M \
-    APCU_VERSION=5.1.22 \
-    AMQP_VERSION=1.11.0 \
-    XDEBUG_VERSION=3.3.1 \
-    REDIS_VERSION=5.3.7
+    APCU_VERSION=5.1.28 \
+    AMQP_VERSION=2.2.0 \
+    XDEBUG_VERSION=3.5.0 \
+    REDIS_VERSION=6.3.0
 
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
@@ -45,7 +45,6 @@ RUN set -eux; \
 	docker-php-ext-enable \
 		apcu \
 		amqp \
-		opcache \
 		redis \
 	; \
 	\
@@ -66,7 +65,7 @@ RUN export NR_INSTALL_USE_CP_NOT_LN=1 \
 	&& rm -rf /tmp/newrelic-* /tmp/nrinstall* \
 	&& rm $PHP_INI_DIR/conf.d/newrelic.ini
 
-COPY --from=composer:2.5.8 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.9.3 /usr/bin/composer /usr/bin/composer
 
 RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
     # Increase process-timeout for "composer test" which downloads phpunit

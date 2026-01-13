@@ -65,60 +65,58 @@ class ImageUrlFaker extends AbstractCachedFaker
             $url,
         );
 
-        if (extension_loaded('imagick')) {
-            $croppedCacheKKey = $cachePath.sprintf('-%d-%d', $width, $height);
-            if (null !== $cached = $this->getCachedFile($croppedCacheKKey, $extension)) {
-                $fd = fopen($cached, 'r');
-                if (!is_resource($fd)) {
-                    throw new \RuntimeException(sprintf('Cannot open cached file "%s"', $cached));
-                }
-                try {
-                    $newPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');
-                    $this->fileStorageManager->storeStream($newPath, $fd);
-
-                    return $newPath;
-                } finally {
-                    fclose($fd);
-                }
+        $croppedCacheKKey = $cachePath.sprintf('-%d-%d', $width, $height);
+        if (null !== $cached = $this->getCachedFile($croppedCacheKKey, $extension)) {
+            $fd = fopen($cached, 'r');
+            if (!is_resource($fd)) {
+                throw new \RuntimeException(sprintf('Cannot open cached file "%s"', $cached));
             }
-            $stream = $this->fileStorageManager->getStream($imageSrc);
-            $tmpImage = tempnam(sys_get_temp_dir(), 'img');
-            file_put_contents($tmpImage, $stream);
-            fclose($stream);
+            try {
+                $newPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');
+                $this->fileStorageManager->storeStream($newPath, $fd);
 
-            $width = (int) $width;
-            $height = (int) $height;
-            $imagick = new \Imagick($tmpImage);
+                return $newPath;
+            } finally {
+                fclose($fd);
+            }
+        }
+        $stream = $this->fileStorageManager->getStream($imageSrc);
+        $tmpImage = tempnam(sys_get_temp_dir(), 'img');
+        file_put_contents($tmpImage, $stream);
+        fclose($stream);
 
-            $imagick->cropThumbnailImage($width, $height);
-            $imagick->setImagePage(0, 0, 0, 0);
+        $width = (int) $width;
+        $height = (int) $height;
+        $imagick = new \Imagick($tmpImage);
+
+        $imagick->cropThumbnailImage($width, $height);
+        $imagick->setImagePage(0, 0, 0, 0);
+
+        try {
+            $imagick->writeImage($tmpImage);
+
+            $fd = fopen($tmpImage, 'r');
+            if (!is_resource($fd)) {
+                throw new \RuntimeException(sprintf('Cannot open temporary file "%s"', $tmpImage));
+            }
 
             try {
-                $imagick->writeImage($tmpImage);
+                $this->cacheFile(
+                    $croppedCacheKKey,
+                    $extension,
+                    $fd,
+                    $cacheKey
+                );
 
-                $fd = fopen($tmpImage, 'r');
-                if (!is_resource($fd)) {
-                    throw new \RuntimeException(sprintf('Cannot open temporary file "%s"', $tmpImage));
-                }
+                $newPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');
+                $this->fileStorageManager->storeStream($newPath, $fd);
 
-                try {
-                    $this->cacheFile(
-                        $croppedCacheKKey,
-                        $extension,
-                        $fd,
-                        $cacheKey
-                    );
-
-                    $newPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');
-                    $this->fileStorageManager->storeStream($newPath, $fd);
-
-                    return $newPath;
-                } finally {
-                    fclose($fd);
-                }
+                return $newPath;
             } finally {
-                unlink($tmpImage);
+                fclose($fd);
             }
+        } finally {
+            unlink($tmpImage);
         }
 
         return $imageSrc;

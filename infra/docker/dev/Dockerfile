@@ -103,7 +103,7 @@ RUN set -eux; \
 	apk add --no-cache --virtual .api-phpexts-rundeps $runDeps; \
 	apk del .build-deps
 
-COPY --from=composer:2.5.8 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.9.3 /usr/bin/composer /usr/bin/composer
 
 ENV NODE_VERSION=18.20.3 \
     NODE_OPTIONS=--openssl-legacy-provider
