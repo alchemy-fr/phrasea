@@ -42,7 +42,7 @@ export default function WorkspaceTreeItem<IsMulti extends boolean = false>({
     return (
         <>
             <TreeItem
-                nodeId={nodeId}
+                itemId={nodeId}
                 key={workspaceId}
                 onClick={load}
                 label={

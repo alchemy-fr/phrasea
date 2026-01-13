@@ -27,11 +27,11 @@ import FullPageLoader from '../Ui/FullPageLoader';
 import {useFormPrompt} from '@alchemy/navigation';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
-import {Collection} from '../Media/Collection/CollectionTree/collectionTree.ts';
+import {CollectionIdOrPath} from '../Media/Collection/CollectionTree/collectionTree.ts';
 import StoryForm from './StoryForm.tsx';
 
 export type UploadData = {
-    destination: Collection;
+    destination: CollectionIdOrPath;
     privacy: Privacy;
     tags: Tag[];
     quiet?: boolean;

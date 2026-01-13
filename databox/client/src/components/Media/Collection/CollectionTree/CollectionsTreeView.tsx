@@ -1,12 +1,12 @@
 import React, {useCallback, useState} from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import {TreeView} from '@mui/x-tree-view';
+import {SimpleTreeView as TreeView} from '@mui/x-tree-view';
 import {CircularProgress} from '@mui/material';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 import {useWorkspaceStore} from '../../../../store/workspaceStore.ts';
 import {
-    Collection,
+    CollectionIdOrPath,
     CommonTreeProps,
     NewCollectionPathState,
     normalizeNodeId,
@@ -17,7 +17,7 @@ import {
 import WorkspaceTreeItem from './WorkspaceTreeItem.tsx';
 
 type Props<IsMulti extends boolean = false> = {
-    value?: IsMulti extends true ? Collection[] : Collection;
+    value?: IsMulti extends true ? CollectionIdOrPath[] : CollectionIdOrPath;
     onChange?: (
         selection: IsMulti extends true ? string[] : string,
         workspaceId?: IsMulti extends true ? string : never

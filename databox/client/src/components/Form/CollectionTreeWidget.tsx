@@ -3,13 +3,12 @@ import {Controller} from 'react-hook-form';
 import {FieldValues} from 'react-hook-form';
 import {Control} from 'react-hook-form';
 import {FieldPath} from 'react-hook-form';
-import {
-    CollectionsTreeView,
-    CollectionTreeViewProps,
-} from '../Media/Collection/CollectionTree/CollectionsTreeView.tsx';
 import {FormControl, FormLabel} from '@mui/material';
 import {RegisterOptions} from 'react-hook-form';
 import {IsSelectable} from '../Media/Collection/CollectionTree/collectionTree.ts';
+import CollectionsTreeView2, {
+    CollectionTreeViewProps2,
+} from '../Media/Collection/CollectionTree/CollectionsTreeView2.tsx';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     label?: ReactNode;
@@ -21,7 +20,7 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
         RegisterOptions<TFieldValues, FieldPath<TFieldValues>>,
         'valueAsNumber' | 'valueAsDate' | 'setValueAs' | 'disabled'
     >;
-    onChange?: CollectionTreeViewProps<IsMulti>['onChange'];
+    onChange?: CollectionTreeViewProps2<IsMulti>['onChange'];
     workspaceId?: string;
     allowNew?: boolean | undefined;
     disabled?: boolean | undefined;
@@ -63,7 +62,7 @@ export default function CollectionTreeWidget<
                 rules={rules}
                 render={({field: {onChange, value}}) => {
                     return (
-                        <CollectionsTreeView<IsMulti>
+                        <CollectionsTreeView2<IsMulti>
                             workspaceId={workspaceId}
                             disabled={disabled}
                             value={value}

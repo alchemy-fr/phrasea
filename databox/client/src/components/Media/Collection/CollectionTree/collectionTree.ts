@@ -39,14 +39,14 @@ export type CommonTreeProps<IsMulti extends boolean = false> = {
 
 export type CollectionId = string;
 
-export type Collection = CollectionId | NewCollectionPath;
+export type CollectionIdOrPath = CollectionId | NewCollectionPath;
 
 export type IsSelectable = (collection: CollectionOptionalWorkspace) => boolean;
 
 export function normalizeNodeId(
     nodeId: string,
     newCollectionPath: NewCollectionPathState | undefined
-): Collection {
+): CollectionIdOrPath {
     if (newCollectionPath && nodeId.startsWith(nodeNewPrefix)) {
         const offset = parseInt(nodeId.substring(nodeNewPrefix.length));
 

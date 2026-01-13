@@ -20,6 +20,8 @@ import HorizontalAppMenu from './src/Menu/HorizontalAppMenu';
 import VerticalAppMenu from './src/Menu/VerticalAppMenu';
 import VerticalMenuLayout from './src/Menu/VerticalMenuLayout';
 import NavigationTree from './src/Tree/NavigationTree';
+import UserHookCaller from './src/UserHookCaller';
+import AnalyticsProvider from './src/AnalyticsProvider';
 export {
     AppProvider,
     initApp,
@@ -44,8 +46,9 @@ export {
     VerticalAppMenu,
     VerticalMenuLayout,
     NavigationTree,
+    UserHookCaller,
+    AnalyticsProvider,
 };
-
 export * from './src/Theme/types';
 export * from './src/Dialog/types';
 export * from './src/Locale/types';

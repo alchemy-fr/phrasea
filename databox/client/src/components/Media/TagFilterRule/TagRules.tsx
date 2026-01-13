@@ -6,7 +6,7 @@ import {
     Box,
     Button,
     Chip,
-    Grid,
+    Grid2 as Grid,
     IconButton,
     Paper,
     Tooltip,
@@ -129,7 +129,7 @@ export default function TagRules({type, workspaceId, id}: Props) {
                             return (
                                 <Paper elevation={2} sx={{p: 2, mt: 2}}>
                                     <Grid container spacing={2} key={r.id}>
-                                        <Grid item md={4}>
+                                        <Grid size={4}>
                                             <Chip
                                                 icon={
                                                     r.groupName ? (
@@ -142,8 +142,7 @@ export default function TagRules({type, workspaceId, id}: Props) {
                                             />
                                         </Grid>
                                         <Grid
-                                            item
-                                            md={7}
+                                            size={7}
                                             sx={{
                                                 '.MuiChip-root': {
                                                     ml: 1,
@@ -169,7 +168,7 @@ export default function TagRules({type, workspaceId, id}: Props) {
                                                 ))}
                                             </span>
                                         </Grid>
-                                        <Grid item md={1}>
+                                        <Grid size={1}>
                                             <Tooltip
                                                 title={t(
                                                     'tag_rules.edit_this_rule',

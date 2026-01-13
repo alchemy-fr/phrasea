@@ -10,7 +10,7 @@ function TreeItemLoader({}: Props) {
     return (
         <TreeItem
             disabled={true}
-            nodeId={'__loading'}
+            itemId={'__loading'}
             label={
                 <Typography
                     variant={'body1'}

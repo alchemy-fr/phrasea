@@ -28,7 +28,7 @@
         "@mui/icons-material": "^6.5.0",
         "@mui/lab": "^6.0.1-beta.36",
         "@mui/material": "^6.5.0",
-        "@mui/x-tree-view": "^7.29.10",
+        "@mui/x-tree-view": "^8.24.0",
         "@novu/framework": "^2.7.1",
         "@novu/react": "^2.6.6",
         "@tanstack/react-query": "^5.90.2",

@@ -6,7 +6,6 @@ import {
 import EditableCollectionTree, {
     defaultNewCollectionName,
 } from '../EditableTree.tsx';
-import {TreeItem} from '@mui/x-tree-view';
 import {IconButton, Stack} from '@mui/material';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import {CollectionOptionalWorkspace} from '../../../../types.ts';

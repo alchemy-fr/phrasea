@@ -71,7 +71,7 @@ export default function SearchMoreAction({search}: Props) {
                     </MenuItem>,
                     <MenuItem
                         key={'save_search'}
-                        loading={updatingSearch}
+                        // loading={updatingSearch}
                         disabled={
                             updatingSearch ||
                             !search.hasSearch ||

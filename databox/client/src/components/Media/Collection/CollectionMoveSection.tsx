@@ -2,12 +2,12 @@ import {useState} from 'react';
 import {Collection} from '../../../types';
 import {useTranslation} from 'react-i18next';
 import {Typography} from '@mui/material';
-import {CollectionsTreeView} from './CollectionTree/CollectionsTreeView.tsx';
 import {clearWorkspaceCache, moveCollection} from '../../../api/collection';
 import {toast} from 'react-toastify';
 import {LoadingButton} from '@mui/lab';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
 import {treeViewPathSeparator} from './CollectionTree/collectionTree.ts';
+import CollectionsTreeView2 from './CollectionTree/CollectionsTreeView2.tsx';
 
 type Props = {
     collection: Collection;
@@ -50,7 +50,7 @@ export default function CollectionMoveSection({collection, onMoved}: Props) {
                 )}
             </Typography>
 
-            <CollectionsTreeView
+            <CollectionsTreeView2
                 workspaceId={collection.workspace.id}
                 value={dest}
                 onChange={collections => {

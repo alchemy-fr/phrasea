@@ -127,7 +127,7 @@ export default function EditableCollectionTree({
                 },
             })}
             ref={ref}
-            nodeId={nodeId}
+            itemId={nodeId}
             label={
                 !editing ? (
                     <Stack direction={'row'} alignItems={'center'}>
