@@ -48,6 +48,6 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.17",
         "php-parallel-lint/php-var-dump-check": "v0.5",
-        "rector/rector": "^1.0.4"
+        "rector/rector": "^2.3.0"
     }
 }

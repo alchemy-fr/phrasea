@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5af63710b6b8534cb8f887e624a4d044",
+    "content-hash": "4bd97bc9acb50f40e45ce066fc2629db",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -65,7 +65,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
-                "reference": "0f664d8bae0f5b793fd615e8842660274fd19ef6"
+                "reference": "e4ddbd2d0c444beeb2748255e26c04b20f5364c0"
             },
             "require": {
                 "alchemy/auth-bundle": "@dev",
@@ -78,7 +78,7 @@
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "php-parallel-lint/php-var-dump-check": "v0.5",
                 "phpunit/phpunit": "^9.5",
-                "rector/rector": "^1.0.4"
+                "rector/rector": "^2.3.0"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -125,7 +125,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
-                "reference": "b292f5f7c779b57c9803c32381c26587d83e498c"
+                "reference": "83c3dd91e808b7f8c0ec3c7416a0d0bebce1f65a"
             },
             "require": {
                 "lcobucci/jwt": "^5.0",
@@ -137,7 +137,7 @@
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "php-parallel-lint/php-var-dump-check": "v0.5",
-                "rector/rector": "^1.0.4"
+                "rector/rector": "^2.3.0"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -183,7 +183,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
-                "reference": "0e4c4fc1ccd8937ddb5df1f8861e9cf35e371bba"
+                "reference": "f46c718d081ca33e5b28d4f544ad09e0d43fb437"
             },
             "require": {
                 "alchemy/core-bundle": "@dev",
@@ -195,7 +195,7 @@
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "php-parallel-lint/php-var-dump-check": "v0.5",
-                "rector/rector": "^1.0.4"
+                "rector/rector": "^2.3.0"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -238,7 +238,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
-                "reference": "7885e0849951991ca1921eeb4068e8eda11dd93c"
+                "reference": "a82bd19d85d57036a0fcb2814f9ccdd6d4b1a895"
             },
             "require": {
                 "php": "^8.3",
@@ -254,7 +254,7 @@
                 "php-parallel-lint/php-var-dump-check": "v0.5",
                 "phpunit/phpunit": "^9.5",
                 "pusher/pusher-php-server": "^7.2.4",
-                "rector/rector": "^1.0.4"
+                "rector/rector": "^2.3.0"
             },
             "suggest": {
                 "pusher/pusher-php-server": "^7.2.4"
@@ -354,7 +354,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
-                "reference": "488812e48f3903808068edcf0be5eb4adb66f840"
+                "reference": "1481e17626fff4115132734f1ebd17ca89d12da7"
             },
             "require": {
                 "alchemy/auth-bundle": "@dev",
@@ -365,7 +365,7 @@
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "php-parallel-lint/php-var-dump-check": "v0.5",
-                "rector/rector": "^1.0.4"
+                "rector/rector": "^2.3.0"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -411,7 +411,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-bundle",
-                "reference": "d75438af9c7012b8aafc4bb041e54cb9e1b3a6f3"
+                "reference": "98799fbc37460e7ab2114cc6a03849b888db2f5e"
             },
             "require": {
                 "alchemy/report-sdk": "@dev",
@@ -422,7 +422,7 @@
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "php-parallel-lint/php-var-dump-check": "v0.5",
-                "rector/rector": "^1.0.4"
+                "rector/rector": "^2.3.0"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -465,7 +465,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-sdk",
-                "reference": "9ff0797fe669c3ae35a643ca00c69a5f428f851d"
+                "reference": "873daf5fcab4f6d5f29ced0b619e95caf060f527"
             },
             "require": {
                 "opis/json-schema": "^1.0",
@@ -476,7 +476,7 @@
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "php-parallel-lint/php-var-dump-check": "v0.5",
                 "phpunit/phpunit": "^9.5",
-                "rector/rector": "^1.0.4"
+                "rector/rector": "^2.3.0"
             },
             "type": "library",
             "autoload": {
@@ -12133,7 +12133,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
-                "reference": "8e64ffccd1d005593f10bd30ff46fbbc84cd46b8"
+                "reference": "c75c255bdf511589426db31d64dcea3e281476e4"
             },
             "require": {
                 "php": "^8.3",
@@ -12143,7 +12143,7 @@
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "php-parallel-lint/php-var-dump-check": "v0.5",
-                "rector/rector": "^1.0.4"
+                "rector/rector": "^2.3.0"
             },
             "type": "library",
             "autoload": {
@@ -13434,15 +13434,15 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.12.32",
+            "version": "2.1.33",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/2770dcdf5078d0b0d53f94317e06affe88419aa8",
-                "reference": "2770dcdf5078d0b0d53f94317e06affe88419aa8",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9e800e6bee7d5bd02784d4c6069b48032d16224f",
+                "reference": "9e800e6bee7d5bd02784d4c6069b48032d16224f",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2|^8.0"
+                "php": "^7.4|^8.0"
             },
             "conflict": {
                 "phpstan/phpstan-shim": "*"
@@ -13483,7 +13483,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-09-30T10:16:31+00:00"
+            "time": "2025-12-05T10:24:31+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -14443,21 +14443,21 @@
         },
         {
             "name": "rector/rector",
-            "version": "1.2.10",
+            "version": "2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "40f9cf38c05296bd32f444121336a521a293fa61"
+                "reference": "f7166355dcf47482f27be59169b0825995f51c7d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/40f9cf38c05296bd32f444121336a521a293fa61",
-                "reference": "40f9cf38c05296bd32f444121336a521a293fa61",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/f7166355dcf47482f27be59169b0825995f51c7d",
+                "reference": "f7166355dcf47482f27be59169b0825995f51c7d",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2|^8.0",
-                "phpstan/phpstan": "^1.12.5"
+                "php": "^7.4|^8.0",
+                "phpstan/phpstan": "^2.1.33"
             },
             "conflict": {
                 "rector/rector-doctrine": "*",
@@ -14482,6 +14482,7 @@
                 "MIT"
             ],
             "description": "Instant Upgrade and Automated Refactoring of any PHP code",
+            "homepage": "https://getrector.com/",
             "keywords": [
                 "automation",
                 "dev",
@@ -14490,7 +14491,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/1.2.10"
+                "source": "https://github.com/rectorphp/rector/tree/2.3.0"
             },
             "funding": [
                 {
@@ -14498,7 +14499,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-11-08T13:59:10+00:00"
+            "time": "2025-12-25T22:00:18+00:00"
         },
         {
             "name": "sebastian/cli-parser",

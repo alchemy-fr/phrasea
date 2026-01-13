@@ -46,7 +46,7 @@
         "php-parallel-lint/php-var-dump-check": "v0.5",
         "phpunit/phpunit": "^9.5",
         "pusher/pusher-php-server": "^7.2.4",
-        "rector/rector": "^1.0.4"
+        "rector/rector": "^2.3.0"
     },
     "suggest": {
         "pusher/pusher-php-server": "^7.2.4"
