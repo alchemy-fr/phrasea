@@ -21,15 +21,27 @@ export enum AuthorizationError {
     NotAllowed = 'not_allowed',
 }
 
-export type Publication = {
+export enum LayoutEnum {
+    Gallery = 'gallery',
+    Grid = 'grid',
+    Download = 'download',
+    Mapbox = 'mapbox',
+}
+
+type BasePublication = {
     id: string;
     slug: string;
-    cssLink?: string;
     authorized: boolean;
-    archiveDownloadUrl?: string;
     securityContainerId: string;
-    authorizationError?: AuthorizationError;
     securityMethod: SecurityMethod;
+    authorizationError?: AuthorizationError;
+};
+
+export type UnauthorizedPublication = Partial<Publication> & BasePublication;
+
+export type Publication = {
+    cssLink?: string;
+    archiveDownloadUrl?: string;
     parent?: Publication | undefined;
     rootPublication?: Publication | undefined;
     parentId?: string;
@@ -37,9 +49,10 @@ export type Publication = {
     downloadEnabled?: boolean;
     title: string;
     assets: Asset[];
-    cover?: Asset;
-    terms?: TermsConfig;
-    children?: Publication[];
+    cover: Asset;
+    terms: TermsConfig;
+    children: Publication[];
+    layout: LayoutEnum;
     layoutOptions: LayoutOptions;
     downloadTerms?: TermsConfig;
     description?: string;
@@ -54,7 +67,7 @@ export type Publication = {
     };
     urls?: PublicationUrl[];
     copyrightText?: string;
-};
+} & BasePublication;
 
 export type PublicationUrl = {
     text: string;

@@ -28,7 +28,7 @@ export default function PublicationStructure({publication, children}: Props) {
     const navigate = useNavigate();
 
     const downloadArchiveEnabled =
-        publication.downloadEnabled && assets.length > 0;
+        publication.downloadEnabled && assets!.length > 0;
 
     const parents: Publication[] = [];
     let currentParent = publication.parent;

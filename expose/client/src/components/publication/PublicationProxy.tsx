@@ -1,4 +1,8 @@
-import {AuthorizationError, Publication} from '../../types.ts';
+import {
+    AuthorizationError,
+    Publication,
+    UnauthorizedPublication,
+} from '../../types.ts';
 import PublicationError from './PublicationError.tsx';
 import {securityMethods} from '../security/methods.tsx';
 import React, {PropsWithChildren} from 'react';
@@ -8,7 +12,7 @@ import TermsWrapper from './TermsWrapper.tsx';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 
 type Props = PropsWithChildren<{
-    publication: Publication | undefined;
+    publication: Publication | UnauthorizedPublication | undefined;
     errorCode?: number;
     loading?: boolean;
     load: () => Promise<void>;
@@ -68,7 +72,9 @@ export default function PublicationProxy({
                     href={publication.cssLink}
                 />
             ) : null}
-            <TermsWrapper publication={publication}>{children}</TermsWrapper>
+            <TermsWrapper publication={publication as Publication}>
+                {children}
+            </TermsWrapper>
         </>
     );
 }

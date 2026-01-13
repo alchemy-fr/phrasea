@@ -1,14 +1,12 @@
 import {FilePlayer, videoPlayerSx} from '@alchemy/phrasea-framework';
 import React, {useRef} from 'react';
-import {Publication} from '../../../../types.ts';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
 import {Box, Theme, useMediaQuery, useTheme} from '@mui/material';
 import {SystemCssProperties} from '@mui/system';
 import {useTracker} from '../../../../hooks/useTracker.ts';
+import {LayoutProps} from '../types.ts';
 
-type Props = {
-    publication: Publication;
-};
+type Props = {} & LayoutProps;
 
 export default function SingleAssetLayout({publication}: Props) {
     const {innerWidth: windowWidth, innerHeight: windowHeight} =

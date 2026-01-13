@@ -1,6 +1,6 @@
 import React from 'react';
 import {loadPublication} from '../api/publicationApi.ts';
-import {Publication} from '../types.ts';
+import {Publication, UnauthorizedPublication} from '../types.ts';
 
 type Props = {
     id: string;
@@ -9,7 +9,9 @@ type Props = {
 export function usePublication({id}: Props) {
     const [loading, setLoading] = React.useState(false);
     const [errorCode, setErrorCode] = React.useState<number | undefined>();
-    const [data, setData] = React.useState<Publication>();
+    const [data, setData] = React.useState<
+        Publication | UnauthorizedPublication
+    >();
     const [authorizationError, setAuthorizationError] = React.useState<
         string | undefined
     >();

@@ -1,9 +1,11 @@
-import {Publication} from '../types.ts';
+import {Publication, UnauthorizedPublication} from '../types.ts';
 import {apiClient} from '../init.ts';
 import {RawAxiosRequestHeaders} from 'axios';
 import {getPasswords} from '../lib/password.ts';
 
-export async function loadPublication(id: string): Promise<Publication> {
+export async function loadPublication(
+    id: string
+): Promise<Publication | UnauthorizedPublication> {
     return (
         await apiClient.get(`/publications/${id}`, {
             headers: getPasswordHeaders(),

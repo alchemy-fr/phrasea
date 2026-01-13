@@ -1,9 +1,12 @@
-import React from 'react';
+import React, {FC} from 'react';
 import {usePublication} from '../../hooks/usePublication.ts';
 import PublicationProxy from './PublicationProxy.tsx';
-import GridLayout from './layouts/grid/GridLayout.tsx';
 import {logPublicationView} from '../../api/assetApi.ts';
 import PublicationStructure from './layouts/common/PublicationStructure.tsx';
+import SingleAssetLayout from './layouts/single/SingleAssetLayout.tsx';
+import {LayoutProps} from './layouts/types.ts';
+import {layouts} from './layouts';
+import {LayoutEnum, Publication} from '../../types.ts';
 
 type Props = {
     id: string;
@@ -21,6 +24,13 @@ export default function PublicationView({id, assetId}: Props) {
         }
     }, [publication]);
 
+    const layout =
+        (publication?.layout ? layouts[publication.layout] : undefined) ??
+        layouts[LayoutEnum.Grid];
+
+    const LayoutComponent: FC<LayoutProps> =
+        publication?.assets?.length === 1 ? SingleAssetLayout : layout;
+
     return (
         <PublicationProxy
             publication={publication}
@@ -28,8 +38,11 @@ export default function PublicationView({id, assetId}: Props) {
             errorCode={errorCode}
             load={load}
         >
-            <PublicationStructure publication={publication!}>
-                <GridLayout publication={publication!} assetId={assetId} />
+            <PublicationStructure publication={publication as Publication}>
+                <LayoutComponent
+                    publication={publication as Publication}
+                    assetId={assetId}
+                />
             </PublicationStructure>
         </PublicationProxy>
     );
