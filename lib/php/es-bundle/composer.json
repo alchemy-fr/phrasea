@@ -37,6 +37,7 @@
         }
     },
     "require-dev": {
+        "php-parallel-lint/php-var-dump-check": "v0.5",
         "friendsofphp/php-cs-fixer": "^v3.50",
         "phpunit/phpunit": "^9.5",
         "doctrine/orm": "^2.7",
