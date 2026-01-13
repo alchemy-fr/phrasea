@@ -4,7 +4,6 @@ import {
     RouterProvider,
     RouteWrapperProps,
 } from '@alchemy/navigation';
-import UserPreferencesProvider from './User/Preferences/UserPreferencesProvider';
 import {SessionExpireContainer} from '@alchemy/react-auth';
 import {modalRoutes, routes} from '../routes';
 import RouteProxy from './Routing/RouteProxy';
@@ -20,15 +19,13 @@ export default function Root({}: Props) {
         <>
             <QueryClientProvider client={queryClient}>
                 <AttributeFormatProvider>
-                    <UserPreferencesProvider>
-                        <RouterProvider
-                            routes={routes}
-                            options={{
-                                RouteProxyComponent: RouteProxy,
-                                WrapperComponent: WrapperComponent,
-                            }}
-                        />
-                    </UserPreferencesProvider>
+                    <RouterProvider
+                        routes={routes}
+                        options={{
+                            RouteProxyComponent: RouteProxy,
+                            WrapperComponent: WrapperComponent,
+                        }}
+                    />
                 </AttributeFormatProvider>
             </QueryClientProvider>
         </>

@@ -295,7 +295,7 @@ class Publication implements AclObjectInterface, \Stringable
     #[Groups([self::GROUP_READ])]
     public function getLayout(): string
     {
-        return $this->config->getLayout() ?? ($this->profile && $this->profile->getConfig()->getLayout() ? $this->profile->getConfig()->getLayout() : 'gallery');
+        return $this->config->getLayout() ?? ($this->profile && $this->profile->getConfig()->getLayout() ? $this->profile->getConfig()->getLayout() : 'grid');
     }
 
     #[Groups([self::GROUP_ADMIN_READ])]

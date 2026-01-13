@@ -6,18 +6,20 @@ import './config';
 import './i18n';
 import './lib/leaflet';
 import {AppProvider} from '@alchemy/phrasea-framework';
-import {oauthClient, keycloakClient, matomo, config} from './init.ts';
+import {config, keycloakClient, matomo, oauthClient} from './init.ts';
+import UserPreferencesProvider from './components/User/Preferences/UserPreferencesProvider.tsx';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
-        <AppProvider
-            config={config}
-            matomo={matomo}
-            oauthClient={oauthClient}
-            keycloakClient={keycloakClient}
-            includeGlobalTheme={false}
-        >
-            <Root />
-        </AppProvider>
+        <UserPreferencesProvider>
+            <AppProvider
+                config={config}
+                matomo={matomo}
+                oauthClient={oauthClient}
+                keycloakClient={keycloakClient}
+            >
+                <Root />
+            </AppProvider>
+        </UserPreferencesProvider>
     </React.StrictMode>
 );

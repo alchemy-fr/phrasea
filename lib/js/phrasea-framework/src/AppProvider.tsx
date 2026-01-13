@@ -13,7 +13,6 @@ type Props = PropsWithChildren<{
     matomo: MatomoInstance | undefined;
     oauthClient: OAuthClient<any>;
     keycloakClient: KeycloakClient;
-    includeGlobalTheme?: boolean;
 }>;
 
 export function AppProvider({
@@ -22,29 +21,24 @@ export function AppProvider({
     keycloakClient,
     matomo,
     children,
-    includeGlobalTheme = true,
 }: Props) {
     const css = config.globalCSS;
 
-    const sub = (
-        <AnalyticsProvider matomo={matomo}>
-            <ToastContainer position={'bottom-left'} />
-            <AuthenticationProvider
-                oauthClient={oauthClient}
-                keycloakClient={keycloakClient}
-            >
-                <UserHookCaller />
-                <ModalStack>{children}</ModalStack>
-            </AuthenticationProvider>
-        </AnalyticsProvider>
+    return (
+        <>
+            {css && <style>{css}</style>}
+            <AppGlobalTheme>
+                <AnalyticsProvider matomo={matomo}>
+                    <ToastContainer position={'bottom-left'} />
+                    <AuthenticationProvider
+                        oauthClient={oauthClient}
+                        keycloakClient={keycloakClient}
+                    >
+                        <UserHookCaller />
+                        <ModalStack>{children}</ModalStack>
+                    </AuthenticationProvider>
+                </AnalyticsProvider>
+            </AppGlobalTheme>
+        </>
     );
-
-        return (
-            <>
-                {css && <style>{css}</style>}
-                {includeGlobalTheme ? <AppGlobalTheme>
-                    {sub}
-                </AppGlobalTheme> : sub}
-            </>
-        );
 }
