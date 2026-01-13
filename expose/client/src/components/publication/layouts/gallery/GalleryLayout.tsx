@@ -1,5 +1,5 @@
 import React from 'react';
-import {Box, Container, IconButton, Theme} from '@mui/material';
+import {Box, Container, IconButton, Theme, useTheme} from '@mui/material';
 import {useThumbs} from '../../../../hooks/useThumbs.tsx';
 import {LayoutProps} from '../types.ts';
 import Thumbs from '../../asset/lightbox/Thumbs.tsx';
@@ -11,10 +11,12 @@ import AssetLegend from '../../asset/AssetLegend.tsx';
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import AssetIndex from '../../asset/lightbox/AssetIndex.tsx';
+import {useMatchWindowWidthBreakpoint} from '@alchemy/react-hooks/src/useMatchWindowWidthBreakpoint.ts';
 
 type Props = {} & LayoutProps;
 
 export default function GalleryLayout({publication, assetId}: Props) {
+    const theme = useTheme();
     const thumbs = useThumbs({
         publication: publication,
         assets: publication.assets!,
@@ -31,8 +33,14 @@ export default function GalleryLayout({publication, assetId}: Props) {
         asset,
     });
 
-    const {innerWidth: windowWidth, innerHeight: windowHeight} =
-        useWindowSize();
+    const {innerWidth: windowWidth} = useWindowSize();
+
+    const mediaHeight = useMatchWindowWidthBreakpoint(theme, {
+        xs: 450,
+        md: 500,
+        lg: 600,
+        xl: 700,
+    })!;
 
     if (!asset) {
         return null;
@@ -58,14 +66,9 @@ export default function GalleryLayout({publication, assetId}: Props) {
                         alignItems: 'center',
                         flexShrink: 1,
                         minWidth: 0,
-                        height: {
-                            xs: 450,
-                            md: 500,
-                            lg: 600,
-                            xl: 700,
-                        },
+                        height: mediaHeight,
                         img: {
-                            maxHeight: '100%',
+                            maxHeight: mediaHeight,
                         },
                         ...(videoPlayerSx(theme) as SystemCssProperties<Theme>),
                     })}
@@ -81,7 +84,7 @@ export default function GalleryLayout({publication, assetId}: Props) {
                         title={asset.title ?? 'Asset'}
                         dimensions={{
                             width: windowWidth,
-                            height: windowHeight,
+                            height: mediaHeight,
                         }}
                         webVTTLinks={asset.webVTTLinks}
                     />

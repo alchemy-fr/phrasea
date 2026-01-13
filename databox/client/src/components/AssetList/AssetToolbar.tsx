@@ -33,10 +33,7 @@ export default function AssetToolbar<Item extends AssetOrAssetContainer>({
     return (
         <>
             <Box
-                className={classNames(
-                    assetClasses.assetToolbar,
-                    MenuClasses.PageHeader
-                )}
+                className={classNames(assetClasses.assetToolbar)}
                 component="div"
                 sx={() => ({
                     position: 'sticky',
@@ -45,7 +42,11 @@ export default function AssetToolbar<Item extends AssetOrAssetContainer>({
                     bgcolor: 'background.default',
                 })}
             >
-                {searchBar ? <SearchBar /> : ''}
+                {searchBar ? (
+                    <div className={MenuClasses.PageHeader}>
+                        <SearchBar />
+                    </div>
+                ) : null}
 
                 <Box
                     sx={{

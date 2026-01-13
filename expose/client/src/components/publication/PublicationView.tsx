@@ -29,7 +29,7 @@ export default function PublicationView({id, assetId}: Props) {
         layouts[LayoutEnum.Grid];
 
     const LayoutComponent: FC<LayoutProps> =
-        publication?.assets?.length === 1 ? SingleAssetLayout : layout;
+        (publication?.assets?.length ?? 0) <= 1 ? SingleAssetLayout : layout;
 
     return (
         <PublicationProxy
