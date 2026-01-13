@@ -139,7 +139,10 @@ export default function PublicationStructure({publication, children}: Props) {
                         <Box
                             sx={{
                                 display: 'flex',
-                                flexDirection: 'row',
+                                flexDirection: {
+                                    xs: 'column',
+                                    sm: 'row',
+                                },
                                 gap: 2,
                             }}
                         >

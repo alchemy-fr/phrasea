@@ -1,13 +1,16 @@
 import React from 'react';
-import {Box, Theme, useMediaQuery, useTheme} from '@mui/material';
+import {Box, Container, IconButton, Theme} from '@mui/material';
 import {useThumbs} from '../../../../hooks/useThumbs.tsx';
 import {LayoutProps} from '../types.ts';
 import Thumbs from '../../asset/lightbox/Thumbs.tsx';
 import {useThumbNavigation} from '../../asset/lightbox/useThumbNavigation.ts';
-import {LightboxClasses} from '../../asset/lightbox/types.ts';
 import {SystemCssProperties} from '@mui/system';
 import {FilePlayer, videoPlayerSx} from '@alchemy/phrasea-framework';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
+import AssetLegend from '../../asset/AssetLegend.tsx';
+import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import AssetIndex from '../../asset/lightbox/AssetIndex.tsx';
 
 type Props = {} & LayoutProps;
 
@@ -22,7 +25,7 @@ export default function GalleryLayout({publication, assetId}: Props) {
             ? publication.assets!.find(a => a.id === assetId)
             : undefined) ?? publication.assets![0];
 
-    const {} = useThumbNavigation({
+    const {goPrevious, goNext} = useThumbNavigation({
         publication,
         thumbs,
         asset,
@@ -30,9 +33,6 @@ export default function GalleryLayout({publication, assetId}: Props) {
 
     const {innerWidth: windowWidth, innerHeight: windowHeight} =
         useWindowSize();
-    const theme = useTheme();
-    const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
-    const mediaHeight = isSmallScreen ? windowHeight * 0.6 : 500;
 
     if (!asset) {
         return null;
@@ -40,48 +40,117 @@ export default function GalleryLayout({publication, assetId}: Props) {
 
     return (
         <>
-            <Box>
-                <Box>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                <Box
+                    sx={theme => ({
+                        bgcolor: 'common.white',
+                        width: '100%',
+                        position: 'relative',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexShrink: 1,
+                        minWidth: 0,
+                        height: {
+                            xs: '30vh',
+                            md: '40vh',
+                            lg: '50vh',
+                            xl: '60vh',
+                        },
+                        img: {
+                            maxHeight: '100%',
+                        },
+                        ...(videoPlayerSx(theme) as SystemCssProperties<Theme>),
+                    })}
+                >
+                    <FilePlayer
+                        file={{
+                            id: asset.id,
+                            name: asset.title ?? 'Asset',
+                            type: asset.mimeType,
+                            url: asset.previewUrl,
+                        }}
+                        controls={true}
+                        title={asset.title ?? 'Asset'}
+                        dimensions={{
+                            width: windowWidth,
+                            height: windowHeight,
+                        }}
+                        webVTTLinks={asset.webVTTLinks}
+                    />
                     <Box
-                        className={LightboxClasses.MediaContainer}
-                        sx={theme => ({
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexShrink: 1,
-                            maxWidth: '100%',
-                            minWidth: 0,
-                            height: mediaHeight,
-                            img: {
-                                maxHeight: mediaHeight,
+                        sx={_theme => ({
+                            'position': 'absolute',
+                            'bottom': 0,
+                            'right': 0,
+                            'display': 'flex',
+                            'flexDirection': 'row',
+                            'justifyContent': 'center',
+                            'alignItems': 'center',
+                            'p': 1,
+                            '.MuiSvgIcon-root': {
+                                fontSize: 30,
                             },
-                            ...(videoPlayerSx(
-                                theme
-                            ) as SystemCssProperties<Theme>),
                         })}
                     >
-                        <FilePlayer
-                            file={{
-                                id: asset.id,
-                                name: asset.title ?? 'Asset',
-                                type: asset.mimeType,
-                                url: asset.previewUrl,
+                        <div
+                            style={{
+                                zIndex: 0,
+                                backgroundColor: 'rgba(255,255,255, 0.5)',
+                                filter: 'blur(16px)',
+                                position: 'absolute',
+                                top: 0,
+                                right: 0,
+                                bottom: 0,
+                                left: 0,
                             }}
-                            controls={true}
-                            title={asset.title ?? 'Asset'}
-                            dimensions={{
-                                width: windowWidth,
-                                height: mediaHeight,
+                        ></div>
+                        <div
+                            style={{
+                                zIndex: 1,
                             }}
-                            webVTTLinks={asset.webVTTLinks}
+                        >
+                            <IconButton onClick={() => goPrevious()}>
+                                <ArrowLeftIcon />
+                            </IconButton>
+                        </div>
+                        <AssetIndex
+                            index={thumbs.findIndex(
+                                thumb => thumb.id === asset.id
+                            )}
+                            total={thumbs.length}
                         />
+                        <div
+                            style={{
+                                zIndex: 1,
+                            }}
+                        >
+                            <IconButton onClick={() => goNext()}>
+                                <ArrowRightIcon />
+                            </IconButton>
+                        </div>
                     </Box>
                 </Box>
+                <Container
+                    sx={{
+                        p: 2,
+                    }}
+                >
+                    <AssetLegend publication={publication} asset={asset} />
+                </Container>
+
                 <Thumbs
                     thumbs={thumbs}
                     asset={asset}
                     thumbPadding={2}
-                    thumbHeight={150}
+                    thumbHeight={100}
                 />
             </Box>
         </>

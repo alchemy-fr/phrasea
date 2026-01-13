@@ -183,9 +183,6 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                                 maxWidth: '100%',
                                 minWidth: 0,
                                 maxHeight: mediaHeight,
-                                img: {
-                                    maxHeight: mediaHeight,
-                                },
                                 ...(videoPlayerSx(
                                     theme
                                 ) as SystemCssProperties<Theme>),
@@ -226,6 +223,7 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                             <AssetLegend
                                 publication={publication}
                                 asset={asset}
+                                displayDownload={true}
                             />
                         </Box>
                     </Box>

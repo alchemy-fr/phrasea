@@ -8,9 +8,14 @@ import Description from '../layouts/common/Description.tsx';
 type Props = {
     publication: Publication;
     asset: Asset;
+    displayDownload?: boolean;
 };
 
-export default function AssetLegend({publication, asset}: Props) {
+export default function AssetLegend({
+    publication,
+    asset,
+    displayDownload,
+}: Props) {
     const {t} = useTranslation();
 
     const onDownload = useDownload({
@@ -34,17 +39,19 @@ export default function AssetLegend({publication, asset}: Props) {
                 <Typography variant={'h1'}>{asset.title}</Typography>
             ) : null}
 
-            {publication.downloadEnabled && asset.downloadUrl && (
-                <div>
-                    <Button
-                        variant={'contained'}
-                        onClick={onDownload}
-                        startIcon={<GetAppIcon />}
-                    >
-                        {t('publication.asset.download', 'Download')}
-                    </Button>
-                </div>
-            )}
+            {displayDownload &&
+                publication.downloadEnabled &&
+                asset.downloadUrl && (
+                    <div>
+                        <Button
+                            variant={'contained'}
+                            onClick={onDownload}
+                            startIcon={<GetAppIcon />}
+                        >
+                            {t('publication.asset.download', 'Download')}
+                        </Button>
+                    </div>
+                )}
 
             {asset.description ? (
                 <Typography variant={'body1'} component={'div'}>
