@@ -61,15 +61,28 @@ abstract class AbstractCachedFaker extends BaseProvider
         return $finalPath;
     }
 
-    protected function cacheFile(string $cachePath, string $extension, $resource, ?string &$cacheKey = null): void
+    private function ensureCacheDirExists(string $cacheKey): void
     {
-        $cacheKey = $this->fixturesCacheDir.'/'.$cachePath.'.'.$extension;
         $dir = dirname($cacheKey);
         if (!is_dir($dir)) {
             mkdir($dir, 0777, true);
         }
+    }
+
+    protected function cacheFile(string $cachePath, string $extension, $resource): void
+    {
+        $cacheKey = $this->getFileCacheKey($cachePath, $extension);
+        $this->ensureCacheDirExists($cacheKey);
 
         file_put_contents($cacheKey, $resource);
+    }
+
+    protected function cacheFileFromPath(string $cachePath, string $extension, string $src): void
+    {
+        $cacheKey = $this->getFileCacheKey($cachePath, $extension);
+        $this->ensureCacheDirExists($cacheKey);
+
+        copy($src, $cacheKey);
     }
 
     protected function getCachedFile(string $cachePath, string $extension): ?string

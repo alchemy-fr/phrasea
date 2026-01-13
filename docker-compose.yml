@@ -120,6 +120,7 @@ services:
       - internal
     environment:
       - APP_ENV
+      - FIXTURES_GENERATE_IMAGES
       - TRUSTED_PROXIES
       - VERIFY_SSL
       - VERIFY_HOST

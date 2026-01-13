@@ -45,13 +45,22 @@ class ImageUrlFaker extends AbstractCachedFaker
         string $pathPrefix,
         ?string $theme = null,
     ): string {
-        $width = round($width);
-        $height = round($height);
+        $width = (int) round($width);
+        $height = (int) round($height);
 
         $totalVariants = 42;
         $lockNumber = $this->extractLockNumber($lockNumber);
         $lockNorm = ($lockNumber % $totalVariants) + 1;
         $extension = 'jpg';
+
+        if (filter_var(getenv('FIXTURES_GENERATE_IMAGES'), FILTER_VALIDATE_BOOLEAN)) {
+            return $this->generateSolidColorImage(
+                $width,
+                $height,
+                $pathPrefix,
+                $extension,
+            );
+        }
 
         $theme ??= 'nature';
         $orientation = $width >= $height ? 'landscape' : 'portrait';
@@ -67,26 +76,14 @@ class ImageUrlFaker extends AbstractCachedFaker
 
         $croppedCacheKKey = $cachePath.sprintf('-%d-%d', $width, $height);
         if (null !== $cached = $this->getCachedFile($croppedCacheKKey, $extension)) {
-            $fd = fopen($cached, 'r');
-            if (!is_resource($fd)) {
-                throw new \RuntimeException(sprintf('Cannot open cached file "%s"', $cached));
-            }
-            try {
-                $newPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');
-                $this->fileStorageManager->storeStream($newPath, $fd);
-
-                return $newPath;
-            } finally {
-                fclose($fd);
-            }
+            return $this->storeOnBucket($pathPrefix, $extension, $cached);
         }
+
         $stream = $this->fileStorageManager->getStream($imageSrc);
         $tmpImage = tempnam(sys_get_temp_dir(), 'img');
         file_put_contents($tmpImage, $stream);
         fclose($stream);
 
-        $width = (int) $width;
-        $height = (int) $height;
         $imagick = new \Imagick($tmpImage);
 
         $imagick->cropThumbnailImage($width, $height);
@@ -94,32 +91,65 @@ class ImageUrlFaker extends AbstractCachedFaker
 
         try {
             $imagick->writeImage($tmpImage);
+            $imagick->clear();
+            $imagick->destroy();
 
-            $fd = fopen($tmpImage, 'r');
-            if (!is_resource($fd)) {
-                throw new \RuntimeException(sprintf('Cannot open temporary file "%s"', $tmpImage));
-            }
+            $this->cacheFileFromPath(
+                $croppedCacheKKey,
+                $extension,
+                $tmpImage,
+            );
 
-            try {
-                $this->cacheFile(
-                    $croppedCacheKKey,
-                    $extension,
-                    $fd,
-                    $cacheKey
-                );
-
-                $newPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');
-                $this->fileStorageManager->storeStream($newPath, $fd);
-
-                return $newPath;
-            } finally {
-                fclose($fd);
-            }
+            return $this->storeOnBucket($pathPrefix, $extension, $tmpImage);
         } finally {
             unlink($tmpImage);
         }
+    }
 
-        return $imageSrc;
+    private function generateSolidColorImage(
+        int $width,
+        int $height,
+        string $pathPrefix,
+        string $extension,
+    ): string {
+        $cachePath = sprintf('generated/%d-%d', $width, $height);
+        if (null !== $cached = $this->getCachedFile($cachePath, $extension)) {
+            return $cached;
+        }
+
+        $imagick = new \Imagick();
+        $imagick->newImage($width, $height, new \ImagickPixel('gray'));
+        $imagick->setImageFormat($extension);
+
+        $tmpImage = tempnam(sys_get_temp_dir(), 'img');
+        try {
+            $imagick->writeImage($tmpImage);
+            $imagick->clear();
+            $imagick->destroy();
+
+            $this->cacheFileFromPath(
+                $cachePath,
+                $extension,
+                $tmpImage,
+            );
+
+            return $this->storeOnBucket($pathPrefix, $extension, $tmpImage);
+        } finally {
+            unlink($tmpImage);
+        }
+    }
+
+    private function storeOnBucket(string $pathPrefix, string $extension, string $src): string
+    {
+        $newPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');
+        $fd = fopen($src, 'r');
+        try {
+            $this->fileStorageManager->storeStream($newPath, $fd);
+        } finally {
+            fclose($fd);
+        }
+
+        return $newPath;
     }
 
     private function extractLockNumber(string $lock): int
