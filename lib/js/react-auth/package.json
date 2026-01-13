@@ -17,7 +17,7 @@
         "translations/*.json"
     ],
     "peerDependencies": {
-        "@mui/material": "^5.16.7",
+        "@mui/material": "^6.5.0",
         "react": "^18.2.0",
         "react-i18next": "^14.1.1",
         "react-router-dom": "6.18.0",
@@ -34,8 +34,8 @@
     "devDependencies": {
         "@4rthem/i18next-scanner": "^0.0.1",
         "@jonkoops/matomo-tracker-react": "^0.7.0",
-        "@mui/lab": "5.0.0-alpha.175",
-        "@mui/material": "^5.18.0",
+        "@mui/lab": "^6.0.1-beta.36",
+        "@mui/material": "^6.5.0",
         "@types/jest": "^23.3.14",
         "@types/js-cookie": "^3.0.6",
         "@types/node": "^10.17.60",

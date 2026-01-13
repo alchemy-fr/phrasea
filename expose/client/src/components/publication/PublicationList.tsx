@@ -6,7 +6,7 @@ import {apiClient} from '../../init.ts';
 import {DropdownActions, FullPageLoader} from '@alchemy/phrasea-ui';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import PublicationCard from './PublicationCard.tsx';
-import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
+import {Grid2 as Grid} from '@mui/material';
 import AppBar from '../ui/AppBar.tsx';
 import {wrapCached} from '@alchemy/phrasea-framework';
 
@@ -128,7 +128,14 @@ export default function PublicationList({}: Props) {
                 >
                     {data
                         ? data.map((p: Publication) => (
-                              <Grid xs={12} sm={6} md={4} key={p.id}>
+                              <Grid
+                                  size={{
+                                      xs: 12,
+                                      sm: 6,
+                                      md: 4,
+                                  }}
+                                  key={p.id}
+                              >
                                   <PublicationCard publication={p} />
                               </Grid>
                           ))

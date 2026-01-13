@@ -11,8 +11,8 @@
         "cs": "pnpm lint:fix && pnpm format"
     },
     "peerDependencies": {
-        "@mui/icons-material": "^5.16.7",
-        "@mui/material": "^5.16.7",
+        "@mui/icons-material": "^6.5.0",
+        "@mui/material": "^6.5.0",
         "react": "^18.2.0",
         "react-i18next": "^14.1.1"
     },
@@ -21,8 +21,8 @@
     },
     "devDependencies": {
         "@4rthem/i18next-scanner": "^0.0.1",
-        "@mui/icons-material": "^5.18.0",
-        "@mui/material": "^5.18.0",
+        "@mui/icons-material": "^6.5.0",
+        "@mui/material": "^6.5.0",
         "@types/react": "^18.3.24",
         "i18next-scanner-typescript": "^1.2.1",
         "react": "^18.3.1",

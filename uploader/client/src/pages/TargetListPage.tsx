@@ -6,7 +6,7 @@ import {Alert, Container} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {Target} from '../types.ts';
 import {listTargets} from '../api/targetApi.ts';
-import Grid from '@mui/material/Unstable_Grid2';
+import {Grid2 as Grid} from '@mui/material';
 import TargetCard from '../components/TargetCard.tsx';
 
 export default function TargetListPage() {
@@ -67,7 +67,14 @@ export default function TargetListPage() {
                     >
                         {targets
                             ? targets.map((target: Target) => (
-                                  <Grid xs={12} sm={6} md={4} key={target.id}>
+                                  <Grid
+                                      size={{
+                                          xs: 12,
+                                          sm: 6,
+                                          md: 4,
+                                      }}
+                                      key={target.id}
+                                  >
                                       <TargetCard target={target} />
                                   </Grid>
                               ))

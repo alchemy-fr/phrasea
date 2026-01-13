@@ -3,7 +3,7 @@ import {
     Box,
     Chip,
     Container,
-    Grid,
+    Grid2 as Grid,
     Link,
     Typography,
     useMediaQuery,
@@ -170,7 +170,7 @@ export default function App({}: Props) {
                     }}
                 >
                     {PGADMIN_URL && (
-                        <Grid item>
+                        <Grid>
                             <Link
                                 href={PGADMIN_URL}
                                 target={'_blank'}
@@ -181,7 +181,7 @@ export default function App({}: Props) {
                         </Grid>
                     )}
                     {PHPMYADMIN_URL && (
-                        <Grid item>
+                        <Grid>
                             <Link
                                 href={PHPMYADMIN_URL}
                                 target={'_blank'}
@@ -192,7 +192,7 @@ export default function App({}: Props) {
                         </Grid>
                     )}
                     {ELASTICHQ_URL && (
-                        <Grid item>
+                        <Grid>
                             <Link
                                 href={ELASTICHQ_URL}
                                 target={'_blank'}
@@ -203,7 +203,7 @@ export default function App({}: Props) {
                         </Grid>
                     )}
                     {MAILHOG_URL && (
-                        <Grid item>
+                        <Grid>
                             <Link
                                 href={MAILHOG_URL}
                                 target={'_blank'}
@@ -214,7 +214,7 @@ export default function App({}: Props) {
                         </Grid>
                     )}
                     {MATOMO_URL && (
-                        <Grid item>
+                        <Grid>
                             <Link
                                 href={MATOMO_URL}
                                 target={'_blank'}
@@ -225,7 +225,7 @@ export default function App({}: Props) {
                         </Grid>
                     )}
                     {RABBITMQ_CONSOLE_URL && (
-                        <Grid item>
+                        <Grid>
                             <Link
                                 href={RABBITMQ_CONSOLE_URL}
                                 target={'_blank'}
@@ -236,7 +236,7 @@ export default function App({}: Props) {
                         </Grid>
                     )}
                     {TRAEFIK_CONSOLE_URL && (
-                        <Grid item>
+                        <Grid>
                             <Link
                                 href={TRAEFIK_CONSOLE_URL}
                                 target={'_blank'}
@@ -247,7 +247,7 @@ export default function App({}: Props) {
                         </Grid>
                     )}
                     {SOKETI_USAGE_URL && (
-                        <Grid item>
+                        <Grid>
                             <Link
                                 href={SOKETI_USAGE_URL}
                                 target={'_blank'}
@@ -258,7 +258,7 @@ export default function App({}: Props) {
                         </Grid>
                     )}
                     {NOVU_DASHBOARD_URL && (
-                        <Grid item>
+                        <Grid>
                             <Link
                                 href={NOVU_DASHBOARD_URL}
                                 target={'_blank'}

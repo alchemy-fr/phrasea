@@ -85,7 +85,7 @@ export function CollectionTreeItem<IsMulti extends boolean = false>({
         <TreeItem
             disabled={disabledBranches?.some(b => nodeId.startsWith(b))}
             onClick={load}
-            nodeId={nodeId}
+            itemId={nodeId}
             className={!selectable ? 'not-selectable' : ''}
             label={
                 <Stack direction={'row'} alignItems={'center'}>
