@@ -1,21 +1,23 @@
-import {PropsWithChildren, ReactNode, useEffect, useState} from 'react';
-import {IconButton, useMediaQuery, useTheme} from '@mui/material';
+import React, {PropsWithChildren, ReactNode, useEffect, useState} from 'react';
+import {IconButton, Theme, useMediaQuery, useTheme} from '@mui/material';
 import {AppMenuProps, MenuClasses} from './types';
 import VerticalAppMenu from './VerticalAppMenu';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import MenuIcon from '@mui/icons-material/Menu';
 import Box from '@mui/material/Box';
-import {sumSpacing} from '@alchemy/core';
+import {resolveSx, sumSpacing} from '@alchemy/core';
 
 type Props = PropsWithChildren<{
     menuChildren?: ReactNode;
     defaultOpen?: boolean;
+    contentSx?: React.CSSProperties | ((theme: Theme) => React.CSSProperties);
 }> &
     Omit<AppMenuProps, 'children'>;
 
 export default function VerticalMenuLayout({
     children,
     menuChildren,
+    contentSx,
     defaultOpen = true,
     ...appMenuProps
 }: Props) {
@@ -29,24 +31,32 @@ export default function VerticalMenuLayout({
     return (
         <div
             style={{
-                height: '100vh',
                 display: 'flex',
+                flexDirection: 'row',
+                position: 'relative',
             }}
         >
             <div
                 style={{
                     zIndex: 151,
                     flexShrink: 0,
-                    position: isSmallScreen ? 'absolute' : undefined,
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
                     transition: 'transform 0.3s ease-in-out',
                     transform: !open
                         ? `translateX(max(-${menuWidth}px, -100vw))`
                         : 'translateX(0)',
-                    marginRight: !isSmallScreen ? (open ? 0 : -menuWidth) : undefined,
+                    marginRight: !isSmallScreen
+                        ? open
+                            ? 0
+                            : -menuWidth
+                        : undefined,
                     width: `min(${menuWidth}px, 100vw)`,
                 }}
             >
                 <IconButton
+                    disableRipple={true}
                     sx={theme => ({
                         position: 'absolute',
                         top: theme.spacing(1),
@@ -68,16 +78,19 @@ export default function VerticalMenuLayout({
                 </VerticalAppMenu>
             </div>
             <Box
-                sx={{
+                sx={theme => ({
+                    marginLeft: !isSmallScreen && open
+                        ? `min(${menuWidth}px, 100vw)`
+                        : 0,
                     flexGrow: 1,
-                    overflow: 'auto',
                     [`.${MenuClasses.PageHeader}`]: {
                         marginLeft:
                             !open || isSmallScreen
                                 ? sumSpacing(theme, 2, buttonWidth)
                                 : 0,
                     },
-                }}
+                    ...resolveSx(contentSx, theme),
+                })}
             >
                 {children}
             </Box>

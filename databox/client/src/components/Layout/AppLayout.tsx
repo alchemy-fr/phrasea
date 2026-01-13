@@ -34,6 +34,9 @@ export default function AppLayout({children}: Props) {
                 LocaleDialogComponent: LocaleDialog,
             }}
             menuChildren={<LeftPanel />}
+            contentSx={{
+                height: '100vh',
+            }}
         >
             {children}
         </VerticalMenuLayout>

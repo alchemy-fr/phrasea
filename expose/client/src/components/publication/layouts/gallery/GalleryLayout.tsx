@@ -59,10 +59,10 @@ export default function GalleryLayout({publication, assetId}: Props) {
                         flexShrink: 1,
                         minWidth: 0,
                         height: {
-                            xs: '30vh',
-                            md: '40vh',
-                            lg: '50vh',
-                            xl: '60vh',
+                            xs: 450,
+                            md: 500,
+                            lg: 600,
+                            xl: 700,
                         },
                         img: {
                             maxHeight: '100%',
@@ -138,6 +138,14 @@ export default function GalleryLayout({publication, assetId}: Props) {
                         </div>
                     </Box>
                 </Box>
+
+                <Thumbs
+                    thumbs={thumbs}
+                    asset={asset}
+                    thumbPadding={2}
+                    thumbHeight={80}
+                />
+
                 <Container
                     sx={{
                         p: 2,
@@ -145,13 +153,6 @@ export default function GalleryLayout({publication, assetId}: Props) {
                 >
                     <AssetLegend publication={publication} asset={asset} />
                 </Container>
-
-                <Thumbs
-                    thumbs={thumbs}
-                    asset={asset}
-                    thumbPadding={2}
-                    thumbHeight={100}
-                />
             </Box>
         </>
     );

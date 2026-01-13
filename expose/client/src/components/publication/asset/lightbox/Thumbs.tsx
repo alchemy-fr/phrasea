@@ -42,15 +42,16 @@ export default function Thumbs({
 
     useEffect(() => {
         if (asset) {
-            thumbsContainerRef.current
-                ?.querySelector(`#t_${asset.id}`)
-                ?.scrollIntoView({
+            const $c = thumbsContainerRef.current;
+            if ($c && $c.scrollWidth > $c.clientWidth) {
+                $c.querySelector(`#t_${asset.id}`)?.scrollIntoView({
                     behavior: 'smooth',
                     inline: 'center',
                     block: 'nearest',
                 });
+            }
         }
-    }, [asset]);
+    }, [asset, thumbsContainerRef]);
 
     return (
         <>

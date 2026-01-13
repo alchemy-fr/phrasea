@@ -45,11 +45,8 @@ export function useThumbNavigation({publication, thumbs, asset}: Props) {
         };
 
         window.addEventListener('keydown', handleKeyDown);
-        const originalOverflow = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
 
         return () => {
-            document.body.style.overflow = originalOverflow;
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, [goNext, goPrevious, close]);

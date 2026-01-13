@@ -1,6 +1,6 @@
 import {Box, IconButton, Theme, useMediaQuery, useTheme} from '@mui/material';
 import {Asset, Publication, Thumb} from '../../../../types.ts';
-import React, {useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {
     FilePlayer,
     FilePlayerClasses,
@@ -32,6 +32,15 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
         containerRef,
         asset,
     });
+
+    useEffect(() => {
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        return () => {
+            document.body.style.overflow = originalOverflow;
+        };
+    }, []);
 
     const {close, goNext, goPrevious} = useThumbNavigation({
         publication,
@@ -183,6 +192,9 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                                 maxWidth: '100%',
                                 minWidth: 0,
                                 maxHeight: mediaHeight,
+                                img: {
+                                    maxHeight: mediaHeight,
+                                },
                                 ...(videoPlayerSx(
                                     theme
                                 ) as SystemCssProperties<Theme>),
