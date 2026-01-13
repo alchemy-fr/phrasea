@@ -70,6 +70,7 @@ export default function VerticalMenuLayout({
             <Box
                 sx={{
                     flexGrow: 1,
+                    overflow: 'auto',
                     [`.${MenuClasses.PageHeader}`]: {
                         marginLeft:
                             !open || isSmallScreen

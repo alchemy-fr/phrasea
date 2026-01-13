@@ -3,7 +3,7 @@ import {Box} from '@mui/material';
 import {useThumbs} from '../../../../hooks/useThumbs.tsx';
 import {Link} from '@alchemy/navigation';
 import {LayoutProps} from '../types.ts';
-import Lightbox from '../../asset/Lightbox.tsx';
+import Lightbox from '../../asset/lightbox/Lightbox.tsx';
 import {useContainerWidth} from '@alchemy/react-hooks/src/useContainerWidth.ts';
 import {buildLayoutFlat} from './buildLayout.ts';
 import {ThumbWithDimensions} from '../../../../types.ts';

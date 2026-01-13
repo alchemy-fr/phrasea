@@ -1,7 +1,6 @@
 import {Box, IconButton, Theme, useMediaQuery, useTheme} from '@mui/material';
-import {Asset, Publication, Thumb} from '../../../types.ts';
-import {Link} from '@alchemy/navigation';
-import React, {useEffect, useMemo, useRef} from 'react';
+import {Asset, Publication, Thumb} from '../../../../types.ts';
+import React, {useRef} from 'react';
 import {
     FilePlayer,
     FilePlayerClasses,
@@ -11,31 +10,22 @@ import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import CloseIcon from '@mui/icons-material/Close';
 import classnames from 'classnames';
-import AssetLegend from './AssetLegend.tsx';
+import classNames from 'classnames';
+import AssetLegend from '../AssetLegend.tsx';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
 import {SystemCssProperties} from '@mui/system';
-import AssetIconThumbnail, {thumbSx} from './AssetIconThumbnail.tsx';
-import classNames from 'classnames';
-import {useTracker} from '../../../hooks/useTracker.ts';
-import {useNavigateToPublication} from '../../../hooks/useNavigateToPublication.ts';
+import {useTracker} from '../../../../hooks/useTracker.ts';
+import {LightboxClasses} from './types.ts';
+import Thumbs from './Thumbs.tsx';
+import {useThumbNavigation} from './useThumbNavigation.ts';
 
 type Props = {
     thumbs: Thumb[];
     asset: Asset;
     publication: Publication;
 };
-enum Classes {
-    Lightbox = 'lightbox',
-    Controls = 'lb-controls',
-    Close = 'lb-close',
-    Arrow = 'lb-arrow',
-    ThumbnailContainer = 'lb-thumbnail-container',
-    SelectedThumbnail = 'lb-thumbnail-selected',
-    MediaContainer = 'lb-media-container',
-}
 
 export default function Lightbox({publication, thumbs, asset}: Props) {
-    const navigateToPublication = useNavigateToPublication();
     const containerRef = useRef<HTMLDivElement>(null);
 
     useTracker({
@@ -43,46 +33,11 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
         asset,
     });
 
-    const {close, goNext, goPrevious} = useMemo(() => {
-        const handler = (inc: number) => () => {
-            const currentIndex = thumbs.findIndex(t => t.id === asset.id);
-            const newIndex =
-                (currentIndex + inc + thumbs.length) % thumbs.length;
-
-            navigateToPublication(publication, thumbs[newIndex].id);
-        };
-
-        return {
-            goNext: handler(1),
-            goPrevious: handler(-1),
-            close: () => {
-                navigateToPublication(publication);
-            },
-        };
-    }, [thumbs, navigateToPublication, publication, asset]);
-
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
-                close();
-            } else if (event.key === 'ArrowRight') {
-                event.preventDefault();
-                goNext();
-            } else if (event.key === 'ArrowLeft') {
-                event.preventDefault();
-                goPrevious();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        const originalOverflow = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
-
-        return () => {
-            document.body.style.overflow = originalOverflow;
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [goNext, goPrevious, close]);
+    const {close, goNext, goPrevious} = useThumbNavigation({
+        publication,
+        thumbs,
+        asset,
+    });
 
     const {innerWidth: windowWidth, innerHeight: windowHeight} =
         useWindowSize();
@@ -96,38 +51,9 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
         ? windowHeight * 0.6
         : windowHeight - thumbOuterHeight;
 
-    const thumbsContainerRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const container = thumbsContainerRef.current;
-        if (!container) {
-            return;
-        }
-        const onWheel = (e: WheelEvent) => {
-            if (e.deltaY === 0) return;
-            e.preventDefault();
-            container.scrollLeft += e.deltaY;
-        };
-        container.addEventListener('wheel', onWheel, {passive: false});
-
-        return () => {
-            container.removeEventListener('wheel', onWheel);
-        };
-    }, [thumbsContainerRef]);
-
-    useEffect(() => {
-        thumbsContainerRef.current
-            ?.querySelector(`#t_${asset.id}`)
-            ?.scrollIntoView({
-                behavior: 'smooth',
-                inline: 'center',
-                block: 'nearest',
-            });
-    }, [asset]);
-
     return (
         <div
-            className={Classes.Lightbox}
+            className={LightboxClasses.Lightbox}
             style={{
                 position: 'fixed',
                 top: 0,
@@ -156,7 +82,7 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                         flexGrow: 1,
                         flexShrink: 1,
                         width: '100%',
-                        [`.${Classes.Controls}`]: {
+                        [`.${LightboxClasses.Controls}`]: {
                             'opacity': 0,
                             'transition': 'opacity 0.3s ease',
                             'position': 'absolute',
@@ -170,24 +96,27 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                                 fontSize: 25,
                             },
                         },
-                        [`.${Classes.Arrow}`]: {
+                        [`.${LightboxClasses.Arrow}`]: {
                             'top': '50%',
                             'transform': 'translateY(-50%)',
                             '.MuiSvgIcon-root': {
                                 fontSize: 45,
                             },
                         },
-                        [`&:hover .${Classes.Controls}`]: {
+                        [`&:hover .${LightboxClasses.Controls}`]: {
                             opacity: 1,
                         },
-                        [`&:hover:has(.${FilePlayerClasses.PlayerControls}:hover) .${Classes.Arrow}`]:
+                        [`&:hover:has(.${FilePlayerClasses.PlayerControls}:hover) .${LightboxClasses.Arrow}`]:
                             {
                                 display: 'none',
                             },
                     }}
                 >
                     <Box
-                        className={classNames(Classes.Controls, Classes.Close)}
+                        className={classNames(
+                            LightboxClasses.Controls,
+                            LightboxClasses.Close
+                        )}
                         sx={theme => ({
                             top: theme.spacing(2),
                             right: theme.spacing(2),
@@ -198,7 +127,10 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                         </IconButton>
                     </Box>
                     <Box
-                        className={classnames(Classes.Controls, Classes.Arrow)}
+                        className={classnames(
+                            LightboxClasses.Controls,
+                            LightboxClasses.Arrow
+                        )}
                         sx={theme => ({
                             left: theme.spacing(2),
                         })}
@@ -208,7 +140,10 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                         </IconButton>
                     </Box>
                     <Box
-                        className={classnames(Classes.Controls, Classes.Arrow)}
+                        className={classnames(
+                            LightboxClasses.Controls,
+                            LightboxClasses.Arrow
+                        )}
                         sx={theme => ({
                             right: theme.spacing(2),
                         })}
@@ -239,7 +174,7 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                     >
                         <Box
                             ref={containerRef}
-                            className={Classes.MediaContainer}
+                            className={LightboxClasses.MediaContainer}
                             sx={theme => ({
                                 display: 'flex',
                                 justifyContent: 'center',
@@ -295,64 +230,13 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                         </Box>
                     </Box>
                 </Box>
-                <Box
-                    ref={thumbsContainerRef}
-                    sx={_theme => ({
-                        maxWidth: '100vw',
-                        overflow: 'auto',
-                    })}
-                >
-                    <Box
-                        sx={theme => ({
-                            display: 'flex',
-                            flexDirection: 'row',
-                            gap: 1,
-                            width: 'fit-content',
-                            p: thumbPadding,
-                            justifyContent: 'center',
-                            [`.${Classes.ThumbnailContainer}`]: {
-                                backgroundColor: theme.palette.background.paper,
-                                borderRadius: 2,
-                                overflow: 'hidden',
-                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                                [`&.${Classes.SelectedThumbnail}`]: {
-                                    outline: `3px solid ${theme.palette.primary.contrastText}`,
-                                },
-                                [`img`]: {
-                                    minWidth: 0,
-                                    display: 'block',
-                                    maxHeight: thumbHeight,
-                                },
-                            },
-                            ...thumbSx(theme, 30),
-                        })}
-                    >
-                        {thumbs.map(t => (
-                            <Link
-                                id={`t_${t.id}`}
-                                to={t.path}
-                                key={t.id}
-                                className={classnames({
-                                    [Classes.ThumbnailContainer]: true,
-                                    [Classes.SelectedThumbnail]:
-                                        t.id === asset.id,
-                                })}
-                            >
-                                {t.src ? (
-                                    <img key={t.id} src={t.src} alt={t.alt} />
-                                ) : (
-                                    <AssetIconThumbnail
-                                        mimeType={t.mimeType}
-                                        style={{
-                                            width: thumbHeight,
-                                            height: thumbHeight,
-                                        }}
-                                    />
-                                )}
-                            </Link>
-                        ))}
-                    </Box>
-                </Box>
+                <Thumbs
+                    thumbs={thumbs}
+                    thumbHeight={thumbHeight}
+                    thumbPadding={thumbPadding}
+                    asset={asset}
+                    isDark={true}
+                />
             </Box>
         </div>
     );
