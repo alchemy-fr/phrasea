@@ -304,6 +304,16 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 name: t('built_in_attr.filename', 'File Name'),
             },
             {
+                slug: BuiltInField.HasSource,
+                fieldType: AttributeType.Boolean,
+                searchable: true,
+                name: t('built_in_attr.has_source', 'Has Source File'),
+                widget: {
+                    component: NullableBooleanWidget,
+                },
+                getValueFromAsset: asset => !!asset.source,
+            },
+            {
                 slug: BuiltInField.Deleted,
                 fieldType: AttributeType.Boolean,
                 searchable: true,

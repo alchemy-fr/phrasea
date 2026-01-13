@@ -568,6 +568,8 @@ final readonly class AQLToESQuery
                             'type' => 'fileType',
                             'mimetype' => 'fileMimeType',
                             'filename' => 'fileName',
+                            'hasSource' => 'hasSourceFile',
+                            default => throw new BadRequestHttpException(sprintf('Built-in field "%s" not found', $fieldSlug)),
                         },
                         'type' => $this->attributeTypeRegistry->getStrictType(KeywordAttributeType::NAME),
                         'locales' => [],
