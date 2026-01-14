@@ -55,13 +55,12 @@ export default function CollectionTreeWidget<
                 control={control}
                 name={name}
                 rules={rules}
-                render={({field: {onChange, value}}) => {
+                render={({field: {onChange}}) => {
                     return (
                         <CollectionsTreeView<IsMulti>
                             {...widgetProps}
                             required={required}
                             workspaceId={workspaceId}
-                            value={value}
                             multiple={multiple}
                             allowNew={allowNew}
                             onChange={collections => {

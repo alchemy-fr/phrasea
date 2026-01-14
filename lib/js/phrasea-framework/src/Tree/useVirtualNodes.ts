@@ -40,6 +40,7 @@ export function useVirtualNodes<D extends TreeBaseItem>({
                         loadingChildren: false,
                         canDelete: true,
                         canEdit: true,
+                        canAddChildren: true,
                         editing: true,
                         ...node,
                         id: `${parentNode.id}/virtual-${Date.now()}`,
@@ -70,6 +71,10 @@ export function useVirtualNodes<D extends TreeBaseItem>({
                         return {
                             ...n,
                             ...newNode,
+                            data: {
+                                ...n.data,
+                                ...(newNode.data ?? {}),
+                            },
                             editing: false,
                             editedOnce: true,
                         };
@@ -97,7 +102,6 @@ export function useVirtualNodes<D extends TreeBaseItem>({
         );
     }, [setVirtualNodes]);
 
-
     const onNodeStartEdit = useCallback<OnNodeStartEdit<D>>(node => {
         nodeToggleEdit(node, true);
     }, [nodeToggleEdit]);
@@ -107,7 +111,7 @@ export function useVirtualNodes<D extends TreeBaseItem>({
     }, [nodeToggleEdit]);
 
     const normalizedNodes = useMemo<TreeNode<D>[]>(() => {
-        if (Object.keys(virtualNodes).length === 0) {
+        if (virtualNodes.length === 0) {
             return nodes;
         }
 
@@ -116,8 +120,12 @@ export function useVirtualNodes<D extends TreeBaseItem>({
                 vn => vn.parentId === node.id
             );
 
+            if (virtualChildren.length === 0 && !node.children) {
+                return node;
+            }
+
             const normalizedChildren = [
-                ...(node.children || []),
+                ...(node.children ?? []),
                 ...virtualChildren,
             ].map(insertVirtualNodes);
 

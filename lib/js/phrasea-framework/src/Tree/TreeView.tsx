@@ -1,5 +1,5 @@
 import {
-    OnNodeAdd,
+    OnNodeUpdate,
     OnToggleExpand,
     OnToggleSelectNode,
     TreeBaseItem,
@@ -9,8 +9,8 @@ import {
 } from './types';
 import {List} from '@mui/material';
 import BaseTreeNode from './BaseTreeNode';
-import {useCallback, useMemo, useState} from 'react';
-import {getFlattenNodes} from './treeHelper';
+import {useCallback, useEffect, useMemo, useState} from 'react';
+import {findNodeById, getFlattenNodes} from './treeHelper';
 
 export default function TreeView<D extends TreeBaseItem>({
     nodes,
@@ -44,8 +44,13 @@ export default function TreeView<D extends TreeBaseItem>({
                 await loadChildren?.(node);
             }
 
-            if (!expanded && collapseShouldUnselectChildren) {
-                const allChildren = getFlattenNodes(nodes);
+            if (
+                !expanded &&
+                collapseShouldUnselectChildren &&
+                node.children &&
+                node.children.length > 0
+            ) {
+                const allChildren = getFlattenNodes(node.children);
                 const idsToUnselect = allChildren.map(node => node.id);
                 setSelectedNodes(prev =>
                     prev.filter(id => !idsToUnselect.includes(id))
@@ -87,34 +92,6 @@ export default function TreeView<D extends TreeBaseItem>({
 
             onToggleSelect?.(node, selected);
 
-            if (onSelectionChange) {
-                const findNodeById = (id: string): TreeNode<D> => {
-                    const findNode = (
-                        nodesList: TreeNode<D>[]
-                    ): TreeNode<D> | undefined => {
-                        const found = nodesList.find(n => n.id === id);
-                        if (found) return found;
-
-                        return nodesList.find(n =>
-                            n.children ? findNode(n.children) : undefined
-                        );
-                    };
-
-                    return findNode(nodes)!;
-                };
-
-                const sel: TreeNode<D>[] = multiple
-                    ? (selected
-                          ? [...selectedNodes, node.id]
-                          : selectedNodes.filter(id => id !== node.id)
-                      ).map(findNodeById)
-                    : selected
-                      ? [findNodeById(node.id)]
-                      : [];
-
-                onSelectionChange(sel);
-            }
-
             setSelectedNodes(prev => {
                 if (multiple) {
                     if (selected) {
@@ -131,8 +108,23 @@ export default function TreeView<D extends TreeBaseItem>({
                 }
             });
         },
-        [setSelectedNodes, onToggleSelect, onToggleExpandInternal, nodes]
+        [
+            setSelectedNodes,
+            onToggleSelect,
+            onToggleExpandInternal,
+            nodes,
+        ]
     );
+
+    useEffect(() => {
+        if (onSelectionChange) {
+            onSelectionChange(
+                selectedNodes.map((id: string) => {
+                    return findNodeById(nodes, id);
+                })
+            );
+        }
+    }, [onSelectionChange, nodes]);
 
     return (
         <List

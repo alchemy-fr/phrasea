@@ -31,7 +31,6 @@ import {
     FileOrUrl,
     SourceFileInput,
 } from './file.ts';
-import {CollectionId} from '../components/Media/Collection/CollectionTree/types.ts';
 
 export interface GetAssetOptions {
     url?: string;
@@ -403,7 +402,9 @@ type FileBeingUploaded = {
     id: string;
 } & InputUploadFile;
 
-function computeAssetPropsFromDestination(destination: CollectionId) {
+type Destination = string;
+
+function computeAssetPropsFromDestination(destination: Destination) {
     if (destination.startsWith('/workspaces/')) {
         return {workspace: destination};
     } else {
@@ -413,7 +414,7 @@ function computeAssetPropsFromDestination(destination: CollectionId) {
 
 export async function uploadAssets(
     files: InputFile[],
-    destination: CollectionId,
+    destination: Destination,
     options: CreateAssetsOptions = {}
 ): Promise<Asset[]> {
     const uploadState = useUploadStore.getState();
@@ -496,7 +497,7 @@ function getStoryPropsFromOptions(options: CreateAssetsOptions) {
 }
 
 async function createStoryAssetIfNeeded(
-    destination: CollectionId,
+    destination: Destination,
     options: CreateAssetsOptions
 ): Promise<Asset | undefined> {
     if (options.isStory) {
@@ -513,7 +514,7 @@ async function createStoryAssetIfNeeded(
 
 export async function importAssets(
     files: InputAssetImport[],
-    destination: CollectionId,
+    destination: Destination,
     options: CreateAssetsOptions = {}
 ): Promise<Asset[]> {
     const destProps = computeAssetPropsFromDestination(destination);

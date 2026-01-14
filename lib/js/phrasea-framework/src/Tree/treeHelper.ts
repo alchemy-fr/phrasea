@@ -21,3 +21,25 @@ export function getFlattenNodes<D extends TreeBaseItem>(
 
     return flattenNodes;
 }
+
+export function findNodeById<D extends TreeBaseItem>(nodes: TreeNode<D>[], id: string): TreeNode<D> {
+    const findNode = (nodesList: TreeNode<D>[]): TreeNode<D> | undefined => {
+        const found = nodesList.find(n => n.id === id);
+        if (found) {
+            return found;
+        }
+
+        for (const n of nodesList) {
+            if (n.children) {
+                const childResult = findNode(n.children);
+                if (childResult) {
+                    return childResult;
+                }
+            }
+        }
+
+        return undefined;
+    };
+
+    return findNode(nodes)!;
+}

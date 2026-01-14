@@ -217,17 +217,9 @@ export const useCollectionStore = create<State>((set, getState) => ({
         set(state => {
             const newCollections = {...state.collections};
 
-            console.log(
-                'partialUpdateCollections',
-                ids,
-                updates,
-                newCollections
-            );
-
             ids.forEach(id => {
                 const oldColl: CollectionExtended | undefined =
                     newCollections[id];
-                console.log('oldColl', oldColl);
                 if (!oldColl) {
                     return;
                 }

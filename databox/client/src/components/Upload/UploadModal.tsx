@@ -31,7 +31,6 @@ import {validateUrl} from '@alchemy/core';
 import {CreateAssetsOptions} from '../../api/file.ts';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import {toast} from 'react-toastify';
-import {CollectionId} from '../Media/Collection/CollectionTree/types.ts';
 
 type FileWrapper = {
     id: string;
@@ -115,7 +114,8 @@ export default function UploadModal({
             const {quiet, isStory, story} = data;
 
             if (typeof data.destination === 'object') {
-                data.destination = await createCollection(data.destination);
+                data.destination =
+                    (await createCollection(data.destination)) || '';
             }
 
             const attributes = usedAttributeEditor.attributes
@@ -167,10 +167,6 @@ export default function UploadModal({
                 }
             }
 
-            const destination = collectionId
-                ? `/collections/${collectionId}`
-                : (data.destination as CollectionId);
-
             const assetOptions: CreateAssetsOptions = {
                 quiet,
                 isStory,
@@ -200,7 +196,7 @@ export default function UploadModal({
                             title: extractTitleFromUrl(u),
                         },
                     })),
-                    destination,
+                    data.destination,
                     assetOptions
                 );
 
@@ -226,7 +222,7 @@ export default function UploadModal({
                                     : f.file.name.replace(/\.[^/.]+$/, ''),
                         },
                     })),
-                    destination,
+                    data.destination,
                     assetOptions
                 );
             }

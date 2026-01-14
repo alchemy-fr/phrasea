@@ -6,6 +6,7 @@ import {useCollectionStore} from '../../../../store/collectionStore.ts';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce.ts';
 import {
     LoadNodeChildren,
+    OnSelectionChange,
     TreeNode,
     TreeView,
     TreeViewOptionsProps,
@@ -16,17 +17,18 @@ import CollectionTreeNode from './CollectionTreeNode.tsx';
 import {useTranslation} from 'react-i18next';
 import CollectionEdit from './CollectionEdit.tsx';
 
-type Data = WorkspaceOrCollectionTreeItem;
+export type CollectionTreeData = WorkspaceOrCollectionTreeItem;
 
 type Props<IsMulti extends boolean = false> = {
-    value?: IsMulti extends true ? string[] : string;
     onChange?: (
-        selection: IsMulti extends true ? TreeNode<Data>[] : TreeNode<Data>
+        selection: IsMulti extends true
+            ? TreeNode<CollectionTreeData>[]
+            : TreeNode<CollectionTreeData>
     ) => void;
     workspaceId?: string;
     allowNew?: boolean;
     multiple?: IsMulti;
-} & Omit<TreeViewOptionsProps<Data>, 'multiple'>;
+} & Omit<TreeViewOptionsProps<CollectionTreeData>, 'multiple'>;
 
 export type {Props as CollectionTreeViewProps};
 
@@ -53,18 +55,23 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
         loadWorkspaces();
     }, []);
 
-    const loadChildren = useCallback<LoadNodeChildren<Data>>(
+    const loadChildren = useCallback<LoadNodeChildren<CollectionTreeData>>(
         async node => {
-            await loadWorkspaceCollections(node.data.workspaceId, node.id);
+            await loadWorkspaceCollections(
+                node.data.workspaceId,
+                node.data.type === EntityType.Collection
+                    ? node.data.id
+                    : undefined
+            );
         },
         [loadWorkspaceCollections]
     );
 
-    const items = React.useMemo<TreeNode<Data>[]>(() => {
+    const items = React.useMemo<TreeNode<CollectionTreeData>[]>(() => {
         const mapCollection = (
             collection: CollectionOptionalWorkspace,
             workspaceId: string
-        ): TreeNode<Data> => {
+        ): TreeNode<CollectionTreeData> => {
             const nodeId = collection.id;
 
             const children =
@@ -88,6 +95,7 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
 
         return workspaces.map(w => {
             const nodeId = w.id;
+
             return {
                 id: nodeId,
                 hasChildren: true,
@@ -117,6 +125,13 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
         }),
     });
 
+    const onSelectionChange = useCallback<
+        OnSelectionChange<CollectionTreeData>
+    >(selection => {
+        // @ts-expect-error TS can't infer multiple is false here
+        onChange?.(multiple ? selection : selection[0]);
+    }, []);
+
     if (loading) {
         return <CircularProgress size={50} />;
     }
@@ -125,10 +140,7 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
         <TreeView
             {...treeViewProps}
             loadChildren={loadChildren}
-            onSelectionChange={selection => {
-                // @ts-expect-error TS can't infer multiple is false here
-                onChange?.(multiple ? selection : selection[0]);
-            }}
+            onSelectionChange={onSelectionChange}
             renderNodeLabel={props => {
                 return <CollectionTreeNode {...props} />;
             }}

@@ -8,7 +8,7 @@ import {
     EntityType,
     WorkspaceOrCollectionTreeItem,
 } from '../components/Media/Collection/CollectionTree/types.ts';
-import {TreeNode, VirtualTreeNode} from '@alchemy/phrasea-framework';
+import {TreeNode} from '@alchemy/phrasea-framework';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
@@ -147,39 +147,36 @@ export async function moveAssets(
 }
 
 export async function createCollection(
-    newCollection: VirtualTreeNode<WorkspaceOrCollectionTreeItem>,
-    workspaceId?: string
-): Promise<string> {
-    const path: string[] = [];
-    const visit = (node: TreeNode<WorkspaceOrCollectionTreeItem>): void => {
-        if (node.data.type === EntityType.Workspace) {
-            workspaceId = node.data.id;
-            return;
-        }
-
-        if (node.parentNode) {
-            visit(node.parentNode as TreeNode<WorkspaceOrCollectionTreeItem>);
-        }
-
-        path.push(node.data.label);
-    };
-    visit(newCollection);
-
-    const parentNodeData = newCollection.parentNode?.data;
-
-    let parent =
-        parentNodeData?.type === EntityType.Collection
-            ? `/collections/${parentNodeData.id}`
-            : undefined;
-    for (const p of path) {
-        parent = (
-            await postCollection({
-                title: p,
-                parent,
-                workspace: `/workspaces/${workspaceId}`,
-            })
-        )['@id'];
+    newCollection: TreeNode<WorkspaceOrCollectionTreeItem>
+): Promise<string | undefined> {
+    if (!newCollection.virtual) {
+        return newCollection.data.type === EntityType.Collection
+            ? `/collections/${newCollection.data.id}`
+            : `/workspaces/${newCollection.data.id}`;
     }
 
-    return parent!;
+    const createSubCollection = async (
+        node: TreeNode<WorkspaceOrCollectionTreeItem>
+    ): Promise<string> => {
+        let parent: string | undefined;
+        if (node.parentNode?.virtual) {
+            parent = await createSubCollection(node.parentNode);
+        } else if (node.parentNode?.data.type === EntityType.Collection) {
+            parent = `/collections/${node.parentNode.data.id}`;
+        }
+
+        return (
+            await postCollection({
+                title: node.data.label,
+                parent,
+                workspace: `/workspaces/${newCollection.data.workspaceId}`,
+            })
+        )['@id'];
+    };
+
+    const r = await createSubCollection(newCollection);
+
+    throw new Error('remove me');
+
+    return r;
 }
