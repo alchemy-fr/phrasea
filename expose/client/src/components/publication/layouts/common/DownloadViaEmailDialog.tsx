@@ -5,7 +5,7 @@ import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {Button, TextField, Typography} from '@mui/material';
 import {useFormSubmit} from '@alchemy/api';
-import {FormRow, LoadingButton} from '@alchemy/react-form';
+import {FormRow} from '@alchemy/react-form';
 
 type FormData = {
     email: string;
@@ -53,7 +53,7 @@ export default function DownloadViaEmailDialog({url, open}: Props) {
                                 <Button onClick={onClose} disabled={submitting}>
                                     {t('download_via_email.cancel', 'Cancel')}
                                 </Button>
-                                <LoadingButton
+                                <Button
                                     form={formId}
                                     variant="contained"
                                     disabled={submitting}
@@ -64,7 +64,7 @@ export default function DownloadViaEmailDialog({url, open}: Props) {
                                         'download_via_email.submit_request',
                                         'Request Download'
                                     )}
-                                </LoadingButton>
+                                </Button>
                             </>
                         )}
                     </>

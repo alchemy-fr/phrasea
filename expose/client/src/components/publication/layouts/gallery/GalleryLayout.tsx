@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import {Box, Container, IconButton, Theme, useTheme} from '@mui/material';
 import {useThumbs} from '../../../../hooks/useThumbs.tsx';
 import {LayoutProps} from '../types.ts';
@@ -12,20 +12,31 @@ import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import AssetIndex from '../../asset/lightbox/AssetIndex.tsx';
 import {useMatchWindowWidthBreakpoint} from '@alchemy/react-hooks/src/useMatchWindowWidthBreakpoint.ts';
+import {useTracker} from '../../../../hooks/useTracker.ts';
+import {useTranslation} from 'react-i18next';
 
 type Props = {} & LayoutProps;
 
 export default function GalleryLayout({publication, assetId}: Props) {
+    const {t} = useTranslation();
+    const containerRef = useRef<HTMLDivElement>(null);
     const theme = useTheme();
     const thumbs = useThumbs({
         publication: publication,
         assets: publication.assets!,
     });
 
+    const thumbsEnabled = thumbs.length > 1;
+
     const asset =
         (assetId
             ? publication.assets!.find(a => a.id === assetId)
             : undefined) ?? publication.assets![0];
+
+    useTracker({
+        containerRef,
+        asset,
+    });
 
     const {goPrevious, goNext} = useThumbNavigation({
         publication,
@@ -43,7 +54,13 @@ export default function GalleryLayout({publication, assetId}: Props) {
     })!;
 
     if (!asset) {
-        return null;
+        return (
+            <>
+                <Box>
+                    {t('publication.noAssetAvailable', 'No asset available')}
+                </Box>
+            </>
+        );
     }
 
     return (
@@ -57,6 +74,7 @@ export default function GalleryLayout({publication, assetId}: Props) {
                 }}
             >
                 <Box
+                    ref={containerRef}
                     sx={theme => ({
                         bgcolor: 'common.white',
                         width: '100%',
@@ -66,7 +84,8 @@ export default function GalleryLayout({publication, assetId}: Props) {
                         alignItems: 'center',
                         flexShrink: 1,
                         minWidth: 0,
-                        height: mediaHeight,
+                        height: thumbsEnabled ? mediaHeight : undefined,
+                        maxHeight: !thumbsEnabled ? mediaHeight : undefined,
                         img: {
                             maxHeight: mediaHeight,
                         },
@@ -88,73 +107,81 @@ export default function GalleryLayout({publication, assetId}: Props) {
                         }}
                         webVTTLinks={asset.webVTTLinks}
                     />
-                    <Box
-                        sx={_theme => ({
-                            'position': 'absolute',
-                            'bottom': 0,
-                            'right': 0,
-                            'display': 'flex',
-                            'flexDirection': 'row',
-                            'justifyContent': 'center',
-                            'alignItems': 'center',
-                            'p': 1,
-                            '.MuiSvgIcon-root': {
-                                fontSize: 30,
-                            },
-                        })}
-                    >
-                        <div
-                            style={{
-                                zIndex: 0,
-                                backgroundColor: 'rgba(255,255,255, 0.5)',
-                                filter: 'blur(16px)',
-                                position: 'absolute',
-                                top: 0,
-                                right: 0,
-                                bottom: 0,
-                                left: 0,
-                            }}
-                        ></div>
-                        <div
-                            style={{
-                                zIndex: 1,
-                            }}
+                    {thumbsEnabled && (
+                        <Box
+                            sx={_theme => ({
+                                'position': 'absolute',
+                                'bottom': 0,
+                                'right': 0,
+                                'display': 'flex',
+                                'flexDirection': 'row',
+                                'justifyContent': 'center',
+                                'alignItems': 'center',
+                                'p': 1,
+                                '.MuiSvgIcon-root': {
+                                    fontSize: 30,
+                                },
+                            })}
                         >
-                            <IconButton onClick={() => goPrevious()}>
-                                <ArrowLeftIcon />
-                            </IconButton>
-                        </div>
-                        <AssetIndex
-                            index={thumbs.findIndex(
-                                thumb => thumb.id === asset.id
-                            )}
-                            total={thumbs.length}
-                        />
-                        <div
-                            style={{
-                                zIndex: 1,
-                            }}
-                        >
-                            <IconButton onClick={() => goNext()}>
-                                <ArrowRightIcon />
-                            </IconButton>
-                        </div>
-                    </Box>
+                            <div
+                                style={{
+                                    zIndex: 0,
+                                    backgroundColor: 'rgba(255,255,255, 0.5)',
+                                    filter: 'blur(16px)',
+                                    position: 'absolute',
+                                    top: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    left: 0,
+                                }}
+                            />
+                            <div
+                                style={{
+                                    zIndex: 1,
+                                }}
+                            >
+                                <IconButton onClick={() => goPrevious()}>
+                                    <ArrowLeftIcon />
+                                </IconButton>
+                            </div>
+                            <AssetIndex
+                                index={thumbs.findIndex(
+                                    thumb => thumb.id === asset.id
+                                )}
+                                total={thumbs.length}
+                            />
+                            <div
+                                style={{
+                                    zIndex: 1,
+                                }}
+                            >
+                                <IconButton onClick={() => goNext()}>
+                                    <ArrowRightIcon />
+                                </IconButton>
+                            </div>
+                        </Box>
+                    )}
                 </Box>
 
-                <Thumbs
-                    thumbs={thumbs}
-                    asset={asset}
-                    thumbPadding={2}
-                    thumbHeight={80}
-                />
+                {thumbsEnabled && (
+                    <Thumbs
+                        thumbs={thumbs}
+                        asset={asset}
+                        thumbPadding={2}
+                        thumbHeight={80}
+                    />
+                )}
 
                 <Container
                     sx={{
                         p: 2,
                     }}
                 >
-                    <AssetLegend publication={publication} asset={asset} />
+                    <AssetLegend
+                        publication={publication}
+                        asset={asset}
+                        displayDownload={true}
+                    />
                 </Container>
             </Box>
         </>

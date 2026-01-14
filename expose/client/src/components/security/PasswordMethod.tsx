@@ -4,12 +4,13 @@ import {useTranslation} from 'react-i18next';
 import {
     Avatar,
     Box,
+    Button,
     Container,
     Paper,
     TextField,
     Typography,
 } from '@mui/material';
-import {FormRow, LoadingButton, RemoteErrors} from '@alchemy/react-form';
+import {FormRow, RemoteErrors} from '@alchemy/react-form';
 import LockIcon from '@mui/icons-material/Lock';
 import {SecurityMethodProps} from './methods.tsx';
 
@@ -87,7 +88,7 @@ export default function PasswordMethod({
                                 <RemoteErrors errors={[translatedError]} />
                             ) : null}
 
-                            <LoadingButton
+                            <Button
                                 type="submit"
                                 variant="contained"
                                 color="primary"
@@ -99,7 +100,7 @@ export default function PasswordMethod({
                                     'publication.security.password.form.submit.label',
                                     `Enter`
                                 )}
-                            </LoadingButton>
+                            </Button>
                         </FormRow>
                     </form>
                 </Box>

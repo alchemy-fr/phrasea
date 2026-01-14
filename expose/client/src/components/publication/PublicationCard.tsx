@@ -81,7 +81,11 @@ export default function PublicationCard({publication}: Props) {
                         <Typography gutterBottom variant="h5" component="div">
                             {getTranslatedTitle(publication)}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            component={'div'}
+                        >
                             <Description
                                 descriptionHtml={getTranslatedDescription(
                                     publication

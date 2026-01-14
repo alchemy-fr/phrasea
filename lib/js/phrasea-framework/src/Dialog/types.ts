@@ -1,7 +1,7 @@
 import {PropsWithChildren, ReactNode} from 'react';
-import {LoadingButtonProps} from '@mui/lab';
 import type {AppDialogProps} from '@alchemy/phrasea-ui';
 import {StackedModalProps} from '@alchemy/navigation';
+import {ButtonProps} from '@mui/material';
 
 export type ConfirmOptions = {[key: string]: ReactNode};
 export type ConfirmOptionValues<CO extends ConfirmOptions> = {
@@ -19,7 +19,7 @@ export type ConfirmDialogProps<CO extends ConfirmOptions> = PropsWithChildren<
         disabled?: boolean;
         textToType?: string | undefined;
         assertions?: ReactNode[] | undefined;
-        confirmButtonProps?: LoadingButtonProps | undefined;
+        confirmButtonProps?: ButtonProps | undefined;
         maxWidth?: AppDialogProps['maxWidth'];
     } & StackedModalProps
 >;

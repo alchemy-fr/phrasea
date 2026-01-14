@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {Button, Checkbox, FormControlLabel, TextField} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import CheckIcon from '@mui/icons-material/Check';
-import {LoadingButton} from '@mui/lab';
 import {AxiosError} from 'axios';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {useModals} from '@alchemy/navigation';
@@ -108,7 +107,7 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
                     <Button onClick={onClose} disabled={loading}>
                         {t('dialog.cancel', 'Cancel')}
                     </Button>
-                    <LoadingButton
+                    <Button
                         loading={loading}
                         startIcon={<CheckIcon />}
                         onClick={confirm}
@@ -122,7 +121,7 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
                         {...(confirmButtonProps || {})}
                     >
                         {confirmLabel || t('dialog.confirm', 'Confirm')}
-                    </LoadingButton>
+                    </Button>
                 </>
             )}
         >

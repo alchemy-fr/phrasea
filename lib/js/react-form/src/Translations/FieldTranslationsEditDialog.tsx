@@ -13,7 +13,6 @@ import {
     getFieldTranslationsObject,
 } from './localeHelper';
 import {WithTranslations} from '../types';
-import LoadingButton from '../LoadingButton';
 import {GetLocales} from '../Locale/LocaleSelectWidget';
 
 type Model = {
@@ -119,14 +118,14 @@ export default function FieldTranslationsEditDialog<
                     <Button onClick={onClose} disabled={submitting}>
                         {t('lib.form.cancel', 'Cancel')}
                     </Button>
-                    <LoadingButton
+                    <Button
                         type={'submit'}
                         form={formId}
                         loading={submitting}
                         disabled={submitting}
                     >
                         {t('lib.form.translations.submit', 'Save')}
-                    </LoadingButton>
+                    </Button>
                 </>
             )}
         >

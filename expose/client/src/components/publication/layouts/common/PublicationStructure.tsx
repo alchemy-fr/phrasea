@@ -160,7 +160,8 @@ export default function PublicationStructure({publication, children}: Props) {
                                 )}
                             </div>
 
-                            {downloadArchiveEnabled &&
+                            {assets.length > 1 &&
+                                downloadArchiveEnabled &&
                                 publication.archiveDownloadUrl && (
                                     <div>
                                         <DownloadArchiveButton
