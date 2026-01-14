@@ -15,7 +15,6 @@ export default function TreeView<D extends TreeBaseItem>({
     nodes,
     renderNodeLabel,
     loadChildren,
-    onNodeAdd,
     onToggleSelect,
     onToggleExpand,
     selectShouldCollapse,
@@ -35,7 +34,7 @@ export default function TreeView<D extends TreeBaseItem>({
 
     const onToggleExpandInternal = useCallback<OnToggleExpand<D>>(
         async (node, expanded) => {
-            if (expanded && node.hasChildren && node.children === undefined) {
+            if (expanded && node.hasChildren && (node.children === undefined || false === node.childrenLoaded)) {
                 await loadChildren?.(node);
             }
 
@@ -100,15 +99,6 @@ export default function TreeView<D extends TreeBaseItem>({
         [setSelectedNodes, onToggleSelect, onToggleExpandInternal]
     );
 
-    const onNodeAddInternal = useMemo<OnNodeAdd<D> | undefined>(() => onNodeAdd ? (parentNode, node) => {
-        onNodeAdd?.(parentNode, {
-            ...node,
-            hasChildren: false,
-            loadingChildren: false,
-            canDelete: true,
-        });
-    } : undefined, [onNodeAdd]);
-
     return (
         <List
             dense={true}
@@ -142,6 +132,9 @@ export default function TreeView<D extends TreeBaseItem>({
                     ml: 2.5,
                     borderLeft: '1px dashed rgba(0, 0, 0, 0.12)',
                 },
+                [`.${TreeViewClasses.NodeLabel}`]: {
+                    flexGrow: 1,
+                },
             }}
         >
             {nodes.map(node => (
@@ -156,7 +149,6 @@ export default function TreeView<D extends TreeBaseItem>({
                     node={node}
                     renderNodeLabel={renderNodeLabel}
                     disabledBranches={disabledBranches}
-                    onNodeAdd={onNodeAddInternal}
                 />
             ))}
         </List>

@@ -1,35 +1,110 @@
-import {useCallback, useMemo, useState} from 'react';
-import {OnNodeAdd, TreeBaseItem, TreeNode, VirtualNodes} from './types';
+import React, {useCallback, useMemo, useState} from 'react';
+import {
+    EditionProps,
+    OnNodeAdd,
+    OnNodeRemove, OnNodeStartEdit,
+    OnNodeUpdate,
+    TreeBaseItem,
+    TreeNode,
+    VirtualNodes,
+    VirtualTreeNode,
+} from './types';
 
 type Props<D extends TreeBaseItem> = {
     nodes: TreeNode<D>[];
     newItem?: D;
 };
 
-export function useVirtualNodes<D extends TreeBaseItem>({newItem, nodes}: Props<D>) {
-    const [virtualNodes, setVirtualNodes] = useState<VirtualNodes<D>>({});
+type Return<D extends TreeBaseItem> = {
+    normalizedNodes: TreeNode<D>[];
+    virtualNodes: VirtualNodes<D>;
+    setVirtualNodes: React.Dispatch<
+        React.SetStateAction<VirtualNodes<D>>
+    >;
+} & EditionProps<D>;
 
-    const createNode = useCallback<OnNodeAdd<D>>(
+export function useVirtualNodes<D extends TreeBaseItem>({
+    newItem,
+    nodes,
+}: Props<D>): Return<D> {
+    const [virtualNodes, setVirtualNodes] = useState<VirtualNodes<D>>([]);
+
+    const onNodeAdd = useCallback<OnNodeAdd<D>>(
         (parentNode, node) => {
             setVirtualNodes(prev => {
-                const n = {...prev};
-
-                n[parentNode.id] ??= [];
-                n[parentNode.id].push({
-                    ...node,
-                    id: `${parentNode.id}/virtual-${Date.now()}`,
-                    virtual: true,
-                    data: {
-                        ...(newItem ?? ({} as D)),
-                        ...node.data,
-                    },
-                } as TreeNode<D>);
-
-                return n;
+                return prev.concat([
+                    {
+                        parentId: parentNode.id,
+                        parentNode,
+                        hasChildren: false,
+                        loadingChildren: false,
+                        canDelete: true,
+                        canEdit: true,
+                        editing: true,
+                        ...node,
+                        id: `${parentNode.id}/virtual-${Date.now()}`,
+                        virtual: true,
+                        data: {
+                            ...(newItem ?? ({} as D)),
+                            ...node.data,
+                        },
+                    } as VirtualTreeNode<D>,
+                ]);
             });
         },
         [setVirtualNodes]
     );
+
+    const onNodeRemove = useCallback<OnNodeRemove<D>>(
+        (node) => {
+            setVirtualNodes(prev => prev.filter(n => n.id !== node.id));
+        },
+        [setVirtualNodes]
+    );
+
+    const onNodeUpdate = useCallback<OnNodeUpdate<D>>(
+        (oldNode, newNode) => {
+            setVirtualNodes(prev =>
+                prev.map(n => {
+                    if (n.id === oldNode.id) {
+                        return {
+                            ...n,
+                            ...newNode,
+                            editing: false,
+                            editedOnce: true,
+                        };
+                    }
+
+                    return n;
+                })
+            );
+        },
+        [setVirtualNodes]
+    );
+
+    const nodeToggleEdit = useCallback((node: TreeNode<D>, editing: boolean) => {
+        setVirtualNodes(prev =>
+            prev.map(n => {
+                if (n.id === node.id) {
+                    return {
+                        ...n,
+                        editing,
+                    };
+                }
+
+                return n;
+            })
+        );
+    }, [setVirtualNodes]);
+
+
+    const onNodeStartEdit = useCallback<OnNodeStartEdit<D>>(node => {
+        nodeToggleEdit(node, true);
+    }, [nodeToggleEdit]);
+
+    const onNodeCancelEdit = useCallback<OnNodeStartEdit<D>>(node => {
+        nodeToggleEdit(node, false);
+    }, [nodeToggleEdit]);
 
     const normalizedNodes = useMemo<TreeNode<D>[]>(() => {
         if (Object.keys(virtualNodes).length === 0) {
@@ -37,11 +112,14 @@ export function useVirtualNodes<D extends TreeBaseItem>({newItem, nodes}: Props<
         }
 
         const insertVirtualNodes = (node: TreeNode<D>): TreeNode<D> => {
-            const virtualChildren = virtualNodes[node.id] || [];
-
-            const normalizedChildren = [...(node.children || []), ...virtualChildren].map(
-                insertVirtualNodes
+            const virtualChildren = virtualNodes.filter(
+                vn => vn.parentId === node.id
             );
+
+            const normalizedChildren = [
+                ...(node.children || []),
+                ...virtualChildren,
+            ].map(insertVirtualNodes);
 
             return {
                 ...node,
@@ -54,7 +132,11 @@ export function useVirtualNodes<D extends TreeBaseItem>({newItem, nodes}: Props<
     }, [nodes, virtualNodes]);
 
     return {
-        createNode,
+        onNodeAdd,
+        onNodeRemove,
+        onNodeUpdate,
+        onNodeCancelEdit,
+        onNodeStartEdit,
         virtualNodes,
         setVirtualNodes,
         normalizedNodes,

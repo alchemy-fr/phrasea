@@ -14,6 +14,7 @@ import {
 import {WorkspaceOrCollectionTreeItem} from './types.ts';
 import CollectionTreeNode from './CollectionTreeNode.tsx';
 import {useTranslation} from 'react-i18next';
+import CollectionEdit from './CollectionEdit.tsx';
 
 type Props<IsMulti extends boolean = false> = {
     value?: IsMulti extends true ? string[] : string;
@@ -61,32 +62,32 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
         [loadWorkspaceCollections]
     );
 
-    const mapCollection = (
-        pathPrefix: string,
-        collection: CollectionOptionalWorkspace
-    ): TreeNode<WorkspaceOrCollectionTreeItem> => {
-        const nodeId = `${pathPrefix}${collection.id}`;
-
-        return {
-            id: nodeId,
-            data: {
-                id: collection.id,
-                label: collection.titleTranslated || collection.title,
-                capabilities: collection.capabilities,
-            },
-            hasChildren: collection.children
-                ? collection.children.length > 0
-                : true,
-            children: collection.children?.map(c =>
-                mapCollection(`${nodeId}/`, c)
-            ),
-            canAddChildren: collection.capabilities.canEdit,
-        };
-    };
-
     const items = React.useMemo<
         TreeNode<WorkspaceOrCollectionTreeItem>[]
     >(() => {
+        const mapCollection = (
+            pathPrefix: string,
+            collection: CollectionOptionalWorkspace
+        ): TreeNode<WorkspaceOrCollectionTreeItem> => {
+            const nodeId = `${pathPrefix}${collection.id}`;
+
+            const children =
+                collectionsTree[collection.id]?.items ?? collection.children;
+
+            return {
+                id: nodeId,
+                data: {
+                    id: collection.id,
+                    label: collection.titleTranslated || collection.title,
+                    capabilities: collection.capabilities,
+                },
+                hasChildren: children ? children.length > 0 : false,
+                childrenLoaded: !!collectionsTree[collection.id],
+                children: children?.map(c => mapCollection(`${nodeId}/`, c)),
+                canAddChildren: collection.capabilities.canEdit,
+            };
+        };
+
         return workspaces.map(w => {
             const nodeId = w.id;
             return {
@@ -104,10 +105,9 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
         });
     }, [workspaces, collectionsTree]);
 
-    const {createNode, normalizedNodes} = useVirtualNodes({
+    const {normalizedNodes, ...editingProps} = useVirtualNodes({
         nodes: items,
         newItem: {
-            id: 'new-collection',
             label: t('collection.tree_view.new_collection', 'New Collection'),
             capabilities: {
                 canEdit: true,
@@ -126,8 +126,9 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
             renderNodeLabel={props => {
                 return <CollectionTreeNode {...props} />;
             }}
+            editNodeComponent={CollectionEdit}
             nodes={normalizedNodes}
-            onNodeAdd={allowNew ? createNode : undefined}
+            {...(allowNew ? editingProps : {})}
         />
     );
 }

@@ -7,7 +7,7 @@ import {
     ListItemButton,
 } from '@mui/material';
 import classNames from 'classnames';
-import {useState} from 'react';
+import React, {useState} from 'react';
 import Box from '@mui/material/Box';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from '@mui/icons-material/Edit';
@@ -17,7 +17,6 @@ import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 export default function BaseTreeNode<D extends TreeBaseItem>(
     props: TreeNodeProps<D>
 ) {
-    const [editing, setEditing] = useState(false);
     const {
         node,
         renderNodeLabel,
@@ -27,6 +26,11 @@ export default function BaseTreeNode<D extends TreeBaseItem>(
         selectedNodes,
         expandedNodes,
         onNodeAdd,
+        onNodeRemove,
+        onNodeUpdate,
+        editNodeComponent,
+        onNodeStartEdit,
+        onNodeCancelEdit,
     } = props;
 
     const selected = selectedNodes.includes(node.id);
@@ -73,33 +77,54 @@ export default function BaseTreeNode<D extends TreeBaseItem>(
                     ) : null}
                 </div>
                 <div className={TreeViewClasses.NodeLabel}>
-                    {renderNodeLabel({
-                        level,
-                        node,
-                    })}
+                    {editNodeComponent && node.editing
+                        ? React.createElement(editNodeComponent, {
+                              ...props,
+                              onFinishEdit: (data: D) => {
+                                  onNodeUpdate?.(node, {
+                                        ...node,
+                                        data,
+                                  });
+                              },
+                              onCancelEdit: () => {
+                                  if (onNodeRemove && !node.editedOnce) {
+                                      onNodeRemove?.(node);
+                                  } else {
+                                    onNodeCancelEdit?.(node);
+                                  }
+                              },
+                          })
+                        : renderNodeLabel({
+                              level,
+                              node,
+                          })}
                 </div>
                 <div>
-                    {!editing && node.canEdit ? (
+                    {editNodeComponent &&
+                    onNodeStartEdit &&
+                    !node.editing &&
+                    node.canEdit ? (
                         <IconButton
-                            onClick={() => setEditing(true)}
+                            onClick={() => onNodeStartEdit(node)}
                             onMouseDown={e => e.stopPropagation()}
                         >
                             <EditIcon />
                         </IconButton>
                     ) : null}
-                    {!editing && node.canDelete ? (
+                    {onNodeRemove && !node.editing && node.canDelete ? (
                         <IconButton
-                            onClick={() => setEditing(true)}
+                            onClick={() => onNodeRemove(node)}
                             onMouseDown={e => e.stopPropagation()}
                         >
                             <DeleteIcon />
                         </IconButton>
                     ) : null}
-                    {onNodeAdd && !editing && node.canAddChildren ? (
+                    {onNodeAdd && !node.editing && node.canAddChildren ? (
                         <IconButton
                             onClick={e => {
                                 e.stopPropagation();
                                 onNodeAdd(node, {});
+                                onToggleExpand(node, true);
                             }}
                             onMouseDown={e => e.stopPropagation()}
                         >

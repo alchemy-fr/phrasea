@@ -6,9 +6,9 @@ import {clearWorkspaceCache, moveCollection} from '../../../api/collection';
 import {toast} from 'react-toastify';
 import {LoadingButton} from '@mui/lab';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
-import {treeViewPathSeparator} from './CollectionTree/old/collectionTree.ts';
 import CollectionsTreeView from './CollectionTree/CollectionsTreeView.tsx';
 
+// TODO test separator consistency
 type Props = {
     collection: Collection;
     onMoved?: () => void;
@@ -56,9 +56,7 @@ export default function CollectionMoveSection({collection, onMoved}: Props) {
                 onChange={collections => {
                     setDest(collections as string);
                 }}
-                disabledBranches={[
-                    `${collection.workspace.id}${treeViewPathSeparator}${collection['@id']}`,
-                ]}
+                disabledBranches={[collection.id]}
             />
             <LoadingButton
                 sx={{mt: 2}}
