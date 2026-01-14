@@ -23,7 +23,6 @@ import {
     multipartUpload,
     MultipartUploadOptions,
 } from '@alchemy/api/src/multiPartUpload.ts';
-import {CollectionId} from '../components/Media/Collection/CollectionTree/collectionTree.ts';
 import {promiseConcurrency} from '../lib/promises.ts';
 import {useUploadStore} from '../store/uploadStore.ts';
 import {
@@ -32,6 +31,7 @@ import {
     FileOrUrl,
     SourceFileInput,
 } from './file.ts';
+import {CollectionId} from '../components/Media/Collection/CollectionTree/types.ts';
 
 export interface GetAssetOptions {
     url?: string;

@@ -27,11 +27,10 @@ import FullPageLoader from '../Ui/FullPageLoader';
 import {useFormPrompt} from '@alchemy/navigation';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
-import {CollectionIdOrPath} from '../Media/Collection/CollectionTree/collectionTree.ts';
 import StoryForm from './StoryForm.tsx';
 
 export type UploadData = {
-    destination: CollectionIdOrPath;
+    destination: string;
     privacy: Privacy;
     tags: Tag[];
     quiet?: boolean;
@@ -199,7 +198,9 @@ export const UploadForm: FC<{
                 {!noDestination && (
                     <FormRow>
                         <CollectionTreeWidget
-                            isSelectable={coll => coll.capabilities.canEdit}
+                            isSelectable={node =>
+                                node.data.capabilities.canEdit
+                            }
                             control={control}
                             rules={{
                                 required: true,

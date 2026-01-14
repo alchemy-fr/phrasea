@@ -1,16 +1,20 @@
 import {TreeNodeProps} from './types';
-import TreeNode from './TreeNode';
+import BaseTreeNode from './BaseTreeNode';
 
 export default function TreeNodeChildren<D extends {}>(
     props: TreeNodeProps<D>
 ) {
-    const {item, renderItem} = props;
+    const {node, selectedNodes, expandedNodes} = props;
 
     return (
         <>
-            {item.children
-                ? item.children.map(child => (
-                      <TreeNode<D> {...props} key={child.id} item={child} />
+            {node.children
+                ? node.children.map(child => (
+                      <BaseTreeNode<D>
+                          {...props}
+                          key={child.id}
+                          node={child}
+                      />
                   ))
                 : null}
         </>

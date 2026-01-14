@@ -6,8 +6,8 @@ import {clearWorkspaceCache, moveCollection} from '../../../api/collection';
 import {toast} from 'react-toastify';
 import {LoadingButton} from '@mui/lab';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
-import {treeViewPathSeparator} from './CollectionTree/collectionTree.ts';
-import CollectionsTreeView2 from './CollectionTree/CollectionsTreeView2.tsx';
+import {treeViewPathSeparator} from './CollectionTree/old/collectionTree.ts';
+import CollectionsTreeView from './CollectionTree/CollectionsTreeView.tsx';
 
 type Props = {
     collection: Collection;
@@ -50,7 +50,7 @@ export default function CollectionMoveSection({collection, onMoved}: Props) {
                 )}
             </Typography>
 
-            <CollectionsTreeView2
+            <CollectionsTreeView
                 workspaceId={collection.workspace.id}
                 value={dest}
                 onChange={collections => {

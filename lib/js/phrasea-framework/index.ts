@@ -19,9 +19,11 @@ import {AppLogo} from './src/Menu/AppLogo';
 import HorizontalAppMenu from './src/Menu/HorizontalAppMenu';
 import VerticalAppMenu from './src/Menu/VerticalAppMenu';
 import VerticalMenuLayout from './src/Menu/VerticalMenuLayout';
-import NavigationTree from './src/Tree/NavigationTree';
+import TreeView from './src/Tree/TreeView';
 import UserHookCaller from './src/UserHookCaller';
 import AnalyticsProvider from './src/AnalyticsProvider';
+import {getAllTreeNodeIds} from './src/Tree/treeHelper';
+import {useVirtualNodes} from './src/Tree/useVirtualNodes';
 export {
     AppProvider,
     initApp,
@@ -45,9 +47,11 @@ export {
     HorizontalAppMenu,
     VerticalAppMenu,
     VerticalMenuLayout,
-    NavigationTree,
+    TreeView,
     UserHookCaller,
     AnalyticsProvider,
+    getAllTreeNodeIds,
+    useVirtualNodes,
 };
 export * from './src/Theme/types';
 export * from './src/Dialog/types';

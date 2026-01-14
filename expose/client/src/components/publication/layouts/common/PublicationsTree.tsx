@@ -1,11 +1,12 @@
 import {
-    NavigationNode,
-    NavigationRootNode,
-    NavigationTree,
+    getAllTreeNodeIds,
+    TreeNode,
+    TreeView,
 } from '@alchemy/phrasea-framework';
 import {Publication} from '../../../../types.ts';
 import {useNavigateToPublication} from '../../../../hooks/useNavigateToPublication.ts';
-import PublicationTreeItem from './PublicationTreeItem.tsx';
+import PublicationNodeLabel from './PublicationNodeLabel.tsx';
+import {useMemo} from 'react';
 
 type Props = {
     publication: Publication;
@@ -13,44 +14,45 @@ type Props = {
 
 export default function PublicationsTree({publication}: Props) {
     const navigateToPublication = useNavigateToPublication();
-    const pubToNode = (pub: Publication): NavigationNode<Publication> => ({
+    const pubToNode = (pub: Publication): TreeNode<Publication> => ({
         id: pub.id,
         data: pub,
         children: pub.children?.map(c => pubToNode(c)) ?? [],
-        childrenLoaded: true,
-        hasChildren: false,
+        hasChildren: Boolean(pub.children?.length > 0),
     });
 
-    const rootItem: NavigationRootNode<Publication> = {
-        children: [pubToNode(publication)],
-        hasChildren: true,
-        childrenLoaded: true,
-    };
+    const nodes = useMemo(() => {
+        let initialNodes: TreeNode<Publication>[] = [pubToNode(publication)];
+        if (publication.parent) {
+            initialNodes = [
+                {
+                    id: publication.parent.id,
+                    data: publication.parent,
+                    children: initialNodes,
+                    hasChildren: initialNodes.length > 0,
+                },
+            ];
+        }
+        return initialNodes;
+    }, [publication]);
+
+    const allNodes = useMemo(() => getAllTreeNodeIds(nodes), [nodes]);
 
     return (
         <>
-            {publication.parent ? (
-                <PublicationTreeItem
-                    navigateToPublication={navigateToPublication}
-                    data={publication.parent}
-                    level={0}
-                />
-            ) : null}
-            <NavigationTree
-                rootItem={rootItem}
-                renderItem={({level, data, ...rest}) => {
-                    return (
-                        <PublicationTreeItem
-                            navigateToPublication={navigateToPublication}
-                            level={level + 1}
-                            {...rest}
-                            data={data}
-                            item={{
-                                ...rest.item,
-                                selected: data === publication,
-                            }}
-                        />
-                    );
+            <TreeView
+                key={publication.id}
+                required={true}
+                onToggleSelect={(node, selected) => {
+                    if (selected) {
+                        navigateToPublication(node.data);
+                    }
+                }}
+                defaultExpandedNodes={allNodes}
+                defaultSelectedNodes={[publication.id]}
+                nodes={nodes}
+                renderNodeLabel={props => {
+                    return <PublicationNodeLabel {...props} />;
                 }}
             />
         </>

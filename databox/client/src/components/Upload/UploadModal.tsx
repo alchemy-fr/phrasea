@@ -20,7 +20,6 @@ import {Privacy} from '../../api/privacy';
 import {Asset, AssetTypeFilter} from '../../types';
 import {getAttributeList} from '../Media/Asset/Attribute/AttributeListData.ts';
 import type {TFunction} from '@alchemy/i18n';
-import {CollectionId} from '../Media/Collection/CollectionTree/collectionTree.ts';
 import {WorkspaceChip} from '../Ui/WorkspaceChip.tsx';
 import {CollectionChip} from '../Ui/CollectionChip.tsx';
 import FileToUploadCard from './FileToUploadCard.tsx';
@@ -32,6 +31,7 @@ import {validateUrl} from '@alchemy/core';
 import {CreateAssetsOptions} from '../../api/file.ts';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import {toast} from 'react-toastify';
+import {CollectionId} from '../Media/Collection/CollectionTree/types.ts';
 
 type FileWrapper = {
     id: string;

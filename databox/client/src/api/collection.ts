@@ -3,10 +3,9 @@ import {Collection, CollectionOptionalWorkspace, Workspace} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {clearAssociationIds} from './clearAssociation';
 import {useCollectionStore} from '../store/collectionStore';
-import {
-    NewCollectionPath,
-    treeViewPathSeparator,
-} from '../components/Media/Collection/CollectionTree/collectionTree.ts';
+
+import {WorkspaceOrCollectionTreeItem} from '../components/Media/Collection/CollectionTree/types.ts';
+import {TreeNode, VirtualTreeNode} from '@alchemy/phrasea-framework';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
@@ -145,21 +144,34 @@ export async function moveAssets(
 }
 
 export async function createCollection(
-    newCollectionPath: NewCollectionPath
+    newCollection: VirtualTreeNode<WorkspaceOrCollectionTreeItem>
 ): Promise<string> {
-    const {rootId, path} = newCollectionPath;
+    const path: string[] = [];
+    let workspaceId: string;
+    const visit = (node: TreeNode<WorkspaceOrCollectionTreeItem>): void => {
+        if (node.data['@id']?.startsWith('/workspaces/')) {
+            workspaceId = node.data.id;
+            return;
+        }
 
-    const [workspaceId, parentIri] = rootId.split(treeViewPathSeparator);
-    let parent = parentIri;
+        if (node.parentNode) {
+            visit(node.parentNode as TreeNode<WorkspaceOrCollectionTreeItem>);
+        }
+
+        path.push(node.data.label);
+    };
+    visit(newCollection);
+
+    let parent = newCollection.parentNode?.data['@id'];
     for (const p of path) {
         parent = (
             await postCollection({
                 title: p,
                 parent,
-                workspace: `/workspaces/${workspaceId}`,
+                workspace: `/workspaces/${workspaceId!}`,
             })
         )['@id'];
     }
 
-    return parent;
+    return parent!;
 }
