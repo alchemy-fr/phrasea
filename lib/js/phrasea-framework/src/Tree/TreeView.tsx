@@ -23,7 +23,6 @@ export default function TreeView<D extends TreeBaseItem>({
     collapseShouldUnselectChildren = true,
     defaultExpandedNodes = [],
     defaultSelectedNodes = [],
-    disabledBranches,
     required,
     multiple = false,
     onSelectionChange,
@@ -175,7 +174,6 @@ export default function TreeView<D extends TreeBaseItem>({
                     selectedNodes={selectedNodes}
                     node={node}
                     renderNodeLabel={renderNodeLabel}
-                    disabledBranches={disabledBranches}
                 />
             ))}
         </List>

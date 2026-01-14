@@ -98,8 +98,11 @@ export type EditionProps<D extends TreeBaseItem> = {
 
 type CommonTreeOptionsProps<D extends TreeBaseItem> = {
     disabled?: boolean;
+    branchDisabled?: boolean;
+    disabledNodes?: string[];
     disabledBranches?: string[];
     editNodeComponent?: FC<TreeNodeEditComponentProps<D>>;
+    isSelectable?: IsSelectable<D>;
 } & EditionProps<D>;
 
 type IsSelectable<D extends TreeBaseItem> = (node: TreeNode<D>) => boolean;
@@ -118,7 +121,6 @@ export type TreeViewOptionsProps<D extends TreeBaseItem> = {
     selectShouldCollapse?: boolean;
     collapseShouldUnselectChildren?: boolean;
     loadChildren?: LoadNodeChildren<D>;
-    isSelectable?: IsSelectable<D>;
     loadMoreChildren?: (
         node: TreeNode<D>,
         cursor: string

@@ -52,7 +52,9 @@ export default function CollectionMoveSection({collection, onMoved}: Props) {
             <CollectionsTreeView
                 workspaceId={collection.workspace.id}
                 onChange={collection => {
-                    setDest(collection!.id!);
+                    if (collection) {
+                        setDest(collection!.id!);
+                    }
                 }}
                 disabledBranches={[collection.id]}
             />

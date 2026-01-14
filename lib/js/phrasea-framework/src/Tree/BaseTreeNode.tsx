@@ -19,6 +19,10 @@ export default function BaseTreeNode<D extends TreeBaseItem>(
 ) {
     const {
         node,
+        disabled,
+        branchDisabled,
+        disabledBranches,
+        disabledNodes,
         renderNodeLabel,
         level,
         onToggleSelect,
@@ -31,13 +35,18 @@ export default function BaseTreeNode<D extends TreeBaseItem>(
         editNodeComponent,
         onNodeStartEdit,
         onNodeCancelEdit,
+        isSelectable,
     } = props;
 
     const selected = selectedNodes.includes(node.id);
     const expanded = expandedNodes.includes(node.id);
-    const disabled = props.disabledBranches?.some(branchId =>
-        node.id.startsWith(branchId)
-    );
+
+    const resolvedBranchDisabled =
+        branchDisabled || disabledBranches?.includes(node.id);
+
+    const resolvedDisabled = resolvedBranchDisabled ||
+        disabled || (isSelectable && !isSelectable(node)) ||
+        disabledNodes?.includes(node.id);
 
     const [expanding, setExpanding] = useState(false);
 
@@ -48,9 +57,9 @@ export default function BaseTreeNode<D extends TreeBaseItem>(
                     [TreeViewClasses.Node]: true,
                     [TreeViewClasses.NodeSelected]: selected,
                     [TreeViewClasses.NodeExpanded]: expanded,
-                    [TreeViewClasses.NodeDisabled]: disabled,
+                    [TreeViewClasses.NodeDisabled]: resolvedDisabled,
                 })}
-                disabled={disabled}
+                disabled={resolvedDisabled}
                 selected={selected}
                 onClick={() => onToggleSelect(node, !selected)}
             >
@@ -82,15 +91,15 @@ export default function BaseTreeNode<D extends TreeBaseItem>(
                               ...props,
                               onFinishEdit: (data: D) => {
                                   onNodeUpdate?.(node, {
-                                        ...node,
-                                        data,
+                                      ...node,
+                                      data,
                                   });
                               },
                               onCancelEdit: () => {
                                   if (onNodeRemove && !node.editedOnce) {
                                       onNodeRemove?.(node);
                                   } else {
-                                    onNodeCancelEdit?.(node);
+                                      onNodeCancelEdit?.(node);
                                   }
                               },
                           })
@@ -140,7 +149,11 @@ export default function BaseTreeNode<D extends TreeBaseItem>(
                         pl: 1 + level / 4,
                     }}
                 >
-                    <TreeNodeChildren {...props} level={level + 1} />
+                    <TreeNodeChildren
+                        {...props}
+                        branchDisabled={resolvedBranchDisabled}
+                        level={level + 1}
+                    />
                 </Box>
             </Collapse>
         </>

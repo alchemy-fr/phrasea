@@ -93,7 +93,6 @@ export default function FieldTranslationsEditDialog<
             normalizePath: p => p.replace('translations.title', 'translations'),
         },
     });
-    console.log('data', data);
 
     const formId = field + 'Translations';
 
