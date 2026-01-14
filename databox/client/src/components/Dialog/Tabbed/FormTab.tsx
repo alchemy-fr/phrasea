@@ -2,7 +2,6 @@ import {Button, Container, LinearProgress} from '@mui/material';
 import {PropsWithChildren, ReactNode} from 'react';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-import {LoadingButton} from '@mui/lab';
 import SaveIcon from '@mui/icons-material/Save';
 import {RemoteErrors} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
@@ -64,7 +63,7 @@ export default function FormTab({
                 <Button onClick={onClose} color={'warning'} disabled={loading}>
                     {t('dialog.cancel', 'Cancel')}
                 </Button>
-                <LoadingButton
+                <Button
                     startIcon={submitIcon || <SaveIcon />}
                     type={formId ? 'submit' : 'button'}
                     form={formId}
@@ -74,7 +73,7 @@ export default function FormTab({
                     disabled={loading}
                 >
                     {submitLabel || t('dialog.save', 'Save')}
-                </LoadingButton>
+                </Button>
             </DialogActions>
         </>
     );

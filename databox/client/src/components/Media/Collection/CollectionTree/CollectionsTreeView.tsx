@@ -24,12 +24,16 @@ type Props<IsMulti extends boolean = false> = {
     ) => void;
     workspaceId?: string;
     allowNew?: boolean;
-} & TreeViewOptionsProps<WorkspaceOrCollectionTreeItem>;
+    multiple?: IsMulti;
+} & Omit<TreeViewOptionsProps<WorkspaceOrCollectionTreeItem>, 'multiple'>;
+
 export type {Props as CollectionTreeViewProps};
 
 export default function CollectionsTreeView<IsMulti extends boolean = false>({
     workspaceId,
     allowNew,
+    multiple,
+    onChange,
     ...treeViewProps
 }: Props<IsMulti>) {
     const {t} = useTranslation();
@@ -52,12 +56,7 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
         LoadNodeChildren<WorkspaceOrCollectionTreeItem>
     >(
         async node => {
-            const [workspaceId, ...collectionPath] = node.id.split('/');
-
-            await loadWorkspaceCollections(
-                workspaceId,
-                collectionPath[collectionPath.length - 1]
-            );
+            await loadWorkspaceCollections(node.data.workspaceId, node.id);
         },
         [loadWorkspaceCollections]
     );
@@ -66,10 +65,10 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
         TreeNode<WorkspaceOrCollectionTreeItem>[]
     >(() => {
         const mapCollection = (
-            pathPrefix: string,
-            collection: CollectionOptionalWorkspace
+            collection: CollectionOptionalWorkspace,
+            workspaceId: string
         ): TreeNode<WorkspaceOrCollectionTreeItem> => {
-            const nodeId = `${pathPrefix}${collection.id}`;
+            const nodeId = collection.id;
 
             const children =
                 collectionsTree[collection.id]?.items ?? collection.children;
@@ -80,10 +79,11 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
                     id: collection.id,
                     label: collection.titleTranslated || collection.title,
                     capabilities: collection.capabilities,
+                    workspaceId,
                 },
                 hasChildren: children ? children.length > 0 : false,
                 childrenLoaded: !!collectionsTree[collection.id],
-                children: children?.map(c => mapCollection(`${nodeId}/`, c)),
+                children: children?.map(c => mapCollection(c, workspaceId)),
                 canAddChildren: collection.capabilities.canEdit,
             };
         };
@@ -97,9 +97,10 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
                     id: w.id,
                     label: w.nameTranslated || w.name,
                     capabilities: w.capabilities,
+                    workspaceId: w.id,
                 },
                 children: collectionsTree[w.id]?.items.map(c =>
-                    mapCollection(`${nodeId}/`, c)
+                    mapCollection(c, w.id)
                 ),
             };
         });
@@ -107,12 +108,13 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
 
     const {normalizedNodes, ...editingProps} = useVirtualNodes({
         nodes: items,
-        newItem: {
+        newItem: parentNode => ({
             label: t('collection.tree_view.new_collection', 'New Collection'),
             capabilities: {
                 canEdit: true,
             },
-        },
+            workspaceId: parentNode!.data.workspaceId,
+        }),
     });
 
     if (loading) {
@@ -123,9 +125,17 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
         <TreeView
             {...treeViewProps}
             loadChildren={loadChildren}
+            onSelectionChange={selection => {
+                onChange?.(
+                    // @ts-expect-error TS is not able to infer IsMulti here
+                    (multiple as IsMulti) ? selection : (selection[0] ?? ''),
+                    workspaceId!
+                );
+            }}
             renderNodeLabel={props => {
                 return <CollectionTreeNode {...props} />;
             }}
+            multiple={multiple}
             editNodeComponent={CollectionEdit}
             nodes={normalizedNodes}
             {...(allowNew ? editingProps : {})}

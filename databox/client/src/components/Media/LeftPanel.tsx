@@ -5,7 +5,7 @@ import {TabPanelProps} from '@mui/lab';
 import BasketsPanel from '../Basket/BasketsPanel';
 import {useAuth} from '@alchemy/react-auth';
 import {useTranslation} from 'react-i18next';
-import CollectionsTreeView from './Collection/CollectionTree/CollectionsTreeView.tsx';
+import Facets from './Asset/Facets';
 
 enum TabEnum {
     facets = 'facets',
@@ -84,8 +84,7 @@ export default function LeftPanel() {
                 ) : null}
             </Tabs>
             <TabPanel value={tab} index={TabEnum.facets}>
-                <CollectionsTreeView allowNew={true} />
-                {/*<Facets />*/}
+                <Facets />
             </TabPanel>
             <TabPanel value={tab} index={TabEnum.tree}>
                 {treeLoadedOnce.current || tab === TabEnum.tree ? (

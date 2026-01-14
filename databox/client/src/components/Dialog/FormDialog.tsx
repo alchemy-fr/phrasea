@@ -4,7 +4,6 @@ import {PropsWithChildren, ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import SaveIcon from '@mui/icons-material/Save';
 import {RemoteErrors} from '@alchemy/react-form';
-import {LoadingButton} from '@mui/lab';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 
 type Props = PropsWithChildren<
@@ -55,7 +54,7 @@ export default function FormDialog({
                     >
                         {t('dialog.cancel', 'Cancel')}
                     </Button>
-                    <LoadingButton
+                    <Button
                         startIcon={submitIcon || <SaveIcon />}
                         type={formId ? 'submit' : 'button'}
                         form={formId}
@@ -65,7 +64,7 @@ export default function FormDialog({
                         disabled={!submittable || loading}
                     >
                         {submitLabel || t('dialog.save', 'Save')}
-                    </LoadingButton>
+                    </Button>
                 </>
             )}
         >

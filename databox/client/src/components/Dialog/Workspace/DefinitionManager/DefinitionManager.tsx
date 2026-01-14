@@ -23,7 +23,6 @@ import {
 import DialogActions from '@mui/material/DialogActions';
 import {useTranslation} from 'react-i18next';
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import {LoadingButton} from '@mui/lab';
 import SortableList, {
     OrderChangeHandler,
     SortableItem,
@@ -597,14 +596,14 @@ export default function DefinitionManager<D extends DefinitionBase>({
                         >
                             {t('dialog.cancel', 'Cancel')}
                         </Button>
-                        <LoadingButton
+                        <Button
                             disabled={loading || submitting}
                             loading={submitting}
                             type={formId ? 'submit' : 'button'}
                             form={formId}
                         >
                             {t('dialog.save', 'Save')}
-                        </LoadingButton>
+                        </Button>
                     </>
                 )}
                 {!displaySaveButton && (

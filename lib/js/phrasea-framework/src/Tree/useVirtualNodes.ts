@@ -12,7 +12,7 @@ import {
 
 type Props<D extends TreeBaseItem> = {
     nodes: TreeNode<D>[];
-    newItem?: D;
+    newItem?: (parentNode?: TreeNode<D>) => D;
 };
 
 type Return<D extends TreeBaseItem> = {
@@ -45,7 +45,7 @@ export function useVirtualNodes<D extends TreeBaseItem>({
                         id: `${parentNode.id}/virtual-${Date.now()}`,
                         virtual: true,
                         data: {
-                            ...(newItem ?? ({} as D)),
+                            ...(newItem?.(parentNode) ?? ({} as D)),
                             ...node.data,
                         },
                     } as VirtualTreeNode<D>,

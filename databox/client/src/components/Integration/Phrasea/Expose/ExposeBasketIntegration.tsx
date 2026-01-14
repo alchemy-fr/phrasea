@@ -1,5 +1,4 @@
 import {BasketIntegrationActionsProps, Integration} from '../../types.ts';
-import {LoadingButton} from '@mui/lab';
 import {useIntegrationData} from '../../useIntegrationData.ts';
 import {
     ObjectType,
@@ -128,13 +127,13 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
         <div>
             {!hasValidToken ? (
                 <div>
-                    <LoadingButton
+                    <Button
                         onClick={requestAuth}
                         loading={loading}
                         disabled={loading}
                     >
                         {t('expose_basket_integration.authorize', `Authorize`)}
-                    </LoadingButton>
+                    </Button>
                 </div>
             ) : (
                 ''
@@ -171,7 +170,7 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                                 </Typography>
                             </CardContent>
                             <CardActions>
-                                <LoadingButton
+                                <Button
                                     sx={{
                                         mr: 1,
                                     }}
@@ -186,9 +185,9 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                                         'expose_basket_integration.force_sync',
                                         `Force Sync`
                                     )}
-                                </LoadingButton>
+                                </Button>
 
-                                <LoadingButton
+                                <Button
                                     sx={{
                                         mr: 1,
                                     }}
@@ -198,7 +197,7 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                                     disabled={!hasValidToken}
                                 >
                                     {t('common.delete', `Delete`)}
-                                </LoadingButton>
+                                </Button>
                                 <Typography variant="body2">
                                     {syncState ? (
                                         <>

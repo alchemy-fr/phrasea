@@ -1,4 +1,5 @@
 import {
+    Button,
     InputLabel,
     List,
     ListItem,
@@ -14,7 +15,6 @@ import {FormFieldErrors, FormRow, SwitchWidget} from '@alchemy/react-form';
 import {putAttributeListItem} from '../../../../api/attributeList.ts';
 
 import {RemoteErrors} from '@alchemy/react-form';
-import {LoadingButton} from '@mui/lab';
 import {getAttributeType} from '../../../Media/Asset/Attribute/types';
 import {
     useIndexById,
@@ -167,14 +167,14 @@ export default function ItemForm({item, listId, onChange}: Props) {
                     )}
                 </Box>
 
-                <LoadingButton
+                <Button
                     type={'submit'}
                     loading={submitting}
                     disabled={submitting}
                     variant={'contained'}
                 >
                     {t('form.attribute_list_item.save', 'Save')}
-                </LoadingButton>
+                </Button>
                 <RemoteErrors errors={remoteErrors} />
             </Paper>
         </form>

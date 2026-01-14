@@ -25,6 +25,7 @@ export default function TreeView<D extends TreeBaseItem>({
     disabledBranches,
     required,
     multiple = false,
+    onSelectionChange,
     ...nodeProps
 }: TreeViewProps<D>) {
     const [expandedNodes, setExpandedNodes] =
@@ -34,7 +35,11 @@ export default function TreeView<D extends TreeBaseItem>({
 
     const onToggleExpandInternal = useCallback<OnToggleExpand<D>>(
         async (node, expanded) => {
-            if (expanded && node.hasChildren && (node.children === undefined || false === node.childrenLoaded)) {
+            if (
+                expanded &&
+                node.hasChildren &&
+                (node.children === undefined || false === node.childrenLoaded)
+            ) {
                 await loadChildren?.(node);
             }
 
@@ -64,35 +69,43 @@ export default function TreeView<D extends TreeBaseItem>({
     );
 
     const onToggleSelectInternal = useCallback<OnToggleSelectNode<D>>(
-        (item, selected) => {
+        (node, selected) => {
             if (
                 selected &&
                 selectShouldExpand &&
-                !expandedNodes.includes(item.id)
+                !expandedNodes.includes(node.id)
             ) {
-                onToggleExpandInternal(item, true);
+                onToggleExpandInternal(node, true);
             } else if (
                 !selected &&
                 selectShouldCollapse &&
-                expandedNodes.includes(item.id)
+                expandedNodes.includes(node.id)
             ) {
-                onToggleExpandInternal(item, false);
+                onToggleExpandInternal(node, false);
             }
 
-            onToggleSelect?.(item, selected);
+            onToggleSelect?.(node, selected);
+            if (onSelectionChange) {
+                if (multiple) {
+                    onSelectionChange(selected ? [...selectedNodes, node.id] : selectedNodes.filter(id => id !== node.id));
+                } else {
+                    onSelectionChange(selected ? [node.id] : []);
+                }
+            }
+
             setSelectedNodes(prev => {
                 if (multiple) {
                     if (selected) {
-                        return [...prev, item.id];
+                        return [...prev, node.id];
                     } else {
-                        return prev.filter(id => id !== item.id);
+                        return prev.filter(id => id !== node.id);
                     }
                 } else {
                     if (required && !selected) {
                         return prev;
                     }
 
-                    return selected ? [item.id] : [];
+                    return selected ? [node.id] : [];
                 }
             });
         },

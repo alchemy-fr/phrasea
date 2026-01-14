@@ -5,5 +5,6 @@ export type WorkspaceOrCollectionTreeItem = {
     'capabilities': {
         canEdit: boolean;
     };
+    'workspaceId': string;
 };
 export type CollectionId = string;

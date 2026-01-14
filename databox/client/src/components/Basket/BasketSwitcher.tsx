@@ -5,7 +5,6 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import {useModals} from '@alchemy/navigation';
 import BasketListDialog from './BasketListDialog';
 import {useTranslation} from 'react-i18next';
-import {LoadingButton} from '@alchemy/react-form';
 import {useNavigateToModal} from '../Routing/ModalLink';
 import {modalRoutes} from '../../routes';
 import React from 'react';
@@ -62,7 +61,7 @@ export default function BasketSwitcher<Item extends AssetOrAssetContainer>({
                 verticalAlign: 'middle',
             }}
         >
-            <LoadingButton
+            <Button
                 onClick={onClick}
                 loading={loadingCurrent}
                 loadingPosition={'start'}
@@ -83,7 +82,7 @@ export default function BasketSwitcher<Item extends AssetOrAssetContainer>({
                 ) : (
                     ''
                 )}
-            </LoadingButton>
+            </Button>
             <Button
                 size="small"
                 sx={{

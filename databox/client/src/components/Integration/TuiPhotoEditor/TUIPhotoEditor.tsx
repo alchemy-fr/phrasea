@@ -6,6 +6,7 @@ import 'tui-image-editor/dist/tui-image-editor.css';
 // @ts-expect-error TS error in package
 import ImageEditor from '@toast-ui/react-image-editor';
 import {
+    Button,
     List,
     ListItemButton,
     ListItemIcon,
@@ -17,7 +18,6 @@ import {
 import {ObjectType, runIntegrationAction} from '../../../api/integrations';
 import SaveIcon from '@mui/icons-material/Save';
 import {dataURLtoFile} from '@alchemy/core';
-import {LoadingButton} from '@mui/lab';
 import {toast} from 'react-toastify';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import {ApiFile} from '../../../types';
@@ -187,7 +187,7 @@ export default function TUIPhotoEditor({
                     disabled={!canEdit || saving}
                     placeholder={t('tuiphoto_editor.file_name', `File name`)}
                 />
-                <LoadingButton
+                <Button
                     sx={{
                         mt: 1,
                     }}
@@ -198,7 +198,7 @@ export default function TUIPhotoEditor({
                     loading={saving}
                 >
                     {t('tuiphoto_editor.save', `Save`)}
-                </LoadingButton>
+                </Button>
             </IntegrationPanelContent>
 
             {data!.pages.length > 0 && (

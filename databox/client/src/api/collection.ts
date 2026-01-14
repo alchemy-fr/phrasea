@@ -147,7 +147,7 @@ export async function createCollection(
     newCollection: VirtualTreeNode<WorkspaceOrCollectionTreeItem>
 ): Promise<string> {
     const path: string[] = [];
-    let workspaceId: string;
+    let workspaceId: string | undefined;
     const visit = (node: TreeNode<WorkspaceOrCollectionTreeItem>): void => {
         if (node.data['@id']?.startsWith('/workspaces/')) {
             workspaceId = node.data.id;
@@ -168,7 +168,9 @@ export async function createCollection(
             await postCollection({
                 title: p,
                 parent,
-                workspace: `/workspaces/${workspaceId!}`,
+                workspace: workspaceId
+                    ? `/workspaces/${workspaceId!}`
+                    : undefined,
             })
         )['@id'];
     }
