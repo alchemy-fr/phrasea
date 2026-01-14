@@ -43,6 +43,7 @@ const AppProxy = React.memo(
 
         return (
             <>
+                <style>{'body { overflow: hidden; }'}</style>
                 <PendingUploads />
                 <SearchProvider>
                     <ResultProvider>

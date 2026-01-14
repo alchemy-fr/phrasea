@@ -206,8 +206,8 @@ export default function CopyAssetsDialog({
                 <FormRow>
                     <CollectionTreeWidget
                         isSelectable={node => node.data.capabilities.canEdit}
-                        onChange={(_nodeId, workspaceId) => {
-                            setWorkspaceDest(workspaceId);
+                        onChange={node => {
+                            setWorkspaceDest(node.data?.workspaceId);
                         }}
                         control={control}
                         name={'destination'}

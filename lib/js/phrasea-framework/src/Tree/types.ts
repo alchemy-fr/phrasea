@@ -105,7 +105,7 @@ type CommonTreeOptionsProps<D extends TreeBaseItem> = {
 type IsSelectable<D extends TreeBaseItem> = (node: TreeNode<D>) => boolean;
 
 export type TreeViewOptionsProps<D extends TreeBaseItem> = {
-    onSelectionChange?: (selectedNodes: string[]) => void;
+    onSelectionChange?: (selectedNodes: TreeNode<D>[]) => void;
     onToggleExpand?: OnToggleExpand<D>;
     onToggleSelect?: OnToggleSelectNode<D>;
     defaultExpandedNodes?: string[];

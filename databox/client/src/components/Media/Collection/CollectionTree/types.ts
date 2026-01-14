@@ -1,10 +1,15 @@
+export enum EntityType {
+    Workspace = 1,
+    Collection = 2,
+}
+
 export type WorkspaceOrCollectionTreeItem = {
-    '@id'?: string;
-    'id'?: string;
-    'label': string;
-    'capabilities': {
+    id?: string;
+    type: EntityType;
+    label: string;
+    capabilities: {
         canEdit: boolean;
     };
-    'workspaceId': string;
+    workspaceId: string;
 };
 export type CollectionId = string;

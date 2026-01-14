@@ -11,21 +11,22 @@ import {
     TreeViewOptionsProps,
     useVirtualNodes,
 } from '@alchemy/phrasea-framework';
-import {WorkspaceOrCollectionTreeItem} from './types.ts';
+import {EntityType, WorkspaceOrCollectionTreeItem} from './types.ts';
 import CollectionTreeNode from './CollectionTreeNode.tsx';
 import {useTranslation} from 'react-i18next';
 import CollectionEdit from './CollectionEdit.tsx';
 
+type Data = WorkspaceOrCollectionTreeItem;
+
 type Props<IsMulti extends boolean = false> = {
     value?: IsMulti extends true ? string[] : string;
     onChange?: (
-        selection: IsMulti extends true ? string[] : string,
-        workspaceId?: IsMulti extends true ? string : never
+        selection: IsMulti extends true ? TreeNode<Data>[] : TreeNode<Data>
     ) => void;
     workspaceId?: string;
     allowNew?: boolean;
     multiple?: IsMulti;
-} & Omit<TreeViewOptionsProps<WorkspaceOrCollectionTreeItem>, 'multiple'>;
+} & Omit<TreeViewOptionsProps<Data>, 'multiple'>;
 
 export type {Props as CollectionTreeViewProps};
 
@@ -52,22 +53,18 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
         loadWorkspaces();
     }, []);
 
-    const loadChildren = useCallback<
-        LoadNodeChildren<WorkspaceOrCollectionTreeItem>
-    >(
+    const loadChildren = useCallback<LoadNodeChildren<Data>>(
         async node => {
             await loadWorkspaceCollections(node.data.workspaceId, node.id);
         },
         [loadWorkspaceCollections]
     );
 
-    const items = React.useMemo<
-        TreeNode<WorkspaceOrCollectionTreeItem>[]
-    >(() => {
+    const items = React.useMemo<TreeNode<Data>[]>(() => {
         const mapCollection = (
             collection: CollectionOptionalWorkspace,
             workspaceId: string
-        ): TreeNode<WorkspaceOrCollectionTreeItem> => {
+        ): TreeNode<Data> => {
             const nodeId = collection.id;
 
             const children =
@@ -77,6 +74,7 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
                 id: nodeId,
                 data: {
                     id: collection.id,
+                    type: EntityType.Collection,
                     label: collection.titleTranslated || collection.title,
                     capabilities: collection.capabilities,
                     workspaceId,
@@ -95,6 +93,7 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
                 hasChildren: true,
                 data: {
                     id: w.id,
+                    type: EntityType.Workspace,
                     label: w.nameTranslated || w.name,
                     capabilities: w.capabilities,
                     workspaceId: w.id,
@@ -110,6 +109,7 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
         nodes: items,
         newItem: parentNode => ({
             label: t('collection.tree_view.new_collection', 'New Collection'),
+            type: EntityType.Collection,
             capabilities: {
                 canEdit: true,
             },
@@ -126,11 +126,8 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
             {...treeViewProps}
             loadChildren={loadChildren}
             onSelectionChange={selection => {
-                onChange?.(
-                    // @ts-expect-error TS is not able to infer IsMulti here
-                    (multiple as IsMulti) ? selection : (selection[0] ?? ''),
-                    workspaceId!
-                );
+                // @ts-expect-error TS can't infer multiple is false here
+                onChange?.(multiple ? selection : selection[0]);
             }}
             renderNodeLabel={props => {
                 return <CollectionTreeNode {...props} />;

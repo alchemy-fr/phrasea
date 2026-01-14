@@ -3,6 +3,7 @@ import {
     OnToggleExpand,
     OnToggleSelectNode,
     TreeBaseItem,
+    TreeNode,
     TreeViewClasses,
     TreeViewProps,
 } from './types';
@@ -85,12 +86,33 @@ export default function TreeView<D extends TreeBaseItem>({
             }
 
             onToggleSelect?.(node, selected);
+
             if (onSelectionChange) {
-                if (multiple) {
-                    onSelectionChange(selected ? [...selectedNodes, node.id] : selectedNodes.filter(id => id !== node.id));
-                } else {
-                    onSelectionChange(selected ? [node.id] : []);
-                }
+                const findNodeById = (id: string): TreeNode<D> => {
+                    const findNode = (
+                        nodesList: TreeNode<D>[]
+                    ): TreeNode<D> | undefined => {
+                        const found = nodesList.find(n => n.id === id);
+                        if (found) return found;
+
+                        return nodesList.find(n =>
+                            n.children ? findNode(n.children) : undefined
+                        );
+                    };
+
+                    return findNode(nodes)!;
+                };
+
+                const sel: TreeNode<D>[] = multiple
+                    ? (selected
+                          ? [...selectedNodes, node.id]
+                          : selectedNodes.filter(id => id !== node.id)
+                      ).map(findNodeById)
+                    : selected
+                      ? [findNodeById(node.id)]
+                      : [];
+
+                onSelectionChange(sel);
             }
 
             setSelectedNodes(prev => {
@@ -109,7 +131,7 @@ export default function TreeView<D extends TreeBaseItem>({
                 }
             });
         },
-        [setSelectedNodes, onToggleSelect, onToggleExpandInternal]
+        [setSelectedNodes, onToggleSelect, onToggleExpandInternal, nodes]
     );
 
     return (

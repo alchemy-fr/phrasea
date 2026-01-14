@@ -52,8 +52,8 @@ export default function CollectionMoveSection({collection, onMoved}: Props) {
             <CollectionsTreeView
                 workspaceId={collection.workspace.id}
                 value={dest}
-                onChange={collections => {
-                    setDest(collections as string);
+                onChange={collection => {
+                    setDest(collection!.id!);
                 }}
                 disabledBranches={[collection.id]}
             />

@@ -28,6 +28,7 @@ import {useFormPrompt} from '@alchemy/navigation';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
 import StoryForm from './StoryForm.tsx';
+import {EntityType} from '../Media/Collection/CollectionTree/types.ts';
 
 export type UploadData = {
     destination: string;
@@ -206,18 +207,14 @@ export const UploadForm: FC<{
                                 required: true,
                             }}
                             name={'destination'}
-                            onChange={(s: string | undefined, wsId) => {
-                                if (
-                                    typeof s === 'string' &&
-                                    s.startsWith('/collections/')
-                                ) {
-                                    onChangeCollection(
-                                        s.replace('/collections/', '')
-                                    );
+                            onChange={node => {
+                                if (node?.data.type === EntityType.Collection) {
+                                    onChangeCollection(node?.data.id);
                                 } else {
                                     onChangeCollection(undefined);
                                 }
-                                onChangeWorkspace(wsId);
+
+                                onChangeWorkspace(node?.data?.workspaceId);
                             }}
                             label={t(
                                 'form.upload.destination.label',

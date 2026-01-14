@@ -1,10 +1,13 @@
 import apiClient from './api-client';
 import {Collection, CollectionOptionalWorkspace, Workspace} from '../types';
-import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
+import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 import {clearAssociationIds} from './clearAssociation';
 import {useCollectionStore} from '../store/collectionStore';
 
-import {WorkspaceOrCollectionTreeItem} from '../components/Media/Collection/CollectionTree/types.ts';
+import {
+    EntityType,
+    WorkspaceOrCollectionTreeItem,
+} from '../components/Media/Collection/CollectionTree/types.ts';
 import {TreeNode, VirtualTreeNode} from '@alchemy/phrasea-framework';
 
 export const collectionChildrenLimit = 20;
@@ -144,12 +147,12 @@ export async function moveAssets(
 }
 
 export async function createCollection(
-    newCollection: VirtualTreeNode<WorkspaceOrCollectionTreeItem>
+    newCollection: VirtualTreeNode<WorkspaceOrCollectionTreeItem>,
+    workspaceId?: string
 ): Promise<string> {
     const path: string[] = [];
-    let workspaceId: string | undefined;
     const visit = (node: TreeNode<WorkspaceOrCollectionTreeItem>): void => {
-        if (node.data['@id']?.startsWith('/workspaces/')) {
+        if (node.data.type === EntityType.Workspace) {
             workspaceId = node.data.id;
             return;
         }
@@ -162,15 +165,18 @@ export async function createCollection(
     };
     visit(newCollection);
 
-    let parent = newCollection.parentNode?.data['@id'];
+    const parentNodeData = newCollection.parentNode?.data;
+
+    let parent =
+        parentNodeData?.type === EntityType.Collection
+            ? `/collections/${parentNodeData.id}`
+            : undefined;
     for (const p of path) {
         parent = (
             await postCollection({
                 title: p,
                 parent,
-                workspace: workspaceId
-                    ? `/workspaces/${workspaceId!}`
-                    : undefined,
+                workspace: `/workspaces/${workspaceId}`,
             })
         )['@id'];
     }

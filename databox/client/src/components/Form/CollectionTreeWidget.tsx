@@ -59,13 +59,14 @@ export default function CollectionTreeWidget<
                     return (
                         <CollectionsTreeView<IsMulti>
                             {...widgetProps}
+                            required={required}
                             workspaceId={workspaceId}
                             value={value}
                             multiple={multiple}
                             allowNew={allowNew}
-                            onChange={(collections, ws) => {
+                            onChange={collections => {
                                 onChange(collections);
-                                extOnChange && extOnChange(collections, ws);
+                                extOnChange && extOnChange(collections);
                             }}
                         />
                     );
