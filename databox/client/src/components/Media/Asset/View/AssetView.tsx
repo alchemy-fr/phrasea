@@ -37,6 +37,7 @@ import AssetAppearsIn from '../AssetAppearsIn.tsx';
 import AssetAttachments from '../AssetAttachments.tsx';
 import {Routing} from '../../../../routes.ts';
 import {useMatomo} from '@jonkoops/matomo-tracker-react';
+import AssetMatomoMetricsView from '../AssetMatomoMetricsView.tsx';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -351,6 +352,9 @@ export default function AssetView({modalIndex, open}: Props) {
 
                                     <AssetViewInfo asset={displayedAsset} />
                                     <AssetAppearsIn asset={displayedAsset} />
+                                    <AssetMatomoMetricsView
+                                        asset={displayedAsset}
+                                    />
                                     <AssetAttachments asset={displayedAsset} />
 
                                     <AssetDiscussion

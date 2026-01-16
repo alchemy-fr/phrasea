@@ -2,40 +2,25 @@
 
 declare(strict_types=1);
 
-namespace App\Integration\Matomo;
+namespace App\Service\Matomo;
 
-use App\Integration\IntegrationConfig;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final readonly class MatomoProcessor
+final readonly class MatomoManager
 {
     public function __construct(
         private readonly HttpClientInterface $matomoClient,
         private CacheInterface $analyticsCache,
+        private string $matomoSiteId,
+        private string $matomoAuthToken,
     ) {
     }
 
-    public function process($trackingId, $type, IntegrationConfig $config): array
+    public function getStats($trackingId, $type): array
     {
-        $baseUrl = $config['matomoUrl'];
-        $matomoSiteId = $config['matomoSiteId'];
-        $matomoAuthToken = $config['matomoAuthToken'];
-
-        if (empty($baseUrl)) {
-            throw new \InvalidArgumentException('matomoUrl integration configuration is not defined.');
-        }
-
-        if (empty($matomoSiteId)) {
-            throw new \InvalidArgumentException('matomoSiteId integration configuration is not defined.');
-        }
-
-        if (empty($matomoAuthToken)) {
-            throw new \InvalidArgumentException('matomoAuthToken integration configuration is not defined.');
-        }
-
-        return $this->analyticsCache->get('analytics_'.$trackingId, function (ItemInterface $item) use ($trackingId, $type, $baseUrl, $matomoSiteId, $matomoAuthToken) {
+        return $this->analyticsCache->get('analytics_'.$trackingId, function (ItemInterface $item) use ($trackingId, $type) {
             $item->expiresAfter(300);
 
             if (str_contains($type, 'video') || str_contains($type, 'audio')) {
@@ -45,26 +30,26 @@ final readonly class MatomoProcessor
                     $method = 'MediaAnalytics.getAudioTitles';
                 }
 
-                $response = $this->matomoClient->request('GET', $baseUrl, [
+                $response = $this->matomoClient->request('GET', '/', [
                     'query' => [
                         'module' => 'API',
-                        'idSite' => $matomoSiteId,
+                        'idSite' => $this->matomoSiteId,
                         'method' => $method,
                         'format' => 'JSON',
-                        'token_auth' => $matomoAuthToken,
+                        'token_auth' => $this->matomoAuthToken,
                         'date' => '2025-12-01,'.date('Y-m-d', strtotime('+1 day')),
                         'period' => 'range',
                         'label' => $trackingId,
                     ],
                 ]);
             } else {
-                $response = $this->matomoClient->request('GET', $baseUrl, [
+                $response = $this->matomoClient->request('GET', '/', [
                     'query' => [
                         'module' => 'API',
-                        'idSite' => $matomoSiteId,
+                        'idSite' => $this->matomoSiteId,
                         'method' => 'Contents.getContentNames',
                         'format' => 'JSON',
-                        'token_auth' => $matomoAuthToken,
+                        'token_auth' => $this->matomoAuthToken,
                         'date' => '2025-12-01,'.date('Y-m-d', strtotime('+1 day')),
                         'period' => 'range',
                         'label' => $trackingId,

@@ -7,7 +7,6 @@ export enum Integration {
     AwsRekognition = 'aws.rekognition',
     TuiPhotoEditor = 'tui.photo-editor',
     PhraseaExpose = 'phrasea.expose',
-    Matomo = 'matomo',
 }
 
 type IntegrationActionProps = {
@@ -24,5 +23,4 @@ export type AssetIntegrationActionsProps = {
     setIntegrationOverlay: SetIntegrationOverlayFunction;
     assetAnnotationsRef?: AssetAnnotationRef;
     enableInc: number;
-    expanded: boolean;
 } & IntegrationActionProps;

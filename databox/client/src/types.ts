@@ -62,6 +62,28 @@ export type ESDocumentState = {
     data: object;
 };
 
+export type Stat = {
+    nb_visits: number;
+    nb_impressions: number;
+    nb_interactions: number;
+    sum_daily_nb_uniq_visitors: number;
+    interaction_rate: string;
+    nb_plays: number;
+    nb_unique_visitors_plays: number;
+    nb_unique_visitors_impressions: number;
+    nb_finishes: number;
+    sum_time_progress: number;
+    nb_plays_with_tip: number;
+    nb_plays_with_ml: number;
+    sum_fullscreen_plays: number;
+    play_rate: string;
+    finish_rate: string;
+    fullscreen_rate: string;
+    avg_time_watched: string;
+    avg_completion_rate: string;
+    avg_media_length: string;
+};
+
 export type AssetAttachment = {
     asset?: Asset;
     file: ApiFile;

@@ -18,6 +18,8 @@ services:
             string $zippyBaseUrl: '%env(ZIPPY_URL)%'
             string $databoxBaseUrl: '%env(DATABOX_API_URL)%'
             string $databoxClientBaseUrl: '%env(DATABOX_CLIENT_URL)%'
+            string $matomoSiteId: '%env(MATOMO_SITE_ID)%'
+            string $matomoAuthToken: '%env(MATOMO_AUTH_TOKEN)%'
             ApiPlatform\State\ProviderInterface $itemProvider: '@api_platform.doctrine.orm.state.item_provider'
             ApiPlatform\State\ProviderInterface $collectionProvider: '@api_platform.doctrine.orm.state.collection_provider'
             bool $useAlias: '%elastica.use_alias%'

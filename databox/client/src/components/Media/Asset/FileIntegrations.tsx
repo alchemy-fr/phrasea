@@ -22,14 +22,9 @@ import {
     Integration,
 } from '../../Integration/types.ts';
 import {AssetAnnotationRef} from './Annotations/annotationTypes.ts';
-import MatomoAssetActions from '../../Integration/Matomo/MatomoAssetActions.tsx';
 
 const supportsImage = (file: ApiFile): boolean => {
     return (file && file.type.startsWith('image/')) || false;
-};
-
-const supportsAll = (_file: ApiFile): boolean => {
-    return true;
 };
 
 const integrations: Record<
@@ -51,16 +46,14 @@ const integrations: Record<
         component: TUIPhotoEditor,
         supports: supportsImage,
     },
-    [Integration.Matomo]: {
-        component: MatomoAssetActions,
-        supports: supportsAll,
-    },
 };
 
 function IntegrationProxy({
+    expanded,
     onExpand,
     ...props
 }: {
+    expanded: boolean;
     onExpand: () => void;
 } & AssetIntegrationActionsProps) {
     const i = props.integration.integration;
@@ -71,7 +64,7 @@ function IntegrationProxy({
         integrations[i].supports(props.file)
     ) {
         return (
-            <Accordion expanded={props.expanded} onChange={onExpand}>
+            <Accordion expanded={expanded} onChange={onExpand}>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1a-content"

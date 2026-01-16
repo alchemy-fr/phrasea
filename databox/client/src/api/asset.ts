@@ -143,6 +143,13 @@ export async function getAsset(id: string): Promise<Asset> {
     return (await apiClient.get(`/assets/${id}`)).data;
 }
 
+export async function getAssetStats(
+    trackingId: string,
+    data?: Record<string, any>
+): Promise<any> {
+    return (await apiClient.post(`/matomo/getStats/${trackingId}`, data)).data;
+}
+
 export async function getESDocument(
     entity: string,
     id: string
