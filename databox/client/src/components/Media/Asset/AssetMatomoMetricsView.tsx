@@ -22,18 +22,15 @@ function AssetMatomoMetricsView({asset}: Props) {
     const {t} = useTranslation();
 
     useEffect(() => {
-        const process = async () => {
-            const res = await getAssetStats(asset.id, {
-                type: asset.source?.type,
-            });
-
-            if (Object.hasOwnProperty.call(res, 'nb_impressions')) {
-                setStats(res);
-            }
-        };
-
+        console.log('expanded', expanded);
         if (expanded) {
-            process();
+            (async () => {
+                const res = await getAssetStats(asset.id, asset.source?.type);
+
+                if (Object.hasOwnProperty.call(res, 'nb_impressions')) {
+                    setStats(res);
+                }
+            })();
         }
     }, [expanded]);
 

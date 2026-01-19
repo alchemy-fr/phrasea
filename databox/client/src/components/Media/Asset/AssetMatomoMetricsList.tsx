@@ -36,13 +36,13 @@ export default function AssetMatomoMetricsList({data, type}: Props) {
                 >
                     <dl style={dlStyles}>
                         <dt style={dtStyles}>
-                            {t('matomo.assetView.nb_plays', 'play count')}
+                            {t('matomo.assetView.nb_plays', 'Play count')}
                         </dt>
                         <dd style={ddStyles}>{data.nb_plays}</dd>
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.nb_unique_visitors_plays',
-                                'unique visitor plays count'
+                                'Unique visitor plays count'
                             )}
                         </dt>
                         <dd style={ddStyles}>
@@ -51,14 +51,14 @@ export default function AssetMatomoMetricsList({data, type}: Props) {
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.nb_impressions',
-                                'impressions count'
+                                'Impressions count'
                             )}
                         </dt>
                         <dd style={ddStyles}>{data.nb_impressions}</dd>
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.nb_unique_visitors_impressions',
-                                'unique visitor impression count'
+                                'Unique visitor impression count'
                             )}
                         </dt>
                         <dd style={ddStyles}>
@@ -67,71 +67,71 @@ export default function AssetMatomoMetricsList({data, type}: Props) {
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.nb_finishes',
-                                'finishes count'
+                                'Finishes count'
                             )}
                         </dt>
                         <dd style={ddStyles}>{data.nb_finishes}</dd>
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.sum_time_progress',
-                                'sum time progress'
+                                'Sum time progress'
                             )}
                         </dt>
                         <dd style={ddStyles}>{data.sum_time_progress}</dd>
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.nb_plays_with_tip',
-                                'plays with tip count'
+                                'Plays with tip count'
                             )}
                         </dt>
                         <dd style={ddStyles}>{data.nb_plays_with_tip}</dd>
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.nb_plays_with_ml',
-                                'plays with ml'
+                                'Plays with ml'
                             )}
                         </dt>
                         <dd style={ddStyles}>{data.nb_plays_with_ml}</dd>
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.sum_fullscreen_plays',
-                                'sum fullscreen play'
+                                'Sum fullscreen play'
                             )}
                         </dt>
                         <dd style={ddStyles}>{data.sum_fullscreen_plays}</dd>
                         <dt style={dtStyles}>
-                            {t('matomo.assetView.play_rate', 'play rate')}
+                            {t('matomo.assetView.play_rate', 'Play rate')}
                         </dt>
                         <dd style={ddStyles}>{data.play_rate}</dd>
                         <dt style={dtStyles}>
-                            {t('matomo.assetView.finish_rate', 'finishe rate')}
+                            {t('matomo.assetView.finish_rate', 'Finish rate')}
                         </dt>
                         <dd style={ddStyles}>{data.finish_rate}</dd>
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.fullscreen_rate',
-                                'fullscreen rate'
+                                'Fullscreen rate'
                             )}
                         </dt>
                         <dd style={ddStyles}>{data.fullscreen_rate}</dd>
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.avg_time_watched',
-                                'avg time watched'
+                                'Avg time watched'
                             )}
                         </dt>
                         <dd style={ddStyles}>{data.avg_time_watched}</dd>
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.avg_completion_rate',
-                                'avg completion rate'
+                                'Avg completion rate'
                             )}
                         </dt>
                         <dd style={ddStyles}>{data.avg_completion_rate}</dd>
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.avg_media_length',
-                                'avg media lenght'
+                                'Avg media length'
                             )}
                         </dt>
                         <dd style={ddStyles}>{data.avg_media_length}</dd>
@@ -147,27 +147,27 @@ export default function AssetMatomoMetricsList({data, type}: Props) {
                 >
                     <dl style={dlStyles}>
                         <dt style={dtStyles}>
-                            {t('matomo.assetView.nb_visits', 'visits count')}
+                            {t('matomo.assetView.nb_visits', 'Visits count')}
                         </dt>
                         <dd style={ddStyles}>{data.nb_visits}</dd>
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.nb_impressions',
-                                'impressions count'
+                                'Impressions count'
                             )}
                         </dt>
                         <dd style={ddStyles}>{data.nb_impressions}</dd>
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.nb_interactions',
-                                'interactions count'
+                                'Interactions count'
                             )}
                         </dt>
                         <dd style={ddStyles}>{data.nb_interactions}</dd>
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.sum_daily_nb_uniq_visitors',
-                                'sum daily unique visitor'
+                                'Sum daily unique visitor'
                             )}
                         </dt>
                         <dd style={ddStyles}>
@@ -176,7 +176,7 @@ export default function AssetMatomoMetricsList({data, type}: Props) {
                         <dt style={dtStyles}>
                             {t(
                                 'matomo.assetView.interaction_rate',
-                                'interaction rate'
+                                'Interaction rate'
                             )}
                         </dt>
                         <dd style={ddStyles}>{data.interaction_rate}</dd>

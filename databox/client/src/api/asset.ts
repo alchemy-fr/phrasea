@@ -145,9 +145,13 @@ export async function getAsset(id: string): Promise<Asset> {
 
 export async function getAssetStats(
     trackingId: string,
-    data?: Record<string, any>
+    type: string | undefined
 ): Promise<any> {
-    return (await apiClient.post(`/matomo/getStats/${trackingId}`, data)).data;
+    return (
+        await apiClient.get(`/matomo/stats/${trackingId}`, {
+            params: {type},
+        })
+    ).data;
 }
 
 export async function getESDocument(
