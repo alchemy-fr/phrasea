@@ -6,7 +6,8 @@ export type TermsConfig = {
     enabled: boolean;
 };
 
-enum SecurityMethod {
+export enum SecurityMethod {
+    Public = '',
     Password = 'password',
     Authentication = 'authentication',
 }
@@ -96,14 +97,7 @@ export type Publication = {
         delete: boolean;
         operator: boolean;
     };
-    urls?: PublicationUrl[];
-    copyrightText?: string;
 } & BasePublication;
-
-export type PublicationUrl = {
-    text: string;
-    url: string;
-};
 
 export type WebVTT = {
     id: string;

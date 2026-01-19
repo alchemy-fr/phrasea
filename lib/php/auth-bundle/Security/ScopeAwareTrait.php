@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Security;
+namespace Alchemy\AuthBundle\Security;
 
 use Alchemy\AuthBundle\Security\Token\JwtToken;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\MemoryCacheSecurity;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\Service\Attribute\Required;
 
 trait ScopeAwareTrait
 {
-    protected MemoryCacheSecurity $security;
+    protected Security $security;
 
     protected function hasScope(string $scope, string $scopePrefix, bool $applyHierarchy = true): bool
     {
@@ -23,7 +23,7 @@ trait ScopeAwareTrait
     }
 
     #[Required]
-    public function setSecurity(MemoryCacheSecurity $security): void
+    public function setSecurity(Security $security): void
     {
         $this->security = $security;
     }

@@ -211,7 +211,7 @@ class Publication implements AclObjectInterface, \Stringable
     private Collection $children;
 
     #[ORM\Embedded(class: PublicationConfig::class)]
-    #[Groups([self::GROUP_INDEX, self::GROUP_ADMIN_READ])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_ADMIN_READ, self::GROUP_WRITE])]
     private PublicationConfig $config;
 
     /**
@@ -329,26 +329,6 @@ class Publication implements AclObjectInterface, \Stringable
     public function setCssLink(?string $cssLink): void
     {
         $this->cssLink = $cssLink;
-    }
-
-    /**
-     * @return Url[]|array
-     */
-    #[Groups([self::GROUP_READ])]
-    public function getUrls(): array
-    {
-        $urls = $this->config->getUrls();
-        if ($this->profile && !empty($this->profile->getConfig()->getUrls())) {
-            $urls = array_merge($this->profile->getConfig()->getUrls(), $urls);
-        }
-
-        return Url::mapUrls($urls);
-    }
-
-    #[Groups([self::GROUP_READ])]
-    public function getCopyrightText(): ?string
-    {
-        return $this->config->getCopyrightText() ?? $this->profile?->getConfig()->getCopyrightText();
     }
 
     #[Groups([self::GROUP_READ, Asset::GROUP_READ])]

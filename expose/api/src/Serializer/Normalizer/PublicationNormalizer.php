@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Serializer\Normalizer;
 
+use Alchemy\AuthBundle\Security\Voter\AbstractVoter;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Security\Voter\PublicationVoter;
@@ -37,7 +38,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
                 }
             }
 
-            if ($this->security->isGranted(PublicationVoter::EDIT, $object)) {
+            if ($this->security->isGranted(AbstractVoter::EDIT, $object)) {
                 $context['groups'][] = Publication::GROUP_ADMIN_READ;
             }
         }
@@ -70,9 +71,9 @@ class PublicationNormalizer extends AbstractRouterNormalizer
         $config->setSecurityOptions($securityContainer->getSecurityOptions());
 
         $object->setCapabilities([
-            'edit' => $this->security->isGranted(PublicationVoter::EDIT, $object),
-            'delete' => $this->security->isGranted(PublicationVoter::DELETE, $object),
-            'operator' => $this->security->isGranted(PublicationVoter::OPERATOR, $object),
+            'edit' => $this->security->isGranted(AbstractVoter::EDIT, $object),
+            'delete' => $this->security->isGranted(AbstractVoter::DELETE, $object),
+            'operator' => $this->security->isGranted(AbstractVoter::OPERATOR, $object),
         ]);
     }
 
@@ -82,7 +83,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             'id' => $publication->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        return $this->JWTManager->signUri($uri);
+        return $this->uriJwtManager->signUri($uri);
     }
 
     public function support($object): bool

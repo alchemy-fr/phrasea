@@ -6,28 +6,19 @@ namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
-use Alchemy\AuthBundle\Security\Voter\ScopeVoter;
+use Alchemy\AuthBundle\Security\Voter\AbstractVoter;
 use App\Entity\PublicationProfile;
 use App\Security\ScopeInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-class PublicationProfileVoter extends Voter
+class PublicationProfileVoter extends AbstractVoter
 {
-    final public const string CREATE = 'profile:create';
-    final public const string INDEX = 'profile:index';
-    final public const string READ = 'READ';
-    final public const string EDIT = 'EDIT';
-    final public const string DELETE = 'DELETE';
-
-    public function __construct(private readonly Security $security)
-    {
-    }
+    final public const string CREATE_PROFILE = 'profile:create';
+    final public const string INDEX_PROFILE = 'profile:index';
 
     protected function supports($attribute, $subject): bool
     {
-        return $subject instanceof PublicationProfile || self::CREATE === $attribute;
+        return $subject instanceof PublicationProfile || self::CREATE_PROFILE === $attribute;
     }
 
     /**
@@ -35,24 +26,25 @@ class PublicationProfileVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        $isAdmin = $this->security->isGranted(ScopeVoter::PREFIX.ScopeInterface::SCOPE_PUBLISH) || $this->security->isGranted(JwtUser::ROLE_ADMIN);
+        $isAdmin = $this->hasScope(ScopeInterface::SCOPE_PUBLISH, '', false)
+            || $this->isAdmin();
         $user = $token->getUser();
         $isAuthenticated = $user instanceof JwtUser;
         $isOwner = $isAuthenticated && $subject && $subject->getOwnerId() === $user->getId();
 
         return match ($attribute) {
-            self::CREATE => $isAdmin
-                || $this->security->isGranted(PermissionInterface::CREATE, new PublicationProfile()),
-            self::INDEX => $isAuthenticated,
+            self::CREATE_PROFILE => $isAdmin
+                || $this->hasAcl(PermissionInterface::CREATE, new PublicationProfile(), $token),
+            self::INDEX_PROFILE => $isAuthenticated,
             self::READ => $isAdmin
                 || $isOwner
-                || $this->security->isGranted(PermissionInterface::VIEW, $subject),
+                || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
             self::DELETE => $isAdmin
                 || $isOwner
-                || $this->security->isGranted(PermissionInterface::DELETE, $subject),
+                || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
             self::EDIT => $isAdmin
                 || $isOwner
-                || $this->security->isGranted(PermissionInterface::EDIT, $subject),
+                || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             default => false,
         };
     }

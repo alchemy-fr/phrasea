@@ -4,31 +4,31 @@ import {
     SelectOption,
 } from '@alchemy/react-form';
 import {useCallback} from 'react';
-import {getPublications} from '../../api/publicationApi.ts';
-import {Publication} from '../../types.ts';
+import {PublicationProfile} from '../../types.ts';
 import {FieldValues} from 'react-hook-form';
+import {getProfiles} from '../../api/profileApi.ts';
 
 type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<
     TFieldValues,
     false
 >;
 
-export default function PublicationSelectWidget<
-    TFieldValues extends FieldValues,
->({...rest}: Props<TFieldValues>) {
+export default function ProfileSelectWidget<TFieldValues extends FieldValues>({
+    ...rest
+}: Props<TFieldValues>) {
     const load = useCallback(
         async (inputValue: string): Promise<SelectOption[]> => {
             const data = (
-                await getPublications({
+                await getProfiles({
                     query: inputValue,
                 })
             ).result;
 
             return data
-                .map((t: Publication) => {
+                .map((t: PublicationProfile) => {
                     return {
                         value: t['@id'],
-                        label: t.title,
+                        label: t.name,
                     };
                 })
                 .filter(i =>
@@ -42,7 +42,7 @@ export default function PublicationSelectWidget<
 
     return (
         <AsyncRSelectWidget<TFieldValues>
-            cacheId={'publications'}
+            cacheId={'profiles'}
             {...rest}
             loadOptions={load}
         />

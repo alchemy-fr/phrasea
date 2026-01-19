@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "alchemy/acl-bundle": "*",
         "lcobucci/jwt": "^5.0",
         "symfony/framework-bundle": "^6",
         "symfony/http-client": "^6",

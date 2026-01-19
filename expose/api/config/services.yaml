@@ -86,12 +86,6 @@ services:
         arguments:
             $decorated: '@.inner'
 
-    App\Security\Authentication\JWTManager:
-        arguments:
-            $signingKey: '%env(APP_SECRET)%'
-            $baseUri: '%env(EXPOSE_API_URL)%'
-            $ttl: '%env(JWT_TTL)%'
-
     App\Admin\ClientUrlGenerator:
         arguments:
             $clientBaseUrl: '%env(EXPOSE_CLIENT_URL)%'

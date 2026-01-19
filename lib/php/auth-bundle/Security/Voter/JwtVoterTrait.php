@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Security\Voter;
+namespace Alchemy\AuthBundle\Security\Voter;
 
-use App\Security\Authentication\JWTManager;
+use Alchemy\AuthBundle\Security\UriJwtManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -11,7 +11,7 @@ use Symfony\Contracts\Service\Attribute\Required;
 trait JwtVoterTrait
 {
     private RequestStack $requestStack;
-    private JWTManager $JWTManager;
+    private UriJwtManager $uriJwtManager;
 
     #[Required]
     public function setRequestStack(RequestStack $requestStack): void
@@ -20,9 +20,9 @@ trait JwtVoterTrait
     }
 
     #[Required]
-    public function setJWTManager(JWTManager $JWTManager): void
+    public function setUriJwtManager(UriJwtManager $uriJwtManager): void
     {
-        $this->JWTManager = $JWTManager;
+        $this->uriJwtManager = $uriJwtManager;
     }
 
     protected function isValidJWTForRequest(): bool
@@ -38,7 +38,7 @@ trait JwtVoterTrait
         }
 
         try {
-            $this->JWTManager->validateJWT($currentRequest->getUri(), $token);
+            $this->uriJwtManager->validateUri($currentRequest->getUri(), $token);
         } catch (AccessDeniedHttpException) {
             return false;
         }

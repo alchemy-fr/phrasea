@@ -24,7 +24,10 @@ export function getHydraCollection<T, E extends {} = {}>(
 }
 
 export function normalizeNestedObjects<T extends Record<string, any>>(
-    data: T
+    data: T,
+    options: {
+        expectKeys?: string[]
+    } = {}
 ): T {
     const d: T = {} as T;
 
@@ -35,10 +38,11 @@ export function normalizeNestedObjects<T extends Record<string, any>>(
             v &&
             typeof v === 'object' &&
             Object.prototype.hasOwnProperty.call(v, '@id')
+            && (!options.expectKeys || !options.expectKeys.includes(k as string))
         ) {
             d[k] = v['@id'];
         } else if (Array.isArray(v)) {
-            d[k] = normalizeNestedObjects(v);
+            d[k] = normalizeNestedObjects(v, options);
         } else {
             d[k] = v;
         }

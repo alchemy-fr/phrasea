@@ -63,11 +63,6 @@ services:
         arguments: [ '@App\Api\Serializer\SecurityContextBuilder.inner' ]
         autoconfigure: false
 
-    App\Security\JWTTokenManager:
-        arguments:
-            $signingKey: '%env(APP_SECRET)%'
-            $ttl: 86400
-
     App\Elasticsearch\Mapping\IndexSyncState:
         arguments:
             $configManager: '@fos_elastica.config_manager'

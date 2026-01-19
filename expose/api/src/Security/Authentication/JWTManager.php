@@ -44,7 +44,7 @@ readonly class JWTManager
 
         $uri = preg_replace('#([&?])jwt=.+$#', '', $uri);
 
-        $config->setValidationConstraints(
+        $config = $config->withValidationConstraints(
             new Constraint\LooseValidAt(
                 new SystemClock(new \DateTimeZone('UTC')),
                 new \DateInterval('PT30S')

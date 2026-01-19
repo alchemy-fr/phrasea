@@ -6,7 +6,14 @@ import {
     getTranslatedDescription,
     getTranslatedTitle,
 } from '../../../../i18n.ts';
-import {Alert, Box, Breadcrumbs, Container, Typography} from '@mui/material';
+import {
+    Alert,
+    Box,
+    Breadcrumbs,
+    Button,
+    Container,
+    Typography,
+} from '@mui/material';
 import {config, keycloakClient} from '../../../../init.ts';
 import {getPath, Link, useNavigate} from '@alchemy/navigation';
 import {routes} from '../../../../routes.ts';
@@ -17,6 +24,7 @@ import {MenuClasses, VerticalMenuLayout} from '@alchemy/phrasea-framework';
 import React, {PropsWithChildren} from 'react';
 import PublicationsTree from './PublicationsTree.tsx';
 import {getPublicationPath} from '../../../../hooks/useNavigateToPublication.ts';
+import EditIcon from '@mui/icons-material/Edit';
 
 type Props = PropsWithChildren<{
     publication: Publication;
@@ -109,6 +117,26 @@ export default function PublicationStructure({publication, children}: Props) {
                             )}
                             <Typography variant={'h1'}>
                                 {getTranslatedTitle(publication)}
+
+                                {publication.capabilities.edit && (
+                                    <Button
+                                        sx={{ml: 2}}
+                                        variant={'outlined'}
+                                        component={Link}
+                                        to={getPath(
+                                            routes.publication.routes.edit,
+                                            {
+                                                id: publication.id,
+                                            }
+                                        )}
+                                        startIcon={<EditIcon />}
+                                    >
+                                        {t(
+                                            'publicationHeader.editButton',
+                                            'Edit'
+                                        )}
+                                    </Button>
+                                )}
                             </Typography>
                         </div>
                     </Breadcrumbs>

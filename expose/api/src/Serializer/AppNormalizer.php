@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Serializer;
 
+use ApiPlatform\State\Pagination\PaginatorInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -14,8 +15,6 @@ final class AppNormalizer implements NormalizerInterface, NormalizerAwareInterfa
 
     private const string ALREADY_CALLED = self::class.'_ACD';
 
-    private readonly NormalizerInterface $decorated;
-
     public function __construct(
         private readonly EntityNormalizer $entityNormalizer,
     ) {
@@ -23,14 +22,26 @@ final class AppNormalizer implements NormalizerInterface, NormalizerAwareInterfa
 
     public function supportsNormalization($data, ?string $format = null, array $context = []): bool
     {
-        return !isset($context[self::ALREADY_CALLED]);
+        if (
+            !is_object($data)
+            || $data instanceof PaginatorInterface
+        ) {
+            return false;
+        }
+
+        return !isset($context[$this->getObjectKey($data)]);
     }
 
     public function normalize($object, $format = null, array $context = [])
     {
-        $context[self::ALREADY_CALLED] = true;
+        $context[$this->getObjectKey($object)] = true;
         $this->entityNormalizer->normalize($object, $context);
 
         return $this->normalizer->normalize($object, $format, $context);
+    }
+
+    private function getObjectKey(object $object): string
+    {
+        return $object::class.self::ALREADY_CALLED;
     }
 }

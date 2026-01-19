@@ -2,7 +2,6 @@ import React, {useEffect, useRef} from 'react';
 import ResultProvider from './Media/Search/ResultProvider';
 import SearchProvider from './Media/Search/SearchProvider';
 import AssetDropzone from './Media/Asset/AssetDropzone';
-import {ToastContainer} from 'react-toastify';
 import {Theme, useMediaQuery} from '@mui/material';
 import DisplayProvider from './Media/DisplayProvider';
 import {useLocation} from '@alchemy/navigation';
@@ -76,10 +75,5 @@ export default function App() {
         setSentryUser(user);
     }, [user]);
 
-    return (
-        <>
-            <ToastContainer position={'bottom-left'} stacked />
-            <AppProxy locationSearch={location.search} />
-        </>
-    );
+    return <AppProxy locationSearch={location.search} />;
 }

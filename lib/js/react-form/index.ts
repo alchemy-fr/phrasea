@@ -20,6 +20,7 @@ import KeyTranslationsWidget, {
 } from './src/Translations/KeyTranslationsWidget';
 import LocaleSelectWidget from './src/Locale/LocaleSelectWidget';
 import RemoteErrors from './src/RemoteErrors';
+import RadioWidget from './src/Widget/RadioWidget';
 
 export {
     CollectionWidget,
@@ -40,8 +41,8 @@ export {
     getNonEmptyTranslations,
     LocaleSelectWidget,
     RemoteErrors,
+    RadioWidget,
 };
-
 export type {AsyncRSelectProps, RSelectProps, SelectOption, RSelectOnCreate};
 
 export type * from './src/types';

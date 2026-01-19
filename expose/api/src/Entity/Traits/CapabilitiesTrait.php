@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 trait CapabilitiesTrait
 {
-    #[Groups(['_', Publication::GROUP_INDEX, Publication::GROUP_READ, PublicationProfile::GROUP_INDEX, PublicationProfile::GROUP_READ])]
+    #[Groups(['_', Publication::GROUP_INDEX, PublicationProfile::GROUP_INDEX])]
     #[ApiProperty(types: ['object'])]
     protected array $capabilities = [];
 

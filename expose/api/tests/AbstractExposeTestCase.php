@@ -78,9 +78,6 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         if (isset($options['css'])) {
             $config->setCss($options['css']);
         }
-        if (isset($options['copyrightText'])) {
-            $config->setCopyrightText($options['copyrightText']);
-        }
         if (isset($options['password'])) {
             $config->setPassword($options['password']);
         }

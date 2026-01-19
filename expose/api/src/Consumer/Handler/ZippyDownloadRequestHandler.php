@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use Alchemy\AuthBundle\Security\UriJwtManager;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Entity\DownloadRequest;
-use App\Security\Authentication\JWTManager;
 use App\ZippyManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -19,7 +19,7 @@ final readonly class ZippyDownloadRequestHandler
     public function __construct(
         private NotifierInterface $notifier,
         private ZippyManager $zippyManager,
-        private JWTManager $JWTManager,
+        private UriJwtManager $uriJwtManager,
         private UrlGeneratorInterface $urlGenerator,
         private EntityManagerInterface $em,
     ) {
@@ -36,7 +36,7 @@ final readonly class ZippyDownloadRequestHandler
         $uri = $this->urlGenerator->generate('archive_download', [
             'id' => $downloadRequest->getPublication()->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
-        $downloadUrl = $this->JWTManager->signUri(
+        $downloadUrl = $this->uriJwtManager->signUri(
             $uri,
             $daysAvailable * 3600 * 24,
         );

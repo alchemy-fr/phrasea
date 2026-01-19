@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use Alchemy\AuthBundle\Security\Voter\AbstractVoter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -17,6 +18,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Entity\Traits\CapabilitiesTrait;
 use App\Entity\Traits\ClientAnnotationsTrait;
+use App\Security\Voter\PublicationProfileVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -28,18 +30,19 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted("READ", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
-        new Delete(security: 'is_granted("DELETE", object)'),
+        new Get(security: 'is_granted("'.AbstractVoter::READ.'", object)'),
+        new Put(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
+        new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new GetCollection(
             normalizationContext: [
                 'groups' => [self::GROUP_INDEX],
             ],
         ),
-        new Post(security: 'is_granted("profile:create")'),
+        new Post(security: 'is_granted("'.PublicationProfileVoter::CREATE_PROFILE.'")'),
     ],
     normalizationContext: [
         'groups' => [
+            self::GROUP_INDEX,
             self::GROUP_READ,
         ],
     ]
@@ -55,9 +58,10 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     use ClientAnnotationsTrait;
 
     private const string GROUP_PREFIX = 'profile:';
-    final public const string GROUP_READ = self::GROUP_PREFIX.'read';
+    final public const string GROUP_READ = self::GROUP_PREFIX.'r';
+    final public const string GROUP_WRITE = self::GROUP_PREFIX.'w';
     final public const string GROUP_ADMIN_READ = 'admin:'.self::GROUP_READ;
-    final public const string GROUP_INDEX = self::GROUP_PREFIX.'index';
+    final public const string GROUP_INDEX = self::GROUP_PREFIX.'i';
 
     /**
      * @var Uuid

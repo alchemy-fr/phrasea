@@ -51,8 +51,6 @@ readonly class DescriptionListener implements EventSubscriber
 
     private function handleConfig(PublicationConfig $config): void
     {
-        $config->setCopyrightText($this->cleanHtml($config->getCopyrightText()));
-
         $this->handleTermsConfig($config->getTerms());
         $this->handleTermsConfig($config->getDownloadTerms());
     }

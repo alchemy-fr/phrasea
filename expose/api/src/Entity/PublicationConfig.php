@@ -21,66 +21,55 @@ class PublicationConfig implements MergeableValueObjectInterface
     final public const string SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?bool $enabled = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?bool $downloadViaEmail = null;
 
     /**
      * Download Terms URL must also be set.
      */
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?bool $includeDownloadTermsInZippy = null;
 
-    /**
-     * @var Url[]|array
-     */
-    #[ORM\Column(type: Types::JSON)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
-    private array $urls = [];
-
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
-    private ?string $copyrightText = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?string $css = null;
 
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?string $layout = null;
 
     #[ORM\Column(type: Types::STRING, length: 30, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?string $theme = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?bool $publiclyListed = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?bool $downloadEnabled = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?\DateTimeImmutable $beginsAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?\DateTimeImmutable $expiresAt = null;
 
     #[ORM\Embedded(class: TermsConfig::class)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     #[ApiProperty(readableLink: true)]
     private TermsConfig $terms;
 
     #[ORM\Embedded(class: TermsConfig::class)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     #[ApiProperty(readableLink: true)]
     private TermsConfig $downloadTerms;
 
@@ -88,7 +77,7 @@ class PublicationConfig implements MergeableValueObjectInterface
      * "password" or "authentication".
      */
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?string $securityMethod = null;
 
     /**
@@ -96,21 +85,21 @@ class PublicationConfig implements MergeableValueObjectInterface
      * {"password":"$3cr3t!"}.
      */
     #[ORM\Column(type: Types::JSON)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private array $securityOptions = [];
 
     /**
      * @var MapOptions|array|null
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private $mapOptions;
 
     /**
      * @var LayoutOptions|array|null
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private $layoutOptions;
 
     public function __construct()
@@ -127,7 +116,6 @@ class PublicationConfig implements MergeableValueObjectInterface
 
         foreach ([
             'beginsAt',
-            'copyrightText',
             'css',
             'downloadTerms',
             'downloadEnabled',
@@ -142,7 +130,6 @@ class PublicationConfig implements MergeableValueObjectInterface
             'layoutOptions',
             'terms',
             'theme',
-            'urls',
         ] as $property) {
             if (null !== $object->{$property}) {
                 if ($clone->{$property} instanceof MergeableValueObjectInterface) {
@@ -154,26 +141,6 @@ class PublicationConfig implements MergeableValueObjectInterface
         }
 
         return $clone;
-    }
-
-    public function getUrls(): array
-    {
-        return Url::mapUrls($this->urls);
-    }
-
-    public function setUrls(array $urls): void
-    {
-        $this->urls = Url::mapUrls($urls);
-    }
-
-    public function getCopyrightText(): ?string
-    {
-        return $this->copyrightText;
-    }
-
-    public function setCopyrightText(?string $copyrightText): void
-    {
-        $this->copyrightText = $copyrightText;
     }
 
     public function getCss(): ?string

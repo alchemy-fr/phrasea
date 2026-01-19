@@ -2,19 +2,19 @@
 
 namespace App\Integration\Phraseanet;
 
-use App\Security\JWTTokenManager;
+use Alchemy\AuthBundle\Security\UriJwtManager;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 final readonly class PhraseanetTokenManager
 {
     public function __construct(
-        private JWTTokenManager $JWTTokenManager,
+        private UriJwtManager $uriJwtManager,
     ) {
     }
 
     public function createToken(string $assetId, string $workflowId): string
     {
-        return $this->JWTTokenManager->createToken($assetId, 3600 * 24 * 90, [
+        return $this->uriJwtManager->createToken($assetId, 3600 * 24 * 90, [
             'wid' => $workflowId,
         ]);
     }
@@ -22,7 +22,7 @@ final readonly class PhraseanetTokenManager
     public function validateToken(string $assetId, string $token): string
     {
         try {
-            $jwtToken = $this->JWTTokenManager->validateToken($assetId, $token);
+            $jwtToken = $this->uriJwtManager->validateJWT($assetId, $token);
         } catch (\InvalidArgumentException $e) {
             throw new AccessDeniedHttpException('Invalid token', $e);
         }

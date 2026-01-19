@@ -1,4 +1,11 @@
-import {Button, Container, Paper, TextField, Typography} from '@mui/material';
+import {
+    Button,
+    Container,
+    InputLabel,
+    Paper,
+    TextField,
+    Typography,
+} from '@mui/material';
 import AppBar from '../ui/AppBar.tsx';
 import {Publication} from '../../types.ts';
 import React from 'react';
@@ -7,9 +14,11 @@ import {putPublication} from '../../api/publicationApi.ts';
 import {useTranslation} from 'react-i18next';
 import {useNavigateToPublication} from '../../hooks/useNavigateToPublication.ts';
 import {normalizeNestedObjects, useFormSubmit} from '@alchemy/api';
-import {FormFieldErrors, FormRow} from '@alchemy/react-form';
+import {FormFieldErrors, FormRow, RemoteErrors} from '@alchemy/react-form';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import PublicationSelectWidget from '../form/PublicationSelectWidget.tsx';
+import PublicationConfigForm from '../form/PublicationConfigForm.tsx';
+import ProfileSelectWidget from '../form/ProfileSelectWidget.tsx';
 
 type Props = {
     data: Publication;
@@ -19,15 +28,18 @@ export default function PublicationEdit({data}: Props) {
     const {t} = useTranslation();
     const navigateToPublication = useNavigateToPublication();
 
-    const {
-        handleSubmit,
-        register,
-        control,
-        submitting,
-        forbidNavigation,
-        formState: {errors},
-    } = useFormSubmit<Publication>({
-        defaultValues: normalizeNestedObjects(data),
+    const usedFormSubmit = useFormSubmit<Publication>({
+        defaultValues: {
+            ...normalizeNestedObjects(data, {
+                expectKeys: ['config'],
+            }),
+            config: {
+                ...data.config,
+                securityOptions: {
+                    ...(data.config.securityOptions || {}),
+                },
+            },
+        },
         onSubmit: async data => {
             return await putPublication(data.id, data);
         },
@@ -41,6 +53,16 @@ export default function PublicationEdit({data}: Props) {
             navigateToPublication(data);
         },
     });
+
+    const {
+        handleSubmit,
+        register,
+        control,
+        submitting,
+        remoteErrors,
+        forbidNavigation,
+        formState: {errors},
+    } = usedFormSubmit;
 
     useDirtyFormPrompt(forbidNavigation);
 
@@ -79,11 +101,21 @@ export default function PublicationEdit({data}: Props) {
                                 'The slug is used in the publication URL.'
                             )}
                             disabled={submitting}
-                            {...register('slug', {
-                                required: true,
-                            })}
+                            {...register('slug')}
                         />
                         <FormFieldErrors field={'slug'} errors={errors} />
+                    </FormRow>
+
+                    <FormRow>
+                        <ProfileSelectWidget
+                            label={t(
+                                'form.publication.profile.label',
+                                'Profile'
+                            )}
+                            control={control}
+                            name={'profile'}
+                        />
+                        <FormFieldErrors field={'profile'} errors={errors} />
                     </FormRow>
 
                     <FormRow>
@@ -95,7 +127,33 @@ export default function PublicationEdit({data}: Props) {
                             control={control}
                             name={'parent'}
                         />
+                        <FormFieldErrors field={'parent'} errors={errors} />
                     </FormRow>
+
+                    <FormRow>
+                        <TextField
+                            label={t('form.publication.date.label', 'Date')}
+                            disabled={submitting}
+                            {...register('date')}
+                        />
+                        <FormFieldErrors field={'date'} errors={errors} />
+                    </FormRow>
+
+                    <FormRow>
+                        <InputLabel>
+                            {t(
+                                'form.publication.config.label',
+                                'Configuration'
+                            )}
+                        </InputLabel>
+                        <PublicationConfigForm
+                            path={'config'}
+                            usedFormSubmit={usedFormSubmit}
+                        />
+                    </FormRow>
+
+                    <RemoteErrors errors={remoteErrors} />
+
                     <FormRow>
                         <Button
                             loading={submitting}

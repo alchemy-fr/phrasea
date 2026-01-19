@@ -23,7 +23,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Get(security: 'is_granted("READ", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new GetCollection(security: 'is_granted("'.DownloadRequestVoter::LIST.'")'),
+        new GetCollection(security: 'is_granted("'.DownloadRequestVoter::LIST_DOWNLOAD_REQUESTS.'")'),
     ]
 )]
 #[ORM\Entity]
