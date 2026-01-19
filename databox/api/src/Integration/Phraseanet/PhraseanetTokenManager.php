@@ -23,7 +23,7 @@ final readonly class PhraseanetTokenManager
     {
         try {
             $jwtToken = $this->uriJwtManager->validateJWT($assetId, $token);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException|AccessDeniedHttpException $e) {
             throw new AccessDeniedHttpException('Invalid token', $e);
         }
 

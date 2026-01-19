@@ -56,10 +56,12 @@ final readonly class UriJwtManager
 
     public function validateUri(string $uri, string $jwt): void
     {
-        $this->validateJWT(preg_replace('#([&?])jwt=.+$#', '', $uri), $jwt);
+        $this->validateJWT(preg_replace('#([&?])jwt=.+$#', '', $uri), $jwt, [
+            new Constraint\IssuedBy($this->baseUri),
+        ]);
     }
 
-    public function validateJWT(string $identifier, string $jwt): UnencryptedToken
+    public function validateJWT(string $identifier, string $jwt, array $extraConstraints = []): UnencryptedToken
     {
         $config = $this->getConfig();
         $token = $config->parser()->parse($jwt);
@@ -71,7 +73,7 @@ final readonly class UriJwtManager
                 new \DateInterval('PT30S')
             ),
             new Constraint\IdentifiedBy($identifier),
-            new Constraint\IssuedBy($this->baseUri),
+            ...$extraConstraints,
         );
 
         $constraints = $config->validationConstraints();
