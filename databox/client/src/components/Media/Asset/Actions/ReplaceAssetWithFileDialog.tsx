@@ -5,7 +5,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import {RemoteErrors} from '@alchemy/react-form';
 import {Asset, ApiFile} from '../../../../types';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {toast} from 'react-toastify';
 import {putAsset} from '../../../../api/asset';
 import {useTranslation} from 'react-i18next';

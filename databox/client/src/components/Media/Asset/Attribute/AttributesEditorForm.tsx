@@ -2,13 +2,14 @@ import {FormLabel, Skeleton} from '@mui/material';
 import {attributeBatchUpdate} from '../../../../api/asset';
 import {Asset, AssetTypeFilter} from '../../../../types';
 import {toast} from 'react-toastify';
-import FormTab, {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
+import FormTab from '../../../Dialog/Tabbed/FormTab';
 import AttributesEditor from './AttributesEditor';
 import {useAttributeEditor} from './useAttributeEditor';
 import {FormRow} from '@alchemy/react-form';
 import React from 'react';
 import {WorkspaceContext} from '../../../../context/WorkspaceContext.tsx';
 import {useTranslation} from 'react-i18next';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 
 type Props = {
     workspaceId: string;

@@ -19,7 +19,7 @@ export function useNavigateToPublication() {
 }
 
 export function getPublicationPath(publication: Publication) {
-    return getPath(routes.publication, {
+    return getPath(routes.publicationView, {
         id: publication.slug || publication.id,
     });
 }
@@ -28,7 +28,7 @@ export function getPublicationAssetPath(
     publication: Publication,
     assetId: string
 ) {
-    return getPath(routes.publication.routes.asset, {
+    return getPath(routes.publicationView.routes.asset, {
         id: publication.slug || publication.id,
         assetId: assetId,
     });

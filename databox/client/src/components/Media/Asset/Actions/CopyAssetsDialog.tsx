@@ -13,7 +13,7 @@ import {SwitchWidget} from '@alchemy/react-form';
 import {Asset} from '../../../../types';
 import AssetSelection from '../../../AssetList/AssetSelection';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {toast} from 'react-toastify';
 import {OnSelectionChange} from '../../../AssetList/types';
 

@@ -21,7 +21,13 @@ import {
     AppGlobalTheme,
     UserHookCaller,
 } from '@alchemy/phrasea-framework';
-import {config, keycloakClient, matomo, oauthClient} from '../init.ts';
+import {
+    apiClient,
+    config,
+    keycloakClient,
+    matomo,
+    oauthClient,
+} from '../init.ts';
 import UserPreferencesProvider from './User/Preferences/UserPreferencesProvider.tsx';
 
 type Props = {};
@@ -40,7 +46,7 @@ export default function Root({}: Props) {
                             oauthClient={oauthClient}
                             keycloakClient={keycloakClient}
                         >
-                            <UserHookCaller />
+                            <UserHookCaller apiClient={apiClient} />
 
                             <QueryClientProvider client={queryClient}>
                                 <AttributeFormatProvider>

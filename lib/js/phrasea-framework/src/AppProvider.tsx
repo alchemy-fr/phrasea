@@ -7,11 +7,13 @@ import {ModalStack} from '@alchemy/navigation';
 import {KeycloakClient, OAuthClient} from '@alchemy/auth';
 import UserHookCaller from './UserHookCaller';
 import {AppGlobalTheme} from './Theme/AppGlobalTheme';
+import {HttpClient} from '@alchemy/api';
 
 type Props = PropsWithChildren<{
     config: WindowConfig;
     matomo: MatomoInstance | undefined;
     oauthClient: OAuthClient<any>;
+    apiClient: HttpClient;
     keycloakClient: KeycloakClient;
 }>;
 
@@ -19,6 +21,7 @@ export function AppProvider({
     config,
     oauthClient,
     keycloakClient,
+    apiClient,
     matomo,
     children,
 }: Props) {
@@ -34,7 +37,7 @@ export function AppProvider({
                         oauthClient={oauthClient}
                         keycloakClient={keycloakClient}
                     >
-                        <UserHookCaller />
+                        <UserHookCaller apiClient={apiClient} />
                         <ModalStack>{children}</ModalStack>
                     </AuthenticationProvider>
                 </AnalyticsProvider>

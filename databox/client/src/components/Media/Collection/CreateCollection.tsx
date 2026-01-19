@@ -8,7 +8,7 @@ import {useTranslation} from 'react-i18next';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {OnCollectionEdit} from '../../Dialog/Collection/EditCollection';
 import React from 'react';
-import {useDirtyFormPrompt} from '../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {WorkspaceChip} from '../../Ui/WorkspaceChip.tsx';
 import {CollectionChip} from '../../Ui/CollectionChip.tsx';
 

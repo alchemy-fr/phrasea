@@ -1,6 +1,6 @@
 import {toast} from 'react-toastify';
 import React, {FunctionComponent} from 'react';
-import {useDirtyFormPrompt} from '../../Tabbed/FormTab.tsx';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import type {DefinitionBase} from './DefinitionManager.tsx';
 import {DefinitionItemFormProps, NormalizeData} from './DefinitionManager.tsx';
 import {useFormSubmit} from '@alchemy/api';

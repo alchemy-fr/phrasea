@@ -41,24 +41,6 @@ services:
 
     Arthem\RequestSignerBundle\RequestSigner: "@arthem_request_signer.request_signer"
 
-    App\Serializer\NormalizerDecorator:
-        abstract: true
-        autoconfigure: false
-
-    app.serializer.decorated_item:
-        class: App\Serializer\NormalizerDecorator
-        decorates: 'api_platform.serializer.normalizer.item'
-        arguments: [ '@app.serializer.decorated_item.inner' ]
-        tags:
-            - { name: serializer.normalizer, priority: 255 }
-
-    app.serializer.decorated_object:
-        class: App\Serializer\NormalizerDecorator
-        decorates: 'serializer.normalizer.object'
-        arguments: [ '@app.serializer.decorated_object.inner' ]
-        tags:
-            - { name: serializer.normalizer, priority: -989 }
-
     App\Form\ThemeChoiceType:
         arguments:
             $choices:

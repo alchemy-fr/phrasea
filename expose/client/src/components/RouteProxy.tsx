@@ -4,7 +4,7 @@ import {config, keycloakClient} from '../init.ts';
 
 export default function RouteProxy({
     component: Component,
-    public: isPublic = true,
+    public: isPublic = false,
 }: RouteProxyProps) {
     const {isAuthenticated} = useAuth();
     const {getLoginUrl} = useKeycloakUrls({

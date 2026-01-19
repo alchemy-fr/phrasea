@@ -8,7 +8,7 @@ import {FormFieldErrors} from '@alchemy/react-form';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
 import {RemoteErrors} from '@alchemy/react-form';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {toast} from 'react-toastify';
 
 type Props = {

@@ -5,30 +5,44 @@ import AppAuthorizationCodePage from './pages/AppAuthorizationCodePage';
 import {NotFoundPage} from '@alchemy/phrasea-ui';
 import EmbeddedAssetPage from './pages/EmbeddedAssetPage';
 import IndexPage from './pages/IndexPage.tsx';
+import PublicationEditPage from './pages/PublicationEditPage.tsx';
 
 const routes = {
     index: {
+        public: true,
         path: '/',
         component: NotFoundPage,
     },
-    publication: {
+    publicationView: {
+        public: true,
         path: ':id',
         component: PublicationPage,
         routes: {
             asset: {
                 path: ':assetId',
-                component: () => null,
+                component: PublicationPage,
+            },
+        },
+    },
+    publication: {
+        path: 'publications/:id',
+        public: false,
+        routes: {
+            edit: {
+                path: 'edit',
+                component: PublicationEditPage,
             },
         },
     },
     embedAsset: {
+        public: true,
         path: 'embed/:assetId',
         component: EmbeddedAssetPage,
     },
     auth: {
         path: 'auth',
-        component: AppAuthorizationCodePage,
         public: true,
+        component: AppAuthorizationCodePage,
     },
 };
 

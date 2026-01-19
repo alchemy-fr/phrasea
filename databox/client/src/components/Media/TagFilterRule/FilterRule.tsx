@@ -19,7 +19,7 @@ import {
 } from '../../../api/tag-filter-rule';
 import {FormFieldErrors} from '@alchemy/react-form';
 import {TagFilterRule} from '../../../types';
-import {useDirtyFormPrompt} from '../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import GroupIcon from '@mui/icons-material/Group';
 
 type FilterRule = {

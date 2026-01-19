@@ -7,11 +7,15 @@ import Typography from '@mui/material/Typography';
 import {Publication} from '../../types.ts';
 import {Button, CardActionArea, Tooltip} from '@mui/material';
 import {useTranslation} from 'react-i18next';
-import {Link} from '@alchemy/navigation';
+import {getPath, Link} from '@alchemy/navigation';
 import {getTranslatedDescription, getTranslatedTitle} from '../../i18n.ts';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import {getPublicationPath} from '../../hooks/useNavigateToPublication.ts';
 import Description from './layouts/common/Description.tsx';
+import {routes} from '../../routes.ts';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 type Props = {
     publication: Publication;
 };
@@ -96,20 +100,32 @@ export default function PublicationCard({publication}: Props) {
                 </CardActionArea>
                 {Boolean(
                     publication.capabilities.edit ||
-                        (publication.capabilities.delete && (
-                            <CardActions>
-                                {publication.capabilities.edit && (
-                                    <Button size="small" color="primary">
-                                        {t('publication_card.edit', 'Edit')}
-                                    </Button>
-                                )}
-                                {publication.capabilities.delete && (
-                                    <Button size="small" color="error">
-                                        {t('publication_card.delete', 'Delete')}
-                                    </Button>
-                                )}
-                            </CardActions>
-                        ))
+                        publication.capabilities.delete
+                ) && (
+                    <CardActions>
+                        {publication.capabilities.edit && (
+                            <Button
+                                size="small"
+                                color="primary"
+                                startIcon={<EditIcon />}
+                                component={Link}
+                                to={getPath(routes.publication.routes.edit, {
+                                    id: publication.id,
+                                })}
+                            >
+                                {t('publication_card.edit', 'Edit')}
+                            </Button>
+                        )}
+                        {publication.capabilities.delete && (
+                            <Button
+                                size="small"
+                                color="error"
+                                startIcon={<DeleteIcon />}
+                            >
+                                {t('publication_card.delete', 'Delete')}
+                            </Button>
+                        )}
+                    </CardActions>
                 )}
             </>
         </Card>

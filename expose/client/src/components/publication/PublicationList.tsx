@@ -107,10 +107,12 @@ export default function PublicationList({}: Props) {
                     container
                     spacing={2}
                     sx={{
+                        'mb': 5,
                         '.MuiGrid2-root': {
                             'display': 'flex',
                             '> div': {
                                 display: 'flex',
+                                flexDirection: 'column',
                                 width: '100%',
                                 flexGrow: 1,
                             },

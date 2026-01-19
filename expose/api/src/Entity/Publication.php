@@ -97,9 +97,12 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         ),
     ],
     normalizationContext: [
-        'groups' => [self::GROUP_READ],
+        'groups' => [self::GROUP_INDEX, self::GROUP_READ],
     ],
-    denormalizationContext: ['deep_object_to_populate' => true],
+    denormalizationContext: [
+        'deep_object_to_populate' => true,
+        'groups' => [self::GROUP_WRITE],
+    ],
     order: ['title' => 'ASC']
 )]
 #[ORM\Entity]
@@ -118,6 +121,7 @@ class Publication implements AclObjectInterface, \Stringable
     final public const string GROUP_READ = self::GROUP_PREFIX.'r';
     final public const string GROUP_WRITE = self::GROUP_PREFIX.'w';
     final public const string GROUP_ADMIN_READ = 'admin:'.self::GROUP_READ;
+    final public const string GROUP_ADMIN_WRITE = 'admin:'.self::GROUP_WRITE;
     final public const string GROUP_INDEX = self::GROUP_PREFIX.'i';
 
     final public const null SECURITY_METHOD_NONE = null;
@@ -131,16 +135,16 @@ class Publication implements AclObjectInterface, \Stringable
     private string $id;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
-    #[Groups([self::GROUP_INDEX, self::GROUP_READ])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_READ, self::GROUP_WRITE])]
     #[Assert\Length(max: 255)]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups([self::GROUP_INDEX, self::GROUP_READ])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_READ, self::GROUP_WRITE])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups([self::GROUP_INDEX, self::GROUP_READ])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_READ, self::GROUP_WRITE])]
     private ?array $translations = null;
 
     /**
@@ -153,41 +157,42 @@ class Publication implements AclObjectInterface, \Stringable
     private Collection $assets;
 
     #[ORM\ManyToOne(targetEntity: PublicationProfile::class)]
-    #[Groups([self::GROUP_READ, self::GROUP_ADMIN_READ])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?PublicationProfile $profile = null;
 
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?Asset $package = null;
 
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
-    #[Groups([self::GROUP_ADMIN_READ, self::GROUP_INDEX, self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?Asset $cover = null;
 
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?string $packageUrl = null;
 
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?string $archiveDownloadUrl = null;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
-    #[Groups([self::GROUP_ADMIN_READ])]
+    #[Groups([self::GROUP_ADMIN_READ, self::GROUP_ADMIN_WRITE])]
     private ?string $ownerId = null;
 
-    #[Groups(['_', self::GROUP_INDEX, self::GROUP_READ, Asset::GROUP_READ])]
+    #[Groups(['_', self::GROUP_INDEX, Asset::GROUP_READ])]
     private bool $authorized = false;
 
     /**
      * Password identifier for the current publication branch.
      */
-    #[Groups(['_', self::GROUP_INDEX, self::GROUP_READ, Asset::GROUP_READ])]
+    #[Groups(['_', self::GROUP_INDEX, Asset::GROUP_READ])]
     private ?string $securityContainerId = null;
 
     #[Groups(['_', self::GROUP_INDEX, Asset::GROUP_READ])]
     private ?string $authorizationError = null;
 
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     #[MaxDepth(1)]
     #[ORM\ManyToOne(targetEntity: Publication::class, inversedBy: 'children')]
     #[ORM\JoinColumn(nullable: true)]
@@ -212,13 +217,13 @@ class Publication implements AclObjectInterface, \Stringable
     /**
      * URL slug.
      */
-    #[Groups(['_', self::GROUP_INDEX, self::GROUP_READ, self::GROUP_READ])]
+    #[Groups(['_', self::GROUP_INDEX, self::GROUP_WRITE])]
     #[ORM\Column(type: Types::STRING, length: 100, unique: true, nullable: true)]
     #[Assert\Length(max: 100)]
     protected ?string $slug = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([self::GROUP_READ, self::GROUP_INDEX])]
+    #[Groups([self::GROUP_READ])]
     private ?\DateTimeImmutable $date = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
@@ -272,7 +277,7 @@ class Publication implements AclObjectInterface, \Stringable
         return $this->createdAt;
     }
 
-    #[Groups([self::GROUP_READ, self::GROUP_INDEX, Asset::GROUP_READ])]
+    #[Groups([self::GROUP_INDEX, Asset::GROUP_READ])]
     public function isEnabled(): bool
     {
         if ($this->profile && null === $this->config->isEnabled()) {
@@ -282,7 +287,7 @@ class Publication implements AclObjectInterface, \Stringable
         return true === $this->config->isEnabled();
     }
 
-    #[Groups([self::GROUP_READ, self::GROUP_INDEX])]
+    #[Groups([self::GROUP_INDEX])]
     public function isPubliclyListed(): bool
     {
         if ($this->profile && null === $this->config->isPubliclyListed()) {
@@ -357,7 +362,7 @@ class Publication implements AclObjectInterface, \Stringable
         return null === $this->getSecurityMethod();
     }
 
-    #[Groups(['_', self::GROUP_INDEX, self::GROUP_READ, Asset::GROUP_READ])]
+    #[Groups(['_', self::GROUP_INDEX, Asset::GROUP_READ])]
     public function getSecurityMethod(): ?string
     {
         return $this->config->getSecurityMethod() ?? $this->profile?->getConfig()->getSecurityMethod();
@@ -484,7 +489,7 @@ class Publication implements AclObjectInterface, \Stringable
         $this->children = $children;
     }
 
-    #[Groups([self::GROUP_READ, self::GROUP_INDEX])]
+    #[Groups([self::GROUP_INDEX])]
     public function getChildrenCount(): int
     {
         return $this->children->count();

@@ -9,7 +9,7 @@ import {
 import {useFormSubmit} from '@alchemy/api';
 import {AttributeListItem, AttributeListItemType} from '../../../../types.ts';
 import {toast} from 'react-toastify';
-import {useDirtyFormPrompt} from '../../Tabbed/FormTab.tsx';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {useTranslation} from 'react-i18next';
 import {FormFieldErrors, FormRow, SwitchWidget} from '@alchemy/react-form';
 import {putAttributeListItem} from '../../../../api/attributeList.ts';

@@ -11,7 +11,7 @@ import {useFormSubmit} from '@alchemy/api';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import FullPageLoader from '../../../Ui/FullPageLoader';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {RemoteErrors} from '@alchemy/react-form';
 
 type Props = {

@@ -5,7 +5,6 @@ import DialogActions from '@mui/material/DialogActions';
 import SaveIcon from '@mui/icons-material/Save';
 import {RemoteErrors} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
-import {useFormPrompt} from '@alchemy/navigation';
 
 type Props = PropsWithChildren<{
     loading: boolean;
@@ -17,12 +16,6 @@ type Props = PropsWithChildren<{
     onClose: () => void;
     minHeight?: number | undefined;
 }>;
-
-export function useDirtyFormPrompt(isDirty: boolean, modalIndex?: number) {
-    const {t} = useTranslation();
-
-    useFormPrompt(t, isDirty, modalIndex);
-}
 
 export default function FormTab({
     formId,

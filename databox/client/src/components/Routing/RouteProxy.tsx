@@ -5,7 +5,7 @@ import config from '../../config';
 
 export default function RouteProxy({
     component: Component,
-    public: isPublic,
+    public: isPublic = false,
 }: RouteProxyProps) {
     const {isAuthenticated} = useAuth();
     const {getLoginUrl} = useKeycloakUrls({

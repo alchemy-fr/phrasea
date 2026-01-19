@@ -8,7 +8,7 @@ import {FormProps} from './types';
 import FlagIcon from '@mui/icons-material/Flag';
 import IconFormLabel from './IconFormLabel';
 import {SortableCollectionWidget} from '@alchemy/react-form';
-import {useDirtyFormPrompt} from '../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {CheckboxWidget} from '@alchemy/react-form';
 import {useCreateSaveTranslations} from '../../hooks/useCreateSaveTranslations.ts';
 import {putWorkspace} from '../../api/collection.ts';

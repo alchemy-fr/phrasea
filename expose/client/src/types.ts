@@ -11,6 +11,11 @@ enum SecurityMethod {
     Authentication = 'authentication',
 }
 
+type EntityWithIri = {
+    '@id': string;
+    'id': string;
+};
+
 type LayoutOptions = {
     displayMap?: boolean;
     displayMapPins?: boolean;
@@ -29,18 +34,44 @@ export enum LayoutEnum {
 }
 
 type BasePublication = {
-    id: string;
     slug: string;
     authorized: boolean;
     securityContainerId: string;
     securityMethod: SecurityMethod;
     authorizationError?: AuthorizationError;
-};
+} & EntityWithIri;
 
 export type UnauthorizedPublication = Partial<Publication> & BasePublication;
 
+export type PublicationConfig = {
+    enabled: boolean;
+    downloadViaEmail: boolean;
+    includeDownloadTermsInZippy: boolean;
+    css: string | undefined;
+    layout: LayoutEnum | undefined;
+    theme: string | undefined;
+    publiclyListed: boolean;
+    downloadEnabled: boolean;
+    beginsAt: Date | string | undefined | null;
+    expiresAt: Date | string | undefined | null;
+    terms: TermsConfig | undefined;
+    downloadTerms: TermsConfig | undefined;
+    securityMethod: SecurityMethod;
+    securityOptions: Record<string, any> | undefined;
+    mapOptions: Record<string, any> | undefined;
+    layoutOptions: LayoutOptions | undefined;
+};
+
+export type PublicationProfile = {
+    name: string;
+    ownerId: string | undefined;
+    config: PublicationConfig;
+} & EntityWithIri;
+
 export type Publication = {
+    profile: PublicationProfile | string | null | undefined;
     cssLink?: string;
+    config: PublicationConfig;
     archiveDownloadUrl?: string;
     parent?: Publication | undefined;
     rootPublication?: Publication | undefined;

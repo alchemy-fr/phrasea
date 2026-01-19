@@ -2,11 +2,9 @@ import React, {useEffect, useRef} from 'react';
 import ResultProvider from './Media/Search/ResultProvider';
 import SearchProvider from './Media/Search/SearchProvider';
 import AssetDropzone from './Media/Asset/AssetDropzone';
-import {toast, ToastContainer} from 'react-toastify';
+import {ToastContainer} from 'react-toastify';
 import {Theme, useMediaQuery} from '@mui/material';
-import apiClient from '../api/api-client';
 import DisplayProvider from './Media/DisplayProvider';
-import {useRequestErrorHandler} from '@alchemy/api';
 import {useLocation} from '@alchemy/navigation';
 import {setSentryUser} from '@alchemy/core';
 import {useAuth} from '@alchemy/react-auth';
@@ -71,25 +69,8 @@ const AppProxy = React.memo(
 );
 
 export default function App() {
-    const {logout, user} = useAuth();
+    const {user} = useAuth();
     const location = useLocation();
-    const onError = useRequestErrorHandler({
-        onError: toast,
-        logout: redirectPathAfterLogin => {
-            logout({
-                redirectPathAfterLogin,
-                quiet: true,
-            });
-        },
-    });
-
-    React.useEffect(() => {
-        apiClient.addErrorListener(onError);
-
-        return () => {
-            apiClient.removeErrorListener(onError);
-        };
-    }, [onError]);
 
     React.useEffect(() => {
         setSentryUser(user);

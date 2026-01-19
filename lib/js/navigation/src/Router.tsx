@@ -24,7 +24,7 @@ export function compileRoutes(routes: Routes, rootUrl?: string): Routes {
     ): RouteDefinition => {
         const compiled: RouteDefinition = {
             ...route,
-            public: route.public || parentRoute?.public,
+            public: route.public ?? parentRoute?.public,
             layout: route.layout || parentRoute?.layout,
             rootUrl: route.rootUrl ?? parentRoute?.rootUrl ?? rootUrl,
             parent: parentRoute,

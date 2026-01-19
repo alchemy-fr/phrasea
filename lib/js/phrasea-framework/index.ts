@@ -24,6 +24,7 @@ import UserHookCaller from './src/UserHookCaller';
 import AnalyticsProvider from './src/AnalyticsProvider';
 import {getAllTreeNodeIds} from './src/Tree/treeHelper';
 import {useVirtualNodes} from './src/Tree/useVirtualNodes';
+import {useDirtyFormPrompt} from './src/hooks/useDirtyFormPrompt';
 export {
     AppProvider,
     initApp,
@@ -52,6 +53,7 @@ export {
     AnalyticsProvider,
     getAllTreeNodeIds,
     useVirtualNodes,
+    useDirtyFormPrompt,
 };
 export * from './src/Theme/types';
 export * from './src/Dialog/types';
