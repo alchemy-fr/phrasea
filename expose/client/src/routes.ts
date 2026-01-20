@@ -6,6 +6,8 @@ import {NotFoundPage} from '@alchemy/phrasea-ui';
 import EmbeddedAssetPage from './pages/EmbeddedAssetPage';
 import IndexPage from './pages/IndexPage.tsx';
 import PublicationEditPage from './pages/PublicationEditPage.tsx';
+import ProfileEditPage from './pages/ProfileEditPage.tsx';
+import ProfileListPage from './pages/ProfileListPage.tsx';
 
 const routes = {
     index: {
@@ -31,6 +33,20 @@ const routes = {
             edit: {
                 path: 'edit',
                 component: PublicationEditPage,
+            },
+        },
+    },
+    profile: {
+        path: 'profiles',
+        public: false,
+        routes: {
+            index: {
+                path: '',
+                component: ProfileListPage,
+            },
+            edit: {
+                path: ':id/edit',
+                component: ProfileEditPage,
             },
         },
     },

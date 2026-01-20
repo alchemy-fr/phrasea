@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiProperty;
 use App\Model\LayoutOptions;
 use App\Model\MapOptions;
 use Doctrine\DBAL\Types\Types;
@@ -65,12 +64,10 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     #[ORM\Embedded(class: TermsConfig::class)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
-    #[ApiProperty(readableLink: true)]
     private TermsConfig $terms;
 
     #[ORM\Embedded(class: TermsConfig::class)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
-    #[ApiProperty(readableLink: true)]
     private TermsConfig $downloadTerms;
 
     /**
@@ -131,12 +128,10 @@ class PublicationConfig implements MergeableValueObjectInterface
             'terms',
             'theme',
         ] as $property) {
-            if (null !== $object->{$property}) {
-                if ($clone->{$property} instanceof MergeableValueObjectInterface) {
-                    $clone->{$property}->mergeWith($object->{$property});
-                } else {
-                    $clone->{$property} = $object->{$property};
-                }
+            if ($clone->{$property} instanceof MergeableValueObjectInterface) {
+                $clone->{$property} = $clone->{$property}->mergeWith($object->{$property});
+            } else {
+                $clone->{$property} = $object->{$property};
             }
         }
 
@@ -160,7 +155,7 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     public function setTerms(TermsConfig $terms): void
     {
-        $this->terms = $this->terms->mergeWith($terms);
+        $this->terms = $terms;
     }
 
     public function getDownloadTerms(): TermsConfig
@@ -168,9 +163,9 @@ class PublicationConfig implements MergeableValueObjectInterface
         return $this->downloadTerms;
     }
 
-    public function setDownloadTerms(TermsConfig $terms): void
+    public function setDownloadTerms(TermsConfig $downloadTerms): void
     {
-        $this->downloadTerms = $this->downloadTerms->mergeWith($terms);
+        $this->downloadTerms = $downloadTerms;
     }
 
     public function getSecurityMethod(): ?string
@@ -248,7 +243,7 @@ class PublicationConfig implements MergeableValueObjectInterface
         }
     }
 
-    public function isEnabled(): ?bool
+    public function getEnabled(): ?bool
     {
         return $this->enabled;
     }

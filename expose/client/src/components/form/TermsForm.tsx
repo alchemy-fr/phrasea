@@ -11,12 +11,14 @@ type Props<TFieldValues extends Data> = {
     enabledLabel: string;
     path: string;
     usedFormSubmit: UseFormSubmitReturn<TFieldValues>;
+    disabled?: boolean;
 };
 
 export default function TermsForm<TFieldValues extends Data>({
     enabledLabel,
     usedFormSubmit,
     path,
+    disabled,
 }: Props<TFieldValues>) {
     const {t} = useTranslation();
 
@@ -55,7 +57,7 @@ export default function TermsForm<TFieldValues extends Data>({
                     control={control}
                     label={enabledLabel}
                     name={`${path}.enabled` as any}
-                    disabled={submitting}
+                    disabled={submitting || disabled}
                 />
                 <FormFieldErrors
                     field={`${path}.enabled` as any}
@@ -73,7 +75,7 @@ export default function TermsForm<TFieldValues extends Data>({
                                 'form.publication.terms.text.label',
                                 'Terms Content'
                             )}
-                            disabled={submitting}
+                            disabled={submitting || disabled}
                             {...register(`${path}.text` as any)}
                         />
                         <FormFieldErrors
@@ -93,7 +95,7 @@ export default function TermsForm<TFieldValues extends Data>({
                                 'Alternatively, provide a URL to the terms and conditions.'
                             )}
                             type={'url'}
-                            disabled={submitting}
+                            disabled={submitting || disabled}
                             {...register(`${path}.url` as any)}
                         />
                         <FormFieldErrors

@@ -45,6 +45,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
             self::GROUP_INDEX,
             self::GROUP_READ,
         ],
+    ],
+    denormalizationContext: [
+        'groups' => [
+            self::GROUP_WRITE,
+        ],
     ]
 )]
 #[ORM\Entity]
@@ -73,11 +78,11 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     private UuidInterface $id;
 
     #[ORM\Column(type: Types::STRING, length: 150)]
-    #[Groups([self::GROUP_INDEX, self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_READ, Publication::GROUP_READ, self::GROUP_WRITE])]
     private ?string $name = null;
 
     #[ORM\Embedded(class: PublicationConfig::class)]
-    #[Groups([self::GROUP_INDEX, self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_READ, Publication::GROUP_READ, self::GROUP_WRITE])]
     private PublicationConfig $config;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
@@ -124,7 +129,7 @@ class PublicationProfile implements AclObjectInterface, \Stringable
 
     public function setConfig(PublicationConfig $config): void
     {
-        $this->config = $this->config->mergeWith($config);
+        $this->config = $config;
     }
 
     public function getOwnerId(): ?string

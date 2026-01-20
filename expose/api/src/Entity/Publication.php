@@ -280,11 +280,11 @@ class Publication implements AclObjectInterface, \Stringable
     #[Groups([self::GROUP_INDEX, Asset::GROUP_READ])]
     public function isEnabled(): bool
     {
-        if ($this->profile && null === $this->config->isEnabled()) {
-            return true === $this->profile->getConfig()->isEnabled();
+        if ($this->profile && null === $this->config->getEnabled()) {
+            return true === $this->profile->getConfig()->getEnabled();
         }
 
-        return true === $this->config->isEnabled();
+        return true === $this->config->getEnabled();
     }
 
     #[Groups([self::GROUP_INDEX])]

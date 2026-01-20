@@ -1,19 +1,24 @@
 import {
     Button,
     Container,
+    IconButton,
     InputLabel,
     Paper,
     TextField,
     Typography,
 } from '@mui/material';
 import AppBar from '../ui/AppBar.tsx';
-import {Publication, PublicationProfile} from '../../types.ts';
+import {Publication} from '../../types.ts';
 import React from 'react';
 import {toast} from 'react-toastify';
 import {putPublication} from '../../api/publicationApi.ts';
 import {useTranslation} from 'react-i18next';
 import {useNavigateToPublication} from '../../hooks/useNavigateToPublication.ts';
-import {normalizeNestedObjects, useFormSubmit} from '@alchemy/api';
+import {
+    extractIdFromIri,
+    normalizeNestedObjects,
+    useFormSubmit,
+} from '@alchemy/api';
 import {
     DateWidget,
     FormFieldErrors,
@@ -25,6 +30,11 @@ import PublicationSelectWidget from '../form/PublicationSelectWidget.tsx';
 import PublicationConfigForm from '../form/PublicationConfigForm.tsx';
 import ProfileSelectWidget from '../form/ProfileSelectWidget.tsx';
 import {getProfile} from '../../api/profileApi.ts';
+import {getPath, Link} from '@alchemy/navigation';
+import {routes} from '../../routes.ts';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import EditIcon from '@mui/icons-material/Edit';
+import {FormConst} from './types.ts';
 
 type Props = {
     data: Publication;
@@ -33,14 +43,11 @@ type Props = {
 export default function PublicationEdit({data}: Props) {
     const {t} = useTranslation();
     const navigateToPublication = useNavigateToPublication();
-    const [publicationProfile, setPublicationProfile] = React.useState<
-        PublicationProfile | undefined
-    >();
 
     const usedFormSubmit = useFormSubmit<Publication>({
         defaultValues: {
             ...normalizeNestedObjects(data, {
-                expectKeys: ['config'],
+                ignoredKeys: ['config'],
             }),
             config: {
                 ...data.config,
@@ -50,6 +57,9 @@ export default function PublicationEdit({data}: Props) {
             },
         },
         onSubmit: async data => {
+            // @ts-expect-error Unknown property
+            delete data[FormConst.FallbackProfileProps];
+
             return await putPublication(data.id, data);
         },
         onSuccess: data => {
@@ -72,26 +82,25 @@ export default function PublicationEdit({data}: Props) {
         forbidNavigation,
         formState: {errors},
         watch,
+        setValue,
     } = usedFormSubmit;
 
     useDirtyFormPrompt(forbidNavigation);
 
-    const profileId = watch('profile');
+    const profileId = extractIdFromIri(watch('profile') as string | undefined);
 
     React.useEffect(() => {
         if (profileId) {
             (async () => {
-                setPublicationProfile(
-                    await getProfile(
-                        (profileId as string).replace(
-                            '/publication-profiles/',
-                            ''
-                        ) as string
-                    )
+                setValue(
+                    FormConst.FallbackProfileProps as any,
+                    await getProfile(extractIdFromIri(profileId))
                 );
             })();
+        } else {
+            setValue(FormConst.FallbackProfileProps as any, null);
         }
-    }, [profileId]);
+    }, [profileId, setValue]);
 
     return (
         <Container>
@@ -107,9 +116,29 @@ export default function PublicationEdit({data}: Props) {
                         mb: 3,
                     }}
                 >
+                    <IconButton
+                        component={Link}
+                        to={getPath(routes.publicationView, {id: data.id})}
+                        sx={{
+                            mr: 1,
+                        }}
+                    >
+                        <ArrowBackIcon />
+                    </IconButton>
                     {t('form.publication.edit.title', 'Edit Publication')}
                 </Typography>
                 <form onSubmit={handleSubmit}>
+                    <FormRow>
+                        <PublicationSelectWidget
+                            label={t(
+                                'form.publication.parent.label',
+                                'Parent Publication'
+                            )}
+                            control={control}
+                            name={'parent'}
+                        />
+                        <FormFieldErrors field={'parent'} errors={errors} />
+                    </FormRow>
                     <FormRow>
                         <TextField
                             label={t('form.publication.title.label', 'Title')}
@@ -134,6 +163,16 @@ export default function PublicationEdit({data}: Props) {
                     </FormRow>
 
                     <FormRow>
+                        <DateWidget
+                            control={control}
+                            label={t('form.publication.date.label', 'Date')}
+                            name={`date` as any}
+                            disabled={submitting}
+                        />
+                        <FormFieldErrors field={'date'} errors={errors} />
+                    </FormRow>
+
+                    <FormRow>
                         <ProfileSelectWidget
                             label={t(
                                 'form.publication.profile.label',
@@ -142,29 +181,27 @@ export default function PublicationEdit({data}: Props) {
                             control={control}
                             name={'profile'}
                         />
+
+                        {profileId ? (
+                            <Button
+                                sx={{
+                                    mt: 1,
+                                }}
+                                startIcon={<EditIcon />}
+                                variant={'outlined'}
+                                component={Link}
+                                to={getPath(routes.profile.routes.edit, {
+                                    id: profileId,
+                                })}
+                            >
+                                {t(
+                                    'form.publication.profile.edit',
+                                    'Edit Profile'
+                                )}
+                            </Button>
+                        ) : null}
+
                         <FormFieldErrors field={'profile'} errors={errors} />
-                    </FormRow>
-
-                    <FormRow>
-                        <PublicationSelectWidget
-                            label={t(
-                                'form.publication.parent.label',
-                                'Parent Publication'
-                            )}
-                            control={control}
-                            name={'parent'}
-                        />
-                        <FormFieldErrors field={'parent'} errors={errors} />
-                    </FormRow>
-
-                    <FormRow>
-                        <DateWidget
-                            control={control}
-                            label={t('form.publication.date.label', 'Date')}
-                            name={`date` as any}
-                            disabled={submitting}
-                        />
-                        <FormFieldErrors field={'date'} errors={errors} />
                     </FormRow>
 
                     <FormRow>
@@ -176,8 +213,8 @@ export default function PublicationEdit({data}: Props) {
                         </InputLabel>
                         <PublicationConfigForm
                             path={'config'}
+                            profileId={profileId}
                             usedFormSubmit={usedFormSubmit}
-                            publicationProfile={publicationProfile}
                         />
                     </FormRow>
 

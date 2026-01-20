@@ -11,6 +11,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Embeddable]
 class TermsConfig implements MergeableValueObjectInterface
 {
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_READ, Asset::GROUP_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
+    private ?bool $enabled = null;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_READ, Asset::GROUP_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?string $text = null;
@@ -28,21 +32,11 @@ class TermsConfig implements MergeableValueObjectInterface
      */
     public function mergeWith(MergeableValueObjectInterface $object): MergeableValueObjectInterface
     {
-        $clone = clone $this;
-        foreach ([
-            'text',
-            'url',
-        ] as $property) {
-            if (null !== $object->{$property}) {
-                if ($clone->{$property} instanceof MergeableValueObjectInterface) {
-                    $clone->{$property}->mergeWith($object->{$property});
-                } else {
-                    $clone->{$property} = $object->{$property};
-                }
-            }
-        }
-
-        return $clone;
+        return match ($object->getEnabled()) {
+            true => $object,
+            false => $object,
+            default => $this,
+        };
     }
 
     public function getText(): ?string
@@ -65,10 +59,13 @@ class TermsConfig implements MergeableValueObjectInterface
         $this->url = $url ?: null;
     }
 
-    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_READ, Asset::GROUP_READ])]
-    public function isEnabled(): bool
+    public function getEnabled(): ?bool
     {
-        return !empty($this->text)
-            || !empty($this->url);
+        return $this->enabled;
+    }
+
+    public function setEnabled(?bool $enabled): void
+    {
+        $this->enabled = $enabled;
     }
 }

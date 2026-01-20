@@ -10,12 +10,7 @@ import {
     RadioWidget,
     SwitchWidget,
 } from '@alchemy/react-form';
-import {
-    LayoutEnum,
-    PublicationConfig,
-    PublicationProfile,
-    SecurityMethod,
-} from '../../types.ts';
+import {LayoutEnum, PublicationConfig, SecurityMethod} from '../../types.ts';
 import GridViewIcon from '@mui/icons-material/GridView';
 import BurstModeIcon from '@mui/icons-material/BurstMode';
 import {SvgIconComponent} from '@mui/icons-material';
@@ -34,13 +29,13 @@ type Data = {
 type Props<TFieldValues extends Data> = {
     path: string;
     usedFormSubmit: UseFormSubmitReturn<TFieldValues>;
-    publicationProfile?: PublicationProfile | undefined;
+    profileId?: string;
 };
 
 export default function PublicationConfigForm<TFieldValues extends Data>({
     usedFormSubmit,
     path,
-    publicationProfile,
+    profileId,
 }: Props<TFieldValues>) {
     const {t} = useTranslation();
 
@@ -121,25 +116,22 @@ export default function PublicationConfigForm<TFieldValues extends Data>({
         <>
             <FormRow>
                 <ProfileOverrideWrapper
-                    path={`${path}.enabled`}
-                    inheritedValue={publicationProfile?.config.enabled}
-                    publicationProfile={publicationProfile}
+                    configPath={`enabled`}
+                    profileId={profileId}
                     usedFormSubmit={usedFormSubmit}
-                >
-                    <SwitchWidget
-                        control={control}
-                        label={t(
-                            'form.publication.config.enabled.label',
-                            'Enabled'
-                        )}
-                        name={`${path}.enabled` as any}
-                        disabled={submitting}
-                    />
-                    <FormFieldErrors
-                        field={`${path}.enabled` as any}
-                        errors={errors}
-                    />
-                </ProfileOverrideWrapper>
+                    renderWidget={({disabled, path}) => (
+                        <SwitchWidget
+                            control={control}
+                            label={t(
+                                'form.publication.config.enabled.label',
+                                'Enabled'
+                            )}
+                            name={path as any}
+                            disabled={submitting || disabled}
+                        />
+                    )}
+                />
+                <FormFieldErrors field={path as any} errors={errors} />
             </FormRow>
             <FormRow>
                 <DateWidget
@@ -287,20 +279,40 @@ export default function PublicationConfigForm<TFieldValues extends Data>({
                     />
                 </FormRow>
             )}
-            <TermsForm
+
+            <ProfileOverrideWrapper
+                configPath={`terms`}
+                profileId={profileId}
                 usedFormSubmit={usedFormSubmit}
-                path={`${path}.terms` as any}
-                enabledLabel={t(
-                    'form.publication.config.terms.enabledLabel',
-                    'Enable Terms and Conditions'
+                disabledValue={{enabled: null}}
+                renderWidget={({disabled, path, usedFormSubmit}) => (
+                    <TermsForm
+                        usedFormSubmit={usedFormSubmit}
+                        path={path as any}
+                        disabled={disabled}
+                        enabledLabel={t(
+                            'form.publication.config.terms.enabledLabel',
+                            'Enable Terms and Conditions'
+                        )}
+                    />
                 )}
             />
-            <TermsForm
+
+            <ProfileOverrideWrapper
+                configPath={`downloadTerms`}
+                profileId={profileId}
                 usedFormSubmit={usedFormSubmit}
-                path={`${path}.downloadTerms` as any}
-                enabledLabel={t(
-                    'form.publication.config.downloadTerms.enabledLabel',
-                    'Enable Download Terms and Conditions'
+                disabledValue={{enabled: null}}
+                renderWidget={({disabled, path, usedFormSubmit}) => (
+                    <TermsForm
+                        usedFormSubmit={usedFormSubmit}
+                        path={path as any}
+                        disabled={disabled}
+                        enabledLabel={t(
+                            'form.publication.config.downloadTerms.enabledLabel',
+                            'Enable Download Terms and Conditions'
+                        )}
+                    />
                 )}
             />
         </>
