@@ -7,7 +7,7 @@ import {
     Typography,
 } from '@mui/material';
 import AppBar from '../ui/AppBar.tsx';
-import {Publication} from '../../types.ts';
+import {Publication, PublicationProfile} from '../../types.ts';
 import React from 'react';
 import {toast} from 'react-toastify';
 import {putPublication} from '../../api/publicationApi.ts';
@@ -24,6 +24,7 @@ import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import PublicationSelectWidget from '../form/PublicationSelectWidget.tsx';
 import PublicationConfigForm from '../form/PublicationConfigForm.tsx';
 import ProfileSelectWidget from '../form/ProfileSelectWidget.tsx';
+import {getProfile} from '../../api/profileApi.ts';
 
 type Props = {
     data: Publication;
@@ -32,6 +33,9 @@ type Props = {
 export default function PublicationEdit({data}: Props) {
     const {t} = useTranslation();
     const navigateToPublication = useNavigateToPublication();
+    const [publicationProfile, setPublicationProfile] = React.useState<
+        PublicationProfile | undefined
+    >();
 
     const usedFormSubmit = useFormSubmit<Publication>({
         defaultValues: {
@@ -67,9 +71,27 @@ export default function PublicationEdit({data}: Props) {
         remoteErrors,
         forbidNavigation,
         formState: {errors},
+        watch,
     } = usedFormSubmit;
 
     useDirtyFormPrompt(forbidNavigation);
+
+    const profileId = watch('profile');
+
+    React.useEffect(() => {
+        if (profileId) {
+            (async () => {
+                setPublicationProfile(
+                    await getProfile(
+                        (profileId as string).replace(
+                            '/publication-profiles/',
+                            ''
+                        ) as string
+                    )
+                );
+            })();
+        }
+    }, [profileId]);
 
     return (
         <Container>
@@ -155,6 +177,7 @@ export default function PublicationEdit({data}: Props) {
                         <PublicationConfigForm
                             path={'config'}
                             usedFormSubmit={usedFormSubmit}
+                            publicationProfile={publicationProfile}
                         />
                     </FormRow>
 

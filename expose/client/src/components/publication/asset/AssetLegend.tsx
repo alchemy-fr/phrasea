@@ -19,7 +19,6 @@ export default function AssetLegend({
     const {t} = useTranslation();
 
     const onDownload = useDownload({
-        url: asset.downloadUrl,
         publication,
     });
 
@@ -45,7 +44,7 @@ export default function AssetLegend({
                     <div>
                         <Button
                             variant={'contained'}
-                            onClick={onDownload}
+                            onClick={() => onDownload(asset.downloadUrl)}
                             startIcon={<GetAppIcon />}
                         >
                             {t('publication.asset.download', 'Download')}

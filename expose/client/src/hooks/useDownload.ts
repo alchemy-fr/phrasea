@@ -5,15 +5,14 @@ import {isTermsAccepted, setAcceptedTerms} from '../lib/terms.ts';
 import DownloadViaEmailDialog from '../components/publication/layouts/common/DownloadViaEmailDialog.tsx';
 
 type Props = {
-    url: string;
     publication: Publication;
     newWindow?: boolean;
 };
 
-export function useDownload({url, publication, newWindow}: Props) {
+export function useDownload({publication, newWindow}: Props) {
     const {openModal} = useModals();
 
-    return () => {
+    return (url: string) => {
         if (!publication.downloadEnabled) {
             return;
         }

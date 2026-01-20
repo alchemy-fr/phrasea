@@ -1,7 +1,7 @@
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {FieldValues} from 'react-hook-form';
-import {TextField} from '@mui/material';
-import React, {useMemo} from 'react';
+import {Chip, TextField} from '@mui/material';
+import React, {ReactNode, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     DateWidget,
@@ -10,7 +10,12 @@ import {
     RadioWidget,
     SwitchWidget,
 } from '@alchemy/react-form';
-import {LayoutEnum, PublicationConfig, SecurityMethod} from '../../types.ts';
+import {
+    LayoutEnum,
+    PublicationConfig,
+    PublicationProfile,
+    SecurityMethod,
+} from '../../types.ts';
 import GridViewIcon from '@mui/icons-material/GridView';
 import BurstModeIcon from '@mui/icons-material/BurstMode';
 import {SvgIconComponent} from '@mui/icons-material';
@@ -20,6 +25,7 @@ import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import PasswordIcon from '@mui/icons-material/Password';
 import PublicIcon from '@mui/icons-material/Public';
 import TermsForm from './TermsForm.tsx';
+import ProfileOverrideWrapper from './ProfileOverrideWrapper.tsx';
 
 type Data = {
     config: PublicationConfig;
@@ -28,15 +34,17 @@ type Data = {
 type Props<TFieldValues extends Data> = {
     path: string;
     usedFormSubmit: UseFormSubmitReturn<TFieldValues>;
+    publicationProfile?: PublicationProfile | undefined;
 };
 
 export default function PublicationConfigForm<TFieldValues extends Data>({
     usedFormSubmit,
     path,
+    publicationProfile,
 }: Props<TFieldValues>) {
     const {t} = useTranslation();
 
-    const layoutTranslations: Record<LayoutEnum, string> = useMemo(
+    const layoutTranslations: Record<LayoutEnum, ReactNode> = useMemo(
         () => ({
             [LayoutEnum.Gallery]: t(
                 'form.publication.config.layout.options.gallery',
@@ -50,9 +58,18 @@ export default function PublicationConfigForm<TFieldValues extends Data>({
                 'form.publication.config.layout.options.download',
                 'Download'
             ),
-            [LayoutEnum.Mapbox]: t(
-                'form.publication.config.layout.options.mapbox',
-                'Mapbox'
+            [LayoutEnum.Mapbox]: (
+                <>
+                    {t(
+                        'form.publication.config.layout.options.mapbox',
+                        'Mapbox'
+                    )}
+                    <Chip
+                        size="small"
+                        color={'warning'}
+                        label={t('common.soon', 'Soon')}
+                    />
+                </>
             ),
         }),
         [t]
@@ -103,19 +120,26 @@ export default function PublicationConfigForm<TFieldValues extends Data>({
     return (
         <>
             <FormRow>
-                <SwitchWidget
-                    control={control}
-                    label={t(
-                        'form.publication.config.enabled.label',
-                        'Enabled'
-                    )}
-                    name={`${path}.enabled` as any}
-                    disabled={submitting}
-                />
-                <FormFieldErrors
-                    field={`${path}.enabled` as any}
-                    errors={errors}
-                />
+                <ProfileOverrideWrapper
+                    path={`${path}.enabled`}
+                    inheritedValue={publicationProfile?.config.enabled}
+                    publicationProfile={publicationProfile}
+                    usedFormSubmit={usedFormSubmit}
+                >
+                    <SwitchWidget
+                        control={control}
+                        label={t(
+                            'form.publication.config.enabled.label',
+                            'Enabled'
+                        )}
+                        name={`${path}.enabled` as any}
+                        disabled={submitting}
+                    />
+                    <FormFieldErrors
+                        field={`${path}.enabled` as any}
+                        errors={errors}
+                    />
+                </ProfileOverrideWrapper>
             </FormRow>
             <FormRow>
                 <DateWidget
@@ -210,14 +234,6 @@ export default function PublicationConfigForm<TFieldValues extends Data>({
                 />
             </FormRow>
             <FormRow>
-                <TextField
-                    label={t('form.publication.config.css.label', 'CSS')}
-                    disabled={submitting}
-                    {...register(`${path}.css` as any)}
-                />
-                <FormFieldErrors field={`${path}.css` as any} errors={errors} />
-            </FormRow>
-            <FormRow>
                 <RadioWidget
                     control={control}
                     label={t('form.publication.config.layout.label', 'Layout')}
@@ -227,6 +243,7 @@ export default function PublicationConfigForm<TFieldValues extends Data>({
                         label: layoutTranslations[layout],
                         value: layout,
                         icon: layoutIcons[layout],
+                        disabled: layout === LayoutEnum.Mapbox,
                     }))}
                 />
                 <FormFieldErrors

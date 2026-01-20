@@ -14,6 +14,10 @@ export async function getProfiles(
     return getHydraCollection(res.data);
 }
 
+export async function getProfile(id: string): Promise<PublicationProfile> {
+    return (await apiClient.get(`/${profileEntity}/${id}`)).data;
+}
+
 export async function putProfile(
     id: string,
     data: Partial<PublicationProfile>

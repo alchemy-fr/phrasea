@@ -29,9 +29,10 @@ type Props<TFieldValues extends FieldValues> = {
 } & SwitchProps;
 
 type RadioOption = {
-    label: string;
+    label: ReactNode;
     value: string;
     icon?: React.ElementType;
+    disabled?: boolean;
 };
 
 enum Classes {
@@ -88,6 +89,7 @@ export default function RadioWidget<TFieldValues extends FieldValues>({
                                 key={option.value}
                                 value={option.value}
                                 control={<Radio />}
+                                disabled={option.disabled}
                                 label={
                                     <div className={Classes.LabelWithIcon}>
                                         {option.icon ? (

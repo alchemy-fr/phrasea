@@ -12,14 +12,13 @@ export default function DownloadArchiveButton({publication}: Props) {
     const {t} = useTranslation();
 
     const onDownload = useDownload({
-        url: publication.archiveDownloadUrl!,
         publication,
         newWindow: true,
     });
 
     return (
         <Button
-            onClick={onDownload}
+            onClick={() => onDownload(publication.archiveDownloadUrl!)}
             variant={'outlined'}
             startIcon={<ArchiveIcon />}
         >

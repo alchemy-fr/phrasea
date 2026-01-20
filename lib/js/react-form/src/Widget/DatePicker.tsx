@@ -1,7 +1,13 @@
 import {DatePickerProps} from '../types';
 import DatePickerBase from 'react-datepicker';
-import {FormControl, IconButton, InputBase, OutlinedInput} from '@mui/material';
-import {useCallback, useMemo, useRef, useState} from 'react';
+import {
+    Box,
+    FormControl,
+    IconButton,
+    InputBase,
+    OutlinedInput,
+} from '@mui/material';
+import {PropsWithChildren, useCallback, useMemo, useState} from 'react';
 import ClearIcon from '@mui/icons-material/Clear';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import {format, parse} from 'date-fns';
@@ -62,8 +68,8 @@ export default function DatePicker({
 
             if (newDateValue) {
                 const d = parse(
-                    `${newDateValue} - ${newTimeValue}`,
-                    `${dateFormat} - ${timeFormat}`,
+                    time ? `${newDateValue} - ${newTimeValue}` : newDateValue,
+                    time ? `${dateFormat} - ${timeFormat}` : dateFormat,
                     new Date()
                 );
 
@@ -99,99 +105,120 @@ export default function DatePicker({
     const dateIsInvalid = (dateValue || timeValue) && !currentDate;
 
     return (
-        <DatePickerBase
-            shouldCloseOnSelect={true}
-            showTimeSelect={time}
-            selected={currentDate}
-            required={required}
-            onChange={(date: Date | null) => {
-                onChange(date?.toISOString() || null);
+        <>
+            <DatePickerBase
+                shouldCloseOnSelect={true}
+                showTimeSelect={time}
+                selected={currentDate}
+                required={required}
+                // calendarContainer={CalendarContainer}
+                onChange={(date: Date | null) => {
+                    onChange(date?.toISOString() || null);
 
-                if (date) {
-                    const dateStr = format(date, dateFormat);
-                    setDateValue(dateStr);
-                    if (time) {
-                        const timeStr = format(date, timeFormat);
-                        setTimeValue(timeStr);
+                    if (date) {
+                        const dateStr = format(date, dateFormat);
+                        setDateValue(dateStr);
+                        if (time) {
+                            const timeStr = format(date, timeFormat);
+                            setTimeValue(timeStr);
+                        }
+                    } else {
+                        setDateValue('');
+                        setTimeValue('');
                     }
-                } else {
-                    setDateValue('');
-                    setTimeValue('');
-                }
-            }}
-            customInput={
-                <FormControl
-                    style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 1,
-                    }}
-                >
-                    <OutlinedInput
-                        error={Boolean(error || dateIsInvalid)}
-                        inputRef={inputRef}
-                        placeholder={dateFormat}
-                        value={dateValue}
-                        onChange={e => {
-                            const newDate = updateDate(e.target.value, null);
-                            if (newDate) {
-                                onChange(newDate.toISOString());
-                            }
+                }}
+                customInput={
+                    <FormControl
+                        sx={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 1,
                         }}
-                        slotProps={{
-                            input: {
-                                style: {width: 120},
-                            },
-                        }}
-                        autoComplete={'off'}
-                        required={required}
-                        endAdornment={
-                            <>
-                                {time ? (
-                                    <InputBase
-                                        placeholder={timeFormat}
-                                        slotProps={{
-                                            input: {
-                                                style: {
-                                                    width: 70,
+                    >
+                        <OutlinedInput
+                            error={Boolean(error || dateIsInvalid)}
+                            inputRef={inputRef}
+                            placeholder={dateFormat}
+                            value={dateValue}
+                            onChange={e => {
+                                const newDate = updateDate(
+                                    e.target.value,
+                                    null
+                                );
+                                if (newDate) {
+                                    onChange(newDate.toISOString());
+                                }
+                            }}
+                            slotProps={{
+                                input: {
+                                    style: {width: 120},
+                                },
+                            }}
+                            autoComplete={'off'}
+                            required={required}
+                            endAdornment={
+                                <>
+                                    {time ? (
+                                        <InputBase
+                                            placeholder={timeFormat}
+                                            slotProps={{
+                                                input: {
+                                                    style: {
+                                                        width: 70,
+                                                    },
                                                 },
-                                            },
-                                        }}
-                                        value={timeValue}
-                                        required={required}
-                                        onChange={e => {
-                                            const newDate = updateDate(
-                                                null,
-                                                e.target.value
-                                            );
-                                            if (newDate) {
-                                                onChange(newDate.toISOString());
-                                            }
+                                            }}
+                                            value={timeValue}
+                                            required={required}
+                                            onChange={e => {
+                                                const newDate = updateDate(
+                                                    null,
+                                                    e.target.value
+                                                );
+                                                if (newDate) {
+                                                    onChange(
+                                                        newDate.toISOString()
+                                                    );
+                                                }
+                                            }}
+                                        />
+                                    ) : null}
+                                    {!required && value ? (
+                                        <IconButton
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                setDateValue('');
+                                                setTimeValue('');
+                                                onChange(null);
+                                            }}
+                                        >
+                                            <ClearIcon />
+                                        </IconButton>
+                                    ) : null}
+                                    <CalendarMonthIcon
+                                        style={{
+                                            cursor: 'pointer',
                                         }}
                                     />
-                                ) : null}
-                                {!required && value ? (
-                                    <IconButton
-                                        onClick={e => {
-                                            e.stopPropagation();
-                                            setDateValue('');
-                                            setTimeValue('');
-                                            onChange(null);
-                                        }}
-                                    >
-                                        <ClearIcon />
-                                    </IconButton>
-                                ) : null}
-                                <CalendarMonthIcon
-                                    style={{
-                                        cursor: 'pointer',
-                                    }}
-                                />
-                            </>
-                        }
-                    />
-                </FormControl>
-            }
-        />
+                                </>
+                            }
+                        />
+                    </FormControl>
+                }
+            />
+        </>
     );
+}
+
+
+function CalendarContainer({children}: PropsWithChildren) {
+    return  <Box
+        sx={{
+            '.react-datepicker__header': {
+                backgroundColor: 'background.paper',
+            },
+        }}
+    >
+        {children}
+    </Box>;
 }
