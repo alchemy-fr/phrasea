@@ -84,7 +84,7 @@ export default function ProfileEdit({data}: Props) {
                 >
                     <IconButton
                         component={Link}
-                        to={getPath(routes.profile.routes.index, {id: data.id})}
+                        to={getPath(routes.profile.routes.index)}
                         sx={{
                             mr: 1,
                         }}
