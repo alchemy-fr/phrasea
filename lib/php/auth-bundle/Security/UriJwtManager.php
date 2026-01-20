@@ -30,6 +30,7 @@ final readonly class UriJwtManager
         $config = $this->getConfig();
         $builder = $config->builder()
             ->identifiedBy($identifier)
+            ->issuedBy($this->baseUri)
             ->issuedAt(new \DateTimeImmutable())
             ->expiresAt((new \DateTimeImmutable())->setTimestamp(time() + ($ttl ?? $this->ttl)));
 
@@ -56,9 +57,7 @@ final readonly class UriJwtManager
 
     public function validateUri(string $uri, string $jwt): void
     {
-        $this->validateJWT(preg_replace('#([&?])jwt=.+$#', '', $uri), $jwt, [
-            new Constraint\IssuedBy($this->baseUri),
-        ]);
+        $this->validateJWT(preg_replace('#([&?])jwt=.+$#', '', $uri), $jwt);
     }
 
     public function validateJWT(string $identifier, string $jwt, array $extraConstraints = []): UnencryptedToken
@@ -73,6 +72,7 @@ final readonly class UriJwtManager
                 new \DateInterval('PT30S')
             ),
             new Constraint\IdentifiedBy($identifier),
+            new Constraint\IssuedBy($this->baseUri),
             ...$extraConstraints,
         );
 

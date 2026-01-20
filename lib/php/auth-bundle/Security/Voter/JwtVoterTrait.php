@@ -39,7 +39,10 @@ trait JwtVoterTrait
 
         try {
             $this->uriJwtManager->validateUri($currentRequest->getUri(), $token);
-        } catch (AccessDeniedHttpException) {
+        } catch (AccessDeniedHttpException $e) {
+            dump($e);
+            throw new \InvalidArgumentException(sprintf('OK'));
+
             return false;
         }
 
