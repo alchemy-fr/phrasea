@@ -22,7 +22,6 @@ function AssetMatomoMetricsView({asset}: Props) {
     const {t} = useTranslation();
 
     useEffect(() => {
-        console.log('expanded', expanded);
         if (expanded) {
             (async () => {
                 const res = await getAssetStats(asset.id, asset.source?.type);
