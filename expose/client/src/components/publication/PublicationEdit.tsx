@@ -14,7 +14,12 @@ import {putPublication} from '../../api/publicationApi.ts';
 import {useTranslation} from 'react-i18next';
 import {useNavigateToPublication} from '../../hooks/useNavigateToPublication.ts';
 import {normalizeNestedObjects, useFormSubmit} from '@alchemy/api';
-import {FormFieldErrors, FormRow, RemoteErrors} from '@alchemy/react-form';
+import {
+    DateWidget,
+    FormFieldErrors,
+    FormRow,
+    RemoteErrors,
+} from '@alchemy/react-form';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import PublicationSelectWidget from '../form/PublicationSelectWidget.tsx';
 import PublicationConfigForm from '../form/PublicationConfigForm.tsx';
@@ -131,10 +136,11 @@ export default function PublicationEdit({data}: Props) {
                     </FormRow>
 
                     <FormRow>
-                        <TextField
+                        <DateWidget
+                            control={control}
                             label={t('form.publication.date.label', 'Date')}
+                            name={`date` as any}
                             disabled={submitting}
-                            {...register('date')}
                         />
                         <FormFieldErrors field={'date'} errors={errors} />
                     </FormRow>

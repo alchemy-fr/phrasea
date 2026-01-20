@@ -4,6 +4,7 @@ import {TextField} from '@mui/material';
 import React, {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
+    DateWidget,
     FormFieldErrors,
     FormRow,
     RadioWidget,
@@ -113,6 +114,38 @@ export default function PublicationConfigForm<TFieldValues extends Data>({
                 />
                 <FormFieldErrors
                     field={`${path}.enabled` as any}
+                    errors={errors}
+                />
+            </FormRow>
+            <FormRow>
+                <DateWidget
+                    control={control}
+                    label={t(
+                        'form.publication.config.beginsAt.label',
+                        'Begins At'
+                    )}
+                    time={true}
+                    name={`${path}.beginsAt` as any}
+                    disabled={submitting}
+                />
+                <FormFieldErrors
+                    field={`${path}.beginsAt` as any}
+                    errors={errors}
+                />
+            </FormRow>
+            <FormRow>
+                <DateWidget
+                    control={control}
+                    label={t(
+                        'form.publication.config.expiresAt.label',
+                        'Expires At'
+                    )}
+                    time={true}
+                    name={`${path}.expiresAt` as any}
+                    disabled={submitting}
+                />
+                <FormFieldErrors
+                    field={`${path}.expiresAt` as any}
                     errors={errors}
                 />
             </FormRow>

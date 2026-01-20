@@ -21,6 +21,7 @@ import KeyTranslationsWidget, {
 import LocaleSelectWidget from './src/Locale/LocaleSelectWidget';
 import RemoteErrors from './src/RemoteErrors';
 import RadioWidget from './src/Widget/RadioWidget';
+import DateWidget from './src/Widget/DateWidget';
 
 export {
     CollectionWidget,
@@ -42,6 +43,7 @@ export {
     LocaleSelectWidget,
     RemoteErrors,
     RadioWidget,
+    DateWidget,
 };
 export type {AsyncRSelectProps, RSelectProps, SelectOption, RSelectOnCreate};
 
