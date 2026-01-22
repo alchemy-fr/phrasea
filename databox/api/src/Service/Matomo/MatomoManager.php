@@ -34,16 +34,18 @@ final readonly class MatomoManager
                 $method = 'Contents.getContentNames';
             }
 
-            $response = $this->matomoClient->request('GET', '/', [
+            $response = $this->matomoClient->request('POST', '/', [
                 'query' => [
                     'module' => 'API',
                     'idSite' => $this->matomoSiteId,
                     'method' => $method,
                     'format' => 'JSON',
-                    'token_auth' => $this->matomoAuthToken,
                     'date' => '2025-12-01,'.date('Y-m-d', strtotime('+1 day')),
                     'period' => 'range',
                     'label' => $trackingId,
+                ],
+                'body' => [
+                    'token_auth' => $this->matomoAuthToken,
                 ],
             ]);
 
