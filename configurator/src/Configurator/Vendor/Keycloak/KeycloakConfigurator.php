@@ -85,7 +85,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'credentials' => [[
                 'type' => 'password',
                 'value' => getenv('DEFAULT_ADMIN_PASSWORD'),
-                'temporary' => $hasTestPreset ? false : $this->getBooleanEnv('KEYCLOAK_FORCE_CREATE_NEW_PASSWORD'),
+                'temporary' => $hasTestPreset ? false : !$this->getBooleanEnv('KEYCLOAK_ADMIN_DEFINITIVE_PASSWORD'),
             ]],
         ]);
 
