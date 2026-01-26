@@ -1,9 +1,9 @@
 import React from 'react';
-import {parseInlineStyle} from '@alchemy/core';
+import {parseInlineStyle, resolveSx} from '@alchemy/core';
 import {Typography} from '@mui/material';
 import {AppLogoProps} from './types';
 
-export function AppLogo({appTitle, config, onLogoClick}: AppLogoProps) {
+export function AppLogo({appTitle, config, onLogoClick, sx}: AppLogoProps) {
     return (
         <>
             <Typography
@@ -15,6 +15,7 @@ export function AppLogo({appTitle, config, onLogoClick}: AppLogoProps) {
                     fontSize: 20,
                     color: theme.palette.primary.main,
                     display: 'flex',
+                    ...resolveSx(sx, theme),
                 })}
             >
                 {config.logo?.src ? (

@@ -18,9 +18,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 type Props = {
     publication: Publication;
+    onDelete?: (publication: Publication) => void;
 };
 
-export default function PublicationCard({publication}: Props) {
+export default function PublicationCard({publication, onDelete}: Props) {
     const previewUrl = publication.cover?.previewUrl;
     const {t} = useTranslation();
 
@@ -116,11 +117,12 @@ export default function PublicationCard({publication}: Props) {
                                 {t('publication_card.edit', 'Edit')}
                             </Button>
                         )}
-                        {publication.capabilities.delete && (
+                        {!!onDelete && publication.capabilities.delete && (
                             <Button
                                 size="small"
                                 color="error"
                                 startIcon={<DeleteIcon />}
+                                onClick={() => onDelete(publication)}
                             >
                                 {t('publication_card.delete', 'Delete')}
                             </Button>

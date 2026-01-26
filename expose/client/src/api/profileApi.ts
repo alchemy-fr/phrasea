@@ -1,6 +1,7 @@
 import {PublicationProfile} from '../types.ts';
 import {apiClient} from '../init.ts';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
+import {clearApiCache} from '@alchemy/phrasea-framework';
 
 const profileEntity = `publication-profiles`;
 
@@ -23,4 +24,15 @@ export async function putProfile(
     data: Partial<PublicationProfile>
 ): Promise<PublicationProfile> {
     return (await apiClient.put(`/${profileEntity}/${id}`, data)).data;
+}
+
+export async function postProfile(
+    data: Partial<PublicationProfile>
+): Promise<PublicationProfile> {
+    return (await apiClient.post(`/${profileEntity}`, data)).data;
+}
+
+export async function deleteProfile(id: string): Promise<void> {
+    await apiClient.delete(`/${profileEntity}/${id}`);
+    clearApiCache();
 }

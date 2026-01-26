@@ -30,7 +30,7 @@ export default function HorizontalAppMenu({
                         flexGrow: 1,
                     }}
                 >
-                    <AppLogo config={config} {...logoProps} />
+                    {logoProps ? <AppLogo config={config} {...logoProps} /> : null}
                 </div>
             )}
             <div>

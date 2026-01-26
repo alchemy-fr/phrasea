@@ -25,6 +25,9 @@ import AnalyticsProvider from './src/AnalyticsProvider';
 import {getAllTreeNodeIds} from './src/Tree/treeHelper';
 import {useVirtualNodes} from './src/Tree/useVirtualNodes';
 import {useDirtyFormPrompt} from './src/hooks/useDirtyFormPrompt';
+import NavButton from './src/Menu/NavButton';
+import NavMenuItem from './src/Menu/NavMenuItem';
+import NavMenu from './src/Menu/NavMenu';
 export {
     AppProvider,
     initApp,
@@ -54,6 +57,9 @@ export {
     getAllTreeNodeIds,
     useVirtualNodes,
     useDirtyFormPrompt,
+    NavButton,
+    NavMenuItem,
+    NavMenu,
 };
 export * from './src/Theme/types';
 export * from './src/Dialog/types';

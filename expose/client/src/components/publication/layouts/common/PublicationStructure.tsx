@@ -20,11 +20,16 @@ import {routes} from '../../../../routes.ts';
 import {useTranslation} from 'react-i18next';
 import HomeIcon from '@mui/icons-material/Home';
 import DownloadArchiveButton from './DownloadArchiveButton.tsx';
-import {MenuClasses, VerticalMenuLayout} from '@alchemy/phrasea-framework';
+import {
+    MenuClasses,
+    MenuOrientation,
+    VerticalMenuLayout,
+} from '@alchemy/phrasea-framework';
 import React, {PropsWithChildren} from 'react';
 import PublicationsTree from './PublicationsTree.tsx';
 import {getPublicationPath} from '../../../../hooks/useNavigateToPublication.ts';
 import EditIcon from '@mui/icons-material/Edit';
+import AppNav from '../../../AppNav.tsx';
 
 type Props = PropsWithChildren<{
     publication: Publication;
@@ -52,10 +57,28 @@ export default function PublicationStructure({publication, children}: Props) {
         <VerticalMenuLayout
             config={config}
             defaultOpen={false}
+            childrenSx={{
+                display: 'flex',
+            }}
             menuChildren={
-                <>
-                    <PublicationsTree publication={publication} />
-                </>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        flexGrow: 1,
+                    }}
+                >
+                    <div
+                        style={{
+                            flexGrow: 1,
+                        }}
+                    >
+                        <PublicationsTree publication={publication} />
+                    </div>
+                    <div>
+                        <AppNav orientation={MenuOrientation.Vertical} />
+                    </div>
+                </div>
             }
             logoProps={{
                 appTitle: t('common.expose', 'Expose'),

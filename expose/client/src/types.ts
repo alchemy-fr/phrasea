@@ -67,6 +67,7 @@ export type PublicationProfile = {
     name: string;
     ownerId: string | undefined;
     config: PublicationConfig;
+    publicationCount: number;
 } & EntityWithIri;
 
 export type Publication = {

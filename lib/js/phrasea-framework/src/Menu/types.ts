@@ -1,9 +1,11 @@
 import {KeycloakClient} from '@alchemy/auth';
-import React, {PropsWithChildren} from 'react';
+import React, {PropsWithChildren, ReactNode} from 'react';
 import {LocaleDialogProps} from '../Locale/types';
 import {NotificationUriHandler} from '@alchemy/notification';
 import {DropdownActionsProps} from '@alchemy/phrasea-ui';
-import {Theme} from '@mui/material';
+import {SxProps, Theme} from '@mui/material';
+import {RouteDefinition, RouteParameters} from '@alchemy/navigation';
+import {Location} from 'react-router-dom';
 
 export type CommonMenuProps = {
     config: WindowConfig;
@@ -34,15 +36,37 @@ export type AppLogoProps = {
             style?: string;
         };
     };
+    sx?: SxProps<any>;
 };
 
 export type AppMenuProps = PropsWithChildren<{
     config: WindowConfig;
     sx?: React.CSSProperties | ((theme: Theme) => React.CSSProperties);
     commonMenuProps: Omit<CommonMenuProps, 'config'>;
-    logoProps: Omit<AppLogoProps, 'config'>;
+    logoProps?: Omit<AppLogoProps, 'config'>;
+    childrenSx?: SxProps<any>;
 }>;
 
 export enum MenuClasses {
     PageHeader = 'Menu-PageHeader',
 }
+
+export type NavItem = {
+    id: string;
+    label: ReactNode;
+} & Omit<NavButtonProps, 'location'>;
+
+export type NavButtonProps = {
+    route?: RouteDefinition;
+    routeParams?: RouteParameters;
+    location?: Location;
+};
+
+export enum MenuOrientation {
+    Horizontal = 1,
+    Vertical = 2,
+}
+export type NavMenuProps = {
+    orientation: MenuOrientation;
+    items: NavItem[];
+};

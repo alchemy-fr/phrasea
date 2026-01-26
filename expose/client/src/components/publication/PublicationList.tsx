@@ -1,21 +1,27 @@
 import React, {useMemo} from 'react';
-import {Button, Container, MenuItem} from '@mui/material';
+import {Button, Container, Grid2 as Grid, MenuItem} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {Publication, SortBy} from '../../types.ts';
 import {apiClient} from '../../init.ts';
 import {DropdownActions, FullPageLoader} from '@alchemy/phrasea-ui';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import PublicationCard from './PublicationCard.tsx';
-import {Grid2 as Grid} from '@mui/material';
-import AppBar from '../ui/AppBar.tsx';
-import {wrapCached} from '@alchemy/phrasea-framework';
+import AppBar from '../AppBar.tsx';
+import {ConfirmDialog, wrapCached} from '@alchemy/phrasea-framework';
+import {deletePublication} from '../../api/publicationApi.ts';
+import {useModals} from '@alchemy/navigation';
+import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 type Props = {};
 
 export default function PublicationList({}: Props) {
     const [loading, setLoading] = React.useState(false);
-    const [data, setData] = React.useState<Publication[] | undefined>();
+    const [data, setData] = React.useState<
+        NormalizedCollectionResponse<Publication> | undefined
+    >();
     const [sortBy, setSortBy] = React.useState<SortBy>(SortBy.Date);
+    const {openModal} = useModals();
     const {t} = useTranslation();
 
     const orders = useMemo(
@@ -32,29 +38,60 @@ export default function PublicationList({}: Props) {
         [t]
     );
 
-    const loadPublications = React.useCallback(async () => {
-        setData(
-            await wrapCached(
-                `publications_${sortBy}`,
+    const loadPublications = React.useCallback(
+        async (nextUrl?: string) => {
+            const res = await wrapCached(
+                nextUrl ?? `publications_${sortBy}`,
                 5 * 60 * 1000,
                 async () => {
                     setLoading(true);
                     try {
                         const res = await apiClient.get(
-                            `/publications?${orders[sortBy].query}`
+                            nextUrl ?? `/publications?${orders[sortBy].query}`
                         );
-                        return res.data['hydra:member'];
+                        return getHydraCollection<Publication>(res.data);
                     } finally {
                         setLoading(false);
                     }
                 }
-            )
-        );
-    }, [sortBy, orders]);
+            );
+
+            setData(p =>
+                p && nextUrl
+                    ? {
+                          ...res,
+                          result: p.result.concat(res.result),
+                      }
+                    : res
+            );
+        },
+        [sortBy, orders]
+    );
 
     React.useEffect(() => {
         loadPublications();
     }, [loadPublications]);
+
+    const onDeletePublication = React.useCallback(
+        async (publication: Publication) => {
+            openModal(ConfirmDialog, {
+                textToType: publication.title,
+                title: t('publication.delete_title', {
+                    defaultValue: 'Delete publication "{{title}}"',
+                    title: publication.title,
+                }),
+                onConfirm: async () => {
+                    await deletePublication(publication.id);
+                    loadPublications();
+                },
+                confirmLabel: t(
+                    'publication.delete_confirm',
+                    'Delete publication'
+                ),
+            });
+        },
+        [loadPublications, openModal]
+    );
 
     return (
         <Container>
@@ -128,20 +165,49 @@ export default function PublicationList({}: Props) {
                         },
                     }}
                 >
-                    {data
-                        ? data.map((p: Publication) => (
-                              <Grid
-                                  size={{
-                                      xs: 12,
-                                      sm: 6,
-                                      md: 4,
-                                  }}
-                                  key={p.id}
-                              >
-                                  <PublicationCard publication={p} />
-                              </Grid>
-                          ))
-                        : null}
+                    {data ? (
+                        <>
+                            {data.result.map((p: Publication) => (
+                                <Grid
+                                    size={{
+                                        xs: 12,
+                                        sm: 6,
+                                        md: 4,
+                                    }}
+                                    key={p.id}
+                                >
+                                    <PublicationCard
+                                        onDelete={onDeletePublication}
+                                        publication={p}
+                                    />
+                                </Grid>
+                            ))}
+                            {data?.next ? (
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        width: '100%',
+                                    }}
+                                >
+                                    <Button
+                                        variant={'outlined'}
+                                        loading={loading}
+                                        disabled={loading}
+                                        onClick={() => {
+                                            loadPublications(data.next!);
+                                        }}
+                                        startIcon={<KeyboardArrowDownIcon />}
+                                    >
+                                        {t(
+                                            'publication.load_more',
+                                            'Load more'
+                                        )}
+                                    </Button>
+                                </div>
+                            ) : null}
+                        </>
+                    ) : null}
                 </Grid>
             </div>
         </Container>

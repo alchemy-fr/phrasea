@@ -8,6 +8,7 @@ import IndexPage from './pages/IndexPage.tsx';
 import PublicationEditPage from './pages/PublicationEditPage.tsx';
 import ProfileEditPage from './pages/ProfileEditPage.tsx';
 import ProfileListPage from './pages/ProfileListPage.tsx';
+import ProfileCreatePage from './pages/ProfileCreatePage.tsx';
 
 const routes = {
     index: {
@@ -43,6 +44,10 @@ const routes = {
             index: {
                 path: '',
                 component: ProfileListPage,
+            },
+            create: {
+                path: 'create',
+                component: ProfileCreatePage,
             },
             edit: {
                 path: ':id/edit',

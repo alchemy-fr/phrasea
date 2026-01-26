@@ -7,7 +7,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import AppBar from '../ui/AppBar.tsx';
+import AppBar from '../AppBar.tsx';
 import {Publication} from '../../types.ts';
 import React from 'react';
 import {toast} from 'react-toastify';

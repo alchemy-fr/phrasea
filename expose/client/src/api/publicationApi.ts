@@ -3,6 +3,7 @@ import {apiClient} from '../init.ts';
 import {RawAxiosRequestHeaders} from 'axios';
 import {getPasswords} from '../lib/password.ts';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
+import {clearApiCache} from '@alchemy/phrasea-framework';
 
 const publicationEntity = `publications`;
 
@@ -31,6 +32,11 @@ export async function putPublication(
     data: Partial<Publication>
 ): Promise<Publication> {
     return (await apiClient.put(`/${publicationEntity}/${id}`, data)).data;
+}
+
+export async function deletePublication(id: string): Promise<void> {
+    await apiClient.delete(`/${publicationEntity}/${id}`);
+    clearApiCache();
 }
 
 export function getPasswordHeaders(): RawAxiosRequestHeaders {

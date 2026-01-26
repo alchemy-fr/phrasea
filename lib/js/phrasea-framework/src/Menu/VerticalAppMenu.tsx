@@ -9,6 +9,7 @@ export default function VerticalAppMenu({
     config,
     logoProps,
     commonMenuProps,
+    childrenSx,
     sx,
 }: AppMenuProps) {
     return (
@@ -33,16 +34,19 @@ export default function VerticalAppMenu({
                         p: 2,
                     }}
                 >
-                    <AppLogo config={config} {...logoProps} />
+                    {logoProps ? (
+                        <AppLogo config={config} {...logoProps} />
+                    ) : null}
                 </Box>
 
                 <Box
-                    sx={{
+                    sx={theme => ({
                         flexGrow: 1,
                         overflow: 'auto',
                         position: 'relative',
                         pb: 3,
-                    }}
+                        ...resolveSx(childrenSx, theme),
+                    })}
                 >
                     {children}
                 </Box>

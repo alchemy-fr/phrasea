@@ -1,5 +1,11 @@
 import React, {PropsWithChildren, ReactNode, useEffect, useState} from 'react';
-import {IconButton, Theme, useMediaQuery, useTheme} from '@mui/material';
+import {
+    BoxProps,
+    IconButton,
+    Theme,
+    useMediaQuery,
+    useTheme,
+} from '@mui/material';
 import {AppMenuProps, MenuClasses} from './types';
 import VerticalAppMenu from './VerticalAppMenu';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';

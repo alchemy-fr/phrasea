@@ -7,7 +7,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import AppBar from '../ui/AppBar.tsx';
+import AppBar from '../AppBar.tsx';
 import {PublicationProfile} from '../../types.ts';
 import React from 'react';
 import {toast} from 'react-toastify';
@@ -16,43 +16,67 @@ import {normalizeNestedObjects, useFormSubmit} from '@alchemy/api';
 import {FormFieldErrors, FormRow, RemoteErrors} from '@alchemy/react-form';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import PublicationConfigForm from '../form/PublicationConfigForm.tsx';
-import {putProfile} from '../../api/profileApi.ts';
+import {postProfile, putProfile} from '../../api/profileApi.ts';
 import {routes} from '../../routes.ts';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {getPath, Link, useNavigate} from '@alchemy/navigation';
 
 type Props = {
-    data: PublicationProfile;
+    data?: PublicationProfile;
 };
 
-export default function ProfileEdit({data}: Props) {
+export default function ProfileEdit({data: profile}: Props) {
     const {t} = useTranslation();
     const navigate = useNavigate();
 
     const usedFormSubmit = useFormSubmit<PublicationProfile>({
-        defaultValues: {
-            ...normalizeNestedObjects(data, {
-                ignoredKeys: ['config'],
-            }),
-            config: {
-                ...data.config,
-                securityOptions: {
-                    ...(data.config.securityOptions || {}),
-                },
-            },
-        },
+        defaultValues: profile
+            ? {
+                  ...normalizeNestedObjects(profile, {
+                      ignoredKeys: ['config'],
+                  }),
+                  config: {
+                      ...profile.config,
+                      securityOptions: {
+                          ...(profile.config.securityOptions || {}),
+                      },
+                  },
+              }
+            : {
+                  name: '',
+                  config: {
+                      securityOptions: {},
+                  },
+              },
         onSubmit: async data => {
-            return await putProfile(
-                data.id,
-                normalizeNestedObjects(data, {
-                    ignoredKeys: ['config'],
-                })
-            );
+            if (!profile) {
+                return await postProfile(
+                    normalizeNestedObjects(data, {
+                        ignoredKeys: ['config'],
+                    })
+                );
+            } else {
+                return await putProfile(
+                    data.id,
+                    normalizeNestedObjects(data, {
+                        ignoredKeys: ['config'],
+                    })
+                );
+            }
         },
         onSuccess: () => {
-            toast.success(
-                t('form.profile.edit.success', 'Profile saved!') as string
-            );
+            if (profile) {
+                toast.success(
+                    t('form.profile.edit.success', 'Profile saved!') as string
+                );
+            } else {
+                toast.success(
+                    t(
+                        'form.profile.create.success',
+                        'Profile created!'
+                    ) as string
+                );
+            }
             navigate(getPath(routes.profile.routes.index));
         },
     });
@@ -91,7 +115,9 @@ export default function ProfileEdit({data}: Props) {
                     >
                         <ArrowBackIcon />
                     </IconButton>
-                    {t('form.profile.edit.title', 'Edit Profile')}
+                    {profile
+                        ? t('form.profile.edit.title', 'Edit Profile')
+                        : t('form.profile.create.title', 'Create Profile')}
                 </Typography>
                 <form onSubmit={handleSubmit}>
                     <FormRow>

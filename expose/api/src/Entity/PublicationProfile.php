@@ -72,17 +72,17 @@ class PublicationProfile implements AclObjectInterface, \Stringable
      * @var Uuid
      */
     #[ApiProperty(identifier: true)]
-    #[Groups([self::GROUP_INDEX, self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_INDEX, Publication::GROUP_READ])]
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     private UuidInterface $id;
 
     #[ORM\Column(type: Types::STRING, length: 150)]
-    #[Groups([self::GROUP_INDEX, self::GROUP_READ, Publication::GROUP_READ, self::GROUP_WRITE])]
+    #[Groups([self::GROUP_INDEX, Publication::GROUP_READ, self::GROUP_WRITE])]
     private ?string $name = null;
 
     #[ORM\Embedded(class: PublicationConfig::class)]
-    #[Groups([self::GROUP_INDEX, self::GROUP_READ, Publication::GROUP_READ, self::GROUP_WRITE])]
+    #[Groups([self::GROUP_INDEX, Publication::GROUP_READ, self::GROUP_WRITE])]
     private PublicationConfig $config;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
@@ -163,5 +163,11 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     public function getPublications(): ?Collection
     {
         return $this->publications;
+    }
+
+    #[Groups([self::GROUP_INDEX])]
+    public function getPublicationCount(): int
+    {
+        return $this->publications->count();
     }
 }

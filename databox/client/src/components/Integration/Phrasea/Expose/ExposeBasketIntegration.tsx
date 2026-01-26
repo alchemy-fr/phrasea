@@ -21,6 +21,7 @@ import React from 'react';
 import {useChannelRegistration} from '../../../../lib/pusher.ts';
 import {useTranslation} from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 
 type Props = {} & BasketIntegrationActionsProps;
 
@@ -157,7 +158,11 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
 
             {data.pages.length > 0 &&
                 data.pages.flat().map(d => {
-                    const {id, url} = d.value as {id: string; url: string};
+                    const {id, url, editUrl} = d.value as {
+                        id: string;
+                        url: string;
+                        editUrl: string;
+                    };
                     const syncState = syncStates[d.id];
 
                     return (
@@ -171,9 +176,6 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                             </CardContent>
                             <CardActions>
                                 <Button
-                                    sx={{
-                                        mr: 1,
-                                    }}
                                     onClick={() => forceSync(d.id)}
                                     startIcon={<SyncIcon />}
                                     disabled={
@@ -188,9 +190,18 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                                 </Button>
 
                                 <Button
-                                    sx={{
-                                        mr: 1,
-                                    }}
+                                    href={editUrl}
+                                    target={'_blank'}
+                                    disabled={!hasValidToken}
+                                    startIcon={<EditIcon />}
+                                >
+                                    {t(
+                                        'expose_basket_integration.edit_publication',
+                                        `Edit Publication`
+                                    )}
+                                </Button>
+
+                                <Button
                                     loading={deleting === d.id}
                                     onClick={() => deleteSync(d.id)}
                                     startIcon={<DeleteIcon />}
