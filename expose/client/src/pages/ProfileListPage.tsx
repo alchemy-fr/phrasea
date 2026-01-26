@@ -12,18 +12,37 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {ConfirmDialog, NavButton} from '@alchemy/phrasea-framework';
 import AddIcon from '@mui/icons-material/Add';
+import LoadMoreRow from '../components/ui/LoadMoreRow.tsx';
 
 type Props = {};
 
 export default function ProfileListPage({}: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
+    const [loading, setLoading] = React.useState(false);
     const [data, setData] =
         useState<NormalizedCollectionResponse<PublicationProfile>>();
 
-    const loadProfiles = useCallback(async () => {
-        setData(await getProfiles());
-    }, [setData]);
+    const loadProfiles = useCallback(
+        async (nextUrl?: string) => {
+            setLoading(true);
+            try {
+                const res = await getProfiles({nextUrl});
+
+                setData(p =>
+                    p && nextUrl
+                        ? {
+                              ...res,
+                              result: p.result.concat(res.result),
+                          }
+                        : res
+                );
+            } finally {
+                setLoading(false);
+            }
+        },
+        [setData]
+    );
 
     useEffect(() => {
         loadProfiles();
@@ -132,6 +151,11 @@ export default function ProfileListPage({}: Props) {
                             </Paper>
                         ))}
                     </Box>
+                    <LoadMoreRow
+                        loading={loading}
+                        data={data}
+                        load={loadProfiles}
+                    />
                 </div>
             ) : (
                 <FullPageLoader backdrop={false} />

@@ -5,10 +5,13 @@ import {clearApiCache} from '@alchemy/phrasea-framework';
 
 const profileEntity = `publication-profiles`;
 
-export async function getProfiles(
-    options: Record<string, any> = {}
-): Promise<NormalizedCollectionResponse<PublicationProfile>> {
-    const res = await apiClient.get(`${profileEntity}`, {
+export async function getProfiles({
+    nextUrl,
+    ...options
+}: Record<string, any> & {
+    nextUrl?: string;
+} = {}): Promise<NormalizedCollectionResponse<PublicationProfile>> {
+    const res = await apiClient.get(nextUrl ?? `${profileEntity}`, {
         params: options,
     });
 

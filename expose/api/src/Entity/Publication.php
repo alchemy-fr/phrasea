@@ -59,7 +59,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         new GetCollection(
             normalizationContext: [
                 'groups' => [self::GROUP_INDEX],
-            ]
+            ],
         ),
         new Post(
             securityPostDenormalize: 'is_granted("'.PublicationVoter::CREATE.'", object)'

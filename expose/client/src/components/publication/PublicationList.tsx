@@ -11,7 +11,7 @@ import {ConfirmDialog, wrapCached} from '@alchemy/phrasea-framework';
 import {deletePublication} from '../../api/publicationApi.ts';
 import {useModals} from '@alchemy/navigation';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import LoadMoreRow from '../ui/LoadMoreRow.tsx';
 
 type Props = {};
 
@@ -182,30 +182,12 @@ export default function PublicationList({}: Props) {
                                     />
                                 </Grid>
                             ))}
-                            {data?.next ? (
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        width: '100%',
-                                    }}
-                                >
-                                    <Button
-                                        variant={'outlined'}
-                                        loading={loading}
-                                        disabled={loading}
-                                        onClick={() => {
-                                            loadPublications(data.next!);
-                                        }}
-                                        startIcon={<KeyboardArrowDownIcon />}
-                                    >
-                                        {t(
-                                            'publication.load_more',
-                                            'Load more'
-                                        )}
-                                    </Button>
-                                </div>
-                            ) : null}
+
+                            <LoadMoreRow
+                                loading={loading}
+                                data={data}
+                                load={loadPublications}
+                            />
                         </>
                     ) : null}
                 </Grid>
