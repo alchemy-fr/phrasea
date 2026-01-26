@@ -380,7 +380,7 @@ App\Entity\Core\File:
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
     f_img_ta{1..10} (extends file):
         type: image/jpeg
-        path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200, true)>'
+        path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
     f_audio_o{1..10} (extends file):
         type: audio/mp3
         path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
