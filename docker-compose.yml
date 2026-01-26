@@ -118,8 +118,6 @@ services:
         SENTRY_RELEASE: ${SENTRY_RELEASE}
     networks:
       - internal
-    depends_on:
-      - rabbitmq
     environment:
       - APP_ENV
       - TRUSTED_PROXIES
@@ -368,7 +366,7 @@ services:
 
   redis:
     profiles:
-      - datastore
+      - redis
     image: ${REDIS_IMAGE}
     networks:
       - internal
@@ -390,7 +388,7 @@ services:
 
   rabbitmq:
     profiles:
-      - datastore
+      - rabbitmq
     image: ${RABBITMQ_IMAGE}
     hostname: rabbitmq
     networks:
@@ -429,7 +427,7 @@ services:
 
   minio:
     profiles:
-      - s3storage
+      - minio
     image: ${MINIO_IMAGE}
     networks:
       - internal
@@ -470,8 +468,6 @@ services:
     build: ./infra/docker/matomo-php
     networks:
       - internal
-    depends_on:
-      - matomo-db
     environment:
       - MATOMO_DATABASE_HOST=matomo-db
       - MATOMO_DATABASE_USERNAME
@@ -498,7 +494,7 @@ services:
 
   matomo-db:
     profiles:
-      - matomo
+      - matomo-db
     image: mariadb:10.4.10-bionic
     command:
       - "mysqld"
@@ -532,7 +528,7 @@ services:
 
   pgadmin:
     profiles:
-      - tools
+      - pgadmin
     image: dpage/pgadmin4:9.11.0
     networks:
       - internal
@@ -540,8 +536,6 @@ services:
       - PGADMIN_DEFAULT_EMAIL
       - PGADMIN_DEFAULT_PASSWORD
       - PGADMIN_SERVER_JSON_FILE=/data/server.json
-    depends_on:
-      - db
     volumes:
       - pgadmin:/var/lib/pgadmin
       - ./infra/docker/pgadmin/server.json:/data/server.json
@@ -553,7 +547,7 @@ services:
 
   phpmyadmin:
     profiles:
-      - tools
+      - phpmyadmin
     image: phpmyadmin/phpmyadmin
     networks:
       - internal
@@ -667,9 +661,6 @@ services:
       - SOKETI_KEY
       - SOKETI_SECRET
       - DB_NAME=${DATABOX_DB_NAME}
-    depends_on:
-      - redis
-      - elasticsearch
     extra_hosts:
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -783,7 +774,7 @@ services:
 
   elasticsearch:
     profiles:
-      - databox
+      - elasticsearch
     image: ${ELASTICSEARCH_IMAGE}
     networks:
       - internal
@@ -802,7 +793,7 @@ services:
 
   elastichq:
     profiles:
-      - tools
+      - elastichq
     image: elastichq/elasticsearch-hq
     networks:
       - internal
@@ -886,8 +877,6 @@ services:
       - ZIPPY_URL
     volumes:
       - zippy:/data
-    depends_on:
-      - rabbitmq
     extra_hosts:
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     labels:
@@ -1107,11 +1096,6 @@ services:
 
   novu-api:
     image: ghcr.io/novuhq/novu/api:${NOVU_VERSION}
-    depends_on:
-      mongodb:
-        condition: service_started
-      redis:
-        condition: service_started
     profiles:
       - novu-self-hosted
     networks:
@@ -1147,11 +1131,6 @@ services:
 
   novu-worker:
     image: ghcr.io/novuhq/novu/worker:${NOVU_VERSION}
-    depends_on:
-      mongodb:
-        condition: service_started
-      redis:
-        condition: service_started
     profiles:
       - novu-self-hosted
     networks:
@@ -1175,11 +1154,6 @@ services:
 
   novu-ws:
     image: ghcr.io/novuhq/novu/ws:${NOVU_VERSION}
-    depends_on:
-      mongodb:
-        condition: service_started
-      redis:
-        condition: service_started
     profiles:
       - novu-self-hosted
     networks:
