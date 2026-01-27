@@ -28,6 +28,8 @@ function AssetMatomoMetricsView({asset}: Props) {
 
                 if (Object.hasOwnProperty.call(res, 'nb_impressions')) {
                     setStats(res);
+                } else {
+                    setStats(null);
                 }
             })();
         }

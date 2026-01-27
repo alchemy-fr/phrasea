@@ -36,7 +36,7 @@ import AssetAttachments from '../AssetAttachments.tsx';
 import {Routing} from '../../../../routes.ts';
 import {getMediaBackgroundColor, scrollbarWidth} from '../../../uiVars.ts';
 import {NormalizedCollectionResponse} from '@alchemy/api';
-import {useMatomo} from '@alchemy/phrasea-framework';
+import {useTracking} from '@alchemy/phrasea-framework';
 import AssetMatomoMetricsView from '../AssetMatomoMetricsView.tsx';
 
 export type IntegrationOverlayCommonProps = {
@@ -70,7 +70,6 @@ export default function AssetView({modalIndex, open}: Props) {
         AssetAnnotation[] | undefined
     >();
     const {t} = useTranslation();
-    const {pushInstruction} = useMatomo();
 
     const queryKey = ['assets', assetId];
     const [storyAssets, setStoryAssets] =
@@ -173,7 +172,7 @@ export default function AssetView({modalIndex, open}: Props) {
         messageFormRef,
     });
 
-    const isImpressionTrackedRef = useRef(false);
+    const isImpressionTrackedRef = useRef<string | undefined>();
 
     const panelHeight = winSize.innerHeight - headerHeight;
 
@@ -188,17 +187,17 @@ export default function AssetView({modalIndex, open}: Props) {
           currentStoryAsset.thumbnail?.file
         : rendition?.file;
 
-    React.useEffect(() => {
-        if (asset !== undefined && !isImpressionTrackedRef.current) {
-            pushInstruction(
-                'trackContentImpression',
-                asset?.trackingId,
-                displayedRenditionFile?.url
-            );
+    const {trackContentImpression} = useTracking();
 
-            isImpressionTrackedRef.current = true;
+    React.useEffect(() => {
+        if (asset && isImpressionTrackedRef.current !== asset.id) {
+            trackContentImpression(
+                asset.trackingId || asset.id,
+                asset.resolvedTitle
+            );
+            isImpressionTrackedRef.current = asset.id;
         }
-    }, [asset]);
+    }, [asset?.id, isImpressionTrackedRef, trackContentImpression]);
 
     if (!isSuccess && !isError && !previousData.current) {
         if (!open) {

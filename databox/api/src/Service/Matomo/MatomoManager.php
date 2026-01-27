@@ -31,7 +31,7 @@ final readonly class MatomoManager
                 }
 
             } else {
-                $method = 'Contents.getContentNames';
+                $method = 'Contents.getContentPieces';
             }
 
             $response = $this->matomoClient->request('POST', '/', [
@@ -40,9 +40,9 @@ final readonly class MatomoManager
                     'idSite' => $this->matomoSiteId,
                     'method' => $method,
                     'format' => 'JSON',
-                    'date' => '2025-12-01,'.date('Y-m-d', strtotime('+1 day')),
+                    'date' => '2000-12-01,'.date('Y-m-d', strtotime('+1 day')),
                     'period' => 'range',
-                    'label' => $trackingId,
+                    'segment' => 'contentPiece=='.$trackingId,
                 ],
                 'body' => [
                     'token_auth' => $this->matomoAuthToken,
