@@ -11,6 +11,7 @@ import React from 'react';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import {AssetOrAssetContainer} from '../../types';
 import {ParentSelectionContext} from '../AssetList/Toolbar/SelectionActions.tsx';
+import {toast} from 'react-toastify';
 
 type Props<Item extends AssetOrAssetContainer> = {
     selectionContext: ParentSelectionContext<Item>;
@@ -40,6 +41,13 @@ export default function BasketSwitcher<Item extends AssetOrAssetContainer>({
                         id: a.id,
                     })
                 )
+            );
+            toast.success(
+                t('basket.added_to_basket', {
+                    count: selection.length,
+                    defaultValue: 'Item added to basket',
+                    defaultValue_other: '{{count}} items added to basket',
+                })
             );
             setSelection([]);
         } else {

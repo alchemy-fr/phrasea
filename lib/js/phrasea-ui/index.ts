@@ -15,6 +15,7 @@ import DropdownActions, {
     dropdownActionsOpenClassName,
 } from './src/components/DropdownActions';
 import DashboardMenu from './src/components/DashboardMenu/DashboardMenu';
+import LoadMoreRow from './src/components/LoadMoreRow';
 
 export {
     NotFoundPage,
@@ -31,6 +32,7 @@ export {
     DropdownActions,
     dropdownActionsOpenClassName,
     DashboardMenu,
+    LoadMoreRow,
 };
 
 export type {AppDialogProps};

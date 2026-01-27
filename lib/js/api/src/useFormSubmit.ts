@@ -95,8 +95,11 @@ export default function useFormSubmit<
                                 resData['title']
                         )
                     );
+
+                    throw e;
                 }
             }
+        } finally {
             setSubmitting(false);
         }
     };

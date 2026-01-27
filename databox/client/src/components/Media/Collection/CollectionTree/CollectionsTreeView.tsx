@@ -129,7 +129,7 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
         OnSelectionChange<CollectionTreeData>
     >(selection => {
         // @ts-expect-error TS can't infer multiple is false here
-        onChange?.(multiple ? selection : selection[0]);
+        onChange?.(multiple ? selection : selection[0] || null);
     }, []);
 
     if (loading) {

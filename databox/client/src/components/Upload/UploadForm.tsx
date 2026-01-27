@@ -28,10 +28,14 @@ import {useFormPrompt} from '@alchemy/navigation';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
 import StoryForm from './StoryForm.tsx';
-import {EntityType} from '../Media/Collection/CollectionTree/types.ts';
+import {
+    EntityType,
+    WorkspaceOrCollectionTreeItem,
+} from '../Media/Collection/CollectionTree/types.ts';
+import {TreeNode} from '@alchemy/phrasea-framework';
 
 export type UploadData = {
-    destination: string;
+    destination: TreeNode<WorkspaceOrCollectionTreeItem> | string | null;
     privacy: Privacy;
     tags: Tag[];
     quiet?: boolean;

@@ -11,7 +11,7 @@ import {ConfirmDialog, wrapCached} from '@alchemy/phrasea-framework';
 import {deletePublication} from '../../api/publicationApi.ts';
 import {useModals} from '@alchemy/navigation';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
-import LoadMoreRow from '../ui/LoadMoreRow.tsx';
+import LoadMoreButton from '../ui/LoadMoreButton.tsx';
 
 type Props = {};
 
@@ -183,7 +183,7 @@ export default function PublicationList({}: Props) {
                                 </Grid>
                             ))}
 
-                            <LoadMoreRow
+                            <LoadMoreButton
                                 loading={loading}
                                 data={data}
                                 load={loadPublications}

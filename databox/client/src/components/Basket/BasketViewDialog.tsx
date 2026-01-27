@@ -182,12 +182,14 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                     style={{
                         display: 'flex',
                         alignItems: 'stretch',
+                        height: 'calc(100vh - 200px)',
                     }}
                 >
                     <Box
                         sx={theme => ({
                             width: leftPanelWidth,
                             overflow: 'auto',
+                            height: '100%',
                             boxShadow: theme.shadows[5],
                             zIndex: ZIndex.leftPanel,
                         })}
@@ -196,7 +198,6 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                     </Box>
                     <div
                         style={{
-                            height: 'calc(100vh - 120px)',
                             width: '100%',
                         }}
                     >

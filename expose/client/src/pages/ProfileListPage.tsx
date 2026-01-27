@@ -12,7 +12,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {ConfirmDialog, NavButton} from '@alchemy/phrasea-framework';
 import AddIcon from '@mui/icons-material/Add';
-import LoadMoreRow from '../components/ui/LoadMoreRow.tsx';
+import LoadMoreButton from '../components/ui/LoadMoreButton.tsx';
 
 type Props = {};
 
@@ -151,7 +151,7 @@ export default function ProfileListPage({}: Props) {
                             </Paper>
                         ))}
                     </Box>
-                    <LoadMoreRow
+                    <LoadMoreButton
                         loading={loading}
                         data={data}
                         load={loadProfiles}

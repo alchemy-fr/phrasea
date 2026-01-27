@@ -1,31 +1,15 @@
 import React from 'react';
-import {
-    Button,
-    List,
-    ListItem,
-    ListItemIcon,
-    MenuItem,
-    Skeleton,
-    Stack,
-} from '@mui/material';
-import {useBasketStore} from '../../store/basketStore';
+import {Button, List, Stack} from '@mui/material';
 import BasketMenuItem from './BasketMenuItem';
-import {toast} from 'react-toastify';
-import {useModals} from '@alchemy/navigation';
-import {Basket} from '../../types';
 import {useTranslation} from 'react-i18next';
-import CreateBasket from './CreateBasket';
 import AddIcon from '@mui/icons-material/Add';
-import {useNavigateToModal} from '../Routing/ModalLink';
 import {modalRoutes} from '../../routes';
-import {getBaskets} from '../../api/basket.ts';
-import {useContextMenu} from '../../hooks/useContextMenu.ts';
-import ContextMenu from '../Ui/ContextMenu.tsx';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import {useSearch} from '../../hooks/useSearch.ts';
 import SearchBar from '../Ui/SearchBar.tsx';
-import {ConfirmDialog} from '@alchemy/phrasea-framework';
+import {useBasketList} from '../../hooks/useBasketList.ts';
+import {useNavigateToModal} from '../Routing/ModalLink.tsx';
+import BasketSkeleton from './BasketSkeleton.tsx';
+import BasketContextMenu from './BasketContextMenu.tsx';
+import {LoadMoreRow} from '@alchemy/phrasea-ui';
 
 type Props = {
     selected?: string;
@@ -33,65 +17,24 @@ type Props = {
 
 function BasketsPanel({selected}: Props) {
     const {t} = useTranslation();
-    const {contextMenu, onContextMenuOpen, onContextMenuClose} =
-        useContextMenu<Basket>();
-
-    const baskets = useBasketStore(state => state.baskets);
-    const loading = useBasketStore(state => state.loading);
-    const loadMore = useBasketStore(state => state.loadMore);
-    const hasMore = useBasketStore(state => state.hasMore);
-    const load = useBasketStore(state => state.load);
-    const deleteBasket = useBasketStore(state => state.deleteBasket);
-    const {openModal} = useModals();
     const navigateToModal = useNavigateToModal();
 
     const {
+        contextMenu,
+        onContextMenuOpen,
+        onContextMenuClose,
+        onEdit,
+        onDelete,
+        createBasket,
+        loading,
         searchQuery,
         setSearchQuery,
-        results,
+        baskets,
         searchResult,
         loadMoreHandler,
-        hasMore: hasLoadMore,
+        hasLoadMore,
         searchHandler,
-    } = useSearch({
-        items: baskets,
-        loadItems: load,
-        hasMore: hasMore(),
-        loadMore: loadMore,
-        search: (q, nextUrl) => getBaskets(nextUrl, {query: q}),
-    });
-
-    const onDelete = (data: Basket): void => {
-        onContextMenuClose();
-        openModal(ConfirmDialog, {
-            textToType: data.title,
-            title: t(
-                'basket_delete.confirm',
-                'Are you sure you want to delete this basket?'
-            ),
-            onConfirm: async () => {
-                await deleteBasket(data.id);
-                toast.success(
-                    t(
-                        'delete.basket.confirmed',
-                        'Basket has been removed!'
-                    ) as string
-                );
-            },
-        });
-    };
-
-    const onEdit = (data: Basket) => {
-        onContextMenuClose();
-        navigateToModal(modalRoutes.baskets.routes.manage, {
-            id: data.id,
-            tab: 'edit',
-        });
-    };
-
-    const createBasket = () => {
-        openModal(CreateBasket, {});
-    };
+    } = useBasketList();
 
     return (
         <div
@@ -108,33 +51,14 @@ function BasketsPanel({selected}: Props) {
                 searchHandler={searchHandler}
             />
             {contextMenu ? (
-                <ContextMenu
-                    onClose={onContextMenuClose}
+                <BasketContextMenu
                     contextMenu={contextMenu}
-                    id={'basket-context-menu'}
-                >
-                    <MenuItem
-                        disabled={!contextMenu.data.capabilities.canEdit}
-                        onClick={() => onEdit(contextMenu.data)}
-                    >
-                        <ListItemIcon>
-                            <EditIcon />
-                        </ListItemIcon>
-                        {t('basket.actions.edit', 'Edit Basket')}
-                    </MenuItem>
-                    <MenuItem
-                        disabled={!contextMenu.data.capabilities.canDelete}
-                        onClick={() => onDelete(contextMenu.data)}
-                    >
-                        <ListItemIcon>
-                            <DeleteIcon />
-                        </ListItemIcon>
-                        {t('basket.actions.delete', 'Delete Basket')}
-                    </MenuItem>
-                </ContextMenu>
-            ) : (
-                ''
-            )}
+                    onContextMenuClose={onContextMenuClose}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    onContextMenuOpen={onContextMenuOpen}
+                />
+            ) : null}
             <List
                 disablePadding
                 component="nav"
@@ -151,7 +75,7 @@ function BasketsPanel({selected}: Props) {
                 })}
             >
                 {!loading ? (
-                    results.map(b => (
+                    baskets.map(b => (
                         <BasketMenuItem
                             onContextMenu={e =>
                                 onContextMenuOpen(e, b, e.currentTarget)
@@ -168,29 +92,14 @@ function BasketsPanel({selected}: Props) {
                         />
                     ))
                 ) : (
-                    <>
-                        <ListItem>
-                            <Skeleton variant={'text'} width={'100%'} />
-                        </ListItem>
-                        <ListItem>
-                            <Skeleton variant={'text'} width={'100%'} />
-                        </ListItem>
-                    </>
+                    <BasketSkeleton />
                 )}
             </List>
-            {hasLoadMore ? (
-                <Stack
-                    sx={{
-                        p: 1,
-                    }}
-                >
-                    <Button variant={'contained'} onClick={loadMoreHandler}>
-                        {t('load_more.button.load_more', 'Load more')}
-                    </Button>
-                </Stack>
-            ) : (
-                ''
-            )}
+            <LoadMoreRow
+                hasMore={hasLoadMore}
+                loading={loading}
+                onClick={loadMoreHandler}
+            />
 
             <Stack
                 sx={{

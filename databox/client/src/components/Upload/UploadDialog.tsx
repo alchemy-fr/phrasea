@@ -31,6 +31,8 @@ import {validateUrl} from '@alchemy/core';
 import {CreateAssetsOptions} from '../../api/file.ts';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import {toast} from 'react-toastify';
+import {WorkspaceOrCollectionTreeItem} from '../Media/Collection/CollectionTree/types.ts';
+import {TreeNode} from '@alchemy/phrasea-framework';
 
 type FileWrapper = {
     id: string;
@@ -45,7 +47,7 @@ type Props = {
     workspaceTitle?: string;
 } & StackedModalProps;
 
-export default function UploadModal({
+export default function UploadDialog({
     files: initFiles,
     workspaceId: initWsId,
     open,
@@ -86,7 +88,7 @@ export default function UploadModal({
     const usedAssetDataTemplateOptions = useAssetDataTemplateOptions();
 
     const defaultValues: FormUploadData = {
-        destination: '',
+        destination: null,
         privacy: Privacy.Secret,
         tags: [],
         quiet: false,
@@ -115,7 +117,9 @@ export default function UploadModal({
 
             if (typeof data.destination === 'object') {
                 data.destination =
-                    (await createCollection(data.destination)) || '';
+                    (await createCollection(
+                        data.destination as TreeNode<WorkspaceOrCollectionTreeItem>
+                    )) || '';
             }
 
             const attributes = usedAttributeEditor.attributes
