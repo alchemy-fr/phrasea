@@ -15,7 +15,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import {tagNS} from '../../../api/tag';
-import FullPageLoader from '../../Ui/FullPageLoader.tsx';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import GroupIcon from '@mui/icons-material/Group';
 import {useTranslation} from 'react-i18next';
 

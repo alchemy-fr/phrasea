@@ -6,10 +6,10 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {useEffect, useState, memo} from 'react';
-import {Asset, Stat} from '../../../types.ts';
+import {Asset, MatomoMediaMetrics} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {BaseAttributeRowUIProps} from './Attribute/AttributeRowUI.tsx';
-import {getAssetStats} from '../../../api/asset.ts';
+import {getAssetMetrics} from '../../../api/asset.ts';
 import AssetMatomoMetricsList from './AssetMatomoMetricsList.tsx';
 
 type Props = {
@@ -18,26 +18,26 @@ type Props = {
 
 function AssetMatomoMetricsView({asset}: Props) {
     const [expanded, setExpanded] = useState(false);
-    const [stats, setStats] = useState<Stat | null>(null);
+    const [stats, setStats] = useState<MatomoMediaMetrics | null>(null);
     const {t} = useTranslation();
 
     useEffect(() => {
         if (expanded) {
             (async () => {
-                const res = await getAssetStats(asset.id, asset.source?.type);
+                const res = await getAssetMetrics(asset.id, asset.source?.type);
 
                 if (Object.hasOwnProperty.call(res, 'nb_impressions')) {
                     setStats(res);
                 }
             })();
         }
-    }, [expanded]);
+    }, [expanded, asset]);
 
     return (
         <Accordion expanded={expanded} onChange={() => setExpanded(p => !p)}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography component="div">
-                    {t('asset.view.metric', `Matomo Metric`)}
+                    {t('asset.view.metrics', `Metrics`)}
                 </Typography>
             </AccordionSummary>
             <AccordionDetails>

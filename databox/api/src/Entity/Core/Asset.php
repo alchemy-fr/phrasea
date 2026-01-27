@@ -50,6 +50,7 @@ use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\ResolveEntitiesProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Processor\UnfollowProcessor;
+use App\Api\Provider\AssetAnalyticsProvider;
 use App\Api\Provider\AssetCollectionProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
@@ -98,6 +99,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             output: StoryThumbnailsOutput::class,
             name: 'story-thumbnails',
             provider: StoryThumbnailsProvider::class,
+        ),
+        new Get(
+            uriTemplate: '/assets/{id}/metrics',
+            normalizationContext: [
+                'groups' => [],
+            ],
+            name: 'asset-metrics',
+            provider: AssetAnalyticsProvider::class,
         ),
         new Post(
             uriTemplate: '/assets/entities',

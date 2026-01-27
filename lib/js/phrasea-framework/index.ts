@@ -30,6 +30,7 @@ import NavMenuItem from './src/Menu/NavMenuItem';
 import NavMenu from './src/Menu/NavMenu';
 import {useMatomo} from '@jonkoops/matomo-tracker-react';
 import MatomoRouteWrapper from './src/Route/MatomoRouteWrapper';
+import {useTracking} from './src/hooks/useTracking';
 export {
     AppProvider,
     initApp,
@@ -64,6 +65,7 @@ export {
     NavMenu,
     useMatomo,
     MatomoRouteWrapper,
+    useTracking,
 };
 export * from './src/Theme/types';
 export * from './src/Dialog/types';

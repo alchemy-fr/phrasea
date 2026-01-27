@@ -1,10 +1,10 @@
 import {useTranslation} from 'react-i18next';
-import {Stat} from '../../../types.ts';
+import {MatomoMediaMetrics} from '../../../types.ts';
 import Box from '@mui/material/Box/Box';
 import Typography from '@mui/material/Typography/Typography';
 
 type Props = {
-    data: Stat | null;
+    data: MatomoMediaMetrics | null;
     type: string | undefined;
 };
 

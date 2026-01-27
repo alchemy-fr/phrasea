@@ -10,8 +10,7 @@ import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
 import FileToolbar from './FileToolbar.tsx';
-import {PdfView} from '@alchemy/phrasea-framework';
-import {useMatomo} from '@alchemy/phrasea-framework';
+import {PdfView, useTracking} from '@alchemy/phrasea-framework';
 
 type Props = {
     controls?: boolean | undefined;
@@ -23,6 +22,8 @@ export default function PDFPlayer({
     dimensions: forcedDimensions,
     onLoad,
     annotations,
+    trackingId,
+    title,
     ...playerProps
 }: Props) {
     const [ratio, setRatio] = useState<number>();
@@ -33,7 +34,7 @@ export default function PDFPlayer({
     const dimensions = createStrictDimensions(
         forcedDimensions ?? {width: d?.thumbSize ?? 200}
     );
-    const {pushInstruction} = useMatomo();
+    const {trackContentInteraction} = useTracking();
     const pdfDimensions = getRatioDimensions(dimensions, ratio);
     const onDocLoad = useCallback(
         (pdf: any) => {
@@ -109,17 +110,17 @@ export default function PDFPlayer({
                         position: 'relative',
                         backgroundColor: '#FFF',
                     }}
-                    onClick={() => {
-                        if (playerProps.trackingId) {
-                            pushInstruction(
-                                'trackContentInteraction',
-                                'click',
-                                playerProps.trackingId,
-                                file.url,
-                                ''
-                            );
-                        }
-                    }}
+                    onClick={
+                        trackingId
+                            ? () => {
+                                  trackContentInteraction(
+                                      trackingId,
+                                      title,
+                                      'click'
+                                  );
+                              }
+                            : undefined
+                    }
                 >
                     <PdfView
                         file={file.url}

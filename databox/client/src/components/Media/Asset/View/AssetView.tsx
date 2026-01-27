@@ -9,7 +9,7 @@ import {Dimensions} from '@alchemy/core';
 import {Box, Typography} from '@mui/material';
 import FileIntegrations from '../FileIntegrations.tsx';
 import {getAsset, getAssets} from '../../../../api/asset.ts';
-import FullPageLoader from '../../../Ui/FullPageLoader.tsx';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import RouteDialog from '../../../Dialog/RouteDialog.tsx';
 import {getAssetRenditions} from '../../../../api/rendition.ts';
 import AssetAttributes from '../AssetAttributes.tsx';

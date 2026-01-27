@@ -62,7 +62,7 @@ export type ESDocumentState = {
     data: object;
 };
 
-export type Stat = {
+export type MatomoMediaMetrics = {
     nb_visits: number;
     nb_impressions: number;
     nb_interactions: number;
@@ -127,7 +127,7 @@ export interface Asset
     topicSubscriptions?: TopicSubscriptions;
     storyCollection?: Collection | undefined;
     deleted?: boolean;
-    trackingId: string;
+    trackingId?: string;
 }
 
 type AttrValue = any;

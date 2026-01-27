@@ -18,9 +18,9 @@ final readonly class MatomoManager
     ) {
     }
 
-    public function getStats(string $trackingId, string $type): array
+    public function getMediaMetrics(string $trackingId, string $type): array
     {
-        return $this->analyticsCache->get('analytics_'.$trackingId, function (ItemInterface $item) use ($trackingId, $type) {
+        return $this->analyticsCache->get('metrics_'.$trackingId, function (ItemInterface $item) use ($trackingId, $type): array {
             $item->expiresAfter(300);
 
             if (str_starts_with($type, 'video/') || str_starts_with($type, 'audio/')) {
@@ -49,13 +49,21 @@ final readonly class MatomoManager
                 ],
             ]);
 
-            $stats = $response->toArray();
+            $data = $response->toArray();
 
-            unset($stats[0]['idsubdatatable']);
-            unset($stats[0]['segment']);
-            unset($stats[0]['label']);
+            if (($data['result'] ?? null) === 'error') {
+                throw new \Exception(sprintf('Matomo error: %s', $data['message'] ?? 'unknown error'));
+            }
 
-            return $stats;
+            if (empty($data[0])) {
+                return [];
+            }
+
+            unset($data[0]['idsubdatatable']);
+            unset($data[0]['segment']);
+            unset($data[0]['label']);
+
+            return $data[0];
         });
     }
 }

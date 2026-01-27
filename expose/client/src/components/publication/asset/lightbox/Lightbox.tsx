@@ -1,6 +1,6 @@
 import {Box, IconButton, Theme, useMediaQuery, useTheme} from '@mui/material';
 import {Asset, Publication, Thumb} from '../../../../types.ts';
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect} from 'react';
 import {
     FilePlayer,
     FilePlayerClasses,
@@ -14,7 +14,7 @@ import classNames from 'classnames';
 import AssetLegend from '../AssetLegend.tsx';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
 import {SystemCssProperties} from '@mui/system';
-import {useTracker} from '../../../../hooks/useTracker.ts';
+import {useAssetTracker} from '../../../../hooks/useAssetTracker.ts';
 import {LightboxClasses} from './types.ts';
 import Thumbs from './Thumbs.tsx';
 import {useThumbNavigation} from './useThumbNavigation.ts';
@@ -26,10 +26,7 @@ type Props = {
 };
 
 export default function Lightbox({publication, thumbs, asset}: Props) {
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    useTracker({
-        containerRef,
+    const {containerRef} = useAssetTracker({
         asset,
     });
 
