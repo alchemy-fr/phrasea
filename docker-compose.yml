@@ -665,9 +665,6 @@ services:
       - MATOMO_URL
       - MATOMO_SITE_ID
       - MATOMO_AUTH_TOKEN
-    depends_on:
-      - redis
-      - elasticsearch
     extra_hosts:
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
