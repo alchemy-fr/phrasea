@@ -8,7 +8,6 @@ import SortableCollectionWidget from './src/Collection/SortableCollectionWidget'
 import TranslationsWidget from './src/Translations/TranslationsWidget';
 import {ColorBox} from './src/Color/ColorBox';
 import TranslatedField from './src/Translations/TranslatedField';
-import LoadingButton from './src/LoadingButton';
 import AsyncRSelectWidget, {
     AsyncRSelectProps,
     RSelectOnCreate,
@@ -20,6 +19,9 @@ import KeyTranslationsWidget, {
     getNonEmptyTranslations,
 } from './src/Translations/KeyTranslationsWidget';
 import LocaleSelectWidget from './src/Locale/LocaleSelectWidget';
+import RemoteErrors from './src/RemoteErrors';
+import RadioWidget from './src/Widget/RadioWidget';
+import DateWidget from './src/Widget/DateWidget';
 
 export {
     CollectionWidget,
@@ -33,15 +35,16 @@ export {
     TranslationsWidget,
     KeyTranslationsWidget,
     TranslatedField,
-    LoadingButton,
     AsyncRSelectWidget,
     RSelectWidget,
     SwitchWidget,
     CheckboxWidget,
     getNonEmptyTranslations,
     LocaleSelectWidget,
+    RemoteErrors,
+    RadioWidget,
+    DateWidget,
 };
-
 export type {AsyncRSelectProps, RSelectProps, SelectOption, RSelectOnCreate};
 
 export type * from './src/types';

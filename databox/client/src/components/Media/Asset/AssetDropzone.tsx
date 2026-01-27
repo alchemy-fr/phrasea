@@ -1,8 +1,8 @@
 import {PropsWithChildren, useCallback, useEffect} from 'react';
 import {useDropzone} from 'react-dropzone';
-import UploadModal from '../../Upload/UploadModal';
+import UploadDialog from '../../Upload/UploadDialog.tsx';
 import {Backdrop, Typography} from '@mui/material';
-import {retrieveImageFromClipboardAsBlob} from '../../../lib/ImagePaste';
+import {retrieveImageFromClipboardAsBlob} from '../../../lib/ImagePaste.ts';
 import {useModals} from '@alchemy/navigation';
 import {useAccept} from '../../Upload/UploadDropzone';
 import {useAuth} from '@alchemy/react-auth';
@@ -26,7 +26,7 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
                 return;
             }
 
-            openModal(UploadModal, {
+            openModal(UploadDialog, {
                 files: acceptedFiles,
             });
         },
@@ -35,7 +35,7 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
 
     const onPaste = (e: any) => {
         retrieveImageFromClipboardAsBlob(e, imageBlob => {
-            openModal(UploadModal, {
+            openModal(UploadDialog, {
                 files: [imageBlob],
             });
         });

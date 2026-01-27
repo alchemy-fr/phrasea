@@ -11,8 +11,9 @@ export const exposeZippyDownloadLink = workflow(
         await step.email("Email", async (controls) => {
             return {
                 subject: controls.emailSubject,
-                body: render(<CTAEmail
-                    introText={`You can download your file from the following link:`}
+                body: await render(
+                    <CTAEmail
+                        introText={`You can download your file from the following link:`}
                         linkUrl={payload.downloadUrl}
                         linkText={'Download'}
                     />

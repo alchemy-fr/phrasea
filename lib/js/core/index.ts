@@ -3,7 +3,10 @@ import {ErrorBoundary} from '@sentry/react';
 import {createPusher, registerPusherWs} from './src/pusher';
 import {deepEquals} from './src/objectUtils';
 import {parseInlineStyle} from './src/style';
-
+import {isObject, mergeDeep} from './src/merge';
+import {resolveSx, sumSpacing} from './src/sxUtils';
+import {dataURLtoFile, getFileTypeFromMIMEType, validateUrl} from './src/fileUtils';
+import {createStrictDimensions, getRatioDimensions, getSizeCase} from './src/sizeUtils';
 export {
     initSentry,
     logError,
@@ -13,6 +16,15 @@ export {
     createPusher,
     deepEquals,
     parseInlineStyle,
+    mergeDeep,
+    isObject,
+    resolveSx,
+    getFileTypeFromMIMEType,
+    dataURLtoFile,
+    validateUrl,
+    getSizeCase,
+    getRatioDimensions,
+    createStrictDimensions,
+    sumSpacing,
 };
-
 export * from './src/types';

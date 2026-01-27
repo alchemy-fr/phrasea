@@ -1,6 +1,6 @@
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {SavedSearch, SavedSearchData} from '../types';
-import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {TSearchContext} from '../components/Media/Search/SearchContext.tsx';
 
 const entityType = 'saved-searches';
@@ -13,7 +13,7 @@ export type GetSavedSearchOptions = {
 export async function getSavedSearches(
     nextUrl?: string | undefined,
     params: GetSavedSearchOptions = {}
-): Promise<ApiCollectionResponse<SavedSearch>> {
+): Promise<NormalizedCollectionResponse<SavedSearch>> {
     const res = await apiClient.get(nextUrl ?? `/${entityType}`, {
         params,
     });

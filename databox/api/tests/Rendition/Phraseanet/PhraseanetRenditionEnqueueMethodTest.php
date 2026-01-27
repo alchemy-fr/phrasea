@@ -139,7 +139,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         ]);
         $this->assertResponseStatusCodeSame(403);
         // Call from Phraseanet with valid token
-        $response = $apiClient->request('GET', $endpoint, [
+        $apiClient->request('GET', $endpoint, [
             'headers' => [
                 'Authorization' => 'AssetToken '.$phraseanetBodyData['token'],
             ],

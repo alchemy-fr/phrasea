@@ -6,7 +6,6 @@ import AuthenticationProvider from './src/components/AuthenticationProvider';
 import {useAuth} from './src/hooks/useAuth';
 import {useKeycloakUrls} from './src/hooks/useKeycloakUrls';
 import AuthorizationCodePage from './src/components/AuthorizationCodePage';
-import MatomoUser from './src/components/MatomoUser';
 import {useForceLogin} from './src/hooks/useForceLogin';
 import SessionAboutToExpireModal from './src/components/SessionAboutToExpireModal';
 import SessionExpireContainer from './src/components/SessionExpireContainer';
@@ -19,7 +18,6 @@ export {
     AuthorizationCodePage,
     useAuth,
     useKeycloakUrls,
-    MatomoUser,
     useForceLogin,
     useOneTimeToken,
     SessionAboutToExpireModal,

@@ -1,12 +1,17 @@
-import {MouseEvent, useContext, useState, useEffect, useRef} from 'react';
-import {createStrictDimensions, PlayerProps, StrictDimensions} from './index';
+import {MouseEvent, useContext, useState} from 'react';
+import {createStrictDimensions} from '@alchemy/core';
+import {PlayerProps} from './index.ts';
 import ReactPlayer from 'react-player/lazy';
 import {IconButton, LinearProgress, SxProps} from '@mui/material';
 import {DisplayContext} from '../../DisplayContext';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseIcon from '@mui/icons-material/Pause';
-import {getSizeCase} from '../../../../lib/sizeCase';
-import {FileTypeEnum, getFileTypeFromMIMEType} from '../../../../lib/file';
+import {
+    FileTypeEnum,
+    getFileTypeFromMIMEType,
+    getRatioDimensions,
+    getSizeCase,
+} from '@alchemy/core';
 import {Theme} from '@mui/material/styles';
 import assetClasses from '../../../AssetList/classes.ts';
 import classNames from 'classnames';
@@ -16,29 +21,6 @@ type Progress = {
     played: number;
     loaded: number;
 };
-
-export function getRatioDimensions(
-    dimensions: StrictDimensions,
-    ratio: number | undefined
-): StrictDimensions {
-    if (!ratio) {
-        return dimensions;
-    }
-
-    const {width, height} = dimensions;
-
-    if (width * ratio > height) {
-        return {
-            width: height / ratio,
-            height: height,
-        };
-    }
-
-    return {
-        width: width,
-        height: width * ratio,
-    };
-}
 
 function stopPropagationIfNoCtrl(e: MouseEvent) {
     if (!e.ctrlKey) {

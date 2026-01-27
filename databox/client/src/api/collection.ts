@@ -1,12 +1,14 @@
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {Collection, CollectionOptionalWorkspace, Workspace} from '../types';
-import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 import {clearAssociationIds} from './clearAssociation';
 import {useCollectionStore} from '../store/collectionStore';
+
 import {
-    NewCollectionPath,
-    treeViewPathSeparator,
-} from '../components/Media/Collection/CollectionTree/collectionTree.ts';
+    EntityType,
+    WorkspaceOrCollectionTreeItem,
+} from '../components/Media/Collection/CollectionTree/types.ts';
+import {TreeNode} from '@alchemy/phrasea-framework';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
@@ -23,7 +25,7 @@ export type CollectionOptions = {
 
 export async function getCollections(
     options: CollectionOptions
-): Promise<ApiCollectionResponse<Collection>> {
+): Promise<NormalizedCollectionResponse<Collection>> {
     const res = await apiClient.get(options.nextUrl ?? '/collections', {
         params: {
             ...options,
@@ -145,21 +147,36 @@ export async function moveAssets(
 }
 
 export async function createCollection(
-    newCollectionPath: NewCollectionPath
-): Promise<string> {
-    const {rootId, path} = newCollectionPath;
-
-    const [workspaceId, parentIri] = rootId.split(treeViewPathSeparator);
-    let parent = parentIri;
-    for (const p of path) {
-        parent = (
-            await postCollection({
-                title: p,
-                parent,
-                workspace: `/workspaces/${workspaceId}`,
-            })
-        )['@id'];
+    newCollection: TreeNode<WorkspaceOrCollectionTreeItem>
+): Promise<string | undefined> {
+    if (!newCollection.virtual) {
+        return newCollection.data.type === EntityType.Collection
+            ? `/collections/${newCollection.data.id}`
+            : `/workspaces/${newCollection.data.id}`;
     }
 
-    return parent;
+    const createSubCollection = async (
+        node: TreeNode<WorkspaceOrCollectionTreeItem>
+    ): Promise<string> => {
+        let parent: string | undefined;
+        if (node.parentNode?.virtual) {
+            parent = await createSubCollection(node.parentNode);
+        } else if (node.parentNode?.data.type === EntityType.Collection) {
+            parent = `/collections/${node.parentNode.data.id}`;
+        }
+
+        return (
+            await postCollection({
+                title: node.data.label,
+                parent,
+                workspace: `/workspaces/${newCollection.data.workspaceId}`,
+            })
+        )['@id'];
+    };
+
+    const r = await createSubCollection(newCollection);
+
+    throw new Error('remove me');
+
+    return r;
 }

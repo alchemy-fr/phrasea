@@ -1,14 +1,13 @@
 import {useState} from 'react';
 import {Collection} from '../../../types';
 import {useTranslation} from 'react-i18next';
-import {Typography} from '@mui/material';
-import {CollectionsTreeView} from './CollectionTree/CollectionsTreeView.tsx';
+import {Button, Typography} from '@mui/material';
 import {clearWorkspaceCache, moveCollection} from '../../../api/collection';
 import {toast} from 'react-toastify';
-import {LoadingButton} from '@mui/lab';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
-import {treeViewPathSeparator} from './CollectionTree/collectionTree.ts';
+import CollectionsTreeView from './CollectionTree/CollectionsTreeView.tsx';
 
+// TODO test separator consistency
 type Props = {
     collection: Collection;
     onMoved?: () => void;
@@ -52,15 +51,14 @@ export default function CollectionMoveSection({collection, onMoved}: Props) {
 
             <CollectionsTreeView
                 workspaceId={collection.workspace.id}
-                value={dest}
-                onChange={collections => {
-                    setDest(collections as string);
+                onChange={collection => {
+                    if (collection) {
+                        setDest(collection!.id!);
+                    }
                 }}
-                disabledBranches={[
-                    `${collection.workspace.id}${treeViewPathSeparator}${collection['@id']}`,
-                ]}
+                disabledBranches={[collection.id]}
             />
-            <LoadingButton
+            <Button
                 sx={{mt: 2}}
                 startIcon={<DriveFileMoveIcon />}
                 variant={'contained'}
@@ -69,7 +67,7 @@ export default function CollectionMoveSection({collection, onMoved}: Props) {
                 loading={loading}
             >
                 {t('collection_move.move.label', 'Move collection')}
-            </LoadingButton>
+            </Button>
         </div>
     );
 }

@@ -1,14 +1,14 @@
 import {Asset} from '../../../../types.ts';
 import AssetThumb, {thumbSx} from '../AssetThumb.tsx';
-import {ApiCollectionResponse} from '../../../../api/hydra.ts';
 import {Box, Skeleton} from '@mui/material';
 import assetClasses from '../../../AssetList/classes.ts';
 import classNames from 'classnames';
+import {NormalizedCollectionResponse} from '@alchemy/api';
 
 type Props = {
     story: Asset;
     selectedAsset?: Asset | undefined;
-    assets: ApiCollectionResponse<Asset> | undefined;
+    assets: NormalizedCollectionResponse<Asset> | undefined;
     onAssetClick: (asset: Asset) => void;
 };
 

@@ -653,6 +653,14 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     /**
      * Used by ES.
      */
+    public function hasSourceFile(): bool
+    {
+        return null !== $this->source;
+    }
+
+    /**
+     * Used by ES.
+     */
     public function getSourceFileSize(): ?int
     {
         $size = $this->source?->getSize();

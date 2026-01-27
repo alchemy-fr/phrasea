@@ -1,14 +1,15 @@
 import React from 'react';
-import {FormData, Target, UploadedFile} from '../../types.ts';
-import UploadBatch from '../../uploadBatch';
+import {Target, UploadedFile, UploadFormData} from '../../types.ts';
+import UploadBatch from '../../uploadBatch.ts';
 import {toast} from 'react-toastify';
 import FilePicker from './FilePicker.tsx';
-import '../../scss/Upload.scss';
 import UploadForm from './UploadForm.tsx';
-import UploadProgress from '../page/UploadProgress';
-import {useTranslation} from 'react-i18next';
-import UploadDone from '../page/UploadDone';
+import UploadDone from './UploadDone.tsx';
 import {useFormPrompt} from '@alchemy/navigation';
+import {Container, Typography} from '@mui/material';
+import UploadProgress from './UploadProgress.tsx';
+import {useTranslation} from 'react-i18next';
+import {MenuClasses} from '@alchemy/phrasea-framework';
 
 enum Step {
     Files,
@@ -16,6 +17,8 @@ enum Step {
     Progress,
     Done,
 }
+
+export type OnSubmitForm = (data: UploadFormData, schemaId?: string) => void;
 
 type Props = {
     target: Target;
@@ -48,8 +51,8 @@ export default function UploadStepper({target}: Props) {
         setStep(Step.Form);
     }, [uploadBatch, setStep, files]);
 
-    const onSubmitForm = React.useCallback(
-        (data: FormData, schemaId?: string) => {
+    const onSubmitForm = React.useCallback<OnSubmitForm>(
+        (data: UploadFormData, schemaId?: string) => {
             uploadBatch.formData = data;
             uploadBatch.schemaId = schemaId;
             setStep(Step.Progress);
@@ -64,7 +67,14 @@ export default function UploadStepper({target}: Props) {
     }, [uploadBatch, setStep, setFiles]);
 
     const onCancel = React.useCallback(() => {
-        if (window.confirm(`Are you sure you want to cancel current upload?`)) {
+        if (
+            window.confirm(
+                t(
+                    'upload.cancelConfirmation',
+                    `Are you sure you want to cancel current upload?`
+                )
+            )
+        ) {
             reset();
         }
     }, [reset]);
@@ -73,15 +83,21 @@ export default function UploadStepper({target}: Props) {
 
     return (
         <>
-            <h2
-                style={{
-                    textAlign: 'center',
-                    fontSize: 20,
-                    marginBottom: 20,
-                }}
-            >
-                {target.name}
-            </h2>
+            <div className={MenuClasses.PageHeader}>
+                <Container>
+                    <Typography
+                        variant={'h2'}
+                        sx={{
+                            textAlign: 'center',
+                            fontSize: 20,
+                            mt: 3,
+                            mb: 3,
+                        }}
+                    >
+                        {target.name}
+                    </Typography>
+                </Container>
+            </div>
 
             {step === Step.Files && (
                 <FilePicker

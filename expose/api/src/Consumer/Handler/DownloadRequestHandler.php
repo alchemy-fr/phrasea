@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use Alchemy\AuthBundle\Security\UriJwtManager;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Entity\DownloadRequest;
-use App\Security\Authentication\JWTManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -18,7 +18,7 @@ final readonly class DownloadRequestHandler
     public function __construct(
         private NotifierInterface $notifier,
         private UrlGeneratorInterface $urlGenerator,
-        private JWTManager $JWTManager,
+        private UriJwtManager $uriJwtManager,
         private EntityManagerInterface $em,
     ) {
     }
@@ -37,7 +37,7 @@ final readonly class DownloadRequestHandler
         }
         $uri = $this->urlGenerator->generate($downloadRequest->getSubDefinition() ? 'download_subdef' : 'download_asset', $parameters, UrlGeneratorInterface::ABSOLUTE_URL);
 
-        $downloadUrl = $this->JWTManager->signUri(
+        $downloadUrl = $this->uriJwtManager->signUri(
             $uri,
             259200 // 3 days
         );

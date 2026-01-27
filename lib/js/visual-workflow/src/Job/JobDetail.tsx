@@ -8,7 +8,7 @@ import HorizontalTable, {Cells} from '../Ui/HorizontalTable';
 import DateValue from '../Ui/DateValue';
 import {jobStatuses} from '../status';
 import ReplayIcon from '@mui/icons-material/Replay';
-import {LoadingButton} from '@mui/lab';
+import {Button} from '@mui/material';
 
 type Props = {
     job: NodeData;
@@ -30,7 +30,7 @@ export default function JobDetail({job}: Props) {
     ) {
         values.push([
             ``,
-            <LoadingButton
+            <Button
                 disabled={rerunning}
                 loading={rerunning}
                 onClick={() => {
@@ -42,7 +42,7 @@ export default function JobDetail({job}: Props) {
                 startIcon={<ReplayIcon />}
             >
                 Rerun
-            </LoadingButton>,
+            </Button>,
         ]);
     }
 

@@ -1,12 +1,12 @@
 import {FieldValues} from 'react-hook-form';
-import apiClient from '../../../../api/api-client.ts';
-import {getHydraCollection} from '../../../../api/hydra.ts';
 import {
     AsyncRSelectWidget,
     AsyncRSelectProps,
     SelectOption,
 } from '@alchemy/react-form';
 import {ExposePublication} from './exposeType.ts';
+import {getHydraCollection} from '@alchemy/api';
+import {apiClient} from '../../../../init.ts';
 
 type Props<TFieldValues extends FieldValues> = {
     integrationId: string;

@@ -1,7 +1,7 @@
 import React from 'react';
 import {Asset, AssetOrAssetContainer} from '../../../../types';
 import GroupRow from '../GroupRow';
-import {Grid} from '@mui/material';
+import {Grid2 as Grid} from '@mui/material';
 import AssetItem from './AssetItem';
 import {LayoutPageProps, OnPreviewToggle} from '../../types';
 import SectionDivider from '../../SectionDivider';
@@ -46,7 +46,6 @@ function GridPage<Item extends AssetOrAssetContainer>({
                 return (
                     <GroupRow key={item.id} asset={asset} top={toolbarHeight}>
                         <Grid
-                            item
                             onDoubleClick={() => onOpen?.(asset)}
                             onContextMenu={
                                 onContextMenuOpen

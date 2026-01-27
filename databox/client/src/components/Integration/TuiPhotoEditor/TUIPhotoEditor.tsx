@@ -6,6 +6,7 @@ import 'tui-image-editor/dist/tui-image-editor.css';
 // @ts-expect-error TS error in package
 import ImageEditor from '@toast-ui/react-image-editor';
 import {
+    Button,
     List,
     ListItemButton,
     ListItemIcon,
@@ -16,8 +17,7 @@ import {
 } from '@mui/material';
 import {ObjectType, runIntegrationAction} from '../../../api/integrations';
 import SaveIcon from '@mui/icons-material/Save';
-import {dataURLtoFile} from '../../../lib/file';
-import {LoadingButton} from '@mui/lab';
+import {dataURLtoFile} from '@alchemy/core';
 import {toast} from 'react-toastify';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import {ApiFile} from '../../../types';
@@ -27,7 +27,7 @@ import {useIntegrationData} from '../useIntegrationData.ts';
 import {AssetIntegrationActionsProps, Integration} from '../types.ts';
 import {useTranslation} from 'react-i18next';
 import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
-import apiClient from '../../../api/api-client.ts';
+import {apiClient} from '../../../init.ts';
 
 const myTheme = {
     // Theme object to extends default dark theme.
@@ -187,7 +187,7 @@ export default function TUIPhotoEditor({
                     disabled={!canEdit || saving}
                     placeholder={t('tuiphoto_editor.file_name', `File name`)}
                 />
-                <LoadingButton
+                <Button
                     sx={{
                         mt: 1,
                     }}
@@ -198,7 +198,7 @@ export default function TUIPhotoEditor({
                     loading={saving}
                 >
                     {t('tuiphoto_editor.save', `Save`)}
-                </LoadingButton>
+                </Button>
             </IntegrationPanelContent>
 
             {data!.pages.length > 0 && (

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiProperty;
 use App\Model\LayoutOptions;
 use App\Model\MapOptions;
 use Doctrine\DBAL\Types\Types;
@@ -17,79 +16,65 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Embeddable]
 class PublicationConfig implements MergeableValueObjectInterface
 {
-    final public const SECURITY_METHOD_NONE = null;
     final public const string SECURITY_METHOD_PASSWORD = 'password';
     final public const string SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?bool $enabled = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?bool $downloadViaEmail = null;
 
     /**
      * Download Terms URL must also be set.
      */
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?bool $includeDownloadTermsInZippy = null;
 
-    /**
-     * @var Url[]|array
-     */
-    #[ORM\Column(type: Types::JSON)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
-    private array $urls = [];
-
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
-    private ?string $copyrightText = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?string $css = null;
 
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?string $layout = null;
 
     #[ORM\Column(type: Types::STRING, length: 30, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?string $theme = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?bool $publiclyListed = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?bool $downloadEnabled = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?\DateTimeImmutable $beginsAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?\DateTimeImmutable $expiresAt = null;
 
     #[ORM\Embedded(class: TermsConfig::class)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
-    #[ApiProperty(readableLink: true)]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private TermsConfig $terms;
 
     #[ORM\Embedded(class: TermsConfig::class)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
-    #[ApiProperty(readableLink: true)]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private TermsConfig $downloadTerms;
 
     /**
      * "password" or "authentication".
      */
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?string $securityMethod = null;
 
     /**
@@ -97,21 +82,21 @@ class PublicationConfig implements MergeableValueObjectInterface
      * {"password":"$3cr3t!"}.
      */
     #[ORM\Column(type: Types::JSON)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private array $securityOptions = [];
 
     /**
      * @var MapOptions|array|null
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private $mapOptions;
 
     /**
      * @var LayoutOptions|array|null
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_ADMIN_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private $layoutOptions;
 
     public function __construct()
@@ -128,9 +113,9 @@ class PublicationConfig implements MergeableValueObjectInterface
 
         foreach ([
             'beginsAt',
-            'copyrightText',
             'css',
             'downloadTerms',
+            'downloadEnabled',
             'downloadViaEmail',
             'enabled',
             'expiresAt',
@@ -142,38 +127,15 @@ class PublicationConfig implements MergeableValueObjectInterface
             'layoutOptions',
             'terms',
             'theme',
-            'urls',
         ] as $property) {
-            if (null !== $object->{$property}) {
-                if ($clone->{$property} instanceof MergeableValueObjectInterface) {
-                    $clone->{$property}->mergeWith($object->{$property});
-                } else {
-                    $clone->{$property} = $object->{$property};
-                }
+            if ($clone->{$property} instanceof MergeableValueObjectInterface) {
+                $clone->{$property} = $clone->{$property}->mergeWith($object->{$property});
+            } else {
+                $clone->{$property} = $object->{$property};
             }
         }
 
         return $clone;
-    }
-
-    public function getUrls(): array
-    {
-        return Url::mapUrls($this->urls);
-    }
-
-    public function setUrls(array $urls): void
-    {
-        $this->urls = Url::mapUrls($urls);
-    }
-
-    public function getCopyrightText(): ?string
-    {
-        return $this->copyrightText;
-    }
-
-    public function setCopyrightText(?string $copyrightText): void
-    {
-        $this->copyrightText = $copyrightText;
     }
 
     public function getCss(): ?string
@@ -193,7 +155,7 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     public function setTerms(TermsConfig $terms): void
     {
-        $this->terms->mergeWith($terms);
+        $this->terms = $terms;
     }
 
     public function getDownloadTerms(): TermsConfig
@@ -201,9 +163,9 @@ class PublicationConfig implements MergeableValueObjectInterface
         return $this->downloadTerms;
     }
 
-    public function setDownloadTerms(TermsConfig $terms): void
+    public function setDownloadTerms(TermsConfig $downloadTerms): void
     {
-        $this->downloadTerms->mergeWith($terms);
+        $this->downloadTerms = $downloadTerms;
     }
 
     public function getSecurityMethod(): ?string
@@ -274,16 +236,14 @@ class PublicationConfig implements MergeableValueObjectInterface
     public function setPassword(?string $password): void
     {
         if (!empty($password)) {
-            if (self::SECURITY_METHOD_NONE === $this->securityMethod) {
-                $this->setSecurityMethod(self::SECURITY_METHOD_PASSWORD);
-            }
+            $this->setSecurityMethod(self::SECURITY_METHOD_PASSWORD);
             $this->securityOptions['password'] = $password;
         } else {
             unset($this->securityOptions['password']);
         }
     }
 
-    public function isEnabled(): ?bool
+    public function getEnabled(): ?bool
     {
         return $this->enabled;
     }

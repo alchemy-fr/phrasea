@@ -11,6 +11,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import {ResultContext} from './ResultContext.tsx';
 import {useTranslation} from 'react-i18next';
 import SuggestPopover from './Suggest/SuggestPopover.tsx';
+import SearchMoreAction from './SearchMoreAction.tsx';
 
 type Props = {};
 
@@ -72,6 +73,9 @@ export default function SearchBar({}: Props) {
                     >
                         <div
                             className={'aa-Autocomplete'}
+                            style={{
+                                position: 'relative',
+                            }}
                             {...(usedSuggest.autocomplete.getRootProps(
                                 {}
                             ) as any)}
@@ -116,7 +120,11 @@ export default function SearchBar({}: Props) {
                                         width: 'auto',
                                     }}
                                 />
+                                <Box sx={{}}>
+                                    <SearchMoreAction search={search} />
+                                </Box>
                             </Box>
+
                             <SuggestPopover usedSuggest={usedSuggest} />
                         </div>
 

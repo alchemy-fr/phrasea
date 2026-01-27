@@ -1,8 +1,8 @@
 import React, {PropsWithChildren} from 'react';
 import UploaderUserContext from './UploaderUserContext';
 import {useAuth} from '@alchemy/react-auth';
-import apiClient from '../lib/apiClient';
 import {UploaderUser} from '../types.ts';
+import {apiClient} from '../init.ts';
 
 type Props = PropsWithChildren<{}>;
 

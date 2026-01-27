@@ -13,8 +13,8 @@ import CheckIcon from '@mui/icons-material/Check';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import apiClient from '../../api/api-client.ts';
 import {TopicSubscriptions} from '../../types.ts';
+import {apiClient} from '../../init.ts';
 
 type Topic = {
     key: string;

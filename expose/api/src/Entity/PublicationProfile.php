@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use Alchemy\AuthBundle\Security\Voter\AbstractVoter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -17,6 +18,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Entity\Traits\CapabilitiesTrait;
 use App\Entity\Traits\ClientAnnotationsTrait;
+use App\Security\Voter\PublicationProfileVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -28,19 +30,25 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted("READ", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
-        new Delete(security: 'is_granted("DELETE", object)'),
+        new Get(security: 'is_granted("'.AbstractVoter::READ.'", object)'),
+        new Put(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
+        new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new GetCollection(
             normalizationContext: [
-                'groups' => [self::GROUP_LIST],
+                'groups' => [self::GROUP_INDEX],
             ],
         ),
-        new Post(security: 'is_granted("profile:create")'),
+        new Post(security: 'is_granted("'.PublicationProfileVoter::CREATE_PROFILE.'")'),
     ],
     normalizationContext: [
         'groups' => [
+            self::GROUP_INDEX,
             self::GROUP_READ,
+        ],
+    ],
+    denormalizationContext: [
+        'groups' => [
+            self::GROUP_WRITE,
         ],
     ]
 )]
@@ -54,25 +62,27 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     use CapabilitiesTrait;
     use ClientAnnotationsTrait;
 
-    final public const string GROUP_ADMIN_READ = 'profile:admin:read';
-    final public const string GROUP_READ = 'profile:read';
-    final public const string GROUP_LIST = 'profile:index';
+    private const string GROUP_PREFIX = 'profile:';
+    final public const string GROUP_READ = self::GROUP_PREFIX.'r';
+    final public const string GROUP_WRITE = self::GROUP_PREFIX.'w';
+    final public const string GROUP_ADMIN_READ = 'admin:'.self::GROUP_READ;
+    final public const string GROUP_INDEX = self::GROUP_PREFIX.'i';
 
     /**
      * @var Uuid
      */
     #[ApiProperty(identifier: true)]
-    #[Groups([self::GROUP_LIST, self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_INDEX, Publication::GROUP_READ])]
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     private UuidInterface $id;
 
     #[ORM\Column(type: Types::STRING, length: 150)]
-    #[Groups([self::GROUP_LIST, self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_INDEX, Publication::GROUP_READ, self::GROUP_WRITE])]
     private ?string $name = null;
 
     #[ORM\Embedded(class: PublicationConfig::class)]
-    #[Groups([self::GROUP_LIST, self::GROUP_READ, Publication::GROUP_READ])]
+    #[Groups([self::GROUP_INDEX, Publication::GROUP_READ, self::GROUP_WRITE])]
     private PublicationConfig $config;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
@@ -119,7 +129,7 @@ class PublicationProfile implements AclObjectInterface, \Stringable
 
     public function setConfig(PublicationConfig $config): void
     {
-        $this->config = $this->config->mergeWith($config);
+        $this->config = $config;
     }
 
     public function getOwnerId(): ?string
@@ -153,5 +163,11 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     public function getPublications(): ?Collection
     {
         return $this->publications;
+    }
+
+    #[Groups([self::GROUP_INDEX])]
+    public function getPublicationCount(): int
+    {
+        return $this->publications->count();
     }
 }

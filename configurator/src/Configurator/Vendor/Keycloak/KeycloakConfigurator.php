@@ -79,12 +79,13 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'username' => $defaultAdminUsername,
             'email' => $defaultAdminEmail,
             'enabled' => true,
+            'emailVerified' => true,
             'firstName' => 'Admin',
             'lastName' => 'Admin',
             'credentials' => [[
                 'type' => 'password',
                 'value' => getenv('DEFAULT_ADMIN_PASSWORD'),
-                'temporary' => !$hasTestPreset,
+                'temporary' => $hasTestPreset ? false : !$this->getBooleanEnv('KEYCLOAK_ADMIN_DEFINITIVE_PASSWORD'),
             ]],
         ]);
 

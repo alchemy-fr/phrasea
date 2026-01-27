@@ -87,7 +87,7 @@ export default function useFormSubmit<
                     e.response &&
                     [400, 500].includes(e.response.status)
                 ) {
-                    const resData = e.response!.data;
+                    const resData = e.response.data;
 
                     setRemoteErrors(p =>
                         p.concat(
@@ -95,8 +95,11 @@ export default function useFormSubmit<
                                 resData['title']
                         )
                     );
+
+                    throw e;
                 }
             }
+        } finally {
             setSubmitting(false);
         }
     };

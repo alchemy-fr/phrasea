@@ -6,7 +6,6 @@ import ValueDiff, {ValueDiffProps} from './ValueDiff.tsx';
 import {workspaceAttributeBatchUpdate} from '../../api/asset.ts';
 import React from 'react';
 import {Button} from '@mui/material';
-import {LoadingButton} from '@mui/lab';
 import {FormError} from '@alchemy/react-form';
 import {getApiResponseError} from '@alchemy/api';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
@@ -74,7 +73,7 @@ export default function SavePreviewDialog({
                     <Button onClick={onClose}>
                         {t('common.cancel', 'Cancel')}
                     </Button>
-                    <LoadingButton
+                    <Button
                         loading={saving}
                         disabled={saving}
                         variant={'contained'}
@@ -82,7 +81,7 @@ export default function SavePreviewDialog({
                         color={'primary'}
                     >
                         {t('common.save', 'Save')}
-                    </LoadingButton>
+                    </Button>
                 </>
             )}
         >

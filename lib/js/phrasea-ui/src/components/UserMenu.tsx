@@ -29,21 +29,28 @@ export default function UserMenu({
 
     return (
         <DropdownActions
-            mainButton={props => (
+            mainButton={({open, ...props}) =>
                 isMenu ? (
-                    <MenuItem {...props}>
+                    <MenuItem {...props} selected={open}>
                         <ListItemIcon>
                             <UserAvatar size={25} username={username} />
                         </ListItemIcon>
                         <ListItemText primary={username} />
                     </MenuItem>
                 ) : (
-                <IconButton {...props}>
-                    <UserAvatar size={40} username={username} />
-                </IconButton>
-            ))}
+                    <IconButton {...props}>
+                        <UserAvatar
+                            size={40}
+                            username={username}
+                            sx={{
+                                m: -1,
+                            }}
+                        />
+                    </IconButton>
+                )
+            }
             anchorOrigin={{
-                vertical: 'top',
+                vertical: 'bottom',
                 horizontal: 'right',
             }}
             keepMounted

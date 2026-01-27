@@ -5,7 +5,8 @@ export type AnalyticsConfig = {
     };
 };
 
-export type WindowConfig = {
+export interface WindowConfigBase {
+    globalCSS?: Readonly<string | undefined>;
     autoConnectIdP: Readonly<string | undefined>;
     sentryDsn?: Readonly<string | undefined>;
     sentryEnvironment: Readonly<string>;
@@ -24,13 +25,21 @@ export type WindowConfig = {
     pusherHost?: Readonly<string>;
     pusherKey?: Readonly<string>;
     logo?: {
-        src?: string;
-        style?: string;
+        src?: Readonly<string>;
+        style?: Readonly<string>;
     };
     novuAppIdentifier?: Readonly<string>;
     novuSocketUrl?: Readonly<string>;
     novuApiUrl?: Readonly<string>;
-};
+}
+
+declare global {
+    interface WindowConfig extends WindowConfigBase {}
+
+    interface Window {
+        config: WindowConfig;
+    }
+}
 
 export type SentryConfig = Pick<
     WindowConfig,
@@ -42,3 +51,21 @@ export type RegisterWebSocketOptions = {
 };
 export type PusherEventCallback = (data: any) => void;
 export type UnregisterWebSocket = () => void;
+
+export enum FileTypeEnum {
+    Unknown,
+    Document,
+    Audio,
+    Video,
+    Image,
+}
+
+export type Dimensions = {
+    width: number;
+    height?: number;
+};
+
+export type StrictDimensions = {
+    width: number;
+    height: number;
+};

@@ -1,4 +1,4 @@
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {Workflow} from '@alchemy/visual-workflow';
 
 export async function getWorkflows(assetId: string): Promise<Workflow[]> {

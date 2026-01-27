@@ -7,13 +7,13 @@ import CollectionTreeWidget from '../../../Form/CollectionTreeWidget';
 import {copyAssets} from '../../../../api/collection';
 import {FormFieldErrors} from '@alchemy/react-form';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
-import RemoteErrors from '../../../Form/RemoteErrors';
+import {RemoteErrors} from '@alchemy/react-form';
 import {FormRow} from '@alchemy/react-form';
 import {SwitchWidget} from '@alchemy/react-form';
 import {Asset} from '../../../../types';
 import AssetSelection from '../../../AssetList/AssetSelection';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {toast} from 'react-toastify';
 import {OnSelectionChange} from '../../../AssetList/types';
 
@@ -205,9 +205,9 @@ export default function CopyAssetsDialog({
                 </div>
                 <FormRow>
                     <CollectionTreeWidget
-                        isSelectable={coll => coll.capabilities.canEdit}
-                        onChange={(_nodeId, workspaceId) => {
-                            setWorkspaceDest(workspaceId);
+                        isSelectable={node => node.data.capabilities.canEdit}
+                        onChange={node => {
+                            setWorkspaceDest(node.data?.workspaceId);
                         }}
                         control={control}
                         name={'destination'}

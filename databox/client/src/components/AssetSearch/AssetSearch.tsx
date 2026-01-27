@@ -6,7 +6,7 @@ import {useModals} from '@alchemy/navigation';
 import {Fab} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import {useAuth} from '@alchemy/react-auth';
-import UploadModal from '../Upload/UploadModal';
+import UploadDialog from '../Upload/UploadDialog.tsx';
 import {useOpenAsset} from './useOpenAsset.ts';
 import NoSearchResult from './NoSearchResult.tsx';
 
@@ -28,7 +28,7 @@ export default function AssetSearch({}: Props) {
     const openUpload = useCallback<
         MouseEventHandler<HTMLButtonElement>
     >((): void => {
-        openModal(UploadModal, {
+        openModal(UploadDialog, {
             files: [],
         });
     }, []);

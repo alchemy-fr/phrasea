@@ -18,7 +18,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
             'POST',
             '/publications',
             [
-                'parentId' => $id,
+                'parent' => '/publications/'.$id,
                 'title' => 'Sub Foo',
                 'config' => [
                     'layout' => 'download',

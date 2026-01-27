@@ -1,7 +1,7 @@
 import React from 'react';
 import {Asset, AssetRendition} from '../../../../types.ts';
 import FilePlayer from '../../../Media/Asset/FilePlayer.tsx';
-import {Dimensions} from '../../../Media/Asset/Players';
+import {Dimensions} from '@alchemy/core';
 import {
     Box,
     Chip,

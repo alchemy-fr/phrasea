@@ -4,10 +4,10 @@ import {TextField, Typography} from '@mui/material';
 import FormDialog from '../../../Dialog/FormDialog';
 import {useFormSubmit} from '@alchemy/api';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
-import RemoteErrors from '../../../Form/RemoteErrors';
+import {RemoteErrors} from '@alchemy/react-form';
 import {Asset, ApiFile} from '../../../../types';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {toast} from 'react-toastify';
 import CollectionTreeWidget from '../../../Form/CollectionTreeWidget';
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
@@ -116,7 +116,7 @@ export default function SaveFileAsNewAssetDialog({
                 </FormRow>
                 <FormRow>
                     <CollectionTreeWidget
-                        isSelectable={coll => coll.capabilities.canEdit}
+                        isSelectable={node => node.data.capabilities.canEdit}
                         control={control}
                         rules={{
                             required: true,

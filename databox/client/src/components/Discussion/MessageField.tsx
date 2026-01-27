@@ -1,8 +1,7 @@
 import {Box, Button, useTheme} from '@mui/material';
-import {LoadingButton} from '@mui/lab';
 import SendIcon from '@mui/icons-material/Send';
 import React from 'react';
-import RemoteErrors from '../Form/RemoteErrors.tsx';
+import {RemoteErrors} from '@alchemy/react-form';
 import Attachments from './Attachments.tsx';
 import {
     DeserializedMessageAttachment,
@@ -192,7 +191,7 @@ export default function MessageField({
                                     {cancelButtonLabel!}
                                 </Button>
                             ) : null}
-                            <LoadingButton
+                            <Button
                                 type="submit"
                                 disabled={submitting || disabled}
                                 loading={submitting}
@@ -200,7 +199,7 @@ export default function MessageField({
                                 endIcon={<SendIcon />}
                             >
                                 {submitLabel}
-                            </LoadingButton>
+                            </Button>
                         </div>
                     </FlexRow>
                 </Box>

@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {alpha, Grid, Theme} from '@mui/material';
+import {alpha, Grid2 as Grid, Theme} from '@mui/material';
 import {LayoutProps} from '../../types';
 import {AssetOrAssetContainer} from '../../../../types';
 import {DisplayContext} from '../../../Media/DisplayContext';

@@ -1,18 +1,29 @@
 import ReactDOM from 'react-dom/client';
-import './scss/index.scss';
-import ConfigWrapper from './component/ConfigWrapper';
 import './i18n';
-import AnalyticsProvider from './component/anaytics/AnalyticsProvider';
+import './scss/index.scss';
 import React from 'react';
-import config from './config';
-import {initSentry} from '@alchemy/core';
+import {AppProvider, initApp} from '@alchemy/phrasea-framework';
+import {
+    oauthClient,
+    keycloakClient,
+    matomo,
+    config,
+    apiClient,
+} from './init.ts';
+import App from './components/App.tsx';
 
-initSentry(config);
+initApp(config);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
-        <AnalyticsProvider>
-            <ConfigWrapper />
-        </AnalyticsProvider>
+        <AppProvider
+            matomo={matomo}
+            config={config}
+            apiClient={apiClient}
+            oauthClient={oauthClient}
+            keycloakClient={keycloakClient}
+        >
+            <App />
+        </AppProvider>
     </React.StrictMode>
 );

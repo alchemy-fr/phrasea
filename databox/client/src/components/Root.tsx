@@ -5,39 +5,65 @@ import {
     RouterProvider,
     RouteWrapperProps,
 } from '@alchemy/navigation';
-import UserPreferencesProvider from './User/Preferences/UserPreferencesProvider';
-import {keycloakClient, oauthClient} from '../api/api-client';
 import {
     AuthenticationProvider,
-    MatomoUser,
     SessionExpireContainer,
 } from '@alchemy/react-auth';
 import {modalRoutes, routes} from '../routes';
 import RouteProxy from './Routing/RouteProxy';
 import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFormatProvider.tsx';
+import React from 'react';
+import {QueryClientProvider} from '@tanstack/react-query';
+import {queryClient} from '../lib/query.ts';
+import {ToastContainer} from 'react-toastify';
+import {
+    AnalyticsProvider,
+    AppGlobalTheme,
+    UserHookCaller,
+} from '@alchemy/phrasea-framework';
+import {
+    apiClient,
+    config,
+    keycloakClient,
+    matomo,
+    oauthClient,
+} from '../init.ts';
+import UserPreferencesProvider from './User/Preferences/UserPreferencesProvider.tsx';
 
 type Props = {};
 
 export default function Root({}: Props) {
-    return (
-        <AuthenticationProvider
-            oauthClient={oauthClient}
-            keycloakClient={keycloakClient}
-        >
-            <MatomoUser />
+    const css = config.globalCSS;
 
-            <AttributeFormatProvider>
-                <UserPreferencesProvider>
-                    <RouterProvider
-                        routes={routes}
-                        options={{
-                            RouteProxyComponent: RouteProxy,
-                            WrapperComponent: WrapperComponent,
-                        }}
-                    />
-                </UserPreferencesProvider>
-            </AttributeFormatProvider>
-        </AuthenticationProvider>
+    return (
+        <>
+            <UserPreferencesProvider>
+                {css && <style>{css}</style>}
+                <AppGlobalTheme>
+                    <AnalyticsProvider matomo={matomo}>
+                        <ToastContainer position={'bottom-left'} />
+                        <AuthenticationProvider
+                            oauthClient={oauthClient}
+                            keycloakClient={keycloakClient}
+                        >
+                            <UserHookCaller apiClient={apiClient} />
+
+                            <QueryClientProvider client={queryClient}>
+                                <AttributeFormatProvider>
+                                    <RouterProvider
+                                        routes={routes}
+                                        options={{
+                                            RouteProxyComponent: RouteProxy,
+                                            WrapperComponent: WrapperComponent,
+                                        }}
+                                    />
+                                </AttributeFormatProvider>
+                            </QueryClientProvider>
+                        </AuthenticationProvider>
+                    </AnalyticsProvider>
+                </AppGlobalTheme>
+            </UserPreferencesProvider>
+        </>
     );
 }
 

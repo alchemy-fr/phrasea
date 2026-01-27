@@ -79,8 +79,7 @@ export function useAuthorizationCode({
                         // eslint-disable-next-line no-prototype-builtins
                         if (
                             typeof dState === 'object' &&
-                            // eslint-disable-next-line
-                            dState.hasOwnProperty('r') &&
+                            Object.prototype.hasOwnProperty.call(dState, 'r') &&
                             typeof dState.r === 'string'
                         ) {
                             doNavigate(dState.r);

@@ -2,7 +2,7 @@ import React, {useCallback, useEffect} from 'react';
 import {Ace, Entity, UserType} from '../../types';
 import UserSelect from '../Form/UserSelect';
 import GroupSelect from '../Form/GroupSelect';
-import {Grid} from '@mui/material';
+import {Grid2 as Grid} from '@mui/material';
 import {FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import {DisplayedPermissions, OnPermissionDelete} from './permissions';
@@ -110,7 +110,7 @@ export default function PermissionList({
                     zIndex: theme.zIndex.tooltip,
                 })}
             >
-                <Grid item md={6}>
+                <Grid size={6}>
                     <FormRow>
                         <GroupSelect
                             placeholder={t(
@@ -130,7 +130,7 @@ export default function PermissionList({
                         />
                     </FormRow>
                 </Grid>
-                <Grid item md={6}>
+                <Grid size={6}>
                     <FormRow>
                         <UserSelect
                             placeholder={t(

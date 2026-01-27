@@ -10,8 +10,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import './style/WorkflowHeader.scss';
 import ReplayIcon from '@mui/icons-material/Replay';
 import CancelIcon from '@mui/icons-material/Cancel';
-import {IconButton} from '@mui/material';
-import {LoadingButton} from '@mui/lab';
+import {Button, IconButton} from '@mui/material';
 
 type Props = {
     workflow: Workflow;
@@ -86,7 +85,7 @@ export default function WorkflowHeader({
                 </div>
                 <div>
                     {onRefreshWorkflow && (
-                        <LoadingButton
+                        <Button
                             disabled={refreshing}
                             loading={refreshing}
                             color={'primary'}
@@ -99,7 +98,7 @@ export default function WorkflowHeader({
                             startIcon={<ReplayIcon />}
                         >
                             Refresh
-                        </LoadingButton>
+                        </Button>
                     )}
                     {onCancel &&
                         ![
@@ -107,7 +106,7 @@ export default function WorkflowHeader({
                             WorkflowStatus.Failure,
                             WorkflowStatus.Success,
                         ].includes(workflow.status) && (
-                            <LoadingButton
+                            <Button
                                 disabled={cancelling}
                                 loading={cancelling}
                                 color={'warning'}
@@ -125,7 +124,7 @@ export default function WorkflowHeader({
                                 startIcon={<CancelIcon />}
                             >
                                 Cancel
-                            </LoadingButton>
+                            </Button>
                         )}
                 </div>
             </div>

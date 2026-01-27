@@ -1,4 +1,4 @@
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {
     Asset,
     AssetFileVersion,
@@ -9,21 +9,20 @@ import {
     ESDocumentState,
     Share,
 } from '../types';
-import {
-    ApiCollectionResponse,
-    getAssetsHydraCollection,
-    getHydraCollection,
-} from './hydra';
 import {AxiosRequestConfig} from 'axios';
 import {TFacets} from '../components/Media/Asset/Facets';
 import {AttributeBatchAction, AttributeBatchActionEnum} from './types.ts';
 import {SortWay} from './common.ts';
-import type {MultipartUpload} from '@alchemy/api';
+import {
+    getHydraCollection,
+    HydraCollectionResponse,
+    MultipartUpload,
+    NormalizedCollectionResponse,
+} from '@alchemy/api';
 import {
     multipartUpload,
     MultipartUploadOptions,
 } from '@alchemy/api/src/multiPartUpload.ts';
-import {CollectionId} from '../components/Media/Collection/CollectionTree/collectionTree.ts';
 import {promiseConcurrency} from '../lib/promises.ts';
 import {useUploadStore} from '../store/uploadStore.ts';
 import {
@@ -63,11 +62,25 @@ export async function getStoryThumbnails(assetId: string): Promise<string[]> {
     return res.data.thumbnails;
 }
 
+export function getAssetsHydraCollection(
+    response: HydraCollectionResponse<
+        Asset,
+        {
+            facets: TFacets;
+        }
+    >
+) {
+    return {
+        ...getHydraCollection(response),
+        facets: response.facets,
+    };
+}
+
 export async function getAssets(
     options: GetAssetOptions,
     requestConfig?: AxiosRequestConfig
 ): Promise<
-    ApiCollectionResponse<
+    NormalizedCollectionResponse<
         Asset,
         {
             facets: TFacets;
@@ -103,7 +116,7 @@ export async function getSearchSuggestions(
     query: string,
     requestConfig?: AxiosRequestConfig
 ): Promise<
-    ApiCollectionResponse<
+    NormalizedCollectionResponse<
         SearchSuggestion,
         {
             debug: ESDebug;
@@ -225,7 +238,7 @@ const assetFileVersionEntity = 'asset-file-versions';
 
 export async function getAssetFileVersions(
     assetId: string | string[]
-): Promise<ApiCollectionResponse<AssetFileVersion>> {
+): Promise<NormalizedCollectionResponse<AssetFileVersion>> {
     const res = await apiClient.get(`/${assetFileVersionEntity}`, {
         params: {
             assetId,
@@ -400,7 +413,9 @@ type FileBeingUploaded = {
     id: string;
 } & InputUploadFile;
 
-function computeAssetPropsFromDestination(destination: CollectionId) {
+type Destination = string;
+
+function computeAssetPropsFromDestination(destination: Destination) {
     if (destination.startsWith('/workspaces/')) {
         return {workspace: destination};
     } else {
@@ -410,7 +425,7 @@ function computeAssetPropsFromDestination(destination: CollectionId) {
 
 export async function uploadAssets(
     files: InputFile[],
-    destination: CollectionId,
+    destination: Destination,
     options: CreateAssetsOptions = {}
 ): Promise<Asset[]> {
     const uploadState = useUploadStore.getState();
@@ -493,7 +508,7 @@ function getStoryPropsFromOptions(options: CreateAssetsOptions) {
 }
 
 async function createStoryAssetIfNeeded(
-    destination: CollectionId,
+    destination: Destination,
     options: CreateAssetsOptions
 ): Promise<Asset | undefined> {
     if (options.isStory) {
@@ -510,7 +525,7 @@ async function createStoryAssetIfNeeded(
 
 export async function importAssets(
     files: InputAssetImport[],
-    destination: CollectionId,
+    destination: Destination,
     options: CreateAssetsOptions = {}
 ): Promise<Asset[]> {
     const destProps = computeAssetPropsFromDestination(destination);

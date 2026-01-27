@@ -1,4 +1,4 @@
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {Group, User} from '../types';
 import {AxiosRequestConfig} from 'axios';
 import {UserPreferences} from '../store/userPreferencesStore.ts';

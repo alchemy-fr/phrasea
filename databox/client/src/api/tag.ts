@@ -1,6 +1,6 @@
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {Tag} from '../types';
-import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 
 export const tagNS = '/tags';
 
@@ -11,7 +11,7 @@ type TagOptions = {
 
 export async function getTags(
     options: TagOptions
-): Promise<ApiCollectionResponse<Tag>> {
+): Promise<NormalizedCollectionResponse<Tag>> {
     const res = await apiClient.get(tagNS, {
         params: {
             ...options,

@@ -1,6 +1,6 @@
 import React from 'react';
 import {RenditionDefinition} from '../../../../types.ts';
-import {Dimensions} from '../../../Media/Asset/Players';
+import {Dimensions} from '@alchemy/core';
 import {Button} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {RenditionStructure} from './RenditionStructure.tsx';
