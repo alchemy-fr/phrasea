@@ -105,7 +105,7 @@ final readonly class AssetDataTemplateSearch
         return $result;
     }
 
-    protected function createACLBoolQuery(array $filters, ?string $userId, array $groupIds, ?Collection $collection): ?Query\BoolQuery
+    private function createACLBoolQuery(array $filters, ?string $userId, array $groupIds, ?Collection $collection): ?Query\BoolQuery
     {
         $workspaceId = $filters['workspace'] ?? $collection?->getWorkspaceId() ?? null;
 

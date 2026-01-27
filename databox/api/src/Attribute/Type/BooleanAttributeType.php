@@ -69,9 +69,9 @@ class BooleanAttributeType extends AbstractAttributeType
 
         if ('1' === $value) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     public function normalizeElasticsearchValue(?string $value)

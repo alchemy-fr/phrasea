@@ -178,9 +178,9 @@ function dumpPhpVar(mixed $v, int $indent = 0): string
         return dumpArray($v, $indent);
     } elseif (is_bool($v)) {
         return $v ? 'true' : 'false';
-    } else {
-        return (string) $v;
     }
+
+    return (string) $v;
 }
 
 function i(int $indent): string
