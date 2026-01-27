@@ -25,7 +25,7 @@ final class GetAssetWithSlugAction extends AbstractController
 
         if (
             !$publication instanceof Publication
-            || !$publication->getConfig()->isEnabled() && !$this->isGranted(JwtUser::ROLE_ADMIN)
+            || !$publication->getConfig()->getEnabled() && !$this->isGranted(JwtUser::ROLE_ADMIN)
         ) {
             throw new NotFoundHttpException();
         }

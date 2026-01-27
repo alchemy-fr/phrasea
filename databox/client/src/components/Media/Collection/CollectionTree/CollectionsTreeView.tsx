@@ -1,148 +1,136 @@
-import React, {useCallback, useState} from 'react';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import {TreeView} from '@mui/x-tree-view';
-import {CircularProgress} from '@mui/material';
-import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 import {useWorkspaceStore} from '../../../../store/workspaceStore.ts';
+import React, {useCallback} from 'react';
+import {CircularProgress} from '@mui/material';
+import {CollectionOptionalWorkspace} from '../../../../types.ts';
+import {useCollectionStore} from '../../../../store/collectionStore.ts';
+import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce.ts';
 import {
-    Collection,
-    CommonTreeProps,
-    NewCollectionPathState,
-    normalizeNodeId,
-    SetNewCollectionPath,
-    treeViewPathSeparator,
-    UpdateCollectionPath,
-} from './collectionTree.ts';
-import WorkspaceTreeItem from './WorkspaceTreeItem.tsx';
+    LoadNodeChildren,
+    OnSelectionChange,
+    TreeNode,
+    TreeView,
+    TreeViewOptionsProps,
+    useVirtualNodes,
+} from '@alchemy/phrasea-framework';
+import {EntityType, WorkspaceOrCollectionTreeItem} from './types.ts';
+import CollectionTreeNode from './CollectionTreeNode.tsx';
+import {useTranslation} from 'react-i18next';
+import CollectionEdit from './CollectionEdit.tsx';
+
+export type CollectionTreeData = WorkspaceOrCollectionTreeItem;
 
 type Props<IsMulti extends boolean = false> = {
-    value?: IsMulti extends true ? Collection[] : Collection;
     onChange?: (
-        selection: IsMulti extends true ? string[] : string,
-        workspaceId?: IsMulti extends true ? string : never
+        selection: IsMulti extends true
+            ? TreeNode<CollectionTreeData>[]
+            : TreeNode<CollectionTreeData>
     ) => void;
     workspaceId?: string;
-} & CommonTreeProps<IsMulti>;
+    allowNew?: boolean;
+    multiple?: IsMulti;
+} & Omit<TreeViewOptionsProps<CollectionTreeData>, 'multiple'>;
 
 export type {Props as CollectionTreeViewProps};
 
-export function CollectionsTreeView<IsMulti extends boolean = false>({
-    onChange,
-    value,
-    multiple,
+export default function CollectionsTreeView<IsMulti extends boolean = false>({
     workspaceId,
-    disabledBranches,
     allowNew,
-    disabled,
-    isSelectable,
+    multiple,
+    onChange,
+    ...treeViewProps
 }: Props<IsMulti>) {
+    const {t} = useTranslation();
     const loadWorkspaces = useWorkspaceStore(state => state.load);
+    const loadWorkspaceCollections = useCollectionStore(state => state.load);
     const loading = useWorkspaceStore(state => state.loading);
     const allWorkspaces = useWorkspaceStore(state => state.workspaces);
+
     const workspaces = workspaceId
         ? allWorkspaces.filter(w => w.id === workspaceId)
         : allWorkspaces;
+
+    const collectionsTree = useCollectionStore(state => state.tree);
 
     useEffectOnce(() => {
         loadWorkspaces();
     }, []);
 
-    const [newCollectionPath, setNewCollectionPath] =
-        useState<NewCollectionPathState>();
-    const [expanded, setExpanded] = React.useState<string[]>([]);
-    const [selected, setSelected] = React.useState<
-        IsMulti extends true ? string[] : string | undefined
-    >(value ?? ((multiple ? [] : '') as any));
-
-    const setNewCollectionPathProxy = useCallback<SetNewCollectionPath>(
-        (nodes, rootId) => {
-            setNewCollectionPath(prev => ({
-                nodes,
-                rootNode: rootId ? rootId : prev!.rootNode,
-            }));
+    const loadChildren = useCallback<LoadNodeChildren<CollectionTreeData>>(
+        async node => {
+            await loadWorkspaceCollections(
+                node.data.workspaceId,
+                node.data.type === EntityType.Collection
+                    ? node.data.id
+                    : undefined
+            );
         },
-        [setNewCollectionPath]
+        [loadWorkspaceCollections]
     );
 
-    const handleSelect = (
-        event: React.ChangeEvent<{}>,
-        nodeIds: IsMulti extends true ? string[] : string
-    ) => {
-        if (
-            (event.target as HTMLElement)
-                .closest('.MuiTreeItem-root')
-                ?.classList.contains('not-selectable')
-        ) {
-            event.preventDefault();
-            return;
-        }
+    const items = React.useMemo<TreeNode<CollectionTreeData>[]>(() => {
+        const mapCollection = (
+            collection: CollectionOptionalWorkspace,
+            workspaceId: string
+        ): TreeNode<CollectionTreeData> => {
+            const nodeId = collection.id;
 
-        if (disabled) {
-            return;
-        }
-        if (multiple) {
-            const striped = (nodeIds as string[]).map(i =>
-                normalizeNodeId(i, newCollectionPath)
-            );
-            setSelected(nodeIds as any);
-            onChange && onChange(striped as any);
-        } else {
-            const striped = normalizeNodeId(
-                nodeIds as string,
-                newCollectionPath
-            );
-            const workspaceId =
-                typeof striped === 'object'
-                    ? striped.rootId?.split(treeViewPathSeparator)[0]
-                    : (nodeIds as string).split(treeViewPathSeparator)[0];
+            const children =
+                collectionsTree[collection.id]?.items ?? collection.children;
 
-            setSelected(nodeIds);
-            onChange && onChange(striped as any, workspaceId as any);
-        }
-    };
+            return {
+                id: nodeId,
+                data: {
+                    id: collection.id,
+                    type: EntityType.Collection,
+                    label: collection.titleTranslated || collection.title,
+                    capabilities: collection.capabilities,
+                    workspaceId,
+                },
+                hasChildren: children ? children.length > 0 : false,
+                childrenLoaded: !!collectionsTree[collection.id],
+                children: children?.map(c => mapCollection(c, workspaceId)),
+                canAddChildren: collection.capabilities.canEdit,
+            };
+        };
 
-    const updateCollectionPath = useCallback<UpdateCollectionPath>(
-        (index, id, value, editing) => {
-            setNewCollectionPath(prev => {
-                if (index === 0 && id === null) {
-                    return undefined;
-                }
+        return workspaces.map(w => {
+            const nodeId = w.id;
 
-                if (index >= (prev!.nodes?.length ?? 0)) {
-                    return {
-                        ...prev!,
-                        nodes: prev!.nodes.concat({
-                            id: id!,
-                            value: value!,
-                            editing: editing!,
-                        }),
-                    };
-                }
+            return {
+                id: nodeId,
+                hasChildren: true,
+                data: {
+                    id: w.id,
+                    type: EntityType.Workspace,
+                    label: w.nameTranslated || w.name,
+                    capabilities: w.capabilities,
+                    workspaceId: w.id,
+                },
+                children: collectionsTree[w.id]?.items.map(c =>
+                    mapCollection(c, w.id)
+                ),
+            };
+        });
+    }, [workspaces, collectionsTree]);
 
-                return {
-                    ...prev!,
-                    nodes:
-                        id === null
-                            ? prev!.nodes.slice(0, index)
-                            : prev!.nodes.map((p, i) =>
-                                  i === index
-                                      ? {
-                                            id: id!,
-                                            value: value!,
-                                            editing: editing!,
-                                        }
-                                      : p
-                              ),
-                };
-            });
-        },
-        [setNewCollectionPath]
-    );
+    const {normalizedNodes, ...editingProps} = useVirtualNodes({
+        nodes: items,
+        newItem: parentNode => ({
+            label: t('collection.tree_view.new_collection', 'New Collection'),
+            type: EntityType.Collection,
+            capabilities: {
+                canEdit: true,
+            },
+            workspaceId: parentNode!.data.workspaceId,
+        }),
+    });
 
-    const handleToggle = (_event: React.ChangeEvent<{}>, nodeIds: string[]) => {
-        setExpanded(nodeIds);
-    };
+    const onSelectionChange = useCallback<
+        OnSelectionChange<CollectionTreeData>
+    >(selection => {
+        // @ts-expect-error TS can't infer multiple is false here
+        onChange?.(multiple ? selection : selection[0] || null);
+    }, []);
 
     if (loading) {
         return <CircularProgress size={50} />;
@@ -150,48 +138,16 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
 
     return (
         <TreeView
-            sx={theme => ({
-                '.not-selectable > .MuiTreeItem-content .MuiTreeItem-label': {
-                    opacity: 0.7,
-                },
-                'flexGrow': 1,
-                '.MuiTreeItem-content': {
-                    borderRadius: theme.shape.borderRadius,
-                    width: 'fit-content',
-                },
-                '.MuiTreeItem-content.Mui-selected, .MuiTreeItem-content.Mui-selected.Mui-focused':
-                    {
-                        bgcolor: 'primary.main',
-                        color: 'primary.contrastText',
-                        fontWeight: 700,
-                    },
-                '.MuiButtonBase-root': {
-                    color: 'inherit',
-                },
-            })}
-            defaultCollapseIcon={<ExpandMoreIcon />}
-            defaultExpandIcon={<ChevronRightIcon />}
-            expanded={expanded}
-            selected={selected as any}
-            onNodeToggle={handleToggle}
-            onNodeSelect={handleSelect as any}
-            multiSelect={multiple || false}
-        >
-            {workspaces.map(w => {
-                return (
-                    <WorkspaceTreeItem
-                        key={w.id}
-                        workspace={w}
-                        isSelectable={isSelectable}
-                        disabledBranches={disabledBranches}
-                        newCollectionPath={newCollectionPath}
-                        setNewCollectionPath={setNewCollectionPathProxy}
-                        updateCollectionPath={updateCollectionPath}
-                        setExpanded={setExpanded}
-                        allowNew={allowNew}
-                    />
-                );
-            })}
-        </TreeView>
+            {...treeViewProps}
+            loadChildren={loadChildren}
+            onSelectionChange={onSelectionChange}
+            renderNodeLabel={props => {
+                return <CollectionTreeNode {...props} />;
+            }}
+            multiple={multiple}
+            editNodeComponent={CollectionEdit}
+            nodes={normalizedNodes}
+            {...(allowNew ? editingProps : {})}
+        />
     );
 }

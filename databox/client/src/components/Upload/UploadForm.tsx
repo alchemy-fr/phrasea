@@ -27,11 +27,15 @@ import FullPageLoader from '../Ui/FullPageLoader';
 import {useFormPrompt} from '@alchemy/navigation';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
-import {Collection} from '../Media/Collection/CollectionTree/collectionTree.ts';
 import StoryForm from './StoryForm.tsx';
+import {
+    EntityType,
+    WorkspaceOrCollectionTreeItem,
+} from '../Media/Collection/CollectionTree/types.ts';
+import {TreeNode} from '@alchemy/phrasea-framework';
 
 export type UploadData = {
-    destination: Collection;
+    destination: TreeNode<WorkspaceOrCollectionTreeItem> | string | null;
     privacy: Privacy;
     tags: Tag[];
     quiet?: boolean;
@@ -199,24 +203,22 @@ export const UploadForm: FC<{
                 {!noDestination && (
                     <FormRow>
                         <CollectionTreeWidget
-                            isSelectable={coll => coll.capabilities.canEdit}
+                            isSelectable={node =>
+                                node.data.capabilities.canEdit
+                            }
                             control={control}
                             rules={{
                                 required: true,
                             }}
                             name={'destination'}
-                            onChange={(s: string | undefined, wsId) => {
-                                if (
-                                    typeof s === 'string' &&
-                                    s.startsWith('/collections/')
-                                ) {
-                                    onChangeCollection(
-                                        s.replace('/collections/', '')
-                                    );
+                            onChange={node => {
+                                if (node?.data.type === EntityType.Collection) {
+                                    onChangeCollection(node?.data.id);
                                 } else {
                                     onChangeCollection(undefined);
                                 }
-                                onChangeWorkspace(wsId);
+
+                                onChangeWorkspace(node?.data?.workspaceId);
                             }}
                             label={t(
                                 'form.upload.destination.label',

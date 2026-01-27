@@ -20,11 +20,9 @@ import {
     Skeleton,
     TextField,
 } from '@mui/material';
-import {ApiHydraObjectResponse} from '../../../../api/hydra.ts';
 import DialogActions from '@mui/material/DialogActions';
 import {useTranslation} from 'react-i18next';
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import {LoadingButton} from '@mui/lab';
 import SortableList, {
     OrderChangeHandler,
     SortableItem,
@@ -32,9 +30,9 @@ import SortableList, {
 } from '../../../Ui/Sortable/SortableList.tsx';
 import {Entity, StateSetter, Workspace} from '../../../../types.ts';
 import ItemForm from './ItemForm.tsx';
-import {UseFormSubmitReturn} from '@alchemy/api';
+import {ApiHydraObjectResponse, UseFormSubmitReturn} from '@alchemy/api';
 import {useModals} from '@alchemy/navigation';
-import ConfirmDialog, {ConfirmDialogProps} from '../../../Ui/ConfirmDialog.tsx';
+import {ConfirmDialog, ConfirmDialogProps} from '@alchemy/phrasea-framework';
 import FilterDropdown from './FilterDropdown.tsx';
 
 export type DefinitionBase = ApiHydraObjectResponse & Entity;
@@ -598,14 +596,14 @@ export default function DefinitionManager<D extends DefinitionBase>({
                         >
                             {t('dialog.cancel', 'Cancel')}
                         </Button>
-                        <LoadingButton
+                        <Button
                             disabled={loading || submitting}
                             loading={submitting}
                             type={formId ? 'submit' : 'button'}
                             form={formId}
                         >
                             {t('dialog.save', 'Save')}
-                        </LoadingButton>
+                        </Button>
                     </>
                 )}
                 {!displaySaveButton && (

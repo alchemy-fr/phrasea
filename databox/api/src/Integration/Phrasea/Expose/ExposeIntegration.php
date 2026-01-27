@@ -145,6 +145,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
         $data->setValue([
             'id' => $publicationId,
             'url' => $config['clientUrl'].'/'.$publicationId,
+            'editUrl' => $config['clientUrl'].'/publications/'.$publicationId.'/edit',
         ]);
         $data->setName(self::DATA_PUBLICATION);
     }

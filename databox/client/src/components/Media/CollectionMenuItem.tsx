@@ -25,7 +25,7 @@ import CreateCollection from './Collection/CreateCollection';
 import {useTranslation} from 'react-i18next';
 import ModalLink from '../Routing/ModalLink';
 import {useModals} from '@alchemy/navigation';
-import UploadModal from '../Upload/UploadModal';
+import UploadDialog from '../Upload/UploadDialog.tsx';
 import {modalRoutes} from '../../routes';
 import {useAuth} from '@alchemy/react-auth';
 import {CollectionPager, useCollectionStore} from '../../store/collectionStore';
@@ -175,7 +175,7 @@ export default function CollectionMenuItem({
                                     <MenuItem
                                         key="create-asset"
                                         onClick={closeWrapper(() =>
-                                            openModal(UploadModal, {
+                                            openModal(UploadDialog, {
                                                 files: [],
                                                 workspaceTitle:
                                                     workspace.nameTranslated,

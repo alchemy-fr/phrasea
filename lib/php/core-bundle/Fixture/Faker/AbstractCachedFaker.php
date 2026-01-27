@@ -12,37 +12,32 @@ use Psr\Log\LoggerInterface;
 
 abstract class AbstractCachedFaker extends BaseProvider
 {
-    private readonly FileStorageManager $fileStorageManager;
-    private readonly PathGenerator $pathGenerator;
-
     public function __construct(
         private readonly ?string $fixturesCacheDir,
-        FileStorageManager $fileStorageManager,
-        PathGenerator $pathGenerator,
+        protected readonly FileStorageManager $fileStorageManager,
+        protected readonly PathGenerator $pathGenerator,
         Generator $generator,
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct($generator);
-        $this->fileStorageManager = $fileStorageManager;
-        $this->pathGenerator = $pathGenerator;
     }
 
     protected function download(string $pathPrefix, string $cachePath, string $extension, string $url): string
     {
         $this->logger->debug(sprintf('Fetching "%s"', $url));
         if (null !== $this->fixturesCacheDir) {
-            if (!is_dir($this->fixturesCacheDir)) {
-                mkdir($this->fixturesCacheDir);
-            }
-            $cacheKey = $this->fixturesCacheDir.'/'.$cachePath.'.'.$extension;
+            $cacheKey = $this->getFileCacheKey($cachePath, $extension);
             if (!file_exists($cacheKey)) {
                 $resource = fopen($url, 'r');
                 if (!is_resource($resource)) {
                     throw new \InvalidArgumentException(sprintf('Cannot open URL "%s"', $url));
                 }
 
-                file_put_contents($cacheKey, $resource);
-                fclose($resource);
+                try {
+                    $this->cacheFile($cachePath, $extension, $resource);
+                } finally {
+                    fclose($resource);
+                }
             }
 
             $stream = fopen($cacheKey, 'r');
@@ -56,10 +51,52 @@ abstract class AbstractCachedFaker extends BaseProvider
             }
         }
 
-        $finalPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');
-        $this->fileStorageManager->storeStream($finalPath, $stream);
-        fclose($stream);
+        try {
+            $finalPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');
+            $this->fileStorageManager->storeStream($finalPath, $stream);
+        } finally {
+            fclose($stream);
+        }
 
         return $finalPath;
+    }
+
+    private function ensureCacheDirExists(string $cacheKey): void
+    {
+        $dir = dirname($cacheKey);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+    }
+
+    protected function cacheFile(string $cachePath, string $extension, $resource): void
+    {
+        $cacheKey = $this->getFileCacheKey($cachePath, $extension);
+        $this->ensureCacheDirExists($cacheKey);
+
+        file_put_contents($cacheKey, $resource);
+    }
+
+    protected function cacheFileFromPath(string $cachePath, string $extension, string $src): void
+    {
+        $cacheKey = $this->getFileCacheKey($cachePath, $extension);
+        $this->ensureCacheDirExists($cacheKey);
+
+        copy($src, $cacheKey);
+    }
+
+    protected function getCachedFile(string $cachePath, string $extension): ?string
+    {
+        $cacheKey = $this->getFileCacheKey($cachePath, $extension);
+        if (file_exists($cacheKey)) {
+            return $cacheKey;
+        }
+
+        return null;
+    }
+
+    private function getFileCacheKey(string $cachePath, string $extension): string
+    {
+        return $this->fixturesCacheDir.'/'.$cachePath.'.'.$extension;
     }
 }

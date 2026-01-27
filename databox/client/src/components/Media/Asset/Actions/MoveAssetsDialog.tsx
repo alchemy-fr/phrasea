@@ -6,9 +6,9 @@ import CollectionTreeWidget from '../../../Form/CollectionTreeWidget';
 import {moveAssets} from '../../../../api/collection';
 import {FormFieldErrors} from '@alchemy/react-form';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
-import RemoteErrors from '../../../Form/RemoteErrors';
+import {RemoteErrors} from '@alchemy/react-form';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {toast} from 'react-toastify';
 
 type Props = {
@@ -75,7 +75,7 @@ export default function MoveAssetsDialog({
             </Typography>
             <form id={formId} onSubmit={handleSubmit}>
                 <CollectionTreeWidget
-                    isSelectable={coll => coll.capabilities.canEdit}
+                    isSelectable={node => node.data.capabilities.canEdit}
                     workspaceId={workspaceId}
                     control={control}
                     name={'destination'}

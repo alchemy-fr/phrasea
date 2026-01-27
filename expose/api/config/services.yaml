@@ -41,24 +41,6 @@ services:
 
     Arthem\RequestSignerBundle\RequestSigner: "@arthem_request_signer.request_signer"
 
-    App\Serializer\NormalizerDecorator:
-        abstract: true
-        autoconfigure: false
-
-    app.serializer.decorated_item:
-        class: App\Serializer\NormalizerDecorator
-        decorates: 'api_platform.serializer.normalizer.item'
-        arguments: [ '@app.serializer.decorated_item.inner' ]
-        tags:
-            - { name: serializer.normalizer, priority: 255 }
-
-    app.serializer.decorated_object:
-        class: App\Serializer\NormalizerDecorator
-        decorates: 'serializer.normalizer.object'
-        arguments: [ '@app.serializer.decorated_object.inner' ]
-        tags:
-            - { name: serializer.normalizer, priority: -989 }
-
     App\Form\ThemeChoiceType:
         arguments:
             $choices:
@@ -103,12 +85,6 @@ services:
         decorates: api_platform.doctrine.orm.state.persist_processor
         arguments:
             $decorated: '@.inner'
-
-    App\Security\Authentication\JWTManager:
-        arguments:
-            $signingKey: '%env(APP_SECRET)%'
-            $baseUri: '%env(EXPOSE_API_URL)%'
-            $ttl: '%env(JWT_TTL)%'
 
     App\Admin\ClientUrlGenerator:
         arguments:

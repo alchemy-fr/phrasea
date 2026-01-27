@@ -2,11 +2,9 @@ import {Button, Container, LinearProgress} from '@mui/material';
 import {PropsWithChildren, ReactNode} from 'react';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-import {LoadingButton} from '@mui/lab';
 import SaveIcon from '@mui/icons-material/Save';
-import RemoteErrors from '../../Form/RemoteErrors';
+import {RemoteErrors} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
-import {useFormPrompt} from '@alchemy/navigation';
 
 type Props = PropsWithChildren<{
     loading: boolean;
@@ -18,12 +16,6 @@ type Props = PropsWithChildren<{
     onClose: () => void;
     minHeight?: number | undefined;
 }>;
-
-export function useDirtyFormPrompt(isDirty: boolean, modalIndex?: number) {
-    const {t} = useTranslation();
-
-    useFormPrompt(t, isDirty, modalIndex);
-}
 
 export default function FormTab({
     formId,
@@ -64,7 +56,7 @@ export default function FormTab({
                 <Button onClick={onClose} color={'warning'} disabled={loading}>
                     {t('dialog.cancel', 'Cancel')}
                 </Button>
-                <LoadingButton
+                <Button
                     startIcon={submitIcon || <SaveIcon />}
                     type={formId ? 'submit' : 'button'}
                     form={formId}
@@ -74,7 +66,7 @@ export default function FormTab({
                     disabled={loading}
                 >
                     {submitLabel || t('dialog.save', 'Save')}
-                </LoadingButton>
+                </Button>
             </DialogActions>
         </>
     );

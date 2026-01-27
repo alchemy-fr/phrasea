@@ -5,7 +5,7 @@ import {useTranslation} from 'react-i18next';
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 import {useModals} from '@alchemy/navigation';
-import ConfirmDialog from '../Ui/ConfirmDialog.tsx';
+import {ConfirmDialog} from '@alchemy/phrasea-framework';
 
 type Props = {
     undo: (() => void) | undefined;

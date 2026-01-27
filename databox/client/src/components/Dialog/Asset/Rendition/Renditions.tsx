@@ -14,7 +14,7 @@ import {
 } from '../../../../api/rendition.ts';
 import {Rendition} from './Rendition.tsx';
 import {RenditionSkeleton} from './RenditionSkeleton.tsx';
-import ConfirmDialog from '../../../Ui/ConfirmDialog.tsx';
+import {ConfirmDialog} from '@alchemy/phrasea-framework';
 import {toast} from 'react-toastify';
 import {useModals} from '@alchemy/navigation';
 import {useTranslation} from 'react-i18next';

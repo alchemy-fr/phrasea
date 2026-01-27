@@ -1,12 +1,10 @@
-import Publication from '../component/Publication.jsx';
 import {useParams} from '@alchemy/navigation';
-import {useAuth} from '@alchemy/react-auth';
+import PublicationView from '../components/publication/PublicationView.tsx';
 
 type Props = {};
 
 export default function PublicationPage({}: Props) {
-    const {id} = useParams();
-    const {user} = useAuth();
+    const {id, assetId} = useParams();
 
-    return <Publication id={id} username={user?.username} />;
+    return <PublicationView id={id!} assetId={assetId} />;
 }

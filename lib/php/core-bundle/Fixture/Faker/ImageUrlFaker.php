@@ -10,17 +10,13 @@ class ImageUrlFaker extends AbstractCachedFaker
         string $workspaceId,
         string $lock,
         int $size = 1000,
-        bool $plusOne = false,
         ?string $theme = null,
     ): string {
-        if (!preg_match('#(\d+)$#', $lock, $matches)) {
-            throw new \InvalidArgumentException(sprintf('Lock must end with a number, got "%s"', $lock));
+        if ($size <= 0) {
+            throw new \InvalidArgumentException(sprintf('Size must be greater than 0, got %d', $size));
         }
 
-        $lockNumber = $matches[1];
-        if ($plusOne) {
-            ++$lockNumber;
-        }
+        $lockNumber = $this->extractLockNumber($lock);
 
         $ratios = [
             16 / 9,
@@ -38,27 +34,130 @@ class ImageUrlFaker extends AbstractCachedFaker
             $width = $size * $ratio;
             $height = $size;
         }
-        $width = round($width);
-        $height = round($height);
 
-        $baseUrl = 'https://picsum.photos';
+        return $this->image($width, $height, $lock, $workspaceId, $theme);
+    }
 
-        $url = sprintf($baseUrl.'/seed/%s/%s/%s.jpg',
-            $lockNumber,
-            $width,
-            $height,
-        );
+    public function image(
+        float|int $width,
+        float|int $height,
+        string $lockNumber,
+        string $pathPrefix,
+        ?string $theme = null,
+    ): string {
+        $width = (int) round($width);
+        $height = (int) round($height);
+
+        $totalVariants = 42;
+        $lockNumber = $this->extractLockNumber($lockNumber);
+        $lockNorm = ($lockNumber % $totalVariants) + 1;
         $extension = 'jpg';
 
-        if ($size <= 0) {
-            throw new \InvalidArgumentException(sprintf('Size must be greater than 0, got %d', $size));
+        if (filter_var(getenv('FIXTURES_GENERATE_IMAGES'), FILTER_VALIDATE_BOOLEAN)) {
+            return $this->generateSolidColorImage(
+                $width,
+                $height,
+                $pathPrefix,
+                $extension,
+            );
         }
 
-        return $this->download(
-            $workspaceId,
-            sprintf('%s-%s-%s-%s', $theme ?? 'default', $lockNumber, $width, $height),
+        $theme ??= 'nature';
+        $orientation = $width >= $height ? 'landscape' : 'portrait';
+        $url = sprintf('https://alchemy-phrasea-fixtures.s3.eu-west-3.amazonaws.com/fixtures/images/%s/%s/%d.%s', $theme, $orientation, $lockNorm, $extension);
+
+        $cachePath = sprintf('%s/%s-%d', $theme, $orientation, $lockNorm);
+        $imageSrc = $this->download(
+            $pathPrefix,
+            $cachePath,
             $extension,
-            $url
+            $url,
         );
+
+        $croppedCacheKKey = $cachePath.sprintf('-%d-%d', $width, $height);
+        if (null !== $cached = $this->getCachedFile($croppedCacheKKey, $extension)) {
+            return $this->storeOnBucket($pathPrefix, $extension, $cached);
+        }
+
+        $stream = $this->fileStorageManager->getStream($imageSrc);
+        $tmpImage = tempnam(sys_get_temp_dir(), 'img');
+        file_put_contents($tmpImage, $stream);
+        fclose($stream);
+
+        $imagick = new \Imagick($tmpImage);
+
+        $imagick->cropThumbnailImage($width, $height);
+        $imagick->setImagePage(0, 0, 0, 0);
+
+        try {
+            $imagick->writeImage($tmpImage);
+            $imagick->clear();
+            $imagick->destroy();
+
+            $this->cacheFileFromPath(
+                $croppedCacheKKey,
+                $extension,
+                $tmpImage,
+            );
+
+            return $this->storeOnBucket($pathPrefix, $extension, $tmpImage);
+        } finally {
+            unlink($tmpImage);
+        }
+    }
+
+    private function generateSolidColorImage(
+        int $width,
+        int $height,
+        string $pathPrefix,
+        string $extension,
+    ): string {
+        $cachePath = sprintf('generated/%d-%d', $width, $height);
+        if (null !== $cached = $this->getCachedFile($cachePath, $extension)) {
+            return $cached;
+        }
+
+        $imagick = new \Imagick();
+        $imagick->newImage($width, $height, new \ImagickPixel('gray'));
+        $imagick->setImageFormat($extension);
+
+        $tmpImage = tempnam(sys_get_temp_dir(), 'img');
+        try {
+            $imagick->writeImage($tmpImage);
+            $imagick->clear();
+            $imagick->destroy();
+
+            $this->cacheFileFromPath(
+                $cachePath,
+                $extension,
+                $tmpImage,
+            );
+
+            return $this->storeOnBucket($pathPrefix, $extension, $tmpImage);
+        } finally {
+            unlink($tmpImage);
+        }
+    }
+
+    private function storeOnBucket(string $pathPrefix, string $extension, string $src): string
+    {
+        $newPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');
+        $fd = fopen($src, 'r');
+        try {
+            $this->fileStorageManager->storeStream($newPath, $fd);
+        } finally {
+            fclose($fd);
+        }
+
+        return $newPath;
+    }
+
+    private function extractLockNumber(string $lock): int
+    {
+        if (!preg_match('#(\d+)$#', $lock, $matches)) {
+            throw new \InvalidArgumentException(sprintf('Lock must end with a number, got "%s"', $lock));
+        }
+
+        return (int) $matches[1];
     }
 }

@@ -13,7 +13,7 @@ import {
 import {BaseBuilderProps, OperatorChoice, QBCondition} from './builderTypes.ts';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ValueBuilder from './ValueBuilder.tsx';
-import Grid from '@mui/material/Unstable_Grid2';
+import {Grid2 as Grid} from '@mui/material';
 import {alpha} from '@mui/material/styles';
 import {StylesConfig} from 'react-select';
 import {typeMap} from '../validation.ts';
@@ -59,7 +59,7 @@ export default function ConditionBuilder({
 
     return (
         <Grid container spacing={1}>
-            <Grid xs={4}>
+            <Grid size={4}>
                 <RSelectWidget
                     placeholder={t('search_condition.builder.field', 'Field')}
                     name={'field'}
@@ -89,7 +89,7 @@ export default function ConditionBuilder({
                         )}
                 />
             </Grid>
-            <Grid xs={3}>
+            <Grid size={3}>
                 <RSelectWidget
                     required={true}
                     placeholder={t(
@@ -159,7 +159,7 @@ export default function ConditionBuilder({
                     }}
                 />
             </Grid>
-            <Grid xs={4}>
+            <Grid size={4}>
                 <ValueBuilder
                     widget={field?.widget}
                     rawType={rawType}
@@ -169,7 +169,7 @@ export default function ConditionBuilder({
                     setExpression={setExpression}
                 />
             </Grid>
-            <Grid xs={1}>
+            <Grid size={1}>
                 <IconButton
                     onClick={() => {
                         onRemove(expression);

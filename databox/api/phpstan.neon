@@ -6,3 +6,5 @@ parameters:
         - public/
         - src/
         - tests/
+    excludePaths:
+        - src/Elasticsearch/AQL/AQLGrammar.php

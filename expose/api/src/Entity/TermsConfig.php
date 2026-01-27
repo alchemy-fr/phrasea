@@ -11,31 +11,32 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Embeddable]
 class TermsConfig implements MergeableValueObjectInterface
 {
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_READ, Asset::GROUP_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
+    private ?bool $enabled = null;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_READ, Asset::GROUP_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?string $text = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    #[Groups(['profile:read', Publication::GROUP_READ])]
+    #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_READ, Asset::GROUP_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
     private ?string $url = null;
 
+    /**
+     * @template T of MergeableValueObjectInterface
+     *
+     * @param T $object
+     *
+     * @return T
+     */
     public function mergeWith(MergeableValueObjectInterface $object): MergeableValueObjectInterface
     {
-        $clone = clone $this;
-        foreach ([
-            'text',
-            'url',
-        ] as $property) {
-            if (null !== $object->{$property}) {
-                if ($clone->{$property} instanceof MergeableValueObjectInterface) {
-                    $clone->{$property}->mergeWith($object->{$property});
-                } else {
-                    $clone->{$property} = $object->{$property};
-                }
-            }
-        }
-
-        return $clone;
+        return match ($object->getEnabled()) {
+            true => $object,
+            false => $object,
+            default => $this,
+        };
     }
 
     public function getText(): ?string
@@ -45,7 +46,7 @@ class TermsConfig implements MergeableValueObjectInterface
 
     public function setText(?string $text): void
     {
-        $this->text = $text;
+        $this->text = $text ?: null;
     }
 
     public function getUrl(): ?string
@@ -55,13 +56,16 @@ class TermsConfig implements MergeableValueObjectInterface
 
     public function setUrl(?string $url): void
     {
-        $this->url = $url;
+        $this->url = $url ?: null;
     }
 
-    #[Groups(['profile:read', Publication::GROUP_READ])]
-    public function isEnabled(): bool
+    public function getEnabled(): ?bool
     {
-        return null !== $this->text
-            || null !== $this->url;
+        return $this->enabled;
+    }
+
+    public function setEnabled(?bool $enabled): void
+    {
+        $this->enabled = $enabled;
     }
 }

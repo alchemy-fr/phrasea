@@ -4,7 +4,7 @@ import {Basket, BasketAsset} from '../../types';
 import {Trans, useTranslation} from 'react-i18next';
 import React from 'react';
 import {getBasket, getBasketAssets} from '../../api/basket';
-import {useCloseModal} from '../Routing/ModalLink';
+import {useCloseModal, useNavigateToModal} from '../Routing/ModalLink';
 import AssetList from '../AssetList/AssetList';
 import {BasketSelectionContext} from '../../context/BasketSelectionContext';
 import DisplayProvider from '../Media/DisplayProvider';
@@ -16,15 +16,19 @@ import {
     createPaginatedLoader,
     Pagination,
 } from '../../api/pagination';
-import {Button} from '@mui/material';
+import {Button, Typography} from '@mui/material';
 import BasketsPanel from './BasketsPanel';
-import {leftPanelWidth} from '../../themes/base';
 import {ZIndex} from '../../themes/zIndex';
 import Box from '@mui/material/Box';
 import {ActionsContext} from '../AssetList/types';
 import BasketItem from './BasketItem';
 import {createDefaultActionsContext} from '../AssetList/actionContext.ts';
 import {useOpenAsset} from '../AssetSearch/useOpenAsset.ts';
+import {leftPanelWidth} from '../uiVars.ts';
+import EditIcon from '@mui/icons-material/Edit';
+import GroupButton from '../Ui/GroupButton.tsx';
+import {modalRoutes} from '../../routes.ts';
+import {annotationZIndex} from '../Media/Asset/Annotations/common.ts';
 
 type Props = {} & StackedModalProps;
 
@@ -32,6 +36,7 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
     const {t} = useTranslation();
     const {id} = useParams();
     const closeModal = useCloseModal();
+    const navigateToModal = useNavigateToModal();
 
     const [data, setData] = React.useState<Basket>();
     const [pagination, setPagination] = React.useState<Pagination<BasketAsset>>(
@@ -92,6 +97,15 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
         };
     }, [data, removeFromBasket]);
 
+    const createNavigateToManage = (tabId: string) => {
+        return () => {
+            navigateToModal(modalRoutes.baskets.routes.manage, {
+                id: data?.id,
+                tab: tabId,
+            });
+        };
+    };
+
     const itemToAsset = (item: BasketAsset) => item.asset;
 
     return (
@@ -99,6 +113,60 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
             maxWidth={'xl'}
             modalIndex={modalIndex}
             open={open}
+            sx={{
+                '.MuiDialogTitle-root': {
+                    zIndex: annotationZIndex + 10,
+                },
+            }}
+            title={
+                <>
+                    <Box
+                        sx={{
+                            flexGrow: 1,
+                            direction: 'row',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography>
+                            <Trans
+                                i18nKey={'basket_view_dialog.title'}
+                                values={{
+                                    name: data?.title,
+                                }}
+                                defaults={'Basket <strong>{{name}}</strong>'}
+                            />
+                        </Typography>
+                        <GroupButton
+                            id={'edit'}
+                            onClick={createNavigateToManage('edit')}
+                            startIcon={<EditIcon />}
+                            buttonGroupProps={{
+                                variant: 'outlined',
+                            }}
+                            actions={[
+                                {
+                                    id: 'info',
+                                    label: t('basket_view_dialog.info', 'Info'),
+                                    onClick: createNavigateToManage('info'),
+                                },
+                                {
+                                    id: 'integrations',
+                                    label: t(
+                                        'basket_view_dialog.integrations',
+                                        'Integrations'
+                                    ),
+                                    onClick:
+                                        createNavigateToManage('integrations'),
+                                },
+                            ]}
+                        >
+                            {t('asset_actions.edit', 'Edit')}
+                        </GroupButton>
+                    </Box>
+                </>
+            }
             onClose={closeModal}
             disablePadding={true}
             actions={({onClose}) => (
@@ -114,12 +182,14 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                     style={{
                         display: 'flex',
                         alignItems: 'stretch',
+                        height: 'calc(100vh - 200px)',
                     }}
                 >
                     <Box
                         sx={theme => ({
                             width: leftPanelWidth,
                             overflow: 'auto',
+                            height: '100%',
                             boxShadow: theme.shadows[5],
                             zIndex: ZIndex.leftPanel,
                         })}
@@ -128,7 +198,6 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                     </Box>
                     <div
                         style={{
-                            height: 'calc(100vh - 120px)',
                             width: '100%',
                         }}
                     >

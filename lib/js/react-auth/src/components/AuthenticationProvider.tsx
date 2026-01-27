@@ -171,7 +171,7 @@ export default function AuthenticationProvider<
                 setRedirectPath,
                 redirectPath,
                 clearRedirectPath,
-                isAuthenticated: oauthClient.isValidSession(tokens),
+                isAuthenticated: oauthClient.isAccessTokenValid(),
                 hasSession: oauthClient.hasSession(),
                 refreshToken: tokens ? refreshToken : undefined,
             }}

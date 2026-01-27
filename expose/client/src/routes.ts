@@ -1,40 +1,74 @@
-import config from './config';
-import PublicationIndex from './component/index/PublicationIndex';
+import {config} from './init.ts';
 import {compileRoutes} from '@alchemy/navigation';
 import PublicationPage from './pages/PublicationPage';
-import AssetPage from './pages/AssetPage';
 import AppAuthorizationCodePage from './pages/AppAuthorizationCodePage';
 import {NotFoundPage} from '@alchemy/phrasea-ui';
 import EmbeddedAssetPage from './pages/EmbeddedAssetPage';
+import IndexPage from './pages/IndexPage.tsx';
+import PublicationEditPage from './pages/PublicationEditPage.tsx';
+import ProfileEditPage from './pages/ProfileEditPage.tsx';
+import ProfileListPage from './pages/ProfileListPage.tsx';
+import ProfileCreatePage from './pages/ProfileCreatePage.tsx';
 
 const routes = {
     index: {
+        public: true,
         path: '/',
         component: NotFoundPage,
     },
-    publication: {
+    publicationView: {
+        public: true,
         path: ':id',
         component: PublicationPage,
         routes: {
             asset: {
                 path: ':assetId',
-                component: AssetPage,
+                component: PublicationPage,
+            },
+        },
+    },
+    publication: {
+        path: 'publications/:id',
+        public: false,
+        routes: {
+            edit: {
+                path: 'edit',
+                component: PublicationEditPage,
+            },
+        },
+    },
+    profile: {
+        path: 'profiles',
+        public: false,
+        routes: {
+            index: {
+                path: '',
+                component: ProfileListPage,
+            },
+            create: {
+                path: 'create',
+                component: ProfileCreatePage,
+            },
+            edit: {
+                path: ':id/edit',
+                component: ProfileEditPage,
             },
         },
     },
     embedAsset: {
+        public: true,
         path: 'embed/:assetId',
         component: EmbeddedAssetPage,
     },
     auth: {
         path: 'auth',
-        component: AppAuthorizationCodePage,
         public: true,
+        component: AppAuthorizationCodePage,
     },
 };
 
 if (!config.disableIndexPage) {
-    routes.index.component = PublicationIndex;
+    routes.index.component = IndexPage;
 }
 
 const compiledRoutes = compileRoutes(routes) as typeof routes;

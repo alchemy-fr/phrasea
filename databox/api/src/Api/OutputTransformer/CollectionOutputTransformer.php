@@ -100,17 +100,20 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             }
 
             $key = sprintf(AbstractObjectNormalizer::DEPTH_KEY_PATTERN, $output::class, 'children');
-            $depth = $context[$key] ?? 0;
-            if ($depth < 1) {
-                if (false !== $data->getHasChildren()) {
-                    $collections = $this->collectionSearch->search($context['userId'], $context['groupIds'], [
-                        'parent' => $data->getId(),
-                        'limit' => $childrenLimit,
-                    ]);
 
-                    $output->setChildren($collections);
-                } else {
-                    $output->setChildren([]);
+            if ($context[AbstractObjectNormalizer::ENABLE_MAX_DEPTH] ?? false) {
+                $depth = $context[$key] ?? 0;
+                if (null !== $depth && $depth < 1) {
+                    if (false !== $data->getHasChildren()) {
+                        $collections = $this->collectionSearch->search($context['userId'], $context['groupIds'], [
+                            'parent' => $data->getId(),
+                            'limit' => $childrenLimit,
+                        ]);
+
+                        $output->setChildren($collections);
+                    } else {
+                        $output->setChildren([]);
+                    }
                 }
             }
         }

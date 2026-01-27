@@ -6,7 +6,6 @@ import {useTranslation} from 'react-i18next';
 import {useCallback, useEffect, useState} from 'react';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import {Alert, Button} from '@mui/material';
-import {LoadingButton} from '@mui/lab';
 
 type Props<T extends Entity> = {
     entity: string;
@@ -54,14 +53,14 @@ export default function ESDocument<T extends Entity>({
             minHeight={minHeight}
             actions={
                 <>
-                    <LoadingButton
+                    <Button
                         loading={loading}
                         disabled={loading}
                         onClick={refresh}
                         startIcon={<RefreshIcon />}
                     >
                         {t('es_document.refresh', 'Refresh')}
-                    </LoadingButton>
+                    </Button>
                 </>
             }
         >

@@ -37,7 +37,6 @@ import {useTranslation} from 'react-i18next';
 import AttributePolicySelect from '../../Form/AttributePolicySelect';
 import FieldTypeSelect from '../../Form/FieldTypeSelect';
 import {fieldTypesIcons} from '../../../lib/icons';
-import apiClient from '../../../api/api-client';
 import {toast} from 'react-toastify';
 import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
 import ObjectTranslationField from '../../Form/ObjectTranslationField.tsx';
@@ -54,6 +53,7 @@ import {search} from '../../../lib/search.ts';
 import AssetTypeFilterSelect, {
     denormalizeAssetTypeFilterValue,
 } from '../../Form/AssetTypeFilterSelect.tsx';
+import {apiClient} from '../../../init.ts';
 
 function Item({
     usedFormSubmit,

@@ -2,6 +2,7 @@ import React, {PropsWithChildren, ReactNode} from 'react';
 import {
     Button,
     ButtonGroup,
+    ButtonGroupProps,
     ClickAwayListener,
     Grow,
     ListItemIcon,
@@ -23,6 +24,7 @@ export type GroupButtonAction = {
 
 type Props = PropsWithChildren<{
     id: string;
+    buttonGroupProps?: Partial<ButtonGroupProps>;
     actions: GroupButtonAction[];
 }> &
     ButtonProps;
@@ -30,6 +32,7 @@ type Props = PropsWithChildren<{
 export default function GroupButton({
     actions,
     disabled,
+    buttonGroupProps = {},
     ...buttonProps
 }: Props) {
     const [open, setOpen] = React.useState(false);
@@ -70,6 +73,7 @@ export default function GroupButton({
                 style={{
                     verticalAlign: 'middle',
                 }}
+                {...buttonGroupProps}
             >
                 <Button {...buttonProps} />
                 {actions.length > 0 && (

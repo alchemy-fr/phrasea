@@ -1,37 +1,28 @@
 import ReactDOM from 'react-dom/client';
+import './scss/index.scss';
 import React from 'react';
-import {CssBaseline, GlobalStyles, responsiveFontSizes} from '@mui/material';
-import {ThemeEditorProvider} from '@alchemy/theme-editor';
-import {scrollbarWidth, theme} from './theme';
-import Root from './Root';
+import {AppProvider, initApp} from '@alchemy/phrasea-framework';
+import {
+    oauthClient,
+    keycloakClient,
+    matomo,
+    config,
+    apiClient,
+} from './init.ts';
+import App from './App.tsx';
+
+initApp(config);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
-        <ThemeEditorProvider
-            defaultTheme={theme}
-            transformTheme={theme => responsiveFontSizes(theme, {})}
+        <AppProvider
+            matomo={matomo}
+            config={config}
+            oauthClient={oauthClient}
+            apiClient={apiClient}
+            keycloakClient={keycloakClient}
         >
-            <CssBaseline />
-            <GlobalStyles
-                styles={theme => ({
-                    '*': {
-                        '*::-webkit-scrollbar': {
-                            width: scrollbarWidth,
-                        },
-                        '*::-webkit-scrollbar-track': {
-                            borderRadius: 10,
-                        },
-                        '*::-webkit-scrollbar-thumb': {
-                            borderRadius: scrollbarWidth,
-                            backgroundColor: theme.palette.primary.main,
-                        },
-                    },
-                    'body': {
-                        backgroundColor: theme.palette.common.white,
-                    },
-                })}
-            />
-            <Root />
-        </ThemeEditorProvider>
+            <App />
+        </AppProvider>
     </React.StrictMode>
 );

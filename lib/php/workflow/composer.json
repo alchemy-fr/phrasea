@@ -28,7 +28,7 @@
         ]
     },
     "require": {
-        "php": "^8.3",
+        "php": "^8.5",
         "ext-json": "*",
         "symfony/console": "^5.4 || ^6 || ^7",
         "symfony/yaml": "^6.2 || ^7",
@@ -44,7 +44,7 @@
         "symfony/var-dumper": "^5.4",
         "doctrine/orm": "^2.14",
         "symfony/messenger": "^6.4",
-        "rector/rector": "^1.0.4",
+        "rector/rector": "^2.3.0",
         "colinodell/psr-testlogger": "^1.2",
         "php-parallel-lint/php-var-dump-check": "v0.5"
     }

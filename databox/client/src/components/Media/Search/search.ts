@@ -10,6 +10,7 @@ export enum BuiltInField {
     EditedAt = '@editedAt',
     FileMimeType = '@mimetype',
     FileName = '@filename',
+    HasSource = '@hasSource',
     FileSize = '@size',
     FileType = '@type',
     Id = '@id',

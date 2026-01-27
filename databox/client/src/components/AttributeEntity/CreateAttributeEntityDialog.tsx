@@ -3,7 +3,6 @@ import {useTranslation} from 'react-i18next';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps, useFormPrompt, useModals} from '@alchemy/navigation';
 import {Button} from '@mui/material';
-import {LoadingButton} from '@mui/lab';
 import {getNonEmptyTranslations} from '@alchemy/react-form';
 import {postAttributeEntity} from '../../api/attributeEntity.ts';
 import {toast} from 'react-toastify';
@@ -68,7 +67,7 @@ export default function CreateAttributeEntityDialog({
                     <Button onClick={onClose}>
                         {t('common.cancel', 'Cancel')}
                     </Button>
-                    <LoadingButton
+                    <Button
                         loading={submitting}
                         disabled={submitting}
                         variant={'contained'}
@@ -77,7 +76,7 @@ export default function CreateAttributeEntityDialog({
                         color={'primary'}
                     >
                         {t('common.save', 'Save')}
-                    </LoadingButton>
+                    </Button>
                 </>
             )}
         >

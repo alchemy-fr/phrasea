@@ -1,4 +1,4 @@
-FROM php:8.3.11-cli-alpine3.20
+FROM php:8.5.1-cli-alpine3.22
 
 RUN apk add --no-cache \
 		autoconf \
@@ -41,13 +41,19 @@ RUN apk add --no-cache \
     && echo $'%sudo ALL = (ALL) NOPASSWD: ALL \n\
 Defaults exempt_group = sudo' > /etc/sudoers.d/nopasswd
 
-ENV APCU_VERSION=5.1.22 \
-    AMQP_VERSION=1.11.0 \
-    IMAGICK_PHP83_FIX_COMMIT=9df92616f577e38625b96b7b903582a46c064739 \
-#    IMAGICK_VERSION=3.7.0 \
-    XDEBUG_VERSION=3.4.2 \
-    REDIS_VERSION=5.3.7 \
+ENV APCU_VERSION=5.1.28 \
+    AMQP_VERSION=2.2.0 \
+    XDEBUG_VERSION=3.5.0 \
+    REDIS_VERSION=6.3.0 \
     APP_ENV=dev
+
+ENV IMAGICK_VERSION=3.8.1 \
+    IMAGEMAGICK_POLICY_VERSION=7 \
+    IMAGEMAGICK_POLICY_WIDTH=48KP \
+    IMAGEMAGICK_POLICY_MAP=2048MiB \
+    IMAGEMAGICK_POLICY_AREA=4096MB \
+    IMAGEMAGICK_POLICY_DISK=6GiB \
+    IMAGEMAGICK_POLICY_TEMPORARY_PATH=/tmp
 
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
@@ -78,19 +84,15 @@ RUN set -eux; \
 	pecl install \
 		apcu-${APCU_VERSION} \
 		amqp-${AMQP_VERSION} \
-#        imagick-${IMAGICK_VERSION} \
 		redis-${REDIS_VERSION} \
+        imagick-${IMAGICK_VERSION} \
 		xdebug-${XDEBUG_VERSION} \
 	; \
-    curl -L https://github.com/remicollet/imagick/archive/${IMAGICK_PHP83_FIX_COMMIT}.zip -o /tmp/imagick-issue-php83.zip \
-        && unzip /tmp/imagick-issue-php83.zip -d /tmp \
-        && pecl install /tmp/imagick-${IMAGICK_PHP83_FIX_COMMIT}/package.xml; \
 	pecl clear-cache; \
 	docker-php-ext-enable \
 		apcu \
 		amqp \
         imagick \
-		opcache \
 		redis \
 	; \
 	\
@@ -103,7 +105,7 @@ RUN set -eux; \
 	apk add --no-cache --virtual .api-phpexts-rundeps $runDeps; \
 	apk del .build-deps
 
-COPY --from=composer:2.5.8 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.9.3 /usr/bin/composer /usr/bin/composer
 
 ENV NODE_VERSION=18.20.3 \
     NODE_OPTIONS=--openssl-legacy-provider

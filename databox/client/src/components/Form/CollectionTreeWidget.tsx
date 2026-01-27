@@ -3,13 +3,11 @@ import {Controller} from 'react-hook-form';
 import {FieldValues} from 'react-hook-form';
 import {Control} from 'react-hook-form';
 import {FieldPath} from 'react-hook-form';
-import {
-    CollectionsTreeView,
-    CollectionTreeViewProps,
-} from '../Media/Collection/CollectionTree/CollectionsTreeView.tsx';
 import {FormControl, FormLabel} from '@mui/material';
 import {RegisterOptions} from 'react-hook-form';
-import {IsSelectable} from '../Media/Collection/CollectionTree/collectionTree.ts';
+import CollectionsTreeView, {
+    CollectionTreeViewProps,
+} from '../Media/Collection/CollectionTree/CollectionsTreeView.tsx';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     label?: ReactNode;
@@ -21,12 +19,9 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
         RegisterOptions<TFieldValues, FieldPath<TFieldValues>>,
         'valueAsNumber' | 'valueAsDate' | 'setValueAs' | 'disabled'
     >;
-    onChange?: CollectionTreeViewProps<IsMulti>['onChange'];
     workspaceId?: string;
     allowNew?: boolean | undefined;
-    disabled?: boolean | undefined;
-    isSelectable?: IsSelectable;
-};
+} & CollectionTreeViewProps<IsMulti>;
 
 export default function CollectionTreeWidget<
     TFieldValues extends FieldValues,
@@ -40,12 +35,11 @@ export default function CollectionTreeWidget<
     onChange: extOnChange,
     workspaceId,
     required,
-    isSelectable,
     allowNew,
-    disabled,
+    ...widgetProps
 }: Props<TFieldValues, IsMulti>) {
     return (
-        <FormControl component="fieldset" variant="standard">
+        <FormControl fullWidth>
             {label && (
                 <FormLabel
                     required={required}
@@ -61,18 +55,17 @@ export default function CollectionTreeWidget<
                 control={control}
                 name={name}
                 rules={rules}
-                render={({field: {onChange, value}}) => {
+                render={({field: {onChange}}) => {
                     return (
                         <CollectionsTreeView<IsMulti>
+                            {...widgetProps}
+                            required={required}
                             workspaceId={workspaceId}
-                            disabled={disabled}
-                            value={value}
                             multiple={multiple}
                             allowNew={allowNew}
-                            isSelectable={isSelectable}
-                            onChange={(collections, ws) => {
+                            onChange={collections => {
                                 onChange(collections);
-                                extOnChange && extOnChange(collections, ws);
+                                extOnChange && extOnChange(collections);
                             }}
                         />
                     );

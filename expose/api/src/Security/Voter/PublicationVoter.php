@@ -7,32 +7,24 @@ namespace App\Security\Voter;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Token\JwtToken;
-use Alchemy\AuthBundle\Security\Voter\ScopeVoterTrait;
+use Alchemy\AuthBundle\Security\Voter\AbstractVoter;
+use Alchemy\AuthBundle\Security\Voter\JwtVoterTrait;
 use App\Entity\Publication;
 use App\Security\AuthenticationSecurityMethodInterface;
 use App\Security\PasswordSecurityMethodInterface;
 use App\Security\PasswordTokenExtractor;
 use App\Security\ScopeInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-class PublicationVoter extends Voter
+class PublicationVoter extends AbstractVoter
 {
-    use ScopeVoterTrait;
     use JwtVoterTrait;
 
     final public const string PUBLISH = 'publication:publish';
-    final public const string CREATE = 'CREATE';
-    final public const string INDEX = 'publication:index';
-    final public const string READ = 'READ';
+    final public const string LIST_PUBLICATIONS = 'publication:index';
     final public const string READ_DETAILS = 'READ_DETAILS';
-    final public const string OPERATOR = 'OPERATOR';
-    final public const string EDIT = 'EDIT';
-    final public const string DELETE = 'DELETE';
 
     public function __construct(
-        private readonly Security $security,
         private readonly PasswordTokenExtractor $passwordTokenExtractor,
     ) {
     }
@@ -52,7 +44,7 @@ class PublicationVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        $isAdmin = $this->hasScope(ScopeInterface::SCOPE_PUBLISH, $token)
+        $isAdmin = $this->hasScope(ScopeInterface::SCOPE_PUBLISH, '', false)
             || $this->security->isGranted(JwtUser::ROLE_ADMIN);
         $user = $token->getUser();
         $isAuthenticated = $user instanceof JwtUser;
@@ -62,25 +54,25 @@ class PublicationVoter extends Voter
 
         return match ($attribute) {
             self::CREATE => $isAdmin
-                || $this->security->isGranted(PermissionInterface::CREATE, new Publication()),
-            self::INDEX => true,
+                || $this->hasAcl(PermissionInterface::CREATE, new Publication(), $token),
+            self::LIST_PUBLICATIONS => true,
             self::READ => $isPublicationVisible
                 || $isAdmin
                 || $isOwner
-                || $this->security->isGranted(PermissionInterface::EDIT, $subject),
+                || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             self::READ_DETAILS => $isAdmin
                 || $this->isValidJWTForRequest()
                 || ($isPublicationVisible && $this->securityMethodPasses($subject, $token))
-                || $this->security->isGranted(PermissionInterface::EDIT, $subject),
+                || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             self::DELETE => $isAdmin
                 || $isOwner
-                || $this->security->isGranted(PermissionInterface::DELETE, $subject),
+                || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
             self::OPERATOR => $isAdmin
                 || $isOwner
-                || $this->security->isGranted(PermissionInterface::OPERATOR, $subject),
+                || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token),
             self::EDIT => $isAdmin
                 || $isOwner
-                || $this->security->isGranted(PermissionInterface::EDIT, $subject),
+                || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             default => false,
         };
     }
@@ -99,7 +91,8 @@ class PublicationVoter extends Voter
                     return false;
                 }
 
-                if ($publicationPassword !== $securityContainer->getSecurityOptions()['password']) {
+                $password = $securityContainer->getSecurityOptions()['password'] ?? null;
+                if (null === $password || $publicationPassword !== $password) {
                     $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_INVALID_PASSWORD);
 
                     return false;
@@ -113,7 +106,7 @@ class PublicationVoter extends Voter
                     return false;
                 }
 
-                if (!$this->security->isGranted(PermissionInterface::VIEW, $publication)) {
+                if (!$this->hasAcl(PermissionInterface::VIEW, $publication, $token)) {
                     $publication->setAuthorizationError(AuthenticationSecurityMethodInterface::ERROR_NOT_ALLOWED);
 
                     return false;

@@ -28,7 +28,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {deleteAttachment} from '../../../api/attachment.ts';
 import MenuItem from '@mui/material/MenuItem';
-import ConfirmDialog from '../../Ui/ConfirmDialog.tsx';
+import {ConfirmDialog} from '@alchemy/phrasea-framework';
 import EditIcon from '@mui/icons-material/Edit';
 import RenameAttachmentDialog from './Attachment/RenameAttachmentDialog.tsx';
 import FileAnalysisChip from './FileAnalysisChip.tsx';

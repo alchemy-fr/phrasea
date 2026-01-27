@@ -2,7 +2,7 @@ import {Asset, Tag} from '../../../types';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
-import FormTab, {useDirtyFormPrompt} from '../Tabbed/FormTab';
+import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {AssetApiInput, putAsset} from '../../../api/asset';
 import {Privacy} from '../../../api/privacy';
@@ -12,6 +12,7 @@ import {FormFieldErrors} from '@alchemy/react-form';
 import TagSelect from '../../Form/TagSelect';
 import PrivacyField from '../../Ui/PrivacyField';
 import {useAssetStore} from '../../../store/assetStore.ts';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 
 type Props = {
     id: string;

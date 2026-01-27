@@ -8,7 +8,8 @@
     "homepage": "https://www.alchemy.fr/",
     "license": "MIT",
     "require": {
-        "php": "^8.3",
+        "php": "^8.5",
+        "alchemy/acl-bundle": "*",
         "lcobucci/jwt": "^5.0",
         "symfony/framework-bundle": "^6",
         "symfony/http-client": "^6",
@@ -40,6 +41,6 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.17",
         "php-parallel-lint/php-var-dump-check": "v0.5",
-        "rector/rector": "^1.0.4"
+        "rector/rector": "^2.3.0"
     }
 }

@@ -4,8 +4,7 @@ import ContentTab from '../Tabbed/ContentTab';
 import {useTranslation} from 'react-i18next';
 import {useCallback, useEffect, useState} from 'react';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import {CircularProgress} from '@mui/material';
-import {LoadingButton} from '@mui/lab';
+import {Button, CircularProgress} from '@mui/material';
 import {getFileMetadata} from '../../../api/file.ts';
 
 type Props<T extends Entity> = {} & DataTabProps<T>;
@@ -41,14 +40,14 @@ export default function FileMetadata<T extends Entity>({
             minHeight={minHeight}
             actions={
                 <>
-                    <LoadingButton
+                    <Button
                         loading={loading}
                         disabled={loading}
                         onClick={refresh}
                         startIcon={<RefreshIcon />}
                     >
                         {t('file.dialog.metadata.refresh', 'Refresh')}
-                    </LoadingButton>
+                    </Button>
                 </>
             }
         >

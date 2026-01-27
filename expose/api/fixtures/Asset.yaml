@@ -1,72 +1,73 @@
 App\Entity\Asset:
-  asset (template):
-    size: 42
-    title: '<name()>'
-    description: '<name()>'
-    publication: '@pub_*'
+    asset (template):
+        size: 42
+        title: '<name()>'
+        description: '<name()> <realText()>'
+        publication: '@pub_*'
 
-  a_audio{1..10} (extends asset):
-    mimeType: audio/mp3
-    title: 'Audio <current()>'
-    description: 'Audio <current()>'
-    path: '<randomMedia("assets", "mp3", <current()>)>'
-    originalName: '<current()>.mp3'
+    a_audio{1..10} (extends asset):
+        mimeType: audio/mp3
+        title: 'Audio <current()>'
+        description: 'Audio <current()> <realText()>'
+        path: '<randomMedia("assets", "mp3", <current()>)>'
+        originalName: '<current()>.mp3'
 
-  a_video{1..10} (extends asset):
-    title: 'Video <current()>'
-    description: 'Video <current()>'
-    mimeType: video/mp4
-    path: '<randomMedia("assets", "mp4", <current()>)>'
-    originalName: '<current()>.mp4'
-    webVTT:
-        - locale: fr
-          label: FR
-          content: |
-            WEBVTT
+    a_video{1..10} (extends asset):
+        title: 'Video <current()>'
+        description: 'Video <current()> <realText()>'
+        mimeType: video/mp4
+        path: '<randomMedia("assets", "mp4", <current()>)>'
+        originalName: '<current()>.mp4'
+        webVTT:
+            -   locale: fr
+                label: FR
+                content: |
+                    WEBVTT
 
-            00:01.000 --> 00:04.000
-            - Ceci est un sous titre en français.
+                    00:01.000 --> 00:04.000
+                    - Ceci est un sous titre en français.
 
-            00:05.000 --> 00:09.000
-            - Une première répblique !
-            - Une deuxième.
-        - locale: en
-          label: EN
-          content: |
-            WEBVTT
+                    00:05.000 --> 00:09.000
+                    - Une première répblique !
+                    - Une deuxième.
+            -   locale: en
+                label: EN
+                content: |
+                    WEBVTT
 
-            00:01.000 --> 00:04.000
-            - This is an english subtitle
+                    00:01.000 --> 00:04.000
+                    - This is an english subtitle
 
-            00:05.000 --> 00:09.000
-            - A sentence !
-            - A second one.
+                    00:05.000 --> 00:09.000
+                    - A sentence !
+                    - A second one.
 
-  a_pdf{1..10} (extends asset):
-    title: 'PDF <current()>'
-    description: 'PDF <current()>'
-    mimeType: application/pdf
-    path: '<randomMedia("assets", "pdf", <current()>)>'
-    originalName: '<current()>.pdf'
+    a_pdf{1..10} (extends asset):
+        title: 'PDF <current()>'
+        description: 'PDF <current()> <realText()>'
+        mimeType: application/pdf
+        path: '<randomMedia("assets", "pdf", <current()>)>'
+        originalName: '<current()>.pdf'
 
-  a_img{1..10} (extends asset):
-    title: 'Image <current()>'
-    description: 'Image <current()>'
-    mimeType: image/jpeg
-    path: '<imageUrlRandomRatio("assets", <current()>, 1000)>'
-    originalName: '<current()>.jpg'
+    a_img{1..100} (extends asset):
+        title: 'Image <current()>'
+        description: 'Image <current()> <realText()>'
+        mimeType: image/jpeg
+        path: '<imageUrlRandomRatio("assets", <current()>, 1000)>'
+        originalName: '<current()>.jpg'
+
+    single_video (extends asset):
+        publication: '@one_asset_publication'
+        title: 'Single Publication Video'
+        description: 'A video asset associated with a single publication.'
+        mimeType: video/mp4
+        path: '<randomMedia("assets", "mp4", "s1")>'
+        originalName: 'single-video.mp4'
 
 App\Entity\SubDefinition:
-  sd_video_poster{1..10}:
-    asset: '@a_video<current()>'
-    mimeType: image/jpeg
-    size: 42
-    name: poster
-    path: '<imageUrlRandomRatio("assets", <current()>, 1000)>'
-
-  sd_video_thumb{1..10}:
-    asset: '@a_video<current()>'
-    mimeType: image/jpeg
-    size: 42
-    name: thumb
-    path: '<imageUrlRandomRatio("assets", <current()>, 300)>'
+    sd_video_poster{1..10}:
+        asset: '@a_video<current()>'
+        mimeType: image/jpeg
+        size: 42
+        name: poster
+        path: '<imageUrlRandomRatio("assets", <current()>, 1000)>'

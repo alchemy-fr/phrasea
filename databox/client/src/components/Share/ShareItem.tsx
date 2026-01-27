@@ -1,9 +1,8 @@
 import {Share} from '../../types.ts';
-import {Icon, ListItem, ListItemText, Typography} from '@mui/material';
+import {Button, Icon, ListItem, ListItemText, Typography} from '@mui/material';
 import moment from 'moment';
 import CopiableTextField from '../Ui/CopiableTextField.tsx';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import {LoadingButton} from '@mui/lab';
 import {useTranslation} from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {FlexRow} from '@alchemy/phrasea-ui';
@@ -149,7 +148,7 @@ export default function ShareItem({share, revoking, onRevoke}: Props) {
                         flexGrow: 0,
                     }}
                 >
-                    <LoadingButton
+                    <Button
                         sx={{
                             ml: 2,
                         }}
@@ -160,7 +159,7 @@ export default function ShareItem({share, revoking, onRevoke}: Props) {
                         onClick={() => onRevoke(share.id)}
                     >
                         {t('common.revoke', 'Revoke')}
-                    </LoadingButton>
+                    </Button>
                 </div>
             </ListItem>
         </>

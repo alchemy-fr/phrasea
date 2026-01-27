@@ -182,7 +182,7 @@ class SubDefinition implements MediaInterface
     final public const string THUMBNAIL = 'thumbnail';
     final public const string PREVIEW = 'preview';
     final public const string POSTER = 'poster';
-    final public const string GROUP_READ = 'subdef:read';
+    final public const string GROUP_READ = 'subdef:r';
 
     /**
      * @var Uuid

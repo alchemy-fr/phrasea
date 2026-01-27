@@ -6,7 +6,7 @@ import {postAttributeList} from '../../api/attributeList';
 import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPrompt} from '../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {useAttributeListStore} from '../../store/attributeListStore';
 
 type Props = {

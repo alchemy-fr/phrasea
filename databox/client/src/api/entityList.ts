@@ -1,6 +1,6 @@
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {EntityList} from '../types';
-import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {SortWay} from './common.ts';
 
 export const entityTypeNS = '/entity-lists';
@@ -13,7 +13,7 @@ type EntityListOptions = {
 export async function getEntityLists(
     workspaceId: string,
     options?: EntityListOptions
-): Promise<ApiCollectionResponse<EntityList>> {
+): Promise<NormalizedCollectionResponse<EntityList>> {
     const res = await apiClient.get(entityTypeNS, {
         params: {
             ...(options ?? {}),

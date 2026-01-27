@@ -6,7 +6,6 @@ import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
 import {putAttachment} from '../../../../api/attachment.ts';
 import {Button, TextField} from '@mui/material';
-import {LoadingButton} from '@mui/lab';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
 
@@ -64,7 +63,7 @@ export default function RenameAttachmentDialog({
                     <Button onClick={onClose}>
                         {t('common.cancel', 'Cancel')}
                     </Button>
-                    <LoadingButton
+                    <Button
                         loading={submitting}
                         disabled={submitting}
                         variant={'contained'}
@@ -73,7 +72,7 @@ export default function RenameAttachmentDialog({
                         color={'primary'}
                     >
                         {t('common.save', 'Save')}
-                    </LoadingButton>
+                    </Button>
                 </>
             )}
         >

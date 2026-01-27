@@ -39,28 +39,37 @@ export const databoxDiscussionNewComment = workflow(
 
             return {
                 subject: `${eventCount} new comments`,
-                body: render(<DefaultEmail>
-                    {Object.entries(groups).map(([objectId, events]) => {
-                        const { object } = events[0].payload;
+                body: await render(
+                    <DefaultEmail>
+                        {Object.entries(groups).map(([objectId, events]) => {
+                            const {object} = events[0].payload;
 
-                        const authors = events.reduce((acc, event) => {
-                            acc[event.payload.authorId] = event.payload.author;
+                            const authors = events.reduce((acc, event) => {
+                                acc[event.payload.authorId] =
+                                    event.payload.author;
 
-                            return acc;
-                        }, {});
+                                return acc;
+                            }, {});
 
-                        return (
-                            <Section
-                                key={objectId}
-                            >
-                                <Text>
-                                    <strong>{Object.values(authors).join(', ')}</strong> have commented on <strong>{object}</strong>.
-                                </Text>
+                            return (
+                                <Section key={objectId}>
+                                    <Text>
+                                        <strong>
+                                            {Object.values(authors).join(', ')}
+                                        </strong>{' '}
+                                        have commented on{' '}
+                                        <strong>{object}</strong>.
+                                    </Text>
 
-                                <Button style={styles.button} href={absoluteUrl}>View</Button>
-                            </Section>
-                        );
-                    })}
+                                    <Button
+                                        style={styles.button}
+                                        href={absoluteUrl}
+                                    >
+                                        View
+                                    </Button>
+                                </Section>
+                            );
+                        })}
                     </DefaultEmail>
                 ),
             };

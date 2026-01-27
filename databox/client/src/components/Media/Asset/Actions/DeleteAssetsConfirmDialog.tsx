@@ -1,4 +1,4 @@
-import ConfirmDialog from '../../../Ui/ConfirmDialog';
+import {ConfirmDialog} from '@alchemy/phrasea-framework';
 import {Trans, useTranslation} from 'react-i18next';
 import {
     deleteAssets,
@@ -10,7 +10,7 @@ import {useModalFetch} from '../../../../hooks/useModalFetch.ts';
 import FullPageLoader from '../../../Ui/FullPageLoader.tsx';
 import React from 'react';
 import {Alert, Box, Checkbox, FormControlLabel} from '@mui/material';
-import AlertDialog from '../../../Dialog/AlertDialog.tsx';
+import {AlertDialog} from '@alchemy/phrasea-framework';
 import {CollectionChip} from '../../../Ui/CollectionChip.tsx';
 import CollectionStoryChip from '../../../Ui/CollectionStoryChip.tsx';
 import DeleteIcon from '@mui/icons-material/Delete';

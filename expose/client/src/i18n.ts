@@ -9,6 +9,8 @@ const i18n = createI18N({
     resources: createNS(appLangs),
 });
 
+export const appLocales = Object.keys(appLangs);
+
 export default i18n;
 
 export function getTranslatedTitle({

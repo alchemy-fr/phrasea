@@ -23,14 +23,16 @@ export const uploaderCommitAcknowledged = workflow(
 
             return {
                 subject: `You have new asset !`,
-                body: render(<DefaultEmail>
-                    <Section>
-                        <Text style={styles.text}>
-                            The <strong>{payload.assetCount}</strong> asset{plural} you uploaded were correctly handled.
-                        </Text>                        
-                    </Section>
-                </DefaultEmail>
-                ),   
+                body: await render(
+                    <DefaultEmail>
+                        <Section>
+                            <Text style={styles.text}>
+                                The <strong>{payload.assetCount}</strong> asset
+                                {plural} you uploaded were correctly handled.
+                            </Text>
+                        </Section>
+                    </DefaultEmail>
+                ),
             };
         });
     },

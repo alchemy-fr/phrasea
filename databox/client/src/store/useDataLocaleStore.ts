@@ -1,5 +1,5 @@
 import {useUserPreferencesStore} from './userPreferencesStore.ts';
-import apiClient from '../api/api-client.ts';
+import {apiClient} from '../init.ts';
 
 export function useDataLocale() {
     return useUserPreferencesStore(state => state.preferences)?.dataLocale;

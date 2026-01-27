@@ -42,7 +42,7 @@ export class OAuthClient<UIR extends UserInfoResponse> {
     private sessionTimeout: ReturnType<typeof setTimeout> | undefined;
     private autoRefreshTimeout: ReturnType<typeof setTimeout> | undefined;
     private readonly refreshTokenStorageKey: string;
-    private readonly httpClient: HttpClient;
+    public readonly httpClient: HttpClient;
     private readonly scope?: string;
     public sessionHasExpired: boolean = false;
     public autoRefreshToken: boolean = true;

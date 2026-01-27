@@ -1,6 +1,6 @@
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {AttributeList, AttributeListItem} from '../types';
-import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 
 const entityType = 'attribute-lists';
 
@@ -12,7 +12,7 @@ export type GetAttributeListOptions = {
 export async function getAttributeLists(
     nextUrl?: string | undefined,
     params: GetAttributeListOptions = {}
-): Promise<ApiCollectionResponse<AttributeList>> {
+): Promise<NormalizedCollectionResponse<AttributeList>> {
     const res = await apiClient.get(nextUrl ?? `/${entityType}`, {
         params,
     });

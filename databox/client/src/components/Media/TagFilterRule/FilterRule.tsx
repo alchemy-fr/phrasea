@@ -7,9 +7,9 @@ import {
     FormGroup,
     FormHelperText,
     FormLabel,
-    Grid,
     Paper,
 } from '@mui/material';
+import {Grid2 as Grid} from '@mui/material';
 import {Trans, useTranslation} from 'react-i18next';
 import {useForm} from 'react-hook-form';
 import {FormRow} from '@alchemy/react-form';
@@ -19,7 +19,7 @@ import {
 } from '../../../api/tag-filter-rule';
 import {FormFieldErrors} from '@alchemy/react-form';
 import {TagFilterRule} from '../../../types';
-import {useDirtyFormPrompt} from '../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import GroupIcon from '@mui/icons-material/Group';
 
 type FilterRule = {
@@ -106,7 +106,7 @@ export default function FilterRule({
                 </div>
                 <Grid container spacing={2}>
                     {data?.id ? (
-                        <Grid item md={12}>
+                        <Grid size={12}>
                             <FormRow>
                                 <Chip
                                     icon={
@@ -120,7 +120,7 @@ export default function FilterRule({
                         </Grid>
                     ) : (
                         <>
-                            <Grid item md={5}>
+                            <Grid size={5}>
                                 <FormRow>
                                     <FormLabel>
                                         {t('filter_rule.group', 'Group')}
@@ -136,10 +136,10 @@ export default function FilterRule({
                                     />
                                 </FormRow>
                             </Grid>
-                            <Grid item md={2}>
+                            <Grid size={2}>
                                 <b>{t('filter_rule.or', `or`)}</b>
                             </Grid>
-                            <Grid item md={5}>
+                            <Grid size={5}>
                                 <FormRow>
                                     <FormLabel>
                                         {t('filter_rule.user', 'User')}
@@ -157,7 +157,7 @@ export default function FilterRule({
                             </Grid>
                         </>
                     )}
-                    <Grid item md={6}>
+                    <Grid size={6}>
                         <FormRow>
                             <FormGroup>
                                 <FormLabel>
@@ -188,7 +188,7 @@ export default function FilterRule({
                             </FormGroup>
                         </FormRow>
                     </Grid>
-                    <Grid item md={6}>
+                    <Grid size={6}>
                         <FormRow>
                             <FormGroup>
                                 <FormLabel>
@@ -219,7 +219,7 @@ export default function FilterRule({
                             </FormGroup>
                         </FormRow>
                     </Grid>
-                    <Grid item md={12}>
+                    <Grid size={12}>
                         <Button className={'btn-primary'} type={'submit'}>
                             {t('common.save', `Save`)}
                         </Button>{' '}

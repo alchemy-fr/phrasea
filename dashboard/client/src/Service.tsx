@@ -3,7 +3,7 @@ import {
     CardActions,
     CardContent,
     CardMedia,
-    Grid,
+    Grid2 as Grid,
     IconButton,
     Typography,
     Link,
@@ -37,7 +37,13 @@ export default function Service({
     links = [],
 }: Props) {
     return (
-        <Grid item xs={6} sm={4} md={3}>
+        <Grid
+            size={{
+                sm: 4,
+                md: 3,
+                xs: 6,
+            }}
+        >
             <Card
                 sx={{
                     minHeight: {

@@ -15,6 +15,7 @@ env:
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   VERIFY_SSL: "false"
   COMPOSE_PROFILES: databox,expose,uploader,db,rabbitmq,redis,minio,report,mailhog,elasticsearch,dashboard,novu
+  FIXTURES_GENERATE_IMAGES: "true"
 
 jobs:
   build_keycloak:
@@ -264,6 +265,7 @@ jobs:
           docker compose build cypress &
           docker compose up -d --wait expose-api-php --wait-timeout 200 &
           wait
+          docker compose exec expose-api-php bin/console hautelook:fixtures:load -n
           docker compose restart expose-api-nginx
           docker compose run --rm cypress
 

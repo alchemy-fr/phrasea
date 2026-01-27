@@ -1,5 +1,4 @@
 import {BasketIntegrationActionsProps, Integration} from '../../types.ts';
-import {LoadingButton} from '@mui/lab';
 import {useIntegrationData} from '../../useIntegrationData.ts';
 import {
     ObjectType,
@@ -17,11 +16,12 @@ import {
 import {useModals} from '@alchemy/navigation';
 import CreatePublicationDialog from './CreatePublicationDialog.tsx';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ConfirmDialog from '../../../Ui/ConfirmDialog.tsx';
+import {ConfirmDialog} from '@alchemy/phrasea-framework';
 import React from 'react';
 import {useChannelRegistration} from '../../../../lib/pusher.ts';
 import {useTranslation} from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 
 type Props = {} & BasketIntegrationActionsProps;
 
@@ -128,13 +128,13 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
         <div>
             {!hasValidToken ? (
                 <div>
-                    <LoadingButton
+                    <Button
                         onClick={requestAuth}
                         loading={loading}
                         disabled={loading}
                     >
                         {t('expose_basket_integration.authorize', `Authorize`)}
-                    </LoadingButton>
+                    </Button>
                 </div>
             ) : (
                 ''
@@ -158,7 +158,11 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
 
             {data.pages.length > 0 &&
                 data.pages.flat().map(d => {
-                    const {id, url} = d.value as {id: string; url: string};
+                    const {id, url, editUrl} = d.value as {
+                        id: string;
+                        url: string;
+                        editUrl: string;
+                    };
                     const syncState = syncStates[d.id];
 
                     return (
@@ -171,10 +175,7 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                                 </Typography>
                             </CardContent>
                             <CardActions>
-                                <LoadingButton
-                                    sx={{
-                                        mr: 1,
-                                    }}
+                                <Button
                                     onClick={() => forceSync(d.id)}
                                     startIcon={<SyncIcon />}
                                     disabled={
@@ -186,19 +187,28 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                                         'expose_basket_integration.force_sync',
                                         `Force Sync`
                                     )}
-                                </LoadingButton>
+                                </Button>
 
-                                <LoadingButton
-                                    sx={{
-                                        mr: 1,
-                                    }}
+                                <Button
+                                    href={editUrl}
+                                    target={'_blank'}
+                                    disabled={!hasValidToken}
+                                    startIcon={<EditIcon />}
+                                >
+                                    {t(
+                                        'expose_basket_integration.edit_publication',
+                                        `Edit Publication`
+                                    )}
+                                </Button>
+
+                                <Button
                                     loading={deleting === d.id}
                                     onClick={() => deleteSync(d.id)}
                                     startIcon={<DeleteIcon />}
                                     disabled={!hasValidToken}
                                 >
                                     {t('common.delete', `Delete`)}
-                                </LoadingButton>
+                                </Button>
                                 <Typography variant="body2">
                                     {syncState ? (
                                         <>

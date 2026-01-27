@@ -8,9 +8,9 @@ import SingleFileUploadWidget, {
     FileUploadForm,
 } from './SingleFileUploadWidget.tsx';
 import UploadIcon from '@mui/icons-material/Upload';
-import apiClient from '../../../../api/api-client.ts';
 import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
 import {postAttachment} from '../../../../api/attachment.ts';
+import {apiClient} from '../../../../init.ts';
 
 type Props = {
     asset: Asset;

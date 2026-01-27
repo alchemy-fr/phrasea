@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.5",
         "alchemy/core-bundle": "@dev",
         "aws/aws-sdk-php": "^3.325",
         "symfony/framework-bundle": "^6",
@@ -50,6 +50,6 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.17",
         "php-parallel-lint/php-var-dump-check": "v0.5",
-        "rector/rector": "^1.0.4"
+        "rector/rector": "^2.3.0"
     }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Grid, Slider} from '@mui/material';
+import {Box, Slider} from '@mui/material';
 import PhotoSizeSelectLargeIcon from '@mui/icons-material/PhotoSizeSelectLarge';
 import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual';
 
@@ -19,11 +19,21 @@ export default function ThumbSizeWidget({
     const min = 60;
 
     return (
-        <Grid container spacing={2} alignItems="center">
-            <Grid item>
+        <Box
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+            }}
+        >
+            <div>
                 <PhotoSizeSelectLargeIcon />
-            </Grid>
-            <Grid item xs>
+            </div>
+            <div
+                style={{
+                    flexGrow: 1,
+                }}
+            >
                 <Slider
                     max={max}
                     min={min}
@@ -35,10 +45,10 @@ export default function ThumbSizeWidget({
                         onChange(value as number);
                     }}
                 />
-            </Grid>
-            <Grid item>
+            </div>
+            <div>
                 <PhotoSizeSelectActualIcon />
-            </Grid>
-        </Grid>
+            </div>
+        </Box>
     );
 }

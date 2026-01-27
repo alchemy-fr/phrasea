@@ -4,25 +4,12 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
+use Alchemy\AuthBundle\Security\Voter\AbstractVoter;
 use App\Entity\SubDefinition;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-class SubDefinitionVoter extends Voter
+class SubDefinitionVoter extends AbstractVoter
 {
-    use JwtVoterTrait;
-
-    final public const string READ = 'READ';
-    final public const string EDIT = 'EDIT';
-    final public const string DELETE = 'DELETE';
-    final public const string CREATE = 'CREATE';
-
-    public function __construct(
-        private readonly Security $security,
-    ) {
-    }
-
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, SubDefinition::class, true);
@@ -39,8 +26,8 @@ class SubDefinitionVoter extends Voter
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         return match ($attribute) {
-            self::READ => $this->security->isGranted(AssetVoter::READ, $subject->getAsset()),
-            self::CREATE, self::DELETE, self::EDIT => $this->security->isGranted(AssetVoter::EDIT, $subject->getAsset()),
+            self::READ => $this->security->isGranted(AbstractVoter::READ, $subject->getAsset()),
+            self::CREATE, self::DELETE, self::EDIT => $this->security->isGranted(AbstractVoter::EDIT, $subject->getAsset()),
             default => false,
         };
     }

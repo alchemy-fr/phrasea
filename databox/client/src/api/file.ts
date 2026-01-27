@@ -1,4 +1,4 @@
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {AlternateUrl, ApiFile} from '../types';
 import {AttributeBatchAction} from './types.ts';
 import {AxiosRequestConfig} from 'axios';

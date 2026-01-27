@@ -2,6 +2,7 @@ parameters:
   env(VERIFY_SSL): true
   env(KEYCLOAK_REALM_NAME): phrasea
   env(KEYCLOAK_URL): 'http://define-me'
+  env(URI_JWT_TTL): 86400
 
 services:
   _defaults:
@@ -35,3 +36,4 @@ services:
 
   Alchemy\AuthBundle\Security\Voter\ScopeVoter: ~
   Alchemy\AuthBundle\Security\Voter\SuperAdminVoter: ~
+  Alchemy\AuthBundle\Security\UriJwtManager: ~
