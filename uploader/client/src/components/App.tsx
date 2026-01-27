@@ -1,8 +1,10 @@
-import {getPath, RouterProvider, useNavigate} from '@alchemy/navigation';
 import {
-    MatomoRouteWrapper,
+    getPath,
+    RouterProvider,
     RouteWrapperProps,
-} from '@alchemy/phrasea-framework';
+    useNavigate,
+} from '@alchemy/navigation';
+import {MatomoRouteWrapper} from '@alchemy/phrasea-framework';
 import {routes} from '../routes.ts';
 import RouteProxy from './RouteProxy.tsx';
 import React from 'react';
