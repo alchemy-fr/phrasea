@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.5",
         "alchemy/core-bundle": "@dev",
         "aws/aws-sdk-php": "^3.325",
         "symfony/framework-bundle": "^6",

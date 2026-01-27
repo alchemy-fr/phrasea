@@ -28,7 +28,7 @@
         ]
     },
     "require": {
-        "php": "^8.3",
+        "php": "^8.5",
         "ext-json": "*",
         "symfony/console": "^5.4 || ^6 || ^7",
         "symfony/yaml": "^6.2 || ^7",

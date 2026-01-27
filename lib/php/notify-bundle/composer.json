@@ -17,7 +17,7 @@
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.5",
         "alchemy/auth-bundle": "@dev",
         "symfony/notifier": "^6.4.13",
         "symfony/framework-bundle": "^6.4"
