@@ -64,7 +64,9 @@ services:
       - AWS_ASSUME_ROLE_ARN=${LEGO_AWS_ASSUME_ROLE_ARN}
       - AWS_PROFILE=${LEGO_AWS_PROFILE}
       - AWS_SDK_LOAD_CONFIG=${LEGO_AWS_SDK_LOAD_CONFIG}
-
+      - SCW_PROJECT_ID=${LEGO_SCW_PROJECT_ID}
+      - SCW_SECRET_KEY=${LEGO_SCW_SECRET_KEY}
+      - SCW_ACCESS_KEY=${LEGO_SCW_ACCESS_KEY}
   a_client:
     profiles:
       - none
@@ -116,14 +118,12 @@ services:
         SENTRY_RELEASE: ${SENTRY_RELEASE}
     networks:
       - internal
-    depends_on:
-      - rabbitmq
-      - db
     environment:
       - APP_ENV
       - TRUSTED_PROXIES
       - VERIFY_SSL
       - VERIFY_HOST
+      - POSTGRES_HOST
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - RABBITMQ_HOST
@@ -192,6 +192,7 @@ services:
       - DELETE_ASSET_GRACEFUL_TIME=${UPLOADER_DELETE_ASSET_GRACEFUL_TIME}
       - NEWRELIC_APP_NAME=uploader-api
       - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
+      - DB_NAME=${UPLOADER_DB_NAME}
     volumes:
       - uploader:/var/data/upload
     extra_hosts:
@@ -322,6 +323,7 @@ services:
       - MATOMO_AUTH_TOKEN
       - PHRASEANET_APP_OAUTH_TOKEN
       - PHRASEANET_URL
+      - DB_NAME=${EXPOSE_DB_NAME}
     extra_hosts:
       - zippy.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -364,7 +366,7 @@ services:
 
   redis:
     profiles:
-      - db
+      - redis
     image: ${REDIS_IMAGE}
     networks:
       - internal
@@ -386,7 +388,7 @@ services:
 
   rabbitmq:
     profiles:
-      - db
+      - rabbitmq
     image: ${RABBITMQ_IMAGE}
     hostname: rabbitmq
     networks:
@@ -425,7 +427,7 @@ services:
 
   minio:
     profiles:
-      - db
+      - minio
     image: ${MINIO_IMAGE}
     networks:
       - internal
@@ -466,8 +468,6 @@ services:
     build: ./infra/docker/matomo-php
     networks:
       - internal
-    depends_on:
-      - matomo-db
     environment:
       - MATOMO_DATABASE_HOST=matomo-db
       - MATOMO_DATABASE_USERNAME
@@ -494,7 +494,7 @@ services:
 
   matomo-db:
     profiles:
-      - matomo
+      - matomo-db
     image: mariadb:10.4.10-bionic
     command:
       - "mysqld"
@@ -528,7 +528,7 @@ services:
 
   pgadmin:
     profiles:
-      - tools
+      - pgadmin
     image: dpage/pgadmin4:9.11.0
     networks:
       - internal
@@ -536,8 +536,6 @@ services:
       - PGADMIN_DEFAULT_EMAIL
       - PGADMIN_DEFAULT_PASSWORD
       - PGADMIN_SERVER_JSON_FILE=/data/server.json
-    depends_on:
-      - db
     volumes:
       - pgadmin:/var/lib/pgadmin
       - ./infra/docker/pgadmin/server.json:/data/server.json
@@ -549,7 +547,7 @@ services:
 
   phpmyadmin:
     profiles:
-      - tools
+      - phpmyadmin
     image: phpmyadmin/phpmyadmin
     networks:
       - internal
@@ -662,9 +660,7 @@ services:
       - SOKETI_APP_ID
       - SOKETI_KEY
       - SOKETI_SECRET
-    depends_on:
-      - redis
-      - elasticsearch
+      - DB_NAME=${DATABOX_DB_NAME}
     extra_hosts:
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -778,7 +774,7 @@ services:
 
   elasticsearch:
     profiles:
-      - databox
+      - elasticsearch
     image: ${ELASTICSEARCH_IMAGE}
     networks:
       - internal
@@ -797,7 +793,7 @@ services:
 
   elastichq:
     profiles:
-      - tools
+      - elastichq
     image: elastichq/elasticsearch-hq
     networks:
       - internal
@@ -881,8 +877,6 @@ services:
       - ZIPPY_URL
     volumes:
       - zippy:/data
-    depends_on:
-      - rabbitmq
     extra_hosts:
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     labels:
@@ -992,8 +986,8 @@ services:
       - DASHBOARD_CLIENT_URL=${DASHBOARD_CLIENT_URL}
       - POSTGRES_USER
       - POSTGRES_PASSWORD
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
+      - POSTGRES_HOST
+      - POSTGRES_PORT
       - CONFIGURATOR_DB_NAME
       - AUTH_DB_NAME
       - DATABOX_DB_NAME
@@ -1102,11 +1096,6 @@ services:
 
   novu-api:
     image: ghcr.io/novuhq/novu/api:${NOVU_VERSION}
-    depends_on:
-      mongodb:
-        condition: service_started
-      redis:
-        condition: service_started
     profiles:
       - novu-self-hosted
     networks:
@@ -1142,11 +1131,6 @@ services:
 
   novu-worker:
     image: ghcr.io/novuhq/novu/worker:${NOVU_VERSION}
-    depends_on:
-      mongodb:
-        condition: service_started
-      redis:
-        condition: service_started
     profiles:
       - novu-self-hosted
     networks:
@@ -1170,11 +1154,6 @@ services:
 
   novu-ws:
     image: ghcr.io/novuhq/novu/ws:${NOVU_VERSION}
-    depends_on:
-      mongodb:
-        condition: service_started
-      redis:
-        condition: service_started
     profiles:
       - novu-self-hosted
     networks:

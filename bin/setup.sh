@@ -8,6 +8,8 @@ load-env
 
 set -ex
 
+export COMPOSE_PROFILES="configurator,dashboard,databox,db,elasticsearch,expose,minio,rabbitmq,redis,report,setup,uploader"
+
 docker compose up -d
 
 # Wait for services to be ready
@@ -20,7 +22,7 @@ create_db "${KEYCLOAK_DB_NAME}"
 create_db "${KEYCLOAK2_DB_NAME}"
 
 ## Create minio bucket
-COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
+docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
@@ -33,7 +35,7 @@ exec_container rabbitmq "rabbitmqctl add_vhost ${UPLOADER_RABBITMQ_VHOST} && rab
 ## Setup container
 exec_container_as uploader-api-php "bin/setup.sh" app
 ## Create minio bucket
-COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
+docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
@@ -46,7 +48,7 @@ exec_container rabbitmq "rabbitmqctl add_vhost ${EXPOSE_RABBITMQ_VHOST} && rabbi
 ## Setup container
 exec_container_as expose-api-php "bin/setup.sh" app
 ## Create minio bucket
-COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
+docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   i=0
   while ! nc -z minio 9000; do \
     echo 'Wait for minio to startup...'; \
@@ -69,7 +71,7 @@ exec_container rabbitmq "rabbitmqctl add_vhost ${DATABOX_RABBITMQ_VHOST} && rabb
 ## Setup container
 exec_container_as databox-api-php "bin/setup.sh" app
 ## Create minio bucket
-COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
+docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
@@ -78,7 +80,7 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
 
 ## Setup indexer
 ## Create Databox OAuth client for indexer
-COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
+docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
@@ -89,7 +91,7 @@ exec_container rabbitmq "\
   rabbitmqadmin declare exchange --vhost=s3events name=s3events type=direct durable='true' -u ${RABBITMQ_USER} -p ${RABBITMQ_PASSWORD} \
   && rabbitmqadmin declare queue --vhost=s3events name=s3events auto_delete=false durable='true' -u ${RABBITMQ_USER} -p ${RABBITMQ_PASSWORD} \
   && rabbitmqadmin declare binding --vhost=s3events source=s3events destination=s3events routing_key='' -u ${RABBITMQ_USER} -p ${RABBITMQ_PASSWORD}"
-COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
+docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   set -x; \
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
     mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY \
