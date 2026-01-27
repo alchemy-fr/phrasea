@@ -11,7 +11,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
 import FileToolbar from './FileToolbar.tsx';
 import {PdfView} from '@alchemy/phrasea-framework';
-import {useMatomo} from '@jonkoops/matomo-tracker-react';
+import {useMatomo} from '@alchemy/phrasea-framework';
 
 type Props = {
     controls?: boolean | undefined;

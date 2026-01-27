@@ -311,6 +311,10 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     #[Assert\Length(max: 255)]
     private ?string $title = null;
 
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
+    #[Assert\Length(max: 100)]
+    private ?string $trackingId = null;
+
     /**
      * Unique key by workspace. Used to prevent duplicates.
      */
@@ -718,8 +722,13 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return $this->attachments;
     }
 
-    public function getTrackingId(): string
+    public function getTrackingId(): ?string
     {
-        return $this->getId();
+        return $this->trackingId;
+    }
+
+    public function setTrackingId(?string $trackingId): void
+    {
+        $this->trackingId = $trackingId;
     }
 }

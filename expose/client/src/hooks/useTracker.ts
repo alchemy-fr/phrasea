@@ -1,7 +1,7 @@
 import {Asset} from '../types.ts';
 import {MutableRefObject, useEffect} from 'react';
 import {FileTypeEnum, getFileTypeFromMIMEType} from '@alchemy/core';
-import {useMatomo} from '@jonkoops/matomo-tracker-react';
+import {useMatomo} from '@alchemy/phrasea-framework';
 
 type Props = {
     asset?: Asset;

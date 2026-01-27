@@ -1,10 +1,10 @@
 import {
-    MatomoRouteWrapper,
     ModalStack,
     OverlayOutlet,
     RouterProvider,
     RouteWrapperProps,
 } from '@alchemy/navigation';
+import {MatomoRouteWrapper} from '@alchemy/phrasea-framework';
 import {
     AuthenticationProvider,
     SessionExpireContainer,

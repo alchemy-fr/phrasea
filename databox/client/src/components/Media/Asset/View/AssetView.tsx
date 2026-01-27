@@ -36,7 +36,7 @@ import AssetAttachments from '../AssetAttachments.tsx';
 import {Routing} from '../../../../routes.ts';
 import {getMediaBackgroundColor, scrollbarWidth} from '../../../uiVars.ts';
 import {NormalizedCollectionResponse} from '@alchemy/api';
-import {useMatomo} from '@jonkoops/matomo-tracker-react';
+import {useMatomo} from '@alchemy/phrasea-framework';
 import AssetMatomoMetricsView from '../AssetMatomoMetricsView.tsx';
 
 export type IntegrationOverlayCommonProps = {

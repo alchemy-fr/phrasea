@@ -19,7 +19,7 @@ import {
     ZoomStepState,
 } from './index.ts';
 import ToolbarPaper from './ToolbarPaper.tsx';
-import {useMatomo} from '@jonkoops/matomo-tracker-react';
+import {useMatomo} from '@alchemy/phrasea-framework';
 
 type Props = {
     annotationEnabled?: boolean;

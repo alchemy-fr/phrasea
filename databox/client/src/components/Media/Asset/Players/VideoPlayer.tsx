@@ -1,4 +1,4 @@
-import {MouseEvent, useContext, useState} from 'react';
+import {MouseEvent, useContext, useEffect, useRef, useState} from 'react';
 import {createStrictDimensions} from '@alchemy/core';
 import {PlayerProps} from './index.ts';
 import ReactPlayer from 'react-player/lazy';
@@ -15,7 +15,7 @@ import {
 import {Theme} from '@mui/material/styles';
 import assetClasses from '../../../AssetList/classes.ts';
 import classNames from 'classnames';
-import {useMatomo} from '@jonkoops/matomo-tracker-react';
+import {useMatomo} from '@alchemy/phrasea-framework';
 
 type Progress = {
     played: number;
@@ -35,6 +35,7 @@ type Props = {
 
 export default function VideoPlayer({
     file,
+    title,
     trackingId,
     onLoad,
     autoPlayable,
@@ -84,11 +85,14 @@ export default function VideoPlayer({
             if (trackingId !== undefined && videoElement) {
                 pushInstruction('MediaAnalytics::scanForMedia');
 
-                videoElement.setAttribute('data-matomo-resource', file.url);
-                videoElement.setAttribute('data-matomo-title', trackingId);
+                videoElement.setAttribute('data-matomo-resource', trackingId);
+
+                if (title) {
+                    videoElement.setAttribute('data-matomo-title', title);
+                }
             }
         }
-    }, []);
+    }, [playerRef]);
 
     return (
         <div

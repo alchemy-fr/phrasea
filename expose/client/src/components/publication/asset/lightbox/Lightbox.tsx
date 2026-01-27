@@ -209,6 +209,11 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                                 }}
                                 controls={true}
                                 title={asset.title ?? 'Asset'}
+                                trackingId={
+                                    asset.trackingId ||
+                                    asset.assetId ||
+                                    asset.id
+                                }
                                 dimensions={{
                                     width: windowWidth,
                                     height: mediaHeight,
