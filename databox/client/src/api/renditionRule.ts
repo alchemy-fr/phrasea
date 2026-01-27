@@ -1,5 +1,5 @@
 import {CollectionOrWorkspace, RenditionRule, UserType} from '../types';
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 
 export async function getRenditionRules(
     policyId: string,

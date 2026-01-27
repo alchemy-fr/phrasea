@@ -5,7 +5,7 @@ import {
     IntegrationType,
     WorkspaceIntegration,
 } from '../types';
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {AxiosRequestConfig} from 'axios';
 
 export const integrationNS = '/integrations';

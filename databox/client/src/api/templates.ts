@@ -1,4 +1,4 @@
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {Attribute, Entity, Tag} from '../types';
 import {AttributeBatchAction} from './types.ts';

@@ -1,4 +1,4 @@
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {SavedSearch, SavedSearchData} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {TSearchContext} from '../components/Media/Search/SearchContext.tsx';

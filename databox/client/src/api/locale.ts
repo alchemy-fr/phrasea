@@ -1,4 +1,4 @@
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {SelectOption} from '@alchemy/react-form';
 import i18n from '../i18n.ts';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';

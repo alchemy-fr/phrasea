@@ -27,7 +27,7 @@ import {useIntegrationData} from '../useIntegrationData.ts';
 import {AssetIntegrationActionsProps, Integration} from '../types.ts';
 import {useTranslation} from 'react-i18next';
 import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
-import apiClient from '../../../api/api-client.ts';
+import {apiClient} from '../../../init.ts';
 
 const myTheme = {
     // Theme object to extends default dark theme.

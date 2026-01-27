@@ -1,4 +1,4 @@
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {Tag} from '../types';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 

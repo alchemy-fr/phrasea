@@ -5,7 +5,7 @@ import {
     AssetType,
 } from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import type {MultipartUpload} from '@alchemy/api';
 import {SourceFileInput} from './file.ts';
 

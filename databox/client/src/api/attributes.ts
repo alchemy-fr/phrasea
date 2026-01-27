@@ -4,7 +4,7 @@ import {
     FieldType,
     AssetTypeFilter,
 } from '../types';
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 
 export const attributePolicyNS = '/attribute-policies';

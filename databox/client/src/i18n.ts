@@ -2,7 +2,7 @@ import {createI18N, createNS} from '@alchemy/i18n';
 import {setCurrentLocale} from '@alchemy/i18n/src/Locale/localeHelper.ts';
 import * as appLangs from '../translations';
 import {initReactI18next} from 'react-i18next';
-import apiClient from './api/api-client.ts';
+import {apiClient} from './init.ts';
 import moment from 'moment';
 import 'moment/dist/locale/zh-cn.js';
 import 'moment/dist/locale/de.js';

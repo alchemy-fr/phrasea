@@ -34,7 +34,6 @@ import {
     RenditionBuildMode,
 } from '../../../api/rendition';
 import RenditionPolicySelect from '../../Form/RenditionPolicySelect';
-import apiClient from '../../../api/api-client';
 import {toast} from 'react-toastify';
 import React from 'react';
 import RenditionDefinitionSelect from '../../Form/RenditionDefinitionSelect.tsx';
@@ -48,6 +47,7 @@ import AssetTypeSelect, {
 } from '../../Form/AssetTypeSelect.tsx';
 import {search} from '../../../lib/search.ts';
 import AssetTypeFilterSelect from '../../Form/AssetTypeFilterSelect.tsx';
+import {apiClient} from '../../../init.ts';
 
 function Item({
     data,
