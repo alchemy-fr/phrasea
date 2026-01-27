@@ -24,6 +24,8 @@ import {ContentCopy} from '@mui/icons-material';
 import ExportAttributeEntitiesDialog from '../AttributeEntity/ExportAttributeEntitiesDialog.tsx';
 import {useModals} from '@alchemy/navigation';
 import {search} from '../../../lib/search.ts';
+import ImportExportIcon from '@mui/icons-material/ImportExport';
+import ImportAttributeEntitiesDialog from '../AttributeEntity/ImportAttributeEntitiesDialog.tsx';
 
 function Item({
     usedFormSubmit,
@@ -75,26 +77,47 @@ export default function AttributeEntityManager({
     return (
         <DefinitionManager
             preListBody={(list: AttributeEntity[] | undefined) => (
-                <ListItem disablePadding>
-                    <ListItemButton
-                        onClick={() => {
-                            if (list) {
-                                openModal(ExportAttributeEntitiesDialog, {
-                                    list: list,
-                                    locales: workspace.enabledLocales ?? [],
-                                });
-                            }
-                        }}
-                        disabled={!list}
-                    >
-                        <ListItemIcon>
-                            <ContentCopy />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary={t('entity_type.list.export', 'Export')}
-                        />
-                    </ListItemButton>
-                </ListItem>
+                <>
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            onClick={() => {
+                                if (list) {
+                                    openModal(ExportAttributeEntitiesDialog, {
+                                        list,
+                                        locales: workspace.enabledLocales ?? [],
+                                    });
+                                }
+                            }}
+                            disabled={!list}
+                        >
+                            <ListItemIcon>
+                                <ContentCopy />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={t('entity_type.list.export', 'Export')}
+                            />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            onClick={() => {
+                                if (list) {
+                                    openModal(ImportAttributeEntitiesDialog, {
+                                        list,
+                                    });
+                                }
+                            }}
+                            disabled={!list}
+                        >
+                            <ListItemIcon>
+                                <ImportExportIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={t('entity_type.list.import', 'Import')}
+                            />
+                        </ListItemButton>
+                    </ListItem>
+                </>
             )}
             deleteConfirmAssertions={() => [
                 t(
