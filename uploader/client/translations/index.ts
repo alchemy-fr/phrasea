@@ -3,55 +3,26 @@ import fr from './fr.json';
 import es from './es.json';
 import de from './de.json';
 
-import enApi from '@alchemy/api/translations/en.json';
-import frApi from '@alchemy/api/translations/fr.json';
-import esApi from '@alchemy/api/translations/es.json';
-import deApi from '@alchemy/api/translations/de.json';
-
-import enNav from '@alchemy/navigation/translations/en.json';
-import frNav from '@alchemy/navigation/translations/fr.json';
-import esNav from '@alchemy/navigation/translations/es.json';
-import deNav from '@alchemy/navigation/translations/de.json';
-
-import enAuth from '@alchemy/react-auth/translations/en.json';
-import frAuth from '@alchemy/react-auth/translations/fr.json';
-import esAuth from '@alchemy/react-auth/translations/es.json';
-import deAuth from '@alchemy/react-auth/translations/de.json';
+import {translations} from '@alchemy/phrasea-framework';
 
 const enMerged = {
     ...en,
-    lib: {
-        ...enApi.lib,
-        ...enNav.lib,
-        ...enAuth.lib,
-    },
+    ...translations.en,
 };
 
 const frMerged = {
     ...fr,
-    lib: {
-        ...frApi.lib,
-        ...frNav.lib,
-        ...frAuth.lib,
-    },
+    ...translations.fr,
 };
 
 const esMerged = {
     ...es,
-    lib: {
-        ...esApi.lib,
-        ...esNav.lib,
-        ...esAuth.lib,
-    },
+    ...translations.es,
 };
 
 const deMerged = {
     ...de,
-    lib: {
-        ...deApi.lib,
-        ...deNav.lib,
-        ...deAuth.lib,
-    },
+    ...translations.de,
 };
 
 export {enMerged as en, frMerged as fr, esMerged as es, deMerged as de};

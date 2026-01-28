@@ -7,9 +7,14 @@ import React from 'react';
 type Props = {
     data: MatomoMediaMetrics | null;
     type: string | undefined;
+    mediaPluginEnabled: boolean;
 };
 
-export default function AssetMatomoMetricsList({data, type}: Props) {
+export default function AssetMatomoMetricsList({
+    data,
+    type,
+    mediaPluginEnabled,
+}: Props) {
     const {t} = useTranslation();
 
     if (!data) {
@@ -29,7 +34,9 @@ export default function AssetMatomoMetricsList({data, type}: Props) {
         );
     }
 
-    const isMedia = type?.startsWith('video/') || type?.startsWith('audio/');
+    const isMedia =
+        mediaPluginEnabled &&
+        (type?.startsWith('video/') || type?.startsWith('audio/'));
 
     let items: {
         label: string;

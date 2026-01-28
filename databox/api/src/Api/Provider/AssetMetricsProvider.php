@@ -13,7 +13,7 @@ use App\Security\Voter\AbstractVoter;
 use App\Service\Matomo\MatomoManager;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class AssetAnalyticsProvider implements ProviderInterface
+class AssetMetricsProvider implements ProviderInterface
 {
     use SecurityAwareTrait;
 

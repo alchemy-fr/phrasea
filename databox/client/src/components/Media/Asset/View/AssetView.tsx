@@ -38,7 +38,6 @@ import {getMediaBackgroundColor, scrollbarWidth} from '../../../uiVars.ts';
 import {NormalizedCollectionResponse} from '@alchemy/api';
 import {useTracking} from '@alchemy/phrasea-framework';
 import AssetMatomoMetricsView from '../AssetMatomoMetricsView.tsx';
-import {config} from '../../../../init.ts';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -352,11 +351,9 @@ export default function AssetView({modalIndex, open}: Props) {
 
                                     <AssetViewInfo asset={displayedAsset} />
                                     <AssetAppearsIn asset={displayedAsset} />
-                                    {config.analytics?.matomo ? (
-                                        <AssetMatomoMetricsView
-                                            asset={displayedAsset}
-                                        />
-                                    ) : null}
+                                    <AssetMatomoMetricsView
+                                        asset={displayedAsset}
+                                    />
                                     <AssetAttachments asset={displayedAsset} />
 
                                     <AssetDiscussion

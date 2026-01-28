@@ -86,6 +86,7 @@ services:
       - AUTO_CONNECT_IDP
       - MATOMO_URL
       - MATOMO_SITE_ID
+      - MATOMO_MEDIA_PLUGIN_ENABLED
       - SENTRY_DSN=${CLIENT_SENTRY_DSN}
       - SENTRY_ENVIRONMENT
       - VERIFY_SSL
@@ -155,6 +156,7 @@ services:
       - NOTIFY_AUTHOR
       - MATOMO_URL
       - MATOMO_SITE_ID
+      - MATOMO_MEDIA_PLUGIN_ENABLED
       - MATOMO_AUTH_TOKEN
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}

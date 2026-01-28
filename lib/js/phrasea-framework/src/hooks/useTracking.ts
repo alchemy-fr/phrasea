@@ -2,10 +2,12 @@ import {useMatomo} from '@jonkoops/matomo-tracker-react';
 import {MutableRefObject, useMemo} from 'react';
 
 export function useTracking() {
-    const {pushInstruction} = useMatomo();
+    const {pushInstruction, trackPageView, enableLinkTracking} = useMatomo();
 
     return useMemo(
         () => ({
+            trackPageView,
+            enableLinkTracking,
             trackContentInteraction: (
                 resourceId: string,
                 title: string | undefined,
@@ -43,6 +45,6 @@ export function useTracking() {
                 );
             },
         }),
-        [pushInstruction]
+        [pushInstruction, trackPageView, enableLinkTracking]
     );
 }

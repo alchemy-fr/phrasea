@@ -50,8 +50,8 @@ use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\ResolveEntitiesProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Processor\UnfollowProcessor;
-use App\Api\Provider\AssetAnalyticsProvider;
 use App\Api\Provider\AssetCollectionProvider;
+use App\Api\Provider\AssetMetricsProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Api\Provider\StoryThumbnailsProvider;
@@ -106,7 +106,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'groups' => [],
             ],
             name: 'asset-metrics',
-            provider: AssetAnalyticsProvider::class,
+            provider: AssetMetricsProvider::class,
         ),
         new Post(
             uriTemplate: '/assets/entities',

@@ -20,7 +20,7 @@ export default function RouteProxy({
             document.location.href = getLoginUrl();
         }
 
-        return <FullPageLoader />;
+        return <FullPageLoader backdrop={false} />;
     }
 
     return <Component />;

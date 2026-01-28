@@ -1,4 +1,18 @@
 (function (config, env) {
+    function castBoolean(value) {
+        if (typeof value === 'boolean') {
+            return value;
+        }
+
+        if (typeof value === 'string') {
+            return ['true', '1', 'on', 'y', 'yes'].includes(
+                value.toLowerCase()
+            );
+        }
+
+        return false;
+    }
+
     config = config || {};
 
     const analytics = {};
@@ -7,6 +21,7 @@
         analytics.matomo = {
             baseUrl: env.MATOMO_URL,
             siteId: env.MATOMO_SITE_ID,
+            mediaPluginEnabled: castBoolean(env.MATOMO_MEDIA_PLUGIN_ENABLED),
         };
     }
 
@@ -34,20 +49,6 @@
 
         return struct;
     };
-
-    function castBoolean(value) {
-        if (typeof value === 'boolean') {
-            return value;
-        }
-
-        if (typeof value === 'string') {
-            return ['true', '1', 'on', 'y', 'yes'].includes(
-                value.toLowerCase()
-            );
-        }
-
-        return false;
-    }
 
     const stackConfig = JSON.parse(
         require('node:fs').readFileSync('/etc/app/stack-config.json', 'utf8')

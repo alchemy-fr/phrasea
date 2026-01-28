@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Matomo;
 
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -15,23 +16,34 @@ final readonly class MatomoManager
         private CacheInterface $analyticsCache,
         private string $matomoSiteId,
         private string $matomoAuthToken,
+        #[Autowire(env: 'bool:MATOMO_MEDIA_PLUGIN_ENABLED')]
+        private bool $mediaAnalyticsEnabled = false,
     ) {
     }
 
     public function getMediaMetrics(string $trackingId, string $type): array
     {
-        return $this->analyticsCache->get('metrics_'.$trackingId, function (ItemInterface $item) use ($trackingId, $type): array {
+        return $this->analyticsCache->get('metrics_'.$trackingId, function (ItemInterface $item) use (
+            $trackingId,
+            $type
+        ): array {
             $item->expiresAfter(300);
 
-            if (str_starts_with($type, 'video/') || str_starts_with($type, 'audio/')) {
-                if (str_starts_with($type, 'video/')) {
-                    $method = 'MediaAnalytics.getVideoTitles';
-                } else {
-                    $method = 'MediaAnalytics.getAudioTitles';
-                }
+            if (!$this->matomoAuthToken) {
+                throw new \Exception('Matomo auth token is not configured');
+            }
 
-            } else {
-                $method = 'Contents.getContentPieces';
+            $method = 'Contents.getContentPieces';
+
+            if ($this->mediaAnalyticsEnabled) {
+                $isVideo = str_starts_with($type, 'video/');
+                if ($isVideo || str_starts_with($type, 'audio/')) {
+                    if ($isVideo) {
+                        $method = 'MediaAnalytics.getVideoTitles'; // TODO verify method and filter params
+                    } else {
+                        $method = 'MediaAnalytics.getAudioTitles'; // TODO verify method and filter params
+                    }
+                }
             }
 
             $response = $this->matomoClient->request('POST', '/', [

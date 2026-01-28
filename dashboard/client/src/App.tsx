@@ -21,6 +21,8 @@ import DashboardBar from './DashboardBar';
 import {useAuth} from '@alchemy/react-auth';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import {config} from './init.ts';
+import {useEffect} from 'react';
+import {useTracking} from '@alchemy/phrasea-framework';
 
 type Props = {};
 
@@ -28,6 +30,11 @@ export default function App({}: Props) {
     const theme = useTheme();
     const isLarge = useMediaQuery(theme.breakpoints.up('sm'));
     const {user} = useAuth();
+    const {trackPageView} = useTracking();
+
+    useEffect(() => {
+        trackPageView();
+    }, [trackPageView]);
 
     const {
         DATABOX_API_URL,

@@ -1,15 +1,4 @@
 (function (config, env) {
-    config = config || {};
-
-    const analytics = {};
-
-    if (env.MATOMO_URL && env.MATOMO_SITE_ID) {
-        analytics.matomo = {
-            baseUrl: env.MATOMO_URL,
-            siteId: env.MATOMO_SITE_ID,
-        };
-    }
-
     function castBoolean(value) {
         if (typeof value === 'boolean') {
             return value;
@@ -22,6 +11,17 @@
         }
 
         return false;
+    }
+    config = config || {};
+
+    const analytics = {};
+
+    if (env.MATOMO_URL && env.MATOMO_SITE_ID) {
+        analytics.matomo = {
+            baseUrl: env.MATOMO_URL,
+            siteId: env.MATOMO_SITE_ID,
+            mediaPluginEnabled: castBoolean(env.MATOMO_MEDIA_PLUGIN_ENABLED),
+        };
     }
 
     const stackConfig = JSON.parse(
