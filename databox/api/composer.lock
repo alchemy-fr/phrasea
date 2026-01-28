@@ -61,7 +61,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -121,7 +121,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -180,7 +180,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -235,7 +235,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -298,7 +298,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -356,7 +356,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -410,7 +410,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -467,7 +467,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
@@ -592,7 +592,7 @@
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
@@ -656,7 +656,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -711,7 +711,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -767,7 +767,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -820,7 +820,7 @@
         },
         {
             "name": "alchemy/track-bundle",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/track-bundle",
@@ -883,7 +883,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -941,7 +941,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -1008,7 +1008,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -13091,16 +13091,16 @@
         },
         {
             "name": "symfony/process",
-            "version": "v6.4.32",
+            "version": "v6.4.33",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "c593135be689b21e6164b1e8f6f5dbf1506b065c"
+                "reference": "c46e854e79b52d07666e43924a20cb6dc546644e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/c593135be689b21e6164b1e8f6f5dbf1506b065c",
-                "reference": "c593135be689b21e6164b1e8f6f5dbf1506b065c",
+                "url": "https://api.github.com/repos/symfony/process/zipball/c46e854e79b52d07666e43924a20cb6dc546644e",
+                "reference": "c46e854e79b52d07666e43924a20cb6dc546644e",
                 "shasum": ""
             },
             "require": {
@@ -13132,7 +13132,7 @@
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/process/tree/v6.4.32"
+                "source": "https://github.com/symfony/process/tree/v6.4.33"
             },
             "funding": [
                 {
@@ -13152,7 +13152,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-01-15T13:23:20+00:00"
+            "time": "2026-01-23T16:02:12+00:00"
         },
         {
             "name": "symfony/property-access",
@@ -15634,7 +15634,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-964-expose",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
@@ -18611,5 +18611,5 @@
         "ext-sodium": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
