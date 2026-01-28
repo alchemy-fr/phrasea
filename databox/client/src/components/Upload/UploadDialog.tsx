@@ -421,7 +421,7 @@ export default function UploadDialog({
                             checked={importFiles}
                             onChange={(_e, checked) => setImportFiles(checked)}
                         />
-                        {t('file_upload.import_file', `Import file(s)`)}
+                        {t('file_upload.import_files', `Import file(s)`)}
                     </InputLabel>
                 </>
             )}

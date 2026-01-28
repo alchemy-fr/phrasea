@@ -38,7 +38,7 @@ export default function TermsDialog({
                                 onClose();
                             }}
                         >
-                            {t('terms.dialog.title.accept', 'Accept')}
+                            {t('terms.dialog.accept', 'Accept')}
                         </Button>
                     </>
                 );
@@ -58,9 +58,7 @@ export default function TermsDialog({
                         {!text ? (
                             <>
                                 <Trans
-                                    i18nKey={
-                                        'terms.dialog.title.please_read_accept'
-                                    }
+                                    i18nKey={'terms.dialog.please_read_accept'}
                                     components={{
                                         link: (
                                             <a href={url} target={'_blank'} />
@@ -76,7 +74,7 @@ export default function TermsDialog({
                                     target={'_blank'}
                                     rel={'noopener noreferrer'}
                                 >
-                                    {t('terms.dialog.title.terms_cta', 'Terms')}
+                                    {t('terms.dialog.terms_cta', 'Terms')}
                                 </a>
                             </Box>
                         )}
