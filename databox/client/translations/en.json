@@ -180,6 +180,7 @@
             "attachments": "Attachments",
             "attributes": "Attributes",
             "delete_attachment": {
+                "button": "Delete Attachment",
                 "confirm_button": "Delete",
                 "confirm_message": "Are you sure you want to delete this attachment? This action cannot be undone.",
                 "confirm_title": "Delete Attachment"
@@ -401,6 +402,8 @@
             "delete": "Delete Basket",
             "edit": "Edit Basket"
         },
+        "added_to_basket_one": "Item added to basket",
+        "added_to_basket_other": "{{count}} items added to basket",
         "choose_modal": {
             "title": "Select current Basket"
         },
@@ -443,7 +446,10 @@
         "title": "Delete Basket"
     },
     "basket_view_dialog": {
+        "info": "Info",
+        "integrations": "Integrations",
         "remove_from_basket": "Remove from basket",
+        "title": "Basket <strong>{{name}}</strong>",
         "x_item_one": "<strong>{{count}}</strong> item",
         "x_item_other": "<strong>{{total}}</strong> items",
         "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> item",
@@ -458,6 +464,7 @@
         "fileSize": "File Size",
         "fileType": "File Type",
         "filename": "File Name",
+        "has_source": "Has Source File",
         "id": "ID",
         "isStory": "Is Story",
         "owner": "Owner",
@@ -526,6 +533,9 @@
                 "title": "Confirm restore collection"
             },
             "confirm_message": "Are you sure you want to restore collection <coll/> ?"
+        },
+        "tree_view": {
+            "new_collection": "New Collection"
         }
     },
     "collection_delete": {
@@ -632,11 +642,6 @@
         "apply": "Apply",
         "cancel": "Cancel",
         "close": "Close",
-        "confirm": "Confirm",
-        "confirm_text_type": {
-            "intro": "Please type \"{{ text }}\" to confirm:",
-            "placeholder": "Type \"{{ text }}\""
-        },
         "export_attribute_entities": {
             "all_locales": "All Locales",
             "copy_code": "Copy Code",
@@ -646,7 +651,6 @@
             "select_locale": "Select Locale",
             "title": "Export Attribute Entities"
         },
-        "ok": "OK",
         "reset": "Reset",
         "save": "Save",
         "search": "Search"
@@ -695,6 +699,7 @@
     "expose_basket_integration": {
         "also_delete_the_publication": "Also delete the Publication",
         "authorize": "Authorize",
+        "edit_publication": "Edit Publication",
         "force_sync": "Force Sync",
         "ok": "OK",
         "stop_synchronization": "Stop synchronization?",
@@ -764,6 +769,7 @@
             "placeholder": "Enter file URL(s), one per line"
         },
         "import_file": "Import file",
+        "import_files": "Import file(s)",
         "upload_from_url": "Upload from URL"
     },
     "filter_rule": {
@@ -1072,6 +1078,17 @@
                 "label": "Destination"
             }
         },
+        "saved_search": {
+            "public": {
+                "label": "Public"
+            },
+            "title": {
+                "label": "Title"
+            }
+        },
+        "saved_search_edit": {
+            "success": "Saved Search edited!"
+        },
         "tag": {
             "color": {
                 "label": "Color"
@@ -1184,6 +1201,9 @@
         }
     },
     "layout": {
+        "display_settings": {
+            "tooltip": "Display Settings"
+        },
         "options": {
             "collections_count": {
                 "label": "collections"
@@ -1200,7 +1220,6 @@
             "display_title": {
                 "label": "Display title"
             },
-            "more": "More options",
             "play_preview_videos": {
                 "label": "Auto play video previews"
             },
@@ -1240,7 +1259,7 @@
     "left_panel": {
         "baskets": "Baskets",
         "facets": "Facets",
-        "tree": "Tree"
+        "navigation": "Navigation"
     },
     "load_more": {
         "button": {
@@ -1266,11 +1285,6 @@
             "filter_placeholder": "Search...",
             "title": "Change Language"
         }
-    },
-    "menu": {
-        "change_theme": "Change theme",
-        "sign_in": "Sign In",
-        "theme_editor": "Theme Editor"
     },
     "metric": {
         "ms": "ms"
@@ -1457,11 +1471,64 @@
         "rendition_to_add_or_replace": "Rendition to add or replace",
         "save_file_as_asset_rendition": "Save file as asset rendition"
     },
+    "save_search": {
+        "dialog": {
+            "title": "Save Search"
+        }
+    },
+    "saved_search": {
+        "automations": {
+            "coming_soon": "Automations are coming soon!"
+        },
+        "form": {
+            "created": "Search was saved!"
+        },
+        "info": {
+            "creation_date": "Creation date",
+            "id": "ID",
+            "modification_date": "Modification date",
+            "owner": "Owner"
+        },
+        "item": {
+            "delete": "Delete",
+            "edit": "Edit"
+        },
+        "list": {
+            "title": "Saved Searches"
+        },
+        "manage": {
+            "acl": {
+                "title": "Permissions"
+            },
+            "automations": {
+                "title": "Automations"
+            },
+            "edit": {
+                "title": "Edit"
+            },
+            "info": {
+                "title": "Info"
+            },
+            "title": "Manage Saved Search {{name}}"
+        }
+    },
     "search": {
+        "more_options": {
+            "clear_search": "Clear search"
+        },
+        "no_results_message": "We are sorry, but your search did not return <strong>any assets</strong>!",
+        "save_search": "Save Search",
         "search_button": "Search",
         "sort_by": {
             "title": "Sort by"
-        }
+        },
+        "suggestion": {
+            "check_spelling": "<strong>Check Spelling</strong>: Ensure all search terms are spelled correctly.",
+            "consider_using_facets": "<strong>Consider Using Facets</strong>: Click on the different facet values to narrow down or expand the results (workspace, collection, tags, dates, etc.).",
+            "modify_filters": "<strong>Modify Filters</strong>: If you have applied filters, remove or change them to broaden the search scope."
+        },
+        "update_search": "Update Search",
+        "update_success": "Search was updated successfully!"
     },
     "search_auto_complete": {
         "search": "Search…"
@@ -1712,5 +1779,10 @@
             "title": "Manage Workspace {{name}}"
         },
         "no_locale_defined": "No locale defined in this workspace"
+    },
+    "workspaces": {
+        "list": {
+            "title": "Workspaces"
+        }
     }
 }
