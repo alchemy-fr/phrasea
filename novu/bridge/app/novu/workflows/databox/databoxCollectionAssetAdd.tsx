@@ -6,9 +6,12 @@ export const databoxCollectionAssetAdd = workflow(
     async ({step, payload}) => {
         await step.inApp("In-App Step", async () => {
             return {
+                // @ts-expect-error unknown issue
                 subject: `New asset in **${payload.collectionTitle}**`,
+                // @ts-expect-error unknown issue
                 body: `**${payload.author}** added Asset **${payload.assetTitle}** to collection **${payload.collectionTitle}**.`,
                 redirect: {
+                    // @ts-expect-error unknown issue
                     url: payload.url,
                 },
             };

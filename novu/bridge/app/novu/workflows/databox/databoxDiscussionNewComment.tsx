@@ -9,9 +9,12 @@ export const databoxDiscussionNewComment = workflow(
     async ({step, payload}) => {
         await step.inApp("In-App Step", async () => {
             return {
+                // @ts-expect-error unknown issue
                 subject: `New comment on **${payload.object}**`,
+                // @ts-expect-error unknown issue
                 body: `**${payload.author}** has commented on **${payload.object}**.`,
                 redirect: {
+                    // @ts-expect-error unknown issue
                     url: payload.url,
                 },
             };

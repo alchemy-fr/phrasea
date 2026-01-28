@@ -44,7 +44,14 @@ echo "## Automatically added by configurator:" >> .env.local
 cat $OUTPUT_FILE >> .env.local
 echo "## End" >> .env.local
 
-docker compose up -d novu-api novu-worker
+set +x
+load-env
+set -x
+echo "Novu Secret Key: "
+echo $NOVU_SECRET_KEY
+
+docker compose up -d novu-bridge
+sleep 5
 
 run_container novu-bridge "pnpm sync" &
 pids+=($!)

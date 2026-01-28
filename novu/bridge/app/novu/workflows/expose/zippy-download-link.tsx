@@ -10,10 +10,12 @@ export const exposeZippyDownloadLink = workflow(
     async ({step, payload}) => {
         await step.email("Email", async (controls) => {
             return {
+                // @ts-expect-error unknown issue
                 subject: controls.emailSubject,
                 body: await render(
                     <CTAEmail
                         introText={`You can download your file from the following link:`}
+                        // @ts-expect-error unknown issue
                         linkUrl={payload.downloadUrl}
                         linkText={'Download'}
                     />

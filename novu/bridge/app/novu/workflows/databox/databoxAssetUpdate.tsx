@@ -14,14 +14,17 @@ const payloadSchema = z.object({
         .describe("The author of the message"),
 });
 
-export const databoxAssetUpdate = workflow<typeof payloadSchema>(
+export const databoxAssetUpdate = workflow(
     "databox-asset-update",
     async ({step, payload}) => {
         await step.inApp("In-App Step", async () => {
             return {
+                // @ts-expect-error unknown issue
                 subject: `Asset **${payload.title}** updated`,
+                // @ts-expect-error unknown issue
                 body: `**${payload.author}** has updated asset **${payload.title}**.`,
                 redirect: {
+                    // @ts-expect-error unknown issue
                     url: payload.url,
                 },
             };

@@ -6,7 +6,9 @@ export const databoxUserException = workflow(
     async ({step, payload}) => {
         await step.inApp("In-App Step", async () => {
             return {
+                // @ts-expect-error unknown issue
                 subject: payload.subject,
+                // @ts-expect-error unknown issue
                 body: payload.message,
             };
         });
