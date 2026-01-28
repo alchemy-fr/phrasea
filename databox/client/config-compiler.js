@@ -3,7 +3,7 @@
 
     const analytics = {};
 
-    if (env.MATOMO_URL) {
+    if (env.MATOMO_URL && env.MATOMO_SITE_ID) {
         analytics.matomo = {
             baseUrl: env.MATOMO_URL,
             siteId: env.MATOMO_SITE_ID,

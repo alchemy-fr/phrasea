@@ -12,6 +12,7 @@ declare global {
             EXPOSE_CLIENT_URL: Readonly<string>;
             MAILHOG_URL: Readonly<string>;
             MATOMO_URL: Readonly<string>;
+            MATOMO_SITE_ID: Readonly<string>;
             PGADMIN_URL: Readonly<string>;
             PHPMYADMIN_URL: Readonly<string>;
             RABBITMQ_CONSOLE_URL: Readonly<string>;

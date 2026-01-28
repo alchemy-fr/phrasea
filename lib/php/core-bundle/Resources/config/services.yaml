@@ -1,3 +1,8 @@
+parameters:
+    '%env(MATOMO_URL)': ''
+    '%env(MATOMO_SITE_ID)': ''
+    '%env(MATOMO_AUTH_TOKEN)': ''
+
 services:
     _defaults:
         autowire: true

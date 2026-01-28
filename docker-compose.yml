@@ -81,7 +81,6 @@ services:
       - DEV_MODE
       - KEYCLOAK_URL
       - KEYCLOAK_REALM_NAME
-      - MATOMO_HOST
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_CLIENT_URL
       - AUTO_CONNECT_IDP
@@ -154,6 +153,9 @@ services:
       - NOVU_API_HOST
       - NOVU_SECRET_KEY
       - NOTIFY_AUTHOR
+      - MATOMO_URL
+      - MATOMO_SITE_ID
+      - MATOMO_AUTH_TOKEN
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -319,9 +321,6 @@ services:
       - CLOUD_FRONT_PRIVATE_KEY=${EXPOSE_CLOUD_FRONT_PRIVATE_KEY}
       - CLOUD_FRONT_KEY_PAIR_ID=${EXPOSE_CLOUD_FRONT_KEY_PAIR_ID}
       - CLOUD_FRONT_TTL=${EXPOSE_CLOUD_FRONT_TTL}
-      - MATOMO_URL
-      - MATOMO_SITE_ID
-      - MATOMO_AUTH_TOKEN
       - PHRASEANET_APP_OAUTH_TOKEN
       - PHRASEANET_URL
       - DB_NAME=${EXPOSE_DB_NAME}
@@ -594,7 +593,6 @@ services:
       - EXPOSE_CLIENT_URL
       - KEYCLOAK_URL
       - MAILHOG_URL
-      - MATOMO_URL
       - PGADMIN_URL
       - PHPMYADMIN_URL
       - RABBITMQ_CONSOLE_URL
@@ -662,9 +660,6 @@ services:
       - SOKETI_KEY
       - SOKETI_SECRET
       - DB_NAME=${DATABOX_DB_NAME}
-      - MATOMO_URL
-      - MATOMO_SITE_ID
-      - MATOMO_AUTH_TOKEN
     extra_hosts:
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
