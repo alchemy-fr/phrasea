@@ -253,9 +253,10 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
             $hRatio = $height ? ($dimensions->getHeight() / $height) : 0;
             if ($wRatio > $hRatio) {
                 return [(int) floor($dimensions->getWidth() / $wRatio), -1];
-            } else {
-                return [-1, (int) floor($dimensions->getHeight() / $hRatio)];
             }
+
+            return [-1, (int) floor($dimensions->getHeight() / $hRatio)];
+
         }
 
         // fallback : exact fit (might be not homothetic)

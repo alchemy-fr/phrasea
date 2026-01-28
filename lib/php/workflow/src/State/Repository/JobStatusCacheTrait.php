@@ -64,9 +64,10 @@ trait JobStatusCacheTrait
                     function (object $s) use ($state): object {
                         if ($s->getId() === $state->getId()) {
                             return $state;
-                        } else {
-                            return $s;
                         }
+
+                        return $s;
+
                     },
                     $this->statusesByJobId[$workflowId][$state->getJobId()]
                 );

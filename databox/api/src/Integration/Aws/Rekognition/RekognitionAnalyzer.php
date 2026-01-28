@@ -85,7 +85,7 @@ final readonly class RekognitionAnalyzer
         return $result;
     }
 
-    protected function saveTextsToAttributes(string $category, Asset $asset, array $texts, array $attributes): void
+    private function saveTextsToAttributes(string $category, Asset $asset, array $texts, array $attributes): void
     {
         foreach ($attributes as $attrConfig) {
             $attrDef = $this->attributeDefinitionRepository

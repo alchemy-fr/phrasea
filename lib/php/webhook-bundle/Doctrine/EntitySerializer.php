@@ -128,10 +128,9 @@ class EntitySerializer
             $mapping = $meta->getAssociationMapping($field);
 
             return $value ? $this->em->getReference($mapping['targetEntity'], $value) : null;
-        } else {
-            $type = Type::getType($meta->getTypeOfField($field));
-
-            return $type->convertToPHPValue($value, $this->em->getConnection()->getDatabasePlatform());
         }
+        $type = Type::getType($meta->getTypeOfField($field));
+
+        return $type->convertToPHPValue($value, $this->em->getConnection()->getDatabasePlatform());
     }
 }

@@ -10,7 +10,7 @@ set -ex
 
 export COMPOSE_PROFILES="configurator,dashboard,databox,db,elasticsearch,expose,minio,rabbitmq,redis,report,setup,uploader"
 
-docker compose up -d traefik
+docker compose up -d traefik keycloak minio rabbitmq db novu-api
 
 cleanup() {
     echo "Stopping task..."

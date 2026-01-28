@@ -165,9 +165,9 @@ final class ExposeSynchronizer
                     if (null !== $existingSubDef) {
                         if ($existingSubDef->fileId === $rendition->getFile()->getId()) {
                             continue;
-                        } else {
-                            $this->exposeClient->deleteSubDefinition($config, $token, $existingSubDef->id);
                         }
+                        $this->exposeClient->deleteSubDefinition($config, $token, $existingSubDef->id);
+
                     }
 
                     $this->exposeClient->postSubDefinition(

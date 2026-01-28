@@ -13,7 +13,7 @@ final class ServiceAccountClient
     private const string ACCESS_TOKEN_CACHE_KEY = 'admin_access_token';
 
     public function __construct(
-        protected readonly KeycloakClient $serviceClient,
+        private readonly KeycloakClient $serviceClient,
         private readonly CacheInterface $keycloakRealmCache,
     ) {
     }

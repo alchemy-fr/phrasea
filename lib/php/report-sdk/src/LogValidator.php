@@ -26,10 +26,9 @@ readonly class LogValidator
 
         if ($result->isValid()) {
             return $data;
-        } else {
-            /** @var ValidationError $error */
-            $error = $result->getFirstError();
-            throw new InvalidLogException('Invalid log: '.$error->keyword().' '.json_encode($error->keywordArgs(), flags: JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
         }
+        /** @var ValidationError $error */
+        $error = $result->getFirstError();
+        throw new InvalidLogException('Invalid log: '.$error->keyword().' '.json_encode($error->keywordArgs(), flags: JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
     }
 }
