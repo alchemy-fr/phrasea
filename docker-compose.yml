@@ -1055,6 +1055,8 @@ services:
       - NOVU_SUBSCRIBER_ID
       - NOVU_SECRET_KEY
       - KEYCLOAK_ADMIN_DEFINITIVE_PASSWORD
+    volumes:
+      - ./tmp/configurator-output:/output
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -1110,7 +1112,7 @@ services:
   mongodb:
     image: mongo:8.0.3
     profiles:
-      - novu-self-hosted
+      - mongodb
     networks:
       - internal
     environment:
@@ -1124,7 +1126,7 @@ services:
   novu-api:
     image: ${NOVU_API_IMAGE}:${NOVU_VERSION}
     profiles:
-      - novu-self-hosted
+      - novu
     networks:
       - internal
     environment:
@@ -1144,7 +1146,6 @@ services:
       REDIS_CACHE_SERVICE_HOST: ${NOVU_REDIS_CACHE_SERVICE_HOST}
       REDIS_CACHE_SERVICE_PORT: ${NOVU_REDIS_CACHE_SERVICE_PORT}
       JWT_SECRET: ${NOVU_JWT_SECRET}
-      NOVU_SECRET_KEY: ${NOVU_SECRET_KEY}
       STORE_ENCRYPTION_KEY: ${NOVU_STORE_ENCRYPTION_KEY}
     labels:
       - "traefik.enable=true"
@@ -1154,12 +1155,11 @@ services:
     extra_hosts:
       - ws-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   novu-worker:
     image: ghcr.io/novuhq/novu/worker:${NOVU_VERSION}
     profiles:
-      - novu-self-hosted
+      - novu
     networks:
       - internal
     environment:
@@ -1176,13 +1176,12 @@ services:
     extra_hosts:
       - ws-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - mailhog.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   novu-ws:
     image: ghcr.io/novuhq/novu/ws:${NOVU_VERSION}
     profiles:
-      - novu-self-hosted
+      - novu
     networks:
       - internal
     environment:
@@ -1199,14 +1198,13 @@ services:
       - "traefik.http.services.novu-ws.loadbalancer.server.port=3002"
     extra_hosts:
       - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   novu-dashboard:
     image: ghcr.io/novuhq/novu/dashboard:${NOVU_VERSION}
     depends_on:
       - novu-api
     profiles:
-      - novu-self-hosted
+      - novu
     networks:
       - internal
     environment:
@@ -1223,7 +1221,6 @@ services:
       - "traefik.http.services.novu-dashboard.loadbalancer.server.port=4000"
     extra_hosts:
       - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   novu-bridge:
     image: ${REGISTRY_NAMESPACE}novu-bridge:${DOCKER_TAG}
@@ -1251,7 +1248,6 @@ services:
     extra_hosts:
       - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - mailhog.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 

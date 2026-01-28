@@ -495,7 +495,7 @@ final class KeycloakManager
                 'realm' => $this->keycloakRealm,
             ]), [
                 'json' => $data,
-            ]), 409, $data);
+            ])->getContent(), 409, $data);
 
         return $this->findUser($data['username']) ?? throw new \InvalidArgumentException(sprintf('No user matches username "%s"', $data['username']));
     }

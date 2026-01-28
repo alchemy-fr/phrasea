@@ -6,7 +6,6 @@ namespace App\Util;
 
 use Symfony\Component\Console\Helper\ProgressIndicator;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -21,7 +20,7 @@ abstract class HttpClientUtil
     {
         try {
             return $handler();
-        } catch (ClientException $e) {
+        } catch (ClientExceptionInterface $e) {
             if (null !== $ignoreHttpCode && $ignoreHttpCode === $e->getResponse()->getStatusCode()) {
                 return null;
             }

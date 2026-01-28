@@ -83,22 +83,33 @@ final readonly class NovuManager
             ]);
         });
 
-        HttpClientUtil::debugError(function () use ($token, $envId): void {
-            $data = $this->novuClient->request('POST', '/v1/environments/api-keys/update', [
-                'headers' => [
-                    'Authorization' => 'Bearer '.$token,
-                    'novu-environment-id' => $envId,
-                ],
-                'json' => [
-                    'apiKey' => getenv('NOVU_SECRET_KEY'),
-                ],
-            ])->toArray();
-        });
+        //        HttpClientUtil::debugError(function () use ($token, $envId): void {
+        //            $this->novuClient->request('POST', '/v1/environments/api-keys/update', [
+        //                'headers' => [
+        //                    'Authorization' => 'Bearer '.$token,
+        //                    'novu-environment-id' => $envId,
+        //                ],
+        //                'json' => [
+        //                    'apiKey' => getenv('NOVU_SECRET_KEY'),
+        //                ],
+        //            ])->toArray();
+        //        });
+        //
+        //        $this->novuClient->request('GET', '/v1/environments', [
+        //            'headers' => [
+        //                'Authorization' => 'Bearer '.$token,
+        //            ],
+        //        ])->toArray();
 
         $data = $this->novuClient->request('GET', '/v1/environments', [
             'headers' => [
                 'Authorization' => 'Bearer '.$token,
             ],
         ])->toArray();
+
+        $environment = array_find($data['data'], fn (array $env): bool => $envId === $env['_id']);
+        $apiKey = $environment['apiKeys'][0]['key'] ?? throw new \RuntimeException('API key not found');
+
+        file_put_contents('/output', "NOVU_SECRET_KEY='{$apiKey}'\n", FILE_APPEND);
     }
 }
