@@ -49,3 +49,12 @@ export async function putEntityList(
 export async function deleteEntityList(id: string): Promise<void> {
     await apiClient.delete(`${entityTypeNS}/${id}`);
 }
+
+export async function importEntities(
+    listId: string,
+    values: string[]
+): Promise<void> {
+    await apiClient.post(`${entityTypeNS}/${listId}/import`, {
+        values,
+    });
+}

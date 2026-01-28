@@ -451,9 +451,9 @@ export default function AttributeDefinitionManager({
 
     return (
         <DefinitionManager
-            searchFilter={(list, value) =>
+            searchFilter={({items}, value) =>
                 search<AttributeDefinition>(
-                    list,
+                    items,
                     ['nameTranslated', 'name'],
                     value
                 )
