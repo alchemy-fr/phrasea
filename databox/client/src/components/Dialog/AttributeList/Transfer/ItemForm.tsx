@@ -1,4 +1,5 @@
 import {
+    Button,
     InputLabel,
     List,
     ListItem,
@@ -8,12 +9,12 @@ import {
 import {useFormSubmit} from '@alchemy/api';
 import {AttributeListItem, AttributeListItemType} from '../../../../types.ts';
 import {toast} from 'react-toastify';
-import {useDirtyFormPrompt} from '../../Tabbed/FormTab.tsx';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {useTranslation} from 'react-i18next';
 import {FormFieldErrors, FormRow, SwitchWidget} from '@alchemy/react-form';
 import {putAttributeListItem} from '../../../../api/attributeList.ts';
-import RemoteErrors from '../../../Form/RemoteErrors.tsx';
-import {LoadingButton} from '@mui/lab';
+
+import {RemoteErrors} from '@alchemy/react-form';
 import {getAttributeType} from '../../../Media/Asset/Attribute/types';
 import {
     useIndexById,
@@ -166,14 +167,14 @@ export default function ItemForm({item, listId, onChange}: Props) {
                     )}
                 </Box>
 
-                <LoadingButton
+                <Button
                     type={'submit'}
                     loading={submitting}
                     disabled={submitting}
                     variant={'contained'}
                 >
                     {t('form.attribute_list_item.save', 'Save')}
-                </LoadingButton>
+                </Button>
                 <RemoteErrors errors={remoteErrors} />
             </Paper>
         </form>

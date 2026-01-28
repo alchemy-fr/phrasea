@@ -1,7 +1,7 @@
 import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
-import {createStrictDimensions, PlayerProps} from './index';
+import {PlayerProps} from './index';
+import {createStrictDimensions, getRatioDimensions} from '@alchemy/core';
 import {pdfjs} from 'react-pdf';
-import {getRatioDimensions} from './VideoPlayer';
 import {DisplayContext} from '../../DisplayContext';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
@@ -10,7 +10,7 @@ import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
 import FileToolbar from './FileToolbar.tsx';
-import PdfView from './PdfView.tsx';
+import {PdfView} from '@alchemy/phrasea-framework';
 
 type Props = {
     controls?: boolean | undefined;

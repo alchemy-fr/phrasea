@@ -105,6 +105,8 @@ fos_elastica:
                 tags:
                     property_path: tagIds
                     type: keyword
+                hasSourceFile:
+                    type: boolean
                 fileSize:
                     type: long
                     property_path: getSourceFileSize

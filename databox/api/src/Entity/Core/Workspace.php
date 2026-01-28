@@ -8,6 +8,7 @@ use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -82,13 +83,14 @@ use Symfony\Component\Validator\Constraints as Assert;
     'slug',
 ], message: 'Slug is already taken')]
 #[ValidAnalyzersOptionsConstraint]
-class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable
+class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use OwnerIdTrait;
     use DeletedAtTrait;
     use TranslationsTrait;
+    final public const int OBJECT_INDEX = 3;
     final public const string OBJECT_TYPE = 'workspace';
 
     final public const string GROUP_READ = 'workspace:r';

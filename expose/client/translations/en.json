@@ -1,63 +1,216 @@
 {
-    "asset_proxy": {
-        "unsupported_media_type": "Unsupported media type"
+    "appbar": {
+        "profiles": "Profiles",
+        "publications": "Publications"
     },
-    "download": "Download",
-    "download_archive": "Download archive",
-    "download_custom": "Download {{name}}",
-    "download_original": "Download original",
+    "common": {
+        "close": "Close",
+        "expose": "Expose",
+        "soon": "Soon"
+    },
+    "downloadArchiveButton": {
+        "downloadArchive": "Download Archive"
+    },
+    "download_terms": {
+        "dialog": {
+            "accept": "Accept & Download",
+            "cancel": "Cancel",
+            "please_read_accept": "Please Read and Accept the Download <link>Terms</link>",
+            "terms_cta": "View Download Terms",
+            "title": "Download Terms and Conditions"
+        }
+    },
     "download_via_email": {
+        "cancel": "Cancel",
         "cta": "Download via email",
-        "sent": "You will receive your download link by email."
+        "email": {
+            "helper": "Enter the email address where you would like to receive the download link.",
+            "label": "Email"
+        },
+        "sent": "You will receive your download link by email.",
+        "submit_request": "Request Download"
     },
-    "email": {
-        "label": "Email"
-    },
-    "embedded_asset": {
-        "forbidden": "Forbidden",
-        "not_found": "Not found"
+    "embeded_asset": {
+        "publication_disabled": "Publication of this asset is disabled. Only administrators can see it."
     },
     "error": {
-        "invalid_password": "Invalid password"
+        "authentication_required": "Authentication required",
+        "forbidden": "Forbidden",
+        "invalid_password": "Invalid password",
+        "not_found": "Not found",
+        "unexpected": "Unexpected error"
     },
     "form": {
-        "continue": "Continue"
-    },
-    "gallery": {
-        "empty": "Gallery is empty"
-    },
-    "map": {
-        "empty": "Map is empty"
-    },
-    "menu": {
-        "toggle": "Toggle Menu"
-    },
-    "modal": {
-        "close": "Close",
-        "discard": "Discard"
+        "profile": {
+            "config": {
+                "label": "Configuration"
+            },
+            "create": {
+                "success": "Profile created!",
+                "title": "Create Profile"
+            },
+            "edit": {
+                "submit": "Save Profile",
+                "success": "Profile saved!",
+                "title": "Edit Profile"
+            },
+            "name": {
+                "label": "Name"
+            }
+        },
+        "publication": {
+            "config": {
+                "beginsAt": {
+                    "label": "Begins At"
+                },
+                "downloadEnabled": {
+                    "label": "Download Enabled"
+                },
+                "downloadTerms": {
+                    "enabledLabel": "Enable Download Terms and Conditions"
+                },
+                "downloadViaEmail": {
+                    "label": "Download via Email"
+                },
+                "enabled": {
+                    "label": "Enabled"
+                },
+                "expiresAt": {
+                    "label": "Expires At"
+                },
+                "includeDownloadTermsInZippy": {
+                    "label": "Include Download Terms in Archive"
+                },
+                "label": "Configuration",
+                "layout": {
+                    "label": "Layout",
+                    "options": {
+                        "download": "Download",
+                        "gallery": "Gallery",
+                        "grid": "Grid",
+                        "mapbox": "Mapbox"
+                    }
+                },
+                "overridden": {
+                    "label": "Override settings"
+                },
+                "publiclyListed": {
+                    "label": "Publicly Listed"
+                },
+                "securityMethod": {
+                    "label": "Security Method",
+                    "options": {
+                        "authentication": "Authentication",
+                        "password": "Password",
+                        "public": "Public"
+                    }
+                },
+                "securityOptions": {
+                    "password": {
+                        "label": "Password"
+                    }
+                },
+                "terms": {
+                    "enabledLabel": "Enable Terms and Conditions"
+                }
+            },
+            "date": {
+                "label": "Date"
+            },
+            "edit": {
+                "submit": "Save Publication",
+                "success": "Publication saved!",
+                "title": "Edit Publication"
+            },
+            "parent": {
+                "label": "Parent Publication"
+            },
+            "profile": {
+                "edit": "Edit Profile",
+                "label": "Profile"
+            },
+            "slug": {
+                "helper": "The slug is used in the publication URL.",
+                "label": "Slug"
+            },
+            "terms": {
+                "text": {
+                    "label": "Terms Content"
+                },
+                "url": {
+                    "helper": "Alternatively, provide a URL to the terms and conditions.",
+                    "label": "Terms URL"
+                }
+            },
+            "title": {
+                "label": "Title"
+            }
+        }
     },
     "order": {
         "last_post_added": "Recents",
         "publication_name": "Name"
     },
+    "profile": {
+        "delete_confirm": "Delete Profile",
+        "delete_title": "Delete Profile \"{{title}}\"",
+        "list": {
+            "create_button": "Create Profile",
+            "title": "Profiles",
+            "using_publications_one": "{{count}} publication using this profile",
+            "using_publications_other": "{{count}} publications using this profile"
+        }
+    },
     "publication": {
+        "asset": {
+            "download": "Download"
+        },
         "auth_required": {
             "sign_in": "Sign In",
             "title": "This publication requires authentication."
         },
-        "logout": "Logout",
+        "delete_confirm": "Delete publication",
+        "delete_title": "Delete publication \"{{title}}\"",
+        "disabled": "This publication is currently disabled. Only administrators can see it.",
+        "layout": {
+            "download": {
+                "download_original": "Download original",
+                "download_subdef": "Download {{name}}"
+            }
+        },
+        "noAssetAvailable": "No asset available",
         "not_allowed": "Sorry! You are not allowed to access this publication.",
-        "password_required": {
-            "enter_password": "Enter password",
-            "submit": "OK"
-        }
+        "security": {
+            "password": {
+                "form": {
+                    "password": {
+                        "label": "Password"
+                    },
+                    "submit": {
+                        "label": "Enter"
+                    }
+                },
+                "intro": "This publication is protected by a password. Please enter the password to access it."
+            }
+        },
+        "sort_by": "Sort by {{order}}"
     },
-    "publication_security_proxy": {
-        "sorry_you_cannot_access_this_publication": "Sorry! You cannot access this publication."
+    "publicationHeader": {
+        "editButton": "Edit",
+        "homeLink": "Home"
+    },
+    "publication_card": {
+        "delete": "Delete",
+        "disabled_tooltip": "This publication is disabled, only operators can access it.",
+        "edit": "Edit",
+        "unlisted": "This publication is not listed, you can see it because you have such permisions"
     },
     "terms": {
-        "accept": "Accept",
-        "please_read_accept": "Please read and accept the <link>terms</link>",
-        "terms": "terms"
+        "dialog": {
+            "accept": "Accept",
+            "please_read_accept": "Please Read and Accept the <link>Terms</link>",
+            "terms_cta": "Terms",
+            "title": "Terms and Conditions"
+        }
     }
 }

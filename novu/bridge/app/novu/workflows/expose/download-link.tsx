@@ -9,7 +9,8 @@ export const exposeDownloadLink = workflow(
         await step.email("Email", async () => {
             return {
                 subject: `Your download link is ready!`,
-                body: render(<CTAEmail
+                body: await render(
+                    <CTAEmail
                         introText={`You can download your file from the following link:`}
                         linkUrl={payload.downloadUrl}
                         linkText={'Download'}

@@ -12,13 +12,7 @@ import {
     useIndexBySearchSlug,
     useIndexBySlug,
 } from '../../../../store/attributeDefinitionStore.ts';
-import SaveIcon from '@mui/icons-material/Save';
-import SaveSearchDialog from '../SavedSearch/SaveSearchDialog.tsx';
 import {TSearchContext} from '../SearchContext.tsx';
-import {getSearchData, putSavedSearch} from '../../../../api/savedSearch.ts';
-import {LoadingButton} from '@mui/lab';
-import {toast} from 'react-toastify';
-import {useSavedSearchStore} from '../../../../store/savedSearchStore.ts';
 
 type Props = {
     search: TSearchContext;
@@ -28,19 +22,8 @@ export default function SearchConditions({search}: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const {load, loaded} = useAttributeDefinitionStore();
-    const updateSavedSearch = useSavedSearchStore(state => state.updateItem);
     const definitionsIndexBySlug = useIndexBySlug();
     const definitionsIndexBySearchSlug = useIndexBySearchSlug();
-    const [updatingSearch, setUpdatingSearch] = React.useState(false);
-    const [lastSavedChecksum, setLastSavedChecksum] = React.useState<
-        string | undefined
-    >(search.searchId && search.hasSearch ? search.searchChecksum : undefined);
-
-    React.useEffect(() => {
-        if (search.searchId && search.hasSearch) {
-            setLastSavedChecksum(search.searchChecksum);
-        }
-    }, [search.searchId]);
 
     React.useEffect(() => {
         if (!loaded) {
@@ -54,26 +37,6 @@ export default function SearchConditions({search}: Props) {
         definitionsIndexBySlug,
         definitionsIndexBySearchSlug,
     });
-
-    const updateSearch = async () => {
-        setUpdatingSearch(true);
-        try {
-            updateSavedSearch(
-                await putSavedSearch(search.searchId!, {
-                    data: getSearchData(search),
-                })
-            );
-            setLastSavedChecksum(search.searchChecksum);
-            toast.success(
-                t(
-                    'search.update_success',
-                    'Search was updated successfully!'
-                ) as string
-            );
-        } finally {
-            setUpdatingSearch(false);
-        }
-    };
 
     return (
         <>
@@ -102,31 +65,6 @@ export default function SearchConditions({search}: Props) {
             >
                 {t('search_condition.add_condition', 'Add Condition')}
             </Button>
-            <LoadingButton
-                loading={updatingSearch}
-                disabled={
-                    updatingSearch ||
-                    !search.hasSearch ||
-                    (!!lastSavedChecksum &&
-                        lastSavedChecksum === search.searchChecksum)
-                }
-                startIcon={<SaveIcon />}
-                onClick={() => {
-                    search.searchId
-                        ? updateSearch()
-                        : openModal(SaveSearchDialog, {
-                              search,
-                              onCreate: savedSearch => {
-                                  search.setSearchId(savedSearch.id);
-                                  setLastSavedChecksum(search.searchChecksum);
-                              },
-                          });
-                }}
-            >
-                {search.searchId
-                    ? t('search.update_search', 'Update Search')
-                    : t('search.save_search', 'Save Search')}
-            </LoadingButton>
         </>
     );
 }

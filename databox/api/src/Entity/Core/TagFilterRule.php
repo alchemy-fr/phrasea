@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -50,10 +51,11 @@ use Ramsey\Uuid\Doctrine\UuidType;
 #[ORM\UniqueConstraint(name: 'tfr_uniq_ace', columns: ['user_type', 'user_id', 'object_type', 'object_id'])]
 #[ORM\Entity(repositoryClass: TagFilterRuleRepository::class)]
 #[TagFilterRuleConstraint]
-class TagFilterRule extends AbstractUuidEntity
+class TagFilterRule extends AbstractUuidEntity implements LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const int OBJECT_INDEX = 20;
 
     final public const string GROUP_READ = 'tfr:read';
     final public const string GROUP_LIST = 'tfr:index';

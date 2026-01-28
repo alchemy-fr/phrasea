@@ -1,29 +1,101 @@
 {
+    "common": {
+        "cancel": "Cancel",
+        "next": "Next",
+        "uploader": "Uploader"
+    },
     "download": {
         "back": "Back",
-        "your_file_will_be_downloaded": "Your file will be downloaded!"
+        "done": {
+            "restart": "Download Another",
+            "your_file_will_be_downloaded": "Your file will be downloaded!"
+        },
+        "download_asset": "Download Asset",
+        "file_url": "File URL",
+        "fill_the_form_to_download_your_asset": "Fill the form to download your asset."
     },
     "file_picker": {
+        "alternative_upload_methods": "or just <l>download</l> URLs.",
         "drag_n_drop_some_files_here_or_click_to_select_files": "Drag 'n' drop some files here, or click to select files",
-        "next": "Next"
+        "file_count_one": "You have selected {{count}} file",
+        "file_count_other": "You have selected {{count}} files",
+        "max_file_size": "Max file size: {{size}}",
+        "next": "Next",
+        "total_max_file_count_exceeded": "Total max file count exceeded ({{fileCount}} > {{maxFileCount}})",
+        "total_max_file_size_exceeded": "Total max file size exceeded ({{actualSize}} > {{maxSize}})",
+        "total_size": "Total size: {{size}} / {{maxCommitSize}}",
+        "total_size_no_limit": "Total size: {{size}}"
     },
-    "layout": {
-        "loading_form": "Loading form…"
+    "form": {
+        "addItem": "Add",
+        "selectPlaceholder": "Choose an option"
+    },
+    "form_editor": {
+        "create": {
+            "title": "Creating New Form Schema"
+        },
+        "edit": {
+            "title": "Editing Form Schema: {{name}}"
+        },
+        "form_saved": "Form saved successfully",
+        "form_submitted": "Form submitted with data:<pre>{{json}}}</pre>",
+        "form_submitted_title": "Form Submitted",
+        "invalid_json": "Invalid JSON: {{message}}",
+        "locale": {
+            "helper": "Optional locale for this form schema (e.g., en, fr, etc.). Leave empty for all locales.",
+            "label": "Locale"
+        },
+        "save_form": "Save Form",
+        "target": {
+            "label": "Target"
+        }
+    },
+    "form_schema": {
+        "list": {
+            "create_button": "Create New Form Schema",
+            "delete": "Delete",
+            "delete_confirm_message": "Are you sure you want to delete the form schema for {{name}}?",
+            "delete_confirm_title": "Delete Form Schema",
+            "edit": "Edit",
+            "empty": "No form schemas found. Click the button below to create a new one.",
+            "title": "Form Schemas"
+        }
     },
     "menu": {
-        "account": "My account",
-        "logout": "Logout"
+        "form_editor": "Form Editor",
+        "target_data_editor": "Target Data Editor"
+    },
+    "target_param": {
+        "create": {
+            "title": "Creating New Target Params"
+        },
+        "edit": {
+            "title": "Editing Target Params: {{name}}"
+        },
+        "form_saved": "Form saved successfully",
+        "list": {
+            "create_button": "Create New Target Params",
+            "delete": "Delete",
+            "delete_confirm_message": "Are you sure you want to delete the params of target {{name}}?",
+            "delete_confirm_title": "Delete Form Schema",
+            "edit": "Edit",
+            "empty": "None",
+            "title": "Target Params"
+        },
+        "save_form": "Save Form",
+        "target": {
+            "label": "Target"
+        }
     },
     "targets": {
         "none_available": "You don't have access to any upload target."
+    },
+    "upload": {
+        "cancelConfirmation": "Are you sure you want to cancel current upload?"
     },
     "upload_done": {
         "all_files_have_been_uploaded": "All files have been uploaded.",
         "go_back_home": "Go back Home",
         "you_re_done": "You're done!"
-    },
-    "upload_form": {
-        "selected_files_one": "{{count}} selected file",
-        "selected_files_other": "{{count}} selected files"
     }
 }

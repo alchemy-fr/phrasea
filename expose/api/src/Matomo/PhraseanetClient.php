@@ -7,6 +7,9 @@ namespace App\Matomo;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+/**
+ * @deprecated
+ */
 final readonly class PhraseanetClient
 {
     public function __construct(

@@ -20,7 +20,7 @@ import {
 import {getBatchActions} from './batchActions.ts';
 import {useModals} from '@alchemy/navigation';
 import SavePreviewDialog from './SavePreviewDialog.tsx';
-import {useDirtyFormPrompt} from '../Dialog/Tabbed/FormTab.tsx';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {useTranslation} from 'react-i18next';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';

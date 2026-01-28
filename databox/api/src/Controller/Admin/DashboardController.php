@@ -6,6 +6,7 @@ use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntry;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
+use Alchemy\TrackBundle\Entity\ChangeLog;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
@@ -40,6 +41,7 @@ use App\Entity\Integration\IntegrationToken;
 use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
+use App\Entity\Log\ActionLog;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
@@ -138,6 +140,11 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Threads', '', Thread::class),
         ];
 
+        $logs = [
+            MenuItem::linkToCrud('Action Log', '', ActionLog::class),
+            MenuItem::linkToCrud('Change Log', '', ChangeLog::class),
+        ];
+
         yield MenuItem::subMenu('Permission', 'fas fa-lock')->setSubItems($submenu1);
         yield MenuItem::subMenu('Core', 'fas fa-database')->setSubItems($submenu2);
         yield MenuItem::subMenu('Basket', 'fas fa-basket-shopping')->setSubItems($basket);
@@ -148,6 +155,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Workflow', 'fas fa-gears')->setSubItems($workflows);
         yield MenuItem::subMenu('Webhook', 'fas fa-network-wired')->setSubItems($webhookSubMenu);
         yield MenuItem::subMenu('Discussions', 'fas fa-message')->setSubItems($discussions);
+        yield MenuItem::subMenu('Logs', 'fa fa-history')->setSubItems($logs);
         yield MenuItem::linkToRoute('Notification', 'fas fa-bell', 'alchemy_notify_admin_index');
         yield MenuItem::linkToCrud('Global Config', 'fa fa-gear', ConfiguratorEntry::class);
         yield $this->createDevMenu();

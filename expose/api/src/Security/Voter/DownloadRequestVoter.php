@@ -4,32 +4,20 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use Alchemy\AuthBundle\Security\JwtUser;
-use Alchemy\AuthBundle\Security\Voter\ScopeVoterTrait;
+use Alchemy\AuthBundle\Security\Voter\AbstractVoter;
 use App\Entity\Asset;
 use App\Entity\DownloadRequest;
 use App\Security\ScopeInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-class DownloadRequestVoter extends Voter
+class DownloadRequestVoter extends AbstractVoter
 {
-    use ScopeVoterTrait;
-
-    final public const string LIST = 'download_request:list';
-    final public const string READ = 'READ';
-    final public const string EDIT = 'EDIT';
-    final public const string DELETE = 'DELETE';
-
-    public function __construct(private readonly Security $security)
-    {
-    }
+    final public const string LIST_DOWNLOAD_REQUESTS = 'download_request:list';
 
     protected function supports($attribute, $subject): bool
     {
         return $subject instanceof DownloadRequest
-            || self::LIST === $attribute;
+            || self::LIST_DOWNLOAD_REQUESTS === $attribute;
     }
 
     /**
@@ -38,8 +26,8 @@ class DownloadRequestVoter extends Voter
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         return match ($attribute) {
-            self::LIST, self::READ, self::EDIT, self::DELETE => $this->hasScope(ScopeInterface::SCOPE_PUBLISH, $token)
-                    || $this->security->isGranted(JwtUser::ROLE_ADMIN),
+            self::LIST_DOWNLOAD_REQUESTS, self::READ, self::EDIT, self::DELETE => $this->hasScope(ScopeInterface::SCOPE_PUBLISH, '', false)
+                    || $this->isAdmin(),
             default => false,
         };
     }

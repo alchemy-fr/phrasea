@@ -4,17 +4,16 @@ import {AppDialog} from '@alchemy/phrasea-ui';
 import {MemoizedFilePlayer} from '../FilePlayer.tsx';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
 import {StackedModalProps, useParams, useLocation} from '@alchemy/navigation';
-import {Dimensions, filePlayerRelativeWrapperClassName} from '../Players';
+import {filePlayerRelativeWrapperClassName} from '../Players';
+import {Dimensions} from '@alchemy/core';
 import {Box, Typography} from '@mui/material';
 import FileIntegrations from '../FileIntegrations.tsx';
 import {getAsset, getAssets} from '../../../../api/asset.ts';
 import FullPageLoader from '../../../Ui/FullPageLoader.tsx';
 import RouteDialog from '../../../Dialog/RouteDialog.tsx';
 import {getAssetRenditions} from '../../../../api/rendition.ts';
-import {scrollbarWidth} from '../../../../constants.ts';
 import AssetAttributes from '../AssetAttributes.tsx';
 import {useTranslation} from 'react-i18next';
-import {getMediaBackgroundColor} from '../../../../themes/base.ts';
 import {useModalFetch} from '../../../../hooks/useModalFetch.ts';
 import {useChannelRegistration} from '../../../../lib/pusher.ts';
 import {queryClient} from '../../../../lib/query.ts';
@@ -31,11 +30,12 @@ import {
 } from '../../../Discussion/discussion.ts';
 import {useBindAnnotationMessage} from './useBindAnnotationMessage.ts';
 import AssetViewInfo from '../AssetViewInfo.tsx';
-import {ApiCollectionResponse} from '../../../../api/hydra.ts';
 import StoryCarousel, {storyCarouselHeight} from './StoryCarousel.tsx';
 import AssetAppearsIn from '../AssetAppearsIn.tsx';
 import AssetAttachments from '../AssetAttachments.tsx';
 import {Routing} from '../../../../routes.ts';
+import {getMediaBackgroundColor, scrollbarWidth} from '../../../uiVars.ts';
+import {NormalizedCollectionResponse} from '@alchemy/api';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -70,7 +70,7 @@ export default function AssetView({modalIndex, open}: Props) {
     const {t} = useTranslation();
     const queryKey = ['assets', assetId];
     const [storyAssets, setStoryAssets] =
-        React.useState<ApiCollectionResponse<Asset>>();
+        React.useState<NormalizedCollectionResponse<Asset>>();
     const [currentStoryAssetId, setCurrentStoryAssetId] = React.useState<
         string | undefined
     >(state?.storyAssetId);

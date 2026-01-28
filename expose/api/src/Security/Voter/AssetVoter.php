@@ -4,24 +4,14 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
+use Alchemy\AuthBundle\Security\Voter\AbstractVoter;
+use Alchemy\AuthBundle\Security\Voter\JwtVoterTrait;
 use App\Entity\Asset;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-class AssetVoter extends Voter
+class AssetVoter extends AbstractVoter
 {
     use JwtVoterTrait;
-
-    final public const string READ = 'READ';
-    final public const string EDIT = 'EDIT';
-    final public const string DELETE = 'DELETE';
-    final public const string CREATE = 'CREATE';
-
-    public function __construct(
-        private readonly Security $security,
-    ) {
-    }
 
     public function supportsType(string $subjectType): bool
     {

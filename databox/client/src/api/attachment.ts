@@ -1,4 +1,4 @@
-import apiClient from './api-client';
+import {apiClient} from '../init.ts';
 import {AssetAttachment} from '../types';
 import type {MultipartUpload} from '@alchemy/api';
 import {SourceFileInput} from './file.ts';

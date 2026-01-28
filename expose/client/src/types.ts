@@ -1,15 +1,21 @@
 import type {Translations} from '@alchemy/i18n';
 
-type TermsConfig = {
+export type TermsConfig = {
     text?: string;
     url?: string;
     enabled: boolean;
 };
 
-enum SecurityMethod {
+export enum SecurityMethod {
+    Public = '',
     Password = 'password',
     Authentication = 'authentication',
 }
+
+type EntityWithIri = {
+    '@id': string;
+    'id': string;
+};
 
 type LayoutOptions = {
     displayMap?: boolean;
@@ -17,28 +23,82 @@ type LayoutOptions = {
     logoUrl?: string;
 };
 
-export type Publication = {
-    id: string;
+export enum AuthorizationError {
+    NotAllowed = 'not_allowed',
+}
+
+export enum LayoutEnum {
+    Gallery = 'gallery',
+    Grid = 'grid',
+    Download = 'download',
+    Mapbox = 'mapbox',
+}
+
+type BasePublication = {
     slug: string;
-    cssLink?: string;
     authorized: boolean;
     securityContainerId: string;
-    authorizationError?: string;
     securityMethod: SecurityMethod;
+    authorizationError?: AuthorizationError;
+} & EntityWithIri;
+
+export type UnauthorizedPublication = Partial<Publication> & BasePublication;
+
+export type PublicationConfig = {
+    enabled: boolean;
+    downloadViaEmail: boolean;
+    includeDownloadTermsInZippy: boolean;
+    css: string | undefined;
+    layout: LayoutEnum | undefined;
+    theme: string | undefined;
+    publiclyListed: boolean;
+    downloadEnabled: boolean;
+    beginsAt: Date | string | undefined | null;
+    expiresAt: Date | string | undefined | null;
+    terms: TermsConfig | undefined;
+    downloadTerms: TermsConfig | undefined;
+    securityMethod: SecurityMethod;
+    securityOptions: Record<string, any> | undefined;
+    mapOptions: Record<string, any> | undefined;
+    layoutOptions: LayoutOptions | undefined;
+};
+
+export type PublicationProfile = {
+    name: string;
+    ownerId: string | undefined;
+    config: PublicationConfig;
+    publicationCount: number;
+} & EntityWithIri;
+
+export type Publication = {
+    profile: PublicationProfile | string | null | undefined;
+    cssLink?: string;
+    config: PublicationConfig;
+    archiveDownloadUrl?: string;
     parent?: Publication | undefined;
+    rootPublication?: Publication | undefined;
+    parentId?: string;
     downloadViaEmail?: boolean;
     downloadEnabled?: boolean;
     title: string;
     assets: Asset[];
-    cover?: Asset;
-    children?: Publication[];
+    cover: Asset;
+    terms: TermsConfig;
+    children: Publication[];
+    layout: LayoutEnum;
     layoutOptions: LayoutOptions;
     downloadTerms?: TermsConfig;
     description?: string;
     translations?: Translations;
     date: string;
     enabled: boolean;
-};
+    publiclyListed: boolean;
+    capabilities: {
+        edit: boolean;
+        delete: boolean;
+        operator: boolean;
+    };
+} & BasePublication;
 
 export type WebVTT = {
     id: string;
@@ -76,3 +136,23 @@ type SubDefinition = {
     mimeType: string;
     createdAt: string;
 };
+
+export enum SortBy {
+    Date = 'date',
+    Name = 'name',
+}
+
+export type Thumb = {
+    id: string;
+    src?: string;
+    mimeType: string;
+    alt: string;
+    path: string;
+    width?: number;
+    height?: number;
+};
+
+export type ThumbWithDimensions = {
+    width: number;
+    height: number;
+} & Omit<Thumb, 'width' | 'height'>;

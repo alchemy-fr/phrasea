@@ -1,9 +1,8 @@
 import {useAttributeListStore} from '../../store/attributeListStore';
-import {ButtonGroup} from '@mui/material';
+import {Button, ButtonGroup} from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {useModals} from '@alchemy/navigation';
 import {useTranslation} from 'react-i18next';
-import {LoadingButton} from '@alchemy/react-form';
 import React from 'react';
 import SelectAttributeListDialog from './SelectAttributeListDialog.tsx';
 
@@ -32,7 +31,7 @@ export default function AttributeListSwitcher({}: Props) {
                 verticalAlign: 'middle',
             }}
         >
-            <LoadingButton
+            <Button
                 aria-label="Select attributeList action"
                 aria-haspopup="menu"
                 onClick={openList}
@@ -42,7 +41,7 @@ export default function AttributeListSwitcher({}: Props) {
             >
                 {current?.title ||
                     t('attributeList.default.title', 'My Attribute List')}
-            </LoadingButton>
+            </Button>
         </ButtonGroup>
     );
 }

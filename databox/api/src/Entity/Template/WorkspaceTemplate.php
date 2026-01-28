@@ -7,16 +7,18 @@ namespace App\Entity\Template;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use App\Repository\Template\WorkspaceTemplateRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table]
 #[ORM\Entity(repositoryClass: WorkspaceTemplateRepository::class)]
-class WorkspaceTemplate extends AbstractUuidEntity implements \Stringable
+class WorkspaceTemplate extends AbstractUuidEntity implements \Stringable, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const int OBJECT_INDEX = 12;
     final public const string GROUP_READ = 'workspace_template:read';
     final public const string GROUP_LIST = 'workspace_template:index';
 

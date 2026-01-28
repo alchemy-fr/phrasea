@@ -6,7 +6,6 @@ import {
     DialogContentText,
     DialogTitle,
 } from '@mui/material';
-import LoadingButton from '@mui/lab/LoadingButton';
 import {useTranslation} from 'react-i18next';
 import React from 'react';
 import {useAuth} from '../hooks/useAuth';
@@ -90,7 +89,7 @@ export default function SessionAboutToExpireModal({onClose}: Props) {
                                 'Logout'
                             )}
                         </Button>
-                        <LoadingButton
+                        <Button
                             disabled={refreshing}
                             loading={refreshing}
                             onClick={stay}
@@ -99,7 +98,7 @@ export default function SessionAboutToExpireModal({onClose}: Props) {
                                 'lib.auth.sess_exp.about_to_expire.stay',
                                 'Keep me in!'
                             )}
-                        </LoadingButton>
+                        </Button>
                     </>
                 )}
             </DialogActions>

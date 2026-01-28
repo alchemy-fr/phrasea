@@ -65,7 +65,6 @@ export default function ValueBuilder({
     const normValue = (
         value: string | number | boolean
     ): AQLValueOrExpression => {
-        console.log('normValue', value);
         if (typeof value === 'string') {
             if (rawType && [RawType.Date, RawType.DateTime].includes(rawType)) {
                 const date = new Date(value);

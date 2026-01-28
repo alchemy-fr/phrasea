@@ -7,6 +7,7 @@ namespace App\Entity\Core;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -74,13 +75,14 @@ use Symfony\Component\Validator\Constraints\Length;
 )]
 #[ORM\Entity(repositoryClass: TagRepository::class)]
 #[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: ['workspace'])]
-class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringable
+class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringable, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use LocaleTrait;
     use WorkspaceTrait;
     use TranslationsTrait;
+    final public const int OBJECT_INDEX = 19;
 
     final public const string GROUP_READ = 'tag:r';
     final public const string GROUP_LIST = 'tag:i';

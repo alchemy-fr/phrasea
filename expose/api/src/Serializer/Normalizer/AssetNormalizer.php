@@ -63,7 +63,7 @@ class AssetNormalizer extends AbstractRouterNormalizer
                 ], UrlGeneratorInterface::ABSOLUTE_URL);
 
                 if (!$isPublic) {
-                    $vttUrl = $this->JWTManager->signUri($vttUrl);
+                    $vttUrl = $this->uriJwtManager->signUri($vttUrl);
                 }
 
                 $links[] = [

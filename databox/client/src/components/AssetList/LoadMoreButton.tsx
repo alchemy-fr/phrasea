@@ -1,5 +1,4 @@
-import {Box} from '@mui/material';
-import {LoadingButton} from '@mui/lab';
+import {Box, Button} from '@mui/material';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import {VoidFunction} from '../../lib/utils';
 import {useTranslation} from 'react-i18next';
@@ -49,7 +48,7 @@ export default function LoadMoreButton<Item extends AssetOrAssetContainer>({
                 my: 4,
             }}
         >
-            <LoadingButton
+            <Button
                 loading={loading}
                 startIcon={<ArrowCircleDownIcon />}
                 onClick={doLoad}
@@ -59,7 +58,7 @@ export default function LoadMoreButton<Item extends AssetOrAssetContainer>({
                 {loading
                     ? t('load_more.button.loading', 'Loading…')
                     : t('load_more.button.load_more', 'Load more')}
-            </LoadingButton>
+            </Button>
         </Box>
     );
 }

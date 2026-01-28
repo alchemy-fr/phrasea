@@ -1,4 +1,3 @@
-import {ApiHydraObjectResponse} from './api/hydra';
 import type {WithTranslations} from '@alchemy/react-form';
 import {Integration} from './components/Integration/types.ts';
 import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTypes.ts';
@@ -8,6 +7,7 @@ import React from 'react';
 import {AttributeType} from './api/types.ts';
 import {SortBy} from './components/Media/Search/Filter';
 import {AQLQueries} from './components/Media/Search/AQL/query.ts';
+import {ApiHydraObjectResponse} from '@alchemy/api';
 
 export type AlternateUrl = {
     type: string;
@@ -300,7 +300,10 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
     'workspace'
 >;
 
-export interface Collection extends IPermissions, Entity {
+export interface Collection
+    extends IPermissions,
+        Entity,
+        ApiHydraObjectResponse {
     title: string;
     titleTranslated: string;
     titleHighlight?: string;

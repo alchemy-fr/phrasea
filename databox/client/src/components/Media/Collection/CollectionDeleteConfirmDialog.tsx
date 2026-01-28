@@ -1,4 +1,4 @@
-import ConfirmDialog from '../../Ui/ConfirmDialog';
+import {ConfirmDialog} from '@alchemy/phrasea-framework';
 import {Trans, useTranslation} from 'react-i18next';
 import {StackedModalProps} from '@alchemy/navigation';
 import React from 'react';

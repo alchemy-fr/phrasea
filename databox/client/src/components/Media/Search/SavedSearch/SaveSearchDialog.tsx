@@ -8,7 +8,6 @@ import {SavedSearch} from '../../../../types.ts';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
 import {getSearchData, postSavedSearch} from '../../../../api/savedSearch.ts';
-import {LoadingButton} from '@mui/lab';
 import SavedSearchFields from './SavedSearchFields.tsx';
 import {useSavedSearchStore} from '../../../../store/savedSearchStore.ts';
 
@@ -69,7 +68,7 @@ export default function SaveSearchDialog({
                     <Button onClick={onClose}>
                         {t('common.cancel', 'Cancel')}
                     </Button>
-                    <LoadingButton
+                    <Button
                         loading={submitting}
                         disabled={submitting}
                         variant={'contained'}
@@ -78,7 +77,7 @@ export default function SaveSearchDialog({
                         color={'primary'}
                     >
                         {t('common.save', 'Save')}
-                    </LoadingButton>
+                    </Button>
                 </>
             )}
         >

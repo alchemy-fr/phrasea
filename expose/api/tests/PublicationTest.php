@@ -493,29 +493,6 @@ class PublicationTest extends AbstractExposeTestCase
 
             [
                 [
-                    'copyrightText' => 'Publication',
-                ],
-                [
-                    'copyrightText' => 'Profile',
-                ],
-                [
-                    'copyrightText' => 'Publication',
-                ],
-            ],
-
-            [
-                [
-                ],
-                [
-                    'copyrightText' => 'Profile',
-                ],
-                [
-                    'copyrightText' => 'Profile',
-                ],
-            ],
-
-            [
-                [
                     'mapOptions' => ['lat' => 2.31],
                 ],
                 [

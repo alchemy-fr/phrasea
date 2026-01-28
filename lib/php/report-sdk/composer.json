@@ -6,7 +6,7 @@
     "homepage": "https://www.alchemy.fr/",
     "license": "MIT",
     "require": {
-        "php": "^8.3",
+        "php": "^8.5",
         "opis/json-schema": "^1.0",
         "symfony/http-client": "^6"
     },
@@ -38,6 +38,6 @@
         "friendsofphp/php-cs-fixer": "^3.17",
         "php-parallel-lint/php-var-dump-check": "v0.5",
         "phpunit/phpunit": "^9.5",
-        "rector/rector": "^1.0.4"
+        "rector/rector": "^2.3.0"
     }
 }

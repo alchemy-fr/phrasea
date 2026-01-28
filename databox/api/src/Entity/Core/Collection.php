@@ -57,6 +57,7 @@ use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -93,6 +94,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new GetCollection(
             normalizationContext: [
+                AbstractObjectNormalizer::ENABLE_MAX_DEPTH => true,
                 'groups' => [
                     self::GROUP_LIST,
                     self::GROUP_CHILDREN,
@@ -155,7 +157,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
     ],
     normalizationContext: [
-        'enable_max_depth' => true,
+        AbstractObjectNormalizer::ENABLE_MAX_DEPTH => true,
         'groups' => [
             self::GROUP_LIST,
             self::GROUP_READ,
@@ -181,6 +183,8 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
     use NotificationSettingsTrait;
     use ExtraMetadataTrait;
     use TranslationsTrait;
+
+    final public const int OBJECT_INDEX = 2;
     final public const string OBJECT_TYPE = 'collection';
 
     final public const string GROUP_READ = 'coll:r';

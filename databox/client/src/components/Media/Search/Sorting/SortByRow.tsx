@@ -122,8 +122,10 @@ const ToggleWay = styled(Switch)(({theme}) => ({
             },
             '& + .MuiSwitch-track': {
                 opacity: 1,
-                backgroundColor:
-                    theme.palette.mode === 'dark' ? grey[600] : grey[400],
+                backgroundColor: grey[400],
+                ...theme.applyStyles('dark', {
+                    backgroundColor: grey[600],
+                }),
             },
         },
     },
@@ -148,7 +150,10 @@ const ToggleWay = styled(Switch)(({theme}) => ({
     },
     '& .MuiSwitch-track': {
         opacity: 1,
-        backgroundColor: theme.palette.mode === 'dark' ? grey[600] : grey[400],
+        backgroundColor: grey[400],
         borderRadius: 20 / 2,
+        ...theme.applyStyles('dark', {
+            backgroundColor: grey[600],
+        }),
     },
 }));

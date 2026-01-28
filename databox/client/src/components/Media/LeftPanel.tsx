@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
-import Facets from './Asset/Facets';
 import CollectionsPanel from './CollectionsPanel';
 import {Tab, Tabs} from '@mui/material';
 import {TabPanelProps} from '@mui/lab';
 import BasketsPanel from '../Basket/BasketsPanel';
 import {useAuth} from '@alchemy/react-auth';
 import {useTranslation} from 'react-i18next';
+import Facets from './Asset/Facets';
 
 enum TabEnum {
     facets = 'facets',

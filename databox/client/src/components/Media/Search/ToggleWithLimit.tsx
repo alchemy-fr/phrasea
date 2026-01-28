@@ -1,7 +1,7 @@
 import {
     FormControlLabel,
     FormGroup,
-    Grid,
+    Grid2 as Grid,
     Input,
     InputAdornment,
     Switch,
@@ -26,7 +26,7 @@ export default function ToggleWithLimit({
 }: Props) {
     return (
         <Grid container spacing={2} alignItems="center">
-            <Grid item>
+            <Grid>
                 <FormGroup>
                     <FormControlLabel
                         control={<Switch checked={value} onChange={toggle} />}
@@ -36,7 +36,7 @@ export default function ToggleWithLimit({
             </Grid>
 
             {value && (
-                <Grid item>
+                <Grid>
                     <Input
                         onChange={e => setLimit(parseInt(e.target.value))}
                         value={limit}

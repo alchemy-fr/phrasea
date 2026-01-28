@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Controller\GetTargetFormSchemaAction;
+use App\Security\Voter\FormDataEditorVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -26,19 +27,19 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/targets/{id}/form-schema',
             controller: GetTargetFormSchemaAction::class,
             read: false,
-            name: 'get_form_schema',
+            name: 'get_form_schema_by_locale',
         ),
-        new Get(security: 'is_granted("EDIT_FORM_SCHEMA")'),
-        new Delete(security: 'is_granted("EDIT_FORM_SCHEMA")'),
-        new Put(security: 'is_granted("EDIT_FORM_SCHEMA")'),
-        new Post(security: 'is_granted("EDIT_FORM_SCHEMA")'),
-        new GetCollection(security: 'is_granted("EDIT_FORM_SCHEMA")'),
+        new Get(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
+        new Delete(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
+        new Put(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
+        new Post(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
+        new GetCollection(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
     ],
     normalizationContext: [
-        'groups' => ['formschema:index'],
+        'groups' => [self::GROUP_INDEX],
     ],
     denormalizationContext: [
-        'groups' => ['formschema:write'],
+        'groups' => [self::GROUP_WRITE],
     ]
 )]
 #[ORM\Table]
@@ -50,22 +51,25 @@ class FormSchema extends AbstractUuidEntity implements AclObjectInterface
     final public const int LOCALE_MODE_USE_UA = 1;
     final public const int LOCALE_MODE_FORCED = 2;
 
+    public const string GROUP_INDEX = 'formschema:i';
+    public const string GROUP_WRITE = 'formschema:w';
+
     #[ORM\ManyToOne(targetEntity: Target::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
-    #[Groups(['formschema:index', 'formschema:write'])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
     private ?Target $target = null;
 
     #[ORM\Column(type: Types::STRING, length: 5, nullable: true)]
-    #[Groups(['formschema:index', 'formschema:write'])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
     private ?string $locale = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
-    #[Groups(['formschema:index', 'formschema:write'])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
     private int $localeMode = 0;
 
     #[ORM\Column(type: Types::JSON)]
-    #[Groups(['formschema:index', 'formschema:write'])]
+    #[Groups([self::GROUP_INDEX, self::GROUP_WRITE])]
     private array $data = [];
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
@@ -82,7 +86,7 @@ class FormSchema extends AbstractUuidEntity implements AclObjectInterface
         parent::__construct($id);
     }
 
-    #[Groups(['formschema:index'])]
+    #[Groups([self::GROUP_INDEX])]
     public function getId(): string
     {
         return parent::getId();

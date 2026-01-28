@@ -8,6 +8,7 @@ use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -52,10 +53,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     message: 'The attribute policy name must be unique in the workspace.',
     errorPath: 'name',
 )]
-class AttributePolicy extends AbstractUuidEntity implements AclObjectInterface, \Stringable
+class AttributePolicy extends AbstractUuidEntity implements AclObjectInterface, LoggableChangeSetInterface, \Stringable
 {
     use CreatedAtTrait;
     use WorkspaceTrait;
+    final public const int OBJECT_INDEX = 4;
     final public const string OBJECT_TYPE = 'attribute_policy';
     final public const string GROUP_READ = 'attrpol:r';
     final public const string GROUP_LIST = 'attrpol:i';

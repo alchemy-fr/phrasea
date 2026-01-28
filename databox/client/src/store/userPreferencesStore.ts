@@ -1,10 +1,10 @@
 import {create} from 'zustand';
-import {ThemeName} from '../lib/theme.ts';
+import type {ThemeName} from '@alchemy/phrasea-framework';
 import {Layout} from '../components/AssetList/Layouts';
 import {getUserPreferences, putUserPreferences} from '../api/user.ts';
 import {DisplayPreferences} from '../components/Media/DisplayContext.tsx';
 import {deepEquals} from '@alchemy/core';
-import {oauthClient} from '../api/api-client.ts';
+import {oauthClient} from '../init.ts';
 
 export type UserPreferences = {
     theme?: ThemeName | undefined;

@@ -42,7 +42,7 @@
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.5",
         "ext-imagick": "*",
         "symfony/console": "^6",
         "symfony/yaml": "^6.2",

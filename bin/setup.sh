@@ -8,6 +8,8 @@ load-env
 
 set -ex
 
+export COMPOSE_PROFILES="configurator,dashboard,databox,db,elasticsearch,expose,minio,rabbitmq,redis,report,setup,uploader"
+
 docker compose up -d traefik
 
 cleanup() {
