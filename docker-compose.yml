@@ -250,6 +250,8 @@ services:
       - SOKETI_KEY
       - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}
     labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
 
   expose-client:
@@ -269,6 +271,8 @@ services:
       - MATOMO_SITE_ID=${EXPOSE_MATOMO_SITE_ID}
       - ALLOWED_FRAME_ANCESTORS=${EXPOSE_ALLOWED_FRAME_ANCESTORS}
     labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
 
   uploader-client:
@@ -285,6 +289,8 @@ services:
       - CLIENT_ID=${UPLOADER_CLIENT_ID}
       - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
     labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.uploader-client-dev.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
 
   expose-api-php:
@@ -602,6 +608,8 @@ services:
       - NOVU_DASHBOARD_URL
       - NOVU_BRIDGE_URL
     labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
 
   databox-api-php:
@@ -1021,6 +1029,7 @@ services:
       - KC_REALM_USER_EVENT_EXPIRATION
       - KC_REALM_ADMIN_EVENT_ENABLED
       - KC_REALM_ADMIN_EVENT_EXPIRATION
+      - KEYCLOAK_ADMIN_DEFINITIVE_PASSWORD
       - RABBITMQ_CONSOLE_URL
       - RABBITMQ_HOST
       - RABBITMQ_USER
@@ -1054,7 +1063,6 @@ services:
       - NOVU_APPLICATION_IDENTIFIER
       - NOVU_SUBSCRIBER_ID
       - NOVU_SECRET_KEY
-      - KEYCLOAK_ADMIN_DEFINITIVE_PASSWORD
     volumes:
       - ./tmp/configurator-output:/output
     extra_hosts:
@@ -1101,13 +1109,13 @@ services:
       - SOKETI_DEFAULT_APP_MAX_CONNS=100
     labels:
       - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.soketi.rule=Host(`soketi.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.soketi.service=soketi"
       - "traefik.http.services.soketi.loadbalancer.server.port=6001"
       - "traefik.http.routers.soketi-usage.rule=Host(`soketi-usage.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.soketi-usage.service=soketi-usage"
       - "traefik.http.services.soketi-usage.loadbalancer.server.port=9601"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   mongodb:
     image: mongo:8.0.3
