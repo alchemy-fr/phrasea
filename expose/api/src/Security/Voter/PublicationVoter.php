@@ -110,10 +110,10 @@ class PublicationVoter extends AbstractVoter
                     $publication->setAuthorizationError(AuthenticationSecurityMethodInterface::ERROR_NOT_ALLOWED);
 
                     return false;
-                } else {
-                    return true;
                 }
-                // no break
+
+                return true;
+
             default:
                 return false;
         }

@@ -1,11 +1,10 @@
 import {useOneTimeToken} from '@alchemy/react-auth';
 import {openPopup} from '@alchemy/core/src/popup';
-import config from '../../config.ts';
 import {getIntegrationTokens} from '../../api/integrations.ts';
 import {WorkspaceIntegration} from '../../types.ts';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
-import {apiClient} from '../../init.ts';
+import {apiClient, config} from '../../init.ts';
 
 type Props = {
     integration: WorkspaceIntegration;

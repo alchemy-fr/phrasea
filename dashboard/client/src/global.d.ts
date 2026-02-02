@@ -25,7 +25,6 @@ declare global {
             UPLOADER_CLIENT_URL: Readonly<string>;
             ZIPPY_URL: Readonly<string>;
             SOKETI_USAGE_URL: Readonly<string>;
-            NOVU_DASHBOARD_URL: Readonly<string>;
             NOVU_BRIDGE_URL: Readonly<string>;
         };
     }

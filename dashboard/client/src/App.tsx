@@ -47,7 +47,6 @@ export default function App({}: Props) {
         RABBITMQ_CONSOLE_URL,
         TRAEFIK_CONSOLE_URL,
         SOKETI_USAGE_URL,
-        NOVU_DASHBOARD_URL,
     } = config.env;
 
     const roles = user?.roles ?? [];
@@ -254,17 +253,6 @@ export default function App({}: Props) {
                                 rel={'noreferrer noopener'}
                             >
                                 Soketi Usage
-                            </Link>
-                        </Grid>
-                    )}
-                    {NOVU_DASHBOARD_URL && (
-                        <Grid>
-                            <Link
-                                href={NOVU_DASHBOARD_URL}
-                                target={'_blank'}
-                                rel={'noreferrer noopener'}
-                            >
-                                Novu Dashboard
                             </Link>
                         </Grid>
                     )}

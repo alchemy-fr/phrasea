@@ -28,9 +28,11 @@ export interface WindowConfigBase {
         src?: Readonly<string>;
         style?: Readonly<string>;
     };
-    novuAppIdentifier?: Readonly<string>;
-    novuSocketUrl?: Readonly<string>;
-    novuApiUrl?: Readonly<string>;
+    notifications?: {
+        appIdentifier: Readonly<string>;
+        socketUrl: Readonly<string>;
+        apiUrl: Readonly<string>;
+    } | undefined;
 }
 
 declare global {

@@ -102,9 +102,9 @@ final class CreateSubDefinitionAction extends AbstractController
             $subDefinition->setUploadURL($url);
 
             return $subDefinition;
-        } else {
-            throw new BadRequestHttpException('Missing file or contentType');
         }
+        throw new BadRequestHttpException('Missing file or contentType');
+
     }
 
     private function handleMultipartUpload(Request $request, Asset $asset, string $name): SubDefinition

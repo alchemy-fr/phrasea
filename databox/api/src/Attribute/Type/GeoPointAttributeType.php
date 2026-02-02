@@ -37,9 +37,10 @@ class GeoPointAttributeType extends AbstractAttributeType
                 return sprintf('%g,%g', $value['lat'], $value['lng']);
             } elseif (isset($value[0], $value[1])) {
                 return sprintf('%g,%g', $value[0], $value[1]);
-            } else {
-                return null;
             }
+
+            return null;
+
         }
 
         if (!is_string($value) || (!str_contains($value, ' ') && !str_contains($value, ','))) {

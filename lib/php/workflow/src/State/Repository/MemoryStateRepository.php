@@ -95,9 +95,10 @@ class MemoryStateRepository implements StateRepositoryInterface
                         $found = true;
 
                         return $state;
-                    } else {
-                        return $s;
                     }
+
+                    return $s;
+
                 },
                 $this->statusesByJobId[$workflowId][$state->getJobId()]
             );

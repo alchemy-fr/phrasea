@@ -3,8 +3,8 @@ import {
     PusherEventCallback,
     registerPusherWs,
 } from '@alchemy/core';
-import config from '../config.ts';
 import React from 'react';
+import {config} from '../init.ts';
 
 const pusher = createPusher({
     key: config.pusherKey!,
