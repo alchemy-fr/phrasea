@@ -13,15 +13,16 @@
         "cs": "pnpm lint:fix"
     },
     "dependencies": {
-        "@novu/framework": "latest",
-        "@novu/nextjs": "^3.11.0",
-        "@react-email/components": "^1.0.4",
+        "@novu/framework": "^2.9.0",
+        "@novu/nextjs": "^3.13.0",
+        "@react-email/components": "^1.0.6",
         "@react-email/tailwind": "^2.0.3",
-        "next": "^16.0.9",
-        "react": "^19.2.0",
-        "react-dom": "^19.2.0",
-        "zod": "^4.1.13",
-        "zod-to-json-schema": "^3.25.0"
+        "next": "^16.1.6",
+        "react": "^19.2.4",
+        "react-dom": "^19.2.4",
+        "react-email": "^5.2.5",
+        "zod": "^4.3.6",
+        "zod-to-json-schema": "^3.25.1"
     },
     "devDependencies": {
         "@types/node": "^24.10.1",

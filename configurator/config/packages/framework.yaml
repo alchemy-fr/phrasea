@@ -26,8 +26,6 @@ framework:
             rabbitmq.client:
                 base_uri: '%env(RABBITMQ_CONSOLE_URL)%/api/'
                 auth_basic: '%env(RABBITMQ_USER)%:%env(RABBITMQ_PASSWORD)%'
-            novu.client:
-                base_uri: '%env(NOVU_API_URL)%/v1'
             minio.client:
                 base_uri: '%env(MINIO_CONSOLE_URL)%/api/v1/'
                 auth_basic: '%env(RABBITMQ_USER)%:%env(RABBITMQ_PASSWORD)%'
