@@ -15,7 +15,7 @@ set -ex
 
 export COMPOSE_PROFILES="configurator,dashboard,databox,db,elasticsearch,expose,minio,rabbitmq,redis,report,setup,uploader"
 
-docker compose up -d traefik keycloak minio rabbitmq db mongodb redis elasticsearch
+docker compose up -d traefik keycloak minio rabbitmq db redis elasticsearch
 
 cleanup() {
     echo "Stopping task..."

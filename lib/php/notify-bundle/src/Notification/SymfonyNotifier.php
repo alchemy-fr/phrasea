@@ -9,29 +9,25 @@ use Alchemy\NotifyBundle\Message\AddTopicSubscribers;
 use Alchemy\NotifyBundle\Message\NotifyTopic;
 use Alchemy\NotifyBundle\Message\RemoveTopicSubscribers;
 use Alchemy\NotifyBundle\Message\UpdateSubscribers;
-use Alchemy\NotifyBundle\Service\NovuClient;
+use Alchemy\NotifyBundle\Service\NovuManager;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Notifier\Bridge\Novu\NovuSubscriberRecipient;
 use Symfony\Component\Notifier\NotifierInterface as SymfonyNotifierInterface;
-use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 
 final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    private bool $enabled = true;
-
     public function __construct(
         private readonly SymfonyNotifierInterface $notifier,
         private readonly MessageBusInterface $bus,
-        private readonly NovuClient $novuClient,
+        private readonly NovuManager $novuManager,
         private UserRepository $userRepository,
         private RequestStack $requestStack,
         private readonly bool $notifyAuthor = false,
-        private bool $novuIsDown = false,
     ) {
     }
 
@@ -43,7 +39,7 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
 
     public function broadcast(string $notificationId, array $parameters = []): void
     {
-        $this->novuClient->broadcast($notificationId, $parameters);
+        $this->novuManager->broadcast($notificationId, $parameters);
     }
 
     public function sendEmail(string $email, string $notificationId, array $parameters = []): void
@@ -54,6 +50,10 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
 
     private function sendNotification(NovuSubscriberRecipient $recipient, string $notificationId, array $parameters): void
     {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
         $content = json_encode($parameters, JSON_THROW_ON_ERROR);
         $this->logger->debug(sprintf('Send notification "%s" with template "%s"', $recipient->getSubscriberId(), $notificationId), [
             'content' => $content,
@@ -72,16 +72,24 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
         array $parameters = [],
         array $options = [],
     ): void {
+        if (!$this->isEnabled()) {
+            return;
+        }
         if ($this->notifyAuthor) {
             $authorId = null;
         }
+
         $this->bus->dispatch(new NotifyTopic($topicKey, $authorId, $notificationId, $parameters, $options));
     }
 
     public function addTopicSubscribers(string $topicKey, array $subscribers, bool $direct = false): void
     {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
         if ($direct) {
-            $this->novuClient->addTopicSubscribers($topicKey, $subscribers);
+            $this->novuManager->addTopicSubscribers($topicKey, $subscribers);
         } else {
             $this->bus->dispatch(new AddTopicSubscribers($topicKey, $subscribers));
         }
@@ -90,37 +98,21 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
 
     public function createTopic(string $topicKey): void
     {
-        $this->novuClient->createTopic($topicKey);
-    }
-
-    public function removeTopicSubscribers(string $topicKey, array $subscribers): void
-    {
-        $this->bus->dispatch(new RemoveTopicSubscribers($topicKey, $subscribers));
+        $this->novuManager->createTopic($topicKey);
     }
 
     public function getTopicSubscriptions(array $topicKeys, string $userId): array
     {
-        $data = [];
+        return $this->novuManager->getTopicSubscriptions($topicKeys, $userId);
+    }
 
-        foreach ($topicKeys as $topicKey) {
-            if (!$this->novuIsDown) {
-                try {
-                    $isSubscribed = $this->novuClient->isSubscribed($topicKey, $userId);
-                } catch (ExceptionInterface $e) {
-                    $this->logger->alert('Novu is down', [
-                        'exception' => $e,
-                    ]);
-                    $isSubscribed = false;
-                    $this->novuIsDown = true;
-                }
-            } else {
-                $isSubscribed = false;
-            }
-
-            $data[$topicKey] = $isSubscribed;
+    public function removeTopicSubscribers(string $topicKey, array $subscribers): void
+    {
+        if (!$this->isEnabled()) {
+            return;
         }
 
-        return $data;
+        $this->bus->dispatch(new RemoveTopicSubscribers($topicKey, $subscribers));
     }
 
     public function getUsername(string $userId): string
@@ -132,11 +124,11 @@ final class SymfonyNotifier implements NotifierInterface, LoggerAwareInterface
 
     public function isEnabled(): bool
     {
-        return $this->enabled && !$this->requestStack->getCurrentRequest()?->headers->get('X-Notification-Disabled');
+        return $this->novuManager->isEnabled() && !$this->requestStack->getCurrentRequest()?->headers->get('X-Notification-Disabled');
     }
 
     public function setEnabled(bool $enabled): void
     {
-        $this->enabled = $enabled;
+        $this->novuManager->setEnabled($enabled);
     }
 }

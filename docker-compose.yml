@@ -97,6 +97,7 @@ services:
       - CONFIGURATOR_S3_REGION=${S3_REGION}
       - CONFIGURATOR_S3_BUCKET_NAME
       - CONFIGURATOR_S3_USE_PATH_STYLE_ENDPOINT=${S3_USE_PATH_STYLE_ENDPOINT}
+      - NOTIFICATIONS_ENABLED
       - NOVU_APPLICATION_IDENTIFIER
       - NOVU_WS_URL
       - NOVU_API_URL
@@ -150,6 +151,7 @@ services:
       - CONFIGURATOR_S3_REGION=${S3_REGION}
       - CONFIGURATOR_S3_BUCKET_NAME
       - CONFIGURATOR_S3_USE_PATH_STYLE_ENDPOINT=${S3_USE_PATH_STYLE_ENDPOINT}
+      - NOTIFICATIONS_ENABLED
       - NOVU_API_HOST
       - NOVU_SECRET_KEY
       - NOTIFY_AUTHOR
@@ -604,7 +606,6 @@ services:
       - SENTRY_RELEASE
       - CLIENT_ID=${DASHBOARD_CLIENT_ID}
       - SOKETI_USAGE_URL
-      - NOVU_BRIDGE_URL
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -1055,18 +1056,11 @@ services:
       - REPORT_DB_NAME
       - KEYCLOAK_DB_NAME
       - KEYCLOAK2_DB_NAME
-      - NOVU_API_URL
-      - NOVU_DASHBOARD_USERNAME
-      - NOVU_DASHBOARD_PASSWORD
-      - NOVU_APPLICATION_IDENTIFIER
-      - NOVU_SUBSCRIBER_ID
-      - NOVU_SECRET_KEY
     volumes:
       - ./tmp/configurator-output:/output
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - rabbitmq-console.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio-console.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
@@ -1115,20 +1109,6 @@ services:
       - "traefik.http.routers.soketi-usage.service=soketi-usage"
       - "traefik.http.services.soketi-usage.loadbalancer.server.port=9601"
 
-  mongodb:
-    image: mongo:8.0.3
-    profiles:
-      - mongodb
-    networks:
-      - internal
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-    volumes:
-      - mongodb:/data/db
-
   novu-bridge:
     image: ${REGISTRY_NAMESPACE}novu-bridge:${DOCKER_TAG}
     build: ./novu/bridge
@@ -1169,4 +1149,3 @@ volumes:
   expose_nginx_cache:
   zippy:
   cypress_output:
-  mongodb:
