@@ -30,12 +30,12 @@ export function CommonAppTopMenu({
                 gap: 1,
             }}
         >
-            {user && config.novu ? (
+            {user && config.notifications ? (
                 <Notifications
-                    appIdentifier={config.novu.appIdentifier}
+                    appIdentifier={config.notifications.appIdentifier}
                     userId={user.id}
-                    socketUrl={config.novu.socketUrl}
-                    apiUrl={config.novu.apiUrl}
+                    socketUrl={config.notifications.socketUrl}
+                    apiUrl={config.notifications.apiUrl}
                     uriHandler={notificationUriHandler}
                     children={({open, onClick, bellIcon}) => {
                         return (

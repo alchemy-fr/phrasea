@@ -61,13 +61,9 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
 </script>`;
     }
 
-    let novu = undefined;
-    if (
-        env.NOVU_APPLICATION_IDENTIFIER &&
-        env.NOVU_WS_URL &&
-        env.NOVU_API_URL
-    ) {
-        novu = {
+    let notifications = undefined;
+    if (env.NOTIFICATIONS_ENABLED) {
+        notifications = {
             applicationIdentifier: env.NOVU_APPLICATION_IDENTIFIER,
             socketUrl: env.NOVU_WS_URL,
             apiUrl: env.NOVU_API_URL,
@@ -94,6 +90,6 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
         sentryRelease: env.SENTRY_RELEASE,
         pusherHost: env.SOKETI_HOST,
         pusherKey: env.SOKETI_KEY,
-        novu,
+        notifications,
     };
 });

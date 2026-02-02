@@ -28,7 +28,7 @@ export interface WindowConfigBase {
         src?: Readonly<string>;
         style?: Readonly<string>;
     };
-    novu?: {
+    notifications?: {
         appIdentifier: Readonly<string>;
         socketUrl: Readonly<string>;
         apiUrl: Readonly<string>;

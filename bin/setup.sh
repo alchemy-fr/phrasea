@@ -2,11 +2,6 @@
 
 set -e
 
-OUTPUT_FILE=./tmp/configurator-output
-mkdir -p $(dirname $OUTPUT_FILE)
-rm -f $OUTPUT_FILE
-touch $OUTPUT_FILE
-
 . bin/functions.sh
 
 load-env
