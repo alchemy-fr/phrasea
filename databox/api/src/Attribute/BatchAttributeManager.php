@@ -50,6 +50,7 @@ class BatchAttributeManager
         private readonly ValidatorInterface $validator,
         private readonly TranslatorInterface $translator,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
+        private readonly AttributeValidator $attributeValidator,
     ) {
     }
 
@@ -196,6 +197,8 @@ class BatchAttributeManager
                                 throw new BadRequestHttpException(sprintf('Attribute "%s" is not multi-valued in action #%d', $definition->getName(), $i));
                             }
 
+                            $this->attributeValidator->validateAttributeInput($action, $definition);
+
                             $this->upsertAttribute(null, $ids, $definition, $action);
                             break;
                         case self::ACTION_DELETE:
@@ -217,7 +220,11 @@ class BatchAttributeManager
                                     if (!$attribute instanceof Attribute) {
                                         throw new BadRequestHttpException(sprintf('Attribute "%s" not found in action #%d', $action->id, $i));
                                     }
-                                    $this->upsertAttribute($attribute, $ids, $definition, $action);
+                                    $def = $attribute->getDefinition();
+
+                                    $this->attributeValidator->validateAttributeInput($action, $def);
+
+                                    $this->upsertAttribute($attribute, $ids, $def, $action);
                                 } catch (ConversionException $e) {
                                     throw new BadRequestHttpException(sprintf('Invalid attribute ID "%s" in action #%d', $action->id, $i), $e);
                                 }
@@ -225,6 +232,9 @@ class BatchAttributeManager
                                 if (!$definition) {
                                     throw new BadRequestHttpException(sprintf('Missing definitionId in action #%d', $i));
                                 }
+
+                                $this->attributeValidator->validateAttributeInput($action, $definition);
+
                                 if ($definition->isMultiple()) {
                                     if (!is_array($action->value)) {
                                         throw new BadRequestHttpException(sprintf('Attribute "%s" is a multi-valued in action #%d, use add/delete actions for this kind of attribute or pass an array in "value"', $definition->getName(), $i));
