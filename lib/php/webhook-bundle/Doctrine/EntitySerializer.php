@@ -129,7 +129,6 @@ class EntitySerializer
 
             return $value ? $this->em->getReference($mapping['targetEntity'], $value) : null;
         }
-
         $type = Type::getType($meta->getTypeOfField($field));
 
         return $type->convertToPHPValue($value, $this->em->getConnection()->getDatabasePlatform());

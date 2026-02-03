@@ -14,7 +14,7 @@ final readonly class NovuClient
     private HttpClientInterface $client;
 
     public function __construct(
-        #[Autowire(param: 'alchemy_notify.novu.secret_key')]
+        #[Autowire(env: 'NOVU_SECRET_KEY')]
         private string $secretKey,
         #[Autowire(service: 'novu.client')]
         HttpClientInterface $client,

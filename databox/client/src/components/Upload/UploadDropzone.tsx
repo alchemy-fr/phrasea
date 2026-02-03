@@ -1,9 +1,9 @@
 import {Accept, DropzoneOptions, useDropzone} from 'react-dropzone';
 import {Box, Typography} from '@mui/material';
 import {grey} from '@mui/material/colors';
-import config from '../../config';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
+import {config} from '../../init';
 
 export function useAccept(): Accept | undefined {
     return React.useMemo<Accept | undefined>(() => {

@@ -34,12 +34,12 @@ export function CommonAppLeftMenu({
                 borderTop: theme => `1px solid ${theme.palette.divider}`,
             }}
         >
-            {user ? (
+            {user && config.notifications ? (
                 <Notifications
-                    appIdentifier={config.novuAppIdentifier!}
+                    appIdentifier={config.notifications.appIdentifier}
                     userId={user.id}
-                    socketUrl={config.novuSocketUrl!}
-                    apiUrl={config.novuApiUrl!}
+                    socketUrl={config.notifications.socketUrl}
+                    apiUrl={config.notifications.apiUrl}
                     uriHandler={notificationUriHandler}
                     children={({open, onClick, bellIcon}) => {
                         return (

@@ -72,6 +72,7 @@ class BooleanAttributeType extends AbstractAttributeType
         }
 
         return false;
+
     }
 
     public function normalizeElasticsearchValue(?string $value)

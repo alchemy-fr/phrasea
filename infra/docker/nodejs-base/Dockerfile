@@ -1,4 +1,4 @@
-FROM node:18.20.3-alpine3.20
+FROM node:25.2.1-alpine3.22
 
 RUN apk add --no-cache \
         python3 \

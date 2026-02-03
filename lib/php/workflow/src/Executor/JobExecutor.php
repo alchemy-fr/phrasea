@@ -231,13 +231,12 @@ final readonly class JobExecutor
             $action = $this->actionRegistry->getAction($step->getUses());
 
             return fn (RunContext $runContext) => $action->handle($runContext);
-        } else {
-            foreach ($this->executors as $executor) {
-                if ($executor->support($executorName)) {
-                    $run = $this->expressionParser->evaluateRun($step->getRun(), $context, $runContext);
+        }
+        foreach ($this->executors as $executor) {
+            if ($executor->support($executorName)) {
+                $run = $this->expressionParser->evaluateRun($step->getRun(), $context, $runContext);
 
-                    return fn (RunContext $runContext) => $executor->execute($run, $runContext);
-                }
+                return fn (RunContext $runContext) => $executor->execute($run, $runContext);
             }
         }
 

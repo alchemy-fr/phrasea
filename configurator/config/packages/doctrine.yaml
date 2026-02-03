@@ -5,6 +5,9 @@ parameters:
     env(EXPOSE_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(EXPOSE_DB_NAME)%'
     env(NOTIFY_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(NOTIFY_DB_NAME)%'
     env(UPLOADER_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(UPLOADER_DB_NAME)%'
+    env(REPORT_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(REPORT_DB_NAME)%'
+    env(KEYCLOAK_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(KEYCLOAK_DB_NAME)%'
+    env(KEYCLOAK2_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(KEYCLOAK2_DB_NAME)%'
     doctrine_commons: &doctrine_commons
         driver: 'pdo_pgsql'
         server_version: '11.2'
@@ -29,6 +32,18 @@ doctrine:
             uploader:
                 <<: *doctrine_commons
                 url: '%env(resolve:UPLOADER_DATABASE_URL)%'
+
+            report:
+                <<: *doctrine_commons
+                url: '%env(resolve:REPORT_DATABASE_URL)%'
+
+            keycloak:
+                <<: *doctrine_commons
+                url: '%env(resolve:KEYCLOAK_DATABASE_URL)%'
+
+            keycloak2:
+                <<: *doctrine_commons
+                url: '%env(resolve:KEYCLOAK2_DATABASE_URL)%'
 
     orm:
         default_entity_manager: configurator

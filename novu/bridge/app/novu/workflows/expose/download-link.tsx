@@ -12,6 +12,7 @@ export const exposeDownloadLink = workflow(
                 body: await render(
                     <CTAEmail
                         introText={`You can download your file from the following link:`}
+                        // @ts-expect-error unknown issue
                         linkUrl={payload.downloadUrl}
                         linkText={'Download'}
                     />

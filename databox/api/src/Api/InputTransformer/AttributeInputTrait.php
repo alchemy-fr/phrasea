@@ -8,6 +8,7 @@ use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Input\Template\TemplateAttributeInput;
 use App\Api\Processor\AttributeInputProcessorInterface;
+use App\Attribute\AttributeValidator;
 use App\Attribute\InvalidAttributeValueException;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
@@ -17,12 +18,21 @@ use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Contracts\Service\Attribute\Required;
 
 /**
  * @extends AbstractInputTransformer
  */
 trait AttributeInputTrait
 {
+    private AttributeValidator $attributeValidator;
+
+    #[Required]
+    public function setAttributeValidator(AttributeValidator $attributeValidator): void
+    {
+        $this->attributeValidator = $attributeValidator;
+    }
+
     protected function getAttributeDefinitionFromInput(AbstractBaseAttributeInput $data, ?Workspace $workspace, array $context): AttributeDefinition
     {
         $definition = null;
@@ -59,6 +69,7 @@ trait AttributeInputTrait
         unset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
 
         foreach ($attributes as $attribute) {
+
             if ($attribute instanceof AttributeInput) {
                 $attribute->asset = $object;
             } elseif ($attribute instanceof TemplateAttributeInput) {
@@ -66,6 +77,9 @@ trait AttributeInputTrait
             }
 
             $definition = $this->getAttributeDefinitionFromInput($attribute, $object->getWorkspace(), $context);
+
+            $this->attributeValidator->validateAttributeInput($attribute, $definition);
+
             $subContext = array_merge($context, [
                 AttributeInputProcessorInterface::ATTRIBUTE_DEFINITION => $definition,
             ]);

@@ -107,7 +107,7 @@ RUN set -eux; \
 
 COPY --from=composer:2.9.3 /usr/bin/composer /usr/bin/composer
 
-ENV NODE_VERSION=18.20.3 \
+ENV NODE_VERSION=25.2.1 \
     NODE_OPTIONS=--openssl-legacy-provider
 
 RUN apk add --no-cache \
@@ -118,7 +118,7 @@ RUN apk add --no-cache \
       && case "${alpineArch##*-}" in \
         x86_64) \
           ARCH='x64' \
-          CHECKSUM="3cfeaa3805cc424d1be0e281f0161416a99d206dcb589a9ab3647d7a6ab7d5c9" \
+          CHECKSUM="2cacd704a60accb358852fd565ae85ef83bd368578037bf936b8597ce2935773" \
           ;; \
         *) ;; \
       esac \

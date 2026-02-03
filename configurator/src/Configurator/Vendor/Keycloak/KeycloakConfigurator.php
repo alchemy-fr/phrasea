@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Configurator\Vendor\Keycloak;
 
 use App\Configurator\ConfiguratorInterface;
+use App\Service\ServiceWaiter;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final readonly class KeycloakConfigurator implements ConfiguratorInterface
@@ -13,11 +14,29 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         private KeycloakManager $keycloakManager,
         private array $symfonyApplications,
         private array $frontendApplications,
+        private ServiceWaiter $serviceWaiter,
     ) {
+    }
+
+    public static function getName(): string
+    {
+        return 'keycloak';
+    }
+
+    public static function getPriority(): int
+    {
+        return -100;
     }
 
     public function configure(OutputInterface $output, array $presets): void
     {
+        $keycloakUrl = getenv('KEYCLOAK_URL');
+        if (empty($keycloakUrl)) {
+            throw new \InvalidArgumentException('KEYCLOAK_URL environment variable is not set.');
+        }
+
+        $this->serviceWaiter->waitForService($output, $keycloakUrl.'/realms/master', successCodes: [200]);
+
         $hasTestPreset = in_array('test', $presets, true);
         $hasDevPreset = in_array('dev', $presets, true);
 

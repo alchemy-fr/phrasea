@@ -23,8 +23,9 @@
         "php": ">=8.3",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "alchemy/core-bundle": "@dev",
         "alchemy/configurator-bundle": "@dev",
+        "alchemy/core-bundle": "@dev",
+        "aws/aws-sdk-php": "^3.360",
         "doctrine/doctrine-bundle": "^2.12",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.3",
@@ -39,7 +40,9 @@
         "symfony/yaml": "6.4.*"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.17"
+        "friendsofphp/php-cs-fixer": "^3.17",
+        "symplify/config-transformer": "^12.4",
+        "php-parallel-lint/php-var-dump-check": "v0.5"
     },
     "config": {
         "allow-plugins": {
@@ -79,6 +82,9 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "test": [
+            "vendor/bin/var-dump-check --symfony src"
         ]
     },
     "conflict": {

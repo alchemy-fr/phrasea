@@ -306,9 +306,9 @@ final class WorkflowOrchestrator
                 if (null === $jobState) {
                     if ($this->satisfiesAllNeeds($statuses, $job)) {
                         return [$jobId, null];
-                    } else {
-                        continue;
                     }
+                    continue;
+
                 }
 
                 $statuses[$jobId] = $jobState->getStatus();

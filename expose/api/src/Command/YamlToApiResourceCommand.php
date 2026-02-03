@@ -181,6 +181,7 @@ function dumpPhpVar(mixed $v, int $indent = 0): string
     }
 
     return (string) $v;
+
 }
 
 function i(int $indent): string
