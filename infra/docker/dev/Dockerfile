@@ -180,7 +180,7 @@ RUN apk add --no-cache \
   && node --version \
   && npm --version
 
-RUN npm install -g pnpm@^9.3.0
+RUN npm install -g pnpm@^10.28.2
 
 COPY oh-my-zsh/.zshrc /bootstrap/.zshrc
 COPY entrypoint.sh /bootstrap/entrypoint.sh

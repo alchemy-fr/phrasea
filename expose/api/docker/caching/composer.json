@@ -125,7 +125,7 @@
         "symfony/doctrine-messenger": "^6.4.7",
         "opis/json-schema": "^1.0",
         "symfony/monolog-bundle": "^3.5",
-        "sentry/sentry-symfony": "^4.11",
+        "sentry/sentry-symfony": "^5.8.3",
         "symfony/novu-notifier": "^6.3",
         "symfony/notifier": "^6.4.13"
     },
