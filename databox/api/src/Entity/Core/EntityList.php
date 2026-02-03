@@ -18,6 +18,8 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\ImportEntitiesInput;
+use App\Api\Processor\ImportEntitiesProcessor;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -37,6 +39,13 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(),
         new Post(
             securityPostDenormalize: 'is_granted("CREATE", object)'
+        ),
+        new Post(
+            uriTemplate: '/entity-lists/{id}/import',
+            security: 'is_granted("EDIT", object)',
+            input: ImportEntitiesInput::class,
+            name: 'import_entities',
+            processor: ImportEntitiesProcessor::class
         ),
     ],
     normalizationContext: [

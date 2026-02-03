@@ -283,9 +283,9 @@ export default function RenditionDefinitionManager({
 
     return (
         <DefinitionManager
-            searchFilter={(list, value) =>
+            searchFilter={({items}, value) =>
                 search<RenditionDefinition>(
-                    list,
+                    items,
                     ['nameTranslated', 'name'],
                     value
                 )
