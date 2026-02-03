@@ -33,10 +33,7 @@ services:
   Alchemy\AdminBundle\Field\UserChoiceField:
   Alchemy\AdminBundle\Filter\UserChoiceFilter:
 
-  Alchemy\AdminBundle\AdminConfigRegistry:
-    arguments:
-      $siteTitle: '%alchemy_admin.site_title%'
-      $siteLogo: '%alchemy_admin.site_logo%'
+  Alchemy\AdminBundle\AdminConfigRegistry: ~
 
   Alchemy\AdminBundle\Listener\EasyAdminListener: ~
 

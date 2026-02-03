@@ -32,43 +32,10 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 
-        $stackConfig = StackConfig::getConfig();
-
-        $config = $stackConfig[$serviceConfig['name']]['admin'] ?? [];
-
-        $config['logo'] ??= [
-            'src' => '/bundles/alchemyadmin/phrasea-logo.png',
-            'style' => 'max-width: 80px;',
-        ];
-
-        if (isset($config['logo']['src'])) {
-            $logo = $config['logo'];
-            $siteLogo = sprintf(
-                '<img src="%s" style="%s" title="%s" alt="%s" />',
-                $logo['src'],
-                $logo['style'] ?? '',
-                $serviceConfig['title'],
-                $serviceConfig['title']
-            );
-        } else {
-            $siteLogo = null;
-        }
-
         $siteTitle = $serviceConfig['title'];
-        $container->setParameter('alchemy_admin.site_logo', $siteLogo);
-        $container->setParameter('alchemy_admin.site_title', $siteTitle);
-        if ($siteLogo) {
-            $adminSiteTitle = sprintf('<div>
-    %s
-    <div>%s</div>
-</div>',
-                $siteLogo,
-                $siteTitle
-            );
-        } else {
-            $adminSiteTitle = $siteTitle.' Admin';
-        }
-        $container->setParameter('easy_admin.site_title', $adminSiteTitle);
+        $container->setParameter('alchemy_admin.default_site_title', $siteTitle.' Admin');
+        $container->setParameter('alchemy_admin.site_title', StackConfig::generateConfigEnvKey($serviceConfig['name'].'.admin.title', 'alchemy_admin.default_site_title'));
+        $container->setParameter('alchemy_admin.logo', StackConfig::generateConfigEnvKey($serviceConfig['name'].'.admin.logo', ''));
     }
 
     public function prepend(ContainerBuilder $container): void
@@ -86,7 +53,7 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
         $container->setParameter('alchemy_admin.worker_rabbitmq', $config['worker']['rabbitmq']);
 
         $container->prependExtensionConfig('easy_admin', [
-            'site_name' => '%easy_admin.site_title%',
+            'site_name' => '%alchemy_admin.site_title%',
             'formats' => [
                 'date' => 'd/m/Y',
                 'time' => 'H:i',

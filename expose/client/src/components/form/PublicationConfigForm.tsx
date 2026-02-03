@@ -71,8 +71,8 @@ export default function PublicationConfigForm<TFieldValues extends Data>({
     );
 
     const layoutIcons: Record<LayoutEnum, SvgIconComponent> = {
-        [LayoutEnum.Gallery]: GridViewIcon,
-        [LayoutEnum.Grid]: BurstModeIcon,
+        [LayoutEnum.Gallery]: BurstModeIcon,
+        [LayoutEnum.Grid]: GridViewIcon,
         [LayoutEnum.Download]: CloudDownloadIcon,
         [LayoutEnum.Mapbox]: MapIcon,
     };

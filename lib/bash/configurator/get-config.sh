@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -ex
+set -e
 
 OUTPUT_FILE=/etc/app/stack-config.json
 
@@ -65,3 +65,7 @@ do
    n=$((n+1))
    sleep 1
 done
+
+echo "Configuration file content:"
+cat ${OUTPUT_FILE}
+echo ""

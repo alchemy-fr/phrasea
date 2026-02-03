@@ -38,6 +38,7 @@ final readonly class MinioConfigurator implements ConfiguratorInterface
 
         $bucketName = getenv('CONFIGURATOR_S3_BUCKET_NAME');
         $this->minioManager->createBucket($bucketName);
+        $this->minioManager->makePathPrefixPublic($bucketName, '');
         $output->writeln(sprintf('Minio bucket created for Configurator: %s', $bucketName));
 
         $bucketName = getenv('INDEXER_BUCKET_NAME');
