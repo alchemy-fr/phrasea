@@ -9,7 +9,7 @@ import {Dimensions} from '@alchemy/core';
 import {Box, Typography} from '@mui/material';
 import FileIntegrations from '../FileIntegrations.tsx';
 import {getAsset, getAssets} from '../../../../api/asset.ts';
-import FullPageLoader from '../../../Ui/FullPageLoader.tsx';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import RouteDialog from '../../../Dialog/RouteDialog.tsx';
 import {getAssetRenditions} from '../../../../api/rendition.ts';
 import AssetAttributes from '../AssetAttributes.tsx';
@@ -36,6 +36,8 @@ import AssetAttachments from '../AssetAttachments.tsx';
 import {Routing} from '../../../../routes.ts';
 import {getMediaBackgroundColor, scrollbarWidth} from '../../../uiVars.ts';
 import {NormalizedCollectionResponse} from '@alchemy/api';
+import {useTracking} from '@alchemy/phrasea-framework';
+import AssetMatomoMetricsView from '../AssetMatomoMetricsView.tsx';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -68,6 +70,7 @@ export default function AssetView({modalIndex, open}: Props) {
         AssetAnnotation[] | undefined
     >();
     const {t} = useTranslation();
+
     const queryKey = ['assets', assetId];
     const [storyAssets, setStoryAssets] =
         React.useState<NormalizedCollectionResponse<Asset>>();
@@ -78,6 +81,8 @@ export default function AssetView({modalIndex, open}: Props) {
     useChannelRegistration(`asset-${assetId}`, `asset_ingested`, () => {
         queryClient.invalidateQueries({queryKey});
     });
+
+    const containerRef = React.useRef<HTMLDivElement | null>(null);
 
     const {data, isSuccess, isError} = useModalFetch({
         queryKey,
@@ -167,13 +172,7 @@ export default function AssetView({modalIndex, open}: Props) {
         messageFormRef,
     });
 
-    if (!isSuccess && !isError && !previousData.current) {
-        if (!open) {
-            return null;
-        }
-
-        return <FullPageLoader />;
-    }
+    const isImpressionTrackedRef = useRef<string | undefined>();
 
     const panelHeight = winSize.innerHeight - headerHeight;
 
@@ -187,6 +186,26 @@ export default function AssetView({modalIndex, open}: Props) {
           currentStoryAsset.preview?.file ||
           currentStoryAsset.thumbnail?.file
         : rendition?.file;
+
+    const {trackContentImpression} = useTracking();
+
+    React.useEffect(() => {
+        if (asset && isImpressionTrackedRef.current !== asset.id) {
+            trackContentImpression(
+                asset.trackingId || asset.id,
+                asset.resolvedTitle
+            );
+            isImpressionTrackedRef.current = asset.id;
+        }
+    }, [asset?.id, isImpressionTrackedRef, trackContentImpression]);
+
+    if (!isSuccess && !isError && !previousData.current) {
+        if (!open) {
+            return null;
+        }
+
+        return <FullPageLoader />;
+    }
 
     return (
         <RouteDialog>
@@ -230,6 +249,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                 }}
                             >
                                 <div
+                                    ref={containerRef}
                                     style={{
                                         height: panelHeight,
                                         display: 'flex',
@@ -281,6 +301,10 @@ export default function AssetView({modalIndex, open}: Props) {
                                                         displayedRenditionFile!
                                                     }
                                                     title={displayedAsset.title}
+                                                    trackingId={
+                                                        displayedAsset.trackingId ||
+                                                        displayedAsset.id
+                                                    }
                                                     dimensions={dimensions}
                                                     autoPlayable={false}
                                                     controls={true}
@@ -328,6 +352,9 @@ export default function AssetView({modalIndex, open}: Props) {
 
                                     <AssetViewInfo asset={displayedAsset} />
                                     <AssetAppearsIn asset={displayedAsset} />
+                                    <AssetMatomoMetricsView
+                                        asset={displayedAsset}
+                                    />
                                     <AssetAttachments asset={displayedAsset} />
 
                                     <AssetDiscussion

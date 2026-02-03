@@ -41,7 +41,7 @@ export function CommonAppTopMenu({
                         return (
                             <IconButton
                                 title={t(
-                                    'notification.menu.label',
+                                    'framework.notification.menu.label',
                                     'Notifications'
                                 )}
                                 onClick={onClick}
@@ -69,7 +69,7 @@ export function CommonAppTopMenu({
                     component={'a'}
                     href={getLoginUrl()}
                 >
-                    {t('menu.sign_in', 'Sign In')}
+                    {t('framework.menu.sign_in', 'Sign In')}
                 </Button>
             ) : (
                 <UserMenu
@@ -82,7 +82,7 @@ export function CommonAppTopMenu({
             <SettingDropdown
                 mainButton={({open, ...props}) => (
                     <IconButton
-                        title={t('menu.settings', 'Settings')}
+                        title={t('framework.menu.settings', 'Settings')}
                         style={{
                             color: 'inherit',
                         }}

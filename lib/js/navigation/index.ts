@@ -2,7 +2,6 @@ import {compileRoutes, getPath} from './src/Router';
 import {getCurrentPath, getRelativeUrl, getFullPath} from './src/utils';
 import RouterProvider from './src/RouterProvider';
 import ModalStack, {StackedModalProps, useModals} from './src/useModalStack';
-import MatomoRouteWrapper from './src/proxy/MatomoRouteWrapper';
 import {useFormPrompt} from './src/useNavigationPrompt';
 import {
     CloseOverlayFunction,
@@ -30,7 +29,6 @@ export {
     getCurrentPath,
     getFullPath,
     useModals,
-    MatomoRouteWrapper,
     RouterProvider,
     useFormPrompt,
     useNavigateToOverlay,

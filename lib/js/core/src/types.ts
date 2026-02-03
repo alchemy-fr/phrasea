@@ -2,6 +2,7 @@ export type AnalyticsConfig = {
     matomo?: {
         baseUrl: string;
         siteId: string;
+        mediaPluginEnabled: boolean;
     };
 };
 

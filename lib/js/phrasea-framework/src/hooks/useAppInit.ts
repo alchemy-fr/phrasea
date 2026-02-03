@@ -7,14 +7,14 @@ import {useMatomo} from '@jonkoops/matomo-tracker-react';
 import {setSentryUser} from '../../../core';
 import {UseAppInitProps} from '../types';
 
-export function useAppInit({apiClient, userIdProp}: UseAppInitProps) {
+export function useAppInit({apiClient, userIdProp = 'id'}: UseAppInitProps) {
     const {logout, user} = useAuth<Record<string, string> & AuthUser>();
     const {pushInstruction} = useMatomo();
 
     React.useEffect(() => {
         pushInstruction(
             'setUserId',
-            user ? (user[userIdProp as keyof typeof user] as string) : null
+            user ? (user[userIdProp as keyof typeof user] as string) : ''
         );
         setSentryUser(user);
     }, [user]);

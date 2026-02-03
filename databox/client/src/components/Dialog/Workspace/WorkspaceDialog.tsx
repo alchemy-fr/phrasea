@@ -4,7 +4,7 @@ import {useTranslation} from 'react-i18next';
 import EditWorkspace from './EditWorkspace';
 import {useParams} from '@alchemy/navigation';
 import {getWorkspace} from '../../../api/workspace';
-import FullPageLoader from '../../Ui/FullPageLoader';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {Workspace} from '../../../types';
 import Acl from './Acl';
 import TagRulesTab from './TagRulesTab';

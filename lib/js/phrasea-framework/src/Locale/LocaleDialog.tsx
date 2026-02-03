@@ -24,7 +24,7 @@ export default function LocaleDialog({
     const confirmReload = (callback: () => Promise<void>) => {
         openModal(ConfirmDialog, {
             title: t(
-                'locale.switcher.change_data_locale.modal.title',
+                'framework.locale.switcher.change_data_locale.modal.title',
                 'Page will be reloaded'
             ),
             onConfirm: async () => {
@@ -32,7 +32,7 @@ export default function LocaleDialog({
                 window.location.reload();
             },
             confirmLabel: t(
-                'locale.switcher.change_data_locale.modal.confirm',
+                'framework.locale.switcher.change_data_locale.modal.confirm',
                 'Continue'
             ),
         });
@@ -46,13 +46,13 @@ export default function LocaleDialog({
         <AppDialog
             modalIndex={modalIndex}
             open={open}
-            title={t('locale.switcher.title', 'Change Language')}
+            title={t('framework.locale.switcher.title', 'Change Language')}
             maxWidth={'xs'}
             onClose={closeModal}
             actions={({onClose}) => (
                 <>
                     <Button onClick={onClose}>
-                        {t('dialog.close', 'Close')}
+                        {t('framework.dialog.close', 'Close')}
                     </Button>
                 </>
             )}
@@ -71,7 +71,7 @@ export default function LocaleDialog({
                             <LocaleIcon locale={l} height="35" />
                         </ListItemIcon>
                         <ListItemText
-                            primary={t('locale.current', {
+                            primary={t('framework.locale.current', {
                                 lng: l,
                                 defaultValue: 'English',
                             })}

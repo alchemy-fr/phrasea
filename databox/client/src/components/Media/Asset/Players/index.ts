@@ -22,6 +22,7 @@ export type PlayerProps = {
     controls?: boolean | undefined;
     assetAnnotationsRef?: AssetAnnotationRef | undefined;
     annotations?: AssetAnnotation[] | undefined;
+    trackingId?: string;
 } & BaseAnnotationProps;
 
 export const filePlayerRelativeWrapperClassName = 'fprw';

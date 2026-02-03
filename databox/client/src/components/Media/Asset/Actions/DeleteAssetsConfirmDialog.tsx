@@ -7,7 +7,7 @@ import {
 } from '../../../../api/asset';
 import {StackedModalProps} from '@alchemy/navigation';
 import {useModalFetch} from '../../../../hooks/useModalFetch.ts';
-import FullPageLoader from '../../../Ui/FullPageLoader.tsx';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import React from 'react';
 import {Alert, Box, Checkbox, FormControlLabel} from '@mui/material';
 import {AlertDialog} from '@alchemy/phrasea-framework';

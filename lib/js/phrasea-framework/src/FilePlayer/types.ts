@@ -24,6 +24,7 @@ export type FilePlayerProps = {
     autoPlayable?: boolean | undefined;
     dimensions: StrictDimensions;
     webVTTLinks?: WebVTTLink[];
+    trackingId?: string;
 };
 
 export type ZoomStepState = {

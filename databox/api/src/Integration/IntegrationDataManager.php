@@ -98,7 +98,6 @@ readonly class IntegrationDataManager
         }
 
         return $this->findOneBy($criteria);
-
     }
 
     public function deleteById(WorkspaceIntegration $workspaceIntegration, string $id, ?string $userId): void
