@@ -1,8 +1,6 @@
-import {useMemo} from 'react';
+import {useEffect, useMemo} from 'react';
 import {
-    EntitiesIndex,
     EntityCached,
-    RequestEntities,
     useEntitiesStore,
 } from '../../../../store/entitiesStore.ts';
 import {parseAQLQuery} from './AQL.ts';
@@ -55,7 +53,7 @@ export function useResolveASTs({
         [conditions]
     );
 
-    return useMemo<ResolvedASTs[]>(() => {
+    const result = useMemo<ResolvedASTs[]>(() => {
         if (!loaded) {
             return conditions.map(c => ({
                 condition: c,
@@ -63,7 +61,7 @@ export function useResolveASTs({
             }));
         }
 
-        const resolvedAsts = astContainers.map(({ast, condition}) => {
+        return astContainers.map(({ast, condition}) => {
             if (!ast) {
                 return {
                     query: condition.query,
@@ -94,14 +92,11 @@ export function useResolveASTs({
                 condition,
             } as ResolvedASTs;
         });
-
-        fetchUnresolved();
-
-        return resolvedAsts;
     }, [astContainers, definitionsIndexBySlug, index, requestEntities]);
-}
 
-export type UsedResolvedEntities = {
-    entities: EntitiesIndex;
-    requestEntities: RequestEntities;
-};
+    useEffect(() => {
+        fetchUnresolved();
+    }, [fetchUnresolved, astContainers, definitionsIndexBySlug]);
+
+    return result;
+}

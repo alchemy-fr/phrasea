@@ -1,37 +1,24 @@
 import React, {PropsWithChildren, useCallback, useState} from 'react';
 import {SearchContext, TSearchContext} from './SearchContext';
-import {SortBy} from './Filter';
-import {BuiltInField, hashToQuery, queryToHash} from './search';
+import {
+    BuiltInField,
+    getResolvedSortBy,
+    hashToQuery,
+    queryToHash,
+} from './search';
 import useHash from '../../../lib/useHash';
 import {
-    AQLQuery,
     AQLQueries,
+    AQLQuery,
+    generateQueryId,
     isAQLCondition,
     isAQLField,
     resolveAQLValue,
-    generateQueryId,
 } from './AQL/query.ts';
 import {parseAQLQuery} from './AQL/AQL.ts';
 import {AQLCondition, AQLQueryAST} from './AQL/aqlTypes.ts';
 import {SavedSearch} from '../../../types.ts';
 import {extractSearchData} from '../../../api/savedSearch.ts';
-
-export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
-    return sortBy.length > 0
-        ? sortBy
-        : [
-              {
-                  a: BuiltInField.Score,
-                  w: 1,
-                  g: false,
-              },
-              {
-                  a: BuiltInField.CreatedAt,
-                  w: 1,
-                  g: false,
-              },
-          ];
-}
 
 export default function SearchProvider({children}: PropsWithChildren<{}>) {
     const [hash, setHash] = useHash();
