@@ -130,6 +130,7 @@ export function Rendition({
                 file ? (
                     <FilePlayer
                         file={file}
+                        trackingId={asset.trackingId || asset.id}
                         title={title}
                         dimensions={dimensions}
                         autoPlayable={false}

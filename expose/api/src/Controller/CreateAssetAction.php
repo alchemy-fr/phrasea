@@ -95,8 +95,8 @@ final class CreateAssetAction extends AbstractController
 
             return $asset;
         }
-        throw new BadRequestHttpException('Missing file or contentType');
 
+        throw new BadRequestHttpException('Missing file or contentType');
     }
 
     private function getPublication(Request $request): Publication

@@ -105,7 +105,7 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
             actions={({onClose}) => (
                 <>
                     <Button onClick={onClose} disabled={loading}>
-                        {t('dialog.cancel', 'Cancel')}
+                        {t('framework.dialog.cancel', 'Cancel')}
                     </Button>
                     <Button
                         loading={loading}
@@ -120,7 +120,8 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
                         }
                         {...(confirmButtonProps || {})}
                     >
-                        {confirmLabel || t('dialog.confirm', 'Confirm')}
+                        {confirmLabel ||
+                            t('framework.dialog.confirm', 'Confirm')}
                     </Button>
                 </>
             )}
@@ -128,7 +129,7 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
             {textToType && (
                 <div>
                     {t(
-                        'dialog.confirm_text_type.intro',
+                        'framework.dialog.confirm_text_type.intro',
                         'Please type "{{ text }}" to confirm:',
                         {
                             text: textToType,
@@ -140,7 +141,7 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
                             value={confirmValue}
                             onChange={e => setConfirmValue(e.target.value)}
                             placeholder={t(
-                                'dialog.confirm_text_type.placeholder',
+                                'framework.dialog.confirm_text_type.placeholder',
                                 'Type "{{ text }}"',
                                 {
                                     text: textToType,

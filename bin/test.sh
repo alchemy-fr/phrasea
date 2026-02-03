@@ -9,7 +9,7 @@ set -ex
 export APP_ENV=test
 export XDEBUG_ENABLED=0
 export VERIFY_SSL=false
-export COMPOSE_PROFILES=db,uploader,report,databox,expose
+export COMPOSE_PROFILES=db,redis,elasticsearch,uploader,report,databox,expose
 
 docker compose up -d
 

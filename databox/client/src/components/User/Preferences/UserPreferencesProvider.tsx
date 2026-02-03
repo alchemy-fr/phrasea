@@ -15,15 +15,15 @@ type Props = PropsWithChildren<{}>;
 export default function UserPreferencesProvider({children}: Props) {
     const {t} = useTranslation();
     const {user, isAuthenticated, hasSession} = useAuth();
-    const loadingRef = React.useRef(false);
-
-    const preferences = useUserPreferencesStore(s => s.preferences);
-    const loadPreferences = useUserPreferencesStore(s => s.load);
-    const loading = useUserPreferencesStore(s => s.loading);
+    const loadingRef = React.useRef(hasSession && !isAuthenticated);
 
     if (hasSession && !isAuthenticated) {
         loadingRef.current = true;
     }
+
+    const preferences = useUserPreferencesStore(s => s.preferences);
+    const loadPreferences = useUserPreferencesStore(s => s.load);
+    const loading = useUserPreferencesStore(s => s.loading);
 
     const isLoading = loading || loadingRef.current;
 

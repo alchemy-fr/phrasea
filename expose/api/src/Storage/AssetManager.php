@@ -58,6 +58,11 @@ class AssetManager
         if (isset($options['asset_id'])) {
             $asset->setAssetId($options['asset_id']);
         }
+
+        if (isset($options['tracking_id'])) {
+            $asset->setTrackingId($options['tracking_id']);
+        }
+
         if ($options['use_as_cover'] ?? false) {
             $publication->setCover($asset);
         }

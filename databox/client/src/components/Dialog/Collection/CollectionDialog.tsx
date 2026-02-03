@@ -3,7 +3,7 @@ import TabbedDialog from '../Tabbed/TabbedDialog';
 import {useTranslation} from 'react-i18next';
 import EditCollection from './EditCollection';
 import {useParams} from '@alchemy/navigation';
-import FullPageLoader from '../../Ui/FullPageLoader';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {Collection} from '../../../types';
 import Acl from './Acl';
 import {getCollection} from '../../../api/collection';

@@ -47,6 +47,7 @@ lib/js/i18n
 lib/js/navigation
 lib/js/notification
 lib/js/phrasea-ui
+lib/js/phrasea-framework
 lib/js/react-auth
 lib/js/react-form
 lib/js/react-hooks

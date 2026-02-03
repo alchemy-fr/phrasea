@@ -9,12 +9,14 @@
         "lint:fix": "eslint --fix src",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
         "cs": "pnpm lint:fix && pnpm format",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "translate": "i18next-scanner --config ../../lib/js/i18n/i18next-scanner.config.js"
     },
     "dependencies": {
         "@alchemy/api": "workspace:*",
         "@alchemy/auth": "workspace:*",
         "@alchemy/core": "workspace:*",
+        "@alchemy/i18n": "workspace:*",
         "@alchemy/phrasea-framework": "workspace:*",
         "@alchemy/phrasea-ui": "workspace:*",
         "@alchemy/react-auth": "workspace:*",
@@ -32,6 +34,7 @@
         "@typescript-eslint/eslint-plugin": "^6.21.0",
         "@typescript-eslint/parser": "^6.21.0",
         "@vitejs/plugin-react-swc": "^3.11.0",
+        "@4rthem/i18next-scanner": "^0.0.1",
         "typescript": "^5.9.2",
         "vite": "^5.4.21",
         "vite-plugin-checker": "^0.6.4",

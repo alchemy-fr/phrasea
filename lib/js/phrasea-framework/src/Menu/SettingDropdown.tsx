@@ -34,31 +34,43 @@ export default function SettingDropdown({
             <DropdownActions
                 mainButton={mainButton}
                 keepMounted
-                anchorOrigin={anchorOrigin ?? {
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}
-                transformOrigin={transformOrigin ?? {
-                    vertical: 'top',
-                    horizontal: 'left',
-                }}
+                anchorOrigin={
+                    anchorOrigin ?? {
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }
+                }
+                transformOrigin={
+                    transformOrigin ?? {
+                        vertical: 'top',
+                        horizontal: 'left',
+                    }
+                }
             >
                 {closeWrapper => [
-                    appLocales ? <MenuItem
-                        key={'change_locale'}
-                        onClick={closeWrapper(() => {
-                            openModal(LocaleDialogComponent, {
-                                appLocales,
-                            });
-                        })}
-                    >
-                        <ListItemIcon>
-                            <LocaleIcon locale={currentLocale} height="25" />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary={t('locale.current', 'English')}
-                        />
-                    </MenuItem> : null,
+                    appLocales ? (
+                        <MenuItem
+                            key={'change_locale'}
+                            onClick={closeWrapper(() => {
+                                openModal(LocaleDialogComponent, {
+                                    appLocales,
+                                });
+                            })}
+                        >
+                            <ListItemIcon>
+                                <LocaleIcon
+                                    locale={currentLocale}
+                                    height="25"
+                                />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={t(
+                                    'framework.locale.current',
+                                    'English'
+                                )}
+                            />
+                        </MenuItem>
+                    ) : null,
                     ChangeThemeDialog ? (
                         <MenuItem
                             key={'change_theme'}
@@ -70,7 +82,10 @@ export default function SettingDropdown({
                                 <ColorLensIcon />
                             </ListItemIcon>
                             <ListItemText
-                                primary={t('menu.change_theme', 'Change theme')}
+                                primary={t(
+                                    'framework.menu.change_theme',
+                                    'Change theme'
+                                )}
                             />
                         </MenuItem>
                     ) : null,
@@ -95,7 +110,10 @@ export default function SettingDropdown({
                             <ColorLensIcon />
                         </ListItemIcon>
                         <ListItemText
-                            primary={t('menu.theme_editor', 'Theme Editor')}
+                            primary={t(
+                                'framework.menu.theme_editor',
+                                'Theme Editor'
+                            )}
                         />
                     </MenuItem>,
                     config.displayServicesMenu ? (
@@ -115,7 +133,7 @@ export default function SettingDropdown({
                                         <ListItemIcon>{icon}</ListItemIcon>
                                         <ListItemText
                                             primary={t(
-                                                'menu.services',
+                                                'framework.menu.services',
                                                 'Services'
                                             )}
                                         />

@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React from 'react';
 import {Box, Container, IconButton, Theme, useTheme} from '@mui/material';
 import {useThumbs} from '../../../../hooks/useThumbs.tsx';
 import {LayoutProps} from '../types.ts';
@@ -12,14 +12,13 @@ import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import AssetIndex from '../../asset/lightbox/AssetIndex.tsx';
 import {useMatchWindowWidthBreakpoint} from '@alchemy/react-hooks/src/useMatchWindowWidthBreakpoint.ts';
-import {useTracker} from '../../../../hooks/useTracker.ts';
+import {useAssetTracker} from '../../../../hooks/useAssetTracker.ts';
 import {useTranslation} from 'react-i18next';
 
 type Props = {} & LayoutProps;
 
 export default function GalleryLayout({publication, assetId}: Props) {
     const {t} = useTranslation();
-    const containerRef = useRef<HTMLDivElement>(null);
     const theme = useTheme();
     const thumbs = useThumbs({
         publication: publication,
@@ -33,8 +32,7 @@ export default function GalleryLayout({publication, assetId}: Props) {
             ? publication.assets!.find(a => a.id === assetId)
             : undefined) ?? publication.assets![0];
 
-    useTracker({
-        containerRef,
+    const {containerRef} = useAssetTracker({
         asset,
     });
 

@@ -51,6 +51,7 @@ use App\Api\Processor\ResolveEntitiesProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
+use App\Api\Provider\AssetMetricsProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Api\Provider\StoryThumbnailsProvider;
@@ -98,6 +99,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             output: StoryThumbnailsOutput::class,
             name: 'story-thumbnails',
             provider: StoryThumbnailsProvider::class,
+        ),
+        new Get(
+            uriTemplate: '/assets/{id}/metrics',
+            normalizationContext: [
+                'groups' => [],
+            ],
+            name: 'asset-metrics',
+            provider: AssetMetricsProvider::class,
         ),
         new Post(
             uriTemplate: '/assets/entities',
@@ -310,6 +319,10 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $title = null;
+
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
+    #[Assert\Length(max: 100)]
+    private ?string $trackingId = null;
 
     /**
      * Unique key by workspace. Used to prevent duplicates.
@@ -716,5 +729,15 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     public function getAttachments(): ?DoctrineCollection
     {
         return $this->attachments;
+    }
+
+    public function getTrackingId(): ?string
+    {
+        return $this->trackingId;
+    }
+
+    public function setTrackingId(?string $trackingId): void
+    {
+        $this->trackingId = $trackingId;
     }
 }

@@ -12,7 +12,7 @@ import {
     Switch,
 } from '@mui/material';
 import FormDialog from '../Dialog/FormDialog.tsx';
-import FullPageLoader from '../Ui/FullPageLoader.tsx';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {useModalFetch} from '../../hooks/useModalFetch.ts';
 import {
     createAssetShare,

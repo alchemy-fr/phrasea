@@ -82,6 +82,7 @@ const modalRoutes = {
                 component: AssetDialog,
             },
             view: {
+                public: true,
                 path: ':renditionId',
                 component: AssetView,
             },

@@ -155,22 +155,6 @@ jobs:
       - build_nodejs-base
       - build_nginx-client-base
 
-  build_matomo_php:
-    name: 'Build Matomo PHP'
-    uses: ./.github/workflows/build.yaml
-    with:
-      image: matomo-php
-      context: ./infra/docker/matomo-php
-    secrets: inherit
-
-  build_matomo_nginx:
-    name: 'Build Matomo NGINX'
-    uses: ./.github/workflows/build.yaml
-    with:
-      image: matomo-nginx
-      context: ./infra/docker/matomo-nginx
-    secrets: inherit
-
   build_report_api:
     name: 'Build Report API'
     uses: ./.github/workflows/build.yaml
@@ -215,8 +199,6 @@ jobs:
       - build_expose_api
       - build_expose_client
       - build_keycloak
-      - build_matomo_nginx
-      - build_matomo_php
       - build_report_api
       - build_uploader_api
       - build_uploader_client

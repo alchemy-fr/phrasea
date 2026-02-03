@@ -15,7 +15,7 @@ export default function FullPageLoader({
     return (
         <Backdrop
             sx={theme => ({
-                color: backdrop ? theme.palette.common.white : undefined,
+                color: backdrop ? theme.palette.background.default : undefined,
                 zIndex: theme.zIndex.drawer + 1,
                 flexDirection: 'column',
             })}

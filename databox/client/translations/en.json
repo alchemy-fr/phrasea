@@ -187,6 +187,10 @@
             },
             "discussion": "Discussion",
             "info": "Information",
+            "metrics": {
+                "not_configured": "Matomo analytics is not configured.",
+                "title": "Metrics"
+            },
             "rename_attachment": "Rename Attachment"
         }
     },
@@ -1284,6 +1288,30 @@
             },
             "filter_placeholder": "Search...",
             "title": "Change Language"
+        }
+    },
+    "matomo": {
+        "assetView": {
+            "avg_completion_rate": "Avg completion rate",
+            "avg_media_length": "Avg media length",
+            "avg_time_watched": "Avg time watched",
+            "finish_rate": "Finish rate",
+            "fullscreen_rate": "Fullscreen rate",
+            "interaction_rate": "Interaction rate",
+            "nb_finishes": "Finishes count",
+            "nb_impressions": "Impressions count",
+            "nb_interactions": "Interactions count",
+            "nb_plays": "Play count",
+            "nb_plays_with_ml": "Plays with ml",
+            "nb_plays_with_tip": "Plays with tip count",
+            "nb_unique_visitors_impressions": "Unique visitor impression count",
+            "nb_unique_visitors_plays": "Unique visitor plays count",
+            "nb_visits": "Visits count",
+            "noStats": "No statistics are available for this asset",
+            "play_rate": "Play rate",
+            "sum_daily_nb_uniq_visitors": "Sum daily unique visitor",
+            "sum_fullscreen_plays": "Sum fullscreen play",
+            "sum_time_progress": "Sum time progress"
         }
     },
     "metric": {
