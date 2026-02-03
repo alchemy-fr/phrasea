@@ -7,7 +7,7 @@ services:
       - ./turbo.json:/srv/workspace/turbo.json:ro
       - ./node_modules:/srv/workspace/node_modules:ro
 
-  dashboard:
+  dashboard-client:
     extends:
       service: a_client
     image: ${REGISTRY_NAMESPACE}dashboard-dev:${DOCKER_TAG}

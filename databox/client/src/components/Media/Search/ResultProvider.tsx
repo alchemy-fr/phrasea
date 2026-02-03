@@ -6,12 +6,12 @@ import {SearchContext} from './SearchContext';
 import {TFacets} from '../Asset/Facets';
 import {SortBy} from './Filter';
 import axios from 'axios';
-import {getResolvedSortBy} from './SearchProvider';
 import {AQLQueries} from './AQL/query.ts';
 import {useAssetStore} from '../../../store/assetStore.ts';
 import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {ChannelEvent, ChannelType} from '../../../api/channels.ts';
 import {SortWay} from '../../../api/common.ts';
+import {getResolvedSortBy} from './search.ts';
 
 type UserSearchContext = {
     position?: string | undefined;

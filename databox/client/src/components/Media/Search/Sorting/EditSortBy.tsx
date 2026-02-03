@@ -17,7 +17,6 @@ import {
 import SaveIcon from '@mui/icons-material/Save';
 import {useTranslation} from 'react-i18next';
 import {SearchContext} from '../SearchContext';
-import {getResolvedSortBy} from '../SearchProvider';
 import {SortBy} from '../Filter';
 import SortByRow, {OnChangeHandler} from './SortByRow';
 import {
@@ -34,7 +33,7 @@ import {
     SortableContext,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {BuiltInField} from '../search';
+import {BuiltInField, getResolvedSortBy} from '../search';
 import {AttributeDefinition} from '../../../../types.ts';
 import {AttributeDefinitionsIndex} from '../../../../store/attributeDefinitionStore.ts';
 

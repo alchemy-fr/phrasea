@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import {
     UNSAFE_NavigationContext as NavigationContext,
-    unstable_useBlocker as useBlocker,
+    useBlocker,
     useBeforeUnload,
 } from 'react-router-dom';
 import {useModals} from './useModalStack';

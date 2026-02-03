@@ -133,3 +133,19 @@ export function hashToQuery(hash: string): {
         geolocation: geoLoc ? geoLoc : undefined,
     };
 }
+export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
+    return sortBy.length > 0
+        ? sortBy
+        : [
+              {
+                  a: BuiltInField.Score,
+                  w: 1,
+                  g: false,
+              },
+              {
+                  a: BuiltInField.CreatedAt,
+                  w: 1,
+                  g: false,
+              },
+          ];
+}

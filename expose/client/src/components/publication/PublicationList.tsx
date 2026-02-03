@@ -1,5 +1,11 @@
 import React, {useMemo} from 'react';
-import {Button, Container, Grid2 as Grid, MenuItem} from '@mui/material';
+import {
+    Button,
+    Container,
+    Grid2 as Grid,
+    MenuItem,
+    Typography,
+} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {Publication, SortBy} from '../../types.ts';
 import {apiClient} from '../../init.ts';
@@ -27,11 +33,11 @@ export default function PublicationList({}: Props) {
     const orders = useMemo(
         () => ({
             [SortBy.Date]: {
-                label: t('order.last_post_added', 'Recents'),
+                label: t('publication.list.order.last_post_added', 'Recents'),
                 query: `order[createdAt]=desc`,
             },
             [SortBy.Name]: {
-                label: t('order.publication_name', 'Name'),
+                label: t('publication.list.order.publication_name', 'Name'),
                 query: `order[title]=asc`,
             },
         }),
@@ -76,7 +82,7 @@ export default function PublicationList({}: Props) {
         async (publication: Publication) => {
             openModal(ConfirmDialog, {
                 textToType: publication.title,
-                title: t('publication.delete_title', {
+                title: t('publication.list.delete_title', {
                     defaultValue: 'Delete publication "{{title}}"',
                     title: publication.title,
                 }),
@@ -85,7 +91,7 @@ export default function PublicationList({}: Props) {
                     loadPublications();
                 },
                 confirmLabel: t(
-                    'publication.delete_confirm',
+                    'publication.list.delete_confirm',
                     'Delete publication'
                 ),
             });
@@ -114,7 +120,7 @@ export default function PublicationList({}: Props) {
                     }}
                     mainButton={props => (
                         <Button startIcon={<SwapVertIcon />} {...props}>
-                            {t('publication.sort_by', {
+                            {t('publication.list.sort_by', {
                                 defaultValue: 'Sort by {{order}}',
                                 order: orders[sortBy as keyof typeof orders]
                                     .label,
@@ -192,6 +198,11 @@ export default function PublicationList({}: Props) {
                     ) : null}
                 </Grid>
             </div>
+            {data && data.result.length === 0 && !loading && (
+                <Typography variant={'h5'} align={'center'}>
+                    {t('publication.list.no_result', 'No publication')}
+                </Typography>
+            )}
         </Container>
     );
 }
