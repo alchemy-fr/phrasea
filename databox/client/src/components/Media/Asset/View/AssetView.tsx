@@ -302,7 +302,8 @@ export default function AssetView({modalIndex, open}: Props) {
                                                     }
                                                     title={displayedAsset.title}
                                                     trackingId={
-                                                        displayedAsset.trackingId
+                                                        displayedAsset.trackingId ||
+                                                        displayedAsset.id
                                                     }
                                                     dimensions={dimensions}
                                                     autoPlayable={false}

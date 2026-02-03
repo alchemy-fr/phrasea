@@ -53,7 +53,7 @@ export function AssetFileVersionCard({
                 file ? (
                     <FilePlayer
                         file={file}
-                        trackingId={asset.trackingId}
+                        trackingId={asset.trackingId || asset.id}
                         title={name}
                         dimensions={dimensions}
                         autoPlayable={false}

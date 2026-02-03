@@ -52,7 +52,7 @@ export default function AssetShare({asset}: Props) {
                     >
                         <FilePlayer
                             file={rendition.file!}
-                            trackingId={asset.trackingId}
+                            trackingId={asset.trackingId || asset.id}
                             title={asset.resolvedTitle}
                             autoPlayable={false}
                             controls={true}

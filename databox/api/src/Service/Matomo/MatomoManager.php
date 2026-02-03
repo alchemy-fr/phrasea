@@ -39,9 +39,9 @@ final readonly class MatomoManager
                 $isVideo = str_starts_with($type, 'video/');
                 if ($isVideo || str_starts_with($type, 'audio/')) {
                     if ($isVideo) {
-                        $method = 'MediaAnalytics.getVideoTitles'; // TODO verify method and filter params
+                        $method = 'MediaAnalytics.getGroupedVideoResources';
                     } else {
-                        $method = 'MediaAnalytics.getAudioTitles'; // TODO verify method and filter params
+                        $method = 'MediaAnalytics.getGroupedAudioResources';
                     }
                 }
             }
@@ -54,7 +54,7 @@ final readonly class MatomoManager
                     'format' => 'JSON',
                     'date' => '2000-12-01,'.date('Y-m-d', strtotime('+1 day')),
                     'period' => 'range',
-                    'segment' => 'contentPiece=='.$trackingId,
+                    'filter_pattern' => $trackingId,
                 ],
                 'body' => [
                     'token_auth' => $this->matomoAuthToken,
