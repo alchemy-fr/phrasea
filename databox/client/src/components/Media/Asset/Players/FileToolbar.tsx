@@ -19,7 +19,7 @@ import {
     ZoomStepState,
 } from './index.ts';
 import ToolbarPaper from './ToolbarPaper.tsx';
-import {useMatomo} from '@alchemy/phrasea-framework';
+import {useTracking} from '@alchemy/phrasea-framework';
 
 type Props = {
     annotationEnabled?: boolean;
@@ -30,6 +30,7 @@ type Props = {
     preToolbarActions?: JSX.Element | undefined;
     forceHand?: boolean;
     trackingId?: string;
+    title?: string;
     children:
         | ((props: {
               zoomStep: ZoomStepState;
@@ -57,7 +58,7 @@ export default function FileToolbar({
         null
     );
 
-    const {pushInstruction} = useMatomo();
+    const {trackContentInteraction} = useTracking();
     const zoomRef = useRef<number>(1);
     const [closed, setClosed] = useState(false);
     const [hand, setHand] = useState(forceHand ?? false);
@@ -207,12 +208,10 @@ export default function FileToolbar({
                                             typeof children !== 'function' &&
                                             annotateProps.trackingId
                                         ) {
-                                            pushInstruction(
-                                                'trackContentInteraction',
-                                                'click',
+                                            trackContentInteraction(
                                                 annotateProps.trackingId,
-                                                children.props.src,
-                                                ''
+                                                annotateProps.title,
+                                                'click'
                                             );
                                         }
                                     }}
