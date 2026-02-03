@@ -61,6 +61,7 @@ describe('Visit publication', () => {
         cy.contains('This is a wide image');
 
         cy.get('body').trigger('keydown', {key: 'ArrowRight'});
+        cy.contains('A tall image');
         cy.get('body').trigger('keydown', {key: 'ArrowRight'});
         cy.contains('A test audio');
         cy.contains('This is a test audio');
