@@ -1,7 +1,7 @@
 import type {RouteProxyProps} from '@alchemy/navigation';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
-import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {keycloakClient, config} from '../../init.ts';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 
 export default function RouteProxy({
     component: Component,

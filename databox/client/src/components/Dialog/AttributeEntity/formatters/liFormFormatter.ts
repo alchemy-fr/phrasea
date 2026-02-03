@@ -21,7 +21,9 @@ export const liFormFormatter: Formatter = (
 };
 
 function getAllLocalesTitles(entity: AttributeEntity): string {
-    const translations = Object.entries(entity.translations);
+    const translations = entity.translations
+        ? Object.entries(entity.translations)
+        : [];
 
     if (translations.length === 0) {
         return entity.value;

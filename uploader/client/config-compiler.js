@@ -38,6 +38,18 @@
         return false;
     }
 
+    function castInteger(value) {
+        if (typeof value === 'number') {
+            return value;
+        }
+
+        if (value && typeof value === 'string') {
+            return parseInt(value);
+        }
+
+        return undefined;
+    }
+
     const stackConfig = JSON.parse(
         require('node:fs').readFileSync('/etc/app/stack-config.json', 'utf8')
     );
@@ -54,9 +66,9 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
 
     return {
         customHTML,
-        maxFileSize: uploaderConfig.max_upload_file_size,
-        maxCommitSize: uploaderConfig.max_upload_commit_size,
-        maxFileCount: uploaderConfig.max_upload_file_count,
+        maxFileSize: castInteger(uploaderConfig.max_upload_file_size),
+        maxCommitSize: castInteger(uploaderConfig.max_upload_commit_size),
+        maxFileCount: castInteger(uploaderConfig.max_upload_file_count),
         autoConnectIdP: env.AUTO_CONNECT_IDP,
         client: uploaderConfig.client,
         baseUrl: env.UPLOADER_API_URL,

@@ -265,9 +265,9 @@ export default function IntegrationManager({
 
     return (
         <DefinitionManager
-            searchFilter={(list, value) =>
+            searchFilter={({items}, value) =>
                 search<WorkspaceIntegration>(
-                    list,
+                    items,
                     ['title', 'integrationTitle'],
                     value
                 )

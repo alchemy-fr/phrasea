@@ -43,6 +43,7 @@ export type DefinitionItemProps<D extends DefinitionBase> = {
 
 export type DefinitionListItemProps<D extends DefinitionBase> = {
     onEdit: () => void;
+    onDelete?: () => void;
 } & DefinitionItemProps<D>;
 
 export type DefinitionItemFormProps<D extends DefinitionBase> = {
@@ -55,6 +56,7 @@ export type DefinitionItemFormProps<D extends DefinitionBase> = {
 export type DefinitionItemManageProps<D extends DefinitionBase> = {
     workspace: Workspace;
     setSubManagementState: SetSubManagementState;
+    reload: () => Promise<any>;
 } & DefinitionItemProps<D>;
 
 type ListState<D extends DefinitionBase> = {
@@ -117,6 +119,15 @@ type SubManagementState = {
 
 type SetSubManagementState = StateSetter<SubManagementState | undefined>;
 
+type BodyProps<D extends DefinitionBase> = {
+    items: D[] | undefined;
+    reload: () => Promise<void>;
+};
+
+type BodyWithListLoadedProps<D extends DefinitionBase> = {
+    items: D[];
+} & BodyProps<D>;
+
 type Props<D extends DefinitionBase> = {
     load: () => Promise<D[]>;
     loadItem?: (id: string) => Promise<D>;
@@ -124,6 +135,7 @@ type Props<D extends DefinitionBase> = {
     itemComponent: FunctionComponent<DefinitionItemFormProps<D>>;
     manageItemComponent?: FunctionComponent<DefinitionItemManageProps<D>>;
     createNewItem: () => Partial<D>;
+    batchDelete?: boolean;
     onClose?: () => void;
     minHeight?: number | undefined;
     newLabel: string;
@@ -135,8 +147,9 @@ type Props<D extends DefinitionBase> = {
     denormalizeData?: NormalizeData<D>;
     setSubManagementState?: SetSubManagementState;
     managerFormId?: string;
-    preListBody?: (list: D[] | undefined) => React.ReactNode;
-    searchFilter?: (list: D[], value: string) => D[];
+    preSearchBody?: (props: BodyProps<D>) => React.ReactNode;
+    preListBody?: (props: BodyProps<D>) => React.ReactNode;
+    searchFilter?: (props: BodyWithListLoadedProps<D>, value: string) => D[];
     filter?: (list: D[]) => D[];
     activeFilterCount?: number;
     filters?: React.ReactNode;
@@ -153,6 +166,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
     listComponent,
     loadItem,
     onClose,
+    batchDelete,
     createNewItem,
     minHeight,
     newLabel,
@@ -165,6 +179,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
     setSubManagementState: parentSetSubManagementState,
     deleteConfirmAssertions,
     preListBody,
+    preSearchBody,
     searchFilter,
     filter,
     activeFilterCount,
@@ -202,8 +217,39 @@ export default function DefinitionManager<D extends DefinitionBase>({
     const {loading: loadingItem, item, action} = itemState;
     const {t} = useTranslation();
     const [searchTerm, setSearchTerm] = React.useState('');
+
+    const reload = useCallback(async () => {
+        setListState({
+            list: undefined,
+            loading: true,
+        });
+
+        try {
+            const r = await load();
+            setListState({
+                list: normalizeData ? r.map(normalizeData) : r,
+                loading: false,
+            });
+        } catch (e) {
+            setListState({
+                list: [],
+                loading: false,
+            });
+            return;
+        }
+    }, [load, normalizeData]);
+
+    const bodyProps: BodyProps<D> = {
+        items: list,
+        reload: async () => {
+            await load();
+        },
+    };
+
     let filteredList =
-        searchFilter && list ? searchFilter(list, searchTerm) : list;
+        searchFilter && list
+            ? searchFilter(bodyProps as BodyWithListLoadedProps<D>, searchTerm)
+            : list;
     if (filter && filteredList) {
         filteredList = filter(filteredList);
     }
@@ -301,45 +347,41 @@ export default function DefinitionManager<D extends DefinitionBase>({
     };
 
     useEffect(() => {
-        setListState({
-            list: undefined,
-            loading: true,
-        });
+        reload();
+    }, [reload]);
 
-        load().then(r => {
-            setListState({
-                list: normalizeData ? r.map(normalizeData) : r,
-                loading: false,
-            });
-        });
-    }, []);
-
-    const onDelete = useCallback(() => {
-        if (handleDelete && typeof item === 'object') {
-            openModal(ConfirmDialog, {
-                title: t(
-                    'definition_manager.confirm_delete',
-                    'Are you sure you want to delete this item?'
-                ),
-                assertions: deleteConfirmAssertions
-                    ? deleteConfirmAssertions(item)
-                    : undefined,
-                onConfirm: async () => {
-                    setListState(p => ({
-                        ...p,
-                        item: undefined,
-                        list: (p.list || []).filter(i => i.id !== item.id),
-                    }));
-                    setItemState({
-                        item: undefined,
-                        loading: false,
-                        action: ItemAction.None,
-                    });
-                    handleDelete(item.id);
-                },
-            });
-        }
-    }, [item, t]);
+    const onDelete = useMemo(
+        () =>
+            handleDelete
+                ? (item: D) => {
+                      openModal(ConfirmDialog, {
+                          title: t(
+                              'definition_manager.confirm_delete',
+                              'Are you sure you want to delete this item?'
+                          ),
+                          assertions: deleteConfirmAssertions
+                              ? deleteConfirmAssertions(item)
+                              : undefined,
+                          onConfirm: async () => {
+                              setListState(p => ({
+                                  ...p,
+                                  item: undefined,
+                                  list: (p.list || []).filter(
+                                      i => i.id !== item.id
+                                  ),
+                              }));
+                              setItemState({
+                                  item: undefined,
+                                  loading: false,
+                                  action: ItemAction.None,
+                              });
+                              handleDelete(item.id);
+                          },
+                      });
+                  }
+                : undefined,
+        [t, handleDelete]
+    );
 
     const formId: string =
         (action === ItemAction.Manage
@@ -387,6 +429,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                     component="div"
                     role="list"
                 >
+                    {preSearchBody?.(bodyProps)}
                     {searchFilter ? (
                         <ListSubheader
                             sx={{
@@ -428,7 +471,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                             ) : null}
                         </ListSubheader>
                     ) : null}
-                    {preListBody?.(list)}
+                    {preListBody?.(bodyProps)}
                     <ListItem disablePadding>
                         <ListItemButton
                             selected={action === ItemAction.Create}
@@ -472,6 +515,10 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                                         i,
                                                         true
                                                     ),
+                                                    onDelete:
+                                                        batchDelete && onDelete
+                                                            ? () => onDelete(i)
+                                                            : undefined,
                                                 }
                                             )}
                                         </ListItemButton>
@@ -526,6 +573,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                         data: item as D,
                         workspace,
                         setSubManagementState,
+                        reload,
                     })
                 ) : item || action === ItemAction.Create ? (
                     <div style={{flexGrow: 1}}>
@@ -547,10 +595,13 @@ export default function DefinitionManager<D extends DefinitionBase>({
                             normalizeData={normalizeData}
                             denormalizeData={denormalizeData}
                         />
-                        {action === ItemAction.Update && handleDelete && (
+                        {action === ItemAction.Update && onDelete && (
                             <>
                                 <hr />
-                                <Button color={'error'} onClick={onDelete}>
+                                <Button
+                                    color={'error'}
+                                    onClick={() => onDelete(item!)}
+                                >
                                     {t('common.delete', 'Delete')}
                                 </Button>
                             </>

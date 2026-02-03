@@ -20,7 +20,6 @@ use Alchemy\ConfiguratorBundle\Validator\ValidConfigurationEntryConstraintValida
 use Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface;
 use Aws\S3\S3Client;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
-use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
@@ -95,11 +94,8 @@ class AlchemyConfiguratorBundle extends AbstractBundle
 
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-        if (file_exists(StackConfig::SRC)) {
-            $builder->addResource(new FileResource(StackConfig::SRC));
-        }
-
         $container->parameters()
+            ->set('env('.StackConfig::STACK_CONFIG_FILE_ENV_NAME.')', StackConfig::SRC)
             ->set('env(CONFIGURATOR_DB_NAME)', 'configurator')
             ->set('env(POSTGRES_USER)', 'user')
             ->set('env(POSTGRES_PASSWORD)', 'ChangeMe')

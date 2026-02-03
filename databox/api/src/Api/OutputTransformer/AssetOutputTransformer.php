@@ -241,6 +241,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
             return $builtInField->resolveGroupValue($groupBy, $value);
         }
+
         ['type' => $type] = $this->fieldNameResolver->getFieldFromName($groupBy);
         $key = $value = $indexValue ?? null;
         if (is_array($key)) {
