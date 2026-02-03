@@ -567,7 +567,7 @@ services:
       - "traefik.http.services.mailhog.loadbalancer.server.port=8025"
       - "traefik.http.routers.mailhog.middlewares=admin-secured@docker"
 
-  dashboard:
+  dashboard-client:
     extends:
       service: a_client
     profiles:
