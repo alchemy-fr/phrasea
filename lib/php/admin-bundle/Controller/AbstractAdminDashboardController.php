@@ -51,7 +51,8 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
     {
         return Dashboard::new()
             ->setFaviconPath('favicon.ico')
-            ->setTitle('<div>'.($this->adminConfigRegistry->getSiteLogo() ?: '').'<div>'.$this->adminConfigRegistry->getSiteTitle().'</div></div>');
+            ->setTitle('<div>'.($this->adminConfigRegistry->getLogo() ?: '').'<div>'.$this->adminConfigRegistry->getSiteTitle().'</div></div>')
+        ;
     }
 
     protected function createDevMenu(): SubMenuItem

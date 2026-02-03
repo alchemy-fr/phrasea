@@ -51,9 +51,11 @@ export default function TreeView<D extends TreeBaseItem>({
             ) {
                 const allChildren = getFlattenNodes(node.children);
                 const idsToUnselect = allChildren.map(node => node.id);
-                setSelectedNodes(prev =>
-                    prev.filter(id => !idsToUnselect.includes(id))
-                );
+                const updateSelectedNodes = (prev: typeof selectedNodes) =>
+                    prev.filter(id => !idsToUnselect.includes(id));
+
+                setSelectedNodes(updateSelectedNodes);
+                onSelectionChange?.(updateSelectedNodes(selectedNodes).map(id => findNodeById(nodes, id)));
 
                 if (onToggleSelect) {
                     allChildren.forEach(n => onToggleSelect(n, false));
@@ -70,7 +72,14 @@ export default function TreeView<D extends TreeBaseItem>({
                 }
             });
         },
-        [setExpandedNodes, onToggleExpand, loadChildren]
+        [
+            setExpandedNodes,
+            onSelectionChange,
+            selectedNodes,
+            setSelectedNodes,
+            onToggleExpand,
+            loadChildren,
+        ]
     );
 
     const onToggleSelectInternal = useCallback<OnToggleSelectNode<D>>(
@@ -91,7 +100,7 @@ export default function TreeView<D extends TreeBaseItem>({
 
             onToggleSelect?.(node, selected);
 
-            setSelectedNodes(prev => {
+            const updateSelectedNodes = (prev: typeof selectedNodes) => {
                 if (multiple) {
                     if (selected) {
                         return [...prev, node.id];
@@ -105,25 +114,23 @@ export default function TreeView<D extends TreeBaseItem>({
 
                     return selected ? [node.id] : [];
                 }
-            });
+            };
+
+            setSelectedNodes(updateSelectedNodes);
+
+            if (onSelectionChange) {
+                onSelectionChange(updateSelectedNodes(selectedNodes).map(id => findNodeById(nodes, id)));
+            }
         },
         [
+            selectedNodes,
             setSelectedNodes,
             onToggleSelect,
+            onSelectionChange,
             onToggleExpandInternal,
             nodes,
         ]
     );
-
-    useEffect(() => {
-        if (onSelectionChange) {
-            onSelectionChange(
-                selectedNodes.map((id: string) => {
-                    return findNodeById(nodes, id);
-                })
-            );
-        }
-    }, [onSelectionChange, nodes]);
 
     return (
         <List

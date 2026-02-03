@@ -9,12 +9,13 @@ import {
     ListItem,
     ListItemButton,
     ListItemIcon,
+    ListItemSecondaryAction,
     ListItemText,
 } from '@mui/material';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemManageProps,
-    DefinitionItemProps,
+    DefinitionListItemProps,
 } from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
@@ -24,6 +25,10 @@ import {ContentCopy} from '@mui/icons-material';
 import ExportAttributeEntitiesDialog from '../AttributeEntity/ExportAttributeEntitiesDialog.tsx';
 import {useModals} from '@alchemy/navigation';
 import {search} from '../../../lib/search.ts';
+import ImportExportIcon from '@mui/icons-material/ImportExport';
+import ImportAttributeEntitiesDialog from '../AttributeEntity/ImportAttributeEntitiesDialog.tsx';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 function Item({
     usedFormSubmit,
@@ -39,8 +44,30 @@ function Item({
     );
 }
 
-function EntityListItem({data}: DefinitionItemProps<AttributeEntity>) {
-    return <ListItemText primary={data.value} />;
+function EntityListItem({
+    data,
+    onDelete,
+}: DefinitionListItemProps<AttributeEntity>) {
+    return (
+        <>
+            <ListItemText primary={data.value} />
+            {onDelete ? (
+                <ListItemSecondaryAction>
+                    <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        color={'error'}
+                        onClick={e => {
+                            e.stopPropagation();
+                            onDelete();
+                        }}
+                    >
+                        <DeleteIcon />
+                    </IconButton>
+                </ListItemSecondaryAction>
+            ) : null}
+        </>
+    );
 }
 
 function createNewItem(): Partial<AttributeEntity> {
@@ -74,27 +101,52 @@ export default function AttributeEntityManager({
 
     return (
         <DefinitionManager
-            preListBody={(list: AttributeEntity[] | undefined) => (
-                <ListItem disablePadding>
-                    <ListItemButton
-                        onClick={() => {
-                            if (list) {
-                                openModal(ExportAttributeEntitiesDialog, {
-                                    list: list,
-                                    locales: workspace.enabledLocales ?? [],
-                                });
-                            }
-                        }}
-                        disabled={!list}
-                    >
-                        <ListItemIcon>
-                            <ContentCopy />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary={t('entity_type.list.export', 'Export')}
-                        />
-                    </ListItemButton>
-                </ListItem>
+            batchDelete={true}
+            preSearchBody={({items, reload}) => (
+                <>
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            onClick={() => {
+                                if (items) {
+                                    openModal(ExportAttributeEntitiesDialog, {
+                                        list: items,
+                                        locales: workspace.enabledLocales ?? [],
+                                    });
+                                }
+                            }}
+                            disabled={!items}
+                        >
+                            <ListItemIcon>
+                                <ContentCopy />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={t('entity_type.list.export', 'Export')}
+                            />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            onClick={() => {
+                                if (items) {
+                                    openModal(ImportAttributeEntitiesDialog, {
+                                        list,
+                                        onSuccess: () => {
+                                            reload();
+                                        },
+                                    });
+                                }
+                            }}
+                            disabled={!items}
+                        >
+                            <ListItemIcon>
+                                <ImportExportIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={t('entity_type.list.import', 'Import')}
+                            />
+                        </ListItemButton>
+                    </ListItem>
+                </>
             )}
             deleteConfirmAssertions={() => [
                 t(
@@ -102,8 +154,8 @@ export default function AttributeEntityManager({
                     `I understand that this entity will be unset on all asset's attributes using it.`
                 ),
             ]}
-            searchFilter={(list, value) =>
-                search<AttributeEntity>(list, ['value'], value)
+            searchFilter={({items}, value) =>
+                search<AttributeEntity>(items!, ['value'], value)
             }
             managerFormId={'entity-attribute-manager'}
             itemComponent={Item}

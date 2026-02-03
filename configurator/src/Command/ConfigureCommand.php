@@ -25,13 +25,15 @@ final class ConfigureCommand extends Command
         parent::configure();
 
         $this->addOption('preset', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED);
+        $this->addOption('filter', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED);
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $presets = $input->getOption('preset');
+        $filters = $input->getOption('filter');
 
-        $this->configurator->configure($output, $presets);
+        $this->configurator->configure($output, $presets, filters: $filters);
 
         return Command::SUCCESS;
     }

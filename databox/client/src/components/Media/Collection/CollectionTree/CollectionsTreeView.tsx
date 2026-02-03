@@ -127,10 +127,13 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
 
     const onSelectionChange = useCallback<
         OnSelectionChange<CollectionTreeData>
-    >(selection => {
-        // @ts-expect-error TS can't infer multiple is false here
-        onChange?.(multiple ? selection : selection[0] || null);
-    }, []);
+    >(
+        selection => {
+            // @ts-expect-error TS can't infer multiple is false here
+            onChange?.(multiple ? selection : selection[0] || null);
+        },
+        [onChange]
+    );
 
     if (loading) {
         return <CircularProgress size={50} />;

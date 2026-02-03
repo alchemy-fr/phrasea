@@ -223,8 +223,6 @@ services:
       - SOKETI_APP_ID
       - SOKETI_KEY
       - SOKETI_SECRET
-      - NOVU_SECRET_KEY
-      - NOVU_API_HOST
       - KC_REALM_SUPPORTED_LOCALES
       - KC_REALM_DEFAULT_LOCALE
       - KC_REALM_HTML_DISPLAY_NAME
@@ -259,8 +257,6 @@ services:
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
@@ -296,25 +292,6 @@ services:
       - ./cypress/output:/cypress/output
       - ./cypress/cypress.config.js:/cypress/cypress.config.js
       - /tmp/.X11-unix:/tmp/.X11-unix
-
-  novu-api:
-    environment:
-      - NODE_TLS_REJECT_UNAUTHORIZED=0
-
-  novu-worker:
-    environment:
-      - NODE_TLS_REJECT_UNAUTHORIZED=0
-
-  novu-bridge:
-    command:
-      - sh
-      - -c
-      - pnpm dev
-    environment:
-      - NODE_TLS_REJECT_UNAUTHORIZED=0
-    volumes:
-      - ./novu/bridge:/usr/src/app
-
 
 volumes:
   dev:

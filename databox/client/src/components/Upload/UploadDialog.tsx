@@ -115,12 +115,20 @@ export default function UploadDialog({
         onSubmit: async (data: UploadData) => {
             const {quiet, isStory, story} = data;
 
-            if (typeof data.destination === 'object') {
+            if (data.destination && typeof data.destination === 'object') {
                 data.destination =
                     (await createCollection(
                         data.destination as TreeNode<WorkspaceOrCollectionTreeItem>
                     )) || '';
             }
+
+            const dataCollectionIri =
+                (collectionId ? `/collections/${collectionId}` : null) ||
+                (data.destination?.startsWith('/collections/')
+                    ? (data.destination as string)
+                    : undefined);
+
+            const destinationIri = dataCollectionIri || data.destination!;
 
             const attributes = usedAttributeEditor.attributes
                 ? getAttributeList(
@@ -145,9 +153,8 @@ export default function UploadDialog({
                     attributes,
                     privacy: options.rememberPrivacy ? data.privacy : undefined,
                     collection:
-                        options.rememberCollection &&
-                        data.destination?.startsWith('/collections/')
-                            ? data.destination
+                        options.rememberCollection && dataCollectionIri
+                            ? dataCollectionIri
                             : undefined,
                     includeCollectionChildren:
                         options.includeCollectionChildren,
@@ -200,7 +207,7 @@ export default function UploadDialog({
                             title: extractTitleFromUrl(u),
                         },
                     })),
-                    data.destination,
+                    destinationIri,
                     assetOptions
                 );
 
@@ -226,7 +233,7 @@ export default function UploadDialog({
                                     : f.file.name.replace(/\.[^/.]+$/, ''),
                         },
                     })),
-                    data.destination,
+                    destinationIri,
                     assetOptions
                 );
             }

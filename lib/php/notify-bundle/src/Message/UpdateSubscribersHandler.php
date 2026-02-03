@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Alchemy\NotifyBundle\Message;
 
 use Alchemy\AuthBundle\Repository\UserRepository;
-use Alchemy\NotifyBundle\Service\NovuClient;
+use Alchemy\NotifyBundle\Service\NovuManager;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
 readonly class UpdateSubscribersHandler
 {
     public function __construct(
-        private NovuClient $novuClient,
+        private NovuManager $novuManager,
         private UserRepository $userRepository,
     ) {
     }
@@ -40,6 +40,6 @@ readonly class UpdateSubscribersHandler
             return $output;
         }, $userIds);
 
-        $this->novuClient->upsertSubscribers($subscribers);
+        $this->novuManager->upsertSubscribers($subscribers);
     }
 }

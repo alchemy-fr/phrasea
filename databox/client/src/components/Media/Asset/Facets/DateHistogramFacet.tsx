@@ -37,7 +37,15 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
             /^\d+[hms]$/.test(facet.interval ?? '')
     );
 
-    const buckets = facet.buckets;
+    const buckets = useMemo(
+        () =>
+            facet.buckets.map(b => ({
+                ...b,
+                key: (b.key as number) / 1000,
+            })),
+        [facet.buckets]
+    );
+
     const min = buckets[0].key as number;
     const max = buckets[buckets.length - 1].key as number;
     const step =

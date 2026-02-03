@@ -42,18 +42,8 @@ function Item({usedFormSubmit}: DefinitionItemFormProps<EntityList>) {
     );
 }
 
-function ManageItem({
-    workspace,
-    data,
-    setSubManagementState,
-}: DefinitionItemManageProps<EntityList>) {
-    return (
-        <AttributeEntityManager
-            workspace={workspace}
-            data={data}
-            setSubManagementState={setSubManagementState}
-        />
-    );
+function ManageItem(props: DefinitionItemManageProps<EntityList>) {
+    return <AttributeEntityManager {...props} />;
 }
 
 function ListItem({data, onEdit}: DefinitionListItemProps<EntityList>) {
@@ -146,8 +136,8 @@ export default function EntityListManager({
 
                 return assertions;
             }}
-            searchFilter={(list, value) =>
-                search<EntityList>(list, ['name'], value)
+            searchFilter={({items}, value) =>
+                search<EntityList>(items, ['name'], value)
             }
             itemComponent={Item}
             manageItemComponent={ManageItem}

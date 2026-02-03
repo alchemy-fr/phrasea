@@ -19,9 +19,16 @@ framework:
         default_options:
             verify_peer: '%env(bool:VERIFY_SSL)%'
             verify_host: '%env(bool:VERIFY_HOST)%'
+            timeout: 5
         scoped_clients:
             keycloak.client:
                 base_uri: '%env(default:keycloak_url:KEYCLOAK_INTERNAL_URL)%/admin/realms/'
+            rabbitmq.client:
+                base_uri: '%env(RABBITMQ_CONSOLE_URL)%/api/'
+                auth_basic: '%env(RABBITMQ_USER)%:%env(RABBITMQ_PASSWORD)%'
+            minio.client:
+                base_uri: '%env(MINIO_CONSOLE_URL)%/api/v1/'
+                auth_basic: '%env(RABBITMQ_USER)%:%env(RABBITMQ_PASSWORD)%'
 
     php_errors:
         log: true

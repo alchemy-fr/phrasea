@@ -44,7 +44,7 @@ This project is licensed under the terms of the [LICENSE](./LICENSE) file.
 ## Community & Support
 
 - For help, refer to the [documentation](./doc/)
-- For questions, open an issue or join our community channels (add link if available)
+- For questions, open an issue or join our community channels
 
 ---
 
