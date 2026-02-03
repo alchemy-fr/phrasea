@@ -306,6 +306,11 @@ class Asset implements MediaInterface, \Stringable
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $assetId = null;
 
+    #[Groups([Publication::GROUP_READ, self::GROUP_READ])]
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
+    #[Assert\Length(max: 100)]
+    private ?string $trackingId = null;
+
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $path = null;
 
@@ -778,5 +783,15 @@ class Asset implements MediaInterface, \Stringable
     public function setTranslations(?array $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getTrackingId(): ?string
+    {
+        return $this->trackingId;
+    }
+
+    public function setTrackingId(?string $trackingId): void
+    {
+        $this->trackingId = $trackingId;
     }
 }

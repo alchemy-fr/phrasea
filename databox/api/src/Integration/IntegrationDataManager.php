@@ -95,9 +95,9 @@ readonly class IntegrationDataManager
 
         if ($multiple) {
             return $this->findBy($criteria);
-        } else {
-            return $this->findOneBy($criteria);
         }
+
+        return $this->findOneBy($criteria);
     }
 
     public function deleteById(WorkspaceIntegration $workspaceIntegration, string $id, ?string $userId): void

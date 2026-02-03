@@ -115,6 +115,7 @@ export type Asset = {
     publication: Publication;
     mimeType: string;
     assetId: string | undefined;
+    trackingId: string | undefined;
     previewUrl: string;
     posterUrl: string;
     title: string;

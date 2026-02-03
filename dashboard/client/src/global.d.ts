@@ -3,6 +3,7 @@ import type {WindowConfigBase} from '@alchemy/core';
 declare global {
     interface WindowConfig extends WindowConfigBase {
         env: {
+            AUTO_CONNECT_IDP: Readonly<string | undefined>;
             DATABOX_API_URL: Readonly<string>;
             DATABOX_CLIENT_URL: Readonly<string>;
             DEV_MODE: Readonly<string>;
@@ -12,6 +13,8 @@ declare global {
             EXPOSE_CLIENT_URL: Readonly<string>;
             MAILHOG_URL: Readonly<string>;
             MATOMO_URL: Readonly<string>;
+            MATOMO_SITE_ID: Readonly<string>;
+            MATOMO_MEDIA_PLUGIN_ENABLED: Readonly<boolean>;
             PGADMIN_URL: Readonly<string>;
             PHPMYADMIN_URL: Readonly<string>;
             RABBITMQ_CONSOLE_URL: Readonly<string>;

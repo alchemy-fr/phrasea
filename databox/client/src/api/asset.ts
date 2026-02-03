@@ -8,6 +8,7 @@ import {
     Collection,
     ESDocumentState,
     Share,
+    MatomoMediaMetrics,
 } from '../types';
 import {AxiosRequestConfig} from 'axios';
 import {TFacets} from '../components/Media/Asset/Facets';
@@ -31,6 +32,8 @@ import {
     FileOrUrl,
     SourceFileInput,
 } from './file.ts';
+
+const assetEntity = 'assets';
 
 export interface GetAssetOptions {
     url?: string;
@@ -57,7 +60,9 @@ export type ESDebug = {
 };
 
 export async function getStoryThumbnails(assetId: string): Promise<string[]> {
-    const res = await apiClient.get(`/assets/${assetId}/story-thumbnails`);
+    const res = await apiClient.get(
+        `/${assetEntity}/${assetId}/story-thumbnails`
+    );
 
     return res.data.thumbnails;
 }
@@ -90,7 +95,7 @@ export async function getAssets(
 > {
     const res = options.url
         ? await apiClient.get(options.url, requestConfig)
-        : await apiClient.get('/assets', {
+        : await apiClient.get(`/${assetEntity}`, {
               params: options,
               ...requestConfig,
           });
@@ -123,7 +128,7 @@ export async function getSearchSuggestions(
         }
     >
 > {
-    const res = await apiClient.get('/assets/suggest', {
+    const res = await apiClient.get(`/${assetEntity}/suggest`, {
         params: {
             query,
         },
@@ -144,7 +149,7 @@ export async function resolveEntities(
     entities: string[],
     requestConfig?: AxiosRequestConfig
 ): Promise<Record<string, object>> {
-    const res = await apiClient.post('/assets/entities', {
+    const res = await apiClient.post(`/${assetEntity}/entities`, {
         entities,
         ...requestConfig,
     });
@@ -153,7 +158,18 @@ export async function resolveEntities(
 }
 
 export async function getAsset(id: string): Promise<Asset> {
-    return (await apiClient.get(`/assets/${id}`)).data;
+    return (await apiClient.get(`/${assetEntity}/${id}`)).data;
+}
+
+export async function getAssetMetrics(
+    assetId: string,
+    type: string | undefined
+): Promise<MatomoMediaMetrics> {
+    return (
+        await apiClient.get(`/assets/${assetId}/metrics`, {
+            params: {type},
+        })
+    ).data;
 }
 
 export async function getESDocument(
@@ -200,7 +216,7 @@ export async function createAssetShare(
     const res = (
         await apiClient.post(`/shares`, {
             ...data,
-            asset: `/assets/${assetId}`,
+            asset: `/${assetEntity}/${assetId}`,
         })
     ).data;
 
@@ -249,7 +265,7 @@ export async function attributeBatchUpdate(
 
     if (typeof assetId === 'string') {
         return (
-            await apiClient.post(`/assets/${assetId}/attributes`, {
+            await apiClient.post(`/${assetEntity}/${assetId}/attributes`, {
                 actions,
             })
         ).data;
@@ -298,11 +314,11 @@ export async function deleteAssetAttribute(id: string): Promise<void> {
 }
 
 export async function triggerAssetWorkflow(id: string): Promise<void> {
-    await apiClient.put(`/assets/${id}/trigger-workflow`, {});
+    await apiClient.put(`/${assetEntity}/${id}/trigger-workflow`, {});
 }
 
 export async function deleteAsset(id: string): Promise<void> {
-    await apiClient.delete(`/assets/${id}`);
+    await apiClient.delete(`/${assetEntity}/${id}`);
 }
 
 type DeleteOptions = {
@@ -314,14 +330,14 @@ export async function deleteAssets(
     ids: string[],
     deleteOptions: DeleteOptions = {}
 ): Promise<void> {
-    await apiClient.post(`/assets/delete-multiple`, {
+    await apiClient.post(`/${assetEntity}/delete-multiple`, {
         ids,
         ...deleteOptions,
     });
 }
 
 export async function restoreAssets(ids: string[]): Promise<void> {
-    await apiClient.post(`/assets/restore-multiple`, {
+    await apiClient.post(`/${assetEntity}/restore-multiple`, {
         ids,
     });
 }
@@ -335,7 +351,7 @@ export type PrepareDeleteAssetsOutput = {
 export async function prepareDeleteAssets(
     ids: string[]
 ): Promise<PrepareDeleteAssetsOutput> {
-    const res = await apiClient.post(`/assets/prepare-delete`, {
+    const res = await apiClient.post(`/${assetEntity}/prepare-delete`, {
         ids,
     });
     return res.data;
@@ -345,7 +361,7 @@ export async function putAsset(
     id: string,
     data: Partial<AssetApiInput>
 ): Promise<Asset> {
-    const res = await apiClient.put(`/assets/${id}`, data, {
+    const res = await apiClient.put(`/${assetEntity}/${id}`, data, {
         headers: {
             'Content-Type': 'application/merge-patch+json',
         },
@@ -380,7 +396,7 @@ export type NewAssetInput = {
 } & AssetApiInput;
 
 export async function postAsset(data: NewAssetInput): Promise<Asset> {
-    const res = await apiClient.post(`/assets`, data);
+    const res = await apiClient.post(`/${assetEntity}`, data);
 
     return res.data;
 }
@@ -522,7 +538,7 @@ export async function importAssets(
     const res: {
         assets: Asset[];
     } = await apiClient.post(
-        `/assets/multiple`,
+        `/${assetEntity}/multiple`,
         {
             isStory: options.isStory,
             story: options.isStory
@@ -567,7 +583,7 @@ export async function uploadAsset(
 
     return (
         await apiClient.post(
-            `/assets`,
+            `/${assetEntity}`,
             {
                 ...data.asset,
                 multipart,
@@ -592,7 +608,9 @@ export async function deleteAssetShortcut(
     assetId: string,
     collectionId: string
 ): Promise<void> {
-    await apiClient.delete(`/assets/${assetId}/collections/${collectionId}`);
+    await apiClient.delete(
+        `/${assetEntity}/${assetId}/collections/${collectionId}`
+    );
 }
 
 export function isAssetEligibleForAttributeDefinition(

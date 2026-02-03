@@ -1,4 +1,11 @@
-import {MouseEvent, SyntheticEvent, useMemo, useRef, useState} from 'react';
+import {
+    MouseEvent,
+    SyntheticEvent,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import ReactPlayer from 'react-player';
 import {IconButton, LinearProgress} from '@mui/material';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
@@ -31,12 +38,26 @@ export default function VideoPlayer({
     controls,
     dimensions,
     webVTTLinks,
+    trackingId,
+    title,
 }: Props) {
     const playerRef = useRef<HTMLVideoElement | null>(null);
     const [progress, setProgress] = useState<Progress>();
     const type = getFileTypeFromMIMEType(file.type);
     const isAudio = type === FileTypeEnum.Audio;
     const [play, setPlay] = useState(!isAudio && autoPlayable);
+
+    useEffect(() => {
+        const videoElement = playerRef.current;
+        if (videoElement) {
+            if (trackingId !== undefined) {
+                videoElement.setAttribute('data-matomo-resource', trackingId);
+                if (title) {
+                    videoElement.setAttribute('data-matomo-title', title);
+                }
+            }
+        }
+    }, [playerRef, trackingId, title]);
 
     const onPlay = (e: MouseEvent) => {
         if (e.ctrlKey) {

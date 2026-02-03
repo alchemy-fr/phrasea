@@ -61,6 +61,7 @@ export default function Preview<T>({
                         {asset.preview ? (
                             <FilePlayer
                                 key={asset.id}
+                                trackingId={asset.trackingId}
                                 file={asset.preview!.file!}
                                 title={asset.resolvedTitle}
                                 dimensions={{

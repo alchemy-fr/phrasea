@@ -23,7 +23,7 @@ import AssetDataTemplateSelect from '../Form/AssetDataTemplateSelect';
 import {OnChangeValue} from 'react-select';
 import {Asset, AssetTypeFilter, Attribute, Tag} from '../../types';
 import {AttributeIndex} from '../Media/Asset/Attribute/AttributesEditor';
-import FullPageLoader from '../Ui/FullPageLoader';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {useFormPrompt} from '@alchemy/navigation';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';

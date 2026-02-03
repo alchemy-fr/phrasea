@@ -8,7 +8,7 @@ import {
     useAttributeDefinitionStore,
 } from '../../../store/attributeDefinitionStore.ts';
 import {useTranslation} from 'react-i18next';
-import FullPageLoader from '../../Ui/FullPageLoader.tsx';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {Button} from '@mui/material';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';

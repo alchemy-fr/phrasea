@@ -199,6 +199,7 @@ final readonly class ExposeClient
                 'asset_id' => $asset->getId(),
                 'title' => $resolvedTitle,
                 'description' => $description,
+                'tracking_id' => $asset->getTrackingId(),
                 'translations' => $translations,
                 'multipart' => [
                     'uploadId' => $mUploadId,

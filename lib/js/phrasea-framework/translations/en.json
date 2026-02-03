@@ -1,0 +1,38 @@
+{
+    "framework": {
+        "dialog": {
+            "cancel": "Cancel",
+            "close": "Close",
+            "confirm": "Confirm",
+            "confirm_text_type": {
+                "intro": "Please type \"{{ text }}\" to confirm:",
+                "placeholder": "Type \"{{ text }}\""
+            },
+            "ok": "OK"
+        },
+        "locale": {
+            "current": "English",
+            "switcher": {
+                "change_data_locale": {
+                    "modal": {
+                        "confirm": "Continue",
+                        "title": "Page will be reloaded"
+                    }
+                },
+                "title": "Change Language"
+            }
+        },
+        "menu": {
+            "change_theme": "Change theme",
+            "services": "Services",
+            "settings": "Settings",
+            "sign_in": "Sign In",
+            "theme_editor": "Theme Editor"
+        },
+        "notification": {
+            "menu": {
+                "label": "Notifications"
+            }
+        }
+    }
+}

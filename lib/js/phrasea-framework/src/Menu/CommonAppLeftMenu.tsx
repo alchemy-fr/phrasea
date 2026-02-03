@@ -47,7 +47,7 @@ export function CommonAppLeftMenu({
                                 <ListItemIcon>{bellIcon}</ListItemIcon>
                                 <ListItemText
                                     primary={t(
-                                        'notification.menu.label',
+                                        'framework.notification.menu.label',
                                         'Notifications'
                                     )}
                                 />
@@ -61,7 +61,9 @@ export function CommonAppLeftMenu({
                     <ListItemIcon>
                         <LoginIcon />
                     </ListItemIcon>
-                    <ListItemText primary={t('menu.sign_in', 'Sign In')} />
+                    <ListItemText
+                        primary={t('framework.menu.sign_in', 'Sign In')}
+                    />
                 </MenuItem>
             ) : (
                 <UserMenu
@@ -85,7 +87,7 @@ export function CommonAppLeftMenu({
                             <SettingsIcon />
                         </ListItemIcon>
                         <ListItemText
-                            primary={t('menu.settings', 'Settings')}
+                            primary={t('framework.menu.settings', 'Settings')}
                         />
                     </MenuItem>
                 )}

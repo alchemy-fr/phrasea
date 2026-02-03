@@ -40,7 +40,7 @@ export default function AlertDialog({
                     ? ({onClose}) => (
                           <>
                               <Button variant={'contained'} onClick={onClose}>
-                                  {closeLabel || t('dialog.ok', 'OK')}
+                                  {closeLabel || t('framework.dialog.ok', 'OK')}
                               </Button>
                           </>
                       )

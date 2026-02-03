@@ -13,7 +13,7 @@ import FilePlayer from './src/FilePlayer/FilePlayer';
 import {getIconFromType} from './src/FilePlayer/fileIcon';
 import {videoPlayerSx} from './src/FilePlayer/styles';
 import AssetTypeIcon from './src/FilePlayer/AssetTypeIcon';
-import PdfView from './src/FilePlayer/Players/PdfView'
+import PdfView from './src/FilePlayer/Players/PdfView';
 import AlertDialog from './src/Dialog/AlertDialog';
 import {AppLogo} from './src/Menu/AppLogo';
 import HorizontalAppMenu from './src/Menu/HorizontalAppMenu';
@@ -28,6 +28,9 @@ import {useDirtyFormPrompt} from './src/hooks/useDirtyFormPrompt';
 import NavButton from './src/Menu/NavButton';
 import NavMenuItem from './src/Menu/NavMenuItem';
 import NavMenu from './src/Menu/NavMenu';
+import {useMatomo} from '@jonkoops/matomo-tracker-react';
+import MatomoRouteWrapper from './src/Route/MatomoRouteWrapper';
+import {useTracking} from './src/hooks/useTracking';
 export {
     AppProvider,
     initApp,
@@ -60,6 +63,9 @@ export {
     NavButton,
     NavMenuItem,
     NavMenu,
+    useMatomo,
+    MatomoRouteWrapper,
+    useTracking,
 };
 export * from './src/Theme/types';
 export * from './src/Dialog/types';
@@ -68,3 +74,5 @@ export * from './src/FilePlayer/types';
 export * from './src/Tree/types';
 export * from './src/Menu/types';
 export * from './src/apiCache';
+export * as translations from './translations';
+

@@ -1,10 +1,15 @@
 import {
-    MatomoRouteWrapper,
     ModalStack,
     OverlayOutlet,
     RouterProvider,
     RouteWrapperProps,
 } from '@alchemy/navigation';
+import {
+    AnalyticsProvider,
+    AppGlobalTheme,
+    MatomoRouteWrapper,
+    UserHookCaller,
+} from '@alchemy/phrasea-framework';
 import {
     AuthenticationProvider,
     SessionExpireContainer,
@@ -16,11 +21,6 @@ import React from 'react';
 import {QueryClientProvider} from '@tanstack/react-query';
 import {queryClient} from '../lib/query.ts';
 import {ToastContainer} from 'react-toastify';
-import {
-    AnalyticsProvider,
-    AppGlobalTheme,
-    UserHookCaller,
-} from '@alchemy/phrasea-framework';
 import {
     apiClient,
     config,
@@ -37,15 +37,15 @@ export default function Root({}: Props) {
 
     return (
         <>
-            <UserPreferencesProvider>
-                {css && <style>{css}</style>}
-                <AppGlobalTheme>
-                    <AnalyticsProvider matomo={matomo}>
-                        <ToastContainer position={'bottom-left'} />
-                        <AuthenticationProvider
-                            oauthClient={oauthClient}
-                            keycloakClient={keycloakClient}
-                        >
+            {css && <style>{css}</style>}
+            <AnalyticsProvider matomo={matomo}>
+                <ToastContainer position={'bottom-left'} />
+                <AuthenticationProvider
+                    oauthClient={oauthClient}
+                    keycloakClient={keycloakClient}
+                >
+                    <UserPreferencesProvider>
+                        <AppGlobalTheme>
                             <UserHookCaller apiClient={apiClient} />
 
                             <QueryClientProvider client={queryClient}>
@@ -59,10 +59,10 @@ export default function Root({}: Props) {
                                     />
                                 </AttributeFormatProvider>
                             </QueryClientProvider>
-                        </AuthenticationProvider>
-                    </AnalyticsProvider>
-                </AppGlobalTheme>
-            </UserPreferencesProvider>
+                        </AppGlobalTheme>
+                    </UserPreferencesProvider>
+                </AuthenticationProvider>
+            </AnalyticsProvider>
         </>
     );
 }

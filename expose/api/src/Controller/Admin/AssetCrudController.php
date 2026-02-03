@@ -72,6 +72,8 @@ class AssetCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield JsonField::new('clientAnnotations')
             ->hideOnIndex();
+        yield IdField::new('trackingId')
+            ->hideOnIndex();
         yield IdField::new('assetId')
             ->hideOnIndex();
         yield TextField::new('path')

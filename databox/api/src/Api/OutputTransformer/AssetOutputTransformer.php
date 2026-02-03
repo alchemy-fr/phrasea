@@ -84,6 +84,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         $output->setAttributesEditedAt($data->getAttributesEditedAt());
         $output->setExtraMetadata($data->getExtraMetadata());
         $output->deleted = $data->isDeleted();
+        $output->trackingId = $data->getTrackingId();
 
         $output->setSource($data->getSource());
 
@@ -239,15 +240,16 @@ class AssetOutputTransformer implements OutputTransformerInterface
             $value = $builtInField->getValueFromAsset($object);
 
             return $builtInField->resolveGroupValue($groupBy, $value);
-        } else {
-            ['type' => $type] = $this->fieldNameResolver->getFieldFromName($groupBy);
-            $key = $value = $indexValue ?? null;
-            if (is_array($key)) {
-                $key = implode(',', $key);
-            }
-            $value = $type->getGroupValueLabel($type->denormalizeValue($value));
-
-            return new GroupValue($groupBy, $type::getName(), $key, null !== $value ? [$value] : []);
         }
+
+        ['type' => $type] = $this->fieldNameResolver->getFieldFromName($groupBy);
+        $key = $value = $indexValue ?? null;
+        if (is_array($key)) {
+            $key = implode(',', $key);
+        }
+        $value = $type->getGroupValueLabel($type->denormalizeValue($value));
+
+        return new GroupValue($groupBy, $type::getName(), $key, null !== $value ? [$value] : []);
+
     }
 }

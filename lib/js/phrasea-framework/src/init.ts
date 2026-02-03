@@ -32,16 +32,17 @@ export function initApp({
     const analytics = config.analytics;
     const matomoConfig = analytics?.matomo;
 
-    const matomo = matomoConfig
-        ? createInstance({
-              urlBase: matomoConfig.baseUrl,
-              siteId: parseInt(matomoConfig.siteId),
-              linkTracking: false,
-              configurations: {
-                  setSecureCookie: true,
-              },
-          })
-        : undefined;
+    const matomo =
+        matomoConfig && matomoConfig.siteId
+            ? createInstance({
+                  urlBase: matomoConfig.baseUrl,
+                  siteId: parseInt(matomoConfig.siteId),
+                  linkTracking: false,
+                  configurations: {
+                      setSecureCookie: true,
+                  },
+              })
+            : undefined;
 
     return {
         apiClient,
