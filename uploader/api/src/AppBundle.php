@@ -12,11 +12,8 @@ class AppBundle extends Bundle
 {
     public function build(ContainerBuilder $container)
     {
-        $config = StackConfig::getConfig();
-
-        $appConfig = $config['uploader'] ?? [];
-        $container->setParameter('app.upload.max_file_size', $appConfig['max_upload_file_size'] ?? null);
-        $container->setParameter('app.upload.max_commit_size', $appConfig['max_upload_commit_size'] ?? null);
-        $container->setParameter('app.upload.max_file_count', $appConfig['max_upload_file_count'] ?? null);
+        $container->setParameter('app.upload.max_file_size', StackConfig::generateConfigEnvKey('uploader.max_upload_file_size', ''));
+        $container->setParameter('app.upload.max_commit_size', StackConfig::generateConfigEnvKey('uploader.max_upload_commit_size', ''));
+        $container->setParameter('app.upload.max_file_count', StackConfig::generateConfigEnvKey('uploader.max_upload_file_count', ''));
     }
 }

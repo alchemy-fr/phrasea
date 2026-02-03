@@ -40,6 +40,10 @@ final readonly class AdminConfigSchema implements SchemaProviderInterface
                     ),
                 ],
             ),
+            new SchemaProperty(
+                name: 'title',
+                description: 'Admin Title displayed in the web interface header.',
+            ),
         ];
     }
 

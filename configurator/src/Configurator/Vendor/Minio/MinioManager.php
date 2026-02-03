@@ -36,6 +36,31 @@ final readonly class MinioManager
         }
     }
 
+    public function makePathPrefixPublic(string $bucket, string $prefix): void
+    {
+        if (!empty($mainPathPrefix = getenv('S3_PATH_PREFIX'))) {
+            $prefix = rtrim($mainPathPrefix, '/').'/'.ltrim($prefix, '/');
+        }
+
+        $policy = [
+            'Version' => '2012-10-17',
+            'Statement' => [
+                [
+                    'Sid' => 'PublicReadForPrefix',
+                    'Effect' => 'Allow',
+                    'Principal' => '*',
+                    'Action' => 's3:GetObject',
+                    'Resource' => "arn:aws:s3:::{$bucket}/{$prefix}*",
+                ],
+            ],
+        ];
+
+        $this->s3Client->putBucketPolicy([
+            'Bucket' => $bucket,
+            'Policy' => json_encode($policy),
+        ]);
+    }
+
     public function awaitService(OutputInterface $output): void
     {
         $s3Endpoint = getenv('S3_ENDPOINT');
