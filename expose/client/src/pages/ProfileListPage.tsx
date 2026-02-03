@@ -160,6 +160,12 @@ export default function ProfileListPage({}: Props) {
             ) : (
                 <FullPageLoader backdrop={false} />
             )}
+
+            {data && data.result.length === 0 && !loading && (
+                <Typography variant={'h5'} align={'center'}>
+                    {t('profile.list.no_result', 'No profile')}
+                </Typography>
+            )}
         </Container>
     );
 }
