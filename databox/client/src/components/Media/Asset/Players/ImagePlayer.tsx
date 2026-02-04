@@ -63,6 +63,7 @@ export default function ImagePlayer({
                 controls={controls}
                 annotationEnabled={true}
                 forceHand={true}
+                title={title}
             >
                 {img}
             </FileToolbar>
