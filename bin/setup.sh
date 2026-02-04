@@ -30,6 +30,10 @@ pids+=($!)
 run_container_as databox-api-php "bin/setup.sh" app &
 pids+=($!)
 
+for pid in "${pids[@]}"; do
+    wait $pid
+done
+
 docker compose up -d
 
 echo "Done."
