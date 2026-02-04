@@ -33,4 +33,9 @@ final class ScoreBuiltInField extends AbstractBuiltInField
     {
         return null;
     }
+
+    public function isFacet(): bool
+    {
+        return false;
+    }
 }

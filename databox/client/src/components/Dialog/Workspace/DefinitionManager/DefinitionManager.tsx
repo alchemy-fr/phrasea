@@ -237,7 +237,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
             });
             return;
         }
-    }, [load, normalizeData]);
+    }, []);
 
     const bodyProps: BodyProps<D> = {
         items: list,
@@ -335,7 +335,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                 };
             });
         },
-        [normalizeData]
+        [setListState]
     );
 
     const createAttribute = () => {

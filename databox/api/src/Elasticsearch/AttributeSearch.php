@@ -28,6 +28,7 @@ class AttributeSearch
 
     final public const string OPT_STRICT_PHRASE = 'strict';
     final public const string GROUP_ALL = '*';
+    private const string LOCALE_WILDCARD = '*';
 
     private CacheInterface $cache;
 
@@ -189,7 +190,7 @@ class AttributeSearch
         string $queryString,
         array $options = [],
     ): ?Query\AbstractQuery {
-        $language = $options['locale'] ?? '*';
+        $language = $options['locale'] ?? self::LOCALE_WILDCARD;
 
         $boolQuery = new Query\BoolQuery();
         $boolQuery->setMinimumShouldMatch(1);
@@ -316,7 +317,7 @@ class AttributeSearch
         array $groupIds,
         array $options = [],
     ): void {
-        $language = $options['locale'] ?? '*';
+        $language = $options['locale'] ?? self::LOCALE_WILDCARD;
         $position = $options['context']['position'] ?? null;
 
         $attributeTypes = array_map(fn (AttributeTypeInterface $attributeType): string => $attributeType::getName(), array_filter($this->typeRegistry->getTypes(), fn (AttributeTypeInterface $attributeType): bool => $attributeType->supportsAggregation()));
