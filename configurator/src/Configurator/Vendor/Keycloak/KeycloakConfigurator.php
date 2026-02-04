@@ -6,6 +6,7 @@ namespace App\Configurator\Vendor\Keycloak;
 
 use App\Configurator\ConfiguratorInterface;
 use App\Service\ServiceWaiter;
+use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final readonly class KeycloakConfigurator implements ConfiguratorInterface
@@ -30,10 +31,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
     public function configure(OutputInterface $output, array $presets): void
     {
-        $keycloakUrl = getenv('KEYCLOAK_URL');
-        if (empty($keycloakUrl)) {
-            throw new \InvalidArgumentException('KEYCLOAK_URL environment variable is not set.');
-        }
+        $keycloakUrl = EnvHelper::getEnvOrThrow('KEYCLOAK_URL');
 
         $this->serviceWaiter->waitForService($output, $keycloakUrl.'/realms/master', successCodes: [200]);
 
@@ -85,12 +83,10 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
         $this->configureClients();
 
-        $defaultAdminUsername = getenv('DEFAULT_ADMIN_USERNAME');
-        $defaultAdminEmail = getenv('DEFAULT_ADMIN_EMAIL') ?: $defaultAdminUsername;
+        $defaultAdminUsername = EnvHelper::getEnvOrThrow('DEFAULT_ADMIN_USERNAME');
+        $defaultAdminEmail = EnvHelper::getEnv('DEFAULT_ADMIN_EMAIL') ?: $defaultAdminUsername;
         if (!str_contains($defaultAdminEmail, '@')) {
-            if (empty($domain = getenv('PHRASEA_DOMAIN'))) {
-                throw new \InvalidArgumentException(sprintf('Environment variable PHRASEA_DOMAIN must be set when DEFAULT_ADMIN_USERNAME ("%s") does not contain an email address and DEFAULT_ADMIN_EMAIL is not defined.', $defaultAdminUsername));
-            }
+            $domain = EnvHelper::getEnvOrThrow('PHRASEA_DOMAIN');
             $defaultAdminEmail .= '@'.$domain;
         }
 
@@ -103,8 +99,8 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'lastName' => 'Admin',
             'credentials' => [[
                 'type' => 'password',
-                'value' => getenv('DEFAULT_ADMIN_PASSWORD'),
-                'temporary' => $hasTestPreset ? false : !$this->getBooleanEnv('KEYCLOAK_ADMIN_DEFINITIVE_PASSWORD'),
+                'value' => EnvHelper::getEnvOrThrow('DEFAULT_ADMIN_PASSWORD'),
+                'temporary' => $hasTestPreset ? false : !EnvHelper::getBooleanEnv('KEYCLOAK_ADMIN_DEFINITIVE_PASSWORD'),
             ]],
         ]);
 
@@ -156,12 +152,12 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         }
 
         foreach ($this->symfonyApplications as $app) {
-            $clientId = getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app)));
-            $baseUri = getenv(sprintf('%s_API_URL', strtoupper($app)));
+            $clientId = EnvHelper::getEnvOrThrow(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app)));
+            $baseUri = EnvHelper::getEnvOrThrow(sprintf('%s_API_URL', strtoupper($app)));
 
             $clientData = $this->configureClient(
                 $clientId,
-                getenv(sprintf('%s_ADMIN_CLIENT_SECRET', strtoupper($app))),
+                EnvHelper::getEnvOrThrow(sprintf('%s_ADMIN_CLIENT_SECRET', strtoupper($app))),
                 $baseUri,
                 [
                     'serviceAccountsEnabled' => true,
@@ -187,19 +183,19 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
         foreach ($this->frontendApplications as $app) {
             $this->configureClient(
-                getenv(sprintf('%s_CLIENT_ID', strtoupper($app))),
+                EnvHelper::getEnvOrThrow(sprintf('%s_CLIENT_ID', strtoupper($app))),
                 null,
-                getenv(sprintf('%s_CLIENT_URL', strtoupper($app))),
+                EnvHelper::getEnvOrThrow(sprintf('%s_CLIENT_URL', strtoupper($app))),
                 [
                     'serviceAccountsEnabled' => false,
                 ]
             );
         }
 
-        if (getenv('INDEXER_DATABOX_CLIENT_ID')) {
+        if (EnvHelper::getEnv('INDEXER_DATABOX_CLIENT_ID')) {
             $clientData = $this->keycloakManager->createClient(
-                getenv('INDEXER_DATABOX_CLIENT_ID'),
-                getenv('INDEXER_DATABOX_CLIENT_SECRET'),
+                EnvHelper::getEnvOrThrow('INDEXER_DATABOX_CLIENT_ID'),
+                EnvHelper::getEnvOrThrow('INDEXER_DATABOX_CLIENT_SECRET'),
                 null,
                 [
                     'standardFlowEnabled' => false,
@@ -294,14 +290,14 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
         $this->keycloakManager->putRealm([
             'displayName' => 'Phrasea Auth',
-            'displayNameHtml' => getenv('KC_REALM_HTML_DISPLAY_NAME') ?: '<div class="kc-logo-text"><span>Phrasea Auth</span></div>',
-            'registrationAllowed' => $this->getBooleanEnv('KC_REALM_LOGIN_REGISTRATION_ALLOWED'),
-            'resetPasswordAllowed' => $this->getBooleanEnv('KC_REALM_LOGIN_RESET_PASSWORD_ALLOWED', true),
-            'rememberMe' => $this->getBooleanEnv('KC_REALM_LOGIN_REMEMBER_ME_ALLOWED', true),
-            'loginWithEmailAllowed' => $this->getBooleanEnv('KC_REALM_LOGIN_WITH_EMAIL_ALLOWED', true),
-            'verifyEmail' => $this->getBooleanEnv('KC_REALM_LOGIN_VERIFY_EMAIL_ALLOWED'),
-            'registrationEmailAsUsername' => $this->getBooleanEnv('KC_REALM_LOGIN_EMAIL_AS_USERNAME'),
-            'editUsernameAllowed' => $this->getBooleanEnv('KC_REALM_LOGIN_EDIT_USERNAME'),
+            'displayNameHtml' => EnvHelper::getEnv('KC_REALM_HTML_DISPLAY_NAME', '<div class="kc-logo-text"><span>Phrasea Auth</span></div>'),
+            'registrationAllowed' => EnvHelper::getBooleanEnv('KC_REALM_LOGIN_REGISTRATION_ALLOWED'),
+            'resetPasswordAllowed' => EnvHelper::getBooleanEnv('KC_REALM_LOGIN_RESET_PASSWORD_ALLOWED', true),
+            'rememberMe' => EnvHelper::getBooleanEnv('KC_REALM_LOGIN_REMEMBER_ME_ALLOWED', true),
+            'loginWithEmailAllowed' => EnvHelper::getBooleanEnv('KC_REALM_LOGIN_WITH_EMAIL_ALLOWED', true),
+            'verifyEmail' => EnvHelper::getBooleanEnv('KC_REALM_LOGIN_VERIFY_EMAIL_ALLOWED'),
+            'registrationEmailAsUsername' => EnvHelper::getBooleanEnv('KC_REALM_LOGIN_EMAIL_AS_USERNAME'),
+            'editUsernameAllowed' => EnvHelper::getBooleanEnv('KC_REALM_LOGIN_EDIT_USERNAME'),
             'bruteForceProtected' => true,
             'failureFactor' => '30',
             'bruteForceStrategy' => 'MULTIPLE',
@@ -311,51 +307,40 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'maxDeltaTimeSeconds' => '43200',
             'quickLoginCheckMilliSeconds' => '1000',
             'minimumQuickLoginWaitSeconds' => '60',
-            'eventsEnabled' => $this->getBooleanEnv('KC_REALM_USER_EVENT_ENABLED'),
-            'eventsExpiration' => getenv('KC_REALM_USER_EVENT_EXPIRATION') ?: '604800',
+            'eventsEnabled' => EnvHelper::getBooleanEnv('KC_REALM_USER_EVENT_ENABLED'),
+            'eventsExpiration' => EnvHelper::getEnv('KC_REALM_USER_EVENT_EXPIRATION', '604800'),
             'eventsListeners' => ['jboss-logging'],
-            'adminEventsEnabled' => $this->getBooleanEnv('KC_REALM_ADMIN_EVENT_ENABLED'),
+            'adminEventsEnabled' => EnvHelper::getBooleanEnv('KC_REALM_ADMIN_EVENT_ENABLED'),
             'adminEventsDetailsEnabled' => true,
-            'ssoSessionIdleTimeout' => getenv('KC_REALM_SSO_SESSION_IDLE_TIMEOUT') ?: '1800',
-            'ssoSessionMaxLifespan' => getenv('KC_REALM_SSO_SESSION_MAX_LIFESPAN') ?: '36000',
-            'clientSessionIdleTimeout' => getenv('KC_REALM_CLIENT_SESSION_IDLE_TIMEOUT') ?: '1800',
-            'clientSessionMaxLifespan' => getenv('KC_REALM_CLIENT_SESSION_MAX_LIFESPAN') ?: '36000',
-            'offlineSessionIdleTimeout' => getenv('KC_REALM_OFFLINE_SESSION_IDLE_TIMEOUT') ?: '2592000',
-            'offlineSessionMaxLifespanEnabled' => (bool) getenv('KC_REALM_OFFLINE_SESSION_MAX_LIFESPAN'),
-            'offlineSessionMaxLifespan' => getenv('KC_REALM_OFFLINE_SESSION_MAX_LIFESPAN') ?: '7344000',
+            'ssoSessionIdleTimeout' => EnvHelper::getEnv('KC_REALM_SSO_SESSION_IDLE_TIMEOUT', '1800'),
+            'ssoSessionMaxLifespan' => EnvHelper::getEnv('KC_REALM_SSO_SESSION_MAX_LIFESPAN', '36000'),
+            'clientSessionIdleTimeout' => EnvHelper::getEnv('KC_REALM_CLIENT_SESSION_IDLE_TIMEOUT', '1800'),
+            'clientSessionMaxLifespan' => EnvHelper::getEnv('KC_REALM_CLIENT_SESSION_MAX_LIFESPAN', '36000'),
+            'offlineSessionIdleTimeout' => EnvHelper::getEnv('KC_REALM_OFFLINE_SESSION_IDLE_TIMEOUT', '2592000'),
+            'offlineSessionMaxLifespanEnabled' => (bool) EnvHelper::getEnv('KC_REALM_OFFLINE_SESSION_MAX_LIFESPAN'),
+            'offlineSessionMaxLifespan' => EnvHelper::getEnv('KC_REALM_OFFLINE_SESSION_MAX_LIFESPAN', '7344000'),
             'internationalizationEnabled' => true,
-            'supportedLocales' => (null != getenv('KC_REALM_SUPPORTED_LOCALES')) ? explode(',', getenv('KC_REALM_SUPPORTED_LOCALES')) : ['en'],
-            'defaultLocale' => getenv('KC_REALM_DEFAULT_LOCALE') ?: 'en',
+            'supportedLocales' => (null != EnvHelper::getEnv('KC_REALM_SUPPORTED_LOCALES')) ? explode(',', EnvHelper::getEnv('KC_REALM_SUPPORTED_LOCALES')) : ['en'],
+            'defaultLocale' => EnvHelper::getEnv('KC_REALM_DEFAULT_LOCALE', 'en'),
             'loginTheme' => 'phrasea',
             'smtpServer' => [
-                'auth' => (bool) getenv('MAILER_USER'),
-                'from' => getenv('MAIL_FROM') ?: 'noreply@phrasea.io',
-                'fromDisplayName' => getenv('MAIL_FROM_DISPLAY_NAME') ?: 'Phrasea',
-                'replyTo' => getenv('MAIL_REPLY_TO') ?: '',
-                'replyToDisplayName' => getenv('MAIL_REPLY_TO_DISPLAY_NAME') ?: '',
-                'envelopeFrom' => getenv('MAIL_ENVELOPE_FROM') ?: '',
-                'host' => getenv('MAILER_HOST'),
-                'port' => getenv('MAILER_PORT') ?: '587',
-                'ssl' => $this->getBooleanEnv('MAILER_SSL'),
-                'starttls' => $this->getBooleanEnv('MAILER_TLS'),
-                'user' => getenv('MAILER_USER') ?: null,
-                'password' => getenv('MAILER_PASSWORD') ?: null,
+                'auth' => (bool) EnvHelper::getEnv('MAILER_USER'),
+                'from' => EnvHelper::getEnv('MAIL_FROM', 'noreply@phrasea.io'),
+                'fromDisplayName' => EnvHelper::getEnv('MAIL_FROM_DISPLAY_NAME', 'Phrasea'),
+                'replyTo' => EnvHelper::getEnv('MAIL_REPLY_TO', ''),
+                'replyToDisplayName' => EnvHelper::getEnv('MAIL_REPLY_TO_DISPLAY_NAME', ''),
+                'envelopeFrom' => EnvHelper::getEnv('MAIL_ENVELOPE_FROM', ''),
+                'host' => EnvHelper::getEnv('MAILER_HOST'),
+                'port' => EnvHelper::getEnv('MAILER_PORT', '587'),
+                'ssl' => EnvHelper::getBooleanEnv('MAILER_SSL'),
+                'starttls' => EnvHelper::getBooleanEnv('MAILER_TLS'),
+                'user' => EnvHelper::getEnv('MAILER_USER'),
+                'password' => EnvHelper::getEnv('MAILER_PASSWORD'),
             ],
             'attributes' => [
-                'adminEventsExpiration' => getenv('KC_REALM_ADMIN_EVENT_EXPIRATION') ?: '604800',
+                'adminEventsExpiration' => EnvHelper::getEnv('KC_REALM_ADMIN_EVENT_EXPIRATION', '604800'),
             ],
         ]);
-    }
-
-    private function getBooleanEnv(string $name, bool $defaultValue = false): bool
-    {
-        $val = filter_var(getenv($name), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-
-        if (null === $val) {
-            return $defaultValue;
-        }
-
-        return $val;
     }
 
     private function configureDefaultClientScopes(): void

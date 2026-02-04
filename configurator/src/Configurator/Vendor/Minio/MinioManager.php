@@ -3,9 +3,8 @@
 namespace App\Configurator\Vendor\Minio;
 
 use App\Service\ServiceWaiter;
+use App\Util\EnvHelper;
 use App\Util\HttpClientUtil;
-use Aws\S3\Exception\S3Exception;
-use Aws\S3\S3Client;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -14,71 +13,24 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final readonly class MinioManager
 {
     public function __construct(
-        private S3Client $s3Client,
         private HttpClientInterface $minioClient,
         private ServiceWaiter $serviceWaiter,
     ) {
     }
 
-    public function createBucket(string $bucketName): void
-    {
-        try {
-            $this->s3Client->createBucket([
-                'Bucket' => $bucketName,
-            ]);
-        } catch (S3Exception $exception) {
-            if (409 === $exception->getStatusCode()) {
-                // Bucket already exists, do nothing
-                return;
-            }
-
-            throw $exception;
-        }
-    }
-
-    public function makePathPrefixPublic(string $bucket, string $prefix): void
-    {
-        if (!empty($mainPathPrefix = getenv('S3_PATH_PREFIX'))) {
-            $prefix = rtrim($mainPathPrefix, '/').'/'.ltrim($prefix, '/');
-        }
-
-        $policy = [
-            'Version' => '2012-10-17',
-            'Statement' => [
-                [
-                    'Sid' => 'PublicReadForPrefix',
-                    'Effect' => 'Allow',
-                    'Principal' => '*',
-                    'Action' => 's3:GetObject',
-                    'Resource' => "arn:aws:s3:::{$bucket}/{$prefix}*",
-                ],
-            ],
-        ];
-
-        $this->s3Client->putBucketPolicy([
-            'Bucket' => $bucket,
-            'Policy' => json_encode($policy),
-        ]);
-    }
-
     public function awaitService(OutputInterface $output): void
     {
-        $s3Endpoint = getenv('S3_ENDPOINT');
-        if (empty($s3Endpoint)) {
-            throw new \RuntimeException('S3_ENDPOINT environment variable is not set.');
-        }
-        $this->serviceWaiter->waitForService($output, $s3Endpoint, successCodes: [200, 403]);
-        $this->serviceWaiter->waitForService($output, getenv('MINIO_CONSOLE_URL'));
+        $this->serviceWaiter->waitForService($output, EnvHelper::getEnvOrThrow('MINIO_CONSOLE_URL'));
     }
 
     public function configureAmqpNotification(OutputInterface $output, string $bucketName, string $vhost): void
     {
         $token = $this->getToken();
         $amqpDsn = sprintf('amqp://%s:%s@%s:%s/%s',
-            getenv('RABBITMQ_USER'),
-            getenv('RABBITMQ_PASSWORD'),
-            getenv('RABBITMQ_HOST'),
-            getenv('RABBITMQ_PORT'),
+            EnvHelper::getEnvOrThrow('RABBITMQ_USER'),
+            EnvHelper::getEnvOrThrow('RABBITMQ_PASSWORD'),
+            EnvHelper::getEnvOrThrow('RABBITMQ_HOST'),
+            EnvHelper::getEnvOrThrow('RABBITMQ_PORT'),
             $vhost,
         );
 
@@ -139,8 +91,8 @@ final readonly class MinioManager
     {
         $response = $this->minioClient->request('POST', 'login', [
             'json' => [
-                'accessKey' => getenv('S3_ACCESS_KEY'),
-                'secretKey' => getenv('S3_SECRET_KEY'),
+                'accessKey' => EnvHelper::getEnvOrThrow('S3_ACCESS_KEY'),
+                'secretKey' => EnvHelper::getEnvOrThrow('S3_SECRET_KEY'),
             ],
         ]);
 

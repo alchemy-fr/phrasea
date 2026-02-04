@@ -1050,7 +1050,7 @@ services:
       - S3_REGION
       - S3_PATH_PREFIX
       - VERIFY_SSL
-      - MINIO_CONSOLE_URL
+#      - MINIO_CONSOLE_URL
       - POSTGRES_HOST
       - POSTGRES_PORT
       - POSTGRES_USER
