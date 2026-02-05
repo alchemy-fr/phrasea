@@ -7,6 +7,9 @@ use Aws\S3\S3Client;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
+    $parameters = $containerConfigurator->parameters();
+    $parameters->set('env(MINIO_CONSOLE_URL)', 'http://localhost:9001');
+
     $services = $containerConfigurator->services();
 
     $services->defaults()

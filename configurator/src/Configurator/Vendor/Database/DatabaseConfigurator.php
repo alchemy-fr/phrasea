@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Configurator\Vendor\Database;
 
 use App\Configurator\ConfiguratorInterface;
+use App\Util\EnvHelper;
 use App\Util\HttpClientUtil;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -27,7 +28,7 @@ final readonly class DatabaseConfigurator implements ConfiguratorInterface
 
     public function configure(OutputInterface $output, array $presets): void
     {
-        HttpClientUtil::waitForHostPort($output, getenv('POSTGRES_HOST'), (int) getenv('POSTGRES_PORT'));
+        HttpClientUtil::waitForHostPort($output, EnvHelper::getEnvOrThrow('POSTGRES_HOST'), (int) EnvHelper::getEnvOrThrow('POSTGRES_PORT'));
 
         $databases = [
             'report',
