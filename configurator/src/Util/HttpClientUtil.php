@@ -132,7 +132,7 @@ abstract class HttpClientUtil
 
     private static function resolveTimeout(?int $timeout): int
     {
-        $envValue = EnvHelper::getEnvOrThrow('SERVICE_WAIT_TIMEOUT');
+        $envValue = EnvHelper::getEnv('CONFIGURATOR_SERVICE_WAIT_TIMEOUT');
 
         return $timeout ?? ($envValue ? (int) $envValue : self::DEFAULT_TIMEOUT);
     }
