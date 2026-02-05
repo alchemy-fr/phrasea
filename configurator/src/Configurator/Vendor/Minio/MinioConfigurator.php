@@ -28,12 +28,6 @@ final readonly class MinioConfigurator implements ConfiguratorInterface
 
     public function configure(OutputInterface $output, array $presets): void
     {
-        if (!EnvHelper::getEnv('MINIO_CONSOLE_URL')) {
-            $output->writeln('MINIO_CONSOLE_URL environment variable is not set. Skipping Minio configuration.');
-
-            return;
-        }
-
         $bucketName = EnvHelper::getEnv('INDEXER_BUCKET_NAME');
         if (!$bucketName) {
             $output->writeln('INDEXER_BUCKET_NAME environment variable is not set. Skipping Databox Indexer Minio bucket creation.');
