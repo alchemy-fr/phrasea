@@ -31,7 +31,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
     public function configure(OutputInterface $output, array $presets): void
     {
-        $keycloakUrl = EnvHelper::getEnvOrThrow('KEYCLOAK_URL');
+        $keycloakUrl = EnvHelper::getEnv('KEYCLOAK_INTERNAL_URL') ?: EnvHelper::getEnvOrThrow('KEYCLOAK_URL');
 
         $this->serviceWaiter->waitForService($output, $keycloakUrl.'/realms/master', successCodes: [200]);
 

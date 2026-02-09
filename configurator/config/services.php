@@ -9,6 +9,8 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
     $parameters->set('env(MINIO_CONSOLE_URL)', 'http://localhost:9001');
+    $parameters->set('env(S3_ENDPOINT)', 'http://localhost:9000');
+    $parameters->set('app.configurator_s3_endpoint', '%env(S3_ENDPOINT)%');
 
     $services = $containerConfigurator->services();
 
@@ -46,7 +48,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             ],
             'region' => '%env(S3_REGION)%',
             'use_path_style_endpoint' => '%env(bool:S3_USE_PATH_STYLE_ENDPOINT)%',
-            'endpoint' => '%env(S3_ENDPOINT)%',
+            'endpoint' => '%env(default:app.configurator_s3_endpoint:S3_INTERNAL_URL)%',
             'http' => [
                 'verify' => '%env(bool:VERIFY_SSL)%',
             ],
