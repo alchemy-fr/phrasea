@@ -32,7 +32,7 @@ final class ShareRenditionProvider implements ProviderInterface
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly ShareRepository $shareRepository,
         private string $matomoSiteId,
-        #[Autowire(env: 'string:MATOMO_URL')]
+        #[Autowire(env: 'MATOMO_URL')]
         private string $matomoUrl,
     ) {
     }
