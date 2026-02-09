@@ -583,7 +583,7 @@
         "confirm_delete_this_rule": "Bestätigen, diese Regel zu löschen?",
         "exclude": {
             "helper": "Assets in diesem {{type}} sind nur sichtbar, wenn sie diese Tags NICHT enthalten.",
-            "label": "Tags zum <strong>auschliessen</strong>"
+            "label": "Tags zum <strong>ausschliessen</strong>"
         },
         "group": "Gruppe",
         "include": {
