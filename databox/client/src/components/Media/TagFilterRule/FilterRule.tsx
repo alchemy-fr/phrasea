@@ -163,7 +163,7 @@ export default function FilterRule({
                                 <FormLabel>
                                     <Trans
                                         i18nKey="filter_rule.include.label"
-                                        defaults={`Tags to <b>include</b>`}
+                                        defaults={`Tags to <strong>include</strong>`}
                                     />
                                 </FormLabel>
                                 <TagSelect
@@ -194,7 +194,7 @@ export default function FilterRule({
                                 <FormLabel>
                                     <Trans
                                         i18nKey="filter_rule.exclude.label"
-                                        defaults={`Tags to <b>exclude</b>`}
+                                        defaults={`Tags to <strong>exclude</strong>`}
                                     />
                                 </FormLabel>
                                 <TagSelect

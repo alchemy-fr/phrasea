@@ -317,7 +317,6 @@ class AttributeSearch
         array $groupIds,
         array $options = [],
     ): void {
-        $language = $options['locale'] ?? self::LOCALE_WILDCARD;
         $position = $options['context']['position'] ?? null;
 
         $attributeTypes = array_map(fn (AttributeTypeInterface $attributeType): string => $attributeType::getName(), array_filter($this->typeRegistry->getTypes(), fn (AttributeTypeInterface $attributeType): bool => $attributeType->supportsAggregation()));
@@ -333,7 +332,11 @@ class AttributeSearch
         foreach ($attributeDefinitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
-            $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : AttributeInterface::NO_LOCALE;
+
+            $l = $type->isLocaleAware() && $definition->isTranslatable() ?
+                ($this->getBestWorkspaceLocale($definition->getWorkspace()) ?? AttributeInterface::NO_LOCALE)
+                : AttributeInterface::NO_LOCALE;
+
             $field = sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, $l, $fieldName);
 
             if (isset($facets[$field])) {
@@ -347,6 +350,9 @@ class AttributeSearch
                 'title' => $nameTranslated,
                 'sortable' => $definition->isSortable(),
             ];
+            if (AttributeInterface::NO_LOCALE !== $l) {
+                $meta['locale'] = $l;
+            }
             if (TextAttributeType::getName() !== $type::getName()) {
                 $meta['type'] = $type::getName();
             }
