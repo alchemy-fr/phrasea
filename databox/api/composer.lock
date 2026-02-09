@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d2d698855a1f0dfb98124fd592f8bb4b",
+    "content-hash": "a24e1506214f230c4e3673ee87154322",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -61,7 +61,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -121,7 +121,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -180,7 +180,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -235,7 +235,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -298,7 +298,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -356,7 +356,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -410,7 +410,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -467,7 +467,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
@@ -592,7 +592,7 @@
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
@@ -656,7 +656,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -711,7 +711,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -767,7 +767,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -820,7 +820,7 @@
         },
         {
             "name": "alchemy/track-bundle",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/track-bundle",
@@ -883,7 +883,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -941,7 +941,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -1008,7 +1008,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -5446,6 +5446,62 @@
                 "source": "https://github.com/Masterminds/html5-php/tree/2.10.0"
             },
             "time": "2025-07-25T09:04:22+00:00"
+        },
+        {
+            "name": "matomo/matomo-php-tracker",
+            "version": "3.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/matomo-org/matomo-php-tracker.git",
+                "reference": "9462dc6eb718c711545ea1b0f590b9ae892a4212"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/matomo-org/matomo-php-tracker/zipball/9462dc6eb718c711545ea1b0f590b9ae892a4212",
+                "reference": "9462dc6eb718c711545ea1b0f590b9ae892a4212",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": "~7.2 || ~7.3 || ~7.4 || ~8.0 || ~8.1 || ~8.2 || ~8.3 || ~8.4 || ~8.5"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.5 || ^9.3 || ^10.1"
+            },
+            "suggest": {
+                "ext-curl": "Using this extension to issue the HTTPS request to Matomo"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "."
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "The Matomo Team",
+                    "email": "hello@matomo.org",
+                    "homepage": "https://matomo.org/team/"
+                }
+            ],
+            "description": "PHP Client for Matomo Analytics Tracking API",
+            "homepage": "https://matomo.org",
+            "keywords": [
+                "analytics",
+                "matomo",
+                "piwik",
+                "tracker"
+            ],
+            "support": {
+                "forum": "https://forum.matomo.org/",
+                "issues": "https://github.com/matomo-org/matomo-php-tracker/issues",
+                "source": "https://github.com/matomo-org/matomo-php-tracker"
+            },
+            "time": "2025-12-20T18:55:41+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -15047,7 +15103,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-security-upgrades",
+            "version": "dev-PS-965-matomo-track-interaction-fix",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
@@ -18018,8 +18074,8 @@
         "php": "^8.5",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "ext-intl": "*",
         "ext-imagick": "*",
+        "ext-intl": "*",
         "ext-json": "*",
         "ext-sodium": "*"
     },

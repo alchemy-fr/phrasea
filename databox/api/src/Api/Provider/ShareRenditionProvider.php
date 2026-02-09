@@ -16,6 +16,7 @@ use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\FileUrlResolver;
 use App\Service\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -30,6 +31,9 @@ final class ShareRenditionProvider implements ProviderInterface
         private readonly RenditionPermissionManager $renditionPermissionManager,
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly ShareRepository $shareRepository,
+        private string $matomoSiteId,
+        #[Autowire(env: 'MATOMO_URL')]
+        private string $matomoUrl,
     ) {
     }
 
@@ -53,6 +57,12 @@ final class ShareRenditionProvider implements ProviderInterface
         ]);
 
         if (null !== $file = $rendition?->getFile()) {
+            $matomoTracker = new \MatomoTracker((int) $this->matomoSiteId, $this->matomoUrl);
+            $asset = $item->getAsset();
+            $trackingId = $asset->getTrackingId() ?? $asset->getId();
+
+            $matomoTracker->doTrackContentImpression($asset->getTitle(), $trackingId);
+
             return new RedirectResponse($this->fileUrlResolver->resolveUrl($file));
         }
 
