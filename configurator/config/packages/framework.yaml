@@ -1,5 +1,7 @@
 parameters:
     keycloak_url: '%env(KEYCLOAK_URL)%'
+    env(VERIFY_SSL): 'true'
+    env(VERIFY_HOST): 'true'
 
 # see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
