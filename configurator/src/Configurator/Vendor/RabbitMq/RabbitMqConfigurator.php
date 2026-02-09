@@ -7,7 +7,6 @@ namespace App\Configurator\Vendor\RabbitMq;
 use App\Configurator\ConfiguratorInterface;
 use App\Service\ServiceWaiter;
 use App\Util\EnvHelper;
-use App\Util\HttpClientUtil;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final readonly class RabbitMqConfigurator implements ConfiguratorInterface
@@ -33,7 +32,7 @@ final readonly class RabbitMqConfigurator implements ConfiguratorInterface
 
     public function configure(OutputInterface $output, array $presets): void
     {
-        HttpClientUtil::waitForHostPort($output, EnvHelper::getEnvOrThrow('RABBITMQ_HOST'), (int) EnvHelper::getEnvOrThrow('RABBITMQ_PORT'));
+        $this->rabbitMqManager->awaitService($output);
         $rabbitConsoleUrl = EnvHelper::getEnvOrThrow('RABBITMQ_CONSOLE_URL');
         $this->serviceWaiter->waitForService($output, $rabbitConsoleUrl);
 

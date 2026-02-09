@@ -6,6 +6,7 @@ namespace App\Configurator\Vendor\Minio;
 
 use App\Configurator\ConfiguratorInterface;
 use App\Configurator\Vendor\RabbitMq\RabbitMqConfigurator;
+use App\Configurator\Vendor\RabbitMq\RabbitMqManager;
 use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -13,6 +14,7 @@ final readonly class MinioConfigurator implements ConfiguratorInterface
 {
     public function __construct(
         private MinioManager $minioManager,
+        private RabbitMqManager $rabbitMqManager,
     ) {
     }
 
@@ -23,7 +25,7 @@ final readonly class MinioConfigurator implements ConfiguratorInterface
 
     public static function getPriority(): int
     {
-        return 200;
+        return -200;
     }
 
     public function configure(OutputInterface $output, array $presets): void
@@ -36,7 +38,7 @@ final readonly class MinioConfigurator implements ConfiguratorInterface
         }
 
         $this->minioManager->awaitService($output);
-        $output->writeln(sprintf('Minio bucket created for Databox Indexer: %s', $bucketName));
+        $this->rabbitMqManager->awaitService($output);
         $this->minioManager->configureAmqpNotification($output, $bucketName, RabbitMqConfigurator::S3_EVENTS_VHOST);
         $output->writeln('Minio AMQP notification configured.');
     }

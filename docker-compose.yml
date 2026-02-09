@@ -415,7 +415,7 @@ services:
 
   dockerize:
     profiles:
-      - setup
+      - dockerize
     image: jwilder/dockerize:0.6.1
     networks:
       - internal
