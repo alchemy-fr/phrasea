@@ -59,7 +59,7 @@ final readonly class S3Manager
 
     public function awaitService(OutputInterface $output): void
     {
-        $s3Endpoint = EnvHelper::getEnvOrThrow('S3_ENDPOINT');
+        $s3Endpoint = EnvHelper::getEnv('S3_INTERNAL_URL') ?: EnvHelper::getEnvOrThrow('S3_ENDPOINT');
         $this->serviceWaiter->waitForService($output, $s3Endpoint, successCodes: [200, 403]);
     }
 }
