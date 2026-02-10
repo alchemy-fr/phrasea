@@ -1,15 +1,33 @@
 import {useTranslation} from 'react-i18next';
 import {Button} from '@mui/material';
-type Props = {};
+import {Editor} from '@tiptap/core';
+import {widgets} from '../widgets';
 
-export default function InsertMenu({}: Props) {
+type Props = {
+    editor: Editor;
+};
+
+export default function InsertMenu({editor}: Props) {
     const {t} = useTranslation();
 
     return (
         <>
-            <Button onClick={() => {}}>
-                {t('landing.editor.menu.add.widget', 'Widget')}
-            </Button>
+            {widgets.map(w => (
+                <Button
+                    key={w.name}
+                    onClick={() => {
+                        editor
+                            .chain()
+                            .focus()
+                            .setWidget({
+                                widget: w.name,
+                            })
+                            .run();
+                    }}
+                >
+                    {w.getTitle(t)}
+                </Button>
+            ))}
         </>
     );
 }
