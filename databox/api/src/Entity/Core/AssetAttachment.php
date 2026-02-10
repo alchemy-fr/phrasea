@@ -72,7 +72,7 @@ class AssetAttachment extends AbstractUuidEntity
     private ?Asset $asset = null;
 
     #[ORM\ManyToOne(targetEntity: Asset::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Groups([AssetAttachment::GROUP_LIST, Asset::GROUP_READ])]
     private ?Asset $attachment = null;
 

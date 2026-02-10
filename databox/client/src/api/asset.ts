@@ -36,6 +36,8 @@ import {
     FileOrUrl,
     SourceFileInput,
 } from './file.ts';
+import moment from 'moment/moment';
+import {TFunction} from '@alchemy/i18n';
 
 export interface GetAssetOptions {
     url?: string;
@@ -624,4 +626,31 @@ export function isAssetEligibleForAttributeDefinition(
         : AssetTypeFilter.Asset;
 
     return !(definition.target && (definition.target & type) === 0);
+}
+export function extractTitleFromUrl(url: string): string {
+    const s = url.split('/').filter(Boolean);
+    return s[s.length - 1];
+}
+
+export function getAssetTitleFromFile(
+    file: File,
+    t: TFunction<'translation', undefined>
+) {
+    return file.name === 'image.png'
+        ? createPastedImageTitle(t)
+        : file.name.replace(/\.[^/.]+$/, '');
+}
+
+function createPastedImageTitle(t: TFunction): string {
+    return t('pasted_image.filename', {
+        defaultValue: `Pasted-image-{{date}}`,
+        date: moment().format('YYYY-MM-DD_HH-mm-ss'),
+    });
+}
+
+export function parseUrls(urls: string): string[] {
+    return urls
+        .split('\n')
+        .map(u => u.trim())
+        .filter(u => u !== '');
 }

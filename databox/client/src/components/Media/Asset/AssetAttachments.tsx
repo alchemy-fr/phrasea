@@ -31,6 +31,9 @@ import {ConfirmDialog} from '@alchemy/phrasea-framework';
 import EditIcon from '@mui/icons-material/Edit';
 import RenameAttachmentDialog from './Attachment/RenameAttachmentDialog.tsx';
 import FileAnalysisChip from './FileAnalysisChip.tsx';
+import {deleteAsset} from '../../../api/asset.ts';
+import LinkOffIcon from '@mui/icons-material/LinkOff';
+import {toast} from 'react-toastify';
 
 type Props = {
     asset: Asset;
@@ -126,6 +129,65 @@ function AssetAttachments({asset}: Props) {
                                                 </MenuItem>,
                                                 <Divider key={'divider1'} />,
                                                 <MenuItem
+                                                    key={'detach'}
+                                                    onClick={closeMenu(() => {
+                                                        openModal(
+                                                            ConfirmDialog,
+                                                            {
+                                                                title: t(
+                                                                    'asset.view.detach_attachment.confirm_title',
+                                                                    'Detach from Asset'
+                                                                ),
+                                                                children: t(
+                                                                    'asset.view.detach_attachment.confirm_message',
+                                                                    'Are you sure you want to detach this from the asset?'
+                                                                ),
+                                                                confirmLabel: t(
+                                                                    'asset.view.detach_attachment.confirm_button',
+                                                                    'Detach'
+                                                                ),
+                                                                confirmButtonProps:
+                                                                    {
+                                                                        startIcon:
+                                                                            (
+                                                                                <LinkOffIcon />
+                                                                            ),
+                                                                    },
+                                                                onConfirm:
+                                                                    async () => {
+                                                                        setAttachments(
+                                                                            prev =>
+                                                                                prev.filter(
+                                                                                    att =>
+                                                                                        att.id !==
+                                                                                        attachment.id
+                                                                                )
+                                                                        );
+                                                                        deleteAttachment(
+                                                                            attachment.id
+                                                                        );
+                                                                        toast.success(
+                                                                            t(
+                                                                                'asset.view.detach_attachment.success_toast',
+                                                                                'Attachment detached successfully'
+                                                                            )
+                                                                        );
+                                                                    },
+                                                            }
+                                                        );
+                                                    })}
+                                                >
+                                                    <ListItemIcon>
+                                                        <LinkOffIcon />
+                                                    </ListItemIcon>
+                                                    <ListItemText
+                                                        primary={t(
+                                                            'asset.view.detach_attachment.button',
+                                                            'Detach from Asset'
+                                                        )}
+                                                    />
+                                                </MenuItem>,
+                                                <MenuItem
                                                     key={'delete'}
                                                     onClick={closeMenu(() => {
                                                         openModal(
@@ -161,8 +223,16 @@ function AssetAttachments({asset}: Props) {
                                                                                         attachment.id
                                                                                 )
                                                                         );
-                                                                        deleteAttachment(
-                                                                            attachment.id
+                                                                        deleteAsset(
+                                                                            attachment
+                                                                                .attachment
+                                                                                .id
+                                                                        );
+                                                                        toast.success(
+                                                                            t(
+                                                                                'asset.view.delete_attachment.success_toast',
+                                                                                'Attachment deleted successfully'
+                                                                            )
                                                                         );
                                                                     },
                                                             }

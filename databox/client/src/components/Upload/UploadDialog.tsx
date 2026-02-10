@@ -5,7 +5,6 @@ import UploadIcon from '@mui/icons-material/Upload';
 import {useFormSubmit} from '@alchemy/api';
 import FormDialog from '../Dialog/FormDialog';
 import {FormUploadData, UploadData, UploadForm} from './UploadForm';
-import moment from 'moment';
 import {v4 as uuidv4} from 'uuid';
 import UploadDropzone from './UploadDropzone';
 import {useAttributeEditor} from '../Media/Asset/Attribute/useAttributeEditor';
@@ -19,13 +18,19 @@ import {StackedModalProps, useFormPrompt, useModals} from '@alchemy/navigation';
 import {Privacy} from '../../api/privacy';
 import {Asset, AssetTypeFilter} from '../../types';
 import {getAttributeList} from '../Media/Asset/Attribute/AttributeListData.ts';
-import type {TFunction} from '@alchemy/i18n';
 import {WorkspaceChip} from '../Ui/WorkspaceChip.tsx';
 import {CollectionChip} from '../Ui/CollectionChip.tsx';
 import FileToUploadCard from './FileToUploadCard.tsx';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {createCollection} from '../../api/collection.ts';
-import {importAssets, NewAssetInput, uploadAssets} from '../../api/asset.ts';
+import {
+    extractTitleFromUrl,
+    getAssetTitleFromFile,
+    importAssets,
+    NewAssetInput,
+    parseUrls,
+    uploadAssets,
+} from '../../api/asset.ts';
 import LinkIcon from '@mui/icons-material/Link';
 import {validateUrl} from '@alchemy/core';
 import {CreateAssetsOptions} from '../../api/file.ts';
@@ -227,10 +232,7 @@ export default function UploadDialog({
                         file: f.file,
                         asset: {
                             ...assetBase,
-                            title:
-                                f.file.name === 'image.png'
-                                    ? createPastedImageTitle(t)
-                                    : f.file.name.replace(/\.[^/.]+$/, ''),
+                            title: getAssetTitleFromFile(f.file, t),
                         },
                     })),
                     destinationIri,
@@ -449,23 +451,4 @@ export default function UploadDialog({
             />
         </FormDialog>
     );
-}
-
-function createPastedImageTitle(t: TFunction): string {
-    return t('pasted_image.filename', {
-        defaultValue: `Pasted-image-{{date}}`,
-        date: moment().format('YYYY-MM-DD_HH-mm-ss'),
-    });
-}
-
-function extractTitleFromUrl(url: string): string {
-    const s = url.split('/').filter(Boolean);
-    return s[s.length - 1];
-}
-
-function parseUrls(urls: string): string[] {
-    return urls
-        .split('\n')
-        .map(u => u.trim())
-        .filter(u => u !== '');
 }

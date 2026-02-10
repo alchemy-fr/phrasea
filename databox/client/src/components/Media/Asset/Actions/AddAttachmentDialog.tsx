@@ -9,7 +9,12 @@ import SingleFileUploadWidget, {
 } from './SingleFileUploadWidget.tsx';
 import UploadIcon from '@mui/icons-material/Upload';
 import {postAttachment} from '../../../../api/attachment.ts';
-import {postAsset, uploadAsset} from '../../../../api/asset.ts';
+import {
+    extractTitleFromUrl,
+    getAssetTitleFromFile,
+    postAsset,
+    uploadAsset,
+} from '../../../../api/asset.ts';
 import {Entity} from '../../../../api/types.ts';
 
 type Props = {
@@ -42,10 +47,12 @@ export default function AddAttachmentDialog({
                     ? await uploadAsset({
                           file: uploadForm.file,
                           asset: {
+                              title: getAssetTitleFromFile(uploadForm.file, t),
                               workspace: workspaceIri,
                           },
                       })
                     : await postAsset({
+                          title: extractTitleFromUrl(uploadForm.url),
                           sourceFile: {
                               url: uploadForm.url,
                               importFile: uploadForm.importFile,
