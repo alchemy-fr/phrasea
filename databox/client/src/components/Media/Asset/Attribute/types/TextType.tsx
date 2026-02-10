@@ -19,7 +19,8 @@ export default class TextType
         id,
         disabled,
         required,
-        name,
+        label,
+        labelAlreadyRendered,
         autoFocus,
         isRtl,
         indeterminate,
@@ -40,7 +41,7 @@ export default class TextType
                 inputRef={inputRef}
                 fullWidth
                 disabled={readOnly || disabled}
-                label={name}
+                label={!labelAlreadyRendered ? label : undefined}
                 onChange={e => onChange(e.target.value)}
                 value={value ?? ''}
                 required={required}

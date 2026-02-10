@@ -583,12 +583,12 @@
         "confirm_delete_this_rule": "Bestätigen, diese Regel zu löschen?",
         "exclude": {
             "helper": "Assets in diesem {{type}} sind nur sichtbar, wenn sie diese Tags NICHT enthalten.",
-            "label": "Tags zum <b>auschliessen</b>"
+            "label": "Tags zum <strong>ausschliessen</strong>"
         },
         "group": "Gruppe",
         "include": {
             "helper": "Assets in diesem {{type}} sind nur sichtbar, wenn sie diese Tags enthalten.",
-            "label": "Tags zum <b>einfügen</b>"
+            "label": "Tags zum <strong>einfügen</strong>"
         },
         "or": "Oder",
         "rule_applies_for": "Regel gilt für:",

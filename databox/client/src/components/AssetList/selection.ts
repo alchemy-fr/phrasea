@@ -7,7 +7,9 @@ export function getItemListFromEvent<Item extends AssetOrAssetContainer>(
     pages: Item[][],
     e?: React.MouseEvent
 ): Item[] {
-    if (e?.ctrlKey) {
+    const isMultiKey = e?.ctrlKey || e?.metaKey;
+
+    if (isMultiKey) {
         return currentSelection.includes(item)
             ? currentSelection.filter(i => i !== item)
             : currentSelection.concat([item]);

@@ -47,6 +47,7 @@ export enum FacetType {
 export type Facet = {
     meta: {
         title: string;
+        locale?: string;
         widget?: FacetType;
         type?: AttributeType;
         sortable: boolean;
@@ -137,7 +138,9 @@ function FacetGroup({facet, name}: FacetGroupProps) {
         <>
             <ListItem className={Classes.facetGroup} disablePadding>
                 <ListItemButton onClick={() => setOpen(o => !o)}>
-                    <ListItemText primary={facet.meta.title} />
+                    <ListItemText
+                        primary={`${facet.meta.title}${facet.meta.locale ? ` (${facet.meta.locale})` : ''}`}
+                    />
                     {open ? <ExpandLess /> : <ExpandMore />}
                 </ListItemButton>
             </ListItem>

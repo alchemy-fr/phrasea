@@ -5,7 +5,6 @@ import EditAsset from './EditAsset';
 import {useParams} from '@alchemy/navigation';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import Acl from './Acl';
-import EditAttributes from './EditAttributes';
 import Renditions from './Rendition/Renditions.tsx';
 import InfoAsset from './InfoAsset';
 import AssetFileVersions from './AssetFileVersions';
@@ -76,15 +75,6 @@ export default function AssetDialog({}: Props) {
                         data,
                     },
                     enabled: data.capabilities.canEdit,
-                },
-                {
-                    title: t('asset.manage.attributes.title', 'Attributes'),
-                    component: EditAttributes,
-                    id: 'attributes',
-                    props: {
-                        data,
-                    },
-                    enabled: data.capabilities.canEditAttributes,
                 },
                 {
                     title: t('asset.manage.renditions.title', 'Renditions'),

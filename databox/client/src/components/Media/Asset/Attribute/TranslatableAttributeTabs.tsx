@@ -2,14 +2,13 @@ import {Alert, Box, Tab, Tabs} from '@mui/material';
 import Flag from '../../../Ui/Flag';
 import MultiAttributeRow from './MultiAttributeRow';
 import {isRtlLocale} from '../../../../lib/lang';
-import {AttrValue, LocalizedAttributeIndex} from './AttributesEditor';
+import {AttrValue} from './AttributesEditor';
 import AttributeWidget from './AttributeWidget';
-import {AttributeDefinition} from '../../../../types';
 import {TabPanelProps} from '@mui/lab';
 import React from 'react';
-import {AttributeWidgetOptions} from './types/types';
 import {useTranslation} from 'react-i18next';
 import {NO_LOCALE} from './constants.ts';
+import {TranslatableAttributeTabsProps} from './attributeTypes.ts';
 
 function TabPanel({
     children,
@@ -30,32 +29,15 @@ function TabPanel({
     );
 }
 
-type Props = {
-    attributes: LocalizedAttributeIndex<string | number>;
-    currentLocale: string;
-    onLocaleChange: (locale: string) => void;
-    definition: AttributeDefinition;
-    indeterminate?: boolean;
-    disabled: boolean;
-    changeHandler: (
-        locale: string,
-        v: AttrValue<string | number> | AttrValue<string | number>[] | undefined
-    ) => void;
-    readOnly?: boolean;
-    options: AttributeWidgetOptions;
-};
-
 export default function TranslatableAttributeTabs({
     currentLocale,
     onLocaleChange,
     definition,
-    indeterminate,
-    disabled,
     changeHandler,
     attributes,
-    readOnly,
     options,
-}: Props) {
+    ...attributeProps
+}: TranslatableAttributeTabsProps) {
     const {t} = useTranslation();
     const locales = React.useMemo<string[]>(() => {
         const l = [...definition.locales!];
@@ -101,6 +83,17 @@ export default function TranslatableAttributeTabs({
                     sx={{
                         '.MuiTab-root': {
                             textTransform: 'none',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 1,
+                        },
+                        '.MuiIcon-root': {
+                            display: 'block',
+                            fontSize: '1.2rem',
+                            mb: 0,
+                            height: 19,
                         },
                     }}
                 >
@@ -130,10 +123,7 @@ export default function TranslatableAttributeTabs({
                     >
                         {definition.multiple ? (
                             <MultiAttributeRow
-                                indeterminate={indeterminate}
-                                readOnly={readOnly}
-                                disabled={disabled}
-                                name={label}
+                                label={label}
                                 type={definition.fieldType}
                                 isRtl={isRtlLocale(locale)}
                                 values={
@@ -146,24 +136,23 @@ export default function TranslatableAttributeTabs({
                                 }
                                 id={definition.id}
                                 options={options}
+                                {...attributeProps}
                             />
                         ) : (
                             <AttributeWidget
-                                indeterminate={indeterminate}
-                                readOnly={readOnly}
                                 value={
                                     attributes[locale] as
                                         | AttrValue<string | number>
                                         | undefined
                                 }
-                                disabled={disabled}
                                 type={definition.fieldType}
                                 isRtl={isRtlLocale(locale)}
-                                name={label}
+                                label={label}
                                 required={false}
                                 onChange={v => changeHandler(locale, v)}
                                 id={definition.id}
                                 options={options}
+                                {...attributeProps}
                             />
                         )}
                     </TabPanel>

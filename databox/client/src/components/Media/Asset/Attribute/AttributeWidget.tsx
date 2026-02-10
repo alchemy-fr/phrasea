@@ -1,32 +1,18 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {AttrValue, createNewValue} from './AttributesEditor';
+import {AttrValue} from './AttributesEditor';
 import {getAttributeType} from './types';
 import {AttributeWidgetOptions} from './types/types';
 import {AttributeDefinition, EntityList} from '../../../../types.ts';
-
-import {AttributeType} from '../../../../api/types.ts';
-
-type Props = {
-    id: string;
-    type: AttributeType;
-    name: string;
-    value: AttrValue<string | number> | undefined;
-    disabled: boolean;
-    required: boolean;
-    indeterminate?: boolean;
-    readOnly?: boolean;
-    autoFocus?: boolean;
-    isRtl: boolean;
-    onChange: (value: AttrValue<string | number>) => void;
-    options: AttributeWidgetOptions;
-};
+import {AttributeWidgetProps} from './attributeTypes.ts';
+import {createNewValue} from './values.ts';
 
 export default function AttributeWidget({
     id,
     disabled,
     autoFocus,
-    name,
+    label,
     value: initialValue,
+    labelAlreadyRendered,
     onChange,
     isRtl,
     required,
@@ -34,7 +20,7 @@ export default function AttributeWidget({
     indeterminate,
     readOnly,
     options,
-}: Props) {
+}: AttributeWidgetProps) {
     const denormalizeInputValue = (
         initialValue: AttrValue<string | number> | undefined
     ) =>
@@ -81,9 +67,10 @@ export default function AttributeWidget({
                 value: value ? value.value : undefined,
                 isRtl,
                 onChange: changeHandler,
+                labelAlreadyRendered,
                 readOnly,
                 id,
-                name,
+                label,
                 required,
                 indeterminate,
                 autoFocus,

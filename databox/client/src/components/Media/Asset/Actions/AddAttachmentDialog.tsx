@@ -8,9 +8,14 @@ import SingleFileUploadWidget, {
     FileUploadForm,
 } from './SingleFileUploadWidget.tsx';
 import UploadIcon from '@mui/icons-material/Upload';
-import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
 import {postAttachment} from '../../../../api/attachment.ts';
-import {apiClient} from '../../../../init.ts';
+import {
+    extractTitleFromUrl,
+    getAssetTitleFromFile,
+    postAsset,
+    uploadAsset,
+} from '../../../../api/asset.ts';
+import {Entity} from '../../../../api/types.ts';
 
 type Props = {
     asset: Asset;
@@ -37,22 +42,27 @@ export default function AddAttachmentDialog({
         setUploading(true);
         try {
             const res = await (async () => {
-                if (!uploadForm.file) {
-                    return await postAttachment({
-                        assetId: asset.id,
-                        sourceFile: {
-                            url: uploadForm.url,
-                            importFile: uploadForm.importFile,
-                        },
-                    });
-                }
-                const multipart = await multipartUpload(
-                    apiClient,
-                    uploadForm.file
-                );
+                const workspaceIri = `/${Entity.Workspace}/${asset.workspace.id}`;
+                const attachment = uploadForm.file
+                    ? await uploadAsset({
+                          file: uploadForm.file,
+                          asset: {
+                              title: getAssetTitleFromFile(uploadForm.file, t),
+                              workspace: workspaceIri,
+                          },
+                      })
+                    : await postAsset({
+                          title: extractTitleFromUrl(uploadForm.url),
+                          sourceFile: {
+                              url: uploadForm.url,
+                              importFile: uploadForm.importFile,
+                          },
+                          workspace: workspaceIri,
+                      });
+
                 return await postAttachment({
                     assetId: asset.id,
-                    multipart,
+                    attachmentId: attachment.id,
                 });
             })();
 

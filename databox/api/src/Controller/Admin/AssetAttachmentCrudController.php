@@ -32,7 +32,7 @@ class AssetAttachmentCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(EntityFilter::new('asset'))
-            ->add(EntityFilter::new('file'))
+            ->add(EntityFilter::new('attachment'))
         ;
     }
 
@@ -42,7 +42,7 @@ class AssetAttachmentCrudController extends AbstractAdminCrudController
             ->hideOnForm();
         yield TextField::new('name');
         yield AssociationField::new('asset');
-        yield AssociationField::new('file');
+        yield AssociationField::new('attachment');
         yield IntegerField::new('priority');
 
     }

@@ -9,7 +9,7 @@ export default class StoryType
     implements AttributeTypeInstance<Asset>
 {
     renderWidget() {
-        return <></>;
+        return null;
     }
 
     normalize(value: Asset | undefined): string | undefined {

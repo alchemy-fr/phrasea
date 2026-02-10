@@ -16,6 +16,7 @@ use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
@@ -85,6 +86,8 @@ class AssetOutputTransformer implements OutputTransformerInterface
         $output->setExtraMetadata($data->getExtraMetadata());
         $output->deleted = $data->isDeleted();
         $output->trackingId = $data->getTrackingId();
+        $output->externalId = $data->getExternalId();
+        $output->resolvedTrackingId = $data->getResolvedTrackingId();
 
         $output->setSource($data->getSource());
 
@@ -204,7 +207,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
             }
 
             $output->thread = $this->discussionManager->getThreadOfObject($data);
-            $output->attachments = $data->getAttachments();
+            $output->attachments = array_filter($data->getAttachments()->getValues(), fn (AssetAttachment $attachment): bool => !$attachment->getAsset()->isDeleted() && $this->isGranted(AbstractVoter::READ, $attachment->getAsset()));
         }
 
         return $output;

@@ -1,16 +1,12 @@
 import {apiClient} from '../init.ts';
 import {AssetAttachment} from '../types';
-import type {MultipartUpload} from '@alchemy/api';
-import {SourceFileInput} from './file.ts';
 
 const entityType = 'attachments';
 
 type AttachmentInput = {
     name?: string | undefined;
     assetId: string;
-    sourceFileId?: string | undefined;
-    sourceFile?: SourceFileInput;
-    multipart?: MultipartUpload;
+    attachmentId: string;
 };
 
 export async function putAttachment(

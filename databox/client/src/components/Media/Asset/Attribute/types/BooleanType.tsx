@@ -50,7 +50,7 @@ export default class BooleanType
     renderWidget({
         value,
         onChange,
-        name,
+        label,
         inputRef,
     }: AttributeWidgetProps<boolean>): React.ReactNode {
         return (
@@ -63,7 +63,7 @@ export default class BooleanType
                         onChange={(_e, checked) => onChange(checked)}
                     />
                 }
-                label={name}
+                label={label}
             />
         );
     }

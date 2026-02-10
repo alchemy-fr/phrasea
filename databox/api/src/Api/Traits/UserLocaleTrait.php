@@ -2,6 +2,7 @@
 
 namespace App\Api\Traits;
 
+use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Attribute\AttributeInterface;
 use App\Entity\Core\Workspace;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -31,6 +32,15 @@ trait UserLocaleTrait
         $userLocales = $this->getUserLocales();
 
         return array_unique(array_filter(array_merge($userLocales, $workspace->getLocaleFallbacks(), [AttributeInterface::NO_LOCALE])));
+    }
+
+    protected function getBestWorkspaceLocale(Workspace $workspace): ?string
+    {
+        $userLocales = $this->getUserLocales();
+
+        return LocaleUtil::getBestLocale($workspace->getEnabledLocales(), $userLocales)
+            ?? LocaleUtil::getBestLocale($workspace->getLocaleFallbacks(), $userLocales)
+            ?? $workspace->getLocaleFallbacks()[0] ?? null;
     }
 
     #[Required]

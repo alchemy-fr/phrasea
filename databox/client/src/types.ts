@@ -86,9 +86,8 @@ export type MatomoMediaMetrics = {
 
 export type AssetAttachment = {
     asset?: Asset;
-    file: ApiFile;
+    attachment: Asset;
     name?: string | undefined;
-    resolvedName: string;
     priority: number;
     updatedAt: Readonly<string>;
     createdAt: Readonly<string>;
@@ -128,6 +127,7 @@ export interface Asset
     storyCollection?: Collection | undefined;
     deleted?: boolean;
     trackingId?: string;
+    resolvedTrackingId: string;
 }
 
 type AttrValue = any;

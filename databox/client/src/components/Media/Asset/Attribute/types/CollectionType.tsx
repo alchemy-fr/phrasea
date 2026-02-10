@@ -9,7 +9,7 @@ export default class CollectionType
     implements AttributeTypeInstance<Collection>
 {
     renderWidget() {
-        return <></>;
+        return null;
     }
 
     normalize(value: Collection | undefined): string | undefined {

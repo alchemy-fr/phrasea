@@ -10,7 +10,7 @@ export default class UserType
     implements AttributeTypeInstance<Workspace>
 {
     renderWidget() {
-        return <></>;
+        return null;
     }
 
     normalize(value: User | undefined): string | undefined {

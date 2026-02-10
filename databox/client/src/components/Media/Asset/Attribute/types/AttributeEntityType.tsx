@@ -4,7 +4,7 @@ import {
     AttributeWidgetProps,
 } from './types';
 import React from 'react';
-import {FormLabel} from '@mui/material';
+import {InputLabel} from '@mui/material';
 import {AttributeEntity} from '../../../../../types.ts';
 import AttributeEntitySelect, {
     AttributeEntityOption,
@@ -16,8 +16,9 @@ export default class AttributeEntityType
     implements AttributeTypeInstance<AttributeEntity>
 {
     renderWidget({
+        labelAlreadyRendered,
         value,
-        name,
+        label,
         onChange,
         id,
         readOnly,
@@ -26,12 +27,11 @@ export default class AttributeEntityType
     }: AttributeWidgetProps<AttributeEntity>): React.ReactNode {
         return (
             <>
-                <FormLabel>{name}</FormLabel>
+                {!labelAlreadyRendered && <InputLabel>{label}</InputLabel>}
                 <AttributeEntitySelect
                     id={id}
                     multiple={false}
                     list={options.list}
-                    name={name}
                     disabled={readOnly || disabled}
                     value={value?.id}
                     onChange={newValue => {

@@ -15,8 +15,9 @@ export default class TagsType
     implements AttributeTypeInstance<Tag>
 {
     renderWidget({
+        labelAlreadyRendered,
         value,
-        name,
+        label,
         onChange,
         id,
         readOnly,
@@ -24,11 +25,10 @@ export default class TagsType
     }: AttributeWidgetProps<Tag>): React.ReactNode {
         return (
             <>
-                <FormLabel>{name}</FormLabel>
+                {!labelAlreadyRendered && <FormLabel>{label}</FormLabel>}
                 <TagSelect
                     id={id}
                     multiple={false}
-                    name={name}
                     disabled={readOnly || disabled}
                     value={value?.['@id']}
                     onChange={newValue => {

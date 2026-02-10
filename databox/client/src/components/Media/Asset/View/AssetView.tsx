@@ -192,7 +192,7 @@ export default function AssetView({modalIndex, open}: Props) {
     React.useEffect(() => {
         if (asset && isImpressionTrackedRef.current !== asset.id) {
             trackContentImpression(
-                asset.trackingId || asset.id,
+                asset.resolvedTrackingId,
                 asset.resolvedTitle
             );
             isImpressionTrackedRef.current = asset.id;
@@ -302,8 +302,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                                     }
                                                     title={displayedAsset.title}
                                                     trackingId={
-                                                        displayedAsset.trackingId ||
-                                                        displayedAsset.id
+                                                        displayedAsset.resolvedTrackingId
                                                     }
                                                     dimensions={dimensions}
                                                     autoPlayable={false}

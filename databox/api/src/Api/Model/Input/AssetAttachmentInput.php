@@ -6,9 +6,8 @@ namespace App\Api\Model\Input;
 
 class AssetAttachmentInput
 {
-    use UploadInputTrait;
-
     public ?string $assetId = null;
+    public ?string $attachmentId = null;
 
     public ?string $name = null;
 

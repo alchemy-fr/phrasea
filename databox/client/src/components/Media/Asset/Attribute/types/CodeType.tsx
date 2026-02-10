@@ -6,8 +6,9 @@ import React from 'react';
 
 export default class CodeType extends TextareaType {
     renderWidget({
+        labelAlreadyRendered,
         value,
-        name,
+        label,
         onChange,
         id,
         readOnly,
@@ -15,7 +16,7 @@ export default class CodeType extends TextareaType {
     }: AttributeWidgetProps<string>): React.ReactNode {
         return (
             <>
-                <FormLabel>{name}</FormLabel>
+                {!labelAlreadyRendered && <FormLabel>{label}</FormLabel>}
                 <CodeEditor
                     readOnly={readOnly || disabled || false}
                     mode={this.getAceMode()}

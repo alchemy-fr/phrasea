@@ -526,12 +526,12 @@
         "confirm_delete_this_rule": "Confirmer la suppression de cette règle ?",
         "exclude": {
             "helper": "Les Assets dans ce {{type}} seront seulement visibles s'ils NE contiennent PAS ces tags.",
-            "label": "Tags à <b>exclure</b>"
+            "label": "Tags à <strong>exclure</strong>"
         },
         "group": "Groupe",
         "include": {
             "helper": "Les assets dans ce {{type}} seront seulement visibles s'ils contiennent ces tags.",
-            "label": "Tags à <b>inclure</b>"
+            "label": "Tags à <strong>inclure</strong>"
         },
         "or": "ou",
         "rule_applies_for": "La règle s'applique pour :",
