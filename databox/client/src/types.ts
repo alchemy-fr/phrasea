@@ -127,6 +127,7 @@ export interface Asset
     storyCollection?: Collection | undefined;
     deleted?: boolean;
     trackingId?: string;
+    resolvedTrackingId: string;
 }
 
 type AttrValue = any;

@@ -331,6 +331,10 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     #[Assert\Length(max: 100)]
+    private ?string $externalId = null;
+
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
+    #[Assert\Length(max: 100)]
     private ?string $trackingId = null;
 
     /**
@@ -738,6 +742,21 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     public function getAttachments(): ?DoctrineCollection
     {
         return $this->attachments;
+    }
+
+    public function getExternalId(): ?string
+    {
+        return $this->externalId;
+    }
+
+    public function setExternalId(?string $externalId): void
+    {
+        $this->externalId = $externalId;
+    }
+
+    public function getResolvedTrackingId(): string
+    {
+        return $this->getTrackingId() ?: $this->getExternalId() ?: $this->getId();
     }
 
     public function getTrackingId(): ?string

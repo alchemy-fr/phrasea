@@ -86,6 +86,8 @@ class AssetOutputTransformer implements OutputTransformerInterface
         $output->setExtraMetadata($data->getExtraMetadata());
         $output->deleted = $data->isDeleted();
         $output->trackingId = $data->getTrackingId();
+        $output->externalId = $data->getExternalId();
+        $output->resolvedTrackingId = $data->getResolvedTrackingId();
 
         $output->setSource($data->getSource());
 

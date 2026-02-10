@@ -153,6 +153,12 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_READ])]
     public ?string $trackingId = null;
 
+    #[Groups([Asset::GROUP_READ])]
+    public ?string $externalId = null;
+
+    #[Groups([Asset::GROUP_LIST])]
+    public ?string $resolvedTrackingId = null;
+
     /**
      * Used for result grouping.
      */

@@ -81,6 +81,10 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             $object->setTrackingId($data->trackingId);
         }
 
+        if ($data->externalId) {
+            $object->setExternalId($data->externalId);
+        }
+
         if (null !== $data->getExtraMetadata()) {
             $object->setExtraMetadata($data->getExtraMetadata());
         }
