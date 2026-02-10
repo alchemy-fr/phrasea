@@ -6,7 +6,6 @@ import {
     Divider,
     ListItem,
     ListItemIcon,
-    ListItemSecondaryAction,
     ListItemText,
     MenuList,
     Typography,
@@ -64,132 +63,141 @@ function AssetAttachments({asset}: Props) {
                     disablePadding={true}
                 >
                     {attachments?.map((attachment: AssetAttachment) => {
+                        const file = attachment.attachment.source!;
+
                         return (
-                            <ListItem key={attachment.id} onClick={() => {}}>
+                            <ListItem
+                                key={attachment.id}
+                                secondaryAction={
+                                    <>
+                                        {file.url ? (
+                                            <IconButton
+                                                component={'a'}
+                                                href={file.url!}
+                                                target={'_blank'}
+                                                rel={'noopener noreferrer'}
+                                            >
+                                                <DownloadIcon />
+                                            </IconButton>
+                                        ) : null}
+                                        <DropdownActions
+                                            disablePortal={false}
+                                            mainButton={({...props}) => (
+                                                <IconButton {...props}>
+                                                    <MoreVertIcon />
+                                                </IconButton>
+                                            )}
+                                        >
+                                            {closeMenu => [
+                                                <MenuItem
+                                                    key={'rename'}
+                                                    onClick={closeMenu(() => {
+                                                        openModal(
+                                                            RenameAttachmentDialog,
+                                                            {
+                                                                attachment,
+                                                                onEdit: (
+                                                                    editedAttachment: AssetAttachment
+                                                                ) => {
+                                                                    setAttachments(
+                                                                        prev =>
+                                                                            prev.map(
+                                                                                att =>
+                                                                                    att.id ===
+                                                                                    editedAttachment.id
+                                                                                        ? editedAttachment
+                                                                                        : att
+                                                                            )
+                                                                    );
+                                                                },
+                                                            }
+                                                        );
+                                                    })}
+                                                >
+                                                    <ListItemIcon>
+                                                        <EditIcon />
+                                                    </ListItemIcon>
+                                                    <ListItemText
+                                                        primary={t(
+                                                            'asset.view.rename_attachment',
+                                                            'Rename Attachment'
+                                                        )}
+                                                    />
+                                                </MenuItem>,
+                                                <Divider key={'divider1'} />,
+                                                <MenuItem
+                                                    key={'delete'}
+                                                    onClick={closeMenu(() => {
+                                                        openModal(
+                                                            ConfirmDialog,
+                                                            {
+                                                                title: t(
+                                                                    'asset.view.delete_attachment.confirm_title',
+                                                                    'Delete Attachment'
+                                                                ),
+                                                                children: t(
+                                                                    'asset.view.delete_attachment.confirm_message',
+                                                                    'Are you sure you want to delete this attachment? This action cannot be undone.'
+                                                                ),
+                                                                confirmLabel: t(
+                                                                    'asset.view.delete_attachment.confirm_button',
+                                                                    'Delete'
+                                                                ),
+                                                                confirmButtonProps:
+                                                                    {
+                                                                        color: 'error',
+                                                                        startIcon:
+                                                                            (
+                                                                                <DeleteIcon />
+                                                                            ),
+                                                                    },
+                                                                onConfirm:
+                                                                    async () => {
+                                                                        setAttachments(
+                                                                            prev =>
+                                                                                prev.filter(
+                                                                                    att =>
+                                                                                        att.id !==
+                                                                                        attachment.id
+                                                                                )
+                                                                        );
+                                                                        deleteAttachment(
+                                                                            attachment.id
+                                                                        );
+                                                                    },
+                                                            }
+                                                        );
+                                                    })}
+                                                >
+                                                    <ListItemIcon>
+                                                        <DeleteIcon />
+                                                    </ListItemIcon>
+                                                    <ListItemText
+                                                        primary={t(
+                                                            'asset.view.delete_attachment.button',
+                                                            'Delete Attachment'
+                                                        )}
+                                                    />
+                                                </MenuItem>,
+                                            ]}
+                                        </DropdownActions>
+                                    </>
+                                }
+                            >
                                 <ListItemIcon>
                                     <AttachFileIcon />
                                 </ListItemIcon>
                                 <ListItemText
                                     primary={
-                                        attachment.resolvedName ||
-                                        attachment.name
+                                        attachment.name ||
+                                        attachment.attachment.resolvedTitle
                                     }
                                     secondary={
-                                        !attachment.file.accepted ? (
-                                            <FileAnalysisChip
-                                                file={attachment.file}
-                                            />
+                                        !file.accepted ? (
+                                            <FileAnalysisChip file={file} />
                                         ) : undefined
                                     }
                                 />
-
-                                <ListItemSecondaryAction>
-                                    {attachment.file.url ? (
-                                        <IconButton
-                                            component={'a'}
-                                            href={attachment.file.url!}
-                                            target={'_blank'}
-                                            rel={'noopener noreferrer'}
-                                        >
-                                            <DownloadIcon />
-                                        </IconButton>
-                                    ) : null}
-                                    <DropdownActions
-                                        disablePortal={false}
-                                        mainButton={({...props}) => (
-                                            <IconButton {...props}>
-                                                <MoreVertIcon />
-                                            </IconButton>
-                                        )}
-                                    >
-                                        {closeMenu => [
-                                            <MenuItem
-                                                key={'rename'}
-                                                onClick={closeMenu(() => {
-                                                    openModal(
-                                                        RenameAttachmentDialog,
-                                                        {
-                                                            attachment,
-                                                            onEdit: (
-                                                                editedAttachment: AssetAttachment
-                                                            ) => {
-                                                                setAttachments(
-                                                                    prev =>
-                                                                        prev.map(
-                                                                            att =>
-                                                                                att.id ===
-                                                                                editedAttachment.id
-                                                                                    ? editedAttachment
-                                                                                    : att
-                                                                        )
-                                                                );
-                                                            },
-                                                        }
-                                                    );
-                                                })}
-                                            >
-                                                <ListItemIcon>
-                                                    <EditIcon />
-                                                </ListItemIcon>
-                                                <ListItemText
-                                                    primary={t(
-                                                        'asset.view.rename_attachment',
-                                                        'Rename Attachment'
-                                                    )}
-                                                />
-                                            </MenuItem>,
-                                            <Divider key={'divider1'} />,
-                                            <MenuItem
-                                                key={'delete'}
-                                                onClick={closeMenu(() => {
-                                                    openModal(ConfirmDialog, {
-                                                        title: t(
-                                                            'asset.view.delete_attachment.confirm_title',
-                                                            'Delete Attachment'
-                                                        ),
-                                                        children: t(
-                                                            'asset.view.delete_attachment.confirm_message',
-                                                            'Are you sure you want to delete this attachment? This action cannot be undone.'
-                                                        ),
-                                                        confirmLabel: t(
-                                                            'asset.view.delete_attachment.confirm_button',
-                                                            'Delete'
-                                                        ),
-                                                        confirmButtonProps: {
-                                                            color: 'error',
-                                                            startIcon: (
-                                                                <DeleteIcon />
-                                                            ),
-                                                        },
-                                                        onConfirm: async () => {
-                                                            setAttachments(
-                                                                prev =>
-                                                                    prev.filter(
-                                                                        att =>
-                                                                            att.id !==
-                                                                            attachment.id
-                                                                    )
-                                                            );
-                                                            deleteAttachment(
-                                                                attachment.id
-                                                            );
-                                                        },
-                                                    });
-                                                })}
-                                            >
-                                                <ListItemIcon>
-                                                    <DeleteIcon />
-                                                </ListItemIcon>
-                                                <ListItemText
-                                                    primary={t(
-                                                        'asset.view.delete_attachment.button',
-                                                        'Delete Attachment'
-                                                    )}
-                                                />
-                                            </MenuItem>,
-                                        ]}
-                                    </DropdownActions>
-                                </ListItemSecondaryAction>
                             </ListItem>
                         );
                     })}

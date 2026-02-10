@@ -75,6 +75,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -89,6 +90,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             provider: SearchSuggestionCollectionProvider::class,
         ),
         new Get(
+            normalizationContext: [
+                AbstractObjectNormalizer::ENABLE_MAX_DEPTH => true,
+                'groups' => [
+                    self::GROUP_LIST,
+                    self::GROUP_READ,
+                    Collection::GROUP_ABSOLUTE_TITLE,
+                ],
+            ],
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
         new Get(

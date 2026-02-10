@@ -28,15 +28,13 @@ class AssetAttachmentInputTransformer extends AbstractFileInputTransformer
             $object = new AssetAttachment();
             $asset = $context['asset'] ?? $this->getEntity(Asset::class, $data->assetId);
             $object->setAsset($asset);
-        }
+            $attachment = $this->getEntity(Asset::class, $data->attachmentId);
 
-        $workspace = $object->getAsset()->getWorkspace();
-        $file = $this->handleSource($data->sourceFile, $workspace)
-            ?? $this->handleFromFile($data->sourceFileId, $workspace)
-            ?? $this->handleUpload($data->multipart, $workspace);
-        if (null !== $file) {
-            $this->em->persist($file);
-            $object->setFile($file);
+            if ($attachment->getWorkspaceId() !== $asset->getWorkspaceId()) {
+                throw new \InvalidArgumentException(sprintf('Attachment "%s" does not belong to the same workspace as asset "%s"', $data->attachmentId, $data->assetId));
+            }
+
+            $object->setAttachment($attachment);
         }
 
         if (null !== $data->name) {

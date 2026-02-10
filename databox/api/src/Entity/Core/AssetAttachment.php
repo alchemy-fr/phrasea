@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AssetAttachmentInput;
 use App\Entity\Traits\ExtraMetadataTrait;
 use App\Security\Voter\AbstractVoter;
+use App\Validator\SameWorkspaceConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -29,17 +30,29 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new Put(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
-        new GetCollection(),
+        new GetCollection(
+            normalizationContext: [
+                'groups' => [
+                    AssetAttachment::GROUP_LIST,
+                ],
+            ],
+        ),
     ],
     normalizationContext: [
         'groups' => [
             AssetAttachment::GROUP_LIST,
+            AssetAttachment::GROUP_READ,
+            Asset::GROUP_LIST,
+            Asset::GROUP_READ,
         ],
     ],
     input: AssetAttachmentInput::class,
 )]
 #[ORM\Table]
 #[ORM\Entity]
+#[SameWorkspaceConstraint(
+    properties: ['asset.workspace', 'attachment.workspace']
+)]
 class AssetAttachment extends AbstractUuidEntity
 {
     use CreatedAtTrait;
@@ -58,10 +71,10 @@ class AssetAttachment extends AbstractUuidEntity
     #[Groups([AssetAttachment::GROUP_LIST])]
     private ?Asset $asset = null;
 
-    #[ORM\ManyToOne(targetEntity: File::class)]
+    #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups([AssetAttachment::GROUP_LIST, Asset::GROUP_READ])]
-    private ?File $file = null;
+    private ?Asset $attachment = null;
 
     #[Groups([AssetAttachment::GROUP_LIST])]
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
@@ -70,12 +83,6 @@ class AssetAttachment extends AbstractUuidEntity
     public function getName(): ?string
     {
         return $this->name;
-    }
-
-    #[Groups([AssetAttachment::GROUP_LIST, Asset::GROUP_READ])]
-    public function getResolvedName(): string
-    {
-        return $this->name ?: $this->file?->getFilename();
     }
 
     public function setName(?string $name): void
@@ -93,14 +100,14 @@ class AssetAttachment extends AbstractUuidEntity
         $this->asset = $asset;
     }
 
-    public function getFile(): ?File
+    public function getAttachment(): ?Asset
     {
-        return $this->file;
+        return $this->attachment;
     }
 
-    public function setFile(?File $file): void
+    public function setAttachment(?Asset $file): void
     {
-        $this->file = $file;
+        $this->attachment = $file;
     }
 
     public function getPriority(): int

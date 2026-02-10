@@ -41,3 +41,10 @@ export enum AttributeType {
     Rendition = 'rendition',
     User = 'user',
 }
+
+export enum Entity {
+    Asset = 'assets',
+    Attachment = 'attachments',
+    Collection = 'collections',
+    Workspace = 'workspaces',
+}
