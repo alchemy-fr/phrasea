@@ -320,7 +320,6 @@ services:
       - ZIPPY_CLIENT_ID
       - ZIPPY_CLIENT_SECRET
       - ZIPPY_URL
-      - SIDEBAR_DEFAULT_OPEN=${EXPOSE_SIDEBAR_DEFAULT_OPEN}
       - MAPBOX_TOKEN
       - EXPOSE_CLIENT_LOGO_URL
       - EXPOSE_CLIENT_LOGO_ALT
@@ -415,7 +414,7 @@ services:
 
   dockerize:
     profiles:
-      - setup
+      - dockerize
     image: jwilder/dockerize:0.6.1
     networks:
       - internal
@@ -956,7 +955,12 @@ services:
     profiles:
       - configurator
     environment:
-      - SERVICE_WAIT_TIMEOUT=${CONFIGURATOR_SERVICE_WAIT_TIMEOUT}
+      - CONFIGURATOR_SERVICE_WAIT_TIMEOUT
+      - CONFIGURATOR_CONFIGURE_DATABASE
+      - CONFIGURATOR_CONFIGURE_KEYCLOAK
+      - CONFIGURATOR_CONFIGURE_MINIO
+      - CONFIGURATOR_CONFIGURE_RABBITMQ
+      - CONFIGURATOR_CONFIGURE_S3
       - APP_ENV
       - KEYCLOAK_URL
       - KEYCLOAK_INTERNAL_URL
@@ -981,7 +985,7 @@ services:
       - DATABOX_CLIENT_URL
       - EXPOSE_CLIENT_URL
       - UPLOADER_CLIENT_URL
-      - DASHBOARD_CLIENT_URL=${DASHBOARD_CLIENT_URL}
+      - DASHBOARD_CLIENT_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_HOST
@@ -1044,6 +1048,7 @@ services:
       - UPLOADER_S3_BUCKET_NAME
       - INDEXER_BUCKET_NAME
       - S3_ENDPOINT
+      - S3_INTERNAL_URL
       - S3_USE_PATH_STYLE_ENDPOINT
       - S3_ACCESS_KEY
       - S3_SECRET_KEY

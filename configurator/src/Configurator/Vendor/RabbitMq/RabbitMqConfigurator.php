@@ -6,7 +6,7 @@ namespace App\Configurator\Vendor\RabbitMq;
 
 use App\Configurator\ConfiguratorInterface;
 use App\Service\ServiceWaiter;
-use App\Util\HttpClientUtil;
+use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final readonly class RabbitMqConfigurator implements ConfiguratorInterface
@@ -32,23 +32,20 @@ final readonly class RabbitMqConfigurator implements ConfiguratorInterface
 
     public function configure(OutputInterface $output, array $presets): void
     {
-        HttpClientUtil::waitForHostPort($output, getenv('RABBITMQ_HOST'), (int) getenv('RABBITMQ_PORT'));
-        $rabbitConsoleUrl = getenv('RABBITMQ_CONSOLE_URL');
-        if (empty($rabbitConsoleUrl)) {
-            throw new \RuntimeException('RABBITMQ_CONSOLE_URL environment variable is not set');
-        }
+        $this->rabbitMqManager->awaitService($output);
+        $rabbitConsoleUrl = EnvHelper::getEnvOrThrow('RABBITMQ_CONSOLE_URL');
         $this->serviceWaiter->waitForService($output, $rabbitConsoleUrl);
 
         foreach ($this->symfonyApplications as $symfonyApplication) {
-            $vhost = getenv(sprintf('%s_RABBITMQ_VHOST', strtoupper($symfonyApplication)));
+            $vhost = EnvHelper::getEnvOrThrow(sprintf('%s_RABBITMQ_VHOST', strtoupper($symfonyApplication)));
             $this->rabbitMqManager->addVhost($vhost);
-            $this->rabbitMqManager->setPermissions($vhost, getenv('RABBITMQ_USER'));
+            $this->rabbitMqManager->setPermissions($vhost, EnvHelper::getEnvOrThrow('RABBITMQ_USER'));
             $output->writeln(sprintf('RabbitMQ vhost created for %s application: %s', $symfonyApplication, $vhost));
         }
 
         $s3EventVhostName = self::S3_EVENTS_VHOST;
         $this->rabbitMqManager->addVhost($s3EventVhostName);
-        $this->rabbitMqManager->setPermissions($s3EventVhostName, getenv('RABBITMQ_USER'));
+        $this->rabbitMqManager->setPermissions($s3EventVhostName, EnvHelper::getEnvOrThrow('RABBITMQ_USER'));
         $output->writeln(sprintf('RabbitMQ vhost created for S3 events: %s', $s3EventVhostName));
 
         $this->rabbitMqManager->createExchange(

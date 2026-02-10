@@ -2,6 +2,9 @@
 
 namespace App\Configurator\Vendor\RabbitMq;
 
+use App\Util\EnvHelper;
+use App\Util\HttpClientUtil;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class RabbitMqManager
@@ -54,5 +57,10 @@ final readonly class RabbitMqManager
                 'routing_key' => $routingKey,
             ],
         ]);
+    }
+
+    public function awaitService(OutputInterface $output): void
+    {
+        HttpClientUtil::waitForHostPort($output, EnvHelper::getEnvOrThrow('RABBITMQ_HOST'), (int) EnvHelper::getEnvOrThrow('RABBITMQ_PORT'));
     }
 }

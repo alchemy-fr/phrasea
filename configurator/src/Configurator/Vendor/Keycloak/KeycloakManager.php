@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Configurator\Vendor\Keycloak;
 
+use App\Util\EnvHelper;
 use App\Util\HttpClientUtil;
 use App\Util\UriTemplate;
 use Symfony\Component\HttpClient\Exception\ClientException;
@@ -47,8 +48,8 @@ final class KeycloakManager
                 'body' => [
                     'client_id' => 'admin-cli',
                     'grant_type' => 'password',
-                    'username' => getenv('KEYCLOAK_ADMIN'),
-                    'password' => getenv('KEYCLOAK_ADMIN_PASSWORD'),
+                    'username' => EnvHelper::getEnvOrThrow('KEYCLOAK_ADMIN'),
+                    'password' => EnvHelper::getEnvOrThrow('KEYCLOAK_ADMIN_PASSWORD'),
                 ],
             ]);
 

@@ -8,7 +8,7 @@ load-env
 
 set -ex
 
-export COMPOSE_PROFILES=setup,db,databox
+export COMPOSE_PROFILES=db,databox
 
 docker compose up -d
 

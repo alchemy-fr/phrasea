@@ -7,9 +7,18 @@ namespace Alchemy\MessengerBundle\Listener;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsDoctrineListener(Events::postFlush)]
+#[AsEventListener(KernelEvents::TERMINATE, 'reset', priority: -255)]
+#[AsEventListener(ConsoleEvents::TERMINATE, 'reset', priority: -255)]
+#[AsEventListener(WorkerMessageHandledEvent::class, method: 'reset', priority: -255)]
+#[AsEventListener(WorkerMessageFailedEvent::class, method: 'reset', priority: -255)]
 final class PostFlushStack
 {
     private array $callbacks = [];
@@ -19,6 +28,12 @@ final class PostFlushStack
         private readonly MessageBusInterface $bus,
         private readonly TerminateStackListener $terminateStackListener,
     ) {
+    }
+
+    public function reset(): void
+    {
+        $this->callbacks = [];
+        $this->messages = [];
     }
 
     public function addCallback(callable $callback): void
