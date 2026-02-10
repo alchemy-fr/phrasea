@@ -1,10 +1,5 @@
 import React, {useCallback, useEffect} from 'react';
-import {
-    AttributeIndex,
-    AttrValue,
-    DefinitionIndex,
-    OnChangeHandler,
-} from './AttributesEditor';
+import {AttributeIndex, AttrValue, DefinitionIndex} from './AttributesEditor';
 import {AssetTypeFilter, Attribute} from '../../../../types';
 import {getAsset, getAssetAttributes} from '../../../../api/asset';
 import {getBatchActions} from './BatchActions';
@@ -14,6 +9,7 @@ import {
     useAttributeDefinitionStore,
     useIndexById,
 } from '../../../../store/attributeDefinitionStore.ts';
+import {OnChangeHandler} from './attributeTypes.ts';
 
 type Props = {
     workspaceId: string | undefined;

@@ -1,18 +1,30 @@
-import {Asset, Tag} from '../../../types';
+import {Asset, AssetTypeFilter, Tag} from '../../../types';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
 import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
-import {AssetApiInput, putAsset} from '../../../api/asset';
+import {
+    AssetApiInput,
+    attributeBatchUpdate,
+    putAsset,
+} from '../../../api/asset';
 import {Privacy} from '../../../api/privacy';
-import {FormRow} from '@alchemy/react-form';
-import {FormGroup, InputLabel, TextField} from '@mui/material';
-import {FormFieldErrors} from '@alchemy/react-form';
+import {FormFieldErrors, FormRow} from '@alchemy/react-form';
+import {
+    FormGroup,
+    FormLabel,
+    InputLabel,
+    Skeleton,
+    TextField,
+} from '@mui/material';
 import TagSelect from '../../Form/TagSelect';
 import PrivacyField from '../../Ui/PrivacyField';
 import {useAssetStore} from '../../../store/assetStore.ts';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
+import {useAttributeEditor} from '../../Media/Asset/Attribute/useAttributeEditor.ts';
+import React from 'react';
+import AttributesEditor from '../../Media/Asset/Attribute/AttributesEditor.tsx';
 
 type Props = {
     id: string;
@@ -21,14 +33,56 @@ type Props = {
 
 export default function EditAsset({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
+    const assetTypeFilter = data.storyCollection
+        ? AssetTypeFilter.Story
+        : AssetTypeFilter.Asset;
 
     const formId = 'edit-asset';
     const updateAsset = useAssetStore(s => s.update);
 
+    const [error, setError] = React.useState<string | undefined>();
+
+    const {
+        getActions,
+        onChangeHandler,
+        attributes,
+        definitionIndex,
+        reloadAssetAttributes,
+        dirty: attributesDirty,
+    } = useAttributeEditor({
+        workspaceId: data.workspace.id,
+        assetId: data.id,
+        target: assetTypeFilter,
+    });
+
+    const saveAttributes = React.useCallback(async () => {
+        const actions = getActions();
+        try {
+            if (actions.length > 0) {
+                await attributeBatchUpdate(data.id, actions);
+            }
+            await reloadAssetAttributes(data.id);
+
+            if (error) {
+                setError(undefined);
+            }
+        } catch (e: any) {
+            console.error('e', e);
+            if (e.response && typeof e.response.data === 'object') {
+                const data = e.response.data;
+                setError(
+                    `${data['hydra:title']}: ${data['hydra:description']}`
+                );
+            } else {
+                setError(e.toString());
+            }
+        }
+    }, [getActions]);
+
     const {
         register,
         control,
-        formState: {errors},
+        formState: {errors, isDirty: editDirty},
         submitting,
         handleSubmit,
         remoteErrors,
@@ -47,13 +101,20 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
                   tags: [] as Tag[],
               },
         onSubmit: async d => {
-            const asset = await putAsset(
-                data.id,
-                d as unknown as AssetApiInput
-            );
-            updateAsset(asset);
+            if (attributesDirty) {
+                await saveAttributes();
+            }
 
-            return asset;
+            if (editDirty) {
+                const asset = await putAsset(
+                    data.id,
+                    d as unknown as AssetApiInput
+                );
+                updateAsset(asset);
+                return asset;
+            }
+
+            return data;
         },
         onSuccess: () => {
             toast.success(
@@ -63,7 +124,7 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
         },
     });
 
-    useDirtyFormPrompt(forbidNavigation);
+    useDirtyFormPrompt(!submitting && (attributesDirty || forbidNavigation));
 
     return (
         <FormTab
@@ -107,6 +168,44 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
                     <PrivacyField control={control} name={'privacy'} />
                 </FormRow>
             </form>
+            {data.capabilities.canEditAttributes ? (
+                attributes && definitionIndex ? (
+                    <AttributesEditor
+                        attributes={attributes}
+                        definitions={definitionIndex}
+                        disabled={submitting}
+                        onChangeHandler={onChangeHandler}
+                        assetTypeFilter={assetTypeFilter}
+                    />
+                ) : (
+                    <>
+                        {[0, 1, 2].map(x => (
+                            <React.Fragment key={x}>
+                                <FormRow>
+                                    <FormLabel>
+                                        <Skeleton
+                                            width={'200'}
+                                            variant={'text'}
+                                            style={{
+                                                display: 'inline-block',
+                                                width: '200px',
+                                            }}
+                                        />
+                                    </FormLabel>
+                                    <Skeleton
+                                        width={'100%'}
+                                        height={56}
+                                        variant={'rectangular'}
+                                        sx={{
+                                            mb: 2,
+                                        }}
+                                    />
+                                </FormRow>
+                            </React.Fragment>
+                        ))}
+                    </>
+                )
+            ) : null}
         </FormTab>
     );
 }

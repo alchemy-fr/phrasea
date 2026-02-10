@@ -5,7 +5,8 @@ export type AttributeWidgetOptions = Record<string, any>;
 
 export type AttributeWidgetProps<T> = {
     id: string;
-    name: string;
+    label: string;
+    labelAlreadyRendered?: boolean;
     value: any;
     onChange: (value: T | undefined) => void;
     readOnly?: boolean;

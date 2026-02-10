@@ -16,17 +16,18 @@ enum Formats {
 
 export default class ColorType extends TextType {
     renderWidget({
+        labelAlreadyRendered,
         value,
         onChange,
         disabled,
-        name,
+        label,
         readOnly,
     }: AttributeWidgetProps<string>): React.ReactNode {
         return (
             <ColorPicker
                 color={value}
                 onChange={onChange}
-                label={name}
+                label={!labelAlreadyRendered ? label : undefined}
                 readOnly={readOnly}
                 disabled={disabled}
             />

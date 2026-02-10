@@ -179,7 +179,7 @@ export default function MultiAttributeRow<T>({
             <AttributeWidget<T>
                 id={id}
                 key={id}
-                name={nameTranslated ?? name}
+                label={nameTranslated ?? name}
                 inputRef={inputRef}
                 type={type}
                 isRtl={false}

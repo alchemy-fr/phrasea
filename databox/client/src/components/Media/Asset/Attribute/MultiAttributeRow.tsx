@@ -1,42 +1,28 @@
-import {useCallback, useEffect, useState} from 'react';
-import {Button} from '@mui/material';
+import {useCallback, useEffect, useRef, useState} from 'react';
+import {Box, Button} from '@mui/material';
 import AttributeWidget from './AttributeWidget';
-import {AttrValue, createNewValue} from './AttributesEditor';
+import {AttrValue} from './AttributesEditor';
 import {FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {AttributeWidgetOptions} from './types/types';
-
-import {AttributeType} from '../../../../api/types.ts';
-
-type Props = {
-    id: string;
-    type: AttributeType;
-    name?: string;
-    values: AttrValue<string | number>[];
-    onChange: (values: AttrValue<string | number>[]) => void;
-    isRtl: boolean;
-    disabled: boolean;
-    indeterminate?: boolean;
-    readOnly?: boolean;
-    options: AttributeWidgetOptions;
-};
-
-const deferred = 0;
+import {MultiAttributeRowProps} from './attributeTypes.ts';
+import {createNewValue} from './values.ts';
 
 export default function MultiAttributeRow({
     id,
-    name,
+    label,
     values: initialValues,
     disabled,
     isRtl,
     onChange,
     type,
-    indeterminate,
     readOnly,
     options,
-}: Props) {
+    ...attributeProps
+}: MultiAttributeRowProps) {
+    const deferred = 0;
+    const interactedRef = useRef(false);
     const {t} = useTranslation();
     const [values, setValues] = useState<AttrValue<string | number>[]>(
         initialValues.length > 0 ? initialValues : [createNewValue(type)]
@@ -68,6 +54,7 @@ export default function MultiAttributeRow({
     );
 
     const add = () => {
+        interactedRef.current = true;
         setValues(prev => {
             const nv = prev.concat(createNewValue(type));
 
@@ -88,22 +75,33 @@ export default function MultiAttributeRow({
     };
 
     return (
-        <FormRow>
+        <FormRow
+            sx={{
+                mt: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1,
+            }}
+        >
             {values.map((v: AttrValue<string | number>, i: number) => {
                 return (
                     <div key={v.id}>
-                        <FormRow
+                        <Box
                             sx={{
                                 display: 'flex',
+                                gap: 1,
                             }}
                         >
                             <AttributeWidget
-                                indeterminate={indeterminate}
                                 readOnly={readOnly}
                                 value={v}
+                                autoFocus={
+                                    interactedRef.current &&
+                                    i === values.length - 1
+                                }
                                 isRtl={isRtl}
                                 disabled={disabled}
-                                name={`${name} #${i + 1}`}
+                                label={`${label} #${i + 1}`}
                                 type={type}
                                 required={true}
                                 onChange={v => {
@@ -111,6 +109,7 @@ export default function MultiAttributeRow({
                                 }}
                                 id={`${id}_${i}`}
                                 options={options}
+                                {...attributeProps}
                             />
                             <Button
                                 startIcon={<DeleteIcon />}
@@ -124,22 +123,24 @@ export default function MultiAttributeRow({
                                     'Remove'
                                 )}
                             </Button>
-                        </FormRow>
+                        </Box>
                     </div>
                 );
             })}
 
-            <Button
-                startIcon={<AddIcon />}
-                variant="outlined"
-                disabled={readOnly || disabled}
-                onClick={add}
-                color="secondary"
-            >
-                {t('form.attribute.collection.item_add', 'Add {{name}}', {
-                    name,
-                })}
-            </Button>
+            <div>
+                <Button
+                    startIcon={<AddIcon />}
+                    variant="outlined"
+                    disabled={readOnly || disabled}
+                    onClick={add}
+                    color="secondary"
+                >
+                    {t('form.attribute.collection.item_add', 'Add {{name}}', {
+                        name: label,
+                    })}
+                </Button>
+            </div>
         </FormRow>
     );
 }

@@ -10,7 +10,7 @@ export default class WorkspaceType
     implements AttributeTypeInstance<Workspace>
 {
     renderWidget() {
-        return <></>;
+        return null;
     }
 
     normalize(value: Workspace | undefined): string | undefined {

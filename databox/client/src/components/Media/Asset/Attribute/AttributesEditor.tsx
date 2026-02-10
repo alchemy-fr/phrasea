@@ -1,10 +1,10 @@
-import {Box} from '@mui/material';
+import {FormLabel} from '@mui/material';
 import {AssetTypeFilter, AttributeDefinition} from '../../../../types';
 import AttributeType from './AttributeType';
 import {toArray} from '../../../../lib/utils';
 import React from 'react';
-
-import {AttributeType as AttributeTypeEnum} from '../../../../api/types.ts';
+import {FormRow} from '@alchemy/react-form';
+import {OnChangeHandler} from './attributeTypes.ts';
 
 export type AttrValue<T = string> = {
     id: T;
@@ -18,25 +18,6 @@ export type LocalizedAttributeIndex<T = string> = {
 export type AttributeIndex<T = string> = {
     [definitionId: string]: LocalizedAttributeIndex<T>;
 };
-
-let idInc = 1;
-
-export function createNewValue(type: string): AttrValue<number> {
-    switch (type) {
-        default:
-        case AttributeTypeEnum.Text:
-            return {
-                id: idInc++,
-                value: '',
-            };
-    }
-}
-
-export type OnChangeHandler = (
-    defId: string,
-    locale: string,
-    value: AttrValue<string | number> | AttrValue<string | number>[] | undefined
-) => void;
 
 type Props = {
     attributes: AttributeIndex<string | number>;
@@ -80,13 +61,15 @@ export default function AttributesEditor({
                 }
 
                 return (
-                    <Box
+                    <FormRow
                         key={defId}
                         sx={{
                             mb: 5,
                         }}
                     >
+                        <FormLabel>{d.nameTranslated ?? d.name}</FormLabel>
                         <AttributeType
+                            labelAlreadyRendered={true}
                             readOnly={!d.canEdit}
                             attributes={attributes[defId] || {}}
                             disabled={disabled}
@@ -95,7 +78,7 @@ export default function AttributesEditor({
                             onLocaleChange={setCurrentLocale}
                             currentLocale={currentLocale}
                         />
-                    </Box>
+                    </FormRow>
                 );
             })}
         </>
