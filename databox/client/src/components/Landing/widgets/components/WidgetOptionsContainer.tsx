@@ -13,9 +13,6 @@ export default function WidgetOptionsContainer({
                     flexDirection: 'row',
                     alignItems: 'center',
                     gap: 1,
-                    position: 'absolute',
-                    right: 0,
-                    top: 0,
                     p: 1,
                 }}
             >

@@ -1,0 +1,7 @@
+.tiptap {
+    .widget {
+        &.selected {
+            outline: 1px dashed #CCC;
+        }
+    }
+}

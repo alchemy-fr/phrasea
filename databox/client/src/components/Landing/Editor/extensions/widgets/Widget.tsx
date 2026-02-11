@@ -2,9 +2,10 @@ import {NodeViewWrapper, ReactNodeViewProps} from '@tiptap/react';
 import {WidgetOptions} from './extension.ts';
 import React from 'react';
 import {widgets} from '../../../widgets';
-import {RenderWidgetProps} from '../../../widgets/widgetTypes.ts';
 import {useTranslation} from 'react-i18next';
 import {Typography} from '@mui/material';
+import classNames from 'classnames';
+import './styles.scss';
 
 type Props<T extends {}> = {
     HTMLAttributes: WidgetOptions<T>;
@@ -14,11 +15,8 @@ export default function Widget<T extends {}>({
     node: {attrs},
     HTMLAttributes,
     selected,
-    updateAttributes,
-    deleteNode,
 }: Props<T>) {
     const {t} = useTranslation();
-    console.log('deleteNode', deleteNode);
     const widget = widgets.find(w => w.name === HTMLAttributes.type);
 
     if (!widget) {
@@ -31,32 +29,17 @@ export default function Widget<T extends {}>({
         );
     }
 
-    const props: RenderWidgetProps<T> = {
-        title: widget.getTitle(t),
-        options: attrs.options,
-    };
-
-    const updateOptions = (options: Partial<T>) => {
-        updateAttributes({
-            options: {
-                ...attrs.options,
-                ...options,
-            },
-        });
-    };
-
     return (
-        <NodeViewWrapper className="widget" contentEditable={false}>
-            {selected
-                ? React.createElement(widget.optionsComponent, {
-                      ...props,
-                      onRemove: deleteNode,
-                      updateOptions,
-                  })
-                : null}
-
+        <NodeViewWrapper
+            className={classNames({
+                widget: true,
+                selected,
+            })}
+            contentEditable={false}
+        >
             {React.createElement(widget.component, {
-                ...props,
+                title: widget.getTitle(t),
+                options: attrs.options,
             })}
         </NodeViewWrapper>
     );
