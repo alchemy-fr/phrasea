@@ -2,8 +2,12 @@ import {mergeAttributes, Node} from '@tiptap/core';
 import {ReactNodeViewRenderer} from '@tiptap/react';
 import Widget from './Widget.tsx';
 
+export enum WidgetConstants {
+    Type = 'widget',
+}
+
 export interface WidgetOptions<T extends {}> {
-    widget: string;
+    type: string;
     options: T;
 }
 
@@ -21,7 +25,7 @@ declare module '@tiptap/core' {
 }
 
 export const WidgetExtension = Node.create<WidgetOptions<any>>({
-    name: 'widget',
+    name: WidgetConstants.Type,
 
     addOptions() {
         return {
@@ -50,7 +54,7 @@ export const WidgetExtension = Node.create<WidgetOptions<any>>({
     parseHTML() {
         return [
             {
-                tag: 'widget',
+                tag: WidgetConstants.Type,
             },
         ];
     },
@@ -72,7 +76,7 @@ export const WidgetExtension = Node.create<WidgetOptions<any>>({
     },
 
     renderHTML({HTMLAttributes}) {
-        return ['widget', mergeAttributes(HTMLAttributes)];
+        return [WidgetConstants.Type, mergeAttributes(HTMLAttributes)];
     },
 
     addNodeView() {
