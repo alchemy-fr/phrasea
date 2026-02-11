@@ -10,7 +10,7 @@ use Faker\Provider\Base as BaseProvider;
 
 class KeycloakFaker extends BaseProvider
 {
-    private ?string $accessToken = null;
+    private ?array $tokens = null;
 
     public function __construct(
         Generator $generator,
@@ -24,8 +24,9 @@ class KeycloakFaker extends BaseProvider
         array $roles = [],
         string $password = 'xxx',
     ): string {
-        if (null === $this->accessToken) {
-            ['access_token' => $this->accessToken] = $this->keycloakClient->getClientCredentialAccessToken();
+        if (null === $this->tokens || $this->tokens['expires_at'] < time()) {
+            $this->tokens = $this->keycloakClient->getClientCredentialAccessToken();
+            $this->tokens['expires_at'] = time() + $this->tokens['expires_in'] - 2;
         }
 
         $email = $username.'@phrasea.local';
@@ -41,7 +42,7 @@ class KeycloakFaker extends BaseProvider
                 'value' => $password,
                 'temporary' => true,
             ]],
-        ], $this->accessToken);
+        ], $this->tokens['access_token']);
 
         return $response['id'];
     }

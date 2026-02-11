@@ -23,7 +23,7 @@ final class ServiceAccountClient
         return $this->keycloakRealmCache->get(self::ACCESS_TOKEN_CACHE_KEY, function (ItemInterface $item): string {
             $data = $this->serviceClient->getClientCredentialAccessToken();
 
-            $item->expiresAfter($data['expires_in']);
+            $item->expiresAfter($data['expires_in'] - 2);
 
             return $data['access_token'];
         });
