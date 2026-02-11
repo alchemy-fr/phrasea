@@ -25,6 +25,7 @@ export default function Preview({}: Props) {
             <pre
                 style={{
                     whiteSpace: 'pre-wrap',
+                    fontSize: '0.75rem',
                 }}
             >
                 {JSON.stringify(editorState?.currentContent, null, 2)}
