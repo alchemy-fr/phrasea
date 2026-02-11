@@ -14,11 +14,15 @@ export type RenderWidgetProps<T extends {} = {}> = {
     options: T;
 };
 
+export type OnWidgetRemove = () => void;
+
 export type RenderWidgetOptionsProps<T extends {}> = {
     updateOptions: (options: Partial<T>) => void;
+    onRemove: OnWidgetRemove;
 } & RenderWidgetProps<T>;
 
 export type WidgetOptionsContainerProps = PropsWithChildren<{
+    onRemove: OnWidgetRemove;
     title: ReactNode;
 }>;
 

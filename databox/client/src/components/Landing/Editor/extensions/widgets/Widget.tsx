@@ -15,8 +15,10 @@ export default function Widget<T extends {}>({
     HTMLAttributes,
     selected,
     updateAttributes,
+    deleteNode,
 }: Props<T>) {
     const {t} = useTranslation();
+    console.log('deleteNode', deleteNode);
     const widget = widgets.find(w => w.name === HTMLAttributes.type);
 
     if (!widget) {
@@ -48,6 +50,7 @@ export default function Widget<T extends {}>({
             {selected
                 ? React.createElement(widget.optionsComponent, {
                       ...props,
+                      onRemove: deleteNode,
                       updateOptions,
                   })
                 : null}
