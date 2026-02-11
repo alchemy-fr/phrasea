@@ -33,6 +33,8 @@ final readonly class Configurator
 
             if (!EnvHelper::getBooleanEnv('CONFIGURATOR_CONFIGURE_'.strtoupper($name))) {
                 $output->writeln(sprintf('Skipping %s configuration (disabled by environment variable)...', $name));
+
+                continue;
             }
 
             $output->writeln(sprintf('Configuring %s...', $name));
