@@ -1,31 +1,38 @@
 import {useCallback} from 'react';
 import {FieldValues} from 'react-hook-form';
-import {getRenditionPolicies} from '../../api/rendition';
-import {RenditionPolicy} from '../../types';
 import {
     AsyncRSelectProps,
     AsyncRSelectWidget,
     SelectOption,
 } from '@alchemy/react-form';
+import {SavedSearch} from '../../types.ts';
+import {getSavedSearches} from '../../api/savedSearch.ts';
 import {EntityName} from '../../api/types.ts';
 import {getIri} from '@alchemy/api';
 
 type Props<TFieldValues extends FieldValues> = {
-    workspaceId: string;
+    useIRI?: boolean;
 } & AsyncRSelectProps<TFieldValues, false>;
 
-export default function RenditionPolicySelect<
-    TFieldValues extends FieldValues,
->({workspaceId, ...rest}: Props<TFieldValues>) {
+export default function SavedSearchSelect<TFieldValues extends FieldValues>({
+    useIRI,
+    ...rest
+}: Props<TFieldValues>) {
     const load = useCallback(
         async (inputValue: string): Promise<SelectOption[]> => {
-            const data = await getRenditionPolicies(workspaceId);
+            const data = await getSavedSearches(undefined, {
+                query: inputValue,
+            });
 
             return data.result
-                .map((t: RenditionPolicy) => ({
-                    value: getIri(EntityName.RenditionPolicy, t.id),
-                    label: t.name,
-                }))
+                .map((t: SavedSearch) => {
+                    return {
+                        value: useIRI
+                            ? getIri(EntityName.SavedSearch, t.id)
+                            : t.id,
+                        label: t.title,
+                    };
+                })
                 .filter(i =>
                     i.label
                         .toLowerCase()
@@ -37,7 +44,7 @@ export default function RenditionPolicySelect<
 
     return (
         <AsyncRSelectWidget<TFieldValues>
-            cacheId={'rend-classes'}
+            cacheId={'saved-searches'}
             {...rest}
             loadOptions={load}
         />

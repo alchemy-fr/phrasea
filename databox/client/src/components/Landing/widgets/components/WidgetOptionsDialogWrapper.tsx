@@ -6,6 +6,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
 import {Button} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function WidgetOptionsDialogWrapper({
     children,
@@ -15,12 +16,16 @@ export default function WidgetOptionsDialogWrapper({
     const {title} = props;
     const {t} = useTranslation();
 
+    const {onRemove} = props;
     const [open, setOpen] = useState(false);
 
     return (
         <WidgetOptionsContainer {...props}>
             <IconButton onClick={() => setOpen(true)}>
                 <SettingsIcon />
+            </IconButton>
+            <IconButton onClick={() => onRemove()}>
+                <DeleteIcon />
             </IconButton>
             {open ? (
                 <AppDialog

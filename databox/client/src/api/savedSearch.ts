@@ -2,8 +2,7 @@ import {apiClient} from '../init.ts';
 import {SavedSearch, SavedSearchData} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {TSearchContext} from '../components/Media/Search/SearchContext.tsx';
-
-const entityType = 'saved-searches';
+import {EntityName} from './types.ts';
 
 export type GetSavedSearchOptions = {
     query?: string;
@@ -14,7 +13,7 @@ export async function getSavedSearches(
     nextUrl?: string | undefined,
     params: GetSavedSearchOptions = {}
 ): Promise<NormalizedCollectionResponse<SavedSearch>> {
-    const res = await apiClient.get(nextUrl ?? `/${entityType}`, {
+    const res = await apiClient.get(nextUrl ?? `/${EntityName.SavedSearch}`, {
         params,
     });
 
@@ -25,7 +24,7 @@ export async function putSavedSearch(
     id: string,
     data: Partial<SavedSearch>
 ): Promise<SavedSearch> {
-    const res = await apiClient.put(`/${entityType}/${id}`, data);
+    const res = await apiClient.put(`/${EntityName.SavedSearch}/${id}`, data);
 
     return res.data;
 }
@@ -33,17 +32,17 @@ export async function putSavedSearch(
 export async function postSavedSearch(
     data: Partial<SavedSearch>
 ): Promise<SavedSearch> {
-    const res = await apiClient.post(`/${entityType}`, data);
+    const res = await apiClient.post(`/${EntityName.SavedSearch}`, data);
 
     return res.data;
 }
 
 export async function getSavedSearch(id: string): Promise<SavedSearch> {
-    return (await apiClient.get(`/${entityType}/${id}`)).data;
+    return (await apiClient.get(`/${EntityName.SavedSearch}/${id}`)).data;
 }
 
 export async function deleteSavedSearch(id: string): Promise<void> {
-    await apiClient.delete(`/${entityType}/${id}`);
+    await apiClient.delete(`/${EntityName.SavedSearch}/${id}`);
 }
 
 export function getSearchData(searchContext: TSearchContext): SavedSearchData {

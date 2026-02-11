@@ -14,6 +14,7 @@ import AttributeListDialog from './components/Dialog/AttributeList/AttributeList
 import FileDialog from './components/Dialog/File/FileDialog.tsx';
 import SavedSearchDialog from './components/Dialog/SavedSearch/SavedSearchDialog.tsx';
 import HomePage from './pages/HomePage.tsx';
+import PageEditPage from './pages/PageEditPage.tsx';
 
 export enum Routing {
     UnknownRendition = '_',
@@ -116,6 +117,17 @@ const routes = {
         path: '/',
         component: HomePage,
         public: true,
+    },
+    // pages: {
+    //     path: '/p/{slug}',
+    //     component: PagePage,
+    //     public: true,
+    // },
+    pageEdit: {
+        path: '/pages/edit',
+        // path: '/pages/{id}/edit',
+        component: PageEditPage,
+        public: false,
     },
     app: {
         path: '/search',

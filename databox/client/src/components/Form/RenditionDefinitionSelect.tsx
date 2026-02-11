@@ -1,9 +1,6 @@
 import {useCallback} from 'react';
 import {FieldValues} from 'react-hook-form';
-import {
-    getRenditionDefinitions,
-    renditionDefinitionNS,
-} from '../../api/rendition';
+import {getRenditionDefinitions} from '../../api/rendition';
 import {RenditionDefinition} from '../../types';
 import {
     AsyncRSelectWidget,
@@ -11,6 +8,8 @@ import {
     AsyncRSelectProps,
 } from '@alchemy/react-form';
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
+import {getIri} from '@alchemy/api';
+import {EntityName} from '../../api/types.ts';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
@@ -34,7 +33,7 @@ export default function RenditionDefinitionSelect<
 
                     return {
                         value: useIRI
-                            ? `${renditionDefinitionNS}/${t.id}`
+                            ? getIri(EntityName.RenditionDefinition, t.id)
                             : t.id,
                         label: t.nameTranslated,
                     };
