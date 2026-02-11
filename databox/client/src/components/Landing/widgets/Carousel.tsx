@@ -4,7 +4,8 @@ import {
     RenderWidgetProps,
     WidgetInterface,
 } from './widgetTypes.ts';
-import {TextField} from '@mui/material';
+import {Skeleton, TextField} from '@mui/material';
+import WidgetOptionsDialogWrapper from './components/WidgetOptionsDialogWrapper.tsx';
 
 type Props = {
     searchId?: string;
@@ -18,26 +19,29 @@ const CarouselWidget: WidgetInterface<Props> = {
     },
 
     component: Component,
-    optionsComponent: RenderOptions,
+    optionsComponent: Options,
 };
 
 export default CarouselWidget;
 
 function Component({options}: RenderWidgetProps<Props>) {
     return (
-        <div className="carousel-widget">
-            <p>Carousel Widget "{options.searchId}"</p>
+        <div>
+            <pre>{JSON.stringify(options, null, 2)}</pre>
+            <Skeleton />
+            <Skeleton />
+            <Skeleton />
         </div>
     );
 }
 
-function RenderOptions({
+function Options({
+    title,
     options,
     updateOptions,
 }: RenderWidgetOptionsProps<Props>) {
     return (
-        <div className="carousel-widget-options">
-            <p>Carousel Widget Options</p>
+        <WidgetOptionsDialogWrapper title={title}>
             <TextField
                 label="Search ID"
                 value={options.searchId || ''}
@@ -47,6 +51,6 @@ function RenderOptions({
                     });
                 }}
             />
-        </div>
+        </WidgetOptionsDialogWrapper>
     );
 }

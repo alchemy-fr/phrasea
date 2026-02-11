@@ -1,7 +1,6 @@
 import {mergeAttributes, Node} from '@tiptap/core';
 import {ReactNodeViewRenderer} from '@tiptap/react';
 import Widget from './Widget.tsx';
-import './style.scss';
 
 export interface WidgetOptions<T extends {}> {
     widget: string;

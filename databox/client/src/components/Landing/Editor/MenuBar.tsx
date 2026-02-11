@@ -220,6 +220,7 @@ export const MenuBar = ({editor}: Props) => {
                     if (format.isDivider) {
                         return (
                             <Divider
+                                key={format.id}
                                 flexItem
                                 orientation="vertical"
                                 sx={{mx: 0.5, my: 1}}
@@ -229,7 +230,7 @@ export const MenuBar = ({editor}: Props) => {
 
                     return (
                         <ToggleButton
-                            key={format.toggle.toString()}
+                            key={format.id}
                             value={format.id}
                             aria-label={format.label}
                             disabled={!format.can}
