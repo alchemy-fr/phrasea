@@ -1,10 +1,8 @@
 import type {Editor} from '@tiptap/core';
 import type {EditorStateSnapshot} from '@tiptap/react';
+import {TextAlignEnum} from './editorTypes.ts';
+import {isNodeTypeSelected} from './editorUtils.ts';
 
-/**
- * State selector for the MenuBar component.
- * Extracts the relevant editor state for rendering menu buttons.
- */
 export function menuBarStateSelector(ctx: EditorStateSnapshot<Editor>) {
     const editor = ctx.editor;
 
@@ -14,6 +12,8 @@ export function menuBarStateSelector(ctx: EditorStateSnapshot<Editor>) {
         canBold: editor.can().chain().toggleBold().run() ?? false,
         isItalic: editor.isActive('italic') ?? false,
         canItalic: editor.can().chain().toggleItalic().run() ?? false,
+        isUnderline: editor.isActive('underline') ?? false,
+        canUnderline: editor.can().chain().toggleUnderline().run() ?? false,
         isStrike: editor.isActive('strike') ?? false,
         canStrike: editor.can().chain().toggleStrike().run() ?? false,
         isCode: editor.isActive('code') ?? false,
@@ -38,7 +38,21 @@ export function menuBarStateSelector(ctx: EditorStateSnapshot<Editor>) {
         // History
         canUndo: editor.can().chain().undo().run() ?? false,
         canRedo: editor.can().chain().redo().run() ?? false,
+
+        isTextAlign: (textAlign: TextAlignEnum) =>
+            editor.isActive({textAlign}) ?? false,
+
+        canSetTextAlign: (textAlign: TextAlignEnum) =>
+            canSetTextAlign(editor, textAlign),
     };
 }
 
 export type MenuBarState = ReturnType<typeof menuBarStateSelector>;
+
+function canSetTextAlign(editor: Editor, align: TextAlignEnum): boolean {
+    if (isNodeTypeSelected(editor, ['image', 'horizontalRule'])) {
+        return false;
+    }
+
+    return editor.can().setTextAlign(align);
+}
