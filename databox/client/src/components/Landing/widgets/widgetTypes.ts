@@ -1,5 +1,6 @@
 import {TFunction} from '@alchemy/i18n';
-import React from 'react';
+import {AppDialogProps} from '@alchemy/phrasea-ui';
+import React, {PropsWithChildren, ReactNode} from 'react';
 
 export interface WidgetInterface<T extends {} = {}> {
     getTitle: (t: TFunction) => string;
@@ -9,9 +10,18 @@ export interface WidgetInterface<T extends {} = {}> {
 }
 
 export type RenderWidgetProps<T extends {} = {}> = {
+    title: ReactNode;
     options: T;
 };
 
 export type RenderWidgetOptionsProps<T extends {}> = {
     updateOptions: (options: Partial<T>) => void;
 } & RenderWidgetProps<T>;
+
+export type WidgetOptionsContainerProps = PropsWithChildren<{
+    title: ReactNode;
+}>;
+
+export type WidgetOptionsDialogWrapperProps = {
+    dialogProps?: Partial<AppDialogProps>;
+} & WidgetOptionsContainerProps;

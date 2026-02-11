@@ -3,6 +3,8 @@ import {WidgetOptions} from './extension.ts';
 import React from 'react';
 import {widgets} from '../../../widgets';
 import {RenderWidgetProps} from '../../../widgets/widgetTypes.ts';
+import {useTranslation} from 'react-i18next';
+import {Typography} from '@mui/material';
 
 type Props<T extends {}> = {
     HTMLAttributes: WidgetOptions<T>;
@@ -14,18 +16,21 @@ export default function Widget<T extends {}>({
     selected,
     updateAttributes,
 }: Props<T>) {
+    const {t} = useTranslation();
     const widget = widgets.find(w => w.name === HTMLAttributes.type);
 
     if (!widget) {
         return (
-            <NodeViewWrapper className="widget">
-                <label contentEditable={false}>{HTMLAttributes.type}</label>
-                <p>Widget not found</p>
+            <NodeViewWrapper className="widget" contentEditable={false}>
+                <Typography>
+                    {t('editor.widgets.unknown', 'Unknown widget type')}
+                </Typography>
             </NodeViewWrapper>
         );
     }
 
     const props: RenderWidgetProps<T> = {
+        title: widget.getTitle(t),
         options: attrs.options,
     };
 
@@ -39,23 +44,17 @@ export default function Widget<T extends {}>({
     };
 
     return (
-        <NodeViewWrapper className="widget">
-            <label contentEditable={false}>{HTMLAttributes.type}</label>
+        <NodeViewWrapper className="widget" contentEditable={false}>
+            {selected
+                ? React.createElement(widget.optionsComponent, {
+                      ...props,
+                      updateOptions,
+                  })
+                : null}
 
-            {selected ? (
-                <div className={'widget-options'}>
-                    {React.createElement(widget.optionsComponent, {
-                        ...props,
-                        updateOptions,
-                    })}
-                </div>
-            ) : null}
-
-            <div contentEditable={false}>
-                {React.createElement(widget.component, {
-                    ...props,
-                })}
-            </div>
+            {React.createElement(widget.component, {
+                ...props,
+            })}
         </NodeViewWrapper>
     );
 }
