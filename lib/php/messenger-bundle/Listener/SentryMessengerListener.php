@@ -11,6 +11,7 @@ use Sentry\State\Scope;
 use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 use Symfony\Component\Messenger\Exception\DelayedMessageHandlingException;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\Exception\WrappedExceptionsInterface;
@@ -26,6 +27,7 @@ final readonly class SentryMessengerListener
         private SerializerInterface $serializer,
         private HubInterface $hub,
         private bool $captureSoftFails = true,
+        private bool $isolateBreadcrumbsByMessage = false,
     ) {
     }
 
@@ -38,6 +40,9 @@ final readonly class SentryMessengerListener
         $this->hub->withScope(function (Scope $scope) use ($event): void {
             $envelope = $event->getEnvelope();
             $exception = $event->getThrowable();
+
+            $scope->setTag('messenger.receiver_name', $event->getReceiverName());
+            $scope->setTag('messenger.message_class', $envelope->getMessage()::class);
 
             /** @var BusNameStamp|null $messageBusStamp */
             $messageBusStamp = $envelope->last(BusNameStamp::class);
@@ -54,7 +59,6 @@ final readonly class SentryMessengerListener
                         JsonEncode::OPTIONS => JSON_PRETTY_PRINT,
                     ]
                 ),
-                'ReceiverName' => $event->getReceiverName(),
             ]);
 
             $this->captureException($exception, $event->willRetry());
@@ -108,6 +112,13 @@ final readonly class SentryMessengerListener
         ]);
 
         $this->hub->captureEvent(Event::createEvent(), $hint);
+    }
+
+    public function handleWorkerMessageReceivedEvent(WorkerMessageReceivedEvent $event): void
+    {
+        if ($this->isolateBreadcrumbsByMessage) {
+            $this->hub->pushScope();
+        }
     }
 
     private function flushClient(): void
