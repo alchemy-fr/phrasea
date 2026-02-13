@@ -304,14 +304,14 @@ jobs:
           
           # Tag all images with version (and latest if it's the latest release)
           docker image ls --filter "reference=${{ env.REGISTRY_NAMESPACE }}*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while IFS= read -r repo; do
-            new_repo="${repo//${{ env.REGISTRY_NAMESPACE }}/alchemyfr/ps-}"
+            image_name="${repo##*/ps-}"
+            new_repo="alchemyfr/ps-${image_name}"
             docker tag "$repo:${{ env.DOCKER_TAG }}" "$new_repo:${{ github.ref_name }}"
             if [ "$IS_LATEST" = true ]; then
               docker tag "$repo:${{ env.DOCKER_TAG }}" "$new_repo:latest"
             fi
           done
           
-          # Push all tags in one go
           export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,novu"
           REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
           
