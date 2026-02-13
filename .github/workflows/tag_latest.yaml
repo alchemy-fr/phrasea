@@ -28,5 +28,8 @@ jobs:
         if: env.DOCKERHUB_USERNAME != null
         run: |
           docker compose pull --quiet
-          docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} docker tag {}:${{ github.ref_name }} {}:latest
+          # Tag all pulled images as latest using robust docker format
+          docker image ls --filter "reference=alchemyfr/ps-*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while read repo; do
+            docker tag "$repo:${{ env.DOCKER_TAG }}" "$repo:latest"
+          done
           DOCKER_TAG=latest docker compose push

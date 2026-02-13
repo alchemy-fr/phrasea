@@ -290,19 +290,33 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         if: env.DOCKERHUB_USERNAME != null && startsWith(github.ref, 'refs/tags/')
         run: |
-          docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:${{ github.ref_name }} | sed "s,${{ env.REGISTRY_NAMESPACE }},alchemyfr/ps-,2" | bash
-          export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,novu"
-          REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
-
-          set -ex
+          # Check if this is the latest release
           LATEST_TAG=$(curl \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ github.token }}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/releases/latest | jq --raw-output '.tag_name')
-
+          
+          IS_LATEST=false
           if [ "${LATEST_TAG}" == "${{ github.ref_name }}" ]; then
-            docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:latest | sed "s,${{ env.REGISTRY_NAMESPACE }},alchemyfr/ps-,2" | bash
+            IS_LATEST=true
+          fi
+          
+          # Tag all images with version (and latest if it's the latest release)
+          docker image ls --filter "reference=${{ env.REGISTRY_NAMESPACE }}*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while IFS= read -r repo; do
+            new_repo="${repo//${{ env.REGISTRY_NAMESPACE }}/alchemyfr/ps-}"
+            docker tag "$repo:${{ env.DOCKER_TAG }}" "$new_repo:${{ github.ref_name }}"
+            if [ "$IS_LATEST" = true ]; then
+              docker tag "$repo:${{ env.DOCKER_TAG }}" "$new_repo:latest"
+            fi
+          done
+          
+          # Push all tags in one go
+          export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,novu"
+          REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
+          
+          # If latest, also push latest tag
+          if [ "$IS_LATEST" = true ]; then
             REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=latest docker compose push
           fi
 
@@ -340,6 +354,11 @@ jobs:
         if: env.AWS_ECR_ACCESS_KEY_ID != null
         run: |
           ECR_REGISTRY="${{ steps.login-ecr-public.outputs.registry }}/${REGISTRY_ALIAS}"
-          docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:${{ github.ref_name }} | sed "s,${{ env.REGISTRY_NAMESPACE }},${ECR_REGISTRY}/ps-,2" | bash
+          docker image ls --filter "reference=${{ env.REGISTRY_NAMESPACE }}*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while IFS= read -r repo; do
+            # Extract image name after ps- prefix
+            image_name="${repo##*/ps-}"
+            ecr_repo="${ECR_REGISTRY}/ps-${image_name}"
+            docker tag "$repo:${{ env.DOCKER_TAG }}" "$ecr_repo:${{ github.ref_name }}"
+          done
           export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,novu"
           REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
