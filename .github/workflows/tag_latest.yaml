@@ -1,0 +1,35 @@
+name: Set latest tag to images on Dockerhub
+
+on:
+  workflow_dispatch:
+    inputs:
+      from_tag:
+        description: 'From Docker tag'
+        type: string
+        required: true
+
+jobs:
+  latest_tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Pull, tag, then push images to Dockerhub
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKER_TAG: ${{ github.event.inputs.from_tag || github.ref_name }}
+        if: env.DOCKERHUB_USERNAME != null
+        run: |
+          docker compose pull --quiet
+          # Tag all pulled images as latest using robust docker format
+          docker image ls --filter "reference=alchemyfr/ps-*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while read repo; do
+            docker tag "$repo:${{ env.DOCKER_TAG }}" "$repo:latest"
+          done
+          DOCKER_TAG=latest docker compose push

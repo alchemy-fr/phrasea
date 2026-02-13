@@ -303,8 +303,8 @@ jobs:
           fi
           
           # Tag all images with version (and latest if it's the latest release)
-          docker image ls --filter "reference=${{ env.REGISTRY_NAMESPACE }}*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while read repo; do
-            new_repo="${repo//ghcr.io\/alchemy-fr\/ps-/alchemyfr/ps-}"
+          docker image ls --filter "reference=${{ env.REGISTRY_NAMESPACE }}*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while IFS= read -r repo; do
+            new_repo="${repo//${{ env.REGISTRY_NAMESPACE }}/alchemyfr/ps-}"
             docker tag "$repo:${{ env.DOCKER_TAG }}" "$new_repo:${{ github.ref_name }}"
             if [ "$IS_LATEST" = true ]; then
               docker tag "$repo:${{ env.DOCKER_TAG }}" "$new_repo:latest"
@@ -354,7 +354,7 @@ jobs:
         if: env.AWS_ECR_ACCESS_KEY_ID != null
         run: |
           ECR_REGISTRY="${{ steps.login-ecr-public.outputs.registry }}/${REGISTRY_ALIAS}"
-          docker image ls --filter "reference=${{ env.REGISTRY_NAMESPACE }}*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while read repo; do
+          docker image ls --filter "reference=${{ env.REGISTRY_NAMESPACE }}*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while IFS= read -r repo; do
             # Extract image name after ps- prefix
             image_name="${repo##*/ps-}"
             ecr_repo="${ECR_REGISTRY}/ps-${image_name}"
