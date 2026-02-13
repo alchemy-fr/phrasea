@@ -345,11 +345,12 @@ jobs:
         if: env.AWS_ECR_ACCESS_KEY_ID != null
         run: |
           ECR_REGISTRY="${{ steps.login-ecr-public.outputs.registry }}/${REGISTRY_ALIAS}"
-          docker image ls --filter "reference=alchemyfr/ps-*:${{ github.ref_name }}" --format "{{.Repository}}" | while read repo; do
+          # Tag images from GHCR (with SHA) to AWS ECR using robust docker format
+          docker image ls --filter "reference=${{ env.REGISTRY_NAMESPACE }}*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while read repo; do
             # Extract image name after ps- prefix
             image_name="${repo##*/ps-}"
             ecr_repo="${ECR_REGISTRY}/ps-${image_name}"
-            docker tag "$repo:${{ github.ref_name }}" "$ecr_repo:${{ github.ref_name }}"
+            docker tag "$repo:${{ env.DOCKER_TAG }}" "$ecr_repo:${{ github.ref_name }}"
           done
           export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,novu"
           REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
