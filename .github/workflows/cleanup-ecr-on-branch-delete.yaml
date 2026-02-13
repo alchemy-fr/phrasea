@@ -40,7 +40,6 @@ jobs:
         env:
           REGISTRY_ALIAS: b2s9z7l1
           BRANCH_NAME: ${{ steps.branch.outputs.name }}
-          AWS_ACCOUNT_ID: 137112412989
         run: |
           set -e
           
