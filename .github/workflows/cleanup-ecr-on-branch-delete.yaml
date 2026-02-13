@@ -1,0 +1,113 @@
+name: Cleanup ECR on branch delete
+
+on:
+  delete:
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Branch name to cleanup from ECR'
+        required: true
+        type: string
+
+jobs:
+  cleanup-ecr:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'delete' && github.event.ref_type == 'branch')
+    steps:
+      - name: Set branch name
+        id: branch
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "name=${{ github.event.inputs.branch_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "name=${{ github.event.ref }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
+      - name: Delete images tagged with deleted branch
+        env:
+          REGISTRY_ALIAS: b2s9z7l1
+          BRANCH_NAME: ${{ steps.branch.outputs.name }}
+          AWS_ACCOUNT_ID: 137112412989
+        run: |
+          set -e
+          
+          # List of all Phrasea image repositories
+          IMAGES=(
+            "ps-configurator"
+            "ps-dashboard"
+            "ps-databox-api-php"
+            "ps-databox-api-nginx"
+            "ps-databox-worker"
+            "ps-databox-client"
+            "ps-databox-indexer"
+            "ps-expose-api-php"
+            "ps-expose-api-nginx"
+            "ps-expose-worker"
+            "ps-expose-client"
+            "ps-uploader-api-php"
+            "ps-uploader-api-nginx"
+            "ps-uploader-worker"
+            "ps-uploader-client"
+            "ps-report-api"
+            "ps-novu-bridge"
+            "ps-keycloak"
+          )
+          
+          echo "Cleaning up images tagged with branch: ${BRANCH_NAME}"
+          
+          for image in "${IMAGES[@]}"; do
+            # Get all tags for this image that match the branch name
+            image_info=$(aws ecr-public describe-images \
+              --repository-name "$image" \
+              --region us-east-1 \
+              --query "imageDetails[?contains(imageTags, '${BRANCH_NAME}')].[imageTags, imageDigest]" \
+              --output json 2>/dev/null || echo "[]")
+            
+            if [ "$image_info" != "[]" ] && [ ! -z "$image_info" ]; then
+              # Extract all tags for this specific image digest
+              tags=$(echo "$image_info" | jq -r '.[0][0][]' 2>/dev/null || true)
+              tag_count=$(echo "$tags" | grep -c . || echo 0)
+              
+              if [ "$tag_count" -le 1 ]; then
+                # Only the branch tag exists, delete entire image
+                aws ecr-public batch-delete-image \
+                  --repository-name "$image" \
+                  --image-ids imageTag="${BRANCH_NAME}" \
+                  --region us-east-1
+                echo "✓ Deleted image $image:${BRANCH_NAME}"
+              else
+                # Multiple tags exist, delete only the branch tag
+                aws ecr-public batch-delete-image \
+                  --repository-name "$image" \
+                  --image-ids imageTag="${BRANCH_NAME}" \
+                  --region us-east-1
+                
+                # Also delete latest tag if branch had it
+                has_latest=$(echo "$tags" | grep -c "^latest$" || echo 0)
+                if [ "$has_latest" -gt 0 ]; then
+                  aws ecr-public batch-delete-image \
+                    --repository-name "$image" \
+                    --image-ids imageTag="latest" \
+                    --region us-east-1 2>/dev/null || true
+                  echo "✓ Deleted tags ${BRANCH_NAME} and latest from $image"
+                else
+                  echo "✓ Deleted tag ${BRANCH_NAME} from $image"
+                fi
+              fi
+            fi
+          done
+          
+          echo "Cleanup completed"
