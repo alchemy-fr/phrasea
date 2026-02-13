@@ -290,7 +290,6 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         if: env.DOCKERHUB_USERNAME != null && startsWith(github.ref, 'refs/tags/')
         run: |
-          # Tag images from GHCR to Docker Hub using robust docker format
           docker image ls --filter "reference=${{ env.REGISTRY_NAMESPACE }}*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while read repo; do
             new_repo="${repo//ghcr.io\/alchemy-fr\/ps-/alchemyfr/ps-}"
             docker tag "$repo:${{ env.DOCKER_TAG }}" "$new_repo:${{ github.ref_name }}"
@@ -306,7 +305,6 @@ jobs:
             https://api.github.com/repos/${{ github.repository }}/releases/latest | jq --raw-output '.tag_name')
 
           if [ "${LATEST_TAG}" == "${{ github.ref_name }}" ]; then
-            # Tag images as latest using robust docker format
             docker image ls --filter "reference=alchemyfr/ps-*:${{ github.ref_name }}" --format "{{.Repository}}" | while read repo; do
               docker tag "$repo:${{ github.ref_name }}" "$repo:latest"
             done
@@ -347,7 +345,6 @@ jobs:
         if: env.AWS_ECR_ACCESS_KEY_ID != null
         run: |
           ECR_REGISTRY="${{ steps.login-ecr-public.outputs.registry }}/${REGISTRY_ALIAS}"
-          # Tag images from DockerHub to AWS ECR using robust docker format
           docker image ls --filter "reference=alchemyfr/ps-*:${{ github.ref_name }}" --format "{{.Repository}}" | while read repo; do
             # Extract image name after ps- prefix
             image_name="${repo##*/ps-}"
