@@ -24,15 +24,18 @@ jobs:
           fi
 
       - name: Configure AWS credentials
+        env:
+          AWS_ECR_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+        if: env.AWS_ECR_ACCESS_KEY_ID != null
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-          output-credentials: false
 
       - name: Login to Amazon ECR Public
         id: login-ecr-public
+        if: env.AWS_ECR_ACCESS_KEY_ID != null
         uses: aws-actions/amazon-ecr-login@v2
         with:
           registry-type: public
@@ -41,6 +44,8 @@ jobs:
         env:
           REGISTRY_ALIAS: b2s9z7l1
           BRANCH_NAME: ${{ steps.branch.outputs.name }}
+          AWS_ECR_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+        if: env.AWS_ECR_ACCESS_KEY_ID != null
         run: |
           set -e
           
