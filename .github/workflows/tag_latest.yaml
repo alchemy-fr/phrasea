@@ -28,7 +28,6 @@ jobs:
         if: env.DOCKERHUB_USERNAME != null
         run: |
           docker compose pull --quiet
-          # Tag all pulled images as latest using robust docker format
           docker image ls --filter "reference=alchemyfr/ps-*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while read repo; do
             docker tag "$repo:${{ env.DOCKER_TAG }}" "$repo:latest"
           done
