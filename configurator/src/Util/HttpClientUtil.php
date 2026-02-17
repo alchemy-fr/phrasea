@@ -6,6 +6,7 @@ namespace App\Util;
 
 use Symfony\Component\Console\Helper\ProgressIndicator;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpClient\Exception\TimeoutException;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -16,10 +17,16 @@ abstract class HttpClientUtil
     public const array DEFAULT_UNEXPECTED_CODES = [500];
     public const array DEFAULT_SUCCESS_CODES = [200];
 
-    public static function debugError(callable $handler, ?int $ignoreHttpCode = null, ?array $data = null): mixed
+    public static function debugError(callable $handler, ?int $ignoreHttpCode = null, ?array $data = null, int $retry = 0): mixed
     {
         try {
             return $handler();
+        } catch (TimeoutException $e) {
+            if ($retry >= 3) {
+                throw new \RuntimeException(sprintf('Request timed out after %d retries.', $retry), 0, $e);
+            }
+
+            return self::debugError($handler, $ignoreHttpCode, $data, $retry + 1);
         } catch (ClientExceptionInterface $e) {
             if (null !== $ignoreHttpCode && $ignoreHttpCode === $e->getResponse()->getStatusCode()) {
                 return null;

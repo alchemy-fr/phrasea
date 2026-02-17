@@ -38,12 +38,31 @@ final readonly class Configurator
             }
 
             $output->writeln(sprintf('Configuring %s...', $name));
-            try {
-                $configurator->configure($output, $presets);
-            } catch (ClientException $e) {
-                echo $e->getResponse()->getContent(false);
-                throw $e;
+
+            $retry = 0;
+            while (true) {
+                try {
+                    $this->process($configurator, $output, $presets);
+                    break;
+                } catch (\Exception $e) {
+                    if ($retry >= 3) {
+                        throw new \RuntimeException(sprintf('Failed to configure %s after %d retries.', $name, $retry), 0, $e);
+                    }
+                    $output->writeln(sprintf('Error configuring %s: %s. Retrying...', $name, $e->getMessage()));
+                    sleep(1);
+                    ++$retry;
+                }
             }
+        }
+    }
+
+    private function process(ConfiguratorInterface $configurator, OutputInterface $output, array $presets): void
+    {
+        try {
+            $configurator->configure($output, $presets);
+        } catch (ClientException $e) {
+            echo $e->getResponse()->getContent(false);
+            throw $e;
         }
     }
 }
