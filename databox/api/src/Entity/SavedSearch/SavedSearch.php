@@ -19,7 +19,7 @@ use App\Api\Model\Output\SavedSearchOutput;
 use App\Api\Provider\SavedSearchCollectionProvider;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
-use App\Repository\SavedSearch\SavedSearchRepository;
+use App\Repository\SavedSearch\PageRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,34 +29,27 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'saved-search',
     operations: [
-        new GetCollection(),
-        new Get(
+        new GetCollection(
             normalizationContext: [
-                'groups' => [self::GROUP_READ],
-            ]
-        ),
+                'groups' => [self::GROUP_LIST],
+            ]),
+        new Get(),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new Put(
-            normalizationContext: [
-                'groups' => [self::GROUP_READ],
-            ],
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
         ),
         new Post(
-            normalizationContext: [
-                'groups' => [self::GROUP_READ],
-            ],
             securityPostValidation: 'is_granted("'.AbstractVoter::CREATE.'", object)'
         ),
     ],
     normalizationContext: [
-        'groups' => [self::GROUP_LIST],
+        'groups' => [self::GROUP_LIST, self::GROUP_READ],
     ],
     input: SavedSearchInput::class,
     output: SavedSearchOutput::class,
     provider: SavedSearchCollectionProvider::class,
 )]
-#[ORM\Entity(repositoryClass: SavedSearchRepository::class)]
+#[ORM\Entity(repositoryClass: PageRepository::class)]
 class SavedSearch extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface
 {
     use OwnerIdTrait;

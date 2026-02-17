@@ -400,6 +400,18 @@ export interface SavedSearch extends IPermissions, Entity {
     owner?: User;
 }
 
+export interface Page extends IPermissions, Entity {
+    title: string;
+    enabled?: boolean;
+    public?: boolean;
+    createdAt: string;
+    updatedAt: string;
+    data: PageData;
+    owner?: User;
+}
+
+export type PageData = {};
+
 export interface Thread extends Entity {
     id: string;
     key: string;

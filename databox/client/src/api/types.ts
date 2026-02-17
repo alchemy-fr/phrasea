@@ -48,6 +48,7 @@ export enum EntityName {
     Collection = 'collections',
     Workspace = 'workspaces',
     SavedSearch = 'saved-searches',
+    Page = 'pages',
     RenditionDefinition = 'rendition-definitions',
     RenditionPolicy = 'rendition-policies',
     Rendition = 'renditions',
