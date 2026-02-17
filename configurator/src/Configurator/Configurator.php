@@ -7,8 +7,8 @@ namespace App\Configurator;
 use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
-use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 
 final readonly class Configurator
 {
@@ -61,7 +61,7 @@ final readonly class Configurator
     {
         try {
             $configurator->configure($output, $presets);
-        } catch (ClientException $e) {
+        } catch (HttpExceptionInterface $e) {
             echo $e->getResponse()->getContent(false);
             throw $e;
         }

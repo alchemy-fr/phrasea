@@ -7,8 +7,7 @@ namespace App\Util;
 use App\Exception\ClientExceptionWrapperException;
 use Symfony\Component\Console\Helper\ProgressIndicator;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -30,7 +29,7 @@ abstract class HttpClientUtil
             sleep(1);
 
             return self::debugError($handler, $ignoreHttpCode, $data, $retry + 1);
-        } catch (ClientExceptionInterface $e) {
+        } catch (HttpExceptionInterface $e) {
             if (null !== $ignoreHttpCode && $ignoreHttpCode === $e->getResponse()->getStatusCode()) {
                 return null;
             }
@@ -106,8 +105,7 @@ abstract class HttpClientUtil
             try {
                 $client->request('GET', $url);
                 $continue = false;
-            } catch (ServerExceptionInterface $e) {
-            } catch (ClientExceptionInterface $e) {
+            } catch (HttpExceptionInterface $e) {
                 $statusCode = $e->getResponse()->getStatusCode();
                 if (in_array($statusCode, $unexpectedCodes, true)) {
                     throw new \RuntimeException(sprintf('URL "%s" returned unexpected status code %d.', $url, $statusCode), 0, $e);
