@@ -15,6 +15,7 @@ export default function WidgetBubbleMenu({editor}: Props) {
     const {widgetAttrs} = useEditorState({
         editor,
         selector: ({editor}) => ({
+            // @ts-expect-error node is not typed
             widgetAttrs: editor.state.selection?.node?.attrs,
         }),
     });

@@ -113,6 +113,7 @@
     },
     "devDependencies": {
         "@4rthem/i18next-scanner": "^0.0.1",
+        "@mui/system": "^6.5.0",
         "@tanstack/query-core": "^5.90.2",
         "@testing-library/jest-dom": "^6.8.0",
         "@testing-library/react": "^14.3.1",

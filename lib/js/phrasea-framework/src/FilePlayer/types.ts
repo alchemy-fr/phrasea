@@ -2,7 +2,6 @@ import {StrictDimensions} from '@alchemy/core';
 
 export type AssetFile = {
     id: string;
-    name: string;
     type: string;
     url: string;
 };

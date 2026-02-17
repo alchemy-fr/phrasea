@@ -29,7 +29,7 @@ export const WidgetExtension = Node.create<WidgetOptions<any>>({
 
     addOptions() {
         return {
-            widget: '',
+            type: '',
             options: {},
         };
     },

@@ -14,6 +14,7 @@ import {useMemo, useState} from 'react';
 type Element = {
     name: string;
     title: string;
+    defaultOptions: Record<string, any>;
 };
 
 type Props = {
@@ -29,6 +30,7 @@ export default function InsertMenu({editor, onClose}: Props) {
         return widgets.map(w => ({
             name: w.name,
             title: w.getTitle(t),
+            defaultOptions: w.defaultOptions,
         }));
     }, [t]);
 
@@ -65,6 +67,7 @@ export default function InsertMenu({editor, onClose}: Props) {
                                     .focus()
                                     .setWidget({
                                         widget: e.name,
+                                        options: e.defaultOptions,
                                     })
                                     .run();
                             }}

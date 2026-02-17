@@ -7,6 +7,7 @@ export interface WidgetInterface<T extends {} = {}> {
     name: string;
     component: React.FC<RenderWidgetProps<T>>;
     optionsComponent: React.FC<RenderWidgetOptionsProps<T>>;
+    defaultOptions: T;
 }
 
 export type RenderWidgetProps<T extends {} = {}> = {
