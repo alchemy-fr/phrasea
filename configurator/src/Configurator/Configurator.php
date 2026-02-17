@@ -8,6 +8,7 @@ use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 use Symfony\Component\HttpClient\Exception\ClientException;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 
 final readonly class Configurator
 {
@@ -44,9 +45,9 @@ final readonly class Configurator
                 try {
                     $this->process($configurator, $output, $presets);
                     break;
-                } catch (\Exception $e) {
+                } catch (ExceptionInterface $e) {
                     if ($retry >= 3) {
-                        throw new \RuntimeException(sprintf('Failed to configure %s after %d retries.', $name, $retry), 0, $e);
+                        throw new \RuntimeException(sprintf('Failed to configure %s after %d retries: %s', $name, $retry, $e->getMessage()), 0, $e);
                     }
                     $output->writeln(sprintf('Error configuring %s: %s. Retrying...', $name, $e->getMessage()));
                     sleep(1);

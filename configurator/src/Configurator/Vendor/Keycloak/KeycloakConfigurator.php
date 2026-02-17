@@ -100,7 +100,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'credentials' => [[
                 'type' => 'password',
                 'value' => EnvHelper::getEnvOrThrow('DEFAULT_ADMIN_PASSWORD'),
-                'temporary' => $hasTestPreset ? false : !EnvHelper::getBooleanEnv('KEYCLOAK_ADMIN_DEFINITIVE_PASSWORD'),
+                'temporary' => $hasTestPreset ? false : !EnvHelper::getBooleanEnv('KEYCLOAK_ADMIN_PASSWORD_IS_DEFINITIVE'),
             ]],
         ]);
 
