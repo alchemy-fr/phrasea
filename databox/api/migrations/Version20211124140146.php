@@ -40,7 +40,6 @@ final class Version20211124140146 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER INDEX rend_class_uniq RENAME TO sdc_uniq');
         $this->addSql('ALTER INDEX idx_8e3e63a882d40a1f RENAME TO idx_c7ab378482d40a1f');
         $this->addSql('CREATE INDEX idx_e8839a321aeefe4 ON sdr_allowed (rendition_rule_id)');

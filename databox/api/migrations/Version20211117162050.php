@@ -27,7 +27,6 @@ final class Version20211117162050 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('DROP INDEX sdc_uniq');
         $this->addSql('CREATE INDEX sdc_ws_name ON sub_definition_class (workspace_id, name)');
     }

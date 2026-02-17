@@ -27,7 +27,6 @@ final class Version20220713144330 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE file DROP original_name');
         $this->addSql('ALTER TABLE file DROP extension');
     }

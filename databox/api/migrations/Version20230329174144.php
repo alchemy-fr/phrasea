@@ -30,7 +30,6 @@ final class Version20230329174144 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE job_state DROP CONSTRAINT FK_A2CF6F8B2C7C2CBA');
         $this->addSql('DROP TABLE job_state');
         $this->addSql('DROP TABLE workflow_state');

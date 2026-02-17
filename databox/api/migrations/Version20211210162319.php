@@ -27,7 +27,6 @@ final class Version20211210162319 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE asset_rendition DROP uri');
         $this->addSql('ALTER TABLE asset_rendition ALTER file_id SET NOT NULL');
     }

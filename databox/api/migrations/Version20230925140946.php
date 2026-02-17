@@ -131,7 +131,6 @@ final class Version20230925140946 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE workspace_integration ALTER created_at TYPE TIMESTAMP(0) WITHOUT TIME ZONE');
         $this->addSql('ALTER TABLE workspace_integration ALTER updated_at TYPE TIMESTAMP(0) WITHOUT TIME ZONE');
         $this->addSql('COMMENT ON COLUMN workspace_integration.created_at IS NULL');

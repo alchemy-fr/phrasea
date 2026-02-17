@@ -31,7 +31,6 @@ final class Version20230503085950 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE workspace_secret DROP CONSTRAINT FK_6C62394D82D40A1F');
         $this->addSql('DROP TABLE workspace_secret');
     }

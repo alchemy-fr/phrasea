@@ -35,7 +35,6 @@ final class Version20240716145148 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('DROP TABLE attribute_item');
         $this->addSql('ALTER TABLE attribute ADD translation_origin_id UUID DEFAULT NULL');
         $this->addSql('ALTER TABLE attribute ADD translation_id UUID DEFAULT NULL');

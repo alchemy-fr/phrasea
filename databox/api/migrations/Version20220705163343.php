@@ -26,7 +26,6 @@ final class Version20220705163343 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE rendition_definition ALTER pick_source_file DROP NOT NULL');
     }
 }

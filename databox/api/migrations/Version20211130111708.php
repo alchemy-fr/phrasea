@@ -28,7 +28,6 @@ final class Version20211130111708 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE attribute_definition ALTER translatable DROP NOT NULL');
         $this->addSql('ALTER TABLE attribute_definition ALTER allow_invalid DROP NOT NULL');
     }

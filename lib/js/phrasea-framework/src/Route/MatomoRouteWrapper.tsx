@@ -1,4 +1,4 @@
-import React, {JSX} from 'react';
+import {useEffect} from 'react';
 import {useLocation} from 'react-router-dom';
 import {RouteWrapperProps} from '@alchemy/navigation';
 import {useTracking} from '../hooks/useTracking';
@@ -9,9 +9,9 @@ export default function MatomoRouteWrapper({children}: RouteWrapperProps) {
 
     const location = useLocation();
 
-    React.useEffect(() => {
+    useEffect(() => {
         trackPageView();
     }, [location]);
 
-    return children as JSX.Element;
+    return children;
 }

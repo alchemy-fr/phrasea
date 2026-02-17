@@ -28,7 +28,6 @@ final class Version20250224120747 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE collection DROP extra_metadata');
         $this->addSql('ALTER TABLE asset DROP extra_metadata');
         $this->addSql('ALTER TABLE collection_asset DROP extra_metadata');

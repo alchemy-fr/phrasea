@@ -33,7 +33,6 @@ final class Version20211105153253 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('DROP TABLE sub_def_class_permission');
         $this->addSql('ALTER TABLE sub_definition_spec DROP priority');
     }

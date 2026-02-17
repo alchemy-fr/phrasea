@@ -29,7 +29,6 @@ final class Version20230403132702 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE workflow_state DROP created_at');
         $this->addSql('ALTER TABLE job_state DROP created_at');
     }

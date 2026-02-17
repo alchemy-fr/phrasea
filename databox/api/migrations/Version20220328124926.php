@@ -28,7 +28,6 @@ final class Version20220328124926 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE workspace ADD locale_fallback VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE workspace DROP locale_fallbacks');
     }
