@@ -30,7 +30,6 @@ final class Version20250115115456 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE rendition_definition ADD pick_source_file BOOLEAN NOT NULL');
         $this->addSql('ALTER TABLE rendition_definition DROP build_mode');
     }

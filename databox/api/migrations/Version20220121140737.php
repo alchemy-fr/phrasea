@@ -26,7 +26,6 @@ final class Version20220121140737 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE collection ALTER key TYPE VARCHAR(255)');
     }
 }

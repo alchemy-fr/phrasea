@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Provider;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\MessengerBundle\Listener\TerminateStackListener;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\State\ProviderInterface;
@@ -31,6 +32,7 @@ final class ShareRenditionProvider implements ProviderInterface
         private readonly RenditionPermissionManager $renditionPermissionManager,
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly ShareRepository $shareRepository,
+        private readonly TerminateStackListener $terminateStackListener,
         private string $matomoSiteId,
         #[Autowire(env: 'MATOMO_URL')]
         private string $matomoUrl,
@@ -59,9 +61,12 @@ final class ShareRenditionProvider implements ProviderInterface
         if (null !== $file = $rendition?->getFile()) {
             $matomoTracker = new \MatomoTracker((int) $this->matomoSiteId, $this->matomoUrl);
             $asset = $item->getAsset();
-            $trackingId = $asset->getTrackingId() ?? $asset->getId();
+            $trackingId = $asset->getResolvedTrackingId();
+            $title = $asset->getTitle();
 
-            $matomoTracker->doTrackContentImpression($asset->getTitle(), $trackingId);
+            $this->terminateStackListener->addCallback(function () use ($matomoTracker, $title, $trackingId) {
+                $matomoTracker->doTrackContentImpression($title, $trackingId);
+            });
 
             return new RedirectResponse($this->fileUrlResolver->resolveUrl($file));
         }

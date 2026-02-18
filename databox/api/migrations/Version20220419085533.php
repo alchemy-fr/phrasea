@@ -27,7 +27,6 @@ final class Version20220419085533 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE webhook_log DROP CONSTRAINT fk_736542785c9ba60b');
         $this->addSql('ALTER TABLE webhook_log ADD CONSTRAINT fk_736542785c9ba60b FOREIGN KEY (webhook_id) REFERENCES webhook (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
     }

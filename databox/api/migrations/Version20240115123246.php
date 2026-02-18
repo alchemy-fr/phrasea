@@ -29,7 +29,6 @@ final class Version20240115123246 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE attribute_class DROP labels');
         $this->addSql('ALTER TABLE rendition_class DROP labels');
         $this->addSql('ALTER TABLE attribute_definition DROP labels');

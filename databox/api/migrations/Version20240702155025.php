@@ -29,7 +29,6 @@ final class Version20240702155025 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE asset_rendition DROP projection');
         $this->addSql('ALTER TABLE attribute ADD coordinates TEXT DEFAULT NULL');
         $this->addSql('ALTER TABLE attribute DROP asset_annotations');

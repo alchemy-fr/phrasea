@@ -69,7 +69,6 @@ trait AttributeInputTrait
         unset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
 
         foreach ($attributes as $attribute) {
-
             if ($attribute instanceof AttributeInput) {
                 $attribute->asset = $object;
             } elseif ($attribute instanceof TemplateAttributeInput) {

@@ -241,9 +241,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
 
     const bodyProps: BodyProps<D> = {
         items: list,
-        reload: async () => {
-            await load();
-        },
+        reload,
     };
 
     let filteredList =

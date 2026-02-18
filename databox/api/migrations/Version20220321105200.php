@@ -27,7 +27,6 @@ final class Version20220321105200 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE attribute_definition ALTER facet_enabled SET DEFAULT \'false\'');
         $this->addSql('ALTER TABLE attribute_definition ALTER facet_enabled DROP NOT NULL');
     }

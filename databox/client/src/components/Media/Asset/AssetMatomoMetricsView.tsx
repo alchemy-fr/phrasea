@@ -5,7 +5,7 @@ import {
     Typography,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import {useEffect, useState, memo} from 'react';
+import {memo, useEffect, useState} from 'react';
 import {Asset, MatomoMediaMetrics} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {BaseAttributeRowUIProps} from './Attribute/AttributeRowUI.tsx';
@@ -25,6 +25,9 @@ function AssetMatomoMetricsView({asset}: Props) {
     const enabled = !!config.analytics?.matomo;
 
     useEffect(() => {
+        if (!enabled) {
+            return;
+        }
         if (expanded) {
             (async () => {
                 const res = await getAssetMetrics(asset.id, asset.source?.type);
@@ -36,7 +39,7 @@ function AssetMatomoMetricsView({asset}: Props) {
                 }
             })();
         }
-    }, [expanded, asset]);
+    }, [expanded, asset, enabled]);
 
     return (
         <Accordion expanded={expanded} onChange={() => setExpanded(p => !p)}>

@@ -27,7 +27,6 @@ final class Version20230125114038 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE asset_file_version ALTER version_name SET NOT NULL');
         $this->addSql('ALTER TABLE asset_file_version ALTER version_name TYPE VARCHAR(20)');
     }

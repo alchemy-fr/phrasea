@@ -27,7 +27,6 @@ final class Version20250106104251 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('DROP INDEX UNIQ_31204C83B933DA0B');
         $this->addSql('ALTER TABLE thread DROP topic_key');
     }

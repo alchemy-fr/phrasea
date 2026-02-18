@@ -35,7 +35,6 @@ final class Version20240717143101 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('CREATE TABLE attribute_item (id UUID NOT NULL, workspace_id UUID NOT NULL, type VARCHAR(100) NOT NULL, value TEXT NOT NULL, locale VARCHAR(10) DEFAULT NULL, "position" INT NOT NULL, translations JSON DEFAULT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX idx_44f3819682d40a1f ON attribute_item (workspace_id)');
         $this->addSql('CREATE INDEX item_type_idx ON attribute_item (type)');
