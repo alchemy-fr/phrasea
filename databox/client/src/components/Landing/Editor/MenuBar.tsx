@@ -23,19 +23,37 @@ import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {toggleButtonGroupClasses} from '@mui/material/ToggleButtonGroup';
 import {styled} from '@mui/material/styles';
 import {OnPageSave} from './PageEditor.tsx';
 import SaveIcon from '@mui/icons-material/Save';
+import {Page} from '../../../types.ts';
+import IconButton from '@mui/material/IconButton';
+import {getPath, Link} from '@alchemy/navigation';
+import {routes} from '../../../routes.ts';
+import SettingsIcon from '@mui/icons-material/Settings';
 
-type Props = {
-    editor: Editor;
-    onSave: OnPageSave;
+export type MenuBarOptions = {
     onPreview?: () => void;
+    onEdit?: () => void;
+    data: Page;
 };
 
-export const MenuBar = ({editor, onSave, onPreview}: Props) => {
+type Props = {
+    hasChanged: boolean;
+    editor: Editor;
+    onSave: OnPageSave;
+} & MenuBarOptions;
+
+export const MenuBar = ({
+    hasChanged,
+    data,
+    editor,
+    onEdit,
+    onSave,
+    onPreview,
+}: Props) => {
     const {t} = useTranslation();
 
     const editorState = useEditorState({
@@ -51,7 +69,7 @@ export const MenuBar = ({editor, onSave, onPreview}: Props) => {
                 icon: <SaveIcon />,
                 isActive: false,
                 toggle: editor => onSave(editor.getJSON()),
-                can: true,
+                can: hasChanged,
             },
             onPreview
                 ? {
@@ -63,6 +81,10 @@ export const MenuBar = ({editor, onSave, onPreview}: Props) => {
                       toggle: () => onPreview(),
                   }
                 : null,
+            {
+                id: 'divSave',
+                isDivider: true,
+            },
             {
                 id: 'undo',
                 label: t('editor.format.undo', 'Undo'),
@@ -241,37 +263,66 @@ export const MenuBar = ({editor, onSave, onPreview}: Props) => {
     }
 
     return (
-        <Box>
-            <StyledToggleButtonGroup>
-                {formats
-                    .filter(f => null !== f)
-                    .map(format => {
-                        if (format.isDivider) {
-                            return (
-                                <Divider
-                                    key={format.id}
-                                    flexItem
-                                    orientation="vertical"
-                                    sx={{mx: 0.5, my: 1}}
-                                />
-                            );
-                        }
+        <>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 1,
+                    alignItems: 'center',
+                }}
+            >
+                <div>
+                    <IconButton
+                        component={Link}
+                        to={getPath(routes.pageAdmin.routes.index)}
+                    >
+                        <ArrowBackIcon />
+                    </IconButton>
+                </div>
+                <div>
+                    <strong>{data.title}</strong>
+                </div>
+                {onEdit ? (
+                    <div>
+                        <IconButton onClick={onEdit}>
+                            <SettingsIcon />
+                        </IconButton>
+                    </div>
+                ) : null}
+            </Box>
+            <div>
+                <StyledToggleButtonGroup>
+                    {formats
+                        .filter(f => null !== f)
+                        .map(format => {
+                            if (format.isDivider) {
+                                return (
+                                    <Divider
+                                        key={format.id}
+                                        flexItem
+                                        orientation="vertical"
+                                        sx={{mx: 0.5, my: 1}}
+                                    />
+                                );
+                            }
 
-                        return (
-                            <ToggleButton
-                                key={format.id}
-                                value={format.id}
-                                aria-label={format.label}
-                                disabled={!format.can}
-                                onClick={() => format.toggle(editor)}
-                                selected={format.isActive}
-                            >
-                                {format.icon}
-                            </ToggleButton>
-                        );
-                    })}
-            </StyledToggleButtonGroup>
-        </Box>
+                            return (
+                                <ToggleButton
+                                    key={format.id}
+                                    value={format.id}
+                                    aria-label={format.label}
+                                    disabled={!format.can}
+                                    onClick={() => format.toggle(editor)}
+                                    selected={format.isActive}
+                                >
+                                    {format.icon}
+                                </ToggleButton>
+                            );
+                        })}
+                </StyledToggleButtonGroup>
+            </div>
+        </>
     );
 };
 

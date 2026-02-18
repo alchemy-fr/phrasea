@@ -1,26 +1,27 @@
 import {EditorContent, EditorContext, useEditor} from '@tiptap/react';
 import {BubbleMenu, FloatingMenu} from '@tiptap/react/menus';
 import './styles.scss';
-import {MenuBar} from './MenuBar.tsx';
-import {useMemo} from 'react';
+import {MenuBar, MenuBarOptions} from './MenuBar.tsx';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import DragHandle from '@tiptap/extension-drag-handle-react';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import {WidgetConstants} from './extensions/widgets/extension.ts';
 import {Box} from '@mui/material';
 import AddMenu from './menu/AddMenu.tsx';
 import WidgetBubbleMenu from './WidgetBubbleMenu.tsx';
-import {Page, PageContent} from '../../../types.ts';
+import {PageContent} from '../../../types.ts';
 import {extensions} from './extensions.ts';
+import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 
 export type OnPageSave = (content: PageContent) => void;
 
 type Props = {
-    data?: Page;
     onSave: OnPageSave;
-    onPreview?: () => void;
-};
+} & MenuBarOptions;
 
-export default function PageEditor({data, onSave, onPreview}: Props) {
+export default function PageEditor({data, onSave, ...menuProps}: Props) {
+    const [changed, setChanged] = useState(false);
+
     const editor = useEditor({
         immediatelyRender: false,
         editorProps: {
@@ -41,7 +42,7 @@ export default function PageEditor({data, onSave, onPreview}: Props) {
                     content: [
                         {
                             type: 'text',
-                            text: 'Page',
+                            text: data?.title ?? 'Page',
                         },
                     ],
                 },
@@ -51,6 +52,33 @@ export default function PageEditor({data, onSave, onPreview}: Props) {
 
     const providerValue = useMemo(() => ({editor}), [editor]);
 
+    useEffect(() => {
+        if (!editor) {
+            return;
+        }
+        const onUpdate = () => {
+            setChanged(true);
+        };
+        editor.on('update', onUpdate);
+
+        return () => {
+            editor.off('update', onUpdate);
+        };
+    }, [editor]);
+
+    useDirtyFormPrompt(changed);
+
+    const saveHandler = useCallback<OnPageSave>(
+        content => {
+            if (!editor) {
+                return;
+            }
+            onSave?.(content);
+            setChanged(false);
+        },
+        [editor, onSave]
+    );
+
     if (!editor) {
         return null;
     }
@@ -59,9 +87,11 @@ export default function PageEditor({data, onSave, onPreview}: Props) {
         <>
             <EditorContext.Provider value={providerValue}>
                 <MenuBar
+                    hasChanged={changed}
+                    data={data}
                     editor={editor}
-                    onSave={onSave}
-                    onPreview={onPreview}
+                    onSave={saveHandler}
+                    {...menuProps}
                 />
                 <Box
                     sx={_theme => ({

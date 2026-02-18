@@ -15,8 +15,8 @@ import FileDialog from './components/Dialog/File/FileDialog.tsx';
 import SavedSearchDialog from './components/Dialog/SavedSearch/SavedSearchDialog.tsx';
 import HomePage from './pages/HomePage.tsx';
 import PageEditPage from './pages/PageEditPage.tsx';
-import PageCreatePage from './pages/PageCreatePage.tsx';
 import PagePage from './pages/PagePage.tsx';
+import PageIndexPage from './pages/PageIndexPage.tsx';
 
 export enum Routing {
     UnknownRendition = '_',
@@ -128,9 +128,9 @@ const routes = {
     pageAdmin: {
         path: '/pages',
         routes: {
-            create: {
-                path: 'new',
-                component: PageCreatePage,
+            index: {
+                path: '',
+                component: PageIndexPage,
                 public: false,
             },
             edit: {
@@ -140,8 +140,8 @@ const routes = {
             },
         },
     },
-    app: {
-        path: '/search',
+    assets: {
+        path: '/assets',
         component: App,
         public: true,
     },

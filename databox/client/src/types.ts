@@ -409,7 +409,7 @@ export interface Page extends IPermissions, Entity {
     public?: boolean;
     createdAt: string;
     updatedAt: string;
-    data: PageContent;
+    data?: PageContent;
     owner?: User;
 }
 

@@ -1,19 +1,25 @@
-import {getPath, useNavigate} from '@alchemy/navigation';
-
-import {Container, Typography} from '@mui/material';
-import {postPage} from '../api/page.ts';
-import {routes} from '../routes.ts';
+import '../styles.scss';
+import {Page} from '../../../../types.ts';
+import {postPage} from '../../../../api/page.ts';
+import PageEditFields from './PageEditFields.tsx';
+import {AppDialog} from '@alchemy/phrasea-ui';
+import {
+    getPath,
+    StackedModalProps,
+    useModals,
+    useNavigate,
+} from '@alchemy/navigation';
 import {useFormSubmit} from '@alchemy/api';
-import {useTranslation} from 'react-i18next';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
-import PageEditFields from '../components/Landing/Editor/form/PageEditFields.tsx';
-import {Page} from '../types.ts';
+import {useTranslation} from 'react-i18next';
+import {routes} from '../../../../routes.ts';
 
-type Props = {};
+type Props = {} & StackedModalProps;
 
-export default function PageCreatePage({}: Props) {
-    const navigate = useNavigate();
+export default function PageCreateDialog({modalIndex, open}: Props) {
     const {t} = useTranslation();
+    const {closeModal} = useModals();
+    const navigate = useNavigate();
 
     const usedFormSubmit = useFormSubmit<Page>({
         defaultValues: {
@@ -30,6 +36,7 @@ export default function PageCreatePage({}: Props) {
             });
         },
         onSuccess: data => {
+            closeModal();
             navigate(
                 getPath(routes.pageAdmin.routes.edit, {
                     id: data.id,
@@ -41,26 +48,24 @@ export default function PageCreatePage({}: Props) {
 
     const {handleSubmit, forbidNavigation} = usedFormSubmit;
 
-    useDirtyFormPrompt(forbidNavigation);
+    useDirtyFormPrompt(forbidNavigation, modalIndex);
 
     return (
         <>
-            <Container>
-                <Typography
-                    variant={'h2'}
-                    sx={{
-                        mb: 2,
-                    }}
-                >
-                    {t('pages.create.title', 'Create Page')}
-                </Typography>
+            <AppDialog
+                open={open}
+                modalIndex={modalIndex}
+                onClose={closeModal}
+                maxWidth={'sm'}
+                title={t('pages.edit.title', 'Edit Page')}
+            >
                 <form onSubmit={handleSubmit}>
                     <PageEditFields
                         usedFormSubmit={usedFormSubmit}
-                        submitLabel={t('pages.create.submit', 'Create Page')}
+                        submitLabel={t('pages.edit.submit', 'Save')}
                     />
                 </form>
-            </Container>
+            </AppDialog>
         </>
     );
 }

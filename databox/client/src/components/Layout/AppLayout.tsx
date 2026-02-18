@@ -1,6 +1,6 @@
 import React, {PropsWithChildren, useContext} from 'react';
 import {config, keycloakClient} from '../../init.ts';
-import {VerticalMenuLayout} from '@alchemy/phrasea-framework';
+import {MenuOrientation, VerticalMenuLayout} from '@alchemy/phrasea-framework';
 import ChangeThemeDialog from './ChangeThemeDialog.tsx';
 import LocaleDialog from '../Locale/LocaleDialog.tsx';
 import {appLocales} from '../../../translations/locales.ts';
@@ -9,6 +9,7 @@ import {SearchContext} from '../Media/Search/SearchContext.tsx';
 import {useTranslation} from 'react-i18next';
 import LeftPanel from '../Media/LeftPanel.tsx';
 import {useNotificationUriHandler} from '../../hooks/useNotificationUriHandler.ts';
+import AppNav from './AppNav.tsx';
 
 type Props = PropsWithChildren<{
     leftPanelOpen: boolean;
@@ -35,6 +36,7 @@ export default function AppLayout({children}: Props) {
                 ChangeThemeDialog,
                 LocaleDialogComponent: LocaleDialog,
                 notificationUriHandler,
+                topChildren: <AppNav orientation={MenuOrientation.Vertical} />,
             }}
             menuChildren={<LeftPanel />}
             contentSx={{

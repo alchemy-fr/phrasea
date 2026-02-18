@@ -2,6 +2,7 @@ import {apiClient} from '../init.ts';
 import {Page} from '../types';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 import {EntityName} from './types.ts';
+import {AxiosRequestConfig} from 'axios';
 
 export type GetPageOptions = {
     query?: string;
@@ -35,8 +36,11 @@ export async function getPage(id: string): Promise<Page> {
     return (await apiClient.get(`/${EntityName.Page}/${id}`)).data;
 }
 
-export async function getPageBySlug(slug: string): Promise<Page> {
-    return (await apiClient.get(`/page-by-slug/${slug}`)).data;
+export async function getPageBySlug(
+    slug: string,
+    config?: AxiosRequestConfig
+): Promise<Page> {
+    return (await apiClient.get(`/page-by-slug/${slug}`, config)).data;
 }
 
 export async function deletePage(id: string): Promise<void> {

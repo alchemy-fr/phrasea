@@ -31,6 +31,7 @@ import NavMenu from './src/Menu/NavMenu';
 import {useMatomo} from '@jonkoops/matomo-tracker-react';
 import MatomoRouteWrapper from './src/Route/MatomoRouteWrapper';
 import {useTracking} from './src/hooks/useTracking';
+import LoadMoreButton from './src/components/LoadMoreButton';
 export {
     AppProvider,
     initApp,
@@ -67,8 +68,8 @@ export {
     useMatomo,
     MatomoRouteWrapper,
     useTracking,
+    LoadMoreButton,
 };
-
 export * from './src/Theme/types';
 export * from './src/Dialog/types';
 export * from './src/Locale/types';

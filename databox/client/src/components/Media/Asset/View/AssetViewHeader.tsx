@@ -30,10 +30,16 @@ function AssetViewHeader({
     const {state} = useLocation() as Location<AssetContextState | undefined>;
     const navigateToModal = useNavigateToModal();
     const handleRenditionChange = (renditionId: string) => {
-        navigateToModal(modalRoutes.assets.routes.view, {
-            id: asset.id,
-            renditionId: renditionId || Routing.UnknownRendition,
-        });
+        navigateToModal(
+            modalRoutes.assets.routes.view,
+            {
+                id: asset.id,
+                renditionId: renditionId || Routing.UnknownRendition,
+            },
+            {
+                state,
+            }
+        );
     };
 
     const isMainAsset = !currentStoryAsset || currentStoryAsset.id === asset.id;

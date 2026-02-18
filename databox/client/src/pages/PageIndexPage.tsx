@@ -1,36 +1,43 @@
 import {getPath, Link, useModals} from '@alchemy/navigation';
-import {PublicationProfile} from '../types.ts';
+import {Page} from '../types.ts';
 import React, {useCallback, useEffect, useState} from 'react';
+import {deletePage, getPages} from '../api/page.ts';
 import {FlexRow, FullPageLoader} from '@alchemy/phrasea-ui';
-import {deleteProfile, getProfiles} from '../api/profileApi.ts';
-import {NormalizedCollectionResponse} from '@alchemy/api';
-import AppBar from '../components/AppBar.tsx';
-import {Box, Container, IconButton, Paper, Typography} from '@mui/material';
 import {useTranslation} from 'react-i18next';
-import {routes} from '../routes.ts';
+import {
+    Box,
+    Button,
+    Container,
+    IconButton,
+    Paper,
+    Typography,
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {
-    ConfirmDialog,
-    LoadMoreButton,
-    NavButton,
-} from '@alchemy/phrasea-framework';
-import AddIcon from '@mui/icons-material/Add';
+import {NormalizedCollectionResponse} from '@alchemy/api';
+import {ConfirmDialog, LoadMoreButton} from '@alchemy/phrasea-framework';
+import {routes} from '../routes.ts';
+import AppBar from '../components/Layout/AppBar.tsx';
+import PageCreateDialog from '../components/Landing/Editor/form/PageCreateDialog.tsx';
 
 type Props = {};
 
-export default function ProfileListPage({}: Props) {
+export default function PageIndexPage({}: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const [loading, setLoading] = React.useState(false);
-    const [data, setData] =
-        useState<NormalizedCollectionResponse<PublicationProfile>>();
+    const [data, setData] = useState<NormalizedCollectionResponse<Page>>();
 
-    const loadProfiles = useCallback(
+    const onCreate = useCallback(() => {
+        openModal(PageCreateDialog);
+    }, [openModal]);
+
+    const loadPages = useCallback(
         async (nextUrl?: string) => {
             setLoading(true);
             try {
-                const res = await getProfiles({nextUrl});
+                const res = await getPages(nextUrl);
 
                 setData(p =>
                     p && nextUrl
@@ -48,25 +55,25 @@ export default function ProfileListPage({}: Props) {
     );
 
     useEffect(() => {
-        loadProfiles();
-    }, [loadProfiles]);
+        loadPages();
+    }, [loadPages]);
 
-    const onDeleteProfile = React.useCallback(
-        async (profile: PublicationProfile) => {
+    const onDeletePage = React.useCallback(
+        async (page: Page) => {
             openModal(ConfirmDialog, {
-                textToType: profile.name,
-                title: t('profile.delete_title', {
-                    defaultValue: 'Delete Profile "{{title}}"',
-                    title: profile.name,
+                textToType: page.title,
+                title: t('page.delete_title', {
+                    defaultValue: 'Delete Page "{{title}}"',
+                    title: page.title,
                 }),
                 onConfirm: async () => {
-                    await deleteProfile(profile.id);
-                    loadProfiles();
+                    await deletePage(page.id);
+                    loadPages();
                 },
-                confirmLabel: t('profile.delete_confirm', 'Delete Profile'),
+                confirmLabel: t('page.delete_confirm', 'Delete Page'),
             });
         },
-        [loadProfiles, openModal]
+        [loadPages, openModal]
     );
 
     return (
@@ -86,20 +93,20 @@ export default function ProfileListPage({}: Props) {
                                 flexGrow: 1,
                             }}
                         >
-                            {t('profile.list.title', 'Profiles')}
+                            {t('page.list.title', 'Pages')}
                         </Typography>
-                        <NavButton
+                        <Button
                             startIcon={<AddIcon />}
                             variant={'contained'}
-                            route={routes.profile.routes.create}
+                            onClick={onCreate}
                         >
-                            {t('profile.list.create_button', 'Create Profile')}
-                        </NavButton>
+                            {t('page.list.create_button', 'Create Page')}
+                        </Button>
                     </FlexRow>
                     <Box gap={1} display={'flex'} flexDirection={'column'}>
-                        {data.result.map(profile => (
+                        {data.result.map(page => (
                             <Paper
-                                key={profile.id}
+                                key={page.id}
                                 sx={{
                                     p: 2,
                                     display: 'flex',
@@ -111,33 +118,16 @@ export default function ProfileListPage({}: Props) {
                                     }}
                                 >
                                     <Typography variant={'h5'}>
-                                        {profile.name}
+                                        {page.title}
                                     </Typography>
-                                    {profile.publicationCount > 0 ? (
-                                        <Typography
-                                            variant={'body2'}
-                                            color={'text.secondary'}
-                                        >
-                                            {t(
-                                                'profile.list.using_publications',
-                                                {
-                                                    count: profile.publicationCount,
-                                                    defaultValue:
-                                                        '{{count}} publication using this profile',
-                                                    defaultValue_other:
-                                                        '{{count}} publications using this profile',
-                                                }
-                                            )}
-                                        </Typography>
-                                    ) : null}
                                 </div>
                                 <div>
                                     <IconButton
                                         component={Link}
                                         to={getPath(
-                                            routes.profile.routes.edit,
+                                            routes.pageAdmin.routes.edit,
                                             {
-                                                id: profile.id,
+                                                id: page.id,
                                             }
                                         )}
                                     >
@@ -145,8 +135,7 @@ export default function ProfileListPage({}: Props) {
                                     </IconButton>
                                     <IconButton
                                         color={'error'}
-                                        onClick={() => onDeleteProfile(profile)}
-                                        disabled={profile.publicationCount > 0}
+                                        onClick={() => onDeletePage(page)}
                                     >
                                         <DeleteIcon />
                                     </IconButton>
@@ -157,7 +146,7 @@ export default function ProfileListPage({}: Props) {
                     <LoadMoreButton
                         loading={loading}
                         data={data}
-                        load={loadProfiles}
+                        load={loadPages}
                     />
                 </div>
             ) : (
@@ -166,7 +155,7 @@ export default function ProfileListPage({}: Props) {
 
             {data && data.result.length === 0 && !loading && (
                 <Typography variant={'h5'} align={'center'}>
-                    {t('profile.list.no_result', 'No profile')}
+                    {t('page.list.no_result', 'No page')}
                 </Typography>
             )}
         </Container>
