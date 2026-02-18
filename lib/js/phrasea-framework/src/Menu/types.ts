@@ -56,6 +56,7 @@ export enum MenuClasses {
 export type NavItem = {
     id: string;
     label: ReactNode;
+    icon?: ReactNode;
 } & Omit<NavButtonProps, 'location'>;
 
 export type NavButtonProps = {
