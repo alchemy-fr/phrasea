@@ -8,6 +8,7 @@ import {AttributeType} from './api/types.ts';
 import {SortBy} from './components/Media/Search/Filter';
 import {AQLQueries} from './components/Media/Search/AQL/query.ts';
 import {ApiHydraObjectResponse} from '@alchemy/api';
+import {Editor} from '@tiptap/core';
 
 export type AlternateUrl = {
     type: string;
@@ -402,15 +403,16 @@ export interface SavedSearch extends IPermissions, Entity {
 
 export interface Page extends IPermissions, Entity {
     title: string;
+    slug: string;
     enabled?: boolean;
     public?: boolean;
     createdAt: string;
     updatedAt: string;
-    data: PageData;
+    data: PageContent;
     owner?: User;
 }
 
-export type PageData = {};
+export type PageContent = ReturnType<Editor['getJSON']>;
 
 export interface Thread extends Entity {
     id: string;

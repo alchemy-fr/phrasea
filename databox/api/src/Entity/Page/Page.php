@@ -12,8 +12,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Provider\PageBySlugProvider;
 use App\Entity\Traits\OwnerIdTrait;
-use App\Entity\WithOwnerIdInterface;
+use App\Listener\OwnerPersistableInterface;
 use App\Repository\Page\PageRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
@@ -30,6 +31,14 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'groups' => [self::GROUP_LIST],
             ]),
         new Get(),
+        new Get(
+            uriTemplate: '/page-by-slug/{slug}',
+            uriVariables: [
+                'slug' => 'slug',
+            ],
+            name: 'get_page_by_slug',
+            provider: PageBySlugProvider::class
+        ),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new Put(
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
@@ -44,7 +53,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ORM\Entity(repositoryClass: PageRepository::class)]
 #[UniqueEntity(fields: ['slug'])]
-class Page extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface
+class Page extends AbstractUuidEntity implements OwnerPersistableInterface, AclObjectInterface
 {
     use OwnerIdTrait;
     use CreatedAtTrait;
@@ -57,6 +66,10 @@ class Page extends AbstractUuidEntity implements WithOwnerIdInterface, AclObject
     final public const string GROUP_READ = self::GROUP_PREFIX.'r';
     final public const string GROUP_LIST = self::GROUP_PREFIX.'i';
     final public const string GROUP_WRITE = self::GROUP_PREFIX.'w';
+
+    #[ORM\Column(type: Types::STRING, length: 36)]
+    // Skip validation
+    protected ?string $ownerId = null;
 
     #[Assert\NotBlank]
     #[Assert\Regex(pattern: '/^[a-z0-9]+(?:-[a-z0-9]+)*$/')]
@@ -71,12 +84,15 @@ class Page extends AbstractUuidEntity implements WithOwnerIdInterface, AclObject
     private ?string $title = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private bool $public = false;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private bool $enabled = false;
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private array $data = [];
 
     #[ORM\Column(type: Types::JSON, nullable: false)]

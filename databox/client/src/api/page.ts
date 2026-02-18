@@ -35,6 +35,10 @@ export async function getPage(id: string): Promise<Page> {
     return (await apiClient.get(`/${EntityName.Page}/${id}`)).data;
 }
 
+export async function getPageBySlug(slug: string): Promise<Page> {
+    return (await apiClient.get(`/page-by-slug/${slug}`)).data;
+}
+
 export async function deletePage(id: string): Promise<void> {
     await apiClient.delete(`/${EntityName.Page}/${id}`);
 }

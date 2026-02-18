@@ -19,7 +19,7 @@ use App\Api\Model\Output\SavedSearchOutput;
 use App\Api\Provider\SavedSearchCollectionProvider;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
-use App\Repository\SavedSearch\PageRepository;
+use App\Repository\SavedSearch\SavedSearchRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -49,7 +49,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     output: SavedSearchOutput::class,
     provider: SavedSearchCollectionProvider::class,
 )]
-#[ORM\Entity(repositoryClass: PageRepository::class)]
+#[ORM\Entity(repositoryClass: SavedSearchRepository::class)]
 class SavedSearch extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface
 {
     use OwnerIdTrait;

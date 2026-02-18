@@ -12,7 +12,7 @@ trait OwnerIdTrait
 {
     #[ORM\Column(type: Types::STRING, length: 36)]
     #[Assert\NotNull]
-    private ?string $ownerId = null;
+    protected ?string $ownerId = null;
 
     public function getOwnerId(): ?string
     {

@@ -1,50 +1,25 @@
 import {EditorContent, EditorContext, useEditor} from '@tiptap/react';
 import {BubbleMenu, FloatingMenu} from '@tiptap/react/menus';
-import StarterKit from '@tiptap/starter-kit';
 import './styles.scss';
 import {MenuBar} from './MenuBar.tsx';
 import {useMemo} from 'react';
-import {ColorHighlighterExtension} from './extensions/highlighter/extension.ts';
 import DragHandle from '@tiptap/extension-drag-handle-react';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import {
-    WidgetConstants,
-    WidgetExtension,
-} from './extensions/widgets/extension.ts';
+import {WidgetConstants} from './extensions/widgets/extension.ts';
 import {Box} from '@mui/material';
-import TextAlign from '@tiptap/extension-text-align';
-import HorizontalRule from '@tiptap/extension-horizontal-rule';
-import {TaskItem, TaskList} from '@tiptap/extension-list';
-import Superscript from '@tiptap/extension-superscript';
-import Subscript from '@tiptap/extension-subscript';
-import TypographyExtension from '@tiptap/extension-typography';
-import Highlight from '@tiptap/extension-highlight';
 import AddMenu from './menu/AddMenu.tsx';
 import WidgetBubbleMenu from './WidgetBubbleMenu.tsx';
+import {Page, PageContent} from '../../../types.ts';
+import {extensions} from './extensions.ts';
 
-const extensions = [
-    ColorHighlighterExtension,
-    WidgetExtension,
-    StarterKit.configure({
-        horizontalRule: false,
-        link: {
-            openOnClick: false,
-            enableClickSelection: true,
-        },
-    }),
-    HorizontalRule,
-    TextAlign.configure({types: ['heading', 'paragraph']}),
-    TaskList,
-    TaskItem.configure({nested: true}),
-    Highlight.configure({multicolor: true}),
-    TypographyExtension,
-    Superscript,
-    Subscript,
-];
+export type OnPageSave = (content: PageContent) => void;
 
-type Props = {};
+type Props = {
+    data?: Page;
+    onSave: OnPageSave;
+};
 
-export default function PageEditor({}: Props) {
+export default function PageEditor({data, onSave}: Props) {
     const editor = useEditor({
         immediatelyRender: false,
         editorProps: {
@@ -56,7 +31,21 @@ export default function PageEditor({}: Props) {
             },
         },
         extensions,
-        content: `<h1>Page</h1>`,
+        content: data?.data ?? {
+            type: 'doc',
+            content: [
+                {
+                    type: 'heading',
+                    attrs: {level: 1},
+                    content: [
+                        {
+                            type: 'text',
+                            text: 'Page',
+                        },
+                    ],
+                },
+            ],
+        },
     });
 
     const providerValue = useMemo(() => ({editor}), [editor]);
@@ -68,7 +57,7 @@ export default function PageEditor({}: Props) {
     return (
         <>
             <EditorContext.Provider value={providerValue}>
-                <MenuBar editor={editor} />
+                <MenuBar editor={editor} onSave={onSave} />
                 <Box
                     sx={_theme => ({
                         p: 2,

@@ -8,7 +8,7 @@ export default function HomePage({}: Props) {
     const navigate = useNavigate();
 
     useEffect(() => {
-        navigate(getPath(routes.pageEdit));
+        navigate(getPath(routes.pageAdmin.routes.create));
     }, [navigate]);
 
     return null;

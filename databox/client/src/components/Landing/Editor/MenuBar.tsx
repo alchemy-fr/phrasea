@@ -25,9 +25,14 @@ import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 
 import {toggleButtonGroupClasses} from '@mui/material/ToggleButtonGroup';
 import {styled} from '@mui/material/styles';
+import {OnPageSave} from './PageEditor.tsx';
+import SaveIcon from '@mui/icons-material/Save';
 
-type Props = {editor: Editor};
-export const MenuBar = ({editor}: Props) => {
+type Props = {
+    editor: Editor;
+    onSave: OnPageSave;
+};
+export const MenuBar = ({editor, onSave}: Props) => {
     const {t} = useTranslation();
     const editorState = useEditorState({
         editor,
@@ -36,6 +41,14 @@ export const MenuBar = ({editor}: Props) => {
 
     const formats = useMemo<EditorMenuAction[]>(
         () => [
+            {
+                id: 'save',
+                label: t('editor.format.save', 'Save'),
+                icon: <SaveIcon />,
+                isActive: false,
+                toggle: editor => onSave(editor.getJSON()),
+                can: true,
+            },
             {
                 id: 'undo',
                 label: t('editor.format.undo', 'Undo'),
