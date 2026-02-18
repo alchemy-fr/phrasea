@@ -15,6 +15,7 @@ export default function Widget<T extends {}>({
     node: {attrs},
     HTMLAttributes,
     selected,
+    editor,
 }: Props<T>) {
     const {t} = useTranslation();
     const widget = widgets.find(w => w.name === HTMLAttributes.type);
@@ -33,7 +34,7 @@ export default function Widget<T extends {}>({
         <NodeViewWrapper
             className={classNames({
                 widget: true,
-                selected,
+                selected: selected && editor.isEditable,
             })}
             contentEditable={false}
         >

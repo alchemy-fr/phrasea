@@ -1,4 +1,4 @@
-import {useParams} from '@alchemy/navigation';
+import {getPath, useParams} from '@alchemy/navigation';
 import PageEditor, {
     OnPageSave,
 } from '../components/Landing/Editor/PageEditor.tsx';
@@ -7,6 +7,7 @@ import {Page} from '../types.ts';
 import {useCallback, useEffect, useState} from 'react';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {getPage, putPage} from '../api/page.ts';
+import {routes} from '../routes.ts';
 
 type Props = {};
 
@@ -28,6 +29,13 @@ export default function PageEditPage({}: Props) {
         },
         [id]
     );
+    const onPreview = useCallback(() => {
+        const uri = `${window.location.origin}${getPath(routes.pages, {
+            slug: data?.slug,
+        })}`;
+        // Open new tab to uri
+        window.open(uri, '_blank');
+    }, [data]);
 
     if (!data) {
         return <FullPageLoader />;
@@ -36,7 +44,7 @@ export default function PageEditPage({}: Props) {
     return (
         <>
             <Container>
-                <PageEditor data={data} onSave={onSave} />
+                <PageEditor data={data} onSave={onSave} onPreview={onPreview} />
             </Container>
         </>
     );

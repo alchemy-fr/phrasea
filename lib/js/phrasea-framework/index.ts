@@ -9,7 +9,7 @@ import {CommonAppLeftMenu} from './src/Menu/CommonAppLeftMenu';
 import ConfirmDialog from './src/Dialog/ConfirmDialog';
 import {LocaleIcon} from './src/Locale/LocaleIcon';
 import {CommonAppTopMenu} from './src/Menu/CommonAppTopMenu';
-import FilePlayer from './src/FilePlayer/FilePlayer';
+import FilePlayer, {MemoizedFilePlayer} from './src/FilePlayer/FilePlayer';
 import {getIconFromType} from './src/FilePlayer/fileIcon';
 import {videoPlayerSx} from './src/FilePlayer/styles';
 import AssetTypeIcon from './src/FilePlayer/AssetTypeIcon';
@@ -46,6 +46,7 @@ export {
     LocaleIcon,
     CommonAppTopMenu,
     FilePlayer,
+    MemoizedFilePlayer,
     getIconFromType,
     videoPlayerSx,
     AssetTypeIcon,
@@ -67,6 +68,7 @@ export {
     MatomoRouteWrapper,
     useTracking,
 };
+
 export * from './src/Theme/types';
 export * from './src/Dialog/types';
 export * from './src/Locale/types';

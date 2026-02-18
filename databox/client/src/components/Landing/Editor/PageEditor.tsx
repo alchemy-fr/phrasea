@@ -17,9 +17,10 @@ export type OnPageSave = (content: PageContent) => void;
 type Props = {
     data?: Page;
     onSave: OnPageSave;
+    onPreview?: () => void;
 };
 
-export default function PageEditor({data, onSave}: Props) {
+export default function PageEditor({data, onSave, onPreview}: Props) {
     const editor = useEditor({
         immediatelyRender: false,
         editorProps: {
@@ -57,7 +58,11 @@ export default function PageEditor({data, onSave}: Props) {
     return (
         <>
             <EditorContext.Provider value={providerValue}>
-                <MenuBar editor={editor} onSave={onSave} />
+                <MenuBar
+                    editor={editor}
+                    onSave={onSave}
+                    onPreview={onPreview}
+                />
                 <Box
                     sx={_theme => ({
                         p: 2,

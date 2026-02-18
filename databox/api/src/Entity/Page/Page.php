@@ -81,6 +81,7 @@ class Page extends AbstractUuidEntity implements OwnerPersistableInterface, AclO
     #[Assert\NotBlank]
     #[Assert\Length(max: 100)]
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]

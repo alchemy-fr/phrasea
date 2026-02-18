@@ -1,7 +1,8 @@
 import {EditorContent, useEditor} from '@tiptap/react';
 import {extensions} from './Editor/extensions.ts';
 import {Page} from '../../types.ts';
-import {Container} from '@mui/material';
+import {Box, Container} from '@mui/material';
+import {Helmet} from 'react-helmet';
 
 type Props = {
     data: Page;
@@ -9,7 +10,7 @@ type Props = {
 
 export default function PageContent({data}: Props) {
     const editor = useEditor({
-        immediatelyRender: true,
+        immediatelyRender: false,
         editable: false,
         extensions,
         content: data?.data ?? '',
@@ -17,8 +18,27 @@ export default function PageContent({data}: Props) {
 
     return (
         <>
+            <Helmet>
+                <title>{data.title}</title>
+                {data.description ? (
+                    <meta name="description" content={data.description} />
+                ) : null}
+            </Helmet>
             <Container>
-                <EditorContent editor={editor} />
+                <Box
+                    sx={{
+                        '[contenteditable="false"]:focus': {
+                            outline: 'none',
+                        },
+                    }}
+                >
+                    <EditorContent
+                        editor={editor}
+                        contentEditable={false}
+                        selected={false}
+                        disabled={true}
+                    />
+                </Box>
             </Container>
         </>
     );

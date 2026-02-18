@@ -21,9 +21,5 @@ export default function PagePage({}: Props) {
         return <FullPageLoader />;
     }
 
-    return (
-        <>
-            <PageContent data={data} />
-        </>
-    );
+    return <PageContent data={data} />;
 }

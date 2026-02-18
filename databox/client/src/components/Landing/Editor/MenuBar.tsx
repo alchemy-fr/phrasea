@@ -4,7 +4,7 @@ import {menuBarStateSelector} from './menuBarState.ts';
 import {useEditorState} from '@tiptap/react';
 import {Box, Divider, ToggleButtonGroup} from '@mui/material';
 import ToggleButton from '@mui/material/ToggleButton';
-import {TextAlignEnum, EditorMenuAction} from './editorTypes.ts';
+import {EditorMenuAction, TextAlignEnum} from './editorTypes.ts';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
@@ -22,6 +22,7 @@ import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 import {toggleButtonGroupClasses} from '@mui/material/ToggleButtonGroup';
 import {styled} from '@mui/material/styles';
@@ -31,15 +32,18 @@ import SaveIcon from '@mui/icons-material/Save';
 type Props = {
     editor: Editor;
     onSave: OnPageSave;
+    onPreview?: () => void;
 };
-export const MenuBar = ({editor, onSave}: Props) => {
+
+export const MenuBar = ({editor, onSave, onPreview}: Props) => {
     const {t} = useTranslation();
+
     const editorState = useEditorState({
         editor,
         selector: menuBarStateSelector,
     });
 
-    const formats = useMemo<EditorMenuAction[]>(
+    const formats = useMemo<(EditorMenuAction | null)[]>(
         () => [
             {
                 id: 'save',
@@ -49,6 +53,16 @@ export const MenuBar = ({editor, onSave}: Props) => {
                 toggle: editor => onSave(editor.getJSON()),
                 can: true,
             },
+            onPreview
+                ? {
+                      id: 'view',
+                      label: t('editor.format.view', 'View'),
+                      icon: <VisibilityIcon />,
+                      isActive: false,
+                      can: true,
+                      toggle: () => onPreview(),
+                  }
+                : null,
             {
                 id: 'undo',
                 label: t('editor.format.undo', 'Undo'),
@@ -229,31 +243,33 @@ export const MenuBar = ({editor, onSave}: Props) => {
     return (
         <Box>
             <StyledToggleButtonGroup>
-                {formats.map(format => {
-                    if (format.isDivider) {
-                        return (
-                            <Divider
-                                key={format.id}
-                                flexItem
-                                orientation="vertical"
-                                sx={{mx: 0.5, my: 1}}
-                            />
-                        );
-                    }
+                {formats
+                    .filter(f => null !== f)
+                    .map(format => {
+                        if (format.isDivider) {
+                            return (
+                                <Divider
+                                    key={format.id}
+                                    flexItem
+                                    orientation="vertical"
+                                    sx={{mx: 0.5, my: 1}}
+                                />
+                            );
+                        }
 
-                    return (
-                        <ToggleButton
-                            key={format.id}
-                            value={format.id}
-                            aria-label={format.label}
-                            disabled={!format.can}
-                            onClick={() => format.toggle(editor)}
-                            selected={format.isActive}
-                        >
-                            {format.icon}
-                        </ToggleButton>
-                    );
-                })}
+                        return (
+                            <ToggleButton
+                                key={format.id}
+                                value={format.id}
+                                aria-label={format.label}
+                                disabled={!format.can}
+                                onClick={() => format.toggle(editor)}
+                                selected={format.isActive}
+                            >
+                                {format.icon}
+                            </ToggleButton>
+                        );
+                    })}
             </StyledToggleButtonGroup>
         </Box>
     );

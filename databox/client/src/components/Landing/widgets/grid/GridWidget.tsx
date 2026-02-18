@@ -11,12 +11,13 @@ import {useTranslation} from 'react-i18next';
 import {Asset} from '../../../../types.ts';
 import React, {useState} from 'react';
 import {getAssets} from '../../../../api/asset.ts';
-import {AssetFile, FilePlayer} from '@alchemy/phrasea-framework';
+import {AssetFile, MemoizedFilePlayer} from '@alchemy/phrasea-framework';
 import {ColorPicker, FormRow} from '@alchemy/react-form';
 import GridStructure, {
     GridClasses,
     GridStructureProps,
 } from './GridStructure.tsx';
+import {useOpenAsset} from '../../../AssetSearch/useOpenAsset.ts';
 
 type Props = {
     searchId?: string;
@@ -65,6 +66,10 @@ function Component({options}: RenderWidgetProps<Props>) {
         backgroundColor,
     };
 
+    const openAsset = useOpenAsset({
+        assets: data,
+    });
+
     if (!data) {
         return (
             <GridStructure {...structureProps}>
@@ -97,18 +102,33 @@ function Component({options}: RenderWidgetProps<Props>) {
 
     return (
         <GridStructure {...structureProps}>
-            {assets.map(asset => (
-                <div className={GridClasses.Asset} key={asset.id}>
-                    <FilePlayer
-                        file={asset.thumbnail!.file as AssetFile}
-                        title={asset.resolvedTitle}
-                        dimensions={{
-                            width: size,
-                            height: size,
+            {assets.map(asset => {
+                const canOpen = !!asset.main;
+
+                return (
+                    <div
+                        className={GridClasses.Asset}
+                        key={asset.id}
+                        style={{
+                            cursor: canOpen ? 'pointer' : undefined,
                         }}
-                    />
-                </div>
-            ))}
+                        onClick={
+                            canOpen
+                                ? () => openAsset(asset, asset.main!.id)
+                                : undefined
+                        }
+                    >
+                        <MemoizedFilePlayer
+                            file={asset.thumbnail!.file as AssetFile}
+                            title={asset.resolvedTitle}
+                            dimensions={{
+                                width: size,
+                                height: size,
+                            }}
+                        />
+                    </div>
+                );
+            })}
         </GridStructure>
     );
 }

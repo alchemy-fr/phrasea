@@ -403,6 +403,7 @@ export interface SavedSearch extends IPermissions, Entity {
 
 export interface Page extends IPermissions, Entity {
     title: string;
+    description?: string;
     slug: string;
     enabled?: boolean;
     public?: boolean;
