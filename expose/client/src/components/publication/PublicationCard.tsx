@@ -15,7 +15,6 @@ import Description from './layouts/common/Description.tsx';
 import {routes} from '../../routes.ts';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {apiClient} from '../../init.ts';
 
 type Props = {
     publication: Publication;
@@ -23,25 +22,8 @@ type Props = {
 };
 
 export default function PublicationCard({publication, onDelete}: Props) {
-    const [previewUrl, setPreviewUrl] = React.useState<string | undefined>(
-        undefined
-    );
-
+    const previewUrl = publication.cover?.previewUrl;
     const {t} = useTranslation();
-
-    React.useEffect(() => {
-        if (!publication.cover) {
-            (async () => {
-                const res = await apiClient.get(
-                    `/publications/${publication.id}`
-                );
-                const pub = res.data;
-                setPreviewUrl(pub.assets[0]?.previewUrl);
-            })();
-        } else {
-            setPreviewUrl(publication.cover?.previewUrl);
-        }
-    }, [previewUrl, publication]);
 
     return (
         <Card>

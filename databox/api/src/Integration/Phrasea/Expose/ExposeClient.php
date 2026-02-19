@@ -63,6 +63,16 @@ final readonly class ExposeClient
         ;
     }
 
+    public function putPublication(IntegrationConfig $config, IntegrationToken $integrationToken, string $id, array $data): array
+    {
+        return $this->create($config, $integrationToken)
+            ->request('PUT', '/publications/'.$id, [
+                'json' => $data,
+            ])
+            ->toArray()
+        ;
+    }
+
     public function postAsset(
         IntegrationConfig $config,
         IntegrationToken $integrationToken,
