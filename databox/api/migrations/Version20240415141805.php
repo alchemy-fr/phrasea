@@ -28,7 +28,6 @@ final class Version20240415141805 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE workspace_secret ALTER workspace_id SET NOT NULL');
         $this->addSql('ALTER TABLE workspace_integration ALTER workspace_id SET NOT NULL');
         $this->addSql('ALTER TABLE workspace_env ALTER workspace_id SET NOT NULL');

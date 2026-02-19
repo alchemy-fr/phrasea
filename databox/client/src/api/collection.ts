@@ -174,9 +174,5 @@ export async function createCollection(
         )['@id'];
     };
 
-    const r = await createSubCollection(newCollection);
-
-    throw new Error('remove me');
-
-    return r;
+    return await createSubCollection(newCollection);
 }

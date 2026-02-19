@@ -30,7 +30,6 @@ final class Version20240326173512 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('CREATE TABLE basket_basket_asset (basket_id UUID NOT NULL, basket_asset_id UUID NOT NULL, PRIMARY KEY(basket_id, basket_asset_id))');
         $this->addSql('CREATE INDEX idx_1a9feaa561751691 ON basket_basket_asset (basket_asset_id)');
         $this->addSql('CREATE INDEX idx_1a9feaa51be1fb52 ON basket_basket_asset (basket_id)');

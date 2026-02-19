@@ -36,6 +36,6 @@ class AssetMetricsProvider implements ProviderInterface
 
         return new JsonResponse($this
             ->matomoManager
-            ->getMediaMetrics($asset->getTrackingId() ?? $asset->getId(), $filters['type'] ?? ''));
+            ->getMediaMetrics($asset->getResolvedTrackingId(), $filters['type'] ?? ''));
     }
 }

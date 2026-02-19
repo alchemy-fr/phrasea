@@ -28,7 +28,6 @@ final class Version20220621133439 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('DROP INDEX uniq_class_ws_key');
         $this->addSql('ALTER TABLE attribute_class DROP key');
         $this->addSql('ALTER INDEX uniq_class_ws_name RENAME TO attr_class_uniq');

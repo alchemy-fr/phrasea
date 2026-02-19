@@ -30,7 +30,6 @@ final class Version20230308160658 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE asset_data_template DROP privacy');
         $this->addSql('ALTER TABLE template_attribute DROP CONSTRAINT fk_3329994d5da0fb8');
         $this->addSql('ALTER TABLE template_attribute DROP updated_at');

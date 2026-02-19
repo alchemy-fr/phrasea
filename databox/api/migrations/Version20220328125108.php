@@ -24,7 +24,6 @@ final class Version20220328125108 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE workspace ALTER locale_fallbacks DROP NOT NULL');
     }
 }

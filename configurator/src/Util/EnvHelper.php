@@ -30,7 +30,12 @@ abstract readonly class EnvHelper
 
     public static function getBooleanEnv(string $name, bool $defaultValue = false): bool
     {
-        $val = filter_var(getenv($name), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $value = getenv($name);
+        if (false === $value) {
+            return $defaultValue;
+        }
+
+        $val = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
         if (null === $val) {
             return $defaultValue;

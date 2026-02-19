@@ -33,7 +33,6 @@ final class Version20211110090345 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE attribute DROP origin');
         $this->addSql('ALTER TABLE attribute DROP origin_vendor');
         $this->addSql('ALTER TABLE attribute DROP origin_user_id');

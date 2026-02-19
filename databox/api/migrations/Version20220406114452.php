@@ -27,7 +27,6 @@ final class Version20220406114452 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE populate_pass ADD doc_indexed INT DEFAULT NULL');
         $this->addSql('ALTER TABLE populate_pass DROP document_count');
     }

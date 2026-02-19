@@ -29,7 +29,6 @@ final class Version20211129102420 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('DROP INDEX public_searchable_idx');
         $this->addSql('DROP INDEX searchable_idx');
         $this->addSql('DROP INDEX public_idx');

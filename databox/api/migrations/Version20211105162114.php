@@ -35,7 +35,6 @@ final class Version20211105162114 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('CREATE TABLE sdr_includes (sub_definition_rule_id UUID NOT NULL, sub_definition_class_id UUID NOT NULL, PRIMARY KEY(sub_definition_rule_id, sub_definition_class_id))');
         $this->addSql('CREATE INDEX idx_936d4c75517eacff ON sdr_includes (sub_definition_class_id)');
         $this->addSql('CREATE INDEX idx_936d4c751aeefe4 ON sdr_includes (sub_definition_rule_id)');

@@ -27,7 +27,6 @@ final class Version20211110163225 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE attribute_definition ADD fallbacks TEXT DEFAULT NULL');
         $this->addSql('ALTER TABLE attribute_definition DROP fallback');
         $this->addSql('COMMENT ON COLUMN attribute_definition.fallbacks IS \'(DC2Type:array)\'');

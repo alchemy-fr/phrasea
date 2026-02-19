@@ -62,7 +62,6 @@ final class Version20240527164940 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('CREATE TABLE integration_data (id UUID NOT NULL, integration_id UUID NOT NULL, file_id UUID DEFAULT NULL, name VARCHAR(100) NOT NULL, key_id VARCHAR(100) DEFAULT NULL, value TEXT NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX name ON integration_data (integration_id, file_id, name)');
         $this->addSql('CREATE INDEX idx_986dce7893cb796c ON integration_data (file_id)');

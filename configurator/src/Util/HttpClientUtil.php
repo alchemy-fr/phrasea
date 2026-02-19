@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Util;
 
+use App\Exception\ClientExceptionWrapperException;
 use Symfony\Component\Console\Helper\ProgressIndicator;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 abstract class HttpClientUtil
@@ -16,18 +17,26 @@ abstract class HttpClientUtil
     public const array DEFAULT_UNEXPECTED_CODES = [500];
     public const array DEFAULT_SUCCESS_CODES = [200];
 
-    public static function debugError(callable $handler, ?int $ignoreHttpCode = null, ?array $data = null): mixed
+    public static function debugError(callable $handler, ?int $ignoreHttpCode = null, ?array $data = null, int $retry = 0): mixed
     {
         try {
             return $handler();
-        } catch (ClientExceptionInterface $e) {
+        } catch (TransportExceptionInterface $e) {
+            if ($retry >= 3) {
+                throw new \RuntimeException(sprintf('Request timed out after %d retries.', $retry), 0, $e);
+            }
+
+            sleep(1);
+
+            return self::debugError($handler, $ignoreHttpCode, $data, $retry + 1);
+        } catch (HttpExceptionInterface $e) {
             if (null !== $ignoreHttpCode && $ignoreHttpCode === $e->getResponse()->getStatusCode()) {
                 return null;
             }
 
             $error = $e->getResponse()->getContent(false);
 
-            throw new \InvalidArgumentException(sprintf('%s: %s%s', $e->getMessage(), $error, null !== $data ? ' (with data: '.print_r($data, true).')' : ''), 0, $e);
+            throw new ClientExceptionWrapperException(sprintf('%s: %s%s', $e->getMessage(), $error, null !== $data ? ' (with data: '.print_r($data, true).')' : ''), 0, $e);
         }
     }
 
@@ -96,8 +105,7 @@ abstract class HttpClientUtil
             try {
                 $client->request('GET', $url);
                 $continue = false;
-            } catch (ServerExceptionInterface $e) {
-            } catch (ClientExceptionInterface $e) {
+            } catch (HttpExceptionInterface $e) {
                 $statusCode = $e->getResponse()->getStatusCode();
                 if (in_array($statusCode, $unexpectedCodes, true)) {
                     throw new \RuntimeException(sprintf('URL "%s" returned unexpected status code %d.', $url, $statusCode), 0, $e);
@@ -134,6 +142,6 @@ abstract class HttpClientUtil
     {
         $envValue = EnvHelper::getEnv('CONFIGURATOR_SERVICE_WAIT_TIMEOUT');
 
-        return $timeout ?? ($envValue ? (int) $envValue : self::DEFAULT_TIMEOUT);
+        return $timeout ?? ((null !== $envValue && '' !== $envValue) ? (int) $envValue : self::DEFAULT_TIMEOUT);
     }
 }

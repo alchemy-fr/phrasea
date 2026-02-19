@@ -33,7 +33,6 @@ final class Version20230125095834 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE asset_file_version DROP CONSTRAINT FK_9D2DAA055DA1941');
         $this->addSql('ALTER TABLE asset_file_version DROP CONSTRAINT FK_9D2DAA0593CB796C');
         $this->addSql('DROP TABLE asset_file_version');

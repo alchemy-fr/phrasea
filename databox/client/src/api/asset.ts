@@ -153,10 +153,13 @@ export async function resolveEntities(
     entities: string[],
     requestConfig?: AxiosRequestConfig
 ): Promise<Record<string, object>> {
-    const res = await apiClient.post(`/${Entity.Asset}/entities`, {
-        entities,
-        ...requestConfig,
-    });
+    const res = await apiClient.post(
+        `/${Entity.Asset}/entities`,
+        {
+            entities,
+        },
+        requestConfig
+    );
 
     return res.data;
 }

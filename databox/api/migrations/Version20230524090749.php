@@ -30,7 +30,6 @@ final class Version20230524090749 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE workflow_state DROP CONSTRAINT FK_12DDA4CF5DA1941');
         $this->addSql('DROP INDEX IDX_12DDA4CF5DA1941');
         $this->addSql('ALTER TABLE workflow_state DROP asset_id');

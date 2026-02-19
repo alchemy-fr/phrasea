@@ -14,7 +14,7 @@ export function useAppInit({apiClient, userIdProp = 'id'}: UseAppInitProps) {
     React.useEffect(() => {
         pushInstruction(
             'setUserId',
-            user ? (user[userIdProp as keyof typeof user] as string) : ''
+            user ? (user[userIdProp as keyof typeof user] as string) : null
         );
         setSentryUser(user);
     }, [user]);

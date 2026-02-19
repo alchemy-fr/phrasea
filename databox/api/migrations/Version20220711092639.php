@@ -31,7 +31,6 @@ final class Version20220711092639 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE file ALTER size TYPE INT');
         $this->addSql('ALTER TABLE file ALTER size DROP DEFAULT');
         $this->addSql('ALTER TABLE populate_pass ALTER document_count TYPE INT');
