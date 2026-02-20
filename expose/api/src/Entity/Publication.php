@@ -166,7 +166,7 @@ class Publication implements AclObjectInterface, \Stringable
 
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
-    #[Groups([self::GROUP_READ, self::GROUP_WRITE, self::GROUP_INDEX])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?Asset $cover = null;
 
     #[Groups([self::GROUP_READ, self::GROUP_WRITE])]

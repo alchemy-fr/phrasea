@@ -186,10 +186,6 @@ final class ExposeSynchronizer
                 }
             }
 
-            if (1 === $done) {
-                $this->exposeClient->putPublication($config, $token, $publicationId, ['cover' => '/assets/'.$exposeAssetId]);
-            }
-
             foreach ($exposeSubDefs as $subDef) {
                 $this->exposeClient->deleteSubDefinition($config, $token, $subDef->id);
             }
