@@ -602,7 +602,7 @@ class Publication implements AclObjectInterface, \Stringable
 
     public function getCover(): ?Asset
     {
-        if (null == $this->cover) {
+        if (null === $this->cover) {
             return $this->assets[0];
         }
 
