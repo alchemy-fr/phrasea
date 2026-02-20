@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Provider\PublicationCollectionProvider;
 use App\Api\Provider\PublicationProvider;
 use App\Controller\GetPublicationSlugAvailabilityAction;
 use App\Controller\SortAssetsAction;
@@ -57,9 +58,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             controller: SortAssetsAction::class
         ),
         new GetCollection(
-            normalizationContext: [
-                'groups' => [self::GROUP_INDEX],
-            ],
+            provider: PublicationCollectionProvider::class,
         ),
         new Post(
             securityPostDenormalize: 'is_granted("'.PublicationVoter::CREATE.'", object)'
