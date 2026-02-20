@@ -15,7 +15,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\Provider\PublicationCollectionProvider;
 use App\Api\Provider\PublicationProvider;
 use App\Controller\GetPublicationSlugAvailabilityAction;
 use App\Controller\SortAssetsAction;
@@ -58,7 +57,9 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             controller: SortAssetsAction::class
         ),
         new GetCollection(
-            provider: PublicationCollectionProvider::class,
+            normalizationContext: [
+                'groups' => [self::GROUP_INDEX],
+            ],
         ),
         new Post(
             securityPostDenormalize: 'is_granted("'.PublicationVoter::CREATE.'", object)'
@@ -166,7 +167,7 @@ class Publication implements AclObjectInterface, \Stringable
 
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
-    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE, self::GROUP_INDEX])]
     private ?Asset $cover = null;
 
     #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
@@ -601,6 +602,10 @@ class Publication implements AclObjectInterface, \Stringable
 
     public function getCover(): ?Asset
     {
+        if (null == $this->cover) {
+            return $this->assets[0];
+        }
+
         return $this->cover;
     }
 
