@@ -161,6 +161,12 @@ export default function TreeView<D extends TreeBaseItem>({
                         transform: 'rotate(0deg)',
                     },
                 },
+                [`.${TreeViewClasses.NodeDisabled}`]: {
+                    '.MuiListItemText-root': {
+                        opacity: 0.5,
+                        cursor: 'not-allowed',
+                    },
+                },
                 [`.${TreeViewClasses.NodeChildren}`]: {
                     ml: 2.5,
                     borderLeft: '1px dashed rgba(0, 0, 0, 0.12)',

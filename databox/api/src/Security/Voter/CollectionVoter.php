@@ -43,7 +43,7 @@ class CollectionVoter extends AbstractVoter
         }
 
         $workspace = $subject->getWorkspace();
-        if (!$this->security->isGranted(self::READ, $workspace, $token)) {
+        if (!$this->security->isGranted(self::READ, $workspace)) {
             return false;
         }
 
@@ -52,32 +52,32 @@ class CollectionVoter extends AbstractVoter
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
         return match ($attribute) {
-            self::CREATE => $subject->getParent() ? $this->security->isGranted(self::EDIT, $subject->getParent(), $token)
-                : $this->security->isGranted(self::EDIT, $workspace, $token),
+            self::CREATE => $subject->getParent() ? $this->security->isGranted(self::EDIT, $subject->getParent())
+                : $this->security->isGranted(self::EDIT, $workspace),
             self::LIST => $isOwner()
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                 || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
                 || ($subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
-                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent(), $token)),
+                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             self::READ => $isOwner()
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                 || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
-                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent(), $token)),
+                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             self::EDIT => $isOwner()
                 || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
-                || ($subject->getParent() && $this->security->isGranted($attribute, $subject->getParent(), $token)),
+                || ($subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             self::DELETE => $isOwner()
                 || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
-                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent(), $token)),
+                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             self::EDIT_PERMISSIONS, self::OWNER => $isOwner()
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
-                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent(), $token)),
+                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             self::OPERATOR => $isOwner()
                 || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
-                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent(), $token)),
+                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             default => false,
         };
     }
