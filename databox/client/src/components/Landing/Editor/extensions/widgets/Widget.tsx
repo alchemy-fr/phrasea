@@ -36,7 +36,6 @@ export default function Widget<T extends {}>({
                 widget: true,
                 selected: selected && editor.isEditable,
             })}
-            contentEditable={false}
         >
             {React.createElement(widget.component, {
                 title: widget.getTitle(t),

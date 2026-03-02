@@ -76,7 +76,7 @@ export const WidgetExtension = Node.create<WidgetOptions<any>>({
     },
 
     renderHTML({HTMLAttributes}) {
-        return [WidgetConstants.Type, mergeAttributes(HTMLAttributes)];
+        return [WidgetConstants.Type, mergeAttributes(HTMLAttributes), 0];
     },
 
     addNodeView() {
