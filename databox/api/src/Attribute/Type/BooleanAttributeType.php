@@ -74,6 +74,16 @@ class BooleanAttributeType extends AbstractAttributeType
         return false;
     }
 
+    public function getStringValue(?string $value): string
+    {
+        $bool = $this->denormalizeValue($value);
+        if (null === $bool) {
+            return '';
+        }
+
+        return $bool ? 'true' : 'false';
+    }
+
     public function normalizeElasticsearchValue(?string $value)
     {
         if (null === $value) {

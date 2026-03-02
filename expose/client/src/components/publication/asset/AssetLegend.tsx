@@ -4,6 +4,7 @@ import GetAppIcon from '@mui/icons-material/GetApp';
 import {useTranslation} from 'react-i18next';
 import {useDownload} from '../../../hooks/useDownload.ts';
 import Description from '../layouts/common/Description.tsx';
+import {getBestFieldTranslatedValue} from '@alchemy/i18n/src/Locale/localeHelper.ts';
 
 type Props = {
     publication: Publication;
@@ -16,7 +17,7 @@ export default function AssetLegend({
     asset,
     displayDownload,
 }: Props) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
 
     const onDownload = useDownload({
         publication,
@@ -26,6 +27,22 @@ export default function AssetLegend({
         return null;
     }
 
+    const title = getBestFieldTranslatedValue(
+        asset.translations,
+        'title',
+        asset.title,
+        undefined,
+        [i18n.language]
+    );
+
+    const description = getBestFieldTranslatedValue(
+        asset.translations,
+        'description',
+        asset.description,
+        undefined,
+        [i18n.language]
+    );
+
     return (
         <Box
             sx={{
@@ -34,9 +51,7 @@ export default function AssetLegend({
                 gap: 2,
             }}
         >
-            {asset.title ? (
-                <Typography variant={'h1'}>{asset.title}</Typography>
-            ) : null}
+            {title ? <Typography variant={'h1'}>{title}</Typography> : null}
 
             {displayDownload &&
                 publication.downloadEnabled &&
@@ -52,9 +67,9 @@ export default function AssetLegend({
                     </div>
                 )}
 
-            {asset.description ? (
+            {description ? (
                 <Typography variant={'body1'} component={'div'}>
-                    <Description descriptionHtml={asset.description} />
+                    <Description descriptionHtml={description} />
                 </Typography>
             ) : null}
         </Box>

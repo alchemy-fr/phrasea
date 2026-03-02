@@ -47,6 +47,8 @@ interface AttributeTypeInterface
      */
     public function denormalizeValue(?string $value);
 
+    public function getStringValue(?string $value): string;
+
     /**
      * Format value for client.
      */

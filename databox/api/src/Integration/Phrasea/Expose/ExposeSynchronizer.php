@@ -69,7 +69,10 @@ final class ExposeSynchronizer
                         $asset['id'],
                         $basketAssetId,
                         $annotations['fileId'] ?? '',
-                        $subDefinitions
+                        $asset['title'] ?? '',
+                        $asset['description'] ?? '',
+                        $asset['translations'] ?? [],
+                        $subDefinitions,
                     );
                 }
             }
@@ -116,6 +119,13 @@ final class ExposeSynchronizer
             $asset = $basketAsset->getAsset();
             $fileId = $asset->getSource()->getId();
 
+            $assetProperties = $this->exposeClient->getAssetProperties($asset, [
+                'clientAnnotations' => json_encode([
+                    'basketAssetId' => $basketAsset->getId(),
+                    'fileId' => $fileId,
+                ], JSON_THROW_ON_ERROR),
+            ]);
+
             if (null === $assetToSync->exposeAsset) {
                 $exposeAssetId = $this->exposeClient->postAsset($config, $token, $publicationId, $asset, [
                     'clientAnnotations' => json_encode([
@@ -128,17 +138,26 @@ final class ExposeSynchronizer
                 if ($assetToSync->exposeAsset->fileId !== $fileId) {
                     $this->exposeClient->deleteAsset($config, $token, $assetToSync->exposeAsset->id);
 
-                    $exposeAssetId = $this->exposeClient->postAsset($config, $token, $publicationId, $asset, [
-                        'clientAnnotations' => json_encode([
-                            'basketAssetId' => $basketAsset->getId(),
-                            'fileId' => $fileId,
-                        ], JSON_THROW_ON_ERROR),
-                    ]);
+                    $exposeAssetId = $this->exposeClient->postAsset($config, $token, $publicationId, $asset, $assetProperties);
 
                     $assetToSync = new AssetToSync(
                         $basketAsset,
-                        new ExposeAsset($exposeAssetId, $basketAsset->getId(), $fileId, [])
+                        new ExposeAsset(
+                            $exposeAssetId,
+                            $basketAsset->getId(),
+                            $fileId,
+                            $assetProperties['title'],
+                            $assetProperties['description'],
+                            $assetProperties['translations'],
+                            [],
+                        )
                     );
+                } elseif (
+                    $assetProperties['title'] !== ($assetToSync->exposeAsset->title ?? null)
+                    || $assetProperties['description'] !== ($assetToSync->exposeAsset->description ?? null)
+                    || $assetProperties['translations'] !== ($assetToSync->exposeAsset->translations ?? null)
+                ) {
+                    $this->exposeClient->patchAsset($config, $token, $exposeAssetId, $assetProperties);
                 }
             }
 

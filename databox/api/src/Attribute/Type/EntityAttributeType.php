@@ -126,10 +126,10 @@ class EntityAttributeType extends TextAttributeType
         }, $buckets);
     }
 
-    protected function getTranslatedValue(AttributeEntity $entity): ?string
+    protected function getTranslatedValue(AttributeEntity $entity, ?string $locale = null): ?string
     {
         $translations = $entity->getTranslations() ?? [];
-        $locale = LocaleUtil::getBestLocale(array_keys($translations), $this->getPreferredLocales($entity->getWorkspace()));
+        $locale = LocaleUtil::getBestLocale(array_keys($translations), null !== $locale ? [$locale] : $this->getPreferredLocales($entity->getWorkspace()));
 
         return $translations[$locale] ?? $entity->getValue();
     }
@@ -161,6 +161,16 @@ class EntityAttributeType extends TextAttributeType
         return $this->repository->find($value);
     }
 
+    public function getEntityBestTranslation(?string $value, ?string $locale): ?string
+    {
+        $entity = $this->getEntityFromValue($value);
+        if (!$entity instanceof AttributeEntity) {
+            return '';
+        }
+
+        return $this->getTranslatedValue($entity, $locale);
+    }
+
     public function denormalizeValue(?string $value)
     {
         $entity = $this->getEntityFromValue($value);
@@ -173,6 +183,11 @@ class EntityAttributeType extends TextAttributeType
             'value' => $this->getTranslatedValue($entity),
             'createdAt' => $entity->getCreatedAt(),
         ];
+    }
+
+    public function getStringValue(?string $value): string
+    {
+        return $this->getEntityBestTranslation($value, null) ?? '';
     }
 
     public function getElasticSearchMapping(string $locale): ?array

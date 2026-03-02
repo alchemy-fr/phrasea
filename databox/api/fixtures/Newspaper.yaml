@@ -578,7 +578,7 @@ App\Entity\Integration\WorkspaceIntegration:
         title: Expose Basket
         integration: phrasea.expose
         config:
-            clientId: expose-integration
+            clientId: \${DATABOX_EXPOSE_INTEGRATION_CLIENT_ID}
 
 App\Entity\Integration\WorkspaceSecret:
     aws_access_key_id:
