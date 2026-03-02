@@ -10,13 +10,9 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class CollectionVoter extends AbstractVoter
+class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterface
 {
     final public const string SCOPE_PREFIX = 'collection:';
-
-    final public const string CREATE_ASSET = 'CREATE_ASSET';
-    final public const string EDIT_ASSET = 'EDIT_ASSET';
-    final public const string DELETE_ASSET = 'DELETE_ASSET';
 
     private array $cache = [];
 
@@ -83,7 +79,25 @@ class CollectionVoter extends AbstractVoter
                 || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
                 || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             self::CREATE_ASSET => $isOwner()
-                || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token),
+                || $this->hasAcl(PermissionInterface::CHILD_CREATE, $subject, $token),
+            self::EDIT_ASSET => $isOwner()
+                || $this->hasAcl([
+                    PermissionInterface::CHILD_EDIT,
+                    PermissionInterface::CHILD_OPERATOR,
+                    PermissionInterface::CHILD_MASTER,
+                    PermissionInterface::CHILD_OWNER,
+                ], $subject, $token),
+            self::SHARE_ASSET => $isOwner()
+                || $this->hasAcl([
+                    PermissionInterface::CHILD_SHARE,
+                ], $subject, $token),
+            self::DELETE_ASSET => $isOwner()
+                || $this->hasAcl([
+                    PermissionInterface::CHILD_DELETE,
+                    PermissionInterface::CHILD_OPERATOR,
+                    PermissionInterface::CHILD_MASTER,
+                    PermissionInterface::CHILD_OWNER,
+                ], $subject, $token),
             default => false,
         };
     }

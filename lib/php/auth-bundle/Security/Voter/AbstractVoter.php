@@ -34,7 +34,7 @@ abstract class AbstractVoter extends Voter
         $this->permissionManager = $permissionManager;
     }
 
-    protected function hasAcl(int $attribute, AclObjectInterface $subject, TokenInterface $token): bool
+    protected function hasAcl(array|int $attribute, AclObjectInterface $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
         if ($user instanceof AclUserInterface) {
