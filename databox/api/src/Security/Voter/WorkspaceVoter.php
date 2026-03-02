@@ -9,7 +9,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class WorkspaceVoter extends AbstractVoter
+class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterface
 {
     final public const string SCOPE_PREFIX = 'workspace:';
 
@@ -58,6 +58,26 @@ class WorkspaceVoter extends AbstractVoter
                 || $this->isAdmin(),
             self::OPERATOR => $isOwner()
                 || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token),
+            self::CREATE_ASSET => $isOwner()
+                || $this->hasAcl(PermissionInterface::CHILD_CREATE, $subject, $token),
+            self::SHARE_ASSET => $isOwner()
+                || $this->hasAcl([
+                    PermissionInterface::CHILD_SHARE,
+                ], $subject, $token),
+            self::EDIT_ASSET => $isOwner()
+                || $this->hasAcl([
+                    PermissionInterface::CHILD_EDIT,
+                    PermissionInterface::CHILD_OPERATOR,
+                    PermissionInterface::CHILD_MASTER,
+                    PermissionInterface::CHILD_OWNER,
+                ], $subject, $token),
+            self::DELETE_ASSET => $isOwner()
+                || $this->hasAcl([
+                    PermissionInterface::CHILD_DELETE,
+                    PermissionInterface::CHILD_OPERATOR,
+                    PermissionInterface::CHILD_MASTER,
+                    PermissionInterface::CHILD_OWNER,
+                ], $subject, $token),
 
             default => false,
         };
