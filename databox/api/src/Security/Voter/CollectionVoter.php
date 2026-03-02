@@ -14,6 +14,10 @@ class CollectionVoter extends AbstractVoter
 {
     final public const string SCOPE_PREFIX = 'collection:';
 
+    final public const string CREATE_ASSET = 'CREATE_ASSET';
+    final public const string EDIT_ASSET = 'EDIT_ASSET';
+    final public const string DELETE_ASSET = 'DELETE_ASSET';
+
     private array $cache = [];
 
     protected function supports(string $attribute, $subject): bool
@@ -78,6 +82,8 @@ class CollectionVoter extends AbstractVoter
             self::OPERATOR => $isOwner()
                 || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
                 || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
+            self::CREATE_ASSET => $isOwner()
+                || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token),
             default => false,
         };
     }

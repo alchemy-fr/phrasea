@@ -1,16 +1,17 @@
 import {useCallback} from 'react';
 import PermissionList from '../Permissions/PermissionList';
 import {deleteAce, getAces, putAce} from '../../api/acl';
-import {OnPermissionDelete, PermissionObject} from '../Permissions/permissions';
+import {
+    BasePermissionProps,
+    OnPermissionDelete,
+    PermissionObject,
+} from '../Permissions/permissions';
 import {UserType} from '../../types';
-import {PermissionHelpers} from '../Permissions/PermissionTable.tsx';
 
 type Props = {
     objectType: PermissionObject;
     objectId: string;
-    displayedPermissions?: string[] | undefined;
-    permissionHelper?: PermissionHelpers;
-};
+} & BasePermissionProps;
 
 export default function AclForm({objectType, objectId, ...rest}: Props) {
     const loadPermissions = useCallback(async () => {

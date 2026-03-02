@@ -8,6 +8,14 @@ export enum AclPermission {
     OPERATOR = 'OPERATOR',
     MASTER = 'MASTER',
     OWNER = 'OWNER',
+    CHILD_CREATE = 'CHILD_CREATE',
+    CHILD_EDIT = 'CHILD_EDIT',
+    CHILD_DELETE = 'CHILD_DELETE',
+    CHILD_UNDELETE = 'CHILD_UNDELETE',
+    CHILD_OPERATOR = 'CHILD_OPERATOR',
+    CHILD_MASTER = 'CHILD_MASTER',
+    CHILD_OWNER = 'CHILD_OWNER',
+    CHILD_SHARE = 'CHILD_SHARE',
     ALL = 'ALL',
 }
 
@@ -21,4 +29,12 @@ export const aclPermissions: {[key: string]: number} = {
     [AclPermission.OPERATOR]: 32,
     // [AclPermission.MASTER]: 64,
     [AclPermission.OWNER]: 128,
+    [AclPermission.CHILD_SHARE]: 65536,
+    [AclPermission.CHILD_CREATE]: 512,
+    [AclPermission.CHILD_EDIT]: 1024,
+    [AclPermission.CHILD_DELETE]: 2048,
+    // [AclPermission.CHILD_UNDELETE]: 4096,
+    [AclPermission.CHILD_OPERATOR]: 8192,
+    // [AclPermission.CHILD_MASTER]: 16384,
+    [AclPermission.CHILD_OWNER]: 32768,
 };
