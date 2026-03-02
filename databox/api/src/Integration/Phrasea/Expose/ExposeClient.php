@@ -130,14 +130,12 @@ final readonly class ExposeClient
                     }
                 }
 
-                if (!empty($attrTranslations)) {
-                    // add fallback if not set
-                    $attrTranslations[AttributeInterface::NO_LOCALE] ??= reset($attrTranslations);
+                // add fallback if not set
+                $attrTranslations[AttributeInterface::NO_LOCALE] ??= reset($attrTranslations);
 
-                    // add fallback for all workspace locales
-                    foreach ($wsLocales as $wsLocale) {
-                        $attrTranslations[$wsLocale] ??= $attrTranslations[AttributeInterface::NO_LOCALE];
-                    }
+                // add fallback for all workspace locales
+                foreach ($wsLocales as $wsLocale) {
+                    $attrTranslations[$wsLocale] ??= $attrTranslations[AttributeInterface::NO_LOCALE];
                 }
 
                 foreach ($attrTranslations as $locale => $translation) {
