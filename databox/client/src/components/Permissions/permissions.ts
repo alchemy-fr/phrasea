@@ -1,4 +1,5 @@
 import {Ace, UserType} from '../../types';
+import {AclPermission} from '../Acl/acl.ts';
 
 export type OnMaskChange = (
     userType: UserType,
@@ -22,3 +23,19 @@ export enum PermissionObject {
 }
 
 export type DisplayedPermissions = string[] | undefined;
+
+export type BasePermissionProps = {
+    displayedPermissions?: DisplayedPermissions;
+    displayChildPermissions?: boolean;
+    permissionHelper?: PermissionHelpers;
+};
+
+export type PermissionHelpers = Partial<
+    Record<
+        AclPermission,
+        {
+            label?: string;
+            description?: string;
+        }
+    >
+>;

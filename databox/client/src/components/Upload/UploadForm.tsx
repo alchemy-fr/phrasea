@@ -204,7 +204,7 @@ export const UploadForm: FC<{
                     <FormRow>
                         <CollectionTreeWidget
                             isSelectable={node =>
-                                node.data.capabilities.canEdit
+                                node.data.capabilities.canCreateAsset
                             }
                             control={control}
                             rules={{

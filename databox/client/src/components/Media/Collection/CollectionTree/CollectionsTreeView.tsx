@@ -120,6 +120,7 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
             type: EntityType.Collection,
             capabilities: {
                 canEdit: true,
+                canCreateAsset: true,
             },
             workspaceId: parentNode!.data.workspaceId,
         }),

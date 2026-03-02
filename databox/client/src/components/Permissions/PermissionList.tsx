@@ -5,24 +5,19 @@ import GroupSelect from '../Form/GroupSelect';
 import {Grid2 as Grid} from '@mui/material';
 import {FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
-import {DisplayedPermissions, OnPermissionDelete} from './permissions';
-import PermissionTable, {PermissionHelpers} from './PermissionTable';
+import {
+    BasePermissionProps,
+    OnMaskChange,
+    OnPermissionDelete,
+} from './permissions';
+import PermissionTable from './PermissionTable';
 
 type Props = {
-    displayedPermissions?: DisplayedPermissions;
     loadPermissions: () => Promise<Ace[]>;
-    updatePermission: (
-        userType: UserType,
-        userId: string | null,
-        mask: number
-    ) => Promise<Ace>;
-    deletePermission: (
-        userType: UserType,
-        userId: string | null
-    ) => Promise<void>;
+    updatePermission: OnMaskChange;
+    deletePermission: OnPermissionDelete;
     onListChanged?: (permissions: Ace[]) => void;
-    permissionHelper?: PermissionHelpers;
-};
+} & BasePermissionProps;
 
 export default function PermissionList({
     loadPermissions,

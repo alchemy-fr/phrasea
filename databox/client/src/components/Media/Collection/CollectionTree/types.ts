@@ -9,8 +9,7 @@ export type WorkspaceOrCollectionTreeItem = {
     label: string;
     capabilities: {
         canEdit: boolean;
+        canCreateAsset: boolean;
     };
     workspaceId: string;
 };
-
-export type CollectionId = string;

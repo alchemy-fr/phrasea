@@ -1,5 +1,5 @@
 import {
-    DisplayedPermissions,
+    BasePermissionProps,
     OnMaskChange,
     OnPermissionDelete,
 } from './permissions';
@@ -12,34 +12,35 @@ import PermissionRow from './PermissionRow';
 import type {TFunction} from '@alchemy/i18n';
 import PermissionRowSkeleton from './PermissionRowSkeleton';
 
-export type PermissionHelpers = {
-    [perm: string]: {
-        label?: string;
-        description?: string;
-    };
-};
-
 type Props = {
     permissions: Ace[] | undefined;
     onMaskChange: OnMaskChange;
     onDelete: OnPermissionDelete;
-    displayedPermissions?: DisplayedPermissions;
-};
+} & BasePermissionProps;
 
 export default function PermissionTable({
+    displayChildPermissions,
     permissions,
     onMaskChange,
     onDelete,
     displayedPermissions,
+    permissionHelper,
 }: Props) {
     const {t} = useTranslation();
-    const permissionLabels = useAclPermissionLabels();
+    const permissionLabels = useAclPermissionLabels({permissionHelper});
 
     const columns = displayedPermissions
         ? Object.keys(aclPermissions).filter(c =>
               displayedPermissions.includes(c)
           )
-        : Object.keys(aclPermissions);
+        : !displayChildPermissions
+          ? Object.entries(aclPermissions)
+                .filter(
+                    ([_key, value]) =>
+                        value < aclPermissions[AclPermission.CHILD_CREATE]
+                )
+                .map(([key]) => key)
+          : Object.keys(aclPermissions);
     const hasAll = displayedPermissions
         ? displayedPermissions.includes(AclPermission.ALL)
         : true;
@@ -100,7 +101,9 @@ export default function PermissionTable({
                     {allColumns.map(k => {
                         return (
                             <th key={k} className={'p'}>
-                                <span>{permissionLabels[k]}</span>
+                                <span>
+                                    {permissionLabels[k as AclPermission]}
+                                </span>
                             </th>
                         );
                     })}

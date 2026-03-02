@@ -324,7 +324,9 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
 >;
 
 export interface Collection
-    extends IPermissions,
+    extends IPermissions<{
+            canCreateAsset: boolean;
+        }>,
         Entity,
         ApiHydraObjectResponse {
     title: string;
@@ -449,7 +451,11 @@ export type LastErrors = {
     line: number;
 }[];
 
-export interface Workspace extends IPermissions, Entity {
+export interface Workspace
+    extends IPermissions<{
+            canCreateAsset: boolean;
+        }>,
+        Entity {
     name: string;
     nameTranslated: string;
     fileAnalyzers?: string;
