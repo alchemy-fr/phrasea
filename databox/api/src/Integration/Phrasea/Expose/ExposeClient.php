@@ -296,7 +296,7 @@ final readonly class ExposeClient
         return $pubAsset['id'];
     }
 
-    public function patchAsset(
+    public function putAsset(
         IntegrationConfig $config,
         IntegrationToken $integrationToken,
         string $assetId,

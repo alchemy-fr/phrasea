@@ -69,8 +69,8 @@ final class ExposeSynchronizer
                         $asset['id'],
                         $basketAssetId,
                         $annotations['fileId'] ?? '',
-                        $asset['title'] ?? '',
-                        $asset['description'] ?? '',
+                        $asset['title'] ?? null,
+                        $asset['description'] ?? null,
                         $asset['translations'] ?? [],
                         $subDefinitions,
                     );
@@ -157,7 +157,7 @@ final class ExposeSynchronizer
                     || $assetProperties['description'] !== ($assetToSync->exposeAsset->description ?? null)
                     || $assetProperties['translations'] !== ($assetToSync->exposeAsset->translations ?? null)
                 ) {
-                    $this->exposeClient->patchAsset($config, $token, $exposeAssetId, $assetProperties);
+                    $this->exposeClient->putAsset($config, $token, $exposeAssetId, $assetProperties);
                 }
             }
 

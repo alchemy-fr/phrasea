@@ -23,10 +23,6 @@ export default function AssetLegend({
         publication,
     });
 
-    if (!asset.title && !asset.description && !publication.downloadEnabled) {
-        return null;
-    }
-
     const title = getBestFieldTranslatedValue(
         asset.translations,
         'title',
