@@ -145,26 +145,6 @@ export default function PublicationCover({
             }}
         >
             <Box
-                sx={{
-                    py: 2,
-                    bgcolor: 'lightgrey',
-                    width: '100%',
-                    height: 130,
-                    mb: 1,
-                    display: 'grid',
-                    placeItems: 'center',
-                }}
-            >
-                <img
-                    src={cover?.src}
-                    style={{
-                        width: cover?.viewportWidth,
-                        height: cover?.scaledHeight,
-                        marginLeft: 5,
-                    }}
-                />
-            </Box>
-            <Box
                 ref={containerRef}
                 sx={theme => ({
                     display: 'flex',
@@ -182,7 +162,7 @@ export default function PublicationCover({
                         },
                     },
                     ['& .selected']: {
-                        border: `3px solid #ff0000`,
+                        border: `5px solid ${theme.palette.primary.dark}`,
                     },
                     ...thumbSx(theme),
                 })}

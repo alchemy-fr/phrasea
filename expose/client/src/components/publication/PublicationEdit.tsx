@@ -235,26 +235,25 @@ export default function PublicationEdit({data}: Props) {
                         <FormFieldErrors field={'profile'} errors={errors} />
                     </FormRow>
 
-                    <FormRow>
-                        <Button
-                            startIcon={<EditIcon />}
-                            variant={'outlined'}
-                            onClick={onEditCover}
-                        >
-                            {t(
-                                'form.publication.edit.cover',
-                                'Set Cover Image'
-                            )}
-                        </Button>
+                    <FormRow
+                        sx={{
+                            display: 'flex',
+                            gap: 2,
+                            alignItems: 'center',
+                        }}
+                    >
                         <Box
                             sx={{
-                                py: 2,
-                                bgcolor: 'lightgrey',
-                                width: 200,
-                                height: 130,
                                 mt: 1,
                                 display: 'grid',
                                 placeItems: 'center',
+                                ...(!coverAsset
+                                    ? {
+                                          bgcolor: 'lightgrey',
+                                          width: 200,
+                                          height: 130,
+                                      }
+                                    : {}),
                             }}
                             {...register('cover')}
                         >
@@ -269,6 +268,19 @@ export default function PublicationEdit({data}: Props) {
                                 />
                             ) : null}
                         </Box>
+                        <Button
+                            startIcon={<EditIcon />}
+                            variant={'outlined'}
+                            onClick={onEditCover}
+                            sx={{
+                                height: 1,
+                            }}
+                        >
+                            {t(
+                                'form.publication.edit.cover',
+                                'Set Cover Image'
+                            )}
+                        </Button>
                     </FormRow>
 
                     <FormRow>
