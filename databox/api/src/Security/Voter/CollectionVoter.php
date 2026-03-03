@@ -75,9 +75,6 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
             self::EDIT_PERMISSIONS, self::OWNER => $isOwner()
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                 || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
-            self::OPERATOR => $isOwner()
-                || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
-                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             self::CREATE_ASSET => $isOwner()
                 || $this->hasAcl(PermissionInterface::CHILD_CREATE, $subject, $token),
             self::EDIT_ASSET_ATTRIBUTES => $isOwner()

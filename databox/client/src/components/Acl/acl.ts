@@ -19,22 +19,25 @@ export enum AclPermission {
     ALL = 'ALL',
 }
 
-export const aclPermissions: {[key: string]: number} = {
+export const aclPermissions: Record<
+    Exclude<AclPermission, AclPermission.ALL>,
+    number
+> = {
     [AclPermission.VIEW]: 1,
-    [AclPermission.SHARE]: 256,
     [AclPermission.CREATE]: 2,
     [AclPermission.EDIT]: 4,
     [AclPermission.DELETE]: 8,
-    // [AclPermission.UNDELETE]: 16,
+    [AclPermission.UNDELETE]: 16,
     [AclPermission.OPERATOR]: 32,
-    // [AclPermission.MASTER]: 64,
+    [AclPermission.MASTER]: 64,
     [AclPermission.OWNER]: 128,
-    [AclPermission.CHILD_SHARE]: 65536,
+    [AclPermission.SHARE]: 256,
     [AclPermission.CHILD_CREATE]: 512,
     [AclPermission.CHILD_EDIT]: 1024,
     [AclPermission.CHILD_DELETE]: 2048,
-    // [AclPermission.CHILD_UNDELETE]: 4096,
+    [AclPermission.CHILD_UNDELETE]: 4096,
     [AclPermission.CHILD_OPERATOR]: 8192,
-    // [AclPermission.CHILD_MASTER]: 16384,
+    [AclPermission.CHILD_MASTER]: 16384,
     [AclPermission.CHILD_OWNER]: 32768,
+    [AclPermission.CHILD_SHARE]: 65536,
 };

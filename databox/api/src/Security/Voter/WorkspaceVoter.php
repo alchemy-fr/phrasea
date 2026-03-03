@@ -56,8 +56,6 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
             self::EDIT_PERMISSIONS, self::OWNER => $isOwner()
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                 || $this->isAdmin(),
-            self::OPERATOR => $isOwner()
-                || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token),
             self::CREATE_ASSET => $isOwner()
                 || $this->hasAcl(PermissionInterface::CHILD_CREATE, $subject, $token),
             self::SHARE_ASSET => $isOwner()

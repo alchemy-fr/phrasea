@@ -40,7 +40,7 @@ export default function PermissionsHelper({permissionHelper}: Props) {
                 sx={theme => ({
                     'th': {
                         textAlign: 'left',
-                        backgroundColor: theme.palette.divider,
+                        backgroundColor: theme.palette.grey[100],
                     },
                     'th, td': {
                         p: 1,
