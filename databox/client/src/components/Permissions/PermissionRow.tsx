@@ -2,7 +2,7 @@ import {ChangeEvent, useState} from 'react';
 import {Ace, UserType} from '../../types';
 import {Button, Checkbox, Skeleton} from '@mui/material';
 import {useTranslation} from 'react-i18next';
-import {aclPermissions} from '../Acl/acl';
+import {AclPermission, AclPermissionButAll, aclPermissions} from '../Acl/acl';
 
 type Props = {
     onMaskChange: (
@@ -12,7 +12,7 @@ type Props = {
     ) => void;
     onDelete: (userType: UserType, userId: string | null) => void;
     userName: string | undefined;
-    permissions: string[];
+    permissions: AclPermission[];
     all?: boolean | undefined;
 } & Ace;
 
@@ -34,9 +34,10 @@ export default function PermissionRow({
     const {t} = useTranslation();
     const [mask, setMask] = useState(initMask);
 
-    const allMask = permissions
+    const allMask: number = permissions
+        .filter(p => p !== AclPermission.ALL)
         .map(k => aclPermissions[k])
-        .reduce((m, p) => p + m, 0);
+        .reduce((m: number, p: number) => p + m, 0);
 
     const onChangeMask = (e: ChangeEvent<HTMLInputElement>) => {
         const {checked} = e.target;
@@ -70,19 +71,22 @@ export default function PermissionRow({
                     (userName ?? `${userType} - ${userId}`)
                 )}
             </td>
-            {permissions.map((k: string) => {
-                return (
-                    <td key={k} className={'p'}>
-                        <Checkbox
-                            onChange={onChangeMask}
-                            value={aclPermissions[k].toString()}
-                            checked={
-                                (mask & aclPermissions[k]) === aclPermissions[k]
-                            }
-                        />
-                    </td>
-                );
-            })}
+            {permissions
+                .filter(p => p !== AclPermission.ALL)
+                .map((k: AclPermissionButAll) => {
+                    return (
+                        <td key={k} className={'p'}>
+                            <Checkbox
+                                onChange={onChangeMask}
+                                value={aclPermissions[k].toString()}
+                                checked={
+                                    (mask & aclPermissions[k]) ===
+                                    aclPermissions[k]
+                                }
+                            />
+                        </td>
+                    );
+                })}
             {all && (
                 <td className={'p'}>
                     <Checkbox

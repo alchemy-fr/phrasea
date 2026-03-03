@@ -31,18 +31,18 @@ export default function PermissionTable({
     const permissionLabels = useAclPermissionLabels({permissionHelper});
 
     const {allColumns, columns, hasAll} = useMemo(() => {
-        let columns = displayedPermissions
-            ? Object.keys(aclPermissions).filter(c =>
-                  displayedPermissions.includes(c)
-              )
+        let columns: AclPermission[] = displayedPermissions
+            ? (Object.keys(aclPermissions).filter(c =>
+                  displayedPermissions.includes(c as AclPermission)
+              ) as AclPermission[])
             : !displayChildPermissions
               ? Object.entries(aclPermissions)
                     .filter(
                         ([_key, value]) =>
                             value < aclPermissions[AclPermission.CHILD_CREATE]
                     )
-                    .map(([key]) => key)
-              : Object.keys(aclPermissions);
+                    .map(([key]) => key as AclPermission)
+              : (Object.keys(aclPermissions) as AclPermission[]);
 
         const hasAll = displayedPermissions
             ? displayedPermissions.includes(AclPermission.ALL)
@@ -50,9 +50,9 @@ export default function PermissionTable({
 
         if (permissionHelper) {
             const orderedColumns: typeof columns = [];
-            for (const key of Object.keys(permissionHelper)) {
-                orderedColumns.push(key);
-            }
+            Object.keys(permissionHelper).forEach(key => {
+                orderedColumns.push(key as AclPermission);
+            });
             columns.forEach(c => {
                 if (!orderedColumns.includes(c)) {
                     orderedColumns.push(c);
