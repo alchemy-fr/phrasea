@@ -1,4 +1,5 @@
 import {
+    Box,
     Button,
     Container,
     IconButton,
@@ -9,7 +10,7 @@ import {
 } from '@mui/material';
 import AppBar from '../AppBar.tsx';
 import {Publication} from '../../types.ts';
-import React from 'react';
+import React, {useState} from 'react';
 import {toast} from 'react-toastify';
 import {putPublication} from '../../api/publicationApi.ts';
 import {useTranslation} from 'react-i18next';
@@ -35,6 +36,8 @@ import {routes} from '../../routes.ts';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import {FormConst} from './types.ts';
+import {useModals} from '@alchemy/navigation';
+import PublicationCover from './PublicationCover.tsx';
 
 type Props = {
     data: Publication;
@@ -43,6 +46,7 @@ type Props = {
 export default function PublicationEdit({data}: Props) {
     const {t} = useTranslation();
     const navigateToPublication = useNavigateToPublication();
+    const {openModal} = useModals();
 
     const usedFormSubmit = useFormSubmit<Publication>({
         defaultValues: {
@@ -73,6 +77,11 @@ export default function PublicationEdit({data}: Props) {
         },
     });
 
+    const [coverAsset, setCover] = useState<{
+        coverId: string | undefined;
+        coverSrc: string | undefined;
+    } | null>(null);
+
     const {
         handleSubmit,
         register,
@@ -101,6 +110,28 @@ export default function PublicationEdit({data}: Props) {
             setValue(FormConst.FallbackProfileProps as any, null);
         }
     }, [profileId, setValue]);
+
+    React.useEffect(() => {
+        if (data.cover) {
+            setCover({coverId: data.cover.id, coverSrc: data.cover.previewUrl});
+        }
+    }, [data]);
+
+    const onEditCover = () => {
+        openModal(PublicationCover, {
+            publication: data,
+            handleSetCover: async (
+                coverId: string | undefined,
+                coverSrc: string | undefined
+            ) => {
+                setCover({coverId, coverSrc});
+                setValue(
+                    'cover',
+                    coverId ? (('/assets/' + coverId) as any) : null
+                );
+            },
+        });
+    };
 
     return (
         <Container>
@@ -202,6 +233,42 @@ export default function PublicationEdit({data}: Props) {
                         ) : null}
 
                         <FormFieldErrors field={'profile'} errors={errors} />
+                    </FormRow>
+
+                    <FormRow>
+                        <Button
+                            startIcon={<EditIcon />}
+                            variant={'outlined'}
+                            onClick={onEditCover}
+                        >
+                            {t(
+                                'form.publication.edit.cover',
+                                'Set Cover Image'
+                            )}
+                        </Button>
+                        <Box
+                            sx={{
+                                py: 2,
+                                bgcolor: 'lightgrey',
+                                width: 200,
+                                height: 130,
+                                mt: 1,
+                                display: 'grid',
+                                placeItems: 'center',
+                            }}
+                            {...register('cover')}
+                        >
+                            {coverAsset ? (
+                                <img
+                                    src={coverAsset?.coverSrc}
+                                    alt="Cover"
+                                    style={{
+                                        height: 100,
+                                        maxWidth: 180,
+                                    }}
+                                />
+                            ) : null}
+                        </Box>
                     </FormRow>
 
                     <FormRow>
