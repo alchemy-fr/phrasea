@@ -137,13 +137,6 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
                       onAction?.();
                   }
                 : undefined,
-            onEditAttr: () => {
-                navigateToModal(modalRoutes.assets.routes.manage, {
-                    tab: 'attributes',
-                    id: asset.id,
-                });
-                onAction?.();
-            },
         }),
         [asset.id]
     );

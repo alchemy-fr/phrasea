@@ -46,7 +46,7 @@ The main actions menu is located just above the results display area. It allows 
 * Add assets to a basket  
 * Export  
 * Move  
-* Edit attributes  
+* Edit  
 * Duplicate  
 * Share  
 * Delete

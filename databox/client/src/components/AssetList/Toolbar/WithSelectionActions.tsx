@@ -12,7 +12,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import MoveAssetsDialog from '../../Media/Asset/Actions/MoveAssetsDialog';
 import CopyAssetsDialog from '../../Media/Asset/Actions/CopyAssetsDialog';
-import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import {useModals} from '@alchemy/navigation';
 import {useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes';
@@ -57,7 +56,6 @@ export default function WithSelectionActions<
         onCopy,
         onMove,
         onEdit,
-        onEditAttributes,
         download,
     } = useMemo(() => {
         let canDelete = false;
@@ -165,28 +163,6 @@ export default function WithSelectionActions<
             }
         };
 
-        const onEditAttributes = () => {
-            if (selection.length === 1) {
-                navigateToModal(modalRoutes.assets.routes.manage, {
-                    tab: 'attributes',
-                    id: selectedAssets[0].id,
-                });
-            } else {
-                navigateToModal(
-                    modalRoutes.attributesBatchEdit,
-                    {},
-                    {
-                        state: {
-                            selection: selectedAssets
-                                .filter(filterEditableAttributes)
-                                .map(a => a.id),
-                            workspaceId: selectedAssets[0].workspace.id,
-                        },
-                    }
-                );
-            }
-        };
-
         const download = canDownload
             ? () => {
                   openModal(ExportAssetsDialog, {
@@ -240,7 +216,6 @@ export default function WithSelectionActions<
             },
             onMove,
             onEdit,
-            onEditAttributes,
             download,
             wsId,
         };
@@ -329,16 +304,6 @@ export default function WithSelectionActions<
                             onClick: onMove,
                             disabled: !canMove,
                             startIcon: <DriveFileMoveIcon />,
-                        },
-                        {
-                            id: 'edit_attrs',
-                            label: t(
-                                'asset_actions.edit_attributes',
-                                'Edit attributes'
-                            ),
-                            onClick: onEditAttributes,
-                            disabled: !canEditAttributes,
-                            startIcon: <TextSnippetIcon />,
                         },
                         {
                             id: 'copy',
