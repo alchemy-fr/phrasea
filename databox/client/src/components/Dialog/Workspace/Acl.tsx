@@ -53,6 +53,16 @@ export default function Acl({data, onClose, minHeight}: Props) {
                     'Full control over this workspace. Does not include permissions on assets within the workspace, which are managed by separate permissions.'
                 ),
             },
+            [AclPermission.CHILD_SHARE]: {
+                label: t(
+                    'acl.permission.workspace.share_assets.label',
+                    'Share Assets'
+                ),
+                description: t(
+                    'acl.permission.workspace.share_assets.desc',
+                    'Can share assets at the root level of this workspace.'
+                ),
+            },
             [AclPermission.CHILD_CREATE]: {
                 label: t(
                     'acl.permission.workspace.create_assets.label',
@@ -103,16 +113,6 @@ export default function Acl({data, onClose, minHeight}: Props) {
                     'Full control over assets in the workspace.'
                 ),
             },
-            [AclPermission.CHILD_SHARE]: {
-                label: t(
-                    'acl.permission.workspace.share_assets.label',
-                    'Share Assets'
-                ),
-                description: t(
-                    'acl.permission.workspace.share_assets.desc',
-                    'Can share assets at the root level of this workspace.'
-                ),
-            },
         };
     }, [t]);
 
@@ -125,19 +125,21 @@ export default function Acl({data, onClose, minHeight}: Props) {
             <AclForm
                 objectId={data.id}
                 objectType={PermissionObject.Workspace}
-                displayedPermissions={Object.keys(aclPermissions)
-                    .filter(
-                        p =>
-                            ![
-                                AclPermission.SHARE,
-                                AclPermission.OPERATOR,
-                                AclPermission.UNDELETE,
-                                AclPermission.CHILD_UNDELETE,
-                                AclPermission.MASTER,
-                                AclPermission.CHILD_MASTER,
-                            ].includes(p as AclPermission)
-                    )
-                    .concat([AclPermission.ALL])}
+                displayedPermissions={
+                    Object.keys(aclPermissions)
+                        .filter(
+                            p =>
+                                ![
+                                    AclPermission.SHARE,
+                                    AclPermission.OPERATOR,
+                                    AclPermission.UNDELETE,
+                                    AclPermission.CHILD_UNDELETE,
+                                    AclPermission.MASTER,
+                                    AclPermission.CHILD_MASTER,
+                                ].includes(p as AclPermission)
+                        )
+                        .concat([AclPermission.ALL]) as AclPermission[]
+                }
                 permissionHelper={permissionHelper}
             />
         </ContentTab>

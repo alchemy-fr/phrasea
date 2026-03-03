@@ -126,19 +126,21 @@ export default function Acl({data, onClose, minHeight}: Props) {
                 objectId={data.id}
                 objectType={PermissionObject.Collection}
                 permissionHelper={permissionHelper}
-                displayedPermissions={Object.keys(aclPermissions)
-                    .filter(
-                        p =>
-                            ![
-                                AclPermission.SHARE,
-                                AclPermission.OPERATOR,
-                                AclPermission.UNDELETE,
-                                AclPermission.CHILD_UNDELETE,
-                                AclPermission.MASTER,
-                                AclPermission.CHILD_MASTER,
-                            ].includes(p as AclPermission)
-                    )
-                    .concat([AclPermission.ALL])}
+                displayedPermissions={
+                    Object.keys(aclPermissions)
+                        .filter(
+                            p =>
+                                ![
+                                    AclPermission.SHARE,
+                                    AclPermission.OPERATOR,
+                                    AclPermission.UNDELETE,
+                                    AclPermission.CHILD_UNDELETE,
+                                    AclPermission.MASTER,
+                                    AclPermission.CHILD_MASTER,
+                                ].includes(p as AclPermission)
+                        )
+                        .concat([AclPermission.ALL]) as AclPermission[]
+                }
             />
         </ContentTab>
     );

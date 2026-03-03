@@ -19,10 +19,9 @@ export enum AclPermission {
     ALL = 'ALL',
 }
 
-export const aclPermissions: Record<
-    Exclude<AclPermission, AclPermission.ALL>,
-    number
-> = {
+export type AclPermissionButAll = Exclude<AclPermission, AclPermission.ALL>;
+
+export const aclPermissions: Record<AclPermissionButAll, number> = {
     [AclPermission.VIEW]: 1,
     [AclPermission.CREATE]: 2,
     [AclPermission.EDIT]: 4,

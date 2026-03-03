@@ -22,7 +22,7 @@ export enum PermissionObject {
     AttributeList = 'attribute_list',
 }
 
-export type DisplayedPermissions = string[] | undefined;
+export type DisplayedPermissions = AclPermission[] | undefined;
 
 export type BasePermissionProps = {
     displayedPermissions?: DisplayedPermissions;
