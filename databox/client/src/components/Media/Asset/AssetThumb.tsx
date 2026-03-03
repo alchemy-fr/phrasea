@@ -32,7 +32,6 @@ function AssetThumb({
         resolvedTitle,
         thumbnail,
         animatedThumbnail,
-        main,
         source,
         storyCollection,
         deleted,
@@ -51,7 +50,7 @@ function AssetThumb({
                 autoPlayable={false}
             />
         );
-    } else if (main?.file) {
+    } else if (source) {
         thumb = assetFileIcon;
     }
 
@@ -149,7 +148,7 @@ function AssetThumb({
                     ) : (
                         <Chip
                             color={'info'}
-                            icon={<AssetTypeIcon mimeType={main!.file!.type} />}
+                            icon={<AssetTypeIcon mimeType={source!.type} />}
                             {...chipProps}
                         />
                     )}
