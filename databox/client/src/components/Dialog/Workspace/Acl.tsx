@@ -14,74 +14,103 @@ export default function Acl({data, onClose, minHeight}: Props) {
 
     const permissionHelper = useMemo(() => {
         return {
+            [AclPermission.VIEW]: {
+                label: t('acl.permission.workspace.view.label', 'View'),
+                description: t(
+                    'acl.permission.workspace.view.desc',
+                    'Can view this workspace and its assets, but cannot edit or delete them.'
+                ),
+            },
+
             [AclPermission.CREATE]: {
                 label: t(
-                    'acl.permission.workspace.create',
+                    'acl.permission.workspace.create.label',
                     'Create Collections'
                 ),
                 description: t(
-                    'acl.permission.workspace.create_desc',
-                    'Can create collections in this workspace, but cannot edit or delete collections created by others.'
+                    'acl.permission.workspace.create.desc',
+                    'Can create collections within this workspace, but cannot edit or delete collections created by others.'
+                ),
+            },
+            [AclPermission.EDIT]: {
+                label: t('acl.permission.workspace.edit.label', 'Edit'),
+                description: t(
+                    'acl.permission.workspace.edit.desc',
+                    'Can edit this workspace, but cannot edit assets within the workspace.'
+                ),
+            },
+            [AclPermission.DELETE]: {
+                label: t('acl.permission.workspace.delete.label', 'Delete'),
+                description: t(
+                    'acl.permission.workspace.delete.desc',
+                    'Can delete this workspace.'
+                ),
+            },
+            [AclPermission.OWNER]: {
+                label: t('acl.permission.workspace.owner.label', 'Owner'),
+                description: t(
+                    'acl.permission.workspace.owner.desc',
+                    'Full control over this workspace. Does not include permissions on assets within the workspace, which are managed by separate permissions.'
                 ),
             },
             [AclPermission.CHILD_CREATE]: {
                 label: t(
-                    'acl.permission.workspace.create_assets',
+                    'acl.permission.workspace.create_assets.label',
                     'Create Assets'
                 ),
                 description: t(
-                    'acl.permission.workspace.create_assets_desc',
-                    'Can create assets in this workspace at root level (not in any collection), but cannot edit or delete assets created by others.'
+                    'acl.permission.workspace.create_assets.desc',
+                    'Can create assets at the root level of this workspace (not in any collection), but cannot edit or delete assets created by others.'
                 ),
             },
             [AclPermission.CHILD_EDIT]: {
                 label: t(
-                    'acl.permission.workspace.edit_assets',
+                    'acl.permission.workspace.edit_assets.label',
                     'Edit Assets Attributes'
                 ),
                 description: t(
-                    'acl.permission.workspace.edit_assets_desc',
-                    'Can edit attributes of assets in the workspace, such as title, tags, attributes but cannot change permissions, source file, renditions or share assets.'
-                ),
-            },
-            [AclPermission.CHILD_DELETE]: {
-                label: t(
-                    'acl.permission.workspace.delete_assets',
-                    'Delete Assets'
-                ),
-                description: t(
-                    'acl.permission.workspace.delete_assets_desc',
-                    'Can delete assets in the workspace, but cannot edit assets or change permissions.'
+                    'acl.permission.workspace.edit_assets.desc',
+                    'Can edit attributes of assets at the root level of this workspace, such as title, tags, and other attributes, but cannot change permissions, source files, renditions, or share assets.'
                 ),
             },
             [AclPermission.CHILD_OPERATOR]: {
                 label: t(
-                    'acl.permission.workspace.assets_operator',
-                    'Operator of Assets'
+                    'acl.permission.workspace.assets_operator.label',
+                    'Edit Assets'
                 ),
                 description: t(
-                    'acl.permission.workspace.assets_operator_desc',
-                    'Can edit and delete assets in the workspace, but cannot change permissions.'
+                    'acl.permission.workspace.assets_operator.desc',
+                    'Can edit assets (attributes, source files, renditions) at the root level of this workspace, but cannot change permissions or share assets.'
+                ),
+            },
+            [AclPermission.CHILD_DELETE]: {
+                label: t(
+                    'acl.permission.workspace.delete_assets.label',
+                    'Delete Assets'
+                ),
+                description: t(
+                    'acl.permission.workspace.delete_assets.desc',
+                    'Can delete assets at the root level of this workspace, but cannot edit assets or change permissions.'
                 ),
             },
             [AclPermission.CHILD_OWNER]: {
                 label: t(
-                    'acl.permission.workspace.assets_owner',
+                    'acl.permission.workspace.assets_owner.label',
                     'Owner of Assets'
                 ),
                 description: t(
-                    'acl.permission.workspace.assets_owner_desc',
-                    'Full control of assets in the workspace'
+                    'acl.permission.workspace.assets_owner.desc',
+                    'Full control over assets in the workspace.'
                 ),
             },
             [AclPermission.CHILD_SHARE]: {
                 label: t(
-                    'acl.permission.workspace.share_assets',
+                    'acl.permission.workspace.share_assets.label',
                     'Share Assets'
                 ),
                 description: t(
-                    'acl.permission.workspace.share_assets_desc',
-                    'Can share assets in the workspace'
+                    'acl.permission.workspace.share_assets.desc',
+                    'Can share assets at the root level of this workspace.'
                 ),
             },
         };
@@ -97,7 +126,17 @@ export default function Acl({data, onClose, minHeight}: Props) {
                 objectId={data.id}
                 objectType={PermissionObject.Workspace}
                 displayedPermissions={Object.keys(aclPermissions)
-                    .filter(p => p !== AclPermission.SHARE)
+                    .filter(
+                        p =>
+                            ![
+                                AclPermission.SHARE,
+                                AclPermission.OPERATOR,
+                                AclPermission.UNDELETE,
+                                AclPermission.CHILD_UNDELETE,
+                                AclPermission.MASTER,
+                                AclPermission.CHILD_MASTER,
+                            ].includes(p as AclPermission)
+                    )
                     .concat([AclPermission.ALL])}
                 permissionHelper={permissionHelper}
             />

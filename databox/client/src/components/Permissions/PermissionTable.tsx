@@ -11,6 +11,7 @@ import {Box} from '@mui/material';
 import PermissionRow from './PermissionRow';
 import type {TFunction} from '@alchemy/i18n';
 import PermissionRowSkeleton from './PermissionRowSkeleton';
+import {useMemo} from 'react';
 
 type Props = {
     permissions: Ace[] | undefined;
@@ -29,26 +30,48 @@ export default function PermissionTable({
     const {t} = useTranslation();
     const permissionLabels = useAclPermissionLabels({permissionHelper});
 
-    const columns = displayedPermissions
-        ? Object.keys(aclPermissions).filter(c =>
-              displayedPermissions.includes(c)
-          )
-        : !displayChildPermissions
-          ? Object.entries(aclPermissions)
-                .filter(
-                    ([_key, value]) =>
-                        value < aclPermissions[AclPermission.CHILD_CREATE]
-                )
-                .map(([key]) => key)
-          : Object.keys(aclPermissions);
-    const hasAll = displayedPermissions
-        ? displayedPermissions.includes(AclPermission.ALL)
-        : true;
+    const {allColumns, columns, hasAll} = useMemo(() => {
+        let columns = displayedPermissions
+            ? Object.keys(aclPermissions).filter(c =>
+                  displayedPermissions.includes(c)
+              )
+            : !displayChildPermissions
+              ? Object.entries(aclPermissions)
+                    .filter(
+                        ([_key, value]) =>
+                            value < aclPermissions[AclPermission.CHILD_CREATE]
+                    )
+                    .map(([key]) => key)
+              : Object.keys(aclPermissions);
+
+        const hasAll = displayedPermissions
+            ? displayedPermissions.includes(AclPermission.ALL)
+            : true;
+
+        if (permissionHelper) {
+            const orderedColumns: typeof columns = [];
+            for (const key of Object.keys(permissionHelper)) {
+                orderedColumns.push(key);
+            }
+            columns.forEach(c => {
+                if (!orderedColumns.includes(c)) {
+                    orderedColumns.push(c);
+                }
+            });
+
+            columns = orderedColumns;
+        }
+
+        const allColumns = hasAll
+            ? columns.concat([AclPermission.ALL])
+            : columns;
+
+        return {allColumns, columns, hasAll};
+    }, [displayedPermissions, displayChildPermissions, permissionHelper]);
 
     const selectSize = 42;
     const actionsSize = 150;
 
-    const allColumns = hasAll ? columns.concat([AclPermission.ALL]) : columns;
     return (
         <Box
             component={'table'}
@@ -74,6 +97,11 @@ export default function PermissionTable({
                     'verticalAlign': 'middle',
                     '.p': {
                         textAlign: 'center',
+                    },
+                    '&.empty': {
+                        textAlign: 'center',
+                        fontStyle: 'italic',
+                        p: 2,
                     },
                 },
                 '.a': {
@@ -113,14 +141,14 @@ export default function PermissionTable({
                 </tr>
             </thead>
             <tbody>
-                {!permissions &&
+                {!permissions ? (
                     [0, 1, 2].map(k => (
                         <PermissionRowSkeleton
                             permissions={allColumns}
                             key={k}
                         />
-                    ))}
-                {permissions &&
+                    ))
+                ) : permissions.length > 0 ? (
                     permissions.map(p => (
                         <PermissionRow
                             {...p}
@@ -131,7 +159,17 @@ export default function PermissionTable({
                             userName={getUserName(p, t)}
                             key={p.id || `${p.userId}::${p.userType}`}
                         />
-                    ))}
+                    ))
+                ) : (
+                    <tr>
+                        <td colSpan={allColumns.length + 2} className={'empty'}>
+                            {t(
+                                'permission_table.no_permissions',
+                                `No permissions defined`
+                            )}
+                        </td>
+                    </tr>
+                )}
             </tbody>
         </Box>
     );
