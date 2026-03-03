@@ -52,8 +52,8 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
         return match ($attribute) {
-            self::CREATE => $subject->getParent() ? $this->security->isGranted(self::EDIT, $subject->getParent())
-                : $this->security->isGranted(self::EDIT, $workspace),
+            self::CREATE => $subject->getParent() ? $this->security->isGranted(self::CREATE, $subject->getParent())
+                : $this->security->isGranted(WorkspaceVoter::CREATE, $workspace),
             self::LIST => $isOwner()
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                 || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
@@ -67,7 +67,7 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                 || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             self::EDIT => $isOwner()
-                || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
+                || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
                 || ($subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             self::DELETE => $isOwner()
                 || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
@@ -80,9 +80,15 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             self::CREATE_ASSET => $isOwner()
                 || $this->hasAcl(PermissionInterface::CHILD_CREATE, $subject, $token),
-            self::EDIT_ASSET => $isOwner()
+            self::EDIT_ASSET_ATTRIBUTES => $isOwner()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_EDIT,
+                    PermissionInterface::CHILD_OPERATOR,
+                    PermissionInterface::CHILD_MASTER,
+                    PermissionInterface::CHILD_OWNER,
+                ], $subject, $token),
+            self::EDIT_ASSET => $isOwner()
+                || $this->hasAcl([
                     PermissionInterface::CHILD_OPERATOR,
                     PermissionInterface::CHILD_MASTER,
                     PermissionInterface::CHILD_OWNER,
