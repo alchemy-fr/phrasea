@@ -78,7 +78,7 @@ export default function WithSelectionActions<
 
         selectedAssets.forEach((a: Asset) => {
             wsId = a.workspace?.id;
-            if (a.main?.file?.url) {
+            if (a.source) {
                 canDownload = true;
             }
             if (
