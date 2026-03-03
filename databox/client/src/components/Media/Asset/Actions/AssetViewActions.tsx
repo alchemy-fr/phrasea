@@ -25,7 +25,6 @@ export default function AssetViewActions({asset, file}: Props) {
         onRestore,
         onDownload,
         onEdit,
-        onEditAttr,
         onShare,
         onSubstituteFile,
         can,
@@ -108,16 +107,6 @@ export default function AssetViewActions({asset, file}: Props) {
                             onClick={onEdit}
                             startIcon={<EditIcon />}
                             actions={[
-                                {
-                                    id: 'edit_attrs',
-                                    label: t(
-                                        'asset_actions.edit_attributes',
-                                        'Edit attributes'
-                                    ),
-                                    onClick: onEditAttr,
-                                    disabled: !can.editAttributes,
-                                    startIcon: <TextSnippetIcon />,
-                                },
                                 {
                                     id: 'substitute',
                                     label: t(

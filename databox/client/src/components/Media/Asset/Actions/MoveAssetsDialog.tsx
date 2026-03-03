@@ -3,13 +3,16 @@ import {Typography} from '@mui/material';
 import FormDialog from '../../../Dialog/FormDialog';
 import {useFormSubmit} from '@alchemy/api';
 import CollectionTreeWidget from '../../../Form/CollectionTreeWidget';
-import {moveAssets} from '../../../../api/collection';
-import {FormFieldErrors} from '@alchemy/react-form';
+import {
+    getWorkspaceOrCollectionIri,
+    moveAssets,
+} from '../../../../api/collection';
+import {FormFieldErrors, RemoteErrors} from '@alchemy/react-form';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
-import {RemoteErrors} from '@alchemy/react-form';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
+import {TreeNode, useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {toast} from 'react-toastify';
+import {WorkspaceOrCollectionTreeItem} from '../../Collection/CollectionTree/types.ts';
 
 type Props = {
     assetIds: string[];
@@ -41,7 +44,17 @@ export default function MoveAssetsDialog({
         submitting,
         forbidNavigation,
     } = useFormSubmit({
-        onSubmit: (data: FormData) => moveAssets(assetIds, data.destination),
+        onSubmit: (data: FormData) => {
+            console.log('data.destination', data.destination);
+            return moveAssets(
+                assetIds,
+                getWorkspaceOrCollectionIri(
+                    (
+                        data.destination as unknown as TreeNode<WorkspaceOrCollectionTreeItem>
+                    ).data
+                )
+            );
+        },
         onSuccess: () => {
             toast.success(
                 t('move_assets_dialog.assets_were_moved', `Assets were moved`)

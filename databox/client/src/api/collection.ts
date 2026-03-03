@@ -146,13 +146,19 @@ export async function moveAssets(
     });
 }
 
+export function getWorkspaceOrCollectionIri(
+    item: WorkspaceOrCollectionTreeItem
+): string {
+    return item.type === EntityType.Collection
+        ? `/collections/${item.id}`
+        : `/workspaces/${item.id}`;
+}
+
 export async function createCollection(
     newCollection: TreeNode<WorkspaceOrCollectionTreeItem>
 ): Promise<string | undefined> {
     if (!newCollection.virtual) {
-        return newCollection.data.type === EntityType.Collection
-            ? `/collections/${newCollection.data.id}`
-            : `/workspaces/${newCollection.data.id}`;
+        return getWorkspaceOrCollectionIri(newCollection.data);
     }
 
     const createSubCollection = async (

@@ -2,50 +2,32 @@
 
 namespace App\Api\Traits;
 
-use Alchemy\CoreBundle\Util\LocaleUtil;
-use App\Attribute\AttributeInterface;
 use App\Entity\Core\Workspace;
-use Symfony\Component\HttpFoundation\RequestStack;
+use App\Http\LocaleContext;
 use Symfony\Contracts\Service\Attribute\Required;
 
 trait UserLocaleTrait
 {
-    private RequestStack $requestStack;
+    private LocaleContext $localeContext;
 
     private function getUserLocales(): array
     {
-        $request = $this->requestStack->getCurrentRequest();
-        if (null !== $request) {
-            $languages = $request->getLanguages();
-            if ($request->headers->get('X-Data-Locale')) {
-                array_unshift($languages, $request->headers->get('X-Data-Locale'));
-            }
-
-            return $languages;
-        }
-
-        return [];
+        return $this->localeContext->getUserLocales();
     }
 
     protected function getPreferredLocales(Workspace $workspace): array
     {
-        $userLocales = $this->getUserLocales();
-
-        return array_unique(array_filter(array_merge($userLocales, $workspace->getLocaleFallbacks(), [AttributeInterface::NO_LOCALE])));
+        return $this->localeContext->getPreferredLocales($workspace);
     }
 
     protected function getBestWorkspaceLocale(Workspace $workspace): ?string
     {
-        $userLocales = $this->getUserLocales();
-
-        return LocaleUtil::getBestLocale($workspace->getEnabledLocales(), $userLocales)
-            ?? LocaleUtil::getBestLocale($workspace->getLocaleFallbacks(), $userLocales)
-            ?? $workspace->getLocaleFallbacks()[0] ?? null;
+        return $this->localeContext->getBestWorkspaceLocale($workspace);
     }
 
     #[Required]
-    public function setRequestStack(RequestStack $requestStack): void
+    public function setLocaleContext(LocaleContext $localeContext): void
     {
-        $this->requestStack = $requestStack;
+        $this->localeContext = $localeContext;
     }
 }

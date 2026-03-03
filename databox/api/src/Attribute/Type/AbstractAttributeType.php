@@ -28,6 +28,11 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return $value;
     }
 
+    public function getStringValue(?string $value): string
+    {
+        return (string) $this->denormalizeValue($value);
+    }
+
     public function normalizeElasticsearchValue(?string $value)
     {
         return $value;

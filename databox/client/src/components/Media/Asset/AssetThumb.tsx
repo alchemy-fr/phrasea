@@ -33,13 +33,14 @@ function AssetThumb({
         thumbnail,
         animatedThumbnail,
         main,
+        source,
         storyCollection,
         deleted,
     } = asset;
 
     let thumb: ReactNode | undefined;
-    const assetFileIcon = main?.file ? (
-        <AssetFileIcon mimeType={main.file.type} />
+    const assetFileIcon = source ? (
+        <AssetFileIcon mimeType={source.type} />
     ) : undefined;
 
     if (thumbnail?.file) {

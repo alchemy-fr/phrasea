@@ -12,4 +12,5 @@ export type WorkspaceOrCollectionTreeItem = {
     };
     workspaceId: string;
 };
+
 export type CollectionId = string;
