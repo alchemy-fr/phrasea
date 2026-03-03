@@ -11,6 +11,7 @@ import {
     OnPermissionDelete,
 } from './permissions';
 import PermissionTable from './PermissionTable';
+import PermissionsHelper from './PermissionsHelper.tsx';
 
 type Props = {
     loadPermissions: () => Promise<Ace[]>;
@@ -24,6 +25,7 @@ export default function PermissionList({
     updatePermission,
     deletePermission,
     onListChanged,
+    permissionHelper,
     ...rest
 }: Props) {
     const [permissions, setPermissions] = React.useState<Ace[]>();
@@ -147,10 +149,15 @@ export default function PermissionList({
             </Grid>
             <PermissionTable
                 {...rest}
+                permissionHelper={permissionHelper}
                 permissions={permissions}
                 onMaskChange={updatePermission}
                 onDelete={onDelete}
             />
+
+            {permissionHelper ? (
+                <PermissionsHelper permissionHelper={permissionHelper} />
+            ) : null}
         </div>
     );
 }

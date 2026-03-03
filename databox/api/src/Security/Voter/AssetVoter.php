@@ -13,7 +13,6 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class AssetVoter extends AbstractVoter
 {
     final public const string EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
-    final public const string EDIT_RENDITIONS = 'EDIT_RENDITIONS';
     final public const string SHARE = 'SHARE';
     final public const string SCOPE_PREFIX = 'asset:';
 
@@ -21,7 +20,7 @@ class AssetVoter extends AbstractVoter
     {
         return array_merge(parent::getScopeHierarchy(), [
             self::EDIT_ATTRIBUTES => [self::EDIT],
-            self::EDIT_RENDITIONS => [self::OWNER],
+            self::EDIT => [self::OWNER],
         ]);
     }
 
@@ -54,11 +53,7 @@ class AssetVoter extends AbstractVoter
 
         switch ($attribute) {
             case self::CREATE:
-                if (null !== $collection = $subject->getReferenceCollection()) {
-                    return $this->security->isGranted(CollectionVoter::CREATE_ASSET, $collection);
-                }
-
-                return $this->security->isGranted(WorkspaceVoter::CREATE_ASSET, $subject->getWorkspace());
+                return $this->voteOnContainer($subject, AssetContainerVoterInterface::CREATE_ASSET);
             case self::READ:
                 if ($subject->isDeleted()) {
                     return $this->security->isGranted(self::DELETE, $subject);
@@ -71,14 +66,13 @@ class AssetVoter extends AbstractVoter
                     || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                     || $this->collectionGrantsAccess($subject)
                 ;
-            case self::EDIT_RENDITIONS:
-            case self::EDIT:
-                return $isOwner()
-                    || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
-                    || $this->voteOnContainer($subject, AssetContainerVoterInterface::EDIT_ASSET);
             case self::EDIT_ATTRIBUTES:
                 return $isOwner()
                     || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
+                    || $this->voteOnContainer($subject, AssetContainerVoterInterface::EDIT_ASSET_ATTRIBUTES);
+            case self::EDIT:
+                return $isOwner()
+                    || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
                     || $this->voteOnContainer($subject, AssetContainerVoterInterface::EDIT_ASSET);
             case self::SHARE:
                 return $isOwner()
