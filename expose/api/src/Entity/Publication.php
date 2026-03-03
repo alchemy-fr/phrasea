@@ -167,7 +167,7 @@ class Publication implements AclObjectInterface, \Stringable
 
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
-    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE, self::GROUP_INDEX])]
     private ?Asset $cover = null;
 
     #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
@@ -602,6 +602,10 @@ class Publication implements AclObjectInterface, \Stringable
 
     public function getCover(): ?Asset
     {
+        if (null === $this->cover) {
+            return $this->assets[0];
+        }
+
         return $this->cover;
     }
 
