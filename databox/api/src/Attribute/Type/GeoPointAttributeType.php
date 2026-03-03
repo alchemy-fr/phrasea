@@ -71,6 +71,16 @@ class GeoPointAttributeType extends AbstractAttributeType
         ];
     }
 
+    public function getStringValue(?string $value): string
+    {
+        $value = $this->denormalizeValue($value);
+        if (null === $value) {
+            return '';
+        }
+
+        return sprintf('%g,%g', $value['lat'], $value['lng']);
+    }
+
     public function normalizeElasticsearchValue(?string $value)
     {
         $value = $this->denormalizeValue($value);

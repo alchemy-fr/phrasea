@@ -120,6 +120,21 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 'serviceAccountsEnabled' => false,
             ]);
         }
+
+        if (
+            $clientId = EnvHelper::getEnv('DATABOX_EXPOSE_INTEGRATION_CLIENT_ID')
+        ) {
+            $this->keycloakManager->createClient($clientId, null, null, [
+                'standardFlowEnabled' => true,
+                'implicitFlowEnabled' => false,
+                'directAccessGrantsEnabled' => false,
+                'serviceAccountsEnabled' => false,
+                'rootUrl' => EnvHelper::getEnvOrThrow('DATABOX_API_URL'),
+                'redirectUris' => [
+                    EnvHelper::getEnvOrThrow('DATABOX_API_URL').'/*',
+                ],
+            ]);
+        }
     }
 
     public function synchronize(): void
