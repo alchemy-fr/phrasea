@@ -37,7 +37,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import {FormConst} from './types.ts';
 import {useModals} from '@alchemy/navigation';
-import PublicationCover from './PublicationCover.tsx';
+import PublicationCoverDialog from './PublicationCoverDialog.tsx';
 
 type Props = {
     data: Publication;
@@ -118,7 +118,7 @@ export default function PublicationEdit({data}: Props) {
     }, [data]);
 
     const onEditCover = () => {
-        openModal(PublicationCover, {
+        openModal(PublicationCoverDialog, {
             publication: data,
             handleSetCover: async (
                 coverId: string | undefined,

@@ -7,10 +7,7 @@ import {useContainerWidth} from '@alchemy/react-hooks/src/useContainerWidth';
 import {Classes} from './types';
 import AssetIconThumbnail, {thumbSx} from './asset/AssetIconThumbnail';
 import React from 'react';
-import {Publication, ThumbWithDimensions} from '../../types';
-import {useThumbs} from '../../hooks/useThumbs';
-import {ImageExtended} from './layouts/grid/types';
-import {buildLayoutFlat} from './layouts/grid/buildLayout';
+import {Asset, Publication} from '../../types';
 import classNames from 'classnames';
 
 type Props = {
@@ -22,103 +19,45 @@ type Props = {
     ) => void;
     open: boolean;
     rowHeight?: number;
-    margin?: number;
 } & StackedModalProps;
 
-export default function PublicationCover({
+export default function PublicationCoverDialog({
     publication,
     onClose,
     handleSetCover,
     open,
     rowHeight = 100,
-    margin = 2,
 }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
-    const {containerRef, containerWidth} = useContainerWidth(window.innerWidth);
-    const [resolvedThumbs, setResolvedThumbs] =
-        React.useState<ImageExtended<ThumbWithDimensions>[]>();
-    const [cover, setCover] =
-        React.useState<ImageExtended<ThumbWithDimensions> | null>(null);
+    const {containerRef} = useContainerWidth(window.innerWidth);
+
+    const [cover, setCover] = React.useState<Asset | null>(null);
     const [selectedIndex, setSelectedIndex] = useState<string | null>(null);
 
-    const thumbs = useThumbs({
-        publication: publication,
-        assets: publication.assets,
-    });
+    const assets = publication.assets || [];
 
-    const handleClick = (image: ImageExtended<ThumbWithDimensions>) => {
+    const handleClick = (image: Asset) => {
         setSelectedIndex(image.id === selectedIndex ? null : image.id);
         setCover(image.id === selectedIndex ? null : image);
     };
 
     const onSetCover = async () => {
-        handleSetCover(cover?.id, cover?.src);
+        handleSetCover(cover?.id, cover?.previewUrl);
         closeModal();
         onClose?.();
     };
 
     React.useEffect(() => {
-        const loadThumbs = async () => {
-            const resolvedThumbs = await Promise.all(
-                thumbs.map(a => {
-                    return new Promise(resolve => {
-                        if (!a.src) {
-                            return resolve({
-                                ...a,
-                                width: rowHeight,
-                                height: rowHeight,
-                            } as ThumbWithDimensions);
-                        }
-
-                        const img = new Image();
-                        img.onload = () => {
-                            resolve({
-                                ...a,
-                                width: img.width,
-                                height: img.height,
-                            } as ThumbWithDimensions);
-                        };
-                        img.onerror = e => {
-                            console.error(e);
-                            resolve({
-                                ...a,
-                                width: 100,
-                                height: 100,
-                            } as ThumbWithDimensions);
-                        };
-                        img.src = a.src;
-                    });
-                })
-            );
-
-            setResolvedThumbs(
-                buildLayoutFlat(
-                    resolvedThumbs as ImageExtended<ThumbWithDimensions>[],
-                    {
-                        containerWidth,
-                        rowHeight,
-                        margin,
-                    }
-                )
-            );
-        };
-
-        loadThumbs();
-    }, [thumbs, rowHeight, containerWidth]);
-
-    React.useEffect(() => {
         if (publication.cover) {
-            const coverThumb = resolvedThumbs?.find(
-                c => c.id === publication.cover.id
-            );
+            const coverThumb = assets?.find(c => c.id === publication.cover.id);
 
             if (coverThumb) {
                 setCover(coverThumb);
                 setSelectedIndex(coverThumb.id);
             }
         }
-    }, [thumbs, resolvedThumbs]);
+    }, [assets]);
 
     return (
         <AppDialog
@@ -167,42 +106,37 @@ export default function PublicationCover({
                     ...thumbSx(theme),
                 })}
             >
-                {!resolvedThumbs ? (
+                {!assets ? (
                     <FullPageLoader backdrop={false} />
                 ) : (
-                    resolvedThumbs.map(t => (
+                    assets.map(a => (
                         <div
-                            key={t.id}
-                            onClick={() => handleClick(t)}
+                            key={a.id}
+                            onClick={() => handleClick(a)}
                             style={{
-                                width: t.viewportWidth,
-                                height: t.scaledHeight,
+                                height: rowHeight,
                                 margin: '5px',
                                 cursor: 'pointer',
                             }}
                             className={classNames({
                                 [Classes.thumbContainer]: true,
-                                selected: t.id === selectedIndex,
+                                selected: a.id === selectedIndex,
                             })}
                         >
-                            {t.src ? (
+                            {a.thumbUrl ? (
                                 <img
-                                    src={t.src}
-                                    alt={t.alt}
+                                    src={a.thumbUrl}
+                                    alt={a.title}
                                     style={{
-                                        width: t.scaledWidth,
-                                        height: t.scaledHeight,
-                                        marginLeft: t.marginLeft,
+                                        height: rowHeight,
                                     }}
                                 />
                             ) : (
                                 <AssetIconThumbnail
                                     style={{
-                                        width: t.scaledWidth,
-                                        height: t.scaledHeight,
-                                        marginLeft: t.marginLeft,
+                                        height: rowHeight,
                                     }}
-                                    mimeType={t.mimeType}
+                                    mimeType={a.mimeType}
                                 />
                             )}
                         </div>
