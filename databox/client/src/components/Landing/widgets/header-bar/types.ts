@@ -1,6 +1,9 @@
-import {AppBarProps} from '@mui/material';
-
 export type HeaderBarWidgetProps = {
     title?: string;
-    position?: AppBarProps['position'];
+    link1?: string;
+    link2?: string;
+    position?: 'fixed' | 'static';
 };
+export enum ElevationConstants {
+    ContainerId = 'elevation-scroll-container',
+}

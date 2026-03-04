@@ -1,8 +1,8 @@
 import {EditorContent, useEditor} from '@tiptap/react';
 import {useExtensions} from './Editor/extensions.ts';
 import {Page} from '../../types.ts';
-import {Box, Container} from '@mui/material';
 import {Helmet} from 'react-helmet';
+import PageWrapper from './PageWrapper.tsx';
 
 type Props = {
     data: Page;
@@ -26,23 +26,14 @@ export default function PageContent({data}: Props) {
                     <meta name="description" content={data.description} />
                 ) : null}
             </Helmet>
-            <Container>
-                <Box
-                    sx={{
-                        '[contenteditable="false"]:focus': {
-                            outline: 'none',
-                        },
-                        'position': 'relative',
-                    }}
-                >
-                    <EditorContent
-                        editor={editor}
-                        contentEditable={false}
-                        selected={false}
-                        disabled={true}
-                    />
-                </Box>
-            </Container>
+            <PageWrapper>
+                <EditorContent
+                    editor={editor}
+                    contentEditable={false}
+                    selected={false}
+                    disabled={true}
+                />
+            </PageWrapper>
         </>
     );
 }

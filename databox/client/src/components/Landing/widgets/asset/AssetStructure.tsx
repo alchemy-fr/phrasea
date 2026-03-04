@@ -29,6 +29,7 @@ export default function AssetStructure({
                     sx={theme => ({
                         maxWidth: maxWidth,
                         maxHeight: maxHeight,
+                        flexShrink: 0,
                         img: {
                             maxWidth: maxWidth,
                             maxHeight: maxHeight,

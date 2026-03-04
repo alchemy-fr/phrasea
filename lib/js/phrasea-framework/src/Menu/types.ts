@@ -63,6 +63,8 @@ export type NavButtonProps = {
     route?: RouteDefinition;
     routeParams?: RouteParameters;
     location?: Location;
+    href?: string;
+    target?: string;
 };
 
 export enum MenuOrientation {

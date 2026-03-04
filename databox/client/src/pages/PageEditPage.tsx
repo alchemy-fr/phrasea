@@ -2,7 +2,6 @@ import {getPath, useModals, useParams} from '@alchemy/navigation';
 import PageEditor, {
     OnPageSave,
 } from '../components/Landing/Editor/PageEditor.tsx';
-import {Container} from '@mui/material';
 import {Page} from '../types.ts';
 import {useCallback, useEffect, useState} from 'react';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
@@ -62,14 +61,12 @@ export default function PageEditPage({}: Props) {
 
     return (
         <>
-            <Container>
-                <PageEditor
-                    data={data}
-                    onSave={onSave}
-                    onPreview={onPreview}
-                    onEdit={onEdit}
-                />
-            </Container>
+            <PageEditor
+                data={data}
+                onSave={onSave}
+                onPreview={onPreview}
+                onEdit={onEdit}
+            />
         </>
     );
 }

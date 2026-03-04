@@ -5,13 +5,15 @@ import {MenuBar, MenuBarOptions} from './MenuBar.tsx';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import DragHandle from '@tiptap/extension-drag-handle-react';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import {Box} from '@mui/material';
 import AddMenu from './menu/AddMenu.tsx';
 import {PageContent} from '../../../types.ts';
 import {useExtensions} from './extensions.ts';
 import {useTranslation} from 'react-i18next';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {toast} from 'react-toastify';
+import PageWrapper from '../PageWrapper.tsx';
+import {Box} from '@mui/material';
+import {ElevationConstants} from '../widgets/header-bar/types.ts';
 
 export type OnPageSave = (content: PageContent) => void;
 
@@ -91,7 +93,13 @@ export default function PageEditor({data, onSave, ...menuProps}: Props) {
     }
 
     return (
-        <>
+        <Box
+            sx={{
+                height: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+            }}
+        >
             <EditorContext.Provider value={providerValue}>
                 <MenuBar
                     hasChanged={changed}
@@ -100,11 +108,12 @@ export default function PageEditor({data, onSave, ...menuProps}: Props) {
                     onSave={saveHandler}
                     {...menuProps}
                 />
-                <Box
-                    sx={_theme => ({
-                        mb: 4,
-                        position: 'relative',
-                    })}
+                <PageWrapper
+                    id={ElevationConstants.ContainerId}
+                    sx={{
+                        flexGrow: 1,
+                        overflow: 'auto',
+                    }}
                 >
                     <DragHandle
                         editor={editor}
@@ -114,12 +123,13 @@ export default function PageEditor({data, onSave, ...menuProps}: Props) {
                             <DragIndicatorIcon />
                         </div>
                     </DragHandle>
+
                     <EditorContent editor={editor} />
                     <FloatingMenu editor={editor}>
                         <AddMenu editor={editor} />
                     </FloatingMenu>
-                </Box>
+                </PageWrapper>
             </EditorContext.Provider>
-        </>
+        </Box>
     );
 }

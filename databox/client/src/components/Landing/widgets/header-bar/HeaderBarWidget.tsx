@@ -30,7 +30,7 @@ const HeaderBarWidget: WidgetInterface<HeaderBarWidgetProps> = {
     optionsComponent: Options,
 
     defaultOptions: {
-        position: 'sticky',
+        position: 'fixed',
         title: 'App Name',
     },
 };
@@ -66,6 +66,36 @@ function Options({
             </FormRow>
 
             <FormRow>
+                <TextField
+                    label={t(
+                        'editor.widgets.asset.options.link1.label',
+                        'Link 1'
+                    )}
+                    value={options.link1}
+                    onChange={e => {
+                        updateOptions({
+                            link1: e.target.value,
+                        });
+                    }}
+                />
+            </FormRow>
+
+            <FormRow>
+                <TextField
+                    label={t(
+                        'editor.widgets.asset.options.link2.label',
+                        'Link 2'
+                    )}
+                    value={options.link2}
+                    onChange={e => {
+                        updateOptions({
+                            link2: e.target.value,
+                        });
+                    }}
+                />
+            </FormRow>
+
+            <FormRow>
                 <FormControl>
                     <FormLabel id={'position-label'}>
                         {t(
@@ -92,35 +122,11 @@ function Options({
                             )}
                         />
                         <FormControlLabel
-                            value="absolute"
-                            control={<Radio />}
-                            label={t(
-                                'editor.widgets.asset.options.position.absolute',
-                                'Absolute'
-                            )}
-                        />
-                        <FormControlLabel
-                            value="sticky"
-                            control={<Radio />}
-                            label={t(
-                                'editor.widgets.asset.options.position.sticky',
-                                'Sticky'
-                            )}
-                        />
-                        <FormControlLabel
                             value="static"
                             control={<Radio />}
                             label={t(
                                 'editor.widgets.asset.options.position.static',
                                 'Static'
-                            )}
-                        />
-                        <FormControlLabel
-                            value="relative"
-                            control={<Radio />}
-                            label={t(
-                                'editor.widgets.asset.options.position.relative',
-                                'Relative'
                             )}
                         />
                     </RadioGroup>

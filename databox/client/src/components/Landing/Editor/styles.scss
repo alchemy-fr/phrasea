@@ -1,15 +1,20 @@
 .tiptap {
-    --black: #000000;
-    --white: #ffffff;
-    --gray-1: #f5f5f5;
-    --gray-2: #e0e0e0;
-    --gray-3: #bdbdbd;
-    --purple: #6200ee;
-    --purple-light: #bb86fc;
-
     outline: 0;
     :first-child {
         margin-top: 0;
+    }
+
+    .reset-css {
+        ul,
+        ol {
+            padding: revert;
+            margin: revert;
+
+            li p {
+                margin-top: revert;
+                margin-bottom: revert;
+            }
+        }
     }
 
     /* List styles */
@@ -62,7 +67,7 @@
 
     /* Code and preformatted text styles */
     code {
-        background-color: var(--purple-light);
+        background-color: var(--divider);
         border-radius: 0.4rem;
         color: var(--black);
         font-size: 0.85rem;
@@ -86,20 +91,14 @@
     }
 
     blockquote {
-        border-left: 3px solid var(--gray-3);
+        border-left: 3px solid var(--divider);
         margin: 1.5rem 0;
         padding-left: 1rem;
     }
 
     hr {
         border: none;
-        border-top: 1px solid var(--gray-2);
+        border-top: 1px solid var(--divider);
         margin: 2rem 0;
-    }
-
-    // Focus styles
-    .has-focus {
-        border-radius: 3px;
-        box-shadow: 0 0 0 2px var(--purple);
     }
 }

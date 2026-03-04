@@ -4,7 +4,7 @@ import {
     RenderWidgetProps,
     WidgetInterface,
 } from '../widgetTypes.ts';
-import {Skeleton, TextField} from '@mui/material';
+import {Checkbox, InputLabel, Skeleton, TextField} from '@mui/material';
 import WidgetOptionsDialogWrapper from '../components/WidgetOptionsDialogWrapper.tsx';
 import SavedSearchSelect from '../../../Form/SavedSearchSelect.tsx';
 import {useTranslation} from 'react-i18next';
@@ -20,6 +20,7 @@ type Props = {
     maxItems: number;
     height: number;
     backgroundColor?: string;
+    cover: boolean;
 };
 
 const CarouselWidget: WidgetInterface<Props> = {
@@ -35,18 +36,22 @@ const CarouselWidget: WidgetInterface<Props> = {
     defaultOptions: {
         height: 300,
         maxItems: 10,
+        cover: true,
     },
 };
 
 export default CarouselWidget;
 
 function Component({options}: RenderWidgetProps<Props>) {
-    const {searchId, height, maxItems, backgroundColor} = options;
+    const {searchId, height, maxItems, backgroundColor, cover} = options;
     const [data, setData] = useState<Asset[]>();
 
     React.useEffect(() => {
         if (searchId) {
-            getAssets({}).then(r => {
+            getAssets({
+                savedSearch: options.searchId,
+                limit: maxItems,
+            }).then(r => {
                 setData(r.result.slice(0, maxItems));
             });
         } else {
@@ -101,6 +106,7 @@ function Component({options}: RenderWidgetProps<Props>) {
                     }}
                 >
                     <FilePlayer
+                        cover={cover}
                         file={asset.preview!.file as AssetFile}
                         title={asset.resolvedTitle}
                         dimensions={{
@@ -187,6 +193,22 @@ function Options({
                         });
                     }}
                 />
+            </FormRow>
+            <FormRow>
+                <InputLabel>
+                    <Checkbox
+                        checked={options.cover}
+                        onChange={e => {
+                            updateOptions({
+                                cover: e.target.checked,
+                            });
+                        }}
+                    />
+                    {t(
+                        'editor.widgets.carousel.options.cover.label',
+                        'Cover mode'
+                    )}
+                </InputLabel>
             </FormRow>
         </WidgetOptionsDialogWrapper>
     );

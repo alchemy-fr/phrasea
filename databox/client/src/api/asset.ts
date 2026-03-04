@@ -40,12 +40,14 @@ import moment from 'moment/moment';
 import {TFunction} from '@alchemy/i18n';
 
 export interface GetAssetOptions {
+    limit?: number;
     url?: string;
     query?: string;
     workspaces?: string[];
     ids?: string[];
     parents?: string[];
     story?: string;
+    savedSearch?: string;
     conditions?: string[];
     order?: Record<string, SortWay>;
     group?: string[] | undefined;

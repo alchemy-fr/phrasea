@@ -3,7 +3,7 @@ import {WidgetOptions} from './extension.ts';
 import React, {useState} from 'react';
 import {widgets} from '../../../widgets';
 import {useTranslation} from 'react-i18next';
-import {Typography} from '@mui/material';
+import {Popper, Typography} from '@mui/material';
 import classNames from 'classnames';
 import './styles.scss';
 
@@ -23,8 +23,10 @@ export default function Widget<T extends {}>({
     deleteNode,
 }: Props<T>) {
     const {t} = useTranslation();
-    const [hover, setHover] = useState(false);
     const widget = widgets.find(w => w.name === HTMLAttributes.type);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+    const delay = 800;
+    const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
 
     if (!widget) {
         return (
@@ -36,27 +38,70 @@ export default function Widget<T extends {}>({
         );
     }
 
+    const cancelTimeout = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+    };
+    const triggerClose = () => {
+        timeoutRef.current = setTimeout(() => {
+            setAnchorEl(null);
+        }, delay);
+    };
+
     return (
         <NodeViewWrapper
             className={classNames({
                 widget: true,
                 selected: selected && editor.isEditable,
             })}
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
+            onMouseEnter={(e: MouseEvent) => {
+                cancelTimeout();
+                setAnchorEl(e.currentTarget as HTMLElement);
+            }}
+            onMouseLeave={() => {
+                cancelTimeout();
+                triggerClose();
+            }}
         >
-            {editing && hover && (
-                <div
-                    style={{
-                        position: 'relative',
-                    }}
+            {editing && (
+                <Popper
+                    open={Boolean(anchorEl)}
+                    anchorEl={anchorEl}
+                    placement={'top-start'}
+                    sx={theme => ({
+                        zIndex: theme.zIndex.modal - 1,
+                    })}
+                    modifiers={[
+                        {
+                            name: 'flip',
+                            enabled: true,
+                            options: {
+                                altBoundary: true,
+                                rootBoundary: 'document',
+                                padding: 8,
+                            },
+                        },
+                        {
+                            name: 'preventOverflow',
+                            enabled: true,
+                            options: {
+                                altAxis: true,
+                                altBoundary: true,
+                                tether: true,
+                                rootBoundary: 'document',
+                                padding: 8,
+                            },
+                        },
+                    ]}
                 >
                     <div
-                        style={{
-                            position: 'absolute',
-                            top: -56,
-                            left: 0,
-                            zIndex: 10,
+                        onMouseEnter={() => {
+                            cancelTimeout();
+                        }}
+                        onMouseLeave={() => {
+                            cancelTimeout();
+                            triggerClose();
                         }}
                     >
                         {React.createElement(widget.optionsComponent, {
@@ -75,7 +120,7 @@ export default function Widget<T extends {}>({
                             },
                         })}
                     </div>
-                </div>
+                </Popper>
             )}
             {React.createElement(widget.component, {
                 title: widget.getTitle(t),

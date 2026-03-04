@@ -15,6 +15,7 @@ export type WebVTTLink = {
 };
 
 export type FilePlayerProps = {
+    cover?: boolean;
     file: AssetFile;
     onLoad?: (() => void) | undefined;
     noInteraction?: boolean | undefined;
