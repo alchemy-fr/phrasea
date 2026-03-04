@@ -1,5 +1,5 @@
 import {EditorContent, useEditor} from '@tiptap/react';
-import {extensions} from './Editor/extensions.ts';
+import {useExtensions} from './Editor/extensions.ts';
 import {Page} from '../../types.ts';
 import {Box, Container} from '@mui/material';
 import {Helmet} from 'react-helmet';
@@ -9,6 +9,8 @@ type Props = {
 };
 
 export default function PageContent({data}: Props) {
+    const extensions = useExtensions({editing: false});
+
     const editor = useEditor({
         immediatelyRender: false,
         editable: false,
@@ -30,6 +32,7 @@ export default function PageContent({data}: Props) {
                         '[contenteditable="false"]:focus': {
                             outline: 'none',
                         },
+                        'position': 'relative',
                     }}
                 >
                     <EditorContent

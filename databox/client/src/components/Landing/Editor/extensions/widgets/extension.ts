@@ -9,6 +9,7 @@ export enum WidgetConstants {
 export interface WidgetOptions<T extends {}> {
     type: string;
     options: T;
+    editing: boolean;
 }
 
 type SetWidgetOptions<T extends {}> = {
@@ -31,6 +32,7 @@ export const WidgetExtension = Node.create<WidgetOptions<any>>({
         return {
             type: '',
             options: {},
+            editing: false,
         };
     },
 

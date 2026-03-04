@@ -22,7 +22,7 @@ import {AssetFile, MemoizedFilePlayer} from '@alchemy/phrasea-framework';
 import {FormRow} from '@alchemy/react-form';
 import AssetStructure from './AssetStructure.tsx';
 import {useOpenAsset} from '../../../AssetSearch/useOpenAsset.ts';
-import {AssetWidgetProps} from './types.ts';
+import {AssetWidgetProps, Position} from './types.ts';
 
 const AssetWidget: WidgetInterface<AssetWidgetProps> = {
     name: 'asset',
@@ -202,13 +202,10 @@ function Options({
                     </FormLabel>
                     <RadioGroup
                         aria-labelledby="image-position-label"
-                        defaultValue="left"
-                        name="radio-buttons-group"
+                        defaultValue={options.imagePosition}
                         onChange={e => {
                             updateOptions({
-                                imagePosition: e.target.value as
-                                    | 'left'
-                                    | 'right',
+                                imagePosition: e.target.value as Position,
                             });
                         }}
                     >

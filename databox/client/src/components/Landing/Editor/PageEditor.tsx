@@ -8,7 +8,7 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import {Box} from '@mui/material';
 import AddMenu from './menu/AddMenu.tsx';
 import {PageContent} from '../../../types.ts';
-import {extensions} from './extensions.ts';
+import {useExtensions} from './extensions.ts';
 import {useTranslation} from 'react-i18next';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {toast} from 'react-toastify';
@@ -22,6 +22,8 @@ type Props = {
 export default function PageEditor({data, onSave, ...menuProps}: Props) {
     const {t} = useTranslation();
     const [changed, setChanged] = useState(false);
+
+    const extensions = useExtensions({editing: true});
 
     const editor = useEditor({
         immediatelyRender: false,
@@ -101,6 +103,7 @@ export default function PageEditor({data, onSave, ...menuProps}: Props) {
                 <Box
                     sx={_theme => ({
                         mb: 4,
+                        position: 'relative',
                     })}
                 >
                     <DragHandle

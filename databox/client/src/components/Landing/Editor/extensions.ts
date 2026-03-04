@@ -8,23 +8,30 @@ import Highlight from '@tiptap/extension-highlight';
 import TypographyExtension from '@tiptap/extension-typography';
 import Superscript from '@tiptap/extension-superscript';
 import Subscript from '@tiptap/extension-subscript';
+import {useMemo} from 'react';
 
-export const extensions = [
-    ColorHighlighterExtension,
-    WidgetExtension,
-    StarterKit.configure({
-        horizontalRule: false,
-        link: {
-            openOnClick: false,
-            enableClickSelection: true,
-        },
-    }),
-    HorizontalRule,
-    TextAlign.configure({types: ['heading', 'paragraph']}),
-    TaskList,
-    TaskItem.configure({nested: true}),
-    Highlight.configure({multicolor: true}),
-    TypographyExtension,
-    Superscript,
-    Subscript,
-];
+export function useExtensions({editing}: {editing: boolean}) {
+    return useMemo(() => {
+        return [
+            ColorHighlighterExtension,
+            WidgetExtension.configure({
+                editing,
+            }),
+            StarterKit.configure({
+                horizontalRule: false,
+                link: {
+                    openOnClick: false,
+                    enableClickSelection: true,
+                },
+            }),
+            HorizontalRule,
+            TextAlign.configure({types: ['heading', 'paragraph']}),
+            TaskList,
+            TaskItem.configure({nested: true}),
+            Highlight.configure({multicolor: true}),
+            TypographyExtension,
+            Superscript,
+            Subscript,
+        ];
+    }, [editing]);
+}

@@ -12,6 +12,9 @@ type Props<T extends {}> = {
 } & ReactNodeViewProps;
 
 export default function Widget<T extends {}>({
+    extension: {
+        options: {editing},
+    },
     node: {attrs},
     HTMLAttributes,
     selected,
@@ -42,7 +45,7 @@ export default function Widget<T extends {}>({
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
         >
-            {hover && (
+            {editing && hover && (
                 <div
                     style={{
                         position: 'relative',
