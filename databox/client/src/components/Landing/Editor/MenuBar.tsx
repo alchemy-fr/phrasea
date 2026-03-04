@@ -255,7 +255,7 @@ export const MenuBar = ({
                         .run(),
             },
         ],
-        [editorState, t]
+        [editorState, t, hasChanged]
     );
 
     if (!editor) {

@@ -1,17 +1,17 @@
 import {EditorContent, EditorContext, useEditor} from '@tiptap/react';
-import {BubbleMenu, FloatingMenu} from '@tiptap/react/menus';
+import {FloatingMenu} from '@tiptap/react/menus';
 import './styles.scss';
 import {MenuBar, MenuBarOptions} from './MenuBar.tsx';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import DragHandle from '@tiptap/extension-drag-handle-react';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import {WidgetConstants} from './extensions/widgets/extension.ts';
 import {Box} from '@mui/material';
 import AddMenu from './menu/AddMenu.tsx';
-import WidgetBubbleMenu from './WidgetBubbleMenu.tsx';
 import {PageContent} from '../../../types.ts';
 import {extensions} from './extensions.ts';
+import {useTranslation} from 'react-i18next';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
+import {toast} from 'react-toastify';
 
 export type OnPageSave = (content: PageContent) => void;
 
@@ -20,6 +20,7 @@ type Props = {
 } & MenuBarOptions;
 
 export default function PageEditor({data, onSave, ...menuProps}: Props) {
+    const {t} = useTranslation();
     const [changed, setChanged] = useState(false);
 
     const editor = useEditor({
@@ -57,6 +58,7 @@ export default function PageEditor({data, onSave, ...menuProps}: Props) {
             return;
         }
         const onUpdate = () => {
+            console.log('ok');
             setChanged(true);
         };
         editor.on('update', onUpdate);
@@ -74,9 +76,12 @@ export default function PageEditor({data, onSave, ...menuProps}: Props) {
                 return;
             }
             onSave?.(content);
+            toast.success(
+                t('landing.page_editor.save_success', 'Page saved successfully')
+            );
             setChanged(false);
         },
-        [editor, onSave]
+        [editor, onSave, t, setChanged]
     );
 
     if (!editor) {
@@ -110,13 +115,6 @@ export default function PageEditor({data, onSave, ...menuProps}: Props) {
                     <FloatingMenu editor={editor}>
                         <AddMenu editor={editor} />
                     </FloatingMenu>
-                    <BubbleMenu
-                        editor={editor}
-                        shouldShow={() => editor.isActive(WidgetConstants.Type)}
-                        options={{placement: 'top-start', offset: 8}}
-                    >
-                        <WidgetBubbleMenu editor={editor} />
-                    </BubbleMenu>
                 </Box>
             </EditorContext.Provider>
         </>

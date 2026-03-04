@@ -35,10 +35,11 @@ export const WidgetExtension = Node.create<WidgetOptions<any>>({
     },
 
     group: 'block',
-    content: 'inline*',
-    atom: true,
+    content: 'block*',
+    atom: false,
+    isolating: true,
 
-    draggable: true,
+    // draggable: true,
 
     addAttributes() {
         return {
