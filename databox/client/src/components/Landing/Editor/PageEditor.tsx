@@ -95,7 +95,6 @@ export default function PageEditor({data, onSave, ...menuProps}: Props) {
                 />
                 <Box
                     sx={_theme => ({
-                        p: 2,
                         mb: 4,
                     })}
                 >

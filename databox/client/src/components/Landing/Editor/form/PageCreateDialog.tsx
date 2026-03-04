@@ -30,10 +30,7 @@ export default function PageCreateDialog({modalIndex, open}: Props) {
             public: true,
         } as Page,
         onSubmit: async data => {
-            return await postPage({
-                title: data.title,
-                slug: data.slug,
-            });
+            return await postPage(data);
         },
         onSuccess: data => {
             closeModal();

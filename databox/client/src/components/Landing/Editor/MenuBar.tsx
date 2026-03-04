@@ -291,7 +291,11 @@ export const MenuBar = ({
                     </div>
                 ) : null}
             </Box>
-            <div>
+            <Box
+                sx={theme => ({
+                    borderBottom: `1px solid ${theme.palette.divider}`,
+                })}
+            >
                 <StyledToggleButtonGroup>
                     {formats
                         .filter(f => null !== f)
@@ -321,7 +325,7 @@ export const MenuBar = ({
                             );
                         })}
                 </StyledToggleButtonGroup>
-            </div>
+            </Box>
         </>
     );
 };
