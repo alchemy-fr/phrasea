@@ -169,14 +169,9 @@ export async function getAsset(id: string): Promise<Asset> {
 }
 
 export async function getAssetMetrics(
-    assetId: string,
-    type: string | undefined
+    assetId: string
 ): Promise<MatomoMediaMetrics> {
-    return (
-        await apiClient.get(`/assets/${assetId}/metrics`, {
-            params: {type},
-        })
-    ).data;
+    return (await apiClient.get(`/assets/${assetId}/metrics`)).data;
 }
 
 export async function getESDocument(

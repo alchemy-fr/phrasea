@@ -32,10 +32,8 @@ class AssetMetricsProvider implements ProviderInterface
 
         $this->denyAccessUnlessGranted(AbstractVoter::READ, $asset);
 
-        $filters = $context['filters'] ?? [];
-
         return new JsonResponse($this
             ->matomoManager
-            ->getMediaMetrics($asset->getResolvedTrackingId(), $filters['type'] ?? ''));
+            ->getMediaMetrics($asset->getResolvedTrackingId(), $asset->getSource()?->getType() ?? ''));
     }
 }

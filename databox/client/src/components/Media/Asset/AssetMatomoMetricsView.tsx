@@ -30,7 +30,7 @@ function AssetMatomoMetricsView({asset}: Props) {
         }
         if (expanded) {
             (async () => {
-                const res = await getAssetMetrics(asset.id, asset.source?.type);
+                const res = await getAssetMetrics(asset.id);
 
                 if (Object.hasOwnProperty.call(res, 'nb_impressions')) {
                     setStats(res);
