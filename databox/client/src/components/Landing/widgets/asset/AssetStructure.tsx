@@ -4,6 +4,7 @@ import {SystemCssProperties} from '@mui/system';
 import {videoPlayerSx} from '@alchemy/phrasea-framework';
 import {NodeViewContent} from '@tiptap/react';
 import {AssetWidgetProps} from './types.ts';
+import {getFlexDirection} from './position.ts';
 
 type Props = PropsWithChildren<AssetWidgetProps>;
 
@@ -11,6 +12,8 @@ export default function AssetStructure({
     gap,
     maxWidth,
     maxHeight,
+    borderRadius,
+    imagePosition,
     children,
 }: Props) {
     return (
@@ -18,29 +21,31 @@ export default function AssetStructure({
             <Box
                 sx={() => ({
                     display: 'flex',
-                    flexDirection: 'row',
+                    flexDirection: getFlexDirection(imagePosition),
                     gap,
                 })}
             >
                 <Box
                     sx={theme => ({
-                        width: maxWidth,
-                        height: maxHeight,
+                        maxWidth: maxWidth,
+                        maxHeight: maxHeight,
                         img: {
                             maxWidth: maxWidth,
                             maxHeight: maxHeight,
+                            borderRadius,
                         },
                         ...(videoPlayerSx(theme) as SystemCssProperties<Theme>),
                     })}
                 >
                     {children}
                 </Box>
-                <NodeViewContent
+                <div
                     style={{
-                        flex: 1,
-                        border: '1px solid',
+                        flexGrow: 1,
                     }}
-                />
+                >
+                    <NodeViewContent />
+                </div>
             </Box>
         </>
     );

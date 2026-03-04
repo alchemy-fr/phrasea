@@ -39,7 +39,7 @@ export const WidgetExtension = Node.create<WidgetOptions<any>>({
     atom: false,
     isolating: true,
 
-    // draggable: true,
+    draggable: true,
 
     addAttributes() {
         return {

@@ -4,7 +4,15 @@ import {
     RenderWidgetProps,
     WidgetInterface,
 } from '../widgetTypes.ts';
-import {Skeleton, TextField} from '@mui/material';
+import {
+    FormControl,
+    FormControlLabel,
+    FormLabel,
+    Radio,
+    RadioGroup,
+    Skeleton,
+    TextField,
+} from '@mui/material';
 import WidgetOptionsDialogWrapper from '../components/WidgetOptionsDialogWrapper.tsx';
 import {useTranslation} from 'react-i18next';
 import {Asset} from '../../../../types.ts';
@@ -31,6 +39,8 @@ const AssetWidget: WidgetInterface<AssetWidgetProps> = {
         maxHeight: 300,
         gap: 1,
         openOnClick: false,
+        imagePosition: 'left',
+        borderRadius: 4,
     },
 };
 
@@ -163,6 +173,79 @@ function Options({
                         }
                     }}
                 />
+            </FormRow>
+            <FormRow>
+                <TextField
+                    label={t(
+                        'editor.widgets.asset.options.borderRadius.label',
+                        'Border Radius (px)'
+                    )}
+                    type="number"
+                    value={options.borderRadius}
+                    onChange={e => {
+                        const value = parseInt(e.target.value, 10);
+                        if (!isNaN(value)) {
+                            updateOptions({
+                                borderRadius: value,
+                            });
+                        }
+                    }}
+                />
+            </FormRow>
+            <FormRow>
+                <FormControl>
+                    <FormLabel id={'image-position-label'}>
+                        {t(
+                            'editor.widgets.asset.options.imagePosition.label',
+                            'Image Position'
+                        )}
+                    </FormLabel>
+                    <RadioGroup
+                        aria-labelledby="image-position-label"
+                        defaultValue="left"
+                        name="radio-buttons-group"
+                        onChange={e => {
+                            updateOptions({
+                                imagePosition: e.target.value as
+                                    | 'left'
+                                    | 'right',
+                            });
+                        }}
+                    >
+                        <FormControlLabel
+                            value="left"
+                            control={<Radio />}
+                            label={t(
+                                'editor.widgets.asset.options.imagePosition.left',
+                                'Left'
+                            )}
+                        />
+                        <FormControlLabel
+                            value="right"
+                            control={<Radio />}
+                            label={t(
+                                'editor.widgets.asset.options.imagePosition.right',
+                                'Right'
+                            )}
+                        />
+                        <FormControlLabel
+                            value="top"
+                            control={<Radio />}
+                            label={t(
+                                'editor.widgets.asset.options.imagePosition.top',
+                                'Top'
+                            )}
+                        />
+                        <FormControlLabel
+                            value="bottom"
+                            control={<Radio />}
+                            label={t(
+                                'editor.widgets.asset.options.imagePosition.bottom',
+                                'Bottom'
+                            )}
+                        />
+                    </RadioGroup>
+                </FormControl>
             </FormRow>
         </WidgetOptionsDialogWrapper>
     );
