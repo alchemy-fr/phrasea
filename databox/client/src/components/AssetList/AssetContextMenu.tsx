@@ -54,7 +54,6 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
         onCopy,
         onReplace,
         onShare,
-        onEditAttr,
         can,
     } = useAssetActions({asset, onAction: onClose, actionsContext, reload});
 
@@ -163,24 +162,6 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                         <FileCopyIcon />
                     </ListItemIcon>
                     <ListItemText primary={t('asset.actions.copy', 'Copy')} />
-                </MenuItem>
-            ) : (
-                ''
-            )}
-            {actionsContext.edit ? (
-                <MenuItem
-                    disabled={!can.editAttributes}
-                    onClick={can.editAttributes ? onEditAttr : undefined}
-                >
-                    <ListItemIcon>
-                        <EditIcon />
-                    </ListItemIcon>
-                    <ListItemText
-                        primary={t(
-                            'asset.actions.edit_attributes',
-                            'Edit attributes'
-                        )}
-                    />
                 </MenuItem>
             ) : (
                 ''

@@ -49,7 +49,8 @@ final readonly class IngestUploaderCommitHandler
         }
 
         $userId = $commit['userId'];
-        foreach ($commit['assets'] as $assetId) {
+        foreach ($commit['assets'] as $asset) {
+            $assetId = is_array($asset) ? $asset['id'] : $asset;
             $this->workflowOrchestrator->dispatchEvent(IncomingUploaderFileWorkflowEvent::createEvent(
                 $config['baseUrl'],
                 str_replace('/assets/', '', $assetId),
