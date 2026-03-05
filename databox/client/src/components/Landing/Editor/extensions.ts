@@ -9,6 +9,7 @@ import TypographyExtension from '@tiptap/extension-typography';
 import Superscript from '@tiptap/extension-superscript';
 import Subscript from '@tiptap/extension-subscript';
 import {useMemo} from 'react';
+import {TextStyleKit} from '@tiptap/extension-text-style';
 
 export function useExtensions({editing}: {editing: boolean}) {
     return useMemo(() => {
@@ -17,6 +18,7 @@ export function useExtensions({editing}: {editing: boolean}) {
             WidgetExtension.configure({
                 editing,
             }),
+            TextStyleKit,
             StarterKit.configure({
                 horizontalRule: false,
                 link: {

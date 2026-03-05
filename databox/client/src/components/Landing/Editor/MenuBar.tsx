@@ -61,8 +61,23 @@ export const MenuBar = ({
         selector: menuBarStateSelector,
     });
 
-    const formats = useMemo<(EditorMenuAction | null)[]>(
-        () => [
+    const formats = useMemo<
+        (EditorMenuAction<typeof editorState> | null)[]
+    >(() => {
+        const increaseFontSize = (
+            by: number,
+            editor: Editor,
+            eState: typeof editorState
+        ) => {
+            const currentSize = parseInt(eState.currentFontSize ?? '15');
+            editor
+                .chain()
+                .focus()
+                .setFontSize(`${currentSize + by}px`)
+                .run();
+        };
+
+        return [
             {
                 id: 'save',
                 label: t('editor.format.save', 'Save'),
@@ -106,6 +121,105 @@ export const MenuBar = ({
                 isDivider: true,
             },
             {
+                id: 'fontSize',
+                render: ({editor, editorState}) => (
+                    <>
+                        <ToggleButton
+                            value="fontSizeLess"
+                            aria-label={'Decrease Font Size'}
+                            disabled={!editorState.canSetFontSize}
+                            onClick={() =>
+                                increaseFontSize(-1, editor, editorState)
+                            }
+                        >
+                            A-
+                        </ToggleButton>
+                        <ToggleButton
+                            value="fontSizeMore"
+                            aria-label={'Increase Font Size'}
+                            disabled={!editorState.canSetFontSize}
+                            onClick={() =>
+                                increaseFontSize(1, editor, editorState)
+                            }
+                        >
+                            A+
+                        </ToggleButton>
+                    </>
+                ),
+            },
+            {
+                id: 'textColor',
+                render: ({editor, editorState}) => (
+                    <>
+                        <ToggleButton
+                            value="textColor"
+                            aria-label={'Text Color'}
+                            disabled={!editorState.canSetColor}
+                            onClick={() => {
+                                const newColor = prompt(
+                                    'Enter a hex color code (e.g. #ff0000):',
+                                    editorState.currentColor
+                                );
+                                if (newColor) {
+                                    editor
+                                        .chain()
+                                        .focus()
+                                        .setColor(newColor)
+                                        .run();
+                                }
+                            }}
+                        >
+                            <div
+                                style={{
+                                    border: '1px solid #ccc',
+                                    width: 16,
+                                    height: 16,
+                                    backgroundColor: editorState.currentColor,
+                                    borderRadius: 2,
+                                }}
+                            />
+                        </ToggleButton>
+                    </>
+                ),
+            },
+            {
+                id: 'bold',
+                label: t('editor.format.bold', 'Bold'),
+                icon: <FormatBoldIcon />,
+                isActive: editorState.isBold,
+                can: editorState.canBold,
+                toggle: editor => editor.chain().focus().toggleBold().run(),
+            },
+            {
+                id: 'italic',
+                label: t('editor.format.italic', 'Italic'),
+                icon: <FormatItalicIcon />,
+                isActive: editorState.isItalic,
+                can: editorState.canItalic,
+                toggle: editor => editor.chain().focus().toggleItalic().run(),
+            },
+            {
+                id: 'underline',
+                label: t('editor.format.underline', 'Underline'),
+                icon: <FormatUnderlinedIcon />,
+                isActive: editorState.isUnderline,
+                can: true,
+                toggle: editor =>
+                    editor.chain().focus().toggleUnderline().run(),
+            },
+            {
+                id: 'strikethrough',
+                label: t('editor.format.strikethrough', 'Strikethrough'),
+                icon: <FormatStrikethroughIcon />,
+                isActive: editorState.isStrike,
+                can: editorState.canStrike,
+                toggle: editor => editor.chain().focus().toggleStrike().run(),
+            },
+            {
+                id: 'divBlocks',
+                isDivider: true,
+            },
+            {
                 id: 'bulletList',
                 label: t('editor.format.bulletList', 'Bullet List'),
                 icon: <FormatListBulletedIcon />,
@@ -144,39 +258,6 @@ export const MenuBar = ({
             {
                 id: 'divider2',
                 isDivider: true,
-            },
-            {
-                id: 'bold',
-                label: t('editor.format.bold', 'Bold'),
-                icon: <FormatBoldIcon />,
-                isActive: editorState.isBold,
-                can: editorState.canBold,
-                toggle: editor => editor.chain().focus().toggleBold().run(),
-            },
-            {
-                id: 'italic',
-                label: t('editor.format.italic', 'Italic'),
-                icon: <FormatItalicIcon />,
-                isActive: editorState.isItalic,
-                can: editorState.canItalic,
-                toggle: editor => editor.chain().focus().toggleItalic().run(),
-            },
-            {
-                id: 'underline',
-                label: t('editor.format.underline', 'Underline'),
-                icon: <FormatUnderlinedIcon />,
-                isActive: editorState.isUnderline,
-                can: true,
-                toggle: editor =>
-                    editor.chain().focus().toggleUnderline().run(),
-            },
-            {
-                id: 'strikethrough',
-                label: t('editor.format.strikethrough', 'Strikethrough'),
-                icon: <FormatStrikethroughIcon />,
-                isActive: editorState.isStrike,
-                can: editorState.canStrike,
-                toggle: editor => editor.chain().focus().toggleStrike().run(),
             },
             {
                 id: 'code',
@@ -254,9 +335,8 @@ export const MenuBar = ({
                         .setTextAlign(TextAlignEnum.Justify)
                         .run(),
             },
-        ],
-        [editorState, t, hasChanged]
-    );
+        ];
+    }, [editorState, t, hasChanged]);
 
     if (!editor) {
         return null;
@@ -308,6 +388,13 @@ export const MenuBar = ({
                                         orientation="vertical"
                                         sx={{mx: 0.5, my: 1}}
                                     />
+                                );
+                            }
+                            if (format.render) {
+                                return (
+                                    <React.Fragment key={format.id}>
+                                        {format.render({editor, editorState})}
+                                    </React.Fragment>
                                 );
                             }
 

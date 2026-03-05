@@ -1,6 +1,12 @@
+type HeaderBarLink = {
+    label: string;
+    url: string;
+    target?: '_blank' | '_self';
+};
+
 export type HeaderBarWidgetProps = {
     title?: string;
-    link1?: string;
-    link2?: string;
+
+    links?: HeaderBarLink[];
     position?: 'fixed' | 'static';
 };

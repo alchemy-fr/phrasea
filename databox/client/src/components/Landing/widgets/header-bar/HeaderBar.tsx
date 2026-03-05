@@ -4,7 +4,6 @@ import {
     AppLogo,
     HorizontalAppMenu,
     MenuOrientation,
-    NavItem,
     NavMenu,
 } from '@alchemy/phrasea-framework';
 import {config, keycloakClient} from '../../../../init.ts';
@@ -15,26 +14,8 @@ import {getPath, useNavigate} from '@alchemy/navigation';
 
 type Props = PropsWithChildren<HeaderBarWidgetProps>;
 
-export default function HeaderBar({title, position, link1, link2}: Props) {
+export default function HeaderBar({title, position, links}: Props) {
     const navigate = useNavigate();
-
-    const items: NavItem[] = [];
-    if (link1) {
-        items.push({
-            id: 'link1',
-            label: link1,
-            href: '#',
-            target: '_blank',
-        });
-    }
-    if (link2) {
-        items.push({
-            id: 'link2',
-            label: link2,
-            href: '#',
-            target: '_blank',
-        });
-    }
 
     return (
         <>
@@ -61,7 +42,14 @@ export default function HeaderBar({title, position, link1, link2}: Props) {
                         sx={{mr: 2}}
                     />
                     <NavMenu
-                        items={items}
+                        items={
+                            links?.map((link, i) => ({
+                                id: `link-${i}`,
+                                label: link.label,
+                                href: link.url,
+                                target: link.target ?? '_blank',
+                            })) ?? []
+                        }
                         orientation={MenuOrientation.Horizontal}
                     />
                 </FlexRow>

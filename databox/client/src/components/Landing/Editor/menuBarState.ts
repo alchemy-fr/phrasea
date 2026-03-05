@@ -5,6 +5,7 @@ import {isNodeTypeSelected} from './editorUtils.ts';
 
 export function menuBarStateSelector(ctx: EditorStateSnapshot<Editor>) {
     const editor = ctx.editor;
+    const textStyle = editor.getAttributes('textStyle');
 
     return {
         // Text formatting
@@ -28,6 +29,12 @@ export function menuBarStateSelector(ctx: EditorStateSnapshot<Editor>) {
         isHeading4: editor.isActive('heading', {level: 4}) ?? false,
         isHeading5: editor.isActive('heading', {level: 5}) ?? false,
         isHeading6: editor.isActive('heading', {level: 6}) ?? false,
+
+        // Text styles
+        canSetFontSize: editor.can().chain().setFontSize('16px').run() ?? false,
+        currentFontSize: textStyle.fontSize || null,
+        canSetColor: editor.can().chain().setColor('#000000').run() ?? false,
+        currentColor: textStyle.color || '#000000',
 
         // Lists and blocks
         isBulletList: editor.isActive('bulletList') ?? false,
