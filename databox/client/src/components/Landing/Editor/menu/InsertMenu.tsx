@@ -10,11 +10,13 @@ import {
 import {Editor} from '@tiptap/core';
 import {widgets} from '../../widgets';
 import {useMemo, useState} from 'react';
+import {SubContent} from '../extensions/widgets/extension.ts';
 
 type Element = {
     name: string;
     title: string;
     defaultOptions: Record<string, any>;
+    defaultContent?: SubContent;
 };
 
 type Props = {
@@ -31,6 +33,7 @@ export default function InsertMenu({editor, onClose}: Props) {
             name: w.name,
             title: w.getTitle(t),
             defaultOptions: w.defaultOptions,
+            defaultContent: w.defaultContent,
         }));
     }, [t]);
 
@@ -68,6 +71,7 @@ export default function InsertMenu({editor, onClose}: Props) {
                                     .setWidget({
                                         widget: e.name,
                                         options: e.defaultOptions,
+                                        content: e.defaultContent,
                                     })
                                     .run();
                             }}

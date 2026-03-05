@@ -1,6 +1,7 @@
 import {TFunction} from '@alchemy/i18n';
 import {AppDialogProps} from '@alchemy/phrasea-ui';
 import React, {PropsWithChildren, ReactNode} from 'react';
+import {SubContent} from '../Editor/extensions/widgets/extension.ts';
 
 export interface WidgetInterface<T extends {} = {}> {
     getTitle: (t: TFunction) => string;
@@ -8,6 +9,7 @@ export interface WidgetInterface<T extends {} = {}> {
     component: React.FC<RenderWidgetProps<T>>;
     optionsComponent: React.FC<RenderWidgetOptionsProps<T>>;
     defaultOptions: T;
+    defaultContent?: SubContent;
 }
 
 export type RenderWidgetProps<T extends {} = {}> = {

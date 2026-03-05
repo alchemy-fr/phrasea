@@ -4,6 +4,3 @@ export type HeaderBarWidgetProps = {
     link2?: string;
     position?: 'fixed' | 'static';
 };
-export enum ElevationConstants {
-    ContainerId = 'elevation-scroll-container',
-}

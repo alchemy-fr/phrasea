@@ -13,7 +13,6 @@ import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {toast} from 'react-toastify';
 import PageWrapper from '../PageWrapper.tsx';
 import {Box} from '@mui/material';
-import {ElevationConstants} from '../widgets/header-bar/types.ts';
 
 export type OnPageSave = (content: PageContent) => void;
 
@@ -62,7 +61,6 @@ export default function PageEditor({data, onSave, ...menuProps}: Props) {
             return;
         }
         const onUpdate = () => {
-            console.log('ok');
             setChanged(true);
         };
         editor.on('update', onUpdate);
@@ -109,7 +107,6 @@ export default function PageEditor({data, onSave, ...menuProps}: Props) {
                     {...menuProps}
                 />
                 <PageWrapper
-                    id={ElevationConstants.ContainerId}
                     sx={{
                         flexGrow: 1,
                         overflow: 'auto',

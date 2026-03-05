@@ -42,6 +42,18 @@ const AssetWidget: WidgetInterface<AssetWidgetProps> = {
         imagePosition: 'left',
         borderRadius: 4,
     },
+
+    defaultContent: [
+        {
+            type: 'paragraph',
+            content: [
+                {
+                    type: 'text',
+                    text: 'Your text here…',
+                },
+            ],
+        },
+    ],
 };
 
 export default AssetWidget;

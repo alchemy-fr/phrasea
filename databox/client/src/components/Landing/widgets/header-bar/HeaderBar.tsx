@@ -1,6 +1,5 @@
 import React, {PropsWithChildren} from 'react';
 import {HeaderBarWidgetProps} from './types.ts';
-import ElevationScroll from './ElevationScroll.tsx';
 import {
     AppLogo,
     HorizontalAppMenu,
@@ -39,52 +38,34 @@ export default function HeaderBar({title, position, link1, link2}: Props) {
 
     return (
         <>
-            <ElevationScroll>
-                {({elevated}) => (
-                    <>
-                        <HorizontalAppMenu
-                            sx={theme => ({
-                                position:
-                                    position === 'fixed'
-                                        ? 'sticky'
-                                        : 'relative',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                zIndex: theme.zIndex.appBar,
-                                boxShadow: elevated
-                                    ? theme.shadows[4]
-                                    : undefined,
-                            })}
-                            config={config}
-                            commonMenuProps={{
-                                appLocales,
-                                keycloakClient,
-                            }}
-                        >
-                            <FlexRow
-                                sx={{
-                                    gap: 1,
-                                    flexGrow: 1,
-                                }}
-                            >
-                                <AppLogo
-                                    config={config}
-                                    appTitle={title ?? ''}
-                                    onLogoClick={() => {
-                                        navigate(getPath(routes.home));
-                                    }}
-                                    sx={{mr: 2}}
-                                />
-                                <NavMenu
-                                    items={items}
-                                    orientation={MenuOrientation.Horizontal}
-                                />
-                            </FlexRow>
-                        </HorizontalAppMenu>
-                    </>
-                )}
-            </ElevationScroll>
+            <HorizontalAppMenu
+                sticky={position === 'fixed'}
+                config={config}
+                commonMenuProps={{
+                    appLocales,
+                    keycloakClient,
+                }}
+            >
+                <FlexRow
+                    sx={{
+                        gap: 1,
+                        flexGrow: 1,
+                    }}
+                >
+                    <AppLogo
+                        config={config}
+                        appTitle={title ?? ''}
+                        onLogoClick={() => {
+                            navigate(getPath(routes.home));
+                        }}
+                        sx={{mr: 2}}
+                    />
+                    <NavMenu
+                        items={items}
+                        orientation={MenuOrientation.Horizontal}
+                    />
+                </FlexRow>
+            </HorizontalAppMenu>
         </>
     );
 }

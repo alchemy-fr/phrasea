@@ -1,10 +1,12 @@
-import {mergeAttributes, Node} from '@tiptap/core';
+import {JSONContent, mergeAttributes, Node} from '@tiptap/core';
 import {ReactNodeViewRenderer} from '@tiptap/react';
 import Widget from './Widget.tsx';
 
 export enum WidgetConstants {
     Type = 'widget',
 }
+
+export type SubContent = JSONContent[];
 
 export interface WidgetOptions<T extends {}> {
     type: string;
@@ -15,6 +17,7 @@ export interface WidgetOptions<T extends {}> {
 type SetWidgetOptions<T extends {}> = {
     widget: string;
     options?: T;
+    content?: SubContent;
 };
 
 declare module '@tiptap/core' {
@@ -65,7 +68,7 @@ export const WidgetExtension = Node.create<WidgetOptions<any>>({
     addCommands() {
         return {
             setWidget:
-                ({widget, options}: SetWidgetOptions<any>) =>
+                ({widget, options, content}: SetWidgetOptions<any>) =>
                 ({commands}) => {
                     return commands.insertContent({
                         type: this.name,
@@ -73,6 +76,7 @@ export const WidgetExtension = Node.create<WidgetOptions<any>>({
                             type: widget,
                             options,
                         },
+                        content,
                     });
                 },
         };
