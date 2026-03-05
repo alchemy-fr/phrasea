@@ -33,6 +33,8 @@ import IconButton from '@mui/material/IconButton';
 import {getPath, Link} from '@alchemy/navigation';
 import {routes} from '../../../routes.ts';
 import SettingsIcon from '@mui/icons-material/Settings';
+import {DropdownActions} from '@alchemy/phrasea-ui';
+import ColorPalette from './menu/colors/ColorPalette.tsx';
 
 export type MenuBarOptions = {
     onPreview?: () => void;
@@ -151,34 +153,48 @@ export const MenuBar = ({
                 id: 'textColor',
                 render: ({editor, editorState}) => (
                     <>
-                        <ToggleButton
-                            value="textColor"
-                            aria-label={'Text Color'}
-                            disabled={!editorState.canSetColor}
-                            onClick={() => {
-                                const newColor = prompt(
-                                    'Enter a hex color code (e.g. #ff0000):',
-                                    editorState.currentColor
-                                );
-                                if (newColor) {
-                                    editor
-                                        .chain()
-                                        .focus()
-                                        .setColor(newColor)
-                                        .run();
-                                }
-                            }}
+                        <DropdownActions
+                            mainButton={({onClick}) => (
+                                <ToggleButton
+                                    value="textColor"
+                                    aria-label={'Text Color'}
+                                    disabled={!editorState.canSetColor}
+                                    onClick={onClick}
+                                >
+                                    <div
+                                        style={{
+                                            border: '1px solid #ccc',
+                                            width: 16,
+                                            height: 16,
+                                            backgroundColor:
+                                                editorState.currentColor,
+                                            borderRadius: 2,
+                                        }}
+                                    />
+                                </ToggleButton>
+                            )}
                         >
-                            <div
-                                style={{
-                                    border: '1px solid #ccc',
-                                    width: 16,
-                                    height: 16,
-                                    backgroundColor: editorState.currentColor,
-                                    borderRadius: 2,
-                                }}
-                            />
-                        </ToggleButton>
+                            {close => [
+                                <ColorPalette
+                                    onTextColorChange={color => {
+                                        editor
+                                            .chain()
+                                            .focus()
+                                            .setColor(color)
+                                            .run();
+                                        close();
+                                    }}
+                                    onBackgroundColorChange={color => {
+                                        editor
+                                            .chain()
+                                            .focus()
+                                            .setHighlight({color})
+                                            .run();
+                                        close();
+                                    }}
+                                />,
+                            ]}
+                        </DropdownActions>
                     </>
                 ),
             },
