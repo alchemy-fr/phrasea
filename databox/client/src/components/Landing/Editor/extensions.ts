@@ -10,6 +10,7 @@ import Superscript from '@tiptap/extension-superscript';
 import Subscript from '@tiptap/extension-subscript';
 import {useMemo} from 'react';
 import {TextStyleKit} from '@tiptap/extension-text-style';
+import Link from '@tiptap/extension-link';
 
 export function useExtensions({editing}: {editing: boolean}) {
     return useMemo(() => {
@@ -34,6 +35,58 @@ export function useExtensions({editing}: {editing: boolean}) {
             TypographyExtension,
             Superscript,
             Subscript,
+            Link.configure({
+                openOnClick: false,
+                autolink: true,
+                defaultProtocol: 'https',
+                protocols: ['http', 'https'],
+                isAllowedUri: (url, ctx) => {
+                    try {
+                        // construct URL
+                        const parsedUrl = url.includes(':')
+                            ? new URL(url)
+                            : new URL(`${ctx.defaultProtocol}://${url}`);
+
+                        // use default validation
+                        if (!ctx.defaultValidate(parsedUrl.href)) {
+                            return false;
+                        }
+
+                        // disallowed protocols
+                        const disallowedProtocols = ['ftp', 'file', 'mailto'];
+                        const protocol = parsedUrl.protocol.replace(':', '');
+
+                        if (disallowedProtocols.includes(protocol)) {
+                            return false;
+                        }
+
+                        // only allow protocols specified in ctx.protocols
+                        const allowedProtocols = ctx.protocols.map(p =>
+                            typeof p === 'string' ? p : p.scheme
+                        );
+
+                        if (!allowedProtocols.includes(protocol)) {
+                            return false;
+                        }
+
+                        // all checks have passed
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                },
+                shouldAutoLink: url => {
+                    try {
+                        url.includes(':')
+                            ? new URL(url)
+                            : new URL(`https://${url}`);
+
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                },
+            }),
         ];
     }, [editing]);
 }
