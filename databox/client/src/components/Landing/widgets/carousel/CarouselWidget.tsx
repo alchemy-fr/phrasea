@@ -14,6 +14,7 @@ import {getAssets} from '../../../../api/asset.ts';
 import {AssetFile, FilePlayer} from '@alchemy/phrasea-framework';
 import {ColorPicker, FormRow} from '@alchemy/react-form';
 import CarouselStructure from './CarouselStructure.tsx';
+import {useOpenAsset} from '../../../AssetSearch/useOpenAsset.ts';
 
 type Props = {
     searchId?: string;
@@ -21,6 +22,7 @@ type Props = {
     height: number;
     backgroundColor?: string;
     cover: boolean;
+    openAsset: boolean;
 };
 
 const CarouselWidget: WidgetInterface<Props> = {
@@ -37,6 +39,7 @@ const CarouselWidget: WidgetInterface<Props> = {
         height: 300,
         maxItems: 10,
         cover: true,
+        openAsset: false,
     },
 };
 
@@ -64,20 +67,8 @@ function Component({options}: RenderWidgetProps<Props>) {
         backgroundColor,
     };
 
-    if (!data) {
-        return (
-            <CarouselStructure {...structureProps} itemsCount={maxItems}>
-                <Skeleton
-                    variant={'rectangular'}
-                    width={'100%'}
-                    height={height}
-                />
-            </CarouselStructure>
-        );
-    }
-
-    const assets: Asset[] = data
-        .filter(asset => {
+    const assets: Asset[] | undefined = data
+        ?.filter(asset => {
             if (!asset.preview) {
                 console.warn(
                     `Asset ${asset.id} does not have a preview, skipping.`
@@ -89,34 +80,60 @@ function Component({options}: RenderWidgetProps<Props>) {
         })
         .slice(0, maxItems);
 
+    const openAssetHandler = useOpenAsset({
+        assets,
+    });
+
+    if (!assets) {
+        return (
+            <CarouselStructure {...structureProps} itemsCount={maxItems}>
+                <Skeleton
+                    variant={'rectangular'}
+                    width={'100%'}
+                    height={height}
+                />
+            </CarouselStructure>
+        );
+    }
+
     return (
         <CarouselStructure
             {...structureProps}
             delay={5000}
             itemsCount={assets.length}
         >
-            {assets.map(asset => (
-                <div
-                    key={asset.id}
-                    style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    <FilePlayer
-                        cover={cover}
-                        file={asset.preview!.file as AssetFile}
-                        title={asset.resolvedTitle}
-                        dimensions={{
-                            width: 300,
-                            height,
+            {assets.map(asset => {
+                const canOpen = options.openAsset && !!asset.main;
+
+                return (
+                    <div
+                        key={asset.id}
+                        style={{
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            cursor: canOpen ? 'pointer' : undefined,
                         }}
-                        trackingId={asset.trackingId}
-                    />
-                </div>
-            ))}
+                        onClick={
+                            canOpen
+                                ? () => openAssetHandler(asset, asset.main!.id)
+                                : undefined
+                        }
+                    >
+                        <FilePlayer
+                            cover={cover}
+                            file={asset.preview!.file as AssetFile}
+                            title={asset.resolvedTitle}
+                            dimensions={{
+                                width: 300,
+                                height,
+                            }}
+                            trackingId={asset.trackingId}
+                        />
+                    </div>
+                );
+            })}
         </CarouselStructure>
     );
 }
@@ -207,6 +224,22 @@ function Options({
                     {t(
                         'editor.widgets.carousel.options.cover.label',
                         'Cover mode'
+                    )}
+                </InputLabel>
+            </FormRow>
+            <FormRow>
+                <InputLabel>
+                    <Checkbox
+                        checked={options.openAsset}
+                        onChange={e => {
+                            updateOptions({
+                                openAsset: e.target.checked,
+                            });
+                        }}
+                    />
+                    {t(
+                        'editor.widgets.carousel.options.openAsset.label',
+                        'Open asset on click'
                     )}
                 </InputLabel>
             </FormRow>

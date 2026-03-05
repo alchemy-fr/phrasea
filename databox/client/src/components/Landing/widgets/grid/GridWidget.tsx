@@ -4,7 +4,7 @@ import {
     RenderWidgetProps,
     WidgetInterface,
 } from '../widgetTypes.ts';
-import {Skeleton, TextField} from '@mui/material';
+import {Checkbox, InputLabel, Skeleton, TextField} from '@mui/material';
 import WidgetOptionsDialogWrapper from '../components/WidgetOptionsDialogWrapper.tsx';
 import SavedSearchSelect from '../../../Form/SavedSearchSelect.tsx';
 import {useTranslation} from 'react-i18next';
@@ -25,6 +25,7 @@ type Props = {
     size: number;
     gap: number;
     backgroundColor?: string;
+    openAsset: boolean;
 };
 
 const GridWidget: WidgetInterface<Props> = {
@@ -41,18 +42,21 @@ const GridWidget: WidgetInterface<Props> = {
         size: 150,
         maxItems: 50,
         gap: 1,
+        openAsset: true,
     },
 };
 
 export default GridWidget;
 
 function Component({options}: RenderWidgetProps<Props>) {
-    const {searchId, size, maxItems, gap, backgroundColor} = options;
+    const {searchId, size, maxItems, gap, backgroundColor, openAsset} = options;
     const [data, setData] = useState<Asset[]>();
 
     React.useEffect(() => {
         if (searchId) {
-            getAssets({}).then(r => {
+            getAssets({
+                savedSearch: searchId,
+            }).then(r => {
                 setData(r.result.slice(0, maxItems));
             });
         } else {
@@ -66,11 +70,24 @@ function Component({options}: RenderWidgetProps<Props>) {
         backgroundColor,
     };
 
-    const openAsset = useOpenAsset({
-        assets: data,
+    const assets: Asset[] | undefined = data
+        ?.filter(asset => {
+            if (!asset.thumbnail) {
+                console.warn(
+                    `Asset ${asset.id} does not have a thumbnail, skipping.`
+                );
+                return false;
+            }
+
+            return true;
+        })
+        .slice(0, maxItems);
+
+    const openAssetHandler = useOpenAsset({
+        assets,
     });
 
-    if (!data) {
+    if (!assets) {
         return (
             <GridStructure {...structureProps}>
                 {Array(maxItems)
@@ -86,24 +103,10 @@ function Component({options}: RenderWidgetProps<Props>) {
             </GridStructure>
         );
     }
-
-    const assets: Asset[] = data
-        .filter(asset => {
-            if (!asset.thumbnail) {
-                console.warn(
-                    `Asset ${asset.id} does not have a thumbnail, skipping.`
-                );
-                return false;
-            }
-
-            return true;
-        })
-        .slice(0, maxItems);
-
     return (
         <GridStructure {...structureProps}>
             {assets.map(asset => {
-                const canOpen = !!asset.main;
+                const canOpen = openAsset && !!asset.main;
 
                 return (
                     <div
@@ -114,7 +117,7 @@ function Component({options}: RenderWidgetProps<Props>) {
                         }}
                         onClick={
                             canOpen
-                                ? () => openAsset(asset, asset.main!.id)
+                                ? () => openAssetHandler(asset, asset.main!.id)
                                 : undefined
                         }
                     >
@@ -220,6 +223,22 @@ function Options({
                         });
                     }}
                 />
+            </FormRow>
+            <FormRow>
+                <InputLabel>
+                    <Checkbox
+                        checked={options.openAsset}
+                        onChange={e => {
+                            updateOptions({
+                                openAsset: e.target.checked,
+                            });
+                        }}
+                    />
+                    {t(
+                        'editor.widgets.grid.options.openAsset.label',
+                        'Open asset on click'
+                    )}
+                </InputLabel>
             </FormRow>
         </WidgetOptionsDialogWrapper>
     );
