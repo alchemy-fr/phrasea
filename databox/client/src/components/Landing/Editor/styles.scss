@@ -1,72 +1,56 @@
 .tiptap {
     outline: 0;
-    :first-child {
-        margin-top: 0;
-    }
-
-    .reset-css {
-        ul,
-        ol {
-            padding: revert;
-            margin: revert;
-
-            li p {
-                margin-top: revert;
-                margin-bottom: revert;
-            }
-        }
-    }
 
     /* List styles */
-    ul,
-    ol {
+    ul.landing-bullet-list,
+    ol.landing-ordered-list {
         padding: 0 1rem;
         margin: 1.25rem 1rem 1.25rem 0.4rem;
 
-        li p {
+        li p.landing-paragraph {
             margin-top: 0.25em;
             margin-bottom: 0.25em;
         }
     }
 
     /* Heading styles */
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
+    h1.landing-heading,
+    h2.landing-heading,
+    h3.landing-heading,
+    h4.landing-heading,
+    h5.landing-heading,
+    h6.landing-heading {
         line-height: 1.1;
         margin-top: 2.5rem;
         text-wrap: pretty;
     }
 
-    h1,
-    h2 {
+    h1.landing-heading,
+    h2.landing-heading {
         margin-top: 3.5rem;
         margin-bottom: 1.5rem;
     }
 
-    h1 {
+    h1.landing-heading {
         font-size: 1.4rem;
     }
 
-    h2 {
+    h2.landing-heading {
         font-size: 1.2rem;
     }
 
-    h3 {
+    h3.landing-heading {
         font-size: 1.1rem;
     }
 
-    h4,
-    h5,
-    h6 {
+    h4.landing-heading,
+    h5.landing-heading,
+    h6.landing-heading {
         font-size: 1rem;
     }
 
     /* Code and preformatted text styles */
-    code {
+    code.landing-code {
         background-color: var(--divider);
         border-radius: 0.4rem;
         color: var(--black);
@@ -82,7 +66,7 @@
         margin: 1.5rem 0;
         padding: 0.75rem 1rem;
 
-        code {
+        code.landing-code {
             background: none;
             color: inherit;
             font-size: 0.8rem;
@@ -90,13 +74,13 @@
         }
     }
 
-    blockquote {
+    blockquote.blockquote {
         border-left: 3px solid var(--divider);
         margin: 1.5rem 0;
         padding-left: 1rem;
     }
 
-    hr {
+    hr.landing-horizontal-rule {
         border: none;
         border-top: 1px solid var(--divider);
         margin: 2rem 0;

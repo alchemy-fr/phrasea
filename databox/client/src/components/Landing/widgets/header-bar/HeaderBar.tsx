@@ -20,6 +20,7 @@ export default function HeaderBar({title, position, links}: Props) {
     return (
         <>
             <HorizontalAppMenu
+                contentEditable={false}
                 sticky={position === 'fixed'}
                 config={config}
                 commonMenuProps={{

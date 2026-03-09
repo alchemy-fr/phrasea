@@ -5,6 +5,7 @@ import SpacerWidget from './SpacerWidget.tsx';
 import {WidgetInterface} from './widgetTypes.ts';
 import HeaderBarWidget from './header-bar/HeaderBarWidget.tsx';
 import SearchGridWidget from './search-grid/SearchGridWidget.tsx';
+import './style.scss';
 
 export const widgets: WidgetInterface<any>[] = [
     AssetWidget,

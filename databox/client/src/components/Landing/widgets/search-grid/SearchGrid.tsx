@@ -7,10 +7,20 @@ import NoSearchResult from '../../../AssetSearch/NoSearchResult.tsx';
 import {useModals} from '@alchemy/navigation';
 import {Box, Paper} from '@mui/material';
 import FacetsProxy from '../../../Media/Asset/Facets.tsx';
+import {ActionsContext} from '../../../AssetList/types.ts';
+import {Asset} from '../../../../types.ts';
 
-type Props = {};
+type Props = {
+    displayFacets: boolean;
+    containerHeight: number;
+    actions: ActionsContext<Asset>;
+};
 
-export default function SearchGrid({}: Props) {
+export default function SearchGrid({
+    displayFacets,
+    containerHeight,
+    actions,
+}: Props) {
     const resultContext = React.useContext(ResultContext);
     const {openModal} = useModals();
 
@@ -35,16 +45,21 @@ export default function SearchGrid({}: Props) {
                     gap: 1,
                 }}
             >
-                <Paper
-                    style={{
-                        width: 250,
-                    }}
-                >
-                    <FacetsProxy />
-                </Paper>
+                {displayFacets && (
+                    <Paper
+                        style={{
+                            width: 250,
+                            height: containerHeight,
+                            overflow: 'auto',
+                        }}
+                    >
+                        <FacetsProxy />
+                    </Paper>
+                )}
                 <div
                     style={{
                         flex: 1,
+                        height: containerHeight,
                     }}
                 >
                     <AssetList
@@ -55,6 +70,9 @@ export default function SearchGrid({}: Props) {
                         loadMore={resultContext.loadMore}
                         onOpenDebug={openDebug}
                         onOpen={onOpen}
+                        actionsContext={{
+                            ...actions,
+                        }}
                         noResultsMessage={<NoSearchResult />}
                     />
                 </div>

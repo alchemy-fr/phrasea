@@ -7,6 +7,7 @@ import {resolveSx} from '../../../core';
 
 type Props = {
     sticky?: boolean;
+    contentEditable?: boolean;
 } & AppMenuProps;
 
 export default function HorizontalAppMenu({
@@ -16,9 +17,11 @@ export default function HorizontalAppMenu({
     commonMenuProps,
     sx,
     sticky,
+    contentEditable,
 }: Props) {
     return (
         <Box
+            contentEditable={contentEditable}
             sx={theme => ({
                 display: 'flex',
                 alignItems: 'center',

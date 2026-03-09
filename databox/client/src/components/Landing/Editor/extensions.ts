@@ -19,12 +19,37 @@ export function useExtensions({editing}: {editing: boolean}) {
             WidgetExtension.configure({
                 editing,
             }),
-            TextStyleKit,
+            TextStyleKit.configure(),
             StarterKit.configure({
-                horizontalRule: false,
-                link: {
-                    openOnClick: false,
-                    enableClickSelection: true,
+                paragraph: {
+                    HTMLAttributes: {class: 'landing-paragraph'},
+                },
+                horizontalRule: {
+                    HTMLAttributes: {class: 'landing-horizontal-rule'},
+                },
+                link: false,
+                orderedList: {
+                    HTMLAttributes: {class: 'landing-ordered-list'},
+                },
+                bulletList: {
+                    HTMLAttributes: {class: 'landing-bullet-list'},
+                },
+                blockquote: {
+                    HTMLAttributes: {class: 'landing-blockquote'},
+                },
+                code: {
+                    HTMLAttributes: {class: 'landing-code'},
+                },
+                codeBlock: {
+                    HTMLAttributes: {class: 'landing-code-block'},
+                },
+                heading: {
+                    HTMLAttributes: {
+                        class: `landing-heading`,
+                    },
+                },
+                listItem: {
+                    HTMLAttributes: {class: 'landing-list-item'},
                 },
             }),
             HorizontalRule,
@@ -36,6 +61,7 @@ export function useExtensions({editing}: {editing: boolean}) {
             Superscript,
             Subscript,
             Link.configure({
+                HTMLAttributes: {class: 'landing-link'},
                 openOnClick: false,
                 autolink: true,
                 defaultProtocol: 'https',

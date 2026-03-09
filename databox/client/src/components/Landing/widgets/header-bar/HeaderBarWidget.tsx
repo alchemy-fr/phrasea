@@ -44,7 +44,6 @@ const HeaderBarWidget: WidgetInterface<HeaderBarWidgetProps> = {
 export default HeaderBarWidget;
 
 function Component({options}: RenderWidgetProps<HeaderBarWidgetProps>) {
-    console.log('options', options);
     return <HeaderBar {...options} />;
 }
 

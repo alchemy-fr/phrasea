@@ -53,6 +53,8 @@ export default function Widget<T extends {}>({
         <NodeViewWrapper
             className={classNames({
                 widget: true,
+                ['widget--editing']: editing,
+                [`widget--${widget.name}`]: true,
                 selected: selected && editor.isEditable,
             })}
             onMouseEnter={(e: MouseEvent) => {
