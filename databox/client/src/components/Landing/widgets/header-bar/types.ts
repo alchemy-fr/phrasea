@@ -1,4 +1,4 @@
-type HeaderBarLink = {
+export type HeaderBarLink = {
     label: string;
     url: string;
     target?: '_blank' | '_self';
