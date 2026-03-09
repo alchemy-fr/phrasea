@@ -2,7 +2,16 @@ import type {Editor} from '@tiptap/core';
 import React, {useMemo} from 'react';
 import {menuBarStateSelector} from './menuBarState.ts';
 import {useEditorState} from '@tiptap/react';
-import {Box, Divider, ToggleButtonGroup} from '@mui/material';
+import {
+    Box,
+    Divider,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
+    TextField,
+    ToggleButtonGroup,
+} from '@mui/material';
 import ToggleButton from '@mui/material/ToggleButton';
 import {EditorMenuAction, TextAlignEnum} from './editorTypes.ts';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
@@ -30,11 +39,13 @@ import {OnPageSave} from './PageEditor.tsx';
 import SaveIcon from '@mui/icons-material/Save';
 import {Page} from '../../../types.ts';
 import IconButton from '@mui/material/IconButton';
-import {getPath, Link} from '@alchemy/navigation';
+import {getPath, Link, useModals} from '@alchemy/navigation';
 import {routes} from '../../../routes.ts';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {DropdownActions} from '@alchemy/phrasea-ui';
 import ColorPalette from './menu/colors/ColorPalette.tsx';
+import LinkIcon from '@mui/icons-material/Link';
+import LinkDialog from './extensions/link/LinkDialog.tsx';
 
 export type MenuBarOptions = {
     onPreview?: () => void;
@@ -57,6 +68,19 @@ export const MenuBar = ({
     onPreview,
 }: Props) => {
     const {t} = useTranslation();
+
+    const {openModal} = useModals();
+
+    const fontFamilies = useMemo(() => {
+        return [
+            {label: 'Arial', value: 'Arial, sans-serif'},
+            {label: 'Georgia', value: 'Georgia, serif'},
+            {label: 'Impact', value: 'Impact, sans-serif'},
+            {label: 'Tahoma', value: 'Tahoma, sans-serif'},
+            {label: 'Times New Roman', value: '"Times New Roman", serif'},
+            {label: 'Verdana', value: 'Verdana, sans-serif'},
+        ];
+    }, []);
 
     const editorState = useEditorState({
         editor,
@@ -119,8 +143,43 @@ export const MenuBar = ({
                 toggle: editor => editor.chain().focus().redo().run(),
             },
             {
-                id: 'divider1',
+                id: 'font',
                 isDivider: true,
+            },
+            {
+                id: 'fontFamily',
+                render: ({editor, editorState}) => (
+                    <FormControl>
+                        <InputLabel id="font-family-select-label">
+                            {t('editor.format.fontFamily.label', 'Font Family')}
+                        </InputLabel>
+                        <Select
+                            style={{
+                                width: 150,
+                            }}
+                            labelId="font-family-select-label"
+                            value={editorState.currentFontFamily}
+                            label={t(
+                                'editor.format.fontFamily.label',
+                                'Font Family'
+                            )}
+                            disabled={!editorState.canSetFontFamily}
+                            onChange={e => {
+                                const value = e.target.value;
+                                editor
+                                    .chain()
+                                    .setFontFamily(value || null)
+                                    .run();
+                            }}
+                        >
+                            {fontFamilies.map(font => (
+                                <MenuItem key={font.value} value={font.value}>
+                                    {font.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                ),
             },
             {
                 id: 'fontSize',
@@ -136,6 +195,31 @@ export const MenuBar = ({
                         >
                             A-
                         </ToggleButton>
+                        <TextField
+                            value={
+                                editorState.currentFontSize?.replace(
+                                    'px',
+                                    ''
+                                ) ?? ''
+                            }
+                            type={'number'}
+                            onChange={e => {
+                                const value = e.target.value;
+                                editor
+                                    .chain()
+                                    .setFontSize(value ? `${value}px` : '16px')
+                                    .run();
+                            }}
+                            disabled={!editorState.canSetFontSize}
+                            variant={'outlined'}
+                            InputProps={{
+                                disableUnderline: true,
+                                sx: {
+                                    width: 100,
+                                    textAlign: 'center',
+                                },
+                            }}
+                        />
                         <ToggleButton
                             value="fontSizeMore"
                             aria-label={'Increase Font Size'}
@@ -297,6 +381,23 @@ export const MenuBar = ({
             },
             {
                 id: 'divider4',
+                isDivider: true,
+            },
+            {
+                id: 'link',
+                label: t('editor.format.link', 'Link'),
+                icon: <LinkIcon />,
+                isActive: editorState.isLink,
+                can: editorState.canSetLink,
+                toggle: editor => {
+                    openModal(LinkDialog, {
+                        editor,
+                        currentLinkSpec: editorState.currentLinkSpec,
+                    });
+                },
+            },
+            {
+                id: 'dividerLinks',
                 isDivider: true,
             },
             {

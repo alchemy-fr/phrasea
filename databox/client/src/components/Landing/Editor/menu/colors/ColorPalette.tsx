@@ -50,6 +50,7 @@ export default function ColorPalette({
                 <div className={Classes.ColorContainer}>
                     {colors.map(color => (
                         <div
+                            key={color.rgb}
                             onClick={() => onTextColorChange?.(color.rgb)}
                             className={Classes.Color}
                             title={color.label}
@@ -71,6 +72,7 @@ export default function ColorPalette({
                     <div className={Classes.ColorContainer}>
                         {colors.map(color => (
                             <div
+                                key={color.rgb}
                                 onClick={() =>
                                     onBackgroundColorChange?.(color.rgb)
                                 }

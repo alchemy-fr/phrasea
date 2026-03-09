@@ -2,6 +2,7 @@ import type {Editor} from '@tiptap/core';
 import type {EditorStateSnapshot} from '@tiptap/react';
 import {TextAlignEnum} from './editorTypes.ts';
 import {isNodeTypeSelected} from './editorUtils.ts';
+import {LinkAttributes} from './extensions/link/types.ts';
 
 export function menuBarStateSelector(ctx: EditorStateSnapshot<Editor>) {
     const editor = ctx.editor;
@@ -41,6 +42,22 @@ export function menuBarStateSelector(ctx: EditorStateSnapshot<Editor>) {
         isOrderedList: editor.isActive('orderedList') ?? false,
         isCodeBlock: editor.isActive('codeBlock') ?? false,
         isBlockquote: editor.isActive('blockquote') ?? false,
+
+        // Link
+        isLink: editor.isActive('link') ?? false,
+        canSetLink:
+            editor
+                .can()
+                .chain()
+                .toggleLink({href: 'https://example.com'})
+                .run() ?? false,
+        currentLinkSpec: (editor.getAttributes('link') ??
+            null) as LinkAttributes | null,
+
+        // Font
+        canSetFontFamily:
+            editor.can().chain().setFontFamily('Arial').run() ?? false,
+        currentFontFamily: textStyle.fontFamily || '',
 
         // History
         canUndo: editor.can().chain().undo().run() ?? false,
