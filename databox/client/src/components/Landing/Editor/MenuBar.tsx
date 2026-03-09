@@ -1,6 +1,6 @@
 import type {Editor} from '@tiptap/core';
 import React, {useMemo} from 'react';
-import {menuBarStateSelector} from './menuBarState.ts';
+import {BlockType, menuBarStateSelector} from './menuBarState.ts';
 import {useEditorState} from '@tiptap/react';
 import {
     Box,
@@ -46,6 +46,7 @@ import {DropdownActions} from '@alchemy/phrasea-ui';
 import ColorPalette from './menu/colors/ColorPalette.tsx';
 import LinkIcon from '@mui/icons-material/Link';
 import LinkDialog from './extensions/link/LinkDialog.tsx';
+import {Level} from '@tiptap/extension-heading';
 
 export type MenuBarOptions = {
     onPreview?: () => void;
@@ -73,6 +74,7 @@ export const MenuBar = ({
 
     const fontFamilies = useMemo(() => {
         return [
+            {label: 'Default', value: 'default'},
             {label: 'Arial', value: 'Arial, sans-serif'},
             {label: 'Georgia', value: 'Georgia, serif'},
             {label: 'Impact', value: 'Impact, sans-serif'},
@@ -147,6 +149,64 @@ export const MenuBar = ({
                 isDivider: true,
             },
             {
+                id: 'heading',
+                render: ({editor, editorState}) => (
+                    <FormControl>
+                        <Select
+                            style={{
+                                width: 150,
+                            }}
+                            labelId="heading-select-label"
+                            value={editorState.currentBlockType || ''}
+                            disabled={!editorState.canSetParagraph}
+                            onChange={e => {
+                                const value = e.target.value as BlockType | '';
+                                if (value === 'paragraph') {
+                                    editor.chain().focus().setParagraph().run();
+                                    return;
+                                }
+
+                                const level = (
+                                    value
+                                        ? parseInt(value.replace('heading', ''))
+                                        : null
+                                ) as Level | null;
+                                if (level) {
+                                    editor
+                                        .chain()
+                                        .focus()
+                                        .setHeading({level})
+                                        .run();
+                                } else {
+                                    editor.chain().focus().setParagraph().run();
+                                }
+                            }}
+                        >
+                            <MenuItem value={`paragraph`}>
+                                {t(
+                                    'editor.format.block_type.paragraph.label',
+                                    `Normal`
+                                )}
+                            </MenuItem>
+                            {[1, 2, 3, 4, 5, 6].map(heading => (
+                                <MenuItem
+                                    key={heading}
+                                    value={`heading${heading}`}
+                                >
+                                    {t(
+                                        'editor.format.block_type.heading.label',
+                                        {
+                                            defaultValue: 'Heading {{number}}',
+                                            number: heading,
+                                        }
+                                    )}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                ),
+            },
+            {
                 id: 'fontFamily',
                 render: ({editor, editorState}) => (
                     <FormControl>
@@ -158,7 +218,7 @@ export const MenuBar = ({
                                 width: 150,
                             }}
                             labelId="font-family-select-label"
-                            value={editorState.currentFontFamily}
+                            value={editorState.currentFontFamily || 'default'}
                             label={t(
                                 'editor.format.fontFamily.label',
                                 'Font Family'

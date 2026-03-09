@@ -4,6 +4,15 @@ import {TextAlignEnum} from './editorTypes.ts';
 import {isNodeTypeSelected} from './editorUtils.ts';
 import {LinkAttributes} from './extensions/link/types.ts';
 
+export type BlockType =
+    | 'paragraph'
+    | 'heading1'
+    | 'heading2'
+    | 'heading3'
+    | 'heading4'
+    | 'heading5'
+    | 'heading6';
+
 export function menuBarStateSelector(ctx: EditorStateSnapshot<Editor>) {
     const editor = ctx.editor;
     const textStyle = editor.getAttributes('textStyle');
@@ -23,13 +32,25 @@ export function menuBarStateSelector(ctx: EditorStateSnapshot<Editor>) {
         canClearMarks: editor.can().chain().unsetAllMarks().run() ?? false,
 
         // Block types
-        isParagraph: editor.isActive('paragraph') ?? false,
-        isHeading1: editor.isActive('heading', {level: 1}) ?? false,
-        isHeading2: editor.isActive('heading', {level: 2}) ?? false,
-        isHeading3: editor.isActive('heading', {level: 3}) ?? false,
-        isHeading4: editor.isActive('heading', {level: 4}) ?? false,
-        isHeading5: editor.isActive('heading', {level: 5}) ?? false,
-        isHeading6: editor.isActive('heading', {level: 6}) ?? false,
+        currentBlockType: (editor.isActive('paragraph')
+            ? 'paragraph'
+            : editor.isActive('heading', {level: 1})
+              ? 'heading1'
+              : editor.isActive('heading', {level: 2})
+                ? 'heading2'
+                : editor.isActive('heading', {level: 3})
+                  ? 'heading3'
+                  : editor.isActive('heading', {level: 4})
+                    ? 'heading4'
+                    : editor.isActive('heading', {level: 5})
+                      ? 'heading5'
+                      : editor.isActive('heading', {level: 6})
+                        ? 'heading6'
+                        : null) as BlockType | null,
+        canSetParagraph:
+            editor.can().chain().setParagraph().run() ||
+            editor.isActive('paragraph') ||
+            false,
 
         // Text styles
         canSetFontSize: editor.can().chain().setFontSize('16px').run() ?? false,
