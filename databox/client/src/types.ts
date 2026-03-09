@@ -393,7 +393,6 @@ export type SavedSearchData = {
 
 export interface SavedSearch extends IPermissions, Entity {
     title: string;
-    exclusive?: boolean; // if true, only items in this list will be shown otherwise all attributes
     public?: boolean;
     createdAt: string;
     updatedAt: string;
