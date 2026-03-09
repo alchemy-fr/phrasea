@@ -13,6 +13,7 @@ import {useFormSubmit} from '@alchemy/api';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {useTranslation} from 'react-i18next';
 import {routes} from '../../../../routes.ts';
+import {Button} from '@mui/material';
 
 type Props = {} & StackedModalProps;
 
@@ -43,9 +44,10 @@ export default function PageCreateDialog({modalIndex, open}: Props) {
         toastSuccess: t('pages.create.success', 'Page created successfully'),
     });
 
-    const {handleSubmit, forbidNavigation} = usedFormSubmit;
+    const {handleSubmit, forbidNavigation, submitting} = usedFormSubmit;
 
     useDirtyFormPrompt(forbidNavigation, modalIndex);
+    const formId = `page-edit-form`;
 
     return (
         <>
@@ -54,13 +56,32 @@ export default function PageCreateDialog({modalIndex, open}: Props) {
                 modalIndex={modalIndex}
                 onClose={closeModal}
                 maxWidth={'sm'}
-                title={t('pages.edit.title', 'Edit Page')}
+                title={t('pages.create.title', 'Create Page')}
+                actions={({onClose}) => {
+                    return (
+                        <>
+                            <Button
+                                onClick={() => {
+                                    onClose();
+                                }}
+                            >
+                                {t('common.cancel', 'Cancel')}
+                            </Button>
+                            <Button
+                                form={formId}
+                                type={'submit'}
+                                variant={'contained'}
+                                disabled={submitting}
+                                loading={submitting}
+                            >
+                                {t('pages.create.submit', 'Create')}
+                            </Button>
+                        </>
+                    );
+                }}
             >
-                <form onSubmit={handleSubmit}>
-                    <PageEditFields
-                        usedFormSubmit={usedFormSubmit}
-                        submitLabel={t('pages.edit.submit', 'Save')}
-                    />
+                <form id={formId} onSubmit={handleSubmit}>
+                    <PageEditFields usedFormSubmit={usedFormSubmit} />
                 </form>
             </AppDialog>
         </>

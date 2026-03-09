@@ -4,16 +4,20 @@ import {
     RenderWidgetProps,
     WidgetInterface,
 } from '../widgetTypes.ts';
-import {Checkbox, InputLabel, TextField} from '@mui/material';
+import {Checkbox, InputLabel, Skeleton, TextField} from '@mui/material';
 import WidgetOptionsDialogWrapper from '../components/WidgetOptionsDialogWrapper.tsx';
 import SavedSearchSelect from '../../../Form/SavedSearchSelect.tsx';
 import {useTranslation} from 'react-i18next';
-import React from 'react';
+import {Asset} from '../../../../types.ts';
+import React, {useState} from 'react';
+import {getAssets} from '../../../../api/asset.ts';
+import {AssetFile, MemoizedFilePlayer} from '@alchemy/phrasea-framework';
 import {ColorPicker, FormRow} from '@alchemy/react-form';
-
-import AssetGrid from './AssetGrid.tsx';
-import ResultProvider from '../../../Media/Search/ResultProvider.tsx';
-import SearchProvider from '../../../Media/Search/SearchProvider.tsx';
+import GridStructure, {
+    GridClasses,
+    GridStructureProps,
+} from './GridStructure.tsx';
+import {useOpenAsset} from '../../../AssetSearch/useOpenAsset.ts';
 
 type Props = {
     searchId?: string;
@@ -45,14 +49,90 @@ const GridWidget: WidgetInterface<Props> = {
 export default GridWidget;
 
 function Component({options}: RenderWidgetProps<Props>) {
-    const {searchId} = options;
+    const {searchId, size, maxItems, gap, backgroundColor, openAsset} = options;
+    const [data, setData] = useState<Asset[]>();
 
+    React.useEffect(() => {
+        if (searchId) {
+            getAssets({
+                savedSearch: searchId,
+            }).then(r => {
+                setData(r.result.slice(0, maxItems));
+            });
+        } else {
+            setData(undefined);
+        }
+    }, [searchId]);
+
+    const structureProps: GridStructureProps = {
+        size,
+        gap,
+        backgroundColor,
+    };
+
+    const assets: Asset[] | undefined = data
+        ?.filter(asset => {
+            if (!asset.thumbnail) {
+                console.warn(
+                    `Asset ${asset.id} does not have a thumbnail, skipping.`
+                );
+                return false;
+            }
+
+            return true;
+        })
+        .slice(0, maxItems);
+
+    const openAssetHandler = useOpenAsset({
+        assets,
+    });
+
+    if (!assets) {
+        return (
+            <GridStructure {...structureProps}>
+                {Array(maxItems)
+                    .fill(0)
+                    .map((_, i) => (
+                        <Skeleton
+                            key={i}
+                            variant={'rectangular'}
+                            width={size}
+                            height={size}
+                        />
+                    ))}
+            </GridStructure>
+        );
+    }
     return (
-        <SearchProvider>
-            <ResultProvider savedSearch={searchId}>
-                <AssetGrid />
-            </ResultProvider>
-        </SearchProvider>
+        <GridStructure {...structureProps}>
+            {assets.map(asset => {
+                const canOpen = openAsset && !!asset.main;
+
+                return (
+                    <div
+                        className={GridClasses.Asset}
+                        key={asset.id}
+                        style={{
+                            cursor: canOpen ? 'pointer' : undefined,
+                        }}
+                        onClick={
+                            canOpen
+                                ? () => openAssetHandler(asset, asset.main!.id)
+                                : undefined
+                        }
+                    >
+                        <MemoizedFilePlayer
+                            file={asset.thumbnail!.file as AssetFile}
+                            title={asset.resolvedTitle}
+                            dimensions={{
+                                width: size,
+                                height: size,
+                            }}
+                        />
+                    </div>
+                );
+            })}
+        </GridStructure>
     );
 }
 

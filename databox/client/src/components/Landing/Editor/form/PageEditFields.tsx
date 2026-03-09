@@ -5,16 +5,15 @@ import {
     RemoteErrors,
     SwitchWidget,
 } from '@alchemy/react-form';
-import {Button, TextField} from '@mui/material';
+import {TextField} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {Page} from '../../../../types.ts';
 
 type Props = {
     usedFormSubmit: UseFormSubmitReturn<Page>;
-    submitLabel: string;
 };
 
-export default function PageEditFields({usedFormSubmit, submitLabel}: Props) {
+export default function PageEditFields({usedFormSubmit}: Props) {
     const {t} = useTranslation();
     const {
         control,
@@ -64,17 +63,8 @@ export default function PageEditFields({usedFormSubmit, submitLabel}: Props) {
                     control={control}
                 />
             </FormRow>
-            <FormRow>
-                <RemoteErrors errors={remoteErrors} />
-                <Button
-                    type={'submit'}
-                    variant={'contained'}
-                    disabled={submitting}
-                    loading={submitting}
-                >
-                    {submitLabel}
-                </Button>
-            </FormRow>
+
+            <RemoteErrors errors={remoteErrors} />
         </>
     );
 }

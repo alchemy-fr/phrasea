@@ -7,6 +7,7 @@ import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useFormSubmit} from '@alchemy/api';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {useTranslation} from 'react-i18next';
+import {Button} from '@mui/material';
 
 type Props = {
     data: Page;
@@ -36,9 +37,10 @@ export default function PageEditDialog({
         toastSuccess: t('pages.edit.success', 'Page saved successfully'),
     });
 
-    const {handleSubmit, forbidNavigation} = usedFormSubmit;
+    const {handleSubmit, forbidNavigation, submitting} = usedFormSubmit;
 
     useDirtyFormPrompt(forbidNavigation, modalIndex);
+    const formId = `page-edit-form`;
 
     return (
         <>
@@ -48,12 +50,31 @@ export default function PageEditDialog({
                 onClose={closeModal}
                 maxWidth={'sm'}
                 title={t('pages.edit.title', 'Edit Page')}
+                actions={({onClose}) => {
+                    return (
+                        <>
+                            <Button
+                                onClick={() => {
+                                    onClose();
+                                }}
+                            >
+                                {t('common.cancel', 'Cancel')}
+                            </Button>
+                            <Button
+                                form={formId}
+                                type={'submit'}
+                                variant={'contained'}
+                                disabled={submitting}
+                                loading={submitting}
+                            >
+                                {t('pages.edit.submit', 'Save')}
+                            </Button>
+                        </>
+                    );
+                }}
             >
-                <form onSubmit={handleSubmit}>
-                    <PageEditFields
-                        usedFormSubmit={usedFormSubmit}
-                        submitLabel={t('pages.edit.submit', 'Save')}
-                    />
+                <form id={formId} onSubmit={handleSubmit}>
+                    <PageEditFields usedFormSubmit={usedFormSubmit} />
                 </form>
             </AppDialog>
         </>
