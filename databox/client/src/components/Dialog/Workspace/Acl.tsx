@@ -121,7 +121,7 @@ export default function Acl({data, onClose, minHeight}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.assets_owner.desc',
-                    'Full control over assets in the workspace.'
+                    'Full control over the workspace, its collections and assets.'
                 ),
             },
         };

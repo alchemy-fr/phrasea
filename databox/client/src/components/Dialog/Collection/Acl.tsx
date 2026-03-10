@@ -49,7 +49,7 @@ export default function Acl({data, onClose, minHeight}: Props) {
                 label: t('acl.permission.collection.owner.label', 'Owner'),
                 description: t(
                     'acl.permission.collection.owner.desc',
-                    'Full control over this collection. Does not include permissions on assets within the collection, which are managed by separate permissions.'
+                    'Full control over this collection, its descendant collections and assets'
                 ),
             },
             [AclPermission.CHILD_SHARE]: {
