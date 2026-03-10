@@ -48,9 +48,9 @@ describe('getBatchActions', () => {
         } as unknown as AttributeDefinition;
 
         const capabilities = {
-            canEdit: true,
-            canDelete: true,
-            canEditPermissions: true,
+            edit: true,
+            delete: true,
+            editPermissions: true,
         };
 
         const attrBase = {

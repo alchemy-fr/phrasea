@@ -28,10 +28,7 @@ import {useFormPrompt} from '@alchemy/navigation';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
 import StoryForm from './StoryForm.tsx';
-import {
-    EntityType,
-    WorkspaceOrCollectionTreeItem,
-} from '../Media/Collection/CollectionTree/types.ts';
+import {WorkspaceOrCollectionTreeItem} from '../Media/Collection/CollectionTree/types.ts';
 import {TreeNode} from '@alchemy/phrasea-framework';
 
 export type UploadData = {
@@ -55,6 +52,7 @@ export type FormUploadData = {
 } & Omit<UploadData, 'tags' | 'story'>;
 
 export const UploadForm: FC<{
+    filterWorkspaceId?: string | undefined;
     workspaceId?: string | undefined;
     collectionId?: string | undefined;
     noDestination?: boolean | undefined;
@@ -64,7 +62,6 @@ export const UploadForm: FC<{
         typeof useAssetDataTemplateOptions
     >;
     onChangeWorkspace: (wsId: string | undefined) => void;
-    onChangeCollection: (colId: string | undefined) => void;
     usedFormSubmit: UseFormSubmitReturn<UploadData, Asset[], FormUploadData>;
     resetForms: () => void;
     formId: string;
@@ -79,8 +76,8 @@ export const UploadForm: FC<{
     usedStoryAttributeEditor,
     usedAssetDataTemplateOptions,
     onChangeWorkspace,
-    onChangeCollection,
     resetForms,
+    filterWorkspaceId,
     modalIndex,
 }) {
     const {t} = useTranslation();
@@ -203,8 +200,9 @@ export const UploadForm: FC<{
                 {!noDestination && (
                     <FormRow>
                         <CollectionTreeWidget
+                            workspaceId={filterWorkspaceId}
                             isSelectable={node =>
-                                node.data.capabilities.canCreateAsset
+                                node.data.capabilities.createAsset
                             }
                             control={control}
                             rules={{
@@ -212,13 +210,9 @@ export const UploadForm: FC<{
                             }}
                             name={'destination'}
                             onChange={node => {
-                                if (node?.data.type === EntityType.Collection) {
-                                    onChangeCollection(node?.data.id);
-                                } else {
-                                    onChangeCollection(undefined);
+                                if (!filterWorkspaceId) {
+                                    onChangeWorkspace(node?.data?.workspaceId);
                                 }
-
-                                onChangeWorkspace(node?.data?.workspaceId);
                             }}
                             label={t(
                                 'form.upload.destination.label',

@@ -42,7 +42,8 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
         }
 
         return match ($attribute) {
-            self::CREATE => $this->isAdmin(),
+            self::CREATE => ($subject instanceof Workspace && $this->hasAcl(PermissionInterface::VIEW, $subject, $token))
+                || $this->isAdmin(),
             self::READ => $isOwner()
                 || $subject->isPublic()
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)

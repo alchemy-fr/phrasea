@@ -17,6 +17,7 @@ use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetContainerVoterInterface;
+use App\Security\Voter\CollectionVoter;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
@@ -152,10 +153,11 @@ class CollectionOutputTransformer implements OutputTransformerInterface
 
         if ($this->hasGroup([Collection::GROUP_LIST, Collection::GROUP_READ], $context)) {
             $output->setCapabilities([
-                'canCreateAsset' => $this->isGranted(AssetContainerVoterInterface::CREATE_ASSET, $data),
-                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
-                'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
+                'createAsset' => $this->isGranted(AssetContainerVoterInterface::CREATE_ASSET, $data),
+                'createCollection' => $this->isGranted(CollectionVoter::CREATE, $data),
+                'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
             ]);
         }
 

@@ -52,7 +52,7 @@ export default function SavedSearchDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('saved_search.manage.edit.title', 'Edit'),
@@ -61,7 +61,7 @@ export default function SavedSearchDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('saved_search.manage.acl.title', 'Permissions'),
@@ -70,7 +70,7 @@ export default function SavedSearchDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEditPermissions,
+                    enabled: data.capabilities.editPermissions,
                 },
                 {
                     title: t(
@@ -82,7 +82,7 @@ export default function SavedSearchDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
             ]}
         />

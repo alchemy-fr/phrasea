@@ -26,9 +26,9 @@ class CollectionOutput extends AbstractUuidOutput
     #[ApiProperty(jsonSchemaContext: [
         'type' => 'object',
         'properties' => [
-            'canEdit' => 'boolean',
-            'canDelete' => 'boolean',
-            'canEditPermissions' => 'boolean',
+            'edit' => 'boolean',
+            'delete' => 'boolean',
+            'editPermissions' => 'boolean',
         ],
     ])]
     #[Groups([Collection::GROUP_LIST, Workspace::GROUP_LIST])]

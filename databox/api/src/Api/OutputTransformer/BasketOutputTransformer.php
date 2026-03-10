@@ -62,10 +62,10 @@ class BasketOutputTransformer implements OutputTransformerInterface
 
         if ($this->hasGroup([Basket::GROUP_LIST, Basket::GROUP_READ], $context)) {
             $output->setCapabilities([
-                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-                'canShare' => $this->isGranted(BasketVoter::SHARE, $data),
-                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
-                'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
+                'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'share' => $this->isGranted(BasketVoter::SHARE, $data),
+                'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
             ]);
         }
 

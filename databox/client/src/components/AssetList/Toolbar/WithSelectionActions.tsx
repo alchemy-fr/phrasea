@@ -69,7 +69,7 @@ export default function WithSelectionActions<
         let wsId: string | undefined = undefined;
 
         function filterEditableAttributes(asset: Asset): boolean {
-            return asset.capabilities.canEditAttributes;
+            return asset.capabilities.editAttributes;
         }
 
         const selectedAssets = itemToAsset
@@ -83,28 +83,28 @@ export default function WithSelectionActions<
             }
             if (
                 !a.deleted &&
-                (a.capabilities.canDelete ||
+                (a.capabilities.delete ||
                     (a.collections && a.collections.length > 0))
             ) {
                 canDelete = true;
             }
-            if (a.capabilities.canDelete) {
+            if (a.capabilities.delete) {
                 canDeletePermanent = true;
             }
-            if (a.capabilities.canDelete && a.deleted) {
+            if (a.capabilities.delete && a.deleted) {
                 canRestore = true;
             }
-            if (a.capabilities.canEdit) {
+            if (a.capabilities.edit) {
                 canEdit = true;
                 canMove = true;
             }
-            if (a.capabilities.canEditAttributes) {
+            if (a.capabilities.editAttributes) {
                 canEditAttributes = true;
             }
-            if (a.capabilities.canShare) {
+            if (a.capabilities.share) {
                 canShare = true;
             }
-            if (a.capabilities.canShare) {
+            if (a.capabilities.share) {
                 canShare = true;
             }
         });

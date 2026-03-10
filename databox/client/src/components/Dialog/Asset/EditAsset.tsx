@@ -168,7 +168,7 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
                     <PrivacyField control={control} name={'privacy'} />
                 </FormRow>
             </form>
-            {data.capabilities.canEditAttributes ? (
+            {data.capabilities.editAttributes ? (
                 attributes && definitionIndex ? (
                     <AttributesEditor
                         attributes={attributes}

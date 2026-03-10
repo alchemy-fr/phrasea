@@ -35,9 +35,9 @@ class AssetOutput extends AbstractUuidOutput
     #[ApiProperty(jsonSchemaContext: [
         'type' => 'object',
         'properties' => [
-            'canEdit' => 'boolean',
-            'canDelete' => 'boolean',
-            'canEditPermissions' => 'boolean',
+            'edit' => 'boolean',
+            'delete' => 'boolean',
+            'editPermissions' => 'boolean',
         ],
     ])]
     #[Groups([Asset::GROUP_LIST])]

@@ -51,7 +51,7 @@ export const useBasketStore = create<State>((set, getState) => ({
         try {
             const data = await getBaskets(undefined, params);
             const editableBaskets = data.result.filter(
-                b => b.capabilities.canEdit
+                b => b.capabilities.edit
             );
 
             set(state => ({

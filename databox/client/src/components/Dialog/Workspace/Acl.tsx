@@ -16,9 +16,20 @@ export default function Acl({data, onClose, minHeight}: Props) {
         return {
             [AclPermission.VIEW]: {
                 label: t('acl.permission.workspace.view.label', 'View'),
-                description: t(
-                    'acl.permission.workspace.view.desc',
-                    'Can view this workspace and its assets, but cannot edit or delete them.'
+                description: (
+                    <div>
+                        <strong>
+                            {t(
+                                'acl.permission.workspace.view.desc_access',
+                                'Every user must have at least this permission to access this workspace. Otherwise, you can mark this workspace as public.'
+                            )}
+                        </strong>
+                        <br />
+                        {t(
+                            'acl.permission.workspace.view.desc',
+                            'Can view this workspace and its assets, but cannot edit or delete them.'
+                        )}
+                    </div>
                 ),
             },
 
