@@ -43,25 +43,40 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
 
         return match ($attribute) {
             self::CREATE => ($subject instanceof Workspace && $this->hasAcl(PermissionInterface::VIEW, $subject, $token))
-                || $this->isAdmin(),
+                || $this->isAdmin()
+        || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
             self::READ => $isOwner()
                 || $subject->isPublic()
-                || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
-                || $this->isAdmin(),
+                || $this->hasAcl([
+                    PermissionInterface::VIEW,
+                    PermissionInterface::OWNER,
+                ], $subject, $token)
+                || $this->isAdmin()
+            ,
             self::EDIT => $isOwner()
-                || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
+                || $this->hasAcl([
+                    PermissionInterface::EDIT,
+                    PermissionInterface::OWNER,
+                ], $subject, $token)
                 || $this->isAdmin(),
             self::DELETE => $isOwner()
-                || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
+                || $this->hasAcl([
+                    PermissionInterface::DELETE,
+                    PermissionInterface::OWNER,
+                ], $subject, $token)
                 || $this->isAdmin(),
             self::EDIT_PERMISSIONS, self::OWNER => $isOwner()
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                 || $this->isAdmin(),
             self::CREATE_ASSET => $isOwner()
-                || $this->hasAcl(PermissionInterface::CHILD_CREATE, $subject, $token),
+                || $this->hasAcl([
+                    PermissionInterface::CHILD_CREATE,
+                    PermissionInterface::OWNER,
+                ], $subject, $token),
             self::SHARE_ASSET => $isOwner()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_SHARE,
+                    PermissionInterface::OWNER,
                 ], $subject, $token),
             self::EDIT_ASSET_ATTRIBUTES => $isOwner()
                 || $this->hasAcl([
@@ -69,12 +84,14 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
                     PermissionInterface::CHILD_OPERATOR,
                     PermissionInterface::CHILD_MASTER,
                     PermissionInterface::CHILD_OWNER,
+                    PermissionInterface::OWNER,
                 ], $subject, $token),
             self::EDIT_ASSET => $isOwner()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_OPERATOR,
                     PermissionInterface::CHILD_MASTER,
                     PermissionInterface::CHILD_OWNER,
+                    PermissionInterface::OWNER,
                 ], $subject, $token),
             self::DELETE_ASSET => $isOwner()
                 || $this->hasAcl([
@@ -82,6 +99,7 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
                     PermissionInterface::CHILD_OPERATOR,
                     PermissionInterface::CHILD_MASTER,
                     PermissionInterface::CHILD_OWNER,
+                    PermissionInterface::OWNER,
                 ], $subject, $token),
 
             default => false,
