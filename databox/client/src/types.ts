@@ -95,8 +95,10 @@ export type AssetAttachment = {
 
 export interface Asset
     extends IPermissions<{
-            canEditAttributes: boolean;
-            canShare: boolean;
+            edit: boolean;
+            editAttributes: boolean;
+            share: boolean;
+            delete: boolean;
         }>,
         Entity {
     title?: string | undefined;
@@ -259,9 +261,9 @@ export interface RenditionRule extends ApiHydraObjectResponse, Entity {
 }
 
 export type TPermission<E extends Record<string, boolean> = {}> = {
-    canEdit: boolean;
-    canDelete: boolean;
-    canEditPermissions: boolean;
+    edit: boolean;
+    delete: boolean;
+    editPermissions: boolean;
 } & E;
 
 export interface IPermissions<E extends Record<string, boolean> = {}>
@@ -325,7 +327,10 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
 
 export interface Collection
     extends IPermissions<{
-            canCreateAsset: boolean;
+            createAsset: boolean;
+            createCollection: boolean;
+            edit: boolean;
+            delete: boolean;
         }>,
         Entity,
         ApiHydraObjectResponse {
@@ -348,7 +353,14 @@ export interface Collection
     deleted?: boolean;
 }
 
-export interface Basket extends IPermissions, Entity {
+export interface Basket
+    extends IPermissions<{
+            edit: boolean;
+            share: boolean;
+            delete: boolean;
+            editPermissions: boolean;
+        }>,
+        Entity {
     title: string;
     titleHighlight?: string | undefined;
     description?: string | undefined;
@@ -375,7 +387,13 @@ export type AttributeListItem = {
     format?: string;
 };
 
-export interface AttributeList extends IPermissions, Entity {
+export interface AttributeList
+    extends IPermissions<{
+            edit: boolean;
+            delete: boolean;
+            editPermissions: boolean;
+        }>,
+        Entity {
     title: string;
     description?: string;
     items?: AttributeListItem[];
@@ -392,7 +410,13 @@ export type SavedSearchData = {
     sortBy: SortBy[];
 };
 
-export interface SavedSearch extends IPermissions, Entity {
+export interface SavedSearch
+    extends IPermissions<{
+            edit: boolean;
+            delete: boolean;
+            editPermissions: boolean;
+        }>,
+        Entity {
     title: string;
     exclusive?: boolean; // if true, only items in this list will be shown otherwise all attributes
     public?: boolean;
@@ -428,8 +452,8 @@ export interface ThreadMessage extends Entity {
     updatedAt: string;
     acknowledged?: boolean;
     capabilities: {
-        canDelete: boolean;
-        canEdit: boolean;
+        delete: boolean;
+        edit: boolean;
     };
 }
 
@@ -453,7 +477,9 @@ export type LastErrors = {
 
 export interface Workspace
     extends IPermissions<{
-            canCreateAsset: boolean;
+            createCollection: boolean;
+            createAsset: boolean;
+            edit: boolean;
         }>,
         Entity {
     name: string;

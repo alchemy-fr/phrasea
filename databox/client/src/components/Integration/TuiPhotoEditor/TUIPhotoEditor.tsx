@@ -84,7 +84,7 @@ export default function TUIPhotoEditor({
     const [saving, setSaving] = useState<boolean>(false);
     const [selectedFile, setSelectedFile] = useState<ApiFile>(file);
     const [deleting, setDeleting] = useState<string | undefined>();
-    const canEdit = asset.capabilities.canEdit;
+    const canEdit = asset.capabilities.edit;
     const {data, load: loadData} = useIntegrationData({
         objectType: ObjectType.File,
         objectId: file.id,

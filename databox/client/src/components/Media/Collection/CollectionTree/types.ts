@@ -8,8 +8,9 @@ export type WorkspaceOrCollectionTreeItem = {
     type: EntityType;
     label: string;
     capabilities: {
-        canEdit: boolean;
-        canCreateAsset: boolean;
+        edit: boolean;
+        createAsset: boolean;
+        createCollection: boolean;
     };
     workspaceId: string;
 };

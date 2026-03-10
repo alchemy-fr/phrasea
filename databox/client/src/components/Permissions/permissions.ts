@@ -1,5 +1,6 @@
 import {Ace, UserType} from '../../types';
 import {AclPermission} from '../Acl/acl.ts';
+import {ReactNode} from 'react';
 
 export type OnMaskChange = (
     userType: UserType,
@@ -35,7 +36,7 @@ export type PermissionHelpers = Partial<
         AclPermission,
         {
             label?: string;
-            description?: string;
+            description?: ReactNode;
         }
     >
 >;

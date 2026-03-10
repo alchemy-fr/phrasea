@@ -27,7 +27,6 @@ import ModalLink from '../Routing/ModalLink';
 import {useModals} from '@alchemy/navigation';
 import UploadDialog from '../Upload/UploadDialog.tsx';
 import {modalRoutes} from '../../routes';
-import {useAuth} from '@alchemy/react-auth';
 import {CollectionPager, useCollectionStore} from '../../store/collectionStore';
 import LoadMoreCollections from './Collection/LoadMoreCollections';
 import {MoreActionsButton} from '@alchemy/phrasea-ui';
@@ -48,6 +47,7 @@ type Props = {
     collection: Collection;
     workspace: Workspace;
     isSearch?: boolean;
+    isAuthenticated: boolean;
 };
 
 export default function CollectionMenuItem({
@@ -57,11 +57,11 @@ export default function CollectionMenuItem({
     titlePath,
     level,
     workspace,
+    isAuthenticated,
 }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const searchContext = useContext(SearchContext)!;
-    const authContext = useAuth();
     const [expanded, setExpanded] = useState<boolean>(false);
     const [childrenLoaded, setChildrenLoaded] = React.useState(false);
     const childCount = collection.children?.length ?? 0;
@@ -167,11 +167,11 @@ export default function CollectionMenuItem({
                                         )}
                                     />
                                 </MenuItem>,
-                                collection.capabilities.canEdit ? (
+                                collection.capabilities.edit ? (
                                     <Divider key="divider1" />
                                 ) : null,
-                                collection.capabilities.canEdit &&
-                                authContext!.isAuthenticated ? (
+                                collection.capabilities.edit &&
+                                isAuthenticated ? (
                                     <MenuItem
                                         key="create-asset"
                                         onClick={closeWrapper(() =>
@@ -201,7 +201,7 @@ export default function CollectionMenuItem({
                                         />
                                     </MenuItem>
                                 ) : null,
-                                collection.capabilities.canEdit ? (
+                                collection.capabilities.edit ? (
                                     <MenuItem
                                         key="create-collection"
                                         onClick={closeWrapper(() =>
@@ -237,11 +237,11 @@ export default function CollectionMenuItem({
                                         />
                                     </MenuItem>
                                 ) : null,
-                                collection.capabilities.canEdit ||
-                                collection.capabilities.canDelete ? (
+                                collection.capabilities.edit ||
+                                collection.capabilities.delete ? (
                                     <Divider key="divider2" />
                                 ) : null,
-                                collection.capabilities.canEdit ? (
+                                collection.capabilities.edit ? (
                                     <MenuItem
                                         key="edit"
                                         onClick={closeWrapper()}
@@ -267,7 +267,7 @@ export default function CollectionMenuItem({
                                         />
                                     </MenuItem>
                                 ) : null,
-                                collection.capabilities.canDelete ? (
+                                collection.capabilities.delete ? (
                                     collection.deleted ? (
                                         <MenuItem
                                             key="restore"
@@ -378,6 +378,7 @@ export default function CollectionMenuItem({
                         {pager?.items.map(c => {
                             return (
                                 <CollectionMenuItem
+                                    isAuthenticated={isAuthenticated}
                                     collection={c}
                                     workspace={workspace}
                                     key={`${c.id}-${c.children ? 'c' : ''}`}

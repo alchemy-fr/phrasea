@@ -54,7 +54,7 @@ export default function AttributeListDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('attribute_list.manage.edit.title', 'Edit'),
@@ -63,7 +63,7 @@ export default function AttributeListDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('attribute_list.manage.acl.title', 'Permissions'),
@@ -72,7 +72,7 @@ export default function AttributeListDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEditPermissions,
+                    enabled: data.capabilities.editPermissions,
                 },
             ]}
         />
