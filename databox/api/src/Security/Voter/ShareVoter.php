@@ -36,13 +36,13 @@ class ShareVoter extends AbstractVoter
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
         return match ($attribute) {
-            self::CREATE => $this->isAuthenticated() && $this->security->isGranted(AssetVoter::SHARE, $subject->getAsset(), $token),
+            self::CREATE => $this->isAuthenticated() && $this->security->isGranted(AssetVoter::SHARE, $subject->getAsset()),
             self::READ => $isOwner()
-                || $this->security->isGranted(AssetVoter::SHARE, $subject->getAsset(), $token)
+                || $this->security->isGranted(AssetVoter::SHARE, $subject->getAsset())
                 || $this->hasValidToken($subject),
             self::EDIT,
             self::DELETE => $isOwner()
-                || $this->security->isGranted(AssetVoter::SHARE, $subject->getAsset(), $token),
+                || $this->security->isGranted(AssetVoter::SHARE, $subject->getAsset()),
             default => false,
         };
     }
