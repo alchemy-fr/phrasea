@@ -5,6 +5,7 @@ import {
     FormGroup,
     FormHelperText,
     FormLabel,
+    InputLabel,
     ListItemText,
     MenuList,
     TextField,
@@ -24,7 +25,7 @@ import {
     postIntegration,
     putIntegration,
 } from '../../../api/integrations.ts';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import IntegrationTypeSelect from '../../Form/IntegrationTypeSelect.tsx';
 import CodeEditor from '../../Media/Asset/Widgets/CodeEditor.tsx';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -33,6 +34,9 @@ import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import WorkspaceIntegrationSelect from '../../Form/WorkspaceIntegrationSelect.tsx';
 import InfoRow from '../Info/InfoRow.tsx';
 import {search} from '../../../lib/search.ts';
+import AclForm from '../../Acl/AclForm.tsx';
+import {PermissionObject} from '../../Permissions/permissions.ts';
+import {AclPermission} from '../../Acl/acl.ts';
 
 function Item({
     usedFormSubmit,
@@ -64,6 +68,28 @@ function Item({
             })();
         }
     }, [integration]);
+
+    const permissionHelper = useMemo(() => {
+        return {
+            [AclPermission.VIEW]: {
+                label: t('acl.permission.integration.view.label', 'View'),
+                description: t(
+                    'acl.permission.integration.view.desc',
+                    'Can view integration and read its data'
+                ),
+            },
+            [AclPermission.CHILD_EDIT]: {
+                label: t(
+                    'acl.permission.integration.child_edit.label',
+                    'Interact'
+                ),
+                description: t(
+                    'acl.permission.integration.child_edit.desc',
+                    'Can interact with integration, such as running it or using it in a workflow, but cannot edit its configuration or delete it.'
+                ),
+            },
+        };
+    }, [t]);
 
     const copyReference = () => {
         setValue('configYaml', integrationHelp!.reference);
@@ -217,6 +243,34 @@ function Item({
                 ) : null}
                 <FormFieldErrors field={'config'} errors={errors} />
             </FormRow>
+
+            <FormRow>
+                <CheckboxWidget
+                    label={t('form.integration.public.label', 'Public')}
+                    control={control}
+                    name={'public'}
+                    disabled={submitting}
+                />
+                <FormFieldErrors field={'public'} errors={errors} />
+            </FormRow>
+
+            {data.id && (
+                <FormRow>
+                    <InputLabel>
+                        {t('form.permissions.label', 'Permissions')}
+                    </InputLabel>
+                    <AclForm
+                        objectId={data.id}
+                        objectType={PermissionObject.WorkspaceIntegration}
+                        displayedPermissions={[
+                            AclPermission.VIEW,
+                            AclPermission.CHILD_EDIT,
+                            AclPermission.ALL,
+                        ]}
+                        permissionHelper={permissionHelper}
+                    />
+                </FormRow>
+            )}
         </>
     );
 }
@@ -239,6 +293,7 @@ function createNewItem(): Partial<WorkspaceIntegration> {
     return {
         title: '',
         config: {},
+        public: true,
         enabled: true,
     };
 }

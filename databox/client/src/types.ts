@@ -506,8 +506,13 @@ export type IntegrationConfigKey = {
     value: string | undefined;
 };
 
-export interface WorkspaceIntegration extends DefinitionBase {
+export interface WorkspaceIntegration
+    extends DefinitionBase,
+        IPermissions<{
+            interact: boolean;
+        }> {
     title: string;
+    public: boolean;
     enabled: boolean;
     integration: Integration;
     integrationTitle: string;

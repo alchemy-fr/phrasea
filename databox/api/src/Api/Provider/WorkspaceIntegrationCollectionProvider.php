@@ -23,7 +23,7 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
     use SecurityAwareTrait;
 
     public function __construct(
-        private IntegrationRegistry $integrationRegistry,
+        private readonly IntegrationRegistry $integrationRegistry,
     ) {
     }
 
@@ -32,6 +32,11 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
         array $uriVariables = [],
         array $context = [],
     ): array|object {
+        $user = $this->security->getUser();
+        if (!$user instanceof JwtUser) {
+            return [];
+        }
+
         $filters = $context['filters'] ?? [];
 
         $queryBuilder = $this->em->getRepository(WorkspaceIntegration::class)
@@ -42,6 +47,23 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
             $queryBuilder
                 ->andWhere('t.enabled = :enabled')
                 ->setParameter('enabled', $filters['enabled']);
+        }
+
+        $queryBuilder
+            ->addOrderBy('t.createdAt', 'ASC');
+
+        if (!$this->isAdmin()) {
+            $queryBuilder->addGroupBy('t.id');
+            AccessControlEntryRepository::joinAcl(
+                $queryBuilder,
+                $user->getId(),
+                $user->getGroups(),
+                WorkspaceIntegration::OBJECT_TYPE,
+                't',
+                PermissionInterface::VIEW,
+                false
+            );
+            $queryBuilder->andWhere('ace.id IS NOT NULL OR t.public = true');
         }
 
         $context = $filters['context'] ?? null;

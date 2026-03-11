@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
+use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Integration\IntegrationData;
@@ -15,9 +16,16 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
 {
     use CreatedAtDTOTrait;
     use UpdatedAtDTOTrait;
+    use CapabilitiesDTOTrait;
+
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
+    protected array $capabilities = [];
 
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $title = null;
+
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
+    public ?bool $public = null;
 
     #[MaxDepth(1)]
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
