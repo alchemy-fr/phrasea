@@ -113,7 +113,16 @@ export default function PublicationEdit({data}: Props) {
 
     React.useEffect(() => {
         if (data.cover) {
-            setCover({coverId: data.cover.id, coverSrc: data.cover.previewUrl});
+            const prevUrl =
+                data.cover.thumbType &&
+                data.cover.thumbType.startsWith('image/')
+                    ? data.cover.thumbUrl
+                    : data.cover.previewType &&
+                        data.cover.previewType.startsWith('image/')
+                      ? data.cover.previewUrl
+                      : undefined;
+
+            setCover({coverId: data.cover.id, coverSrc: prevUrl});
         }
     }, [data]);
 

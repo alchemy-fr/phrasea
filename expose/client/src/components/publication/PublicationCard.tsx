@@ -22,7 +22,15 @@ type Props = {
 };
 
 export default function PublicationCard({publication, onDelete}: Props) {
-    const previewUrl = publication.cover?.previewUrl;
+    const {cover} = publication;
+
+    const previewUrl =
+        cover?.thumbType && cover.thumbType.startsWith('image/')
+            ? cover.thumbUrl
+            : cover?.previewType && cover.previewType.startsWith('image/')
+              ? cover.previewUrl
+              : undefined;
+
     const {t} = useTranslation();
 
     return (

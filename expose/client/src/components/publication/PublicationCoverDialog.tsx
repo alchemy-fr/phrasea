@@ -34,9 +34,6 @@ export default function PublicationCoverDialog({
 
     const [cover, setCover] = React.useState<Asset | null>(null);
     const [selectedIndex, setSelectedIndex] = useState<string | null>(null);
-    const [assetsWithImagePreview, setAssetsWithImagePreview] = useState<
-        Asset[]
-    >([]);
 
     const assets = publication.assets || [];
 
@@ -46,32 +43,17 @@ export default function PublicationCoverDialog({
     };
 
     const onSetCover = async () => {
-        handleSetCover(cover?.id, cover?.previewUrl);
+        handleSetCover(cover?.id, cover ? getPreviewUrl(cover) : undefined);
         closeModal();
         onClose?.();
     };
 
-    const isAnImage = async (url: string | undefined) => {
-        if (!url) {
-            return false;
-        }
-
-        return new Promise(resolve => {
-            const img = new Image();
-            img.onload = () => resolve(true);
-            img.onerror = () => resolve(false);
-            img.src = url;
-        });
-    };
-
-    const isAssetsWithImagePreview = async (assets: Asset[]) => {
-        const results = await Promise.all(
-            assets.map(async a => {
-                const isValid = await isAnImage(a.previewUrl);
-                return {...a, isvalidPreview: isValid};
-            })
-        );
-        return results;
+    const getPreviewUrl = (asset: Asset) => {
+        return asset.thumbType && asset.thumbType.startsWith('image/')
+            ? asset.thumbUrl
+            : asset.previewType && asset.previewType.startsWith('image/')
+              ? asset.previewUrl
+              : undefined;
     };
 
     React.useEffect(() => {
@@ -83,12 +65,6 @@ export default function PublicationCoverDialog({
                 setSelectedIndex(coverThumb.id);
             }
         }
-
-        isAssetsWithImagePreview(assets).then(results => {
-            setAssetsWithImagePreview(
-                results.filter((a: any) => a.isvalidPreview)
-            );
-        });
     }, [assets]);
 
     return (
@@ -138,10 +114,10 @@ export default function PublicationCoverDialog({
                     ...thumbSx(theme),
                 })}
             >
-                {!assetsWithImagePreview ? (
+                {!assets ? (
                     <FullPageLoader backdrop={false} />
                 ) : (
-                    assetsWithImagePreview.map(a => (
+                    assets.map(a => (
                         <div
                             key={a.id}
                             onClick={() => handleClick(a)}
@@ -155,13 +131,15 @@ export default function PublicationCoverDialog({
                                 selected: a.id === selectedIndex,
                             })}
                         >
-                            <img
-                                src={a.previewUrl}
-                                alt={a.title}
-                                style={{
-                                    height: rowHeight,
-                                }}
-                            />
+                            {getPreviewUrl(a) ? (
+                                <img
+                                    src={getPreviewUrl(a)}
+                                    alt={a.title}
+                                    style={{
+                                        height: rowHeight,
+                                    }}
+                                />
+                            ) : null}
                         </div>
                     ))
                 )}
