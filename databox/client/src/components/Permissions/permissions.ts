@@ -21,6 +21,7 @@ export enum PermissionObject {
     SavedSearch = 'saved_search',
     AttributePolicy = 'attribute_policy',
     AttributeList = 'attribute_list',
+    WorkspaceIntegration = 'integration',
 }
 
 export type DisplayedPermissions = AclPermission[] | undefined;
