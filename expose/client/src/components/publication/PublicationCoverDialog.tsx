@@ -5,7 +5,7 @@ import {Button, Box} from '@mui/material';
 import {useState} from 'react';
 import {useContainerWidth} from '@alchemy/react-hooks/src/useContainerWidth';
 import {Classes} from './types';
-import AssetIconThumbnail, {thumbSx} from './asset/AssetIconThumbnail';
+import {thumbSx} from './asset/AssetIconThumbnail';
 import React from 'react';
 import {Asset, Publication} from '../../types';
 import classNames from 'classnames';
@@ -34,6 +34,9 @@ export default function PublicationCoverDialog({
 
     const [cover, setCover] = React.useState<Asset | null>(null);
     const [selectedIndex, setSelectedIndex] = useState<string | null>(null);
+    const [assetsWithImagePreview, setAssetsWithImagePreview] = useState<
+        Asset[]
+    >([]);
 
     const assets = publication.assets || [];
 
@@ -48,6 +51,29 @@ export default function PublicationCoverDialog({
         onClose?.();
     };
 
+    const isAnImage = async (url: string | undefined) => {
+        if (!url) {
+            return false;
+        }
+
+        return new Promise(resolve => {
+            const img = new Image();
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = url;
+        });
+    };
+
+    const isAssetsWithImagePreview = async (assets: Asset[]) => {
+        const results = await Promise.all(
+            assets.map(async a => {
+                const isValid = await isAnImage(a.previewUrl);
+                return {...a, isvalidPreview: isValid};
+            })
+        );
+        return results;
+    };
+
     React.useEffect(() => {
         if (publication.cover) {
             const coverThumb = assets?.find(c => c.id === publication.cover.id);
@@ -57,6 +83,12 @@ export default function PublicationCoverDialog({
                 setSelectedIndex(coverThumb.id);
             }
         }
+
+        isAssetsWithImagePreview(assets).then(results => {
+            setAssetsWithImagePreview(
+                results.filter((a: any) => a.isvalidPreview)
+            );
+        });
     }, [assets]);
 
     return (
@@ -106,10 +138,10 @@ export default function PublicationCoverDialog({
                     ...thumbSx(theme),
                 })}
             >
-                {!assets ? (
+                {!assetsWithImagePreview ? (
                     <FullPageLoader backdrop={false} />
                 ) : (
-                    assets.map(a => (
+                    assetsWithImagePreview.map(a => (
                         <div
                             key={a.id}
                             onClick={() => handleClick(a)}
@@ -123,22 +155,13 @@ export default function PublicationCoverDialog({
                                 selected: a.id === selectedIndex,
                             })}
                         >
-                            {a.thumbUrl ? (
-                                <img
-                                    src={a.thumbUrl}
-                                    alt={a.title}
-                                    style={{
-                                        height: rowHeight,
-                                    }}
-                                />
-                            ) : (
-                                <AssetIconThumbnail
-                                    style={{
-                                        height: rowHeight,
-                                    }}
-                                    mimeType={a.mimeType}
-                                />
-                            )}
+                            <img
+                                src={a.previewUrl}
+                                alt={a.title}
+                                style={{
+                                    height: rowHeight,
+                                }}
+                            />
                         </div>
                     ))
                 )}
