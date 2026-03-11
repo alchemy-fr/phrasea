@@ -57,51 +57,51 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
 
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
-        $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
-        $isOwnerOfParent = fn (): bool => $userId && $this->isOwnerOfCollection($subject, $userId, $token);
+        $isOwnerFast = fn (): bool => $userId && $subject->getOwnerId() === $userId || $subject->getWorkspace()->getOwnerId() === $userId;
+        $isOwnerSlow = fn (): bool => $this->hasAcl(PermissionInterface::OWNER, $subject, $token) || $this->security->isGranted(self::OWNER, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE => ($subject->getParent() ? $this->security->isGranted(self::CREATE, $subject->getParent())
-                : $this->security->isGranted(WorkspaceVoter::CREATE, $workspace)
-                || $isOwnerOfParent()
-            ),
-            self::LIST => $isOwner()
+            self::CREATE => $isOwnerFast()
+                || $this->parentIsGranted($attribute, $subject)
+                || $isOwnerSlow()
+            ,
+            self::LIST => $isOwnerFast()
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                 || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
                 || ($subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                 || $this->parentIsGranted($attribute, $subject)
-                || $isOwnerOfParent()
+                || $isOwnerSlow()
             ,
-            self::READ => $isOwner()
+            self::READ => $isOwnerFast()
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                 || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                 || $this->parentIsGranted($attribute, $subject)
-                || $isOwnerOfParent()
+                || $isOwnerSlow()
             ,
-            self::EDIT => $isOwner()
+            self::EDIT => $isOwnerFast()
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
                 || $this->parentIsGranted($attribute, $subject)
-                || $isOwnerOfParent()
+                || $isOwnerSlow()
             ,
-            self::DELETE => $isOwner()
+            self::DELETE => $isOwnerFast()
                 || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
                 || $this->parentIsGranted($attribute, $subject)
-                || $isOwnerOfParent()
+                || $isOwnerSlow()
             ,
-            self::EDIT_PERMISSIONS, self::OWNER => $isOwner()
+            self::EDIT_PERMISSIONS, self::OWNER => $isOwnerFast()
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                 || $this->parentIsGranted($attribute, $subject)
-                || $isOwnerOfParent()
+                || $isOwnerSlow()
             ,
-            self::CREATE_ASSET => $isOwner()
+            self::CREATE_ASSET => $isOwnerFast()
                 || $this->hasAcl(PermissionInterface::CHILD_CREATE, $subject, $token)
                 || $this->parentIsGranted($attribute, $subject)
-                || $isOwnerOfParent()
+                || $isOwnerSlow()
             ,
-            self::EDIT_ASSET_ATTRIBUTES => $isOwner()
+            self::EDIT_ASSET_ATTRIBUTES => $isOwnerFast()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_EDIT,
                     PermissionInterface::CHILD_OPERATOR,
@@ -109,30 +109,45 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                     PermissionInterface::CHILD_OWNER,
                 ], $subject, $token)
                 || $this->parentIsGranted($attribute, $subject)
-                || $isOwnerOfParent()
+                || $isOwnerSlow()
             ,
-            self::EDIT_ASSET => $isOwner()
+            self::EDIT_ASSET => $isOwnerFast()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_OPERATOR,
                     PermissionInterface::CHILD_MASTER,
                     PermissionInterface::CHILD_OWNER,
                 ], $subject, $token)
-                || $isOwnerOfParent(),
-            self::SHARE_ASSET => $isOwner()
+                || $this->parentIsGranted($attribute, $subject)
+                || $isOwnerSlow(),
+            self::EDIT_ASSET_PRIVACY => $isOwnerFast()
+                || $this->hasMetadata(AssetContainerVoterInterface::PERM_EDIT_PRIVACY, $subject, $token)
+                || $this->parentIsGranted($attribute, $subject)
+                || $isOwnerSlow(),
+            self::EDIT_ASSET_TAG => ($userId && $subject->getWorkspace()->getOwnerId() === $userId)
+                || $this->hasMetadata(AssetContainerVoterInterface::PERM_EDIT_TAG, $subject, $token)
+                || $this->parentIsGranted($attribute, $subject),
+            self::EDIT_COLLECTION_PRIVACY => ($userId && $subject->getWorkspace()->getOwnerId() === $userId)
+                || $this->hasMetadata(AssetContainerVoterInterface::PERM_EDIT_PRIVACY, $subject, $token)
+                || $this->parentIsGranted($attribute, $subject)
+                || $this->hasAcl(PermissionInterface::OWNER, $subject->getWorkspace(), $token)
+            ,
+            self::SHARE_ASSET => $isOwnerFast()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_SHARE,
                     PermissionInterface::CHILD_MASTER,
                     PermissionInterface::CHILD_OWNER,
                 ], $subject, $token)
-                || $isOwnerOfParent(),
-            self::DELETE_ASSET => $isOwner()
+                || $this->parentIsGranted($attribute, $subject)
+                || $isOwnerSlow(),
+            self::DELETE_ASSET => $isOwnerFast()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_DELETE,
                     PermissionInterface::CHILD_OPERATOR,
                     PermissionInterface::CHILD_MASTER,
                     PermissionInterface::CHILD_OWNER,
                 ], $subject, $token)
-                || $isOwnerOfParent(),
+                || $this->parentIsGranted($attribute, $subject)
+                || $isOwnerSlow(),
             default => false,
         };
     }
@@ -140,28 +155,5 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
     private function parentIsGranted(mixed $attribute, Collection $subject): bool
     {
         return null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent());
-    }
-
-    private function isOwnerOfCollection(Collection $subject, string $userId, TokenInterface $token): bool
-    {
-        return $this->collectionHierarchyHasPermissions([PermissionInterface::OWNER], $subject, $userId, $token);
-    }
-
-    private function collectionHierarchyHasPermissions(array $permissions, Collection $subject, string $userId, TokenInterface $token, bool $firstCall = true): bool
-    {
-        if (
-            $subject->getOwnerId() === $userId
-            || ($firstCall && $subject->getWorkspace()->getOwnerId() === $userId)
-            || $this->hasAcl($permissions, $subject, $token)
-            || ($firstCall && $this->hasAcl($permissions, $subject->getWorkspace(), $token))
-        ) {
-            return true;
-        }
-
-        if ($subject->getParent()) {
-            return $this->collectionHierarchyHasPermissions($permissions, $subject->getParent(), $userId, $token, false);
-        }
-
-        return false;
     }
 }

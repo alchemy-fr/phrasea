@@ -44,6 +44,35 @@ abstract class AbstractVoter extends Voter
         return false;
     }
 
+    protected function getMetadata(AclObjectInterface $subject, TokenInterface $token): array
+    {
+        $metadata = [];
+        $user = $token->getUser();
+        if ($user instanceof AclUserInterface) {
+            $aces = $this->permissionManager->getAces($user, $subject, $attribute);
+            foreach ($aces as $ace) {
+                $metadata = array_merge($metadata, $ace->getMetadata());
+            }
+        }
+
+        return $metadata;
+    }
+
+    protected function hasMetadata(int|string $metadata, AclObjectInterface $subject, TokenInterface $token): array
+    {
+        $user = $token->getUser();
+        if ($user instanceof AclUserInterface) {
+            $aces = $this->permissionManager->getAces($user, $subject, $attribute);
+            foreach ($aces as $ace) {
+                if (in_array($metadata, $ace->getMetadata(), true)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     protected function isAdmin(): bool
     {
         return $this->security->isGranted(JwtUser::ROLE_ADMIN);
