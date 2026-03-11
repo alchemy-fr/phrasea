@@ -9,7 +9,7 @@ import {CommonAppLeftMenu} from './src/Menu/CommonAppLeftMenu';
 import ConfirmDialog from './src/Dialog/ConfirmDialog';
 import {LocaleIcon} from './src/Locale/LocaleIcon';
 import {CommonAppTopMenu} from './src/Menu/CommonAppTopMenu';
-import FilePlayer from './src/FilePlayer/FilePlayer';
+import FilePlayer, {MemoizedFilePlayer} from './src/FilePlayer/FilePlayer';
 import {getIconFromType} from './src/FilePlayer/fileIcon';
 import {videoPlayerSx} from './src/FilePlayer/styles';
 import AssetTypeIcon from './src/FilePlayer/AssetTypeIcon';
@@ -31,6 +31,8 @@ import NavMenu from './src/Menu/NavMenu';
 import {useMatomo} from '@jonkoops/matomo-tracker-react';
 import MatomoRouteWrapper from './src/Route/MatomoRouteWrapper';
 import {useTracking} from './src/hooks/useTracking';
+import LoadMoreButton from './src/components/LoadMoreButton';
+import {lazyWithRetry} from './src/lazyWithRetry';
 export {
     AppProvider,
     initApp,
@@ -46,6 +48,7 @@ export {
     LocaleIcon,
     CommonAppTopMenu,
     FilePlayer,
+    MemoizedFilePlayer,
     getIconFromType,
     videoPlayerSx,
     AssetTypeIcon,
@@ -66,6 +69,8 @@ export {
     useMatomo,
     MatomoRouteWrapper,
     useTracking,
+    LoadMoreButton,
+    lazyWithRetry,
 };
 export * from './src/Theme/types';
 export * from './src/Dialog/types';

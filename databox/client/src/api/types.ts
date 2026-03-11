@@ -42,9 +42,14 @@ export enum AttributeType {
     User = 'user',
 }
 
-export enum Entity {
+export enum EntityName {
     Asset = 'assets',
     Attachment = 'attachments',
     Collection = 'collections',
     Workspace = 'workspaces',
+    SavedSearch = 'saved-searches',
+    Page = 'pages',
+    RenditionDefinition = 'rendition-definitions',
+    RenditionPolicy = 'rendition-policies',
+    Rendition = 'renditions',
 }

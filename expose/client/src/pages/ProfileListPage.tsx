@@ -10,9 +10,12 @@ import {useTranslation} from 'react-i18next';
 import {routes} from '../routes.ts';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {ConfirmDialog, NavButton} from '@alchemy/phrasea-framework';
+import {
+    ConfirmDialog,
+    LoadMoreButton,
+    NavButton,
+} from '@alchemy/phrasea-framework';
 import AddIcon from '@mui/icons-material/Add';
-import LoadMoreButton from '../components/ui/LoadMoreButton.tsx';
 
 type Props = {};
 
