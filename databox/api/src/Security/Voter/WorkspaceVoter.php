@@ -6,12 +6,22 @@ namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterface
 {
     final public const string SCOPE_PREFIX = 'workspace:';
+
+    private CacheInterface $cache;
+
+    public function __construct(
+        TemporaryCacheFactory $cacheFactory,
+    ) {
+        $this->cache = $cacheFactory->createCache();
+    }
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -33,6 +43,13 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
+        return $this->cache->get(sprintf('%s:%s:%s', $attribute, $subject->getId(), spl_object_id($token)), function () use ($attribute, $subject, $token) {
+            return $this->doVote($attribute, $subject, $token);
+        });
+    }
+
+    private function doVote(string $attribute, Workspace $subject, TokenInterface $token): bool
+    {
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
@@ -42,7 +59,7 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
         }
 
         return match ($attribute) {
-            self::CREATE => ($subject instanceof Workspace && $this->hasAcl(PermissionInterface::VIEW, $subject, $token))
+            self::CREATE => $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                 || $this->isAdmin()
         || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
             self::READ => $isOwner()
