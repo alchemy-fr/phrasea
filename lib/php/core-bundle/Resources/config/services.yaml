@@ -3,6 +3,8 @@ parameters:
     'env(MATOMO_SITE_ID)': ''
     'env(MATOMO_AUTH_TOKEN)': ''
     'env(MATOMO_MEDIA_PLUGIN_ENABLED)': '0'
+    default_base_url: 'http://localhost'
+    matomo_site_id_default: '1'
 
 services:
     _defaults:
