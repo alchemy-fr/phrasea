@@ -1,6 +1,8 @@
 import {apiClient} from '../init.ts';
 import {Ace} from '../types';
 
+import {AclExtraPermission} from '../components/Permissions/permissionsTypes.ts';
+
 export async function getAces(
     objectType: string,
     objectId: string
@@ -20,7 +22,8 @@ export async function putAce(
     userId: string | null,
     objectType: string,
     objectId: string | undefined,
-    mask: number
+    mask: number,
+    metadata?: AclExtraPermission[]
 ): Promise<Ace> {
     return (
         await apiClient.put(`/permissions/ace`, {
@@ -29,6 +32,7 @@ export async function putAce(
             objectType,
             objectId,
             mask,
+            metadata,
         })
     ).data;
 }

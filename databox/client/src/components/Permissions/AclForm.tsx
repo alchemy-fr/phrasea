@@ -1,17 +1,22 @@
 import {useCallback} from 'react';
-import PermissionList from '../Permissions/PermissionList';
-import {deleteAce, getAces, putAce} from '../../api/acl';
+import PermissionList from './PermissionList.tsx';
+import {deleteAce, getAces, putAce} from '../../api/acl.ts';
 import {
-    BasePermissionProps,
+    AclExtraPermission,
+    FilterPermissions,
     OnPermissionDelete,
+    PermissionDefinitionOverride,
     PermissionObject,
-} from '../Permissions/permissions';
-import {UserType} from '../../types';
+} from './permissionsTypes.ts';
+import {UserType} from '../../types.ts';
 
 type Props = {
     objectType: PermissionObject;
     objectId: string;
-} & BasePermissionProps;
+    definitions?: PermissionDefinitionOverride[];
+    filterDefinitions?: FilterPermissions;
+    displayChildPermissions?: boolean;
+};
 
 export default function AclForm({objectType, objectId, ...rest}: Props) {
     const loadPermissions = useCallback(async () => {
@@ -19,8 +24,20 @@ export default function AclForm({objectType, objectId, ...rest}: Props) {
     }, [objectType, objectId]);
 
     const updatePermission = useCallback(
-        async (userType: UserType, userId: string | null, mask: number) => {
-            return await putAce(userType, userId, objectType, objectId, mask);
+        async (
+            userType: UserType,
+            userId: string | null,
+            mask: number,
+            metadata?: AclExtraPermission[]
+        ) => {
+            return await putAce(
+                userType,
+                userId,
+                objectType,
+                objectId,
+                mask,
+                metadata
+            );
         },
         [objectType, objectId]
     );

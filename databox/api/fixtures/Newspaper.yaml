@@ -548,15 +548,18 @@ App\Entity\Core\Tag:
 App\Entity\Integration\WorkspaceIntegration:
     wi_toast_ui:
         title: ToastUI
+        public: true
         integration: tui.photo-editor
         workspace: '@w_newspaper'
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
     wi_renditions:
         integration: core.rendition
+        public: true
         workspace: '@w_newspaper'
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
     wi_watermark:
         integration: core.watermark
+        public: true
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
         workspace: '@w_newspaper'
         config:
@@ -568,6 +571,7 @@ App\Entity\Integration\WorkspaceIntegration:
     wi_blurhash:
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
         integration: blurhash
+        public: true
         workspace: '@w_newspaper'
         config:
             rendition: thumbnail
@@ -576,6 +580,7 @@ App\Entity\Integration\WorkspaceIntegration:
     wi_expose:
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
         title: Expose Basket
+        public: true
         integration: phrasea.expose
         config:
             clientId: \${DATABOX_EXPOSE_INTEGRATION_CLIENT_ID}

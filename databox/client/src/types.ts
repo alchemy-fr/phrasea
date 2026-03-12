@@ -9,6 +9,8 @@ import {SortBy} from './components/Media/Search/Filter';
 import {AQLQueries} from './components/Media/Search/AQL/query.ts';
 import {ApiHydraObjectResponse} from '@alchemy/api';
 
+import {AclExtraPermission} from './components/Permissions/permissionsTypes.ts';
+
 export type AlternateUrl = {
     type: string;
     url: string;
@@ -578,6 +580,7 @@ export type Ace = (
     userId: string | null;
     userType: UserType;
     resolving?: boolean;
+    metadata?: AclExtraPermission[];
 } & Entity;
 
 export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;

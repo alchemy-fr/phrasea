@@ -5,7 +5,7 @@ import {
     RenditionRule,
     UserType,
 } from '../../../types';
-import {OnPermissionDelete} from '../../Permissions/permissions';
+import {OnPermissionDelete} from '../../Permissions/permissionsTypes.ts';
 import PermissionList from '../../Permissions/PermissionList';
 import {
     deleteRenditionRule,
@@ -74,7 +74,7 @@ export default function RenditionPolicyPermissions({
 
     return (
         <PermissionList
-            displayedPermissions={[]}
+            definitions={[]}
             loadPermissions={loadPermissions}
             updatePermission={updatePermission}
             deletePermission={deletePermission}

@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class AssetVoter extends AbstractVoter
 {
     final public const string EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
-    final public const string EDIT_TAG = 'EDIT_TAG';
+    final public const string EDIT_TAGS = 'EDIT_TAGS';
     final public const string EDIT_PRIVACY = 'EDIT_PRIVACY';
     final public const string SHARE = 'SHARE';
 
@@ -25,7 +25,7 @@ class AssetVoter extends AbstractVoter
             self::EDIT_ATTRIBUTES => [self::EDIT],
             self::EDIT => [self::OWNER],
             self::EDIT_PRIVACY => [self::OWNER],
-            self::EDIT_TAG => [self::OWNER],
+            self::EDIT_TAGS => [self::OWNER],
         ]);
     }
 
@@ -52,6 +52,8 @@ class AssetVoter extends AbstractVoter
             return false;
         }
 
+        $isWorkspaceOwnerSlow = fn () => false;
+        $isWorkspaceOwnerFast = fn () => false;
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
@@ -75,26 +77,28 @@ class AssetVoter extends AbstractVoter
                 return $isOwner()
                     || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
                     || $this->voteOnContainer($subject, AssetContainerVoterInterface::EDIT_ASSET_ATTRIBUTES);
-            case self::EDIT_PRIVACY:
-                return $this->voteOnContainer($subject, AssetContainerVoterInterface::EDIT_ASSET_PRIVACY);
-            case self::EDIT_TAG:
-                return $this->voteOnContainer($subject, AssetContainerVoterInterface::EDIT_ASSET_TAG);
+            case self::EDIT_TAGS:
+                return $isWorkspaceOwnerFast()
+                || $this->hasMetadata(AssetContainerVoterInterface::PERM_EDIT_TAG, $subject, $token)
+                || $this->voteOnContainer($subject, $attribute)
+                || $isWorkspaceOwnerSlow();
+                // Substitute source file, manage its renditions
             case self::EDIT:
                 return $isOwner()
                     || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
                     || $this->voteOnContainer($subject, AssetContainerVoterInterface::EDIT_ASSET);
             case self::SHARE:
-                return $isOwner()
-                    || $this->hasAcl(PermissionInterface::SHARE, $subject, $token)
+                return $this->hasAcl(PermissionInterface::SHARE, $subject, $token)
                     || $this->voteOnContainer($subject, AssetContainerVoterInterface::SHARE_ASSET);
             case self::DELETE:
                 return $isOwner()
                     || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
                     || $this->voteOnContainer($subject, AssetContainerVoterInterface::DELETE_ASSET);
             case self::EDIT_PERMISSIONS:
-                return $isOwner()
-                    || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
-                    || $this->voteOnContainer($subject, self::OWNER);
+                return $isWorkspaceOwnerFast()
+                || $this->hasMetadata(AssetContainerVoterInterface::PERM_EDIT_PERMISSIONS, $subject, $token)
+                || $this->voteOnContainer($subject, $attribute)
+                || $isWorkspaceOwnerSlow();
         }
 
         return false;

@@ -34,9 +34,12 @@ import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import WorkspaceIntegrationSelect from '../../Form/WorkspaceIntegrationSelect.tsx';
 import InfoRow from '../Info/InfoRow.tsx';
 import {search} from '../../../lib/search.ts';
-import AclForm from '../../Acl/AclForm.tsx';
-import {PermissionObject} from '../../Permissions/permissions.ts';
-import {AclPermission} from '../../Acl/acl.ts';
+import AclForm from '../../Permissions/AclForm.tsx';
+import {
+    AclPermission,
+    PermissionObject,
+    PermissionType,
+} from '../../Permissions/permissionsTypes.ts';
 
 function Item({
     usedFormSubmit,
@@ -69,16 +72,20 @@ function Item({
         }
     }, [integration]);
 
-    const permissionHelper = useMemo(() => {
-        return {
-            [AclPermission.VIEW]: {
+    const definitions = useMemo(() => {
+        return [
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.VIEW,
                 label: t('acl.permission.integration.view.label', 'View'),
                 description: t(
                     'acl.permission.integration.view.desc',
                     'Can view integration and read its data'
                 ),
             },
-            [AclPermission.CHILD_EDIT]: {
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.CHILD_EDIT,
                 label: t(
                     'acl.permission.integration.child_edit.label',
                     'Interact'
@@ -88,7 +95,7 @@ function Item({
                     'Can interact with integration, such as running it or using it in a workflow, but cannot edit its configuration or delete it.'
                 ),
             },
-        };
+        ];
     }, [t]);
 
     const copyReference = () => {
@@ -262,12 +269,14 @@ function Item({
                     <AclForm
                         objectId={data.id}
                         objectType={PermissionObject.WorkspaceIntegration}
-                        displayedPermissions={[
-                            AclPermission.VIEW,
-                            AclPermission.CHILD_EDIT,
-                            AclPermission.ALL,
-                        ]}
-                        permissionHelper={permissionHelper}
+                        filterDefinitions={d =>
+                            d.type === PermissionType.Mask &&
+                            [
+                                AclPermission.VIEW,
+                                AclPermission.CHILD_EDIT,
+                            ].includes(d.key)
+                        }
+                        definitions={definitions}
                     />
                 </FormRow>
             )}

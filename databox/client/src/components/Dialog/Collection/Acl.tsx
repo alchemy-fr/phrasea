@@ -1,9 +1,14 @@
 import {Collection} from '../../../types';
 import {DataTabProps} from '../Tabbed/TabbedDialog';
-import AclForm from '../../Acl/AclForm';
+import AclForm from '../../Permissions/AclForm.tsx';
 import ContentTab from '../Tabbed/ContentTab';
-import {PermissionObject} from '../../Permissions/permissions';
-import {AclPermission, aclPermissions} from '../../Acl/acl.ts';
+import {
+    AclExtraPermission,
+    AclPermission,
+    PermissionDefinitionOverride,
+    PermissionObject,
+    PermissionType,
+} from '../../Permissions/permissionsTypes.ts';
 import {useTranslation} from 'react-i18next';
 import {useMemo} from 'react';
 
@@ -12,16 +17,20 @@ type Props = DataTabProps<Collection>;
 export default function Acl({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
 
-    const permissionHelper = useMemo(() => {
-        return {
-            [AclPermission.VIEW]: {
+    const definitions: PermissionDefinitionOverride[] = useMemo(() => {
+        return [
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.VIEW,
                 label: t('acl.permission.collection.view.label', 'View'),
                 description: t(
                     'acl.permission.collection.view.desc',
                     'Can view this collection, its sub collections and theirs assets, but cannot edit or delete them.'
                 ),
             },
-            [AclPermission.CREATE]: {
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.CREATE,
                 label: t(
                     'acl.permission.collection.create.label',
                     'Create Collections'
@@ -31,28 +40,54 @@ export default function Acl({data, onClose, minHeight}: Props) {
                     'Can create collections within this collection, but cannot edit or delete collections created by others. New collections will inherit the same permissions as this collection.'
                 ),
             },
-            [AclPermission.EDIT]: {
+
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.EDIT,
                 label: t('acl.permission.collection.edit.label', 'Edit'),
                 description: t(
                     'acl.permission.collection.edit.desc',
                     'Can edit this collection, but cannot edit assets within the collection.'
                 ),
             },
-            [AclPermission.DELETE]: {
+
+            {
+                type: PermissionType.Extra,
+                key: AclExtraPermission.PERM_EDIT_PERMISSIONS,
+                value: AclExtraPermission.PERM_EDIT_PERMISSIONS,
+                label: t(
+                    'acl.permission.collection.edit_permissions.label',
+                    'Edit Permissions/Privacy'
+                ),
+                description: t(
+                    'acl.permission.collection.edit_permissions.desc',
+                    'Can edit privacy settings and permissions of this collection, such as making it public or private.'
+                ),
+            },
+
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.DELETE,
                 label: t('acl.permission.collection.delete.label', 'Delete'),
                 description: t(
                     'acl.permission.collection.delete.desc',
                     'Can delete this collection and its assets.'
                 ),
             },
-            [AclPermission.OWNER]: {
+
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.OWNER,
                 label: t('acl.permission.collection.owner.label', 'Owner'),
                 description: t(
                     'acl.permission.collection.owner.desc',
                     'Full control over this collection, its descendant collections and assets'
                 ),
             },
-            [AclPermission.CHILD_SHARE]: {
+
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.CHILD_SHARE,
                 label: t(
                     'acl.permission.collection.share_assets.label',
                     'Share Assets'
@@ -62,7 +97,10 @@ export default function Acl({data, onClose, minHeight}: Props) {
                     'Can share assets within the collection.'
                 ),
             },
-            [AclPermission.CHILD_CREATE]: {
+
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.CHILD_CREATE,
                 label: t(
                     'acl.permission.collection.create_assets.label',
                     'Create Assets'
@@ -72,7 +110,10 @@ export default function Acl({data, onClose, minHeight}: Props) {
                     'Can create assets, but cannot edit or delete assets created by others.'
                 ),
             },
-            [AclPermission.CHILD_EDIT]: {
+
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.CHILD_EDIT,
                 label: t(
                     'acl.permission.collection.edit_assets.label',
                     'Edit Assets Attributes'
@@ -82,7 +123,10 @@ export default function Acl({data, onClose, minHeight}: Props) {
                     'Can edit attributes of assets in the collection, such as title, tags, and other attributes, but cannot change permissions, source files, renditions, or share assets.'
                 ),
             },
-            [AclPermission.CHILD_OPERATOR]: {
+
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.CHILD_OPERATOR,
                 label: t(
                     'acl.permission.collection.assets_operator.label',
                     'Edit Assets'
@@ -92,7 +136,10 @@ export default function Acl({data, onClose, minHeight}: Props) {
                     'Can edit assets (attributes, source files, renditions), but cannot change permissions or share assets.'
                 ),
             },
-            [AclPermission.CHILD_DELETE]: {
+
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.CHILD_DELETE,
                 label: t(
                     'acl.permission.collection.delete_assets.label',
                     'Delete Assets'
@@ -102,7 +149,10 @@ export default function Acl({data, onClose, minHeight}: Props) {
                     'Can delete assets within the collection, but cannot edit assets or change permissions.'
                 ),
             },
-            [AclPermission.CHILD_OWNER]: {
+
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.CHILD_OWNER,
                 label: t(
                     'acl.permission.collection.assets_owner.label',
                     'Owner of Assets'
@@ -112,7 +162,7 @@ export default function Acl({data, onClose, minHeight}: Props) {
                     'Full control over assets in the collection, including editing attributes, source files, renditions, sharing, and permissions.'
                 ),
             },
-        };
+        ];
     }, [t]);
 
     return (
@@ -125,21 +175,17 @@ export default function Acl({data, onClose, minHeight}: Props) {
                 displayChildPermissions={true}
                 objectId={data.id}
                 objectType={PermissionObject.Collection}
-                permissionHelper={permissionHelper}
-                displayedPermissions={
-                    Object.keys(aclPermissions)
-                        .filter(
-                            p =>
-                                ![
-                                    AclPermission.SHARE,
-                                    AclPermission.OPERATOR,
-                                    AclPermission.UNDELETE,
-                                    AclPermission.CHILD_UNDELETE,
-                                    AclPermission.MASTER,
-                                    AclPermission.CHILD_MASTER,
-                                ].includes(p as AclPermission)
-                        )
-                        .concat([AclPermission.ALL]) as AclPermission[]
+                definitions={definitions}
+                filterDefinitions={def =>
+                    def.type !== PermissionType.Mask ||
+                    ![
+                        AclPermission.SHARE,
+                        AclPermission.OPERATOR,
+                        AclPermission.UNDELETE,
+                        AclPermission.CHILD_UNDELETE,
+                        AclPermission.MASTER,
+                        AclPermission.CHILD_MASTER,
+                    ].includes(def.key)
                 }
             />
         </ContentTab>

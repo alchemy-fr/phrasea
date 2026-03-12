@@ -14,6 +14,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterface
 {
     final public const string SCOPE_PREFIX = 'workspace:';
+    final public const string CREATE_COLLECTION = 'CREATE_COLLECTION';
+    final public const string MANAGER_USERS = 'MANAGER_USERS';
 
     private CacheInterface $cache;
 
@@ -52,17 +54,22 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
     {
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
-        $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
+        $isCreator = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;
         }
 
         return match ($attribute) {
-            self::CREATE => $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
-                || $this->isAdmin()
-        || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
-            self::READ => $isOwner()
+            // Create a new Workspace
+            self::CREATE => $this->isAdmin(),
+            self::CREATE_COLLECTION => $isCreator()
+                || $this->hasAcl([
+                    PermissionInterface::CREATE,
+                    PermissionInterface::OWNER,
+                ], $subject, $token)
+                || $this->isAdmin(),
+            self::READ => $isCreator()
                 || $subject->isPublic()
                 || $this->hasAcl([
                     PermissionInterface::VIEW,
@@ -70,32 +77,42 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
                 ], $subject, $token)
                 || $this->isAdmin()
             ,
-            self::EDIT => $isOwner()
+            self::EDIT => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::EDIT,
                     PermissionInterface::OWNER,
                 ], $subject, $token)
                 || $this->isAdmin(),
-            self::DELETE => $isOwner()
+            self::DELETE => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::DELETE,
-                    PermissionInterface::OWNER,
                 ], $subject, $token)
                 || $this->isAdmin(),
-            self::EDIT_PERMISSIONS, self::OWNER => $isOwner()
+            // Add or remove users/groups to workspace (only VIEW permission)
+            // TODO implement UI to add/remove users/groups on client
+            self::MANAGER_USERS => $isCreator()
+                || $this->hasAcl([
+                    PermissionInterface::OWNER,
+                ], $subject, $token)
+                || $this->hasMetadata(AssetContainerVoterInterface::PERM_MANAGE_USERS, $subject, $token)
+                || $this->isAdmin(),
+            self::EDIT_PERMISSIONS, self::OWNER => true // TODO
+                || $isCreator()
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                 || $this->isAdmin(),
-            self::CREATE_ASSET => $isOwner()
+            self::CREATE_ASSET => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_CREATE,
                     PermissionInterface::OWNER,
-                ], $subject, $token),
-            self::SHARE_ASSET => $isOwner()
+                ], $subject, $token)
+                || $this->isAdmin(),
+            self::SHARE_ASSET => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_SHARE,
                     PermissionInterface::OWNER,
-                ], $subject, $token),
-            self::EDIT_ASSET_ATTRIBUTES => $isOwner()
+                ], $subject, $token)
+                || $this->isAdmin(),
+            self::EDIT_ASSET_ATTRIBUTES => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_EDIT,
                     PermissionInterface::CHILD_OPERATOR,
@@ -103,14 +120,14 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
                     PermissionInterface::CHILD_OWNER,
                     PermissionInterface::OWNER,
                 ], $subject, $token),
-            self::EDIT_ASSET => $isOwner()
+            self::EDIT_ASSET => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_OPERATOR,
                     PermissionInterface::CHILD_MASTER,
                     PermissionInterface::CHILD_OWNER,
                     PermissionInterface::OWNER,
                 ], $subject, $token),
-            self::DELETE_ASSET => $isOwner()
+            self::DELETE_ASSET => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_DELETE,
                     PermissionInterface::CHILD_OPERATOR,

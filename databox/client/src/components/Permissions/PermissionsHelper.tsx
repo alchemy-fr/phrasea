@@ -1,24 +1,19 @@
-import {PermissionHelpers} from './permissions';
-import {AclPermission} from '../Acl/acl';
+import {PermissionDefinition} from './permissionsTypes.ts';
 import {Box, Divider, Typography} from '@mui/material';
-import {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 
 type Props = {
-    permissionHelper: PermissionHelpers;
+    definitions: PermissionDefinition[];
 };
 
-export default function PermissionsHelper({permissionHelper}: Props) {
+export default function PermissionsHelper({definitions}: Props) {
     const {t} = useTranslation();
-    const perms = useMemo(() => {
-        return Object.entries(permissionHelper).map(([key, value]) => {
-            return {
-                key: key as AclPermission,
-                label: value.label,
-                description: value.description,
-            };
-        });
-    }, [permissionHelper]);
+
+    const withDesc = definitions.filter(def => !!def.description);
+
+    if (withDesc.length === 0) {
+        return null;
+    }
 
     return (
         <>
@@ -48,11 +43,11 @@ export default function PermissionsHelper({permissionHelper}: Props) {
                 })}
             >
                 <tbody>
-                    {perms.map(({key, label, description}) => {
+                    {withDesc.map(def => {
                         return (
-                            <tr key={key}>
-                                <th>{label}</th>
-                                <td>{description}</td>
+                            <tr key={def.key}>
+                                <th>{def.label}</th>
+                                <td>{def.description}</td>
                             </tr>
                         );
                     })}
