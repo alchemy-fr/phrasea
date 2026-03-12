@@ -49,7 +49,7 @@ class AssetNormalizer extends AbstractRouterNormalizer
             $object->setThumbType($thumbObject->getMimeType());
         }
         $object->setPreviewUrl($this->generateAssetUrl($object->getPreviewDefinition() ?? $object));
-        $object->setPreviewType($object->getPreviewDefinition() ? $object->getPreviewDefinition()->getMimeType() : $object->getMimeType());
+        $object->setPreviewType($object->getPreviewDefinition()?->getMimeType() ?? $object->getMimeType());
         if (null !== $poster) {
             $object->setPosterUrl($this->generateAssetUrl($poster));
         }

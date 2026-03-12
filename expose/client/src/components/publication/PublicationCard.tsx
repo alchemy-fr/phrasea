@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
@@ -15,6 +14,7 @@ import Description from './layouts/common/Description.tsx';
 import {routes} from '../../routes.ts';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import {getThumbUrl} from './PublicationCoverDialog.tsx';
 
 type Props = {
     publication: Publication;
@@ -24,12 +24,7 @@ type Props = {
 export default function PublicationCard({publication, onDelete}: Props) {
     const {cover} = publication;
 
-    const previewUrl =
-        cover?.thumbType && cover.thumbType.startsWith('image/')
-            ? cover.thumbUrl
-            : cover?.previewType && cover.previewType.startsWith('image/')
-              ? cover.previewUrl
-              : undefined;
+    const previewUrl = getThumbUrl(cover);
 
     const {t} = useTranslation();
 
@@ -63,7 +58,7 @@ export default function PublicationCard({publication, onDelete}: Props) {
                                         <div>
                                             {t(
                                                 'publication_card.unlisted',
-                                                'This publication is not listed, you can see it because you have such permisions'
+                                                'This publication is not listed, you can see it because you have such permissions'
                                             )}
                                         </div>
                                     )}

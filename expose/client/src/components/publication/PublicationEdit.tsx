@@ -37,7 +37,9 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import {FormConst} from './types.ts';
 import {useModals} from '@alchemy/navigation';
-import PublicationCoverDialog from './PublicationCoverDialog.tsx';
+import PublicationCoverDialog, {
+    getThumbUrl,
+} from './PublicationCoverDialog.tsx';
 
 type Props = {
     data: Publication;
@@ -113,16 +115,8 @@ export default function PublicationEdit({data}: Props) {
 
     React.useEffect(() => {
         if (data.cover) {
-            const prevUrl =
-                data.cover.thumbType &&
-                data.cover.thumbType.startsWith('image/')
-                    ? data.cover.thumbUrl
-                    : data.cover.previewType &&
-                        data.cover.previewType.startsWith('image/')
-                      ? data.cover.previewUrl
-                      : undefined;
-
-            setCover({coverId: data.cover.id, coverSrc: prevUrl});
+            const thumbUrl = getThumbUrl(data.cover);
+            setCover({coverId: data.cover.id, coverSrc: thumbUrl});
         }
     }, [data]);
 

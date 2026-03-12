@@ -43,17 +43,9 @@ export default function PublicationCoverDialog({
     };
 
     const onSetCover = async () => {
-        handleSetCover(cover?.id, cover ? getPreviewUrl(cover) : undefined);
+        handleSetCover(cover?.id, cover ? getThumbUrl(cover) : undefined);
         closeModal();
         onClose?.();
-    };
-
-    const getPreviewUrl = (asset: Asset) => {
-        return asset.thumbType && asset.thumbType.startsWith('image/')
-            ? asset.thumbUrl
-            : asset.previewType && asset.previewType.startsWith('image/')
-              ? asset.previewUrl
-              : undefined;
     };
 
     React.useEffect(() => {
@@ -131,9 +123,9 @@ export default function PublicationCoverDialog({
                                 selected: a.id === selectedIndex,
                             })}
                         >
-                            {getPreviewUrl(a) ? (
+                            {getThumbUrl(a) ? (
                                 <img
-                                    src={getPreviewUrl(a)}
+                                    src={getThumbUrl(a)}
                                     alt={a.title}
                                     style={{
                                         height: rowHeight,
@@ -146,4 +138,12 @@ export default function PublicationCoverDialog({
             </Box>
         </AppDialog>
     );
+}
+
+export function getThumbUrl(asset: Asset | undefined) {
+    return asset?.thumbType && asset.thumbType.startsWith('image/')
+        ? asset.thumbUrl
+        : asset?.previewType && asset.previewType.startsWith('image/')
+          ? asset.previewUrl
+          : undefined;
 }
