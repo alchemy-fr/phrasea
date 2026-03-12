@@ -13,15 +13,19 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class AssetVoter extends AbstractVoter
 {
     final public const string EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
-    final public const string EDIT_RENDITIONS = 'EDIT_RENDITIONS';
+    final public const string EDIT_TAG = 'EDIT_TAG';
+    final public const string EDIT_PRIVACY = 'EDIT_PRIVACY';
     final public const string SHARE = 'SHARE';
+
     final public const string SCOPE_PREFIX = 'asset:';
 
     protected function getScopeHierarchy(): array
     {
         return array_merge(parent::getScopeHierarchy(), [
             self::EDIT_ATTRIBUTES => [self::EDIT],
-            self::EDIT_RENDITIONS => [self::OWNER],
+            self::EDIT => [self::OWNER],
+            self::EDIT_PRIVACY => [self::OWNER],
+            self::EDIT_TAG => [self::OWNER],
         ]);
     }
 
@@ -44,7 +48,7 @@ class AssetVoter extends AbstractVoter
             return true;
         }
 
-        if (!$this->security->isGranted(self::READ, $subject->getWorkspace(), $token)) {
+        if (!$this->security->isGranted(self::READ, $subject->getWorkspace())) {
             return false;
         }
 
@@ -54,14 +58,10 @@ class AssetVoter extends AbstractVoter
 
         switch ($attribute) {
             case self::CREATE:
-                if (null !== $collection = $subject->getReferenceCollection()) {
-                    return $this->security->isGranted(self::EDIT, $collection, $token);
-                }
-
-                return $this->security->isGranted(self::EDIT, $subject->getWorkspace(), $token);
+                return $this->voteOnContainer($subject, AssetContainerVoterInterface::CREATE_ASSET);
             case self::READ:
                 if ($subject->isDeleted()) {
-                    return $this->security->isGranted(self::DELETE, $subject, $token);
+                    return $this->security->isGranted(self::DELETE, $subject);
                 }
 
                 return $isOwner()
@@ -69,52 +69,55 @@ class AssetVoter extends AbstractVoter
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE
                     || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
-                    || $this->collectionGrantsAccess($subject, $token)
+                    || $this->collectionGrantsAccess($subject)
                 ;
-            case self::EDIT_RENDITIONS:
-            case self::EDIT:
-                return $isOwner()
-                    || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
-                    || $this->voteOnContainer($subject, self::OPERATOR, $token);
             case self::EDIT_ATTRIBUTES:
                 return $isOwner()
                     || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
-                    || $this->voteOnContainer($subject, self::EDIT, $token);
+                    || $this->voteOnContainer($subject, AssetContainerVoterInterface::EDIT_ASSET_ATTRIBUTES);
+            case self::EDIT_PRIVACY:
+                return $this->voteOnContainer($subject, AssetContainerVoterInterface::EDIT_ASSET_PRIVACY);
+            case self::EDIT_TAG:
+                return $this->voteOnContainer($subject, AssetContainerVoterInterface::EDIT_ASSET_TAG);
+            case self::EDIT:
+                return $isOwner()
+                    || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
+                    || $this->voteOnContainer($subject, AssetContainerVoterInterface::EDIT_ASSET);
             case self::SHARE:
                 return $isOwner()
                     || $this->hasAcl(PermissionInterface::SHARE, $subject, $token)
-                    || $this->voteOnContainer($subject, self::EDIT, $token);
+                    || $this->voteOnContainer($subject, AssetContainerVoterInterface::SHARE_ASSET);
             case self::DELETE:
                 return $isOwner()
                     || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
-                    || $this->voteOnContainer($subject, self::DELETE, $token);
+                    || $this->voteOnContainer($subject, AssetContainerVoterInterface::DELETE_ASSET);
             case self::EDIT_PERMISSIONS:
                 return $isOwner()
                     || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
-                    || $this->voteOnContainer($subject, self::OWNER, $token);
+                    || $this->voteOnContainer($subject, self::OWNER);
         }
 
         return false;
     }
 
-    private function voteOnContainer(Asset $asset, string|int $attribute, TokenInterface $token): bool
+    private function voteOnContainer(Asset $asset, string|int $attribute): bool
     {
-        return $this->security->isGranted($attribute, $asset->getReferenceCollection() ?? $asset->getWorkspace(), $token);
+        return $this->security->isGranted($attribute, $asset->getReferenceCollection() ?? $asset->getWorkspace());
     }
 
-    private function collectionGrantsAccess(Asset $subject, TokenInterface $token): bool
+    private function collectionGrantsAccess(Asset $subject): bool
     {
-        if (null === $subject->getReferenceCollection() && $this->security->isGranted(self::EDIT, $subject->getWorkspace(), $token)) {
+        if (null === $subject->getReferenceCollection() && $this->security->isGranted(self::EDIT, $subject->getWorkspace())) {
             return true;
         }
 
         foreach ($subject->getCollections() as $collectionAsset) {
             $collection = $collectionAsset->getCollection();
             if (null !== $storyAsset = $collection->getStoryAsset()) {
-                if ($this->security->isGranted(self::READ, $storyAsset, $token)) {
+                if ($this->security->isGranted(self::READ, $storyAsset)) {
                     return true;
                 }
-            } elseif ($this->security->isGranted(self::READ, $collection, $token)) {
+            } elseif ($this->security->isGranted(self::READ, $collection)) {
                 return true;
             }
         }

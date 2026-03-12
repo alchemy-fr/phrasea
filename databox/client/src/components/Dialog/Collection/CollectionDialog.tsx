@@ -53,7 +53,7 @@ export default function CollectionDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('collection.manage.edit.title', 'Edit'),
@@ -63,7 +63,7 @@ export default function CollectionDialog({}: Props) {
                         data,
                         setData,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -83,7 +83,7 @@ export default function CollectionDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEditPermissions,
+                    enabled: data.capabilities.editPermissions,
                 },
                 {
                     title: t('collection.manage.tag_rules.title', 'Tag rules'),
@@ -92,7 +92,7 @@ export default function CollectionDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -104,9 +104,7 @@ export default function CollectionDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled:
-                        data.capabilities.canEdit ||
-                        data.capabilities.canDelete,
+                    enabled: data.capabilities.edit || data.capabilities.delete,
                 },
                 {
                     title: t('collection.manage.es_doc.title', 'ES Document'),

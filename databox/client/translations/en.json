@@ -10,17 +10,17 @@
             }
         },
         "permission": {
-            "all": "ALL",
-            "create": "CREATE",
-            "delete": "DELETE",
-            "edit": "EDIT",
+            "all": "All",
+            "create": "Create",
+            "delete": "Delete",
+            "edit": "Edit",
             "manage_collection": "Manage",
-            "master": "MASTER",
-            "operator": "OPERATOR",
-            "owner": "OWNER",
-            "share": "SHARE",
-            "undelete": "UNDELETE",
-            "view": "VIEW"
+            "master": "Master",
+            "operator": "Operator",
+            "owner": "Owner",
+            "share": "Share",
+            "undelete": "Undelete",
+            "view": "View"
         },
         "table": {
             "cols": {

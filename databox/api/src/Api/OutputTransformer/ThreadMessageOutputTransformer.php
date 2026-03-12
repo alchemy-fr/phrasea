@@ -48,8 +48,8 @@ class ThreadMessageOutputTransformer implements OutputTransformerInterface
         ], $context)) {
             $output->author = $this->transformUser($data->getAuthorId());
             $output->capabilities = [
-                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
             ];
         }
 

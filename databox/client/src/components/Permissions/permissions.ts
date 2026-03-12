@@ -1,4 +1,6 @@
 import {Ace, UserType} from '../../types';
+import {AclPermission} from '../Acl/acl.ts';
+import {ReactNode} from 'react';
 
 export type OnMaskChange = (
     userType: UserType,
@@ -21,4 +23,20 @@ export enum PermissionObject {
     AttributeList = 'attribute_list',
 }
 
-export type DisplayedPermissions = string[] | undefined;
+export type DisplayedPermissions = AclPermission[] | undefined;
+
+export type BasePermissionProps = {
+    displayedPermissions?: DisplayedPermissions;
+    displayChildPermissions?: boolean;
+    permissionHelper?: PermissionHelpers;
+};
+
+export type PermissionHelpers = Partial<
+    Record<
+        AclPermission,
+        {
+            label?: string;
+            description?: ReactNode;
+        }
+    >
+>;

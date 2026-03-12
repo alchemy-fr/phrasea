@@ -40,19 +40,19 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
                 open: actionsContext.open && (main || asset.storyCollection),
                 saveAs: actionsContext.saveAs && asset.source,
                 download: actionsContext.export && main?.file?.url,
-                edit: actionsContext.edit && capabilities.canEdit,
+                edit: actionsContext.edit && capabilities.edit,
                 editAttributes:
-                    actionsContext.edit && capabilities.canEditAttributes,
+                    actionsContext.edit && capabilities.editAttributes,
                 delete:
                     actionsContext.delete &&
-                    capabilities.canDelete &&
+                    capabilities.delete &&
                     !asset.deleted,
                 restore:
                     actionsContext.restore &&
-                    capabilities.canDelete &&
+                    capabilities.delete &&
                     asset.deleted,
-                share: capabilities.canShare,
-                substitute: capabilities.canEdit,
+                share: capabilities.share,
+                substitute: capabilities.edit,
             },
             onDownload: () => {
                 openModal(ExportAssetsDialog, {

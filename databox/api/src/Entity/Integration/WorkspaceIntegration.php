@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
@@ -63,7 +64,7 @@ use Symfony\Component\Yaml\Yaml;
 #[ORM\Entity]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 #[ValidIntegrationOptionsConstraint]
-class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, WithOwnerIdInterface, LoggableChangeSetInterface
+class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, WithOwnerIdInterface, LoggableChangeSetInterface, AclObjectInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -71,6 +72,7 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
     use NullableWorkspaceTrait;
     use ErrorDisableTrait;
     final public const int OBJECT_INDEX = 10;
+    final public const string OBJECT_TYPE = 'integration';
 
     final public const string GROUP_READ = 'wi:read';
     final public const string GROUP_LIST = 'wi:index';
@@ -256,5 +258,10 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
         }
 
         return $this->getIntegration();
+    }
+
+    public function getAclOwnerId(): string
+    {
+        return $this->ownerId;
     }
 }

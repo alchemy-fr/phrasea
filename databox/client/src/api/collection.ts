@@ -1,6 +1,10 @@
 import {apiClient} from '../init.ts';
 import {Collection, CollectionOptionalWorkspace, Workspace} from '../types';
-import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
+import {
+    createIriFromId,
+    getHydraCollection,
+    NormalizedCollectionResponse,
+} from '@alchemy/api';
 import {clearAssociationIds} from './clearAssociation';
 import {useCollectionStore} from '../store/collectionStore';
 
@@ -9,6 +13,7 @@ import {
     WorkspaceOrCollectionTreeItem,
 } from '../components/Media/Collection/CollectionTree/types.ts';
 import {TreeNode} from '@alchemy/phrasea-framework';
+import {Entity} from './types.ts';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
@@ -149,9 +154,12 @@ export async function moveAssets(
 export function getWorkspaceOrCollectionIri(
     item: WorkspaceOrCollectionTreeItem
 ): string {
-    return item.type === EntityType.Collection
-        ? `/collections/${item.id}`
-        : `/workspaces/${item.id}`;
+    return createIriFromId(
+        item.type === EntityType.Collection
+            ? Entity.Collection
+            : Entity.Workspace,
+        item.id!
+    );
 }
 
 export async function createCollection(
@@ -168,14 +176,20 @@ export async function createCollection(
         if (node.parentNode?.virtual) {
             parent = await createSubCollection(node.parentNode);
         } else if (node.parentNode?.data.type === EntityType.Collection) {
-            parent = `/collections/${node.parentNode.data.id}`;
+            parent = createIriFromId(
+                Entity.Collection,
+                node.parentNode.data.id!
+            );
         }
 
         return (
             await postCollection({
                 title: node.data.label,
                 parent,
-                workspace: `/workspaces/${newCollection.data.workspaceId}`,
+                workspace: createIriFromId(
+                    Entity.Workspace,
+                    newCollection.data.workspaceId
+                ),
             })
         )['@id'];
     };

@@ -30,8 +30,8 @@ class WorkspaceIntegrationVoter extends AbstractVoter
             return true;
         }
 
-        $workspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace(), $token);
-        $workspaceReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getWorkspace(), $token);
+        $workspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace());
+        $workspaceReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getWorkspace());
 
         return match ($attribute) {
             self::CREATE, self::DELETE, self::EDIT => $workspaceEditor(),

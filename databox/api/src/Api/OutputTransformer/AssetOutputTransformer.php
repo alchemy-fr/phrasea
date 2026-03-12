@@ -182,14 +182,14 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
         if ($this->hasGroup([Asset::GROUP_LIST], $context)) {
             $capabilities = [
-                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-                'canEditAttributes' => $this->isGranted(AssetVoter::EDIT_ATTRIBUTES, $data),
-                'canShare' => $this->isGranted(AssetVoter::SHARE, $data),
-                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'editAttributes' => $this->isGranted(AssetVoter::EDIT_ATTRIBUTES, $data),
+                'share' => $this->isGranted(AssetVoter::SHARE, $data),
+                'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
             ];
 
             if ($this->hasGroup([Asset::GROUP_READ], $context)) {
-                $capabilities['canEditPermissions'] = $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data);
+                $capabilities['editPermissions'] = $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data);
             }
 
             $output->setCapabilities($capabilities);

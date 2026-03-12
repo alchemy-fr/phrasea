@@ -8,17 +8,35 @@ export enum AclPermission {
     OPERATOR = 'OPERATOR',
     MASTER = 'MASTER',
     OWNER = 'OWNER',
+    CHILD_CREATE = 'CHILD_CREATE',
+    CHILD_EDIT = 'CHILD_EDIT',
+    CHILD_DELETE = 'CHILD_DELETE',
+    CHILD_UNDELETE = 'CHILD_UNDELETE',
+    CHILD_OPERATOR = 'CHILD_OPERATOR',
+    CHILD_MASTER = 'CHILD_MASTER',
+    CHILD_OWNER = 'CHILD_OWNER',
+    CHILD_SHARE = 'CHILD_SHARE',
     ALL = 'ALL',
 }
 
-export const aclPermissions: {[key: string]: number} = {
+export type AclPermissionButAll = Exclude<AclPermission, AclPermission.ALL>;
+
+export const aclPermissions: Record<AclPermissionButAll, number> = {
     [AclPermission.VIEW]: 1,
-    [AclPermission.SHARE]: 256,
     [AclPermission.CREATE]: 2,
     [AclPermission.EDIT]: 4,
     [AclPermission.DELETE]: 8,
-    // [AclPermission.UNDELETE]: 16,
+    [AclPermission.UNDELETE]: 16,
     [AclPermission.OPERATOR]: 32,
-    // [AclPermission.MASTER]: 64,
+    [AclPermission.MASTER]: 64,
     [AclPermission.OWNER]: 128,
+    [AclPermission.SHARE]: 256,
+    [AclPermission.CHILD_CREATE]: 512,
+    [AclPermission.CHILD_EDIT]: 1024,
+    [AclPermission.CHILD_DELETE]: 2048,
+    [AclPermission.CHILD_UNDELETE]: 4096,
+    [AclPermission.CHILD_OPERATOR]: 8192,
+    [AclPermission.CHILD_MASTER]: 16384,
+    [AclPermission.CHILD_OWNER]: 32768,
+    [AclPermission.CHILD_SHARE]: 65536,
 };

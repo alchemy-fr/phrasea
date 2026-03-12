@@ -35,7 +35,7 @@ export default function Operations({data, onClose, minHeight}: Props) {
 
     return (
         <ContentTab onClose={onClose} minHeight={minHeight}>
-            {data.capabilities.canEdit && (
+            {data.capabilities.edit && (
                 <CollectionMoveSection
                     collection={data}
                     onMoved={() => {
@@ -43,7 +43,7 @@ export default function Operations({data, onClose, minHeight}: Props) {
                     }}
                 />
             )}
-            {data.capabilities.canDelete && (
+            {data.capabilities.delete && (
                 <FormSection>
                     <Alert
                         color={'error'}
