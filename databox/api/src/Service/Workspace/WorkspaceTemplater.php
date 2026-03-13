@@ -356,6 +356,8 @@ final readonly class WorkspaceTemplater
                 'suggest' => $item->isSuggest(),
                 'translatable' => $item->isTranslatable(),
                 'target' => $item->getTarget()->value,
+                'editable' => $item->isEditable(),
+                'guiEdit' => $item->isEditableInGui(),
             ];
         }
 
@@ -396,6 +398,8 @@ final readonly class WorkspaceTemplater
             $o->setSortable($item['sortable']);
             $o->setSuggest($item['suggest']);
             $o->setTranslatable($item['translatable']);
+            $o->setEditable($item['editable']);
+            $o->setEditableInGui($item['guiEdit']);
             $this->em->persist($o);
         }
     }
