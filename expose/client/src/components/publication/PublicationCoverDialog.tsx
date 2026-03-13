@@ -109,41 +109,51 @@ export default function PublicationCoverDialog({
                 {!assets ? (
                     <FullPageLoader backdrop={false} />
                 ) : (
-                    assets.map(a => (
-                        <div
-                            key={a.id}
-                            onClick={() => handleClick(a)}
-                            style={{
-                                height: rowHeight,
-                                margin: '5px',
-                                cursor: 'pointer',
-                            }}
-                            className={classNames({
-                                [Classes.thumbContainer]: true,
-                                selected: a.id === selectedIndex,
-                            })}
-                        >
-                            {getThumbUrl(a) ? (
-                                <img
-                                    src={getThumbUrl(a)}
-                                    alt={a.title}
-                                    style={{
-                                        height: rowHeight,
-                                    }}
-                                />
-                            ) : null}
-                        </div>
-                    ))
+                    assets.map(a => {
+                        const thumbUrl = getThumbUrl(a);
+
+                        return (
+                            <div
+                                key={a.id}
+                                onClick={() => handleClick(a)}
+                                style={{
+                                    height: rowHeight,
+                                    margin: '5px',
+                                    cursor: 'pointer',
+                                }}
+                                className={classNames({
+                                    [Classes.thumbContainer]: true,
+                                    selected: a.id === selectedIndex,
+                                })}
+                            >
+                                {thumbUrl ? (
+                                    <img
+                                        src={thumbUrl}
+                                        alt={a.title}
+                                        style={{
+                                            height: rowHeight,
+                                        }}
+                                    />
+                                ) : null}
+                            </div>
+                        );
+                    })
                 )}
             </Box>
         </AppDialog>
     );
 }
 
-export function getThumbUrl(asset: Asset | undefined) {
-    return asset?.thumbType && asset.thumbType.startsWith('image/')
+export function getThumbUrl(asset: Asset | undefined): string | undefined {
+    if (!asset) {
+        return;
+    }
+
+    const {thumbType, previewType} = asset;
+
+    return thumbType && thumbType.startsWith('image/')
         ? asset.thumbUrl
-        : asset?.previewType && asset.previewType.startsWith('image/')
+        : previewType && previewType.startsWith('image/')
           ? asset.previewUrl
           : undefined;
 }
