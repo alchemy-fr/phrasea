@@ -5,7 +5,7 @@ import {Button, Box} from '@mui/material';
 import {useState} from 'react';
 import {useContainerWidth} from '@alchemy/react-hooks/src/useContainerWidth';
 import {Classes} from './types';
-import AssetIconThumbnail, {thumbSx} from './asset/AssetIconThumbnail';
+import {thumbSx} from './asset/AssetIconThumbnail';
 import React from 'react';
 import {Asset, Publication} from '../../types';
 import classNames from 'classnames';
@@ -43,7 +43,7 @@ export default function PublicationCoverDialog({
     };
 
     const onSetCover = async () => {
-        handleSetCover(cover?.id, cover?.previewUrl);
+        handleSetCover(cover?.id, cover ? getThumbUrl(cover) : undefined);
         closeModal();
         onClose?.();
     };
@@ -109,40 +109,51 @@ export default function PublicationCoverDialog({
                 {!assets ? (
                     <FullPageLoader backdrop={false} />
                 ) : (
-                    assets.map(a => (
-                        <div
-                            key={a.id}
-                            onClick={() => handleClick(a)}
-                            style={{
-                                height: rowHeight,
-                                margin: '5px',
-                                cursor: 'pointer',
-                            }}
-                            className={classNames({
-                                [Classes.thumbContainer]: true,
-                                selected: a.id === selectedIndex,
-                            })}
-                        >
-                            {a.thumbUrl ? (
-                                <img
-                                    src={a.thumbUrl}
-                                    alt={a.title}
-                                    style={{
-                                        height: rowHeight,
-                                    }}
-                                />
-                            ) : (
-                                <AssetIconThumbnail
-                                    style={{
-                                        height: rowHeight,
-                                    }}
-                                    mimeType={a.mimeType}
-                                />
-                            )}
-                        </div>
-                    ))
+                    assets.map(a => {
+                        const thumbUrl = getThumbUrl(a);
+
+                        return (
+                            <div
+                                key={a.id}
+                                onClick={() => handleClick(a)}
+                                style={{
+                                    height: rowHeight,
+                                    margin: '5px',
+                                    cursor: 'pointer',
+                                }}
+                                className={classNames({
+                                    [Classes.thumbContainer]: true,
+                                    selected: a.id === selectedIndex,
+                                })}
+                            >
+                                {thumbUrl ? (
+                                    <img
+                                        src={thumbUrl}
+                                        alt={a.title}
+                                        style={{
+                                            height: rowHeight,
+                                        }}
+                                    />
+                                ) : null}
+                            </div>
+                        );
+                    })
                 )}
             </Box>
         </AppDialog>
     );
+}
+
+export function getThumbUrl(asset: Asset | undefined): string | undefined {
+    if (!asset) {
+        return;
+    }
+
+    const {thumbType, previewType} = asset;
+
+    return thumbType && thumbType.startsWith('image/')
+        ? asset.thumbUrl
+        : previewType && previewType.startsWith('image/')
+          ? asset.previewUrl
+          : undefined;
 }

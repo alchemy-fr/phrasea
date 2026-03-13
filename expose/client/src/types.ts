@@ -117,12 +117,14 @@ export type Asset = {
     assetId: string | undefined;
     trackingId: string | undefined;
     previewUrl: string;
+    previewType: string;
     posterUrl: string;
     title: string;
     description?: string;
     webVTTLinks?: WebVTTs;
     downloadUrl: string;
     thumbUrl?: string;
+    thumbType?: string;
     originalName?: string;
     subDefinitions: SubDefinition[];
     translations: Translations;
