@@ -19,7 +19,7 @@ framework:
             verify_peer: '%env(bool:VERIFY_SSL)%'
         scoped_clients:
             matomo.client:
-                base_uri: '%env(default:default_base_url:MATOMO_URL)%'
+                base_uri: '%env(MATOMO_URL)%'
             remove_bg.client:
                 base_uri: https://api.remove.bg
                 verify_peer: true

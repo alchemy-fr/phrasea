@@ -23,9 +23,9 @@ framework:
             verify_peer: '%env(bool:VERIFY_SSL)%'
         scoped_clients:
             matomo.client:
-                base_uri: '%env(default:default_base_url:MATOMO_URL)%'
+                base_uri: '%env(MATOMO_URL)%'
             phraseanet.client:
-                base_uri: '%env(default:default_base_url:PHRASEANET_URL)%'
+                base_uri: '%env(PHRASEANET_URL)%'
 
 when@dev:
     framework:
