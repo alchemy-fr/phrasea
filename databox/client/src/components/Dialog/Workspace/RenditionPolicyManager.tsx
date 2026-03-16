@@ -1,5 +1,5 @@
 import {RenditionPolicy, Workspace} from '../../../types';
-import {InputLabel, ListItemText, TextField} from '@mui/material';
+import {Chip, InputLabel, ListItemText, TextField} from '@mui/material';
 import {FormRow} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
@@ -30,6 +30,7 @@ function Item({
     const {t} = useTranslation();
 
     const isPublic = watch('public');
+    const isEditable = watch('editable');
 
     return (
         <>
@@ -50,12 +51,25 @@ function Item({
                 />
                 <FormFieldErrors field={'public'} errors={errors} />
             </FormRow>
-            {data.id && !isPublic && (
+            <FormRow>
+                <CheckboxWidget
+                    label={t(
+                        'form.rendition_policy.editable.label',
+                        'Editable'
+                    )}
+                    control={control}
+                    name={'editable'}
+                    disabled={!isPublic || submitting}
+                />
+                <FormFieldErrors field={'editable'} errors={errors} />
+            </FormRow>
+            {data.id && !isEditable && (
                 <FormRow>
                     <InputLabel>
                         {t('form.permissions.label', 'Permissions')}
                     </InputLabel>
                     <RenditionPolicyPermissions
+                        isPublic={isPublic}
                         policyId={data.id}
                         workspaceId={(data.workspace as Workspace).id}
                     />
@@ -66,6 +80,43 @@ function Item({
 }
 
 function ListItem({data}: DefinitionItemProps<RenditionPolicy>) {
+    const {t} = useTranslation();
+
+    const publicLabel = data.public
+        ? t('chip.public', 'Public')
+        : t('chip.private', 'Private');
+    const editableLabel = data.public
+        ? data.editable
+            ? t('chip.editable', 'Editable')
+            : t('chip.read_only', 'Read only')
+        : undefined;
+
+    return (
+        <ListItemText
+            primary={data.name}
+            slotProps={{
+                secondary: {
+                    component: 'div',
+                },
+            }}
+            secondary={
+                <>
+                    <Chip
+                        color={data.public ? 'success' : 'error'}
+                        label={publicLabel}
+                        size={'small'}
+                    />{' '}
+                    {editableLabel ? (
+                        <Chip
+                            color={data.editable ? 'success' : 'error'}
+                            label={editableLabel}
+                            size={'small'}
+                        />
+                    ) : null}
+                </>
+            }
+        />
+    );
     return <ListItemText primary={data.name} />;
 }
 

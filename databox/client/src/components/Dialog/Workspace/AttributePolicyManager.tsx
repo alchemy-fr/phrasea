@@ -116,8 +116,10 @@ function ListItem({data}: DefinitionItemProps<AttributePolicy>) {
     return (
         <ListItemText
             primary={data.name}
-            secondaryTypographyProps={{
-                component: 'div',
+            slotProps={{
+                secondary: {
+                    component: 'div',
+                },
             }}
             secondary={
                 <>

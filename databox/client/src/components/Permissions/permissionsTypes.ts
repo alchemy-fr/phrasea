@@ -69,6 +69,7 @@ export enum PermissionObject {
     Basket = 'basket',
     SavedSearch = 'saved_search',
     AttributePolicy = 'attribute_policy',
+    RenditionPolicy = 'rendition_policy',
     AttributeList = 'attribute_list',
     WorkspaceIntegration = 'integration',
 }

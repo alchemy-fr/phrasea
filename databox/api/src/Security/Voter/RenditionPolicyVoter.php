@@ -31,14 +31,14 @@ class RenditionPolicyVoter extends AbstractVoter
             return true;
         }
 
-        $workspaceReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getWorkspace());
-        $workspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace());
+        $isWorkspaceReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getWorkspace());
+        $isWorkspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE, self::EDIT, self::DELETE => $workspaceEditor(),
-            self::READ_ADMIN => $workspaceEditor()
+            self::CREATE, self::EDIT, self::DELETE => $isWorkspaceEditor(),
+            self::READ_ADMIN => $isWorkspaceEditor()
                     || $this->tokenHasScope($token, self::READ, self::SCOPE_PREFIX),
-            self::READ => $workspaceReader(),
+            self::READ => $isWorkspaceReader(),
             default => false,
         };
     }

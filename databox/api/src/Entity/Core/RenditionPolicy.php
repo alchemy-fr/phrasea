@@ -76,6 +76,11 @@ class RenditionPolicy extends AbstractUuidEntity implements \Stringable, Loggabl
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $public = false;
 
+    #[Groups([RenditionPolicy::GROUP_LIST])]
+    #[ORM\Column(type: Types::BOOLEAN)]
+    #[Assert\NotNull]
+    private ?bool $editable = null;
+
     #[Groups([RenditionPolicy::GROUP_LIST, RenditionPolicy::GROUP_READ])]
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $labels = null;
@@ -125,6 +130,16 @@ class RenditionPolicy extends AbstractUuidEntity implements \Stringable, Loggabl
     public function setLabels(?array $labels): void
     {
         $this->labels = $labels;
+    }
+
+    public function isEditable(): bool
+    {
+        return $this->editable;
+    }
+
+    public function setEditable(bool $editable): void
+    {
+        $this->editable = $editable;
     }
 
     public function getAclOwnerId(): string

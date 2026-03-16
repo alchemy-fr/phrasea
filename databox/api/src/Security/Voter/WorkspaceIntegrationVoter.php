@@ -33,14 +33,14 @@ class WorkspaceIntegrationVoter extends AbstractVoter
             return true;
         }
 
-        $workspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace());
-        $workspaceReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getWorkspace());
+        $isWorkspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace());
+        $isWorkspaceReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE => $workspaceEditor(),
-            self::EDIT => $workspaceEditor() || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
-            self::DELETE => $workspaceEditor() || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
-            self::READ => $workspaceReader()
+            self::CREATE => $isWorkspaceEditor(),
+            self::EDIT => $isWorkspaceEditor() || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
+            self::DELETE => $isWorkspaceEditor() || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
+            self::READ => $isWorkspaceReader()
         || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
             self::READ_DATA => $this->isAuthenticated()
                 && (true === $subject->getPublic() || $this->hasAcl(PermissionInterface::CHILD_VIEW, $subject, $token)),

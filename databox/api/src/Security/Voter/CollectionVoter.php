@@ -59,20 +59,17 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isWorkspaceOwnerFast = fn (): bool => $userId && $subject->getWorkspace()->getOwnerId() === $userId;
         $isWorkspaceOwnerSlow = fn (): bool => $this->hasAcl(PermissionInterface::OWNER, $subject->getWorkspace(), $token);
-        $isCollectionCreator = fn (): bool => $userId && $subject->getOwnerId() === $userId || $subject->getWorkspace()->getOwnerId() === $userId;
         $isCreator = fn (): bool => $userId && $subject->getOwnerId() === $userId || $subject->getWorkspace()->getOwnerId() === $userId;
         $isOwnerSlow = fn (): bool => $this->hasAcl(PermissionInterface::OWNER, $subject, $token) || $this->security->isGranted(self::OWNER, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE => $isCreator() // of parent only
+            self::CREATE => $isWorkspaceOwnerFast()
                 || ($subject->getParent()
-                    && (
-                        $this->hasAcl([PermissionInterface::CREATE], $subject->getParent(), $token)
-                        || false // TODO
-                    )
+                        && $this->hasAcl([PermissionInterface::CREATE], $subject->getParent(), $token)
+
                 )
                 || $this->parentIsGranted($attribute, $subject)
-                || $isOwnerSlow()
+                || $isWorkspaceOwnerSlow()
             ,
             self::LIST => $isCreator()
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
@@ -108,10 +105,10 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 || $isOwnerSlow()
             ,
 
-            self::CREATE_ASSET => $isCollectionCreator()
+            self::CREATE_ASSET => $isWorkspaceOwnerFast()
                 || $this->hasAcl(PermissionInterface::CHILD_CREATE, $subject, $token)
                 || $this->parentIsGranted($attribute, $subject)
-                || $isOwnerSlow()
+                || $isWorkspaceOwnerSlow()
                 || $this->isAdmin()
             ,
             self::EDIT_ASSET_ATTRIBUTES => $isCreator()
