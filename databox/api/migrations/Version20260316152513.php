@@ -17,7 +17,7 @@ final class Version20260316152513 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->addSql('ALTER TABLE rendition_policy ADD editable BOOLEAN NOT NULL DEFAULT FALSE');
-        $this->addSql('UPDATE rendition_policy SET editable = true');
+        $this->addSql('UPDATE rendition_policy SET editable = true WHERE public = true');
         $this->addSql('ALTER TABLE rendition_policy ALTER editable DROP DEFAULT');
     }
 

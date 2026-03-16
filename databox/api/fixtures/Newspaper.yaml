@@ -164,9 +164,11 @@ App\Entity\Core\RenditionPolicy:
     n_rc_public (extends rendition_policy_n):
         name: Public
         public: true
+        editable: true
     n_rc_restricted (extends rendition_policy_n):
         name: Restricted
         public: false
+        editable: false
 
 App\Entity\Core\RenditionDefinition:
     rendition_definition_n (template):

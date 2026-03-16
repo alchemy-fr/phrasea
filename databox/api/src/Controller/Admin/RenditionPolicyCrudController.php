@@ -2,7 +2,7 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Core\RenditionPolicy;
@@ -17,7 +17,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
-class RenditionPolicyCrudController extends AbstractAdminCrudController
+class RenditionPolicyCrudController extends AbstractAclAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -50,6 +50,7 @@ class RenditionPolicyCrudController extends AbstractAdminCrudController
         yield AssociationField::new('workspace');
         yield TextField::new('name');
         yield BooleanField::new('public');
+        yield BooleanField::new('editable');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield AssociationField::new('definitions')
