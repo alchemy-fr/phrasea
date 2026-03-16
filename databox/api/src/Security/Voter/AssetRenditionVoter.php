@@ -42,11 +42,15 @@ class AssetRenditionVoter extends AbstractVoter
 
     private function doVote(string $attribute, AssetRendition $subject, TokenInterface $token): bool
     {
-        $isRead = fn (): bool => $subject->getDefinition()->getPolicy()->isPublic() || $this->hasAcl(PermissionInterface::CHILD_VIEW, $subject->getDefinition()->getPolicy(), $token);
+        $renditionPolicy = $subject->getDefinition()->getPolicy();
+        $isRead = fn (): bool => $renditionPolicy->isPublic() || $this->hasAcl(PermissionInterface::CHILD_VIEW, $renditionPolicy, $token);
+        $isEditable = fn (): bool => $renditionPolicy->isEditable() || $this->hasAcl(PermissionInterface::CHILD_EDIT, $renditionPolicy, $token);
 
         return match ($attribute) {
             self::READ => $isRead(),
-            self::CREATE, self::EDIT, self::DELETE => $isRead() && $this->security->isGranted(AssetVoter::EDIT, $subject->getAsset()),
+            self::CREATE,
+            self::EDIT,
+            self::DELETE => $isEditable() && $this->security->isGranted(AssetVoter::EDIT, $subject->getAsset()),
             default => false,
         };
     }
