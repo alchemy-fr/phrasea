@@ -153,6 +153,7 @@ final readonly class WorkspaceTemplater
                 'id' => $slugId,
                 'name' => $item->getName(),
                 'public' => $item->isPublic(),
+                'editable' => $item->isEditable(),
                 'labels' => $item->getLabels(),
             ];
         }
@@ -178,6 +179,7 @@ final readonly class WorkspaceTemplater
             }
             $o->setPublic($item['public']);
             $o->setLabels($item['labels']);
+            $o->setEditable($item['editable']);
             $this->em->persist($o);
 
             $renditionClassMap[$item['id']] = $o;
