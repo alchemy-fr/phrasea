@@ -80,7 +80,25 @@ function Item({
                 label: t('acl.permission.integration.view.label', 'View'),
                 description: t(
                     'acl.permission.integration.view.desc',
-                    'Can view integration and read its data'
+                    'View integration, but cannot interact with it or see its data. This permission is useful for users who need to know an integration exists, but should not be able to run it or see its results.'
+                ),
+            },
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.EDIT,
+                label: t('acl.permission.integration.edit.label', 'Edit'),
+                description: t(
+                    'acl.permission.integration.edit.desc',
+                    'Can edit integration configuration.'
+                ),
+            },
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.CHILD_VIEW,
+                label: t('acl.permission.integration.child_view.desc', 'Use'),
+                description: t(
+                    'acl.permission.integration.child_view.desc',
+                    'View integration and read its data, but cannot interact with it. This permission is useful for users who need to see the results of an integration, but should not be able to run it or edit its configuration.'
                 ),
             },
             {
@@ -273,6 +291,8 @@ function Item({
                             d.type === PermissionType.Mask &&
                             [
                                 AclPermission.VIEW,
+                                AclPermission.EDIT,
+                                AclPermission.CHILD_VIEW,
                                 AclPermission.CHILD_EDIT,
                             ].includes(d.key)
                         }

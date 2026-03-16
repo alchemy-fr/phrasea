@@ -75,6 +75,12 @@ export default function useAclPermissionDefinitions({
             },
             {
                 type: PermissionType.Mask,
+                value: aclPermissions[AclPermission.CHILD_VIEW],
+                key: AclPermission.CHILD_VIEW,
+                label: t('acl.permission.child_create', 'Child View'),
+            },
+            {
+                type: PermissionType.Mask,
                 value: aclPermissions[AclPermission.CHILD_CREATE],
                 key: AclPermission.CHILD_CREATE,
                 label: t('acl.permission.child_create', 'Child Create'),

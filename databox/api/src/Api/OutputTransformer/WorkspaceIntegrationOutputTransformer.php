@@ -106,6 +106,7 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
 
         if ($this->hasGroup([WorkspaceIntegration::GROUP_LIST], $context)) {
             $output->setCapabilities([
+                'use' => $this->isGranted(WorkspaceIntegrationVoter::READ_DATA, $data),
                 'interact' => $this->isGranted(WorkspaceIntegrationVoter::INTERACT, $data),
             ]);
         }

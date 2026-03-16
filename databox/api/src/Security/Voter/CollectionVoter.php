@@ -57,7 +57,8 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
 
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
-        $isWorkspaceOwner = fn (): bool => $userId && $subject->getWorkspace()->getOwnerId() === $userId;
+        $isWorkspaceOwnerFast = fn (): bool => $userId && $subject->getWorkspace()->getOwnerId() === $userId;
+        $isWorkspaceOwnerSlow = fn (): bool => $this->hasAcl(PermissionInterface::OWNER, $subject->getWorkspace(), $token);
         $isCollectionCreator = fn (): bool => $userId && $subject->getOwnerId() === $userId || $subject->getWorkspace()->getOwnerId() === $userId;
         $isCreator = fn (): bool => $userId && $subject->getOwnerId() === $userId || $subject->getWorkspace()->getOwnerId() === $userId;
         $isOwnerSlow = fn (): bool => $this->hasAcl(PermissionInterface::OWNER, $subject, $token) || $this->security->isGranted(self::OWNER, $subject->getWorkspace());

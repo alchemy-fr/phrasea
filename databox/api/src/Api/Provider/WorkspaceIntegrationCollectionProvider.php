@@ -52,7 +52,16 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
         $queryBuilder
             ->addOrderBy('t.createdAt', 'ASC');
 
-        if (!$this->isAdmin()) {
+        $workspace = null;
+        if ($filters['workspace'] ?? false) {
+            $workspaceId = str_replace('/workspaces/', '', $filters['workspace']);
+            $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $workspaceId);
+            $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace);
+        }
+
+        if (!$this->isAdmin() && (
+            null === $workspace || !$this->isGranted(AbstractVoter::EDIT, $workspace)
+        )) {
             $queryBuilder->addGroupBy('t.id');
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
@@ -63,7 +72,8 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
                 PermissionInterface::VIEW,
                 false
             );
-            $queryBuilder->andWhere('ace.id IS NOT NULL OR t.public = true');
+            $queryBuilder->andWhere('ace.id IS NOT NULL OR t.public = true OR t.ownerId = :uid')
+                ->setParameter('uid', $user->getId());
         }
 
         $context = $filters['context'] ?? null;
@@ -80,12 +90,7 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
             ;
         }
 
-        if ($filters['workspace'] ?? false) {
-            $workspaceId = str_replace('/workspaces/', '', $filters['workspace']);
-            $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $workspaceId);
-
-            $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace);
-
+        if (null !== $workspace) {
             $queryBuilder
                 ->andWhere('t.workspace = :ws')
                 ->setParameter('ws', $workspace->getId());

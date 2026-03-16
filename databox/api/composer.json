@@ -150,7 +150,7 @@
         "ext-intl": "*",
         "ext-json": "*",
         "ext-sodium": "*",
-        "alchemy/acl-bundle": "dev-main",
+        "alchemy/acl-bundle": "dev-metadata",
         "alchemy/admin-bundle": "@dev",
         "alchemy/auth-bundle": "*",
         "alchemy/configurator-bundle": "@dev",
