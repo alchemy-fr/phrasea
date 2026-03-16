@@ -52,10 +52,10 @@ class AssetVoter extends AbstractVoter
             return false;
         }
 
-        $isWorkspaceOwnerSlow = fn () => false;
-        $isWorkspaceOwnerFast = fn () => false;
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
+        $isWorkspaceOwnerFast = fn (): bool => $userId && $subject->getWorkspace()->getOwnerId() === $userId;
+        $isWorkspaceOwnerSlow = fn (): bool => $this->hasAcl(PermissionInterface::OWNER, $subject->getWorkspace(), $token);
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
         switch ($attribute) {

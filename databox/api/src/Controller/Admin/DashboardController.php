@@ -30,7 +30,6 @@ use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
-use App\Entity\Core\RenditionRule;
 use App\Entity\Core\Share;
 use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
@@ -90,7 +89,6 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Asset Rendition', '', AssetRendition::class),
             MenuItem::linkToCrud('Rendition Definition', '', RenditionDefinition::class),
             MenuItem::linkToCrud('Rendition Policy', '', RenditionPolicy::class),
-            MenuItem::linkToCrud('Rendition Rule', '', RenditionRule::class),
             MenuItem::linkToCrud('Alternate URL', '', AlternateUrl::class),
             MenuItem::linkToCrud('Share', '', Share::class),
         ];

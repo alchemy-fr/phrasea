@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\AssetRendition;
-use App\Security\RenditionPermissionManager;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class AssetRenditionVoter extends AbstractVoter
 {
-    public function __construct(private readonly RenditionPermissionManager $renditionPermissionManager)
-    {
+    private CacheInterface $cache;
+
+    public function __construct(
+        TemporaryCacheFactory $cacheFactory,
+    ) {
+        $this->cache = $cacheFactory->createCache();
     }
 
     protected function supports(string $attribute, $subject): bool
@@ -30,22 +35,18 @@ class AssetRenditionVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        $user = $token->getUser();
-        $userId = null;
-        $groupIds = [];
-        if ($user instanceof JwtUser) {
-            $userId = $user->getId();
-            $groupIds = $user->getGroups();
-        }
+        return $this->cache->get(sprintf('%s,%s,%s', $attribute, $subject->getId(), spl_object_id($token)), function () use ($attribute, $subject, $token) {
+            return $this->doVote($attribute, $subject, $token);
+        });
+    }
+
+    private function doVote(string $attribute, AssetRendition $subject, TokenInterface $token): bool
+    {
+        $canRead = fn (): bool => $subject->getDefinition()->getPolicy()->isPublic() || $this->hasAcl(PermissionInterface::CHILD_VIEW, $subject->getDefinition()->getPolicy(), $token);
 
         return match ($attribute) {
-            self::READ => $this->renditionPermissionManager->isGranted(
-                $subject->getAsset(),
-                $subject->getDefinition()->getPolicy(),
-                $userId,
-                $groupIds
-            ),
-            self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(AssetVoter::EDIT, $subject->getAsset()),
+            self::READ => $canRead(),
+            self::CREATE, self::EDIT, self::DELETE => $canRead() && $this->security->isGranted(AssetVoter::EDIT, $subject->getAsset()),
             default => false,
         };
     }

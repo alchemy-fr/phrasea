@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Asset;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Consumer\Handler\File\NewAssetFromBorder;
 use App\Entity\Core\Asset;
@@ -12,11 +13,12 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
-use App\Security\RenditionPermissionManager;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AssetCopier
 {
+    use SecurityAwareTrait;
     final public const string OPT_WITH_ATTRIBUTES = 'withAttributes';
     final public const string OPT_WITH_TAGS = 'withTags';
 
@@ -24,7 +26,6 @@ class AssetCopier
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly RenditionPermissionManager $renditionPermissionManager,
         private readonly FileCopier $fileCopier,
         private readonly PostFlushStack $postFlushStack,
     ) {
@@ -102,10 +103,7 @@ class AssetCopier
 
         if ($sameWorkspace) {
             foreach ($asset->getRenditions() as $rendition) {
-                if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getPolicy(),
-                    $userId,
-                    $groupsId
-                )) {
+                if ($this->isGranted(AbstractVoter::READ, $rendition)) {
                     $this->copyRendition($rendition, $copy);
                 }
             }

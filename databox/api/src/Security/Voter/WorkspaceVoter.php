@@ -45,7 +45,7 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        return $this->cache->get(sprintf('%s:%s:%s', $attribute, $subject->getId(), spl_object_id($token)), function () use ($attribute, $subject, $token) {
+        return $this->cache->get(sprintf('%s,%s,%s', $attribute, $subject->getId(), spl_object_id($token)), function () use ($attribute, $subject, $token) {
             return $this->doVote($attribute, $subject, $token);
         });
     }

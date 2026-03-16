@@ -24,7 +24,6 @@ use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
 use App\Repository\Core\AssetRenditionRepository;
-use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use App\Service\Asset\Attribute\AssetTitleResolver;
@@ -43,7 +42,6 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly RenditionPermissionManager $renditionPermissionManager,
         private readonly AttributesResolver $attributesResolver,
         private readonly AssetTitleResolver $assetTitleResolver,
         private readonly FieldNameResolver $fieldNameResolver,
@@ -76,8 +74,6 @@ class AssetOutputTransformer implements OutputTransformerInterface
         $preferredLocales = $this->getPreferredLocales($data->getWorkspace());
 
         $user = $this->getUser();
-        $userId = $user instanceof JwtUser ? $user->getId() : null;
-        $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
@@ -160,7 +156,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 ]);
 
             foreach (RenditionDefinition::BUILT_IN_RENDITIONS as $type) {
-                if (null !== $file = $this->getRenditionUsedAsType($renditions, $data, $type, $userId, $groupIds)) {
+                if (null !== $file = $this->getRenditionUsedAsType($renditions, $type)) {
                     $output->{'set'.ucfirst($type)}($file);
                 }
             }
@@ -218,15 +214,12 @@ class AssetOutputTransformer implements OutputTransformerInterface
      */
     private function getRenditionUsedAsType(
         array $assetRenditions,
-        Asset $asset,
         string $type,
-        ?string $userId,
-        array $groupIds,
     ): ?AssetRendition {
         foreach ($assetRenditions as $rendition) {
             if ($rendition->getDefinition()->{'isUseAs'.ucfirst($type)}()) {
                 // Return the first viewable sub def for user
-                if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getPolicy(), $userId, $groupIds)) {
+                if ($this->isGranted(AbstractVoter::READ, $rendition)) {
                     return $rendition;
                 }
             }

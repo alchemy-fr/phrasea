@@ -27,13 +27,18 @@ class RenditionPolicyVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
+        if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
+            return true;
+        }
+
+        $workspaceReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getWorkspace());
         $workspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE, self::EDIT, self::DELETE => $workspaceEditor() || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX),
+            self::CREATE, self::EDIT, self::DELETE => $workspaceEditor(),
             self::READ_ADMIN => $workspaceEditor()
-                || $this->tokenHasScope($token, self::READ, self::SCOPE_PREFIX),
-            self::READ => true,
+                    || $this->tokenHasScope($token, self::READ, self::SCOPE_PREFIX),
+            self::READ => $workspaceReader(),
             default => false,
         };
     }

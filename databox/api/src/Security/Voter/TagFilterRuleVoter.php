@@ -24,9 +24,6 @@ class TagFilterRuleVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        $objectClass = TagFilterRule::OBJECT_CLASSES[$subject->getObjectType()];
-        $object = $this->em->getRepository($objectClass)->find($subject->getObjectId());
-
-        return $this->security->isGranted(self::EDIT, $object);
+        return $this->security->isGranted(self::EDIT, $subject->getWorkspace());
     }
 }

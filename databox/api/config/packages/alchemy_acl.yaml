@@ -1,14 +1,15 @@
 alchemy_acl:
   objects:
-    !php/const:App\Entity\Core\Asset::OBJECT_TYPE: App\Entity\Core\Asset
-    !php/const:App\Entity\Core\Collection::OBJECT_TYPE: App\Entity\Core\Collection
-    !php/const:App\Entity\Core\Workspace::OBJECT_TYPE: App\Entity\Core\Workspace
-    !php/const:App\Entity\Core\AttributePolicy::OBJECT_TYPE: App\Entity\Core\AttributePolicy
-    !php/const:App\Entity\Template\AssetDataTemplate::OBJECT_TYPE: App\Entity\Template\AssetDataTemplate
-    !php/const:App\Entity\Basket\Basket::OBJECT_TYPE: App\Entity\Basket\Basket
     !php/const:App\Entity\AttributeList\AttributeList::OBJECT_TYPE: App\Entity\AttributeList\AttributeList
-    !php/const:App\Entity\SavedSearch\SavedSearch::OBJECT_TYPE: App\Entity\SavedSearch\SavedSearch
+    !php/const:App\Entity\Basket\Basket::OBJECT_TYPE: App\Entity\Basket\Basket
+    !php/const:App\Entity\Core\Asset::OBJECT_TYPE: App\Entity\Core\Asset
+    !php/const:App\Entity\Core\AttributePolicy::OBJECT_TYPE: App\Entity\Core\AttributePolicy
+    !php/const:App\Entity\Core\Collection::OBJECT_TYPE: App\Entity\Core\Collection
+    !php/const:App\Entity\Core\RenditionPolicy::OBJECT_TYPE: App\Entity\Core\RenditionPolicy
+    !php/const:App\Entity\Core\Workspace::OBJECT_TYPE: App\Entity\Core\Workspace
     !php/const:App\Entity\Integration\WorkspaceIntegration::OBJECT_TYPE: App\Entity\Integration\WorkspaceIntegration
+    !php/const:App\Entity\SavedSearch\SavedSearch::OBJECT_TYPE: App\Entity\SavedSearch\SavedSearch
+    !php/const:App\Entity\Template\AssetDataTemplate::OBJECT_TYPE: App\Entity\Template\AssetDataTemplate
   enabled_permissions:
     - VIEW
     - CREATE
@@ -18,6 +19,7 @@ alchemy_acl:
     - MASTER
     - OWNER
     - SHARE
+    - CHILD_VIEW
     - CHILD_CREATE
     - CHILD_EDIT
     - CHILD_DELETE
