@@ -27,6 +27,7 @@ namespace App\Tests\Permission\Model;
 class PermissionsTestCase
 {
     public function __construct(
+        public string $name,
         // Username of user which we are testing permissions
         public string $username,
         public bool $inWorkspace = true,
@@ -57,22 +58,28 @@ class PermissionsTestCase
         public bool $canDeleteRoot = false,
         public bool $canCreateCollectionInRoot = false,
         public bool $canCreateAssetInRoot = false,
-        public bool $canEditAssetsInRoot = false,
-        public bool $canDeleteAssetsInRoot = false,
         public bool $canViewA = false,
         public bool $canEditA = false,
         public bool $canDeleteA = false,
         public bool $canCreateCollectionUnderA = false,
         public bool $canCreateAssetInA = false,
-        public bool $canEditAssetsInA = false,
-        public bool $canDeleteAssetsInA = false,
         public bool $canViewB = false,
         public bool $canEditB = false,
         public bool $canDeleteB = false,
         public bool $canCreateCollectionUnderB = false,
         public bool $canCreateAssetInB = false,
-        public bool $canEditAssetsInB = false,
-        public bool $canDeleteAssetsInB = false,
+
+        public AssetPermissions $assetLostRoot = new AssetPermissions(),
+        public AssetPermissions $assetLostAlice = new AssetPermissions(),
+        public AssetPermissions $assetLostBob = new AssetPermissions(),
+
+        public AssetPermissions $assetInARoot = new AssetPermissions(),
+        public AssetPermissions $assetInAAlice = new AssetPermissions(),
+        public AssetPermissions $assetInABob = new AssetPermissions(),
+
+        public AssetPermissions $assetInBRoot = new AssetPermissions(),
+        public AssetPermissions $assetInBAlice = new AssetPermissions(),
+        public AssetPermissions $assetInBBob = new AssetPermissions(),
     ) {
     }
 }

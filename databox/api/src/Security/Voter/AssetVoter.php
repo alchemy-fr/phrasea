@@ -95,6 +95,7 @@ class AssetVoter extends AbstractVoter
                     || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
                     || $this->voteOnContainer($subject, AssetContainerVoterInterface::DELETE_ASSET);
             case self::EDIT_PERMISSIONS:
+            case self::EDIT_PRIVACY:
                 return $isWorkspaceOwnerFast()
                 || $this->hasMetadata(AssetContainerVoterInterface::PERM_EDIT_PERMISSIONS, $subject, $token)
                 || $this->voteOnContainer($subject, $attribute)

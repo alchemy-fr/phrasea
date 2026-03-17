@@ -90,29 +90,26 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 || $this->parentIsGranted($attribute, $subject)
                 || $isOwnerSlow()
             ,
-            self::EDIT => $isCreator()
-                || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
+            self::EDIT => $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
                 || $this->parentIsGranted($attribute, $subject)
                 || $isOwnerSlow()
             ,
-            self::DELETE => $isCreator()
-                || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
+            self::DELETE => $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
                 || $this->parentIsGranted($attribute, $subject)
                 || $isOwnerSlow()
             ,
-            self::OWNER => $isCreator()
-                || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
+            self::OWNER => $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                 || $this->parentIsGranted($attribute, $subject)
                 || $isOwnerSlow()
             ,
 
             self::CREATE_ASSET => $isWorkspaceOwnerFast()
-                || $this->hasAcl(PermissionInterface::CHILD_CREATE, $subject, $token)
+                || $this->hasAcl(PermissionInterface::CHILD_CREATE, $subject, $token, ownershipGrants: false)
                 || $this->parentIsGranted($attribute, $subject)
                 || $isWorkspaceOwnerSlow()
                 || $this->isAdmin()
             ,
-            self::EDIT_ASSET_ATTRIBUTES => $isCreator()
+            self::EDIT_ASSET_ATTRIBUTES => $isWorkspaceOwnerFast()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_EDIT,
                     PermissionInterface::CHILD_OPERATOR,
