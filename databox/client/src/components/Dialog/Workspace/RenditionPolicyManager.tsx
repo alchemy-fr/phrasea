@@ -124,6 +124,7 @@ function createNewItem(): Partial<RenditionPolicy> {
     return {
         name: '',
         public: true,
+        editable: true,
     };
 }
 

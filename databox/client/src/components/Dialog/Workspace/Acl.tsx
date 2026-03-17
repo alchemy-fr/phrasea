@@ -76,7 +76,7 @@ export default function Acl({data, onClose, minHeight}: Props) {
                 label: t('acl.permission.workspace.owner.label', 'Owner'),
                 description: t(
                     'acl.permission.workspace.owner.desc',
-                    'Full control over this workspace. Does not include permissions on assets within the workspace, which are managed by separate permissions.'
+                    'Full control over the workspace, its collections and assets.'
                 ),
             },
             {
@@ -161,7 +161,7 @@ export default function Acl({data, onClose, minHeight}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.assets_owner.desc',
-                    'Full control over the workspace, its collections and assets.'
+                    'Full control over the assets of this workspace'
                 ),
             },
         ];

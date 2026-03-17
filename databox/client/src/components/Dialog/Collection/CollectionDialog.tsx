@@ -7,7 +7,6 @@ import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {Collection} from '../../../types';
 import Acl from './Acl';
 import {getCollection} from '../../../api/collection';
-import TagRulesTab from './TagRulesTab';
 import Operations from './Operations';
 import InfoCollection from './InfoCollection';
 import {modalRoutes} from '../../../routes';
@@ -84,15 +83,6 @@ export default function CollectionDialog({}: Props) {
                         data,
                     },
                     enabled: data.capabilities.editPermissions,
-                },
-                {
-                    title: t('collection.manage.tag_rules.title', 'Tag rules'),
-                    component: TagRulesTab,
-                    id: 'tag-rules',
-                    props: {
-                        data,
-                    },
-                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
