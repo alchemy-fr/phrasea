@@ -16,7 +16,7 @@ namespace App\Tests\Permission\Model;
  * |  |  |- Asset "InB-bob" (owned by bob)
  *
  * Users:
- * - root: Owner of the workspace so can actually perform everything
+ * - root: Owner of the workspace so should actually be able to do everything
  * - alice
  * - bob
  * - carol
@@ -24,34 +24,40 @@ namespace App\Tests\Permission\Model;
 class PermissionsTestCase
 {
     public function __construct(
+        // Username of user which we are testing permissions
         public string $username,
-        /**
-         * Workspace permissions.
-         *
-         * @var array
-         */
+        // Workspace permissions
         public array $root = [],
+
+        // Collection "A" permissions
         public array $a = [],
+
+        // Collection "B" permissions
         public array $b = [],
+
+        // Asset "InA-alice"
         public array $inAAlice = [],
+
+        // Asset "InA-bob"
         public array $inABob = [],
+
+        // Asset "InB-alice"
         public array $inBAlice = [],
+
+        // Asset "InB-bob"
         public array $inBBob = [],
-        /**
-         * User ($username) can:
-         */
+
+        // Expectations of what user can do
         public bool $canViewRoot = true,
         public bool $canEditRoot = false,
         public bool $canDeleteRoot = false,
         public bool $canCreateCollectionInRoot = false,
         public bool $canCreateAssetInRoot = false,
-
         public bool $canViewA = false,
         public bool $canEditA = false,
         public bool $canDeleteA = false,
         public bool $canCreateCollectionUnderA = false,
         public bool $canCreateAssetInA = false,
-
         public bool $canViewB = false,
         public bool $canEditB = false,
         public bool $canDeleteB = false,
