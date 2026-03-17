@@ -65,7 +65,8 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
         return match ($attribute) {
             self::CREATE => $isWorkspaceOwnerFast()
                 || ($subject->getParent()
-                        && $this->hasAcl([PermissionInterface::CREATE], $subject->getParent(), $token)
+                        ? $this->hasAcl([PermissionInterface::CREATE], $subject->getParent(), $token)
+                    : $this->security->isGranted(WorkspaceVoter::CREATE_COLLECTION, $subject->getWorkspace())
 
                 )
                 || $this->parentIsGranted($attribute, $subject)
