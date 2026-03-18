@@ -64,7 +64,6 @@ export default function CollectionTreeWidget<
                             multiple={multiple}
                             allowNew={allowNew}
                             onChange={collections => {
-                                console.log('collections', collections);
                                 onChange(collections);
                                 extOnChange && extOnChange(collections);
                             }}

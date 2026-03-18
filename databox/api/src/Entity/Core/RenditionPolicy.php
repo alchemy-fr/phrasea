@@ -144,6 +144,6 @@ class RenditionPolicy extends AbstractUuidEntity implements \Stringable, Loggabl
 
     public function getAclOwnerId(): string
     {
-        return '';
+        return 'no-owner';
     }
 }

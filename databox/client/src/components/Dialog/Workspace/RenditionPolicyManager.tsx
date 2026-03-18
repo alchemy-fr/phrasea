@@ -117,7 +117,6 @@ function ListItem({data}: DefinitionItemProps<RenditionPolicy>) {
             }
         />
     );
-    return <ListItemText primary={data.name} />;
 }
 
 function createNewItem(): Partial<RenditionPolicy> {

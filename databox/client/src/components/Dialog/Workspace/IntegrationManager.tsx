@@ -95,7 +95,7 @@ function Item({
             {
                 type: PermissionType.Mask,
                 key: AclPermission.CHILD_VIEW,
-                label: t('acl.permission.integration.child_view.desc', 'Use'),
+                label: t('acl.permission.integration.child_view.label', 'Use'),
                 description: t(
                     'acl.permission.integration.child_view.desc',
                     'View integration and read its data, but cannot interact with it. This permission is useful for users who need to see the results of an integration, but should not be able to run it or edit its configuration.'

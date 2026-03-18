@@ -60,7 +60,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
             if (!isset($this->capCache[$k])) {
                 $this->capCache[$k] = [
                     'createAsset' => $this->isGranted(AssetContainerVoterInterface::CREATE_ASSET, $data),
-                    'createCollection' => $this->isGranted(WorkspaceVoter::CREATE, $data),
+                    'createCollection' => $this->isGranted(WorkspaceVoter::CREATE_COLLECTION, $data),
                     'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
                     'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
                     'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),

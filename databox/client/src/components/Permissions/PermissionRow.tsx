@@ -17,8 +17,18 @@ type Props = {
     hasAll?: boolean | undefined;
 } & Ace;
 
-function isAllChecked(mask: number, allMask: number): boolean | null {
-    return allMask === mask ? true : mask === 0 ? false : null;
+function isAllChecked(
+    mask: number,
+    allMask: number,
+    metadata: AclExtraPermission[],
+    allMetadata: AclExtraPermission[]
+): boolean | null {
+    if (allMask === mask) {
+        return metadata.length === allMetadata.length;
+    } else if (mask === 0 && metadata.length === 0) {
+        return false;
+    }
+    return null;
 }
 
 export default function PermissionRow({
@@ -72,22 +82,29 @@ export default function PermissionRow({
         });
     };
 
-    const allChecked: boolean | null = isAllChecked(mask, allMask);
+    const allMetadata = definitions
+        .filter(d => d.type === PermissionType.Extra)
+        .map(d => d.value);
+
+    const allChecked: boolean | null = isAllChecked(
+        mask,
+        allMask,
+        metadata,
+        allMetadata
+    );
 
     const toggleAll = () => {
-        setMask(p => {
-            const extraPermissions = definitions.filter(
-                d => d.type === PermissionType.Extra
-            );
-            const allWasChecked = true === isAllChecked(p, allMask);
-            const newMask = allWasChecked ? 0 : allMask;
-            const newMetadata: AclExtraPermission[] = allWasChecked
-                ? []
-                : (extraPermissions?.map(ep => ep.value) ?? []);
-            onMaskChange(userType, userId, newMask, newMetadata);
+        const extraPermissions = definitions.filter(
+            d => d.type === PermissionType.Extra
+        );
+        const newMask = allChecked ? 0 : allMask;
+        const newMetadata: AclExtraPermission[] = allChecked
+            ? []
+            : (extraPermissions?.map(ep => ep.value) ?? []);
+        onMaskChange(userType, userId, newMask, newMetadata);
 
-            return newMask;
-        });
+        setMask(newMask);
+        setMetadata(newMetadata);
     };
 
     return (

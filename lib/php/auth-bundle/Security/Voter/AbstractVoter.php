@@ -49,7 +49,7 @@ abstract class AbstractVoter extends Voter
         $metadata = [];
         $user = $token->getUser();
         if ($user instanceof AclUserInterface) {
-            $aces = $this->permissionManager->getAces($user, $subject, $attribute);
+            $aces = $this->permissionManager->getAces($user, $subject);
             foreach ($aces as $ace) {
                 $metadata = array_merge($metadata, $ace->getMetadata());
             }
