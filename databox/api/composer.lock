@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "6c7799c90e8cf0fb696f00d23ce4b416b7ac219e"
+                "reference": "3668093f0017f6ce63dcb494808a6e780d5d2d33"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/6c7799c90e8cf0fb696f00d23ce4b416b7ac219e",
-                "reference": "6c7799c90e8cf0fb696f00d23ce4b416b7ac219e",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/3668093f0017f6ce63dcb494808a6e780d5d2d33",
+                "reference": "3668093f0017f6ce63dcb494808a6e780d5d2d33",
                 "shasum": ""
             },
             "require": {
@@ -56,7 +56,7 @@
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
                 "source": "https://github.com/alchemy-fr/acl-bundle/tree/metadata"
             },
-            "time": "2026-03-16T11:37:47+00:00"
+            "time": "2026-03-17T17:46:11+00:00"
         },
         {
             "name": "alchemy/admin-bundle",
@@ -1384,16 +1384,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.373.2",
+            "version": "3.373.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "483fba51c28b3a0c0647bf5100e0edca82090b18"
+                "reference": "902f23313c949a8f25f0982064f318b69ae69382"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/483fba51c28b3a0c0647bf5100e0edca82090b18",
-                "reference": "483fba51c28b3a0c0647bf5100e0edca82090b18",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/902f23313c949a8f25f0982064f318b69ae69382",
+                "reference": "902f23313c949a8f25f0982064f318b69ae69382",
                 "shasum": ""
             },
             "require": {
@@ -1475,9 +1475,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.373.2"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.373.4"
             },
-            "time": "2026-03-13T18:08:30+00:00"
+            "time": "2026-03-17T18:11:35+00:00"
         },
         {
             "name": "beberlei/doctrineextensions",
@@ -8166,16 +8166,16 @@
         },
         {
             "name": "sentry/sentry",
-            "version": "4.21.0",
+            "version": "4.22.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "2bf405fc4d38f00073a7d023cf321e59f614d54c"
+                "reference": "ce6ab95a7021f976a27b4628a4072e481c8acf60"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/2bf405fc4d38f00073a7d023cf321e59f614d54c",
-                "reference": "2bf405fc4d38f00073a7d023cf321e59f614d54c",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/ce6ab95a7021f976a27b4628a4072e481c8acf60",
+                "reference": "ce6ab95a7021f976a27b4628a4072e481c8acf60",
                 "shasum": ""
             },
             "require": {
@@ -8241,7 +8241,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-php/issues",
-                "source": "https://github.com/getsentry/sentry-php/tree/4.21.0"
+                "source": "https://github.com/getsentry/sentry-php/tree/4.22.0"
             },
             "funding": [
                 {
@@ -8253,7 +8253,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2026-02-24T15:32:51+00:00"
+            "time": "2026-03-16T13:03:46+00:00"
         },
         {
             "name": "sentry/sentry-symfony",
@@ -14297,16 +14297,16 @@
         },
         {
             "name": "symfony/ux-twig-component",
-            "version": "v2.32.0",
+            "version": "v2.33.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-twig-component.git",
-                "reference": "0a300088327d1b766733fdcd81ae4a77852d6177"
+                "reference": "f9942e32246fe3fa9d31f60cffc1ada4d274830a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-twig-component/zipball/0a300088327d1b766733fdcd81ae4a77852d6177",
-                "reference": "0a300088327d1b766733fdcd81ae4a77852d6177",
+                "url": "https://api.github.com/repos/symfony/ux-twig-component/zipball/f9942e32246fe3fa9d31f60cffc1ada4d274830a",
+                "reference": "f9942e32246fe3fa9d31f60cffc1ada4d274830a",
                 "shasum": ""
             },
             "require": {
@@ -14360,7 +14360,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-twig-component/tree/v2.32.0"
+                "source": "https://github.com/symfony/ux-twig-component/tree/v2.33.0"
             },
             "funding": [
                 {
@@ -14380,7 +14380,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-12-25T09:25:01+00:00"
+            "time": "2026-03-15T18:48:53+00:00"
         },
         {
             "name": "symfony/validator",
@@ -14914,16 +14914,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.23.0",
+            "version": "v3.24.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "a64dc5d2cc7d6cafb9347f6cd802d0d06d0351c9"
+                "reference": "a6769aefb305efef849dc25c9fd1653358c148f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/a64dc5d2cc7d6cafb9347f6cd802d0d06d0351c9",
-                "reference": "a64dc5d2cc7d6cafb9347f6cd802d0d06d0351c9",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/a6769aefb305efef849dc25c9fd1653358c148f0",
+                "reference": "a6769aefb305efef849dc25c9fd1653358c148f0",
                 "shasum": ""
             },
             "require": {
@@ -14933,7 +14933,8 @@
                 "symfony/polyfill-mbstring": "^1.3"
             },
             "require-dev": {
-                "phpstan/phpstan": "^2.0",
+                "php-cs-fixer/shim": "^3.0@stable",
+                "phpstan/phpstan": "^2.0@stable",
                 "psr/container": "^1.0|^2.0",
                 "symfony/phpunit-bridge": "^5.4.9|^6.4|^7.0"
             },
@@ -14977,7 +14978,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.23.0"
+                "source": "https://github.com/twigphp/Twig/tree/v3.24.0"
             },
             "funding": [
                 {
@@ -14989,7 +14990,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-01-23T21:00:41+00:00"
+            "time": "2026-03-17T21:31:11+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -15908,11 +15909,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.40",
+            "version": "2.1.42",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9b2c7aeb83a75d8680ea5e7c9b7fca88052b766b",
-                "reference": "9b2c7aeb83a75d8680ea5e7c9b7fca88052b766b",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/1279e1ce86ba768f0780c9d889852b4e02ff40d0",
+                "reference": "1279e1ce86ba768f0780c9d889852b4e02ff40d0",
                 "shasum": ""
             },
             "require": {
@@ -15957,7 +15958,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-23T15:04:35+00:00"
+            "time": "2026-03-17T14:58:32+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
