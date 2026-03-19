@@ -70,7 +70,7 @@ class PermissionsTest extends AbstractDataboxTestCase
         $lostBob = new Asset();
         $lostBob->setWorkspace($workspace);
         $lostBob->setTitle('Lost-bob');
-        $lostBob->setOwnerId(self::ALICE);
+        $lostBob->setOwnerId(self::BOB);
         $em->persist($lostBob);
 
         $inARoot = new Asset();
@@ -292,28 +292,27 @@ class PermissionsTest extends AbstractDataboxTestCase
             'canEditB' => true,
             'canDeleteB' => true,
             'canCreateCollectionUnderB' => true,
-            'assetInARoot' => $assetAllButTagsAndPrivacy, // TODO  // TODO can I edit all assets in a collection just because I own its parent collection?
-            'assetInBRoot' => $assetAllButTagsAndPrivacy, // TODO  // TODO can I edit all assets in a collection just because I own its parent collection?
+            'assetInARoot' => $assetAllButTagsAndPrivacy,
+            'assetInBRoot' => $assetAllButTagsAndPrivacy,
             'assetLostAlice' => $assetAllButTagsAndPrivacy,
-            'assetLostBob' => $assetAllButTagsAndPrivacy,
             'assetInAAlice' => $assetAllButTagsAndPrivacy,
             'assetInBAlice' => $assetAllButTagsAndPrivacy,
             'assetInABob' => $assetAllButTagsAndPrivacy,
             'assetInBBob' => $assetAllButTagsAndPrivacy,
         ];
         yield new PermissionsTestCase(
-            'alice-out-of-workspace',
+            'out-of-workspace',
             self::ALICE,
             inWorkspace: false,
             canViewRoot: false,
         );
         yield new PermissionsTestCase(
-            'alice-in-workspace',
+            'in-workspace',
             self::ALICE,
             ...$aliceCommon,
         );
         yield new PermissionsTestCase(
-            'alice-ws-edit',
+            'ws-edit',
             self::ALICE,
             ...$aliceCommon,
             root: [
@@ -322,7 +321,7 @@ class PermissionsTest extends AbstractDataboxTestCase
             canEditRoot: true,
         );
         yield new PermissionsTestCase(
-            'alice-ws-delete',
+            'ws-delete',
             self::ALICE,
             ...$aliceCommon,
             root: [
@@ -331,7 +330,7 @@ class PermissionsTest extends AbstractDataboxTestCase
             canDeleteRoot: true,
         );
         yield new PermissionsTestCase(
-            'alice-ws-create',
+            'ws-create',
             self::ALICE,
             ...$aliceCommon,
             root: [
@@ -340,7 +339,7 @@ class PermissionsTest extends AbstractDataboxTestCase
             canCreateCollectionInRoot: true,
         );
         yield new PermissionsTestCase(
-            'alice-ws-owner',
+            'ws-owner',
             self::ALICE,
             ...([
                 'assetLostAlice' => $fullAssetPerm,
@@ -363,9 +362,96 @@ class PermissionsTest extends AbstractDataboxTestCase
             assetLostRoot: $fullAssetPerm,
         );
         yield new PermissionsTestCase(
-            'alice-ws-child-create',
+            'ws-child-create',
             self::ALICE,
             ...$aliceCommon,
+            root: [
+                PermissionInterface::CHILD_CREATE,
+            ],
+            canCreateAssetInRoot: true,
+        );
+
+        $bobCommon = [
+            'canViewB' => true,
+            'canEditB' => true,
+            'canDeleteB' => true,
+            'canCreateCollectionUnderB' => true,
+            'assetInBRoot' => $assetAllButTagsAndPrivacy,
+            'assetLostBob' => $assetAllButTagsAndPrivacy,
+            'assetInABob' => $assetAllButTagsAndPrivacy,
+            'assetInBAlice' => $assetAllButTagsAndPrivacy,
+            'assetInBBob' => $assetAllButTagsAndPrivacy,
+        ];
+        yield new PermissionsTestCase(
+            'out-of-workspace',
+            self::BOB,
+            inWorkspace: false,
+            canViewRoot: false,
+        );
+        yield new PermissionsTestCase(
+            'in-workspace',
+            self::BOB,
+            ...$bobCommon,
+        );
+        yield new PermissionsTestCase(
+            'ws-edit',
+            self::BOB,
+            ...$bobCommon,
+            root: [
+                PermissionInterface::EDIT,
+            ],
+            canEditRoot: true,
+        );
+        yield new PermissionsTestCase(
+            'ws-delete',
+            self::BOB,
+            ...$bobCommon,
+            root: [
+                PermissionInterface::DELETE,
+            ],
+            canDeleteRoot: true,
+        );
+        yield new PermissionsTestCase(
+            'ws-create',
+            self::BOB,
+            ...$bobCommon,
+            root: [
+                PermissionInterface::CREATE,
+            ],
+            canCreateCollectionInRoot: true,
+            canCreateCollectionUnderA: true,
+        );
+        yield new PermissionsTestCase(
+            'ws-owner',
+            self::BOB,
+            ...([
+                'assetLostAlice' => $fullAssetPerm,
+                'assetLostBob' => $fullAssetPerm,
+                'assetInARoot' => $fullAssetPerm,
+                'assetInAAlice' => $fullAssetPerm,
+                'assetInABob' => $fullAssetPerm,
+                'assetInBRoot' => $fullAssetPerm,
+                'assetInBAlice' => $fullAssetPerm,
+                'assetInBBob' => $fullAssetPerm,
+            ] + $bobCommon),
+            root: [
+                PermissionInterface::OWNER,
+            ],
+            canEditRoot: true,
+            canCreateCollectionInRoot: true,
+            canCreateAssetInRoot: true,
+            canViewA: true,
+            canEditA: true,
+            canDeleteA: true,
+            canCreateCollectionUnderA: true,
+            canCreateAssetInA: true,
+            canCreateAssetInB: true,
+            assetLostRoot: $fullAssetPerm,
+        );
+        yield new PermissionsTestCase(
+            'ws-child-create',
+            self::BOB,
+            ...$bobCommon,
             root: [
                 PermissionInterface::CHILD_CREATE,
             ],

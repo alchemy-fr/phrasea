@@ -53,8 +53,8 @@ export default function Acl({data, onClose, minHeight}: Props) {
 
             {
                 type: PermissionType.Extra,
-                key: AclExtraPermission.PERM_EDIT_PERMISSIONS,
-                value: AclExtraPermission.PERM_EDIT_PERMISSIONS,
+                key: AclExtraPermission.EDIT_PERMISSIONS,
+                value: AclExtraPermission.EDIT_PERMISSIONS,
                 label: t(
                     'acl.permission.collection.edit_permissions.label',
                     'Edit Permissions/Privacy'

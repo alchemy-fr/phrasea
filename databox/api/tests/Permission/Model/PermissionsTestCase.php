@@ -9,11 +9,11 @@ namespace App\Tests\Permission\Model;
  * |- Asset "Lost-root" (owned by root)
  * |- Asset "Lost-alice" (owned by alice)
  * |- Asset "Lost-bob" (owned by bob)
- * |- Collection "A"
+ * |- Collection "A" (owned by alice)
  * |  |- Asset "InA-root" (owned by root)
  * |  |- Asset "InA-alice" (owned by alice)
  * |  |- Asset "InA-bob" (owned by bob)
- * |  |- Collection "B"(owned by bob)
+ * |  |- Collection "B" (owned by bob)
  * |  |  |- Asset "InB-root" (owned by root)
  * |  |  |- Asset "InB-alice" (owned by alice)
  * |  |  |- Asset "InB-bob" (owned by bob)
@@ -39,6 +39,12 @@ class PermissionsTestCase
 
         // Collection "B" permissions
         public array $b = [],
+
+        // Asset "Lost-alice"
+        public array $lostAlice = [],
+
+        // Asset "Lost-bob"
+        public array $lostBob = [],
 
         // Asset "InA-alice"
         public array $inAAlice = [],

@@ -238,7 +238,7 @@ App\Entity\Core\RenditionDefinition:
 # reporter_sport_football_worldcup
 #     - bob
 # reporter_sport_football
-#     - jack
+#     - carol
 # reporter_sport_tennis
 #     - amelia
 #     - harry
@@ -337,7 +337,7 @@ App\Entity\Core\Asset:
         source: '@f_video_o<current()>'
     a_pdf{1..10} (extends asset_n):
         title: 'PDF #<ucwords($current)>'
-        ownerId: <keycloakUser("jack")>
+        ownerId: <keycloakUser("carol")>
         source: '@f_pdf_o<current()>'
     astory{1..10} (extends asset_n):
         title: 'Story #<ucwords($current)>'

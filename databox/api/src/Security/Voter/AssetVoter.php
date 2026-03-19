@@ -79,7 +79,7 @@ class AssetVoter extends AbstractVoter
                     || $this->voteOnContainer($subject, AssetContainerVoterInterface::EDIT_ASSET_ATTRIBUTES);
             case self::EDIT_TAGS:
                 return $isWorkspaceOwnerFast()
-                || $this->hasMetadata(AssetContainerVoterInterface::PERM_EDIT_TAG, $subject, $token)
+                || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_EDIT_TAG, $subject, $token)
                 || $this->voteOnContainer($subject, $attribute)
                 || $isWorkspaceOwnerSlow();
                 // Substitute source file, manage its renditions
@@ -97,7 +97,7 @@ class AssetVoter extends AbstractVoter
             case self::EDIT_PERMISSIONS:
             case self::EDIT_PRIVACY:
                 return $isWorkspaceOwnerFast()
-                || $this->hasMetadata(AssetContainerVoterInterface::PERM_EDIT_PERMISSIONS, $subject, $token)
+                || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS, $subject, $token)
                 || $this->voteOnContainer($subject, $attribute)
                 || $isWorkspaceOwnerSlow();
         }
