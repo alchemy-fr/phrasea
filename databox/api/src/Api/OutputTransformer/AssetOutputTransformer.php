@@ -75,10 +75,6 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
         $user = $this->getUser();
 
-        $output->setCreatedAt($data->getCreatedAt());
-        $output->setUpdatedAt($data->getUpdatedAt());
-        $output->setEditedAt($data->getEditedAt());
-        $output->setAttributesEditedAt($data->getAttributesEditedAt());
         $output->setExtraMetadata($data->getExtraMetadata());
         $output->deleted = $data->isDeleted();
         $output->trackingId = $data->getTrackingId();
