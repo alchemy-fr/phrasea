@@ -80,17 +80,17 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 || $isOwnerSlow()
             ,
             // View collection name but not its assets
-            self::LIST => $isCreator()
+            self::LIST => $subject->isDeleted() ? ($this->security->isGranted(self::DELETE, $subject)) : ($isCreator()
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                 || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
                 || ($subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                 || $this->hasAcl(PermissionInterface::CHILD_VIEW, $subject->getWorkspace(), $token)
                 || $this->parentIsGranted($attribute, $subject)
-                || $isOwnerSlow()
+                || $isOwnerSlow())
             ,
             // View collection assets
-            self::READ => $isCreator()
+            self::READ => $subject->isDeleted() ? ($this->security->isGranted(self::DELETE, $subject)) : ($isCreator()
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                 || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE
@@ -100,7 +100,7 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 ], $subject, $token)
                 || $this->hasAcl(PermissionInterface::CHILD_VIEW, $subject->getWorkspace(), $token)
                 || $this->parentIsGranted($attribute, $subject)
-                || $isOwnerSlow()
+                || $isOwnerSlow())
             ,
             self::EDIT => $isCreator()
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)

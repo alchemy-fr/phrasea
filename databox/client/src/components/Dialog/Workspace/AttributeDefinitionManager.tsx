@@ -404,6 +404,7 @@ function createNewItem(): Partial<AttributeDefinition> {
         policy: null,
         entityList: null,
         enabled: true,
+        target: AssetType.Both,
     };
 }
 

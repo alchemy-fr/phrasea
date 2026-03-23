@@ -26,7 +26,7 @@ class SoftDeleteableListener extends BaseSoftDeleteableListener
         self::$enabled = false;
     }
 
-    public function onFlush(EventArgs $args)
+    public function onFlush(EventArgs $args): void
     {
         if (self::$enabled) {
             parent::onFlush($args);

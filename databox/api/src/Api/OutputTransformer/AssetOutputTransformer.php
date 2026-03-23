@@ -166,7 +166,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
                 return $collection;
             })
-                ->filter(fn (Collection $collection): bool => $this->isGranted(AbstractVoter::LIST, $collection))
+                ->filter(fn (Collection $collection): bool => !$collection->isDeleted() && $this->isGranted(AbstractVoter::READ, $collection))
                 ->getValues());
 
             $output->storyCollection = $data->getStoryCollection();
