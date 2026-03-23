@@ -54,7 +54,7 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->multiple = $data->isMultiple();
         $output->allowInvalid = $data->isAllowInvalid();
         $output->searchBoost = $data->getSearchBoost();
-        $output->fallback = $data->getFallback();
+        $output->fallback = $data->getFallback() ?: null;
         $output->initialValues = $data->getInitialValues();
         $output->translations = $data->getTranslations();
         $output->target = $data->getTarget()->value;

@@ -494,6 +494,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
     public function isDeleted(): bool
     {
         return null !== $this->deletedAt
+            || $this->parent?->isDeleted()
             || $this->workspace->isDeleted();
     }
 

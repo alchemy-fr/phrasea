@@ -12,6 +12,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Template\AssetDataTemplate;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 final readonly class CollectionDelete
 {
@@ -20,6 +21,7 @@ final readonly class CollectionDelete
         private IndexCleaner $indexCleaner,
         private CollectionListener $collectionListener,
         private PostFlushStack $postFlushStack,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -28,13 +30,15 @@ final readonly class CollectionDelete
         if (!$isChildProcess) {
             $collection = $this->em->find(Collection::class, $collectionId);
             if (!$collection instanceof Collection) {
-                throw new \InvalidArgumentException(sprintf('Collection "%s" not found for deletion', $collectionId));
+                $this->logger->warning('Collection not found for deletion', ['collectionId' => $collectionId]);
+
+                return;
             }
             if (null === $collection->getDeletedAt()) {
-                throw new \InvalidArgumentException(sprintf('Collection "%s" is not marked as deleted', $collection->getId()));
-            }
+                $this->logger->warning('Collection is not marked as deleted', ['collectionId' => $collectionId]);
 
-            $this->em->beginTransaction();
+                return;
+            }
 
             $configuration = $this->em->getConnection()->getConfiguration();
             $logger = $configuration->getSQLLogger();
@@ -42,6 +46,8 @@ final readonly class CollectionDelete
 
             DeferredIndexListener::disable();
             $this->collectionListener->softDeleteEnabled = false;
+
+            $this->em->beginTransaction();
             try {
                 $this->doDelete($collectionId);
                 $this->em->commit();

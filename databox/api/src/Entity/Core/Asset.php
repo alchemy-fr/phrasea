@@ -534,9 +534,21 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return $this->tags->map(fn (Tag $tag): string => $tag->getId())->getValues();
     }
 
+    /**
+     * Used by ES.
+     */
     public function getReferenceCollectionId(): ?string
     {
         return $this->referenceCollection?->getId();
+
+    }
+
+    /**
+     * Used by ES.
+     */
+    public function getReferenceCollectionPath(): ?string
+    {
+        return $this->referenceCollection?->getAbsolutePath();
 
     }
 

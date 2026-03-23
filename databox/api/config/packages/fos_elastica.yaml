@@ -72,6 +72,13 @@ fos_elastica:
                     type: object
                 referenceCollectionId:
                     type: keyword
+                referenceCollectionPath:
+                    type: text
+                    analyzer: collection_path
+                    search_analyzer: keyword
+                    fields:
+                        raw:
+                            type: keyword
                 collectionPaths:
                     property_path: false
                     type: text

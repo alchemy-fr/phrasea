@@ -20,6 +20,12 @@ readonly class CollectionsRestoreHandler
 
     public function __invoke(CollectionsRestore $message): void
     {
+        $collections = array_map(function (string $id): string {
+            $collection = $this->em->getRepository(Collection::class)->find($id);
+
+            return $collection->getAbsolutePath();
+        }, $message->getIds());
+
         $this->em->createQueryBuilder()
             ->update(Collection::class, 'c')
             ->set('c.deletedAt', 'null')
@@ -32,7 +38,7 @@ readonly class CollectionsRestoreHandler
             'asset',
             [
                 'terms' => [
-                    'referenceCollectionId' => $message->getIds(),
+                    'referenceCollectionPath' => $collections,
                 ],
             ],
             [
