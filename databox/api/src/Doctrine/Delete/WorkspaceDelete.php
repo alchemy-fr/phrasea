@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Doctrine\Delete;
 
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
+use App\Doctrine\Listener\CollectionListener;
 use App\Doctrine\SoftDeleteToggler;
 use App\Elasticsearch\IndexCleaner;
 use App\Entity\Core\Asset;
@@ -31,6 +32,7 @@ final readonly class WorkspaceDelete
         private CollectionDelete $collectionDelete,
         private IndexCleaner $indexCleaner,
         private SoftDeleteToggler $softDeleteToggler,
+        private CollectionListener $collectionListener,
         private LoggerInterface $logger,
     ) {
     }
@@ -39,10 +41,14 @@ final readonly class WorkspaceDelete
     {
         $workspace = $this->em->find(Workspace::class, $workspaceId);
         if (!$workspace instanceof Workspace) {
-            throw new \InvalidArgumentException(sprintf('Workspace "%s" not found for deletion', $workspaceId));
+            $this->logger->warning('Workspace not found', ['workspaceId' => $workspaceId]);
+
+            return;
         }
         if (null === $workspace->getDeletedAt()) {
-            throw new \InvalidArgumentException(sprintf('Workspace "%s" is not marked as deleted', $workspace->getId()));
+            $this->logger->warning('Workspace is not marked as deleted', ['workspaceId' => $workspaceId]);
+
+            return;
         }
 
         $this->logger->debug('Cleaning index.');
@@ -50,6 +56,7 @@ final readonly class WorkspaceDelete
 
         DeferredIndexListener::disable();
         $this->softDeleteToggler->disable();
+        $this->collectionListener->softDeleteEnabled = false;
 
         $this->em->beginTransaction();
 
@@ -133,6 +140,7 @@ final readonly class WorkspaceDelete
         } finally {
             DeferredIndexListener::enable();
             $this->softDeleteToggler->enable();
+            $this->collectionListener->softDeleteEnabled = true;
             $configuration->setSQLLogger($sqlLogger);
         }
     }

@@ -123,7 +123,9 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         yield AssociationField::new('attributeDefinitions')
             ->onlyOnDetail();
         yield AssociationField::new('files')
-        ->onlyOnDetail();
+            ->onlyOnDetail();
+        yield DateTimeField::new('deletedAt')
+            ->hideOnIndex();
     }
 
     private function getTemplateChoice()
