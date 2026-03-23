@@ -228,6 +228,7 @@ class PermissionsTest extends AbstractDataboxTestCase
 
     private function assertAssetPermissions(AssetPermissions $expected, Asset $asset, Security $security, callable $userMessage): void
     {
+        $this->assertEquals($expected->view, $security->isGranted(AssetVoter::READ, $asset), $userMessage(sprintf('view asset "%s" (viewAsset)', $asset->getTitle())));
         $this->assertEquals($expected->edit, $security->isGranted(AssetVoter::EDIT, $asset), $userMessage(sprintf('edit asset "%s" (editAsset)', $asset->getTitle())));
         $this->assertEquals($expected->editAttributes, $security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $asset), $userMessage(sprintf('edit attributes of asset "%s" (editAttributes)', $asset->getTitle())));
         $this->assertEquals($expected->editTags, $security->isGranted(AssetVoter::EDIT_TAGS, $asset), $userMessage(sprintf('edit tags of asset "%s" (editAsset)', $asset->getTitle())));
@@ -241,6 +242,7 @@ class PermissionsTest extends AbstractDataboxTestCase
     private function getCases(): \Generator
     {
         $fullAssetPerm = new AssetPermissions(
+            view: true,
             edit: true,
             editAttributes: true,
             editTags: true,
@@ -278,6 +280,7 @@ class PermissionsTest extends AbstractDataboxTestCase
         );
 
         $assetAllButTagsAndPrivacy = new AssetPermissions(
+            view: true,
             edit: true,
             editAttributes: true,
             delete: true,
@@ -456,6 +459,140 @@ class PermissionsTest extends AbstractDataboxTestCase
                 PermissionInterface::CHILD_CREATE,
             ],
             canCreateAssetInRoot: true,
+        );
+
+        $carolCommon = [];
+        yield new PermissionsTestCase(
+            'out-of-workspace',
+            self::CAROL,
+            inWorkspace: false,
+            canViewRoot: false,
+        );
+        yield new PermissionsTestCase(
+            'in-workspace',
+            self::CAROL,
+            ...$carolCommon,
+        );
+        yield new PermissionsTestCase(
+            'ws-edit',
+            self::CAROL,
+            ...$carolCommon,
+            root: [
+                PermissionInterface::EDIT,
+            ],
+            canEditRoot: true,
+        );
+        yield new PermissionsTestCase(
+            'ws-delete',
+            self::CAROL,
+            ...$carolCommon,
+            root: [
+                PermissionInterface::DELETE,
+            ],
+            canDeleteRoot: true,
+        );
+        yield new PermissionsTestCase(
+            'ws-create',
+            self::CAROL,
+            ...$carolCommon,
+            root: [
+                PermissionInterface::CREATE,
+            ],
+            canCreateCollectionInRoot: true,
+            canCreateCollectionUnderA: true,
+            canCreateCollectionUnderB: true,
+        );
+        yield new PermissionsTestCase(
+            'ws-owner',
+            self::CAROL,
+            ...([
+                'assetLostAlice' => $fullAssetPerm,
+                'assetLostBob' => $fullAssetPerm,
+                'assetInARoot' => $fullAssetPerm,
+                'assetInAAlice' => $fullAssetPerm,
+                'assetInABob' => $fullAssetPerm,
+                'assetInBRoot' => $fullAssetPerm,
+                'assetInBAlice' => $fullAssetPerm,
+                'assetInBBob' => $fullAssetPerm,
+            ] + $carolCommon),
+            root: [
+                PermissionInterface::OWNER,
+            ],
+            canEditRoot: true,
+            canCreateCollectionInRoot: true,
+            canCreateAssetInRoot: true,
+            canViewA: true,
+            canEditA: true,
+            canDeleteA: true,
+            canCreateCollectionUnderA: true,
+            canCreateAssetInA: true,
+            canViewB: true,
+            canEditB: true,
+            canDeleteB: true,
+            canCreateCollectionUnderB: true,
+            canCreateAssetInB: true,
+            assetLostRoot: $fullAssetPerm,
+        );
+        yield new PermissionsTestCase(
+            'ws-child-create',
+            self::CAROL,
+            ...$carolCommon,
+            root: [
+                PermissionInterface::CHILD_CREATE,
+            ],
+            canCreateAssetInRoot: true,
+        );
+        yield new PermissionsTestCase(
+            'coll-a-child-create',
+            self::CAROL,
+            ...$carolCommon,
+            a: [
+                PermissionInterface::CHILD_CREATE,
+            ],
+            canCreateAssetInA: true,
+            canCreateAssetInB: true,
+        );
+        yield new PermissionsTestCase(
+            'coll-b-child-create',
+            self::CAROL,
+            ...$carolCommon,
+            b: [
+                PermissionInterface::CHILD_CREATE,
+            ],
+            canCreateAssetInB: true,
+        );
+
+        $assetView = new AssetPermissions(
+            view: true,
+        );
+
+        yield new PermissionsTestCase(
+            'coll-a-child-view',
+            self::CAROL,
+            ...$carolCommon,
+            a: [
+                PermissionInterface::CHILD_VIEW,
+            ],
+            canViewA: true,
+            canViewB: true,
+            assetInARoot: $assetView,
+            assetInAAlice: $assetView,
+            assetInABob: $assetView,
+            assetInBRoot: $assetView,
+            assetInBAlice: $assetView,
+            assetInBBob: $assetView,
+        );
+        yield new PermissionsTestCase(
+            'coll-b-child-view',
+            self::CAROL,
+            ...$carolCommon,
+            b: [
+                PermissionInterface::CHILD_VIEW,
+            ],
+            canViewB: true,
+            assetInBRoot: $assetView,
+            assetInBAlice: $assetView,
+            assetInBBob: $assetView,
         );
     }
 }

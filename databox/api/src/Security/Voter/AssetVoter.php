@@ -67,11 +67,13 @@ class AssetVoter extends AbstractVoter
                 }
 
                 return $isOwner()
+                    || $isWorkspaceOwnerFast()
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE
                     || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                     || $this->collectionGrantsAccess($subject)
+                    || $isWorkspaceOwnerSlow()
                 ;
             case self::EDIT_ATTRIBUTES:
                 return $isOwner()
@@ -113,7 +115,8 @@ class AssetVoter extends AbstractVoter
 
     private function collectionGrantsAccess(Asset $subject): bool
     {
-        if (null === $subject->getReferenceCollection() && $this->security->isGranted(self::EDIT, $subject->getWorkspace())) {
+        $referenceCollection = $subject->getReferenceCollection();
+        if (null !== $referenceCollection && $this->security->isGranted(self::READ, $referenceCollection)) {
             return true;
         }
 
