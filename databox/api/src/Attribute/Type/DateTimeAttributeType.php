@@ -91,6 +91,16 @@ class DateTimeAttributeType extends AbstractAttributeType
         return DateUtil::normalizeDate($value);
     }
 
+    public function getStringValue(?string $value): string
+    {
+        $date = $this->denormalizeValue($value);
+        if ($date) {
+            return $date->format(\DateTimeInterface::ATOM);
+        }
+
+        return '';
+    }
+
     public function validate($value, ExecutionContextInterface $context): void
     {
         if (empty($value)) {

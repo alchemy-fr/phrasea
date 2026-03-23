@@ -31,7 +31,10 @@ class DateAttributeType extends DateTimeAttributeType
         return $value ? substr($value, 0, 10) : null;
     }
 
-    public function denormalizeValue(?string $value): ?string
+    /**
+     * @return \DateTimeImmutable|null
+     */
+    public function denormalizeValue(?string $value)
     {
         if (null === $value) {
             return null;
@@ -44,7 +47,7 @@ class DateAttributeType extends DateTimeAttributeType
             }
 
             if ($date instanceof \DateTimeInterface) {
-                return $date->format('Y-m-d');
+                return $date;
             }
 
             return null;
