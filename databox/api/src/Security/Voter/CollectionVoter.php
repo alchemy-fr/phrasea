@@ -54,18 +54,18 @@ class CollectionVoter extends AbstractVoter
         return match ($attribute) {
             self::CREATE => $subject->getParent() ? $this->security->isGranted(self::EDIT, $subject->getParent(), $token)
                 : $this->security->isGranted(self::EDIT, $workspace, $token),
-            self::LIST => $isOwner()
+            self::LIST => $subject->isDeleted() ? ($this->security->isGranted(self::DELETE, $subject)) : ($isOwner()
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                 || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
                 || ($subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
-                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent(), $token)),
-            self::READ => $isOwner()
+                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent(), $token))),
+            self::READ => $subject->isDeleted() ? ($this->security->isGranted(self::DELETE, $subject)) : ($isOwner()
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                 || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
-                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent(), $token)),
+                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent(), $token))),
             self::EDIT => $isOwner()
                 || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
                 || ($subject->getParent() && $this->security->isGranted($attribute, $subject->getParent(), $token)),

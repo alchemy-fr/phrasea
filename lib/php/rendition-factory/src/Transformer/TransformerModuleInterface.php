@@ -8,7 +8,7 @@ use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 
 interface TransformerModuleInterface
 {
-    final public const TAG = 'alchemy_rendition_factory.transformer_module';
+    final public const string TAG = 'alchemy_rendition_factory.transformer_module';
 
     public static function getName(): string;
 

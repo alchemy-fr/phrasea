@@ -42,6 +42,7 @@ class CollectionListener implements EventSubscriber
             'privacy',
             'owner',
             'parent',
+            'deletedAt',
         ], $args->getObjectManager(), $entity)) {
             return;
         }

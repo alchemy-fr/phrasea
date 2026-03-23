@@ -20,6 +20,12 @@ readonly class CollectionsMoveToTrashHandler
 
     public function __invoke(CollectionsMoveToTrash $message): void
     {
+        $collections = array_map(function (string $id): string {
+            $collection = $this->em->getRepository(Collection::class)->find($id);
+
+            return $collection->getAbsolutePath();
+        }, $message->getIds());
+
         $this->em->createQueryBuilder()
             ->update(Collection::class, 'c')
             ->set('c.deletedAt', ':deletedAt')
@@ -33,7 +39,7 @@ readonly class CollectionsMoveToTrashHandler
             'asset',
             [
                 'terms' => [
-                    'referenceCollectionId' => $message->getIds(),
+                    'referenceCollectionPath' => $collections,
                 ],
             ],
             [
