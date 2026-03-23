@@ -94,6 +94,7 @@ class AssetVoter extends AbstractVoter
                 return $isOwner()
                     || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
                     || $this->voteOnContainer($subject, AssetContainerVoterInterface::DELETE_ASSET);
+            case self::OWNER:
             case self::EDIT_PERMISSIONS:
             case self::EDIT_PRIVACY:
                 return $isWorkspaceOwnerFast()
