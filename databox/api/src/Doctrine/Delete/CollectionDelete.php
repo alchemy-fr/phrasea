@@ -30,15 +30,15 @@ final readonly class CollectionDelete
         if (!$isChildProcess) {
             $collection = $this->em->find(Collection::class, $collectionId);
             if (!$collection instanceof Collection) {
-                $this->logger->alert('Collection not found for deletion', ['collectionId' => $collectionId]);
+                $this->logger->warning('Collection not found for deletion', ['collectionId' => $collectionId]);
 
                 return;
             }
             if (null === $collection->getDeletedAt()) {
-                throw new \InvalidArgumentException(sprintf('Collection "%s" is not marked as deleted', $collection->getId()));
-            }
+                $this->logger->warning('Collection is not marked as deleted', ['collectionId' => $collectionId]);
 
-            $this->em->beginTransaction();
+                return;
+            }
 
             $configuration = $this->em->getConnection()->getConfiguration();
             $logger = $configuration->getSQLLogger();
@@ -46,6 +46,8 @@ final readonly class CollectionDelete
 
             DeferredIndexListener::disable();
             $this->collectionListener->softDeleteEnabled = false;
+
+            $this->em->beginTransaction();
             try {
                 $this->doDelete($collectionId);
                 $this->em->commit();
