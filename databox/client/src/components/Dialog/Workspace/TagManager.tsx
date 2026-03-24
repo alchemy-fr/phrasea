@@ -148,7 +148,7 @@ export default function TagManager({
             load={() =>
                 getTags({
                     workspace: workspace['@id']!,
-                }).then(r => r.result)
+                })
             }
             loadItem={id => getTag(id)}
             workspace={workspace}

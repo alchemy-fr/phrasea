@@ -160,10 +160,11 @@ export default function AttributeEntityManager({
             managerFormId={'entity-attribute-manager'}
             itemComponent={Item}
             listComponent={EntityListItem}
-            load={() =>
+            load={nextUrl =>
                 getAttributeEntities({
+                    nextUrl,
                     list: list.id,
-                }).then(r => r.result)
+                })
             }
             workspace={workspace}
             minHeight={minHeight}

@@ -107,14 +107,16 @@ export async function getRenditionPolicies(
 
 export async function getWorkspaceRenditionDefinitions(
     workspaceId: string
-): Promise<RenditionDefinition[]> {
-    const res = await apiClient.get(renditionDefinitionNS, {
-        params: {
-            workspaceId,
-        },
-    });
-
-    return res.data['hydra:member'];
+): Promise<NormalizedCollectionResponse<RenditionDefinition>> {
+    return getHydraCollection(
+        (
+            await apiClient.get(renditionDefinitionNS, {
+                params: {
+                    workspaceId,
+                },
+            })
+        ).data
+    );
 }
 
 export async function deleteRenditionPolicy(id: string): Promise<void> {

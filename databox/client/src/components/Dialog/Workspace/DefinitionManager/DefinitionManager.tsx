@@ -30,10 +30,15 @@ import SortableList, {
 } from '../../../Ui/Sortable/SortableList.tsx';
 import {Entity, StateSetter, Workspace} from '../../../../types.ts';
 import ItemForm from './ItemForm.tsx';
-import {ApiHydraObjectResponse, UseFormSubmitReturn} from '@alchemy/api';
+import {
+    ApiHydraObjectResponse,
+    NormalizedCollectionResponse,
+    UseFormSubmitReturn,
+} from '@alchemy/api';
 import {useModals} from '@alchemy/navigation';
 import {ConfirmDialog, ConfirmDialogProps} from '@alchemy/phrasea-framework';
 import FilterDropdown from './FilterDropdown.tsx';
+import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 
 export type DefinitionBase = ApiHydraObjectResponse & Entity;
 
@@ -62,6 +67,8 @@ export type DefinitionItemManageProps<D extends DefinitionBase> = {
 type ListState<D extends DefinitionBase> = {
     list: D[] | undefined;
     loading: boolean;
+    loadingMore: boolean;
+    next: string | undefined;
 };
 
 export type ItemState<D extends DefinitionBase> = {
@@ -129,7 +136,7 @@ type BodyWithListLoadedProps<D extends DefinitionBase> = {
 } & BodyProps<D>;
 
 type Props<D extends DefinitionBase> = {
-    load: () => Promise<D[]>;
+    load: (nextUrl?: string) => Promise<NormalizedCollectionResponse<D>>;
     loadItem?: (id: string) => Promise<D>;
     listComponent: FunctionComponent<DefinitionListItemProps<D>>;
     itemComponent: FunctionComponent<DefinitionItemFormProps<D>>;
@@ -189,6 +196,8 @@ export default function DefinitionManager<D extends DefinitionBase>({
     const [listState, setListState] = useState<ListState<D>>({
         list: undefined,
         loading: false,
+        loadingMore: false,
+        next: undefined,
     });
     const [subManagementState, setSubManagementState] = React.useState<
         SubManagementState | undefined
@@ -221,23 +230,54 @@ export default function DefinitionManager<D extends DefinitionBase>({
     const reload = useCallback(async () => {
         setListState({
             list: undefined,
+            next: undefined,
             loading: true,
+            loadingMore: false,
         });
 
         try {
             const r = await load();
             setListState({
-                list: normalizeData ? r.map(normalizeData) : r,
+                list: normalizeData ? r.result.map(normalizeData) : r.result,
+                next: r.next || undefined,
                 loading: false,
+                loadingMore: false,
             });
         } catch (e) {
             setListState({
                 list: [],
                 loading: false,
+                next: undefined,
+                loadingMore: false,
             });
             return;
         }
     }, []);
+
+    const loadNext = useCallback(async () => {
+        setListState(p => ({
+            ...p,
+            loadingMore: true,
+        }));
+
+        try {
+            const r = await load(listState.next);
+            setListState(p => ({
+                ...p,
+                list: (p.list ?? []).concat(
+                    normalizeData ? r.result.map(normalizeData) : r.result
+                ),
+                next: r.next || undefined,
+                loadingMore: false,
+            }));
+        } catch (e) {
+            setListState(p => ({
+                ...p,
+                loadingMore: false,
+            }));
+            throw e;
+        }
+    }, [listState]);
 
     const bodyProps: BodyProps<D> = {
         items: list,
@@ -485,45 +525,73 @@ export default function DefinitionManager<D extends DefinitionBase>({
                     <Divider />
 
                     {filteredList ? (
-                        onSort ? (
-                            <SortableList<D & SortableItem, any>
-                                list={
-                                    filteredList as (D &
-                                        SortableItem &
-                                        DefinitionBase)[]
-                                }
-                                onOrderChange={onOrderChange}
-                                itemComponent={SortableListItem}
-                                itemProps={itemProps!}
-                            />
-                        ) : (
-                            filteredList.map(i => {
-                                return (
-                                    <ListItem disablePadding key={i.id}>
+                        <>
+                            {onSort ? (
+                                <SortableList<D & SortableItem, any>
+                                    list={
+                                        filteredList as (D &
+                                            SortableItem &
+                                            DefinitionBase)[]
+                                    }
+                                    onOrderChange={onOrderChange}
+                                    itemComponent={SortableListItem}
+                                    itemProps={itemProps!}
+                                />
+                            ) : (
+                                filteredList.map(i => {
+                                    return (
+                                        <ListItem disablePadding key={i.id}>
+                                            <ListItemButton
+                                                selected={i.id === item?.id}
+                                                onClick={handleItemClick(i)}
+                                            >
+                                                {React.createElement(
+                                                    listComponent,
+                                                    {
+                                                        data: i,
+                                                        key: i.id,
+                                                        onEdit: handleItemClick(
+                                                            i,
+                                                            true
+                                                        ),
+                                                        onDelete:
+                                                            batchDelete &&
+                                                            onDelete
+                                                                ? () =>
+                                                                      onDelete(
+                                                                          i
+                                                                      )
+                                                                : undefined,
+                                                    }
+                                                )}
+                                            </ListItemButton>
+                                        </ListItem>
+                                    );
+                                })
+                            )}
+                            {listState.next ? (
+                                <>
+                                    <ListItem disablePadding>
                                         <ListItemButton
-                                            selected={i.id === item?.id}
-                                            onClick={handleItemClick(i)}
+                                            onClick={() => loadNext()}
                                         >
-                                            {React.createElement(
-                                                listComponent,
-                                                {
-                                                    data: i,
-                                                    key: i.id,
-                                                    onEdit: handleItemClick(
-                                                        i,
-                                                        true
-                                                    ),
-                                                    onDelete:
-                                                        batchDelete && onDelete
-                                                            ? () => onDelete(i)
-                                                            : undefined,
-                                                }
-                                            )}
+                                            <ListItemIcon>
+                                                <ArrowCircleDownIcon />
+                                            </ListItemIcon>
+                                            {listState.loadingMore
+                                                ? t(
+                                                      'load_more.button.loading',
+                                                      'Loading…'
+                                                  )
+                                                : t(
+                                                      'load_more.button.load_more',
+                                                      'Load more'
+                                                  )}
                                         </ListItemButton>
                                     </ListItem>
-                                );
-                            })
-                        )
+                                </>
+                            ) : null}
+                        </>
                     ) : (
                         [0, 1, 2].map(i => (
                             <ListItem key={i}>
