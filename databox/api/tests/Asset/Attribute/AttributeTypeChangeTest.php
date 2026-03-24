@@ -4,8 +4,20 @@ namespace App\Tests\Asset\Attribute;
 
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeChangeService;
+use App\Attribute\Type\BooleanAttributeType;
+use App\Attribute\Type\CodeAttributeType;
+use App\Attribute\Type\CollectionPathAttributeType;
 use App\Attribute\Type\ColorAttributeType;
+use App\Attribute\Type\DateAttributeType;
+use App\Attribute\Type\DateTimeAttributeType;
+use App\Attribute\Type\EntityAttributeType;
+use App\Attribute\Type\GeoPointAttributeType;
+use App\Attribute\Type\HtmlAttributeType;
 use App\Attribute\Type\IpAttributeType;
+use App\Attribute\Type\JsonAttributeType;
+use App\Attribute\Type\KeywordAttributeType;
+use App\Attribute\Type\NumberAttributeType;
+use App\Attribute\Type\TextareaAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Tests\AbstractDataboxTestCase;
 
@@ -18,10 +30,80 @@ class AttributeTypeChangeTest extends AbstractDataboxTestCase
 
         $allTypes = $attributeTypeRegistry->getTypes();
 
+        $strictFormats = [
+            BooleanAttributeType::NAME,
+            IpAttributeType::NAME,
+            CollectionPathAttributeType::NAME,
+            ColorAttributeType::NAME,
+            DateTimeAttributeType::NAME,
+            DateAttributeType::NAME,
+            GeoPointAttributeType::NAME,
+            NumberAttributeType::NAME,
+        ];
+
         $disallowedTranslations = [
             TextAttributeType::NAME => [
-                ColorAttributeType::NAME,
+                ...$strictFormats,
+            ],
+            TextareaAttributeType::NAME => [
+                ...$strictFormats,
+                EntityAttributeType::NAME,
+                KeywordAttributeType::NAME,
+                TextAttributeType::NAME,
+            ],
+            CodeAttributeType::NAME => [
+                ...$strictFormats,
+                EntityAttributeType::NAME,
+                KeywordAttributeType::NAME,
+                TextAttributeType::NAME,
+            ],
+            HtmlAttributeType::NAME => [
+                ...$strictFormats,
+                EntityAttributeType::NAME,
+                KeywordAttributeType::NAME,
+                TextAttributeType::NAME,
+            ],
+            JsonAttributeType::NAME => [
+                ...$strictFormats,
+                EntityAttributeType::NAME,
+                KeywordAttributeType::NAME,
+                TextAttributeType::NAME,
+            ],
+            BooleanAttributeType::NAME => [
+                BooleanAttributeType::NAME,
                 IpAttributeType::NAME,
+                CollectionPathAttributeType::NAME,
+                ColorAttributeType::NAME,
+                DateTimeAttributeType::NAME,
+                DateAttributeType::NAME,
+                GeoPointAttributeType::NAME,
+            ],
+            CollectionPathAttributeType::NAME => [
+                ...$strictFormats,
+            ],
+            ColorAttributeType::NAME => [
+                ...$strictFormats,
+            ],
+            DateAttributeType::NAME => array_diff($strictFormats, [
+                DateTimeAttributeType::NAME,
+            ]),
+            DateTimeAttributeType::NAME => array_diff($strictFormats, [
+                DateAttributeType::NAME,
+            ]),
+            EntityAttributeType::NAME => [
+                ...$strictFormats,
+            ],
+            GeoPointAttributeType::NAME => [
+                ...$strictFormats,
+            ],
+            IpAttributeType::NAME => [
+                ...$strictFormats,
+            ],
+            NumberAttributeType::NAME => [
+                ...$strictFormats,
+            ],
+            KeywordAttributeType::NAME => [
+                ...$strictFormats,
             ],
         ];
 

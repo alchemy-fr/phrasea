@@ -15,25 +15,68 @@ readonly class AttributeTypeChangeService
 
     public function canChangeType(string $previousType, string $newType): bool
     {
+        $longText = [
+            TextareaAttributeType::NAME,
+            CodeAttributeType::NAME,
+            HtmlAttributeType::NAME,
+            JsonAttributeType::NAME,
+        ];
+
+        $text = [
+            ...$longText,
+            EntityAttributeType::NAME,
+            TextAttributeType::NAME,
+            KeywordAttributeType::NAME,
+        ];
+
         $allowedTranslations = [
             TextAttributeType::NAME => [
-                TextareaAttributeType::NAME,
-                EntityAttributeType::NAME,
+                ...$text,
+            ],
+            TextareaAttributeType::NAME => [
+                ...$longText,
             ],
             KeywordAttributeType::NAME => [
-                TextAttributeType::NAME,
-                TextareaAttributeType::NAME,
-                EntityAttributeType::NAME,
+                ...$text,
             ],
             BooleanAttributeType::NAME => [
-                TextareaAttributeType::NAME,
-                TextAttributeType::NAME,
-                CodeAttributeType::NAME,
-                EntityAttributeType::NAME,
+                ...$text,
+                NumberAttributeType::NAME,
             ],
             EntityAttributeType::NAME => [
-                TextAttributeType::NAME,
-                KeywordAttributeType::NAME,
+                ...$text,
+            ],
+            CodeAttributeType::NAME => [
+                ...$longText,
+            ],
+            CollectionPathAttributeType::NAME => [
+                ...$text,
+            ],
+            ColorAttributeType::NAME => [
+                ...$text,
+            ],
+            DateAttributeType::NAME => [
+                ...$text,
+                DateTimeAttributeType::NAME,
+            ],
+            DateTimeAttributeType::NAME => [
+                ...$text,
+                DateAttributeType::NAME,
+            ],
+            GeoPointAttributeType::NAME => [
+                ...$text,
+            ],
+            HtmlAttributeType::NAME => [
+                ...$longText,
+            ],
+            JsonAttributeType::NAME => [
+                ...$longText,
+            ],
+            IpAttributeType::NAME => [
+                ...$text,
+            ],
+            NumberAttributeType::NAME => [
+                ...$text,
             ],
         ];
 
