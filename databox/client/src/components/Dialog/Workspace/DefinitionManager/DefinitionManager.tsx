@@ -1,8 +1,8 @@
 import React, {
     FunctionComponent,
     useCallback,
-    useEffect,
     useMemo,
+    useRef,
     useState,
 } from 'react';
 import {
@@ -69,6 +69,7 @@ type ListState<D extends DefinitionBase> = {
     loading: boolean;
     loadingMore: boolean;
     next: string | undefined;
+    query: string;
 };
 
 export type ItemState<D extends DefinitionBase> = {
@@ -136,7 +137,10 @@ type BodyWithListLoadedProps<D extends DefinitionBase> = {
 } & BodyProps<D>;
 
 type Props<D extends DefinitionBase> = {
-    load: (nextUrl?: string) => Promise<NormalizedCollectionResponse<D>>;
+    load: (props: {
+        nextUrl?: string;
+        query?: string;
+    }) => Promise<NormalizedCollectionResponse<D>>;
     loadItem?: (id: string) => Promise<D>;
     listComponent: FunctionComponent<DefinitionListItemProps<D>>;
     itemComponent: FunctionComponent<DefinitionItemFormProps<D>>;
@@ -193,11 +197,13 @@ export default function DefinitionManager<D extends DefinitionBase>({
     filters,
 }: Props<D>) {
     const {openModal} = useModals();
+    const hasPaginationRef = useRef<boolean>(true);
     const [listState, setListState] = useState<ListState<D>>({
         list: undefined,
         loading: false,
         loadingMore: false,
         next: undefined,
+        query: '',
     });
     const [subManagementState, setSubManagementState] = React.useState<
         SubManagementState | undefined
@@ -227,32 +233,44 @@ export default function DefinitionManager<D extends DefinitionBase>({
     const {t} = useTranslation();
     const [searchTerm, setSearchTerm] = React.useState('');
 
-    const reload = useCallback(async () => {
-        setListState({
-            list: undefined,
-            next: undefined,
-            loading: true,
-            loadingMore: false,
-        });
-
-        try {
-            const r = await load();
+    const reload = useCallback(
+        async (query?: string) => {
             setListState({
-                list: normalizeData ? r.result.map(normalizeData) : r.result,
-                next: r.next || undefined,
-                loading: false,
-                loadingMore: false,
-            });
-        } catch (e) {
-            setListState({
-                list: [],
-                loading: false,
+                list: undefined,
                 next: undefined,
+                loading: true,
                 loadingMore: false,
+                query: query ?? '',
             });
-            return;
-        }
-    }, []);
+
+            try {
+                const r = await load({
+                    query,
+                });
+                setListState(p => ({
+                    ...p,
+                    list: normalizeData
+                        ? r.result.map(normalizeData)
+                        : r.result,
+                    next: r.next || undefined,
+                    loading: false,
+                }));
+                if (!query) {
+                    hasPaginationRef.current = !!r.next;
+                }
+            } catch (e) {
+                setListState(p => ({
+                    ...p,
+                    list: [],
+                    loading: false,
+                    next: undefined,
+                    loadingMore: false,
+                }));
+                return;
+            }
+        },
+        [hasPaginationRef]
+    );
 
     const loadNext = useCallback(async () => {
         setListState(p => ({
@@ -261,7 +279,10 @@ export default function DefinitionManager<D extends DefinitionBase>({
         }));
 
         try {
-            const r = await load(listState.next);
+            const r = await load({
+                nextUrl: listState.next,
+                query: searchTerm,
+            });
             setListState(p => ({
                 ...p,
                 list: (p.list ?? []).concat(
@@ -277,7 +298,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
             }));
             throw e;
         }
-    }, [listState]);
+    }, [listState, searchTerm]);
 
     const bodyProps: BodyProps<D> = {
         items: list,
@@ -285,7 +306,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
     };
 
     let filteredList =
-        searchFilter && list
+        !hasPaginationRef.current && searchFilter && list
             ? searchFilter(bodyProps as BodyWithListLoadedProps<D>, searchTerm)
             : list;
     if (filter && filteredList) {
@@ -384,9 +405,11 @@ export default function DefinitionManager<D extends DefinitionBase>({
         });
     };
 
-    useEffect(() => {
-        reload();
-    }, [reload]);
+    React.useEffect(() => {
+        if (hasPaginationRef.current) {
+            reload(searchTerm);
+        }
+    }, [reload, searchTerm, hasPaginationRef]);
 
     const onDelete = useMemo(
         () =>
