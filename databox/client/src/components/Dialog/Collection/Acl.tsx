@@ -97,7 +97,18 @@ export default function Acl({data, onClose, minHeight}: Props) {
                     'Can share assets within the collection.'
                 ),
             },
-
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.CHILD_VIEW,
+                label: t(
+                    'acl.permission.collection.view_assets.label',
+                    'View Assets'
+                ),
+                description: t(
+                    'acl.permission.collection.view_assets.desc',
+                    'Can view assets of this collection and its children, but cannot view the collection itself.'
+                ),
+            },
             {
                 type: PermissionType.Mask,
                 key: AclPermission.CHILD_CREATE,
@@ -110,7 +121,6 @@ export default function Acl({data, onClose, minHeight}: Props) {
                     'Can create assets, but cannot edit or delete assets created by others.'
                 ),
             },
-
             {
                 type: PermissionType.Mask,
                 key: AclPermission.CHILD_EDIT,

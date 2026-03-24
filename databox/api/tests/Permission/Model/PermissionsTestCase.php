@@ -40,17 +40,26 @@ class PermissionsTestCase
         // Collection "B" permissions
         public array $b = [],
 
+        // Asset "Lost-root"
+        public array $lostRoot = [],
+
         // Asset "Lost-alice"
         public array $lostAlice = [],
 
         // Asset "Lost-bob"
         public array $lostBob = [],
 
+        // Asset "InA-root"
+        public array $inARoot = [],
+
         // Asset "InA-alice"
         public array $inAAlice = [],
 
         // Asset "InA-bob"
         public array $inABob = [],
+
+        // Asset "InB-root"
+        public array $inBRoot = [],
 
         // Asset "InB-alice"
         public array $inBAlice = [],

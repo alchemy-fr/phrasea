@@ -9,7 +9,7 @@ final readonly class AssetPermissions
         public bool $edit = false,
         public bool $editAttributes = false,
         public bool $editTags = false,
-        public bool $editPrivacy = false,
+        public bool $editPermissions = false,
         public bool $delete = false,
     ) {
     }

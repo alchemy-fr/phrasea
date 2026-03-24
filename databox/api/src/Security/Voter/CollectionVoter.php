@@ -70,42 +70,41 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
             self::CREATE => $isWorkspaceOwnerFast()
                 || (
                     null !== $subject->getParent()
-                    ? $this->hasAcl([
-                        PermissionInterface::CREATE,
-                    ], $subject->getParent(), $token)
-                    : $this->security->isGranted(WorkspaceVoter::CREATE_COLLECTION, $subject->getWorkspace())
+                        ? $this->hasAcl([
+                            PermissionInterface::CREATE,
+                        ], $subject->getParent(), $token)
+                        : $this->security->isGranted(WorkspaceVoter::CREATE_COLLECTION, $subject->getWorkspace())
                 )
                 || $this->parentIsGranted($attribute, $subject)
                 || $isWorkspaceOwnerSlow()
                 || $isOwnerSlow()
             ,
-            // View collection name but not its assets
-            self::LIST => (!$subject->isDeleted() || $this->security->isGranted(self::DELETE, $subject))
+            // View collection name but not necessary its assets
+            self::READ => (!$subject->isDeleted() || $this->security->isGranted(self::DELETE, $subject))
                 && (
                     $isCreator()
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
                     || ($subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
                     || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
-                    || $this->hasAcl(PermissionInterface::CHILD_VIEW, $subject->getWorkspace(), $token)
                     || $this->parentIsGranted($attribute, $subject)
                     || $isOwnerSlow()
                 )
             ,
-            // View collection assets
-            self::READ => (!$subject->isDeleted() || $this->security->isGranted(self::DELETE, $subject))
+            self::VIEW_ASSET => (!$subject->isDeleted() || $this->security->isGranted(self::DELETE, $subject))
                 && (
                     $isCreator()
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE
+                    || $this->parentIsGranted($attribute, $subject)
                     || $this->hasAcl([
                         PermissionInterface::VIEW,
                         PermissionInterface::CHILD_VIEW,
                     ], $subject, $token)
                     || $this->hasAcl(PermissionInterface::CHILD_VIEW, $subject->getWorkspace(), $token)
-                    || $this->parentIsGranted($attribute, $subject)
                     || $isOwnerSlow()
+                    || $this->isAdmin()
                 )
             ,
             self::EDIT => $isCreator()

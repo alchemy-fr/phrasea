@@ -106,6 +106,18 @@ export default function Acl({data, onClose, minHeight}: Props) {
             },
             {
                 type: PermissionType.Mask,
+                key: AclPermission.CHILD_VIEW,
+                label: t(
+                    'acl.permission.workspace.view_assets.label',
+                    'View Assets'
+                ),
+                description: t(
+                    'acl.permission.workspace.view_assets.desc',
+                    'Can view all assets of workspace, but cannot see their collections.'
+                ),
+            },
+            {
+                type: PermissionType.Mask,
                 key: AclPermission.CHILD_CREATE,
                 label: t(
                     'acl.permission.workspace.create_assets.label',
