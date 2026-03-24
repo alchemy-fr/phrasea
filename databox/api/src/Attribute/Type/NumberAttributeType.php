@@ -7,7 +7,7 @@ namespace App\Attribute\Type;
 use App\Elasticsearch\SearchType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-class NumberAttributeType extends AbstractAttributeType
+final class NumberAttributeType extends AbstractAttributeType
 {
     final public const string NAME = 'number';
 

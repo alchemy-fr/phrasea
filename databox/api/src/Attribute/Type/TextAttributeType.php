@@ -15,7 +15,7 @@ class TextAttributeType extends AbstractAttributeType
 
     public static function getName(): string
     {
-        return self::NAME;
+        return static::NAME;
     }
 
     public function getElasticSearchType(): string

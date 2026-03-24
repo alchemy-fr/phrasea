@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-class IpAttributeType extends AbstractAttributeType
+final class IpAttributeType extends AbstractAttributeType
 {
     final public const string NAME = 'ip';
 

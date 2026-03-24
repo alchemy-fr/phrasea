@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Api\Model\Input\AttributeDefinitionInput;
+use App\Attribute\Type\AttributeTypeChangeService;
+use App\Attribute\Type\EntityAttributeType;
+use App\Consumer\Handler\Attribute\AttributeMigrateToEntityList;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use App\Model\AssetTypeEnum;
@@ -13,6 +17,12 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class AttributeDefinitionInputTransformer extends AbstractInputTransformer
 {
+    public function __construct(
+        private readonly AttributeTypeChangeService $attributeTypeChangeService,
+        private readonly PostFlushStack $postFlushStack,
+    ) {
+    }
+
     public function supports(string $resourceClass, object $data): bool
     {
         return AttributeDefinition::class === $resourceClass && $data instanceof AttributeDefinitionInput;
@@ -23,6 +33,8 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
+        $this->validator->validate($data, $context);
+
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var AttributeDefinition $object */
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new AttributeDefinition();
@@ -66,11 +78,24 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
             $object->setInitialValues($data->initialValues);
         }
         if (null !== $data->fieldType) {
-            $object->setFieldType($data->fieldType);
+            if ($object->getFieldType() !== $data->fieldType) {
+                $this->attributeTypeChangeService->handleTypeChange($object->getFieldType(), $data->fieldType, $object);
+                $object->setFieldType($data->fieldType);
+
+                if (EntityAttributeType::NAME === $data->fieldType) {
+                    $this->postFlushStack->addBusMessage(new AttributeMigrateToEntityList($object->getId()));
+                }
+            }
         }
-        if (null !== $data->entityList) {
-            $object->setEntityList($data->entityList);
+
+        if (EntityAttributeType::NAME === $object->getFieldType()) {
+            if (null !== $data->entityList) {
+                $object->setEntityList($data->entityList);
+            }
+        } else {
+            $object->setEntityList(null);
         }
+
         if (null !== $data->fileType) {
             $object->setFileType($data->fileType);
         }

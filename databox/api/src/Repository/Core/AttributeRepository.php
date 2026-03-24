@@ -95,20 +95,6 @@ class AttributeRepository extends ServiceEntityRepository
         return $this->attributeCache[$assetId] = $this->getAssetAttributes($assetId);
     }
 
-    /**
-     * @return Attribute[]
-     */
-    public function getAssetAttributeIdsIterator(string $assetId): iterable
-    {
-        return $this
-            ->createQueryBuilder('a')
-            ->select('a.id')
-            ->andWhere('a.asset = :asset')
-            ->setParameter('asset', $assetId)
-            ->getQuery()
-            ->toIterable();
-    }
-
     public function getESQueryBuilder(): QueryBuilder
     {
         $types = array_map(

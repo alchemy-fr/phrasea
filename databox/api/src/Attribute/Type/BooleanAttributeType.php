@@ -6,7 +6,7 @@ namespace App\Attribute\Type;
 
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-class BooleanAttributeType extends AbstractAttributeType
+final class BooleanAttributeType extends AbstractAttributeType
 {
     final public const string NAME = 'boolean';
 

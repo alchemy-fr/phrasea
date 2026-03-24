@@ -6,13 +6,10 @@ namespace App\Attribute\Type;
 
 class HtmlAttributeType extends CodeAttributeType
 {
+    public const string NAME = 'html';
+
     public function __construct(private readonly \HTMLPurifier $HTMLPurifier)
     {
-    }
-
-    public static function getName(): string
-    {
-        return 'html';
     }
 
     public function normalizeValue($value): ?string
