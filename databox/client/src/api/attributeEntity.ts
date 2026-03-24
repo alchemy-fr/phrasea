@@ -6,7 +6,7 @@ import {SortWay} from './common.ts';
 const attributeEntityNS = '/attribute-entities';
 
 type AttributeEntityOptions = {
-    query?: string;
+    value?: string;
     list?: string;
 };
 

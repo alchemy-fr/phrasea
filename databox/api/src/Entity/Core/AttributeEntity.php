@@ -57,9 +57,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 
 #[ORM\Entity(repositoryClass: AttributeEntityRepository::class)]
-#[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: [
-    'workspace',
-    'list',
+#[ApiFilter(filterClass: SearchFilter::class, properties: [
+    'workspace' => 'exact',
+    'list' => 'exact',
+    'value' => 'partial',
 ])]
 #[ApiFilter(filterClass: OrderFilter::class, properties: [
     'value',
