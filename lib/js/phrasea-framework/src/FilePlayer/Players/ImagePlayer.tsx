@@ -1,17 +1,12 @@
-
 import React from 'react';
 import {FilePlayerProps} from '../types';
 
 type Props = FilePlayerProps;
 
-export default function ImagePlayer({
-    file,
-    title,
-    onLoad,
-}: Props) {
+export default function ImagePlayer({file, title, onLoad}: Props) {
     const isSvg = file.type === 'image/svg+xml';
 
-  return (
+    return (
         <img
             style={{
                 maxWidth: '100%',

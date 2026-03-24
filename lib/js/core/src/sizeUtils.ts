@@ -53,7 +53,10 @@ export function getRatioDimensions(
     };
 }
 
-export function createStrictDimensions({width, height}: Dimensions): StrictDimensions {
+export function createStrictDimensions({
+    width,
+    height,
+}: Dimensions): StrictDimensions {
     return {
         width,
         height: height ?? width,

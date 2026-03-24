@@ -1,6 +1,7 @@
 import {
     CssBaseline,
-    GlobalStyles, GlobalStylesProps,
+    GlobalStyles,
+    GlobalStylesProps,
     SxProps,
     Theme,
     ThemeOptions,
@@ -20,7 +21,7 @@ export function AppGlobalTheme({
     children,
     styles,
     themeOptions,
-    scrollbarWidth = 8
+    scrollbarWidth = 8,
 }: Props) {
     return (
         <ThemeEditorProvider defaultTheme={themeOptions ?? baseTheme}>
@@ -54,9 +55,7 @@ export function AppGlobalTheme({
                         'body': {
                             backgroundColor: theme.palette.background.default,
                         },
-                        ...(styles
-                            ? resolveSx(styles, theme)
-                            : {}),
+                        ...(styles ? resolveSx(styles, theme) : {}),
                     } as GlobalStylesProps['styles'];
                 }}
             />

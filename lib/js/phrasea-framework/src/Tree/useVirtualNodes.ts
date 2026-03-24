@@ -2,7 +2,8 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {
     EditionProps,
     OnNodeAdd,
-    OnNodeRemove, OnNodeStartEdit,
+    OnNodeRemove,
+    OnNodeStartEdit,
     OnNodeUpdate,
     TreeBaseItem,
     TreeNode,
@@ -18,9 +19,7 @@ type Props<D extends TreeBaseItem> = {
 type Return<D extends TreeBaseItem> = {
     normalizedNodes: TreeNode<D>[];
     virtualNodes: VirtualNodes<D>;
-    setVirtualNodes: React.Dispatch<
-        React.SetStateAction<VirtualNodes<D>>
-    >;
+    setVirtualNodes: React.Dispatch<React.SetStateAction<VirtualNodes<D>>>;
 } & EditionProps<D>;
 
 export function useVirtualNodes<D extends TreeBaseItem>({
@@ -57,7 +56,7 @@ export function useVirtualNodes<D extends TreeBaseItem>({
     );
 
     const onNodeRemove = useCallback<OnNodeRemove<D>>(
-        (node) => {
+        node => {
             setVirtualNodes(prev => prev.filter(n => n.id !== node.id));
         },
         [setVirtualNodes]
@@ -87,28 +86,37 @@ export function useVirtualNodes<D extends TreeBaseItem>({
         [setVirtualNodes]
     );
 
-    const nodeToggleEdit = useCallback((node: TreeNode<D>, editing: boolean) => {
-        setVirtualNodes(prev =>
-            prev.map(n => {
-                if (n.id === node.id) {
-                    return {
-                        ...n,
-                        editing,
-                    };
-                }
+    const nodeToggleEdit = useCallback(
+        (node: TreeNode<D>, editing: boolean) => {
+            setVirtualNodes(prev =>
+                prev.map(n => {
+                    if (n.id === node.id) {
+                        return {
+                            ...n,
+                            editing,
+                        };
+                    }
 
-                return n;
-            })
-        );
-    }, [setVirtualNodes]);
+                    return n;
+                })
+            );
+        },
+        [setVirtualNodes]
+    );
 
-    const onNodeStartEdit = useCallback<OnNodeStartEdit<D>>(node => {
-        nodeToggleEdit(node, true);
-    }, [nodeToggleEdit]);
+    const onNodeStartEdit = useCallback<OnNodeStartEdit<D>>(
+        node => {
+            nodeToggleEdit(node, true);
+        },
+        [nodeToggleEdit]
+    );
 
-    const onNodeCancelEdit = useCallback<OnNodeStartEdit<D>>(node => {
-        nodeToggleEdit(node, false);
-    }, [nodeToggleEdit]);
+    const onNodeCancelEdit = useCallback<OnNodeStartEdit<D>>(
+        node => {
+            nodeToggleEdit(node, false);
+        },
+        [nodeToggleEdit]
+    );
 
     const normalizedNodes = useMemo<TreeNode<D>[]>(() => {
         if (virtualNodes.length === 0) {

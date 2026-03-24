@@ -1,13 +1,7 @@
 import {DatePickerProps} from '../types';
 import DatePickerBase from 'react-datepicker';
-import {
-    Box,
-    FormControl,
-    IconButton,
-    InputBase,
-    OutlinedInput,
-} from '@mui/material';
-import {PropsWithChildren, useCallback, useMemo, useState} from 'react';
+import {FormControl, IconButton, InputBase, OutlinedInput} from '@mui/material';
+import {useCallback, useMemo, useState} from 'react';
 import ClearIcon from '@mui/icons-material/Clear';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import {format, parse} from 'date-fns';
@@ -45,7 +39,7 @@ export default function DatePicker({
     timeFormat ??=
         timeFormats[language as keyof typeof timeFormats] || timeFormats.en;
 
-    const [date, initialDateValue, initialTimeValue] = useMemo(() => {
+    const [_date, initialDateValue, initialTimeValue] = useMemo(() => {
         const d = value ? new Date(value) : null;
         if (d instanceof Date && !isNaN(d.getTime())) {
             const dateStr = format(d, dateFormat);
@@ -208,17 +202,4 @@ export default function DatePicker({
             />
         </>
     );
-}
-
-
-function CalendarContainer({children}: PropsWithChildren) {
-    return  <Box
-        sx={{
-            '.react-datepicker__header': {
-                backgroundColor: 'background.paper',
-            },
-        }}
-    >
-        {children}
-    </Box>;
 }

@@ -5,6 +5,7 @@ type Props = {
 };
 
 export function DefaultErrorComponent({error}: Props) {
+    // eslint-disable-next-line no-console
     console.trace(error);
 
     return <ErrorPage error={error} />;

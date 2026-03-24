@@ -44,7 +44,7 @@ export type RenderNodeLabel<D extends TreeBaseItem> = (
 ) => ReactNode;
 
 export type RenderNodeEdit<D extends TreeBaseItem> = (
-    node: TreeNode<D>,
+    node: TreeNode<D>
 ) => ReactNode;
 
 export type OnToggleSelectNode<D extends TreeBaseItem> = (
@@ -66,17 +66,15 @@ export type OnNodeAdd<D extends TreeBaseItem> = (
     node: Partial<TreeNode<D>>
 ) => void;
 
-export type OnNodeRemove<D extends TreeBaseItem> = (
-    node: TreeNode<D>
-) => void;
+export type OnNodeRemove<D extends TreeBaseItem> = (node: TreeNode<D>) => void;
 
 export type OnNodeUpdate<D extends TreeBaseItem> = (
     oldNode: Partial<TreeNode<D>>,
-    newNode: Partial<TreeNode<D>>,
+    newNode: Partial<TreeNode<D>>
 ) => void;
 
 export type OnNodeStartEdit<D extends TreeBaseItem> = (
-    node: TreeNode<D>,
+    node: TreeNode<D>
 ) => void;
 
 type CommonTreeProps<D extends TreeBaseItem> = {

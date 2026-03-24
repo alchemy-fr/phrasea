@@ -1,15 +1,13 @@
 import {
-    OnNodeUpdate,
     OnToggleExpand,
     OnToggleSelectNode,
     TreeBaseItem,
-    TreeNode,
     TreeViewClasses,
     TreeViewProps,
 } from './types';
 import {List} from '@mui/material';
 import BaseTreeNode from './BaseTreeNode';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useState} from 'react';
 import {findNodeById, getFlattenNodes} from './treeHelper';
 
 export default function TreeView<D extends TreeBaseItem>({
@@ -55,7 +53,11 @@ export default function TreeView<D extends TreeBaseItem>({
                     prev.filter(id => !idsToUnselect.includes(id));
 
                 setSelectedNodes(updateSelectedNodes);
-                onSelectionChange?.(updateSelectedNodes(selectedNodes).map(id => findNodeById(nodes, id)));
+                onSelectionChange?.(
+                    updateSelectedNodes(selectedNodes).map(id =>
+                        findNodeById(nodes, id)
+                    )
+                );
 
                 if (onToggleSelect) {
                     allChildren.forEach(n => onToggleSelect(n, false));
@@ -119,7 +121,11 @@ export default function TreeView<D extends TreeBaseItem>({
             setSelectedNodes(updateSelectedNodes);
 
             if (onSelectionChange) {
-                onSelectionChange(updateSelectedNodes(selectedNodes).map(id => findNodeById(nodes, id)));
+                onSelectionChange(
+                    updateSelectedNodes(selectedNodes).map(id =>
+                        findNodeById(nodes, id)
+                    )
+                );
             }
         },
         [

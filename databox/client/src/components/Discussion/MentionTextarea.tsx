@@ -54,10 +54,11 @@ export default function MentionTextarea({
                 })) as SuggestionDataItem[]
             );
         } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error(e);
             if (isErrorOfCode(e, handledErrorStatuses)) {
                 userApiUnauthorized.current = true;
             }
-            console.error(e);
             callback([]);
             return;
         }

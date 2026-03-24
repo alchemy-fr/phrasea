@@ -121,7 +121,9 @@ export default function AppDialog({
             disableEscapeKeyDown={disableEscapeKeyDown}
         >
             {title && (
-                <AppDialogTitle onClose={!hideCloseButton ? handleClose : undefined}>
+                <AppDialogTitle
+                    onClose={!hideCloseButton ? handleClose : undefined}
+                >
                     {title}
                 </AppDialogTitle>
             )}
