@@ -25,6 +25,7 @@ use App\Validator\SameWorkspaceConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -70,6 +71,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     properties: ['workspace', 'list.workspace'],
 )]
 #[UniqueConstraint(name: 'value_uniq', fields: ['list_id', 'value'])]
+#[UniqueEntity(fields: ['list', 'value'], message: 'This value already exists in the list', errorPath: 'value')]
 class AttributeEntity extends AbstractUuidEntity
 {
     use CreatedAtTrait;

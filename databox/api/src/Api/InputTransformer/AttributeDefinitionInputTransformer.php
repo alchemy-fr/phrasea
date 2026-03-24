@@ -8,10 +8,12 @@ use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Attribute\Type\AttributeTypeChangeService;
 use App\Attribute\Type\EntityAttributeType;
+use App\Consumer\Handler\Attribute\AttributeMigrateFromEntityList;
 use App\Consumer\Handler\Attribute\AttributeMigrateToEntityList;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use App\Model\AssetTypeEnum;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
@@ -20,6 +22,7 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
     public function __construct(
         private readonly AttributeTypeChangeService $attributeTypeChangeService,
         private readonly PostFlushStack $postFlushStack,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -77,13 +80,24 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->initialValues) {
             $object->setInitialValues($data->initialValues);
         }
-        if (null !== $data->fieldType) {
-            if ($object->getFieldType() !== $data->fieldType) {
-                $this->attributeTypeChangeService->handleTypeChange($object->getFieldType(), $data->fieldType, $object);
-                $object->setFieldType($data->fieldType);
+        if (null !== $newType = $data->fieldType) {
+            $previousType = $object->getFieldType();
 
-                if (EntityAttributeType::NAME === $data->fieldType) {
+            if ($newType !== $previousType) {
+                $this->attributeTypeChangeService->handleTypeChange($previousType, $newType, $object);
+                $object->setFieldType($newType);
+
+                if (EntityAttributeType::NAME === $newType) {
                     $this->postFlushStack->addBusMessage(new AttributeMigrateToEntityList($object->getId()));
+                } elseif (EntityAttributeType::NAME === $previousType) {
+                    if (!$object->getEntityList()) {
+                        $this->logger->alert('Attribute was changed from Entity type but has no entity list, skipping migration', [
+                            'attributeId' => $object->getId(),
+                            'newType' => $newType,
+                        ]);
+                    } else {
+                        $this->postFlushStack->addBusMessage(new AttributeMigrateFromEntityList($object->getId(), $object->getEntityList()->getId()));
+                    }
                 }
             }
         }

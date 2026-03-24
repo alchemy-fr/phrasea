@@ -35,7 +35,7 @@ readonly class AttributeMigrateFromEntityListHandler
                 UPDATE attribute a
                 SET value = e.value
                 FROM attribute_entity e
-                WHERE a.definition_id = :def AND e.list_id = :list AND a.value = e.value;
+                WHERE a.definition_id = :def AND e.list_id = :list AND e.id = a.value::uuid;
             SQL, [
             'ws' => $attributeDefinition->getWorkspaceId(),
             'list' => $entityList->getId(),

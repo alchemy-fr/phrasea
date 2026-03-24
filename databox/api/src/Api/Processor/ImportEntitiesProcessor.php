@@ -11,6 +11,7 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\ImportEntitiesInput;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
+use App\Repository\Core\AttributeEntityRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -20,6 +21,7 @@ class ImportEntitiesProcessor implements ProcessorInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
+        private readonly AttributeEntityRepository $attributeEntityRepository,
     ) {
     }
 
@@ -33,6 +35,13 @@ class ImportEntitiesProcessor implements ProcessorInterface
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $list);
 
         foreach ($data->values ?? [] as $value) {
+            if (null !== $this->attributeEntityRepository->findOneBy([
+                'list' => $listId,
+                'value' => $value,
+            ])) {
+                continue;
+            }
+
             $entity = new AttributeEntity();
             $entity->setList($list);
             $entity->setValue($value);
