@@ -24,6 +24,7 @@ use App\Repository\Core\AttributeEntityRepository;
 use App\Validator\SameWorkspaceConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -68,6 +69,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'list.workspace'],
 )]
+#[UniqueConstraint(name: 'value_uniq', fields: ['list_id', 'value'])]
 class AttributeEntity extends AbstractUuidEntity
 {
     use CreatedAtTrait;

@@ -38,7 +38,8 @@ readonly class AttributeMigrateToEntityListHandler
                 INSERT INTO attribute_entity (id, position, list_id, workspace_id, value, updated_at, created_at)
                 SELECT gen_random_uuid(), position, :list, :ws, value, updated_at, created_at
                 FROM attribute
-                WHERE definition_id = :def AND value IS NOT NULL AND value != '';
+                WHERE definition_id = :def AND value IS NOT NULL AND value != ''
+                ON CONFLICT (value) DO NOTHING;
             SQL, [
                 'ws' => $attributeDefinition->getWorkspaceId(),
                 'list' => $attributeDefinition->getEntityList()->getId(),
