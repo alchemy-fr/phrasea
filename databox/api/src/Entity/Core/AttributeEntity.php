@@ -71,7 +71,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'list.workspace'],
 )]
-#[UniqueConstraint(name: 'list_value_uniq', fields: ['list_id', 'value'])]
+#[UniqueConstraint(name: 'list_value_uniq', fields: ['list', 'value'])]
 #[UniqueEntity(fields: ['list', 'value'], message: 'This value already exists in the list', errorPath: 'value')]
 class AttributeEntity extends AbstractUuidEntity
 {

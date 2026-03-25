@@ -39,9 +39,8 @@ final class Version20260324145622 extends AbstractMigration
             )
             UPDATE attribute a
             SET value = t.retained_id::text
-            FROM to_delete t
-            INNER JOIN attribute_definition ad ON ad.id = a.definition_id
-            WHERE ad.list_id = t.list_id AND a.value = t.id_to_delete::text
+            FROM to_delete t, attribute_definition ad
+            WHERE ad.id = a.definition_id AND ad.entity_list_id = t.list_id AND a.value = t.id_to_delete::text
         SQL);
 
         // 2. Delete the duplicate rows from attribute_entity
