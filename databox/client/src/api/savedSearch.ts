@@ -2,19 +2,19 @@ import {apiClient} from '../init.ts';
 import {SavedSearch, SavedSearchData} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {TSearchContext} from '../components/Media/Search/SearchContext.tsx';
+import {PaginationParams} from './types.ts';
 
 const entityType = 'saved-searches';
 
 export type GetSavedSearchOptions = {
     query?: string;
     page?: number;
-};
+} & PaginationParams;
 
 export async function getSavedSearches(
-    nextUrl?: string | undefined,
     params: GetSavedSearchOptions = {}
 ): Promise<NormalizedCollectionResponse<SavedSearch>> {
-    const res = await apiClient.get(nextUrl ?? `/${entityType}`, {
+    const res = await apiClient.get(params.nextUrl ?? `/${entityType}`, {
         params,
     });
 

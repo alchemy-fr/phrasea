@@ -34,14 +34,32 @@ class ImportEntitiesProcessor implements ProcessorInterface
         $list = DoctrineUtil::findStrict($this->em, EntityList::class, $listId);
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $list);
 
-        foreach ($data->values ?? [] as $value) {
-            if (null !== $this->attributeEntityRepository->findOneBy([
-                'list' => $listId,
-                'value' => $value,
-            ])) {
-                continue;
-            }
+        $inputValues = $data->values ?? [];
+        if ([] === $inputValues) {
+            return $list;
+        }
 
+        $normalizedValues = array_values(array_unique($inputValues));
+
+        foreach (array_chunk($normalizedValues, 2) as $chunk) { // TODO change number
+            $qb = $this->attributeEntityRepository->createQueryBuilder('a')
+                ->select('a.value')
+                ->andWhere('a.list = :list')
+                ->andWhere('a.value IN (:values)')
+                ->setParameter('list', $list->getId())
+                ->setParameter('values', $chunk);
+
+            $existingRows = $qb->getQuery()->getScalarResult();
+
+            $existingValues = array_column($existingRows, 'value');
+            $normalizedValues = array_diff($normalizedValues, $existingValues);
+        }
+
+        if (empty($normalizedValues)) {
+            return $list;
+        }
+
+        foreach ($normalizedValues as $value) {
             $entity = new AttributeEntity();
             $entity->setList($list);
             $entity->setValue($value);

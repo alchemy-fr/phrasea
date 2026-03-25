@@ -22,23 +22,26 @@ final class Version20260324145622 extends AbstractMigration
         $this->addSql(<<<SQL
             WITH duplicates AS (
               SELECT
+                list_id,
                 value,
                 ARRAY_AGG(id) AS all_ids
               FROM attribute_entity
-              GROUP BY value
+              GROUP BY list_id, value
               HAVING COUNT(*) > 1
             ),
             to_delete AS (
               SELECT
                 unnest(all_ids[2:]) AS id_to_delete,  -- all except the first (retained)
                 all_ids[1] AS retained_id,  -- the first ID to retain
-                value
+                value,
+                list_id
               FROM duplicates
             )
             UPDATE attribute a
             SET value = t.retained_id::text
             FROM to_delete t
-            WHERE a.value = t.id_to_delete::text
+            INNER JOIN attribute_definition ad ON ad.id = a.definition_id
+            WHERE ad.list_id = t.list_id AND a.value = t.id_to_delete::text
         SQL);
 
         // 2. Delete the duplicate rows from attribute_entity
@@ -48,7 +51,7 @@ final class Version20260324145622 extends AbstractMigration
                 value,
                 ARRAY_AGG(id) AS all_ids
               FROM attribute_entity
-              GROUP BY value
+              GROUP BY list_id, value
               HAVING COUNT(*) > 1
             ),
             to_delete AS (
@@ -60,12 +63,12 @@ final class Version20260324145622 extends AbstractMigration
             USING to_delete t
             WHERE e.id = t.id_to_delete
         SQL);
-        $this->addSql('CREATE UNIQUE INDEX value_uniq ON attribute_entity (value)');
+        $this->addSql('CREATE UNIQUE INDEX list_value_uniq ON attribute_entity (list_id, value)');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('DROP INDEX value_uniq');
+        $this->addSql('DROP INDEX list_value_uniq');
     }
 }

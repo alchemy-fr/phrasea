@@ -103,7 +103,12 @@ export default function RenditionPolicyManager({
         <DefinitionManager
             itemComponent={Item}
             listComponent={ListItem}
-            load={() => getRenditionPolicies(workspace.id)}
+            load={({nextUrl}) =>
+                getRenditionPolicies({
+                    workspaceId: workspace.id,
+                    nextUrl,
+                })
+            }
             workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}

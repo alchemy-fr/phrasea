@@ -39,7 +39,7 @@ readonly class AttributeMigrateToEntityListHandler
                 SELECT gen_random_uuid(), position, :list, :ws, value, updated_at, created_at
                 FROM attribute
                 WHERE definition_id = :def AND value IS NOT NULL AND value != ''
-                ON CONFLICT (value) DO NOTHING;
+                ON CONFLICT list_value_uniq DO NOTHING;
             SQL, [
                 'ws' => $attributeDefinition->getWorkspaceId(),
                 'list' => $attributeDefinition->getEntityList()->getId(),

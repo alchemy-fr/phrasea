@@ -2,14 +2,14 @@ import {apiClient} from '../init.ts';
 import {AttributeEntity} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {SortWay} from './common.ts';
+import {PaginationParams} from './types.ts';
 
 const attributeEntityNS = '/attribute-entities';
 
 type AttributeEntityOptions = {
     value?: string;
     list?: string;
-    nextUrl?: string;
-};
+} & PaginationParams;
 
 export async function getAttributeEntities({
     nextUrl,
