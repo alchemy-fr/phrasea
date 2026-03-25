@@ -38,6 +38,7 @@ export default function Attributes({
 
     const formatterOptions: AttributeFormatterOptions = {
         uiLocale: i18n.language,
+        t,
     };
 
     return (

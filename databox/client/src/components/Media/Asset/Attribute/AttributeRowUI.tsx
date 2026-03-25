@@ -37,7 +37,7 @@ export default function AttributeRowUI({
     format,
     assetAnnotationsRef,
 }: Props) {
-    const {i18n} = useTranslation();
+    const {t, i18n} = useTranslation();
     const {nameTranslated, name, fieldType, multiple} = definition;
     const formatter = getAttributeType(fieldType);
     const [overControls, setOverControls] = React.useState(false);
@@ -57,6 +57,7 @@ export default function AttributeRowUI({
 
     const formatterOptions: AttributeFormatterOptions = {
         uiLocale: i18n.language,
+        t,
     };
 
     const valueFormatterProps = {

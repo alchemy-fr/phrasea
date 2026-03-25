@@ -30,6 +30,7 @@ export type AttributeFormatterOptions = {
     highlight?: any;
     locale?: string | undefined;
     uiLocale: string;
+    t: TFunction;
 };
 
 export type AvailableFormat = {

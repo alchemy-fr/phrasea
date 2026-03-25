@@ -4,42 +4,13 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use App\Elasticsearch\SearchType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-class DurationAttributeType extends AbstractAttributeType
+class DurationAttributeType extends NumberAttributeType
 {
-    final public const string NAME = 'duration';
-
     public static function getName(): string
     {
-        return self::NAME;
-    }
-
-    public function getElasticSearchMapping(string $locale): ?array
-    {
-        return [
-            'fields' => [
-                AttributeTypeInterface::RAW_PROP => [
-                    'type' => 'keyword',
-                ],
-            ],
-        ];
-    }
-
-    public function getElasticSearchSearchType(): ?SearchType
-    {
-        return SearchType::Match;
-    }
-
-    public function getElasticSearchType(): string
-    {
-        return 'long';
-    }
-
-    public function supportsSuggest(): bool
-    {
-        return true;
+        return 'duration';
     }
 
     /**
@@ -61,19 +32,5 @@ class DurationAttributeType extends AbstractAttributeType
         if (!is_int($value)) {
             $context->addViolation('Invalid duration (milliseconds)');
         }
-    }
-
-    public function denormalizeValue(?string $value)
-    {
-        if (is_numeric($value)) {
-            return $value + 0; // Convert to int
-        }
-
-        return $value;
-    }
-
-    public function supportsAggregation(): bool
-    {
-        return true;
     }
 }

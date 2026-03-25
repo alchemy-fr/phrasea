@@ -25,6 +25,7 @@ export default function GroupDivider({groupValue, top, page}: Props) {
     const formatContext = React.useContext(AttributeFormatContext);
     const formatterOptions: AttributeFormatterOptions = {
         uiLocale: i18n.language,
+        t,
     };
 
     const {values, type, name} = groupValue;

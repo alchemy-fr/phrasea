@@ -7,7 +7,6 @@ import TextType from './TextType';
 import React from 'react';
 import {TextFieldProps} from '@mui/material';
 import moment from 'moment';
-import {getI18n} from 'react-i18next';
 
 enum Formats {
     Original = 'original',
@@ -28,61 +27,39 @@ export default class DurationType extends TextType {
         format,
         ...options
     }: AttributeFormatterProps): React.ReactNode {
-        const i18n = getI18n();
         const d = moment.duration(value);
-        let s = '';
+        let nParts = 0;
+        const defaultValue: Array<string> = [];
+        let values = {};
         switch (format ?? this.getAvailableFormats(options)[0].name) {
             case Formats.Formatted:
-                if (d.years() > 0) {
-                    s +=
-                        d.years() +
-                        ' ' +
-                        i18n.t('attribute.type.duration.years', 'years') +
-                        ' ';
-                }
-                if (d.months() > 0) {
-                    s +=
-                        d.months() +
-                        ' ' +
-                        i18n.t('attribute.type.duration.months', 'months') +
-                        ' ';
-                }
-                if (d.days() > 0) {
-                    s +=
-                        d.days() +
-                        ' ' +
-                        i18n.t('attribute.type.duration.days', 'days') +
-                        ' ';
-                }
-                if (d.hours() > 0) {
-                    s +=
-                        d.hours() +
-                        ' ' +
-                        i18n.t('attribute.type.duration.hours', 'hours') +
-                        ' ';
-                }
-                if (d.minutes() > 0) {
-                    s +=
-                        d.minutes() +
-                        ' ' +
-                        i18n.t('attribute.type.duration.minutes', 'minutes') +
-                        ' ';
-                }
-                if (d.seconds() > 0 || d.milliseconds() > 0) {
-                    s +=
-                        (d.seconds() + d.milliseconds() / 1000).toLocaleString(
-                            options.uiLocale
-                        ) +
-                        ' ' +
-                        i18n.t('attribute.type.duration.seconds', 'seconds') +
-                        ' ';
-                }
-                return s.trim();
+                [
+                    'years',
+                    'months',
+                    'days',
+                    'hours',
+                    'minutes',
+                    'seconds',
+                ].forEach(part => {
+                    let v = d.get(part as moment.unitOfTime.Base);
+                    if (part === 'seconds') {
+                        v += d.milliseconds() / 1000;
+                    }
+                    if (nParts > 0 || v > 0) {
+                        defaultValue.push('{{' + part + '}} ' + part);
+                        values = {...values, [part]: v};
+                        nParts++;
+                    }
+                });
+                return options.t('attribute.type.duration.{{nParts}}_parts', {
+                    defaultValue: defaultValue.join(', '),
+                    ...values,
+                });
             case Formats.Humanized:
                 return d.locale(options.uiLocale).humanize();
             case Formats.Original:
             default:
-                return value.toString(); // + ' ' + i18n.t('attribute.type.duration.milliseconds', 'milliseconds');
+                return value.toString();
         }
     }
 
@@ -114,7 +91,7 @@ export default class DurationType extends TextType {
             ...f,
             example: this.formatValue({
                 ...options,
-                value: 1234.5678,
+                value: 1234,
                 format: f.name,
             }),
         }));

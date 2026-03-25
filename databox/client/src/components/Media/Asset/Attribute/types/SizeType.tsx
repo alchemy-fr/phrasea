@@ -28,13 +28,12 @@ export default class DurationType extends TextType {
         const units = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
         const u = Math.floor(Math.log2(value) / 10);
         const v = Math.round(100 * (value / Math.pow(1024, u))) / 100.0;
-        console.log(u, units[u]);
         switch (format ?? this.getAvailableFormats(options)[0].name) {
             case Formats.Humanized:
                 return v.toLocaleString(options.uiLocale) + ' ' + units[u];
             case Formats.Original:
             default:
-                return value.toString(); // + " Bytes";
+                return value.toString();
         }
     }
 
