@@ -6,10 +6,7 @@ namespace App\Attribute\Type;
 
 class CodeAttributeType extends TextareaAttributeType
 {
-    public static function getName(): string
-    {
-        return 'code';
-    }
+    public const string NAME = 'code';
 
     public function isMappingLocaleAware(): bool
     {

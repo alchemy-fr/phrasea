@@ -9,6 +9,7 @@ import {
     WorkspaceOrCollectionTreeItem,
 } from '../components/Media/Collection/CollectionTree/types.ts';
 import {TreeNode} from '@alchemy/phrasea-framework';
+import {PaginationParams} from './types.ts';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
@@ -20,8 +21,7 @@ export type CollectionOptions = {
     query?: string;
     parent?: string;
     workspaces?: string[];
-    nextUrl?: string;
-};
+} & PaginationParams;
 
 export async function getCollections(
     options: CollectionOptions

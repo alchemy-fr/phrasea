@@ -29,11 +29,13 @@ export interface WindowConfigBase {
         src?: Readonly<string>;
         style?: Readonly<string>;
     };
-    notifications?: {
-        appIdentifier: Readonly<string>;
-        socketUrl: Readonly<string>;
-        apiUrl: Readonly<string>;
-    } | undefined;
+    notifications?:
+        | {
+              appIdentifier: Readonly<string>;
+              socketUrl: Readonly<string>;
+              apiUrl: Readonly<string>;
+          }
+        | undefined;
 }
 
 declare global {

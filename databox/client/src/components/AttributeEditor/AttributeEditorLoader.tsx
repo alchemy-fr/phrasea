@@ -38,7 +38,7 @@ export default function AttributeEditorLoader({
             workspaceId,
             target: AssetTypeFilter.All,
         }).then(r => {
-            setAttributeDefinitions(r);
+            setAttributeDefinitions(r.result);
         });
     }, [ids, workspaceId]);
 

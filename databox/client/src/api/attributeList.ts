@@ -1,18 +1,21 @@
 import {apiClient} from '../init.ts';
 import {AttributeList, AttributeListItem} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
+import {PaginationParams} from './types.ts';
 
 const entityType = 'attribute-lists';
 
 export type GetAttributeListOptions = {
     query?: string;
     page?: number;
-};
+} & PaginationParams;
 
-export async function getAttributeLists(
-    nextUrl?: string | undefined,
-    params: GetAttributeListOptions = {}
-): Promise<NormalizedCollectionResponse<AttributeList>> {
+export async function getAttributeLists({
+    nextUrl,
+    ...params
+}: GetAttributeListOptions = {}): Promise<
+    NormalizedCollectionResponse<AttributeList>
+> {
     const res = await apiClient.get(nextUrl ?? `/${entityType}`, {
         params,
     });

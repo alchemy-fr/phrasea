@@ -105,6 +105,7 @@ export default function AssetForm({
             onComplete?.(formData, schema?.id);
         } catch (e) {
             setSubmitting(false);
+            // eslint-disable-next-line no-console
             console.debug(e);
             const error = getAxiosError(e);
             if (error) {

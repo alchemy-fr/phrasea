@@ -6,8 +6,5 @@ namespace App\Attribute\Type;
 
 class JsonAttributeType extends CodeAttributeType
 {
-    public static function getName(): string
-    {
-        return 'json';
-    }
+    public const string NAME = 'json';
 }

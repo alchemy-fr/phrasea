@@ -20,7 +20,7 @@ export default function FieldTypeSelect<TFieldValues extends FieldValues>({
         async (inputValue: string): Promise<SelectOption[]> => {
             const data = await getAttributeFieldTypes();
 
-            return data
+            return data.result
                 .filter(i =>
                     i.title
                         .toLowerCase()

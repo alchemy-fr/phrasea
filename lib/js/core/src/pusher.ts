@@ -28,6 +28,7 @@ export function createPusher({
     });
 
     pusher.connection.bind('error', function (err: any) {
+        // eslint-disable-next-line no-console
         console.error(err);
         onConnectionError && onConnectionError(err);
     });
@@ -52,6 +53,7 @@ export function registerPusherWs(
     if (!(pusher as any).connecting) {
         (pusher as any).connecting = true;
         pusher.connection.bind('connected', (e: any) => {
+            // eslint-disable-next-line no-console
             console.debug('connected', e);
         });
         pusher.connect();

@@ -11,9 +11,11 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DateTimeAttributeType extends AbstractAttributeType
 {
+    public const string NAME = 'date_time';
+
     public static function getName(): string
     {
-        return 'date_time';
+        return static::NAME;
     }
 
     public function supportsAggregation(): bool

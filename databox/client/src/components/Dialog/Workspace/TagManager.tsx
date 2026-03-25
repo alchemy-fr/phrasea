@@ -145,10 +145,11 @@ export default function TagManager({
             }
             itemComponent={Item}
             listComponent={ListItem}
-            load={() =>
+            load={({nextUrl}) =>
                 getTags({
+                    nextUrl,
                     workspace: workspace['@id']!,
-                }).then(r => r.result)
+                })
             }
             loadItem={id => getTag(id)}
             workspace={workspace}

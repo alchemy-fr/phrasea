@@ -3,7 +3,7 @@ import {useTranslation} from 'react-i18next';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps, useFormPrompt, useModals} from '@alchemy/navigation';
 import {Button} from '@mui/material';
-import {getNonEmptyTranslations} from '@alchemy/react-form';
+import {getNonEmptyTranslations, RemoteErrors} from '@alchemy/react-form';
 import {postAttributeEntity} from '../../api/attributeEntity.ts';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
@@ -52,7 +52,8 @@ export default function CreateAttributeEntityDialog({
             closeModal();
         },
     });
-    const {submitting, forbidNavigation, handleSubmit} = usedFormSubmit;
+    const {submitting, forbidNavigation, handleSubmit, remoteErrors} =
+        usedFormSubmit;
 
     useFormPrompt(t, forbidNavigation, modalIndex);
 
@@ -85,6 +86,7 @@ export default function CreateAttributeEntityDialog({
                     usedFormSubmit={usedFormSubmit}
                     workspace={workspace}
                 />
+                <RemoteErrors errors={remoteErrors} />
             </form>
         </AppDialog>
     );

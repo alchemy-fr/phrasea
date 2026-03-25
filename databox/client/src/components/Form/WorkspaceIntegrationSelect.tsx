@@ -20,7 +20,7 @@ export default function WorkspaceIntegrationSelect<
         async (inputValue: string): Promise<SelectOption[]> => {
             const data = await getWorkspaceIntegrations(workspaceId);
 
-            return data
+            return data.result
                 .map((t: WorkspaceIntegration) => ({
                     value: `/integrations/${t.id}`,
                     label: t.title ?? t.integrationTitle,

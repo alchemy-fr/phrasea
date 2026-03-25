@@ -223,7 +223,6 @@ export class OAuthClient<UIR extends UserInfoResponse> {
 
             return res;
         } catch (e: any) {
-            console.debug('e', e);
             if (axios.isAxiosError<ValidationError>(e)) {
                 if (
                     e.status === 401 ||
@@ -397,7 +396,10 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         });
 
         if (this.storage.getItem(this.refreshTokenStorageKey) === null) {
-            console.error('Failed to persist token. Storage may be full or not writable.');
+            // eslint-disable-next-line no-console
+            console.error(
+                'Failed to persist token. Storage may be full or not writable.'
+            );
         }
     }
 
@@ -416,17 +418,22 @@ export class OAuthClient<UIR extends UserInfoResponse> {
             return await this.initPromise;
         }
 
-        this.initPromise = new Promise<AuthTokens | undefined>((resolve, reject) => {
-            this.getTokenFromRefreshToken().then(() => {
-                this.initialized = true;
-                resolve(this.tokens);
-            }).catch((reason) => {
-                this.initialized = true;
-                reject(reason);
-            }).finally(() => {
-                this.initPromise = undefined;
-            });
-        });
+        this.initPromise = new Promise<AuthTokens | undefined>(
+            (resolve, reject) => {
+                this.getTokenFromRefreshToken()
+                    .then(() => {
+                        this.initialized = true;
+                        resolve(this.tokens);
+                    })
+                    .catch(reason => {
+                        this.initialized = true;
+                        reject(reason);
+                    })
+                    .finally(() => {
+                        this.initPromise = undefined;
+                    });
+            }
+        );
 
         return await this.initPromise;
     }
@@ -479,10 +486,9 @@ export function configureClientAuthentication<UIR extends UserInfoResponse>(
     );
 }
 
-export function configureClientCredentials401Retry<UIR extends UserInfoResponse>(
-    client: AxiosInstance,
-    oauthClient: OAuthClient<UIR>
-): void {
+export function configureClientCredentials401Retry<
+    UIR extends UserInfoResponse,
+>(client: AxiosInstance, oauthClient: OAuthClient<UIR>): void {
     client.interceptors.response.use(
         r => r,
         async (error: AxiosError) => {
@@ -524,7 +530,7 @@ function createAxiosInterceptor<UIR extends UserInfoResponse>(
 
         if (
             refreshMethod === GrantTypeRefreshMethod.refreshToken &&
-            !await oauthClient.isAuthenticated()
+            !(await oauthClient.isAuthenticated())
         ) {
             return config;
         }

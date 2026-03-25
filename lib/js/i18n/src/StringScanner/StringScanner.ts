@@ -110,6 +110,7 @@ export default class StringScanner {
                 }
 
                 if (this.options.dryRun) {
+                    // eslint-disable-next-line no-console
                     console.log(sourceFile.print());
                 } else {
                     sourceFile.save();
@@ -124,6 +125,7 @@ export default class StringScanner {
         contextRules: Rule[] = []
     ): TextNode[] {
         if (this.options.debug) {
+            // eslint-disable-next-line no-console
             console.log(
                 `${'  '.repeat(depth)}${node.getKindName()}${Node.isJsxElement(node) || Node.isJsxSelfClosingElement(node) ? ` <${node.getStructure().name}>` : ''}${Node.isJsxText(node) || Node.isStringLiteral(node) ? ` = ${node.print().trim()}` : ''}`
             );
@@ -147,6 +149,7 @@ export default class StringScanner {
             .flat();
         if (childrenToSkip.length > 0) {
             if (this.options.debug) {
+                // eslint-disable-next-line no-console
                 console.log(`Skipping children: ${childrenToSkip.join(', ')}`);
             }
         }
@@ -165,6 +168,7 @@ export default class StringScanner {
                 .flat();
             if (argsToSkip.length > 0) {
                 if (this.options.debug) {
+                    // eslint-disable-next-line no-console
                     console.log(`Skipping arguments: ${argsToSkip.join(', ')}`);
                 }
             }

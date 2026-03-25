@@ -4,17 +4,11 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-class CollectionPathAttributeType extends AbstractAttributeType
+final class CollectionPathAttributeType extends AbstractAttributeType
 {
-    public const string NAME = 'collection_path';
-
-    public function __construct(
-        private readonly EntityManagerInterface $em,
-    ) {
-    }
+    final public const string NAME = 'collection_path';
 
     public static function getName(): string
     {
