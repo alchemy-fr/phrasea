@@ -17,7 +17,7 @@ export default function RenditionPolicySelect<
 >({workspaceId, ...rest}: Props<TFieldValues>) {
     const load = useCallback(
         async (inputValue: string): Promise<SelectOption[]> => {
-            const data = await getRenditionPolicies(workspaceId);
+            const data = await getRenditionPolicies({workspaceId});
 
             return data.result
                 .map((t: RenditionPolicy) => ({
