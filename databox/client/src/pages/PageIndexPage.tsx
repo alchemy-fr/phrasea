@@ -7,6 +7,7 @@ import {useTranslation} from 'react-i18next';
 import {
     Box,
     Button,
+    Chip,
     Container,
     IconButton,
     Paper,
@@ -37,7 +38,7 @@ export default function PageIndexPage({}: Props) {
         async (nextUrl?: string) => {
             setLoading(true);
             try {
-                const res = await getPages(nextUrl);
+                const res = await getPages({nextUrl});
 
                 setData(p =>
                     p && nextUrl
@@ -94,6 +95,13 @@ export default function PageIndexPage({}: Props) {
                             }}
                         >
                             {t('page.list.title', 'Pages')}
+                            <Chip
+                                color={'warning'}
+                                sx={{
+                                    ml: 1,
+                                }}
+                                label={t('common.beta', 'Beta')}
+                            />
                         </Typography>
                         <Button
                             startIcon={<AddIcon />}

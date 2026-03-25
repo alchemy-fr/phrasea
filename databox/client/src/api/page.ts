@@ -1,19 +1,18 @@
 import {apiClient} from '../init.ts';
 import {Page} from '../types';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
-import {EntityName} from './types.ts';
+import {EntityName, PaginationParams} from './types.ts';
 import {AxiosRequestConfig} from 'axios';
 
 export type GetPageOptions = {
     query?: string;
     page?: number;
-};
+} & PaginationParams;
 
 export async function getPages(
-    nextUrl?: string | undefined,
     params: GetPageOptions = {}
 ): Promise<NormalizedCollectionResponse<Page>> {
-    const res = await apiClient.get(nextUrl ?? `/${EntityName.Page}`, {
+    const res = await apiClient.get(params.nextUrl ?? `/${EntityName.Page}`, {
         params,
     });
 

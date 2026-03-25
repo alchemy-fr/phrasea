@@ -20,7 +20,7 @@ export default function SavedSearchSelect<TFieldValues extends FieldValues>({
 }: Props<TFieldValues>) {
     const load = useCallback(
         async (inputValue: string): Promise<SelectOption[]> => {
-            const data = await getSavedSearches(undefined, {
+            const data = await getSavedSearches({
                 query: inputValue,
             });
 
