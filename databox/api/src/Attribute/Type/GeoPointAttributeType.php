@@ -6,7 +6,7 @@ namespace App\Attribute\Type;
 
 use App\Elasticsearch\ESFacetInterface;
 
-class GeoPointAttributeType extends AbstractAttributeType
+final class GeoPointAttributeType extends AbstractAttributeType
 {
     final public const string NAME = 'geo_point';
 

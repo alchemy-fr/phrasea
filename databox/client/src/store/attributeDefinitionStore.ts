@@ -78,7 +78,9 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
 
         try {
             const data = getBuiltInFilters(t).concat(
-                (await getAttributeDefinitions()).map(normalizeDefinition)
+                (await getAttributeDefinitions()).result.map(
+                    normalizeDefinition
+                )
             );
 
             set({
@@ -109,7 +111,7 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
                     workspaceId,
                     target: AssetTypeFilter.All,
                 })
-            ).map(normalizeDefinition);
+            ).result.map(normalizeDefinition);
 
             set(p => {
                 const locks = {...p.locks};

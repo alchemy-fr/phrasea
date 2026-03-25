@@ -28,6 +28,8 @@ class DateTimeAttributeTypeTest extends AbstractAttributeTypeTest
             ['2008-01-12T00:00:00Z', '2008-01-12T00:00:00+00:00'],
             ['2008-01-12T00:00:00+00:00', '2008-01-12T00:00:00+00:00'],
             ['2008-01-12', '2008-01-12T00:00:00+00:00'],
+            [new \DateTimeImmutable('2008-01-12T00:00:00'), '2008-01-12T00:00:00+00:00'],
+            [new \DateTime('2008-01-12T00:00:00'), '2008-01-12T00:00:00+00:00'],
         ];
     }
 
@@ -42,6 +44,8 @@ class DateTimeAttributeTypeTest extends AbstractAttributeTypeTest
             ['foo', null],
             ['1', null],
             ['2008-01-12T12:13:00Z', \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, '2008-01-12T12:13:00Z')],
+            ['2008-01-12T12:13:00Z', new \DateTimeImmutable('2008-01-12T12:13:00')],
+            ['2008-01-12T12:13:00Z', new \DateTime('2008-01-12T12:13:00')],
         ];
     }
 }

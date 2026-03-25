@@ -49,7 +49,7 @@ export const useBasketStore = create<State>((set, getState) => ({
         });
 
         try {
-            const data = await getBaskets(undefined, params);
+            const data = await getBaskets(params);
             const editableBaskets = data.result.filter(
                 b => b.capabilities.canEdit
             );
@@ -140,7 +140,7 @@ export const useBasketStore = create<State>((set, getState) => ({
 
         set({loadingMore: true});
         try {
-            const data = await getBaskets(nextUrl);
+            const data = await getBaskets({nextUrl});
 
             set(state => ({
                 baskets: state.baskets.concat(data.result),

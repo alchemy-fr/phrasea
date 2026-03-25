@@ -6,7 +6,11 @@ import useRequestErrorHandler from './src/useRequestErrorHandler';
 import {createHttpClient} from './src/httpClient';
 import useFormSubmit from './src/useFormSubmit';
 import {getObjectPropertyPath} from './src/form';
-import {extractIdFromIri, getHydraCollection, normalizeNestedObjects} from './src/hydra';
+import {
+    extractIdFromIri,
+    getHydraCollection,
+    normalizeNestedObjects,
+} from './src/hydra';
 
 export {
     useCancelRequest,

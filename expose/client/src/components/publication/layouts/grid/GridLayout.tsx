@@ -53,8 +53,7 @@ export default function GridLayout({
                                 height: img.height,
                             } as ThumbWithDimensions);
                         };
-                        img.onerror = e => {
-                            console.error(e);
+                        img.onerror = () => {
                             resolve({
                                 ...a,
                                 width: 100,

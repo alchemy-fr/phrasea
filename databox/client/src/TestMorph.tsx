@@ -25,6 +25,7 @@ export default function TestMorph({}: Props) {
     }
 
     if (t.hasOwnProperty('ws')) {
+        // eslint-disable-next-line no-console
         console.log('Bonjour');
     }
 
@@ -51,6 +52,7 @@ export default function TestMorph({}: Props) {
             foo: 'bar',
         };
 
+        // eslint-disable-next-line no-console
         console.log('debug', data['foo'], 'XX');
     };
 

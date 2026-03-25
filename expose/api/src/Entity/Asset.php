@@ -439,7 +439,15 @@ class Asset implements MediaInterface, \Stringable
 
     #[ApiProperty(writable: false)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_INDEX])]
+    private ?string $thumbType = null;
+
+    #[ApiProperty(writable: false)]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_INDEX])]
     private ?string $previewUrl = null;
+
+    #[ApiProperty(writable: false)]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_INDEX])]
+    private ?string $previewType = null;
 
     #[ApiProperty(writable: false)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_INDEX])]
@@ -566,6 +574,16 @@ class Asset implements MediaInterface, \Stringable
         $this->thumbUrl = $thumbUrl;
     }
 
+    public function getThumbType(): ?string
+    {
+        return $this->thumbType;
+    }
+
+    public function setThumbType(?string $thumbType): void
+    {
+        $this->thumbType = $thumbType;
+    }
+
     public function getPreviewUrl(): ?string
     {
         return $this->previewUrl;
@@ -574,6 +592,16 @@ class Asset implements MediaInterface, \Stringable
     public function setPreviewUrl(?string $previewUrl): void
     {
         $this->previewUrl = $previewUrl;
+    }
+
+    public function getPreviewType(): ?string
+    {
+        return $this->previewType;
+    }
+
+    public function setPreviewType(?string $previewType): void
+    {
+        $this->previewType = $previewType;
     }
 
     public function getPosterUrl(): ?string

@@ -40,10 +40,13 @@ final readonly class FileFamilyGuesser
         return match ($mimeType) {
             'application/pdf',
             'text/rtf',
+            'text/plain',
+            'application/rtf',
             'application/msword',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/vnd.ms-excel',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.oasis.opendocument.text',
             'application/vnd.oasis.opendocument.spreadsheet' => FamilyEnum::Document,
 
             'application/mxf', 'application/ogg' => FamilyEnum::Video,

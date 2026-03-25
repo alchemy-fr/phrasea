@@ -15,6 +15,7 @@ use App\Entity\Traits\ExtraMetadataTrait;
 use App\Repository\Core\CollectionAssetRepository;
 use App\Validator\SameWorkspaceConstraint;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ApiResource(
     shortName: 'collection-asset',
@@ -25,6 +26,10 @@ use Doctrine\ORM\Mapping as ORM;
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_asset', columns: ['collection_id', 'asset_id'])]
+#[UniqueEntity(
+    fields: ['collection', 'asset'],
+    message: 'This asset is already part of the collection.'
+)]
 #[ORM\Entity(repositoryClass: CollectionAssetRepository::class)]
 #[SameWorkspaceConstraint(
     properties: ['asset.workspace', 'collection.workspace']

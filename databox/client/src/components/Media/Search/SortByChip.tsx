@@ -11,7 +11,9 @@ type Props = {
 
 export default function SortByChip({definition, sortBy}: Props) {
     if (!definition) {
+        // eslint-disable-next-line no-console
         console.warn(`Missing definition for ${sortBy.a}`);
+
         return null;
     }
 

@@ -36,8 +36,13 @@ export function useSuggest({search, placeholder}: Props): UsedSuggest {
                 },
                 getItems({query}) {
                     return getSearchSuggestions(query).then(r => {
-                        console.log('ES Debug', r.debug);
-                        console.log('ES Query', JSON.stringify(r.debug.query));
+                        // eslint-disable-next-line no-console
+                        console.debug('ES Debug', r.debug);
+                        // eslint-disable-next-line no-console
+                        console.debug(
+                            'ES Query',
+                            JSON.stringify(r.debug.query)
+                        );
 
                         return r.result;
                     });

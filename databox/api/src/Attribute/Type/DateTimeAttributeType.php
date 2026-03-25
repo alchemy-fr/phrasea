@@ -11,9 +11,11 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DateTimeAttributeType extends AbstractAttributeType
 {
+    public const string NAME = 'date_time';
+
     public static function getName(): string
     {
-        return 'date_time';
+        return static::NAME;
     }
 
     public function supportsAggregation(): bool
@@ -89,6 +91,16 @@ class DateTimeAttributeType extends AbstractAttributeType
     public function denormalizeValue(?string $value)
     {
         return DateUtil::normalizeDate($value);
+    }
+
+    public function getStringValue(?string $value): string
+    {
+        $date = $this->denormalizeValue($value);
+        if ($date) {
+            return $date->format(\DateTimeInterface::ATOM);
+        }
+
+        return '';
     }
 
     public function validate($value, ExecutionContextInterface $context): void

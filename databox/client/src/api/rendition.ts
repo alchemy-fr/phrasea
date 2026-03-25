@@ -8,6 +8,7 @@ import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {apiClient} from '../init.ts';
 import type {MultipartUpload} from '@alchemy/api';
 import {SourceFileInput} from './file.ts';
+import {PaginationParams} from './types.ts';
 import {EntityName} from './types.ts';
 
 type GetOptions = {
@@ -94,28 +95,36 @@ export async function postRenditionDefinition(
         .data;
 }
 
-export async function getRenditionPolicies(
-    workspaceId: string
-): Promise<NormalizedCollectionResponse<RenditionPolicy>> {
-    const res = await apiClient.get(`/${EntityName.RenditionPolicy}`, {
-        params: {
-            workspaceId,
-        },
-    });
+export async function getRenditionPolicies({
+    nextUrl,
+    workspaceId,
+}: {
+    workspaceId: string;
+} & PaginationParams): Promise<NormalizedCollectionResponse<RenditionPolicy>> {
+    const res = await apiClient.get(
+        nextUrl ?? `/${EntityName.RenditionPolicy}`,
+        {
+            params: {
+                workspaceId,
+            },
+        }
+    );
 
     return getHydraCollection(res.data);
 }
 
 export async function getWorkspaceRenditionDefinitions(
     workspaceId: string
-): Promise<RenditionDefinition[]> {
-    const res = await apiClient.get(`/${EntityName.RenditionDefinition}`, {
-        params: {
-            workspaceId,
-        },
-    });
-
-    return res.data['hydra:member'];
+): Promise<NormalizedCollectionResponse<RenditionDefinition>> {
+    return getHydraCollection(
+        (
+            await apiClient.get(`/${EntityName.RenditionDefinition}`, {
+                params: {
+                    workspaceId,
+                },
+            })
+        ).data
+    );
 }
 
 export async function deleteRenditionPolicy(id: string): Promise<void> {

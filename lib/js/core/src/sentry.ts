@@ -68,6 +68,7 @@ export function setSentryUser(
 }
 
 export function logError(error: any, captureContext?: CaptureContext): void {
+    // eslint-disable-next-line no-console
     console.error(error);
     Sentry.captureException(error, captureContext);
 }

@@ -14,7 +14,7 @@ use App\Repository\Core\AttributeEntityRepository;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-class EntityAttributeType extends TextAttributeType
+final class EntityAttributeType extends TextAttributeType
 {
     use UserLocaleTrait;
 
@@ -23,11 +23,6 @@ class EntityAttributeType extends TextAttributeType
     public function __construct(
         private readonly AttributeEntityRepository $repository,
     ) {
-    }
-
-    public static function getName(): string
-    {
-        return self::NAME;
     }
 
     public function supportsTranslations(): bool

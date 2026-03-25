@@ -45,6 +45,7 @@ class UploadStateStorage {
         chunkETag: string,
         partNumber: number
     ): void {
+        // eslint-disable-next-line no-console
         console.debug('updateUpload', userId, fileUID, chunkETag, partNumber);
         const d = this.getData();
         const list = d[userId][fileUID].c;

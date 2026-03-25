@@ -1,11 +1,14 @@
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 import {ThreadMessage} from '../types.ts';
 import {apiClient} from '../init.ts';
+import {PaginationParams} from './types.ts';
 
-export async function getThreadMessages(
-    threadId: string,
-    nextUrl?: string
-): Promise<NormalizedCollectionResponse<ThreadMessage>> {
+export async function getThreadMessages({
+    threadId,
+    nextUrl,
+}: {
+    threadId: string;
+} & PaginationParams): Promise<NormalizedCollectionResponse<ThreadMessage>> {
     const res = await apiClient.get(nextUrl || `/threads/${threadId}/messages`);
 
     return getHydraCollection(res.data);

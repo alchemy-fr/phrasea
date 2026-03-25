@@ -190,14 +190,18 @@ export async function syncESDocument(
     await apiClient.post(`/${entity}/${id}/es-document-sync`, {});
 }
 
-export async function getAssetShares(assetId: string): Promise<Share[]> {
-    return (
-        await apiClient.get(`/shares`, {
-            params: {
-                assetId,
-            },
-        })
-    ).data['hydra:member'];
+export async function getAssetShares(
+    assetId: string
+): Promise<NormalizedCollectionResponse<Share>> {
+    return getHydraCollection(
+        (
+            await apiClient.get(`/shares`, {
+                params: {
+                    assetId,
+                },
+            })
+        ).data
+    );
 }
 
 export async function getPublicShare(
@@ -233,14 +237,16 @@ export async function removeAssetShare(assetId: string): Promise<void> {
 
 export async function getAssetAttributes(
     assetId: string | string[]
-): Promise<Attribute[]> {
-    const res = await apiClient.get(`/attributes`, {
-        params: {
-            assetId,
-        },
-    });
-
-    return res.data['hydra:member'];
+): Promise<NormalizedCollectionResponse<Attribute>> {
+    return getHydraCollection(
+        (
+            await apiClient.get(`/attributes`, {
+                params: {
+                    assetId,
+                },
+            })
+        ).data
+    );
 }
 
 const assetFileVersionEntity = 'asset-file-versions';

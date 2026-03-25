@@ -51,7 +51,7 @@ export default function ShareAssetDialog({asset, open, modalIndex}: Props) {
 
     const {data, isSuccess} = useModalFetch<Share[]>({
         queryKey,
-        queryFn: () => getAssetShares(asset.id),
+        queryFn: () => getAssetShares(asset.id).then(r => r.result),
     });
     const publicShare: Share | undefined =
         data && data.length === 1 ? data[0] : undefined;

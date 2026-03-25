@@ -2,16 +2,17 @@ import {apiClient} from '../init.ts';
 import {Basket, BasketAsset, Entity} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {clearAssociationIds} from './clearAssociation';
+import {PaginationParams} from './types.ts';
 
 export type GetBasketOptions = {
     query?: string;
     page?: number;
-};
+} & PaginationParams;
 
-export async function getBaskets(
-    nextUrl?: string | undefined,
-    params: GetBasketOptions = {}
-): Promise<NormalizedCollectionResponse<Basket>> {
+export async function getBaskets({
+    nextUrl,
+    ...params
+}: GetBasketOptions = {}): Promise<NormalizedCollectionResponse<Basket>> {
     const res = await apiClient.get(nextUrl ?? '/baskets', {
         params,
     });

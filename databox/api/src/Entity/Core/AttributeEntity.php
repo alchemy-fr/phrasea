@@ -24,6 +24,8 @@ use App\Repository\Core\AttributeEntityRepository;
 use App\Validator\SameWorkspaceConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -55,9 +57,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 
 #[ORM\Entity(repositoryClass: AttributeEntityRepository::class)]
-#[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: [
-    'workspace',
-    'list',
+#[ApiFilter(filterClass: SearchFilter::class, properties: [
+    'workspace' => 'exact',
+    'list' => 'exact',
+    'value' => 'ipartial',
 ])]
 #[ApiFilter(filterClass: OrderFilter::class, properties: [
     'value',
@@ -68,6 +71,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'list.workspace'],
 )]
+#[UniqueConstraint(name: 'list_value_uniq', fields: ['list', 'value'])]
+#[UniqueEntity(fields: ['list', 'value'], message: 'This value already exists in the list', errorPath: 'value')]
 class AttributeEntity extends AbstractUuidEntity
 {
     use CreatedAtTrait;

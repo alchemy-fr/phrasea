@@ -2,18 +2,22 @@ import {apiClient} from '../init.ts';
 import {AttributeEntity} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {SortWay} from './common.ts';
+import {PaginationParams} from './types.ts';
 
 const attributeEntityNS = '/attribute-entities';
 
 type AttributeEntityOptions = {
-    query?: string;
+    value?: string;
     list?: string;
-};
+} & PaginationParams;
 
-export async function getAttributeEntities(
-    options: AttributeEntityOptions
-): Promise<NormalizedCollectionResponse<AttributeEntity>> {
-    const res = await apiClient.get(attributeEntityNS, {
+export async function getAttributeEntities({
+    nextUrl,
+    ...options
+}: AttributeEntityOptions): Promise<
+    NormalizedCollectionResponse<AttributeEntity>
+> {
+    const res = await apiClient.get(nextUrl ?? attributeEntityNS, {
         params: {
             ...options,
             [`order[value]`]: SortWay.ASC,

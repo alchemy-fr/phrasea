@@ -82,15 +82,17 @@ export async function runIntegrationAction(
 
 export async function getWorkspaceIntegrations(
     workspaceId: string
-): Promise<WorkspaceIntegration[]> {
-    const res = await apiClient.get(integrationNS, {
-        params: {
-            workspace: workspaceId,
-            limit: 100,
-        },
-    });
-
-    return res.data['hydra:member'];
+): Promise<NormalizedCollectionResponse<WorkspaceIntegration>> {
+    return getHydraCollection(
+        (
+            await apiClient.get(integrationNS, {
+                params: {
+                    workspace: workspaceId,
+                    limit: 100,
+                },
+            })
+        ).data
+    );
 }
 
 export async function getIntegrationType(id: string): Promise<IntegrationType> {
@@ -99,10 +101,12 @@ export async function getIntegrationType(id: string): Promise<IntegrationType> {
     ).data;
 }
 
-export async function getIntegrationTypes(): Promise<IntegrationType[]> {
-    const res = await apiClient.get(`${integrationTypeNS}`);
-
-    return res.data['hydra:member'];
+export async function getIntegrationTypes(): Promise<
+    NormalizedCollectionResponse<IntegrationType>
+> {
+    return getHydraCollection(
+        (await apiClient.get(`${integrationTypeNS}`)).data
+    );
 }
 
 export async function putIntegration(

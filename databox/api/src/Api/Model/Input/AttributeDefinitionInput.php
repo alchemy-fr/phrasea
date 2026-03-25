@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
+use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\Workspace;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class AttributeDefinitionInput
 {
@@ -128,4 +131,15 @@ class AttributeDefinitionInput
     public ?array $translations = null;
 
     public ?int $target = null;
+
+    #[Assert\Callback()]
+    public function validate(ExecutionContextInterface $context)
+    {
+        if (EntityAttributeType::NAME === $this->fieldType && !$this->entityList) {
+            $context
+                ->buildViolation('Missing entity list')
+                ->atPath('entityList')
+                ->addViolation();
+        }
+    }
 }

@@ -1,18 +1,20 @@
 import {apiClient} from '../init.ts';
 import {Tag} from '../types';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
+import {PaginationParams} from './types.ts';
 
 export const tagNS = '/tags';
 
 type TagOptions = {
     query?: string;
     workspace?: string;
-};
+} & PaginationParams;
 
-export async function getTags(
-    options: TagOptions
-): Promise<NormalizedCollectionResponse<Tag>> {
-    const res = await apiClient.get(tagNS, {
+export async function getTags({
+    nextUrl,
+    ...options
+}: TagOptions): Promise<NormalizedCollectionResponse<Tag>> {
+    const res = await apiClient.get(nextUrl ?? tagNS, {
         params: {
             ...options,
         },

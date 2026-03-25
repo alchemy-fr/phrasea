@@ -58,7 +58,7 @@ export default function AttributeEntitySelect<
         const data = (
             await getAttributeEntities({
                 list,
-                query: inputValue,
+                value: inputValue,
             })
         ).result;
 

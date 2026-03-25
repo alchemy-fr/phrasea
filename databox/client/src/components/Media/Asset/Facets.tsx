@@ -185,7 +185,6 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
 export default function FacetsProxy() {
     const c = useContext(ResultContext);
     const {facets} = c;
-    console.log('facets', c);
 
     if (!facets) {
         return null;

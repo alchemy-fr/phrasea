@@ -10,6 +10,7 @@ export default class JsonType extends CodeType {
         try {
             return JSON.stringify(JSON.parse(code), null, 2);
         } catch (e) {
+            // eslint-disable-next-line no-console
             console.error('Error prettifying JSON code:', e);
             return code; // Return original code if parsing fails
         }

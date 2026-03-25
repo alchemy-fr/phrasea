@@ -5,6 +5,10 @@ export enum AttributeBatchActionEnum {
     Delete = 'delete',
 }
 
+export type PaginationParams = {
+    nextUrl?: string;
+};
+
 export type AttributeBatchAction = {
     action?: AttributeBatchActionEnum | undefined;
     id?: string | undefined;

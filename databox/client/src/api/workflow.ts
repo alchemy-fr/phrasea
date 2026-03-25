@@ -1,14 +1,19 @@
+import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 import {apiClient} from '../init.ts';
 import {Workflow} from '@alchemy/visual-workflow';
 
-export async function getWorkflows(assetId: string): Promise<Workflow[]> {
-    const res = await apiClient.get(`/workflows`, {
-        params: {
-            asset: `/assets/${assetId}`,
-        },
-    });
-
-    return res.data['hydra:member'];
+export async function getWorkflows(
+    assetId: string
+): Promise<NormalizedCollectionResponse<Workflow>> {
+    return getHydraCollection(
+        (
+            await apiClient.get(`/workflows`, {
+                params: {
+                    asset: `/assets/${assetId}`,
+                },
+            })
+        ).data
+    );
 }
 
 export async function getWorkflow(id: string): Promise<Workflow> {

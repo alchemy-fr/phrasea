@@ -170,8 +170,9 @@ export const UploadForm: FC<{
             setAppliedTemplates(templates);
             setLoading(false);
         } catch (e) {
-            setLoading(false);
+            // eslint-disable-next-line no-console
             console.error(e);
+            setLoading(false);
         }
     }, [isDirty, selectedTemplates, resetForms, appliedTemplates]);
 

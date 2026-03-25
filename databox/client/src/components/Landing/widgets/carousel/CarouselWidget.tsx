@@ -70,6 +70,7 @@ function Component({options}: RenderWidgetProps<Props>) {
     const assets: Asset[] | undefined = data
         ?.filter(asset => {
             if (!asset.preview) {
+                // eslint-disable-next-line no-console
                 console.warn(
                     `Asset ${asset.id} does not have a preview, skipping.`
                 );
