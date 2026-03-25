@@ -58,8 +58,8 @@ class SizeAttributeType extends AbstractAttributeType
             return;
         }
 
-        if (!is_numeric($value)) {
-            $context->addViolation('Invalid duration');
+        if (!is_int($value)) {
+            $context->addViolation('Invalid size (bytes)');
         }
     }
 

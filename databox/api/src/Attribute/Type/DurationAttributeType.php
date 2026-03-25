@@ -58,8 +58,8 @@ class DurationAttributeType extends AbstractAttributeType
             return;
         }
 
-        if (!is_numeric($value)) {
-            $context->addViolation('Invalid duration');
+        if (!is_int($value)) {
+            $context->addViolation('Invalid duration (milliseconds)');
         }
     }
 
