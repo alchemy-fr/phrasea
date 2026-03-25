@@ -2,19 +2,19 @@
 
 namespace Alchemy\RenditionFactory\Transformer;
 
-use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use PHPExiftool\Exiftool;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 final readonly class ExtractEmbeddedPreviewTransformerModule implements TransformerModuleInterface
 {
     public function __construct(
-        private readonly MetadataManipulator $metadataManipulator,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -41,6 +41,11 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
         // @formatter:off
         $builder
             ->arrayNode('options')
+                ->children()
+                    ->arrayNode('eligible_types')
+                        ->scalarPrototype()->end()
+                    ->end()
+                ->end()
                 ->ignoreExtraKeys(false)
             ->end()
         ;
@@ -49,19 +54,21 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        $eligibleTypes = [
+        $defaultEligibleTypes = [
             'application/illustrator',
         ];
+
+        $eligibleTypes = $options['eligible_types'] ?? $defaultEligibleTypes;
 
         if (!in_array($inputFile->getType(), $eligibleTypes)) {
             return $inputFile->createOutputFile();
         }
 
-        $phpExiftool = $this->metadataManipulator->getPhpExifTool();
-        $exiftool = new Exiftool($phpExiftool->getLogger());
+        $exiftool = new Exiftool($this->logger);
         $pathfile = $inputFile->getPath();
-        $outputDir = sys_get_temp_dir().'/'.uniqid('extracted-preview');
+        $outputDir = $context->getWorkingDirectory().'/'.uniqid('extracted-preview');
         mkdir($outputDir);
+        $realOutPutDir = realpath($outputDir);
 
         $command = [
             '-if',
@@ -69,44 +76,47 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
             '-b',
             '-PhotoshopThumbnail',
             '-w',
-            realpath($outputDir).'/PhotoshopThumbnail%c.jpg',
+            $realOutPutDir.'/PhotoshopThumbnail%c.jpg',
             '-execute',
             '-if',
             '$jpgfromraw',
             '-b',
             '-jpgfromraw',
             '-w',
-            realpath($outputDir).'/JpgFromRaw%c.jpg',
+            $realOutPutDir.'/JpgFromRaw%c.jpg',
             '-execute',
             '-if',
             '$previewimage',
             '-b',
             '-previewimage',
             '-w',
-            realpath($outputDir).'/PreviewImage%c.jpg',
+            $realOutPutDir.'/PreviewImage%c.jpg',
             '-execute',
             '-if',
             '$xmp:pageimage',
             '-b',
             '-xmp:pageimage',
             '-w',
-            realpath($outputDir).'/XmpPageimage%c.jpg',
+            $realOutPutDir.'/XmpPageimage%c.jpg',
             '-execute',
             '-if',
             '$xmp:thumbnailimage',
             '-b',
             '-xmp:thumbnailimage',
             '-w',
-            realpath($outputDir).'/XmpThumbnailImage%c.jpg',
+            $realOutPutDir.'/XmpThumbnailImage%c.jpg',
             '-common_args',
             '-q',
             '-m',
             $pathfile,
         ];
 
-        $exiftool->executeCommand($command);
+        try {
+            $exiftool->executeCommand($command);
+        } catch (\RuntimeException|\Exception $e) {
+        }
 
-        $files = new \DirectoryIterator($outputDir);
+        $files = new \DirectoryIterator($realOutPutDir);
 
         $selected = null;
         $size = null;
@@ -123,6 +133,8 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
         }
 
         if ($selected) {
+            $this->logger->info(sprintf('Embedded preview found for file %s, returning extracted preview size=%s', $inputFile->getPath(), $size));
+
             return new OutputFile(
                 $selected,
                 'image/jpeg',
@@ -130,8 +142,8 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
                 false
             );
         }
+        $this->logger->info(sprintf('No embedded preview found for file %s, returning original file', $inputFile->getPath()));
 
         return $inputFile->createOutputFile();
-
     }
 }
