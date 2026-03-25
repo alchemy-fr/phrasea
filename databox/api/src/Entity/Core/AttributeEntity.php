@@ -60,7 +60,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(filterClass: SearchFilter::class, properties: [
     'workspace' => 'exact',
     'list' => 'exact',
-    'value' => 'partial',
+    'value' => 'ipartial',
 ])]
 #[ApiFilter(filterClass: OrderFilter::class, properties: [
     'value',

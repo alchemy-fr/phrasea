@@ -8,7 +8,7 @@ export const csvFormatter: Formatter = (
 ) => {
     const availableLocales: string[] = list.reduce(
         (acc: string[], item: AttributeEntity) => {
-            const itemLocales = Object.keys(item.translations);
+            const itemLocales = Object.keys(item.translations ?? {});
             itemLocales.forEach((lang: string) => {
                 if (!acc.includes(lang)) {
                     acc.push(lang);
@@ -32,7 +32,7 @@ export const csvFormatter: Formatter = (
                 allLocales ? item.value : getLocalizedValue(item, locale),
                 ...(allLocales
                     ? availableLocales.map(
-                          (lang: string) => item.translations[lang] || ''
+                          (lang: string) => item.translations?.[lang] || ''
                       )
                     : []),
             ].join(',');
