@@ -22,6 +22,7 @@ import {AttributeDefinition} from '../../../../types.ts';
 import {writeEntity} from './entities.tsx';
 import {GetOrRequestEntity} from '../../../../store/entitiesStore.ts';
 import {TFunction} from '@alchemy/i18n';
+import {getIri} from '@alchemy/api';
 
 export type AQLQuery = {
     id: string;
@@ -262,7 +263,7 @@ function searchInEntities(
 ): string | undefined {
     for (const def of Object.values(definitionsIndex)) {
         if (def.slug === field && def.entityIri && def.resolveLabel) {
-            const iri = `/${def.entityIri}/${id}`;
+            const iri = getIri(def.entityIri, id);
             if (iri) {
                 const entity = getEntity(iri);
                 if (typeof entity === 'object') {

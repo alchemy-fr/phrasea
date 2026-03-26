@@ -8,3 +8,4 @@ alchemy_acl:
     !php/const:App\Entity\Basket\Basket::OBJECT_TYPE: App\Entity\Basket\Basket
     !php/const:App\Entity\AttributeList\AttributeList::OBJECT_TYPE: App\Entity\AttributeList\AttributeList
     !php/const:App\Entity\SavedSearch\SavedSearch::OBJECT_TYPE: App\Entity\SavedSearch\SavedSearch
+    !php/const:App\Entity\Page\Page::OBJECT_TYPE: App\Entity\Page\Page

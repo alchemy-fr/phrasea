@@ -10,7 +10,9 @@ use App\Elasticsearch\BuiltInField\DeletedBuiltInField;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use App\Entity\SavedSearch\SavedSearch;
 use App\Repository\Core\CollectionRepository;
+use App\Repository\SavedSearch\SavedSearchRepository;
 use App\Security\TagFilterManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
@@ -32,6 +34,7 @@ class AssetSearch extends AbstractSearch
         private readonly FacetHandler $facetHandler,
         private readonly DeletedBuiltInField $deletedBuiltInField,
         private readonly CollectionRepository $collectionRepository,
+        private readonly SavedSearchRepository $savedSearchRepository,
     ) {
     }
 
@@ -43,6 +46,12 @@ class AssetSearch extends AbstractSearch
         $maxLimit = 50;
         $options['userId'] = $userId;
         $options['groupIds'] = $groupIds;
+
+        if (isset($options['savedSearch'])) {
+            /** @var SavedSearch $savedSearch */
+            $savedSearch = DoctrineUtil::findStrictByRepo($this->savedSearchRepository, $options['savedSearch']);
+            $options = array_merge($options, $savedSearch->getData());
+        }
 
         $filterQueries = [];
 
@@ -100,6 +109,13 @@ class AssetSearch extends AbstractSearch
         $hasDeletedFilter = false;
         if (null !== $conditions = ($options['conditions'] ?? null)) {
             foreach ($conditions as $condition) {
+                if (is_array($condition)) {
+                    if ($condition['disabled'] ?? false) {
+                        continue;
+                    }
+                    $condition = $condition['query'] ?? '';
+                }
+
                 if (str_starts_with($condition, DeletedBuiltInField::getKey())) {
                     $hasDeletedFilter = true;
                 }

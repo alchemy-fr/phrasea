@@ -2,7 +2,6 @@ import {StrictDimensions} from '@alchemy/core';
 
 export type AssetFile = {
     id: string;
-    name: string;
     type: string;
     url: string;
 };
@@ -16,6 +15,7 @@ export type WebVTTLink = {
 };
 
 export type FilePlayerProps = {
+    cover?: boolean;
     file: AssetFile;
     onLoad?: (() => void) | undefined;
     noInteraction?: boolean | undefined;

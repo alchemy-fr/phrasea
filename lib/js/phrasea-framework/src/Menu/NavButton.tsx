@@ -10,13 +10,22 @@ export default function NavButton({
     route,
     routeParams,
     location,
+    href,
+    target,
     sx,
     ...buttonProps
 }: Props) {
     return (
         <Button
-            component={Link}
-            to={route ? getPath(route, routeParams) : undefined}
+            {...(route
+                ? {
+                      component: Link,
+                      to: getPath(route, routeParams),
+                  }
+                : {
+                      href,
+                      target,
+                  })}
             sx={
                 location &&
                 route &&

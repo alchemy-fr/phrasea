@@ -1,0 +1,93 @@
+import {JSONContent, mergeAttributes, Node} from '@tiptap/core';
+import {ReactNodeViewRenderer} from '@tiptap/react';
+import Widget from './Widget.tsx';
+
+export enum WidgetConstants {
+    Type = 'widget',
+}
+
+export type SubContent = JSONContent[];
+
+export interface WidgetOptions<T extends {}> {
+    type: string;
+    options: T;
+    editing: boolean;
+}
+
+type SetWidgetOptions<T extends {}> = {
+    widget: string;
+    options?: T;
+    content?: SubContent;
+};
+
+declare module '@tiptap/core' {
+    interface Commands<ReturnType> {
+        widget: {
+            setWidget: (props: SetWidgetOptions<any>) => ReturnType;
+        };
+    }
+}
+
+export const WidgetExtension = Node.create<WidgetOptions<any>>({
+    name: WidgetConstants.Type,
+
+    addOptions() {
+        return {
+            type: '',
+            options: {},
+            editing: false,
+        };
+    },
+
+    group: 'block',
+    content: 'block*',
+    atom: false,
+    isolating: true,
+
+    draggable: true,
+
+    addAttributes() {
+        return {
+            type: {
+                default: null,
+            },
+            options: {
+                default: this.options.options,
+            },
+        };
+    },
+
+    parseHTML() {
+        return [
+            {
+                tag: WidgetConstants.Type,
+            },
+        ];
+    },
+
+    addCommands() {
+        return {
+            setWidget:
+                ({widget, options, content}: SetWidgetOptions<any>) =>
+                ({commands}) => {
+                    return commands.insertContent({
+                        type: this.name,
+                        attrs: {
+                            type: widget,
+                            options,
+                        },
+                        content,
+                    });
+                },
+        };
+    },
+
+    renderHTML({HTMLAttributes}) {
+        return [WidgetConstants.Type, mergeAttributes(HTMLAttributes), 0];
+    },
+
+    addNodeView() {
+        // @ts-expect-error unknown options at this level
+        return ReactNodeViewRenderer(Widget);
+    },
+});

@@ -1,12 +1,14 @@
 import {useCallback} from 'react';
 import {FieldValues} from 'react-hook-form';
-import {getRenditionPolicies, renditionPolicyNS} from '../../api/rendition';
+import {getRenditionPolicies} from '../../api/rendition';
 import {RenditionPolicy} from '../../types';
 import {
-    AsyncRSelectWidget,
     AsyncRSelectProps,
+    AsyncRSelectWidget,
     SelectOption,
 } from '@alchemy/react-form';
+import {EntityName} from '../../api/types.ts';
+import {getIri} from '@alchemy/api';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
@@ -21,7 +23,7 @@ export default function RenditionPolicySelect<
 
             return data.result
                 .map((t: RenditionPolicy) => ({
-                    value: `${renditionPolicyNS}/${t.id}`,
+                    value: getIri(EntityName.RenditionPolicy, t.id),
                     label: t.name,
                 }))
                 .filter(i =>

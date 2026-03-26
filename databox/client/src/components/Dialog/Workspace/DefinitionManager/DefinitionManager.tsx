@@ -477,15 +477,14 @@ export default function DefinitionManager<D extends DefinitionBase>({
             <Box
                 sx={theme => ({
                     display: 'flex',
-                    overflowY: 'auto',
                     borderRight: `1px solid ${theme.palette.divider}`,
                 })}
             >
                 <List
                     sx={{
+                        overflowY: 'auto',
                         p: 0,
                         width: 250,
-                        bgcolor: 'background.paper',
                     }}
                     component="div"
                     role="list"
@@ -500,7 +499,6 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                 gap: 1,
                                 p: 1,
                                 zIndex: 2,
-                                bgcolor: 'background.paper',
                             }}
                         >
                             <TextField
