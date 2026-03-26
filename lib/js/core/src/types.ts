@@ -1,9 +1,19 @@
+import {Accept} from 'react-dropzone';
+
 export type AnalyticsConfig = {
     matomo?: {
         baseUrl: string;
         siteId: string;
         mediaPluginEnabled: boolean;
     };
+};
+
+export type UploadConfig = {
+    minChunkSize?: Readonly<number>;
+    maxChunkSize?: Readonly<number>;
+    maxPartNumber?: Readonly<number>;
+    allowedTypes: Readonly<Accept | undefined>;
+    maxFileSize: Readonly<number>;
 };
 
 export interface WindowConfigBase {

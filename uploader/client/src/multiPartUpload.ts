@@ -1,7 +1,7 @@
 import {getUniqueFileId, uploadStateStorage} from './uploadStateStorage.ts';
 import {multipartUpload} from '@alchemy/api/src/multiPartUpload';
 import {AbortableFile, UploadedAsset} from './types.ts';
-import {apiClient} from './init.ts';
+import {apiClient, config} from './init.ts';
 import {AxiosProgressEvent} from 'axios';
 
 const fileChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3;
@@ -50,6 +50,9 @@ export async function uploadMultipartFile(
         uploadStateStorage.initUpload(userId, fileUID, uploadId);
     }
 
+    const {maxPartNumber, minChunkSize, maxChunkSize, maxFileSize} =
+        config.upload;
+
     const multipart = await multipartUpload(apiClient, file.file, {
         uploadParts,
         uploadId,
@@ -63,7 +66,10 @@ export async function uploadMultipartFile(
         receiveAbortController: abortController => {
             file.abortController = abortController;
         },
-        fileChunkSize: 31457280, // 30MB
+        maxPartNumber,
+        minChunkSize,
+        maxChunkSize,
+        maxFileSize,
     });
 
     file.abortController = new AbortController();

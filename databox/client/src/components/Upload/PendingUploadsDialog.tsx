@@ -60,6 +60,7 @@ export default function PendingUploadsDialog({open, modalIndex}: Props) {
                                 size={dimensions.width}
                                 progress={upload.progress}
                                 onCancel={() => onCancelUpload(upload.id)}
+                                error={upload.error}
                             />
                         </div>
                     ))}

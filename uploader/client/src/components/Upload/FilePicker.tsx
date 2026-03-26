@@ -35,8 +35,11 @@ enum Classes {
 
 export default function FilePicker({target, files, setFiles, onSubmit}: Props) {
     const {t} = useTranslation();
-    const allowedTypes = config.allowedTypes;
-    const {maxFileSize, maxFileCount, maxCommitSize} = config;
+    const {
+        upload: {maxFileSize, allowedTypes},
+        maxFileCount,
+        maxCommitSize,
+    } = config;
 
     const totalSize = files.reduce((acc, file) => acc + file.size, 0);
 
