@@ -189,7 +189,7 @@ export default class UploadBatch {
         const username = oauthClient.getDecodedToken()!.preferred_username;
 
         try {
-            const toastId = 'upload-failed';
+            const toastId = `upload-failed-${index}`;
             const t = this.t;
             const res = await uploadMultipartFile({
                 targetId: this.targetId,

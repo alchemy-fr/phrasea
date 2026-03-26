@@ -1,5 +1,9 @@
 import {getUniqueFileId, uploadStateStorage} from './uploadStateStorage.ts';
-import {multipartUpload, OnRetry} from '@alchemy/api/src/multiPartUpload';
+import {
+    multipartUpload,
+    OnRetry,
+    resolveChunkParams,
+} from '@alchemy/api/src/multiPartUpload';
 import {AbortableFile, UploadedAsset} from './types.ts';
 import {apiClient, config} from './init.ts';
 import {AxiosProgressEvent} from 'axios';
@@ -19,7 +23,17 @@ export async function uploadMultipartFile({
     onRetry,
     onProgress,
 }: Props): Promise<UploadedAsset> {
-    const fileUID = getUniqueFileId(file.file);
+    const {maxPartNumber, minChunkSize, maxChunkSize, maxFileSize} =
+        config.upload;
+
+    const {chunkSize} = resolveChunkParams(file.file, {
+        maxFileSize,
+        maxChunkSize,
+        maxPartNumber,
+        minChunkSize,
+    });
+
+    const fileUID = getUniqueFileId(file.file, chunkSize);
     const resumableUpload = uploadStateStorage.getUpload(userId, fileUID);
     const uploadParts = [];
 
@@ -56,9 +70,6 @@ export async function uploadMultipartFile({
         uploadId = res.data.id;
         uploadStateStorage.initUpload(userId, fileUID, uploadId);
     }
-
-    const {maxPartNumber, minChunkSize, maxChunkSize, maxFileSize} =
-        config.upload;
 
     const multipart = await multipartUpload(apiClient, file.file, {
         uploadParts,

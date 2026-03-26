@@ -16,35 +16,34 @@ export type MultipartUploadOptions = {
     onProgress?: (event: AxiosProgressEvent) => void;
     onRetry?: OnRetry;
     receiveAbortController?: (abortController: AbortController) => void;
+} & ChunkOptions;
+
+type ChunkOptions = {
+    maxFileSize?: Readonly<number>;
     minChunkSize?: Readonly<number>;
     maxChunkSize?: Readonly<number>;
     maxPartNumber?: Readonly<number>;
-    maxFileSize?: Readonly<number>;
 };
 
-export async function multipartUpload(
-    apiClient: HttpClient,
+export function resolveChunkParams(
     file: File,
     {
-        uploadParts: initialUploadParts,
-        uploadId: initialUploadId,
-        uploadPath = '/uploads',
-        onUploadInit,
-        onPartUploaded,
-        onProgress,
-        receiveAbortController,
         minChunkSize = 5242880,
         maxChunkSize,
         maxPartNumber = 10000,
         maxFileSize,
-        onRetry,
-    }: MultipartUploadOptions = {}
-): Promise<MultipartUpload> {
-    const parts: UploadPart[] = initialUploadParts ?? [];
+    }: ChunkOptions
+): {
+    maxFileSize?: Readonly<number>;
+    minChunkSize: Readonly<number>;
+    maxChunkSize?: Readonly<number>;
+    maxPartNumber: Readonly<number>;
+    chunkSize: Readonly<number>;
+} {
     const size = file.size;
 
     // eslint-disable-next-line no-console
-    console.debug('multipartUpload', {
+    console.debug('chunkParams', {
         fileSize: size,
         minChunkSize,
         maxChunkSize,
@@ -77,6 +76,37 @@ export async function multipartUpload(
         );
     }
 
+    return {
+        chunkSize,
+        minChunkSize,
+        maxChunkSize,
+        maxPartNumber,
+        maxFileSize,
+    };
+}
+
+export async function multipartUpload(
+    apiClient: HttpClient,
+    file: File,
+    {
+        uploadParts: initialUploadParts,
+        uploadId: initialUploadId,
+        uploadPath = '/uploads',
+        onUploadInit,
+        onPartUploaded,
+        onProgress,
+        receiveAbortController,
+        onRetry,
+        ...chunkOptions
+    }: MultipartUploadOptions = {}
+): Promise<MultipartUpload> {
+    const parts: UploadPart[] = initialUploadParts ?? [];
+    const size = file.size;
+
+    const {chunkSize} = resolveChunkParams(file, {
+        ...chunkOptions,
+    });
+
     // eslint-disable-next-line no-console
     console.debug(`Starting upload with chunks of size ${chunkSize} bytes`);
 
@@ -103,10 +133,10 @@ export async function multipartUpload(
         throw new Error('uploadId is required when uploadParts are provided');
     }
 
-    const numChunks = Math.floor(size / chunkSize) + 1;
+    const numChunks = Math.ceil(size / chunkSize);
     const startIndex = parts.length + 1;
 
-    for (let index = startIndex; index < numChunks + 1; index++) {
+    for (let index = startIndex; index <= numChunks; index++) {
         const start = (index - 1) * chunkSize;
         const end = index * chunkSize;
 

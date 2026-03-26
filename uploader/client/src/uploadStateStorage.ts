@@ -83,7 +83,7 @@ class UploadStateStorage {
     }
 }
 
-export function getUniqueFileId(file: File): string {
+export function getUniqueFileId(file: File, fileChunkSize: number): string {
     const relativePath =
         file.webkitRelativePath ||
         // @ts-expect-error - old browsers
@@ -92,7 +92,7 @@ export function getUniqueFileId(file: File): string {
         file.fileName ||
         file.name;
 
-    return `${file.size}-${relativePath}`;
+    return `${file.size}-${fileChunkSize}-${relativePath}`;
 }
 
 export const uploadStateStorage = new UploadStateStorage();
