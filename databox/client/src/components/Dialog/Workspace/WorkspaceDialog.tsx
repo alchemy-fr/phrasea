@@ -39,6 +39,7 @@ export default function WorkspaceDialog({}: Props) {
         getWorkspace(id!)
             .then(c => setData(c))
             .catch(e => {
+                // eslint-disable-next-line no-console
                 console.error(e);
                 closeModal();
             });

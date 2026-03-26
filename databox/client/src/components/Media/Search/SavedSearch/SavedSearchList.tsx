@@ -36,7 +36,7 @@ export default function SavedSearchList({}: Props) {
         loadItems: loadSavedSearches,
         hasMore: false,
         search: async (query, nextUrl) => {
-            return await getSavedSearches(nextUrl, {query});
+            return await getSavedSearches({query, nextUrl});
         },
     });
 

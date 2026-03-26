@@ -5,6 +5,10 @@ export enum AttributeBatchActionEnum {
     Delete = 'delete',
 }
 
+export type PaginationParams = {
+    nextUrl?: string;
+};
+
 export type AttributeBatchAction = {
     action?: AttributeBatchActionEnum | undefined;
     id?: string | undefined;
@@ -42,9 +46,14 @@ export enum AttributeType {
     User = 'user',
 }
 
-export enum Entity {
+export enum EntityName {
     Asset = 'assets',
     Attachment = 'attachments',
     Collection = 'collections',
     Workspace = 'workspaces',
+    SavedSearch = 'saved-searches',
+    Page = 'pages',
+    RenditionDefinition = 'rendition-definitions',
+    RenditionPolicy = 'rendition-policies',
+    Rendition = 'renditions',
 }

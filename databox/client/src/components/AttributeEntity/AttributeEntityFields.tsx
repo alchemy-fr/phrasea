@@ -9,7 +9,6 @@ import {
     FormFieldErrors,
     FormRow,
     KeyTranslationsWidget,
-    RemoteErrors,
 } from '@alchemy/react-form';
 import KeyIcon from '@mui/icons-material/Key';
 import InfoRow from '../Dialog/Info/InfoRow.tsx';
@@ -30,7 +29,6 @@ export default function AttributeEntityFields({
     const {
         control,
         register,
-        remoteErrors,
         submitting,
         formState: {errors},
     } = usedFormSubmit;
@@ -138,7 +136,6 @@ export default function AttributeEntityFields({
 
                 <FormFieldErrors field={'synonyms'} errors={errors} />
             </FormRow>
-            <RemoteErrors errors={remoteErrors} />
         </>
     );
 }

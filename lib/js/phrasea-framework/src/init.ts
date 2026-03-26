@@ -8,10 +8,7 @@ type Props = {
     appName: string;
 };
 
-export function initApp({
-    config: overriddenConfig,
-    appName,
-}: Props) {
+export function initApp({config: overriddenConfig, appName}: Props) {
     const config = overriddenConfig ?? window?.config ?? ({} as WindowConfig);
     config.appName = appName;
 

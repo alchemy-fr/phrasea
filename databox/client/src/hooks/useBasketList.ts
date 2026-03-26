@@ -75,7 +75,7 @@ export function useBasketList({onBasketCreate}: Props = {}) {
         loadItems: load,
         hasMore: hasMore(),
         loadMore: loadMore,
-        search: (q, nextUrl) => getBaskets(nextUrl, {query: q}),
+        search: (q, nextUrl) => getBaskets({nextUrl, query: q}),
     });
 
     return {

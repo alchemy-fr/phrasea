@@ -6,6 +6,7 @@ import {resolveSx} from '../../../core';
 
 export default function VerticalAppMenu({
     children,
+    bottomChildren,
     config,
     logoProps,
     commonMenuProps,
@@ -52,6 +53,7 @@ export default function VerticalAppMenu({
                 </Box>
 
                 <div>
+                    {bottomChildren}
                     <CommonAppLeftMenu config={config} {...commonMenuProps} />
                 </div>
             </Box>

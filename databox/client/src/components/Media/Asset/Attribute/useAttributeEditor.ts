@@ -46,7 +46,9 @@ export function useAttributeEditor({workspaceId, assetId, target}: Props) {
         if (workspaceId) {
             loadWorkspaceDefinitions(workspaceId);
             if (assetId) {
-                getAssetAttributes(assetId).then(setRemoteAttributes);
+                getAssetAttributes(assetId).then(r =>
+                    setRemoteAttributes(r.result)
+                );
             }
         }
     }, [loadWorkspaceDefinitions, workspaceId, assetId]);

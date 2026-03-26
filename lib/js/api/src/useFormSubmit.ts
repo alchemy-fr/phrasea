@@ -72,6 +72,7 @@ export default function useFormSubmit<
             }
             onSuccess && onSuccess(res);
         } catch (e: any) {
+            // eslint-disable-next-line no-console
             console.log('error', e);
             if (axios.isAxiosError<any>(e)) {
                 if (422 === e.response?.status) {

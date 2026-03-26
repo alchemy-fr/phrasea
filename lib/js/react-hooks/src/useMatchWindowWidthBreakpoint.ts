@@ -9,7 +9,7 @@ export function useMatchWindowWidthBreakpoint<T>(
     const breakpoints = theme.breakpoints.values;
 
     const windowSize = useWindowSize();
-    const { innerWidth } = windowSize;
+    const {innerWidth} = windowSize;
 
     const sortedBreakpoints = Object.entries(breakpoints).sort(
         (a, b) => b[1] - a[1]

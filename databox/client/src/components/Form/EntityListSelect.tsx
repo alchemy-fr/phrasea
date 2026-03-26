@@ -20,7 +20,7 @@ export default function EntityListSelect<TFieldValues extends FieldValues>({
 }: Props<TFieldValues>) {
     const load = useCallback(
         async (inputValue: string): Promise<SelectOption[]> => {
-            const data = await getEntityLists(workspaceId);
+            const data = await getEntityLists({workspaceId});
 
             return data.result
                 .map((t: EntityList) => {

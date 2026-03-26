@@ -37,7 +37,7 @@ export default function NotFound({}: Props) {
                     mt: 2,
                 }}
                 component={Link}
-                to={getPath(routes.app)}
+                to={getPath(routes.assets)}
             >
                 {t('not_found.back_home', 'Back home')}
             </Button>

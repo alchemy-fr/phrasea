@@ -51,7 +51,7 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
                     actionsContext.restore &&
                     capabilities.delete &&
                     asset.deleted,
-                share: capabilities.share,
+                share: actionsContext.share && capabilities.share,
                 substitute: capabilities.edit,
             },
             onDownload: () => {

@@ -13,6 +13,10 @@ import SharePage from './pages/SharePage.tsx';
 import AttributeListDialog from './components/Dialog/AttributeList/AttributeListDialog.tsx';
 import FileDialog from './components/Dialog/File/FileDialog.tsx';
 import SavedSearchDialog from './components/Dialog/SavedSearch/SavedSearchDialog.tsx';
+import HomePage from './pages/HomePage.tsx';
+import PageEditPage from './pages/PageEditPage.tsx';
+import PagePage from './pages/PagePage.tsx';
+import PageIndexPage from './pages/PageIndexPage.tsx';
 
 export enum Routing {
     UnknownRendition = '_',
@@ -111,8 +115,33 @@ const modalRoutes = {
 };
 
 const routes = {
-    app: {
+    home: {
         path: '/',
+        component: HomePage,
+        public: true,
+    },
+    pages: {
+        path: '/p/:slug',
+        component: PagePage,
+        public: true,
+    },
+    pageAdmin: {
+        path: '/pages',
+        routes: {
+            index: {
+                path: '',
+                component: PageIndexPage,
+                public: false,
+            },
+            edit: {
+                path: ':id/edit',
+                component: PageEditPage,
+                public: false,
+            },
+        },
+    },
+    assets: {
+        path: '/assets',
         component: App,
         public: true,
     },

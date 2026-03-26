@@ -2,19 +2,22 @@ import {apiClient} from '../init.ts';
 import {EntityList} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {SortWay} from './common.ts';
+import {PaginationParams} from './types.ts';
 
 export const entityTypeNS = '/entity-lists';
 
 type EntityListOptions = {
     query?: string;
     workspace?: string;
-};
+    workspaceId: string;
+} & PaginationParams;
 
-export async function getEntityLists(
-    workspaceId: string,
-    options?: EntityListOptions
-): Promise<NormalizedCollectionResponse<EntityList>> {
-    const res = await apiClient.get(entityTypeNS, {
+export async function getEntityLists({
+    workspaceId,
+    nextUrl,
+    ...options
+}: EntityListOptions): Promise<NormalizedCollectionResponse<EntityList>> {
+    const res = await apiClient.get(nextUrl ?? entityTypeNS, {
         params: {
             ...(options ?? {}),
             workspace: workspaceId,

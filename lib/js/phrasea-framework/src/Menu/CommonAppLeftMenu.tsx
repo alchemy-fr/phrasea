@@ -12,6 +12,7 @@ import {CommonMenuProps} from './types';
 import SettingDropdown from './SettingDropdown';
 
 export function CommonAppLeftMenu({
+    topChildren,
     notificationUriHandler,
     keycloakClient,
     config,
@@ -34,6 +35,7 @@ export function CommonAppLeftMenu({
                 borderTop: theme => `1px solid ${theme.palette.divider}`,
             }}
         >
+            {topChildren}
             {user && config.notifications ? (
                 <Notifications
                     appIdentifier={config.notifications.appIdentifier}

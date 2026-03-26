@@ -20,7 +20,9 @@ import {AQLCondition, AQLQueryAST} from './AQL/aqlTypes.ts';
 import {SavedSearch} from '../../../types.ts';
 import {extractSearchData} from '../../../api/savedSearch.ts';
 
-export default function SearchProvider({children}: PropsWithChildren<{}>) {
+type Props = PropsWithChildren<{}>;
+
+export default function SearchProvider({children}: Props) {
     const [hash, setHash] = useHash();
     const [reloadInc, setReloadInc] = useState(0);
     const {searchId, query, conditions, sortBy, geolocation} =

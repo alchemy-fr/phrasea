@@ -11,6 +11,7 @@ export type CommonMenuProps = {
     config: WindowConfig;
     keycloakClient: KeycloakClient;
     notificationUriHandler?: NotificationUriHandler;
+    topChildren?: ReactNode;
 } & SettingDropdownBaseProps;
 
 export type SettingDropdownBaseProps = {
@@ -45,6 +46,7 @@ export type AppMenuProps = PropsWithChildren<{
     commonMenuProps: Omit<CommonMenuProps, 'config'>;
     logoProps?: Omit<AppLogoProps, 'config'>;
     childrenSx?: SxProps<any>;
+    bottomChildren?: ReactNode;
 }>;
 
 export enum MenuClasses {
@@ -54,12 +56,15 @@ export enum MenuClasses {
 export type NavItem = {
     id: string;
     label: ReactNode;
+    icon?: ReactNode;
 } & Omit<NavButtonProps, 'location'>;
 
 export type NavButtonProps = {
     route?: RouteDefinition;
     routeParams?: RouteParameters;
     location?: Location;
+    href?: string;
+    target?: string;
 };
 
 export enum MenuOrientation {

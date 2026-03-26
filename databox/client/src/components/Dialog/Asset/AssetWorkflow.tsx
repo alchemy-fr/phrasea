@@ -44,11 +44,11 @@ export default function AssetWorkflow({data, onClose, minHeight}: Props) {
             t('operations_asset.workflow_is_starting', `Workflow is starting!`)
         );
 
-        getWorkflows(data.id).then(setWorkflows);
+        getWorkflows(data.id).then(r => setWorkflows(r.result));
     };
 
     React.useEffect(() => {
-        getWorkflows(data.id).then(setWorkflows);
+        getWorkflows(data.id).then(r => setWorkflows(r.result));
     }, []);
 
     const colors: Record<

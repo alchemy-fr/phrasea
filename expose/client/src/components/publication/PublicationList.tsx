@@ -13,11 +13,14 @@ import {DropdownActions, FullPageLoader} from '@alchemy/phrasea-ui';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import PublicationCard from './PublicationCard.tsx';
 import AppBar from '../AppBar.tsx';
-import {ConfirmDialog, wrapCached} from '@alchemy/phrasea-framework';
+import {
+    ConfirmDialog,
+    LoadMoreButton,
+    wrapCached,
+} from '@alchemy/phrasea-framework';
 import {deletePublication} from '../../api/publicationApi.ts';
 import {useModals} from '@alchemy/navigation';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
-import LoadMoreButton from '../ui/LoadMoreButton.tsx';
 
 type Props = {};
 

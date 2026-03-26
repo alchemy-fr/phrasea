@@ -57,8 +57,8 @@ export default class MemoryStorage implements IStorage {
 
         if (record.expire != undefined) {
             record.timeout = setTimeout(() => {
-                    this.removeItem(key);
-                }, time);
+                this.removeItem(key);
+            }, time);
         }
 
         this.data[key] = record;

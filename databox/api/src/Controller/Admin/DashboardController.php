@@ -41,6 +41,7 @@ use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
 use App\Entity\Log\ActionLog;
+use App\Entity\Page\Page;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
@@ -91,6 +92,10 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Rendition Policy', '', RenditionPolicy::class),
             MenuItem::linkToCrud('Alternate URL', '', AlternateUrl::class),
             MenuItem::linkToCrud('Share', '', Share::class),
+        ];
+
+        $pages = [
+            MenuItem::linkToCrud('Page', 'fa fa-file', Page::class),
         ];
 
         $basket = [
@@ -145,6 +150,7 @@ class DashboardController extends AbstractAdminDashboardController
 
         yield MenuItem::subMenu('Permission', 'fas fa-lock')->setSubItems($submenu1);
         yield MenuItem::subMenu('Core', 'fas fa-database')->setSubItems($submenu2);
+        yield MenuItem::subMenu('Page', 'fas fa-file')->setSubItems($pages);
         yield MenuItem::subMenu('Basket', 'fas fa-basket-shopping')->setSubItems($basket);
         yield MenuItem::subMenu('Lists', 'fas fa-list')->setSubItems($lists);
         yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenu3);

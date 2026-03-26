@@ -9,6 +9,7 @@ import {config} from '../init.ts';
 const pusher = createPusher({
     key: config.pusherKey!,
     host: config.pusherHost!,
+    // eslint-disable-next-line no-console
     onConnectionError: err => console.error(err),
 });
 

@@ -6,10 +6,7 @@ namespace App\Attribute\Type;
 
 class ColorAttributeType extends KeywordAttributeType
 {
-    public static function getName(): string
-    {
-        return 'color';
-    }
+    public const string NAME = 'color';
 
     public function isLocaleAware(): bool
     {

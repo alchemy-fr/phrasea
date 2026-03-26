@@ -45,7 +45,6 @@ export default function MoveAssetsDialog({
         forbidNavigation,
     } = useFormSubmit({
         onSubmit: (data: FormData) => {
-            console.log('data.destination', data.destination);
             return moveAssets(
                 assetIds,
                 getWorkspaceOrCollectionIri(

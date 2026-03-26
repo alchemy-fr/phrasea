@@ -19,13 +19,23 @@ type UserSearchContext = {
 
 let lastController: AbortController;
 
-async function search(
-    query: string,
-    sortBy: SortBy[],
-    url?: string,
-    conditions?: AQLQueries,
-    searchContext?: UserSearchContext
-): Promise<{
+type SearchParams = {
+    query: string;
+    sortBy: SortBy[];
+    nextUrl?: string;
+    conditions?: AQLQueries;
+    searchContext?: UserSearchContext;
+    savedSearch?: string;
+};
+
+async function search({
+    query,
+    sortBy,
+    nextUrl,
+    conditions,
+    searchContext,
+    savedSearch,
+}: SearchParams): Promise<{
     result: Asset[];
     facets: TFacets;
     total: number;
@@ -47,10 +57,11 @@ async function search(
 
     const options: GetAssetOptions = {
         query,
-        url,
+        url: nextUrl,
         conditions: conditions?.filter(c => !c.disabled).map(c => c.query),
         group: groupBy.length > 0 ? groupBy.slice(0, 1) : undefined,
         order,
+        savedSearch,
     };
 
     if (searchContext) {
@@ -82,9 +93,11 @@ type State = {
     debug?: ESDebug;
 };
 
-type Props = PropsWithChildren<{}>;
+type Props = PropsWithChildren<{
+    savedSearch?: string | undefined;
+}>;
 
-export default function ResultProvider({children}: Props) {
+export default function ResultProvider({children, savedSearch}: Props) {
     const searchContext = useContext(SearchContext)!;
 
     const [state, setState] = useState<State>({
@@ -114,15 +127,16 @@ export default function ResultProvider({children}: Props) {
     const doSearch = async (nextUrl?: string) => {
         setLoading(true);
         try {
-            const r = await search(
-                searchContext.query,
-                getResolvedSortBy(searchContext.sortBy),
+            const r = await search({
+                query: searchContext.query,
+                sortBy: getResolvedSortBy(searchContext.sortBy),
                 nextUrl,
-                searchContext.conditions,
-                {
+                conditions: searchContext.conditions,
+                searchContext: {
                     position: searchContext.geolocation,
-                }
-            );
+                },
+                savedSearch,
+            });
 
             setAssets(r.result);
 

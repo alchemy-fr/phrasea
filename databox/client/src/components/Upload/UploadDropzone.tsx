@@ -23,7 +23,9 @@ export function useAccept(): Accept | undefined {
                 }
             });
         } catch (e: any) {
+            // eslint-disable-next-line no-console
             console.error(e.toString());
+
             return;
         }
 

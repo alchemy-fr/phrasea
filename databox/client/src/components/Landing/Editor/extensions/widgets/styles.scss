@@ -1,0 +1,17 @@
+.tiptap {
+    .widget {
+        &.selected {
+            outline: 1px dashed #CCC;
+        }
+    }
+
+    .node-widget, .widget {
+        display: contents;
+    }
+
+    &[contenteditable='true'] {
+        .node-widget, .widget {
+            display: block;
+        }
+    }
+}

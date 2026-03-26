@@ -20,7 +20,11 @@ export default function ThemeEditorProvider({
     const value = React.useMemo<TThemeEditorContext>(() => {
         const theme = createTheme(
             mergeDeep(
-                {},
+                {
+                    colorSchemes: {
+                        dark: true,
+                    },
+                },
                 defaultTheme,
                 (window as any).config?.muiTheme ?? {},
                 themeOptions

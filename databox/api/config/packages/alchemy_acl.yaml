@@ -10,6 +10,7 @@ alchemy_acl:
     !php/const:App\Entity\Integration\WorkspaceIntegration::OBJECT_TYPE: App\Entity\Integration\WorkspaceIntegration
     !php/const:App\Entity\SavedSearch\SavedSearch::OBJECT_TYPE: App\Entity\SavedSearch\SavedSearch
     !php/const:App\Entity\Template\AssetDataTemplate::OBJECT_TYPE: App\Entity\Template\AssetDataTemplate
+    !php/const:App\Entity\Page\Page::OBJECT_TYPE: App\Entity\Page\Page
   enabled_permissions:
     - VIEW
     - CREATE

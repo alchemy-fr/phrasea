@@ -41,7 +41,7 @@ export function useNotificationUriHandler(): NotificationUriHandler {
                     undefined
                 );
 
-                navigate(`${getPath(routes.app)}#${searchHash}`);
+                navigate(`${getPath(routes.assets)}#${searchHash}`);
             }
 
             return;
