@@ -13,10 +13,11 @@ export type MultipartUploadOptions = {
     }) => void;
     onProgress?: (event: AxiosProgressEvent) => void;
     receiveAbortController?: (abortController: AbortController) => void;
-    fileChunkSize?: number;
+    minChunkSize?: Readonly<number>;
+    maxChunkSize?: Readonly<number>;
+    maxPartNumber?: Readonly<number>;
+    maxFileSize?: Readonly<number>;
 };
-
-const minChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3
 
 export async function multipartUpload(
     apiClient: HttpClient,
@@ -29,14 +30,50 @@ export async function multipartUpload(
         onPartUploaded,
         onProgress,
         receiveAbortController,
-        fileChunkSize = minChunkSize,
+        minChunkSize = 5242880,
+        maxChunkSize,
+        maxPartNumber = 10000,
+        maxFileSize,
     }: MultipartUploadOptions = {}
 ): Promise<MultipartUpload> {
     const parts: UploadPart[] = initialUploadParts ?? [];
 
-    if (fileChunkSize < minChunkSize) {
-        throw new Error(`fileChunkSize must be at least ${minChunkSize}`);
+    // eslint-disable-next-line no-console
+    console.debug('multipartUpload', {
+        fileSize: file.size,
+        minChunkSize,
+        maxChunkSize,
+        maxPartNumber,
+        maxFileSize,
+    });
+
+    if (maxFileSize && file.size > maxFileSize) {
+        throw new Error(
+            `File size exceeds the maximum allowed size of ${maxFileSize} bytes`
+        );
     }
+    const calculatedMinChunkSize = Math.max(
+        minChunkSize,
+        Math.ceil(file.size / maxPartNumber)
+    );
+    if (maxChunkSize && calculatedMinChunkSize > maxChunkSize) {
+        throw new Error(
+            `Minimum chunk size of ${calculatedMinChunkSize} bytes exceeds the maximum allowed chunk size of ${maxChunkSize} bytes for a file of size ${file.size} bytes with a maximum of ${maxPartNumber} parts`
+        );
+    }
+
+    const chunkSize = Math.min(
+        maxChunkSize ?? calculatedMinChunkSize,
+        calculatedMinChunkSize
+    );
+    if (chunkSize < minChunkSize) {
+        throw new Error(
+            `Calculated chunk size ${chunkSize} bytes is less than the minimum allowed chunk size of ${minChunkSize} bytes`
+        );
+    }
+
+    // eslint-disable-next-line no-console
+    console.debug(`Starting upload with chunks of size ${chunkSize} bytes`);
 
     let uploadId: string | undefined = initialUploadId;
 
@@ -61,12 +98,12 @@ export async function multipartUpload(
         throw new Error('uploadId is required when uploadParts are provided');
     }
 
-    const numChunks = Math.floor(file.size / fileChunkSize) + 1;
+    const numChunks = Math.floor(file.size / chunkSize) + 1;
     const startIndex = parts.length + 1;
 
     for (let index = startIndex; index < numChunks + 1; index++) {
-        const start = (index - 1) * fileChunkSize;
-        const end = index * fileChunkSize;
+        const start = (index - 1) * chunkSize;
+        const end = index * chunkSize;
 
         const abortControllerLoop = new AbortController();
         receiveAbortController?.(abortControllerLoop);

@@ -8,9 +8,9 @@ import SingleFileUploadWidget, {
 } from './SingleFileUploadWidget.tsx';
 import UploadIcon from '@mui/icons-material/Upload';
 import {postRendition} from '../../../../api/rendition.ts';
-import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
 import {Asset} from '../../../../types.ts';
 import {apiClient} from '../../../../init.ts';
+import {databoxMultipartUpload} from '../../../../api/asset.ts';
 
 type Props = {
     asset: Asset;
@@ -48,7 +48,7 @@ export default function UploadRenditionDialog({
                     },
                 });
             } else {
-                const multipart = await multipartUpload(
+                const multipart = await databoxMultipartUpload(
                     apiClient,
                     uploadForm.file
                 );
