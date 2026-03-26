@@ -26,7 +26,7 @@
         "@mui/icons-material": "^6.5.0",
         "@mui/material": "^6.5.0",
         "ace-builds": "^1.43.3",
-        "axios": "^1.12.2",
+        "axios": "^1.13.5",
         "classnames": "^2.5.1",
         "filesize": "^9.0.11",
         "react": "^18.3.1",
