@@ -29,8 +29,8 @@ export default function UploadStepper({target}: Props) {
     const [step, setStep] = React.useState(Step.Files);
     const [files, setFiles] = React.useState<UploadedFile[]>([]);
     const uploadBatch = React.useMemo(
-        () => new UploadBatch(target.id),
-        [target]
+        () => new UploadBatch({targetId: target.id, t}),
+        [target, t]
     );
 
     const onError = React.useCallback((err: string) => {
