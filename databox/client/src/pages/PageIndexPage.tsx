@@ -3,11 +3,11 @@ import {Page} from '../types.ts';
 import React, {useCallback, useEffect, useState} from 'react';
 import {deletePage, getPages} from '../api/page.ts';
 import {FlexRow, FullPageLoader} from '@alchemy/phrasea-ui';
+import {BetaChip} from '@alchemy/phrasea-framework';
 import {useTranslation} from 'react-i18next';
 import {
     Box,
     Button,
-    Chip,
     Container,
     IconButton,
     Paper,
@@ -95,12 +95,10 @@ export default function PageIndexPage({}: Props) {
                             }}
                         >
                             {t('page.list.title', 'Pages')}
-                            <Chip
-                                color={'warning'}
+                            <BetaChip
                                 sx={{
                                     ml: 1,
                                 }}
-                                label={t('common.beta', 'Beta')}
                             />
                         </Typography>
                         <Button

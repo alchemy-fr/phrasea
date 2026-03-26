@@ -33,8 +33,11 @@ import MatomoRouteWrapper from './src/Route/MatomoRouteWrapper';
 import {useTracking} from './src/hooks/useTracking';
 import LoadMoreButton from './src/components/LoadMoreButton';
 import {lazyWithRetry} from './src/lazyWithRetry';
+import BetaChip from './src/Ui/BetaChip';
+
 export {
     AppProvider,
+    BetaChip,
     initApp,
     createCachedThemeOptions,
     themes,
