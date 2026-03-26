@@ -24,9 +24,13 @@ export default function PendingUploads({}: Props) {
         }
 
         const pendingUploads = uploads.filter(u => u.progress < 1 && !u.error);
+        const total = uploads.reduce((acc, u) => acc + u.file.size, 0);
         const progress =
-            uploads.reduce((acc, u) => acc + u.progress * 100, 0) /
-            uploads.length /
+            uploads.reduce(
+                (acc, u) => acc + u.file.size * u.progress * 100,
+                0
+            ) /
+            total /
             100;
         const errored = uploads.some(u => u.error);
 

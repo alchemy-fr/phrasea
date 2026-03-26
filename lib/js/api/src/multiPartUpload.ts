@@ -41,28 +41,29 @@ export async function multipartUpload(
     }: MultipartUploadOptions = {}
 ): Promise<MultipartUpload> {
     const parts: UploadPart[] = initialUploadParts ?? [];
+    const size = file.size;
 
     // eslint-disable-next-line no-console
     console.debug('multipartUpload', {
-        fileSize: file.size,
+        fileSize: size,
         minChunkSize,
         maxChunkSize,
         maxPartNumber,
         maxFileSize,
     });
 
-    if (maxFileSize && file.size > maxFileSize) {
+    if (maxFileSize && size > maxFileSize) {
         throw new Error(
             `File size exceeds the maximum allowed size of ${maxFileSize} bytes`
         );
     }
     const calculatedMinChunkSize = Math.max(
         minChunkSize,
-        Math.ceil(file.size / maxPartNumber)
+        Math.ceil(size / maxPartNumber)
     );
     if (maxChunkSize && calculatedMinChunkSize > maxChunkSize) {
         throw new Error(
-            `Minimum chunk size of ${calculatedMinChunkSize} bytes exceeds the maximum allowed chunk size of ${maxChunkSize} bytes for a file of size ${file.size} bytes with a maximum of ${maxPartNumber} parts`
+            `Minimum chunk size of ${calculatedMinChunkSize} bytes exceeds the maximum allowed chunk size of ${maxChunkSize} bytes for a file of size ${size} bytes with a maximum of ${maxPartNumber} parts`
         );
     }
 
@@ -90,7 +91,7 @@ export async function multipartUpload(
             {
                 filename: file.name,
                 type: file.type,
-                size: file.size,
+                size,
             },
             {
                 signal: abortControllerInit.signal,
@@ -102,7 +103,7 @@ export async function multipartUpload(
         throw new Error('uploadId is required when uploadParts are provided');
     }
 
-    const numChunks = Math.floor(file.size / chunkSize) + 1;
+    const numChunks = Math.floor(size / chunkSize) + 1;
     const startIndex = parts.length + 1;
 
     for (let index = startIndex; index < numChunks + 1; index++) {
@@ -148,9 +149,12 @@ export async function multipartUpload(
             signal: abortControllerPut.signal,
             anonymous: true,
             onUploadProgress: (e: AxiosProgressEvent) => {
+                const totalLoaded = e.loaded + start;
                 const multiPartEvent: AxiosProgressEvent = {
                     ...e,
-                    loaded: e.loaded + start,
+                    total: size,
+                    loaded: totalLoaded,
+                    progress: totalLoaded / size,
                 };
 
                 onProgress?.(multiPartEvent);
