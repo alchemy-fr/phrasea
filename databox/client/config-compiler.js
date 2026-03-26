@@ -19,7 +19,8 @@
         }
 
         if (value && typeof value === 'string') {
-            return parseInt(value);
+            const parsed = parseInt(value, 10);
+            return Number.isNaN(parsed) ? undefined : parsed;
         }
 
         return undefined;
