@@ -4,9 +4,10 @@ import {useTranslation} from 'react-i18next';
 
 type Props = {
     sx?: ChipProps['sx'];
+    size?: ChipProps['size'];
 };
 
-export default function BetaChip({sx}: Props) {
+export default function BetaChip({sx, size}: Props) {
     const {t} = useTranslation();
     return (
         <Tooltip
@@ -16,11 +17,12 @@ export default function BetaChip({sx}: Props) {
             )}
         >
             <Chip
+                size={size}
                 sx={theme => ({
                     textTransform: 'uppercase',
                     fontStyle: 'normal',
                     fontWeight: 400,
-                    fontSize: '0.7rem',
+                    fontSize: size === 'small' ? '0.5rem' :'0.7rem',
                     ...resolveSx(sx, theme),
                 })}
                 label={t('lib.ui.beta.label', 'Beta')}

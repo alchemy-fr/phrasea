@@ -13,8 +13,7 @@ import {
     WorkspaceOrCollectionTreeItem,
 } from '../components/Media/Collection/CollectionTree/types.ts';
 import {TreeNode} from '@alchemy/phrasea-framework';
-import {Entity} from './types.ts';
-import {PaginationParams} from './types.ts';
+import {EntityName, PaginationParams} from './types.ts';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
@@ -156,8 +155,8 @@ export function getWorkspaceOrCollectionIri(
 ): string {
     return createIriFromId(
         item.type === EntityType.Collection
-            ? Entity.Collection
-            : Entity.Workspace,
+            ? EntityName.Collection
+            : EntityName.Workspace,
         item.id!
     );
 }
@@ -177,7 +176,7 @@ export async function createCollection(
             parent = await createSubCollection(node.parentNode);
         } else if (node.parentNode?.data.type === EntityType.Collection) {
             parent = createIriFromId(
-                Entity.Collection,
+                EntityName.Collection,
                 node.parentNode.data.id!
             );
         }
@@ -187,7 +186,7 @@ export async function createCollection(
                 title: node.data.label,
                 parent,
                 workspace: createIriFromId(
-                    Entity.Workspace,
+                    EntityName.Workspace,
                     newCollection.data.workspaceId
                 ),
             })

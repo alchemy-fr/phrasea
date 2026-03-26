@@ -43,7 +43,7 @@ import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import {toast} from 'react-toastify';
 import {WorkspaceOrCollectionTreeItem} from '../Media/Collection/CollectionTree/types.ts';
 import {TreeNode} from '@alchemy/phrasea-framework';
-import {Entity} from '../../api/types.ts';
+import {EntityName} from '../../api/types.ts';
 
 type FileWrapper = {
     id: string;
@@ -97,9 +97,9 @@ export default function UploadDialog({
 
     const defaultValues: FormUploadData = {
         destination: initCollectionId
-            ? createIriFromId(Entity.Collection, initCollectionId)
+            ? createIriFromId(EntityName.Collection, initCollectionId)
             : initWsId
-              ? createIriFromId(Entity.Workspace, initWsId)
+              ? createIriFromId(EntityName.Workspace, initWsId)
               : null,
         privacy: Privacy.Secret,
         tags: [],
@@ -136,7 +136,10 @@ export default function UploadDialog({
 
             const destinationIri = data.destination!;
 
-            const collectionIri = isEntityIri(Entity.Collection, destinationIri)
+            const collectionIri = isEntityIri(
+                EntityName.Collection,
+                destinationIri
+            )
                 ? destinationIri
                 : undefined;
 
@@ -256,7 +259,7 @@ export default function UploadDialog({
     const collectionId =
         destinationWatched &&
         typeof destinationWatched === 'string' &&
-        isEntityIri(Entity.Collection, destinationWatched)
+        isEntityIri(EntityName.Collection, destinationWatched)
             ? extractIdFromIri(destinationWatched)
             : undefined;
 
