@@ -3,23 +3,15 @@ import {
     AttributeFormatterProps,
     AvailableFormat,
 } from './types';
-import TextType from './TextType';
 import React from 'react';
-import {TextFieldProps} from '@mui/material';
+import NumberType from './NumberType.tsx';
 
 enum Formats {
     Original = 'original',
     Humanized = 'humanized',
 }
 
-export default class DurationType extends TextType {
-    getFieldProps(): TextFieldProps {
-        return {
-            ...super.getFieldProps(),
-            type: 'number',
-        };
-    }
-
+export default class DurationType extends NumberType {
     formatValue({
         value,
         format,
