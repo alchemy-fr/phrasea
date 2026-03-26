@@ -1,6 +1,8 @@
 import {AxiosProgressEvent} from 'axios';
 import {HttpClient, MultipartUpload, UploadPart} from './types';
 
+export type OnRetry = (retryCount: number, retryDelay: number) => void;
+
 export type MultipartUploadOptions = {
     uploadId?: string;
     uploadParts?: UploadPart[];
@@ -12,6 +14,7 @@ export type MultipartUploadOptions = {
         partNumber: number;
     }) => void;
     onProgress?: (event: AxiosProgressEvent) => void;
+    onRetry?: OnRetry;
     receiveAbortController?: (abortController: AbortController) => void;
     minChunkSize?: Readonly<number>;
     maxChunkSize?: Readonly<number>;
@@ -34,6 +37,7 @@ export async function multipartUpload(
         maxChunkSize,
         maxPartNumber = 10000,
         maxFileSize,
+        onRetry,
     }: MultipartUploadOptions = {}
 ): Promise<MultipartUpload> {
     const parts: UploadPart[] = initialUploadParts ?? [];
@@ -114,7 +118,21 @@ export async function multipartUpload(
                 part: index,
             },
             {
-                signal: abortControllerLoop.signal,
+                'signal': abortControllerLoop.signal,
+                'axios-retry': {
+                    retries: 10,
+                    onRetry: onRetry
+                        ? (retryCount, error) => {
+                              onRetry(
+                                  retryCount,
+                                  error.config?.['axios-retry']?.retryDelay?.(
+                                      retryCount,
+                                      error
+                                  ) ?? 0
+                              );
+                          }
+                        : undefined,
+                },
             }
         );
 
@@ -144,6 +162,11 @@ export async function multipartUpload(
                 etag: string;
             }
         ).etag;
+        if (!etag) {
+            throw new Error(
+                'ETag header is missing in the upload response. Are CORS configured correctly on the server?'
+            );
+        }
 
         parts.push({
             ETag: etag,

@@ -52,7 +52,7 @@
         "@tiptap/static-renderer": "^3.20.0",
         "@toast-ui/react-image-editor": "^3.15.2",
         "ace-builds": "^1.43.3",
-        "axios": "^1.12.2",
+        "axios": "^1.13.5",
         "byte-size": "^8.2.1",
         "classnames": "^2.5.1",
         "clipboard-copy": "^4.0.1",

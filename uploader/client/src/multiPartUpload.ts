@@ -1,18 +1,25 @@
 import {getUniqueFileId, uploadStateStorage} from './uploadStateStorage.ts';
-import {multipartUpload} from '@alchemy/api/src/multiPartUpload';
+import {multipartUpload, OnRetry} from '@alchemy/api/src/multiPartUpload';
 import {AbortableFile, UploadedAsset} from './types.ts';
 import {apiClient, config} from './init.ts';
 import {AxiosProgressEvent} from 'axios';
 
-const fileChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3;
+type Props = {
+    targetId: string;
+    userId: string;
+    file: AbortableFile;
+    onRetry: OnRetry;
+    onProgress: (event: AxiosProgressEvent) => void;
+};
 
-export async function uploadMultipartFile(
-    targetId: string,
-    userId: string,
-    file: AbortableFile,
-    onProgress: (event: AxiosProgressEvent) => void
-): Promise<UploadedAsset> {
-    const fileUID = getUniqueFileId(file.file, fileChunkSize);
+export async function uploadMultipartFile({
+    targetId,
+    userId,
+    file,
+    onRetry,
+    onProgress,
+}: Props): Promise<UploadedAsset> {
+    const fileUID = getUniqueFileId(file.file);
     const resumableUpload = uploadStateStorage.getUpload(userId, fileUID);
     const uploadParts = [];
 
@@ -57,6 +64,7 @@ export async function uploadMultipartFile(
         uploadParts,
         uploadId,
         onProgress,
+        onRetry,
         onUploadInit: ({uploadId}) => {
             uploadStateStorage.initUpload(userId, fileUID, uploadId);
         },
