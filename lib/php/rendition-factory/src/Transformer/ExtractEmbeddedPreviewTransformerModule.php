@@ -65,10 +65,17 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
         }
 
         $exiftool = new Exiftool($this->logger);
-        $pathfile = $inputFile->getPath();
+        $pathFile = $inputFile->getPath();
         $outputDir = $context->getWorkingDirectory().'/'.uniqid('extracted-preview');
-        mkdir($outputDir);
-        $realOutPutDir = realpath($outputDir);
+
+        if (!is_dir($outputDir) && !mkdir($outputDir, 0777, true) && !is_dir($outputDir)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $outputDir));
+        }
+
+        $realOutputDir = realpath($outputDir);
+        if (false === $realOutputDir) {
+            throw new \RuntimeException(sprintf('Directory "%s" does not exist', $outputDir));
+        }
 
         $command = [
             '-if',
@@ -76,47 +83,48 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
             '-b',
             '-PhotoshopThumbnail',
             '-w',
-            $realOutPutDir.'/PhotoshopThumbnail%c.jpg',
+            $realOutputDir.'/PhotoshopThumbnail%c.jpg',
             '-execute',
             '-if',
             '$jpgfromraw',
             '-b',
             '-jpgfromraw',
             '-w',
-            $realOutPutDir.'/JpgFromRaw%c.jpg',
+            $realOutputDir.'/JpgFromRaw%c.jpg',
             '-execute',
             '-if',
             '$previewimage',
             '-b',
             '-previewimage',
             '-w',
-            $realOutPutDir.'/PreviewImage%c.jpg',
+            $realOutputDir.'/PreviewImage%c.jpg',
             '-execute',
             '-if',
             '$xmp:pageimage',
             '-b',
             '-xmp:pageimage',
             '-w',
-            $realOutPutDir.'/XmpPageimage%c.jpg',
+            $realOutputDir.'/XmpPageimage%c.jpg',
             '-execute',
             '-if',
             '$xmp:thumbnailimage',
             '-b',
             '-xmp:thumbnailimage',
             '-w',
-            $realOutPutDir.'/XmpThumbnailImage%c.jpg',
+            $realOutputDir.'/XmpThumbnailImage%c.jpg',
             '-common_args',
             '-q',
             '-m',
-            $pathfile,
+            $pathFile,
         ];
 
         try {
             $exiftool->executeCommand($command);
-        } catch (\RuntimeException|\Exception $e) {
+        } catch (\Throwable $e) {
+            $this->logger->info(sprintf('Extracting embedded preview for file %s: %s', $inputFile->getPath(), $e->getMessage()));
         }
 
-        $files = new \DirectoryIterator($realOutPutDir);
+        $files = new \DirectoryIterator($realOutputDir);
 
         $selected = null;
         $size = null;
