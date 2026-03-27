@@ -69,16 +69,12 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
         $outputDir = $context->getWorkingDirectory().'/'.uniqid('extracted-preview');
 
         if (!is_dir($outputDir) && !mkdir($outputDir, 0755, true) && !is_dir($outputDir)) {
-            $this->logger->error(sprintf('Directory "%s" was not created; falling back to original file.', $outputDir));
-
-            return $inputFile->createOutputFile();
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $outputDir));
         }
 
         $realOutputDir = realpath($outputDir);
         if (false === $realOutputDir) {
-            $this->logger->error(sprintf('Directory "%s" does not exist (realpath failed); falling back to original file.', $outputDir));
-
-            return $inputFile->createOutputFile();
+            throw new \RuntimeException(sprintf('Directory "%s" does not exist', $outputDir));
         }
 
         $command = [
