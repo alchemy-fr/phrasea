@@ -51,6 +51,7 @@ final readonly class FileFamilyGuesser
 
             'application/mxf', 'application/ogg' => FamilyEnum::Video,
 
+            'application/postscript',
             'application/x-photoshop',
             'application/photoshop',
             'application/psd' => FamilyEnum::Image,

@@ -68,13 +68,17 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
         $pathFile = $inputFile->getPath();
         $outputDir = $context->getWorkingDirectory().'/'.uniqid('extracted-preview');
 
-        if (!is_dir($outputDir) && !mkdir($outputDir, 0777, true) && !is_dir($outputDir)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $outputDir));
+        if (!is_dir($outputDir) && !mkdir($outputDir, 0755, true) && !is_dir($outputDir)) {
+            $this->logger->error(sprintf('Directory "%s" was not created; falling back to original file.', $outputDir));
+
+            return $inputFile->createOutputFile();
         }
 
         $realOutputDir = realpath($outputDir);
         if (false === $realOutputDir) {
-            throw new \RuntimeException(sprintf('Directory "%s" does not exist', $outputDir));
+            $this->logger->error(sprintf('Directory "%s" does not exist (realpath failed); falling back to original file.', $outputDir));
+
+            return $inputFile->createOutputFile();
         }
 
         $command = [
@@ -120,8 +124,8 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
 
         try {
             $exiftool->executeCommand($command);
-        } catch (\Throwable $e) {
-            $this->logger->info(sprintf('Extracting embedded preview for file %s: %s', $inputFile->getPath(), $e->getMessage()));
+        } catch (\Exception $e) {
+            $this->logger->warning(sprintf('Extracting embedded preview for file %s: %s', $inputFile->getPath(), $e->getMessage()));
         }
 
         $files = new \DirectoryIterator($realOutputDir);
