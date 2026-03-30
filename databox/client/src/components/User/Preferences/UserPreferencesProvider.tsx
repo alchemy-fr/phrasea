@@ -1,9 +1,10 @@
 import React, {PropsWithChildren} from 'react';
-import {createCachedThemeOptions} from '@alchemy/phrasea-framework';
-import {ThemeEditorProvider} from '@alchemy/phrasea-framework';
+import {
+    AppGlobalTheme,
+    createCachedThemeOptions,
+} from '@alchemy/phrasea-framework';
 import {Classes} from '../../../classes.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
-import {AppGlobalTheme} from '@alchemy/phrasea-framework';
 import {useTranslation} from 'react-i18next';
 import {useUserPreferencesStore} from '../../../store/userPreferencesStore.ts';
 import {useAuth} from '@alchemy/react-auth';
@@ -39,34 +40,31 @@ export default function UserPreferencesProvider({children}: Props) {
     }, [preferences?.dataLocale]);
 
     return (
-        <ThemeEditorProvider
-            defaultTheme={createCachedThemeOptions(
+        <AppGlobalTheme
+            scrollbarWidth={scrollbarWidth}
+            styles={() => ({
+                [`.${Classes.ellipsisText} .MuiListItemText-secondary`]: {
+                    textOverflow: 'ellipsis',
+                    wordBreak: 'break-all',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                },
+            })}
+            themeOptions={createCachedThemeOptions(
                 preferences.theme ?? 'default'
             )}
         >
-            <AppGlobalTheme
-                scrollbarWidth={scrollbarWidth}
-                styles={() => ({
-                    [`.${Classes.ellipsisText} .MuiListItemText-secondary`]: {
-                        textOverflow: 'ellipsis',
-                        wordBreak: 'break-all',
-                        overflow: 'hidden',
-                        whiteSpace: 'nowrap',
-                    },
-                })}
-            >
-                {!isLoading ? (
-                    children
-                ) : (
-                    <FullPageLoader
-                        backdrop={false}
-                        message={t(
-                            'user_preferences.loading',
-                            'Loading user preferences…'
-                        )}
-                    />
-                )}
-            </AppGlobalTheme>
-        </ThemeEditorProvider>
+            {!isLoading ? (
+                children
+            ) : (
+                <FullPageLoader
+                    backdrop={false}
+                    message={t(
+                        'user_preferences.loading',
+                        'Loading user preferences…'
+                    )}
+                />
+            )}
+        </AppGlobalTheme>
     );
 }
