@@ -12,13 +12,14 @@ import {useTranslation} from 'react-i18next';
 type Props = PropsWithChildren<{}>;
 
 export default function AttributeFormatProvider({children}: Props) {
-    const {i18n} = useTranslation();
+    const {t, i18n} = useTranslation();
     const [formats, setFormats] = React.useState<AttributeFormats>(
         {} as AttributeFormats
     );
 
     const formatterOptions = {
         uiLocale: i18n.language,
+        t,
     };
 
     const value = React.useMemo<TAttributeFormatContext>(() => {

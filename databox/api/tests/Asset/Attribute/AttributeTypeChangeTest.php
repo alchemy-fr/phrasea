@@ -10,6 +10,7 @@ use App\Attribute\Type\CollectionPathAttributeType;
 use App\Attribute\Type\ColorAttributeType;
 use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\DateTimeAttributeType;
+use App\Attribute\Type\DurationAttributeType;
 use App\Attribute\Type\EntityAttributeType;
 use App\Attribute\Type\GeoPointAttributeType;
 use App\Attribute\Type\HtmlAttributeType;
@@ -17,6 +18,7 @@ use App\Attribute\Type\IpAttributeType;
 use App\Attribute\Type\JsonAttributeType;
 use App\Attribute\Type\KeywordAttributeType;
 use App\Attribute\Type\NumberAttributeType;
+use App\Attribute\Type\SizeAttributeType;
 use App\Attribute\Type\TextareaAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Tests\AbstractDataboxTestCase;
@@ -39,6 +41,8 @@ class AttributeTypeChangeTest extends AbstractDataboxTestCase
             DateAttributeType::NAME,
             GeoPointAttributeType::NAME,
             NumberAttributeType::NAME,
+            DurationAttributeType::NAME,
+            SizeAttributeType::NAME,
         ];
 
         $disallowedTranslations = [
@@ -77,6 +81,8 @@ class AttributeTypeChangeTest extends AbstractDataboxTestCase
                 DateTimeAttributeType::NAME,
                 DateAttributeType::NAME,
                 GeoPointAttributeType::NAME,
+                DurationAttributeType::NAME,
+                SizeAttributeType::NAME,
             ],
             CollectionPathAttributeType::NAME => [
                 ...$strictFormats,
@@ -103,6 +109,12 @@ class AttributeTypeChangeTest extends AbstractDataboxTestCase
                 ...$strictFormats,
             ],
             KeywordAttributeType::NAME => [
+                ...$strictFormats,
+            ],
+            DurationAttributeType::NAME => [
+                ...$strictFormats,
+            ],
+            SizeAttributeType::NAME => [
                 ...$strictFormats,
             ],
         ];

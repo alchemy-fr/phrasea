@@ -33,7 +33,7 @@ export type {Props as ValueDiffProps};
 
 export default function ValueDiff({actions, definitionIndex}: Props) {
     const formatContext = useContext(AttributeFormatContext);
-    const {i18n} = useTranslation();
+    const {t, i18n} = useTranslation();
 
     const actionIcons = {
         [AttributeBatchActionEnum.Delete]: <DeleteIcon />,
@@ -50,6 +50,7 @@ export default function ValueDiff({actions, definitionIndex}: Props) {
 
     const formatterOptions: AttributeFormatterOptions = {
         uiLocale: i18n.language,
+        t,
     };
 
     return (

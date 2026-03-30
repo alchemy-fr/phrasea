@@ -154,6 +154,7 @@ export default function MultiAttributeRow<T>({
     const itemClassName = 'item';
     const formatterOptions: AttributeFormatterOptions = {
         uiLocale: i18n.language,
+        t,
     };
 
     return (

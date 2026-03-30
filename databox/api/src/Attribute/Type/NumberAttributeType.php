@@ -7,13 +7,13 @@ namespace App\Attribute\Type;
 use App\Elasticsearch\SearchType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-final class NumberAttributeType extends AbstractAttributeType
+class NumberAttributeType extends AbstractAttributeType
 {
-    final public const string NAME = 'number';
+    public const string NAME = 'number';
 
     public static function getName(): string
     {
-        return self::NAME;
+        return static::NAME;
     }
 
     public function getElasticSearchMapping(string $locale): ?array

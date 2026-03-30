@@ -23,6 +23,8 @@ import UserType from './UserType.tsx';
 import {AttributeType} from '../../../../../api/types.ts';
 import NumberType from './NumberType.tsx';
 import StoryType from './StoryType.tsx';
+import DurationType from './DurationType.tsx';
+import SizeType from './SizeType.tsx';
 
 export const types: {
     [key in AttributeType]?: AttributeTypeClass;
@@ -46,6 +48,8 @@ export const types: {
     [AttributeType.Privacy]: PrivacyType,
     [AttributeType.User]: UserType,
     [AttributeType.Number]: NumberType,
+    [AttributeType.Duration]: DurationType,
+    [AttributeType.Size]: SizeType,
 };
 
 export function getAttributeType(

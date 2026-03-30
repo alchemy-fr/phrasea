@@ -7,10 +7,11 @@ type Props = {
 };
 
 export default function DateTime({datetime}: Props) {
-    const {i18n} = useTranslation();
+    const {t, i18n} = useTranslation();
 
     return getAttributeType(AttributeType.DateTime).formatValue({
         value: datetime,
         uiLocale: i18n.language,
+        t,
     });
 }

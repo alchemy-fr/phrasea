@@ -18,7 +18,7 @@
 # - isMultiple defaults to false
 #
 # - possible fieldTypes are:
-#   boolean, code, collection_path, color, date, date_time, entity, geo_point, html, ip, json, keyword, number, tag, textarea, text
+#   boolean, code, collection_path, color, date, date_time, duration, entity, geo_point, html, ip, json, keyword, number, size, tag, textarea, text
 
 exiftoolVersion:
     documentation:
