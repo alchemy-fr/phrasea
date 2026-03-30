@@ -2,11 +2,18 @@ import {useCallback, useContext, useMemo, useRef} from 'react';
 import {PlayerProps} from './index.ts';
 import {useWavesurfer} from '@wavesurfer/react';
 import Timeline from 'wavesurfer.js/dist/plugins/timeline.esm.js';
+import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.esm.js';
 import {DisplayContext} from '../../DisplayContext.tsx';
 import IconButton from '@mui/material/IconButton';
 import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import {Box, lighten, useTheme} from '@mui/material';
+import {
+    Box,
+    CircularProgress,
+    lighten,
+    Skeleton,
+    useTheme,
+} from '@mui/material';
 import {createStrictDimensions} from '@alchemy/core';
 import useVisibility, {
     IsVisibleCallback,
@@ -37,19 +44,33 @@ export default function AudioPlayer({
     );
     const theme = useTheme();
 
-    const {wavesurfer, isPlaying, currentTime, isReady} = useWavesurfer({
+    const width = dimensions.width;
+    const height = Math.min(dimensions.height, 256) * 0.4;
+
+    const {wavesurfer, currentTime, isReady} = useWavesurfer({
         container: containerRef,
-        height: Math.min(dimensions.height, 256) * 0.4,
-        width: dimensions.width,
+        height,
+        width,
         waveColor: lighten(theme.palette.primary.main, 0.5),
         progressColor: theme.palette.primary.main,
         url: file.url,
         interact: controls,
         plugins: useMemo(
-            () => (controls ? [Timeline.create()] : []),
+            () =>
+                controls
+                    ? [
+                          Timeline.create(),
+                          ZoomPlugin.create({
+                              scale: 0.5,
+                              maxZoom: 100,
+                          }),
+                      ]
+                    : [],
             [controls]
         ),
     });
+
+    const isPlaying = wavesurfer?.isPlaying();
 
     const onPlayPause = useCallback(() => {
         wavesurfer && wavesurfer.playPause();
@@ -82,8 +103,19 @@ export default function AudioPlayer({
                 [assetClasses.audioPlayerPlaying]: isPlaying,
             })}
         >
-            <div ref={containerRef} />
-            {wavesurfer && controls && (
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width,
+                    height,
+                }}
+            >
+                <div ref={containerRef} />
+                {!isReady && <CircularProgress size={height * 0.5} />}
+            </div>
+            {controls && (
                 <Box
                     sx={{
                         display: 'flex',
@@ -95,7 +127,7 @@ export default function AudioPlayer({
                         px: 2,
                     }}
                 >
-                    <IconButton onClick={onPlayPause} disabled={!isReady}>
+                    <IconButton onClick={onPlayPause} disabled={!wavesurfer}>
                         {isPlaying ? (
                             <PauseIcon fontSize={'large'} />
                         ) : (
@@ -107,8 +139,14 @@ export default function AudioPlayer({
                             fontSize: '"Courier New", Courier, monospace',
                         }}
                     >
-                        {formatDuration(currentTime)} /{' '}
-                        {formatDuration(wavesurfer.getDuration())}
+                        {wavesurfer && isReady ? (
+                            <>
+                                {formatDuration(currentTime)} /{' '}
+                                {formatDuration(wavesurfer.getDuration())}
+                            </>
+                        ) : (
+                            <Skeleton width={75} />
+                        )}
                     </div>
                 </Box>
             )}
