@@ -1,4 +1,4 @@
-import {Accept} from 'react-dropzone';
+import type {Accept} from 'react-dropzone';
 
 export type AnalyticsConfig = {
     matomo?: {
@@ -13,7 +13,7 @@ export type UploadConfig = {
     maxChunkSize?: Readonly<number>;
     maxPartNumber?: Readonly<number>;
     allowedTypes: Readonly<Accept | undefined>;
-    maxFileSize: Readonly<number>;
+    maxFileSize?: Readonly<number>;
 };
 
 export interface WindowConfigBase {

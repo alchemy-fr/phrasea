@@ -146,9 +146,9 @@ export default function SettingDropdown({
                             }}
                         />
                     ) : null,
-                    <Box
-                    sx={{p: 1}}
-                    ><DarkModeSwitch/></Box>,
+                    <Box key={'dark_mode'} sx={{p: 1}}>
+                        <DarkModeSwitch />
+                    </Box>,
                 ]}
             </DropdownActions>
         </>

@@ -1,18 +1,17 @@
 import {MouseEvent, useContext, useEffect, useRef, useState} from 'react';
-import {createStrictDimensions} from '@alchemy/core';
-import {PlayerProps} from './index.ts';
-import ReactPlayer from 'react-player/lazy';
-import {IconButton, LinearProgress, SxProps} from '@mui/material';
-import {DisplayContext} from '../../DisplayContext';
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
-import PauseIcon from '@mui/icons-material/Pause';
 import {
+    createStrictDimensions,
     FileTypeEnum,
     getFileTypeFromMIMEType,
     getRatioDimensions,
     getSizeCase,
 } from '@alchemy/core';
-import {Theme} from '@mui/material';
+import {PlayerProps} from './index.ts';
+import ReactPlayer from 'react-player/lazy';
+import {IconButton, LinearProgress, SxProps, Theme} from '@mui/material';
+import {DisplayContext} from '../../DisplayContext';
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import PauseIcon from '@mui/icons-material/Pause';
 import assetClasses from '../../../AssetList/classes.ts';
 import classNames from 'classnames';
 import {useMatomo} from '@alchemy/phrasea-framework';
@@ -29,7 +28,8 @@ function stopPropagationIfNoCtrl(e: MouseEvent) {
 }
 
 type Props = {
-    autoPlayable: boolean;
+    autoPlayable?: boolean;
+    autoPlay?: boolean;
     controls?: boolean | undefined;
 } & PlayerProps;
 
@@ -39,23 +39,25 @@ export default function VideoPlayer({
     trackingId,
     onLoad,
     autoPlayable,
+    autoPlay: initAutoPlay,
     noInteraction,
     controls,
     dimensions: forcedDimensions,
 }: Props) {
+    const ref = useRef<HTMLDivElement | null>(null);
     const [progress, setProgress] = useState<Progress>();
     const [duration, setDuration] = useState<number>();
     const displayContext = useContext(DisplayContext);
+    const d = displayContext?.state;
     const [play, setPlay] = useState(false);
     const [ratio, setRatio] = useState<number>();
     const type = getFileTypeFromMIMEType(file.type);
     const isAudio = type === FileTypeEnum.Audio;
-    const d = displayContext?.state;
     const dimensions = createStrictDimensions(
         forcedDimensions ?? {width: d?.thumbSize ?? 200}
     );
     const videoDimensions = getRatioDimensions(dimensions, ratio);
-    const autoPlay = autoPlayable && d?.playVideos;
+    const autoPlay = initAutoPlay ?? Boolean(autoPlayable && d?.playVideos);
     const playerRef = useRef<ReactPlayer | null>(null);
 
     const {pushInstruction} = useMatomo();
@@ -94,8 +96,38 @@ export default function VideoPlayer({
         }
     }, [playerRef]);
 
+    useEffect(() => {
+        if (autoPlay && ref.current) {
+            const options = {
+                root: document.documentElement,
+            };
+
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    const internalPlayer =
+                        playerRef.current?.getInternalPlayer();
+                    if (!internalPlayer) {
+                        return false;
+                    }
+                    if (entry.intersectionRatio > 0) {
+                        internalPlayer.play();
+                    } else {
+                        internalPlayer.pause();
+                    }
+                });
+            }, options);
+
+            observer.observe(ref.current!);
+
+            return () => {
+                observer.disconnect();
+            };
+        }
+    }, [ref.current, autoPlay]);
+
     return (
         <div
+            ref={ref}
             className={classNames({
                 [assetClasses.videoPlayer]: true,
                 [assetClasses.videoPlayerIsAudio]: isAudio,
@@ -148,7 +180,6 @@ export default function VideoPlayer({
                     });
                 }}
                 progressInterval={duration ? (duration < 60 ? 100 : 1000) : 5}
-                muted={autoPlay}
                 controls={hasControls}
             />
             {!hasControls && progress && (

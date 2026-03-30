@@ -122,6 +122,7 @@ function AssetThumb({
                         <FilePlayer
                             file={animatedThumbnail.file}
                             title={resolvedTitle}
+                            autoPlay={true}
                             autoPlayable={true}
                             controls={false}
                             noInteraction={true}

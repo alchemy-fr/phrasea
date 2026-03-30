@@ -30,7 +30,7 @@ export default function PendingUploads({}: Props) {
                 (acc, u) => acc + u.file.size * u.progress * 100,
                 0
             ) /
-            total /
+            (total || 1) /
             100;
         const errored = uploads.some(u => u.error);
 

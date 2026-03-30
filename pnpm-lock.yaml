@@ -252,6 +252,9 @@ importers:
       '@toast-ui/react-image-editor':
         specifier: ^3.15.2
         version: 3.15.2(encoding@0.1.13)(react@18.3.1)
+      '@wavesurfer/react':
+        specifier: ^1.0.12
+        version: 1.0.12(react@18.3.1)(wavesurfer.js@7.12.5)
       ace-builds:
         specifier: ^1.43.3
         version: 1.43.3
@@ -390,6 +393,9 @@ importers:
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
+      wavesurfer.js:
+        specifier: ^7.12.5
+        version: 7.12.5
       web-vitals:
         specifier: ^2.1.4
         version: 2.1.4
@@ -5194,6 +5200,12 @@ packages:
 
   '@vue/shared@3.5.22':
     resolution: {integrity: sha512-F4yc6palwq3TT0u+FYf0Ns4Tfl9GRFURDN2gWG7L1ecIaS/4fCIuFOjMTnCyjsu/OK6vaDKLCrGAa+KvvH+h4w==}
+
+  '@wavesurfer/react@1.0.12':
+    resolution: {integrity: sha512-BNHpz2ryKNVvJdxB47pCPUsNCsjb2pZRysg82M5djIiw0vsiSJwdlt5jaAfDo3vd5IWrcoK9OiPQKO9ZEVNpDQ==}
+    peerDependencies:
+      react: ^18.2.0 || ^19.0.0
+      wavesurfer.js: '>=7.7.14'
 
   '@webassemblyjs/ast@1.14.1':
     resolution: {integrity: sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==}
@@ -12092,6 +12104,9 @@ packages:
     resolution: {integrity: sha512-c5EGNOiyxxV5qmTtAB7rbiXxi1ooX1pQKMLX/MIabJjRA0SJBQOjKF+KSVfHkr9U1cADPon0mRiVe/riyaiDUA==}
     engines: {node: '>=10.13.0'}
 
+  wavesurfer.js@7.12.5:
+    resolution: {integrity: sha512-MSZcA13R9ZlxgYpzfakaSYf8dz5tCdZKYbjtN1qnKbCi+UoyfaTuhvjlXHrITi/fgeO3qWfsH7U3BP1AKnwRNg==}
+
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
 
@@ -17121,6 +17136,11 @@ snapshots:
       typescript: 5.9.2
 
   '@vue/shared@3.5.22': {}
+
+  '@wavesurfer/react@1.0.12(react@18.3.1)(wavesurfer.js@7.12.5)':
+    dependencies:
+      react: 18.3.1
+      wavesurfer.js: 7.12.5
 
   '@webassemblyjs/ast@1.14.1':
     dependencies:
@@ -25408,6 +25428,8 @@ snapshots:
     dependencies:
       glob-to-regexp: 0.4.1
       graceful-fs: 4.2.11
+
+  wavesurfer.js@7.12.5: {}
 
   wcwidth@1.0.1:
     dependencies:
