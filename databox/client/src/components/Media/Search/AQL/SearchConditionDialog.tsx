@@ -80,6 +80,7 @@ export default function SearchConditionDialog({
                 );
             }
         } catch (e) {
+            // eslint-disable-next-line no-console
             console.log('error', e);
         }
     }, [textQueryMode]);
@@ -102,6 +103,7 @@ export default function SearchConditionDialog({
 
             return true;
         } catch (e: any) {
+            // eslint-disable-next-line no-console
             console.trace(e);
             const error = e.message;
             setError(

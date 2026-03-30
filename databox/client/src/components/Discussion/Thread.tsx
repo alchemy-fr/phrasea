@@ -103,7 +103,7 @@ export default function Thread({
     React.useEffect(() => {
         setMessages(undefined);
         if (threadId) {
-            getThreadMessages(threadId).then(res => {
+            getThreadMessages({threadId}).then(res => {
                 setMessages(res);
             });
         }

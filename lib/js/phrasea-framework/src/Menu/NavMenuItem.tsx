@@ -11,13 +11,23 @@ export default function NavMenuItem({
     route,
     routeParams,
     location,
+    href,
+    target,
     sx,
     ...buttonProps
 }: Props) {
+
     return (
         <MenuItem
-            component={Link}
-            to={route ? getPath(route, routeParams) : undefined}
+            {...(route
+                ? {
+                      component: Link,
+                      to: getPath(route, routeParams),
+                  }
+                : {
+                      href,
+                      target,
+                  })}
             sx={
                 location &&
                 route &&

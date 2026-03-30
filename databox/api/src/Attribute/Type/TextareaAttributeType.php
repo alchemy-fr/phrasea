@@ -6,10 +6,7 @@ namespace App\Attribute\Type;
 
 class TextareaAttributeType extends TextAttributeType
 {
-    public static function getName(): string
-    {
-        return 'textarea';
-    }
+    public const string NAME = 'textarea';
 
     public function supportsAggregation(): bool
     {

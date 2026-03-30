@@ -5,7 +5,10 @@ import React from 'react';
 import {AppMenuProps} from './types';
 import {resolveSx} from '../../../core';
 
-type Props = AppMenuProps;
+type Props = {
+    sticky?: boolean;
+    contentEditable?: boolean;
+} & AppMenuProps;
 
 export default function HorizontalAppMenu({
     children,
@@ -13,14 +16,38 @@ export default function HorizontalAppMenu({
     logoProps,
     commonMenuProps,
     sx,
+    sticky,
+    contentEditable,
 }: Props) {
     return (
         <Box
+            contentEditable={contentEditable}
             sx={theme => ({
                 display: 'flex',
                 alignItems: 'center',
                 flexDirection: 'row',
                 py: 2,
+                ...(sticky
+                    ? {
+                          'position': 'sticky',
+                          'top': 0,
+                          'zIndex': theme.zIndex.appBar,
+                          '&::after': {
+                              content: '""',
+                              position: 'absolute',
+                              zIndex: -1,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              top: 0,
+                              backdropFilter: 'blur(10px)',
+                              backgroundColor:
+                                  theme.palette.mode === 'light'
+                                      ? 'rgba(255, 255, 255, 0.5)'
+                                      : 'rgba(0, 0, 0, 0.5)',
+                          },
+                      }
+                    : {}),
                 ...resolveSx(sx, theme),
             })}
         >
@@ -30,7 +57,9 @@ export default function HorizontalAppMenu({
                         flexGrow: 1,
                     }}
                 >
-                    {logoProps ? <AppLogo config={config} {...logoProps} /> : null}
+                    {logoProps ? (
+                        <AppLogo config={config} {...logoProps} />
+                    ) : null}
                 </div>
             )}
             <div>

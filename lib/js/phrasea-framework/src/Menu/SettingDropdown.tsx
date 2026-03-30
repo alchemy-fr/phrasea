@@ -26,8 +26,11 @@ export default function SettingDropdown({
     const {t, i18n} = useTranslation();
     const {openModal} = useModals();
 
-    const currentLocale =  getBestLocale(appLocales ?? [], i18n.language ? [i18n.language] : [])! ??
-        defaultLocale;
+    const currentLocale =
+        getBestLocale(
+            appLocales ?? [],
+            i18n.language ? [i18n.language] : []
+        )! ?? defaultLocale;
 
     return (
         <>

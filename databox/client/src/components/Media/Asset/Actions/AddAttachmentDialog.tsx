@@ -15,7 +15,7 @@ import {
     postAsset,
     uploadAsset,
 } from '../../../../api/asset.ts';
-import {Entity} from '../../../../api/types.ts';
+import {EntityName} from '../../../../api/types.ts';
 
 type Props = {
     asset: Asset;
@@ -42,7 +42,7 @@ export default function AddAttachmentDialog({
         setUploading(true);
         try {
             const res = await (async () => {
-                const workspaceIri = `/${Entity.Workspace}/${asset.workspace.id}`;
+                const workspaceIri = `/${EntityName.Workspace}/${asset.workspace.id}`;
                 const attachment = uploadForm.file
                     ? await uploadAsset({
                           file: uploadForm.file,

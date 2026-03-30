@@ -10,7 +10,6 @@ import {useModals} from '@alchemy/navigation';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
 import {LocaleIcon} from './LocaleIcon.tsx';
-import ConfirmDialog from '../Dialog/ConfirmDialog.tsx';
 import {LocaleDialogProps} from './types';
 
 export default function LocaleDialog({
@@ -19,24 +18,7 @@ export default function LocaleDialog({
     modalIndex,
 }: LocaleDialogProps) {
     const {t, i18n} = useTranslation();
-    const {closeModal, openModal} = useModals();
-
-    const confirmReload = (callback: () => Promise<void>) => {
-        openModal(ConfirmDialog, {
-            title: t(
-                'framework.locale.switcher.change_data_locale.modal.title',
-                'Page will be reloaded'
-            ),
-            onConfirm: async () => {
-                await callback();
-                window.location.reload();
-            },
-            confirmLabel: t(
-                'framework.locale.switcher.change_data_locale.modal.confirm',
-                'Continue'
-            ),
-        });
-    };
+    const {closeModal} = useModals();
 
     const changeLocale = (locale: string | undefined) => {
         i18n.changeLanguage(locale);

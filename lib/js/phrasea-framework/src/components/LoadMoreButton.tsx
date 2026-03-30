@@ -1,4 +1,3 @@
-import React from 'react';
 import {NormalizedCollectionResponse} from '@alchemy/api';
 import {LoadMoreRow} from '@alchemy/phrasea-ui';
 

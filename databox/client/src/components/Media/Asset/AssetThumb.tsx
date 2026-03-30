@@ -185,8 +185,6 @@ export const thumbSx = (
     theme: Theme,
     overridden: SxProps = {}
 ) => {
-    const greyBg = theme.palette.grey[200];
-
     return {
         [`.${assetClasses.thumbWrapper}`]: {
             'display': 'flex',
@@ -194,7 +192,7 @@ export const thumbSx = (
             'alignItems': 'center',
             'position': 'relative',
             'justifyContent': 'center',
-            'backgroundColor': greyBg,
+            'backgroundColor': theme.palette.divider,
             'img': {
                 maxWidth: '100%',
                 maxHeight: '100%',

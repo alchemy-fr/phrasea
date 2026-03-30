@@ -10,10 +10,7 @@ import ReactPlayer from 'react-player';
 import {IconButton, LinearProgress} from '@mui/material';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseIcon from '@mui/icons-material/Pause';
-import {
-    FileTypeEnum,
-    getFileTypeFromMIMEType,
-} from '@alchemy/core';
+import {FileTypeEnum, getFileTypeFromMIMEType} from '@alchemy/core';
 import classNames from 'classnames';
 import {FilePlayerClasses, FilePlayerProps} from '../types';
 

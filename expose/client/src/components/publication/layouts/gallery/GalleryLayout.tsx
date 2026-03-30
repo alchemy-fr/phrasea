@@ -93,7 +93,6 @@ export default function GalleryLayout({publication, assetId}: Props) {
                     <FilePlayer
                         file={{
                             id: asset.id,
-                            name: asset.title ?? 'Asset',
                             type: asset.mimeType,
                             url: asset.previewUrl,
                         }}

@@ -67,7 +67,7 @@ export const useAttributeListStore = create<State>((set, getState) => ({
         });
 
         try {
-            const data = await getAttributeLists(undefined, params);
+            const data = await getAttributeLists(params);
 
             set({
                 lists: data.result,
@@ -203,7 +203,7 @@ export const useAttributeListStore = create<State>((set, getState) => ({
 
         set({loadingMore: true});
         try {
-            const data = await getAttributeLists(nextUrl);
+            const data = await getAttributeLists({nextUrl});
 
             set(state => ({
                 lists: state.lists.concat(data.result),

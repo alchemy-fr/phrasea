@@ -52,22 +52,24 @@ export async function getAttributePolicies(
     return getHydraCollection<AttributePolicy>(res.data);
 }
 
-export async function getAttributeFieldTypes(): Promise<FieldType[]> {
-    const res = await apiClient.get(`/field-types`);
-
-    return res.data['hydra:member'];
+export async function getAttributeFieldTypes(): Promise<
+    NormalizedCollectionResponse<FieldType>
+> {
+    return getHydraCollection((await apiClient.get(`/field-types`)).data);
 }
 
 export async function getWorkspaceAttributePolicies(
     workspaceId: string
-): Promise<AttributePolicy[]> {
-    const res = await apiClient.get(attributePolicyNS, {
-        params: {
-            workspaceId,
-        },
-    });
-
-    return res.data['hydra:member'];
+): Promise<NormalizedCollectionResponse<AttributePolicy>> {
+    return getHydraCollection(
+        (
+            await apiClient.get(attributePolicyNS, {
+                params: {
+                    workspaceId,
+                },
+            })
+        ).data
+    );
 }
 
 export async function getWorkspaceAttributeDefinitions({
@@ -76,7 +78,7 @@ export async function getWorkspaceAttributeDefinitions({
 }: {
     workspaceId: string;
     target: AssetTypeFilter;
-}): Promise<AttributeDefinition[]> {
+}): Promise<NormalizedCollectionResponse<AttributeDefinition>> {
     const res = await apiClient.get(attributeDefinitionNS, {
         params: {
             workspaceId,
@@ -85,11 +87,11 @@ export async function getWorkspaceAttributeDefinitions({
         },
     });
 
-    return res.data['hydra:member'];
+    return getHydraCollection<AttributeDefinition>(res.data);
 }
 
 export async function getAttributeDefinitions(): Promise<
-    AttributeDefinition[]
+    NormalizedCollectionResponse<AttributeDefinition>
 > {
     const res = await apiClient.get(attributeDefinitionNS, {
         params: {
@@ -97,7 +99,7 @@ export async function getAttributeDefinitions(): Promise<
         },
     });
 
-    return res.data['hydra:member'];
+    return getHydraCollection<AttributeDefinition>(res.data);
 }
 
 export async function deleteAttributeDefinition(id: string): Promise<void> {

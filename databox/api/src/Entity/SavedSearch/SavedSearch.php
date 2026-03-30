@@ -29,28 +29,21 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'saved-search',
     operations: [
-        new GetCollection(),
-        new Get(
+        new GetCollection(
             normalizationContext: [
-                'groups' => [self::GROUP_READ],
-            ]
-        ),
+                'groups' => [self::GROUP_LIST],
+            ]),
+        new Get(),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new Put(
-            normalizationContext: [
-                'groups' => [self::GROUP_READ],
-            ],
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
         ),
         new Post(
-            normalizationContext: [
-                'groups' => [self::GROUP_READ],
-            ],
             securityPostValidation: 'is_granted("'.AbstractVoter::CREATE.'", object)'
         ),
     ],
     normalizationContext: [
-        'groups' => [self::GROUP_LIST],
+        'groups' => [self::GROUP_LIST, self::GROUP_READ],
     ],
     input: SavedSearchInput::class,
     output: SavedSearchOutput::class,

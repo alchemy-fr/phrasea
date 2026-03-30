@@ -8,11 +8,6 @@ class DateAttributeType extends DateTimeAttributeType
 {
     public const string NAME = 'date';
 
-    public static function getName(): string
-    {
-        return self::NAME;
-    }
-
     public function getGroupValueLabel($value): ?string
     {
         if ($value instanceof \DateTimeInterface) {

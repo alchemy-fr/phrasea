@@ -14,5 +14,5 @@ export function getLocalizedValue(
         return entity.value;
     }
 
-    return entity.translations[locale] ?? entity.value;
+    return entity.translations?.[locale] ?? entity.value;
 }

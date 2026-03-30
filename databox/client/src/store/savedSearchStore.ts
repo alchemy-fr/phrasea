@@ -40,7 +40,7 @@ export const useSavedSearchStore = create<State>((set, getState) => ({
         });
 
         try {
-            const data = await getSavedSearches(undefined, params);
+            const data = await getSavedSearches(params);
 
             set({
                 searches: data.result,
@@ -82,7 +82,7 @@ export const useSavedSearchStore = create<State>((set, getState) => ({
 
         set({loadingMore: true});
         try {
-            const data = await getSavedSearches(nextUrl);
+            const data = await getSavedSearches({nextUrl});
 
             set(state => ({
                 searches: state.searches.concat(data.result),

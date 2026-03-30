@@ -106,7 +106,6 @@ export default function EmbeddedAsset({id}: Props) {
                     <FilePlayer
                         file={{
                             id: data.id,
-                            name: data.title ?? 'Asset',
                             type: data.mimeType,
                             url: data.previewUrl,
                         }}

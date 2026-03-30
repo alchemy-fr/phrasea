@@ -67,6 +67,7 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
                 setError(undefined);
             }
         } catch (e: any) {
+            // eslint-disable-next-line no-console
             console.error('e', e);
             if (e.response && typeof e.response.data === 'object') {
                 const data = e.response.data;

@@ -17,6 +17,7 @@ export default function AuthorizationCodePage(props: Props) {
 
     React.useEffect(() => {
         if (error) {
+            // eslint-disable-next-line no-console
             console.error(error);
             toast.warn(error.toString());
         }

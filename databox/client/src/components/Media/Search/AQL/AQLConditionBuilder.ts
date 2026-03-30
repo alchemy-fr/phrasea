@@ -89,7 +89,9 @@ export class AQLConditionBuilder {
             } else if (hasProp<AQLCondition>(query.expression, 'leftOperand')) {
                 conditions = [query.expression];
             } else {
+                // eslint-disable-next-line no-console
                 console.debug('expression', query.expression);
+
                 throw new Error(`Unsupported expression`);
             }
             const condition = conditions[0];
