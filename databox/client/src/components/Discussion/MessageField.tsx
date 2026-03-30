@@ -107,7 +107,8 @@ export default function MessageField({
                             style={{
                                 '&multiLine': {
                                     control: {
-                                        backgroundColor: '#fff',
+                                        backgroundColor:
+                                            theme.palette.background.default,
                                         fontSize:
                                             theme.typography.body1.fontSize,
                                         fontFamily:

@@ -1,6 +1,7 @@
 import {ReactNode} from 'react';
 import {Dimensions} from '@alchemy/core';
 import {Box, Card, CardContent, CardMedia, Typography} from '@mui/material';
+import {getMediaBackgroundColor} from '../../../uiVars.ts';
 
 type Props = {
     title: ReactNode;
@@ -31,7 +32,7 @@ export function RenditionStructure({
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    backgroundColor: theme.palette.grey['100'],
+                    ...getMediaBackgroundColor(theme),
                 })}
             >
                 {media ? media : ''}

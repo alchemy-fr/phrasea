@@ -1,6 +1,6 @@
 import {useModals} from '@alchemy/navigation';
 import {DashboardMenu, DropdownActions} from '@alchemy/phrasea-ui';
-import {ListItemIcon, ListItemText, MenuItem} from '@mui/material';
+import {Box, ListItemIcon, ListItemText, MenuItem} from '@mui/material';
 import {SettingDropdownProps} from './types';
 import {LocaleIcon} from '../Locale/LocaleIcon';
 import {useTranslation} from 'react-i18next';
@@ -11,6 +11,7 @@ import ThemeEditorContext from '../Theme/ThemeEditor/ThemeEditorContext';
 import {rootDefaultLocale} from '@alchemy/i18n';
 import ThemeEditor from '../Theme/ThemeEditor/ThemeEditor';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
+import DarkModeSwitch from '../Theme/ThemeEditor/DarkModeSwitch';
 
 export default function SettingDropdown({
     mainButton,
@@ -145,6 +146,9 @@ export default function SettingDropdown({
                             }}
                         />
                     ) : null,
+                    <Box
+                    sx={{p: 1}}
+                    ><DarkModeSwitch/></Box>,
                 ]}
             </DropdownActions>
         </>

@@ -22,7 +22,7 @@ export function createSelectStyles<
         }),
         control: (provided, state) => ({
             ...provided,
-            background: '#fff',
+            background: 'transparent',
             borderColor: error
                 ? theme.palette.error.main
                 : state.isFocused
@@ -36,6 +36,11 @@ export function createSelectStyles<
             ...provided,
             height: !state.isMulti ? inputHeight : undefined,
             padding: '0 12px',
+        }),
+
+        menu: (base) => ({
+            ...base,
+            backgroundColor: theme.palette.background.paper,
         }),
 
         option: (base, {isDisabled, isFocused, isSelected}) => ({

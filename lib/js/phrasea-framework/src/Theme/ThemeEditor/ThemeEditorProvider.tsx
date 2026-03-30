@@ -1,6 +1,12 @@
 import React, {PropsWithChildren} from 'react';
 import ThemeEditorContext from './ThemeEditorContext';
-import {createTheme, Theme, ThemeOptions, ThemeProvider} from '@mui/material';
+import {
+    createTheme,
+    Theme,
+    ThemeOptions,
+    ThemeProvider,
+    useColorScheme,
+} from '@mui/material';
 import {mergeDeep} from '@alchemy/core';
 
 import {TThemeEditorContext} from '../types';
@@ -15,6 +21,7 @@ export default function ThemeEditorProvider({
     transformTheme,
     children,
 }: Props) {
+    const {mode, setMode} = useColorScheme();
     const [themeOptions, setThemeOptions] = React.useState<ThemeOptions>({});
 
     const value = React.useMemo<TThemeEditorContext>(() => {

@@ -276,8 +276,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                             maxWidth:
                                                 dimensions.width +
                                                 scrollbarWidth,
-                                            backgroundColor:
-                                                getMediaBackgroundColor(theme),
+                                            ...getMediaBackgroundColor(theme),
                                         })}
                                     >
                                         {Boolean(displayedRenditionFile) &&

@@ -89,6 +89,11 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                         },
                         'background':
                             'linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%)',
+
+                        ...theme.applyStyles('dark', {
+                            background:
+                                'linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%)',
+                        }),
                     },
                     '&:hover, &.selected': {
                         [`.${assetClasses.controls}`]: {
