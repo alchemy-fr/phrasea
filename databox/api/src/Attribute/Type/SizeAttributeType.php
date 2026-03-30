@@ -6,8 +6,5 @@ namespace App\Attribute\Type;
 
 class SizeAttributeType extends NumberAttributeType
 {
-    public static function getName(): string
-    {
-        return 'size';
-    }
+    public const string NAME = 'size';
 }

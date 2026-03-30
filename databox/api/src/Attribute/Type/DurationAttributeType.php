@@ -6,8 +6,5 @@ namespace App\Attribute\Type;
 
 class DurationAttributeType extends NumberAttributeType
 {
-    public static function getName(): string
-    {
-        return 'duration';
-    }
+    public const string NAME = 'duration';
 }
