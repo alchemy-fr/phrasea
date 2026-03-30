@@ -37,7 +37,7 @@ type Props = {
     asset: Asset;
 } & StackedModalProps;
 
-export default function ShareAssetDialog({asset, open, modalIndex}: Props) {
+export default function ShareAssetDialog({asset, ...modalProps}: Props) {
     const {t} = useTranslation();
     const [checked, setChecked] = React.useState(false);
     const {closeModal} = useModals();
@@ -132,9 +132,8 @@ export default function ShareAssetDialog({asset, open, modalIndex}: Props) {
 
     return (
         <FormDialog
+            {...modalProps}
             maxWidth={advancedMode ? 'md' : 'sm'}
-            modalIndex={modalIndex}
-            open={open}
             title={t('share.dialog.title', 'Share Asset')}
             loading={loading}
             onSave={() => {

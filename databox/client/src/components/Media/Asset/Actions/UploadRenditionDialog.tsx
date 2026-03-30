@@ -22,8 +22,7 @@ export default function UploadRenditionDialog({
     asset,
     definitionId,
     renditionName,
-    open,
-    modalIndex,
+    ...modalProps
 }: Props) {
     const {t} = useTranslation();
     const [uploading, setUploading] = React.useState(false);
@@ -73,12 +72,11 @@ export default function UploadRenditionDialog({
 
     return (
         <FormDialog
-            modalIndex={modalIndex}
+            {...modalProps}
             title={t('upload_rendition.dialog.title', {
                 defaultValue: 'Upload Rendition {{renditionName}}',
                 renditionName,
             })}
-            open={open}
             loading={uploading}
             onSave={upload}
             submitIcon={<UploadIcon />}

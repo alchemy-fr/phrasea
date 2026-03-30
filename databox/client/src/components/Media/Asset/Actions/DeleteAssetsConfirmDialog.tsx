@@ -25,8 +25,7 @@ export default function DeleteAssetsConfirmDialog({
     assetIds,
     onDelete,
     hardDelete,
-    open,
-    modalIndex,
+    ...modalProps
 }: Props) {
     const {t} = useTranslation();
     const count = assetIds.length;
@@ -58,7 +57,7 @@ export default function DeleteAssetsConfirmDialog({
 
     if (collections.length === 0 && !data.canDelete) {
         return (
-            <AlertDialog modalIndex={modalIndex} open={open}>
+            <AlertDialog {...modalProps}>
                 {t(
                     'asset.delete.confirm.not_allowed',
                     `You don't have permission to delete any of these assets`
@@ -72,16 +71,15 @@ export default function DeleteAssetsConfirmDialog({
 
     return (
         <ConfirmDialog
+            {...modalProps}
             textToType={
                 hardDelete
                     ? t('asset.delete.confirm.text_to_type.delete', 'Delete')
                     : undefined
             }
-            modalIndex={modalIndex}
             title={t('asset.delete.confirm.title', 'Confirm delete')}
             onConfirm={onDeleteAssets}
             disabled={disabled}
-            open={open}
             confirmButtonProps={{
                 startIcon: <DeleteIcon />,
             }}

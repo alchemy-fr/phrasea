@@ -13,11 +13,7 @@ type Props = {
     onCreate?: (data: AttributeList) => void;
 } & StackedModalProps;
 
-export default function CreateAttributeList({
-    modalIndex,
-    open,
-    onCreate,
-}: Props) {
+export default function CreateAttributeList({onCreate, ...modalProps}: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
     const addAttributeList = useAttributeListStore(
@@ -46,12 +42,12 @@ export default function CreateAttributeList({
     });
 
     const {submitting, remoteErrors, forbidNavigation} = usedFormSubmit;
-    useDirtyFormPrompt(forbidNavigation, modalIndex);
+    useDirtyFormPrompt(forbidNavigation, modalProps.modalIndex);
     const formId = 'create-attr-list';
 
     return (
         <FormDialog
-            modalIndex={modalIndex}
+            {...modalProps}
             title={t(
                 'form.attributelist_create.title',
                 'Create Attribute List'
@@ -59,7 +55,6 @@ export default function CreateAttributeList({
             formId={formId}
             loading={submitting}
             errors={remoteErrors}
-            open={open}
         >
             <AttributeListForm
                 formId={formId}
