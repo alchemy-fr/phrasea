@@ -16,6 +16,7 @@
         "src/useEffectOnce.ts",
         "src/useTimeout.ts",
         "src/useUniqueId.ts",
+        "src/useVisibility.ts",
         "src/useWindowSize.ts",
         "src/useUpdateEffect.ts",
         "src/useMountEffect.ts",

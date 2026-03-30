@@ -1,8 +1,13 @@
-import {MouseEvent, useContext, useEffect, useRef, useState} from 'react';
+import {
+    MouseEvent,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 import {
     createStrictDimensions,
-    FileTypeEnum,
-    getFileTypeFromMIMEType,
     getRatioDimensions,
     getSizeCase,
 } from '@alchemy/core';
@@ -15,6 +20,8 @@ import PauseIcon from '@mui/icons-material/Pause';
 import assetClasses from '../../../AssetList/classes.ts';
 import classNames from 'classnames';
 import {useMatomo} from '@alchemy/phrasea-framework';
+import type {IsVisibleCallback} from '@alchemy/react-hooks/src/useVisibility.ts';
+import useVisibility from '@alchemy/react-hooks/src/useVisibility.ts';
 
 type Progress = {
     played: number;
@@ -44,15 +51,12 @@ export default function VideoPlayer({
     controls,
     dimensions: forcedDimensions,
 }: Props) {
-    const ref = useRef<HTMLDivElement | null>(null);
     const [progress, setProgress] = useState<Progress>();
     const [duration, setDuration] = useState<number>();
     const displayContext = useContext(DisplayContext);
     const d = displayContext?.state;
     const [play, setPlay] = useState(false);
     const [ratio, setRatio] = useState<number>();
-    const type = getFileTypeFromMIMEType(file.type);
-    const isAudio = type === FileTypeEnum.Audio;
     const dimensions = createStrictDimensions(
         forcedDimensions ?? {width: d?.thumbSize ?? 200}
     );
@@ -96,41 +100,31 @@ export default function VideoPlayer({
         }
     }, [playerRef]);
 
-    useEffect(() => {
-        if (autoPlay && ref.current) {
-            const options = {
-                root: document.documentElement,
-            };
+    const visibilityListener = useCallback<IsVisibleCallback>(
+        isVisible => {
+            const internalPlayer = playerRef.current?.getInternalPlayer();
+            if (!internalPlayer) {
+                return false;
+            }
+            if (isVisible) {
+                internalPlayer.play();
+            } else {
+                internalPlayer.pause();
+            }
+        },
+        [playerRef.current]
+    );
 
-            const observer = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    const internalPlayer =
-                        playerRef.current?.getInternalPlayer();
-                    if (!internalPlayer) {
-                        return false;
-                    }
-                    if (entry.intersectionRatio > 0) {
-                        internalPlayer.play();
-                    } else {
-                        internalPlayer.pause();
-                    }
-                });
-            }, options);
-
-            observer.observe(ref.current!);
-
-            return () => {
-                observer.disconnect();
-            };
-        }
-    }, [ref.current, autoPlay]);
+    const {elementRef} = useVisibility<HTMLDivElement>({
+        shouldTrack: autoPlay,
+        callback: visibilityListener,
+    });
 
     return (
         <div
-            ref={ref}
+            ref={elementRef}
             className={classNames({
                 [assetClasses.videoPlayer]: true,
-                [assetClasses.videoPlayerIsAudio]: isAudio,
                 [assetClasses.videoPlayerPlaying]: play,
             })}
             style={{
@@ -161,7 +155,7 @@ export default function VideoPlayer({
                 ref={playerRef}
                 url={file.url}
                 {...videoDimensions}
-                playing={play || (!isAudio && autoPlay)}
+                playing={play}
                 loop={true}
                 onReady={player => {
                     onLoad && onLoad();
@@ -210,7 +204,7 @@ export function videoPlayerSx(thumbSize: number, theme: Theme): SxProps {
             alignItems: 'center',
             minWidth: thumbSize,
             minHeight: thumbSize,
-            [`&.${assetClasses.videoPlayerIsAudio}`]: {
+            [`&.${assetClasses.audioPlayer}`]: {
                 backgroundColor: theme.palette.background.default,
             },
             [`.${assetClasses.videoPlayerActions}`]: {
