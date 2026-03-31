@@ -14,16 +14,22 @@ export default function AssetToggleOverlay({onAdd, onRemove, checked}: Props) {
         <>
             <Box
                 onMouseDown={stopPropagation}
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'space-around',
-                    alignItems: 'center',
-                    position: 'absolute',
-                    zIndex: 1,
-                    bottom: 0,
-                    width: '100%',
-                    background: `rgb(255,255,255,0.8)`,
-                }}
+                sx={[
+                    {
+                        display: 'flex',
+                        justifyContent: 'space-around',
+                        alignItems: 'center',
+                        position: 'absolute',
+                        zIndex: 1,
+                        bottom: 0,
+                        width: '100%',
+                        background: `rgb(0,0,0,0.8)`,
+                    },
+                    theme =>
+                        theme.applyStyles('dark', {
+                            background: `rgb(0,0,0,0.8)`,
+                        }),
+                ]}
             >
                 <IconButton
                     color={'primary'}

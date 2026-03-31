@@ -1,4 +1,4 @@
-import type {WindowConfigBase} from '@alchemy/core';
+import {UploadConfig, WindowConfigBase} from '@alchemy/core';
 
 declare global {
     interface WindowConfig extends WindowConfigBase {
@@ -6,7 +6,6 @@ declare global {
         disableIndexPage: Readonly<string>;
         globalCSS: Readonly<string | undefined>;
         zippyEnabled?: Readonly<boolean>;
-        maxFileSize: Readonly<number>;
         maxCommitSize: Readonly<number>;
         maxFileCount: Readonly<number>;
         client?: {
@@ -15,6 +14,6 @@ declare global {
                 margin?: Readonly<string>;
             };
         };
-        allowedTypes: Readonly<Accept | undefined>;
+        upload: UploadConfig;
     }
 }

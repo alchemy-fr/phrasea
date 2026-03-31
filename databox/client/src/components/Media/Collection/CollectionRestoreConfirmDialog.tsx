@@ -16,14 +16,13 @@ type Props = {
 export default function CollectionRestoreConfirmDialog({
     collection,
     onConfirm,
-    open,
-    modalIndex,
+    ...modalProps
 }: Props) {
     const {t} = useTranslation();
 
     return (
         <ConfirmDialog
-            modalIndex={modalIndex}
+            {...modalProps}
             title={t(
                 'collection.restore.confirm.title',
                 'Confirm restore collection'
@@ -38,7 +37,6 @@ export default function CollectionRestoreConfirmDialog({
                 );
                 onConfirm?.();
             }}
-            open={open}
             confirmButtonProps={{
                 startIcon: <RestoreFromTrashIcon />,
             }}

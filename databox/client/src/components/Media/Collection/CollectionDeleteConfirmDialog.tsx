@@ -16,14 +16,13 @@ type Props = {
 export default function CollectionDeleteConfirmDialog({
     collection,
     onConfirm,
-    open,
-    modalIndex,
+    ...modalProps
 }: Props) {
     const {t} = useTranslation();
 
     return (
         <ConfirmDialog
-            modalIndex={modalIndex}
+            {...modalProps}
             textToType={collection.title}
             title={
                 <Trans
@@ -45,7 +44,6 @@ export default function CollectionDeleteConfirmDialog({
                 );
                 onConfirm?.();
             }}
-            open={open}
             confirmButtonProps={{
                 startIcon: <DeleteIcon />,
             }}

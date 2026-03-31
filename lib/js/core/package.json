@@ -30,6 +30,7 @@
         "pusher-js": "^8.4.0",
         "@jonkoops/matomo-tracker-react": "^0.7.0",
         "@mui/material": "^6.5.0",
-        "@mui/system": "^6.5.0"
+        "@mui/system": "^6.5.0",
+        "react-dropzone": "^14.3.8"
     }
 }

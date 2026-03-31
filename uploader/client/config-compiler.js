@@ -44,7 +44,8 @@
         }
 
         if (value && typeof value === 'string') {
-            return parseInt(value);
+            const parsed = parseInt(value, 10);
+            return Number.isNaN(parsed) ? undefined : parsed;
         }
 
         return undefined;
@@ -66,7 +67,6 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
 
     return {
         customHTML,
-        maxFileSize: castInteger(uploaderConfig.max_upload_file_size),
         maxCommitSize: castInteger(uploaderConfig.max_upload_commit_size),
         maxFileCount: castInteger(uploaderConfig.max_upload_file_count),
         autoConnectIdP: env.AUTO_CONNECT_IDP,
@@ -78,10 +78,18 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
         devMode: castBoolean(env.DEV_MODE),
         displayServicesMenu: castBoolean(env.DISPLAY_SERVICES_MENU),
         dashboardBaseUrl: env.DASHBOARD_CLIENT_URL,
-        allowedTypes: normalizeTypes(env.ALLOWED_FILE_TYPES),
         appId: env.APP_ID || 'uploader',
         sentryDsn: env.SENTRY_DSN,
         sentryEnvironment: env.SENTRY_ENVIRONMENT,
         sentryRelease: env.SENTRY_RELEASE,
+        upload: {
+            minChunkSize: castInteger(env.S3_MULTIPART_MIN_CHUNK_SIZE),
+            maxChunkSize: castInteger(env.S3_MULTIPART_MAX_CHUNK_SIZE),
+            maxPartNumber: castInteger(env.S3_MULTIPART_MAX_PART_NUMBER),
+            maxFileSize:
+                castInteger(uploaderConfig.max_upload_file_size) ??
+                castInteger(env.S3_MAX_OBJECT_SIZE),
+            allowedTypes: normalizeTypes(env.ALLOWED_FILE_TYPES),
+        },
     };
 });

@@ -13,7 +13,7 @@ type Props = {
     onCreate?: (data: Basket) => void;
 } & StackedModalProps;
 
-export default function CreateBasket({modalIndex, open, onCreate}: Props) {
+export default function CreateBasket({onCreate, ...modalProps}: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
     const addBasket = useBasketStore(state => state.addBasket);
@@ -37,17 +37,16 @@ export default function CreateBasket({modalIndex, open, onCreate}: Props) {
     });
 
     const {submitting, remoteErrors, forbidNavigation} = usedFormSubmit;
-    useDirtyFormPrompt(forbidNavigation, modalIndex);
+    useDirtyFormPrompt(forbidNavigation, modalProps.modalIndex);
     const formId = 'create-basket';
 
     return (
         <FormDialog
-            modalIndex={modalIndex}
+            {...modalProps}
             title={t('form.basket_create.title', 'Create Basket')}
             formId={formId}
             loading={submitting}
             errors={remoteErrors}
-            open={open}
         >
             <BasketForm formId={formId} usedFormSubmit={usedFormSubmit} />
         </FormDialog>

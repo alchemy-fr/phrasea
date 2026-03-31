@@ -67,6 +67,9 @@ export default function PermissionTable({
                     'textAlign': 'center',
                     '&:nth-of-type(even)': {
                         backgroundColor: theme.palette.grey[100],
+                        ...theme.applyStyles('dark', {
+                            backgroundColor: theme.palette.grey[700],
+                        }),
                     },
                 },
                 'td': {

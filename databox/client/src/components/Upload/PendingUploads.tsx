@@ -24,10 +24,16 @@ export default function PendingUploads({}: Props) {
         }
 
         const pendingUploads = uploads.filter(u => u.progress < 1 && !u.error);
+        const total = uploads.reduce((acc, u) => acc + u.file.size, 0);
         const progress =
-            uploads.reduce((acc, u) => acc + u.progress * 100, 0) /
-            uploads.length /
+            uploads.reduce(
+                (acc, u) => acc + u.file.size * u.progress * 100,
+                0
+            ) /
+            (total || 1) /
             100;
+        const errored = uploads.some(u => u.error);
+
         const message = (
             <Trans
                 i18nKey={'upload.pending.toast.message'}
@@ -57,7 +63,7 @@ export default function PendingUploads({}: Props) {
             const isLoading = progress < 1;
             toast.update(toastId.current, {
                 progress: isLoading ? progress : undefined,
-                type: !isLoading ? 'success' : 'info',
+                type: errored ? 'error' : !isLoading ? 'success' : 'info',
                 isLoading,
                 autoClose: isLoading ? false : null,
                 closeButton: !isLoading,

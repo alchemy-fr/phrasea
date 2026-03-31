@@ -11,18 +11,17 @@ import {RemoteErrors} from '@alchemy/react-form';
 export default function ConfirmDialog<CO extends ConfirmOptions>({
     onCancel,
     onConfirm,
-    modalIndex,
     onConfirmed,
     title,
     maxWidth = 'sm',
     confirmLabel,
     disabled,
-    open,
     options = {} as CO,
     textToType,
     assertions,
     children,
     confirmButtonProps,
+    ...modalProps
 }: ConfirmDialogProps<CO>) {
     const {closeModal} = useModals();
     const [loading, setLoading] = useState(false);
@@ -71,7 +70,7 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
             if (false === r) {
                 return;
             }
-            closeModal(true);
+            closeModal({force: true});
             onConfirmed && onConfirmed();
         } catch (e: any) {
             if (e.isAxiosError) {
@@ -96,12 +95,13 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
 
     return (
         <AppDialog
+            {...modalProps}
             maxWidth={maxWidth}
-            onClose={onCancel ?? closeModal}
+            onClose={
+                onCancel ?? (() => closeModal({modalId: modalProps.modalId}))
+            }
             loading={loading}
             title={title}
-            open={open}
-            modalIndex={modalIndex}
             actions={({onClose}) => (
                 <>
                     <Button onClick={onClose} disabled={loading}>

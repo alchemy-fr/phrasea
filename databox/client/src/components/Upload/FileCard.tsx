@@ -13,11 +13,18 @@ type Props = {
     actions?: ReactNode;
     size?: number;
     progress?: number;
+    error?: string;
 };
 
 export type {Props as FileCardProps};
 
-export default function FileCard({file, progress, actions, size = 100}: Props) {
+export default function FileCard({
+    file,
+    progress,
+    error,
+    actions,
+    size = 100,
+}: Props) {
     return (
         <Paper
             sx={theme => ({
@@ -74,6 +81,11 @@ export default function FileCard({file, progress, actions, size = 100}: Props) {
                     >
                         {file.name}
                     </Typography>
+                    {error ? (
+                        <Typography color="error" variant="body2" gutterBottom>
+                            {error}
+                        </Typography>
+                    ) : null}
                     <Typography variant="body2" gutterBottom>
                         {byteSize(file.size).toString()} • {file.type}
                     </Typography>

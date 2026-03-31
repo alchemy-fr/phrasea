@@ -29,7 +29,7 @@ type IndexedDefinition = {
     };
 };
 
-export default function ExportAssetsDialog({assets, open, modalIndex}: Props) {
+export default function ExportAssetsDialog({assets, ...modalProps}: Props) {
     const {t} = useTranslation();
     const [definitions, setDefinitions] = useState<IndexedDefinition>();
     const [loading, setLoading] = useState(false);
@@ -97,7 +97,7 @@ export default function ExportAssetsDialog({assets, open, modalIndex}: Props) {
             closeModal();
         },
     });
-    useDirtyFormPrompt(forbidNavigation, modalIndex);
+    useDirtyFormPrompt(forbidNavigation, modalProps.modalIndex);
 
     const formId = 'export';
 
@@ -107,8 +107,7 @@ export default function ExportAssetsDialog({assets, open, modalIndex}: Props) {
 
     return (
         <FormDialog
-            modalIndex={modalIndex}
-            open={open}
+            {...modalProps}
             title={t('export.dialog.title', 'Export {{count}} assets', {
                 count,
             })}

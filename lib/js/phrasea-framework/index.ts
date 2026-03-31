@@ -34,12 +34,14 @@ import {useTracking} from './src/hooks/useTracking';
 import LoadMoreButton from './src/components/LoadMoreButton';
 import {lazyWithRetry} from './src/lazyWithRetry';
 import BetaChip from './src/Ui/BetaChip';
+import DarkModeSwitch from './src/Theme/ThemeEditor/DarkModeSwitch';
 
 export {
     AppProvider,
     BetaChip,
     initApp,
     createCachedThemeOptions,
+    DarkModeSwitch,
     themes,
     AppGlobalTheme,
     ThemeEditorProvider,

@@ -16,9 +16,8 @@ type Props = {
 
 export default function CreateShareDialog({
     asset,
-    open,
-    modalIndex,
     onSuccess,
+    ...modalProps
 }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
@@ -48,15 +47,14 @@ export default function CreateShareDialog({
             closeModal();
         },
     });
-    useFormPrompt(t, forbidNavigation, modalIndex);
+    useFormPrompt(t, forbidNavigation, modalProps.modalIndex);
 
     const formId = 'create-share-link';
 
     return (
         <FormDialog
+            {...modalProps}
             formId={formId}
-            modalIndex={modalIndex}
-            open={open}
             title={t('create_share_link.dialog.title', 'Create Share Link')}
             loading={submitting}
             submitLabel={t('create_share_link.dialog.submit', 'Create Link')}

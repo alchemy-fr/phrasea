@@ -23,8 +23,7 @@ type Props = {
 export default function SaveFileAsRenditionDialog({
     asset,
     file,
-    open,
-    modalIndex,
+    ...modalProps
 }: Props) {
     const {closeModal} = useModals();
     const {t} = useTranslation();
@@ -58,18 +57,17 @@ export default function SaveFileAsRenditionDialog({
             closeModal();
         },
     });
-    useFormPrompt(t, forbidNavigation, modalIndex);
+    useFormPrompt(t, forbidNavigation, modalProps.modalIndex);
 
     const formId = 'save-file-as-rendition';
 
     return (
         <FormDialog
+            {...modalProps}
             title={t(
                 'save_file_as_rendition_dialog.save_file_as_asset_rendition',
                 `Save file as asset rendition`
             )}
-            open={open}
-            modalIndex={modalIndex}
             loading={submitting}
             formId={formId}
             submitIcon={<FileCopyIcon />}

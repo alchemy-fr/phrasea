@@ -252,12 +252,15 @@ importers:
       '@toast-ui/react-image-editor':
         specifier: ^3.15.2
         version: 3.15.2(encoding@0.1.13)(react@18.3.1)
+      '@wavesurfer/react':
+        specifier: ^1.0.12
+        version: 1.0.12(react@18.3.1)(wavesurfer.js@7.12.5)
       ace-builds:
         specifier: ^1.43.3
         version: 1.43.3
       axios:
-        specifier: ^1.12.2
-        version: 1.12.2
+        specifier: ^1.13.5
+        version: 1.13.6
       byte-size:
         specifier: ^8.2.1
         version: 8.2.1
@@ -390,6 +393,9 @@ importers:
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
+      wavesurfer.js:
+        specifier: ^7.12.5
+        version: 7.12.5
       web-vitals:
         specifier: ^2.1.4
         version: 2.1.4
@@ -533,11 +539,11 @@ importers:
         specifier: ^0.10.9
         version: 0.10.9
       axios:
-        specifier: ^1.12.2
-        version: 1.12.2
+        specifier: ^1.13.5
+        version: 1.13.6
       axios-retry:
         specifier: ^4.5.0
-        version: 4.5.0(axios@1.12.2)
+        version: 4.5.0(axios@1.13.6)
       chokidar:
         specifier: ^3.6.0
         version: 3.6.0
@@ -657,8 +663,8 @@ importers:
         specifier: ^6.5.0
         version: 6.5.0(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
       axios:
-        specifier: ^1.12.2
-        version: 1.12.2
+        specifier: ^1.13.5
+        version: 1.13.6
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
@@ -736,11 +742,11 @@ importers:
         specifier: ^18.3.24
         version: 18.3.24
       axios:
-        specifier: ^1.12.2
-        version: 1.12.2
+        specifier: ^1.13.5
+        version: 1.13.6
       axios-retry:
         specifier: ^4.5.0
-        version: 4.5.0(axios@1.12.2)
+        version: 4.5.0(axios@1.13.6)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -785,11 +791,11 @@ importers:
         specifier: ^10.17.60
         version: 10.17.60
       axios:
-        specifier: ^1.12.2
-        version: 1.12.2
+        specifier: ^1.13.5
+        version: 1.13.6
       axios-mock-adapter:
         specifier: ^2.1.0
-        version: 2.1.0(axios@1.12.2)
+        version: 2.1.0(axios@1.13.6)
       jest:
         specifier: ^23.6.0
         version: 23.6.0
@@ -830,6 +836,9 @@ importers:
       pusher-js:
         specifier: ^8.4.0
         version: 8.4.0
+      react-dropzone:
+        specifier: ^14.3.8
+        version: 14.3.8(react@18.3.1)
 
   lib/js/i18n:
     dependencies:
@@ -988,8 +997,8 @@ importers:
         specifier: ^18.0.11
         version: 18.3.7(@types/react@18.3.24)
       axios:
-        specifier: ^1.12.2
-        version: 1.12.2
+        specifier: ^1.13.5
+        version: 1.13.6
 
   lib/js/phrasea-ui:
     dependencies:
@@ -1068,8 +1077,8 @@ importers:
         specifier: ^18.3.24
         version: 18.3.24
       axios:
-        specifier: ^1.12.2
-        version: 1.12.2
+        specifier: ^1.13.5
+        version: 1.13.6
       i18next-scanner-typescript:
         specifier: ^1.2.1
         version: 1.2.1(typescript@5.9.2)
@@ -1180,8 +1189,8 @@ importers:
         specifier: ^18.3.24
         version: 18.3.24
       axios:
-        specifier: ^1.12.2
-        version: 1.12.2
+        specifier: ^1.13.5
+        version: 1.13.6
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1346,8 +1355,8 @@ importers:
         specifier: ^1.43.3
         version: 1.43.3
       axios:
-        specifier: ^1.12.2
-        version: 1.12.2
+        specifier: ^1.13.5
+        version: 1.13.6
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
@@ -5192,6 +5201,12 @@ packages:
   '@vue/shared@3.5.22':
     resolution: {integrity: sha512-F4yc6palwq3TT0u+FYf0Ns4Tfl9GRFURDN2gWG7L1ecIaS/4fCIuFOjMTnCyjsu/OK6vaDKLCrGAa+KvvH+h4w==}
 
+  '@wavesurfer/react@1.0.12':
+    resolution: {integrity: sha512-BNHpz2ryKNVvJdxB47pCPUsNCsjb2pZRysg82M5djIiw0vsiSJwdlt5jaAfDo3vd5IWrcoK9OiPQKO9ZEVNpDQ==}
+    peerDependencies:
+      react: ^18.2.0 || ^19.0.0
+      wavesurfer.js: '>=7.7.14'
+
   '@webassemblyjs/ast@1.14.1':
     resolution: {integrity: sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==}
 
@@ -5741,8 +5756,8 @@ packages:
     peerDependencies:
       axios: 0.x || 1.x
 
-  axios@1.12.2:
-    resolution: {integrity: sha512-vMJzPewAlRyOgxV2dU0Cuz2O8zzzx9VYtbJOaBgXFeLc4IV/Eg50n4LowmehOOR61S8ZMpc2K5Sa7g6A4jfkUw==}
+  axios@1.13.6:
+    resolution: {integrity: sha512-ChTCHMouEe2kn713WHbQGcuYrr6fXTBiu460OTwWrWob16g1bXn4vtz07Ope7ewMozJAnEquLk5lWQWtBig9DQ==}
 
   b4a@1.7.3:
     resolution: {integrity: sha512-5Q2mfq2WfGuFp3uS//0s6baOJLMoVduPYVeNmDYxu5OUA1/cBfvr2RIS7vi62LdNj/urk1hfmj867I3qt6uZ7Q==}
@@ -7401,6 +7416,10 @@ packages:
 
   form-data@4.0.4:
     resolution: {integrity: sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==}
+    engines: {node: '>= 6'}
+
+  form-data@4.0.5:
+    resolution: {integrity: sha512-8RipRLol37bNs2bhoV67fiTEvdTrbMUYcFTiy3+wuuOnUog2QBHCZWXDRijWQfAkhBj2Uf5UnVaiWwA5vdd82w==}
     engines: {node: '>= 6'}
 
   formdata-polyfill@4.0.10:
@@ -12084,6 +12103,9 @@ packages:
   watchpack@2.4.4:
     resolution: {integrity: sha512-c5EGNOiyxxV5qmTtAB7rbiXxi1ooX1pQKMLX/MIabJjRA0SJBQOjKF+KSVfHkr9U1cADPon0mRiVe/riyaiDUA==}
     engines: {node: '>=10.13.0'}
+
+  wavesurfer.js@7.12.5:
+    resolution: {integrity: sha512-MSZcA13R9ZlxgYpzfakaSYf8dz5tCdZKYbjtN1qnKbCi+UoyfaTuhvjlXHrITi/fgeO3qWfsH7U3BP1AKnwRNg==}
 
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
@@ -17115,6 +17137,11 @@ snapshots:
 
   '@vue/shared@3.5.22': {}
 
+  '@wavesurfer/react@1.0.12(react@18.3.1)(wavesurfer.js@7.12.5)':
+    dependencies:
+      react: 18.3.1
+      wavesurfer.js: 7.12.5
+
   '@webassemblyjs/ast@1.14.1':
     dependencies:
       '@webassemblyjs/helper-numbers': 1.13.2
@@ -17683,21 +17710,21 @@ snapshots:
 
   aws4@1.13.2: {}
 
-  axios-mock-adapter@2.1.0(axios@1.12.2):
+  axios-mock-adapter@2.1.0(axios@1.13.6):
     dependencies:
-      axios: 1.12.2
+      axios: 1.13.6
       fast-deep-equal: 3.1.3
       is-buffer: 2.0.5
 
-  axios-retry@4.5.0(axios@1.12.2):
+  axios-retry@4.5.0(axios@1.13.6):
     dependencies:
-      axios: 1.12.2
+      axios: 1.13.6
       is-retry-allowed: 2.2.0
 
-  axios@1.12.2:
+  axios@1.13.6:
     dependencies:
       follow-redirects: 1.15.11
-      form-data: 4.0.4
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -19729,6 +19756,14 @@ snapshots:
       mime-types: 2.1.35
 
   form-data@4.0.4:
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      es-set-tostringtag: 2.1.0
+      hasown: 2.0.2
+      mime-types: 2.1.35
+
+  form-data@4.0.5:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
@@ -22346,7 +22381,7 @@ snapshots:
       '@segment/analytics-node': 1.3.0(encoding@0.1.13)
       '@types/cross-spawn': 6.0.0
       async-sema: 3.0.1
-      axios: 1.12.2
+      axios: 1.13.6
       chalk: 4.1.2
       commander: 9.5.0
       configstore: 5.0.1
@@ -25393,6 +25428,8 @@ snapshots:
     dependencies:
       glob-to-regexp: 0.4.1
       graceful-fs: 4.2.11
+
+  wavesurfer.js@7.12.5: {}
 
   wcwidth@1.0.1:
     dependencies:

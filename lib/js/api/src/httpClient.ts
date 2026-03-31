@@ -1,7 +1,15 @@
 import axios, {AxiosError} from 'axios';
 import type {ErrorListener, HttpClient} from './types';
+import axiosRetry from 'axios-retry';
 
-export function createHttpClient(baseURL: string): HttpClient {
+type CreateClientOptions = {
+    retries?: number;
+};
+
+export function createHttpClient(
+    baseURL: string,
+    {retries = 3}: CreateClientOptions = {}
+): HttpClient {
     const client = axios.create({
         baseURL,
     }) as HttpClient;
@@ -55,6 +63,50 @@ export function createHttpClient(baseURL: string): HttpClient {
         ];
         this.defaults.headers.common['Accept-Language'] = languages.join(', ');
     };
+
+    axiosRetry(client, {
+        retries,
+        shouldResetTimeout: true,
+        retryCondition: error => {
+            const {config} = error;
+            if (!config) {
+                return false;
+            }
+
+            if (error.response) {
+                if (
+                    [500, 400, 422, 404, 403, 401].includes(
+                        error.response.status
+                    )
+                ) {
+                    return false;
+                }
+            }
+
+            // eslint-disable-next-line no-console
+            console.warn(
+                `Request "${config.method?.toUpperCase()} ${
+                    config.url
+                }" failed, retrying...`
+            );
+
+            if (error.response) {
+                // eslint-disable-next-line no-console
+                console.debug(
+                    `Request "${config.method?.toUpperCase()} ${
+                        config.url
+                    }" response ${error.response.status}: ${JSON.stringify(
+                        error.response.data
+                    )}`
+                );
+            }
+
+            return true;
+        },
+        retryDelay: retryCount => {
+            return retryCount * 1000;
+        },
+    });
 
     return client;
 }

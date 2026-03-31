@@ -63,8 +63,7 @@ type Props = {
 export default function CopyAssetsDialog({
     assets,
     onComplete,
-    open,
-    modalIndex,
+    ...modalProps
 }: Props) {
     const [workspaceDest, setWorkspaceDest] = useState<string>();
     const {t} = useTranslation();
@@ -122,7 +121,7 @@ export default function CopyAssetsDialog({
             onComplete();
         },
     });
-    useDirtyFormPrompt(forbidNavigation, modalIndex);
+    useDirtyFormPrompt(forbidNavigation, modalProps.modalIndex);
     const byRef = watch('byReference');
 
     const nonLinkablePerm: Asset[] = useMemo(
@@ -146,13 +145,12 @@ export default function CopyAssetsDialog({
 
     return (
         <FormDialog
-            modalIndex={modalIndex}
+            {...modalProps}
             title={t('copy_assets.dialog.title', {
                 defaultValue: `Copy {{count}} asset`,
                 defaultValue_other: `Copy {{count}} assets`,
                 count,
             })}
-            open={open}
             loading={submitting}
             formId={formId}
             submitIcon={<FileCopyIcon />}

@@ -8,8 +8,7 @@ import SingleFileUploadWidget, {
     FileUploadForm,
 } from './SingleFileUploadWidget.tsx';
 import UploadIcon from '@mui/icons-material/Upload';
-import {putAsset} from '../../../../api/asset.ts';
-import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
+import {databoxMultipartUpload, putAsset} from '../../../../api/asset.ts';
 import {apiClient} from '../../../../init.ts';
 
 type Props = {
@@ -18,8 +17,7 @@ type Props = {
 
 export default function ReplaceAssetSourceDialog({
     asset,
-    open,
-    modalIndex,
+    ...modalProps
 }: Props) {
     const {t} = useTranslation();
     const [uploading, setUploading] = React.useState(false);
@@ -43,7 +41,10 @@ export default function ReplaceAssetSourceDialog({
                 });
                 return;
             }
-            const multipart = await multipartUpload(apiClient, uploadForm.file);
+            const multipart = await databoxMultipartUpload(
+                apiClient,
+                uploadForm.file
+            );
             await putAsset(asset.id, {
                 multipart,
             });
@@ -62,12 +63,11 @@ export default function ReplaceAssetSourceDialog({
 
     return (
         <FormDialog
-            modalIndex={modalIndex}
+            {...modalProps}
             title={t(
                 'replace_asset.dialog.title',
                 'Substitute asset source file'
             )}
-            open={open}
             loading={uploading}
             onSave={upload}
             submitIcon={<UploadIcon />}

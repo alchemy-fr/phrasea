@@ -107,9 +107,6 @@ export default function VisualWorkflow({
                     <Background
                         gap={12}
                         size={1}
-                        style={{
-                            backgroundColor: '#eeeeee',
-                        }}
                     />
                 </FlowEvents>
             </ReactFlow>

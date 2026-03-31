@@ -7,13 +7,20 @@ import PDFPlayer from './Players/PDFPlayer';
 import ImagePlayer from './Players/ImagePlayer.tsx';
 import React from 'react';
 import FileAnalysisChipWrapper from './FileAnalysisChipWrapper.tsx';
+import AudioPlayer from './Players/AudioPlayer.tsx';
 
 type Props = {
     file: ApiFile;
     autoPlayable?: boolean;
+    autoPlay?: boolean;
 } & Omit<PlayerProps, 'file'>;
 
-export default function FilePlayer({file, autoPlayable, ...playProps}: Props) {
+export default function FilePlayer({
+    file,
+    autoPlayable,
+    autoPlay,
+    ...playProps
+}: Props) {
     const mainType = getFileTypeFromMIMEType(file.type);
 
     if (file.analysisPending || false === file.accepted) {
@@ -34,11 +41,19 @@ export default function FilePlayer({file, autoPlayable, ...playProps}: Props) {
             case FileTypeEnum.Image:
                 return <ImagePlayer {...props} />;
             case FileTypeEnum.Audio:
+                return (
+                    <AudioPlayer
+                        {...props}
+                        autoPlay={autoPlay}
+                        autoPlayable={autoPlayable}
+                    />
+                );
             case FileTypeEnum.Video:
                 return (
                     <VideoPlayer
                         {...props}
-                        autoPlayable={autoPlayable || false}
+                        autoPlay={autoPlay}
+                        autoPlayable={autoPlayable}
                     />
                 );
             case FileTypeEnum.Document:

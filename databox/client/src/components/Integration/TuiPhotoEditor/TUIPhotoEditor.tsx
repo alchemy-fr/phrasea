@@ -26,8 +26,8 @@ import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {useIntegrationData} from '../useIntegrationData.ts';
 import {AssetIntegrationActionsProps, Integration} from '../types.ts';
 import {useTranslation} from 'react-i18next';
-import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
 import {apiClient} from '../../../init.ts';
+import {databoxMultipartUpload} from '../../../api/asset.ts';
 
 const myTheme = {
     // Theme object to extends default dark theme.
@@ -104,7 +104,7 @@ export default function TUIPhotoEditor({
         if (editoRef.current) {
             setSaving(true);
             try {
-                const multipart = await multipartUpload(
+                const multipart = await databoxMultipartUpload(
                     apiClient,
                     dataURLtoFile(
                         editoRef.current.getInstance().toDataURL(),

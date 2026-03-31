@@ -10,6 +10,8 @@ import {
 } from './types.ts';
 import {uploadMultipartFile} from './multiPartUpload.ts';
 import {getAxiosError} from '@alchemy/api';
+import {TFunction} from '@alchemy/i18n';
+import {toast} from 'react-toastify';
 
 type OnProgressListener = (e: {
     totalLoaded: number;
@@ -30,9 +32,14 @@ type CompleteEvent = {
     totalPercent: number;
 };
 
+type Props = {
+    targetId: string;
+    t: TFunction;
+};
+
 export default class UploadBatch {
     private files: AbortableFile[] = [];
-    private uploading: boolean = false;
+    private t: TFunction;
     private batchSize: number = 2;
     private currentUpload: number = 0;
     private totalSize: number = 0;
@@ -48,8 +55,9 @@ export default class UploadBatch {
     private completeEvent?: CompleteEvent;
     private failedUploads: (() => Promise<void>)[] = [];
 
-    constructor(targetId: string) {
+    constructor({targetId, t}: Props) {
         this.targetId = targetId;
+        this.t = t;
         this.reset();
     }
 
@@ -61,7 +69,6 @@ export default class UploadBatch {
         });
         this.files = [];
         this.formData = undefined;
-        this.uploading = false;
         this.currentUpload = 0;
         this.totalSize = 0;
         this.progresses = {};
@@ -145,7 +152,6 @@ export default class UploadBatch {
     }
 
     startUpload() {
-        this.uploading = true;
         this.currentUpload = 0;
 
         const batchSize =
@@ -183,14 +189,31 @@ export default class UploadBatch {
         const username = oauthClient.getDecodedToken()!.preferred_username;
 
         try {
-            const res = await uploadMultipartFile(
-                this.targetId,
-                username,
+            const toastId = `upload-failed-${index}`;
+            const t = this.t;
+            const res = await uploadMultipartFile({
+                targetId: this.targetId,
+                userId: username,
                 file,
-                e => {
+                onRetry: (retryCount, delay) => {
+                    toast.warn(
+                        t('upload.retry_warning', {
+                            defaultValue: `Upload failed. Retrying attempt {{retryCount}} in {{delay}}s...`,
+                            retryCount: retryCount.toString(),
+                            delay: (delay / 1000).toString(),
+                        }),
+                        {
+                            toastId,
+                        }
+                    );
+                },
+                onProgress: e => {
                     this.onUploadProgress(e, index);
-                }
-            );
+                },
+            });
+
+            toast.dismiss(toastId);
+
             this.onFileComplete(res, index);
         } catch (err: any) {
             const error = getAxiosError(err);

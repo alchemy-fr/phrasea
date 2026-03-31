@@ -98,6 +98,11 @@ export default function WorkflowView({}: Props) {
                                     'zIndex': theme.zIndex.appBar,
                                     '.workflow-header': {
                                         boxShadow: 'none',
+                                        backgroundColor: 'transparent',
+                                    },
+                                    '.workflow-header-dropdown': {
+                                        backgroundColor:
+                                            theme.palette.background.default,
                                     },
                                 })}
                             >
@@ -111,14 +116,32 @@ export default function WorkflowView({}: Props) {
                     }
                     onClose={onClose}
                 >
-                    <WorkflowPlayground
-                        style={{
-                            width: '100vw',
-                            height: `calc(100vh - ${headerHeight + 2}px)`,
-                        }}
+                    <Box
+                        sx={theme => ({
+                            '.react-flow__background': {
+                                backgroundColor:
+                                    theme.palette.background.default,
+                            },
+                            '.workflow-modal': {
+                                backgroundColor: theme.palette.background.paper,
+                            },
+                            '.job-node': {
+                                backgroundColor: theme.palette.background.paper,
+                            },
+                        })}
                     >
-                        <VisualWorkflow workflow={data} onRerunJob={rerun} />
-                    </WorkflowPlayground>
+                        <WorkflowPlayground
+                            style={{
+                                width: '100vw',
+                                height: `calc(100vh - ${headerHeight + 2}px)`,
+                            }}
+                        >
+                            <VisualWorkflow
+                                workflow={data}
+                                onRerunJob={rerun}
+                            />
+                        </WorkflowPlayground>
+                    </Box>
                 </AppDialog>
             )}
         </RouteDialog>

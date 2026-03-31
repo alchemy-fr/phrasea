@@ -18,8 +18,7 @@ type Props = {
 export default function ReplaceAssetWithFileDialog({
     asset,
     file,
-    open,
-    modalIndex,
+    ...modalProps
 }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
@@ -42,18 +41,17 @@ export default function ReplaceAssetWithFileDialog({
                 closeModal();
             },
         });
-    useDirtyFormPrompt(forbidNavigation, modalIndex);
+    useDirtyFormPrompt(forbidNavigation, modalProps.modalIndex);
 
     const formId = 'save-file-as-new-asset';
 
     return (
         <FormDialog
-            modalIndex={modalIndex}
+            {...modalProps}
             title={t(
                 'replace_asset_with_file_dialog.replace_asset_with_file',
                 `Replace asset with file`
             )}
-            open={open}
             loading={submitting}
             formId={formId}
             submitIcon={<FileCopyIcon />}
