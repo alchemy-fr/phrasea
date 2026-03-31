@@ -92,6 +92,30 @@ final class AssetPermissionComputer
 
             $collectionsPaths = [];
             $stories = [];
+
+            $workspace = $asset->getWorkspace();
+
+            $aces = $this->permissionManager->getObjectAces($workspace);
+            foreach ($aces as $access) {
+                $userId = $access->getUserId();
+                $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
+                if ($access->hasPermission(PermissionInterface::CHILD_VIEW)) {
+                    if ($isUser) {
+                        $users[] = $userId;
+                    } else {
+                        $groups[] = $userId;
+                    }
+                }
+
+                if ($access->hasPermission(PermissionInterface::CHILD_DELETE)) {
+                    if ($isUser) {
+                        $deleteUsers[] = $userId;
+                    } else {
+                        $deleteGroups[] = $userId;
+                    }
+                }
+            }
+
             foreach ($asset->getCollections() as $collectionAsset) {
                 $collection = $collectionAsset->getCollection();
 
@@ -164,7 +188,10 @@ final class AssetPermissionComputer
                 foreach ($aces as $access) {
                     $userId = $access->getUserId();
                     $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
-                    if ($access->hasPermission(PermissionInterface::VIEW)) {
+                    if (
+                        $access->hasPermission(PermissionInterface::VIEW)
+                        || $access->hasPermission(PermissionInterface::CHILD_VIEW)
+                    ) {
                         if ($isUser) {
                             $users[] = $userId;
                         } else {
@@ -173,7 +200,9 @@ final class AssetPermissionComputer
                     }
 
                     if ($access->hasPermission(PermissionInterface::EDIT)
-                        || $access->hasPermission(PermissionInterface::DELETE)) {
+                        || $access->hasPermission(PermissionInterface::DELETE)
+                        || $access->hasPermission(PermissionInterface::CHILD_DELETE)
+                    ) {
                         if ($isUser) {
                             $deleteUsers[] = $userId;
                         } else {

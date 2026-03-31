@@ -231,44 +231,6 @@ App\Entity\Core\RenditionDefinition:
         useAsAnimatedThumbnail: true
         parent: '@n_rd_thumbnail'
 
-# Groups:
-# reporter_sport_football_league
-#     - alice
-#     - harry
-# reporter_sport_football_worldcup
-#     - bob
-# reporter_sport_football
-#     - carol
-# reporter_sport_tennis
-#     - amelia
-#     - harry
-#     - oliver
-# reporter_entertainment
-#     - ava
-# admin_newspaper
-#     - oliver
-# No group:
-#     - john_doe
-#     - super_user
-
-# Collections hierarchy:
-# sport
-#     football
-#         league
-#         worldcup
-#     rugby
-#     tennis
-# entertainment
-#     public_videos
-#         movies
-#         series
-#         tv_shows
-#     archives
-#         movies
-#         series
-#         tv_shows
-# others
-
 App\Entity\Core\Collection:
     collection_n (template):
         workspace: '@w_newspaper'
