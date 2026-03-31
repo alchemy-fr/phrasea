@@ -467,7 +467,12 @@ final readonly class WorkspaceTemplater
             ]);
 
             $o[$list->getName()] = array_map(function (AttributeEntity $item) {
-                return $item->getValue();
+                return [
+                    'value' => $item->getValue(),
+                    'position' => $item->getPosition(),
+                    'translations' => $item->getTranslations(),
+                    'synonyms' => $item->getSynonyms(),
+                ];
             }, $items);
         }
 
@@ -492,7 +497,10 @@ final readonly class WorkspaceTemplater
                     $ae = new AttributeEntity();
                     $ae->setWorkspace($ws);
                     $ae->setList($o);
-                    $ae->setValue($item);
+                    $ae->setValue($item['value']);
+                    $ae->setPosition($item['position']);
+                    $ae->setTranslations($item['translations']);
+                    $ae->setSynonyms($item['synonyms']);
                     $this->em->persist($ae);
                 }
             } else {
