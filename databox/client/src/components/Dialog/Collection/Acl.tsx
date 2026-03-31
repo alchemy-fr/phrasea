@@ -40,7 +40,6 @@ export default function Acl({data, onClose, minHeight}: Props) {
                     'Can create collections within this collection, but cannot edit or delete collections created by others. New collections will inherit the same permissions as this collection.'
                 ),
             },
-
             {
                 type: PermissionType.Mask,
                 key: AclPermission.EDIT,

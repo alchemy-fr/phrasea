@@ -772,7 +772,6 @@ class PermissionsTest extends AbstractDataboxTestCase
             ],
             assetLostRoot: new AssetPermissions(
                 edit: true,
-                editPermissions: true,
             ),
         );
         yield new PermissionsTestCase(
@@ -785,7 +784,18 @@ class PermissionsTest extends AbstractDataboxTestCase
             ],
             assetLostRoot: new AssetPermissions(
                 editAttributes: true,
-                editPermissions: true,
+            ),
+        );
+        yield new PermissionsTestCase(
+            'asset-lost-root-edit-permissions-with-edit',
+            self::CAROL,
+            ...$carolCommon,
+            lostRoot: [
+                PermissionInterface::OPERATOR,
+                self::EXTRA_PERM_PREFIX.DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS,
+            ],
+            assetLostRoot: new AssetPermissions(
+                edit: true,
             ),
         );
         yield new PermissionsTestCase(
@@ -795,9 +805,7 @@ class PermissionsTest extends AbstractDataboxTestCase
             lostRoot: [
                 self::EXTRA_PERM_PREFIX.DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS,
             ],
-            assetLostRoot: new AssetPermissions(
-                editPermissions: true,
-            ),
+            assetLostRoot: new AssetPermissions(),
         );
 
         yield new PermissionsTestCase(
@@ -812,6 +820,9 @@ class PermissionsTest extends AbstractDataboxTestCase
             ),
         );
 
+        $assetDelete = new AssetPermissions(
+            delete: true,
+        );
         yield new PermissionsTestCase(
             'asset-lost-root-delete',
             self::CAROL,
@@ -819,9 +830,91 @@ class PermissionsTest extends AbstractDataboxTestCase
             lostRoot: [
                 PermissionInterface::DELETE,
             ],
-            assetLostRoot: new AssetPermissions(
-                delete: true,
-            ),
+            assetLostRoot: $assetDelete,
+        );
+
+        yield new PermissionsTestCase(
+            'root-child-delete',
+            self::CAROL,
+            ...$carolCommon,
+            root: [
+                PermissionInterface::CHILD_DELETE,
+            ],
+            assetLostRoot: $assetDelete,
+            assetLostAlice: $assetDelete,
+            assetLostBob: $assetDelete,
+            assetInARoot: $assetDelete,
+            assetInAAlice: $assetDelete,
+            assetInABob: $assetDelete,
+            assetInBRoot: $assetDelete,
+            assetInBAlice: $assetDelete,
+            assetInBBob: $assetDelete,
+        );
+
+        $assetEditAttributes = new AssetPermissions(
+            editAttributes: true,
+        );
+        yield new PermissionsTestCase(
+            'root-child-edit',
+            self::CAROL,
+            ...$carolCommon,
+            root: [
+                PermissionInterface::CHILD_EDIT,
+            ],
+            assetLostRoot: $assetEditAttributes,
+            assetLostAlice: $assetEditAttributes,
+            assetLostBob: $assetEditAttributes,
+            assetInARoot: $assetEditAttributes,
+            assetInAAlice: $assetEditAttributes,
+            assetInABob: $assetEditAttributes,
+            assetInBRoot: $assetEditAttributes,
+            assetInBAlice: $assetEditAttributes,
+            assetInBBob: $assetEditAttributes,
+        );
+
+        $assetEdit = new AssetPermissions(
+            edit: true,
+        );
+        yield new PermissionsTestCase(
+            'root-child-operator',
+            self::CAROL,
+            ...$carolCommon,
+            root: [
+                PermissionInterface::CHILD_OPERATOR,
+            ],
+            assetLostRoot: $assetEdit,
+            assetLostAlice: $assetEdit,
+            assetLostBob: $assetEdit,
+            assetInARoot: $assetEdit,
+            assetInAAlice: $assetEdit,
+            assetInABob: $assetEdit,
+            assetInBRoot: $assetEdit,
+            assetInBAlice: $assetEdit,
+            assetInBBob: $assetEdit,
+        );
+
+        $assetOwnerButPerms = new AssetPermissions(
+            view: true,
+            edit: true,
+            editAttributes: true,
+            delete: true,
+        );
+        yield new PermissionsTestCase(
+            'root-child-owner',
+            self::CAROL,
+            ...$carolCommon,
+            root: [
+                PermissionInterface::CHILD_OWNER,
+            ],
+            assetLostRoot: $assetOwnerButPerms,
+            assetLostAlice: $assetOwnerButPerms,
+            assetLostBob: $assetOwnerButPerms,
+            assetInARoot: $assetOwnerButPerms,
+            assetInAAlice: $assetOwnerButPerms,
+            assetInABob: $assetOwnerButPerms,
+            assetInBRoot: $assetOwnerButPerms,
+            assetInBAlice: $assetOwnerButPerms,
+            assetInBBob: $assetOwnerButPerms,
         );
     }
 }

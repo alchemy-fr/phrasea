@@ -102,6 +102,7 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
             self::VIEW_ASSET => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_VIEW,
+                    PermissionInterface::CHILD_OWNER,
                     PermissionInterface::OWNER,
                 ], $subject, $token)
                 || $this->isAdmin(),
@@ -120,23 +121,18 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
             self::EDIT_ASSET_ATTRIBUTES => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_EDIT,
-                    PermissionInterface::CHILD_OPERATOR,
-                    PermissionInterface::CHILD_MASTER,
                     PermissionInterface::CHILD_OWNER,
                     PermissionInterface::OWNER,
                 ], $subject, $token),
             self::EDIT_ASSET => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_OPERATOR,
-                    PermissionInterface::CHILD_MASTER,
                     PermissionInterface::CHILD_OWNER,
                     PermissionInterface::OWNER,
                 ], $subject, $token),
             self::DELETE_ASSET => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_DELETE,
-                    PermissionInterface::CHILD_OPERATOR,
-                    PermissionInterface::CHILD_MASTER,
                     PermissionInterface::CHILD_OWNER,
                     PermissionInterface::OWNER,
                 ], $subject, $token),

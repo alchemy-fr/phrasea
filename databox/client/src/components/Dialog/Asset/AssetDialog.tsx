@@ -74,7 +74,9 @@ export default function AssetDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.edit,
+                    enabled:
+                        data.capabilities.edit ||
+                        data.capabilities.editAttributes,
                 },
                 {
                     title: t('asset.manage.renditions.title', 'Renditions'),

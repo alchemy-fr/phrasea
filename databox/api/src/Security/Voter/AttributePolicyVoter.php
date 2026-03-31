@@ -37,6 +37,7 @@ class AttributePolicyVoter extends AbstractVoter
         return match ($attribute) {
             self::CREATE, self::EDIT, self::DELETE => $isWorkspaceEditor()
                 || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX),
+            self::EDIT_PERMISSIONS => $isWorkspaceEditor(),
             self::READ_ADMIN => $isWorkspaceEditor() || $this->tokenHasScope($token, self::READ, self::SCOPE_PREFIX),
             self::READ => $isWorkspaceReader() || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX),
             default => false,

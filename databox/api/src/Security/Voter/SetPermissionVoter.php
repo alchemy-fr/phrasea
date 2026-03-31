@@ -54,9 +54,7 @@ class SetPermissionVoter extends AbstractVoter
         }
 
         return match ($attribute) {
-            self::ACL_READ, self::ACL_WRITE => $subject->getAclOwnerId() === $user->getId()
-                || $this->security->isGranted(self::OWNER, $subject)
-            ,
+            self::ACL_READ, self::ACL_WRITE => $this->security->isGranted(AbstractVoter::EDIT_PERMISSIONS, $subject),
             default => false,
         };
     }

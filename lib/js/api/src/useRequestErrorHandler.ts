@@ -14,7 +14,7 @@ type Options = {
 export default function useRequestErrorHandler({onError, logout}: Options) {
     const {t} = useTranslation();
 
-    return React.useCallback((error: AxiosError<any>) => {
+    return React.useCallback(async (error: AxiosError<any>) => {
         const config = error.config;
         if (config?.errorHandled || (axios.isCancel(error) as boolean)) {
             return;
@@ -22,8 +22,11 @@ export default function useRequestErrorHandler({onError, logout}: Options) {
 
         const axiosRetry = config?.['axios-retry'];
         if (axiosRetry && axiosRetry.retries) {
-            if ((axiosRetry.retryCount ?? 0) < axiosRetry.retries!) {
-                return;
+            const rc = axiosRetry.retryCondition;
+            if (!rc || await rc(error)) {
+                if ((axiosRetry.retryCount ?? 0) < axiosRetry.retries!) {
+                    return;
+                }
             }
         }
 

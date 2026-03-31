@@ -38,6 +38,7 @@ class WorkspaceIntegrationVoter extends AbstractVoter
 
         return match ($attribute) {
             self::CREATE => $isWorkspaceEditor(),
+            self::EDIT_PERMISSIONS => $isWorkspaceEditor() || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
             self::EDIT => $isWorkspaceEditor() || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             self::DELETE => $isWorkspaceEditor() || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
             self::READ => $isWorkspaceReader()

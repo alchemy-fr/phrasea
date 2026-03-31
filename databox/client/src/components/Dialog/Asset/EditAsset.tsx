@@ -135,40 +135,42 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
             errors={remoteErrors}
             minHeight={minHeight}
         >
-            <form id={formId} onSubmit={handleSubmit}>
-                <FormRow>
-                    <TextField
-                        autoFocus
-                        required={true}
-                        label={t('form.asset.title.label', 'Title')}
-                        disabled={submitting}
-                        {...register('title', {
-                            required: true,
-                        })}
-                    />
-                    <FormFieldErrors field={'title'} errors={errors} />
-                </FormRow>
-                <FormRow>
-                    <FormGroup>
-                        <InputLabel>
-                            {t('form.asset.tags.label', 'Tags')}
-                        </InputLabel>
-                        <TagSelect
-                            multiple={true}
-                            workspaceId={data.workspace.id}
-                            control={control}
-                            name={'tags'}
+            {data.capabilities.edit ? (
+                <form id={formId} onSubmit={handleSubmit}>
+                    <FormRow>
+                        <TextField
+                            autoFocus
+                            required={true}
+                            label={t('form.asset.title.label', 'Title')}
+                            disabled={submitting}
+                            {...register('title', {
+                                required: true,
+                            })}
                         />
-                        <FormFieldErrors<Asset>
-                            field={'tags'}
-                            errors={errors}
-                        />
-                    </FormGroup>
-                </FormRow>
-                <FormRow>
-                    <PrivacyField control={control} name={'privacy'} />
-                </FormRow>
-            </form>
+                        <FormFieldErrors field={'title'} errors={errors} />
+                    </FormRow>
+                    <FormRow>
+                        <FormGroup>
+                            <InputLabel>
+                                {t('form.asset.tags.label', 'Tags')}
+                            </InputLabel>
+                            <TagSelect
+                                multiple={true}
+                                workspaceId={data.workspace.id}
+                                control={control}
+                                name={'tags'}
+                            />
+                            <FormFieldErrors<Asset>
+                                field={'tags'}
+                                errors={errors}
+                            />
+                        </FormGroup>
+                    </FormRow>
+                    <FormRow>
+                        <PrivacyField control={control} name={'privacy'} />
+                    </FormRow>
+                </form>
+            ) : null}
             {data.capabilities.editAttributes ? (
                 attributes && definitionIndex ? (
                     <AttributesEditor

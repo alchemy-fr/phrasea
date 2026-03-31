@@ -89,7 +89,7 @@ export default function Acl({data, onClose, minHeight}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.edit_permissions.desc',
-                    'Can edit permissions for this workspace and its collections'
+                    'Can edit permissions/privacy of this workspace collections and assets'
                 ),
             },
             {

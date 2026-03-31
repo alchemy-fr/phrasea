@@ -130,7 +130,6 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 || $this->hasAcl([
                     PermissionInterface::CHILD_EDIT,
                     PermissionInterface::CHILD_OPERATOR,
-                    PermissionInterface::CHILD_MASTER,
                     PermissionInterface::CHILD_OWNER,
                 ], $subject, $token)
                 || $this->parentIsGranted($attribute, $subject)
@@ -139,7 +138,6 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
             self::EDIT_ASSET => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_OPERATOR,
-                    PermissionInterface::CHILD_MASTER,
                     PermissionInterface::CHILD_OWNER,
                 ], $subject, $token)
                 || $this->parentIsGranted($attribute, $subject)

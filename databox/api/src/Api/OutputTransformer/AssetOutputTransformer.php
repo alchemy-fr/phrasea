@@ -157,7 +157,10 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 }
             }
 
-            $output->referenceCollection = $data->getReferenceCollection();
+            $referenceCollection = $data->getReferenceCollection();
+            if (null !== $referenceCollection && $this->isGranted(AbstractVoter::READ, $referenceCollection)) {
+                $output->referenceCollection = $referenceCollection;
+            }
 
             $output->setCollections($data->getCollections()->map(function (CollectionAsset $collectionAsset,
             ): Collection {

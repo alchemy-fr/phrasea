@@ -82,36 +82,51 @@ class AssetVoter extends AbstractVoter
                         PermissionInterface::EDIT,
                         PermissionInterface::OWNER,
                     ], $subject, $token)
-                    || $this->voteOnContainer($subject, AssetContainerVoterInterface::EDIT_ASSET_ATTRIBUTES);
+                    || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::EDIT_ASSET_ATTRIBUTES)
+                    || $isWorkspaceOwnerSlow();
             case self::EDIT_TAGS:
                 return $isWorkspaceOwnerFast()
                 || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_EDIT_TAG, $subject, $token)
-                || $this->voteOnContainer($subject, $attribute)
+                || $this->voteOnCollectionOrWorkspace($subject, $attribute)
                 || $isWorkspaceOwnerSlow();
                 // Substitute source file, manage its renditions
             case self::EDIT:
                 return $isOwner()
+                    || $isWorkspaceOwnerFast()
                     || $this->hasAcl([
                         PermissionInterface::OPERATOR,
                         PermissionInterface::OWNER,
                     ], $subject, $token)
-                    || $this->voteOnContainer($subject, AssetContainerVoterInterface::EDIT_ASSET);
+                    || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::EDIT_ASSET)
+                    || $isWorkspaceOwnerSlow();
             case self::SHARE:
                 return $this->hasAcl(PermissionInterface::SHARE, $subject, $token)
-                    || $this->voteOnContainer($subject, AssetContainerVoterInterface::SHARE_ASSET);
+                    || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::SHARE_ASSET);
             case self::DELETE:
                 return $isOwner()
+                    || $isWorkspaceOwnerFast()
                     || $this->hasAcl([
                         PermissionInterface::DELETE,
                         PermissionInterface::OWNER,
                     ], $subject, $token)
-                    || $this->voteOnContainer($subject, AssetContainerVoterInterface::DELETE_ASSET);
+                    || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::DELETE_ASSET)
+                    || $isWorkspaceOwnerSlow();
             case self::OWNER:
+                return $isOwner()
+                    || $isWorkspaceOwnerFast()
+                    || $this->hasAcl([
+                        PermissionInterface::OWNER,
+                    ], $subject, $token)
+                    || $this->voteOnCollectionOrWorkspace($subject, $attribute)
+                    || $isWorkspaceOwnerSlow();
             case self::EDIT_PERMISSIONS:
                 return $isWorkspaceOwnerFast()
-                || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS, $subject, $token)
-                || $this->voteOnContainer($subject, $attribute)
-                || $isWorkspaceOwnerSlow();
+                    || $this->security->isGranted(self::OWNER, $subject) && (
+                        $this->hasMetadata(DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS, $subject, $token)
+                        || $this->voteOnCollectionOrWorkspace($subject, $attribute)
+                    )
+                    || $isWorkspaceOwnerSlow()
+                ;
         }
 
         return false;
@@ -120,6 +135,15 @@ class AssetVoter extends AbstractVoter
     private function voteOnContainer(Asset $asset, string|int $attribute): bool
     {
         return $this->security->isGranted($attribute, $asset->getReferenceCollection() ?? $asset->getWorkspace());
+    }
+
+    private function voteOnCollectionOrWorkspace(Asset $asset, string|int $attribute): bool
+    {
+        if ($asset->getReferenceCollection() && $this->security->isGranted($attribute, $asset->getReferenceCollection())) {
+            return true;
+        }
+
+        return $this->security->isGranted($attribute, $asset->getWorkspace());
     }
 
     private function collectionGrantsAccess(Asset $subject): bool
