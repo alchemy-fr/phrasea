@@ -17,6 +17,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
 import DateTime from '../../Ui/DateTime';
 import DeleteIcon from '@mui/icons-material/Delete';
+import {getMediaBackgroundColor} from '../../uiVars.ts';
 
 const cardProps = {
     elevation: 2,
@@ -133,7 +134,7 @@ function AssetFileVersionStructure({
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    backgroundColor: theme.palette.grey['100'],
+                    ...getMediaBackgroundColor(theme),
                 })}
             >
                 {media || ''}

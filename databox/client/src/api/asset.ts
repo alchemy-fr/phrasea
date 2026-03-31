@@ -1,4 +1,4 @@
-import {apiClient} from '../init.ts';
+import {apiClient, config} from '../init.ts';
 import {
     Asset,
     AssetFileVersion,
@@ -20,6 +20,7 @@ import {
 import {SortWay} from './common.ts';
 import {
     getHydraCollection,
+    HttpClient,
     HydraCollectionResponse,
     MultipartUpload,
     NormalizedCollectionResponse,
@@ -580,12 +581,29 @@ export async function importAssets(
     return res.assets;
 }
 
+export async function databoxMultipartUpload(
+    apiClient: HttpClient,
+    file: File,
+    options: MultipartUploadOptions = {}
+): Promise<MultipartUpload> {
+    const {maxPartNumber, minChunkSize, maxChunkSize, maxFileSize} =
+        config.upload;
+
+    return await multipartUpload(apiClient, file, {
+        ...options,
+        maxPartNumber,
+        minChunkSize,
+        maxChunkSize,
+        maxFileSize,
+    });
+}
+
 export async function uploadAsset(
     data: InputUploadFile,
     options: CreateAssetsOptions = {},
     multipartUploadOptions: MultipartUploadOptions = {}
 ): Promise<Asset> {
-    const multipart = await multipartUpload(
+    const multipart = await databoxMultipartUpload(
         apiClient,
         data.file,
         multipartUploadOptions

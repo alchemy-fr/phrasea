@@ -112,16 +112,15 @@ export default function PreviewPopover({
                         }}
                     >
                         {previewOptions.displayFile && asset.preview && (
-                            <div
+                            <Box
                                 className={Classes.File}
-                                style={{
+                                sx={{
                                     display: 'flex',
                                     justifyContent: 'center',
                                     flexFlow: 'row nowrap',
                                     alignItems: 'center',
-                                    backgroundColor:
-                                        getMediaBackgroundColor(theme),
                                     width: previewWidth,
+                                    ...getMediaBackgroundColor(theme),
                                 }}
                             >
                                 <FilePlayer
@@ -137,7 +136,7 @@ export default function PreviewPopover({
                                     controls={previewLocked}
                                     autoPlayable={true}
                                 />
-                            </div>
+                            </Box>
                         )}
                         {displayAttributes &&
                             previewOptions.displayAttributes && (
@@ -170,7 +169,7 @@ export default function PreviewPopover({
                                     position: 'absolute',
                                     top: 0,
                                     right: 0,
-                                    zIndex: 1,
+                                    zIndex: 10,
                                     color: theme.palette.error.main,
                                 }}
                                 onClick={() => {

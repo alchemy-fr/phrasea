@@ -17,6 +17,7 @@ use App\Integration\Phrasea\PhraseaClientFactory;
 use App\Service\Asset\Attribute\AssetTitleResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\FileFetcher;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class ExposeClient
@@ -29,6 +30,12 @@ final readonly class ExposeClient
         private AttributesResolver $attributesResolver,
         private AttributeTypeRegistry $attributeTypeRegistry,
         private LocaleContext $localeContext,
+        #[Autowire(env: 'int:S3_MULTIPART_MIN_CHUNK_SIZE')]
+        private ?int $minChunkSize,
+        #[Autowire(env: 'int:S3_MULTIPART_MAX_CHUNK_SIZE')]
+        private ?int $maxChunkSize,
+        #[Autowire(env: 'int:S3_MULTIPART_MAX_PART_NUMBER')]
+        private ?int $maxPartNumber,
     ) {
     }
 
@@ -216,7 +223,16 @@ final readonly class ExposeClient
         $fileSize = filesize($fetchedFilePath);
 
         // @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html
-        $partSize = 100 * 1024 * 1024; // 100Mb
+        $partSize = 500 * 1024 * 1024; // 500Mb
+        if (null !== $this->minChunkSize) {
+            $partSize = max($partSize, $this->minChunkSize);
+        }
+        if (null !== $this->maxChunkSize) {
+            $partSize = min($partSize, $this->maxChunkSize);
+        }
+        if (null !== $this->maxPartNumber && ceil($fileSize / $partSize) > $this->maxPartNumber) {
+            $partSize = (int) ceil($fileSize / $this->maxPartNumber);
+        }
 
         try {
             $uploadsData = [
@@ -332,7 +348,6 @@ final readonly class ExposeClient
                             'type' => $file->getType(),
                             'size' => $file->getSize(),
                             'name' => $file->getOriginalName(),
-
                         ],
                         ...$extraData,
                     ],

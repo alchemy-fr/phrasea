@@ -13,6 +13,19 @@
         return false;
     }
 
+    function castInteger(value) {
+        if (typeof value === 'number') {
+            return value;
+        }
+
+        if (value && typeof value === 'string') {
+            const parsed = parseInt(value, 10);
+            return Number.isNaN(parsed) ? undefined : parsed;
+        }
+
+        return undefined;
+    }
+
     config = config || {};
 
     const analytics = {};
@@ -83,7 +96,6 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
         requestSignatureTtl: env.S3_REQUEST_SIGNATURE_TTL,
         displayServicesMenu: castBoolean(env.DISPLAY_SERVICES_MENU),
         dashboardBaseUrl: env.DASHBOARD_CLIENT_URL,
-        allowedTypes: normalizeTypes(env.ALLOWED_FILE_TYPES),
         analytics,
         appId: env.APP_ID || 'databox',
         sentryDsn: env.SENTRY_DSN,
@@ -92,5 +104,12 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
         pusherHost: env.SOKETI_HOST,
         pusherKey: env.SOKETI_KEY,
         notifications,
+        upload: {
+            minChunkSize: castInteger(env.S3_MULTIPART_MIN_CHUNK_SIZE),
+            maxChunkSize: castInteger(env.S3_MULTIPART_MAX_CHUNK_SIZE),
+            maxPartNumber: castInteger(env.S3_MULTIPART_MAX_PART_NUMBER),
+            maxFileSize: castInteger(env.S3_MAX_OBJECT_SIZE),
+            allowedTypes: normalizeTypes(env.ALLOWED_FILE_TYPES),
+        },
     };
 });

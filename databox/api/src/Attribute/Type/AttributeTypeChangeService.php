@@ -78,6 +78,12 @@ readonly class AttributeTypeChangeService
             NumberAttributeType::NAME => [
                 ...$text,
             ],
+            DurationAttributeType::NAME => [
+                ...$text,
+            ],
+            SizeAttributeType::NAME => [
+                ...$text,
+            ],
         ];
 
         if (isset($allowedTranslations[$previousType])) {

@@ -8,9 +8,9 @@ import SingleFileUploadWidget, {
 } from './SingleFileUploadWidget.tsx';
 import UploadIcon from '@mui/icons-material/Upload';
 import {postRendition} from '../../../../api/rendition.ts';
-import {multipartUpload} from '@alchemy/api/src/multiPartUpload.ts';
 import {Asset} from '../../../../types.ts';
 import {apiClient} from '../../../../init.ts';
+import {databoxMultipartUpload} from '../../../../api/asset.ts';
 
 type Props = {
     asset: Asset;
@@ -22,8 +22,7 @@ export default function UploadRenditionDialog({
     asset,
     definitionId,
     renditionName,
-    open,
-    modalIndex,
+    ...modalProps
 }: Props) {
     const {t} = useTranslation();
     const [uploading, setUploading] = React.useState(false);
@@ -48,7 +47,7 @@ export default function UploadRenditionDialog({
                     },
                 });
             } else {
-                const multipart = await multipartUpload(
+                const multipart = await databoxMultipartUpload(
                     apiClient,
                     uploadForm.file
                 );
@@ -73,12 +72,11 @@ export default function UploadRenditionDialog({
 
     return (
         <FormDialog
-            modalIndex={modalIndex}
+            {...modalProps}
             title={t('upload_rendition.dialog.title', {
                 defaultValue: 'Upload Rendition {{renditionName}}',
                 renditionName,
             })}
-            open={open}
             loading={uploading}
             onSave={upload}
             submitIcon={<UploadIcon />}

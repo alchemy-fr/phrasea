@@ -6,7 +6,6 @@ import {
 } from '@alchemy/navigation';
 import {
     AnalyticsProvider,
-    AppGlobalTheme,
     MatomoRouteWrapper,
     UserHookCaller,
 } from '@alchemy/phrasea-framework';
@@ -45,21 +44,19 @@ export default function Root({}: Props) {
                     keycloakClient={keycloakClient}
                 >
                     <UserPreferencesProvider>
-                        <AppGlobalTheme>
-                            <UserHookCaller apiClient={apiClient} />
+                        <UserHookCaller apiClient={apiClient} />
 
-                            <QueryClientProvider client={queryClient}>
-                                <AttributeFormatProvider>
-                                    <RouterProvider
-                                        routes={routes}
-                                        options={{
-                                            RouteProxyComponent: RouteProxy,
-                                            WrapperComponent: WrapperComponent,
-                                        }}
-                                    />
-                                </AttributeFormatProvider>
-                            </QueryClientProvider>
-                        </AppGlobalTheme>
+                        <QueryClientProvider client={queryClient}>
+                            <AttributeFormatProvider>
+                                <RouterProvider
+                                    routes={routes}
+                                    options={{
+                                        RouteProxyComponent: RouteProxy,
+                                        WrapperComponent: WrapperComponent,
+                                    }}
+                                />
+                            </AttributeFormatProvider>
+                        </QueryClientProvider>
                     </UserPreferencesProvider>
                 </AuthenticationProvider>
             </AnalyticsProvider>

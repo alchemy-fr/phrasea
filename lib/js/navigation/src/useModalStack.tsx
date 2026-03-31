@@ -9,6 +9,8 @@ import React, {
 
 type ClosableFunc = () => boolean;
 
+type CloseModal = (options?: {force?: boolean; modalId?: string}) => void;
+
 export interface ModalStackValue {
     /**
      * Opens a modal using the provided component and props
@@ -22,9 +24,7 @@ export interface ModalStackValue {
     /**
      * Closes the active modal
      */
-    closeModal: (force?: boolean) => void;
-
-    isCloseable: (modalIndex: number) => boolean;
+    closeModal: CloseModal;
 
     /**
      * Closes all modals
@@ -54,11 +54,13 @@ export type OpenModalOptions = {
 export interface StackedModalProps {
     open: boolean;
     modalIndex: number;
+    modalId: string;
 }
 
 export type StackedModal = {
     id: string;
     component: React.ComponentType;
+    open: boolean;
     props: any;
     closeConstraint?: ClosableFunc | undefined;
     forceClose: boolean;
@@ -67,7 +69,7 @@ export type StackedModal = {
 
 export type Stack = {
     modals: StackedModal[];
-    current: number;
+    current: string | null;
 };
 
 const ModalStackContext = React.createContext<ModalStackValue>({} as any);
@@ -78,17 +80,6 @@ export interface ModalStackProps {
     children?: React.ReactNode;
 }
 
-function decreaseState(l: number, step = 1) {
-    window.history.replaceState(
-        l >= 1
-            ? {
-                  modal: l - step,
-              }
-            : {},
-        ''
-    );
-}
-
 export default function ModalStack({
     children,
     renderModals: ModalsComponent = Modals,
@@ -96,20 +87,50 @@ export default function ModalStack({
 }: ModalStackProps) {
     const [stack, setStack] = useState<Stack>({
         modals: [],
-        current: -1,
+        current: null,
     });
     const idInc = useRef<number>(0);
+
+    function pushHistory(modalId: string | null, replace?: boolean): void {
+        if (replace) {
+            window.history.replaceState(
+                {
+                    modal: modalId,
+                },
+                ''
+            );
+        } else {
+            window.history.pushState(
+                {
+                    modal: modalId,
+                },
+                ''
+            );
+        }
+    }
 
     const value = useMemo<ModalStackValue>(() => {
         function dismissAll() {
             setStack({
                 modals: [],
-                current: -1,
+                current: null,
             });
         }
 
-        function isCloseable(modalIndex: number): boolean {
-            const c = stack.modals[modalIndex]?.closeConstraint ?? undefined;
+        function getNewCurrentId(modals: StackedModal[]): string | null {
+            let newCurrent: string | null = null;
+
+            modals.forEach(m => {
+                if (m.open) {
+                    newCurrent = m.id;
+                }
+            });
+
+            return newCurrent;
+        }
+
+        function isCloseable(modal: StackedModal): boolean {
+            const c = modal?.closeConstraint ?? undefined;
             if (c) {
                 return c();
             }
@@ -118,29 +139,46 @@ export default function ModalStack({
         }
 
         const currentModal =
-            stack.current >= 0 ? stack.modals[stack.current] : undefined;
+            stack.current !== null
+                ? stack.modals.find(m => m.id === stack.current)
+                : undefined;
 
-        function closeCurrent(force = false): void {
-            if (currentModal && (force || isCloseable(stack.current))) {
-                currentModal.forceClose = true;
-                const l = window.history.state?.modal;
-                if (undefined !== l) {
-                    decreaseState(l);
-                    setStack(prev => ({
-                        modals:
-                            l < prev.modals.length - 1
-                                ? prev.modals.slice(0, l + 2)
-                                : prev.modals,
-                        current: prev.current - 1,
-                    }));
-                } else if (force) {
-                    setStack(prev => ({
-                        ...prev,
-                        current: prev.current - 1,
-                    }));
+        const closeCurrent: CloseModal = ({force, modalId} = {}) => {
+            let targetModal = currentModal;
+            if (modalId) {
+                targetModal = stack.modals.find(m => m.id === modalId);
+                if (!targetModal) {
+                    // eslint-disable-next-line no-console
+                    console.error('No modal found with id', modalId);
+                    return;
                 }
             }
-        }
+
+            if (targetModal && (force || isCloseable(targetModal))) {
+                targetModal.forceClose = true;
+                setStack(prev => {
+                    const newModals = prev.modals
+                        .filter(m => m.open)
+                        .map(m =>
+                            m.id === targetModal.id
+                                ? {
+                                      ...m,
+                                      open: false,
+                                  }
+                                : m
+                        );
+
+                    const newCurrent = getNewCurrentId(newModals);
+
+                    pushHistory(newCurrent, true);
+
+                    return {
+                        modals: newModals,
+                        current: newCurrent,
+                    };
+                });
+            }
+        };
 
         function setCloseConstraint(
             modalIndex: number,
@@ -155,68 +193,71 @@ export default function ModalStack({
         }
 
         const onPopState = () => {
-            const l = window.history.state?.modal;
-
-            if (l >= stack.modals.length) {
-                decreaseState(l, 2);
-
-                return;
+            const l: string | null = window.history.state?.modal || null;
+            if (l) {
+                const modal = stack.modals.find(m => m.id === l);
+                if (!modal) {
+                    const newCurrent = getNewCurrentId(stack.modals);
+                    pushHistory(newCurrent, true);
+                    return;
+                }
             }
 
-            if (currentModal && (undefined === l || stack.current >= l + 1)) {
-                if (!currentModal.forceClose && !isCloseable(stack.current)) {
-                    window.history.pushState(
-                        {
-                            modal: l !== undefined ? l + 1 : 0,
-                        },
-                        ''
-                    );
+            if (currentModal) {
+                if (!currentModal.forceClose && !isCloseable(currentModal)) {
+                    pushHistory(getNewCurrentId(stack.modals));
                 } else {
-                    setStack(prev => ({
-                        modals:
-                            l !== undefined && l < prev.modals.length - 1
-                                ? prev.modals.slice(0, l + 2)
-                                : prev.modals,
-                        current: prev.current - 1,
-                    }));
+                    setStack(prev => {
+                        const newModals = prev.modals
+                            .filter(m => m.open)
+                            .map(m =>
+                                m.id === currentModal.id
+                                    ? {
+                                          ...m,
+                                          open: false,
+                                      }
+                                    : m
+                            );
+
+                        const newCurrent = getNewCurrentId(newModals);
+
+                        pushHistory(newCurrent, true);
+
+                        return {
+                            modals: newModals,
+                            current: newCurrent,
+                        };
+                    });
                 }
             }
         };
 
         return {
             setCloseConstraint,
-            isCloseable,
             stack,
             openModal: (component, props, options) => {
                 setStack(prev => {
-                    let newModals = prev.modals.slice(0, prev.current + 1);
-                    let newCurrent = newModals.length;
+                    let newModals = prev.modals.filter(m => m.open);
                     if (options?.replace) {
-                        newModals = prev.modals.slice(
-                            0,
-                            prev.modals.length - 1
-                        );
-                        newCurrent--;
-                    } else {
-                        window.history.pushState(
-                            {
-                                modal: newCurrent,
-                            },
-                            ''
-                        );
+                        newModals = newModals.slice(0, newModals.length - 1);
                     }
 
+                    const id = `m${(idInc.current++).toString()}`;
+
+                    pushHistory(id, options?.replace);
+
                     newModals.push({
-                        id: (idInc.current++).toString(),
+                        id,
                         component,
                         props,
                         forceClose: false,
+                        open: true,
                         forwardedContexts: options?.forwardedContexts,
                     } as StackedModal);
 
                     return {
                         modals: newModals,
-                        current: newCurrent,
+                        current: id,
                     };
                 });
             },
@@ -252,8 +293,9 @@ function Modals({stack}: ModalStackValue) {
                 let contextStack = (
                     <modal.component
                         key={modal.id}
-                        open={index <= stack.current}
+                        open={modal.open}
                         modalIndex={index}
+                        modalId={modal.id}
                         {...modal.props}
                     />
                 );

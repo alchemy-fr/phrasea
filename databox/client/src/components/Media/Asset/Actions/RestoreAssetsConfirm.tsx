@@ -25,8 +25,7 @@ type Props = {
 export default function RestoreAssetsConfirm({
     assets,
     onRestore,
-    open,
-    modalIndex,
+    ...modalProps
 }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
@@ -71,10 +70,9 @@ export default function RestoreAssetsConfirm({
 
     return (
         <ConfirmDialog
-            modalIndex={modalIndex}
+            {...modalProps}
             title={t('asset.restore.confirm.title', 'Confirm restore')}
             onConfirm={onRestoreAssets}
-            open={open}
             disabled={count === 0}
             confirmButtonProps={{
                 startIcon: <RestoreFromTrashIcon />,

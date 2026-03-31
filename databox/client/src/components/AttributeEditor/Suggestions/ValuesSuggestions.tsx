@@ -252,6 +252,7 @@ export default function ValuesSuggestions<T>({
                                         ? widget.formatValue({
                                               value: v.value,
                                               uiLocale: i18n.language,
+                                              t,
                                           })
                                         : t(
                                               'attribute_editor.suggestions.no_value',

@@ -47,6 +47,7 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
                 {facet.buckets.map(b => {
                     const labelValue = extractLabelValueFromKey(b.key, type, {
                         uiLocale: i18n.language,
+                        t,
                     });
                     const {value: keyV} = labelValue;
 

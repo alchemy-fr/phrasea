@@ -130,7 +130,7 @@ export default function WorkflowHeader({
             </div>
 
             {expanded && (
-                <div>
+                <div className={'workflow-header-dropdown'}>
                     {Boolean(workflow.event) && (
                         <section className={'workflow-section'}>
                             <DetailTitle>Event</DetailTitle>

@@ -1,21 +1,27 @@
-import {MouseEvent, useContext, useEffect, useRef, useState} from 'react';
-import {createStrictDimensions} from '@alchemy/core';
-import {PlayerProps} from './index.ts';
-import ReactPlayer from 'react-player/lazy';
-import {IconButton, LinearProgress, SxProps} from '@mui/material';
-import {DisplayContext} from '../../DisplayContext';
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
-import PauseIcon from '@mui/icons-material/Pause';
 import {
-    FileTypeEnum,
-    getFileTypeFromMIMEType,
+    MouseEvent,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
+import {
+    createStrictDimensions,
     getRatioDimensions,
     getSizeCase,
 } from '@alchemy/core';
-import {Theme} from '@mui/material';
+import {PlayerProps} from './index.ts';
+import ReactPlayer from 'react-player/lazy';
+import {IconButton, LinearProgress, SxProps, Theme} from '@mui/material';
+import {DisplayContext} from '../../DisplayContext';
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import PauseIcon from '@mui/icons-material/Pause';
 import assetClasses from '../../../AssetList/classes.ts';
 import classNames from 'classnames';
 import {useMatomo} from '@alchemy/phrasea-framework';
+import type {IsVisibleCallback} from '@alchemy/react-hooks/src/useVisibility.ts';
+import useVisibility from '@alchemy/react-hooks/src/useVisibility.ts';
 
 type Progress = {
     played: number;
@@ -29,7 +35,8 @@ function stopPropagationIfNoCtrl(e: MouseEvent) {
 }
 
 type Props = {
-    autoPlayable: boolean;
+    autoPlayable?: boolean;
+    autoPlay?: boolean;
     controls?: boolean | undefined;
 } & PlayerProps;
 
@@ -39,6 +46,7 @@ export default function VideoPlayer({
     trackingId,
     onLoad,
     autoPlayable,
+    autoPlay: initAutoPlay,
     noInteraction,
     controls,
     dimensions: forcedDimensions,
@@ -46,16 +54,14 @@ export default function VideoPlayer({
     const [progress, setProgress] = useState<Progress>();
     const [duration, setDuration] = useState<number>();
     const displayContext = useContext(DisplayContext);
+    const d = displayContext?.state;
     const [play, setPlay] = useState(false);
     const [ratio, setRatio] = useState<number>();
-    const type = getFileTypeFromMIMEType(file.type);
-    const isAudio = type === FileTypeEnum.Audio;
-    const d = displayContext?.state;
     const dimensions = createStrictDimensions(
         forcedDimensions ?? {width: d?.thumbSize ?? 200}
     );
     const videoDimensions = getRatioDimensions(dimensions, ratio);
-    const autoPlay = autoPlayable && d?.playVideos;
+    const autoPlay = initAutoPlay ?? Boolean(autoPlayable && d?.playVideos);
     const playerRef = useRef<ReactPlayer | null>(null);
 
     const {pushInstruction} = useMatomo();
@@ -94,11 +100,31 @@ export default function VideoPlayer({
         }
     }, [playerRef]);
 
+    const visibilityListener = useCallback<IsVisibleCallback>(
+        isVisible => {
+            const internalPlayer = playerRef.current?.getInternalPlayer();
+            if (!internalPlayer) {
+                return false;
+            }
+            if (isVisible) {
+                internalPlayer.play();
+            } else {
+                internalPlayer.pause();
+            }
+        },
+        [playerRef.current]
+    );
+
+    const {elementRef} = useVisibility<HTMLDivElement>({
+        shouldTrack: autoPlay,
+        callback: visibilityListener,
+    });
+
     return (
         <div
+            ref={elementRef}
             className={classNames({
                 [assetClasses.videoPlayer]: true,
-                [assetClasses.videoPlayerIsAudio]: isAudio,
                 [assetClasses.videoPlayerPlaying]: play,
             })}
             style={{
@@ -129,7 +155,7 @@ export default function VideoPlayer({
                 ref={playerRef}
                 url={file.url}
                 {...videoDimensions}
-                playing={play || (!isAudio && autoPlay)}
+                playing={play}
                 loop={true}
                 onReady={player => {
                     onLoad && onLoad();
@@ -148,7 +174,6 @@ export default function VideoPlayer({
                     });
                 }}
                 progressInterval={duration ? (duration < 60 ? 100 : 1000) : 5}
-                muted={autoPlay}
                 controls={hasControls}
             />
             {!hasControls && progress && (
@@ -179,7 +204,7 @@ export function videoPlayerSx(thumbSize: number, theme: Theme): SxProps {
             alignItems: 'center',
             minWidth: thumbSize,
             minHeight: thumbSize,
-            [`&.${assetClasses.videoPlayerIsAudio}`]: {
+            [`&.${assetClasses.audioPlayer}`]: {
                 backgroundColor: theme.palette.background.default,
             },
             [`.${assetClasses.videoPlayerActions}`]: {

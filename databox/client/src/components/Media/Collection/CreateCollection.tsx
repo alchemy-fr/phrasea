@@ -26,8 +26,7 @@ export default function CreateCollection({
     workspaceId,
     workspaceTitle,
     onCreate,
-    modalIndex,
-    open,
+    ...modalProps
 }: Props) {
     const {closeModal} = useModals();
     const {t} = useTranslation();
@@ -60,7 +59,7 @@ export default function CreateCollection({
     });
 
     const {submitting, remoteErrors, forbidNavigation} = usedFormSubmit;
-    useDirtyFormPrompt(forbidNavigation, modalIndex);
+    useDirtyFormPrompt(forbidNavigation, modalProps.modalIndex);
     const formId = 'create-collection';
 
     const title = titlePath ? (
@@ -86,12 +85,11 @@ export default function CreateCollection({
 
     return (
         <FormDialog
-            modalIndex={modalIndex}
+            {...modalProps}
             title={<div>{title}</div>}
             formId={formId}
             loading={submitting}
             errors={remoteErrors}
-            open={open}
         >
             <CollectionForm formId={formId} usedFormSubmit={usedFormSubmit} />
         </FormDialog>

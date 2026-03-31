@@ -28,8 +28,7 @@ export default function MoveAssetsDialog({
     assetIds,
     workspaceId,
     onComplete,
-    open,
-    modalIndex,
+    ...modalProps
 }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
@@ -62,14 +61,13 @@ export default function MoveAssetsDialog({
             onComplete();
         },
     });
-    useDirtyFormPrompt(forbidNavigation, modalIndex);
+    useDirtyFormPrompt(forbidNavigation, modalProps.modalIndex);
 
     const formId = 'move-assets';
 
     return (
         <FormDialog
-            modalIndex={modalIndex}
-            open={open}
+            {...modalProps}
             title={t('move_assets.dialog.title', 'Move {{count}} asset', {
                 defaultValue_other: 'Move {{count}} assets',
                 count,

@@ -34,8 +34,8 @@ $statuses: (
     content: '';
     display: block;
     position: absolute;
-    left: -($border / 2);
-    top: -($border / 2);
+    left: -(calc($border / 2));
+    top: -(calc($border / 2));
     width: $size + $border;
     height: $size + $border;
     border-radius: 50%;

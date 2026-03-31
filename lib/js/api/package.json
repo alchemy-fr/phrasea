@@ -18,7 +18,7 @@
         "src/multiPartUpload.ts"
     ],
     "peerDependencies": {
-        "axios": "^1.12.2",
+        "axios": "^1.13.5",
         "axios-retry": "^4.5.0",
         "react": "^18.2.0",
         "react-hook-form": "^7.63.0",
@@ -27,7 +27,7 @@
     "devDependencies": {
         "@4rthem/i18next-scanner": "^0.0.1",
         "@types/react": "^18.3.24",
-        "axios": "^1.12.2",
+        "axios": "^1.13.5",
         "axios-retry": "^4.5.0",
         "react": "^18.3.1",
         "react-hook-form": "^7.63.0",

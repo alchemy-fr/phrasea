@@ -68,8 +68,9 @@ type ActionArgs = {
 
 // Copy type to avoid circular dependency
 type StackedModalProps = {
-    open?: boolean;
+    open: boolean;
     modalIndex?: number;
+    modalId?: string;
 };
 
 type Props = PropsWithChildren<
@@ -113,7 +114,7 @@ export default function AppDialog({
         <BootstrapDialog
             TransitionComponent={Transition}
             onClose={handleClose}
-            open={open ?? false}
+            open={open}
             fullWidth={true}
             maxWidth={maxWidth}
             fullScreen={fullScreen}

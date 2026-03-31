@@ -35,7 +35,7 @@ export default function DisplayProvider({
         titleRows: 1,
         displayCollections: true,
         displayAttributes: true,
-        playVideos: false,
+        playVideos: true,
         collectionsLimit: 2,
         tagsLimit: 1,
         previewLocked: false,

@@ -30,10 +30,9 @@ type Props = {} & BaseSaveAsProps & StackedModalProps;
 export default function SaveFileAsNewAssetDialog({
     asset,
     file,
-    open,
     suggestedTitle,
     integrationId,
-    modalIndex,
+    ...modalProps
 }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
@@ -82,18 +81,17 @@ export default function SaveFileAsNewAssetDialog({
             closeModal();
         },
     });
-    useDirtyFormPrompt(forbidNavigation, modalIndex);
+    useDirtyFormPrompt(forbidNavigation, modalProps.modalIndex);
 
     const formId = 'save-file-as-new-asset';
 
     return (
         <FormDialog
-            modalIndex={modalIndex}
+            {...modalProps}
             title={t(
                 'save_file_as_new_asset_dialog.save_file_as_new_asset',
                 `Save file as new asset`
             )}
-            open={open}
             loading={submitting}
             formId={formId}
             submitIcon={<FileCopyIcon />}

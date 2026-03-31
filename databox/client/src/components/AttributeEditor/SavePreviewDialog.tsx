@@ -19,6 +19,7 @@ type Props = {
 export default function SavePreviewDialog({
     open,
     modalIndex,
+    modalId,
     workspaceId,
     actions,
     onSaved,
@@ -66,6 +67,7 @@ export default function SavePreviewDialog({
         <AppDialog
             onClose={closeModal}
             open={open}
+            modalId={modalId}
             modalIndex={modalIndex}
             title={t('attribute_editor.diff.dialog.title', 'Confirm Changes?')}
             actions={({onClose}) => (

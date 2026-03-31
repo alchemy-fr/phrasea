@@ -7,7 +7,7 @@ import {config} from '../../init';
 
 export function useAccept(): Accept | undefined {
     return React.useMemo<Accept | undefined>(() => {
-        const a = config.allowedTypes;
+        const a = config.upload.allowedTypes;
         if (!a) {
             return;
         }

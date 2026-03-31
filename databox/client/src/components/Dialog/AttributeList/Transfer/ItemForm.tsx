@@ -73,6 +73,7 @@ export default function ItemForm({item, listId, onChange}: Props) {
     const formats = attributeType
         ? attributeType.getAvailableFormats({
               uiLocale: i18n.language,
+              t,
           })
         : [];
 

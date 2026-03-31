@@ -25,8 +25,7 @@ type Props = {
 export default function AddAttachmentDialog({
     asset,
     onAttachmentAdded,
-    open,
-    modalIndex,
+    ...modalProps
 }: Props) {
     const {t} = useTranslation();
     const [uploading, setUploading] = React.useState(false);
@@ -83,9 +82,8 @@ export default function AddAttachmentDialog({
 
     return (
         <FormDialog
-            modalIndex={modalIndex}
+            {...modalProps}
             title={t('attachment.dialog.add.title', 'Add attachment to Asset')}
-            open={open}
             loading={uploading}
             onSave={upload}
             submitIcon={<UploadIcon />}

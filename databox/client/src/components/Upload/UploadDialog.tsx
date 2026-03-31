@@ -61,11 +61,10 @@ type Props = {
 export default function UploadDialog({
     files: initFiles,
     workspaceId: initWsId,
-    open,
     workspaceTitle,
     collectionId: initCollectionId,
     titlePath,
-    modalIndex,
+    ...modalProps
 }: Props) {
     const [urlMode, setUrlMode] = React.useState(false);
     const [url, setUrl] = React.useState('');
@@ -81,7 +80,7 @@ export default function UploadDialog({
         }))
     );
     const {closeModal} = useModals();
-    useFormPrompt(t, files.length > 0, modalIndex);
+    useFormPrompt(t, files.length > 0, modalProps.modalIndex);
 
     const usedAttributeEditor = useAttributeEditor({
         workspaceId,
@@ -249,7 +248,7 @@ export default function UploadDialog({
             }
         },
         onSuccess: () => {
-            closeModal(true);
+            closeModal({force: true, modalId: modalProps.modalId});
         },
     });
 
@@ -315,10 +314,9 @@ export default function UploadDialog({
 
     return (
         <FormDialog
+            {...modalProps}
             title={title ?? t('form.upload.title', 'Upload')}
             formId={formId}
-            open={open}
-            modalIndex={modalIndex}
             loading={submitting}
             errors={remoteErrors}
             submitIcon={<UploadIcon />}
@@ -463,7 +461,7 @@ export default function UploadDialog({
                 usedAttributeEditor={usedAttributeEditor}
                 usedStoryAttributeEditor={usedStoryAttributeEditor}
                 usedAssetDataTemplateOptions={usedAssetDataTemplateOptions}
-                modalIndex={modalIndex}
+                modalIndex={modalProps.modalIndex}
             />
         </FormDialog>
     );

@@ -22,11 +22,10 @@ type Props = {
 type FormData = Omit<ExposePublication, 'id'>;
 
 export default function CreatePublicationDialog({
-    open,
-    modalIndex,
     basket,
     integrationId,
     onSuccess,
+    ...modalProps
 }: Props) {
     const {closeModal} = useModals();
     const {t} = useTranslation();
@@ -75,18 +74,17 @@ export default function CreatePublicationDialog({
             closeModal();
         },
     });
-    useFormPrompt(t, forbidNavigation, modalIndex);
+    useFormPrompt(t, forbidNavigation, modalProps.modalIndex);
 
     const formId = 'ep';
 
     return (
         <FormDialog
+            {...modalProps}
             title={t(
                 'integration.expose.create_pub.title',
                 `Create Publication`
             )}
-            open={open}
-            modalIndex={modalIndex}
             loading={submitting}
             formId={formId}
             submitIcon={<FileCopyIcon />}

@@ -1,6 +1,8 @@
 import {AxiosProgressEvent} from 'axios';
 import {HttpClient, MultipartUpload, UploadPart} from './types';
 
+export type OnRetry = (retryCount: number, retryDelay: number) => void;
+
 export type MultipartUploadOptions = {
     uploadId?: string;
     uploadParts?: UploadPart[];
@@ -12,11 +14,76 @@ export type MultipartUploadOptions = {
         partNumber: number;
     }) => void;
     onProgress?: (event: AxiosProgressEvent) => void;
+    onRetry?: OnRetry;
     receiveAbortController?: (abortController: AbortController) => void;
-    fileChunkSize?: number;
+} & ChunkOptions;
+
+type ChunkOptions = {
+    maxFileSize?: Readonly<number>;
+    minChunkSize?: Readonly<number>;
+    maxChunkSize?: Readonly<number>;
+    maxPartNumber?: Readonly<number>;
 };
 
-const minChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3
+export function resolveChunkParams(
+    file: File,
+    {
+        minChunkSize = 5242880,
+        maxChunkSize,
+        maxPartNumber = 10000,
+        maxFileSize,
+    }: ChunkOptions
+): {
+    maxFileSize?: Readonly<number>;
+    minChunkSize: Readonly<number>;
+    maxChunkSize?: Readonly<number>;
+    maxPartNumber: Readonly<number>;
+    chunkSize: Readonly<number>;
+} {
+    const size = file.size;
+
+    // eslint-disable-next-line no-console
+    console.debug('chunkParams', {
+        fileSize: size,
+        minChunkSize,
+        maxChunkSize,
+        maxPartNumber,
+        maxFileSize,
+    });
+
+    if (maxFileSize && size > maxFileSize) {
+        throw new Error(
+            `File size exceeds the maximum allowed size of ${maxFileSize} bytes`
+        );
+    }
+    const calculatedMinChunkSize = Math.max(
+        minChunkSize,
+        Math.ceil(size / maxPartNumber)
+    );
+    if (maxChunkSize && calculatedMinChunkSize > maxChunkSize) {
+        throw new Error(
+            `Minimum chunk size of ${calculatedMinChunkSize} bytes exceeds the maximum allowed chunk size of ${maxChunkSize} bytes for a file of size ${size} bytes with a maximum of ${maxPartNumber} parts`
+        );
+    }
+
+    const chunkSize = Math.min(
+        maxChunkSize ?? calculatedMinChunkSize,
+        calculatedMinChunkSize
+    );
+    if (chunkSize < minChunkSize) {
+        throw new Error(
+            `Calculated chunk size ${chunkSize} bytes is less than the minimum allowed chunk size of ${minChunkSize} bytes`
+        );
+    }
+
+    return {
+        chunkSize,
+        minChunkSize,
+        maxChunkSize,
+        maxPartNumber,
+        maxFileSize,
+    };
+}
 
 export async function multipartUpload(
     apiClient: HttpClient,
@@ -29,14 +96,19 @@ export async function multipartUpload(
         onPartUploaded,
         onProgress,
         receiveAbortController,
-        fileChunkSize = minChunkSize,
+        onRetry,
+        ...chunkOptions
     }: MultipartUploadOptions = {}
 ): Promise<MultipartUpload> {
     const parts: UploadPart[] = initialUploadParts ?? [];
+    const size = file.size;
 
-    if (fileChunkSize < minChunkSize) {
-        throw new Error(`fileChunkSize must be at least ${minChunkSize}`);
-    }
+    const {chunkSize} = resolveChunkParams(file, {
+        ...chunkOptions,
+    });
+
+    // eslint-disable-next-line no-console
+    console.debug(`Starting upload with chunks of size ${chunkSize} bytes`);
 
     let uploadId: string | undefined = initialUploadId;
 
@@ -49,7 +121,7 @@ export async function multipartUpload(
             {
                 filename: file.name,
                 type: file.type,
-                size: file.size,
+                size,
             },
             {
                 signal: abortControllerInit.signal,
@@ -61,12 +133,12 @@ export async function multipartUpload(
         throw new Error('uploadId is required when uploadParts are provided');
     }
 
-    const numChunks = Math.floor(file.size / fileChunkSize) + 1;
+    const numChunks = Math.ceil(size / chunkSize);
     const startIndex = parts.length + 1;
 
-    for (let index = startIndex; index < numChunks + 1; index++) {
-        const start = (index - 1) * fileChunkSize;
-        const end = index * fileChunkSize;
+    for (let index = startIndex; index <= numChunks; index++) {
+        const start = (index - 1) * chunkSize;
+        const end = index * chunkSize;
 
         const abortControllerLoop = new AbortController();
         receiveAbortController?.(abortControllerLoop);
@@ -77,7 +149,21 @@ export async function multipartUpload(
                 part: index,
             },
             {
-                signal: abortControllerLoop.signal,
+                'signal': abortControllerLoop.signal,
+                'axios-retry': {
+                    retries: 10,
+                    onRetry: onRetry
+                        ? (retryCount, error) => {
+                              onRetry(
+                                  retryCount,
+                                  error.config?.['axios-retry']?.retryDelay?.(
+                                      retryCount,
+                                      error
+                                  ) ?? 0
+                              );
+                          }
+                        : undefined,
+                },
             }
         );
 
@@ -93,9 +179,12 @@ export async function multipartUpload(
             signal: abortControllerPut.signal,
             anonymous: true,
             onUploadProgress: (e: AxiosProgressEvent) => {
+                const totalLoaded = e.loaded + start;
                 const multiPartEvent: AxiosProgressEvent = {
                     ...e,
-                    loaded: e.loaded + start,
+                    total: size,
+                    loaded: totalLoaded,
+                    progress: totalLoaded / size,
                 };
 
                 onProgress?.(multiPartEvent);
@@ -107,6 +196,11 @@ export async function multipartUpload(
                 etag: string;
             }
         ).etag;
+        if (!etag) {
+            throw new Error(
+                'ETag header is missing in the upload response. Are CORS configured correctly on the server?'
+            );
+        }
 
         parts.push({
             ETag: etag,
