@@ -22,8 +22,8 @@ class WorkspaceTemplateCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('Workspace')
-            ->setEntityLabelInPlural('Workspaces')
+            ->setEntityLabelInSingular('Workspace template')
+            ->setEntityLabelInPlural('Workspace templates')
             ->setSearchFields(['id', 'name'])
             ->setPaginatorPageSize(100)
             ->setDefaultSort(['name' => 'ASC']);

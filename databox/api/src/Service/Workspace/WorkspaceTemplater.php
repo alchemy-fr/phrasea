@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Workspace;
 
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\RenditionDefinition;
@@ -37,6 +38,7 @@ final readonly class WorkspaceTemplater
             'AttributePolicy' => $this->exportAttributePolicy($workspace->getId(), $attributeClassMap),
             'AttributeDefinition' => $this->exportAttributeDefinition($workspace->getId(), $attributeClassMap),
             'Tag' => $this->exportTag($workspace->getId()),
+            'EntityList' => $this->exportEntityList($workspace->getId()),
         ];
     }
 
@@ -96,6 +98,8 @@ final readonly class WorkspaceTemplater
             $this->importRenditionDefinition($ws, $data['RenditionDefinition'] ?? [], $renditionClassMap);
 
             $this->importTag($ws, $data['Tag'] ?? []);
+
+            $this->importEntityList($ws, $data['EntityList'] ?? []);
 
             $this->em->flush();
             if ($addTransaction) {
@@ -445,6 +449,65 @@ final readonly class WorkspaceTemplater
             $o->setTranslations($item['translations']);
             $o->setLocale($item['locale']);
             $this->em->persist($o);
+        }
+    }
+
+    private function exportEntityList(string $workspaceId)
+    {
+        $o = [];
+
+        /** @var EntityList[] $lists */
+        $lists = $this->em->getRepository(EntityList::class)->findBy([
+            'workspace' => $workspaceId,
+        ]);
+
+        foreach ($lists as $list) {
+            /** @var AttributeEntity[] $items */
+            $items = $this->em->getRepository(AttributeEntity::class)->findBy([
+                'workspace' => $workspaceId,
+                'list' => $list->getId(),
+            ]);
+
+            $o[$list->getName()] = array_map(function (AttributeEntity $item) {
+                return [
+                    'value' => $item->getValue(),
+                    'position' => $item->getPosition(),
+                    'translations' => $item->getTranslations(),
+                    'synonyms' => $item->getSynonyms(),
+                ];
+            }, $items);
+        }
+
+        return $o;
+    }
+
+    private function importEntityList(Workspace $ws, array $data)
+    {
+        foreach ($data as $entity => $items) {
+            /** @var EntityList $o */
+            if (!($o = $this->em->getRepository(EntityList::class)->findOneBy([
+                'workspace' => $ws,
+                'name' => $entity,
+            ]))) {
+                $this->logger->info(sprintf('Creating EntityList "%s"', $entity));
+                $o = new EntityList();
+                $o->setWorkspace($ws);
+                $o->setName($entity);
+                $this->em->persist($o);
+
+                foreach ($items as $item) {
+                    $ae = new AttributeEntity();
+                    $ae->setWorkspace($ws);
+                    $ae->setList($o);
+                    $ae->setValue($item['value']);
+                    $ae->setPosition($item['position']);
+                    $ae->setTranslations($item['translations']);
+                    $ae->setSynonyms($item['synonyms']);
+                    $this->em->persist($ae);
+                }
+            } else {
+                $this->logger->info(sprintf('EntityList "%s" exists', $entity));
+            }
         }
     }
 }
