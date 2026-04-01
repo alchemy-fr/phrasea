@@ -21,6 +21,7 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\AssetTypeTargetFilter;
 use App\Api\Filter\InWorkspacesFilter;
+use App\Api\Filter\PartialSearchFilter;
 use App\Api\Filter\SearchFilter;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
@@ -65,6 +66,12 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                     filter: BooleanFilter::class,
                     property: 'searchable',
                 ),
+                'name' => new QueryParameter(
+                    filter: PartialSearchFilter::class,
+                    property: 'name',
+                ),
+                'type' => new QueryParameter(
+                    filter: SearchFilter::class, property: 'fieldType'),
                 'workspaceId' => new QueryParameter(
                     filter: SearchFilter::class, property: 'workspace'),
                 'workspaceIds' => new QueryParameter(

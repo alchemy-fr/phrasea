@@ -84,7 +84,11 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
             $previousType = $object->getFieldType();
 
             if ($newType !== $previousType) {
-                $this->attributeTypeChangeService->handleTypeChange($previousType, $newType, $object);
+                try {
+                    $this->attributeTypeChangeService->handleTypeChange($previousType, $newType, $object);
+                } catch (\InvalidArgumentException $e) {
+                    throw new BadRequestHttpException($e->getMessage());
+                }
                 $object->setFieldType($newType);
 
                 if (EntityAttributeType::NAME === $newType) {

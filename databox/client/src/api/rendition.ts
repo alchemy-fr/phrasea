@@ -3,6 +3,7 @@ import {
     RenditionPolicy,
     RenditionDefinition,
     AssetType,
+    AssetTypeFilter,
 } from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {apiClient} from '../init.ts';
@@ -113,16 +114,31 @@ export async function getRenditionPolicies({
     return getHydraCollection(res.data);
 }
 
-export async function getWorkspaceRenditionDefinitions(
-    workspaceId: string
-): Promise<NormalizedCollectionResponse<RenditionDefinition>> {
+export async function getWorkspaceRenditionDefinitions({
+    workspaceId,
+    nextUrl,
+    query,
+    target,
+}: {
+    workspaceId: string;
+    target?: AssetTypeFilter;
+    query?: string;
+} & PaginationParams): Promise<
+    NormalizedCollectionResponse<RenditionDefinition>
+> {
     return getHydraCollection(
         (
-            await apiClient.get(`/${EntityName.RenditionDefinition}`, {
-                params: {
-                    workspaceId,
-                },
-            })
+            await apiClient.get(
+                nextUrl ?? `/${EntityName.RenditionDefinition}`,
+                {
+                    params: {
+                        name: query,
+                        target,
+                        workspaceId,
+                        limit: 2,
+                    },
+                }
+            )
         ).data
     );
 }

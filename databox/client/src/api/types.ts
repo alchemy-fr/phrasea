@@ -24,7 +24,6 @@ export enum AttributeType {
     Boolean = 'boolean',
     Code = 'code',
     CollectionPath = 'collection_path',
-    Story = 'story',
     Color = 'color',
     Date = 'date',
     DateTime = 'date_time',
@@ -38,14 +37,15 @@ export enum AttributeType {
     Keyword = 'keyword',
     Number = 'number',
     Privacy = 'privacy',
+    Rendition = 'rendition',
     Size = 'size',
+    Story = 'story',
     Tag = 'tag',
     Text = 'text',
     Textarea = 'textarea',
+    User = 'user',
     WebVtt = 'web_vtt',
     Workspace = 'workspace',
-    Rendition = 'rendition',
-    User = 'user',
 }
 
 export enum EntityName {

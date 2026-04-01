@@ -70,6 +70,7 @@ type ListState<D extends DefinitionBase> = {
     loadingMore: boolean;
     next: string | undefined;
     query: string;
+    filters: Filters;
 };
 
 export type ItemState<D extends DefinitionBase> = {
@@ -136,10 +137,20 @@ type BodyWithListLoadedProps<D extends DefinitionBase> = {
     items: D[];
 } & BodyProps<D>;
 
-type Props<D extends DefinitionBase> = {
+type Filters = Record<string, any>;
+
+type SetFilterFunc<F extends Filters> = (name: keyof F, value: any) => void;
+
+type FilterProps<F extends Filters> = {
+    filters: F;
+    setFilter: SetFilterFunc<F>;
+};
+
+type Props<D extends DefinitionBase, F extends Filters> = {
     load: (props: {
         nextUrl?: string;
         query?: string;
+        filters: F;
     }) => Promise<NormalizedCollectionResponse<D>>;
     loadItem?: (id: string) => Promise<D>;
     listComponent: FunctionComponent<DefinitionListItemProps<D>>;
@@ -161,15 +172,17 @@ type Props<D extends DefinitionBase> = {
     preSearchBody?: (props: BodyProps<D>) => React.ReactNode;
     preListBody?: (props: BodyProps<D>) => React.ReactNode;
     searchFilter?: (props: BodyWithListLoadedProps<D>, value: string) => D[];
-    filter?: (list: D[]) => D[];
-    activeFilterCount?: number;
-    filters?: React.ReactNode;
+    applyFilters?: (list: D[], filters: F) => D[];
+    filters?: (props: FilterProps<F>) => React.ReactNode;
     deleteConfirmAssertions?: (
         data: D
     ) => ConfirmDialogProps<any>['assertions'];
 };
 
-export default function DefinitionManager<D extends DefinitionBase>({
+export default function DefinitionManager<
+    D extends DefinitionBase,
+    F extends Filters,
+>({
     load,
     handleDelete,
     itemComponent,
@@ -192,10 +205,9 @@ export default function DefinitionManager<D extends DefinitionBase>({
     preListBody,
     preSearchBody,
     searchFilter,
-    filter,
-    activeFilterCount,
-    filters,
-}: Props<D>) {
+    applyFilters,
+    filters: inputFilters,
+}: Props<D, F>) {
     const {openModal} = useModals();
     const hasPaginationRef = useRef<boolean>(true);
     const [listState, setListState] = useState<ListState<D>>({
@@ -204,6 +216,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
         loadingMore: false,
         next: undefined,
         query: '',
+        filters: {},
     });
     const [subManagementState, setSubManagementState] = React.useState<
         SubManagementState | undefined
@@ -232,45 +245,54 @@ export default function DefinitionManager<D extends DefinitionBase>({
     const {loading: loadingItem, item, action} = itemState;
     const {t} = useTranslation();
     const [searchTerm, setSearchTerm] = React.useState('');
+    const [filters, setFilters] = useState<F>({} as F);
 
-    const reload = useCallback(
-        async (query?: string) => {
-            setListState({
-                list: undefined,
-                next: undefined,
-                loading: true,
-                loadingMore: false,
-                query: query ?? '',
-            });
-
-            try {
-                const r = await load({
-                    query,
-                });
-                setListState(p => ({
-                    ...p,
-                    list: normalizeData
-                        ? r.result.map(normalizeData)
-                        : r.result,
-                    next: r.next || undefined,
-                    loading: false,
-                }));
-                if (!query) {
-                    hasPaginationRef.current = !!r.next;
-                }
-            } catch (e) {
-                setListState(p => ({
-                    ...p,
-                    list: [],
-                    loading: false,
-                    next: undefined,
-                    loadingMore: false,
-                }));
-                return;
-            }
+    const setFilter = useCallback<SetFilterFunc<F>>(
+        (name, value) => {
+            setFilters(p => ({
+                ...p,
+                [name]: value,
+            }));
         },
-        [hasPaginationRef]
+        [setFilters]
     );
+
+    const reload = useCallback(async () => {
+        const query = searchTerm;
+        setListState({
+            list: undefined,
+            next: undefined,
+            loading: true,
+            loadingMore: false,
+            query,
+            filters,
+        });
+
+        try {
+            const r = await load({
+                query,
+                filters,
+            });
+            setListState(p => ({
+                ...p,
+                list: normalizeData ? r.result.map(normalizeData) : r.result,
+                next: r.next || undefined,
+                loading: false,
+            }));
+            if (!query && Object.entries(filters).length === 0) {
+                hasPaginationRef.current = !!r.next;
+            }
+        } catch (e) {
+            setListState(p => ({
+                ...p,
+                list: [],
+                loading: false,
+                next: undefined,
+                loadingMore: false,
+            }));
+            return;
+        }
+    }, [hasPaginationRef, searchTerm, filters]);
 
     const loadNext = useCallback(async () => {
         setListState(p => ({
@@ -282,6 +304,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
             const r = await load({
                 nextUrl: listState.next,
                 query: searchTerm,
+                filters,
             });
             setListState(p => ({
                 ...p,
@@ -309,8 +332,8 @@ export default function DefinitionManager<D extends DefinitionBase>({
         !hasPaginationRef.current && searchFilter && list
             ? searchFilter(bodyProps as BodyWithListLoadedProps<D>, searchTerm)
             : list;
-    if (filter && filteredList) {
-        filteredList = filter(filteredList);
+    if (applyFilters && filteredList) {
+        filteredList = applyFilters(filteredList, filters);
     }
 
     const newItem = React.useMemo(() => createNewItem(), [item, createNewItem]);
@@ -407,9 +430,9 @@ export default function DefinitionManager<D extends DefinitionBase>({
 
     React.useEffect(() => {
         if (hasPaginationRef.current) {
-            reload(searchTerm);
+            reload();
         }
-    }, [reload, searchTerm, hasPaginationRef]);
+    }, [reload, hasPaginationRef]);
 
     const onDelete = useMemo(
         () =>
@@ -512,17 +535,24 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                 onChange={e => setSearchTerm(e.target.value)}
                                 size="small"
                             />
-                            {filters ? (
+                            {inputFilters ? (
                                 <div
                                     style={{
                                         position: 'relative',
                                     }}
                                 >
                                     <FilterDropdown
-                                        activeFilterCount={activeFilterCount}
+                                        activeFilterCount={
+                                            Object.entries(filters).filter(
+                                                ([_, v]) => !!v
+                                            ).length
+                                        }
                                         children={() => [
                                             <React.Fragment key={'1'}>
-                                                {filters}
+                                                {inputFilters({
+                                                    setFilter,
+                                                    filters,
+                                                })}
                                             </React.Fragment>,
                                         ]}
                                     />
