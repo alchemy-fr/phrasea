@@ -513,7 +513,7 @@ export default function AttributeDefinitionManager({
                     query,
                     nextUrl,
                     type,
-                    target,
+                    target: target ?? AssetTypeFilter.All,
                 })
             }
             workspace={workspace}

@@ -135,7 +135,6 @@ export async function getWorkspaceRenditionDefinitions({
                         name: query,
                         target,
                         workspaceId,
-                        limit: 2,
                     },
                 }
             )

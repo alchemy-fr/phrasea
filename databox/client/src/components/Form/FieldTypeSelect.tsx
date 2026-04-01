@@ -32,7 +32,7 @@ export default function FieldTypeSelect<TFieldValues extends FieldValues>({
                     value: d.name,
                     image:
                         fieldTypesIcons[d.name as AttributeType] ??
-                        fieldTypesIcons.text,
+                        fieldTypesIcons[AttributeType.Text],
                 }));
         },
         []

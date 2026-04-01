@@ -279,7 +279,10 @@ export default function DefinitionManager<
                 next: r.next || undefined,
                 loading: false,
             }));
-            if (!query && Object.entries(filters).length === 0) {
+            if (
+                !query &&
+                !Object.values(filters).some(value => Boolean(value))
+            ) {
                 hasPaginationRef.current = !!r.next;
             }
         } catch (e) {
@@ -321,7 +324,7 @@ export default function DefinitionManager<
             }));
             throw e;
         }
-    }, [listState, searchTerm]);
+    }, [listState, searchTerm, filters]);
 
     const bodyProps: BodyProps<D> = {
         items: list,

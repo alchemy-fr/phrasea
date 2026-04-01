@@ -21,7 +21,7 @@ final class PartialSearchFilter extends AbstractFilter
         array $context = [],
     ): void {
         if (
-            null === $value
+            empty($value)
             || !$this->isPropertyEnabled($property, $resourceClass)
             || !$this->isPropertyMapped($property, $resourceClass, true)
         ) {
