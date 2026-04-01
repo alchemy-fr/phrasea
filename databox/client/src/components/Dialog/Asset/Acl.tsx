@@ -1,12 +1,7 @@
 import {Asset} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
-import AclForm from '../../Permissions/AclForm.tsx';
 import ContentTab from '../Tabbed/ContentTab';
-import {
-    AclPermission,
-    aclPermissions,
-    PermissionObject,
-} from '../../Permissions/permissionsTypes.ts';
+import AssetAclForm from './AssetAclForm.tsx';
 
 type Props = {
     data: Asset;
@@ -19,17 +14,10 @@ export default function Acl({data, onClose, minHeight}: Props) {
             minHeight={minHeight}
             disableGutters={true}
         >
-            <AclForm
-                objectId={data.id}
-                objectType={PermissionObject.Asset}
-                filterDefinitions={({value, key}) =>
-                    value < aclPermissions[AclPermission.CHILD_CREATE] &&
-                    ![
-                        AclPermission.OPERATOR,
-                        AclPermission.UNDELETE,
-                        AclPermission.MASTER,
-                    ].includes(key as AclPermission)
-                }
+            <AssetAclForm
+                data={data}
+                helper={true}
+                workspaceInheritance={true}
             />
         </ContentTab>
     );

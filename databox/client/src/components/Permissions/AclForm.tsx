@@ -16,6 +16,7 @@ type Props = {
     definitions?: PermissionDefinitionOverride[];
     filterDefinitions?: FilterPermissions;
     displayChildPermissions?: boolean;
+    helper?: boolean;
 };
 
 export default function AclForm({objectType, objectId, ...rest}: Props) {

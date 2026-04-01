@@ -338,6 +338,7 @@ export interface Collection
         Entity,
         ApiHydraObjectResponse {
     title: string;
+    parentId?: string;
     titleTranslated: string;
     titleHighlight?: string;
     storyAsset?: Asset;

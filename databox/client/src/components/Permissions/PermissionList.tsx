@@ -27,6 +27,7 @@ type Props = {
     definitions?: PermissionDefinitionOverride[];
     displayChildPermissions?: boolean;
     filterDefinitions?: FilterPermissions;
+    helper?: boolean;
 };
 
 export default function PermissionList({
@@ -37,6 +38,7 @@ export default function PermissionList({
     definitions,
     filterDefinitions,
     displayChildPermissions,
+    helper,
     ...rest
 }: Props) {
     const allDefinitions = useAclPermissionDefinitions({definitions});
@@ -200,7 +202,7 @@ export default function PermissionList({
                 onDelete={onDelete}
             />
 
-            <PermissionsHelper definitions={columns} />
+            {helper ? <PermissionsHelper definitions={columns} /> : null}
         </div>
     );
 }

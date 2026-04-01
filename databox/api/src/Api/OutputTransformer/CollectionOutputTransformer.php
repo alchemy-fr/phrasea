@@ -56,6 +56,8 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
         $output->deleted = $data->isDeleted();
+        $output->parentId = $data->getParent()?->getId();
+
         $storyAsset = $data->getStoryAsset();
         if (null !== $storyAsset) {
             $output->setStoryAsset($storyAsset);
