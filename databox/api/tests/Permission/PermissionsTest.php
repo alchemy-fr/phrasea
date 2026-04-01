@@ -515,6 +515,18 @@ class PermissionsTest extends AbstractDataboxTestCase
             canCreateCollectionUnderA: true,
             canCreateCollectionUnderB: true,
         );
+
+        yield new PermissionsTestCase(
+            'a-create',
+            self::CAROL,
+            ...$carolCommon,
+            a: [
+                PermissionInterface::CREATE,
+            ],
+            canCreateCollectionUnderA: true,
+            canCreateCollectionUnderB: true,
+        );
+
         yield new PermissionsTestCase(
             'ws-owner',
             self::CAROL,
@@ -912,6 +924,120 @@ class PermissionsTest extends AbstractDataboxTestCase
             assetInARoot: $assetOwnerButPerms,
             assetInAAlice: $assetOwnerButPerms,
             assetInABob: $assetOwnerButPerms,
+            assetInBRoot: $assetOwnerButPerms,
+            assetInBAlice: $assetOwnerButPerms,
+            assetInBBob: $assetOwnerButPerms,
+        );
+
+        yield new PermissionsTestCase(
+            'a-child-delete',
+            self::CAROL,
+            ...$carolCommon,
+            a: [
+                PermissionInterface::CHILD_DELETE,
+            ],
+            assetInARoot: $assetDelete,
+            assetInAAlice: $assetDelete,
+            assetInABob: $assetDelete,
+            assetInBRoot: $assetDelete,
+            assetInBAlice: $assetDelete,
+            assetInBBob: $assetDelete,
+        );
+
+        $assetEditAttributes = new AssetPermissions(
+            editAttributes: true,
+        );
+        yield new PermissionsTestCase(
+            'a-child-edit',
+            self::CAROL,
+            ...$carolCommon,
+            a: [
+                PermissionInterface::CHILD_EDIT,
+            ],
+            assetInARoot: $assetEditAttributes,
+            assetInAAlice: $assetEditAttributes,
+            assetInABob: $assetEditAttributes,
+            assetInBRoot: $assetEditAttributes,
+            assetInBAlice: $assetEditAttributes,
+            assetInBBob: $assetEditAttributes,
+        );
+
+        yield new PermissionsTestCase(
+            'a-child-operator',
+            self::CAROL,
+            ...$carolCommon,
+            a: [
+                PermissionInterface::CHILD_OPERATOR,
+            ],
+            assetInARoot: $assetEdit,
+            assetInAAlice: $assetEdit,
+            assetInABob: $assetEdit,
+            assetInBRoot: $assetEdit,
+            assetInBAlice: $assetEdit,
+            assetInBBob: $assetEdit,
+        );
+
+        yield new PermissionsTestCase(
+            'a-child-owner',
+            self::CAROL,
+            ...$carolCommon,
+            a: [
+                PermissionInterface::CHILD_OWNER,
+            ],
+            assetInARoot: $assetOwnerButPerms,
+            assetInAAlice: $assetOwnerButPerms,
+            assetInABob: $assetOwnerButPerms,
+            assetInBRoot: $assetOwnerButPerms,
+            assetInBAlice: $assetOwnerButPerms,
+            assetInBBob: $assetOwnerButPerms,
+        );
+
+        yield new PermissionsTestCase(
+            'b-child-delete',
+            self::CAROL,
+            ...$carolCommon,
+            b: [
+                PermissionInterface::CHILD_DELETE,
+            ],
+            assetInBRoot: $assetDelete,
+            assetInBAlice: $assetDelete,
+            assetInBBob: $assetDelete,
+        );
+
+        $assetEditAttributes = new AssetPermissions(
+            editAttributes: true,
+        );
+        yield new PermissionsTestCase(
+            'b-child-edit',
+            self::CAROL,
+            ...$carolCommon,
+            b: [
+                PermissionInterface::CHILD_EDIT,
+            ],
+            assetInBRoot: $assetEditAttributes,
+            assetInBAlice: $assetEditAttributes,
+            assetInBBob: $assetEditAttributes,
+        );
+
+        yield new PermissionsTestCase(
+            'b-child-operator',
+            self::CAROL,
+            ...$carolCommon,
+            b: [
+                PermissionInterface::CHILD_OPERATOR,
+            ],
+            assetInBRoot: $assetEdit,
+            assetInBAlice: $assetEdit,
+            assetInBBob: $assetEdit,
+        );
+
+        yield new PermissionsTestCase(
+            'b-child-owner',
+            self::CAROL,
+            ...$carolCommon,
+            b: [
+                PermissionInterface::CHILD_OWNER,
+            ],
             assetInBRoot: $assetOwnerButPerms,
             assetInBAlice: $assetOwnerButPerms,
             assetInBBob: $assetOwnerButPerms,
