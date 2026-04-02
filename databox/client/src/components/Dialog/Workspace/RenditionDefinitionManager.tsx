@@ -2,7 +2,7 @@ import {
     RenditionPolicy,
     RenditionDefinition,
     Workspace,
-    AssetType,
+    AssetTypeFilter,
 } from '../../../types';
 import {
     Box,
@@ -261,8 +261,6 @@ export default function RenditionDefinitionManager({
     onClose,
 }: Props) {
     const {t} = useTranslation();
-    const [assetTypeTarget, setAssetTypeTarget] =
-        React.useState<AssetType | null>(null);
 
     const handleSave = async (data: RenditionDefinition) => {
         if (data.id) {
@@ -290,16 +288,12 @@ export default function RenditionDefinitionManager({
                     value
                 )
             }
-            filter={list =>
+            applyFilters={(list, {target}) =>
                 list.filter(rd => {
-                    return (
-                        !assetTypeTarget ||
-                        (assetTypeTarget & rd.target) === assetTypeTarget
-                    );
+                    return !target || (target & rd.target) === target;
                 })
             }
-            activeFilterCount={assetTypeTarget ? 1 : 0}
-            filters={
+            filters={({filters, setFilter}) => (
                 <Box
                     sx={{
                         p: 1,
@@ -310,20 +304,28 @@ export default function RenditionDefinitionManager({
                             'rendition_definitions.filter.asset_type',
                             'Filter by Asset Type'
                         )}
-                        value={assetTypeTarget as any}
+                        value={filters.target as any}
                         onChange={newValue =>
-                            setAssetTypeTarget(
+                            setFilter(
+                                'target',
                                 denormalizeValue(
                                     (newValue as SelectOption)?.value
-                                ) as unknown as AssetType
+                                ) as unknown as AssetTypeFilter
                             )
                         }
                     />
                 </Box>
-            }
+            )}
             itemComponent={Item}
             listComponent={ListItem}
-            load={() => getWorkspaceRenditionDefinitions(workspace.id)}
+            load={({query, nextUrl, filters: {target}}) =>
+                getWorkspaceRenditionDefinitions({
+                    workspaceId: workspace.id,
+                    nextUrl,
+                    query,
+                    target,
+                })
+            }
             workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}

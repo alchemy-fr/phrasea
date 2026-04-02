@@ -6,6 +6,7 @@ import {
 } from '../types';
 import {apiClient} from '../init.ts';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
+import {PaginationParams} from './types.ts';
 
 export const attributePolicyNS = '/attribute-policies';
 export const attributeDefinitionNS = '/attribute-definitions';
@@ -75,14 +76,23 @@ export async function getWorkspaceAttributePolicies(
 export async function getWorkspaceAttributeDefinitions({
     workspaceId,
     target,
+    query,
+    nextUrl,
+    type,
 }: {
     workspaceId: string;
+    query?: string | null;
+    type?: string | null;
     target: AssetTypeFilter;
-}): Promise<NormalizedCollectionResponse<AttributeDefinition>> {
-    const res = await apiClient.get(attributeDefinitionNS, {
+} & PaginationParams): Promise<
+    NormalizedCollectionResponse<AttributeDefinition>
+> {
+    const res = await apiClient.get(nextUrl ?? attributeDefinitionNS, {
         params: {
             workspaceId,
             target,
+            name: query,
+            type,
             limit: 100,
         },
     });

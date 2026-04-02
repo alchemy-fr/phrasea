@@ -23,6 +23,7 @@ App\Entity\Core\AttributePolicy:
 App\Entity\Core\AttributeDefinition:
     attribute_definition_n (template):
         workspace: '@w_newspaper'
+        fieldType: text
 
     ad_story_title (extends attribute_definition_n):
         name: Story Title

@@ -416,10 +416,6 @@ export default function AttributeDefinitionManager({
     onClose,
 }: Props) {
     const {t} = useTranslation();
-    const [assetTypeTarget, setAssetTypeTarget] =
-        React.useState<AssetType | null>(null);
-    const [type, setType] = React.useState<AttributeType | null>(null);
-
     const {addDefinition, updateDefinition} = useAttributeDefinitionStore(
         s => ({
             addDefinition: s.addDefinition,
@@ -459,18 +455,20 @@ export default function AttributeDefinitionManager({
                     value
                 )
             }
-            filter={list =>
+            applyFilters={(list, {type, target}) =>
                 list.filter(ad => {
-                    return (
-                        (!assetTypeTarget ||
-                            (assetTypeTarget & ad.target) ===
-                                assetTypeTarget) &&
-                        (!type || ad.fieldType === type)
-                    );
+                    let r = true;
+                    if (type) {
+                        r = r && ad.fieldType === type;
+                    }
+                    if (target) {
+                        r = r && (target & ad.target) === target;
+                    }
+
+                    return r;
                 })
             }
-            activeFilterCount={(assetTypeTarget ? 1 : 0) + (type ? 1 : 0)}
-            filters={
+            filters={({filters, setFilter}) => (
                 <Box
                     sx={{
                         p: 1,
@@ -481,12 +479,13 @@ export default function AttributeDefinitionManager({
                             'attribute_definitions.filter.asset_type',
                             'Filter by Asset Type'
                         )}
-                        value={assetTypeTarget as any}
+                        value={filters.target as any}
                         onChange={newValue =>
-                            setAssetTypeTarget(
+                            setFilter(
+                                'target',
                                 denormalizeAssetTypeFilterValue(
                                     (newValue as SelectOption)?.value
-                                ) as unknown as AssetType
+                                ) as unknown as AssetTypeFilter
                             )
                         }
                     />
@@ -495,22 +494,26 @@ export default function AttributeDefinitionManager({
                             'attribute_definitions.filter.type',
                             'Filter by Type'
                         )}
-                        value={type as any}
+                        value={filters.type as any}
                         onChange={newValue =>
-                            setType(
+                            setFilter(
+                                'type',
                                 (newValue as SelectOption)
                                     ?.value as AttributeType | null
                             )
                         }
                     />
                 </Box>
-            }
+            )}
             itemComponent={Item}
             listComponent={ListItem}
-            load={() =>
+            load={({query, nextUrl, filters: {type, target}}) =>
                 getWorkspaceAttributeDefinitions({
                     workspaceId: workspace.id,
-                    target: AssetTypeFilter.All,
+                    query,
+                    nextUrl,
+                    type,
+                    target: target ?? AssetTypeFilter.All,
                 })
             }
             workspace={workspace}

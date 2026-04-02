@@ -59,19 +59,23 @@ App\Entity\Core\AttributePolicy:
 App\Entity\Core\AttributeDefinition:
   ad_photographer:
     name: Photographer
+    fieldType: text
     workspace: '@w_test'
     policy: '@ap_public'
   ad_desc:
     name: Description
+    fieldType: text
     workspace: '@w_test'
     policy: '@ap_public'
   ad_keywords:
     name: Keywords
+    fieldType: text
     multiple: true
     workspace: '@w_test'
     policy: '@ap_public'
   ad_business:
     name: Business field
+    fieldType: text
     workspace: '@w_test'
     policy: '@ap_private'
 
