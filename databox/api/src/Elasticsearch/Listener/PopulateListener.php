@@ -10,6 +10,7 @@ use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
 use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
 use FOS\ElasticaBundle\Index\IndexManager;
 use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -34,6 +35,7 @@ readonly class PopulateListener implements EventSubscriberInterface
             $this->fosPopulateCache->clear();
         }
 
+        $this->assetPermissionComputer->setWorkspaceCache(new ArrayAdapter());
         $this->assetPermissionComputer->setCollectionCache($this->fosPopulateCache);
     }
 

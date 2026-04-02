@@ -7,14 +7,17 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use App\Elasticsearch\Listener\Dto\AssetPermissionsDTO;
 use App\Elasticsearch\Listener\Dto\CollectionPermissionsDTO;
+use App\Elasticsearch\Listener\Dto\WorkspacePermissionsDTO;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
+use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Contracts\Cache\CacheInterface;
 
 final class AssetPermissionComputer
 {
+    private CacheInterface $workspaceCache;
     private CacheInterface $collectionCache;
     private CacheInterface $assetCache;
 
@@ -22,7 +25,13 @@ final class AssetPermissionComputer
         private readonly PermissionManager $permissionManager,
     ) {
         $this->disableAssetCache();
+        $this->disableWorkspaceCache();
         $this->disableCollectionCache();
+    }
+
+    public function setWorkspaceCache(CacheInterface $workspaceCache): void
+    {
+        $this->workspaceCache = $workspaceCache;
     }
 
     public function setCollectionCache(CacheInterface $collectionCache): void
@@ -43,6 +52,11 @@ final class AssetPermissionComputer
     public function setAssetCache(CacheInterface $assetCache): void
     {
         $this->assetCache = $assetCache;
+    }
+
+    public function disableWorkspaceCache(): void
+    {
+        $this->workspaceCache = new NullAdapter();
     }
 
     public function disableCollectionCache(): void
@@ -93,28 +107,11 @@ final class AssetPermissionComputer
             $collectionsPaths = [];
             $stories = [];
 
-            $workspace = $asset->getWorkspace();
-
-            $aces = $this->permissionManager->getObjectAces($workspace);
-            foreach ($aces as $access) {
-                $userId = $access->getUserId();
-                $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
-                if ($access->hasPermission(PermissionInterface::CHILD_VIEW)) {
-                    if ($isUser) {
-                        $users[] = $userId;
-                    } else {
-                        $groups[] = $userId;
-                    }
-                }
-
-                if ($access->hasPermission(PermissionInterface::CHILD_DELETE)) {
-                    if ($isUser) {
-                        $deleteUsers[] = $userId;
-                    } else {
-                        $deleteGroups[] = $userId;
-                    }
-                }
-            }
+            $workspaceInfo = $this->getWorkspaceHierarchyInfo($asset->getWorkspace());
+            $users = array_merge($users, $workspaceInfo->users);
+            $groups = array_merge($groups, $workspaceInfo->groups);
+            $deleteUsers = array_merge($deleteUsers, $workspaceInfo->deleteUsers);
+            $deleteGroups = array_merge($deleteGroups, $workspaceInfo->deleteGroups);
 
             foreach ($asset->getCollections() as $collectionAsset) {
                 $collection = $collectionAsset->getCollection();
@@ -166,6 +163,44 @@ final class AssetPermissionComputer
                 array_values(array_unique($deleteGroups)),
                 array_values(array_unique($collectionsPaths)),
                 array_values(array_unique($stories)),
+            );
+        });
+    }
+
+    private function getWorkspaceHierarchyInfo(Workspace $workspace): WorkspacePermissionsDTO
+    {
+        return $this->workspaceCache->get($workspace->getId(), function () use ($workspace): WorkspacePermissionsDTO {
+            $users = [];
+            $groups = [];
+            $deleteUsers = [];
+            $deleteGroups = [];
+
+            $aces = $this->permissionManager->getObjectAces($workspace);
+            foreach ($aces as $access) {
+                $userId = $access->getUserId();
+                $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
+                if ($access->hasPermission(PermissionInterface::CHILD_VIEW)) {
+                    if ($isUser) {
+                        $users[] = $userId;
+                    } else {
+                        $groups[] = $userId;
+                    }
+                }
+
+                if ($access->hasPermission(PermissionInterface::CHILD_DELETE)) {
+                    if ($isUser) {
+                        $deleteUsers[] = $userId;
+                    } else {
+                        $deleteGroups[] = $userId;
+                    }
+                }
+            }
+
+            return new WorkspacePermissionsDTO(
+                array_values(array_unique($users)),
+                array_values(array_unique($groups)),
+                array_values(array_unique($deleteUsers)),
+                array_values(array_unique($deleteGroups)),
             );
         });
     }

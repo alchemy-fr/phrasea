@@ -22,7 +22,7 @@ export default function BetaChip({sx, size}: Props) {
                     textTransform: 'uppercase',
                     fontStyle: 'normal',
                     fontWeight: 400,
-                    fontSize: size === 'small' ? '0.5rem' :'0.7rem',
+                    fontSize: size === 'small' ? '0.5rem' : '0.7rem',
                     ...resolveSx(sx, theme),
                 })}
                 label={t('lib.ui.beta.label', 'Beta')}

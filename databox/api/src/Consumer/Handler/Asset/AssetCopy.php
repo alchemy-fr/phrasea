@@ -12,6 +12,7 @@ final readonly class AssetCopy
         private array $groupsId,
         private string $id,
         private string $destination,
+        public array $allowedRenditions,
         private ?bool $link = null,
         private array $options = [],
         private ?array $extraMetadata = null,

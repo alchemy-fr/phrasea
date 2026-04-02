@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Service\Asset;
 
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Consumer\Handler\File\NewAssetFromBorder;
 use App\Entity\Core\Asset;
@@ -13,12 +12,10 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
-use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AssetCopier
 {
-    use SecurityAwareTrait;
     final public const string OPT_WITH_ATTRIBUTES = 'withAttributes';
     final public const string OPT_WITH_TAGS = 'withTags';
 
@@ -33,10 +30,10 @@ class AssetCopier
 
     public function copyAsset(
         string $userId,
-        array $groupsId,
         Asset $asset,
         Workspace $workspace,
         ?Collection $collection,
+        array $allowedRenditions,
         array $options = [],
     ): void {
         $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
@@ -44,10 +41,10 @@ class AssetCopier
             if (!$asset->getSource()) {
                 $this->doCopyAsset(
                     $userId,
-                    $groupsId,
                     $asset,
                     $workspace,
                     $collection,
+                    $allowedRenditions,
                     $options
                 );
             } else {
@@ -63,10 +60,10 @@ class AssetCopier
         } else {
             $this->doCopyAsset(
                 $userId,
-                $groupsId,
                 $asset,
                 $workspace,
                 $collection,
+                $allowedRenditions,
                 $options
             );
         }
@@ -77,10 +74,10 @@ class AssetCopier
 
     private function doCopyAsset(
         string $userId,
-        array $groupsId,
         Asset $asset,
         Workspace $workspace,
         ?Collection $collection,
+        array $allowedRenditions,
         array $options = [],
     ): void {
         $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
@@ -103,7 +100,7 @@ class AssetCopier
 
         if ($sameWorkspace) {
             foreach ($asset->getRenditions() as $rendition) {
-                if ($this->isGranted(AbstractVoter::READ, $rendition)) {
+                if (in_array($rendition->getId(), $allowedRenditions, true)) {
                     $this->copyRendition($rendition, $copy);
                 }
             }
