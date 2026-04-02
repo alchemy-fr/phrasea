@@ -30,10 +30,10 @@ class CollectionAssetVoter extends AbstractVoter
         $userId = $user instanceof JwtUser ? $user->getId() : false;
 
         return match ($attribute) {
-            self::CREATE => $this->security->isGranted(CollectionVoter::CREATE_ASSET, $subject->getCollection())
+            self::CREATE => $this->security->isGranted(CollectionVoter::ASSET_CREATE, $subject->getCollection())
                 && $this->security->isGranted(AbstractVoter::READ, $subject->getAsset()),
             self::DELETE => ($userId && $subject->getAsset()->getOwnerId() === $userId)
-                || $this->security->isGranted(CollectionVoter::DELETE_ASSET, $subject->getCollection())
+                || $this->security->isGranted(CollectionVoter::ASSET_DELETE, $subject->getCollection())
                 || $this->hasAcl(PermissionInterface::OWNER, $subject->getAsset(), $token),
             default => false,
         };

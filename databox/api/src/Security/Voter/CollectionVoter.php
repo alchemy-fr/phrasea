@@ -95,7 +95,7 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                     || $isOwnerSlow()
                 )
             ,
-            AssetContainerVoterInterface::VIEW_ASSET => (!$subject->isDeleted() || $this->security->isGranted(AbstractVoter::DELETE, $subject))
+            AssetContainerVoterInterface::ASSET_VIEW => (!$subject->isDeleted() || $this->security->isGranted(AbstractVoter::DELETE, $subject))
                 && (
                     $isCreator()
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
@@ -135,13 +135,13 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 || $this->parentIsGranted($attribute, $subject)
                 || $isWorkspaceOwnerSlow()
             ,
-            AssetContainerVoterInterface::CREATE_ASSET => $isWorkspaceOwnerFast()
+            AssetContainerVoterInterface::ASSET_CREATE => $isWorkspaceOwnerFast()
                 || $this->hasAcl(PermissionInterface::CHILD_CREATE, $subject, $token, ownershipGrants: false)
                 || $this->parentIsGranted($attribute, $subject)
                 || $isWorkspaceOwnerSlow()
                 || $this->isAdmin()
             ,
-            AssetContainerVoterInterface::EDIT_ASSET_ATTRIBUTES => $isWorkspaceOwnerFast()
+            AssetContainerVoterInterface::ASSET_EDIT_ATTRIBUTES => $isWorkspaceOwnerFast()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_EDIT,
                     PermissionInterface::CHILD_OWNER,
@@ -149,17 +149,13 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 || $this->parentIsGranted($attribute, $subject)
                 || $isOwnerSlow()
             ,
-            AssetContainerVoterInterface::EDIT_ASSET => $isCreator()
+            AssetContainerVoterInterface::ASSET_EDIT => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_OPERATOR,
                     PermissionInterface::CHILD_OWNER,
                 ], $subject, $token)
                 || $this->parentIsGranted($attribute, $subject)
                 || $isOwnerSlow(),
-            AssetContainerVoterInterface::EDIT_ASSET_TAG => $isCreator()
-                || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_EDIT_TAG, $subject, $token)
-                || $this->parentIsGranted($attribute, $subject),
-
             // Edit permissions and object privacy
             AbstractVoter::EDIT_PERMISSIONS => $isWorkspaceOwnerFast()
                 || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS, $subject, $token)
@@ -167,19 +163,35 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 || $isWorkspaceOwnerSlow()
             ,
 
-            AssetContainerVoterInterface::SHARE_ASSET => $this->hasAcl([
+            AssetContainerVoterInterface::ASSET_SHARE => $this->hasAcl([
                 PermissionInterface::CHILD_SHARE,
             ], $subject, $token)
                 || $this->parentIsGranted($attribute, $subject),
 
-            AssetContainerVoterInterface::DELETE_ASSET => $isCreator()
+            AssetContainerVoterInterface::ASSET_DELETE => $isCreator()
+                || $isWorkspaceOwnerFast()
                 || $this->hasAcl([
                     PermissionInterface::DELETE,
                     PermissionInterface::CHILD_DELETE,
                     PermissionInterface::CHILD_OWNER,
                     PermissionInterface::OWNER,
                 ], $subject, $token)
-                || $this->parentIsGranted($attribute, $subject),
+                || $this->parentIsGranted($attribute, $subject)
+                || $isWorkspaceOwnerSlow(),
+
+            AssetContainerVoterInterface::ASSET_OWNER => $isCreator()
+                || $isWorkspaceOwnerFast()
+                || $this->hasAcl([
+                    PermissionInterface::CHILD_OWNER,
+                    PermissionInterface::OWNER,
+                ], $subject, $token)
+                || $this->parentIsGranted($attribute, $subject)
+                || $isWorkspaceOwnerSlow(),
+
+            AssetContainerVoterInterface::ASSET_EDIT_PERMISSIONS => $isWorkspaceOwnerFast()
+                || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS, $subject, $token)
+                || $this->parentIsGranted($attribute, $subject)
+                || $isWorkspaceOwnerSlow(),
             default => false,
         };
     }

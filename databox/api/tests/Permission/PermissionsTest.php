@@ -244,7 +244,6 @@ class PermissionsTest extends AbstractDataboxTestCase
         $this->assertEquals($expected->view, $security->isGranted(AssetVoter::READ, $asset), $userMessage(sprintf('view asset "%s"', $asset->getTitle())));
         $this->assertEquals($expected->edit, $security->isGranted(AssetVoter::EDIT, $asset), $userMessage(sprintf('edit asset "%s"', $asset->getTitle())));
         $this->assertEquals($expected->editAttributes, $security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $asset), $userMessage(sprintf('edit attributes of asset "%s"', $asset->getTitle())));
-        $this->assertEquals($expected->editTags, $security->isGranted(AssetVoter::EDIT_TAGS, $asset), $userMessage(sprintf('edit tags of asset "%s"', $asset->getTitle())));
         $this->assertEquals($expected->editPermissions, $security->isGranted(AssetVoter::EDIT_PERMISSIONS, $asset), $userMessage(sprintf('edit permissions of asset "%s"', $asset->getTitle())));
         $this->assertEquals($expected->delete, $security->isGranted(AssetVoter::DELETE, $asset), $userMessage(sprintf('delete asset "%s"', $asset->getTitle())));
     }
@@ -258,7 +257,6 @@ class PermissionsTest extends AbstractDataboxTestCase
             view: true,
             edit: true,
             editAttributes: true,
-            editTags: true,
             editPermissions: true,
             delete: true,
         );
@@ -292,7 +290,7 @@ class PermissionsTest extends AbstractDataboxTestCase
             assetInBBob: $fullAssetPerm,
         );
 
-        $assetAllButTagsAndPrivacy = new AssetPermissions(
+        $assetAllButPerm = new AssetPermissions(
             view: true,
             edit: true,
             editAttributes: true,
@@ -308,13 +306,13 @@ class PermissionsTest extends AbstractDataboxTestCase
             'canEditB' => true,
             'canDeleteB' => true,
             'canCreateCollectionUnderB' => true,
-            'assetInARoot' => $assetAllButTagsAndPrivacy,
-            'assetInBRoot' => $assetAllButTagsAndPrivacy,
-            'assetLostAlice' => $assetAllButTagsAndPrivacy,
-            'assetInAAlice' => $assetAllButTagsAndPrivacy,
-            'assetInBAlice' => $assetAllButTagsAndPrivacy,
-            'assetInABob' => $assetAllButTagsAndPrivacy,
-            'assetInBBob' => $assetAllButTagsAndPrivacy,
+            'assetInARoot' => $assetAllButPerm,
+            'assetInBRoot' => $assetAllButPerm,
+            'assetLostAlice' => $assetAllButPerm,
+            'assetInAAlice' => $assetAllButPerm,
+            'assetInBAlice' => $assetAllButPerm,
+            'assetInABob' => $assetAllButPerm,
+            'assetInBBob' => $assetAllButPerm,
         ];
         yield new PermissionsTestCase(
             'out-of-workspace',
@@ -411,11 +409,11 @@ class PermissionsTest extends AbstractDataboxTestCase
             'canEditB' => true,
             'canDeleteB' => true,
             'canCreateCollectionUnderB' => true,
-            'assetInBRoot' => $assetAllButTagsAndPrivacy,
-            'assetLostBob' => $assetAllButTagsAndPrivacy,
-            'assetInABob' => $assetAllButTagsAndPrivacy,
-            'assetInBAlice' => $assetAllButTagsAndPrivacy,
-            'assetInBBob' => $assetAllButTagsAndPrivacy,
+            'assetInBRoot' => $assetAllButPerm,
+            'assetLostBob' => $assetAllButPerm,
+            'assetInABob' => $assetAllButPerm,
+            'assetInBAlice' => $assetAllButPerm,
+            'assetInBBob' => $assetAllButPerm,
         ];
         yield new PermissionsTestCase(
             'out-of-workspace',
@@ -660,7 +658,7 @@ class PermissionsTest extends AbstractDataboxTestCase
             lostRoot: [
                 PermissionInterface::OWNER,
             ],
-            assetLostRoot: $assetAllButTagsAndPrivacy,
+            assetLostRoot: $assetAllButPerm,
         );
         yield new PermissionsTestCase(
             'asset-lost-alice-owner',
@@ -669,7 +667,7 @@ class PermissionsTest extends AbstractDataboxTestCase
             lostAlice: [
                 PermissionInterface::OWNER,
             ],
-            assetLostAlice: $assetAllButTagsAndPrivacy,
+            assetLostAlice: $assetAllButPerm,
         );
         yield new PermissionsTestCase(
             'asset-lost-bob-owner',
@@ -678,7 +676,7 @@ class PermissionsTest extends AbstractDataboxTestCase
             lostBob: [
                 PermissionInterface::OWNER,
             ],
-            assetLostBob: $assetAllButTagsAndPrivacy,
+            assetLostBob: $assetAllButPerm,
         );
 
         yield new PermissionsTestCase(
@@ -1060,6 +1058,54 @@ class PermissionsTest extends AbstractDataboxTestCase
             assetInBRoot: $assetOwnerButPerms,
             assetInBAlice: $assetOwnerButPerms,
             assetInBBob: $assetOwnerButPerms,
+        );
+
+        yield new PermissionsTestCase(
+            'a-child-owner-and-permissions',
+            self::CAROL,
+            ...$carolCommon,
+            a: [
+                PermissionInterface::CHILD_OWNER,
+                self::EXTRA_PERM_PREFIX.DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS,
+            ],
+            assetInARoot: $fullAssetPerm,
+            assetInAAlice: $fullAssetPerm,
+            assetInABob: $fullAssetPerm,
+            assetInBRoot: $fullAssetPerm,
+            assetInBAlice: $fullAssetPerm,
+            assetInBBob: $fullAssetPerm,
+        );
+
+        yield new PermissionsTestCase(
+            'b-child-owner-and-permissions',
+            self::CAROL,
+            ...$carolCommon,
+            b: [
+                PermissionInterface::CHILD_OWNER,
+                self::EXTRA_PERM_PREFIX.DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS,
+            ],
+            assetInBRoot: $fullAssetPerm,
+            assetInBAlice: $fullAssetPerm,
+            assetInBBob: $fullAssetPerm,
+        );
+
+        yield new PermissionsTestCase(
+            'ws-child-owner-and-permissions',
+            self::CAROL,
+            ...$carolCommon,
+            root: [
+                PermissionInterface::CHILD_OWNER,
+                self::EXTRA_PERM_PREFIX.DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS,
+            ],
+            assetLostRoot: $fullAssetPerm,
+            assetLostAlice: $fullAssetPerm,
+            assetLostBob: $fullAssetPerm,
+            assetInARoot: $fullAssetPerm,
+            assetInAAlice: $fullAssetPerm,
+            assetInABob: $fullAssetPerm,
+            assetInBRoot: $fullAssetPerm,
+            assetInBAlice: $fullAssetPerm,
+            assetInBBob: $fullAssetPerm,
         );
     }
 }

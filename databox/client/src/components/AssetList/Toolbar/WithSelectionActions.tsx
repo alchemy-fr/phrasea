@@ -127,7 +127,7 @@ export default function WithSelectionActions<
         };
 
         const onShare = () => {
-            if (selectedAssets.length !== 1) {
+            if (selectedAssets.length > 1) {
                 toast.warn(
                     t(
                         'asset_actions.share_multiple',
@@ -294,9 +294,7 @@ export default function WithSelectionActions<
                     id={'edit'}
                     onClick={onEdit}
                     startIcon={<EditIcon />}
-                    disabled={
-                        !canEdit || (selection.length > 0 && !canEditAttributes)
-                    }
+                    disabled={!canEditAttributes && !canEdit}
                     actions={[
                         {
                             id: 'move',
@@ -338,9 +336,7 @@ export default function WithSelectionActions<
                     color={'error'}
                     onClick={mainDeleteAction!.onClick}
                     startIcon={mainDeleteAction!.startIcon}
-                    disabled={
-                        selection.length === 0 || mainDeleteAction!.disabled
-                    }
+                    disabled={mainDeleteAction!.disabled}
                     actions={deleteExtraActions}
                 >
                     {mainDeleteAction!.label}
@@ -354,7 +350,7 @@ export default function WithSelectionActions<
                         startIcon={a.icon}
                         color={a.color}
                         {...(a.buttonProps ?? {})}
-                        disabled={selection.length === 0 || a.disabled}
+                        disabled={a.disabled}
                         onClick={async () => {
                             await a.apply(selection);
                             if (a.reload && reload) {

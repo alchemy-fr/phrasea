@@ -24,16 +24,9 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 label: t('acl.permission.workspace.view.label', 'Can Access'),
                 description: (
                     <div>
-                        <strong>
-                            {t(
-                                'acl.permission.workspace.view.desc',
-                                'Every user must have at least this permission to access this workspace. Otherwise, you can mark this workspace as public.'
-                            )}
-                        </strong>
-                        <br />
                         {t(
                             'acl.permission.workspace.view.desc',
-                            'Can view this workspace and its assets, but cannot edit or delete them.'
+                            'Every user must have at least this permission to access this workspace. Otherwise, you can mark this workspace as public.'
                         )}
                     </div>
                 ),

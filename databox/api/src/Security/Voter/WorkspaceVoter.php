@@ -99,44 +99,53 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
             AbstractVoter::EDIT_PERMISSIONS, AbstractVoter::OWNER => $isCreator()
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                 || $this->isAdmin(),
-            AssetContainerVoterInterface::VIEW_ASSET => $isCreator()
+            AssetContainerVoterInterface::ASSET_VIEW => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_VIEW,
                     PermissionInterface::CHILD_OWNER,
                     PermissionInterface::OWNER,
                 ], $subject, $token)
                 || $this->isAdmin(),
-            AssetContainerVoterInterface::CREATE_ASSET => $isCreator()
+            AssetContainerVoterInterface::ASSET_CREATE => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_CREATE,
                     PermissionInterface::OWNER,
                 ], $subject, $token)
                 || $this->isAdmin(),
-            AssetContainerVoterInterface::SHARE_ASSET => $isCreator()
+            AssetContainerVoterInterface::ASSET_SHARE => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_SHARE,
                     PermissionInterface::OWNER,
                 ], $subject, $token)
                 || $this->isAdmin(),
-            AssetContainerVoterInterface::EDIT_ASSET_ATTRIBUTES => $isCreator()
+            AssetContainerVoterInterface::ASSET_EDIT_ATTRIBUTES => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_EDIT,
                     PermissionInterface::CHILD_OWNER,
                     PermissionInterface::OWNER,
                 ], $subject, $token),
-            AssetContainerVoterInterface::EDIT_ASSET => $isCreator()
+            AssetContainerVoterInterface::ASSET_EDIT => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_OPERATOR,
                     PermissionInterface::CHILD_OWNER,
                     PermissionInterface::OWNER,
                 ], $subject, $token),
-            AssetContainerVoterInterface::DELETE_ASSET => $isCreator()
+            AssetContainerVoterInterface::ASSET_DELETE => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_DELETE,
                     PermissionInterface::CHILD_OWNER,
                     PermissionInterface::OWNER,
                 ], $subject, $token),
-
+            AssetContainerVoterInterface::ASSET_OWNER => $isCreator()
+                || $this->hasAcl([
+                    PermissionInterface::CHILD_OWNER,
+                    PermissionInterface::OWNER,
+                ], $subject, $token),
+            AssetContainerVoterInterface::ASSET_EDIT_PERMISSIONS => $isCreator()
+                || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS, $subject, $token)
+                || $this->hasAcl([
+                    PermissionInterface::OWNER,
+                ], $subject, $token),
             default => false,
         };
     }

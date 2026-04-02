@@ -4,11 +4,12 @@ namespace App\Security\Voter;
 
 interface AssetContainerVoterInterface
 {
-    final public const string VIEW_ASSET = 'VIEW_ASSET';
-    final public const string CREATE_ASSET = 'CREATE_ASSET';
-    final public const string EDIT_ASSET = 'EDIT_ASSET';
-    final public const string EDIT_ASSET_TAG = 'EDIT_ASSET_TAG';
-    final public const string EDIT_ASSET_ATTRIBUTES = 'EDIT_ASSET_ATTRIBUTES';
-    final public const string DELETE_ASSET = 'DELETE_ASSET';
-    final public const string SHARE_ASSET = 'SHARE_ASSET';
+    final public const string ASSET_VIEW = 'ASSET_VIEW';
+    final public const string ASSET_CREATE = 'ASSET_CREATE';
+    final public const string ASSET_EDIT = 'ASSET_EDIT';
+    final public const string ASSET_EDIT_ATTRIBUTES = 'ASSET_EDIT_ATTRIBUTES';
+    final public const string ASSET_DELETE = 'ASSET_DELETE';
+    final public const string ASSET_SHARE = 'ASSET_SHARE';
+    final public const string ASSET_OWNER = 'ASSET_OWNER';
+    final public const string ASSET_EDIT_PERMISSIONS = 'ASSET_EDIT_PERMISSIONS';
 }

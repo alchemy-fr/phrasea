@@ -56,7 +56,11 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
         $output->deleted = $data->isDeleted();
-        $output->parentId = $data->getParent()?->getId();
+
+        $parent = $data->getParent();
+        if (null !== $parent && $this->isGranted(AbstractVoter::READ, $parent)) {
+            $output->parentId = $parent->getId();
+        }
 
         $storyAsset = $data->getStoryAsset();
         if (null !== $storyAsset) {
@@ -160,7 +164,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             $virtualColl->setOwnerId($data->getOwnerId());
 
             $output->setCapabilities([
-                'createAsset' => $this->isGranted(AssetContainerVoterInterface::CREATE_ASSET, $data),
+                'createAsset' => $this->isGranted(AssetContainerVoterInterface::ASSET_CREATE, $data),
                 'createCollection' => $this->isGranted(CollectionVoter::CREATE, $virtualColl),
                 'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
                 'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
