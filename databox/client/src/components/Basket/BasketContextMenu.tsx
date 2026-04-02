@@ -32,7 +32,7 @@ export default function BasketContextMenu({
                 id={'basket-context-menu'}
             >
                 <MenuItem
-                    disabled={!contextMenu.data.capabilities.canEdit}
+                    disabled={!contextMenu.data.capabilities.edit}
                     onClick={() => onEdit(contextMenu.data)}
                 >
                     <ListItemIcon>
@@ -41,7 +41,7 @@ export default function BasketContextMenu({
                     {t('basket.actions.edit', 'Edit Basket')}
                 </MenuItem>
                 <MenuItem
-                    disabled={!contextMenu.data.capabilities.canDelete}
+                    disabled={!contextMenu.data.capabilities.delete}
                     onClick={() => onDelete(contextMenu.data)}
                 >
                     <ListItemIcon>

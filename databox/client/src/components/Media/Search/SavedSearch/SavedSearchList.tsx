@@ -62,7 +62,7 @@ export default function SavedSearchList({}: Props) {
                         key={search.id}
                         secondaryAction={
                             Boolean(
-                                capabilities.canEdit || capabilities.canDelete
+                                capabilities.edit || capabilities.delete
                             ) && (
                                 <span className={cActionClassName}>
                                     <MoreActionsButton
@@ -73,7 +73,7 @@ export default function SavedSearchList({}: Props) {
                                         }}
                                     >
                                         {closeWrapper => [
-                                            capabilities.canEdit ? (
+                                            capabilities.edit ? (
                                                 <MenuItem
                                                     key="edit"
                                                     onClick={closeWrapper()}
@@ -99,7 +99,7 @@ export default function SavedSearchList({}: Props) {
                                                     />
                                                 </MenuItem>
                                             ) : null,
-                                            capabilities.canDelete ? (
+                                            capabilities.delete ? (
                                                 <MenuItem
                                                     key="delete"
                                                     onClick={closeWrapper(() =>

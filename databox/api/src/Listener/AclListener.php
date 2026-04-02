@@ -15,6 +15,7 @@ use App\Consumer\Handler\Search\IndexAllCollections;
 use App\Consumer\Handler\Search\IndexCollectionBranch;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
+use App\Entity\Core\Workspace;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
@@ -49,6 +50,7 @@ readonly class AclListener
 
         if (null === $objectId) {
             switch ($objectClass) {
+                case Workspace::class:
                 case Asset::class:
                     $this->bus->dispatch(new IndexAllAssets());
                     break;
@@ -60,10 +62,17 @@ readonly class AclListener
             return;
         }
 
-        if (Collection::class === $objectClass) {
-            $this->bus->dispatch(new IndexCollectionBranch($objectId));
-        } else {
-            $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], Operation::Upsert);
+        switch ($objectClass) {
+            case Workspace::class:
+                $this->bus->dispatch(new IndexAllAssets($objectId));
+                $this->bus->dispatch(new IndexAllCollections($objectId));
+                break;
+            case Asset::class:
+                $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], Operation::Upsert);
+                break;
+            case Collection::class:
+                $this->bus->dispatch(new IndexCollectionBranch($objectId));
+                break;
         }
     }
 }

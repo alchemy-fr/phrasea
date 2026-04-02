@@ -58,7 +58,13 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
             }
         }
 
-        $object->setEnabled($data->enabled);
+        if (null !== $data->enabled) {
+            $object->setEnabled($data->enabled);
+        }
+
+        if (null !== $data->public) {
+            $object->setPublic($data->public);
+        }
 
         if (null !== $data->needs) {
             $needs = $object->getNeeds();

@@ -74,7 +74,9 @@ export default function AssetDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled:
+                        data.capabilities.edit ||
+                        data.capabilities.editAttributes,
                 },
                 {
                     title: t('asset.manage.renditions.title', 'Renditions'),
@@ -92,7 +94,7 @@ export default function AssetDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('asset.manage.acl.title', 'Permissions'),
@@ -101,7 +103,7 @@ export default function AssetDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEditPermissions,
+                    enabled: data.capabilities.editPermissions,
                 },
                 {
                     title: t('asset.manage.workflow.title', 'Workflow'),
@@ -110,7 +112,7 @@ export default function AssetDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('asset.manage.operations.title', 'Operations'),
@@ -119,7 +121,7 @@ export default function AssetDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('asset.manage.es_doc.title', 'ES Document'),

@@ -75,7 +75,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                     {t('asset_collections.title', 'Collections')}
                 </Typography>
 
-                <Typography variant={'body1'} sx={{mb: 1}}>
+                <Typography variant={'body1'} sx={{mb: 1}} component={'div'}>
                     {data.referenceCollection ? (
                         <Trans
                             i18nKey={'asset_collections.reference_collection'}

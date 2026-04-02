@@ -45,13 +45,13 @@ class CollectionAssetTest extends AbstractSearchTestCase
 
         static::createClient()->request('DELETE', '/collection-assets/'.$id, [
             'headers' => [
-                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::OTHER_USER_UID),
             ],
         ]);
         $this->assertResponseStatusCodeSame(403);
         static::createClient()->request('DELETE', '/collection-assets/'.$id, [
             'headers' => [
-                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
         ]);
         $this->assertResponseIsSuccessful();

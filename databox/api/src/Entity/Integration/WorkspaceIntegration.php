@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
@@ -34,7 +35,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -63,7 +63,7 @@ use Symfony\Component\Yaml\Yaml;
 #[ORM\Entity]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 #[ValidIntegrationOptionsConstraint]
-class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, WithOwnerIdInterface, LoggableChangeSetInterface
+class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, WithOwnerIdInterface, LoggableChangeSetInterface, AclObjectInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -71,6 +71,7 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
     use NullableWorkspaceTrait;
     use ErrorDisableTrait;
     final public const int OBJECT_INDEX = 10;
+    final public const string OBJECT_TYPE = 'integration';
 
     final public const string GROUP_READ = 'wi:read';
     final public const string GROUP_LIST = 'wi:index';
@@ -82,8 +83,12 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $title = null;
 
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    #[Assert\NotNull]
+    private ?bool $public = null;
+
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
-    #[NotNull]
+    #[Assert\NotNull]
     private ?string $integration = null;
 
     #[ORM\ManyToMany(targetEntity: WorkspaceIntegration::class)]
@@ -249,6 +254,16 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
         $this->enabled = false;
     }
 
+    public function getPublic(): ?bool
+    {
+        return $this->public;
+    }
+
+    public function setPublic(?bool $public): void
+    {
+        $this->public = $public;
+    }
+
     public function __toString(): string
     {
         if ($this->workspace) {
@@ -256,5 +271,10 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
         }
 
         return $this->getIntegration();
+    }
+
+    public function getAclOwnerId(): string
+    {
+        return $this->ownerId;
     }
 }

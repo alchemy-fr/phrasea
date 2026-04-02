@@ -79,6 +79,7 @@ EOL;
         ]);
 
         $integration = new WorkspaceIntegration();
+        $integration->setPublic(true);
         $integration->setWorkspace($workspace);
         $integration->setTitle('AWS Transcribe');
         $integration->setIntegration(AwsTranscribeIntegration::getName());

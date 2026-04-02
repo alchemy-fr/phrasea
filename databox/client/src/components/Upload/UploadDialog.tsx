@@ -2,7 +2,12 @@ import React, {useState} from 'react';
 import {Box, Button, Checkbox, InputLabel, TextField} from '@mui/material';
 import {Trans, useTranslation} from 'react-i18next';
 import UploadIcon from '@mui/icons-material/Upload';
-import {useFormSubmit} from '@alchemy/api';
+import {
+    createIriFromId,
+    extractIdFromIri,
+    isEntityIri,
+    useFormSubmit,
+} from '@alchemy/api';
 import FormDialog from '../Dialog/FormDialog';
 import {FormUploadData, UploadData, UploadForm} from './UploadForm';
 import {v4 as uuidv4} from 'uuid';
@@ -38,6 +43,7 @@ import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import {toast} from 'react-toastify';
 import {WorkspaceOrCollectionTreeItem} from '../Media/Collection/CollectionTree/types.ts';
 import {TreeNode} from '@alchemy/phrasea-framework';
+import {EntityName} from '../../api/types.ts';
 
 type FileWrapper = {
     id: string;
@@ -67,9 +73,6 @@ export default function UploadDialog({
     const [workspaceId, setWorkspaceId] = React.useState<string | undefined>(
         initWsId
     );
-    const [collectionId, setCollectionId] = React.useState<string | undefined>(
-        initCollectionId
-    );
     const [files, setFiles] = useState<FileWrapper[]>(
         initFiles.map((f: File) => ({
             file: f,
@@ -92,7 +95,11 @@ export default function UploadDialog({
     const usedAssetDataTemplateOptions = useAssetDataTemplateOptions();
 
     const defaultValues: FormUploadData = {
-        destination: null,
+        destination: initCollectionId
+            ? createIriFromId(EntityName.Collection, initCollectionId)
+            : initWsId
+              ? createIriFromId(EntityName.Workspace, initWsId)
+              : null,
         privacy: Privacy.Secret,
         tags: [],
         quiet: false,
@@ -126,13 +133,14 @@ export default function UploadDialog({
                     )) || '';
             }
 
-            const dataCollectionIri =
-                (collectionId ? `/collections/${collectionId}` : null) ||
-                (data.destination?.startsWith('/collections/')
-                    ? (data.destination as string)
-                    : undefined);
+            const destinationIri = data.destination!;
 
-            const destinationIri = dataCollectionIri || data.destination!;
+            const collectionIri = isEntityIri(
+                EntityName.Collection,
+                destinationIri
+            )
+                ? destinationIri
+                : undefined;
 
             const attributes = usedAttributeEditor.attributes
                 ? getAttributeList(
@@ -157,8 +165,8 @@ export default function UploadDialog({
                     attributes,
                     privacy: options.rememberPrivacy ? data.privacy : undefined,
                     collection:
-                        options.rememberCollection && dataCollectionIri
-                            ? dataCollectionIri
+                        options.rememberCollection && collectionIri
+                            ? collectionIri
                             : undefined,
                     includeCollectionChildren:
                         options.includeCollectionChildren,
@@ -244,7 +252,15 @@ export default function UploadDialog({
         },
     });
 
-    const {reset, getValues, remoteErrors, submitting} = usedFormSubmit;
+    const {reset, getValues, remoteErrors, submitting, watch} = usedFormSubmit;
+
+    const destinationWatched = watch('destination');
+    const collectionId =
+        destinationWatched &&
+        typeof destinationWatched === 'string' &&
+        isEntityIri(EntityName.Collection, destinationWatched)
+            ? extractIdFromIri(destinationWatched)
+            : undefined;
 
     const resetForms = React.useCallback(() => {
         reset({
@@ -289,10 +305,10 @@ export default function UploadDialog({
                 </div>
             </>
         ) : (
-            <>
+            <div>
                 {t('form.asset_create.title', 'Create asset in')}{' '}
                 <WorkspaceChip label={workspaceTitle} />
-            </>
+            </div>
         )
     ) : undefined;
 
@@ -437,11 +453,11 @@ export default function UploadDialog({
                 resetForms={resetForms}
                 usedFormSubmit={usedFormSubmit}
                 formId={formId}
+                filterWorkspaceId={initWsId}
                 workspaceId={workspaceId}
                 collectionId={collectionId}
                 onChangeWorkspace={setWorkspaceId}
-                onChangeCollection={setCollectionId}
-                noDestination={Boolean(workspaceTitle)}
+                noDestination={Boolean(initCollectionId)}
                 usedAttributeEditor={usedAttributeEditor}
                 usedStoryAttributeEditor={usedStoryAttributeEditor}
                 usedAssetDataTemplateOptions={usedAssetDataTemplateOptions}

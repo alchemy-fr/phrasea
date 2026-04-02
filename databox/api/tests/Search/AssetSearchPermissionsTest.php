@@ -308,7 +308,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
     /**
      * @dataProvider getAssetTagsDataSet
      */
-    public function testSearchAssetsWithTagFilterRuleOnCollection(
+    public function testSearchAssetsWithTagFilterRule(
         array $assets,
         array $include,
         array $exclude,
@@ -342,10 +342,9 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         $exclude = array_map($resolveTag, $exclude);
 
         self::getTagFilterManager()->updateRule(
+            $workspace,
             TagFilterRule::TYPE_USER,
             KeycloakClientTestMock::USER_UID,
-            TagFilterRule::TYPE_COLLECTION,
-            $collection->getId(),
             $include,
             $exclude
         );

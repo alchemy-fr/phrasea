@@ -12,8 +12,10 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\CopyAssetInput;
 use App\Consumer\Handler\Asset\AssetCopy;
 use App\Entity\Core\Asset;
+use App\Entity\Core\RenditionDefinition;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\AssetCopier;
+use App\Service\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -27,6 +29,7 @@ class CopyAssetProcessor implements ProcessorInterface
         private readonly MessageBusInterface $bus,
         private readonly EntityManagerInterface $em,
         private readonly IriConverterInterface $iriConverter,
+        private readonly RenditionManager $renditionManager,
     ) {
     }
 
@@ -58,11 +61,17 @@ class CopyAssetProcessor implements ProcessorInterface
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $asset);
             $symlink = $data->byReference && $this->isGranted(AbstractVoter::EDIT, $asset);
 
+            $allowedRenditions = array_filter(
+                $this->renditionManager->getRenditionDefinitions($asset->getWorkspaceId()),
+                fn (RenditionDefinition $definition): bool => $this->isGranted(AbstractVoter::READ, $definition)
+            );
+
             $this->bus->dispatch(new AssetCopy(
                 $userId,
                 $userGroups,
                 $asset->getId(),
                 $data->destination,
+                $allowedRenditions,
                 $symlink,
                 $options,
                 $data->getExtraMetadata()

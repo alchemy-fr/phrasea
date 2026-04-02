@@ -16,6 +16,8 @@ import {EntityType, WorkspaceOrCollectionTreeItem} from './types.ts';
 import CollectionTreeNode from './CollectionTreeNode.tsx';
 import {useTranslation} from 'react-i18next';
 import CollectionEdit from './CollectionEdit.tsx';
+import {EntityName} from '../../../../api/types.ts';
+import {createIriFromId} from '@alchemy/api';
 
 export type CollectionTreeData = WorkspaceOrCollectionTreeItem;
 
@@ -72,7 +74,10 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
             collection: CollectionOptionalWorkspace,
             workspaceId: string
         ): TreeNode<CollectionTreeData> => {
-            const nodeId = collection.id;
+            const nodeId = createIriFromId(
+                EntityName.Collection,
+                collection.id
+            );
 
             const children =
                 collectionsTree[collection.id]?.items ?? collection.children;
@@ -89,12 +94,12 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
                 hasChildren: children ? children.length > 0 : false,
                 childrenLoaded: !!collectionsTree[collection.id],
                 children: children?.map(c => mapCollection(c, workspaceId)),
-                canAddChildren: collection.capabilities.canEdit,
+                canAddChildren: collection.capabilities.createCollection,
             };
         };
 
         return workspaces.map(w => {
-            const nodeId = w.id;
+            const nodeId = createIriFromId(EntityName.Workspace, w.id);
 
             return {
                 id: nodeId,
@@ -109,6 +114,7 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
                 children: collectionsTree[w.id]?.items.map(c =>
                     mapCollection(c, w.id)
                 ),
+                canAddChildren: w.capabilities.createCollection,
             };
         });
     }, [workspaces, collectionsTree]);
@@ -119,7 +125,9 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
             label: t('collection.tree_view.new_collection', 'New Collection'),
             type: EntityType.Collection,
             capabilities: {
-                canEdit: true,
+                edit: true,
+                createAsset: true,
+                createCollection: true,
             },
             workspaceId: parentNode!.data.workspaceId,
         }),

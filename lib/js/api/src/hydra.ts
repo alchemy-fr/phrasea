@@ -63,6 +63,10 @@ export function extractIdFromIri<T extends string | null | undefined>(
     return parts[parts.length - 1] as T;
 }
 
-export function getIri(entity: string, id: string): string {
+export function createIriFromId(entity: string, id: string): string {
     return `/${entity}/${id}`;
+}
+
+export function isEntityIri(entity: string, iri: string): boolean {
+    return iri.startsWith(`/${entity}/`);
 }

@@ -5,6 +5,7 @@ import {
     FormGroup,
     FormHelperText,
     FormLabel,
+    InputLabel,
     ListItemText,
     MenuList,
     TextField,
@@ -24,7 +25,7 @@ import {
     postIntegration,
     putIntegration,
 } from '../../../api/integrations.ts';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import IntegrationTypeSelect from '../../Form/IntegrationTypeSelect.tsx';
 import CodeEditor from '../../Media/Asset/Widgets/CodeEditor.tsx';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -33,6 +34,12 @@ import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import WorkspaceIntegrationSelect from '../../Form/WorkspaceIntegrationSelect.tsx';
 import InfoRow from '../Info/InfoRow.tsx';
 import {search} from '../../../lib/search.ts';
+import AclForm from '../../Permissions/AclForm.tsx';
+import {
+    AclPermission,
+    PermissionObject,
+    PermissionType,
+} from '../../Permissions/permissionsTypes.ts';
 
 function Item({
     usedFormSubmit,
@@ -64,6 +71,50 @@ function Item({
             })();
         }
     }, [integration]);
+
+    const definitions = useMemo(() => {
+        return [
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.VIEW,
+                label: t('acl.permission.integration.view.label', 'View'),
+                description: t(
+                    'acl.permission.integration.view.desc',
+                    'View integration, but cannot interact with it or see its data. This permission is useful for users who need to know an integration exists, but should not be able to run it or see its results.'
+                ),
+            },
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.EDIT,
+                label: t('acl.permission.integration.edit.label', 'Edit'),
+                description: t(
+                    'acl.permission.integration.edit.desc',
+                    'Can edit integration configuration.'
+                ),
+            },
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.CHILD_VIEW,
+                label: t('acl.permission.integration.child_view.label', 'Use'),
+                description: t(
+                    'acl.permission.integration.child_view.desc',
+                    'View integration and read its data, but cannot interact with it. This permission is useful for users who need to see the results of an integration, but should not be able to run it or edit its configuration.'
+                ),
+            },
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.CHILD_EDIT,
+                label: t(
+                    'acl.permission.integration.child_edit.label',
+                    'Interact'
+                ),
+                description: t(
+                    'acl.permission.integration.child_edit.desc',
+                    'Can interact with integration, such as running it or using it in a workflow, but cannot edit its configuration or delete it.'
+                ),
+            },
+        ];
+    }, [t]);
 
     const copyReference = () => {
         setValue('configYaml', integrationHelp!.reference);
@@ -217,6 +268,38 @@ function Item({
                 ) : null}
                 <FormFieldErrors field={'config'} errors={errors} />
             </FormRow>
+
+            <FormRow>
+                <CheckboxWidget
+                    label={t('form.integration.public.label', 'Public')}
+                    control={control}
+                    name={'public'}
+                    disabled={submitting}
+                />
+                <FormFieldErrors field={'public'} errors={errors} />
+            </FormRow>
+
+            {data.id && (
+                <FormRow>
+                    <InputLabel>
+                        {t('form.permissions.label', 'Permissions')}
+                    </InputLabel>
+                    <AclForm
+                        objectId={data.id}
+                        objectType={PermissionObject.WorkspaceIntegration}
+                        filterDefinitions={d =>
+                            d.type === PermissionType.Mask &&
+                            [
+                                AclPermission.VIEW,
+                                AclPermission.EDIT,
+                                AclPermission.CHILD_VIEW,
+                                AclPermission.CHILD_EDIT,
+                            ].includes(d.key)
+                        }
+                        definitions={definitions}
+                    />
+                </FormRow>
+            )}
         </>
     );
 }
@@ -239,6 +322,7 @@ function createNewItem(): Partial<WorkspaceIntegration> {
     return {
         title: '',
         config: {},
+        public: true,
         enabled: true,
     };
 }

@@ -1,8 +1,8 @@
 import {AttributeList} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
-import AclForm from '../../Acl/AclForm';
+import AclForm from '../../Permissions/AclForm.tsx';
 import ContentTab from '../Tabbed/ContentTab';
-import {PermissionObject} from '../../Permissions/permissions';
+import {PermissionObject} from '../../Permissions/permissionsTypes.ts';
 
 type Props = {
     data: AttributeList;

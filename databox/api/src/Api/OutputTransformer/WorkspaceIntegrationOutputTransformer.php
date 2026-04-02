@@ -12,6 +12,7 @@ use App\Integration\IntegrationDataManager;
 use App\Integration\IntegrationManager;
 use App\Repository\Integration\IntegrationTokenRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\WorkspaceIntegrationVoter;
 use Arthem\ObjectReferenceBundle\Mapper\ObjectMapper;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Query;
@@ -21,6 +22,7 @@ use Symfony\Component\Yaml\Yaml;
 class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
+    use GroupsHelperTrait;
 
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -49,6 +51,7 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
         $output->setTitle($data->getTitle());
         $output->setEnabled($data->isEnabled());
         $output->setIntegration($data->getIntegration());
+        $output->public = $data->getPublic();
         $output->workspace = $data->getWorkspace();
         $output->needs = array_map(fn (WorkspaceIntegration $wi): string => $this->iriConverter->getIriFromResource($wi), $data->getNeeds()->getValues());
         $output->if = $data->getIf();
@@ -100,6 +103,13 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
 
         $tokens = $this->integrationTokenRepository->getValidUserTokens($data->getId(), $this->getStrictUser()->getId());
         $output->setTokens($tokens);
+
+        if ($this->hasGroup([WorkspaceIntegration::GROUP_LIST], $context)) {
+            $output->setCapabilities([
+                'use' => $this->isGranted(WorkspaceIntegrationVoter::READ_DATA, $data),
+                'interact' => $this->isGranted(WorkspaceIntegrationVoter::INTERACT, $data),
+            ]);
+        }
 
         return $output;
     }

@@ -10,6 +10,8 @@ import {AQLQueries} from './components/Media/Search/AQL/query.ts';
 import {ApiHydraObjectResponse} from '@alchemy/api';
 import {Editor} from '@tiptap/core';
 
+import {AclExtraPermission} from './components/Permissions/permissionsTypes.ts';
+
 export type AlternateUrl = {
     type: string;
     url: string;
@@ -96,8 +98,10 @@ export type AssetAttachment = {
 
 export interface Asset
     extends IPermissions<{
-            canEditAttributes: boolean;
-            canShare: boolean;
+            edit: boolean;
+            editAttributes: boolean;
+            share: boolean;
+            delete: boolean;
         }>,
         Entity {
     title?: string | undefined;
@@ -260,9 +264,9 @@ export interface RenditionRule extends ApiHydraObjectResponse, Entity {
 }
 
 export type TPermission<E extends Record<string, boolean> = {}> = {
-    canEdit: boolean;
-    canDelete: boolean;
-    canEditPermissions: boolean;
+    edit: boolean;
+    delete: boolean;
+    editPermissions: boolean;
 } & E;
 
 export interface IPermissions<E extends Record<string, boolean> = {}>
@@ -325,10 +329,16 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
 >;
 
 export interface Collection
-    extends IPermissions,
+    extends IPermissions<{
+            createAsset: boolean;
+            createCollection: boolean;
+            edit: boolean;
+            delete: boolean;
+        }>,
         Entity,
         ApiHydraObjectResponse {
     title: string;
+    parentId?: string;
     titleTranslated: string;
     titleHighlight?: string;
     storyAsset?: Asset;
@@ -347,7 +357,14 @@ export interface Collection
     deleted?: boolean;
 }
 
-export interface Basket extends IPermissions, Entity {
+export interface Basket
+    extends IPermissions<{
+            edit: boolean;
+            share: boolean;
+            delete: boolean;
+            editPermissions: boolean;
+        }>,
+        Entity {
     title: string;
     titleHighlight?: string | undefined;
     description?: string | undefined;
@@ -374,7 +391,13 @@ export type AttributeListItem = {
     format?: string;
 };
 
-export interface AttributeList extends IPermissions, Entity {
+export interface AttributeList
+    extends IPermissions<{
+            edit: boolean;
+            delete: boolean;
+            editPermissions: boolean;
+        }>,
+        Entity {
     title: string;
     description?: string;
     items?: AttributeListItem[];
@@ -391,7 +414,13 @@ export type SavedSearchData = {
     sortBy: SortBy[];
 };
 
-export interface SavedSearch extends IPermissions, Entity {
+export interface SavedSearch
+    extends IPermissions<{
+            edit: boolean;
+            delete: boolean;
+            editPermissions: boolean;
+        }>,
+        Entity {
     title: string;
     public?: boolean;
     createdAt: string;
@@ -440,8 +469,8 @@ export interface ThreadMessage extends Entity {
     updatedAt: string;
     acknowledged?: boolean;
     capabilities: {
-        canDelete: boolean;
-        canEdit: boolean;
+        delete: boolean;
+        edit: boolean;
     };
 }
 
@@ -463,7 +492,13 @@ export type LastErrors = {
     line: number;
 }[];
 
-export interface Workspace extends IPermissions, Entity {
+export interface Workspace
+    extends IPermissions<{
+            createCollection: boolean;
+            createAsset: boolean;
+            edit: boolean;
+        }>,
+        Entity {
     name: string;
     nameTranslated: string;
     fileAnalyzers?: string;
@@ -488,8 +523,14 @@ export type IntegrationConfigKey = {
     value: string | undefined;
 };
 
-export interface WorkspaceIntegration extends DefinitionBase {
+export interface WorkspaceIntegration
+    extends DefinitionBase,
+        IPermissions<{
+            use: boolean;
+            interact: boolean;
+        }> {
     title: string;
+    public: boolean;
     enabled: boolean;
     integration: Integration;
     integrationTitle: string;
@@ -555,6 +596,7 @@ export type Ace = (
     userId: string | null;
     userType: UserType;
     resolving?: boolean;
+    metadata?: AclExtraPermission[];
 } & Entity;
 
 export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;
