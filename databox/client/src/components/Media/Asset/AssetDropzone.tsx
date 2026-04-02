@@ -4,9 +4,9 @@ import UploadDialog from '../../Upload/UploadDialog.tsx';
 import {Backdrop, Typography} from '@mui/material';
 import {retrieveImageFromClipboardAsBlob} from '../../../lib/ImagePaste.ts';
 import {useModals} from '@alchemy/navigation';
-import {useAccept} from '../../Upload/UploadDropzone';
 import {useAuth} from '@alchemy/react-auth';
 import {useTranslation} from 'react-i18next';
+import {useAccept} from '../../Upload/useAccept.ts';
 
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {
     const {t} = useTranslation();

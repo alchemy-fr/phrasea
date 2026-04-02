@@ -11,6 +11,7 @@ import {
     getHydraCollection,
     normalizeNestedObjects,
 } from './src/hydra';
+import {getFileType} from './src/fileType';
 
 export {
     useCancelRequest,
@@ -22,6 +23,7 @@ export {
     getHydraCollection,
     normalizeNestedObjects,
     extractIdFromIri,
+    getFileType,
 };
 export * from './src/types';
 export * from './src/utils';
