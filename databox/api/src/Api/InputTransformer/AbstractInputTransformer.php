@@ -13,6 +13,7 @@ use App\Api\Model\Input\CollectionInput;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -28,6 +29,7 @@ abstract class AbstractInputTransformer implements InputTransformerInterface
     protected function transformPrivacy(AssetInput|CollectionInput $data, Asset|Collection $object): void
     {
         if (null !== $data->privacy) {
+            $this->denyAccessUnlessGranted(AbstractVoter::EDIT_PERMISSIONS, $object);
             $object->setPrivacy($data->privacy);
         }
         if (null !== $data->privacyLabel) {
