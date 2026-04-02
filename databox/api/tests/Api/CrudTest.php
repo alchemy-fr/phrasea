@@ -118,6 +118,7 @@ final class CrudTest extends AbstractDataboxTestCase
         $createAttributeDefinition = ['POST', '/attribute-definitions', KeycloakClientTestMock::ADMIN_UID, [
             'workspace' => '/workspaces/{workspaceId}',
             'name' => 'AttrDef Test',
+            'fieldType' => 'text',
             'policy' => '/attribute-policies/{attributePolicyId}',
         ]];
 
@@ -207,6 +208,13 @@ final class CrudTest extends AbstractDataboxTestCase
                 'code' => 403,
             ]],
 
+            ['POST', '/attribute-definitions', KeycloakClientTestMock::USER_UID, [
+                'workspace' => '/workspaces/{workspaceId}',
+                'fieldType' => 'text',
+            ], [
+                'code' => 403,
+            ]],
+
             ['POST', '/attribute-definitions', KeycloakClientTestMock::ADMIN_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
@@ -219,6 +227,24 @@ final class CrudTest extends AbstractDataboxTestCase
                 'policy' => '/attribute-policies/{attributePolicyId}',
             ], [
                 'code' => 403,
+            ]],
+
+            ['POST', '/attribute-definitions', KeycloakClientTestMock::USER_UID, [
+                'workspace' => '/workspaces/{workspaceId}',
+                'name' => 'AttrClass Test',
+                'fieldType' => 'text',
+                'policy' => '/attribute-policies/{attributePolicyId}',
+            ], [
+                'code' => 403,
+            ]],
+
+            ['POST', '/attribute-definitions', KeycloakClientTestMock::ADMIN_UID, [
+                'workspace' => '/workspaces/{workspaceId}',
+                'name' => 'AttrClass Test',
+                'fieldType' => 'text',
+                'policy' => '/attribute-policies/{attributePolicyId}',
+            ], [
+                'code' => 201,
             ]],
 
             $createAttributeDefinition,

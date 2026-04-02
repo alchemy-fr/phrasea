@@ -21,11 +21,11 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\AssetTypeTargetFilter;
 use App\Api\Filter\InWorkspacesFilter;
+use App\Api\Filter\PartialSearchFilter;
 use App\Api\Filter\SearchFilter;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Attribute\AttributeInterface;
-use App\Attribute\Type\TextAttributeType;
 use App\Controller\Core\AttributeDefinitionSortAction;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\ErrorDisableInterface;
@@ -65,6 +65,12 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                     filter: BooleanFilter::class,
                     property: 'searchable',
                 ),
+                'name' => new QueryParameter(
+                    filter: PartialSearchFilter::class,
+                    property: 'name',
+                ),
+                'type' => new QueryParameter(
+                    filter: SearchFilter::class, property: 'fieldType'),
                 'workspaceId' => new QueryParameter(
                     filter: SearchFilter::class, property: 'workspace'),
                 'workspaceIds' => new QueryParameter(
@@ -185,7 +191,8 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     private ?string $fileType = null;
 
     #[ORM\Column(type: Types::STRING, length: 50, nullable: false)]
-    private string $fieldType = TextAttributeType::NAME;
+    #[Assert\NotNull]
+    private ?string $fieldType = null;
 
     #[ORM\ManyToOne(targetEntity: EntityList::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: true)]
@@ -268,12 +275,12 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         $this->fileType = $fileType;
     }
 
-    public function getFieldType(): string
+    public function getFieldType(): ?string
     {
         return $this->fieldType;
     }
 
-    public function setFieldType(string $fieldType): void
+    public function setFieldType(?string $fieldType): void
     {
         $this->fieldType = $fieldType;
     }

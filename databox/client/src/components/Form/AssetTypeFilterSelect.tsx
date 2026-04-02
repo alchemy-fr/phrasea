@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {RSelectProps, RSelectWidget} from '@alchemy/react-form';
-import {AssetType} from '../../types.ts';
+import {AssetTypeFilter} from '../../types.ts';
 import {FieldValues} from 'react-hook-form';
 
 type Props<TFieldValues extends FieldValues> = Omit<
@@ -18,11 +18,11 @@ export default function AssetTypeFilterSelect<
         () => [
             {
                 label: t('asset_type.choice.asset', 'Assets'),
-                value: AssetType.Asset.toString(),
+                value: AssetTypeFilter.Asset.toString(),
             },
             {
                 label: t('asset_type.choice.story', 'Stories'),
-                value: AssetType.Story.toString(),
+                value: AssetTypeFilter.Story.toString(),
             },
         ],
         [t]
@@ -46,14 +46,14 @@ function normalizeValue(
 }
 
 export function denormalizeAssetTypeFilterValue(
-    value: AssetType | number | string | undefined | null
-): AssetType | null | undefined {
+    value: AssetTypeFilter | number | string | undefined | null
+): AssetTypeFilter | null | undefined {
     if (value) {
         if (typeof value === 'string') {
-            return parseInt(value) as AssetType;
+            return parseInt(value) as AssetTypeFilter;
         }
 
-        return value as AssetType;
+        return value as AssetTypeFilter;
     }
 
     return undefined;

@@ -7,6 +7,7 @@ import {
     AsyncRSelectWidget,
     SelectOption,
 } from '@alchemy/react-form';
+import {AttributeType} from '../../api/types.ts';
 
 type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<
     TFieldValues,
@@ -29,7 +30,9 @@ export default function FieldTypeSelect<TFieldValues extends FieldValues>({
                 .map(d => ({
                     label: d.title,
                     value: d.name,
-                    image: fieldTypesIcons[d.name] ?? fieldTypesIcons.text,
+                    image:
+                        fieldTypesIcons[d.name as AttributeType] ??
+                        fieldTypesIcons[AttributeType.Text],
                 }));
         },
         []

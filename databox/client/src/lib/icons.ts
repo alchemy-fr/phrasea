@@ -12,19 +12,41 @@ import SubjectIcon from '@mui/icons-material/Subject';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AbcIcon from '@mui/icons-material/Abc';
 import {AttributeType} from '../api/types.ts';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import PersonIcon from '@mui/icons-material/Person';
+import CollectionsIcon from '@mui/icons-material/Collections';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import KeyIcon from '@mui/icons-material/Key';
+import BusinessIcon from '@mui/icons-material/Business';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import SmartDisplayIcon from '@mui/icons-material/SmartDisplay';
+import SecurityIcon from '@mui/icons-material/Security';
 
-export const fieldTypesIcons: Record<string, SvgIconComponent> = {
+export const fieldTypesIcons: Record<AttributeType, SvgIconComponent> = {
     [AttributeType.Boolean]: CheckBoxIcon,
     [AttributeType.Code]: CodeIcon,
+    [AttributeType.CollectionPath]: CollectionsIcon,
     [AttributeType.Color]: ColorLensIcon,
     [AttributeType.DateTime]: CalendarTodayIcon,
     [AttributeType.Date]: CalendarTodayIcon,
+    [AttributeType.Duration]: AccessTimeIcon,
+    [AttributeType.Entity]: FormatListBulletedIcon,
     [AttributeType.GeoPoint]: LocationOnIcon,
     [AttributeType.Html]: HtmlIcon,
+    [AttributeType.Id]: KeyIcon,
     [AttributeType.Ip]: AlternateEmailIcon,
     [AttributeType.Json]: DataObjectIcon,
     [AttributeType.Keyword]: AbcIcon,
     [AttributeType.Number]: LooksOneIcon,
+    [AttributeType.Privacy]: SecurityIcon,
+    [AttributeType.Rendition]: SmartDisplayIcon,
+    [AttributeType.Size]: LooksOneIcon,
+    [AttributeType.Story]: MenuBookIcon,
+    [AttributeType.Tag]: LocalOfferIcon,
     [AttributeType.Text]: TextFieldsIcon,
+    [AttributeType.Textarea]: TextFieldsIcon,
+    [AttributeType.User]: PersonIcon,
     [AttributeType.WebVtt]: SubjectIcon,
+    [AttributeType.Workspace]: BusinessIcon,
 };

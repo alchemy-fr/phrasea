@@ -18,6 +18,7 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\AssetTypeTargetFilter;
 use App\Api\Filter\InWorkspacesFilter;
+use App\Api\Filter\PartialSearchFilter;
 use App\Api\Filter\SearchFilter;
 use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Api\Model\Output\RenditionDefinitionOutput;
@@ -54,6 +55,10 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(
             parameters: [
+                'name' => new QueryParameter(
+                    filter: PartialSearchFilter::class,
+                    property: 'name',
+                ),
                 'workspaceId' => new QueryParameter(
                     filter: SearchFilter::class, property: 'workspace'),
                 'workspaceIds' => new QueryParameter(
@@ -106,6 +111,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     input: RenditionDefinitionInput::class,
     output: RenditionDefinitionOutput::class,
     order: ['priority' => 'DESC'],
+    paginationClientItemsPerPage: true,
 )]
 #[ORM\Table]
 #[ORM\Index(columns: ['workspace_id', 'name'], name: 'rend_def_ws_name')]
