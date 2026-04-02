@@ -647,6 +647,11 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return $date;
     }
 
+    public function getTagsEditedAt(): ?\DateTimeImmutable
+    {
+        return $this->tagsEditedAt;
+    }
+
     public function getAttributesEditedAt(): ?\DateTimeImmutable
     {
         return $this->attributesEditedAt;
