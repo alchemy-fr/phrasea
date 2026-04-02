@@ -1,9 +1,37 @@
-import {DropzoneOptions, useDropzone} from 'react-dropzone';
+import {Accept, DropzoneOptions, useDropzone} from 'react-dropzone';
 import {Box, Typography} from '@mui/material';
 import {grey} from '@mui/material/colors';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
-import {useAccept} from './useAccept.ts';
+import {config} from '../../init';
+
+export function useAccept(): Accept | undefined {
+    return React.useMemo<Accept | undefined>(() => {
+        const a = config.upload.allowedTypes;
+        if (!a) {
+            return;
+        }
+
+        const n = {...a};
+        try {
+            Object.keys(n).forEach(k => {
+                n[k] = n[k].map(e => `.${e.replace(/^\./, '')}`);
+                if (n[k].length === 0) {
+                    throw new Error(
+                        `Missing extension list for MIME type ${k}`
+                    );
+                }
+            });
+        } catch (e: any) {
+            // eslint-disable-next-line no-console
+            console.error(e.toString());
+
+            return;
+        }
+
+        return n;
+    }, []);
+}
 
 type Props = DropzoneOptions;
 

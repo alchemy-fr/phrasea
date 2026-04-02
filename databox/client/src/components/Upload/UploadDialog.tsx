@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Box, Button, Checkbox, InputLabel, TextField} from '@mui/material';
 import {Trans, useTranslation} from 'react-i18next';
 import UploadIcon from '@mui/icons-material/Upload';
-import {getFileType, useFormSubmit} from '@alchemy/api';
+import {useFormSubmit} from '@alchemy/api';
 import FormDialog from '../Dialog/FormDialog';
 import {FormUploadData, UploadData, UploadForm} from './UploadForm';
 import {v4 as uuidv4} from 'uuid';
@@ -257,17 +257,10 @@ export default function UploadDialog({
     const onDrop = (acceptedFiles: File[]) => {
         setFiles(p =>
             acceptedFiles
-                .map(file => {
-                    getFileType(file).then(t => {
-                        // eslint-disable-next-line no-console
-                        console.log('t', t);
-                    });
-
-                    return {
-                        id: uuidv4().toString(),
-                        file,
-                    };
-                })
+                .map(file => ({
+                    id: uuidv4().toString(),
+                    file,
+                }))
                 .concat(p)
         );
     };
