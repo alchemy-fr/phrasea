@@ -144,11 +144,13 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
     }
 
     if (actionsContext.edit) {
+        const canGoEdit = Boolean(can.edit || can.editAttributes);
+
         children.push(
             <MenuItem
                 key={'edit'}
-                disabled={!can.edit}
-                onClick={can.edit ? onEdit : undefined}
+                disabled={!canGoEdit}
+                onClick={canGoEdit ? onEdit : undefined}
             >
                 <ListItemIcon>
                     <EditIcon />

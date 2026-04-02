@@ -59,12 +59,13 @@ export default function CollectionMenuItem({
     workspace,
     isAuthenticated,
 }: Props) {
+    const {id, titleTranslated, children, capabilities} = collection;
     const {t} = useTranslation();
     const {openModal} = useModals();
     const searchContext = useContext(SearchContext)!;
     const [expanded, setExpanded] = useState<boolean>(false);
     const [childrenLoaded, setChildrenLoaded] = React.useState(false);
-    const childCount = collection.children?.length ?? 0;
+    const childCount = children?.length ?? 0;
 
     const load = useCollectionStore(state => state.load);
     const addCollection = useCollectionStore(state => state.addCollection);
@@ -72,16 +73,16 @@ export default function CollectionMenuItem({
     useCollectionStore(state => state.collections); // Subscribe to collection updates
 
     const pager =
-        useCollectionStore(state => state.tree)[collection.id] ??
+        useCollectionStore(state => state.tree)[id] ??
         ({
-            items: collection.children,
+            items: children,
             expanding: false,
             loadingMore: false,
         } as CollectionPager);
 
     React.useEffect(() => {
         if (expanded && !childrenLoaded && childCount > 0) {
-            load(workspace.id, collection.id).then(() => {
+            load(workspace.id, id).then(() => {
                 setChildrenLoaded(true);
             });
         }
@@ -96,7 +97,7 @@ export default function CollectionMenuItem({
 
         if (e.detail > 1) {
             // is double click
-            load(workspace.id, collection.id, true);
+            load(workspace.id, id, true);
         }
     };
 
@@ -116,11 +117,11 @@ export default function CollectionMenuItem({
         });
     };
 
-    const selected = searchContext.collections.includes(collection.id);
+    const selected = searchContext.collections.includes(id);
     const onClick = () => {
         searchContext.selectCollection(
-            collection.id,
-            (titlePath ?? []).concat(collection.titleTranslated).join(` / `),
+            id,
+            (titlePath ?? []).concat(titleTranslated).join(` / `),
             selected
         );
         expand(true);
@@ -152,7 +153,7 @@ export default function CollectionMenuItem({
                                         modalRoutes.collections.routes.manage
                                     }
                                     params={{
-                                        id: collection.id,
+                                        id,
                                         tab: 'notifications',
                                     }}
                                     aria-label="notifications"
@@ -168,13 +169,11 @@ export default function CollectionMenuItem({
                                     />
                                 </MenuItem>,
                                 isAuthenticated &&
-                                (collection.capabilities.createAsset ||
-                                    collection.capabilities
-                                        .createCollection) ? (
+                                (capabilities.createAsset ||
+                                    capabilities.createCollection) ? (
                                     <Divider key="divider1" />
                                 ) : null,
-                                collection.capabilities.createAsset &&
-                                isAuthenticated ? (
+                                capabilities.createAsset && isAuthenticated ? (
                                     <MenuItem
                                         key="create-asset"
                                         onClick={closeWrapper(() =>
@@ -183,12 +182,10 @@ export default function CollectionMenuItem({
                                                 workspaceTitle:
                                                     workspace.nameTranslated,
                                                 workspaceId: workspace.id,
-                                                collectionId: collection.id,
+                                                collectionId: id,
                                                 titlePath: (
                                                     titlePath ?? []
-                                                ).concat(
-                                                    collection.titleTranslated
-                                                ),
+                                                ).concat(titleTranslated),
                                             })
                                         )}
                                         aria-label="create-asset"
@@ -205,7 +202,7 @@ export default function CollectionMenuItem({
                                     </MenuItem>
                                 ) : null,
                                 isAuthenticated &&
-                                collection.capabilities.createCollection ? (
+                                capabilities.createCollection ? (
                                     <MenuItem
                                         key="create-collection"
                                         onClick={closeWrapper(() =>
@@ -215,14 +212,12 @@ export default function CollectionMenuItem({
                                                     workspace.nameTranslated,
                                                 titlePath: (
                                                     titlePath ?? []
-                                                ).concat(
-                                                    collection.titleTranslated
-                                                ),
+                                                ).concat(titleTranslated),
                                                 onCreate: coll => {
                                                     addCollection(
                                                         coll,
                                                         workspace.id,
-                                                        collection.id
+                                                        id
                                                     );
                                                     expand(true);
                                                 },
@@ -242,12 +237,10 @@ export default function CollectionMenuItem({
                                     </MenuItem>
                                 ) : null,
                                 isAuthenticated &&
-                                (collection.capabilities.edit ||
-                                    collection.capabilities.delete) ? (
+                                (capabilities.edit || capabilities.delete) ? (
                                     <Divider key="divider2" />
                                 ) : null,
-                                isAuthenticated &&
-                                collection.capabilities.edit ? (
+                                isAuthenticated && capabilities.edit ? (
                                     <MenuItem
                                         key="edit"
                                         onClick={closeWrapper()}
@@ -257,7 +250,7 @@ export default function CollectionMenuItem({
                                                 .manage
                                         }
                                         params={{
-                                            id: collection.id,
+                                            id,
                                             tab: 'edit',
                                         }}
                                         aria-label="edit"
@@ -273,8 +266,7 @@ export default function CollectionMenuItem({
                                         />
                                     </MenuItem>
                                 ) : null,
-                                isAuthenticated &&
-                                collection.capabilities.delete ? (
+                                isAuthenticated && capabilities.delete ? (
                                     collection.deleted ? (
                                         <MenuItem
                                             key="restore"
@@ -354,7 +346,7 @@ export default function CollectionMenuItem({
                         primary={
                             collection.titleHighlight
                                 ? replaceHighlight(collection.titleHighlight)
-                                : collection.titleTranslated
+                                : titleTranslated
                         }
                         secondary={
                             isSearch ? (
@@ -391,7 +383,7 @@ export default function CollectionMenuItem({
                                     key={`${c.id}-${c.children ? 'c' : ''}`}
                                     absolutePath={`${absolutePath}/${c.id}`}
                                     titlePath={(titlePath ?? []).concat(
-                                        collection.title
+                                        titleTranslated
                                     )}
                                     level={level + 1}
                                 />
