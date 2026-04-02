@@ -167,10 +167,13 @@ export default function CollectionMenuItem({
                                         )}
                                     />
                                 </MenuItem>,
-                                collection.capabilities.edit ? (
+                                isAuthenticated &&
+                                (collection.capabilities.createAsset ||
+                                    collection.capabilities
+                                        .createCollection) ? (
                                     <Divider key="divider1" />
                                 ) : null,
-                                collection.capabilities.edit &&
+                                collection.capabilities.createAsset &&
                                 isAuthenticated ? (
                                     <MenuItem
                                         key="create-asset"
@@ -201,7 +204,8 @@ export default function CollectionMenuItem({
                                         />
                                     </MenuItem>
                                 ) : null,
-                                collection.capabilities.edit ? (
+                                isAuthenticated &&
+                                collection.capabilities.createCollection ? (
                                     <MenuItem
                                         key="create-collection"
                                         onClick={closeWrapper(() =>
@@ -237,10 +241,12 @@ export default function CollectionMenuItem({
                                         />
                                     </MenuItem>
                                 ) : null,
-                                collection.capabilities.edit ||
-                                collection.capabilities.delete ? (
+                                isAuthenticated &&
+                                (collection.capabilities.edit ||
+                                    collection.capabilities.delete) ? (
                                     <Divider key="divider2" />
                                 ) : null,
+                                isAuthenticated &&
                                 collection.capabilities.edit ? (
                                     <MenuItem
                                         key="edit"
@@ -267,6 +273,7 @@ export default function CollectionMenuItem({
                                         />
                                     </MenuItem>
                                 ) : null,
+                                isAuthenticated &&
                                 collection.capabilities.delete ? (
                                     collection.deleted ? (
                                         <MenuItem

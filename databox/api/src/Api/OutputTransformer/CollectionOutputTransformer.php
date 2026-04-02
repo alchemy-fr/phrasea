@@ -154,9 +154,14 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         });
 
         if ($this->hasGroup([Collection::GROUP_LIST, Collection::GROUP_READ], $context)) {
+            $virtualColl = new Collection();
+            $virtualColl->setWorkspace($output->getWorkspace());
+            $virtualColl->setParent($data);
+            $virtualColl->setOwnerId($data->getOwnerId());
+
             $output->setCapabilities([
                 'createAsset' => $this->isGranted(AssetContainerVoterInterface::CREATE_ASSET, $data),
-                'createCollection' => $this->isGranted(CollectionVoter::CREATE, $data),
+                'createCollection' => $this->isGranted(CollectionVoter::CREATE, $virtualColl),
                 'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
                 'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
                 'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),

@@ -386,6 +386,25 @@ class PermissionsTest extends AbstractDataboxTestCase
             ],
             canCreateAssetInRoot: true,
         );
+        yield new PermissionsTestCase(
+            'a-child-create',
+            self::ALICE,
+            ...$aliceCommon,
+            a: [
+                PermissionInterface::CHILD_CREATE,
+            ],
+            canCreateAssetInA: true,
+            canCreateAssetInB: true,
+        );
+        yield new PermissionsTestCase(
+            'b-child-create',
+            self::ALICE,
+            ...$aliceCommon,
+            b: [
+                PermissionInterface::CHILD_CREATE,
+            ],
+            canCreateAssetInB: true,
+        );
 
         $bobCommon = [
             'canViewB' => true,
