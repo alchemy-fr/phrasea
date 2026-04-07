@@ -100,17 +100,24 @@ export default function PublicationStructure({publication, children}: Props) {
             <div className={MenuClasses.PageHeader}>
                 <Container
                     sx={{
-                        'pb': 2,
-                        '.logo': {
-                            maxWidth: 400,
-                            m: 1,
-                        },
+                        pb: 2,
                     }}
                 >
                     {layoutOptions.logoUrl && (
-                        <div className={'logo'}>
+                        <Box
+                            className={'publication-logo'}
+                            sx={{
+                                m: 1,
+                                maxWidth: 600,
+                                img: {
+                                    maxWidth: '100%',
+                                    maxHeight: 150,
+                                    display: 'block',
+                                },
+                            }}
+                        >
                             <img src={layoutOptions.logoUrl} alt={''} />
-                        </div>
+                        </Box>
                     )}
                     <Breadcrumbs
                         aria-label="breadcrumb"

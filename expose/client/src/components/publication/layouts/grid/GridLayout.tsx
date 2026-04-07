@@ -106,7 +106,7 @@ export default function GridLayout({
                             maxWidth: 'none',
                             marginTop: 0,
                             display: 'block',
-                            transition: `.3s ease-in-out`,
+                            transition: `opacity .3s ease-in-out, transform .3s ease-in-out`,
                         },
                         '&:hover img': {
                             transform: 'scale(1.3)',

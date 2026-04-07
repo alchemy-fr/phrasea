@@ -14,14 +14,14 @@ export default function Description({descriptionHtml}: Props) {
             variant={'body1'}
             component={'div'}
             sx={theme => ({
-                '.field-title': {
+                '.attribute-title': {
                     color: theme.palette.primary.main,
                     fontWeight: 700,
                 },
-                '.field-value': {
-                    color: theme.palette.text.primary,
-                    marginInlineStart: 0,
-                    mb: 1,
+                '.attributes': {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 1,
                 },
             })}
         >
