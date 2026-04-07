@@ -138,6 +138,8 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             foreach ($data->tags as $tag) {
                 $object->addTag($tag);
             }
+
+            $object->setTagsEditedAt(new \DateTimeImmutable());
         }
 
         $object = $this->processOwnerId($object);

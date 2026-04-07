@@ -35,6 +35,14 @@ export default class DurationType extends NumberType {
         format,
         ...options
     }: AttributeFormatterProps): React.ReactNode {
+        if (typeof value !== 'number') {
+            if (typeof value === 'string') {
+                return value;
+            }
+
+            return undefined;
+        }
+
         const t = options.t;
         const getFormat = {
             formated: (values: DurationValues): string => {

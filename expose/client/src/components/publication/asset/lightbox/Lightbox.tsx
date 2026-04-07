@@ -1,4 +1,11 @@
-import {Box, IconButton, Theme, useMediaQuery, useTheme} from '@mui/material';
+import {
+    alpha,
+    Box,
+    IconButton,
+    Theme,
+    useMediaQuery,
+    useTheme,
+} from '@mui/material';
 import {Asset, Publication, Thumb} from '../../../../types.ts';
 import React, {useEffect} from 'react';
 import {
@@ -58,32 +65,29 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
         : windowHeight - thumbOuterHeight;
 
     return (
-        <div
+        <Box
             className={LightboxClasses.Lightbox}
-            style={{
+            sx={theme => ({
                 position: 'fixed',
                 top: 0,
                 left: 0,
                 bottom: 0,
                 right: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.80)',
+                backgroundColor: alpha(theme.palette.common.white, 0.9),
                 zIndex: 1300,
-            }}
+            })}
         >
             <Box
                 sx={{
-                    'display': 'flex',
-                    'flexDirection': 'column',
-                    'justifyContent': 'center',
-                    'alignItems': 'center',
-                    'height': '100vh',
-                    '*::-webkit-scrollbar-thumb': {
-                        backgroundColor: theme.palette.common.white,
-                    },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100vh',
                 }}
             >
                 <Box
-                    sx={{
+                    sx={theme => ({
                         position: 'relative',
                         flexGrow: 1,
                         flexShrink: 1,
@@ -95,8 +99,11 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                             'cursor': 'pointer',
                             'zIndex': 1,
                             '.MuiIconButton-root': {
-                                color: 'white',
-                                background: 'rgba(0, 0, 0, 0.2)',
+                                color: theme.palette.common.black,
+                                backgroundColor: alpha(
+                                    theme.palette.common.black,
+                                    0.2
+                                ),
                             },
                             '.MuiSvgIcon-root': {
                                 fontSize: 25,
@@ -116,7 +123,7 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                             {
                                 display: 'none',
                             },
-                    }}
+                    })}
                 >
                     <Box
                         className={classNames(
@@ -220,7 +227,6 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                         <Box
                             sx={{
                                 m: 3,
-                                color: 'white',
                                 flexGrow: 1,
                                 maxWidth: {
                                     xs: '100%',
@@ -246,9 +252,9 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                     thumbHeight={thumbHeight}
                     thumbPadding={thumbPadding}
                     asset={asset}
-                    isDark={true}
+                    isDark={false}
                 />
             </Box>
-        </div>
+        </Box>
     );
 }

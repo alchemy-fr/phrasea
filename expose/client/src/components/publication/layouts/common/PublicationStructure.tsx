@@ -56,6 +56,10 @@ export default function PublicationStructure({publication, children}: Props) {
     return (
         <VerticalMenuLayout
             config={config}
+            openMenuTooltip={t(
+                'publicationHeader.openMenuTooltip',
+                'Open navigation menu'
+            )}
             defaultOpen={false}
             childrenSx={{
                 display: 'flex',
@@ -96,10 +100,31 @@ export default function PublicationStructure({publication, children}: Props) {
             <div className={MenuClasses.PageHeader}>
                 <Container
                     sx={{
-                        py: 2,
+                        pb: 2,
                     }}
                 >
-                    <Breadcrumbs aria-label="breadcrumb">
+                    {layoutOptions.logoUrl && (
+                        <Box
+                            className={'publication-logo'}
+                            sx={{
+                                m: 1,
+                                maxWidth: 600,
+                                img: {
+                                    maxWidth: '100%',
+                                    maxHeight: 150,
+                                    display: 'block',
+                                },
+                            }}
+                        >
+                            <img src={layoutOptions.logoUrl} alt={''} />
+                        </Box>
+                    )}
+                    <Breadcrumbs
+                        aria-label="breadcrumb"
+                        sx={{
+                            mt: 1,
+                        }}
+                    >
                         {!config.disableIndexPage && (
                             <Link
                                 style={{
@@ -133,11 +158,6 @@ export default function PublicationStructure({publication, children}: Props) {
                         ))}
 
                         <div>
-                            {layoutOptions.logoUrl && (
-                                <div className={'logo'}>
-                                    <img src={layoutOptions.logoUrl} alt={''} />
-                                </div>
-                            )}
                             <Typography variant={'h1'}>
                                 {getTranslatedTitle(publication)}
 
