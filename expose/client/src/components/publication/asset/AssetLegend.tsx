@@ -54,7 +54,7 @@ export default function AssetLegend({
                 asset.downloadUrl && (
                     <div>
                         <Button
-                            variant={'contained'}
+                            variant={'outlined'}
                             onClick={() => onDownload(asset.downloadUrl)}
                             startIcon={<GetAppIcon />}
                         >
@@ -63,11 +63,7 @@ export default function AssetLegend({
                     </div>
                 )}
 
-            {description ? (
-                <Typography variant={'body1'} component={'div'}>
-                    <Description descriptionHtml={description} />
-                </Typography>
-            ) : null}
+            {description ? <Description descriptionHtml={description} /> : null}
         </Box>
     );
 }

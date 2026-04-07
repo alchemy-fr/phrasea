@@ -56,6 +56,10 @@ export default function PublicationStructure({publication, children}: Props) {
     return (
         <VerticalMenuLayout
             config={config}
+            openMenuTooltip={t(
+                'publicationHeader.openMenuTooltip',
+                'Open navigation menu'
+            )}
             defaultOpen={false}
             childrenSx={{
                 display: 'flex',
@@ -96,10 +100,24 @@ export default function PublicationStructure({publication, children}: Props) {
             <div className={MenuClasses.PageHeader}>
                 <Container
                     sx={{
-                        py: 2,
+                        'pb': 2,
+                        '.logo': {
+                            maxWidth: 400,
+                            m: 1,
+                        },
                     }}
                 >
-                    <Breadcrumbs aria-label="breadcrumb">
+                    {layoutOptions.logoUrl && (
+                        <div className={'logo'}>
+                            <img src={layoutOptions.logoUrl} alt={''} />
+                        </div>
+                    )}
+                    <Breadcrumbs
+                        aria-label="breadcrumb"
+                        sx={{
+                            mt: 1,
+                        }}
+                    >
                         {!config.disableIndexPage && (
                             <Link
                                 style={{
@@ -133,11 +151,6 @@ export default function PublicationStructure({publication, children}: Props) {
                         ))}
 
                         <div>
-                            {layoutOptions.logoUrl && (
-                                <div className={'logo'}>
-                                    <img src={layoutOptions.logoUrl} alt={''} />
-                                </div>
-                            )}
                             <Typography variant={'h1'}>
                                 {getTranslatedTitle(publication)}
 

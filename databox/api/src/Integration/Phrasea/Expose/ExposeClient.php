@@ -200,8 +200,10 @@ final readonly class ExposeClient
         }
 
         return sprintf(
-            '  <dt class="field-title field-type-%1$s field-name-%2$s">%3$s</dt>
-  <dd class="value field-type-%1$s field-name-%2$s"%5$s>%4$s</dd>
+            '  <div class="field-group">
+    <div class="field-title field-type-%1$s field-name-%2$s">%3$s</div>
+    <div class="value field-type-%1$s field-name-%2$s"%5$s>%4$s</div>
+  </div>
 ',
             $definition->getFieldType(),
             $definition->getSlug(),

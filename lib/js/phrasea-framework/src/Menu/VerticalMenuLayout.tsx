@@ -1,5 +1,5 @@
 import React, {PropsWithChildren, ReactNode, useState} from 'react';
-import {IconButton, Theme, useMediaQuery, useTheme} from '@mui/material';
+import {IconButton, Theme, Tooltip, useMediaQuery, useTheme} from '@mui/material';
 import {AppMenuProps, MenuClasses} from './types';
 import VerticalAppMenu from './VerticalAppMenu';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
@@ -9,6 +9,7 @@ import {resolveSx, sumSpacing} from '@alchemy/core';
 
 type Props = PropsWithChildren<{
     menuChildren?: ReactNode;
+    openMenuTooltip?: ReactNode;
     defaultOpen?: boolean;
     contentSx?: React.CSSProperties | ((theme: Theme) => React.CSSProperties);
 }> &
@@ -16,6 +17,7 @@ type Props = PropsWithChildren<{
 
 export default function VerticalMenuLayout({
     children,
+    openMenuTooltip,
     menuChildren,
     contentSx,
     defaultOpen = true,
@@ -55,24 +57,29 @@ export default function VerticalMenuLayout({
                     width: `min(${menuWidth}px, 100vw)`,
                 }}
             >
-                <IconButton
-                    disableRipple={true}
-                    sx={theme => ({
-                        position: 'absolute',
-                        top: theme.spacing(1),
-                        left: `min(${menuWidth}px, 100vw)`,
-                        zIndex: 151,
-                        bgcolor: 'background.paper',
-                        boxShadow: 1,
-                        transition: 'transform 0.3s ease-in-out',
-                        transform: !open
-                            ? `translateX(${theme.spacing(1)})`
-                            : `translateX(${sumSpacing(theme, -1, -buttonWidth)})`,
-                    })}
-                    onClick={() => setOpen(o => !o)}
+                <Tooltip
+                    title={!open ? openMenuTooltip : undefined}
+                    placement="right"
                 >
-                    {open ? <KeyboardArrowLeftIcon /> : <MenuIcon />}
-                </IconButton>
+                    <IconButton
+                        disableRipple={true}
+                        sx={theme => ({
+                            position: 'absolute',
+                            top: theme.spacing(1),
+                            left: `min(${menuWidth}px, 100vw)`,
+                            zIndex: 151,
+                            bgcolor: 'background.paper',
+                            boxShadow: 1,
+                            transition: 'transform 0.3s ease-in-out',
+                            transform: !open
+                                ? `translateX(${theme.spacing(1)})`
+                                : `translateX(${sumSpacing(theme, -1, -buttonWidth)})`,
+                        })}
+                        onClick={() => setOpen(o => !o)}
+                    >
+                        {open ? <KeyboardArrowLeftIcon /> : <MenuIcon />}
+                    </IconButton>
+                </Tooltip>
                 <VerticalAppMenu {...appMenuProps}>
                     {menuChildren}
                 </VerticalAppMenu>

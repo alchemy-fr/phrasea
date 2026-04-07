@@ -99,13 +99,18 @@ export default function GridLayout({
                     display: 'flex',
                     flexWrap: 'wrap',
                     [`.${Classes.thumbContainer}`]: {
-                        backgroundColor: theme.palette.background.paper,
-                        overflow: 'hidden',
-                        margin: `${margin}px`,
-                        img: {
+                        'backgroundColor': theme.palette.background.paper,
+                        'overflow': 'hidden',
+                        'margin': `${margin}px`,
+                        'img': {
                             maxWidth: 'none',
                             marginTop: 0,
                             display: 'block',
+                            transition: `.3s ease-in-out`,
+                        },
+                        '&:hover img': {
+                            transform: 'scale(1.3)',
+                            opacity: 0.8,
                         },
                     },
                     ...thumbSx(theme),
