@@ -1,5 +1,10 @@
 import {apiClient} from '../init.ts';
-import {Collection, CollectionOptionalWorkspace, Workspace} from '../types';
+import {
+    Collection,
+    CollectionOptionalWorkspace,
+    CollectionPrivacyInfo,
+    Workspace,
+} from '../types';
 import {
     createIriFromId,
     getHydraCollection,
@@ -47,6 +52,12 @@ export function clearWorkspaceCache(): void {
 
 export async function getCollection(id: string): Promise<Collection> {
     return (await apiClient.get(`/collections/${id}`)).data;
+}
+
+export async function getCollectionPrivacyInfo(
+    id: string
+): Promise<CollectionPrivacyInfo> {
+    return (await apiClient.get(`/collections/${id}/privacy`)).data;
 }
 
 export async function putCollection(

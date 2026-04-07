@@ -89,8 +89,6 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             $object->setExtraMetadata($data->getExtraMetadata());
         }
 
-        $this->transformPrivacy($data, $object);
-
         if ($isNew) {
             $object->setWorkspace($workspace);
             if ($data->getOwnerId()) {
@@ -147,6 +145,8 @@ class AssetInputTransformer extends AbstractFileInputTransformer
         if ($isNew && $data->isStory) {
             $this->assetManager->turnIntoStory($object);
         }
+
+        $this->transformPrivacy($data, $object);
 
         return $object;
     }

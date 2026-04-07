@@ -255,11 +255,14 @@ export default function UploadDialog({
     const {reset, getValues, remoteErrors, submitting, watch} = usedFormSubmit;
 
     const destinationWatched = watch('destination');
+    const destinationIri =
+        typeof destinationWatched === 'string'
+            ? destinationWatched
+            : destinationWatched?.id;
+
     const collectionId =
-        destinationWatched &&
-        typeof destinationWatched === 'string' &&
-        isEntityIri(EntityName.Collection, destinationWatched)
-            ? extractIdFromIri(destinationWatched)
+        destinationIri && isEntityIri(EntityName.Collection, destinationIri)
+            ? extractIdFromIri(destinationIri)
             : undefined;
 
     const resetForms = React.useCallback(() => {

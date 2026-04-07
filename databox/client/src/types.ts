@@ -11,6 +11,7 @@ import {ApiHydraObjectResponse} from '@alchemy/api';
 import {Editor} from '@tiptap/core';
 
 import {AclExtraPermission} from './components/Permissions/permissionsTypes.ts';
+import {Privacy} from './api/privacy.ts';
 
 export type AlternateUrl = {
     type: string;
@@ -327,6 +328,12 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
     Collection,
     'workspace'
 >;
+
+export type CollectionPrivacyInfo = {
+    privacy: Privacy;
+    computedPrivacy: Privacy;
+    canEditAssetPrivacy: boolean;
+};
 
 export interface Collection
     extends IPermissions<{

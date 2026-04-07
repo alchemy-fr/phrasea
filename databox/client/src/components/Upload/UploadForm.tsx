@@ -1,4 +1,4 @@
-import React, {FC} from 'react';
+import React, {FC, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     FormFieldErrors,
@@ -21,7 +21,13 @@ import {useAssetDataTemplateOptions} from '../Media/Asset/Attribute/useAssetData
 import {AssetDataTemplate, getAssetDataTemplate} from '../../api/templates';
 import AssetDataTemplateSelect from '../Form/AssetDataTemplateSelect';
 import {OnChangeValue} from 'react-select';
-import {Asset, AssetTypeFilter, Attribute, Tag} from '../../types';
+import {
+    Asset,
+    AssetTypeFilter,
+    Attribute,
+    CollectionPrivacyInfo,
+    Tag,
+} from '../../types';
 import {AttributeIndex} from '../Media/Asset/Attribute/AttributesEditor';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {useFormPrompt} from '@alchemy/navigation';
@@ -30,6 +36,7 @@ import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
 import StoryForm from './StoryForm.tsx';
 import {WorkspaceOrCollectionTreeItem} from '../Media/Collection/CollectionTree/types.ts';
 import {TreeNode} from '@alchemy/phrasea-framework';
+import {getCollectionPrivacyInfo} from '../../api/collection.ts';
 
 export type UploadData = {
     destination: TreeNode<WorkspaceOrCollectionTreeItem> | string | null;
@@ -87,6 +94,17 @@ export const UploadForm: FC<{
     const [appliedTemplates, setAppliedTemplates] = React.useState<
         AssetDataTemplate[]
     >([]);
+    const [collectionPrivacyInfo, setCollectionPrivacyInfo] =
+        useState<CollectionPrivacyInfo | null>(null);
+    React.useEffect(() => {
+        if (collectionId) {
+            setCollectionPrivacyInfo(null);
+            getCollectionPrivacyInfo(collectionId).then(info =>
+                setCollectionPrivacyInfo(info)
+            );
+        }
+    }, [collectionId]);
+
     const [loading, setLoading] = React.useState(false);
     const [templateId, setTemplateId] = React.useState<string | undefined>();
 
@@ -256,6 +274,12 @@ export const UploadForm: FC<{
                                 <PrivacyField
                                     control={control}
                                     name={'privacy'}
+                                    disabled={
+                                        !collectionPrivacyInfo?.canEditAssetPrivacy
+                                    }
+                                    inheritedPrivacy={
+                                        collectionPrivacyInfo?.computedPrivacy
+                                    }
                                 />
                             </FormRow>
 

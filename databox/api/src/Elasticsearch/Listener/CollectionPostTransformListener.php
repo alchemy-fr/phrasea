@@ -29,6 +29,7 @@ final readonly class CollectionPostTransformListener implements EventSubscriberI
         $bestPrivacy = $collection->getPrivacy();
 
         $users = $this->permissionManager->getAllowedUsers($collection, PermissionInterface::VIEW);
+        $users[] = $collection->getOwnerId();
         $groups = $this->permissionManager->getAllowedGroups($collection, PermissionInterface::VIEW);
 
         // "nl" stands for Next Level and means permissions for sets which have access to a sub folder only (not the root one)
@@ -46,6 +47,7 @@ final readonly class CollectionPostTransformListener implements EventSubscriberI
 
             $parentUsers = $this->permissionManager->getAllowedUsers($parent, PermissionInterface::VIEW);
             $users = array_merge($users, $parentUsers);
+            $users[] = $parent->getOwnerId();
             $nlUsers = array_diff($nlUsers, $parentUsers);
 
             if (in_array(null, $users, true)) {
