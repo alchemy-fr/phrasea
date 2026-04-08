@@ -62,7 +62,7 @@ App\Entity\Core\AttributeDefinition:
         multiple: false
         fieldType: filesize
         policy: '@n_ap_public'
-        initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('Composite:ImageSize').value }}\"}"
+        initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('Composite:FileSize').value }}\"}"
         position: 2
     ad_duration (extends attribute_definition_n):
         name: Duration

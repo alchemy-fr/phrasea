@@ -25,7 +25,8 @@ export default class FileSizeType extends NumberType {
         const {t} = options;
         const f = (size: number, binary: boolean, locale: string) => {
             const base = binary ? 1024 : 1000;
-            const unit = Math.floor(Math.log(size) / Math.log(base));
+            const unit =
+                size > 0 ? Math.floor(Math.log(size) / Math.log(base)) : 0;
             const v = Math.round(100 * (size / Math.pow(base, unit))) / 100.0;
             const value = v.toLocaleString(locale);
 

@@ -35,7 +35,7 @@ export default function SearchError({error}: Props) {
                 </FlexRow>
                 <pre
                     style={{
-                        whiteSpace: 'wrap',
+                        whiteSpace: 'pre-wrap',
                     }}
                 >
                     {error}
