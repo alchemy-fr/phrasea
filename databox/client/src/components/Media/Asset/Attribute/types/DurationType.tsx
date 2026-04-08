@@ -3,7 +3,6 @@ import {
     AttributeFormatterProps,
     AvailableFormat,
 } from './types';
-import React from 'react';
 import moment from 'moment';
 import NumberType from './NumberType.tsx';
 
@@ -30,17 +29,14 @@ type DurationValues = {
 };
 
 export default class DurationType extends NumberType {
-    formatValue({
-        value,
+    formatValueAsString({
+        value: v,
         format,
         ...options
-    }: AttributeFormatterProps): React.ReactNode {
-        if (typeof value !== 'number') {
-            if (typeof value === 'string') {
-                return value;
-            }
-
-            return undefined;
+    }: AttributeFormatterProps): string | undefined {
+        const value = this.normalizeNumber(v);
+        if (undefined === value) {
+            return;
         }
 
         const t = options.t;
@@ -157,33 +153,23 @@ export default class DurationType extends NumberType {
         }
     }
 
-    formatValueAsString({value}: AttributeFormatterProps): string | undefined {
-        if (typeof value !== 'number') {
-            if (typeof value === 'string') {
-                return value;
-            }
-            return undefined;
-        }
-        return value?.toString();
-    }
-
     getAvailableFormats(options: AttributeFormatterOptions): AvailableFormat[] {
         return [
             {
-                name: Formats.Original,
-                title: 'Original',
+                name: Formats.Compact,
+                title: 'Compact',
             },
             {
                 name: Formats.Formatted,
                 title: 'Formatted',
             },
             {
-                name: Formats.Compact,
-                title: 'Compact',
-            },
-            {
                 name: Formats.Humanized,
                 title: 'Humanized',
+            },
+            {
+                name: Formats.Original,
+                title: 'Original',
             },
         ].map(f => ({
             ...f,

@@ -24,7 +24,7 @@ import {AttributeType} from '../../../../../api/types.ts';
 import NumberType from './NumberType.tsx';
 import StoryType from './StoryType.tsx';
 import DurationType from './DurationType.tsx';
-import SizeType from './SizeType.tsx';
+import FileSizeType from './FileSizeType.tsx';
 
 export const types: {
     [key in AttributeType]?: AttributeTypeClass;
@@ -49,7 +49,7 @@ export const types: {
     [AttributeType.User]: UserType,
     [AttributeType.Number]: NumberType,
     [AttributeType.Duration]: DurationType,
-    [AttributeType.Size]: SizeType,
+    [AttributeType.FileSize]: FileSizeType,
 };
 
 export function getAttributeType(

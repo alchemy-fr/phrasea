@@ -81,7 +81,7 @@ readonly class AttributeTypeChangeService
             DurationAttributeType::NAME => [
                 ...$text,
             ],
-            SizeAttributeType::NAME => [
+            FileSizeAttributeType::NAME => [
                 ...$text,
             ],
         ];

@@ -57,12 +57,19 @@ App\Entity\Core\AttributeDefinition:
         policy: '@n_ap_public'
         initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('IFD0:Artist').value ?? file.metadata('XMP-dc:Creator').value ?? file.metadata('IFD0:Copyright').value ?? file.metadata('IPTC:CopyrightNotice').value }}\"}"
         position: 2
-    ad_image_size (extends attribute_definition_n):
-        name: Image Size
+    ad_file_size (extends attribute_definition_n):
+        name: File Size
         multiple: false
-        fieldType: number
+        fieldType: filesize
         policy: '@n_ap_public'
-        initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('Composite:ImageSize').value }}\"}"
+        initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('Composite:FileSize').value }}\"}"
+        position: 2
+    ad_duration (extends attribute_definition_n):
+        name: Duration
+        multiple: false
+        fieldType: duration
+        policy: '@n_ap_public'
+        initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('Composite:Duration').value }}\"}"
         position: 2
     ad_country (extends attribute_definition_n):
         name: Country
@@ -516,6 +523,16 @@ App\Entity\Core\Attribute:
         definition: '@ad_location'
         asset: '@a_*'
         value: '<numberBetween(-48, 48)> <numberBetween(-20, 20)>'
+
+    at_duration_{@a_*} (extends attribute_n):
+        definition: '@ad_duration'
+        asset: '@a_*'
+        value: '<numberBetween(0, 99999999)>'
+
+    at_filesize_{@a_*} (extends attribute_n):
+        definition: '@ad_file_size'
+        asset: '@a_*'
+        value: '<numberBetween(0, 99999999999)>'
 
     at_date_{@a_*} (extends attribute_n):
         __factory:
