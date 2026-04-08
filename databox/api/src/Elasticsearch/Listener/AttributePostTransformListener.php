@@ -45,13 +45,6 @@ final class AttributePostTransformListener implements EventSubscriberInterface
         $document = $event->getDocument();
         $asset = $attribute->getAsset();
 
-        $definition = $attribute->getDefinition();
-        if (EntityAttributeType::NAME === $definition->getFieldType()) {
-            if (!$this->resolveEntity($attribute, $document)) {
-                return;
-            }
-        }
-
         $assetId = $asset->getId();
         if (null === $this->lastAssetPermissions || $this->lastAssetPermissions[0] !== $assetId) {
             $this->lastAssetPermissions = [$assetId, $this->assetPermissionComputer->getAssetPermissionFields($asset)];
@@ -60,9 +53,14 @@ final class AttributePostTransformListener implements EventSubscriberInterface
         foreach ($this->lastAssetPermissions[1]->toDocument() as $key => $value) {
             $document->set($key, $value);
         }
+
+        $definition = $attribute->getDefinition();
+        if (EntityAttributeType::NAME === $definition->getFieldType()) {
+            $this->resolveEntity($attribute, $document);
+        }
     }
 
-    private function resolveEntity(Attribute $attribute, Document $document): bool
+    private function resolveEntity(Attribute $attribute, Document $document): void
     {
         if ($attribute->getDefinition()->getEntityList()) {
             if (UuidV4::isValid($attribute->getValue())) {
@@ -71,13 +69,9 @@ final class AttributePostTransformListener implements EventSubscriberInterface
                 if ($entity) {
                     $document->set('entityId', $attribute->getValue());
                     $document->set('suggestion', $entity->getValue());
-
-                    return true;
                 }
             }
         }
-
-        return false;
     }
 
     public static function getSubscribedEvents(): array

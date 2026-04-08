@@ -257,6 +257,7 @@ fos_elastica:
                             ignore_above: 200
                         suggest: *suggest_field
                 entityId:
+                    property_path: false
                     type: keyword
                 privacy:
                     property_path: false

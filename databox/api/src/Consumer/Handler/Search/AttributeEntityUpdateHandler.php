@@ -178,6 +178,7 @@ EOF, AttributeInterface::ATTRIBUTES_FIELD).implode("\n", $calls),
             [
                 // Change "suggestion" field to new value
                 'source' => 'ctx._source.suggestion = params.value;',
+                'lang' => 'painless',
                 'params' => [
                     'value' => $attributeEntity->getValue(),
                 ],
