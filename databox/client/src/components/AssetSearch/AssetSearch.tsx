@@ -45,6 +45,7 @@ export default function AssetSearch({}: Props) {
                 total={resultContext!.total}
                 loading={resultContext!.loading}
                 loadMore={resultContext.loadMore}
+                error={resultContext!.error}
                 onOpenDebug={openDebug}
                 onOpen={onOpen}
                 noResultsMessage={<NoSearchResult />}

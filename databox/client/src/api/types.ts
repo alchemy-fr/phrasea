@@ -38,7 +38,7 @@ export enum AttributeType {
     Number = 'number',
     Privacy = 'privacy',
     Rendition = 'rendition',
-    Size = 'size',
+    FileSize = 'filesize',
     Story = 'story',
     Tag = 'tag',
     Text = 'text',

@@ -37,10 +37,12 @@ import useUpdateEffect from '@alchemy/react-hooks/src/useUpdateEffect';
 import {useContextMenu} from '../../hooks/useContextMenu.ts';
 import {useAssetStore} from '../../store/assetStore.ts';
 import {DisplayContext} from '../Media/DisplayContext.tsx';
+import SearchError from '../AssetSearch/SearchError.tsx';
 
 type Props<Item extends AssetOrAssetContainer> = {
     pages: Item[][];
     total?: number;
+    error?: string;
     loading?: boolean;
     itemToAsset?: (item: Item) => Asset;
     loadMore?: LoadMoreFunc | undefined;
@@ -66,6 +68,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     pages,
     total,
     loading,
+    error,
     onOpen,
     itemToAsset: itemToAssetProxy,
     loadMore,
@@ -237,6 +240,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                         actionsContext={actionsContext}
                         {...selectionActionsProps}
                     />
+                    {error ? <SearchError error={error} /> : null}
                     {pages[0] && !loading && (pages[0]?.length ?? 0) === 0
                         ? noResultsMessage
                         : React.createElement(layouts[layout], {
