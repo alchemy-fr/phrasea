@@ -10,11 +10,13 @@ import AddIcon from '@mui/icons-material/Add';
 import {useEffect} from 'react';
 import {useNavigateToModal} from '../Routing/ModalLink.tsx';
 import {modalRoutes} from '../../routes.ts';
+import {useAuth} from '@alchemy/react-auth';
 
 type Props = {} & StackedModalProps;
 
 export default function SelectAttributeListDialog({modalIndex, open}: Props) {
     const {t} = useTranslation();
+    const {isAuthenticated} = useAuth();
     const {openModal, closeModal} = useModals();
     const navigateToModal = useNavigateToModal();
 
@@ -69,6 +71,7 @@ export default function SelectAttributeListDialog({modalIndex, open}: Props) {
                         variant={'contained'}
                         onClick={createAttributeList}
                         startIcon={<AddIcon />}
+                        disabled={!isAuthenticated}
                     >
                         {t(
                             'attributeList.create_button.label',

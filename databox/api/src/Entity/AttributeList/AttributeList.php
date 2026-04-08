@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\AttributeList;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
@@ -77,6 +78,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             securityPostValidation: 'is_granted("'.AbstractVoter::CREATE.'", object)'
         ),
         new Post(
