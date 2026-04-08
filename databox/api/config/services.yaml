@@ -26,6 +26,7 @@ services:
             string $kernelEnv: '%kernel.environment%'
             Elastica\Index $assetIndex: '@fos_elastica.index.asset'
             Elastica\Index $collectionIndex: '@fos_elastica.index.collection'
+            Elastica\Index $attributeIndex: '@fos_elastica.index.attribute'
 
     _instanceof:
         Alchemy\Workflow\Executor\Action\ActionInterface:

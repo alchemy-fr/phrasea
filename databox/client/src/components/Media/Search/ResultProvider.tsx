@@ -91,6 +91,7 @@ type State = {
     next?: string | null;
     loadNext?: string;
     debug?: ESDebug;
+    error?: string;
 };
 
 type Props = PropsWithChildren<{
@@ -109,6 +110,7 @@ export default function ResultProvider({children, savedSearch}: Props) {
         setState(prev => ({
             ...prev,
             loading,
+            error: loading ? undefined : prev.error,
         }));
 
     const [setAssets, reloadAsset] = useAssetStore(s => [
@@ -154,6 +156,10 @@ export default function ResultProvider({children, savedSearch}: Props) {
             });
         } catch (e: any) {
             if (!(e instanceof axios.Cancel)) {
+                setState(p => ({
+                    ...p,
+                    error: e.toString(),
+                }));
                 throw e;
             }
         } finally {
@@ -174,6 +180,7 @@ export default function ResultProvider({children, savedSearch}: Props) {
                 facets: state.facets,
                 total: state.total,
                 debug: state.debug,
+                error: state.error,
                 loadMore: state.next
                     ? async () => {
                           await doSearch(state.next!);

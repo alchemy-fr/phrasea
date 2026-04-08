@@ -36,11 +36,15 @@ export default function UploadRenditionDialog({
             return;
         }
         setUploading(true);
+        const formData = {
+            assetId: asset.id,
+            definitionId,
+            substituted: true,
+        };
         try {
             if (!uploadForm.file) {
                 await postRendition({
-                    assetId: asset.id,
-                    definitionId,
+                    ...formData,
                     sourceFile: {
                         url: uploadForm.url,
                         importFile: uploadForm.importFile,
@@ -52,8 +56,7 @@ export default function UploadRenditionDialog({
                     uploadForm.file
                 );
                 await postRendition({
-                    assetId: asset.id,
-                    definitionId,
+                    ...formData,
                     multipart,
                 });
             }

@@ -41,7 +41,7 @@ export const fieldTypesIcons: Record<AttributeType, SvgIconComponent> = {
     [AttributeType.Number]: LooksOneIcon,
     [AttributeType.Privacy]: SecurityIcon,
     [AttributeType.Rendition]: SmartDisplayIcon,
-    [AttributeType.Size]: LooksOneIcon,
+    [AttributeType.FileSize]: LooksOneIcon,
     [AttributeType.Story]: MenuBookIcon,
     [AttributeType.Tag]: LocalOfferIcon,
     [AttributeType.Text]: TextFieldsIcon,

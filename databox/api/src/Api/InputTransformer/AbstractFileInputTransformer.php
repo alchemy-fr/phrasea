@@ -41,6 +41,8 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
             throw new BadRequestHttpException(sprintf('Copy error: File "%s" does not belong to workspace "%s"', $fileId, $workspace->getId()));
         }
 
+        $this->normalizeFile($file);
+
         return $file;
     }
 

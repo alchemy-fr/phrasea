@@ -12,6 +12,7 @@ export type TResultContext = {
     debug?: ESDebug;
     loadMore?: (() => Promise<void>) | undefined;
     reload: ReloadFunc;
+    error?: string;
 };
 
 export const ResultContext = React.createContext<TResultContext>({

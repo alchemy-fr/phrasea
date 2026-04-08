@@ -28,17 +28,28 @@ export default class NumberType extends TextType {
         return this.formatValueAsString(props);
     }
 
+    protected normalizeNumber(value: any): number | undefined {
+        if (typeof value === 'number') {
+            return value;
+        }
+
+        if (typeof value === 'string') {
+            const n = parseFloat(value);
+
+            if (!isNaN(n)) {
+                return n;
+            }
+        }
+    }
+
     formatValueAsString({
-        value,
+        value: v,
         format,
         ...options
     }: AttributeFormatterProps): string | undefined {
-        if (typeof value !== 'number') {
-            if (typeof value === 'string') {
-                return value;
-            }
-
-            return undefined;
+        const value = this.normalizeNumber(v);
+        if (undefined === value) {
+            return;
         }
 
         switch (format ?? this.getAvailableFormats(options)[0].name) {

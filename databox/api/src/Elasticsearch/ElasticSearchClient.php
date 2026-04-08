@@ -13,6 +13,7 @@ final readonly class ElasticSearchClient
         private Client $client,
         private Index $assetIndex,
         private Index $collectionIndex,
+        private Index $attributeIndex,
     ) {
     }
 
