@@ -39,7 +39,7 @@ class NumberAttributeType extends AbstractAttributeType
 
     public function supportsSuggest(): bool
     {
-        return true;
+        return false;
     }
 
     /**

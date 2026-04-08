@@ -35,6 +35,8 @@ final readonly class AttributeEntityUpdateHandler
             $attributeEntity->getList()->getId(),
         );
 
+        $this->updateAttributeIndex($attributeEntity);
+
         $fields = [];
         $calls = [];
         $params = [];
@@ -160,6 +162,25 @@ EOF, AttributeInterface::ATTRIBUTES_FIELD).implode("\n", $calls),
                     '_id' => $id,
                 ]),
                 'lang' => 'painless',
+            ]
+        );
+    }
+
+    private function updateAttributeIndex(AttributeEntity $attributeEntity): void
+    {
+        $this->elasticSearchClient->updateByQuery(
+            'attribute',
+            [
+                'term' => [
+                    'entityId' => $attributeEntity->getId(),
+                ],
+            ],
+            [
+                // Change "suggestion" field to new value
+                'source' => 'ctx._source.suggestion = params.value;',
+                'params' => [
+                    'value' => $attributeEntity->getValue(),
+                ],
             ]
         );
     }

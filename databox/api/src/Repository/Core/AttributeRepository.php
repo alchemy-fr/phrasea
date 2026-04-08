@@ -118,6 +118,7 @@ class AttributeRepository extends ServiceEntityRepository
             ->innerJoin('t.definition', 'd')
             ->andWhere('d.enabled = true')
             ->andWhere('d.fieldType IN (:types)')
+            ->andWhere('t.value != \'\'')
             ->setParameter('types', $types);
 
         $this->restrictTranslatableFields($queryBuilder, 't');

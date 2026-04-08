@@ -256,6 +256,8 @@ fos_elastica:
                             type: keyword
                             ignore_above: 200
                         suggest: *suggest_field
+                entityId:
+                    type: keyword
                 privacy:
                     property_path: false
                     type: byte
