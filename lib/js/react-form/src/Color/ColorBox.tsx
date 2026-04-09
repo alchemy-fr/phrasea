@@ -1,4 +1,5 @@
 import React, {PropsWithChildren} from 'react';
+import {Box, BoxProps} from '@mui/material';
 
 type ColorBoxProps = PropsWithChildren<{
     color: string;
@@ -6,29 +7,30 @@ type ColorBoxProps = PropsWithChildren<{
     height?: number;
     borderWidth?: number;
 }> &
-    React.HTMLProps<HTMLDivElement>;
+    BoxProps;
 
 export function ColorBox({
     color,
     width = 30,
     height = 22,
-    borderWidth = 2,
+    borderWidth = 1,
     children,
     style,
     ...divProps
 }: ColorBoxProps) {
     return (
-        <div
-            style={{
+        <Box
+            sx={theme => ({
                 width,
                 height,
                 backgroundColor: color,
-                border: `${borderWidth}px solid #000`,
+                border: `${borderWidth}px solid ${theme.palette.text.primary}`,
+                borderRadius: '5px',
                 ...(style || {}),
-            }}
+            })}
             {...divProps}
         >
             {children}
-        </div>
+        </Box>
     );
 }
