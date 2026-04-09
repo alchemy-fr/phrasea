@@ -10,6 +10,7 @@ import {useUserPreferencesStore} from '../../../store/userPreferencesStore.ts';
 import {useAuth} from '@alchemy/react-auth';
 import {updateClientDataLocale} from '../../../store/useDataLocaleStore.ts';
 import {scrollbarWidth} from '../../uiVars.ts';
+import {useAttributeListStore} from '../../../store/attributeListStore.ts';
 
 type Props = PropsWithChildren<{}>;
 
@@ -25,6 +26,7 @@ export default function UserPreferencesProvider({children}: Props) {
     const preferences = useUserPreferencesStore(s => s.preferences);
     const loadPreferences = useUserPreferencesStore(s => s.load);
     const loading = useUserPreferencesStore(s => s.loading);
+    const loadCurrentAttributeList = useAttributeListStore(s => s.loadCurrent);
 
     const isLoading = loading || loadingRef.current;
 
@@ -34,6 +36,12 @@ export default function UserPreferencesProvider({children}: Props) {
             loadPreferences();
         }
     }, [loadPreferences, user]);
+
+    React.useEffect(() => {
+        if (preferences?.attrList) {
+            loadCurrentAttributeList(preferences.attrList);
+        }
+    }, [preferences?.attrList, loadCurrentAttributeList]);
 
     React.useEffect(() => {
         updateClientDataLocale(preferences?.dataLocale);

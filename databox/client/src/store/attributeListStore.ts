@@ -43,6 +43,7 @@ type State = {
     toggleDefinition: (definition: AttributeDefinition) => void;
     removeFromList: (listId: string, ids: string[]) => void;
     setCurrent: (id: string | undefined) => Promise<void>;
+    loadCurrent: (id: string) => Promise<void>;
     shouldSelectAttributeList: () => boolean;
 };
 
@@ -55,29 +56,50 @@ export const useAttributeListStore = create<State>((set, getState) => ({
     lists: [],
 
     load: async (params, force) => {
-        if (getState().loaded && !force) {
+        const currentState = getState();
+        if ((currentState.loaded || currentState.loading) && !force) {
             return;
         }
-
-        const preferences = await useUserPreferencesStore.getState().load();
-        const prefAttrList = preferences['attrList'];
 
         set({
             loading: true,
         });
 
+        const preferences = await useUserPreferencesStore.getState().load();
+        const prefAttrList = preferences['attrList'];
+
         try {
             const data = await getAttributeLists(params);
+            let current = currentState.current;
 
-            set({
-                lists: data.result,
-                total: data.total,
-                loading: false,
-                loaded: true,
-                nextUrl: data.next || undefined,
-                current: prefAttrList
-                    ? data.result.find(at => at.id === prefAttrList)
-                    : undefined,
+            if (prefAttrList && !current) {
+                try {
+                    current = await getAttributeList(prefAttrList);
+                } catch (e) {
+                    current = undefined;
+                }
+            }
+
+            set(state => {
+                const previousCurrent = prefAttrList
+                    ? state.lists.find(at => at.id === prefAttrList)
+                    : undefined;
+                const newList = preserveListItems(state.lists, data.result);
+                if (
+                    previousCurrent &&
+                    newList.some(i => i.id === previousCurrent?.id)
+                ) {
+                    newList.concat(previousCurrent);
+                }
+
+                return {
+                    lists: newList,
+                    total: data.total,
+                    loading: false,
+                    loaded: true,
+                    nextUrl: data.next || undefined,
+                    current,
+                };
             });
         } catch (e: any) {
             set({loading: false});
@@ -126,6 +148,33 @@ export const useAttributeListStore = create<State>((set, getState) => ({
             await updatePref(id);
         } catch (e: any) {
             await updatePref(null);
+            set({
+                current: undefined,
+                loadingCurrent: false,
+            });
+        }
+    },
+
+    loadCurrent: async id => {
+        const currentState = getState();
+        if (currentState.loadingCurrent || currentState.current?.id === id) {
+            return;
+        }
+
+        const data = currentState.lists.find(l => l.id === id);
+
+        set({
+            current: data,
+            loadingCurrent: true,
+        });
+
+        try {
+            const list = await getAttributeList(id);
+            set({
+                current: list,
+                loadingCurrent: false,
+            });
+        } catch (e: any) {
             set({
                 current: undefined,
                 loadingCurrent: false,
@@ -206,7 +255,10 @@ export const useAttributeListStore = create<State>((set, getState) => ({
             const data = await getAttributeLists({nextUrl});
 
             set(state => ({
-                lists: state.lists.concat(data.result),
+                lists: preserveListItems(
+                    state.lists,
+                    state.lists.concat(data.result)
+                ),
                 total: data.total,
                 loadingMore: false,
                 nextUrl: data.next || undefined,
@@ -419,4 +471,21 @@ function getReorderedListItems(
             .map(id => list.items!.find(i => i.id === id))
             .filter(i => !!i),
     };
+}
+
+function preserveListItems(
+    prev: AttributeList[],
+    list: AttributeList[]
+): AttributeList[] {
+    return list.map(i => {
+        const prevItem = prev.find(p => p.id === i.id);
+        if (prevItem) {
+            return {
+                ...i,
+                items: prevItem.items ?? i.items,
+            };
+        }
+
+        return i;
+    });
 }

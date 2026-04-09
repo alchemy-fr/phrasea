@@ -56,8 +56,7 @@ function Attributes({
     const definitionsIndex = useIndexById();
     const toggleDefinition = useAttributeListStore(s => s.toggleDefinition);
     const current = useAttributeListStore(s => s.current);
-
-    const pinnedAttributes = current?.items ?? [];
+    const pinnedAttributes = useMemo(() => current?.items ?? [], [current]);
 
     const attributeItems = useMemo<AttributeItem[]>(() => {
         const attributeGroups = buildAttributesGroupedByDefinition(
