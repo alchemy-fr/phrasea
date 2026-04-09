@@ -1,21 +1,21 @@
 field_type:
     types:
-        text: Text
-        textarea: Textarea
-        json: JSON
-        ip: IP
-        code: Code
-        html: HTML
         boolean: Boolean
+        code: Code
         color: Color
-        keyword: Keyword
-        number: Number
         date: Date
         date_time: 'Date & Time'
-        geo_point: 'Geo point'
-        entity: Entity
         duration: Duration
-        size: Size
+        entity: Entity
+        filesize: File size
+        geo_point: 'Geo point'
+        html: HTML
+        ip: IP
+        json: JSON
+        keyword: Keyword
+        number: Number
+        text: Text
+        textarea: Textarea
 privacy:
     secret: Secret
     private_in_workspace: 'Private in workspace'
