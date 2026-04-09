@@ -30,7 +30,7 @@
         "@mui/lab": "^6.0.1-beta.36",
         "@mui/material": "^6.5.0",
         "@novu/framework": "^2.7.1",
-        "@novu/react": "^2.6.6",
+        "@novu/react": "^3.14.1",
         "@radix-ui/react-dropdown-menu": "^2.1.16",
         "@radix-ui/react-popover": "^1.1.15",
         "@tanstack/react-query": "^5.90.2",
