@@ -27,7 +27,6 @@ export default function AttributeWidget<T = string>({
 
     useEffect(() => {
         setValue(denormalizeInputValue(initialValue));
-        // eslint-disable-next-line
     }, [initialValue]);
 
     const changeHandler = useCallback(
@@ -39,8 +38,6 @@ export default function AttributeWidget<T = string>({
             }
 
             timeoutRef.current = setTimeout(() => onChange(newValue), 10);
-
-            // eslint-disable-next-line
         },
         [onChange, setValue, value]
     );

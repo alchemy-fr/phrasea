@@ -16,7 +16,6 @@ export default function NavMenuItem({
     sx,
     ...buttonProps
 }: Props) {
-
     return (
         <MenuItem
             {...(route

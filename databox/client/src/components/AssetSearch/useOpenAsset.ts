@@ -43,7 +43,6 @@ export function useOpenAsset({assets, resultContext}: Props) {
                     },
                 }
             );
-            // eslint-disable-next-line
         },
         [navigateToModal, assets, resultContext]
     );

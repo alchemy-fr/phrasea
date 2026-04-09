@@ -53,8 +53,8 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
 
                     const selected = Boolean(
                         condition &&
-                            !condition.disabled &&
-                            queryBuilder.hasValue(keyV)
+                        !condition.disabled &&
+                        queryBuilder.hasValue(keyV)
                     );
                     const onClick = () => {
                         const query = queryBuilder.toggleValue(keyV).toString();

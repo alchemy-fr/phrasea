@@ -77,7 +77,7 @@ export function useAuthorizationCode({
                         const dState = JSON.parse(atob(state)) as {
                             r?: string;
                         };
-                        // eslint-disable-next-line no-prototype-builtins
+
                         if (
                             typeof dState === 'object' &&
                             Object.prototype.hasOwnProperty.call(dState, 'r') &&

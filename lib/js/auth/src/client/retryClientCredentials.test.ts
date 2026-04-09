@@ -37,6 +37,7 @@ test('configureClientCredentials401Retry', async () => {
         return [401];
     });
     mock.onPost('/token').reply(200, {
+        // eslint-disable-next-line no-useless-assignment
         access_token: (tokenVersion++).toString(),
         expires_in: 42000,
         token_type: 'Bearer',

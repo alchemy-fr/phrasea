@@ -169,7 +169,6 @@ export default function ResultProvider({children, savedSearch}: Props) {
 
     useEffect(() => {
         doSearch();
-        // eslint-disable-next-line
     }, [searchContext.searchChecksum, searchContext.reloadInc]);
 
     return (
