@@ -179,7 +179,10 @@ final class AssetPermissionComputer
             foreach ($aces as $access) {
                 $userId = $access->getUserId();
                 $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
-                if ($access->hasPermission(PermissionInterface::CHILD_VIEW)) {
+                if (
+                    $access->hasPermission(PermissionInterface::CHILD_VIEW)
+                    || $access->hasPermission(PermissionInterface::OWNER)
+                ) {
                     if ($isUser) {
                         $users[] = $userId;
                     } else {

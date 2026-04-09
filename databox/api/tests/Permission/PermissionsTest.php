@@ -215,12 +215,14 @@ class PermissionsTest extends AbstractDataboxTestCase
 
             $this->assertEquals($case->canViewA, $security->isGranted(CollectionVoter::READ, $collectionA), $userMessage('view collection A (canViewA)'));
             $this->assertEquals($case->canEditA, $security->isGranted(CollectionVoter::EDIT, $collectionA), $userMessage('edit collection A (canEditA)'));
+            $this->assertEquals($case->canEditPermA, $security->isGranted(CollectionVoter::EDIT_PERMISSIONS, $collectionA), $userMessage('edit collection A permissions (canEditPermA)'));
             $this->assertEquals($case->canDeleteA, $security->isGranted(CollectionVoter::DELETE, $collectionA), $userMessage('delete collection A (canDeleteA)'));
             $this->assertEquals($case->canCreateCollectionUnderA, $security->isGranted(CollectionVoter::CREATE, $newCollectionInA), $userMessage('create collection under A (canCreateCollectionUnderA)'));
             $this->assertEquals($case->canCreateAssetInA, $security->isGranted(AssetVoter::CREATE, $newAssetInA), $userMessage('create asset in A (canCreateAssetInA)'));
 
             $this->assertEquals($case->canViewB, $security->isGranted(CollectionVoter::READ, $collectionB), $userMessage('view collection B (canViewB)'));
             $this->assertEquals($case->canEditB, $security->isGranted(CollectionVoter::EDIT, $collectionB), $userMessage('edit collection B (canEditB)'));
+            $this->assertEquals($case->canEditPermB, $security->isGranted(CollectionVoter::EDIT_PERMISSIONS, $collectionB), $userMessage('edit collection B permissions (canEditPermB)'));
             $this->assertEquals($case->canDeleteB, $security->isGranted(CollectionVoter::DELETE, $collectionB), $userMessage('delete collection B (canDeleteB)'));
             $this->assertEquals($case->canCreateCollectionUnderB, $security->isGranted(CollectionVoter::CREATE, $newCollectionInB), $userMessage('create collection under B (canCreateCollectionUnderB)'));
             $this->assertEquals($case->canCreateAssetInB, $security->isGranted(AssetVoter::CREATE, $newAssetInB), $userMessage('create asset in B (canCreateAssetInB)'));
@@ -271,11 +273,13 @@ class PermissionsTest extends AbstractDataboxTestCase
             canCreateAssetInRoot: true,
             canViewA: true,
             canEditA: true,
+            canEditPermA: true,
             canDeleteA: true,
             canCreateCollectionUnderA: true,
             canCreateAssetInA: true,
             canViewB: true,
             canEditB: true,
+            canEditPermB: true,
             canDeleteB: true,
             canCreateCollectionUnderB: true,
             canCreateAssetInB: true,
@@ -356,6 +360,8 @@ class PermissionsTest extends AbstractDataboxTestCase
             'ws-owner',
             self::ALICE,
             ...([
+                'canEditPermA' => true,
+                'canEditPermB' => true,
                 'assetLostAlice' => $fullAssetPerm,
                 'assetLostBob' => $fullAssetPerm,
                 'assetInARoot' => $fullAssetPerm,
@@ -458,6 +464,8 @@ class PermissionsTest extends AbstractDataboxTestCase
             'ws-owner',
             self::BOB,
             ...([
+                'canEditPermA' => true,
+                'canEditPermB' => true,
                 'assetLostAlice' => $fullAssetPerm,
                 'assetLostBob' => $fullAssetPerm,
                 'assetInARoot' => $fullAssetPerm,
@@ -548,6 +556,8 @@ class PermissionsTest extends AbstractDataboxTestCase
             'ws-owner',
             self::CAROL,
             ...([
+                'canEditPermA' => true,
+                'canEditPermB' => true,
                 'assetLostAlice' => $fullAssetPerm,
                 'assetLostBob' => $fullAssetPerm,
                 'assetInARoot' => $fullAssetPerm,
@@ -1103,6 +1113,45 @@ class PermissionsTest extends AbstractDataboxTestCase
             assetInARoot: $fullAssetPerm,
             assetInAAlice: $fullAssetPerm,
             assetInABob: $fullAssetPerm,
+            assetInBRoot: $fullAssetPerm,
+            assetInBAlice: $fullAssetPerm,
+            assetInBBob: $fullAssetPerm,
+        );
+
+        yield new PermissionsTestCase(
+            'ws-child-owner-and-permissions',
+            self::CAROL,
+            ...$carolCommon,
+            root: [
+                PermissionInterface::CHILD_OWNER,
+                self::EXTRA_PERM_PREFIX.DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS,
+            ],
+            assetLostRoot: $fullAssetPerm,
+            assetLostAlice: $fullAssetPerm,
+            assetLostBob: $fullAssetPerm,
+            assetInARoot: $fullAssetPerm,
+            assetInAAlice: $fullAssetPerm,
+            assetInABob: $fullAssetPerm,
+            assetInBRoot: $fullAssetPerm,
+            assetInBAlice: $fullAssetPerm,
+            assetInBBob: $fullAssetPerm,
+        );
+
+        yield new PermissionsTestCase(
+            'ws-permissions-and-B-owner',
+            self::CAROL,
+            ...$carolCommon,
+            root: [
+                self::EXTRA_PERM_PREFIX.DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS,
+            ],
+            b: [
+                PermissionInterface::OWNER,
+            ],
+            canViewB: true,
+            canEditB: true,
+            canEditPermB: true,
+            canDeleteB: true,
+            canCreateCollectionUnderB: true,
             assetInBRoot: $fullAssetPerm,
             assetInBAlice: $fullAssetPerm,
             assetInBBob: $fullAssetPerm,

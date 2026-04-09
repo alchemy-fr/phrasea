@@ -158,7 +158,13 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 || $isOwnerSlow(),
             // Edit permissions and object privacy
             AbstractVoter::EDIT_PERMISSIONS => $isWorkspaceOwnerFast()
-                || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS, $subject, $token)
+                || (
+                    $this->security->isGranted(AbstractVoter::OWNER, $subject)
+                    && (
+                        $this->hasMetadata(DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS, $subject, $token)
+                        || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS, $subject->getWorkspace(), $token)
+                    )
+                )
                 || $this->parentIsGranted($attribute, $subject)
                 || $isWorkspaceOwnerSlow()
             ,

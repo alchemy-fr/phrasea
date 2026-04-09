@@ -60,23 +60,25 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
                 </TranslatedField>
                 <FormFieldErrors field={'title'} errors={errors} />
             </FormRow>
-            <FormRow>
-                {data?.inheritedPrivacy ? (
-                    <>
-                        <Alert severity={'warning'}>
-                            {t(
-                                'form.collection.privacy.inherited',
-                                'This collection cannot be more restricted than its parent collection.'
-                            )}
-                        </Alert>
-                    </>
-                ) : null}
-                <PrivacyField
-                    control={control}
-                    name={'privacy'}
-                    inheritedPrivacy={data?.inheritedPrivacy}
-                />
-            </FormRow>
+            {data?.capabilities.editPermissions ? (
+                <FormRow>
+                    {data?.inheritedPrivacy ? (
+                        <>
+                            <Alert severity={'warning'}>
+                                {t(
+                                    'form.collection.privacy.inherited',
+                                    'This collection cannot be more restricted than its parent collection.'
+                                )}
+                            </Alert>
+                        </>
+                    ) : null}
+                    <PrivacyField
+                        control={control}
+                        name={'privacy'}
+                        inheritedPrivacy={data?.inheritedPrivacy}
+                    />
+                </FormRow>
+            ) : null}
         </form>
     );
 };

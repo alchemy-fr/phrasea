@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Listener;
 
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use App\Entity\Core\Collection;
@@ -35,6 +36,21 @@ final readonly class CollectionPostTransformListener implements EventSubscriberI
         // "nl" stands for Next Level and means permissions for sets which have access to a sub folder only (not the root one)
         $nlUsers = $users;
         $nlGroups = $groups;
+
+        $workspace = $collection->getWorkspace();
+        $users[] = $workspace->getOwnerId();
+        $aces = $this->permissionManager->getObjectAces($workspace);
+        foreach ($aces as $access) {
+            $userId = $access->getUserId();
+            $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
+            if ($access->hasPermission(PermissionInterface::OWNER)) {
+                if ($isUser) {
+                    $users[] = $userId;
+                } else {
+                    $groups[] = $userId;
+                }
+            }
+        }
 
         $parent = $collection->getParent();
         while (null !== $parent) {
