@@ -1,32 +1,32 @@
 {
-  "version": "1.0.0",
-  "name": "@alchemy/phrasea",
-  "scripts": {
-    "lint": "turbo run lint",
-    "dev": "turbo run dev --parallel",
-    "format": "turbo run format --parallel",
-    "lint:fix": "turbo run lint:fix --parallel",
-    "build": "turbo run build",
-    "prepare": "husky"
-  },
-  "devDependencies": {
-    "eslint": "^8.57.1",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-react-refresh": "^0.4.22",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.3",
-    "prettier": "^3.6.2",
-    "turbo": "^2.5.8"
-  },
-  "packageManager": "pnpm@9.3.0",
-  "pnpm": {
-    "overrides": {
-      "i18next": "24.2.1"
+    "version": "1.0.0",
+    "name": "@alchemy/phrasea",
+    "scripts": {
+        "lint": "turbo run lint",
+        "dev": "turbo run dev --parallel",
+        "format": "turbo run format --parallel",
+        "lint:fix": "turbo run lint:fix --parallel",
+        "build": "turbo run build",
+        "prepare": "husky"
+    },
+    "devDependencies": {
+        "eslint": "^10.2.0",
+        "eslint-plugin-react-hooks": "^4.6.2",
+        "eslint-plugin-react-refresh": "^0.4.26",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.4.0",
+        "prettier": "^3.8.1",
+        "turbo": "^2.9.5"
+    },
+    "packageManager": "pnpm@9.3.0",
+    "pnpm": {
+        "overrides": {
+            "i18next": "24.2.1"
+        }
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
     }
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  }
 }

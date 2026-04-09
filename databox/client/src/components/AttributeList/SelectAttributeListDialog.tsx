@@ -50,6 +50,7 @@ export default function SelectAttributeListDialog({modalIndex, open}: Props) {
         openModal(CreateAttributeList, {
             onCreate: data => {
                 onSelect(data);
+                onEdit(data.id);
             },
         });
     };
