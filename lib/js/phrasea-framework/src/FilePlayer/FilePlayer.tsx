@@ -21,10 +21,7 @@ export default function FilePlayer(props: Props) {
                 return <VideoPlayer {...props} />;
             case FileTypeEnum.Document:
                 if (file.type === 'application/pdf') {
-                    return <PDFPlayer
-                        key={file.id}
-                        {...props}
-                    />;
+                    return <PDFPlayer key={file.id} {...props} />;
                 }
         }
     }

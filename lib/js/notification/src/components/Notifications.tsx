@@ -1,7 +1,9 @@
-import {Bell, Inbox, InboxContent} from '@novu/react';
-import {Popover, PopoverProps} from '@mui/material';
+import {Inbox, InboxContent} from '@novu/react';
+import {Popover, PopoverProps, useTheme} from '@mui/material';
 import React from 'react';
 import {NotificationUriHandler} from '../types';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import {dark} from '@novu/react/themes';
 
 type Props = {
     appIdentifier: string;
@@ -39,6 +41,9 @@ export default function Notifications({
     };
     const open = Boolean(anchorEl);
 
+    const theme = useTheme();
+    const isDarkMode = theme.palette.mode === 'dark';
+
     return (
         <>
             <Inbox
@@ -47,10 +52,11 @@ export default function Notifications({
                 socketUrl={socketUrl}
                 backendUrl={apiUrl}
                 routerPush={uriHandler}
+                appearance={{baseTheme: isDarkMode ? dark : undefined}}
             >
                 {children({
                     open,
-                    bellIcon: <Bell />,
+                    bellIcon: <NotificationsIcon />,
                     onClick: handlePopoverOpen,
                 })}
 

@@ -1,20 +1,21 @@
 field_type:
   types:
-    text: Texte
-    textarea: Zone de texte
-    json: JSON
-    ip: IP
-    code: Code
-    html: HTML
     boolean: Booléen
+    code: Code
     color: Couleur
-    keyword: Mot-clé
-    number: Nombre
     date: Date
     date_time: Date et Heure
-    geo_point: Geo point
-
+    duration: Durée
     entity: Entité
+    filesize: Taille de fichier
+    geo_point: Geo point
+    html: HTML
+    ip: IP
+    json: JSON
+    keyword: Mot-clé
+    number: Nombre
+    text: Texte
+    textarea: Zone de texte
 privacy:
   secret: Secret
   private_in_workspace: Privé dans l'espace de travail

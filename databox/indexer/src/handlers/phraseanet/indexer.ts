@@ -210,6 +210,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             if (importStories !== false) {
                 logger.info(`>>> Importing empty stories`);
 
+                // eslint-disable-next-line no-useless-assignment
                 let stories: CPhraseanetStory[] = [];
 
                 const ridOperator =
@@ -386,6 +387,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         }
                     }
 
+                    // eslint-disable-next-line no-useless-assignment
                     let path: string = '';
                     if (recordsCollectionPathTwig !== null) {
                         path = await recordsCollectionPathTwig.renderAsync({
@@ -490,8 +492,11 @@ async function importStory(
             story.title ?? 'story_' + story.databox_id + '_' + story.story_id
         ).trim()
     );
+    // eslint-disable-next-line no-useless-assignment
     let storyCollectionBasePath = '';
+    // eslint-disable-next-line no-useless-assignment
     let storyCollectionFullPath = '';
+    // eslint-disable-next-line no-useless-assignment
     let storyCollectionBasePathParts: string[] = [];
     let storyCollectionId: string;
 
@@ -539,10 +544,10 @@ async function importStory(
         storyCollectionFullPath =
             (storyCollectionBasePath ?? '') + '/' + storyTitle;
     } else {
-        //
         // create phraseanet story as phrasea story (storyAsset + hidden collection)
-        //
+        // eslint-disable-next-line no-useless-assignment
         let storyAssetBasePath: string = '';
+        // eslint-disable-next-line no-useless-assignment
         let storyAssetFullPath: string = '';
         if (recordsCollectionPathTwig !== null) {
             storyAssetBasePath = await recordsCollectionPathTwig.renderAsync({

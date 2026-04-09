@@ -82,7 +82,7 @@ export default function EditorPanel<T>({
 
         if (
             valueContainer.values.some(v =>
-                Object.hasOwnProperty.call(v, NO_LOCALE)
+                Object.prototype.hasOwnProperty.call(v, NO_LOCALE)
             )
         ) {
             locales.push(NO_LOCALE);

@@ -95,7 +95,8 @@ export type AssetAttachment = {
 } & Entity;
 
 export interface Asset
-    extends IPermissions<{
+    extends
+        IPermissions<{
             canEditAttributes: boolean;
             canShare: boolean;
         }>,
@@ -265,8 +266,9 @@ export type TPermission<E extends Record<string, boolean> = {}> = {
     canEditPermissions: boolean;
 } & E;
 
-export interface IPermissions<E extends Record<string, boolean> = {}>
-    extends ApiHydraObjectResponse {
+export interface IPermissions<
+    E extends Record<string, boolean> = {},
+> extends ApiHydraObjectResponse {
     capabilities: TPermission<E>;
 }
 
@@ -325,9 +327,7 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
 >;
 
 export interface Collection
-    extends IPermissions,
-        Entity,
-        ApiHydraObjectResponse {
+    extends IPermissions, Entity, ApiHydraObjectResponse {
     title: string;
     titleTranslated: string;
     titleHighlight?: string;

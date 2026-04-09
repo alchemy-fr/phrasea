@@ -3,7 +3,7 @@ import {ComponentType, lazy, LazyExoticComponent} from 'react';
 
 export function lazyWithRetry<T extends ComponentType<any>>(
     key: string,
-    factory: () => Promise<{default: T}>,
+    factory: () => Promise<{default: T}>
 ): LazyExoticComponent<T> {
     const storageKey = `c-${key}`;
 
@@ -24,7 +24,7 @@ export function lazyWithRetry<T extends ComponentType<any>>(
             // eslint-disable-next-line no-console
             console.error(
                 `Failed to load component ${key} #${tryCount}`,
-                error,
+                error
             );
             if (tryCount >= delay.length) {
                 throw error;

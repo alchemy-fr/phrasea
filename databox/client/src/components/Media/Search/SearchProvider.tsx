@@ -261,11 +261,11 @@ export default function SearchProvider({children}: Props) {
     const collections = filterOfType(BuiltInField.Collection);
     const hasSearch = Boolean(
         query ||
-            conditions.length > 0 ||
-            (sortBy.length > 0 &&
-                (sortBy[0].a !== BuiltInField.Score ||
-                    sortBy[1]?.a !== BuiltInField.CreatedAt)) ||
-            geolocation
+        conditions.length > 0 ||
+        (sortBy.length > 0 &&
+            (sortBy[0].a !== BuiltInField.Score ||
+                sortBy[1]?.a !== BuiltInField.CreatedAt)) ||
+        geolocation
     );
 
     return (

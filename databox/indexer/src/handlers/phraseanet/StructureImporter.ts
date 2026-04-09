@@ -386,6 +386,7 @@ export async function importMetadataStructure(
                 try {
                     v.twig = Twig.twig({data: v.value}); // compile once
                 } catch (e: any) {
+                    // eslint-disable-next-line preserve-caught-error
                     throw new Error(
                         `Error compiling twig for field "${name}": ${e.message}`
                     );
