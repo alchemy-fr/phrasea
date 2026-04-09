@@ -87,7 +87,7 @@ export const useAttributeListStore = create<State>((set, getState) => ({
                 const newList = preserveListItems(state.lists, data.result);
                 if (
                     previousCurrent &&
-                    newList.some(i => i.id === previousCurrent?.id)
+                    !newList.some(i => i.id === previousCurrent?.id)
                 ) {
                     newList.concat(previousCurrent);
                 }

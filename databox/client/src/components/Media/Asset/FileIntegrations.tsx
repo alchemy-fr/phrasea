@@ -59,7 +59,7 @@ function IntegrationProxy({
     const i = props.integration.integration;
 
     if (
-        Object.hasOwnProperty.call(integrations, i) &&
+        Object.prototype.hasOwnProperty.call(integrations, i) &&
         integrations[i].supports(props.file)
     ) {
         return (
