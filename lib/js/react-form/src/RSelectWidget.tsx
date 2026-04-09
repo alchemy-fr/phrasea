@@ -5,7 +5,7 @@ import {FieldPath} from 'react-hook-form';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {GlobalStyles, InputLabel, useTheme} from '@mui/material';
 import Select, {CommonProps, components, OptionProps} from 'react-select';
-import {createSelectStyles} from './SelectStyles';
+import {createSelectStyles} from './selectStyles';
 import {valueToOption} from './AsyncRSelectWidget';
 import CreatableSelect, {CreatableProps} from 'react-select/creatable';
 

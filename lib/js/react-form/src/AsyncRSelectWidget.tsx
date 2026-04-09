@@ -7,7 +7,7 @@ import {ReactNode, useEffect, useState} from 'react';
 import {InputLabel, useTheme} from '@mui/material';
 import {AsyncProps} from 'react-select/async';
 import {OnChangeValue} from 'react-select';
-import {createSelectStyles} from './SelectStyles';
+import {createSelectStyles} from './selectStyles';
 import AsyncCreatableSelect from 'react-select/async-creatable';
 import {
     GroupBase,
