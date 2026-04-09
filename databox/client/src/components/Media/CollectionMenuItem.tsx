@@ -138,7 +138,6 @@ export default function CollectionMenuItem({
                 secondaryAction={
                     <span className={cActionClassName}>
                         <MoreActionsButton
-                            disablePortal={false}
                             anchorOrigin={{
                                 vertical: 'bottom',
                                 horizontal: 'left',

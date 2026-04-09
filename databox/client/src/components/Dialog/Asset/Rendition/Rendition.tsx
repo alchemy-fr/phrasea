@@ -180,7 +180,6 @@ export function Rendition({
             }
             actions={
                 <MoreActionsButton
-                    disablePortal={false}
                     anchorOrigin={{
                         vertical: 'bottom',
                         horizontal: 'left',

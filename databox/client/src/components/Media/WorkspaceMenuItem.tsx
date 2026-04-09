@@ -94,7 +94,6 @@ export default function WorkspaceMenuItem({
                                     capabilities.createCollection ||
                                     capabilities.createAsset) && (
                                     <MoreActionsButton
-                                        disablePortal={false}
                                         anchorOrigin={{
                                             vertical: 'bottom',
                                             horizontal: 'left',

@@ -66,7 +66,6 @@ export default function SavedSearchList({}: Props) {
                             ) && (
                                 <span className={cActionClassName}>
                                     <MoreActionsButton
-                                        disablePortal={false}
                                         anchorOrigin={{
                                             vertical: 'bottom',
                                             horizontal: 'left',
