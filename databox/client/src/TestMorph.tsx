@@ -15,16 +15,19 @@ export default function TestMorph({}: Props) {
     const {t} = useTranslation();
 
     // @ts-expect-error undefined
+    // eslint-disable-next-line no-empty
     if (e.key === 'Enter') {
     }
     // @ts-expect-error undefined
+    // eslint-disable-next-line no-empty
     if (key === 'Enter') {
     }
     // @ts-expect-error undefined
+    // eslint-disable-next-line no-empty
     if (typeof a === 'undefined') {
     }
 
-    if (t.hasOwnProperty('ws')) {
+    if (Object.prototype.hasOwnProperty.call(t, 'ws')) {
         // eslint-disable-next-line no-console
         console.log('Bonjour');
     }

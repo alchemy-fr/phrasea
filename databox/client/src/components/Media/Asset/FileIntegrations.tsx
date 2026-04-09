@@ -61,9 +61,8 @@ function IntegrationProxy({
 } & AssetIntegrationActionsProps) {
     const i = integration.integration;
 
-    // eslint-disable-next-line no-prototype-builtins
     if (
-        Object.hasOwnProperty.call(integrations, i) &&
+        Object.prototype.hasOwnProperty.call(integrations, i) &&
         integrations[i].supports(props.file)
     ) {
         return (

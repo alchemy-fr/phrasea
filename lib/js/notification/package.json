@@ -4,7 +4,7 @@
     "public": true,
     "main": "index.ts",
     "dependencies": {
-        "@novu/react": "^2.6.6"
+        "@novu/react": "^3.14.1"
     },
     "scripts": {
         "lint": "eslint src",

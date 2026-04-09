@@ -67,8 +67,6 @@ export function usePreview(resettingValues: any[]) {
                     previewLocked: lock,
                 }));
             }
-
-            // eslint-disable-next-line
         },
         [setPreviewAnchorEl, d]
     );

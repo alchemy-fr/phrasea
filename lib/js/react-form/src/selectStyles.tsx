@@ -32,13 +32,35 @@ export function createSelectStyles<
             height: !state.isMulti ? inputHeight : undefined,
         }),
 
+        singleValue: provided => ({
+            ...provided,
+            color: theme.palette.text.primary,
+        }),
+
         valueContainer: (provided, state) => ({
             ...provided,
             height: !state.isMulti ? inputHeight : undefined,
             padding: '0 12px',
+            color: theme.palette.text.primary,
         }),
 
-        menu: (base) => ({
+        multiValue: provided => ({
+            ...provided,
+            fontSize: '16.5px',
+            backgroundColor: theme.palette.primary.main,
+        }),
+
+        multiValueLabel: provided => ({
+            ...provided,
+            color: theme.palette.primary.contrastText,
+        }),
+
+        multiValueRemove: provided => ({
+            ...provided,
+            color: theme.palette.primary.contrastText,
+        }),
+
+        menu: base => ({
             ...base,
             backgroundColor: theme.palette.background.paper,
         }),
@@ -56,11 +78,7 @@ export function createSelectStyles<
         input: provided => ({
             ...provided,
             margin: '0px',
-        }),
-
-        multiValue: provided => ({
-            ...provided,
-            fontSize: 20,
+            color: theme.palette.text.primary,
         }),
 
         indicatorsContainer: provided => ({

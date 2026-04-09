@@ -34,7 +34,7 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
     const histogramHeight = 50;
     const displayTime = Boolean(
         facet.meta.type === AttributeType.DateTime &&
-            /^\d+[hms]$/.test(facet.interval ?? '')
+        /^\d+[hms]$/.test(facet.interval ?? '')
     );
 
     const buckets = useMemo(

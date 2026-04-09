@@ -8,18 +8,16 @@ export default function NavMenu({orientation, items}: NavMenuProps) {
     const location = useLocation();
 
     if (orientation === MenuOrientation.Vertical) {
-        return <>
-            {items.map(({id, label, icon, ...props}) => (
-                <NavMenuItem
-                    key={id}
-                    location={location}
-                    {...props}
-                >
-                    {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
-                    {label}
-                </NavMenuItem>
-            ))}
-        </>;
+        return (
+            <>
+                {items.map(({id, label, icon, ...props}) => (
+                    <NavMenuItem key={id} location={location} {...props}>
+                        {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
+                        {label}
+                    </NavMenuItem>
+                ))}
+            </>
+        );
     }
 
     return (

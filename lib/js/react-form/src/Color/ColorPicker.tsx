@@ -55,7 +55,7 @@ export default function ColorPicker({
     }, []);
 
     const height = 55;
-    const borderWidth = 2;
+    const borderWidth = 1;
     const isEditable = !readOnly && !disabled;
 
     return (

@@ -104,7 +104,7 @@ export default function PublicationCard({publication, onDelete}: Props) {
                 </CardActionArea>
                 {Boolean(
                     publication.capabilities.edit ||
-                        publication.capabilities.delete
+                    publication.capabilities.delete
                 ) && (
                     <CardActions>
                         {publication.capabilities.edit && (

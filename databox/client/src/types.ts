@@ -9,7 +9,6 @@ import {SortBy} from './components/Media/Search/Filter';
 import {AQLQueries} from './components/Media/Search/AQL/query.ts';
 import {ApiHydraObjectResponse} from '@alchemy/api';
 import {Editor} from '@tiptap/core';
-
 import {AclExtraPermission} from './components/Permissions/permissionsTypes.ts';
 import {Privacy} from './api/privacy.ts';
 
@@ -98,7 +97,8 @@ export type AssetAttachment = {
 } & Entity;
 
 export interface Asset
-    extends IPermissions<{
+    extends
+        IPermissions<{
             edit: boolean;
             editAttributes: boolean;
             share: boolean;
@@ -270,8 +270,9 @@ export type TPermission<E extends Record<string, boolean> = {}> = {
     editPermissions: boolean;
 } & E;
 
-export interface IPermissions<E extends Record<string, boolean> = {}>
-    extends ApiHydraObjectResponse {
+export interface IPermissions<
+    E extends Record<string, boolean> = {},
+> extends ApiHydraObjectResponse {
     capabilities: TPermission<E>;
 }
 
@@ -336,7 +337,8 @@ export type CollectionPrivacyInfo = {
 };
 
 export interface Collection
-    extends IPermissions<{
+    extends
+        IPermissions<{
             createAsset: boolean;
             createCollection: boolean;
             edit: boolean;
@@ -365,7 +367,8 @@ export interface Collection
 }
 
 export interface Basket
-    extends IPermissions<{
+    extends
+        IPermissions<{
             edit: boolean;
             share: boolean;
             delete: boolean;
@@ -399,7 +402,8 @@ export type AttributeListItem = {
 };
 
 export interface AttributeList
-    extends IPermissions<{
+    extends
+        IPermissions<{
             edit: boolean;
             delete: boolean;
             editPermissions: boolean;
@@ -422,7 +426,8 @@ export type SavedSearchData = {
 };
 
 export interface SavedSearch
-    extends IPermissions<{
+    extends
+        IPermissions<{
             edit: boolean;
             delete: boolean;
             editPermissions: boolean;
@@ -500,7 +505,8 @@ export type LastErrors = {
 }[];
 
 export interface Workspace
-    extends IPermissions<{
+    extends
+        IPermissions<{
             createCollection: boolean;
             createAsset: boolean;
             edit: boolean;
@@ -531,7 +537,8 @@ export type IntegrationConfigKey = {
 };
 
 export interface WorkspaceIntegration
-    extends DefinitionBase,
+    extends
+        DefinitionBase,
         IPermissions<{
             use: boolean;
             interact: boolean;

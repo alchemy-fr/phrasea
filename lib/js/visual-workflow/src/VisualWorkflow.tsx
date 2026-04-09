@@ -104,10 +104,7 @@ export default function VisualWorkflow({
                 <FlowEvents setEdges={setEdges}>
                     <Controls />
                     <MiniMap />
-                    <Background
-                        gap={12}
-                        size={1}
-                    />
+                    <Background gap={12} size={1} />
                 </FlowEvents>
             </ReactFlow>
         </div>

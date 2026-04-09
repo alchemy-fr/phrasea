@@ -45,8 +45,6 @@
         "@types/react": "^18.3.24",
         "@types/react-burger-menu": "^2.8.7",
         "@types/react-dom": "^18.3.7",
-        "@typescript-eslint/eslint-plugin": "^6.21.0",
-        "@typescript-eslint/parser": "^6.21.0",
         "@vitejs/plugin-react-swc": "^3.11.0",
         "i18next-scanner-typescript": "^1.2.1",
         "sass": "^1.93.2",
