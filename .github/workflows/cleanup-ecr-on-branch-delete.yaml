@@ -12,6 +12,8 @@ on:
 jobs:
   cleanup-ecr:
     runs-on: ubuntu-latest
+    env:
+      AWS_ECR_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'delete' && github.event.ref_type == 'branch')
     steps:
       - name: Set branch name
@@ -24,8 +26,6 @@ jobs:
           fi
 
       - name: Configure AWS credentials
-        env:
-          AWS_ECR_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
         if: env.AWS_ECR_ACCESS_KEY_ID != null
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -44,16 +44,19 @@ jobs:
         env:
           REGISTRY_ALIAS: b2s9z7l1
           BRANCH_NAME: ${{ steps.branch.outputs.name }}
-          AWS_ECR_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
         if: env.AWS_ECR_ACCESS_KEY_ID != null
         run: |
           set -e
           
           # Dynamically fetch all repositories starting with "ps-"
           echo "Fetching repositories..."
-          all_repos=$(aws ecr-public describe-repositories \
+          if ! all_repos=$(aws ecr-public describe-repositories \
             --region us-east-1 \
-            --output json 2>/dev/null || echo '{"repositories":[]}')
+            --output json 2>&1); then
+            echo "ERROR: Failed to describe ECR repositories"
+            echo "$all_repos"
+            exit 1
+          fi
           
           IMAGES=($(echo "$all_repos" | jq -r '.repositories[].repositoryName' | grep "^ps-" | sort))
           
@@ -109,8 +112,6 @@ jobs:
           echo "Cleanup completed"
 
       - name: Cleanup untagged images from ECR Public
-        env:
-          AWS_ECR_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
         if: env.AWS_ECR_ACCESS_KEY_ID != null
         run: |
           set -e
@@ -122,9 +123,13 @@ jobs:
           
           # Dynamically fetch all repositories starting with "ps-"
           echo "Fetching repositories starting with 'ps-'..."
-          all_repos=$(aws ecr-public describe-repositories \
+          if ! all_repos=$(aws ecr-public describe-repositories \
             --region us-east-1 \
-            --output json 2>/dev/null || echo '{"repositories":[]}')
+            --output json 2>&1); then
+            echo "ERROR: Failed to describe ECR repositories"
+            echo "$all_repos"
+            exit 1
+          fi
           
           REPOS=($(echo "$all_repos" | jq -r '.repositories[].repositoryName' | grep "^ps-" | sort))
           
