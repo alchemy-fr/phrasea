@@ -36,7 +36,7 @@ jobs:
       - name: Login to Amazon ECR Public
         id: login-ecr-public
         if: env.AWS_ECR_ACCESS_KEY_ID != null
-        uses: aws-actions/amazon-ecr-login@v3
+        uses: aws-actions/amazon-ecr-login@v2
         with:
           registry-type: public
 
