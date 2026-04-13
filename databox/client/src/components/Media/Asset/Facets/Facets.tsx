@@ -1,8 +1,8 @@
 import React, {useContext, useState} from 'react';
 import {ResultContext} from '../../Search/ResultContext.tsx';
-import {List} from '@mui/material';
+import {Box, Button, List} from '@mui/material';
 import {Classes} from '../types.ts';
-import {FacetPreference, TFacets} from './facetTypes.ts';
+import {FacetPreference, orderInfinity, TFacets} from './facetTypes.ts';
 import {useUserPreferencesStore} from '../../../../store/userPreferencesStore.ts';
 import {FacetGroup} from './FacetGroup.tsx';
 import SearchBar from '../../../Ui/SearchBar.tsx';
@@ -10,9 +10,18 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from '@mui/material/IconButton';
 import {useModals} from '@alchemy/navigation';
 import FacetSettingsDialog from './FacetSettingsDialog.tsx';
+import {
+    createUndo,
+    hideFacet,
+    togglePinFacet,
+    unhideFacet,
+} from './facetFunc.ts';
+import {toast} from 'react-toastify';
+import {useTranslation} from 'react-i18next';
 
 const Facets = React.memo(function ({facets}: {facets: TFacets}) {
     const {openModal} = useModals();
+    const {t} = useTranslation();
     const preferences = useUserPreferencesStore(state => state.preferences);
     const updatePreference = useUserPreferencesStore(
         state => state.updatePreference
@@ -27,49 +36,53 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
         ([k, v]) => v.buckets.length > 0 && !find(k)?.hidden
     );
 
-    const getOrder = (name: string) => find(name)?.order ?? 99999;
+    const getOrder = (name: string) => find(name)?.order ?? orderInfinity;
 
     list.sort(([k1], [k2]) => {
         return getOrder(k1) - getOrder(k2);
     });
 
     const onPinToggle = (name: string) => {
-        updatePreference('facets', prev => {
-            if (prev?.some(p => p.name === name)) {
-                return prev.filter(p => p.name !== name);
-            }
-
-            return (prev ?? []).concat([
-                {
-                    name,
-                    order:
-                        Math.max(-1, ...(prev ?? []).map(p => p.order ?? -1)) +
-                        1,
-                },
-            ]);
-        });
+        togglePinFacet(updatePreference, name);
     };
 
     const onHide = (name: string) => {
-        updatePreference('facets', prev => {
-            if (prev?.some(p => p.name === name)) {
-                return prev.map(p =>
-                    p.name === name
-                        ? {
-                              ...p,
-                              hidden: true,
-                          }
-                        : p
-                );
-            }
+        const undo = createUndo(
+            updatePreference,
+            preferences.facets ?? [],
+            name
+        );
+        hideFacet(updatePreference, name);
+        const toastId = `facet-hidden-${name}`;
 
-            return (prev ?? []).concat([
-                {
-                    name,
-                    hidden: true,
-                },
-            ]);
-        });
+        toast.success(
+            <span>
+                {t(
+                    'facets.action.hidden.success',
+                    '{{facetName}} facet has been hidden',
+                    {facetName: name}
+                )}
+                <Button
+                    onClick={() => {
+                        undo();
+                        toast.dismiss(toastId);
+                        toast.info(
+                            t(
+                                'facets.action.hidden.undo',
+                                '{{facetName}} facet restored',
+                                {facetName: name}
+                            )
+                        );
+                    }}
+                >
+                    {t('facets.action.undo', 'Undo')}
+                </Button>
+            </span>,
+            {
+                toastId,
+                type: 'info',
+            }
+        );
     };
 
     const openSettings = () => {
@@ -83,11 +96,11 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 settings={
-                    <>
+                    <Box sx={{pl: 1, display: 'flex', alignItems: 'center'}}>
                         <IconButton onClick={openSettings} size={'small'}>
                             <SettingsIcon fontSize={'inherit'} />
                         </IconButton>
-                    </>
+                    </Box>
                 }
             />
             <List

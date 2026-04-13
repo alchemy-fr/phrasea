@@ -25,7 +25,7 @@ export default function SearchBar({
     return (
         <Stack
             sx={{p: 1}}
-            component={searchHandler ? 'form' : undefined}
+            component={'form'}
             direction={'row'}
             onSubmit={
                 searchHandler

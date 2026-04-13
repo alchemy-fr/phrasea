@@ -36,16 +36,18 @@ function putToStorage(prefs: UserPreferences): void {
     sessionStorage.setItem(sessionStorageKey, JSON.stringify(prefs));
 }
 
+export type UpdatePreference = <T extends keyof UserPreferences>(
+    name: T,
+    handler: UpdatePreferenceHandlerArg<T>
+) => Promise<void>;
+
 type UserPreferencesStore = {
     preferences: UserPreferences;
     loading: boolean;
     loaded: boolean;
     userLoaded: boolean;
     load: () => Promise<UserPreferences>;
-    updatePreference: <T extends keyof UserPreferences>(
-        name: T,
-        handler: UpdatePreferenceHandlerArg<T>
-    ) => Promise<void>;
+    updatePreference: UpdatePreference;
 };
 
 export const useUserPreferencesStore = create<UserPreferencesStore>(

@@ -94,3 +94,5 @@ export type FacetPreference = {
     hidden?: true;
     order?: number;
 };
+
+export const orderInfinity = 999999;
