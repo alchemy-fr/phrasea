@@ -177,11 +177,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
 
     if (actionsContext.copy) {
         children.push(
-            <MenuItem
-                key={'copy'}
-                disabled={!can.share}
-                onClick={can.share ? onCopy : undefined}
-            >
+            <MenuItem key={'copy'} onClick={onCopy}>
                 <ListItemIcon>
                     <FileCopyIcon />
                 </ListItemIcon>

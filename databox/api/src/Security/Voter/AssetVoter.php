@@ -97,7 +97,8 @@ class AssetVoter extends AbstractVoter
                     || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_EDIT)
                     || $isWorkspaceOwnerSlow();
             case self::SHARE:
-                return $this->hasAcl(PermissionInterface::SHARE, $subject, $token)
+                return $isWorkspaceOwnerFast()
+                    || $this->hasAcl(PermissionInterface::SHARE, $subject, $token)
                     || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_SHARE)
                     || $isWorkspaceOwnerSlow();
             case AbstractVoter::DELETE:

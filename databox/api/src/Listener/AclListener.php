@@ -56,6 +56,7 @@ readonly class AclListener
                     break;
                 case Collection::class:
                     $this->bus->dispatch(new IndexAllCollections());
+                    $this->bus->dispatch(new IndexAllAssets());
                     break;
             }
 

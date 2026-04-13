@@ -44,7 +44,6 @@ export default function WithSelectionActions<
         canDelete,
         canDeletePermanent,
         canRestore,
-        canDownload,
         canEdit,
         canEditAttributes,
         canMove,
@@ -61,7 +60,6 @@ export default function WithSelectionActions<
         let canDelete = false;
         let canDeletePermanent = false;
         let canRestore = false;
-        let canDownload = false;
         let canEdit = false;
         let canEditAttributes = false;
         let canMove = false;
@@ -78,9 +76,6 @@ export default function WithSelectionActions<
 
         selectedAssets.forEach((a: Asset) => {
             wsId = a.workspace?.id;
-            if (a.source) {
-                canDownload = true;
-            }
             if (
                 !a.deleted &&
                 (a.capabilities.delete ||
@@ -100,9 +95,6 @@ export default function WithSelectionActions<
             }
             if (a.capabilities.editAttributes) {
                 canEditAttributes = true;
-            }
-            if (a.capabilities.share) {
-                canShare = true;
             }
             if (a.capabilities.share) {
                 canShare = true;
@@ -163,19 +155,16 @@ export default function WithSelectionActions<
             }
         };
 
-        const download = canDownload
-            ? () => {
-                  openModal(ExportAssetsDialog, {
-                      assets: selectedAssets,
-                  });
-              }
-            : undefined;
+        const download = () => {
+            openModal(ExportAssetsDialog, {
+                assets: selectedAssets,
+            });
+        };
 
         return {
             canDelete,
             canDeletePermanent,
             canRestore,
-            canDownload,
             canEdit,
             canEditAttributes,
             canMove,
@@ -278,17 +267,23 @@ export default function WithSelectionActions<
                 ''
             )}
             {actionsContext.export ? (
-                <Button
-                    disabled={!canDownload}
+                <GroupButton
                     variant={'contained'}
                     onClick={download}
                     startIcon={<FileDownloadIcon />}
+                    id={'export'}
+                    actions={[
+                        {
+                            id: 'copy',
+                            label: t('asset_actions.copy', 'Copy'),
+                            onClick: onCopy,
+                            startIcon: <FileCopyIcon />,
+                        },
+                    ]}
                 >
                     {t('asset_actions.export', 'Export')}
-                </Button>
-            ) : (
-                ''
-            )}
+                </GroupButton>
+            ) : null}
             {actionsContext.edit ? (
                 <GroupButton
                     id={'edit'}
@@ -302,13 +297,6 @@ export default function WithSelectionActions<
                             onClick: onMove,
                             disabled: !canMove,
                             startIcon: <DriveFileMoveIcon />,
-                        },
-                        {
-                            id: 'copy',
-                            label: t('asset_actions.copy', 'Copy'),
-                            onClick: onCopy,
-                            disabled: !canShare,
-                            startIcon: <FileCopyIcon />,
                         },
                     ]}
                 >
