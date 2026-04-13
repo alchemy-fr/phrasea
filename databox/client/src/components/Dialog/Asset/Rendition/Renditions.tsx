@@ -143,7 +143,11 @@ export default function Renditions({data, onClose, minHeight}: Props) {
                             definition={def}
                             key={def.id}
                             dimensions={maxDimensions}
-                            onUpload={onUploadFromDef}
+                            onUpload={
+                                data.capabilities.edit
+                                    ? onUploadFromDef
+                                    : undefined
+                            }
                         />
                     ))}
                 </>
