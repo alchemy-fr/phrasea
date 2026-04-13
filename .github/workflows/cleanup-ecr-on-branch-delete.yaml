@@ -67,13 +67,16 @@ jobs:
           
           for image in "${IMAGES[@]}"; do
             # Get all images in the repository
-            all_images=$(aws ecr-public describe-images \
+            if ! all_images=$(aws ecr-public describe-images \
               --repository-name "$image" \
               --region us-east-1 \
-              --output json 2>/dev/null || echo '{"imageDetails":[]}')
+              --output json 2>&1); then
+              echo "⚠ Warning: Failed to describe images in $image (may have been deleted already)"
+              continue
+            fi
             
             # Filter images that have the branch tag using jq
-            image_info=$(echo "$all_images" | jq -c ".imageDetails[] | select(.imageTags != null and (.imageTags[] | select(. == \"${BRANCH_NAME}\")))")
+            image_info=$(echo "$all_images" | jq -c ".imageDetails[] | select(.imageTags != null and (.imageTags[] | select(. == \"${BRANCH_NAME}\")))" 2>/dev/null)
             
             if [ ! -z "$image_info" ]; then
               # Extract all tags for this specific image
@@ -82,28 +85,37 @@ jobs:
               
               if [ "$tag_count" -le 1 ]; then
                 # Only the branch tag exists, delete entire image
-                aws ecr-public batch-delete-image \
+                if aws ecr-public batch-delete-image \
                   --repository-name "$image" \
                   --image-ids imageTag="${BRANCH_NAME}" \
-                  --region us-east-1 > /dev/null 2>&1
-                echo "✓ Deleted image $image:${BRANCH_NAME}"
+                  --region us-east-1 > /dev/null 2>&1; then
+                  echo "✓ Deleted image $image:${BRANCH_NAME}"
+                else
+                  echo "⚠ Warning: Failed to delete image $image:${BRANCH_NAME} (may have been deleted already)"
+                fi
               else
                 # Multiple tags exist, delete only the branch tag
-                aws ecr-public batch-delete-image \
+                if aws ecr-public batch-delete-image \
                   --repository-name "$image" \
                   --image-ids imageTag="${BRANCH_NAME}" \
-                  --region us-east-1 > /dev/null 2>&1
-                
-                # Also delete latest tag if branch had it
-                has_latest=$(echo "$tags" | grep -q "^latest$" && echo 1 || echo 0)
-                if [ "$has_latest" -gt 0 ]; then
-                  aws ecr-public batch-delete-image \
-                    --repository-name "$image" \
-                    --image-ids imageTag="latest" \
-                    --region us-east-1 > /dev/null 2>&1 || true
-                  echo "✓ Deleted tags ${BRANCH_NAME} and latest from $image"
+                  --region us-east-1 > /dev/null 2>&1; then
+                  
+                  # Also delete latest tag if branch had it
+                  has_latest=$(echo "$tags" | grep -q "^latest$" && echo 1 || echo 0)
+                  if [ "$has_latest" -gt 0 ]; then
+                    if aws ecr-public batch-delete-image \
+                      --repository-name "$image" \
+                      --image-ids imageTag="latest" \
+                      --region us-east-1 > /dev/null 2>&1; then
+                      echo "✓ Deleted tags ${BRANCH_NAME} and latest from $image"
+                    else
+                      echo "⚠ Warning: Failed to delete latest tag from $image"
+                    fi
+                  else
+                    echo "✓ Deleted tag ${BRANCH_NAME} from $image"
+                  fi
                 else
-                  echo "✓ Deleted tag ${BRANCH_NAME} from $image"
+                  echo "⚠ Warning: Failed to delete tag ${BRANCH_NAME} from $image"
                 fi
               fi
             fi
@@ -146,10 +158,13 @@ jobs:
             echo "Processing repository: $repo"
             
             # Get all images in the repository
-            images_json=$(aws ecr-public describe-images \
+            if ! images_json=$(aws ecr-public describe-images \
               --repository-name "$repo" \
               --region us-east-1 \
-              --output json 2>/dev/null || echo '{"imageDetails":[]}')
+              --output json 2>&1); then
+              echo "  ⚠ Warning: Failed to describe images in $repo (may have no images)"
+              continue
+            fi
             
             # Extract untagged image digests
             untagged_digests=$(echo "$images_json" | jq -r '.imageDetails[] | select(.imageTags == null or (.imageTags | length == 0)) | .imageDigest' 2>/dev/null || echo "")
@@ -208,10 +223,10 @@ jobs:
                 fi
                 
                 if [ "$failed_count" -gt 0 ]; then
-                  echo "    ⚠ $failed_count deletion(s) failed"
+                  echo "    ⚠ Warning: $failed_count image(s) failed to delete (partial failure)"
                 fi
               else
-                echo "    ✗ Error during batch delete"
+                echo "    ⚠ Warning: Batch delete command failed (images may have been deleted already)"
               fi
             done
             
