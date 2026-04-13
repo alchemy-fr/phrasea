@@ -115,7 +115,7 @@ export default function FacetSettingsDialog({modalIndex, open, facets}: Props) {
         (event: any) => {
             const {active, over} = event;
             const moved = active.id;
-            if (moved !== over?.id) {
+            if (over?.id && moved !== over.id) {
                 const oldIndex = items.indexOf(moved);
                 const newIndex = items.indexOf(over.id);
                 const newItems = arrayMove(items, oldIndex, newIndex);
@@ -126,7 +126,7 @@ export default function FacetSettingsDialog({modalIndex, open, facets}: Props) {
                         newItems.map((name, idx) => [name, idx])
                     );
 
-                    const prevList = prev ?? [];
+                    const prevList = prev ? [...prev] : [];
                     if (!prevList.some(i => i.name === moved)) {
                         const unitIndex = newItems.findIndex(i => i === moved);
                         for (let i = 0; i <= unitIndex; i++) {

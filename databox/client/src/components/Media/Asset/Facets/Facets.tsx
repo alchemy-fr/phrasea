@@ -10,12 +10,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from '@mui/material/IconButton';
 import {useModals} from '@alchemy/navigation';
 import FacetSettingsDialog from './FacetSettingsDialog.tsx';
-import {
-    createUndo,
-    hideFacet,
-    togglePinFacet,
-    unhideFacet,
-} from './facetFunc.ts';
+import {createUndo, hideFacet, togglePinFacet} from './facetFunc.ts';
 import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
 
@@ -32,9 +27,14 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
 
     const find = (name: string) => facetPrefs.find(p => p.name === name);
 
-    const list = Object.entries(facets).filter(
+    let list = Object.entries(facets).filter(
         ([k, v]) => v.buckets.length > 0 && !find(k)?.hidden
     );
+    if (searchQuery) {
+        list = list.filter(([_k, v]) =>
+            v.meta.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }
 
     const getOrder = (name: string) => find(name)?.order ?? orderInfinity;
 
@@ -102,6 +102,7 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
                         </IconButton>
                     </Box>
                 }
+                placeholder={t('common.filter.placeholder', 'Filter…')}
             />
             <List
                 disablePadding
