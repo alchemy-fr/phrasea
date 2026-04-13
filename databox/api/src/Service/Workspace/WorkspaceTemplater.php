@@ -476,7 +476,7 @@ final readonly class WorkspaceTemplater
             $o[] = [
                 'id' => $slugId,
                 'name' => $list->getName(),
-                'entity' => array_map(function (AttributeEntity $item) {
+                'entities' => array_map(function (AttributeEntity $item) {
                     return [
                         'value' => $item->getValue(),
                         'position' => $item->getPosition(),
@@ -506,7 +506,7 @@ final readonly class WorkspaceTemplater
 
                 $entityClassMap[$entityList['id']] = $o;
 
-                foreach ($entityList['entity'] as $item) {
+                foreach ($entityList['entities'] as $item) {
                     $ae = new AttributeEntity();
                     $ae->setWorkspace($ws);
                     $ae->setList($o);
