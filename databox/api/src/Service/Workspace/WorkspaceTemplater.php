@@ -28,6 +28,7 @@ final readonly class WorkspaceTemplater
 
     public function export(Workspace $workspace): array
     {
+        $entityClassMap = [];
         $renditionClassMap = [];
         $attributeClassMap = [];
 
@@ -35,10 +36,10 @@ final readonly class WorkspaceTemplater
             'Workspace' => $this->exportWorkspace($workspace),
             'RenditionPolicy' => $this->exportRenditionPolicy($workspace->getId(), $renditionClassMap),
             'RenditionDefinition' => $this->exportRenditionDefinition($workspace->getId(), $renditionClassMap),
+            'EntityList' => $this->exportEntityList($workspace->getId(), $entityClassMap),
             'AttributePolicy' => $this->exportAttributePolicy($workspace->getId(), $attributeClassMap),
-            'AttributeDefinition' => $this->exportAttributeDefinition($workspace->getId(), $attributeClassMap),
+            'AttributeDefinition' => $this->exportAttributeDefinition($workspace->getId(), $attributeClassMap, $entityClassMap),
             'Tag' => $this->exportTag($workspace->getId()),
-            'EntityList' => $this->exportEntityList($workspace->getId()),
         ];
     }
 
@@ -89,17 +90,18 @@ final readonly class WorkspaceTemplater
         try {
             $this->importWorkspace($ws, $data['Workspace'] ?? []);
 
+            $entityClassMap = [];
+            $this->importEntityList($ws, $data['EntityList'] ?? [], $entityClassMap);
+
             $attributeClassMap = [];
             $this->importAttributePolicy($ws, $data['AttributePolicy'] ?? [], $attributeClassMap);
-            $this->importAttributeDefinition($ws, $data['AttributeDefinition'] ?? [], $attributeClassMap);
+            $this->importAttributeDefinition($ws, $data['AttributeDefinition'] ?? [], $attributeClassMap, $entityClassMap);
 
             $renditionClassMap = [];
             $this->importRenditionPolicy($ws, $data['RenditionPolicy'] ?? [], $renditionClassMap);
             $this->importRenditionDefinition($ws, $data['RenditionDefinition'] ?? [], $renditionClassMap);
 
             $this->importTag($ws, $data['Tag'] ?? []);
-
-            $this->importEntityList($ws, $data['EntityList'] ?? []);
 
             $this->em->flush();
             if ($addTransaction) {
@@ -332,7 +334,7 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    private function exportAttributeDefinition(string $workspaceId, array $attributePolicyMap): array
+    private function exportAttributeDefinition(string $workspaceId, array $attributePolicyMap, array $entityClassMap): array
     {
         $o = [];
 
@@ -345,6 +347,7 @@ final readonly class WorkspaceTemplater
                 'name' => $item->getName(),
                 'policy' => $attributePolicyMap[$item->getPolicy()->getId()] ?? null,
                 'labels' => $item->getLabels(),
+                'entityList' => $entityClassMap[$item->getEntityList()->getId()] ?? null,
                 'fallback' => $item->getFallback(),
                 'fieldType' => $item->getFieldType(),
                 'fileType' => $item->getFileType(),
@@ -367,7 +370,7 @@ final readonly class WorkspaceTemplater
         return $o;
     }
 
-    private function importAttributeDefinition(Workspace $ws, array $data, array $attributeClassMap): void
+    private function importAttributeDefinition(Workspace $ws, array $data, array $attributeClassMap, array $entityClassMap): void
     {
         foreach ($data as $item) {
             /** @var AttributeDefinition $o */
@@ -384,6 +387,9 @@ final readonly class WorkspaceTemplater
             }
             $o->setPolicy($attributeClassMap[$item['policy']]);
             $o->setLabels($item['labels']);
+            if ($item['entityList'] ?? null) {
+                $o->setEntityList($entityClassMap[$item['entityList']]);
+            }
             $o->setFallback($item['fallback']);
             $o->setTarget(AssetTypeEnum::tryFrom((int) $item['target']) ?? AssetTypeEnum::Asset);
             $o->setFieldType($item['fieldType']);
@@ -446,7 +452,7 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    private function exportEntityList(string $workspaceId)
+    private function exportEntityList(string $workspaceId, array &$entityClassMap): array
     {
         $o = [];
 
@@ -456,40 +462,51 @@ final readonly class WorkspaceTemplater
         ]);
 
         foreach ($lists as $list) {
+            for ($slugId = '#'.$list->getName(), $n = 2; in_array($slugId, $entityClassMap); ++$n) {
+                $slugId = '#'.$list->getName().'_'.$n;
+            }
+            $entityClassMap[$list->getId()] = $slugId;
+
             /** @var AttributeEntity[] $items */
             $items = $this->em->getRepository(AttributeEntity::class)->findBy([
                 'workspace' => $workspaceId,
                 'list' => $list->getId(),
             ]);
 
-            $o[$list->getName()] = array_map(function (AttributeEntity $item) {
-                return [
-                    'value' => $item->getValue(),
-                    'position' => $item->getPosition(),
-                    'translations' => $item->getTranslations(),
-                    'synonyms' => $item->getSynonyms(),
-                ];
-            }, $items);
+            $o[] = [
+                'id' => $slugId,
+                'name' => $list->getName(),
+                'entity' => array_map(function (AttributeEntity $item) {
+                    return [
+                        'value' => $item->getValue(),
+                        'position' => $item->getPosition(),
+                        'translations' => $item->getTranslations(),
+                        'synonyms' => $item->getSynonyms(),
+                    ];
+                }, $items),
+            ];
         }
 
         return $o;
     }
 
-    private function importEntityList(Workspace $ws, array $data)
+    private function importEntityList(Workspace $ws, array $data, array &$entityClassMap): void
     {
-        foreach ($data as $entity => $items) {
+        foreach ($data as $entityList) {
             /** @var EntityList $o */
             if (!($o = $this->em->getRepository(EntityList::class)->findOneBy([
                 'workspace' => $ws,
-                'name' => $entity,
+                'name' => $entityList['name'],
             ]))) {
-                $this->logger->info(sprintf('Creating EntityList "%s"', $entity));
+                $this->logger->info(sprintf('Creating EntityList "%s"', $entityList['name']));
                 $o = new EntityList();
                 $o->setWorkspace($ws);
-                $o->setName($entity);
+                $o->setName($entityList['name']);
                 $this->em->persist($o);
 
-                foreach ($items as $item) {
+                $entityClassMap[$entityList['id']] = $o;
+
+                foreach ($entityList['entity'] as $item) {
                     $ae = new AttributeEntity();
                     $ae->setWorkspace($ws);
                     $ae->setList($o);
@@ -500,7 +517,7 @@ final readonly class WorkspaceTemplater
                     $this->em->persist($ae);
                 }
             } else {
-                $this->logger->info(sprintf('EntityList "%s" exists', $entity));
+                $this->logger->info(sprintf('EntityList "%s" exists', $entityList['name']));
             }
         }
     }
