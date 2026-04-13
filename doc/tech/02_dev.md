@@ -62,7 +62,7 @@ Build the dev container and install app dependencies
 ```bash
 dc build dev
 
-dc run --rm dev bin/dev/composer-install.sh
+dc run --rm dev bin/dev/install.sh
 dc run --rm dev pnpm install
 ```
 
