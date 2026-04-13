@@ -5,11 +5,11 @@ import {
     ListItemSecondaryAction,
     ListItemText,
 } from '@mui/material';
-import {FacetGroupProps} from '../Facets';
-import {ListFacetItemProps} from './TextFacetItem';
-import ListFacet from './ListFacet';
-import {stopPropagation} from '../../../../lib/stdFuncs.ts';
-import {Tag} from '../../../../types.ts';
+import {ListFacetItemProps} from './TextFacetItem.tsx';
+import ListFacet from './ListFacet.tsx';
+import {stopPropagation} from '../../../../../lib/stdFuncs.ts';
+import {Tag} from '../../../../../types.ts';
+import {FacetGroupProps} from '../facetTypes.ts';
 
 function TagFacetItem({
     onClick,

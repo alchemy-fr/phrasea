@@ -1,14 +1,15 @@
 import {
     Checkbox,
+    ListItem,
     ListItemButton,
     ListItemSecondaryAction,
     ListItemText,
 } from '@mui/material';
-import {FacetGroupProps} from '../Facets';
-import {ListFacetItemProps} from './TextFacetItem';
-import ListFacet from './ListFacet';
-import {getBestLocaleOfTranslations} from '@alchemy/i18n/src/Locale/localeHelper';
-import {stopPropagation} from '../../../../lib/stdFuncs.ts';
+import {ListFacetItemProps} from './TextFacetItem.tsx';
+import ListFacet from './ListFacet.tsx';
+import {getBestLocaleOfTranslations} from '@alchemy/i18n/src/Locale/localeHelper.ts';
+import {stopPropagation} from '../../../../../lib/stdFuncs.ts';
+import {FacetGroupProps} from '../facetTypes.ts';
 
 function EntityFacetItem({
     onClick,
@@ -22,9 +23,9 @@ function EntityFacetItem({
     const finalLabel = l ? item!.translations![l]! : label;
 
     return (
-        <ListItemButton onClick={onClick}>
-            <ListItemText secondary={`${finalLabel} (${count})`} />
-            <ListItemSecondaryAction>
+        <ListItem
+            onClick={onClick}
+            secondaryAction={
                 <Checkbox
                     edge="end"
                     onChange={onClick}
@@ -32,8 +33,10 @@ function EntityFacetItem({
                     checked={selected}
                     inputProps={{'aria-labelledby': value.toString()}}
                 />
-            </ListItemSecondaryAction>
-        </ListItemButton>
+            }
+        >
+            <ListItemText secondary={`${finalLabel} (${count})`} />
+        </ListItem>
     );
 }
 

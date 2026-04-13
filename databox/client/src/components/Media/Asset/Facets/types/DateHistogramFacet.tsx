@@ -6,20 +6,20 @@ import React, {
     useMemo,
     useState,
 } from 'react';
-import {FacetGroupProps} from '../Facets';
 import {Box, Button, Slider, useTheme} from '@mui/material';
 import moment from 'moment';
-import {SearchContext} from '../../Search/SearchContext';
+import {SearchContext} from '../../../Search/SearchContext.tsx';
 import {useTranslation} from 'react-i18next';
 import {
     dateToStringDate,
     dateToTimestamp,
     getDate,
-} from '../../../../lib/date.ts';
-import {AQLConditionBuilder} from '../../Search/AQL/AQLConditionBuilder.ts';
-import {parseAQLQuery} from '../../Search/AQL/AQL.ts';
-import {extractField} from './attributeUtils.ts';
-import {AttributeType} from '../../../../api/types.ts';
+} from '../../../../../lib/date.ts';
+import {AQLConditionBuilder} from '../../../Search/AQL/AQLConditionBuilder.ts';
+import {parseAQLQuery} from '../../../Search/AQL/AQL.ts';
+import {extractField} from '../attributeUtils.ts';
+import {AttributeType} from '../../../../../api/types.ts';
+import {FacetGroupProps} from '../facetTypes.ts';
 
 type DateTuple = [number, number];
 export default function DateHistogramFacet({facet, name}: FacetGroupProps) {

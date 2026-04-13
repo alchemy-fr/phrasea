@@ -1,5 +1,5 @@
 import {InputAdornment, Stack, TextField} from '@mui/material';
-import React from 'react';
+import React, {ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
@@ -8,27 +8,33 @@ type Props = {
     name: string;
     searchQuery: string;
     setSearchQuery: (query: string) => void;
-    loading: boolean;
-    searchHandler: () => Promise<any>;
+    loading?: boolean;
+    searchHandler?: () => Promise<any>;
+    settings?: ReactNode;
 };
 
 export default function SearchBar({
     name,
     searchQuery,
     setSearchQuery,
-    loading,
+    loading = false,
     searchHandler,
+    settings,
 }: Props) {
     const {t} = useTranslation();
     return (
         <Stack
             sx={{p: 1}}
-            component={'form'}
+            component={searchHandler ? 'form' : undefined}
             direction={'row'}
-            onSubmit={e => {
-                e.preventDefault();
-                searchHandler();
-            }}
+            onSubmit={
+                searchHandler
+                    ? e => {
+                          e.preventDefault();
+                          searchHandler();
+                      }
+                    : undefined
+            }
         >
             <TextField
                 fullWidth={true}
@@ -53,6 +59,7 @@ export default function SearchBar({
                     ),
                 }}
             />
+            {settings}
         </Stack>
     );
 }

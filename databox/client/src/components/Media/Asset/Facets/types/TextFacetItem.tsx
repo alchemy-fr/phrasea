@@ -1,11 +1,12 @@
 import {
     Checkbox,
+    ListItem,
     ListItemButton,
     ListItemSecondaryAction,
     ListItemText,
 } from '@mui/material';
-import {LabelledBucketValue} from '../Facets';
-import {stopPropagation} from '../../../../lib/stdFuncs.ts';
+import {stopPropagation} from '../../../../../lib/stdFuncs.ts';
+import {LabelledBucketValue} from '../facetTypes.ts';
 
 type Props = {
     onClick: () => void;
@@ -25,9 +26,9 @@ export default function TextFacetItem({
     const {label, value} = labelValue;
 
     return (
-        <ListItemButton onClick={onClick}>
-            <ListItemText secondary={`${label} (${count})`} />
-            <ListItemSecondaryAction>
+        <ListItem
+            onClick={onClick}
+            secondaryAction={
                 <Checkbox
                     edge="end"
                     onChange={onClick}
@@ -35,7 +36,9 @@ export default function TextFacetItem({
                     checked={selected}
                     inputProps={{'aria-labelledby': value.toString()}}
                 />
-            </ListItemSecondaryAction>
-        </ListItemButton>
+            }
+        >
+            <ListItemText secondary={`${label} (${count})`} />
+        </ListItem>
     );
 }

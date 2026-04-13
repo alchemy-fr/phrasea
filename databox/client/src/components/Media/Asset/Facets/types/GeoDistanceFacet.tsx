@@ -1,8 +1,8 @@
-import {Bucket, Facet, FacetGroupProps} from '../Facets';
 import {useTheme} from '@mui/material';
 import {Circle, Marker, Popup} from 'react-leaflet';
-import OpenStreetMap from '../../../Map/OpenStreetMap';
+import OpenStreetMap from '../../../../Map/OpenStreetMap.tsx';
 import React from 'react';
+import {Bucket, Facet, FacetGroupProps} from '../facetTypes.ts';
 
 export default function GeoDistanceFacet({facet}: FacetGroupProps) {
     const theme = useTheme();

@@ -5,6 +5,7 @@ import {getUserPreferences, putUserPreferences} from '../api/user.ts';
 import {DisplayPreferences} from '../components/Media/DisplayContext.tsx';
 import {deepEquals} from '@alchemy/core';
 import {oauthClient} from '../init.ts';
+import {FacetPreference} from '../components/Media/Asset/Facets/facetTypes.ts';
 
 export type UserPreferences = {
     theme?: ThemeName | undefined;
@@ -13,6 +14,7 @@ export type UserPreferences = {
     attrList?: string | null | undefined;
     display?: DisplayPreferences | undefined;
     displayBatchEdit?: DisplayPreferences | undefined;
+    facets?: FacetPreference[];
 };
 
 export type UpdatePreferenceHandlerArg<T extends keyof UserPreferences> =

@@ -6,13 +6,13 @@ import {
     ListItemSecondaryAction,
     ListItemText,
 } from '@mui/material';
-import {extractLabelValueFromKey, FacetGroupProps} from '../Facets';
-import {SearchContext} from '../../Search/SearchContext';
-import {ListFacetItemProps} from './TextFacetItem';
+import {SearchContext} from '../../../Search/SearchContext.tsx';
+import {ListFacetItemProps} from './TextFacetItem.tsx';
 import {useTranslation} from 'react-i18next';
-import {AQLConditionBuilder} from '../../Search/AQL/AQLConditionBuilder.ts';
-import {parseAQLQuery} from '../../Search/AQL/AQL.ts';
-import {extractField} from './attributeUtils.ts';
+import {AQLConditionBuilder} from '../../../Search/AQL/AQLConditionBuilder.ts';
+import {parseAQLQuery} from '../../../Search/AQL/AQL.ts';
+import {extractField} from '../attributeUtils.ts';
+import {extractLabelValueFromKey, FacetGroupProps} from '../facetTypes.ts';
 
 type Props = {
     itemComponent: React.FC<ListFacetItemProps>;

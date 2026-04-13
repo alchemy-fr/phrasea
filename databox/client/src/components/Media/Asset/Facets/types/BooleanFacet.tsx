@@ -4,11 +4,11 @@ import {
     ListItemSecondaryAction,
     ListItemText,
 } from '@mui/material';
-import {FacetGroupProps} from '../Facets';
-import {ListFacetItemProps} from './TextFacetItem';
-import ListFacet from './ListFacet';
-import {stopPropagation} from '../../../../lib/stdFuncs.ts';
+import {ListFacetItemProps} from './TextFacetItem.tsx';
+import ListFacet from './ListFacet.tsx';
+import {stopPropagation} from '../../../../../lib/stdFuncs.ts';
 import {useTranslation} from 'react-i18next';
+import {FacetGroupProps} from '../facetTypes.ts';
 
 function BooleanItem({
     onClick,

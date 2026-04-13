@@ -3,7 +3,6 @@ import {PropsWithChildren, useContext, useEffect, useState} from 'react';
 import {ESDebug, GetAssetOptions, getAssets} from '../../../api/asset';
 import {Asset} from '../../../types';
 import {SearchContext} from './SearchContext';
-import {TFacets} from '../Asset/Facets';
 import {SortBy} from './Filter';
 import axios from 'axios';
 import {AQLQueries} from './AQL/query.ts';
@@ -12,6 +11,7 @@ import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {ChannelEvent, ChannelType} from '../../../api/channels.ts';
 import {SortWay} from '../../../api/common.ts';
 import {getResolvedSortBy} from './search.ts';
+import {TFacets} from '../Asset/Facets/facetTypes.ts';
 
 type UserSearchContext = {
     position?: string | undefined;
