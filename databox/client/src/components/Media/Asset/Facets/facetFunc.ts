@@ -27,16 +27,32 @@ export function togglePinFacet(
     updatePreference: UpdatePreference,
     name: string
 ) {
+    const getNextPos = (prev: FacetPreference[] | undefined) => {
+        return Math.max(-1, ...(prev ?? []).map(p => p.order ?? -1)) + 1;
+    };
+
     updatePreference('facets', prev => {
-        if (prev?.some(p => p.name === name)) {
-            return prev.filter(p => p.name !== name);
+        const existing = prev?.find(p => p.name === name);
+        if (existing) {
+            if (existing.hidden) {
+                return prev!.map(p =>
+                    p.name === name
+                        ? {
+                              ...p,
+                              order: getNextPos(prev),
+                              hidden: undefined,
+                          }
+                        : p
+                );
+            }
+
+            return prev!.filter(p => p.name !== name);
         }
 
         return (prev ?? []).concat([
             {
                 name,
-                order:
-                    Math.max(-1, ...(prev ?? []).map(p => p.order ?? -1)) + 1,
+                order: getNextPos(prev),
             },
         ]);
     });

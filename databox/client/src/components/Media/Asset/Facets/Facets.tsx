@@ -1,6 +1,13 @@
 import React, {useContext, useState} from 'react';
 import {ResultContext} from '../../Search/ResultContext.tsx';
-import {Box, Button, List} from '@mui/material';
+import {
+    Box,
+    Button,
+    List,
+    ListItem,
+    ListItemText,
+    MenuItem,
+} from '@mui/material';
 import {Classes} from '../types.ts';
 import {FacetPreference, orderInfinity, TFacets} from './facetTypes.ts';
 import {useUserPreferencesStore} from '../../../../store/userPreferencesStore.ts';
@@ -10,13 +17,20 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from '@mui/material/IconButton';
 import {useModals} from '@alchemy/navigation';
 import FacetSettingsDialog from './FacetSettingsDialog.tsx';
-import {createUndo, hideFacet, togglePinFacet} from './facetFunc.ts';
+import {
+    createUndo,
+    hideFacet,
+    togglePinFacet,
+    unhideFacet,
+} from './facetFunc.ts';
 import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
+import {MoreActionsButton} from '@alchemy/phrasea-ui';
 
 const Facets = React.memo(function ({facets}: {facets: TFacets}) {
     const {openModal} = useModals();
     const {t} = useTranslation();
+    const [closedNodes, setClosedNodes] = useState<string[]>([]);
     const preferences = useUserPreferencesStore(state => state.preferences);
     const updatePreference = useUserPreferencesStore(
         state => state.updatePreference
@@ -27,12 +41,15 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
 
     const find = (name: string) => facetPrefs.find(p => p.name === name);
 
-    let list = Object.entries(facets).filter(
-        ([k, v]) => v.buckets.length > 0 && !find(k)?.hidden
-    );
+    let list = Object.entries(facets);
+
     if (searchQuery) {
         list = list.filter(([_k, v]) =>
             v.meta.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    } else {
+        list = list.filter(
+            ([k, v]) => v.buckets.length > 0 && !find(k)?.hidden
         );
     }
 
@@ -55,12 +72,14 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
         hideFacet(updatePreference, name);
         const toastId = `facet-hidden-${name}`;
 
+        const facetName = facets[name]?.meta.title || name;
+
         toast.success(
             <span>
                 {t(
                     'facets.action.hidden.success',
                     '{{facetName}} facet has been hidden',
-                    {facetName: name}
+                    {facetName}
                 )}
                 <Button
                     onClick={() => {
@@ -70,7 +89,7 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
                             t(
                                 'facets.action.hidden.undo',
                                 '{{facetName}} facet restored',
-                                {facetName: name}
+                                {facetName}
                             )
                         );
                     }}
@@ -85,8 +104,19 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
         );
     };
 
+    const onUnhide = (name: string) => {
+        unhideFacet(updatePreference, name);
+    };
+
     const openSettings = () => {
         openModal(FacetSettingsDialog, {facets});
+    };
+
+    const expandAll = () => {
+        setClosedNodes([]);
+    };
+    const collapseAll = () => {
+        setClosedNodes(Object.entries(facets).map(([k]) => k));
     };
 
     return (
@@ -100,6 +130,30 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
                         <IconButton onClick={openSettings} size={'small'}>
                             <SettingsIcon fontSize={'inherit'} />
                         </IconButton>
+                        <MoreActionsButton
+                            vertical={true}
+                            iconButtonProps={{
+                                size: 'small',
+                            }}
+                        >
+                            {closeWrapper => [
+                                <MenuItem
+                                    key={'expandAll'}
+                                    onClick={closeWrapper(expandAll)}
+                                >
+                                    {t('facets.action.expandAll', 'Expand All')}
+                                </MenuItem>,
+                                <MenuItem
+                                    key={'collapseAll'}
+                                    onClick={closeWrapper(collapseAll)}
+                                >
+                                    {t(
+                                        'facets.action.collapseAll',
+                                        'Collapse All'
+                                    )}
+                                </MenuItem>,
+                            ]}
+                        </MoreActionsButton>
                     </Box>
                 }
                 placeholder={t('common.filter.placeholder', 'Filter…')}
@@ -123,15 +177,27 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
             >
                 {list.map(([k, v]) => {
                     const pref = find(k);
+                    const hidden = Boolean(pref?.hidden);
 
                     return (
                         <FacetGroup
                             key={k}
                             name={k}
                             facet={v}
+                            hidden={hidden}
                             onPinToggle={onPinToggle}
                             pinned={Boolean(pref && !pref.hidden)}
-                            onHide={onHide}
+                            toggleHide={hidden ? onUnhide : onHide}
+                            open={!closedNodes.includes(k)}
+                            toggleOpen={name => {
+                                setClosedNodes(prev => {
+                                    if (prev.includes(name)) {
+                                        return prev.filter(n => n !== name);
+                                    } else {
+                                        return [...prev, name];
+                                    }
+                                });
+                            }}
                         />
                     );
                 })}
