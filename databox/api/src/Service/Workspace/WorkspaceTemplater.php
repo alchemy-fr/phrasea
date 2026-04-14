@@ -151,12 +151,9 @@ final readonly class WorkspaceTemplater
             'workspace' => $workspaceId,
         ]);
         foreach ($items as $item) {
-            for ($slugId = '#'.$item->getName(), $n = 2; in_array($slugId, $renditionClassMap); ++$n) {
-                $slugId = '#'.$item->getName().'_'.$n;
-            }
-            $renditionClassMap[$item->getId()] = $slugId;
+            $renditionClassMap[$item->getId()] = $item->getId();
             $o[] = [
-                'id' => $slugId,
+                'id' => $item->getId(),
                 'name' => $item->getName(),
                 'public' => $item->isPublic(),
                 'labels' => $item->getLabels(),
@@ -294,12 +291,9 @@ final readonly class WorkspaceTemplater
         ]);
 
         foreach ($items as $item) {
-            for ($slugId = '#'.$item->getName(), $n = 2; in_array($slugId, $attributeClassMap); ++$n) {
-                $slugId = '#'.$item->getName().'_'.$n;
-            }
-            $attributeClassMap[$item->getId()] = $slugId;
+            $attributeClassMap[$item->getId()] = $item->getId();
             $o[] = [
-                'id' => $slugId,
+                'id' => $item->getId(),
                 'name' => $item->getName(),
                 'editable' => $item->isEditable(),
                 'public' => $item->isPublic(),
@@ -462,10 +456,7 @@ final readonly class WorkspaceTemplater
         ]);
 
         foreach ($lists as $list) {
-            for ($slugId = '#'.$list->getName(), $n = 2; in_array($slugId, $entityClassMap); ++$n) {
-                $slugId = '#'.$list->getName().'_'.$n;
-            }
-            $entityClassMap[$list->getId()] = $slugId;
+            $entityClassMap[$list->getId()] = $list->getId();
 
             /** @var AttributeEntity[] $items */
             $items = $this->em->getRepository(AttributeEntity::class)->findBy([
@@ -474,7 +465,7 @@ final readonly class WorkspaceTemplater
             ]);
 
             $o[] = [
-                'id' => $slugId,
+                'id' => $list->getId(),
                 'name' => $list->getName(),
                 'entities' => array_map(function (AttributeEntity $item) {
                     return [
