@@ -25,7 +25,7 @@ type Props<IsMulti extends boolean = false> = {
     onChange?: (
         selection: IsMulti extends true
             ? TreeNode<CollectionTreeData>[]
-            : TreeNode<CollectionTreeData>
+            : TreeNode<CollectionTreeData> | null
     ) => void;
     workspaceId?: string;
     allowNew?: boolean;

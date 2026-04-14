@@ -137,7 +137,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 key: AclPermission.CHILD_OPERATOR,
                 label: t(
                     'acl.permission.workspace.assets_operator.label',
-                    'Edit Assets'
+                    'Manage Assets'
                 ),
                 description: t(
                     'acl.permission.workspace.assets_operator.desc',

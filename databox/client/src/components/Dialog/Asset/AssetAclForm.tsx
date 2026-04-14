@@ -1,16 +1,20 @@
 import {Asset} from '../../../types';
 import AclForm from '../../Permissions/AclForm.tsx';
 import {
+    AclExtraPermission,
     AclPermission,
     aclPermissions,
+    PermissionDefinitionOverride,
     PermissionObject,
+    PermissionType,
 } from '../../Permissions/permissionsTypes.ts';
 import ParentAcl from '../../Permissions/ParentAcl.tsx';
 import {Trans} from 'react-i18next';
 import WorkspaceAclForm from '../Workspace/WorkspaceAclForm.tsx';
-import React from 'react';
+import React, {useMemo} from 'react';
 import CollectionAclForm from '../Collection/CollectionAclForm.tsx';
 import {AclFormProps} from '../../Permissions/aclTypes.ts';
+import {useTranslation} from 'react-i18next';
 
 type Props = AclFormProps<Asset>;
 
@@ -20,16 +24,87 @@ export default function AssetAclForm({
     helper,
     parentDisplay,
 }: Props) {
+    const {t} = useTranslation();
+    const definitions: PermissionDefinitionOverride[] = useMemo(() => {
+        return [
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.VIEW,
+                label: t('acl.permission.asset.view.label', 'View'),
+                description: t(
+                    'acl.permission.asset.view.desc',
+                    'Can view this asset.'
+                ),
+            },
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.EDIT,
+                label: t(
+                    'acl.permission.asset.operator.label',
+                    'Edit Attributes'
+                ),
+                description: t(
+                    'acl.permission.asset.edit.desc',
+                    'Can edit asset attributes'
+                ),
+            },
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.OPERATOR,
+                label: t('acl.permission.asset.operator.label', 'Manage'),
+                description: t(
+                    'acl.permission.asset.operator.desc',
+                    'Can edit asset title, edit its renditions, or substitute source file'
+                ),
+            },
+
+            {
+                type: PermissionType.Extra,
+                key: AclExtraPermission.EDIT_PERMISSIONS,
+                value: AclExtraPermission.EDIT_PERMISSIONS,
+                label: t(
+                    'acl.permission.asset.edit_permissions.label',
+                    'Edit Permissions/Privacy'
+                ),
+                description: t(
+                    'acl.permission.asset.edit_permissions.desc',
+                    'Can edit privacy settings and permissions of this asset, such as making it public or private.'
+                ),
+            },
+
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.DELETE,
+                label: t('acl.permission.asset.delete.label', 'Delete'),
+                description: t(
+                    'acl.permission.asset.delete.desc',
+                    'Can delete this asset.'
+                ),
+            },
+
+            {
+                type: PermissionType.Mask,
+                key: AclPermission.OWNER,
+                label: t('acl.permission.asset.owner.label', 'Owner'),
+                description: t(
+                    'acl.permission.asset.owner.desc',
+                    'Full control over this collection, its descendant collections and assets'
+                ),
+            },
+        ];
+    }, [t]);
+
     return (
         <>
             <AclForm
                 helper={helper}
                 objectId={data.id}
                 objectType={PermissionObject.Asset}
+                definitions={definitions}
                 filterDefinitions={({value, key}) =>
                     value < aclPermissions[AclPermission.CHILD_CREATE] &&
                     ![
-                        AclPermission.OPERATOR,
+                        AclPermission.CREATE,
                         AclPermission.UNDELETE,
                         AclPermission.MASTER,
                     ].includes(key as AclPermission)

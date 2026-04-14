@@ -14,6 +14,7 @@ use App\Consumer\Handler\Asset\AssetCopy;
 use App\Entity\Core\Asset;
 use App\Entity\Core\RenditionDefinition;
 use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\CollectionVoter;
 use App\Service\Asset\AssetCopier;
 use App\Service\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -47,7 +48,7 @@ class CopyAssetProcessor implements ProcessorInterface
             ->findByIds($data->ids);
 
         $dest = $this->iriConverter->getResourceFromIri($data->destination);
-        $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $dest);
+        $this->denyAccessUnlessGranted(CollectionVoter::ASSET_CREATE, $dest);
 
         $options = [];
         if ($data->withAttributes) {

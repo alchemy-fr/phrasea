@@ -160,7 +160,7 @@ export default function CollectionAclForm({
                 key: AclPermission.CHILD_OPERATOR,
                 label: t(
                     'acl.permission.collection.assets_operator.label',
-                    'Edit Assets'
+                    'Manage Assets'
                 ),
                 description: t(
                     'acl.permission.collection.assets_operator.desc',
