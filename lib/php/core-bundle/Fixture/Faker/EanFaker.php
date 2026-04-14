@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Alchemy\CoreBundle\Fixture\Faker;
 
-class EanFaker extends AbstractCachedFaker
+use Faker\Provider\Base as BaseProvider;
+
+class EanFaker extends BaseProvider
 {
     public function ean(
     ): string {

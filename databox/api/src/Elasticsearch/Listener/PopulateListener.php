@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Listener;
 
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Elasticsearch\AssetPermissionComputer;
 use Elastica\Index\Settings;
 use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
 use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
 use FOS\ElasticaBundle\Index\IndexManager;
+use FOS\ElasticaBundle\Persister\Event\PostInsertObjectsEvent;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -19,6 +21,7 @@ readonly class PopulateListener implements EventSubscriberInterface
         private IndexManager $indexManager,
         private CacheInterface $fosPopulateCache,
         private AssetPermissionComputer $assetPermissionComputer,
+        private TemporaryCacheFactory $temporaryCacheFactory,
     ) {
     }
 
@@ -46,11 +49,17 @@ readonly class PopulateListener implements EventSubscriberInterface
         $index->getSettings()->setRefreshInterval(Settings::DEFAULT_REFRESH_INTERVAL);
     }
 
+    public function postInsertObjects(PostInsertObjectsEvent $event): void
+    {
+        $this->temporaryCacheFactory->reset();
+    }
+
     public static function getSubscribedEvents(): array
     {
         return [
             PreIndexPopulateEvent::class => 'preIndexPopulate',
             PostIndexPopulateEvent::class => 'postIndexPopulate',
+            PostInsertObjectsEvent::class => 'postInsertObjects',
         ];
     }
 }

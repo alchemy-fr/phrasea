@@ -71,14 +71,9 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
             ->andWhere('r.asset = :id')
             ->setParameter('id', $asset->getId())
             ->getQuery()
-            ->toIterable();
+            ->getScalarResult();
 
-        $renditions = [];
-        foreach ($renditionsDefinitions as $row) {
-            $renditions[] = (string) $row['id'];
-        }
-
-        return $renditions;
+        return array_column($renditionsDefinitions, 'id');
     }
 
     private function compileAttributes(Asset $asset): array

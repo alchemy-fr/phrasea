@@ -5,24 +5,28 @@ declare(strict_types=1);
 namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Api\Model\Output\AlternateUrlOutput;
 use App\Api\Model\Output\FileOutput;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\File;
 use App\Service\Asset\FileUrlResolver;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class FileOutputTransformer implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
     use GroupsHelperTrait;
 
-    private array $cache = [];
+    private CacheInterface $cache;
 
     public function __construct(
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly EntityManagerInterface $em,
+        TemporaryCacheFactory $temporaryCacheFactory,
     ) {
+        $this->cache = $temporaryCacheFactory->createCache();
     }
 
     public function supports(string $outputClass, object $data): bool
@@ -78,17 +82,15 @@ class FileOutputTransformer implements OutputTransformerInterface
 
     private function resolveAlternateUrlLabel(string $workspaceId, string $type): ?string
     {
-        $key = sprintf('%s:%s', $workspaceId, $type);
-        if (array_key_exists($key, $this->cache)) {
-            return $this->cache[$key];
-        }
+        return $this->cache->get(sprintf('%s:%s', $workspaceId, $type), function () use ($workspaceId, $type): ?string {
+            /** @var AlternateUrl|null $label */
+            $label = $this->em->getRepository(AlternateUrl::class)
+                ->findOneBy([
+                    'workspace' => $workspaceId,
+                    'type' => $type,
+                ]);
 
-        $label = $this->em->getRepository(AlternateUrl::class)
-            ->findOneBy([
-                'workspace' => $workspaceId,
-                'type' => $type,
-            ]);
-
-        return $this->cache[$key] = $label instanceof AlternateUrl ? $label->getLabel() : null;
+            return $label?->getLabel();
+        });
     }
 }

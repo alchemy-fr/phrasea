@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Asset\Attribute;
 
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetTitleAttribute;
 use App\Entity\Core\Attribute;
@@ -11,16 +12,19 @@ use App\Model\AssetTypeEnum;
 use App\Service\Asset\Attribute\Index\AttributeIndex;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
-class AssetTitleResolver
+final readonly class AssetTitleResolver
 {
-    private array $cache = [];
+    private CacheInterface $cache;
 
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly LoggerInterface $logger,
-        private readonly AttributesResolver $attributesResolver,
+        private EntityManagerInterface $em,
+        private LoggerInterface $logger,
+        private AttributesResolver $attributesResolver,
+        TemporaryCacheFactory $cacheFactory,
     ) {
+        $this->cache = $cacheFactory->createCache();
     }
 
     public function resolveTitle(Asset $asset, AttributeIndex $attributesIndex, array $preferredLocales): Attribute|string|null
@@ -77,16 +81,14 @@ class AssetTitleResolver
      */
     private function getTitleAttributes(string $workspaceId): array
     {
-        if (!isset($this->cache[$workspaceId])) {
-            $this->cache[$workspaceId] = $this->em
+        return $this->cache->get($workspaceId, function () use ($workspaceId): array {
+            return $this->em
                 ->getRepository(AssetTitleAttribute::class)
                 ->findBy([
                     'workspace' => $workspaceId,
                 ], [
                     'priority' => 'DESC',
                 ]);
-        }
-
-        return $this->cache[$workspaceId];
+        });
     }
 }
