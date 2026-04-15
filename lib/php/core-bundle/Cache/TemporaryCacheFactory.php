@@ -22,7 +22,7 @@ class TemporaryCacheFactory implements ResettableInterface
 
     public function createCache(): CacheInterface
     {
-        $arrayAdapter = new ArrayAdapter();
+        $arrayAdapter = new ArrayAdapter(storeSerialized: false);
         $this->caches[] = $arrayAdapter;
 
         return $arrayAdapter;

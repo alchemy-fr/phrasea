@@ -6,15 +6,23 @@ namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class CollectionVoter extends AbstractVoter
 {
     final public const string SCOPE_PREFIX = 'collection:';
 
-    private array $cache = [];
+    private CacheInterface $cache;
+
+    public function __construct(
+        TemporaryCacheFactory $cacheFactory,
+    ) {
+        $this->cache = $cacheFactory->createCache();
+    }
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -31,9 +39,9 @@ class CollectionVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        $key = sprintf('%s:%s:%s', $attribute, $subject->getId(), spl_object_id($token));
-
-        return $this->cache[$key] ?? ($this->cache[$key] = $this->doVote($attribute, $subject, $token));
+        return $this->cache->get(sprintf('%s_%s_%s', $attribute, $subject->getId(), spl_object_id($token)), function () use ($attribute, $subject, $token): bool {
+            return $this->doVote($attribute, $subject, $token);
+        });
     }
 
     private function doVote(string $attribute, Collection $subject, TokenInterface $token): bool
