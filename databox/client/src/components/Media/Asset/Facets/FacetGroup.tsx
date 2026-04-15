@@ -1,5 +1,5 @@
 import {FacetGroupProps, FacetType} from './facetTypes.ts';
-import React, {useState} from 'react';
+import React from 'react';
 import {
     Collapse,
     ListItem,

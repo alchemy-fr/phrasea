@@ -43,7 +43,7 @@ export function createI18N({
     languageChanged(i18n.language);
     i18n.on('languageChanged', (lng: string | undefined): void => {
         languageChanged(lng);
-        onLanguageChanged && onLanguageChanged(lng);
+        onLanguageChanged?.(lng);
     });
 
     return i18n;

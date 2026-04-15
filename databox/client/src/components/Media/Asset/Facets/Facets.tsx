@@ -1,13 +1,6 @@
 import React, {useContext, useState} from 'react';
 import {ResultContext} from '../../Search/ResultContext.tsx';
-import {
-    Box,
-    Button,
-    List,
-    ListItem,
-    ListItemText,
-    MenuItem,
-} from '@mui/material';
+import {Box, Button, List, MenuItem} from '@mui/material';
 import {Classes} from '../types.ts';
 import {FacetPreference, orderInfinity, TFacets} from './facetTypes.ts';
 import {useUserPreferencesStore} from '../../../../store/userPreferencesStore.ts';

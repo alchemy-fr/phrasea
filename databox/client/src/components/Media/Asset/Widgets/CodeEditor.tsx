@@ -32,7 +32,7 @@ export default function CodeEditor({
 
     const changeHandler = React.useCallback(
         (value: string) => {
-            onChange && onChange(value);
+            onChange?.(value);
             setValue(value);
         },
         [onChange]

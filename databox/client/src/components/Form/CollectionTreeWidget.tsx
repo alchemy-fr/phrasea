@@ -65,7 +65,7 @@ export default function CollectionTreeWidget<
                             allowNew={allowNew}
                             onChange={collections => {
                                 onChange(collections);
-                                extOnChange && extOnChange(collections);
+                                extOnChange?.(collections);
                             }}
                         />
                     );

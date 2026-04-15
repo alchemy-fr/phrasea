@@ -1,10 +1,4 @@
-import {
-    Checkbox,
-    ListItem,
-    ListItemButton,
-    ListItemSecondaryAction,
-    ListItemText,
-} from '@mui/material';
+import {Checkbox, ListItem, ListItemText} from '@mui/material';
 import {stopPropagation} from '../../../../../lib/stdFuncs.ts';
 import {LabelledBucketValue} from '../facetTypes.ts';
 

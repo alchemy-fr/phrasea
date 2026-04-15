@@ -56,10 +56,9 @@ export default function useRequestErrorHandler({onError, logout}: Options) {
                         toastId: 'session_expired',
                     }
                 );
-                logout &&
-                    logout(
-                        window.location.href.replace(window.location.origin, '')
-                    );
+                logout?.(
+                    window.location.href.replace(window.location.origin, '')
+                );
                 break;
             case 403:
                 onError(

@@ -180,11 +180,10 @@ export default function AsyncRSelectWidget<
 
                                   updateLastOptions([option]);
                                   onChange(v);
-                                  onChangeProp &&
-                                      onChangeProp(newValue, {
-                                          action: 'select-option',
-                                          option,
-                                      });
+                                  onChangeProp?.(newValue, {
+                                      action: 'select-option',
+                                      option,
+                                  });
                               });
                           }
                         : undefined;
@@ -211,8 +210,7 @@ export default function AsyncRSelectWidget<
                                         : ((newValue as SelectOption | null)
                                               ?.value ?? null);
                                     onChange(v);
-                                    onChangeProp &&
-                                        onChangeProp(newValue as any, meta);
+                                    onChangeProp?.(newValue as any, meta);
                                 }}
                                 isOptionDisabled={
                                     disabledValues
@@ -253,11 +251,10 @@ export default function AsyncRSelectWidget<
                   ) as OnChangeValue<SelectOption, IsMulti>;
                   updateLastOptions([option]);
                   setValue(newValue);
-                  onChangeProp &&
-                      onChangeProp(newValue, {
-                          action: 'select-option',
-                          option,
-                      });
+                  onChangeProp?.(newValue, {
+                      action: 'select-option',
+                      option,
+                  });
               });
           }
         : undefined;
@@ -276,7 +273,7 @@ export default function AsyncRSelectWidget<
                         ? (newValue as SelectOption[]).map(v => v.value)
                         : ((newValue as SelectOption | null)?.value ?? null);
 
-                    onChangeProp && onChangeProp(newValue, meta);
+                    onChangeProp?.(newValue, meta);
                     setValue(!clearOnSelect ? (v as any) : null);
                 }}
                 value={valueToOption(

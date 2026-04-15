@@ -9,7 +9,11 @@ type Props = {
     iconButtonProps?: IconButtonProps;
 } & Omit<DropdownActionsProps, 'mainButton'>;
 
-export default function MoreActionsButton({vertical, iconButtonProps, ...dropdownActionsProps}: Props) {
+export default function MoreActionsButton({
+    vertical,
+    iconButtonProps,
+    ...dropdownActionsProps
+}: Props) {
     return (
         <DropdownActions
             anchorOrigin={{

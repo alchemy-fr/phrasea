@@ -1,10 +1,4 @@
-import {
-    Checkbox,
-    ListItem,
-    ListItemButton,
-    ListItemSecondaryAction,
-    ListItemText,
-} from '@mui/material';
+import {Checkbox, ListItem, ListItemText} from '@mui/material';
 import {ListFacetItemProps} from './TextFacetItem.tsx';
 import ListFacet from './ListFacet.tsx';
 import {getBestLocaleOfTranslations} from '@alchemy/i18n/src/Locale/localeHelper.ts';

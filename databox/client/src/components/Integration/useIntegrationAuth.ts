@@ -27,7 +27,7 @@ export function useIntegrationAuth({integration}: Props) {
         });
 
         const handleClosed = async () => {
-            timer && clearInterval(timer);
+            if (timer) clearInterval(timer);
 
             setLoadingTokens(true);
             try {
