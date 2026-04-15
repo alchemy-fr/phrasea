@@ -26,15 +26,15 @@ class PutProfileItemProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): ProfileItem
     {
-        $listId = $uriVariables['id'];
+        $profileId = $uriVariables['id'];
         $itemId = $uriVariables['itemId'];
 
         $item = $this->em->getRepository(ProfileItem::class)->findOneBy([
             'id' => $itemId,
-            'list' => $listId,
+            'profile' => $profileId,
         ]);
         if (!$item instanceof ProfileItem) {
-            throw new NotFoundHttpException(sprintf('Attribute list item "%s" (list "%s") not found', $itemId, $listId));
+            throw new NotFoundHttpException(sprintf('Profile item "%s" (profile "%s") not found', $itemId, $profileId));
         }
 
         if (null !== $data->key) {

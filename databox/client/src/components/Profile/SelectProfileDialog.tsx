@@ -25,7 +25,7 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
     const deleteProfile = useProfileStore(state => state.deleteProfile);
     const load = useProfileStore(state => state.load);
     const loading = useProfileStore(state => !state.loaded);
-    const lists = useProfileStore(state => state.lists);
+    const lists = useProfileStore(state => state.profiles);
 
     useEffect(() => {
         load();

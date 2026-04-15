@@ -49,12 +49,12 @@ class ProfileOutputTransformer implements OutputTransformerInterface
         ], $context)) {
             $output->owner = $this->transformUser($data->getOwnerId());
 
-            /** @var ProfileItem[] $listItems */
-            $listItems = $this->em->getRepository(Profile::class)
+            /** @var ProfileItem[] $profileItems */
+            $profileItems = $this->em->getRepository(Profile::class)
                 ->getItemsIterator($data->getId());
 
             $output->items = [];
-            foreach ($listItems as $item) {
+            foreach ($profileItems as $item) {
                 if (null !== $attributeDefinition = $item->getDefinition()) {
                     if (!$this->security->isGranted(AbstractVoter::READ, $attributeDefinition)) {
                         continue;

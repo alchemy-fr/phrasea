@@ -49,7 +49,7 @@ export default function ProfileMenuItem({
                         className={Classes.ellipsisText}
                         primary={
                             data.title ||
-                            t('profile.default.title', 'My Profile')
+                            t('profile.default.title', 'Default Profile')
                         }
                         secondary={data.description}
                         secondaryTypographyProps={{

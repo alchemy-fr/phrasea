@@ -1,12 +1,12 @@
 import {useProfileStore} from '../../store/profileStore.ts';
 import {ListItemText, MenuItem} from '@mui/material';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {useModals} from '@alchemy/navigation';
 import {useTranslation} from 'react-i18next';
 import React from 'react';
 import SelectProfileDialog from './SelectProfileDialog.tsx';
 import {CloseWrapper} from '@alchemy/phrasea-ui';
 import {ListItemLoadingIcon} from '@alchemy/phrasea-framework';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 
 type Props = {
     closeWrapper: CloseWrapper;
@@ -34,10 +34,11 @@ export default function ProfileSwitcher({closeWrapper}: Props) {
             onClick={closeWrapper(openList)}
         >
             <ListItemLoadingIcon loading={!loaded}>
-                <ArrowDropDownIcon />
+                <AccountBoxIcon />
             </ListItemLoadingIcon>
             <ListItemText>
-                {current?.title || t('profile.default.title', 'My Profile')}
+                {current?.title ||
+                    t('profile.default.title', 'Default Profile')}
             </ListItemText>
         </MenuItem>
     );

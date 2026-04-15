@@ -11,7 +11,7 @@ export type UserPreferences = {
     theme?: ThemeName | undefined;
     layout?: Layout;
     dataLocale?: string | undefined;
-    attrList?: string | null | undefined;
+    profile?: string | null | undefined;
     display?: DisplayPreferences | undefined;
     displayBatchEdit?: DisplayPreferences | undefined;
     facets?: FacetPreference[];

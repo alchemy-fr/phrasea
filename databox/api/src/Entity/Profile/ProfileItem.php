@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     operations: [
         new GetCollection(),
         new Put(
-            uriTemplate: '/attribute-lists/{id}/items/{itemId}',
+            uriTemplate: '/profiles/{id}/items/{itemId}',
             security: 'is_granted("'.AbstractVoter::EDIT.'", object.getProfile())',
             processor: PutProfileItemProcessor::class,
         ),

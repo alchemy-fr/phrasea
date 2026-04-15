@@ -35,7 +35,7 @@ export default function OrganizeProfile({data, onClose, minHeight}: Props) {
 
     const {sortList, removeFromList, addToList} = useProfileStore(state => ({
         sortList: state.sortList,
-        removeFromList: state.removeFromList,
+        removeFromList: state.removeFromProfile,
         addToList: state.addToList,
     }));
 

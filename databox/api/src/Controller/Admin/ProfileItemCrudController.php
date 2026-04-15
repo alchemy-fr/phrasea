@@ -26,15 +26,15 @@ class ProfileItemCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Profile Item')
             ->setEntityLabelInPlural('Profile Items')
-            ->setSearchFields(['id', 'definition', 'list', 'key'])
+            ->setSearchFields(['id', 'definition', 'profile', 'key'])
             ->setPaginatorPageSize(100)
-            ->setDefaultSort(['list' => 'ASC', 'position' => 'ASC']);
+            ->setDefaultSort(['profile' => 'ASC', 'position' => 'ASC']);
     }
 
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(AssociationIdentifierFilter::new('list'))
+            ->add(AssociationIdentifierFilter::new('profile'))
             ->add(AssociationIdentifierFilter::new('definition'))
             ->add('key')
             ->add('type')
@@ -45,7 +45,7 @@ class ProfileItemCrudController extends AbstractAdminCrudController
     {
         yield IdField::new()
             ->hideOnForm();
-        yield AssociationField::new('list');
+        yield AssociationField::new('profile');
         yield AssociationField::new('definition');
         yield ChoiceField::new('type')
             ->setChoices(ProfileItem::TYPES);

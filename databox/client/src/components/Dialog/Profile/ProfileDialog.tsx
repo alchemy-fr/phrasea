@@ -17,15 +17,15 @@ export default function ProfileDialog({}: Props) {
     const {id} = useParams();
     const closeModal = useCloseModal();
 
-    const loadList = useProfileStore(state => state.loadProfile);
-    const lists = useProfileStore(state => state.lists);
-    const data = lists.find(l => l.id === id);
+    const loadProfile = useProfileStore(state => state.loadProfile);
+    const profiles = useProfileStore(state => state.profiles);
+    const data = profiles.find(p => p.id === id);
 
     useEffect(() => {
-        loadList(id!).catch(() => {
+        loadProfile(id!).catch(() => {
             closeModal();
         });
-    }, [loadList, id]);
+    }, [loadProfile, id]);
 
     if (!data) {
         return <FullPageLoader />;

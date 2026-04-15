@@ -141,7 +141,7 @@ class Profile extends AbstractUuidEntity implements WithOwnerIdInterface, AclObj
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $public = false;
 
-    #[ORM\OneToMany(mappedBy: 'list', targetEntity: ProfileItem::class)]
+    #[ORM\OneToMany(mappedBy: 'profile', targetEntity: ProfileItem::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?Collection $items = null;
 

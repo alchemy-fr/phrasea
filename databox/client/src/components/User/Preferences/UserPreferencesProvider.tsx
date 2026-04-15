@@ -38,10 +38,10 @@ export default function UserPreferencesProvider({children}: Props) {
     }, [loadPreferences, user]);
 
     React.useEffect(() => {
-        if (preferences?.attrList) {
-            loadCurrentProfile(preferences.attrList);
+        if (preferences?.profile) {
+            loadCurrentProfile(preferences.profile);
         }
-    }, [preferences?.attrList, loadCurrentProfile]);
+    }, [preferences?.profile, loadCurrentProfile]);
 
     React.useEffect(() => {
         updateClientDataLocale(preferences?.dataLocale);

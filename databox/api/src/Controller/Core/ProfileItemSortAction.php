@@ -24,18 +24,18 @@ class ProfileItemSortAction extends AbstractSortAction
     protected function buildQuery(QueryBuilder $queryBuilder, object $firstItem): array
     {
         if (!method_exists($firstItem, 'getProfile')) {
-            throw new \RuntimeException(sprintf('Class %s must implement getList method to be sortable', $firstItem::class));
+            throw new \RuntimeException(sprintf('Class %s must implement getProfile method to be sortable', $firstItem::class));
         }
 
-        /** @var Profile $list */
-        $list = $firstItem->getProfile();
-        $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $list);
+        /** @var Profile $profile */
+        $profile = $firstItem->getProfile();
+        $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $profile);
 
         $queryBuilder
-            ->andWhere('t.list = :list');
+            ->andWhere('t.profile = :profile');
 
         return [
-            'list' => $list->getId(),
+            'profile' => $profile->getId(),
         ];
     }
 }

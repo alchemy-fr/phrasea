@@ -20,64 +20,64 @@ class ProfileRepository extends ServiceEntityRepository
         parent::__construct($registry, Profile::class);
     }
 
-    public function removeFromList(string $listId, array $itemIds): void
+    public function removeFromProfile(string $profileId, array $itemIds): void
     {
         $this->_em->createQueryBuilder()
             ->delete()
-            ->from(Profile::class, 't')
-            ->andWhere('t.list = :lid')
+            ->from(ProfileItem::class, 't')
+            ->andWhere('t.profile = :pid')
             ->andWhere('t.id IN (:ids)')
             ->setParameters([
-                'lid' => $listId,
+                'pid' => $profileId,
                 'ids' => $itemIds,
             ])
             ->getQuery()
             ->execute();
     }
 
-    public function getMaxPosition(string $listId): int
+    public function getMaxPosition(string $profileId): int
     {
         return $this->_em->createQueryBuilder()
             ->select('MAX(t.position) as m')
             ->from(ProfileItem::class, 't')
-            ->andWhere('t.list = :l')
-            ->setParameter('l', $listId)
+            ->andWhere('t.profile = :l')
+            ->setParameter('l', $profileId)
             ->getQuery()
             ->getSingleScalarResult() ?? 0;
     }
 
-    public function hasDefinition(string $listId, string $definitionId): bool
+    public function hasDefinition(string $profileId, string $definitionId): bool
     {
         return null !== $this->_em->createQueryBuilder()
             ->select('1')
             ->setMaxResults(1)
             ->from(ProfileItem::class, 't')
-            ->andWhere('t.list = :l')
+            ->andWhere('t.profile = :l')
             ->andWhere('t.definition = :d')
-            ->setParameter('l', $listId)
+            ->setParameter('l', $profileId)
             ->setParameter('d', $definitionId)
             ->getQuery()
             ->getOneOrNullResult();
     }
 
-    public function getItemsIterator(string $listId): iterable
+    public function getItemsIterator(string $profileId): iterable
     {
         return $this->_em->createQueryBuilder()
             ->select('t')
             ->from(ProfileItem::class, 't')
-            ->andWhere('t.list = :l')
-            ->setParameter('l', $listId)
+            ->andWhere('t.profile = :l')
+            ->setParameter('l', $profileId)
             ->addOrderBy('t.position', 'ASC')
             ->getQuery()
             ->toIterable();
     }
 
-    public function getItem(string $listId, string $itemId): ?ProfileItem
+    public function getItem(string $profileId, string $itemId): ?ProfileItem
     {
         return $this->_em->getRepository(ProfileItem::class)
             ->findOneBy([
                 'id' => $itemId,
-                'list' => $listId,
+                'profile' => $profileId,
             ]);
     }
 

@@ -10,13 +10,13 @@ export default function Footer({links, backgroundColor, textColor}: Props) {
             sx={{
                 display: 'flex',
                 flexDirection: 'row',
-                backgroundColor: backgroundColor || '#333',
-                color: textColor || '#fff',
+                backgroundColor: backgroundColor || undefined,
+                color: textColor || undefined,
                 padding: 4,
                 gap: 2,
                 a: {
                     'cursor': 'pointer',
-                    'color': textColor || '#fff',
+                    'color': textColor || undefined,
                     'textDecoration': 'none',
                     '&:hover': {
                         textDecoration: 'underline',

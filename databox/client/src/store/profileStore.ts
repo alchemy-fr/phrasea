@@ -21,7 +21,7 @@ import {
 } from './userPreferencesStore.ts';
 
 type State = {
-    lists: Profile[];
+    profiles: Profile[];
     current: Profile | undefined;
     nextUrl?: string | undefined;
     loaded: boolean;
@@ -32,16 +32,16 @@ type State = {
     hasMore: () => boolean;
     load: (params?: GetProfileOptions, force?: boolean) => Promise<void>;
     loadMore: () => Promise<void>;
-    addProfile: (list: Profile) => void;
+    addProfile: (profile: Profile) => void;
     loadProfile: (id: string) => Promise<Profile>;
-    updateProfile: (data: Profile) => void;
-    updateProfileItem: (listId: string, data: ProfileItem) => void;
+    updateProfile: (profile: Profile) => void;
+    updateProfileItem: (profileId: string, data: ProfileItem) => void;
     deleteProfile: (id: string) => void;
     addToCurrent: (items: ProfileItem[]) => void;
-    addToList: (listId: string | undefined, items: ProfileItem[]) => void;
-    sortList: (listId: string, items: string[]) => void;
+    addToList: (profileId: string | undefined, items: ProfileItem[]) => void;
+    sortList: (profileId: string, items: string[]) => void;
     toggleDefinition: (definition: AttributeDefinition) => void;
-    removeFromList: (listId: string, ids: string[]) => void;
+    removeFromProfile: (profileId: string, ids: string[]) => void;
     setCurrent: (id: string | undefined) => Promise<void>;
     loadCurrent: (id: string) => Promise<void>;
     shouldSelectProfile: () => boolean;
@@ -53,7 +53,7 @@ export const useProfileStore = create<State>((set, getState) => ({
     loading: false,
     loadingCurrent: false,
     current: undefined,
-    lists: [],
+    profiles: [],
 
     load: async (params, force) => {
         const currentState = getState();
@@ -66,25 +66,25 @@ export const useProfileStore = create<State>((set, getState) => ({
         });
 
         const preferences = await useUserPreferencesStore.getState().load();
-        const prefAttrList = preferences['attrList'];
+        const prefProfile = preferences['profile'];
 
         try {
             const data = await getProfiles(params);
             let current = currentState.current;
 
-            if (prefAttrList && !current) {
+            if (prefProfile && !current) {
                 try {
-                    current = await getProfile(prefAttrList);
+                    current = await getProfile(prefProfile);
                 } catch (e) {
                     current = undefined;
                 }
             }
 
             set(state => {
-                const previousCurrent = prefAttrList
-                    ? state.lists.find(at => at.id === prefAttrList)
+                const previousCurrent = prefProfile
+                    ? state.profiles.find(at => at.id === prefProfile)
                     : undefined;
-                const newList = preserveListItems(state.lists, data.result);
+                const newList = preserveListItems(state.profiles, data.result);
                 if (
                     previousCurrent &&
                     !newList.some(i => i.id === previousCurrent?.id)
@@ -93,7 +93,7 @@ export const useProfileStore = create<State>((set, getState) => ({
                 }
 
                 return {
-                    lists: newList,
+                    profiles: newList,
                     total: data.total,
                     loading: false,
                     loaded: true,
@@ -112,10 +112,10 @@ export const useProfileStore = create<State>((set, getState) => ({
     },
 
     setCurrent: async id => {
-        const updatePref = (value: UserPreferences['attrList']) =>
+        const updatePref = (value: UserPreferences['profile']) =>
             useUserPreferencesStore
                 .getState()
-                .updatePreference('attrList', value);
+                .updatePreference('profile', value);
 
         if (!id) {
             set({
@@ -132,7 +132,7 @@ export const useProfileStore = create<State>((set, getState) => ({
             return;
         }
 
-        const data = getState().lists.find(l => l.id === id);
+        const data = getState().profiles.find(l => l.id === id);
 
         set({
             current: data,
@@ -140,9 +140,9 @@ export const useProfileStore = create<State>((set, getState) => ({
         });
 
         try {
-            const list = await getProfile(id);
+            const profile = await getProfile(id);
             set({
-                current: list,
+                current: profile,
                 loadingCurrent: false,
             });
             await updatePref(id);
@@ -161,7 +161,7 @@ export const useProfileStore = create<State>((set, getState) => ({
             return;
         }
 
-        const data = currentState.lists.find(l => l.id === id);
+        const data = currentState.profiles.find(l => l.id === id);
 
         set({
             current: data,
@@ -169,9 +169,9 @@ export const useProfileStore = create<State>((set, getState) => ({
         });
 
         try {
-            const list = await getProfile(id);
+            const profile = await getProfile(id);
             set({
-                current: list,
+                current: profile,
                 loadingCurrent: false,
             });
         } catch (e: any) {
@@ -183,7 +183,7 @@ export const useProfileStore = create<State>((set, getState) => ({
     },
 
     shouldSelectProfile: () => {
-        const {current, loading, lists} = getState();
+        const {current, loading, profiles} = getState();
 
         if (current) {
             return false;
@@ -193,12 +193,12 @@ export const useProfileStore = create<State>((set, getState) => ({
             return true;
         }
 
-        return lists.length > 1;
+        return profiles.length > 1;
     },
 
     updateProfile: data => {
         set(state => ({
-            lists: state.lists.map(b => {
+            profiles: state.profiles.map(b => {
                 if (b.id === data.id) {
                     return {
                         ...b,
@@ -212,7 +212,7 @@ export const useProfileStore = create<State>((set, getState) => ({
         }));
     },
 
-    updateProfileItem: (listId, item) => {
+    updateProfileItem: (profileId, item) => {
         const replaceItemInList = (l: Profile, item: ProfileItem): Profile => {
             return {
                 ...l,
@@ -228,8 +228,8 @@ export const useProfileStore = create<State>((set, getState) => ({
         };
 
         set(state => ({
-            lists: state.lists.map(l => {
-                if (l.id === listId) {
+            profiles: state.profiles.map(l => {
+                if (l.id === profileId) {
                     return replaceItemInList(l, item);
                 }
 
@@ -252,9 +252,9 @@ export const useProfileStore = create<State>((set, getState) => ({
             const data = await getProfiles({nextUrl});
 
             set(state => ({
-                lists: preserveListItems(
-                    state.lists,
-                    state.lists.concat(data.result)
+                profiles: preserveListItems(
+                    state.profiles,
+                    state.profiles.concat(data.result)
                 ),
                 total: data.total,
                 loadingMore: false,
@@ -267,9 +267,9 @@ export const useProfileStore = create<State>((set, getState) => ({
         }
     },
 
-    addProfile(list) {
+    addProfile(data) {
         set(state => ({
-            lists: [list].concat(state.lists),
+            profiles: [data].concat(state.profiles),
         }));
     },
 
@@ -277,7 +277,7 @@ export const useProfileStore = create<State>((set, getState) => ({
         await deleteProfile(id);
 
         set(state => ({
-            lists: state.lists.filter(b => b.id !== id),
+            profiles: state.profiles.filter(b => b.id !== id),
             current: state.current?.id === id ? undefined : state.current,
         }));
     },
@@ -292,7 +292,7 @@ export const useProfileStore = create<State>((set, getState) => ({
                 i => i.definition === defId || i.key === defId
             );
             if (item?.id) {
-                state.removeFromList(current.id, [item.id]);
+                state.removeFromProfile(current.id, [item.id]);
 
                 return;
             }
@@ -303,16 +303,18 @@ export const useProfileStore = create<State>((set, getState) => ({
 
     loadProfile: async (id: string) => {
         try {
-            const list = await getProfile(id!);
+            const profile = await getProfile(id!);
             set(state => {
                 return {
                     current:
-                        state.current?.id === list.id ? list : state.current,
-                    lists: replaceList(state.lists, list),
+                        state.current?.id === profile.id
+                            ? profile
+                            : state.current,
+                    profiles: replaceList(state.profiles, profile),
                 };
             });
 
-            return list;
+            return profile;
         } catch (e: any) {
             const s = getState();
             if (s.current?.id === id) {
@@ -322,9 +324,9 @@ export const useProfileStore = create<State>((set, getState) => ({
         }
     },
 
-    addToList: async (listId, items) => {
+    addToList: async (profileId, items) => {
         try {
-            const list = await addToProfile(listId, {
+            const profile = await addToProfile(profileId, {
                 // @ts-expect-error id cannot be undefined
                 items: items.map(i => ({
                     ...i,
@@ -332,13 +334,13 @@ export const useProfileStore = create<State>((set, getState) => ({
                 })),
             });
             set(state => ({
-                current: list,
-                lists: replaceList(state.lists, list),
+                current: profile,
+                profiles: replaceList(state.profiles, profile),
             }));
         } catch (e: any) {
-            if (listId) {
+            if (profileId) {
                 set(state => {
-                    if (state.current?.id === listId) {
+                    if (state.current?.id === profileId) {
                         const curr = state.current!;
 
                         return {
@@ -360,27 +362,27 @@ export const useProfileStore = create<State>((set, getState) => ({
         state.addToList(state.current?.id, items);
     },
 
-    sortList: async (listId, items) => {
+    sortList: async (profileId, items) => {
         set(p => ({
-            lists: p.lists.map(b => {
-                if (b.id === listId && b.items) {
+            profiles: p.profiles.map(b => {
+                if (b.id === profileId && b.items) {
                     return getReorderedListItems(b, items);
                 }
 
                 return b;
             }),
             current:
-                p.current?.id === listId
+                p.current?.id === profileId
                     ? getReorderedListItems(p.current, items)
                     : p.current,
         }));
 
-        await sortProfileItems(listId, items);
+        await sortProfileItems(profileId, items);
     },
 
-    removeFromList: async (listId, items) => {
+    removeFromProfile: async (profileId, items) => {
         let current: Profile | undefined = getState().current;
-        if (current && current.id !== listId) {
+        if (current && current.id !== profileId) {
             current = undefined;
         }
 
@@ -397,9 +399,9 @@ export const useProfileStore = create<State>((set, getState) => ({
 
         const itemsToRemove = items.filter(i => !isTmpId(i));
         if (itemsToRemove.length > 0) {
-            const list = await removeFromProfile(listId, itemsToRemove);
+            const profile = await removeFromProfile(profileId, itemsToRemove);
             set(state => ({
-                lists: replaceList(state.lists, list),
+                profiles: replaceList(state.profiles, profile),
             }));
         }
     },
@@ -452,15 +454,15 @@ export function hasDefinitionInItems(
     return items.some(i => i.definition === id || i.key === id);
 }
 
-function getReorderedListItems(list: Profile, order: string[]): Profile {
-    if (!list.items) {
-        return list;
+function getReorderedListItems(profile: Profile, order: string[]): Profile {
+    if (!profile.items) {
+        return profile;
     }
 
     return {
-        ...list,
+        ...profile,
         items: order
-            .map(id => list.items!.find(i => i.id === id))
+            .map(id => profile.items!.find(i => i.id === id))
             .filter(i => !!i),
     };
 }
