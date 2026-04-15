@@ -28,6 +28,7 @@ class ProfileItemOutputTransformer implements OutputTransformerInterface
             id: $data->getId(),
             definition: $data->getDefinition()?->getId(),
             key: $data->getKey(),
+            section: $data->getSection(),
             type: $data->getType(),
             displayEmpty: $data->isDisplayEmpty(),
             format: $data->getFormat(),

@@ -65,7 +65,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: false,
             output: false,
             read: false,
-            name: 'attr_list_item_post_sort',
+            name: 'profile_item_post_sort',
             provider: null
         ),
         new Put(
@@ -145,6 +145,10 @@ class Profile extends AbstractUuidEntity implements WithOwnerIdInterface, AclObj
     #[ORM\JoinColumn(nullable: false)]
     private ?Collection $items = null;
 
+    #[ORM\OneToOne(mappedBy: 'profile', targetEntity: ProfileData::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?ProfileData $data = null;
+
     public function __construct(UuidInterface|string|null $id = null)
     {
         parent::__construct($id);
@@ -197,5 +201,15 @@ class Profile extends AbstractUuidEntity implements WithOwnerIdInterface, AclObj
     public function setPublic(bool $public): void
     {
         $this->public = $public;
+    }
+
+    public function getData(): ?ProfileData
+    {
+        return $this->data;
+    }
+
+    public function setData(?ProfileData $data): void
+    {
+        $this->data = $data;
     }
 }

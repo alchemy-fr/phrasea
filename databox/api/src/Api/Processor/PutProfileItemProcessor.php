@@ -32,6 +32,7 @@ class PutProfileItemProcessor implements ProcessorInterface
         $item = $this->em->getRepository(ProfileItem::class)->findOneBy([
             'id' => $itemId,
             'profile' => $profileId,
+            'section' => $data->section,
         ]);
         if (!$item instanceof ProfileItem) {
             throw new NotFoundHttpException(sprintf('Profile item "%s" (profile "%s") not found', $itemId, $profileId));

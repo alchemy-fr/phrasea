@@ -62,8 +62,16 @@ class AddToProfileProcessor implements ProcessorInterface
             $item = new ProfileItem();
             $item->setDisplayEmpty(true);
             $item->setProfile($profile);
+            $item->setSection($i->section);
             $item->setType($i->type);
             $item->setPosition($position++);
+
+            if (ProfileItem::SECTION_FACETS === $item->getSection() && in_array($i->type, [
+                ProfileItem::TYPE_DIVIDER,
+                ProfileItem::TYPE_SPACER,
+            ], true)) {
+                throw new \InvalidArgumentException(sprintf('Type "%d" is not allowed in section "%d"', $i->type, $i->section));
+            }
 
             switch ($i->type) {
                 case ProfileItem::TYPE_ATTR_DEF:

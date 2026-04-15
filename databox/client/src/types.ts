@@ -358,6 +358,11 @@ export interface Basket extends IPermissions, Entity {
     owner?: User;
 }
 
+export enum ProfileItemSection {
+    Attributes = 0,
+    Facets = 1,
+}
+
 export enum ProfileItemType {
     Definition = 0,
     BuiltIn = 1,
@@ -367,6 +372,7 @@ export enum ProfileItemType {
 
 export type ProfileItem = {
     id: string;
+    section: ProfileItemSection;
     type: ProfileItemType;
     key?: string;
     definition?: string;

@@ -43,9 +43,12 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     output: ProfileItemOutput::class,
     order: ['position' => 'ASC'],
 )]
-#[ORM\UniqueConstraint(name: 'profile_def_uniq', columns: ['profile_id', 'definition_id', 'key', 'type'])]
+#[ORM\UniqueConstraint(name: 'profile_def_uniq', columns: ['profile_id', 'section', 'definition_id', 'key', 'type'])]
 class ProfileItem extends AbstractUuidEntity
 {
+    final public const int SECTION_ATTRIBUTES = 0;
+    final public const int SECTION_FACETS = 1;
+
     final public const int TYPE_ATTR_DEF = 0;
     final public const int TYPE_BUILT_IN = 1;
     final public const int TYPE_DIVIDER = 2;
@@ -57,10 +60,18 @@ class ProfileItem extends AbstractUuidEntity
         'Divider' => self::TYPE_DIVIDER,
         'Spacer' => self::TYPE_SPACER,
     ];
+    final public const array SECTIONS = [
+        'Attributes' => self::SECTION_ATTRIBUTES,
+        'Facets' => self::SECTION_FACETS,
+    ];
 
     #[ORM\ManyToOne(targetEntity: Profile::class, inversedBy: 'items')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Profile $profile = null;
+
+    #[ORM\Column(type: Types::SMALLINT, nullable: false)]
+    #[Assert\Choice(choices: self::SECTIONS)]
+    private ?int $section = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     #[Assert\Choice(choices: self::TYPES)]
@@ -117,6 +128,16 @@ class ProfileItem extends AbstractUuidEntity
     public function setKey(?string $key): void
     {
         $this->key = $key;
+    }
+
+    public function getSection(): ?int
+    {
+        return $this->section;
+    }
+
+    public function setSection(?int $section): void
+    {
+        $this->section = $section;
     }
 
     public function getType(): int

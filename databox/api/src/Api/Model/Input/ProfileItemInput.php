@@ -17,6 +17,10 @@ final class ProfileItemInput
     public ?string $format = null;
 
     #[Assert\NotNull]
+    #[Assert\Choice(choices: ProfileItem::SECTIONS)]
+    public ?int $section = null;
+
+    #[Assert\NotNull]
     #[Assert\Choice(choices: ProfileItem::TYPES)]
     public ?int $type = null;
 

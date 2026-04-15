@@ -17,6 +17,8 @@ final readonly class ProfileItemOutput
         #[Groups([Profile::GROUP_READ])]
         public ?string $key = null,
         #[Groups([Profile::GROUP_READ])]
+        public ?int $section = null,
+        #[Groups([Profile::GROUP_READ])]
         public ?int $type = null,
         #[Groups([Profile::GROUP_READ])]
         public ?bool $displayEmpty = null,

@@ -37,6 +37,7 @@ class ProfileItemCrudController extends AbstractAdminCrudController
             ->add(AssociationIdentifierFilter::new('profile'))
             ->add(AssociationIdentifierFilter::new('definition'))
             ->add('key')
+            ->add('section')
             ->add('type')
         ;
     }
@@ -47,6 +48,8 @@ class ProfileItemCrudController extends AbstractAdminCrudController
             ->hideOnForm();
         yield AssociationField::new('profile');
         yield AssociationField::new('definition');
+        yield ChoiceField::new('section')
+            ->setChoices(ProfileItem::SECTIONS);
         yield ChoiceField::new('type')
             ->setChoices(ProfileItem::TYPES);
         yield TextField::new('key');

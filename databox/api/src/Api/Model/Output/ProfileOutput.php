@@ -35,6 +35,12 @@ class ProfileOutput extends AbstractUuidOutput
     #[Groups([Profile::GROUP_READ])]
     public ?array $items = null;
 
+    /**
+     * @var ProfileItemOutput[]
+     */
+    #[Groups([Profile::GROUP_READ])]
+    public ?array $facets = null;
+
     #[Groups([Profile::GROUP_LIST, Profile::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     public ?string $title = null;
 

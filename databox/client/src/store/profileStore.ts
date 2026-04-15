@@ -3,6 +3,7 @@ import {
     AttributeDefinition,
     Profile,
     ProfileItem,
+    ProfileItemSection,
     ProfileItemType,
 } from '../types';
 import {
@@ -414,6 +415,7 @@ export function attributeDefinitionToItem(
 
     return {
         id: tmpIdPrefix + definition.id,
+        section: ProfileItemSection.Attributes,
         type: isBI ? ProfileItemType.BuiltIn : ProfileItemType.Definition,
         definition: isBI ? undefined : definition.id,
         key: isBI ? definition.id : undefined,
@@ -429,6 +431,7 @@ function generateId(): string {
 export function createDivider(title: string): ProfileItem {
     return {
         id: generateId(),
+        section: ProfileItemSection.Attributes,
         type: ProfileItemType.Divider,
         key: title,
     };
@@ -437,6 +440,7 @@ export function createDivider(title: string): ProfileItem {
 export function createSpacer(): ProfileItem {
     return {
         id: generateId(),
+        section: ProfileItemSection.Attributes,
         type: ProfileItemType.Spacer,
     };
 }
