@@ -82,7 +82,7 @@ class FileOutputTransformer implements OutputTransformerInterface
 
     private function resolveAlternateUrlLabel(string $workspaceId, string $type): ?string
     {
-        return $this->cache->get(sprintf('%s:%s', $workspaceId, $type), function () use ($workspaceId, $type): ?string {
+        return $this->cache->get(sprintf('%s_%s', $workspaceId, $type), function () use ($workspaceId, $type): ?string {
             /** @var AlternateUrl|null $label */
             $label = $this->em->getRepository(AlternateUrl::class)
                 ->findOneBy([
