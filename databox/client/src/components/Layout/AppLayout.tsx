@@ -10,9 +10,9 @@ import {useTranslation} from 'react-i18next';
 import LeftPanel from '../Media/LeftPanel.tsx';
 import {useNotificationUriHandler} from '../../hooks/useNotificationUriHandler.ts';
 import AppNav from './AppNav.tsx';
-import {MenuItem} from '@mui/material';
+import {Divider} from '@mui/material';
 import {useModals} from '@alchemy/navigation';
-import SelectProfileDialog from '../Profile/SelectProfileDialog.tsx';
+import ProfileSwitcher from '../Profile/ProfileSwitcher.tsx';
 
 type Props = PropsWithChildren<{
     leftPanelOpen: boolean;
@@ -42,14 +42,11 @@ export default function AppLayout({children}: Props) {
                 notificationUriHandler,
                 topChildren: <AppNav orientation={MenuOrientation.Vertical} />,
                 settingsTopActions: closeWrapper => [
-                    <MenuItem
+                    <ProfileSwitcher
                         key={'profile'}
-                        onClick={closeWrapper(() => {
-                            openModal(SelectProfileDialog, {});
-                        })}
-                    >
-                        {t('appbar.change_profile', 'Change profile')}
-                    </MenuItem>,
+                        closeWrapper={closeWrapper}
+                    />,
+                    <Divider key={'d1'} />,
                 ],
             }}
             menuChildren={<LeftPanel />}

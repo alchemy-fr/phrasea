@@ -1,5 +1,6 @@
+import {ListItemLoadingIcon} from '@alchemy/phrasea-framework';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import {CircularProgress, ListItemButton, ListItemIcon} from '@mui/material';
+import {ListItemButton} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 
 type Props = {
@@ -11,13 +12,9 @@ export default function LoadMoreCollections({onLoadMore, loading}: Props) {
     const {t} = useTranslation();
     return (
         <ListItemButton onClick={onLoadMore} disabled={loading}>
-            <ListItemIcon
-                sx={{
-                    minWidth: 35,
-                }}
-            >
-                {loading ? <CircularProgress size={20} /> : <MoreHorizIcon />}
-            </ListItemIcon>
+            <ListItemLoadingIcon loading={loading}>
+                <MoreHorizIcon />
+            </ListItemLoadingIcon>
             {t('pagination.load_more_collections', `Load more collections`)}
         </ListItemButton>
     );

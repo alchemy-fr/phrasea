@@ -14,7 +14,6 @@ import ToggleWithLimit from '../../Media/Search/ToggleWithLimit';
 import ThumbSizeWidget from './ThumbSizeWidget';
 import SizeRatioWidget from './SizeRatioWidget.tsx';
 import {StateSetter} from '../../../types.ts';
-import ProfileSwitcher from '../../Profile/ProfileSwitcher.tsx';
 import TooltipToggleButton from '../../Ui/TooltipToggleButton.tsx';
 import {Layout} from '../Layouts';
 import GridViewIcon from '@mui/icons-material/GridView';
@@ -119,7 +118,6 @@ export default function DisplayOptionsMenu({}: Props) {
                     </TooltipToggleButton>
                 </ToggleButtonGroup>
             </div>
-            <ProfileSwitcher />
             <div>
                 <Typography id={sliderId} gutterBottom>
                     {t('layout.options.thumb_size.label', 'Thumbnail size')}

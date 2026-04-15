@@ -35,6 +35,7 @@ import LoadMoreButton from './src/components/LoadMoreButton';
 import {lazyWithRetry} from './src/lazyWithRetry';
 import BetaChip from './src/Ui/BetaChip';
 import DarkModeSwitch from './src/Theme/ThemeEditor/DarkModeSwitch';
+import ListItemLoadingIcon from './src/Ui/ListItemLoadingIcon';
 
 export {
     AppProvider,
@@ -42,6 +43,7 @@ export {
     initApp,
     createCachedThemeOptions,
     DarkModeSwitch,
+    ListItemLoadingIcon,
     themes,
     AppGlobalTheme,
     ThemeEditorProvider,
