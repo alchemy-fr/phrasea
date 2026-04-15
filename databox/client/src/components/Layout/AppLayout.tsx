@@ -10,6 +10,9 @@ import {useTranslation} from 'react-i18next';
 import LeftPanel from '../Media/LeftPanel.tsx';
 import {useNotificationUriHandler} from '../../hooks/useNotificationUriHandler.ts';
 import AppNav from './AppNav.tsx';
+import {MenuItem} from '@mui/material';
+import {useModals} from '@alchemy/navigation';
+import SelectProfileDialog from '../Profile/SelectProfileDialog.tsx';
 
 type Props = PropsWithChildren<{
     leftPanelOpen: boolean;
@@ -19,6 +22,7 @@ type Props = PropsWithChildren<{
 export default function AppLayout({children}: Props) {
     const searchContext = useContext(SearchContext)!;
     const notificationUriHandler = useNotificationUriHandler();
+    const {openModal} = useModals();
     const onLogoClick = () => searchContext.reset();
     const {t} = useTranslation();
 
@@ -37,6 +41,16 @@ export default function AppLayout({children}: Props) {
                 LocaleDialogComponent: LocaleDialog,
                 notificationUriHandler,
                 topChildren: <AppNav orientation={MenuOrientation.Vertical} />,
+                settingsTopActions: closeWrapper => [
+                    <MenuItem
+                        key={'profile'}
+                        onClick={closeWrapper(() => {
+                            openModal(SelectProfileDialog, {});
+                        })}
+                    >
+                        {t('appbar.change_profile', 'Change profile')}
+                    </MenuItem>,
+                ],
             }}
             menuChildren={<LeftPanel />}
             contentSx={{

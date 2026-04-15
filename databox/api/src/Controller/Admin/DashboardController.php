@@ -12,8 +12,6 @@ use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
 use App\Entity\Admin\ESIndexState;
 use App\Entity\Admin\PopulatePass;
-use App\Entity\AttributeList\AttributeList;
-use App\Entity\AttributeList\AttributeListItem;
 use App\Entity\Basket\Basket;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\AlternateUrl;
@@ -43,6 +41,8 @@ use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
 use App\Entity\Log\ActionLog;
 use App\Entity\Page\Page;
+use App\Entity\Profile\Profile;
+use App\Entity\Profile\ProfileItem;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
@@ -106,8 +106,8 @@ class DashboardController extends AbstractAdminDashboardController
         ];
 
         $lists = [
-            MenuItem::linkToCrud('Attribute Lists', '', AttributeList::class),
-            MenuItem::linkToCrud('Lists Items', '', AttributeListItem::class),
+            MenuItem::linkToCrud('Profiles', '', Profile::class),
+            MenuItem::linkToCrud('Lists Items', '', ProfileItem::class),
             MenuItem::linkToCrud('Saved Searches', '', SavedSearch::class),
         ];
 

@@ -15,17 +15,17 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\Model\Input\AddToAttributeListInput;
-use App\Api\Model\Input\AttributeListInput;
-use App\Api\Model\Input\RemoveFromAttributeListInput;
-use App\Api\Model\Output\AttributeListOutput;
-use App\Api\Processor\AddToAttributeListProcessor;
-use App\Api\Processor\RemoveFromAttributeListProcessor;
-use App\Api\Provider\AttributeListCollectionProvider;
-use App\Controller\Core\AttributeListItemSortAction;
+use App\Api\Model\Input\AddToProfileInput;
+use App\Api\Model\Input\ProfileInput;
+use App\Api\Model\Input\RemoveFromProfileInput;
+use App\Api\Model\Output\ProfileOutput;
+use App\Api\Processor\AddToProfileProcessor;
+use App\Api\Processor\RemoveFromProfileProcessor;
+use App\Api\Provider\ProfileCollectionProvider;
+use App\Controller\Core\ProfileItemSortAction;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
-use App\Repository\AttributeList\AttributeListRepository;
+use App\Repository\Profile\ProfileRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -35,7 +35,7 @@ use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    shortName: 'attribute-list',
+    shortName: 'profile',
     operations: [
         new GetCollection(),
         new Get(
@@ -45,8 +45,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new Post(
-            uriTemplate: '/attribute-lists/{id}/sort',
-            controller: AttributeListItemSortAction::class,
+            uriTemplate: '/profiles/{id}/sort',
+            controller: ProfileItemSortAction::class,
             openapiContext: [
                 'summary' => 'Reorder items',
                 'description' => 'Reorder items',
@@ -82,53 +82,53 @@ use Symfony\Component\Validator\Constraints as Assert;
             securityPostValidation: 'is_granted("'.AbstractVoter::CREATE.'", object)'
         ),
         new Post(
-            uriTemplate: '/attribute-lists/default/items',
+            uriTemplate: '/profiles/default/items',
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
-            input: AddToAttributeListInput::class,
-            name: 'add_to_default_attribute_list',
-            processor: AddToAttributeListProcessor::class,
+            input: AddToProfileInput::class,
+            name: 'add_to_default_profile',
+            processor: AddToProfileProcessor::class,
         ),
         new Post(
-            uriTemplate: '/attribute-lists/{id}/items',
+            uriTemplate: '/profiles/{id}/items',
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
-            input: AddToAttributeListInput::class,
-            name: 'add_to_attribute_list',
-            processor: AddToAttributeListProcessor::class,
+            input: AddToProfileInput::class,
+            name: 'add_to_profile',
+            processor: AddToProfileProcessor::class,
         ),
         new Post(
-            uriTemplate: '/attribute-lists/{id}/remove',
+            uriTemplate: '/profiles/{id}/remove',
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
-            input: RemoveFromAttributeListInput::class,
-            name: 'remove_from_attribute-list',
-            processor: RemoveFromAttributeListProcessor::class,
+            input: RemoveFromProfileInput::class,
+            name: 'remove_from_profile',
+            processor: RemoveFromProfileProcessor::class,
         ),
     ],
     normalizationContext: [
         'groups' => [self::GROUP_LIST],
     ],
-    input: AttributeListInput::class,
-    output: AttributeListOutput::class,
-    provider: AttributeListCollectionProvider::class,
+    input: ProfileInput::class,
+    output: ProfileOutput::class,
+    provider: ProfileCollectionProvider::class,
 )]
-#[ORM\Entity(repositoryClass: AttributeListRepository::class)]
+#[ORM\Entity(repositoryClass: ProfileRepository::class)]
 class Profile extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface
 {
     use OwnerIdTrait;
     use CreatedAtTrait;
     use UpdatedAtTrait;
     final public const int OBJECT_INDEX = 7;
-    final public const string OBJECT_TYPE = 'attribute_list';
-    final public const string GROUP_READ = 'attribute-list:read';
-    final public const string GROUP_LIST = 'attribute-list:index';
-    final public const string GROUP_WRITE = 'attribute-list:w';
+    final public const string OBJECT_TYPE = 'profile';
+    final public const string GROUP_READ = 'profile:read';
+    final public const string GROUP_LIST = 'profile:index';
+    final public const string GROUP_WRITE = 'profile:w';
 
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
@@ -141,7 +141,7 @@ class Profile extends AbstractUuidEntity implements WithOwnerIdInterface, AclObj
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $public = false;
 
-    #[ORM\OneToMany(mappedBy: 'list', targetEntity: AttributeListItem::class)]
+    #[ORM\OneToMany(mappedBy: 'list', targetEntity: ProfileItem::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?Collection $items = null;
 
@@ -172,7 +172,7 @@ class Profile extends AbstractUuidEntity implements WithOwnerIdInterface, AclObj
     }
 
     /**
-     * @return AttributeListItem[]|Collection
+     * @return ProfileItem[]|Collection
      */
     public function getItems(): Collection
     {
@@ -186,7 +186,7 @@ class Profile extends AbstractUuidEntity implements WithOwnerIdInterface, AclObj
 
     public function __toString(): string
     {
-        return $this->getTitle() ?? 'AttributeList - '.$this->getId();
+        return $this->getTitle() ?? 'Profile - '.$this->getId();
     }
 
     public function isPublic(): bool

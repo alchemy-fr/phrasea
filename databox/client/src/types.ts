@@ -358,26 +358,26 @@ export interface Basket extends IPermissions, Entity {
     owner?: User;
 }
 
-export enum AttributeListItemType {
+export enum ProfileItemType {
     Definition = 0,
     BuiltIn = 1,
     Divider = 2,
     Spacer = 3,
 }
 
-export type AttributeListItem = {
+export type ProfileItem = {
     id: string;
-    type: AttributeListItemType;
+    type: ProfileItemType;
     key?: string;
     definition?: string;
     displayEmpty?: boolean;
     format?: string;
 };
 
-export interface AttributeList extends IPermissions, Entity {
+export interface Profile extends IPermissions, Entity {
     title: string;
     description?: string;
-    items?: AttributeListItem[];
+    items?: ProfileItem[];
     exclusive?: boolean; // if true, only items in this list well be shown otherwise all attributes
     public?: boolean;
     createdAt: string;

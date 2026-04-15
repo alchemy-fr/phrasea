@@ -6,9 +6,8 @@ namespace App\Repository\Profile;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use App\Entity\AttributeList\AttributeList;
-use App\Entity\AttributeList\AttributeListItem;
 use App\Entity\Profile\Profile;
+use App\Entity\Profile\ProfileItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -40,7 +39,7 @@ class ProfileRepository extends ServiceEntityRepository
     {
         return $this->_em->createQueryBuilder()
             ->select('MAX(t.position) as m')
-            ->from(AttributeListItem::class, 't')
+            ->from(ProfileItem::class, 't')
             ->andWhere('t.list = :l')
             ->setParameter('l', $listId)
             ->getQuery()
@@ -52,7 +51,7 @@ class ProfileRepository extends ServiceEntityRepository
         return null !== $this->_em->createQueryBuilder()
             ->select('1')
             ->setMaxResults(1)
-            ->from(AttributeListItem::class, 't')
+            ->from(ProfileItem::class, 't')
             ->andWhere('t.list = :l')
             ->andWhere('t.definition = :d')
             ->setParameter('l', $listId)
@@ -65,7 +64,7 @@ class ProfileRepository extends ServiceEntityRepository
     {
         return $this->_em->createQueryBuilder()
             ->select('t')
-            ->from(AttributeListItem::class, 't')
+            ->from(ProfileItem::class, 't')
             ->andWhere('t.list = :l')
             ->setParameter('l', $listId)
             ->addOrderBy('t.position', 'ASC')
@@ -73,9 +72,9 @@ class ProfileRepository extends ServiceEntityRepository
             ->toIterable();
     }
 
-    public function getItem(string $listId, string $itemId): ?AttributeListItem
+    public function getItem(string $listId, string $itemId): ?ProfileItem
     {
-        return $this->_em->getRepository(AttributeListItem::class)
+        return $this->_em->getRepository(ProfileItem::class)
             ->findOneBy([
                 'id' => $itemId,
                 'list' => $listId,
@@ -94,7 +93,7 @@ class ProfileRepository extends ServiceEntityRepository
                 $queryBuilder,
                 $userId,
                 $groupIds,
-                AttributeList::OBJECT_TYPE,
+                Profile::OBJECT_TYPE,
                 't',
                 PermissionInterface::VIEW,
                 false,

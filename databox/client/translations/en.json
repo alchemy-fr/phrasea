@@ -280,18 +280,18 @@
             }
         }
     },
-    "attributeList": {
+    "profile": {
         "choose_modal": {
-            "title": "Select current Attribute List"
+            "title": "Select current Profile"
         },
         "create_button": {
-            "label": "Create new Attribute List"
+            "label": "Create new Profile"
         },
         "default": {
-            "title": "My Attribute List"
+            "title": "My Profile"
         },
         "delete": {
-            "confirm": "Are you sure you want to delete this attribute list?"
+            "confirm": "Are you sure you want to delete this profile?"
         }
     },
     "attribute_definitions": {
@@ -357,7 +357,7 @@
             "label": "New Entity"
         }
     },
-    "attribute_list": {
+    "profile": {
         "manage": {
             "acl": {
                 "title": "Permissions"
@@ -368,7 +368,7 @@
             "organize": {
                 "title": "Organize"
             },
-            "title": "Manage Attribute List {{name}}"
+            "title": "Manage Profile {{name}}"
         },
         "organize": {
             "add_divider": "Add Divider",
@@ -890,7 +890,7 @@
                 "label": "Value"
             }
         },
-        "attribute_list": {
+        "profile": {
             "description": {
                 "label": "Description"
             },
@@ -901,10 +901,10 @@
                 "label": "Title"
             }
         },
-        "attribute_list_edit": {
-            "success": "Attribute List edited!"
+        "profile_edit": {
+            "success": "Profile edited!"
         },
-        "attribute_list_item": {
+        "profile_item": {
             "display_empty": {
                 "label": "Display even if empty"
             },
@@ -929,9 +929,9 @@
                 "label": "Public"
             }
         },
-        "attributelist_create": {
-            "success": "Attribute List created!",
-            "title": "Create Attribute List"
+        "profile_create": {
+            "success": "Profile created!",
+            "title": "Create Profile"
         },
         "basket": {
             "description": {

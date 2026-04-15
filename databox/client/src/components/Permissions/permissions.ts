@@ -18,7 +18,7 @@ export enum PermissionObject {
     Basket = 'basket',
     SavedSearch = 'saved_search',
     AttributePolicy = 'attribute_policy',
-    AttributeList = 'attribute_list',
+    Profile = 'profile',
 }
 
 export type DisplayedPermissions = string[] | undefined;
