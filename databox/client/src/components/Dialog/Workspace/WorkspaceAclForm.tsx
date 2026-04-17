@@ -26,7 +26,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                     <div>
                         {t(
                             'acl.permission.workspace.view.desc',
-                            'Every user must have at least this permission to access this workspace. Otherwise, you can mark this workspace as public.'
+                            'Minimal permission a user must  have to access Workspace. Otherwise, you can mark this workspace as public.'
                         )}
                     </div>
                 ),

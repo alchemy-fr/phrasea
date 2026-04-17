@@ -47,7 +47,7 @@ export default function CollectionAclForm({
                 label: t('acl.permission.collection.view.label', 'View'),
                 description: t(
                     'acl.permission.collection.view.desc',
-                    'Can view this collection, its sub collections and theirs assets, but cannot edit or delete them.'
+                    'Can view this collection, its sub collections and their assets'
                 ),
             },
             {
@@ -65,10 +65,10 @@ export default function CollectionAclForm({
             {
                 type: PermissionType.Mask,
                 key: AclPermission.EDIT,
-                label: t('acl.permission.collection.edit.label', 'Edit'),
+                label: t('acl.permission.collection.edit.label', 'Manage Collection'),
                 description: t(
                     'acl.permission.collection.edit.desc',
-                    'Can edit this collection, but cannot edit assets within the collection.'
+                    'Can manage this collection, but cannot edit assets within the collection.'
                 ),
             },
 
