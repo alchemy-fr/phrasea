@@ -59,7 +59,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.create.desc',
-                    'Can create collections within this collection, but cannot edit or delete collections created by others. New collections will inherit the same permissions as this collection.'
+                    'Can create child collections within this collection. New child will inherit same permissions as parent collection.'
                 ),
             },
             {
@@ -78,11 +78,11 @@ export default function CollectionAclForm({
                 value: AclExtraPermission.EDIT_PERMISSIONS,
                 label: t(
                     'acl.permission.collection.edit_permissions.label',
-                    'Edit Permissions/Privacy'
+                    'Manage permissions of owned content'
                 ),
                 description: t(
                     'acl.permission.collection.edit_permissions.desc',
-                    'Can edit privacy settings and permissions of this collection, such as making it public or private.'
+                    'Can edit permissions/privacy of collections and assets owned by user.'
                 ),
             },
 
@@ -92,7 +92,7 @@ export default function CollectionAclForm({
                 label: t('acl.permission.collection.delete.label', 'Delete'),
                 description: t(
                     'acl.permission.collection.delete.desc',
-                    'Can delete this collection and its assets.'
+                    'Can delete this collection, child collections and their assets.'
                 ),
             },
 
@@ -102,7 +102,7 @@ export default function CollectionAclForm({
                 label: t('acl.permission.collection.owner.label', 'Owner'),
                 description: t(
                     'acl.permission.collection.owner.desc',
-                    'Full control over this collection, its descendant collections and assets'
+                    'Full control over this collection, child collections, but cannot edit permissions or privacy settings.'
                 ),
             },
 
@@ -115,7 +115,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.share_assets.desc',
-                    'Can share assets within the collection.'
+                    'Can share assets of the collection and child collections.'
                 ),
             },
             {
@@ -127,7 +127,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.view_assets.desc',
-                    'Can view assets of this collection and its children, but cannot view the collection itself.'
+                    'Can view assets of this collection and child collections but not the collections to which they belong.'
                 ),
             },
             {
@@ -139,7 +139,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.create_assets.desc',
-                    'Can create assets, but cannot edit or delete assets created by others.'
+                    'Can create assets in the collection and child collection'
                 ),
             },
             {
@@ -151,7 +151,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.edit_assets.desc',
-                    'Can edit attributes of assets in the collection, such as title, tags, and other attributes, but cannot change permissions, source files, renditions, or share assets.'
+                    'Can edit assets attributes in the collection and child collections.'
                 ),
             },
 
@@ -177,7 +177,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.delete_assets.desc',
-                    'Can delete assets within the collection, but cannot edit assets or change permissions.'
+                    'Can delete assets within the collection and child collections.'
                 ),
             },
 
@@ -190,7 +190,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.assets_owner.desc',
-                    'Full control over assets in the collection, including editing attributes, source files, renditions, sharing, and permissions.'
+                    'Full control over assets in the collection, except Permissions / Privacy.'
                 ),
             },
         ];
