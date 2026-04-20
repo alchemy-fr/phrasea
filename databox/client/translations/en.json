@@ -9,18 +9,190 @@
                 "placeholder": "Select group"
             }
         },
+        "parent": {
+            "show": "Show Parent Permissions <strong>{{name}}</strong>"
+        },
         "permission": {
             "all": "All",
+            "asset": {
+                "delete": {
+                    "desc": "Can delete this asset.",
+                    "label": "Delete"
+                },
+                "edit": {
+                    "desc": "Can edit asset attributes"
+                },
+                "edit_permissions": {
+                    "desc": "Can edit privacy settings and permissions of this asset, such as making it public or private.",
+                    "label": "Edit Permissions/Privacy"
+                },
+                "operator": {
+                    "desc": "Can edit asset title, edit its renditions, or substitute source file",
+                    "label": "Edit Attributes"
+                },
+                "owner": {
+                    "desc": "Full control over this collection, its descendant collections and assets",
+                    "label": "Owner"
+                },
+                "view": {
+                    "desc": "Can view this asset.",
+                    "label": "View"
+                }
+            },
+            "child_create": "Child Create",
+            "child_delete": "Child Delete",
+            "child_edit": "Child Edit",
+            "child_master": "Child Master",
+            "child_operator": "Child Operator",
+            "child_owner": "Child Owner",
+            "child_share": "Child Share",
+            "child_undelete": "Child Undelete",
+            "child_view": "Child View",
+            "collection": {
+                "assets_operator": {
+                    "desc": "Can edit assets (attributes, source files, renditions), but cannot change permissions or share assets.",
+                    "label": "Manage Assets"
+                },
+                "assets_owner": {
+                    "desc": "Full control over assets in the collection, except Permissions / Privacy.",
+                    "label": "Owner of Assets"
+                },
+                "create": {
+                    "desc": "Can create child collections within this collection. New child will inherit same permissions as parent collection.",
+                    "label": "Create Collections"
+                },
+                "create_assets": {
+                    "desc": "Can create assets in the collection and child collection",
+                    "label": "Create Assets"
+                },
+                "delete": {
+                    "desc": "Can delete this collection, child collections and their assets.",
+                    "label": "Delete"
+                },
+                "delete_assets": {
+                    "desc": "Can delete assets within the collection and child collections.",
+                    "label": "Delete Assets"
+                },
+                "edit": {
+                    "desc": "Can manage this collection, but cannot edit assets within the collection.",
+                    "label": "Manage Collection"
+                },
+                "edit_assets": {
+                    "desc": "Can edit assets attributes in the collection and child collections.",
+                    "label": "Edit Assets Attributes"
+                },
+                "edit_permissions": {
+                    "desc": "Can edit permissions/privacy of collections and assets owned by user.",
+                    "label": "Manage permissions of owned content"
+                },
+                "owner": {
+                    "desc": "Full control over this collection, child collections, but cannot edit permissions or privacy settings.",
+                    "label": "Owner"
+                },
+                "share_assets": {
+                    "desc": "Can share assets of the collection and child collections.",
+                    "label": "Share Assets"
+                },
+                "view": {
+                    "desc": "Can view this collection, its sub collections and their assets",
+                    "label": "View"
+                },
+                "view_assets": {
+                    "desc": "Can view assets of this collection and child collections but not the collections to which they belong.",
+                    "label": "View Assets"
+                }
+            },
             "create": "Create",
             "delete": "Delete",
             "edit": "Edit",
-            "manage_collection": "Manage",
+            "integration": {
+                "child_edit": {
+                    "desc": "Can interact with integration, such as running it or using it in a workflow, but cannot edit its configuration or delete it.",
+                    "label": "Interact"
+                },
+                "child_view": {
+                    "desc": "View integration and read its data, but cannot interact with it. This permission is useful for users who need to see the results of an integration, but should not be able to run it or edit its configuration.",
+                    "label": "Use"
+                },
+                "edit": {
+                    "desc": "Can edit integration configuration.",
+                    "label": "Edit"
+                },
+                "view": {
+                    "desc": "View integration, but cannot interact with it or see its data. This permission is useful for users who need to know an integration exists, but should not be able to run it or see its results.",
+                    "label": "View"
+                }
+            },
             "master": "Master",
             "operator": "Operator",
             "owner": "Owner",
+            "rendition_policy": {
+                "child_edit": {
+                    "desc": "Edit rendition of this policy",
+                    "label": "Edit"
+                },
+                "child_view": {
+                    "desc": "View rendition of this policy",
+                    "label": "View"
+                }
+            },
             "share": "Share",
             "undelete": "Undelete",
-            "view": "View"
+            "view": "View",
+            "workspace": {
+                "assets_operator": {
+                    "desc": "Can edit assets (Title, Tags, move, replace source files; view asset versions, edit renditions) at the root level of this workspace, but cannot change permissions and privacy or share assets.",
+                    "label": "Manage Assets"
+                },
+                "assets_owner": {
+                    "desc": "Full control over the assets of this workspace",
+                    "label": "Owner of Assets"
+                },
+                "create": {
+                    "desc": "Can create collections within this workspace, but cannot edit or delete collections created by others.",
+                    "label": "Create Collections"
+                },
+                "create_assets": {
+                    "desc": "Can create assets at the root level of this workspace.",
+                    "label": "Create Assets"
+                },
+                "delete": {
+                    "desc": "Can delete this workspace ,(Not implemented in GUI).",
+                    "label": "Delete"
+                },
+                "delete_assets": {
+                    "desc": "Can delete assets at the root level of this workspace, but cannot edit assets or change permissions.",
+                    "label": "Delete Assets"
+                },
+                "edit": {
+                    "desc": "Can manage this workspace (change title, add locales, tags, entities, renditions, attributes) but cannot edit assets within the workspace.",
+                    "label": "Manage"
+                },
+                "edit_assets": {
+                    "desc": "Can edit attributes of assets at the root level of this workspace, but cannot change permissions, source files, renditions, or share assets. (for assets not owned by user",
+                    "label": "Edit Assets Attributes"
+                },
+                "edit_permissions": {
+                    "desc": "Can edit permissions/privacy of collections and assets owned by user",
+                    "label": "Edit Permissions"
+                },
+                "owner": {
+                    "desc": "Full control over the workspace, its collections and assets.",
+                    "label": "Owner"
+                },
+                "share_assets": {
+                    "desc": "Can share assets at the root level of this workspace.",
+                    "label": "Share Assets"
+                },
+                "view": {
+                    "desc": "Minimal permission a user must  have to access Workspace. Otherwise, you can mark this workspace as public.",
+                    "label": "Can Access"
+                },
+                "view_assets": {
+                    "desc": "Can view all assets in the workspace, but cannot see the collections they belong to.",
+                    "label": "View Assets"
+                }
+            }
         },
         "table": {
             "cols": {
@@ -46,6 +218,10 @@
             "confirm": "Are you sure you want to delete this shape?"
         }
     },
+    "appbar": {
+        "assets": "Assets",
+        "pages": "Pages"
+    },
     "aql": {
         "constant": {
             "no": "No",
@@ -59,7 +235,6 @@
             "delete": "Delete",
             "download": "Download",
             "edit": "Edit",
-            "edit_attributes": "Edit attributes",
             "info": "Info",
             "move": "Move",
             "open": "Open",
@@ -122,9 +297,6 @@
                 "title": "Permissions",
                 "versions": "Versions"
             },
-            "attributes": {
-                "title": "Attributes"
-            },
             "edit": {
                 "title": "Edit"
             },
@@ -183,7 +355,15 @@
                 "button": "Delete Attachment",
                 "confirm_button": "Delete",
                 "confirm_message": "Are you sure you want to delete this attachment? This action cannot be undone.",
-                "confirm_title": "Delete Attachment"
+                "confirm_title": "Delete Attachment",
+                "success_toast": "Attachment deleted successfully"
+            },
+            "detach_attachment": {
+                "button": "Detach from Asset",
+                "confirm_button": "Detach",
+                "confirm_message": "Are you sure you want to detach this from the asset?",
+                "confirm_title": "Detach from Asset",
+                "success_toast": "Attachment detached successfully"
             },
             "discussion": "Discussion",
             "info": "Information",
@@ -200,7 +380,6 @@
         "delete_permanently": "Delete Permanently",
         "download": "Download",
         "edit": "Edit",
-        "edit_attributes": "Edit attributes",
         "export": "Export",
         "move": "Move",
         "restore": "Restore",
@@ -276,6 +455,30 @@
                 },
                 "values": {
                     "title": "Values"
+                }
+            }
+        },
+        "type": {
+            "duration": {},
+            "size": {
+                "unit": {
+                    "bytes": "{{value}} Bytes",
+                    "eb": "{{value}} EB",
+                    "eib": "{{value}} EiB",
+                    "gb": "{{value}} GB",
+                    "gib": "{{value}} GiB",
+                    "kb": "{{value}} KB",
+                    "kib": "{{value}} KiB",
+                    "mb": "{{value}} MB",
+                    "mib": "{{value}} MiB",
+                    "pb": "{{value}} PB",
+                    "pib": "{{value}} PiB",
+                    "tb": "{{value}} TB",
+                    "tib": "{{value}} TiB",
+                    "yb": "{{value}} YB",
+                    "yib": "{{value}} YiB",
+                    "zb": "{{value}} ZB",
+                    "zib": "{{value}} ZiB"
                 }
             }
         }
@@ -384,9 +587,6 @@
         "values_one": "{{count}} value",
         "values_other": "{{count}} values"
     },
-    "attributes_editor_form": {
-        "attributes_saved": "Attributes saved!"
-    },
     "aws_rekognition": {
         "actions": {
             "detect_faces": "Detect faces",
@@ -489,6 +689,13 @@
         "read_only": "Read only"
     },
     "collection": {
+        "acl": {
+            "parent": {
+                "collection": "Permissions on <strong>{{name}}</strong>",
+                "story": "Permissions on Story <strong>{{name}}</strong>",
+                "workspace": "Permissions on Workspace <strong>{{name}}</strong>"
+            }
+        },
         "delete": {
             "confirm_message": "Are you sure you want to delete collection <coll/> ?"
         },
@@ -527,9 +734,6 @@
             "operations": {
                 "title": "Operations"
             },
-            "tag_rules": {
-                "title": "Tag rules"
-            },
             "title": "Manage collection {{name}}"
         },
         "restore": {
@@ -562,6 +766,8 @@
     },
     "common": {
         "cancel": "Cancel",
+        "close": "Close",
+        "confirm": "Confirm",
         "copy": "Copy",
         "databox": "Databox",
         "delete": "Delete",
@@ -653,7 +859,18 @@
             "locale": "Locale",
             "select_format": "Select Format",
             "select_locale": "Select Locale",
-            "title": "Export Attribute Entities"
+            "title": "Export Attribute Entities",
+            "values": {
+                "helper_text": "Enter one attribute entity value per line.",
+                "label": "Values"
+            }
+        },
+        "import_attribute_entities": {
+            "import_button": "Import",
+            "title": "Import Attribute Entities to {{list}}",
+            "toast": {
+                "success": "Attribute entities imported successfully."
+            }
         },
         "reset": "Reset",
         "save": "Save",
@@ -662,6 +879,256 @@
     "edit_sort_by": {
         "add_group_separators_between_results": "Add group separators between results",
         "group_by_sections": "Group by sections"
+    },
+    "editor": {
+        "format": {
+            "alignCenter": "Align Center",
+            "alignJustify": "Align Justify",
+            "alignLeft": "Align Left",
+            "alignRight": "Align Right",
+            "blockQuote": "Block Quote",
+            "block_type": {
+                "heading": {
+                    "label": "Heading {{number}}"
+                },
+                "paragraph": {
+                    "label": "Normal"
+                }
+            },
+            "bold": "Bold",
+            "bulletList": "Bullet List",
+            "clear": "Clear Formatting",
+            "code": "Code",
+            "codeBlock": "Code Block",
+            "fontFamily": {
+                "label": "Font Family"
+            },
+            "italic": "Italic",
+            "link": "Link",
+            "orderedList": "Ordered List",
+            "redo": "Redo",
+            "save": "Save",
+            "strikethrough": "Strikethrough",
+            "underline": "Underline",
+            "undo": "Undo",
+            "view": "View"
+        },
+        "link": {
+            "dialog": {
+                "remove": {
+                    "label": "Remove Link"
+                },
+                "target": {
+                    "blank": {
+                        "label": "New tab"
+                    },
+                    "label": "Open link in",
+                    "self": {
+                        "label": "Same tab"
+                    }
+                },
+                "title": {
+                    "label": "Insert Link"
+                },
+                "url": {
+                    "label": "URL"
+                }
+            }
+        },
+        "menu": {
+            "colors": {
+                "backgroundColor": "Background Color",
+                "textColor": "Text Color"
+            }
+        },
+        "widgets": {
+            "asset": {
+                "options": {
+                    "assetId": {
+                        "label": "Asset ID"
+                    },
+                    "borderRadius": {
+                        "label": "Border Radius (px)"
+                    },
+                    "gap": {
+                        "label": "Gap"
+                    },
+                    "imagePosition": {
+                        "bottom": "Bottom",
+                        "label": "Image Position",
+                        "left": "Left",
+                        "right": "Right",
+                        "top": "Top"
+                    },
+                    "maxHeight": {
+                        "label": "Max Height (px)"
+                    },
+                    "maxWidth": {
+                        "label": "Max Width (px)"
+                    },
+                    "position": {
+                        "fixed": "Fixed",
+                        "label": "Image Position",
+                        "static": "Static"
+                    },
+                    "title": {
+                        "label": "Title"
+                    }
+                },
+                "title": "Asset"
+            },
+            "carousel": {
+                "options": {
+                    "backgroundColor": {
+                        "label": "Background color"
+                    },
+                    "cover": {
+                        "label": "Cover mode"
+                    },
+                    "height": {
+                        "label": "Height (px)"
+                    },
+                    "maxItems": {
+                        "label": "Max items"
+                    },
+                    "openAsset": {
+                        "label": "Open asset on click"
+                    },
+                    "searchId": {
+                        "label": "Saved Search"
+                    }
+                },
+                "title": "Carousel"
+            },
+            "footer": {
+                "options": {
+                    "add_link": "Add Link",
+                    "backgroundColor": {
+                        "label": "Background Color"
+                    },
+                    "link_label": {
+                        "label": "Label"
+                    },
+                    "link_url": {
+                        "label": "URL"
+                    },
+                    "links": {
+                        "label": "Links"
+                    },
+                    "textColor": {
+                        "label": "Text Color"
+                    }
+                },
+                "title": "Footer"
+            },
+            "grid": {
+                "options": {
+                    "backgroundColor": {
+                        "label": "Background color"
+                    },
+                    "gap": {
+                        "label": "Gap"
+                    },
+                    "maxItems": {
+                        "label": "Max items"
+                    },
+                    "openAsset": {
+                        "label": "Open asset on click"
+                    },
+                    "searchId": {
+                        "label": "Saved Search"
+                    },
+                    "size": {
+                        "label": "Size (px)"
+                    }
+                },
+                "title": "Grid"
+            },
+            "header_bar": {
+                "options": {
+                    "add_link": "Add Link",
+                    "link_label": {
+                        "label": "Label"
+                    },
+                    "link_url": {
+                        "label": "URL"
+                    },
+                    "links": {
+                        "label": "Links"
+                    }
+                },
+                "title": "Header Bar"
+            },
+            "remove_widget": "Remove widget",
+            "search_grid": {
+                "options": {
+                    "actions": {
+                        "basket": {
+                            "label": "Add to basket"
+                        },
+                        "copy": {
+                            "label": "Copy"
+                        },
+                        "delete": {
+                            "label": "Delete"
+                        },
+                        "edit": {
+                            "label": "Edit"
+                        },
+                        "export": {
+                            "label": "Export"
+                        },
+                        "info": {
+                            "label": "Info"
+                        },
+                        "label": "Actions",
+                        "move": {
+                            "label": "Move"
+                        },
+                        "open": {
+                            "label": "Open"
+                        },
+                        "replace": {
+                            "label": "Replace"
+                        },
+                        "restore": {
+                            "label": "Restore"
+                        },
+                        "share": {
+                            "label": "Share"
+                        }
+                    },
+                    "containerHeight": {
+                        "label": "Container Height (px)"
+                    },
+                    "displayFacets": {
+                        "label": "Display facets"
+                    },
+                    "maxItems": {
+                        "label": "Max items"
+                    },
+                    "openAsset": {
+                        "label": "Open asset on click"
+                    },
+                    "searchId": {
+                        "label": "Saved Search"
+                    },
+                    "size": {
+                        "label": "Size (px)"
+                    }
+                },
+                "title": "Search Grid"
+            },
+            "spacer": {
+                "options": {
+                    "spacing": {
+                        "label": "Spacing"
+                    }
+                },
+                "title": "Spacer"
+            },
+            "unknown": "Unknown widget type"
+        }
     },
     "editor_panel": {
         "untranslated": "Untranslated"
@@ -681,7 +1148,8 @@
             }
         },
         "list": {
-            "export": "Export"
+            "export": "Export",
+            "import": "Import"
         },
         "new": {
             "label": "New Entity List"
@@ -949,6 +1417,9 @@
             "success": "Basket edited!"
         },
         "collection": {
+            "privacy": {
+                "inherited": "This collection cannot be more restricted than its parent collection."
+            },
             "title": {
                 "label": "Title",
                 "translate": {
@@ -1010,6 +1481,9 @@
                 "label": "Needs",
                 "placeholder": "Select dependencies"
             },
+            "public": {
+                "label": "Public"
+            },
             "title": {
                 "label": "Title"
             }
@@ -1031,7 +1505,7 @@
                 "public": "Public",
                 "secret": "Secret"
             },
-            "inherited": "This collection cannot be more restricted than its parent collection.",
+            "inherited_from_parent": "Privacy is inherited from parent: <strong>{{privacy}}</strong>",
             "label": "Privacy"
         },
         "rendition_definition": {
@@ -1070,6 +1544,9 @@
             }
         },
         "rendition_policy": {
+            "editable": {
+                "label": "Editable"
+            },
             "name": {
                 "label": "Name"
             },
@@ -1197,11 +1674,22 @@
                     "sync_progress": "Sync in progress…"
                 }
             }
-        }
+        },
+        "not_allowed_for_use": "You are not allowed to use this integration"
     },
     "integrations": {
         "new": {
             "label": "New Integration"
+        }
+    },
+    "landing": {
+        "editor": {
+            "insert_menu": {
+                "search_placeholder": "Search widgets..."
+            }
+        },
+        "page_editor": {
+            "save_success": "Page saved successfully"
         }
     },
     "layout": {
@@ -1381,6 +1869,42 @@
     "operations_asset": {
         "workflow_is_starting": "Workflow is starting!"
     },
+    "page": {
+        "delete_confirm": "Delete Page",
+        "delete_title": "Delete Page \"{{title}}\"",
+        "list": {
+            "create_button": "Create Page",
+            "no_result": "No page",
+            "title": "Pages"
+        }
+    },
+    "pages": {
+        "create": {
+            "submit": "Create",
+            "success": "Page created successfully",
+            "title": "Create Page"
+        },
+        "edit": {
+            "submit": "Save",
+            "success": "Page saved successfully",
+            "title": "Edit Page"
+        },
+        "form": {
+            "enabled": {
+                "label": "Enabled"
+            },
+            "public": {
+                "label": "Public"
+            },
+            "slug": {
+                "helper": "The slug is used in the page URL and must be unique.",
+                "label": "Slug"
+            },
+            "title": {
+                "label": "Title"
+            }
+        }
+    },
     "pagination": {
         "load_more_collections": "Load more collections"
     },
@@ -1388,7 +1912,11 @@
         "filename": "Pasted-image-{{date}}"
     },
     "permission_table": {
-        "actions": "Actions"
+        "actions": "Actions",
+        "no_permissions": "No permissions defined"
+    },
+    "permissions": {
+        "helper_desc": "Permission levels:"
     },
     "privacy": {
         "no_access": "No Access",
@@ -1403,8 +1931,9 @@
         "only_visible_to_workspace": "Only visible to workspace",
         "user_must_be_authenticated": "User must be authenticated"
     },
-    "remove_bgasset_editor_actions": {
+    "remove_bg": {
         "bg_removed": "{{title}} - BG removed",
+        "cannot_interact": "You don't have sufficient permissions to remove BG",
         "remove_bg": "Remove BG",
         "use_slider_to_compare": "Use slider to compare"
     },
@@ -1541,6 +2070,7 @@
         }
     },
     "search": {
+        "error": "Oops, an error occurred:",
         "more_options": {
             "clear_search": "Clear search"
         },
@@ -1767,6 +2297,7 @@
             "owner": "Owner"
         },
         "item": {
+            "create_asset": "Add Asset to Workspace",
             "create_collection": "Add collection in this workspace",
             "edit": "Edit this workspace"
         },
