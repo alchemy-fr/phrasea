@@ -129,7 +129,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.edit_assets.desc',
-                    'Can edit attributes of assets at the root level of this workspace, but cannot change permissions, source files, renditions, or share assets. (for assets not owned by user'
+                    'Can edit attributes of assets at the root level of this workspace, but cannot change permissions, source files, renditions, or share assets. (for assets not owned by user)'
                 ),
             },
             {
