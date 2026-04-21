@@ -21,6 +21,8 @@ RUN apk add --no-cache \
         libjpeg-turbo \
         libpng \
         libreoffice \
+        fontconfig \
+        ttf-dejavu \
         libwebp \
         linux-headers \
         make \
