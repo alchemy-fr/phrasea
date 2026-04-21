@@ -23,6 +23,11 @@ RUN apk add --no-cache \
         libreoffice \
         fontconfig \
         ttf-dejavu \
+        ttf-liberation \
+        font-carlito \  
+        font-noto \     
+        font-noto-cjk \ 
+        font-noto-emoji \
         libwebp \
         linux-headers \
         make \
