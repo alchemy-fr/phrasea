@@ -164,7 +164,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.assets_operator.desc',
-                    'Can edit assets (attributes, source files, renditions), but cannot change permissions or share assets.'
+                    'Can manage assets (Title, source files, renditions, copy by reference), but cannot change permissions or share assets.'
                 ),
             },
 
