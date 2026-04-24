@@ -341,7 +341,7 @@ final readonly class WorkspaceTemplater
                 'name' => $item->getName(),
                 'policy' => $attributePolicyMap[$item->getPolicy()->getId()] ?? null,
                 'labels' => $item->getLabels(),
-                'entityList' => $entityClassMap[$item->getEntityList()->getId()] ?? null,
+                'entityList' => $item->getEntityList() ? $entityClassMap[$item->getEntityList()->getId()] ?? null : null,
                 'fallback' => $item->getFallback(),
                 'fieldType' => $item->getFieldType(),
                 'fileType' => $item->getFileType(),
