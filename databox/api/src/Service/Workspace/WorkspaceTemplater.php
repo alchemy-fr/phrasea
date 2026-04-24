@@ -341,7 +341,7 @@ final readonly class WorkspaceTemplater
                 'name' => $item->getName(),
                 'policy' => $attributePolicyMap[$item->getPolicy()->getId()] ?? null,
                 'labels' => $item->getLabels(),
-                'entityList' => $entityClassMap[$item->getEntityList()->getId()] ?? null,
+                'entityList' => $entityClassMap[$item->getEntityList()?->getId()] ?? null,
                 'fallback' => $item->getFallback(),
                 'fieldType' => $item->getFieldType(),
                 'fileType' => $item->getFileType(),
@@ -382,7 +382,7 @@ final readonly class WorkspaceTemplater
             $o->setPolicy($attributeClassMap[$item['policy']]);
             $o->setLabels($item['labels']);
             if ($item['entityList'] ?? null) {
-                $o->setEntityList($entityClassMap[$item['entityList']]);
+                $o->setEntityList($entityClassMap[$item['entityList']] ?? null);
             }
             $o->setFallback($item['fallback']);
             $o->setTarget(AssetTypeEnum::tryFrom((int) $item['target']) ?? AssetTypeEnum::Asset);
