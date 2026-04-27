@@ -62,7 +62,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
         Request $request,
         IntegrationConfig $config,
     ): ?Response {
-        $userId = $this->getStrictUser()->getId();
+        $userId = $this->getStrictUserOrOAuthClient()->getUserIdentifier();
         switch ($action) {
             case 'sync':
                 $integrationToken = $this->getIntegrationToken($config->getWorkspaceIntegration());

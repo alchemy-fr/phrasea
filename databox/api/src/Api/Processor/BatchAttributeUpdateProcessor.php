@@ -30,7 +30,7 @@ final class BatchAttributeUpdateProcessor implements ProcessorInterface
             $data->workspaceId,
             $data->assets,
             $data,
-            $this->getStrictUser(),
+            $this->getStrictUserOrOAuthClient(),
             true,
         );
 

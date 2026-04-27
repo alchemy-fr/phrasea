@@ -98,7 +98,7 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
             $output->configYaml = Yaml::dump($data->getConfig(), 4);
         }
 
-        $tokens = $this->integrationTokenRepository->getValidUserTokens($data->getId(), $this->getStrictUser()->getId());
+        $tokens = $this->integrationTokenRepository->getValidUserTokens($data->getId(), $this->getStrictUserOrOAuthClient()->getUserIdentifier());
         $output->setTokens($tokens);
 
         return $output;
