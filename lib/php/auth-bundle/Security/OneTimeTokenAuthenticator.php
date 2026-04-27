@@ -27,22 +27,24 @@ final class OneTimeTokenAuthenticator
             $item->expiresAfter(60 * 5);
 
             if ($userOrClient instanceof JwtUser) {
-                $type = 'user';
+                return [
+                    'type' => 'user',
+                    'id' => $userOrClient->getUserIdentifier(),
+                    'username' => $userOrClient->getUsername(),
+                    'jwt' => $userOrClient->getJwt(),
+                    'roles' => $userOrClient->getRoles(),
+                    'groups' => $userOrClient->getGroups(),
+                    'scopes' => $userOrClient->getScopes(),
+                ];
             } elseif ($userOrClient instanceof JwtOauthClient) {
-                $type = 'client';
-            } else {
-                throw new AuthenticationException();
+                return [
+                    'type' => 'client',
+                    'id' => $userOrClient->getUserIdentifier(),
+                    'jwt' => $userOrClient->getJwt(),
+                    'scopes' => $userOrClient->getScopes(),
+                ];
             }
-
-            return [
-                'type' => $type,
-                'id' => $userOrClient->getId(),
-                'username' => $userOrClient->getUsername(),
-                'jwt' => $userOrClient->getJwt(),
-                'roles' => $userOrClient->getRoles(),
-                'groups' => $userOrClient->getGroups(),
-                'scopes' => $userOrClient->getScopes(),
-            ];
+            throw new AuthenticationException();
         });
 
         return $token;

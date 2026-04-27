@@ -470,7 +470,7 @@ class BatchAttributeManager
             if ($userOrClient instanceof JwtUser) {
                 $qb->andWhere('(ap.public = true AND ap.editable = true) OR ace.id IS NOT NULL');
                 $this->joinUserAcl($qb, $userOrClient);
-            } elseif (!$userOrClient instanceof JwtOauthClient || $userOrClient->hasScope(AttributeDefinitionVoter::SCOPE_PREFIX.AttributeDefinitionVoter::EDIT)) {
+            } elseif (!$userOrClient instanceof JwtOauthClient || !$userOrClient->hasScope(AttributeDefinitionVoter::SCOPE_PREFIX.AttributeDefinitionVoter::EDIT)) {
                 $qb->andWhere('ap.public = true AND ap.editable = true');
             }
         }
