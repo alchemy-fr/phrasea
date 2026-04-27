@@ -16,7 +16,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 final class AssetPermissionComputer
 {
-    private CacheInterface $workspaceCache;
+    private ?CacheInterface $workspaceCache = null;
     private ?CacheInterface $collectionCache = null;
     private ?CacheInterface $assetCache = null;
 
@@ -52,7 +52,7 @@ final class AssetPermissionComputer
 
     public function disableWorkspaceCache(): void
     {
-        $this->workspaceCache = new NullAdapter();
+        $this->workspaceCache = null;
     }
 
     public function disableCollectionCache(): void

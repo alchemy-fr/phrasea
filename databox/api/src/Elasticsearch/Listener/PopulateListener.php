@@ -38,13 +38,15 @@ readonly class PopulateListener implements EventSubscriberInterface
             $this->fosPopulateCache->clear();
         }
 
-        $this->assetPermissionComputer->setWorkspaceCache(new ArrayAdapter());
+        $this->assetPermissionComputer->setWorkspaceCache(new ArrayAdapter(storeSerialized: false));
         $this->assetPermissionComputer->setCollectionCache($this->fosPopulateCache);
     }
 
     public function postIndexPopulate(PostIndexPopulateEvent $event): void
     {
         $this->assetPermissionComputer->disableCollectionCache();
+        $this->assetPermissionComputer->disableWorkspaceCache();
+        $this->assetPermissionComputer->disableAssetCache();
 
         $index = $this->indexManager->getIndex($event->getIndex());
         $index->getClient()->request('_forcemerge?max_num_segments=5', 'POST');
