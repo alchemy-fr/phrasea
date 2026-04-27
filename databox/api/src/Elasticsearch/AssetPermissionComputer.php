@@ -172,45 +172,54 @@ final class AssetPermissionComputer
         );
     }
 
-    private function getWorkspaceHierarchyInfo(Workspace $workspace): WorkspacePermissionsDTO
+    public function getWorkspaceHierarchyInfo(Workspace $workspace): WorkspacePermissionsDTO
     {
+        if (null === $this->workspaceCache) {
+            return $this->doGetWorkspaceHierarchyInfo($workspace);
+        }
+
         return $this->workspaceCache->get($workspace->getId(), function () use ($workspace): WorkspacePermissionsDTO {
-            $users = [];
-            $groups = [];
-            $deleteUsers = [];
-            $deleteGroups = [];
+            return $this->doGetWorkspaceHierarchyInfo($workspace);
+        });
+    }
 
-            $aces = $this->permissionManager->getObjectAces($workspace);
-            foreach ($aces as $access) {
-                $userId = $access->getUserId();
-                $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
-                if (
-                    $access->hasPermission(PermissionInterface::CHILD_VIEW)
-                    || $access->hasPermission(PermissionInterface::OWNER)
-                ) {
-                    if ($isUser) {
-                        $users[] = $userId;
-                    } else {
-                        $groups[] = $userId;
-                    }
-                }
+    private function doGetWorkspaceHierarchyInfo(Workspace $workspace): WorkspacePermissionsDTO
+    {
+        $users = [];
+        $groups = [];
+        $deleteUsers = [];
+        $deleteGroups = [];
 
-                if ($access->hasPermission(PermissionInterface::CHILD_DELETE)) {
-                    if ($isUser) {
-                        $deleteUsers[] = $userId;
-                    } else {
-                        $deleteGroups[] = $userId;
-                    }
+        $aces = $this->permissionManager->getObjectAces($workspace);
+        foreach ($aces as $access) {
+            $userId = $access->getUserId();
+            $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
+            if (
+                $access->hasPermission(PermissionInterface::CHILD_VIEW)
+                || $access->hasPermission(PermissionInterface::OWNER)
+            ) {
+                if ($isUser) {
+                    $users[] = $userId;
+                } else {
+                    $groups[] = $userId;
                 }
             }
 
-            return new WorkspacePermissionsDTO(
-                array_values(array_unique($users)),
-                array_values(array_unique($groups)),
-                array_values(array_unique($deleteUsers)),
-                array_values(array_unique($deleteGroups)),
-            );
-        });
+            if ($access->hasPermission(PermissionInterface::CHILD_DELETE)) {
+                if ($isUser) {
+                    $deleteUsers[] = $userId;
+                } else {
+                    $deleteGroups[] = $userId;
+                }
+            }
+        }
+
+        return new WorkspacePermissionsDTO(
+            array_values(array_unique($users)),
+            array_values(array_unique($groups)),
+            array_values(array_unique($deleteUsers)),
+            array_values(array_unique($deleteGroups)),
+        );
     }
 
     private function getCollectionHierarchyInfo(Collection $collection): CollectionPermissionsDTO
