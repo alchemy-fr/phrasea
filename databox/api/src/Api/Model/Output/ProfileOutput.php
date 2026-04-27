@@ -35,6 +35,9 @@ class ProfileOutput extends AbstractUuidOutput
     #[Groups([Profile::GROUP_READ])]
     public ?array $items = null;
 
+    #[Groups([Profile::GROUP_READ])]
+    public ?array $data = null;
+
     /**
      * @var ProfileItemOutput[]
      */

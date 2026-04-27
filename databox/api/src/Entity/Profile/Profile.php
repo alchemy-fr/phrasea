@@ -145,7 +145,7 @@ class Profile extends AbstractUuidEntity implements WithOwnerIdInterface, AclObj
     #[ORM\JoinColumn(nullable: false)]
     private ?Collection $items = null;
 
-    #[ORM\OneToOne(mappedBy: 'profile', targetEntity: ProfileData::class)]
+    #[ORM\OneToOne(mappedBy: 'profile', targetEntity: ProfileData::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\JoinColumn(nullable: true)]
     private ?ProfileData $data = null;
 
@@ -211,5 +211,11 @@ class Profile extends AbstractUuidEntity implements WithOwnerIdInterface, AclObj
     public function setData(?ProfileData $data): void
     {
         $this->data = $data;
+    }
+
+    public function assignData(array $data): void
+    {
+        $this->data ??= new ProfileData();
+        $this->data->setData($data);
     }
 }

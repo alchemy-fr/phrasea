@@ -9,6 +9,7 @@ import {SortBy} from './components/Media/Search/Filter';
 import {AQLQueries} from './components/Media/Search/AQL/query.ts';
 import {ApiHydraObjectResponse} from '@alchemy/api';
 import {Editor} from '@tiptap/core';
+import {UserPreferences} from './store/userPreferencesStore.ts';
 
 export type AlternateUrl = {
     type: string;
@@ -387,6 +388,7 @@ export interface Profile extends IPermissions, Entity {
     exclusive?: boolean; // if true, only items in this list well be shown otherwise all attributes
     public?: boolean;
     createdAt: string;
+    data?: UserPreferences;
     updatedAt: string;
     owner?: User;
 }

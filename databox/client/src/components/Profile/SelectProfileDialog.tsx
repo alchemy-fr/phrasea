@@ -7,7 +7,7 @@ import {useTranslation} from 'react-i18next';
 import ProfileMenuItem from './ProfileMenuItem.tsx';
 import CreateProfile from './CreateProfile.tsx';
 import AddIcon from '@mui/icons-material/Add';
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {useNavigateToModal} from '../Routing/ModalLink.tsx';
 import {modalRoutes} from '../../routes.ts';
 import {useAuth} from '@alchemy/react-auth';
@@ -21,11 +21,16 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
     const navigateToModal = useNavigateToModal();
 
     const current = useProfileStore(state => state.current);
+    const syncData = useProfileStore(state => state.syncData);
+    const arePreferencesSynced = useProfileStore(
+        state => state.arePreferencesSynced
+    );
     const setCurrent = useProfileStore(state => state.setCurrent);
     const deleteProfile = useProfileStore(state => state.deleteProfile);
     const load = useProfileStore(state => state.load);
     const loading = useProfileStore(state => !state.loaded);
     const lists = useProfileStore(state => state.profiles);
+    const [synced, setSynced] = useState<boolean | undefined>();
 
     useEffect(() => {
         load();
@@ -35,6 +40,12 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
         setCurrent(data.id);
         closeModal();
     };
+
+    useEffect(() => {
+        if (current) {
+            arePreferencesSynced(current).then(setSynced);
+        }
+    }, [arePreferencesSynced, current]);
 
     const onEdit = (id: string): void => {
         closeModal();
@@ -82,14 +93,19 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
             )}
         >
             {!loading ? (
-                lists.map(al => (
+                lists.map(p => (
                     <ProfileMenuItem
-                        key={al.id}
-                        onClick={() => onSelect(al)}
-                        data={al}
-                        selected={al.id === current?.id}
+                        key={p.id}
+                        onClick={() => onSelect(p)}
+                        data={p}
+                        selected={p.id === current?.id}
                         onDelete={deleteProfile}
                         onEdit={onEdit}
+                        syncData={
+                            current?.id === p.id && !synced
+                                ? syncData
+                                : undefined
+                        }
                     />
                 ))
             ) : (

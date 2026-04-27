@@ -11,9 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class ProfileData extends AbstractUuidEntity
 {
-    #[ORM\OneToOne(targetEntity: Profile::class, inversedBy: 'data')]
-    private ?Profile $profile = null;
-
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $data = [];
 

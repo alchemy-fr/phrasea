@@ -49,6 +49,8 @@ class ProfileOutputTransformer implements OutputTransformerInterface
         ], $context)) {
             $output->owner = $this->transformUser($data->getOwnerId());
 
+            $output->data = $data->getData()?->getData() ?? [];
+
             /** @var ProfileItem[] $profileItems */
             $profileItems = $this->em->getRepository(Profile::class)
                 ->getItemsIterator($data->getId());

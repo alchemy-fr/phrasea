@@ -12,6 +12,7 @@ import {
     getProfile,
     GetProfileOptions,
     getProfiles,
+    putProfile,
     removeFromProfile,
     sortProfileItems,
 } from '../api/profile.ts';
@@ -20,6 +21,7 @@ import {
     UserPreferences,
     useUserPreferencesStore,
 } from './userPreferencesStore.ts';
+import {deepEquals} from '@alchemy/core';
 
 type State = {
     profiles: Profile[];
@@ -36,6 +38,8 @@ type State = {
     addProfile: (profile: Profile) => void;
     loadProfile: (id: string) => Promise<Profile>;
     updateProfile: (profile: Profile) => void;
+    syncData: () => Promise<void>;
+    arePreferencesSynced: (profile: Profile) => Promise<boolean>;
     updateProfileItem: (profileId: string, data: ProfileItem) => void;
     deleteProfile: (id: string) => void;
     addToCurrent: (items: ProfileItem[]) => void;
@@ -211,6 +215,41 @@ export const useProfileStore = create<State>((set, getState) => ({
             }),
             current: state.current?.id === data.id ? data : state.current,
         }));
+    },
+
+    syncData: async () => {
+        const data = await useUserPreferencesStore.getState().load();
+
+        set(state => {
+            if (!state.current) {
+                return state;
+            }
+
+            putProfile(state.current!.id, {data});
+
+            return {
+                profiles: state.profiles.map(b => {
+                    if (b.id === state.current!.id) {
+                        return {
+                            ...b,
+                            data,
+                        };
+                    }
+
+                    return b;
+                }),
+                current: {
+                    ...state.current,
+                    data,
+                },
+            };
+        });
+    },
+
+    arePreferencesSynced: async profile => {
+        const data = await useUserPreferencesStore.getState().load();
+
+        return deepEquals(profile.data, data);
     },
 
     updateProfileItem: (profileId, item) => {

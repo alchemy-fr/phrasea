@@ -34,6 +34,10 @@ class ProfileInputTransformer extends AbstractFileInputTransformer
             $object->setTitle($data->title);
         }
 
+        if (null !== $data->data) {
+            $object->assignData($data->data);
+        }
+
         if (null !== $data->description) {
             $object->setDescription($data->description);
         }

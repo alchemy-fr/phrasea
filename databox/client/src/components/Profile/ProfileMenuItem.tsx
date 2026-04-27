@@ -12,9 +12,12 @@ import {Classes} from '../../classes.ts';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+import SyncIcon from '@mui/icons-material/Sync';
+
 type Props = {
     data: Profile;
     selected?: boolean;
+    syncData?: () => void;
     onClick?: () => void;
     onDelete: (id: string) => void;
     onEdit: (id: string) => void;
@@ -27,6 +30,7 @@ export default function ProfileMenuItem({
     onContextMenu,
     onDelete,
     onEdit,
+    syncData,
 }: Props) {
     const {t} = useTranslation();
 
@@ -61,6 +65,17 @@ export default function ProfileMenuItem({
                         }}
                     />
                     <ListItemSecondaryAction>
+                        {syncData ? (
+                            <IconButton
+                                onMouseDown={e => e.stopPropagation()}
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    syncData();
+                                }}
+                            >
+                                <SyncIcon />
+                            </IconButton>
+                        ) : null}
                         {canEdit && (
                             <IconButton
                                 onMouseDown={e => e.stopPropagation()}
