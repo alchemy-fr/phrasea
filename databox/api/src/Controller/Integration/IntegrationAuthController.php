@@ -76,7 +76,7 @@ class IntegrationAuthController extends AbstractController
             throw new BadRequestHttpException('Missing token');
         }
         $user = $this->oneTimeTokenAuthenticator->consumeToken($token);
-        $this->integrationTokenManager->persistToken($integration, $data, $user->getId());
+        $this->integrationTokenManager->persistToken($integration, $data, $user->getUserIdentifier());
 
         return $this->render('closing_popup.html.twig');
     }

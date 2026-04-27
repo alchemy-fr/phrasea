@@ -44,7 +44,7 @@ class AddToBasketProcessor implements ProcessorInterface
             $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $basket);
         } else {
             $basket = $this->basketRepository->findOneBy([
-                'ownerId' => $user->getId(),
+                'ownerId' => $user->getUserIdentifier(),
             ], [
                 'createdAt' => 'ASC',
             ]);
