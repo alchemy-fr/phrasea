@@ -33,7 +33,7 @@ class TuiPhotoEditorIntegration extends AbstractIntegration implements UserActio
 
                 $data = $this->integrationDataManager->storeData(
                     $config->getWorkspaceIntegration(),
-                    $this->getStrictUser()->getId(),
+                    $this->getStrictUserOrOAuthClient()->getUserIdentifier(),
                     $file,
                     self::DATA_FILE_ID,
                     $newFile->getId(),
@@ -52,7 +52,7 @@ class TuiPhotoEditorIntegration extends AbstractIntegration implements UserActio
                 if (!$dataId) {
                     throw new BadRequestHttpException('Missing "id"');
                 }
-                $this->integrationDataManager->deleteById($config->getWorkspaceIntegration(), $dataId, $this->getStrictUser()->getId());
+                $this->integrationDataManager->deleteById($config->getWorkspaceIntegration(), $dataId, $this->getStrictUserOrOAuthClient()->getUserIdentifier());
 
                 $this->triggerFilePush(self::getName(), $file, [
                     'action' => 'delete',

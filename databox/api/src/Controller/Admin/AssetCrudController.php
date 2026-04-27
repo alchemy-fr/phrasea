@@ -98,8 +98,10 @@ class AssetCrudController extends AbstractAclAdminCrudController
             ->hideOnForm();
         yield TextField::new('title')
             ->hideOnForm();
-        yield AssociationField::new('workspace');
+        yield AssociationField::new('workspace')
+            ->autocomplete();
         yield AssociationField::new('storyCollection')
+            ->autocomplete()
             ->hideOnForm();
         yield $this->userChoiceField->create('ownerId', 'Owner')
             ->hideOnIndex();
@@ -107,6 +109,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield IntegerField::new('collections.count', '# Colls')
             ->onlyOnIndex();
         yield AssociationField::new('source')
+            ->autocomplete()
             ->onlyOnIndex();
         yield TextField::new('key')
             ->hideOnForm();
@@ -121,10 +124,12 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield DateTimeField::new('deletedAt')
             ->onlyOnDetail();
         yield AssociationField::new('tags')
+            ->autocomplete()
             ->hideOnIndex();
         yield TextField::new('locale')
             ->onlyOnDetail();
         yield AssociationField::new('collections')
+            ->autocomplete()
             ->onlyOnDetail();
         yield AssociationField::new('referenceCollection')
             ->onlyOnDetail()
@@ -135,8 +140,10 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield Field::new('file')
             ->onlyOnDetail();
         yield AssociationField::new('renditions')
+            ->autocomplete()
             ->onlyOnDetail();
         yield AssociationField::new('fileVersions')
+            ->autocomplete()
             ->onlyOnDetail();
         yield JsonField::new('notificationSettings')
             ->hideOnIndex();

@@ -54,7 +54,7 @@ final class DownloadUrlProcessor implements ProcessorInterface
 
         $this->bus->dispatch(new Download(
             $data->url,
-            $this->getStrictUser()->getId(),
+            $this->getStrictUserOrOAuthClient()->getUserIdentifier(),
             $target->getId(),
             $request->getLocale() ?? $request->getDefaultLocale(),
             $data->schemaId,

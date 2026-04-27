@@ -1,9 +1,9 @@
 module report
 
-go 1.25
+go 1.25.0
 
 require (
-	github.com/jackc/pgx/v5 v5.7.6
+	github.com/jackc/pgx/v5 v5.9.2
 	github.com/julienschmidt/httprouter v1.3.0
 )
 

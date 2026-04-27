@@ -79,6 +79,13 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
 
         $command = [
             '-if',
+            '$picture',
+            '-b',
+            '-Picture',
+            '-w',
+            $realOutputDir.'/Picture%c.jpg',
+            '-execute',
+            '-if',
             '$photoshopthumbnail',
             '-b',
             '-PhotoshopThumbnail',

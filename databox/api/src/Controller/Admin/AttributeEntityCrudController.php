@@ -43,8 +43,10 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield AssociationField::new('workspace');
-        yield AssociationField::new('list');
+        yield AssociationField::new('workspace')
+            ->autocomplete();
+        yield AssociationField::new('list')
+            ->autocomplete();
         yield TextField::new('value');
         yield JsonField::new('synonyms')
             ->hideOnIndex();

@@ -46,8 +46,10 @@ class ProfileItemCrudController extends AbstractAdminCrudController
     {
         yield IdField::new()
             ->hideOnForm();
-        yield AssociationField::new('profile');
-        yield AssociationField::new('definition');
+        yield AssociationField::new('profile')
+            ->autocomplete();
+        yield AssociationField::new('definition')
+            ->autocomplete();
         yield ChoiceField::new('section')
             ->setChoices(ProfileItem::SECTIONS);
         yield ChoiceField::new('type')

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository\Core;
 
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
@@ -12,26 +13,22 @@ use App\Entity\Core\Attribute;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
-use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
+use Symfony\Contracts\Cache\CacheInterface;
 
-#[AsEventListener(KernelEvents::TERMINATE, method: 'reset', priority: -5)]
-#[AsEventListener(ConsoleEvents::TERMINATE, method: 'reset', priority: -5)]
-#[AsEventListener(WorkerMessageHandledEvent::class, method: 'reset', priority: -5)]
 class AttributeRepository extends ServiceEntityRepository
 {
-    private array $attributeCache = [];
+    private CacheInterface $attributeCache;
 
     public function __construct(
         ManagerRegistry $registry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
         #[Autowire(param: 'kernel.environment')]
         private readonly string $kernelEnv,
+        TemporaryCacheFactory $cacheFactory,
     ) {
         parent::__construct($registry, Attribute::class);
+        $this->attributeCache = $cacheFactory->createCache();
     }
 
     /**
@@ -88,11 +85,9 @@ class AttributeRepository extends ServiceEntityRepository
 
     public function getCachedAssetAttributes(string $assetId): array
     {
-        if (isset($this->attributeCache[$assetId])) {
-            return $this->attributeCache[$assetId];
-        }
-
-        return $this->attributeCache[$assetId] = $this->getAssetAttributes($assetId);
+        return $this->attributeCache->get($assetId, function () use ($assetId): array {
+            return $this->getAssetAttributes($assetId);
+        });
     }
 
     public function getESQueryBuilder(): QueryBuilder
@@ -155,10 +150,5 @@ class AttributeRepository extends ServiceEntityRepository
             ->setParameter('id', $entityId)
             ->getQuery()
             ->execute();
-    }
-
-    public function reset(): void
-    {
-        $this->attributeCache = [];
     }
 }

@@ -67,7 +67,7 @@ class ImageUrlFaker extends AbstractCachedFaker
         $url = sprintf('https://alchemy-phrasea-fixtures.s3.eu-west-3.amazonaws.com/fixtures/images/%s/%s/%d.%s', $theme, $orientation, $lockNorm, $extension);
 
         $cachePath = sprintf('%s/%s-%d', $theme, $orientation, $lockNorm);
-        $imageSrc = $this->download(
+        $imageSrc = $this->downloadAndStore(
             $pathPrefix,
             $cachePath,
             $extension,

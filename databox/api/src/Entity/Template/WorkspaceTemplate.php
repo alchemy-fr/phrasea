@@ -46,6 +46,16 @@ class WorkspaceTemplate extends AbstractUuidEntity implements \Stringable, Logga
         $this->data = $data;
     }
 
+    public function getDescription(): ?string
+    {
+        return $this->data['description'] ?? null;
+    }
+
+    public function getPhraseaMinimumVersion(): ?string
+    {
+        return $this->data['phraseaMinimumVersion'] ?? null;
+    }
+
     public function getName(): ?string
     {
         return $this->name;

@@ -40,7 +40,8 @@ class WorkspaceSecretCrudController extends AbstractAdminCrudController
     {
         yield IdField::new()
             ->hideOnForm();
-        yield AssociationField::new('workspace');
+        yield AssociationField::new('workspace')
+            ->autocomplete();
         yield TextField::new('name');
         yield TextField::new('plainValue', 'Value')
             ->setFormType(PasswordType::class)

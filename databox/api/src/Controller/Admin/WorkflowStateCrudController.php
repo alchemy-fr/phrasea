@@ -106,7 +106,8 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
         yield TextField::new('initiatorId', 'Initiator');
         yield ArrayObjectField::new('context', 'Context')
             ->hideOnIndex();
-        yield AssociationField::new('asset', 'Asset');
+        yield AssociationField::new('asset', 'Asset')
+            ->autocomplete();
         yield TextField::new('durationString', 'Duration');
         yield DateTimeField::new('startedAt', 'Started At');
         yield DateTimeField::new('endedAt', 'Ended At');

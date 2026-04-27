@@ -19,33 +19,52 @@ final class OneTimeTokenAuthenticator
 
     public function createToken(): string
     {
-        $user = $this->getStrictUser();
+        $userOrClient = $this->getStrictUserOrOAuthClient();
 
         $token = RandomUtil::generateString(128);
 
-        $this->oneTimeTokenCache->get($token, function (ItemInterface $item) use ($user) {
+        $this->oneTimeTokenCache->get($token, function (ItemInterface $item) use ($userOrClient) {
             $item->expiresAfter(60 * 5);
 
-            return [
-                'id' => $user->getId(),
-                'username' => $user->getUsername(),
-                'jwt' => $user->getJwt(),
-                'roles' => $user->getRoles(),
-                'groups' => $user->getGroups(),
-                'scopes' => $user->getScopes(),
-            ];
+            if ($userOrClient instanceof JwtUser) {
+                return [
+                    'type' => 'user',
+                    'id' => $userOrClient->getUserIdentifier(),
+                    'username' => $userOrClient->getUsername(),
+                    'jwt' => $userOrClient->getJwt(),
+                    'roles' => $userOrClient->getRoles(),
+                    'groups' => $userOrClient->getGroups(),
+                    'scopes' => $userOrClient->getScopes(),
+                ];
+            } elseif ($userOrClient instanceof JwtOauthClient) {
+                return [
+                    'type' => 'client',
+                    'id' => $userOrClient->getUserIdentifier(),
+                    'jwt' => $userOrClient->getJwt(),
+                    'scopes' => $userOrClient->getScopes(),
+                ];
+            }
+            throw new AuthenticationException();
         });
 
         return $token;
     }
 
-    public function consumeToken(string $token): JwtUser
+    public function consumeToken(string $token): JwtInterface
     {
         $user = $this->oneTimeTokenCache->get($token, function (): never {
             throw new AuthenticationException();
         });
 
         $this->oneTimeTokenCache->delete($token);
+
+        if ('client' === $user['type']) {
+            return new JwtOauthClient(
+                $user['jwt'],
+                $user['id'],
+                $user['scopes'],
+            );
+        }
 
         return new JwtUser(
             $user['jwt'],

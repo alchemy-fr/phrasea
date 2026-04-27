@@ -7,6 +7,7 @@ namespace App\Repository\Core;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
@@ -14,27 +15,21 @@ use App\Entity\Core\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Console\ConsoleEvents;
-use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
-use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
+use Symfony\Contracts\Cache\CacheInterface;
 
-#[AsEventListener(KernelEvents::TERMINATE, method: 'reset', priority: -5)]
-#[AsEventListener(ConsoleEvents::TERMINATE, method: 'reset', priority: -5)]
-#[AsEventListener(WorkerMessageHandledEvent::class, method: 'reset', priority: -5)]
 class AttributeDefinitionRepository extends ServiceEntityRepository
 {
     use SecurityAwareTrait;
     public const string OPT_TYPES = 'types';
-    public const string OPT_SKIP_PERMS = 'skip_perms';
     public const string OPT_FACET_ENABLED = 'facet_enabled';
     public const string OPT_SUGGEST_ENABLED = 'suggest_enabled';
 
-    private array $fbAttrCache = [];
+    private CacheInterface $fbAttrCache;
 
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, TemporaryCacheFactory $cacheFactory)
     {
         parent::__construct($registry, AttributeDefinition::class);
+        $this->fbAttrCache = $cacheFactory->createCache();
     }
 
     public function addAclConditions(
@@ -204,18 +199,16 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
      */
     public function getWorkspaceFallbackDefinitions(string $workspaceId): array
     {
-        if (isset($this->fbAttrCache[$workspaceId])) {
-            return $this->fbAttrCache[$workspaceId];
-        }
-
-        return $this->fbAttrCache[$workspaceId] = $this
-            ->createQueryBuilder('d')
-            ->andWhere('d.fallback IS NOT NULL')
-            ->andWhere('d.workspace = :workspace')
-            ->andWhere('d.enabled = true')
-            ->setParameter('workspace', $workspaceId)
-            ->getQuery()
-            ->getResult();
+        return $this->fbAttrCache->get($workspaceId, function () use ($workspaceId): array {
+            return $this
+                ->createQueryBuilder('d')
+                ->andWhere('d.fallback IS NOT NULL')
+                ->andWhere('d.workspace = :workspace')
+                ->andWhere('d.enabled = true')
+                ->setParameter('workspace', $workspaceId)
+                ->getQuery()
+                ->getResult();
+        });
     }
 
     /**
@@ -272,10 +265,5 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->setParameter('ids', $ids)
             ->getQuery()
             ->getResult();
-    }
-
-    public function reset(): void
-    {
-        $this->fbAttrCache = [];
     }
 }
