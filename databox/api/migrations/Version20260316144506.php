@@ -18,7 +18,7 @@ final class Version20260316144506 extends AbstractMigration
     {
         // Move rendition rules to ACL on rendition policy
         $this->addSql('DELETE FROM rendition_rule WHERE object_type = 1');
-        $this->addSql('INSERT INTO access_control_entry (user_type, user_id, object_type, object_id, mask, created_at) SELECT rr.user_type, rr.user_id, \'rendition_policy\' AS object_type, a.rendition_policy_id AS object_id, 513 AS permission, rr.created_at AS created_at FROM sdr_allowed a INNER JOIN rendition_rule rr ON a.rendition_rule_id = rr.id');
+        $this->addSql('INSERT INTO access_control_entry (id, user_type, user_id, object_type, object_id, mask, created_at) SELECT a.id, rr.user_type, rr.user_id, \'rendition_policy\' AS object_type, a.rendition_policy_id AS object_id, 513 AS permission, rr.created_at AS created_at FROM sdr_allowed a INNER JOIN rendition_rule rr ON a.rendition_rule_id = rr.id');
         $this->addSql('ALTER TABLE sdr_allowed DROP CONSTRAINT fk_e8839a3254995832');
         $this->addSql('ALTER TABLE sdr_allowed DROP CONSTRAINT fk_e8839a329f407309');
         $this->addSql('DROP TABLE sdr_allowed');
