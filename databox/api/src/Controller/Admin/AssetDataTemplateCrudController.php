@@ -57,11 +57,14 @@ class AssetDataTemplateCrudController extends AbstractAclAdminCrudController
             ->hideOnForm();
         yield TextField::new('name');
         yield BooleanField::new('public');
-        yield AssociationField::new('collection');
+        yield AssociationField::new('collection')
+            ->autocomplete();
         yield BooleanField::new('includeCollectionChildren', 'Include children');
-        yield AssociationField::new('workspace');
+        yield AssociationField::new('workspace')
+            ->autocomplete();
         yield $this->privacyField->create('privacy');
         yield AssociationField::new('tags')
+            ->autocomplete()
             ->hideOnIndex();
         yield $this->userChoiceField->create('ownerId', 'Owner')
             ->hideOnIndex();

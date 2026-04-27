@@ -70,7 +70,8 @@ class CommitCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield AssociationField::new('target');
+        yield AssociationField::new('target')
+            ->autocomplete();
         yield IdField::new('userId');
         yield $this->userChoiceField->create('userId', 'User');
         yield TextField::new('token')
@@ -95,6 +96,7 @@ class CommitCrudController extends AbstractAdminCrudController
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield AssociationField::new('assets')
+            ->autocomplete()
             ->hideOnForm();
     }
 

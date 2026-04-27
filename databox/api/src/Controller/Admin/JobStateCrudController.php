@@ -118,7 +118,8 @@ class JobStateCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield AssociationField::new('workflow', 'Workflow');
+        yield AssociationField::new('workflow', 'Workflow')
+            ->autocomplete();
         yield TextField::new('jobId', 'Job ID');
         yield DateTimeField::new('triggeredAt', 'Triggered At');
         yield DateTimeField::new('startedAt', 'Started At');

@@ -40,7 +40,8 @@ class TargetParamsCrudController extends AbstractAclAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield AssociationField::new('target');
+        yield AssociationField::new('target')
+            ->autocomplete();
         yield TextareaField::new('jsonData')
             ->hideOnIndex();
         yield JsonField::new('data')

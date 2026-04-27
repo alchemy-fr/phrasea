@@ -41,7 +41,8 @@ class FormSchemaCrudController extends AbstractAclAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield AssociationField::new('target');
+        yield AssociationField::new('target')
+            ->autocomplete();
         yield TextField::new('locale');
         yield ChoiceField::new('localeMode')
             ->setChoices([

@@ -56,6 +56,7 @@ class WebhookLogCrudController extends AbstractAdminCrudController
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield AssociationField::new('webhook')
+            ->autocomplete()
             ->hideOnIndex();
     }
 }

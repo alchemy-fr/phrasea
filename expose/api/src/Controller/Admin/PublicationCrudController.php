@@ -62,6 +62,7 @@ class PublicationCrudController extends AbstractAclAdminCrudController
         yield TextField::new('slug');
 
         yield AssociationField::new('parent')
+            ->autocomplete()
             ->setRequired(false);
 
         yield TextField::new('ownerId');
@@ -69,6 +70,7 @@ class PublicationCrudController extends AbstractAclAdminCrudController
         yield TextareaField::new('description')
             ->hideOnIndex();
         yield AssociationField::new('profile')
+            ->autocomplete()
             ->setRequired(false);
         yield DateTimeField::new('date');
         yield PublicationConfigField::new('config')

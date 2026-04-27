@@ -44,7 +44,8 @@ class TagCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield AssociationField::new('workspace');
+        yield AssociationField::new('workspace')
+            ->autocomplete();
         yield TextField::new('locale');
         yield TextField::new('name');
         yield JsonField::new('translations')

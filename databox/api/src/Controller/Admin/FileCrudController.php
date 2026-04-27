@@ -60,7 +60,8 @@ class FileCrudController extends AbstractAdminCrudController
         yield TextField::new('storage');
         yield TextField::new('originalName')
             ->hideOnIndex();
-        yield AssociationField::new('workspace');
+        yield AssociationField::new('workspace')
+            ->autocomplete();
         yield TextField::new('type')
             ->hideOnIndex();
         yield BooleanField::new('pathPublic')

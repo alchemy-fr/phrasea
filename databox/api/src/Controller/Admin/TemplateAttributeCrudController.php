@@ -30,8 +30,10 @@ class TemplateAttributeCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield AssociationField::new('template');
-        yield AssociationField::new('definition');
+        yield AssociationField::new('template')
+            ->autocomplete();
+        yield AssociationField::new('definition')
+            ->autocomplete();
         yield TextField::new('value');
     }
 }

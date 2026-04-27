@@ -67,6 +67,7 @@ class AttributeListCrudController extends AbstractAclAdminCrudController
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield AssociationField::new('definitions')
+            ->autocomplete()
             ->onlyOnDetail();
     }
 }

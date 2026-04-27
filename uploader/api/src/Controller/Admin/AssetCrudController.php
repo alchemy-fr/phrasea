@@ -70,9 +70,10 @@ class AssetCrudController extends AbstractAdminCrudController
         yield JsonField::new('data')
             ->hideOnIndex();
         yield BooleanField::new('acknowledged')->renderAsSwitch(false);
-        yield AssociationField::new('target');
+        yield AssociationField::new('target')
+            ->autocomplete();
         yield AssociationField::new('commit')
-        ;
+            ->autocomplete();
         yield BooleanField::new('committed')->renderAsSwitch(false);
         yield DateTimeField::new('createdAt');
     }

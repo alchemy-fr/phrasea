@@ -67,10 +67,13 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         yield TextField::new('title');
         yield JsonField::new('translations')
             ->hideOnIndex();
-        yield AssociationField::new('parent');
+        yield AssociationField::new('parent')
+            ->autocomplete();
         yield AssociationField::new('storyAsset')
+            ->autocomplete()
             ->hideOnForm();
-        yield AssociationField::new('workspace');
+        yield AssociationField::new('workspace')
+            ->autocomplete();
         yield $this->privacyField->create('privacy');
         yield TextField::new('ownerId')
             ->onlyOnDetail();
@@ -87,10 +90,13 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         yield TextField::new('locale')
             ->onlyOnDetail();
         yield AssociationField::new('children')
+            ->autocomplete()
             ->onlyOnDetail();
         yield AssociationField::new('assets')
+            ->autocomplete()
             ->onlyOnDetail();
         yield AssociationField::new('referenceAssets')
+            ->autocomplete()
             ->onlyOnDetail();
         yield JsonField::new('notificationSettings')
             ->hideOnIndex();
