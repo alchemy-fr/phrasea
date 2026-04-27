@@ -55,11 +55,14 @@ class TagFilterRuleCrudController extends AbstractAdminCrudController
     {
         yield IdField::new()
             ->hideOnForm();
-        yield AssociationField::new('workspace');
+        yield AssociationField::new('workspace')
+            ->autocomplete();
         yield IntegerField::new('userType');
         yield TextField::new('userId');
-        yield AssociationField::new('include');
-        yield AssociationField::new('exclude');
+        yield AssociationField::new('include')
+            ->autocomplete();
+        yield AssociationField::new('exclude')
+            ->autocomplete();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')

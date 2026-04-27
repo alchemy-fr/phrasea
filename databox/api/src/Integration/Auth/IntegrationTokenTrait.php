@@ -22,8 +22,8 @@ trait IntegrationTokenTrait
 
     public function getIntegrationToken(WorkspaceIntegration $workspaceIntegration): ?IntegrationToken
     {
-        $user = $this->getStrictUser();
-        $tokens = $this->integrationTokenRepository->getValidUserTokens($workspaceIntegration->getId(), $user->getId());
+        $userOrOAuthClient = $this->getStrictUserOrOAuthClient();
+        $tokens = $this->integrationTokenRepository->getValidUserTokens($workspaceIntegration->getId(), $userOrOAuthClient->getUserIdentifier());
 
         return $tokens[0] ?? null;
     }

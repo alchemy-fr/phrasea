@@ -6,6 +6,8 @@ namespace App\Attribute;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\AuthBundle\Security\JwtInterface;
+use Alchemy\AuthBundle\Security\JwtOauthClient;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
@@ -20,6 +22,7 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AssetVoter;
+use App\Security\Voter\AttributeDefinitionVoter;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\ConversionException;
@@ -143,14 +146,14 @@ class BatchAttributeManager
         string $workspaceId,
         ?array $assetsId,
         AssetAttributeBatchUpdateInput $input,
-        ?JwtUser $user,
+        ?JwtInterface $userOrClient,
         bool $dispatchUpdateEvent = false,
     ): void {
         DeferredIndexListener::disable();
         $assetsId ??= [];
 
         try {
-            $this->em->wrapInTransaction(function () use ($user, $input, $assetsId, $workspaceId, $dispatchUpdateEvent): void {
+            $this->em->wrapInTransaction(function () use ($userOrClient, $input, $assetsId, $workspaceId, $dispatchUpdateEvent): void {
                 $updatedAssets = [];
                 $changedAttributeDefinitions = [];
 
@@ -205,7 +208,7 @@ class BatchAttributeManager
                             if (!$definition) {
                                 throw new BadRequestHttpException(sprintf('Missing definitionId in action #%d', $i));
                             }
-                            $this->deleteAttributes($ids, $definition, $user, [
+                            $this->deleteAttributes($ids, $definition, $userOrClient, [
                                 'id' => $action->id,
                                 'ids' => $action->ids,
                                 'origin' => $action->origin,
@@ -240,7 +243,7 @@ class BatchAttributeManager
                                         throw new BadRequestHttpException(sprintf('Attribute "%s" is a multi-valued in action #%d, use add/delete actions for this kind of attribute or pass an array in "value"', $definition->getName(), $i));
                                     }
 
-                                    $this->deleteAttributes($ids, $definition, $user);
+                                    $this->deleteAttributes($ids, $definition, $userOrClient);
                                     foreach ($action->value as $value) {
                                         $vAction = clone $action;
                                         $vAction->value = $value;
@@ -287,14 +290,15 @@ class BatchAttributeManager
                                     ->createQueryBuilder()
                                     ->select('DISTINCT ad.id')
                                     ->from(AttributeDefinition::class, 'ad')
+                                    ->innerJoin('ad.policy', 'ap')
                                     ->andWhere('ad.workspace = :ws')
                                     ->andWhere('ad.editable = true')
                                     ->setParameter('ws', $workspaceId);
-                                if ($user instanceof JwtUser) {
-                                    $sub
-                                        ->innerJoin('ad.policy', 'ap')
-                                        ->andWhere('ap.public = true OR ace.id IS NOT NULL');
-                                    $this->joinUserAcl($sub, $user);
+                                if ($userOrClient instanceof JwtUser) {
+                                    $sub->andWhere('(ap.public = true AND ap.editable = true) OR ace.id IS NOT NULL');
+                                    $this->joinUserAcl($sub, $userOrClient);
+                                } elseif (!$userOrClient instanceof JwtOauthClient || !$userOrClient->hasScope(AttributeDefinitionVoter::SCOPE_PREFIX.AttributeDefinitionVoter::READ)) {
+                                    $sub->andWhere('ap.public = true AND ap.editable = true');
                                 }
 
                                 foreach ($sub->getParameters() as $param) {
@@ -336,7 +340,7 @@ class BatchAttributeManager
                         $this->postFlushStack->addBusMessage(new AttributeChanged(
                             $attributes,
                             $assetId,
-                            $user?->getId(),
+                            $userOrClient?->getId(),
                         ));
                     }
                 }
@@ -446,7 +450,7 @@ class BatchAttributeManager
     private function deleteAttributes(
         array $assetsId,
         ?AttributeDefinition $definition,
-        ?JwtUser $user,
+        ?JwtInterface $userOrClient,
         array $options = [],
     ): void {
         $qb = $this->em->createQueryBuilder()
@@ -459,13 +463,15 @@ class BatchAttributeManager
                 ->andWhere('a.definition = :def')
                 ->setParameter('def', $definition->getId());
         } else {
-            if ($user instanceof JwtUser) {
-                $qb
-                    ->innerJoin('a.definition', 'ad')
-                    ->innerJoin('ad.policy', 'ap')
-                    ->andWhere('ad.editable = true')
-                    ->andWhere('ap.public = true OR ace.id IS NOT NULL');
-                $this->joinUserAcl($qb, $user);
+            $qb
+                ->innerJoin('a.definition', 'ad')
+                ->innerJoin('ad.policy', 'ap')
+                ->andWhere('ad.editable = true');
+            if ($userOrClient instanceof JwtUser) {
+                $qb->andWhere('(ap.public = true AND ap.editable = true) OR ace.id IS NOT NULL');
+                $this->joinUserAcl($qb, $userOrClient);
+            } elseif (!$userOrClient instanceof JwtOauthClient || !$userOrClient->hasScope(AttributeDefinitionVoter::SCOPE_PREFIX.AttributeDefinitionVoter::EDIT)) {
+                $qb->andWhere('ap.public = true AND ap.editable = true');
             }
         }
         if ($options['id'] ?? null) {

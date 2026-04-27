@@ -9,6 +9,7 @@ use App\Entity\Template\WorkspaceTemplate;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
@@ -42,6 +43,12 @@ class WorkspaceTemplateCrudController extends AbstractAdminCrudController
         yield TextField::new('name');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
+        yield DateTimeField::new('updatedAt')
+            ->hideOnForm();
+        yield TextareaField::new('description')
+            ->setDisabled();
+        yield TextField::new('phraseaMinimumVersion')
+            ->setDisabled();
         yield JsonField::new('data')
             ->hideOnIndex();
     }

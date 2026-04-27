@@ -45,8 +45,10 @@ class AttributeListItemCrudController extends AbstractAdminCrudController
     {
         yield IdField::new()
             ->hideOnForm();
-        yield AssociationField::new('list');
-        yield AssociationField::new('definition');
+        yield AssociationField::new('list')
+            ->autocomplete();
+        yield AssociationField::new('definition')
+            ->autocomplete();
         yield ChoiceField::new('type')
             ->setChoices(AttributeListItem::TYPES);
         yield TextField::new('key');

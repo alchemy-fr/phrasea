@@ -48,7 +48,8 @@ class IntegrationTokenCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield AssociationField::new('integration');
+        yield AssociationField::new('integration')
+            ->autocomplete();
         yield CodeField::new('userId', 'User ID');
         yield DateTimeField::new('expiresAt');
         yield BooleanField::new('expired')

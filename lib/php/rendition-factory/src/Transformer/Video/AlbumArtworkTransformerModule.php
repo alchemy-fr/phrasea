@@ -99,7 +99,16 @@ final readonly class AlbumArtworkTransformerModule implements TransformerModuleI
         $outputPath = $context->createTmpFilePath($commonArgs->getExtension());
 
         // php-ffmpeg requires a "AudioInterface" output format; Artwork is a subclass of DefaultAudio
-        $audio->save(new Artwork(), $outputPath);
+        try {
+            $audio->save(new Artwork(), $outputPath);
+        } catch (\FFMpeg\Exception\RuntimeException $e) {
+            $context->log('Failed to extract album artwork: '.$e->getMessage());
+
+            unset($audio);
+            gc_collect_cycles();
+
+            return $inputFile->createOutputFile();
+        }
 
         unset($audio);
         gc_collect_cycles();

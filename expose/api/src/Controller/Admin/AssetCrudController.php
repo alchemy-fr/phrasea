@@ -56,7 +56,8 @@ class AssetCrudController extends AbstractAdminCrudController
     {
         yield IdField::new();
         yield TextField::new('title');
-        yield AssociationField::new('publication');
+        yield AssociationField::new('publication')
+            ->autocomplete();
         yield IdField::new('ownerId');
         yield TextField::new('originalName')
             ->hideOnIndex();
@@ -85,6 +86,7 @@ class AssetCrudController extends AbstractAdminCrudController
             ->hideOnForm()
         ;
         yield AssociationField::new('subDefinitions')
+            ->autocomplete()
             ->hideOnIndex()
             ->hideOnForm()
         ;

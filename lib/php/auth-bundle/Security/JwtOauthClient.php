@@ -18,6 +18,11 @@ class JwtOauthClient implements JwtInterface
         $this->roles = array_map(fn (string $role): string => sprintf('ROLE_%s', strtoupper($role)), $this->scopes);
     }
 
+    public function getId(): string
+    {
+        return $this->clientId;
+    }
+
     public function getRoles(): array
     {
         return $this->roles;
@@ -40,5 +45,10 @@ class JwtOauthClient implements JwtInterface
     public function getScopes(): array
     {
         return $this->scopes;
+    }
+
+    public function hasScope(string $scope): bool
+    {
+        return in_array(strtolower($scope), $this->scopes, true);
     }
 }

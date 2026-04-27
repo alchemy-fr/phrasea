@@ -47,13 +47,15 @@ class RenditionPolicyCrudController extends AbstractAclAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield AssociationField::new('workspace');
+        yield AssociationField::new('workspace')
+            ->autocomplete();
         yield TextField::new('name');
         yield BooleanField::new('public');
         yield BooleanField::new('editable');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield AssociationField::new('definitions')
+            ->autocomplete()
             ->onlyOnDetail();
         yield JsonField::new('labels')
             ->onlyOnDetail();

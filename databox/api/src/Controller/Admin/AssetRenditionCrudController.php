@@ -67,13 +67,16 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield AssociationField::new('asset');
-        yield AssociationField::new('definition');
+        yield AssociationField::new('asset')
+            ->autocomplete();
+        yield AssociationField::new('definition')
+            ->autocomplete();
         yield CodeField::new('buildHash')
             ->hideOnIndex();
         yield JsonField::new('moduleHashes')
             ->hideOnIndex();
-        yield AssociationField::new('file');
+        yield AssociationField::new('file')
+            ->autocomplete();
         yield BooleanField::new('ready')
             ->renderAsSwitch(false);
         yield BooleanField::new('locked');

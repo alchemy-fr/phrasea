@@ -54,11 +54,13 @@ class WorkspaceIntegrationCrudController extends AbstractAdminCrudController
         yield BooleanField::new('enabled');
         yield BooleanField::new('public');
         yield TextField::new('title');
-        yield AssociationField::new('workspace');
+        yield AssociationField::new('workspace')
+            ->autocomplete();
         yield TextField::new('ownerId')
             ->onlyOndetail();
         yield $this->userChoiceField->create('ownerId', 'Owner');
-        yield AssociationField::new('needs');
+        yield AssociationField::new('needs')
+            ->autocomplete();
         yield TextField::new('if')
             ->setHelp('Based on Symfony Expression Language.
 <br/>e.g.

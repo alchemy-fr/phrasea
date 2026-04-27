@@ -41,7 +41,8 @@ class EntityListCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield AssociationField::new('workspace');
+        yield AssociationField::new('workspace')
+            ->autocomplete();
         yield TextField::new('name');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();

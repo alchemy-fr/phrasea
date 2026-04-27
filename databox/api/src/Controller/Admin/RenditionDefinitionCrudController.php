@@ -61,9 +61,12 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
         yield TextField::new('name');
         yield JsonField::new('translations')
             ->hideOnIndex();
-        yield AssociationField::new('parent');
-        yield AssociationField::new('policy');
-        yield AssociationField::new('workspace');
+        yield AssociationField::new('parent')
+            ->autocomplete();
+        yield AssociationField::new('policy')
+            ->autocomplete();
+        yield AssociationField::new('workspace')
+            ->autocomplete();
         yield TextField::new('key')
             ->hideOnIndex()
         ;

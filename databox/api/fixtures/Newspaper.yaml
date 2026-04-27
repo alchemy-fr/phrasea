@@ -331,6 +331,7 @@ App\Entity\Core\File:
         storage: s3_main
         pathPublic: '95%? true : false'
         analysis: []
+        metadata: '<largeJSONFileMetadata()>'
 
     f_story_img_m{1..20} (extends file):
         type: image/jpeg

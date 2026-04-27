@@ -27,10 +27,10 @@ final class WorkspaceExtension implements QueryCollectionExtensionInterface
         ?Operation $operation = null,
         array $context = [],
     ): void {
-        $this->addWhere($queryBuilder, $resourceClass, $context);
+        $this->addWhere($queryBuilder, $resourceClass);
     }
 
-    private function addWhere(QueryBuilder $queryBuilder, string $resourceClass, array $context): void
+    private function addWhere(QueryBuilder $queryBuilder, string $resourceClass): void
     {
         if (Workspace::class !== $resourceClass) {
             return;

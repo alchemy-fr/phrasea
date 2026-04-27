@@ -43,8 +43,10 @@ class AssetTitleAttributeCrudController extends AbstractAdminCrudController
     {
         yield IdField::new()
             ->hideOnForm();
-        yield AssociationField::new('workspace');
-        yield AssociationField::new('definition');
+        yield AssociationField::new('workspace')
+            ->autocomplete();
+        yield AssociationField::new('definition')
+            ->autocomplete();
         yield IntegerField::new('priority');
         yield BooleanField::new('overrides');
         yield ChoiceField::new('target');

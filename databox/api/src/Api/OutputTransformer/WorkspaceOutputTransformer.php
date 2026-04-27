@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Api\Model\Output\WorkspaceOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Collection;
@@ -12,6 +13,7 @@ use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetContainerVoterInterface;
 use App\Security\Voter\WorkspaceVoter;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class WorkspaceOutputTransformer implements OutputTransformerInterface
 {
@@ -20,7 +22,13 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
     use UserLocaleTrait;
     use UserOutputTransformerTrait;
 
-    private array $capCache = [];
+    private CacheInterface $capCache;
+
+    public function __construct(
+        TemporaryCacheFactory $cacheFactory,
+    ) {
+        $this->capCache = $cacheFactory->createCache();
+    }
 
     public function supports(string $outputClass, object $data): bool
     {
@@ -57,16 +65,15 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
             Workspace::GROUP_LIST,
         ], $context)) {
             $k = $data->getId().$this->getUserCacheId();
-            if (!isset($this->capCache[$k])) {
-                $this->capCache[$k] = [
+            $output->setCapabilities($this->capCache->get($k, function () use ($data): array {
+                return [
                     'createAsset' => $this->isGranted(AssetContainerVoterInterface::ASSET_CREATE, $data),
                     'createCollection' => $this->isGranted(WorkspaceVoter::CREATE_COLLECTION, $data),
                     'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
                     'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
                     'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
                 ];
-            }
-            $output->setCapabilities($this->capCache[$k]);
+            }));
         }
 
         return $output;

@@ -37,8 +37,10 @@ class BasketAssetCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield AssociationField::new('basket');
-        yield AssociationField::new('asset');
+        yield AssociationField::new('basket')
+            ->autocomplete();
+        yield AssociationField::new('asset')
+            ->autocomplete();
         yield JsonField::new('context');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();

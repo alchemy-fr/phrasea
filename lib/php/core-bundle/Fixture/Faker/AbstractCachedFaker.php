@@ -22,12 +22,15 @@ abstract class AbstractCachedFaker extends BaseProvider
         parent::__construct($generator);
     }
 
-    protected function download(string $pathPrefix, string $cachePath, string $extension, string $url): string
+    /**
+     * @return resource
+     */
+    protected function download(string $cachePath, string $extension, string $url): mixed
     {
-        $this->logger->debug(sprintf('Fetching "%s"', $url));
         if (null !== $this->fixturesCacheDir) {
             $cacheKey = $this->getFileCacheKey($cachePath, $extension);
             if (!file_exists($cacheKey)) {
+                $this->logger->debug(sprintf('Fetching "%s"', $url));
                 $resource = fopen($url, 'r');
                 if (!is_resource($resource)) {
                     throw new \InvalidArgumentException(sprintf('Cannot open URL "%s"', $url));
@@ -50,6 +53,13 @@ abstract class AbstractCachedFaker extends BaseProvider
                 throw new \InvalidArgumentException(sprintf('Cannot open URL "%s"', $url));
             }
         }
+
+        return $stream;
+    }
+
+    protected function downloadAndStore(string $pathPrefix, string $cachePath, string $extension, string $url): string
+    {
+        $stream = $this->download($cachePath, $extension, $url);
 
         try {
             $finalPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');

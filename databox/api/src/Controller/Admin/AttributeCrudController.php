@@ -67,8 +67,11 @@ class AttributeCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield AssociationField::new('definition');
-        yield AssociationField::new('asset');
+        yield AssociationField::new('definition')
+            ->autocomplete();
+        yield AssociationField::new('asset')
+            ->autocomplete()
+        ;
         yield TextField::new('locale');
         yield TextField::new('value');
         yield BooleanField::new('locked');

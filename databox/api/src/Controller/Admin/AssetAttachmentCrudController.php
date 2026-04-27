@@ -41,8 +41,10 @@ class AssetAttachmentCrudController extends AbstractAdminCrudController
         yield IdField::new()
             ->hideOnForm();
         yield TextField::new('name');
-        yield AssociationField::new('asset');
-        yield AssociationField::new('attachment');
+        yield AssociationField::new('asset')
+            ->autocomplete();
+        yield AssociationField::new('attachment')
+            ->autocomplete();
         yield IntegerField::new('priority');
 
     }

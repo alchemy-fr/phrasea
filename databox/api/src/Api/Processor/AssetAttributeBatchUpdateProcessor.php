@@ -38,7 +38,7 @@ final class AssetAttributeBatchUpdateProcessor implements ProcessorInterface
             $asset->getWorkspaceId(),
             [$asset->getId()],
             $data,
-            $this->getStrictUser(),
+            $this->getStrictUserOrOAuthClient(),
             true,
         );
 

@@ -39,8 +39,7 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        return $this->cache->get(sprintf('%s,%s,%s', $attribute, $subject->getId(), spl_object_id($token)), function (
-        ) use ($attribute, $subject, $token) {
+        return $this->cache->get(sprintf('%s_%s_%s', $attribute, $subject->getId(), spl_object_id($token)), function () use ($attribute, $subject, $token): bool {
             return $this->doVote($attribute, $subject, $token);
         });
     }

@@ -52,6 +52,7 @@ class SubDefinitionCrudController extends AbstractAdminCrudController
     {
         yield IdField::new();
         yield AssociationField::new('asset')
+            ->autocomplete()
             ->hideOnForm()
         ;
         yield TextField::new('name');

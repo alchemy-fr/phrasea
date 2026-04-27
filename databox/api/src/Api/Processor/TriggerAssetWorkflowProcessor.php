@@ -31,7 +31,7 @@ final class TriggerAssetWorkflowProcessor implements ProcessorInterface
         $this->workflowOrchestrator->dispatchEvent(
             AssetIngestWorkflowEvent::createEvent($data->getId(), $data->getWorkspaceId()),
             [
-                WorkflowState::INITIATOR_ID => $this->getStrictUser()->getId(),
+                WorkflowState::INITIATOR_ID => $this->getStrictUserOrOAuthClient()->getUserIdentifier(),
             ]
         );
 

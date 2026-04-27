@@ -64,12 +64,15 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         yield JsonField::new('translations')
             ->hideOnIndex();
         yield TextField::new('slug');
-        yield AssociationField::new('workspace');
-        yield AssociationField::new('policy');
+        yield AssociationField::new('workspace')
+            ->autocomplete();
+        yield AssociationField::new('policy')
+            ->autocomplete();
         yield TextField::new('fileType');
         yield ChoiceField::new('fieldType')
             ->setChoices($this->getFieldTypeChoice());
-        yield AssociationField::new('entityList');
+        yield AssociationField::new('entityList')
+            ->autocomplete();
         yield BooleanField::new('allowInvalid')
             ->hideOnIndex()
             ->renderAsSwitch(false);

@@ -110,19 +110,25 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         yield DateTimeField::new('deletedAt')
             ->onlyOnDetail();
         yield AssociationField::new('collections')
+            ->autocomplete()
             ->onlyOnDetail();
         yield AssociationField::new('tags')
+            ->autocomplete()
             ->onlyOnDetail();
         yield AssociationField::new('renditionPolicies')
+            ->autocomplete()
             ->onlyOnDetail();
         yield AssociationField::new('renditionDefinitions')
+            ->autocomplete()
             ->onlyOnDetail();
         yield ChoiceField::new('applyWorkspaceTemplate', null)
             ->setFormTypeOption('mapped', false)
             ->setChoices($this->getTemplateChoice());
         yield AssociationField::new('attributeDefinitions')
+            ->autocomplete()
             ->onlyOnDetail();
         yield AssociationField::new('files')
+            ->autocomplete()
             ->onlyOnDetail();
         yield DateTimeField::new('deletedAt')
             ->hideOnIndex();

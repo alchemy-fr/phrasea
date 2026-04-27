@@ -49,7 +49,8 @@ class AttributePolicyCrudController extends AbstractAclAdminCrudController
     {
         yield IdField::new()
             ->hideOnForm();
-        yield AssociationField::new('workspace');
+        yield AssociationField::new('workspace')
+            ->autocomplete();
         yield TextField::new('name');
         yield BooleanField::new('public');
         yield BooleanField::new('editable');
@@ -58,6 +59,7 @@ class AttributePolicyCrudController extends AbstractAclAdminCrudController
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield AssociationField::new('definitions')
+            ->autocomplete()
             ->onlyOnDetail();
         yield JsonField::new('labels')
             ->hideOnIndex();
