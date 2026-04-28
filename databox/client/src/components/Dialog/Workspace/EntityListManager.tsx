@@ -53,10 +53,10 @@ function Item({usedFormSubmit}: DefinitionItemFormProps<EntityList>) {
             <FormRow>
                 <SwitchWidget
                     control={control}
-                    name={'autoAcceptValues'}
+                    name={'approveNewValues'}
                     label={t(
-                        'form.entity_type.autoAcceptValues.label',
-                        'Automatically accept new values'
+                        'form.entity_type.approveNewValues.label',
+                        'Automatically approve new values'
                     )}
                     disabled={submitting}
                 />

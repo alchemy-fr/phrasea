@@ -27,7 +27,7 @@ class AddAttributeEntityProcessor implements ProcessorInterface
     {
         $data->setCreatorId($this->getStrictUserOrOAuthClient()?->getUserIdentifier());
 
-        if (!$this->isGranted(AbstractVoter::EDIT, $data->getList())) {
+        if (!$data->getList()->isApproveNewValues() && !$this->isGranted(AbstractVoter::EDIT, $data->getList())) {
             $data->setStatus(AttributeEntity::STATUS_PENDING);
         }
 

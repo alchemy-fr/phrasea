@@ -292,6 +292,12 @@ type EntitySynonyms = {
     [locale: string]: string[];
 };
 
+export enum AttributeEntityStatus {
+    Approved = 0,
+    Pending = 1,
+    Rejected = 2,
+}
+
 export type AttributeEntity = {
     type: string;
     locale: string;
@@ -300,6 +306,7 @@ export type AttributeEntity = {
     synonyms?: EntitySynonyms;
     createdAt: string;
     updatedAt: string;
+    status: AttributeEntityStatus;
 } & ApiHydraObjectResponse &
     Entity;
 
@@ -307,7 +314,7 @@ export type EntityList = {
     name: string;
     definitions: AttributeDefinition[];
     allowNewValues?: boolean;
-    autoAcceptValues?: boolean;
+    approveNewValues?: boolean;
     createdAt: string;
     updatedAt: string;
 } & ApiHydraObjectResponse &
