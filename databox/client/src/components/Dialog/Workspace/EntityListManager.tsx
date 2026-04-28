@@ -6,7 +6,7 @@ import {
     putEntityList,
 } from '../../../api/entityList.ts';
 import {ListItemSecondaryAction, ListItemText, TextField} from '@mui/material';
-import {FormFieldErrors, FormRow} from '@alchemy/react-form';
+import {FormFieldErrors, FormRow, SwitchWidget} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemManageProps,
@@ -23,6 +23,7 @@ import {search} from '../../../lib/search.ts';
 function Item({usedFormSubmit}: DefinitionItemFormProps<EntityList>) {
     const {t} = useTranslation();
     const {
+        control,
         register,
         submitting,
         formState: {errors},
@@ -37,6 +38,28 @@ function Item({usedFormSubmit}: DefinitionItemFormProps<EntityList>) {
                     disabled={submitting}
                 />
                 <FormFieldErrors field={'name'} errors={errors} />
+            </FormRow>
+            <FormRow>
+                <SwitchWidget
+                    control={control}
+                    name={'allowNewValues'}
+                    label={t(
+                        'form.entity_type.allowNewValues.label',
+                        'Accept new values'
+                    )}
+                    disabled={submitting}
+                />
+            </FormRow>
+            <FormRow>
+                <SwitchWidget
+                    control={control}
+                    name={'autoAcceptValues'}
+                    label={t(
+                        'form.entity_type.autoAcceptValues.label',
+                        'Automatically accept new values'
+                    )}
+                    disabled={submitting}
+                />
             </FormRow>
         </>
     );

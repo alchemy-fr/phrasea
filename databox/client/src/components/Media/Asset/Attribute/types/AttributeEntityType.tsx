@@ -34,6 +34,7 @@ export default class AttributeEntityType
                     list={options.list}
                     disabled={readOnly || disabled}
                     value={value?.id}
+                    workspaceId={options.workspaceId}
                     onChange={newValue => {
                         onChange(
                             (

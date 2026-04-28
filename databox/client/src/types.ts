@@ -306,6 +306,8 @@ export type AttributeEntity = {
 export type EntityList = {
     name: string;
     definitions: AttributeDefinition[];
+    allowNewValues?: boolean;
+    autoAcceptValues?: boolean;
     createdAt: string;
     updatedAt: string;
 } & ApiHydraObjectResponse &

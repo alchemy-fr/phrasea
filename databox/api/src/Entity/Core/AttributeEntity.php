@@ -18,6 +18,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Output\ResolveEntitiesOutput;
+use App\Api\Processor\AddAttributeEntityProcessor;
 use App\Api\Provider\AttributeEntityCollectionProvider;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeEntityRepository;
@@ -44,7 +45,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
         ),
         new Post(
-            securityPostDenormalize: 'is_granted("CREATE", object)'
+            securityPostDenormalize: 'is_granted("CREATE", object)',
+            processor: AddAttributeEntityProcessor::class,
         ),
     ],
     normalizationContext: [
@@ -82,6 +84,16 @@ class AttributeEntity extends AbstractUuidEntity
     final public const string GROUP_READ = 'attr-ent:r';
     final public const string GROUP_LIST = 'attr-ent:i';
 
+    final public const int STATUS_APPROVED = 0;
+    final public const int STATUS_PENDING = 1;
+    final public const int STATUS_REJECTED = 2;
+
+    public const array STATUS_CHOICES = [
+        'Approved' => self::STATUS_APPROVED,
+        'Pending' => self::STATUS_PENDING,
+        'Rejected' => self::STATUS_REJECTED,
+    ];
+
     #[ORM\ManyToOne(targetEntity: EntityList::class, inversedBy: 'entities')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
@@ -114,6 +126,9 @@ class AttributeEntity extends AbstractUuidEntity
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $position = 0;
 
+    #[ORM\Column(type: Types::SMALLINT, nullable: false)]
+    private int $status = self::STATUS_APPROVED;
+
     #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups([
         self::GROUP_LIST,
@@ -121,6 +136,9 @@ class AttributeEntity extends AbstractUuidEntity
         Asset::GROUP_LIST,
     ])]
     private ?array $translations = null;
+
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
+    protected ?string $creatorId = null;
 
     public function getValue(): ?string
     {
@@ -211,6 +229,26 @@ class AttributeEntity extends AbstractUuidEntity
         }
 
         return $this->synonyms[$locale] ?? null;
+    }
+
+    public function getStatus(): int
+    {
+        return $this->status;
+    }
+
+    public function setStatus(int $status): void
+    {
+        $this->status = $status;
+    }
+
+    public function getCreatorId(): ?string
+    {
+        return $this->creatorId;
+    }
+
+    public function setCreatorId(?string $creatorId): void
+    {
+        $this->creatorId = $creatorId;
     }
 
     public function __toString(): string

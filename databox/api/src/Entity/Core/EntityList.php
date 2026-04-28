@@ -77,6 +77,9 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
     final public const int OBJECT_INDEX = 15;
     public const int TYPE_LENGTH = 100;
 
+    private const string ALLOW_NEW_VALUES = 'anv';
+    private const string AUTO_ACCEPT_VALUES = 'aav';
+
     final public const string GROUP_READ = 'entity-list:r';
     final public const string GROUP_LIST = 'entity-list:i';
 
@@ -85,6 +88,9 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
     #[Assert\NotBlank]
     #[Assert\Length(max: self::TYPE_LENGTH)]
     private ?string $name = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $options = null;
 
     #[ORM\OneToMany(mappedBy: 'list', targetEntity: AttributeEntity::class, cascade: ['remove'])]
     private ?Collection $entities = null;
@@ -118,5 +124,32 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
     public function getDefinitions(): ?Collection
     {
         return $this->definitions;
+    }
+
+    #[Groups([self::GROUP_READ, self::GROUP_LIST, AttributeDefinition::GROUP_LIST])]
+    public function isAllowNewValues(): bool
+    {
+        return $this->options[self::ALLOW_NEW_VALUES] ?? false;
+    }
+
+    public function setAllowNewValues(bool $allowNewValues): void
+    {
+        $this->options[self::ALLOW_NEW_VALUES] = $allowNewValues;
+    }
+
+    #[Groups([self::GROUP_READ, self::GROUP_LIST, AttributeDefinition::GROUP_LIST])]
+    public function isAutoAcceptValues(): bool
+    {
+        return $this->options[self::AUTO_ACCEPT_VALUES] ?? false;
+    }
+
+    public function setAutoAcceptValues(bool $autoAcceptValues): void
+    {
+        $this->options[self::AUTO_ACCEPT_VALUES] = $autoAcceptValues;
+    }
+
+    public function getEntities(): ?Collection
+    {
+        return $this->entities;
     }
 }

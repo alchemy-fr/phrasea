@@ -1,4 +1,4 @@
-import {AttributeEntity} from '../../types';
+import {AttributeEntity, EntityList} from '../../types';
 import {FieldValues} from 'react-hook-form';
 import {
     AsyncRSelectProps,
@@ -18,7 +18,7 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
     multiple: IsMulti;
     allowNew?: boolean;
-    list: string;
+    list: EntityList;
 } & AsyncRSelectProps<TFieldValues, IsMulti>;
 
 export default function AttributeEntitySelect<
@@ -37,11 +37,11 @@ export default function AttributeEntitySelect<
     const workspaceId = wsId ?? workspaceContext?.workspaceId;
 
     const onCreate: RSelectOnCreate | undefined =
-        allowNew && workspaceId
+        allowNew && list.allowNewValues && workspaceId
             ? (inputValue, onCreate) => {
                   openModal(CreateAttributeEntityDialog, {
                       value: inputValue,
-                      list,
+                      list: list.id,
                       workspaceId,
                       onCreate: (d: AttributeEntity) => {
                           onCreate({
@@ -57,7 +57,7 @@ export default function AttributeEntitySelect<
     const load = async (inputValue: string): Promise<SelectOption[]> => {
         const data = (
             await getAttributeEntities({
-                list,
+                list: list.id,
                 value: inputValue,
             })
         ).result;
