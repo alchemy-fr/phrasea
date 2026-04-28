@@ -1,17 +1,22 @@
-import {PropsWithChildren, useEffect, useState} from 'react';
+import {PropsWithChildren, useEffect, useMemo, useState} from 'react';
 import {
     DisplayContext,
     DisplayPreferences,
     PlayingContext,
     TDisplayContext,
 } from './DisplayContext';
-import {useUserPreferencesStore} from '../../store/userPreferencesStore.ts';
+import {
+    UserPreferences,
+    useUserPreferencesStore,
+} from '../../store/userPreferencesStore.ts';
 import {Layout} from '../AssetList/Layouts';
+import {StateSetter} from '../../types.ts';
+import createStateSetterProxy from '@alchemy/react-hooks/src/createStateSetterProxy.ts';
 
 type Props = PropsWithChildren<{
     defaultState?: Partial<DisplayPreferences>;
     inOverflowDiv?: TDisplayContext['inOverflowDiv'];
-    displayPrefKey?: 'display' | 'displayBatchEdit';
+    displayPrefKey?: keyof UserPreferences & ('display' | 'displayBatchEdit');
 }>;
 
 export default function DisplayProvider({
@@ -52,15 +57,36 @@ export default function DisplayProvider({
     });
 
     useEffect(() => {
-        updatePreference(displayPrefKey, state);
-    }, [state, updatePreference, displayPrefKey]);
+        if (displayPref) {
+            setState(prev => ({
+                ...prev,
+                ...(displayPref ?? {}),
+                previewOptions: {
+                    ...prev.previewOptions,
+                    ...(displayPref ?? {}).previewOptions,
+                },
+            }));
+        }
+    }, [displayPref]);
+
+    const setStateProxy = useMemo<StateSetter<DisplayPreferences>>(
+        () => handler =>
+            setState(
+                createStateSetterProxy(handler, newState => {
+                    updatePreference(displayPrefKey, newState);
+
+                    return newState;
+                })
+            ),
+        [updatePreference, setState]
+    );
 
     return (
         <DisplayContext.Provider
             value={{
                 inOverflowDiv,
                 state,
-                setState,
+                setState: setStateProxy,
                 playing: playingContext,
                 setPlaying: (context: PlayingContext) => {
                     setPlayingContext(p => {

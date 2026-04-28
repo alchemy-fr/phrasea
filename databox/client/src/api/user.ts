@@ -33,13 +33,20 @@ export async function getUserPreferences(): Promise<UserPreferences> {
     return res.data;
 }
 
+export type PutPreferenceOptions = {
+    reset?: boolean;
+    offlineUpdates?: UserPreferences;
+};
+
 export async function putUserPreferences(
     name: keyof UserPreferences,
-    value: any
+    value: any,
+    {reset}: PutPreferenceOptions = {}
 ): Promise<UserPreferences> {
     const res = await apiClient.put(`/preferences`, {
         name,
         value,
+        reset,
     });
 
     return res.data;

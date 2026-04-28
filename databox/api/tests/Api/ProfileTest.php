@@ -92,6 +92,7 @@ class ProfileTest extends AbstractDataboxTestCase
                     [
                         'type' => ProfileItem::TYPE_ATTR_DEF,
                         'definition' => $def1->getId(),
+                        'section' => ProfileItem::SECTION_ATTRIBUTES,
                     ],
                 ],
             ],
@@ -121,6 +122,7 @@ class ProfileTest extends AbstractDataboxTestCase
                     [
                         'type' => ProfileItem::TYPE_ATTR_DEF,
                         'definition' => $def2->getId(),
+                        'section' => ProfileItem::SECTION_ATTRIBUTES,
                     ],
                 ],
             ],
@@ -154,6 +156,7 @@ class ProfileTest extends AbstractDataboxTestCase
                     [
                         'type' => ProfileItem::TYPE_ATTR_DEF,
                         'definition' => $def2->getId(),
+                        'section' => ProfileItem::SECTION_ATTRIBUTES,
                     ],
                 ],
             ],

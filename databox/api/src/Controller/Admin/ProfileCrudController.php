@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Entity\Profile\Profile;
@@ -66,6 +67,8 @@ class ProfileCrudController extends AbstractAclAdminCrudController
             ->hideOnForm();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
+        yield JsonField::new('data.data', 'Data')
+            ->onlyOnDetail();
         yield AssociationField::new('items')
             ->autocomplete()
             ->onlyOnDetail();

@@ -5,7 +5,7 @@ import {AppDialog} from '@alchemy/phrasea-ui';
 import {Profile} from '../../types';
 import {useTranslation} from 'react-i18next';
 import ProfileMenuItem from './ProfileMenuItem.tsx';
-import CreateProfile from './CreateProfile.tsx';
+import CreateProfileDialog from './CreateProfileDialog.tsx';
 import AddIcon from '@mui/icons-material/Add';
 import {useEffect, useState} from 'react';
 import {useNavigateToModal} from '../Routing/ModalLink.tsx';
@@ -56,7 +56,7 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
     };
 
     const createProfile = () => {
-        openModal(CreateProfile, {
+        openModal(CreateProfileDialog, {
             onCreate: data => {
                 onSelect(data);
                 onEdit(data.id);

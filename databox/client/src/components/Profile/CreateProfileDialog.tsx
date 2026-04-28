@@ -8,22 +8,27 @@ import {useTranslation} from 'react-i18next';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {useProfileStore} from '../../store/profileStore.ts';
+import {useUserPreferencesStore} from '../../store/userPreferencesStore.ts';
 
 type Props = {
     onCreate?: (data: Profile) => void;
 } & StackedModalProps;
 
-export default function CreateProfile({onCreate, ...modalProps}: Props) {
+export default function CreateProfileDialog({onCreate, ...modalProps}: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
     const addProfile = useProfileStore(state => state.addProfile);
+    const preferences = useUserPreferencesStore(state => state.preferences);
 
     const usedFormSubmit = useFormSubmit<Profile>({
         defaultValues: {
             title: '',
         },
         onSubmit: async (data: Profile) => {
-            return await postProfile(data);
+            return await postProfile({
+                ...data,
+                data: preferences,
+            });
         },
         onSuccess: data => {
             toast.success(

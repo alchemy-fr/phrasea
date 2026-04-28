@@ -117,10 +117,8 @@ export const useProfileStore = create<State>((set, getState) => ({
     },
 
     setCurrent: async id => {
-        const updatePref = (value: UserPreferences['profile']) =>
-            useUserPreferencesStore
-                .getState()
-                .updatePreference('profile', value);
+        const applyProfile = (profile: Profile | null) =>
+            useUserPreferencesStore.getState().applyProfile(profile);
 
         if (!id) {
             set({
@@ -128,7 +126,7 @@ export const useProfileStore = create<State>((set, getState) => ({
                 loadingCurrent: false,
             });
 
-            await updatePref(null);
+            await applyProfile(null);
 
             return;
         }
@@ -150,9 +148,9 @@ export const useProfileStore = create<State>((set, getState) => ({
                 current: profile,
                 loadingCurrent: false,
             });
-            await updatePref(id);
+            await applyProfile(profile);
         } catch (e: any) {
-            await updatePref(null);
+            await applyProfile(null);
             set({
                 current: undefined,
                 loadingCurrent: false,
@@ -249,7 +247,16 @@ export const useProfileStore = create<State>((set, getState) => ({
     arePreferencesSynced: async profile => {
         const data = await useUserPreferencesStore.getState().load();
 
-        return deepEquals(profile.data, data);
+        const norm = (d: UserPreferences | undefined) => {
+            if (d && d.profile) {
+                return {
+                    ...d,
+                    profile: undefined,
+                };
+            }
+        };
+
+        return deepEquals(norm(profile.data), norm(data));
     },
 
     updateProfileItem: (profileId, item) => {
