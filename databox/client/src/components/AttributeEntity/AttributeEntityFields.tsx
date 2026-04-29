@@ -12,6 +12,8 @@ import {
 } from '@alchemy/react-form';
 import KeyIcon from '@mui/icons-material/Key';
 import InfoRow from '../Dialog/Info/InfoRow.tsx';
+import {Controller} from 'react-hook-form';
+import EmojiPicker from '../Discussion/EmojiPicker.tsx';
 
 type Props = {
     workspace?: Workspace;
@@ -56,6 +58,27 @@ export default function AttributeEntityFields({
                     })}
                 />
                 <FormFieldErrors field={'value'} errors={errors} />
+            </FormRow>
+            <FormRow>
+                <InputLabel>
+                    {t('form.attribute_entity.icon.label', 'Icon')}
+                </InputLabel>
+                <Controller
+                    name={'emoji'}
+                    control={control}
+                    render={({field: {onChange, value}}) => {
+                        return (
+                            <EmojiPicker
+                                disabled={submitting}
+                                value={value}
+                                onSelect={emoji => {
+                                    onChange(emoji);
+                                }}
+                            />
+                        );
+                    }}
+                />
+                <FormFieldErrors field={'emoji'} errors={errors} />
             </FormRow>
 
             {(workspace?.enabledLocales ?? []).length > 0 ? (

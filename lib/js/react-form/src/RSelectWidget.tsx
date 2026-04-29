@@ -14,17 +14,18 @@ export interface GroupBase<Option> {
     readonly label?: string;
 }
 
-type Option = {
+type Option = Readonly<{
     label: string;
     value: string;
     image?: React.ElementType | React.FC;
     item?: object | undefined;
-};
+}>;
+
 export type {Option as SelectOption};
 
 export const rSelectClassName = 'rselect-img';
 
-export const ImageOption = (props: OptionProps<Option>) => {
+export function ImageOption<Opt extends Option>(props: OptionProps<Opt>) {
     return (
         <components.Option {...props}>
             {props.data.image && (
@@ -43,7 +44,11 @@ const componentsProp = {
     Option: ImageOption,
 };
 
-type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = (
+type Props<
+    TFieldValues extends FieldValues,
+    IsMulti extends boolean,
+    Opt extends Option = Option,
+> = (
     | {
           control: Control<TFieldValues>;
           name: FieldPath<TFieldValues>;
@@ -60,18 +65,17 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = (
     allowCreate?: boolean;
     inputHeight?: number;
     menuWidth?: number;
-    creatableProps?: Partial<
-        CreatableProps<Option, IsMulti, GroupBase<Option>>
-    >;
+    creatableProps?: Partial<CreatableProps<Opt, IsMulti, GroupBase<Opt>>>;
     denormalizeValue?: (value: any) => any;
     normalizeValue?: (value: any) => any;
-} & Partial<CommonProps<Option, IsMulti, GroupBase<Option>>['selectProps']>;
+} & Partial<CommonProps<Opt, IsMulti, GroupBase<Opt>>['selectProps']>;
 
 export type {Props as RSelectProps};
 
 export default function RSelectWidget<
     TFieldValues extends FieldValues,
     IsMulti extends boolean = false,
+    Opt extends Option = Option,
 >({
     control,
     name,
@@ -91,7 +95,7 @@ export default function RSelectWidget<
     normalizeValue,
     denormalizeValue,
     ...rest
-}: Props<TFieldValues, IsMulti>) {
+}: Props<TFieldValues, IsMulti, Opt>) {
     const [proxyValue, setValue] = useState(initialValue);
     const theme = useTheme();
 
@@ -102,8 +106,8 @@ export default function RSelectWidget<
     }, [initialValue]);
 
     const indexedOptions = React.useMemo(() => {
-        const index: Record<string, Option> = {};
-        (options as Option[] | undefined)?.forEach(o => {
+        const index: Record<string, Opt> = {};
+        (options as Opt[] | undefined)?.forEach(o => {
             index[o.value] = o;
         });
 
@@ -125,7 +129,7 @@ export default function RSelectWidget<
                         <>
                             {label ? <InputLabel>{label}</InputLabel> : ''}
                             <RSelectStyle />
-                            <Component<Option, any>
+                            <Component<Opt, any>
                                 {...rest}
                                 {...creatableProps}
                                 options={options}
@@ -145,12 +149,12 @@ export default function RSelectWidget<
                                     const v = isMulti
                                         ? allowCreate
                                             ? newValue
-                                            : (newValue as Option[]).map(
+                                            : (newValue as Opt[]).map(
                                                   v => v.value
                                               )
                                         : allowCreate
                                           ? newValue
-                                          : (newValue as Option | null)?.value;
+                                          : (newValue as Opt | null)?.value;
                                     const denormValue = denormalizeValue
                                         ? denormalizeValue(v)
                                         : v;
@@ -180,7 +184,7 @@ export default function RSelectWidget<
         <>
             {label ? <InputLabel>{label}</InputLabel> : ''}
             <RSelectStyle />
-            <Component<Option, IsMulti>
+            <Component<Opt, IsMulti>
                 {...rest}
                 options={options}
                 required={required}

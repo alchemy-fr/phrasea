@@ -63,6 +63,7 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
         yield AssociationField::new('list')
             ->autocomplete();
         yield TextField::new('value');
+        yield TextField::new('emoji');
         yield JsonField::new('synonyms')
             ->hideOnIndex();
         yield ChoiceField::new('status')

@@ -2,9 +2,10 @@ import {Theme} from '@mui/material';
 import {StylesConfig} from 'react-select';
 import {alpha} from '@mui/material/styles';
 import {GroupBase} from 'react-select';
+import {SelectOption} from './RSelectWidget';
 
 export function createSelectStyles<
-    Option = unknown,
+    Option extends SelectOption = SelectOption,
     IsMulti extends boolean = boolean,
     Group extends GroupBase<Option> = GroupBase<Option>,
 >(

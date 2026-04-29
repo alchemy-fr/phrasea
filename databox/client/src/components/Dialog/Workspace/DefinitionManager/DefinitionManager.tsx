@@ -237,7 +237,7 @@ export default function DefinitionManager<
                 });
             }
         },
-        [proxiedSetItemState, handleSave, parentSetSubManagementState]
+        [proxiedSetItemState, parentSetSubManagementState]
     );
 
     const [submitting, setSubmitting] = React.useState(false);

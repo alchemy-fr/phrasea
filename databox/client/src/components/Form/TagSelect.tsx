@@ -13,10 +13,9 @@ import {getTagColorStyle} from '../Media/Asset/Facets/TagColor.tsx';
 import {useTheme} from '@mui/material';
 
 type TagOption = Readonly<{
-    value: string;
-    label: string;
     item: Tag;
-}>;
+}> &
+    SelectOption;
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
@@ -75,7 +74,6 @@ export default function TagSelect<
                       ),
                       content: '" "',
                       display: 'block',
-                      marginRight: 8,
                   },
               }
             : {};

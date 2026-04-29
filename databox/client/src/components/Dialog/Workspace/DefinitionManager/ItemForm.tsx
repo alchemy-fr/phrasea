@@ -43,7 +43,21 @@ export default function ItemForm<D extends DefinitionBase>({
                 );
                 const n = normalizeData ? normalizeData(newData) : newData;
                 onItemUpdate(n);
-                reset(n);
+
+                const fullReset = () => {
+                    const newValues: Record<string, any> = {...getValues()};
+                    Object.keys(newValues).forEach(key => {
+                        newValues[key] = null;
+                    });
+
+                    Object.entries(n).forEach(([key, value]) => {
+                        newValues[key] = value;
+                    });
+
+                    return newValues;
+                };
+
+                reset(fullReset() as any);
 
                 return n;
             } finally {
@@ -55,7 +69,7 @@ export default function ItemForm<D extends DefinitionBase>({
         },
     });
 
-    const {remoteErrors, forbidNavigation, reset} = usedFormSubmit;
+    const {remoteErrors, forbidNavigation, reset, getValues} = usedFormSubmit;
 
     useDirtyFormPrompt(Boolean(item) && forbidNavigation);
 

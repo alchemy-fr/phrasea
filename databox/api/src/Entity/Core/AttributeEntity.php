@@ -88,6 +88,8 @@ class AttributeEntity extends AbstractUuidEntity
     final public const int STATUS_PENDING = 1;
     final public const int STATUS_REJECTED = 2;
 
+    private const string DATA_EMOJI = 'emoji';
+
     public const array STATUS_CHOICES = [
         'Approved' => self::STATUS_APPROVED,
         'Pending' => self::STATUS_PENDING,
@@ -127,7 +129,13 @@ class AttributeEntity extends AbstractUuidEntity
     private int $position = 0;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
+    #[Groups([
+        self::GROUP_LIST,
+    ])]
     private int $status = self::STATUS_APPROVED;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $data = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups([
@@ -254,6 +262,21 @@ class AttributeEntity extends AbstractUuidEntity
     public function isApproved(): bool
     {
         return self::STATUS_APPROVED === $this->status;
+    }
+
+    #[Groups([self::GROUP_LIST])]
+    public function getEmoji(): ?string
+    {
+        return $this->data[self::DATA_EMOJI] ?? null;
+    }
+
+    public function setEmoji(?string $emoji): void
+    {
+        if (null !== $emoji) {
+            $this->data[self::DATA_EMOJI] = $emoji;
+        } else {
+            unset($this->data[self::DATA_EMOJI]);
+        }
     }
 
     public function __toString(): string
