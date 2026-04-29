@@ -19,52 +19,44 @@ class FileOutput extends AbstractUuidOutput
     use CreatedAtDTOTrait;
     use UpdatedAtDTOTrait;
 
+    private const array COMMON_GROUPS = [
+        File::GROUP_LIST,
+        File::GROUP_READ,
+        File::GROUP_METADATA,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetFileVersion::GROUP_LIST,
+        Share::GROUP_PUBLIC_READ,
+        AssetAttachment::GROUP_LIST,
+    ];
+
     /**
      * The MIME type.
      */
-    #[Groups([File::GROUP_LIST,
-        File::GROUP_READ,
-        File::GROUP_METADATA,
-        Asset::GROUP_LIST,
-        Asset::GROUP_READ,
-        AssetRendition::GROUP_LIST,
-        AssetFileVersion::GROUP_LIST,
-        Share::GROUP_PUBLIC_READ,
-        AssetAttachment::GROUP_LIST,
-    ])]
+    #[Groups(self::COMMON_GROUPS)]
     private ?string $type = null;
 
-    #[Groups([File::GROUP_LIST,
-        File::GROUP_READ,
-        File::GROUP_METADATA,
-        Asset::GROUP_LIST,
-        Asset::GROUP_READ,
-        AssetRendition::GROUP_LIST,
-        AssetFileVersion::GROUP_LIST,
-        Share::GROUP_PUBLIC_READ,
-        AssetAttachment::GROUP_LIST,
-    ])]
+    /**
+     * The file extension.
+     */
+    #[Groups(self::COMMON_GROUPS)]
+    public ?string $extension = null;
+
+    #[Groups(self::COMMON_GROUPS)]
     private ?int $size = null;
 
     /**
      * Signed URL.
      */
-    #[Groups([File::GROUP_LIST,
-        File::GROUP_READ,
-        File::GROUP_METADATA,
-        Asset::GROUP_LIST,
-        Asset::GROUP_READ,
-        AssetRendition::GROUP_LIST,
-        AssetFileVersion::GROUP_LIST,
-        Share::GROUP_PUBLIC_READ,
-        AssetAttachment::GROUP_LIST,
-    ])]
+    #[Groups(self::COMMON_GROUPS)]
     private ?string $url = null;
 
     /**
      * @var AlternateUrlOutput[]
      */
-    #[Groups([File::GROUP_LIST,
+    #[Groups([
+        File::GROUP_LIST,
         File::GROUP_READ,
         Asset::GROUP_LIST,
         Asset::GROUP_READ,
