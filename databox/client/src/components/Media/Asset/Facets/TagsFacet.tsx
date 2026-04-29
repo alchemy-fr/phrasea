@@ -10,6 +10,7 @@ import {ListFacetItemProps} from './TextFacetItem';
 import ListFacet from './ListFacet';
 import {stopPropagation} from '../../../../lib/stdFuncs.ts';
 import {Tag} from '../../../../types.ts';
+import TagColor from './TagColor.tsx';
 
 function TagFacetItem({
     onClick,
@@ -21,16 +22,7 @@ function TagFacetItem({
 
     return (
         <ListItemButton onClick={onClick}>
-            <Box
-                sx={theme => ({
-                    width: 30,
-                    height: 22,
-                    backgroundColor: item!.color,
-                    border: `0.5px solid ${theme.palette.common.black}`,
-                    mr: 1,
-                    borderRadius: theme.shape.borderRadius,
-                })}
-            />
+            <TagColor color={(item as Tag).color} />
             <ListItemText
                 secondary={`${(item as Tag).nameTranslated} (${count})`}
             />

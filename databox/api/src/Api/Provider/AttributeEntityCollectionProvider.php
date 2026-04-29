@@ -32,8 +32,6 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
 
         $queryString = $context['filters']['query'] ?? null;
 
-        // TODO apply filters APPROVED only for regular users
-
         if (!empty($queryString)) {
             return $this->search->search($workspaces, $context['filters'] ?? []);
         }

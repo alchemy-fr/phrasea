@@ -14,11 +14,26 @@ export function createSelectStyles<
     inputHeight: number = 56,
     menuWidth?: number
 ): StylesConfig<Option, IsMulti, Group> {
+    const {
+        menuPortal,
+        control,
+        singleValue,
+        valueContainer,
+        multiValue,
+        multiValueLabel,
+        multiValueRemove,
+        menu,
+        option,
+        input,
+        indicatorsContainer,
+        ...stylesRest} = styles;
+
     return {
-        menuPortal: base => ({
-            ...base,
+        menuPortal: (provided, state) => ({
+            ...provided,
             zIndex: theme.zIndex.tooltip + 1,
-            width: menuWidth ?? base.width,
+            width: menuWidth ?? provided.width,
+            ...(menuPortal?.(provided, state) ?? {}),
         }),
         control: (provided, state) => ({
             ...provided,
@@ -28,13 +43,16 @@ export function createSelectStyles<
                 : state.isFocused
                   ? theme.palette.primary.main
                   : theme.palette.grey.A400,
+            borderRadius: theme.shape.borderRadius,
             minHeight: inputHeight,
             height: !state.isMulti ? inputHeight : undefined,
+            ...(control?.(provided, state) ?? {}),
         }),
 
-        singleValue: provided => ({
+        singleValue: (provided, state) => ({
             ...provided,
             color: theme.palette.text.primary,
+            ...(singleValue?.(provided, state) ?? {}),
         }),
 
         valueContainer: (provided, state) => ({
@@ -42,49 +60,58 @@ export function createSelectStyles<
             height: !state.isMulti ? inputHeight : undefined,
             padding: '0 12px',
             color: theme.palette.text.primary,
+            ...(valueContainer?.(provided, state) ?? {}),
         }),
 
-        multiValue: provided => ({
+        multiValue: (provided, state) => ({
             ...provided,
-            fontSize: '16.5px',
+            fontSize: '1rem',
             backgroundColor: theme.palette.primary.main,
+            color: theme.palette.text.primary,
+            ...(multiValue?.(provided, state) ?? {}),
         }),
 
-        multiValueLabel: provided => ({
+        multiValueLabel: (provided, state) => ({
             ...provided,
             color: theme.palette.primary.contrastText,
+            ...(multiValueLabel?.(provided, state) ?? {}),
         }),
 
-        multiValueRemove: provided => ({
+        multiValueRemove: (provided, state) => ({
             ...provided,
             color: theme.palette.primary.contrastText,
+            ...(multiValueRemove?.(provided, state) ?? {}),
         }),
 
-        menu: base => ({
-            ...base,
+        menu: (provided, state) => ({
+            ...provided,
             backgroundColor: theme.palette.background.paper,
+            ...(menu?.(provided, state) ?? {}),
         }),
 
-        option: (base, {isDisabled, isFocused, isSelected}) => ({
-            ...base,
-            backgroundColor: isDisabled
+        option: (provided, state) => ({
+            ...provided,
+            backgroundColor: state.isDisabled
                 ? undefined
-                : isSelected
+                : state.isSelected
                   ? theme.palette.primary.main
-                  : isFocused
+                  : state.isFocused
                     ? alpha(theme.palette.primary.main, 0.1)
                     : undefined,
+            ...(option?.(provided, state) ?? {}),
         }),
-        input: provided => ({
+        input: (provided, state) => ({
             ...provided,
             margin: '0px',
             color: theme.palette.text.primary,
+            ...(input?.(provided, state) ?? {}),
         }),
 
-        indicatorsContainer: provided => ({
+        indicatorsContainer: (provided, state) => ({
             ...provided,
             height: inputHeight,
+            ...(indicatorsContainer?.(provided, state) ?? {}),
         }),
-        ...styles,
+        ...stylesRest,
     };
 }

@@ -35,10 +35,12 @@ import LoadMoreButton from './src/components/LoadMoreButton';
 import {lazyWithRetry} from './src/lazyWithRetry';
 import BetaChip from './src/Ui/BetaChip';
 import DarkModeSwitch from './src/Theme/ThemeEditor/DarkModeSwitch';
+import {getContrastText} from './src/Ui/colorUtil';
 
 export {
     AppProvider,
     BetaChip,
+    getContrastText,
     initApp,
     createCachedThemeOptions,
     DarkModeSwitch,

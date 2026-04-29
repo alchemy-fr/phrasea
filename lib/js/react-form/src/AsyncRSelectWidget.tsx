@@ -3,7 +3,7 @@ import {FieldValues} from 'react-hook-form';
 import {Control} from 'react-hook-form';
 import {FieldPath} from 'react-hook-form';
 import AsyncSelect from 'react-select/async';
-import {ReactNode, useEffect, useState} from 'react';
+import {ReactNode, useEffect, useMemo, useState} from 'react';
 import {InputLabel, useTheme} from '@mui/material';
 import {AsyncProps} from 'react-select/async';
 import {OnChangeValue} from 'react-select';
@@ -109,6 +109,10 @@ export default function AsyncRSelectWidget<
         Option: ImageOption,
         ...(rest.components ?? {}),
     };
+
+    const computedStyles = useMemo(() => {
+        return createSelectStyles(theme, error, styles, inputHeight, menuWidth);
+    }, [theme, error, inputHeight, menuWidth]);
 
     const updateLastOptions = (options: SelectOption[]) => {
         setLastOptions(p => {
@@ -230,13 +234,7 @@ export default function AsyncRSelectWidget<
                                 isMulti={isMulti}
                                 menuPortalTarget={document.body}
                                 onCreateOption={onCreateOption}
-                                styles={createSelectStyles(
-                                    theme,
-                                    error,
-                                    styles,
-                                    inputHeight,
-                                    menuWidth
-                                )}
+                                styles={computedStyles}
                             />
                         </>
                     );
@@ -297,13 +295,7 @@ export default function AsyncRSelectWidget<
                 isMulti={isMulti}
                 menuPortalTarget={document.body}
                 onCreateOption={onCreateOption}
-                styles={createSelectStyles(
-                    theme,
-                    error,
-                    styles,
-                    inputHeight,
-                    menuWidth
-                )}
+                styles={computedStyles}
             />
         </>
     );
