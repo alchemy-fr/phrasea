@@ -46,7 +46,7 @@ class EntityListCrudController extends AbstractAdminCrudController
             ->autocomplete();
         yield TextField::new('name');
         yield BooleanField::new('allowNewValues');
-        yield BooleanField::new('autoAcceptValues');
+        yield BooleanField::new('approveNewValues');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')

@@ -251,6 +251,11 @@ class AttributeEntity extends AbstractUuidEntity
         $this->creatorId = $creatorId;
     }
 
+    public function isApproved(): bool
+    {
+        return self::STATUS_APPROVED === $this->status;
+    }
+
     public function __toString(): string
     {
         return $this->value ?? $this->getId() ?? '';

@@ -153,7 +153,12 @@ final class EntityAttributeType extends TextAttributeType
             return null;
         }
 
-        return $this->repository->find($value);
+        $entity = $this->repository->find($value);
+        if (!$entity?->isApproved()) {
+            return null;
+        }
+
+        return $entity;
     }
 
     public function getEntityBestTranslation(?string $value, ?string $locale): ?string
