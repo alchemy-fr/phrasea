@@ -3,6 +3,7 @@ import {AttributeEntity} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {SortWay} from './common.ts';
 import {PaginationParams} from './types.ts';
+import {getBestTranslatedValue} from '@alchemy/i18n/src/Locale/localeHelper.ts';
 
 const attributeEntityNS = '/attribute-entities';
 
@@ -10,6 +11,23 @@ type AttributeEntityOptions = {
     value?: string;
     list?: string;
 } & PaginationParams;
+
+export function formatAttributeEntityLabel(
+    {emoji, value, translations}: AttributeEntity,
+    options: {
+        noTranslate?: boolean;
+    } = {}
+): string {
+    const tValue = !options.noTranslate
+        ? getBestTranslatedValue(translations, value)
+        : value;
+
+    if (emoji) {
+        return `${emoji} ${tValue}`;
+    }
+
+    return tValue;
+}
 
 export async function getAttributeEntities({
     nextUrl,

@@ -172,7 +172,11 @@ export default function MessageField({
                         >
                             <EmojiPicker
                                 disabled={submitting || disabled}
-                                onSelect={(emoji: string) => {
+                                onSelect={(emoji: string | null) => {
+                                    if (!emoji) {
+                                        return;
+                                    }
+
                                     inputRef.current?.focus();
                                     document.execCommand(
                                         'insertText',

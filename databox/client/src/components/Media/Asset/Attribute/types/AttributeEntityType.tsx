@@ -14,6 +14,7 @@ import BaseType from './BaseType.tsx';
 type EntityValue = {
     id: string;
     value: string | null;
+    emoji?: string;
     status: AttributeEntityStatus;
     createdAt: string;
 };
@@ -60,7 +61,8 @@ export default class AttributeEntityType
         return value?.id;
     }
 
-    formatValue({value, t}: AttributeFormatterProps): React.ReactNode {
+    formatValue(props: AttributeFormatterProps): React.ReactNode {
+        const {value, t} = props;
         if (
             value &&
             (value as EntityValue).status !== AttributeEntityStatus.Approved
@@ -85,7 +87,9 @@ export default class AttributeEntityType
             }
         }
 
-        return value?.value;
+        if (value) {
+            return value.emoji ? `${value.emoji} ${value.value}` : value.value;
+        }
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {

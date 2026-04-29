@@ -8,7 +8,10 @@ import {
 } from '@alchemy/react-form';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
 import React from 'react';
-import {getAttributeEntities} from '../../api/attributeEntity.ts';
+import {
+    formatAttributeEntityLabel,
+    getAttributeEntities,
+} from '../../api/attributeEntity.ts';
 import {useModals} from '@alchemy/navigation';
 import CreateAttributeEntityDialog from '../AttributeEntity/CreateAttributeEntityDialog.tsx';
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
@@ -72,9 +75,7 @@ export default function AttributeEntitySelect<
 
             return {
                 value: t.id,
-                label:
-                    (t.emoji ? `${t.emoji} ` : '') +
-                    getBestTranslatedValue(t.translations, t.value),
+                label: formatAttributeEntityLabel(t),
                 item: t,
             };
         });

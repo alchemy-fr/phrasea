@@ -171,6 +171,7 @@ type Props<D extends DefinitionBase, F extends Filters> = {
     managerFormId?: string;
     preSearchBody?: (props: BodyProps<D>) => React.ReactNode;
     preListBody?: (props: BodyProps<D>) => React.ReactNode;
+    settingsNode?: (props: BodyProps<D>) => React.ReactNode;
     searchFilter?: (props: BodyWithListLoadedProps<D>, value: string) => D[];
     applyFilters?: (list: D[], filters: F) => D[];
     filters?: (props: FilterProps<F>) => React.ReactNode;
@@ -206,6 +207,7 @@ export default function DefinitionManager<
     preSearchBody,
     searchFilter,
     applyFilters,
+    settingsNode,
     filters: inputFilters,
 }: Props<D, F>) {
     const {openModal} = useModals();
@@ -562,6 +564,7 @@ export default function DefinitionManager<
                                     />
                                 </div>
                             ) : null}
+                            {settingsNode ? settingsNode(bodyProps) : null}
                         </ListSubheader>
                     ) : null}
                     {preListBody?.(bodyProps)}

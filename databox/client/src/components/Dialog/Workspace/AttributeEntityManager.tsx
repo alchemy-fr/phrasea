@@ -1,11 +1,13 @@
 import {AttributeEntity, EntityList} from '../../../types';
 import {
     deleteAttributeEntity,
+    formatAttributeEntityLabel,
     getAttributeEntities,
     postAttributeEntity,
     putAttributeEntity,
 } from '../../../api/attributeEntity';
 import {
+    Badge,
     ListItem,
     ListItemButton,
     ListItemIcon,
@@ -29,6 +31,9 @@ import ImportExportIcon from '@mui/icons-material/ImportExport';
 import ImportAttributeEntitiesDialog from '../AttributeEntity/ImportAttributeEntitiesDialog.tsx';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import SettingsIcon from '@mui/icons-material/Settings';
+import {DropdownActions} from '@alchemy/phrasea-ui';
 
 function Item({
     usedFormSubmit,
@@ -50,7 +55,11 @@ function EntityListItem({
 }: DefinitionListItemProps<AttributeEntity>) {
     return (
         <>
-            <ListItemText primary={data.value} />
+            <ListItemText
+                primary={formatAttributeEntityLabel(data, {
+                    noTranslate: true,
+                })}
+            />
             {onDelete ? (
                 <ListItemSecondaryAction>
                     <IconButton
@@ -102,51 +111,76 @@ export default function AttributeEntityManager({
     return (
         <DefinitionManager
             batchDelete={true}
-            preSearchBody={({items, reload}) => (
-                <>
-                    <ListItem disablePadding>
-                        <ListItemButton
-                            onClick={() => {
-                                if (items) {
-                                    openModal(ExportAttributeEntitiesDialog, {
-                                        list: items,
-                                        locales: workspace.enabledLocales ?? [],
-                                    });
-                                }
-                            }}
-                            disabled={!items}
-                        >
-                            <ListItemIcon>
-                                <ContentCopy />
-                            </ListItemIcon>
-                            <ListItemText
-                                primary={t('entity_type.list.export', 'Export')}
-                            />
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem disablePadding>
-                        <ListItemButton
-                            onClick={() => {
-                                if (items) {
-                                    openModal(ImportAttributeEntitiesDialog, {
-                                        list,
-                                        onSuccess: () => {
-                                            reload();
-                                        },
-                                    });
-                                }
-                            }}
-                            disabled={!items}
-                        >
-                            <ListItemIcon>
-                                <ImportExportIcon />
-                            </ListItemIcon>
-                            <ListItemText
-                                primary={t('entity_type.list.import', 'Import')}
-                            />
-                        </ListItemButton>
-                    </ListItem>
-                </>
+            settingsNode={({items, reload}) => (
+                <DropdownActions
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                    }}
+                    mainButton={props => (
+                        <IconButton {...props}>
+                            <SettingsIcon />
+                        </IconButton>
+                    )}
+                    children={closeWrapper => [
+                        <ListItem disablePadding key={'export'}>
+                            <ListItemButton
+                                onClick={closeWrapper(() => {
+                                    if (items) {
+                                        openModal(
+                                            ExportAttributeEntitiesDialog,
+                                            {
+                                                list: items,
+                                                locales:
+                                                    workspace.enabledLocales ??
+                                                    [],
+                                            }
+                                        );
+                                    }
+                                })}
+                                disabled={!items}
+                            >
+                                <ListItemIcon>
+                                    <ContentCopy />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={t(
+                                        'entity_type.list.export',
+                                        'Export'
+                                    )}
+                                />
+                            </ListItemButton>
+                        </ListItem>,
+                        <ListItem disablePadding key={'import'}>
+                            <ListItemButton
+                                onClick={closeWrapper(() => {
+                                    if (items) {
+                                        openModal(
+                                            ImportAttributeEntitiesDialog,
+                                            {
+                                                list,
+                                                onSuccess: () => {
+                                                    reload();
+                                                },
+                                            }
+                                        );
+                                    }
+                                })}
+                                disabled={!items}
+                            >
+                                <ListItemIcon>
+                                    <ImportExportIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={t(
+                                        'entity_type.list.import',
+                                        'Import'
+                                    )}
+                                />
+                            </ListItemButton>
+                        </ListItem>,
+                    ]}
+                />
             )}
             deleteConfirmAssertions={() => [
                 t(
