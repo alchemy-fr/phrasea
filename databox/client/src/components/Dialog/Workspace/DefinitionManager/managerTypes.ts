@@ -79,7 +79,8 @@ export type FilterProps<F extends Filters> = {
     setFilter: SetFilterFunc<F>;
 };
 
-export type MultiSelectAction<D extends DefinitionBase> = {
+export type BatchAction<D extends DefinitionBase> = {
+    id: string;
     label: ReactNode;
     color?: ButtonProps['color'];
     icon?: ButtonProps['startIcon'];

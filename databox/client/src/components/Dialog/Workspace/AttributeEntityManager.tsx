@@ -29,6 +29,7 @@ import ImportAttributeEntitiesDialog from '../AttributeEntity/ImportAttributeEnt
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import CallMergeIcon from '@mui/icons-material/CallMerge';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {DropdownActions} from '@alchemy/phrasea-ui';
 import {
@@ -115,21 +116,22 @@ export default function AttributeEntityManager({
             itemDeletable={true}
             batchActions={[
                 {
+                    id: 'merge',
+                    label: t('attribute_entity.batch_merge.label', 'Merge'),
+                    icon: <CallMergeIcon />,
+                    process: async (items, {reload}) => {
+                        await mergeAttributeEntities(items.map(i => i.id));
+                        await reload();
+                    },
+                },
+                {
+                    id: 'delete',
                     label: t('attribute_entity.batch_delete.label', 'Delete'),
                     icon: <DeleteIcon />,
                     process: async (items, {reload}) => {
                         await Promise.all(
                             items.map(item => deleteAttributeEntity(item.id))
                         );
-                        await reload();
-                    },
-                    color: 'error',
-                },
-                {
-                    label: t('attribute_entity.batch_merge.label', 'Merge'),
-                    icon: <DeleteIcon />,
-                    process: async (items, {reload}) => {
-                        await mergeAttributeEntities(items.map(i => i.id));
                         await reload();
                     },
                     color: 'error',

@@ -8,6 +8,7 @@ import React, {
 import {
     Box,
     Button,
+    Checkbox,
     CircularProgress,
     DialogContent,
     Divider,
@@ -46,7 +47,7 @@ import {
     ItemAction,
     ItemState,
     ListState,
-    MultiSelectAction,
+    BatchAction,
     NormalizeData,
     OnSort,
     SetFilterFunc,
@@ -89,7 +90,7 @@ type Props<D extends DefinitionBase, F extends Filters> = {
     deleteConfirmAssertions?: (
         data: D
     ) => ConfirmDialogProps<any>['assertions'];
-    batchActions?: MultiSelectAction<D>[];
+    batchActions?: BatchAction<D>[];
 };
 
 export default function DefinitionManager<
@@ -495,18 +496,59 @@ export default function DefinitionManager<
                         </ListSubheader>
                     ) : null}
                     {preListBody?.(bodyProps)}
-                    <ListItem disablePadding>
-                        <ListItemButton
-                            selected={action === ItemAction.Create}
-                            onClick={createAttribute}
-                            disabled={!list}
-                        >
-                            <ListItemIcon>
-                                <AddBoxIcon />
-                            </ListItemIcon>
-                            <ListItemText primary={newLabel} />
-                        </ListItemButton>
-                    </ListItem>
+                    {selection.length === 0 ? (
+                        <ListItem disablePadding>
+                            <ListItemButton
+                                selected={action === ItemAction.Create}
+                                onClick={createAttribute}
+                                disabled={!list}
+                            >
+                                <ListItemIcon>
+                                    <AddBoxIcon />
+                                </ListItemIcon>
+                                <ListItemText primary={newLabel} />
+                            </ListItemButton>
+                        </ListItem>
+                    ) : null}
+                    {selection.length > 0 && batchActions ? (
+                        <ListItem disablePadding>
+                            <Box>
+                                <Checkbox
+                                    checked={selection.length === list?.length}
+                                    onClick={() => {
+                                        if (selection.length === list?.length) {
+                                            setSelection([]);
+                                        } else {
+                                            setSelection(
+                                                list?.map(i => i.id) ?? []
+                                            );
+                                        }
+                                    }}
+                                />
+                                {batchActions.map(a => (
+                                    <Button
+                                        key={a.id}
+                                        color={a.color}
+                                        onClick={() =>
+                                            a.process(
+                                                selection
+                                                    .map(
+                                                        id =>
+                                                            list!.find(
+                                                                i => i.id === id
+                                                            )!
+                                                    )
+                                                    .filter(i => i)
+                                            )
+                                        }
+                                        startIcon={a.icon}
+                                    >
+                                        {a.label}
+                                    </Button>
+                                ))}
+                            </Box>
+                        </ListItem>
+                    ) : null}
                     <Divider />
 
                     {filteredList ? (

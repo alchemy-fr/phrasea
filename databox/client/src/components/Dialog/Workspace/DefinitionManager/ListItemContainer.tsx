@@ -25,6 +25,7 @@ export default function ListItemContainer<D extends DefinitionBase>({
                             onClick={stopPropagation}
                         >
                             <Checkbox
+                                sx={{ml: -2}}
                                 checked={selection.includes(item.id)}
                                 onChange={e => {
                                     if (e.target.checked) {
