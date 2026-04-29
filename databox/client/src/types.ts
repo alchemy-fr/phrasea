@@ -2,13 +2,13 @@ import type {WithTranslations} from '@alchemy/react-form';
 import {Integration} from './components/Integration/types.ts';
 import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTypes.ts';
 import {RenditionBuildMode} from './api/rendition.ts';
-import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/DefinitionManager.tsx';
 import React from 'react';
 import {AttributeType} from './api/types.ts';
 import {SortBy} from './components/Media/Search/Filter';
 import {AQLQueries} from './components/Media/Search/AQL/query.ts';
 import {ApiHydraObjectResponse} from '@alchemy/api';
 import {Editor} from '@tiptap/core';
+import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/managerTypes.ts';
 
 export type AlternateUrl = {
     type: string;

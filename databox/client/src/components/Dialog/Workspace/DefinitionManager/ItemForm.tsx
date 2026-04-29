@@ -1,13 +1,16 @@
 import {toast} from 'react-toastify';
 import React, {FunctionComponent} from 'react';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
-import type {DefinitionBase} from './DefinitionManager.tsx';
-import {DefinitionItemFormProps, NormalizeData} from './DefinitionManager.tsx';
 import {useFormSubmit} from '@alchemy/api';
 import {RemoteErrors} from '@alchemy/react-form';
 import {StateSetter, Workspace} from '../../../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {DefaultValues} from 'react-hook-form';
+import {
+    DefinitionBase,
+    DefinitionItemFormProps,
+    NormalizeData,
+} from './managerTypes.ts';
 
 type Props<D extends DefinitionBase> = {
     item: D;

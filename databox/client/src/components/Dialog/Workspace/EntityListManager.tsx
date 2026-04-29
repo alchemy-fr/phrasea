@@ -7,11 +7,7 @@ import {
 } from '../../../api/entityList.ts';
 import {ListItemSecondaryAction, ListItemText, TextField} from '@mui/material';
 import {FormFieldErrors, FormRow, SwitchWidget} from '@alchemy/react-form';
-import DefinitionManager, {
-    DefinitionItemFormProps,
-    DefinitionItemManageProps,
-    DefinitionListItemProps,
-} from './DefinitionManager/DefinitionManager.tsx';
+import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import AttributeEntityManager from './AttributeEntityManager.tsx';
@@ -19,6 +15,11 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import React from 'react';
 import {search} from '../../../lib/search.ts';
+import {
+    DefinitionItemFormProps,
+    DefinitionItemManageProps,
+    DefinitionListItemProps,
+} from './DefinitionManager/managerTypes.ts';
 
 function Item({usedFormSubmit}: DefinitionItemFormProps<EntityList>) {
     const {t} = useTranslation();

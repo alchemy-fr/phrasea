@@ -3,6 +3,7 @@ import {
     deleteAttributeEntity,
     formatAttributeEntityLabel,
     getAttributeEntities,
+    mergeAttributeEntities,
     postAttributeEntity,
     putAttributeEntity,
 } from '../../../api/attributeEntity';
@@ -14,11 +15,7 @@ import {
     ListItemSecondaryAction,
     ListItemText,
 } from '@mui/material';
-import DefinitionManager, {
-    DefinitionItemFormProps,
-    DefinitionItemManageProps,
-    DefinitionListItemProps,
-} from './DefinitionManager/DefinitionManager.tsx';
+import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import AttributeEntityFields from '../../AttributeEntity/AttributeEntityFields.tsx';
@@ -34,6 +31,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {DropdownActions} from '@alchemy/phrasea-ui';
+import {
+    DefinitionItemFormProps,
+    DefinitionItemManageProps,
+    DefinitionListItemProps,
+} from './DefinitionManager/managerTypes.ts';
 
 function Item({
     usedFormSubmit,
@@ -110,7 +112,29 @@ export default function AttributeEntityManager({
 
     return (
         <DefinitionManager
-            batchDelete={true}
+            itemDeletable={true}
+            batchActions={[
+                {
+                    label: t('attribute_entity.batch_delete.label', 'Delete'),
+                    icon: <DeleteIcon />,
+                    process: async (items, {reload}) => {
+                        await Promise.all(
+                            items.map(item => deleteAttributeEntity(item.id))
+                        );
+                        await reload();
+                    },
+                    color: 'error',
+                },
+                {
+                    label: t('attribute_entity.batch_merge.label', 'Merge'),
+                    icon: <DeleteIcon />,
+                    process: async (items, {reload}) => {
+                        await mergeAttributeEntities(items.map(i => i.id));
+                        await reload();
+                    },
+                    color: 'error',
+                },
+            ]}
             settingsNode={({items, reload}) => (
                 <DropdownActions
                     anchorOrigin={{

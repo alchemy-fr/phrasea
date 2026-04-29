@@ -26,125 +26,36 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import SortableList, {
     OrderChangeHandler,
     SortableItem,
-    SortableItemProps,
 } from '../../../Ui/Sortable/SortableList.tsx';
-import {Entity, StateSetter, Workspace} from '../../../../types.ts';
+import {Workspace} from '../../../../types.ts';
 import ItemForm from './ItemForm.tsx';
-import {
-    ApiHydraObjectResponse,
-    NormalizedCollectionResponse,
-    UseFormSubmitReturn,
-} from '@alchemy/api';
+import {NormalizedCollectionResponse} from '@alchemy/api';
 import {useModals} from '@alchemy/navigation';
 import {ConfirmDialog, ConfirmDialogProps} from '@alchemy/phrasea-framework';
 import FilterDropdown from './FilterDropdown.tsx';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
-
-export type DefinitionBase = ApiHydraObjectResponse & Entity;
-
-export type DefinitionItemProps<D extends DefinitionBase> = {
-    data: D;
-};
-
-export type DefinitionListItemProps<D extends DefinitionBase> = {
-    onEdit: () => void;
-    onDelete?: () => void;
-} & DefinitionItemProps<D>;
-
-export type DefinitionItemFormProps<D extends DefinitionBase> = {
-    onSave: (data: D) => Promise<D>;
-    onItemUpdate: (data: D) => void;
-    usedFormSubmit: UseFormSubmitReturn<D>;
-    workspace: Workspace;
-} & DefinitionItemProps<D>;
-
-export type DefinitionItemManageProps<D extends DefinitionBase> = {
-    workspace: Workspace;
-    setSubManagementState: SetSubManagementState;
-    reload: () => Promise<any>;
-} & DefinitionItemProps<D>;
-
-type ListState<D extends DefinitionBase> = {
-    list: D[] | undefined;
-    loading: boolean;
-    loadingMore: boolean;
-    next: string | undefined;
-    query: string;
-    filters: Filters;
-};
-
-export type ItemState<D extends DefinitionBase> = {
-    item: D | undefined;
-    loading: boolean;
-    action: ItemAction;
-};
-
-export enum ItemAction {
-    None = 0,
-    Create = 1,
-    Update = 2,
-    Manage = 3,
-}
-
-type SortableListItemProps<D extends SortableItem & DefinitionBase> = {
-    selectedItem: D | undefined;
-    listComponent: FunctionComponent<DefinitionItemProps<D>>;
-    onClick: (data: D) => () => void;
-};
-
-const SortableListItem = React.memo(
-    <D extends SortableItem & DefinitionBase>({
-        data,
-        itemProps,
-    }: {
-        itemProps: SortableListItemProps<D>;
-    } & SortableItemProps<D>) => {
-        const {selectedItem, onClick, listComponent} = itemProps;
-
-        return (
-            <ListItem disablePadding key={data.id}>
-                <ListItemButton
-                    selected={data.id === selectedItem?.id}
-                    onClick={onClick(data)}
-                >
-                    {React.createElement(listComponent, {
-                        data,
-                        key: data.id,
-                    })}
-                </ListItemButton>
-            </ListItem>
-        );
-    }
-);
-
-export type OnSort = (ids: string[]) => void;
-
-export type NormalizeData<D extends DefinitionBase> = (data: D) => D;
-
-type SubManagementState = {
-    formId?: string | undefined;
-    action: ItemAction;
-};
-
-type SetSubManagementState = StateSetter<SubManagementState | undefined>;
-
-type BodyProps<D extends DefinitionBase> = {
-    items: D[] | undefined;
-    reload: () => Promise<void>;
-};
-
-type BodyWithListLoadedProps<D extends DefinitionBase> = {
-    items: D[];
-} & BodyProps<D>;
-
-type Filters = Record<string, any>;
-
-type SetFilterFunc<F extends Filters> = (name: keyof F, value: any) => void;
-
-type FilterProps<F extends Filters> = {
-    filters: F;
-    setFilter: SetFilterFunc<F>;
-};
+import {
+    BodyProps,
+    BodyWithListLoadedProps,
+    DefinitionBase,
+    DefinitionItemFormProps,
+    DefinitionItemManageProps,
+    DefinitionListItemProps,
+    FilterProps,
+    Filters,
+    ItemAction,
+    ItemState,
+    ListState,
+    MultiSelectAction,
+    NormalizeData,
+    OnSort,
+    SetFilterFunc,
+    SetSubManagementState,
+    SortableListItemProps,
+    SubManagementState,
+} from './managerTypes.ts';
+import {SortableListItem} from './SortableListItem.tsx';
+import ListItemContainer from './ListItemContainer.tsx';
 
 type Props<D extends DefinitionBase, F extends Filters> = {
     load: (props: {
@@ -157,7 +68,7 @@ type Props<D extends DefinitionBase, F extends Filters> = {
     itemComponent: FunctionComponent<DefinitionItemFormProps<D>>;
     manageItemComponent?: FunctionComponent<DefinitionItemManageProps<D>>;
     createNewItem: () => Partial<D>;
-    batchDelete?: boolean;
+    itemDeletable?: boolean;
     onClose?: () => void;
     minHeight?: number | undefined;
     newLabel: string;
@@ -178,6 +89,7 @@ type Props<D extends DefinitionBase, F extends Filters> = {
     deleteConfirmAssertions?: (
         data: D
     ) => ConfirmDialogProps<any>['assertions'];
+    batchActions?: MultiSelectAction<D>[];
 };
 
 export default function DefinitionManager<
@@ -191,7 +103,7 @@ export default function DefinitionManager<
     listComponent,
     loadItem,
     onClose,
-    batchDelete,
+    itemDeletable,
     createNewItem,
     minHeight,
     newLabel,
@@ -208,9 +120,11 @@ export default function DefinitionManager<
     searchFilter,
     applyFilters,
     settingsNode,
+    batchActions,
     filters: inputFilters,
 }: Props<D, F>) {
     const {openModal} = useModals();
+    const [selection, setSelection] = useState<string[]>([]);
     const hasPaginationRef = useRef<boolean>(true);
     const [listState, setListState] = useState<ListState<D>>({
         list: undefined,
@@ -488,7 +402,7 @@ export default function DefinitionManager<
         [setListState]
     );
 
-    const itemProps = useMemo(() => {
+    const itemProps = useMemo<SortableListItemProps<D> | undefined>(() => {
         if (!onSort) {
             return;
         }
@@ -496,9 +410,22 @@ export default function DefinitionManager<
         return {
             selectedItem: item as (D & SortableItem) | undefined,
             listComponent,
-            onClick: handleItemClick,
+            handleItemClick,
+            setSelection,
+            selection,
+            itemDeletable,
+            onDelete,
         };
-    }, [onSort, handleItemClick, item, listComponent]);
+    }, [
+        onSort,
+        handleItemClick,
+        itemDeletable,
+        onDelete,
+        setSelection,
+        selection,
+        item,
+        listComponent,
+    ]);
 
     const content = (
         <>
@@ -598,32 +525,24 @@ export default function DefinitionManager<
                             ) : (
                                 filteredList.map(i => {
                                     return (
-                                        <ListItem disablePadding key={i.id}>
-                                            <ListItemButton
-                                                selected={i.id === item?.id}
-                                                onClick={handleItemClick(i)}
-                                            >
-                                                {React.createElement(
-                                                    listComponent,
-                                                    {
-                                                        data: i,
-                                                        key: i.id,
-                                                        onEdit: handleItemClick(
-                                                            i,
-                                                            true
-                                                        ),
-                                                        onDelete:
-                                                            batchDelete &&
-                                                            onDelete
-                                                                ? () =>
-                                                                      onDelete(
-                                                                          i
-                                                                      )
-                                                                : undefined,
-                                                    }
-                                                )}
-                                            </ListItemButton>
-                                        </ListItem>
+                                        <ListItemContainer<D>
+                                            key={i.id}
+                                            selectedItem={item}
+                                            item={i}
+                                            handleItemClick={handleItemClick}
+                                            selection={
+                                                batchActions
+                                                    ? selection
+                                                    : undefined
+                                            }
+                                            onDelete={
+                                                itemDeletable
+                                                    ? onDelete
+                                                    : undefined
+                                            }
+                                            listComponent={listComponent}
+                                            setSelection={setSelection}
+                                        />
                                     );
                                 })
                             )}
