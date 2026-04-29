@@ -44,43 +44,43 @@ final class EntityAttributeType extends TextAttributeType
     public function normalizeElasticsearchValue(?string $value): string|array|null
     {
         $entity = $this->getEntityFromValue($value);
-        if ($entity instanceof AttributeEntity) {
-            $locales = array_merge($entity->getTranslations() ?? [], [
-                AttributeInterface::NO_LOCALE => $entity->getValue(),
-            ]);
-            $entityId = $entity->getId();
+        if (!$entity instanceof AttributeEntity || $entity->isApproved()) {
+            return null;
+        }
 
-            $output = [];
+        $locales = array_merge($entity->getTranslations() ?? [], [
+            AttributeInterface::NO_LOCALE => $entity->getValue(),
+        ]);
+        $entityId = $entity->getId();
 
-            foreach ($locales as $locale => $v) {
-                if (empty($v)) {
+        $output = [];
+
+        foreach ($locales as $locale => $v) {
+            if (empty($v)) {
+                continue;
+            }
+
+            $output[$locale] = [
+                'id' => $entityId,
+                'value' => $v,
+            ];
+        }
+
+        $synonyms = $entity->getSynonyms();
+        if (!empty($synonyms)) {
+            foreach ($synonyms as $locale => $synonym) {
+                if (empty($synonym)) {
                     continue;
                 }
 
-                $output[$locale] = [
+                $output[$locale] ??= [
                     'id' => $entityId,
-                    'value' => $v,
                 ];
+                $output[$locale]['synonyms'] = $synonym;
             }
-
-            $synonyms = $entity->getSynonyms();
-            if (!empty($synonyms)) {
-                foreach ($synonyms as $locale => $synonym) {
-                    if (empty($synonym)) {
-                        continue;
-                    }
-
-                    $output[$locale] ??= [
-                        'id' => $entityId,
-                    ];
-                    $output[$locale]['synonyms'] = $synonym;
-                }
-            }
-
-            return $output;
         }
 
-        return null;
+        return $output;
     }
 
     public function getElasticSearchTextSubField(): ?string
@@ -153,19 +153,14 @@ final class EntityAttributeType extends TextAttributeType
             return null;
         }
 
-        $entity = $this->repository->find($value);
-        if (!$entity?->isApproved()) {
-            return null;
-        }
-
-        return $entity;
+        return $this->repository->find($value);
     }
 
     public function getEntityBestTranslation(?string $value, ?string $locale): ?string
     {
         $entity = $this->getEntityFromValue($value);
-        if (!$entity instanceof AttributeEntity) {
-            return '';
+        if (!$entity instanceof AttributeEntity || !$entity->isApproved()) {
+            return null;
         }
 
         return $this->getTranslatedValue($entity, $locale);
@@ -180,7 +175,8 @@ final class EntityAttributeType extends TextAttributeType
 
         return [
             'id' => $entity->getId(),
-            'value' => $this->getTranslatedValue($entity),
+            'value' => $entity->isApproved() ? $this->getTranslatedValue($entity) : null,
+            'status' => $entity->getStatus(),
             'createdAt' => $entity->getCreatedAt(),
         ];
     }

@@ -4,12 +4,19 @@ import {
     AttributeWidgetProps,
 } from './types';
 import React from 'react';
-import {InputLabel} from '@mui/material';
-import {AttributeEntity} from '../../../../../types.ts';
+import {Box, InputLabel} from '@mui/material';
+import {AttributeEntity, AttributeEntityStatus} from '../../../../../types.ts';
 import AttributeEntitySelect, {
     AttributeEntityOption,
 } from '../../../../Form/AttributeEntitySelect.tsx';
 import BaseType from './BaseType.tsx';
+
+type EntityValue = {
+    id: string;
+    value: string | null;
+    status: AttributeEntityStatus;
+    createdAt: string;
+};
 
 export default class AttributeEntityType
     extends BaseType
@@ -53,8 +60,32 @@ export default class AttributeEntityType
         return value?.id;
     }
 
-    formatValue({value}: AttributeFormatterProps): React.ReactNode {
-        return value?.value as React.ReactNode;
+    formatValue({value, t}: AttributeFormatterProps): React.ReactNode {
+        if (
+            value &&
+            (value as EntityValue).status !== AttributeEntityStatus.Approved
+        ) {
+            if (value.status === AttributeEntityStatus.Pending) {
+                return (
+                    <Box
+                        component={'span'}
+                        sx={{
+                            color: 'warning.main',
+                            fontStyle: 'italic',
+                        }}
+                    >
+                        {t(
+                            'attribute.entity.pending',
+                            '[Value Pending for approval]'
+                        )}
+                    </Box>
+                );
+            } else {
+                return;
+            }
+        }
+
+        return value?.value;
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {
