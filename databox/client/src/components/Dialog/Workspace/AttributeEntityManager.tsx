@@ -38,6 +38,7 @@ import {
     DefinitionItemManageProps,
     DefinitionListItemProps,
 } from './DefinitionManager/managerTypes.ts';
+import {forceObject} from '@alchemy/core';
 
 type ExtraProps = {
     list: EntityList;
@@ -121,6 +122,13 @@ export default function AttributeEntityManager({
 
     return (
         <DefinitionManager
+            normalizeData={data => {
+                return {
+                    ...data,
+                    translations: forceObject(data.translations ?? {}),
+                    synonyms: forceObject(data.synonyms ?? {}),
+                };
+            }}
             itemDeletable={true}
             batchActions={selection => {
                 const actions: BatchAction<AttributeEntity>[] = [];
