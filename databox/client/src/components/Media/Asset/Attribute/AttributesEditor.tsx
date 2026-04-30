@@ -1,10 +1,19 @@
 import {FormLabel} from '@mui/material';
-import {AssetTypeFilter, AttributeDefinition} from '../../../../types';
+import {
+    AssetTypeFilter,
+    AttributeDefinition,
+    Workspace,
+} from '../../../../types';
 import AttributeType from './AttributeType';
 import {toArray} from '../../../../lib/utils';
 import React from 'react';
 import {FormRow} from '@alchemy/react-form';
 import {OnChangeHandler} from './attributeTypes.ts';
+import Button from '@mui/material/Button';
+import {modalRoutes} from '../../../../routes.ts';
+import {WorkspaceDIalogTabs} from '../../../Dialog/Workspace/WorkspaceDialog.tsx';
+import {useTranslation} from 'react-i18next';
+import {useNavigateToModal} from '../../../Routing/ModalLink.tsx';
 
 export type AttrValue<T = string> = {
     id: T;
@@ -34,6 +43,8 @@ export default function AttributesEditor({
     disabled,
     assetTypeFilter,
 }: Props) {
+    const {t} = useTranslation();
+    const navigateToModal = useNavigateToModal();
     const defaultLocale = React.useMemo(() => {
         const firstTranslatableDefinition = toArray(definitions).find(
             d => d.translatable
@@ -67,7 +78,33 @@ export default function AttributesEditor({
                             mb: 5,
                         }}
                     >
-                        <FormLabel>{d.nameTranslated ?? d.name}</FormLabel>
+                        <FormLabel sx={{display: 'flex', alignItems: 'center'}}>
+                            {d.nameTranslated ?? d.name}
+                            {d.entityList ? (
+                                <Button
+                                    sx={{ml: 2, my: 1}}
+                                    variant={'outlined'}
+                                    onClick={() =>
+                                        navigateToModal(
+                                            modalRoutes.workspaces.routes
+                                                .manage,
+                                            {
+                                                id: (d.workspace as Workspace)
+                                                    .id,
+                                                tab: WorkspaceDIalogTabs.Entities,
+                                            }
+                                        )
+                                    }
+                                    size={'small'}
+                                >
+                                    {t(
+                                        'attribute_entity_select.manage_list',
+                                        'Manage list'
+                                    )}
+                                </Button>
+                            ) : null}
+                        </FormLabel>
+
                         <AttributeType
                             labelAlreadyRendered={true}
                             readOnly={!d.canEdit}
