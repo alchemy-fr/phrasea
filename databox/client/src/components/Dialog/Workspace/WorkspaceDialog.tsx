@@ -22,7 +22,7 @@ import {useWorkspaceStore} from '../../../store/workspaceStore.ts';
 
 type Props = {};
 
-export enum WorkspaceDIalogTabs {
+export enum WorkspaceDialogTabs {
     Entities = 'entities',
 }
 
@@ -105,7 +105,7 @@ export default function WorkspaceDialog({}: Props) {
                         'Entities'
                     ),
                     component: EntityListManager,
-                    id: WorkspaceDIalogTabs.Entities,
+                    id: WorkspaceDialogTabs.Entities,
                     props: {
                         data,
                     },

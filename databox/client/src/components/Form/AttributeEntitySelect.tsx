@@ -114,6 +114,7 @@ export default function AttributeEntitySelect<
             styles={{
                 option: (_base, state) => entityStyle(state.data),
                 singleValue: (_base, state) => entityStyle(state.data),
+                ...(rest.styles ?? {}),
             }}
         />
     );

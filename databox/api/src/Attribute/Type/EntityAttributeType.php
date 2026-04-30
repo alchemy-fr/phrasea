@@ -44,7 +44,7 @@ final class EntityAttributeType extends TextAttributeType
     public function normalizeElasticsearchValue(?string $value): string|array|null
     {
         $entity = $this->getEntityFromValue($value);
-        if (!$entity instanceof AttributeEntity || $entity->isApproved()) {
+        if (!$entity instanceof AttributeEntity || !$entity->isApproved()) {
             return null;
         }
 

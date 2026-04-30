@@ -9,6 +9,7 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\MergeAttributeEntitiesInput;
+use App\Attribute\AttributeInterface;
 use App\Entity\Core\AttributeEntity;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -45,7 +46,7 @@ class MergeAttributeEntitiesProcessor implements ProcessorInterface
 
         foreach ($entities as $entity) {
             $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $entity);
-            $synonyms = $this->mergeSynonyms($synonyms, $entity->getSynonyms() ?? []);
+            $synonyms = $this->mergeSynonyms($synonyms, $entity);
             $this->em->remove($entity);
         }
 
@@ -59,12 +60,27 @@ class MergeAttributeEntitiesProcessor implements ProcessorInterface
         return $mainEntity;
     }
 
-    private function mergeSynonyms(array $a, array $b): array
+    private function mergeSynonyms(array $a, AttributeEntity $rightEntity): array
     {
-        foreach ($b as $locale => $synonyms) {
-            $a[$locale] ??= [];
+        $b = $rightEntity->getSynonyms() ?? [];
+        $a[AttributeInterface::NO_LOCALE] ??= [];
+        $a[AttributeInterface::NO_LOCALE][] = $rightEntity->getValue();
 
-            $a[$locale] = array_values(array_unique(array_merge($a[$locale], $synonyms)));
+        foreach ($rightEntity->getTranslations() as $locale => $translation) {
+            $a[$locale] ??= [];
+            $a[$locale][] = $translation;
+        }
+
+        foreach ($b as $locale => $synonyms) {
+            $a[$locale] = array_merge($a[$locale] ?? [], $synonyms);
+        }
+
+        foreach ($a as $locale => $synonyms) {
+            $a[$locale] = array_values(array_unique(array_filter($synonyms, fn (?string $s): bool => !empty($s))));
+
+            if (empty($a[$locale])) {
+                unset($a[$locale]);
+            }
         }
 
         return $a;

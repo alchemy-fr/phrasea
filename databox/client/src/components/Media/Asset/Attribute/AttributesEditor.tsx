@@ -11,7 +11,7 @@ import {FormRow} from '@alchemy/react-form';
 import {OnChangeHandler} from './attributeTypes.ts';
 import Button from '@mui/material/Button';
 import {modalRoutes} from '../../../../routes.ts';
-import {WorkspaceDIalogTabs} from '../../../Dialog/Workspace/WorkspaceDialog.tsx';
+import {WorkspaceDialogTabs} from '../../../Dialog/Workspace/WorkspaceDialog.tsx';
 import {useTranslation} from 'react-i18next';
 import {useNavigateToModal} from '../../../Routing/ModalLink.tsx';
 
@@ -91,7 +91,7 @@ export default function AttributesEditor({
                                             {
                                                 id: (d.workspace as Workspace)
                                                     .id,
-                                                tab: WorkspaceDIalogTabs.Entities,
+                                                tab: WorkspaceDialogTabs.Entities,
                                             }
                                         )
                                     }
