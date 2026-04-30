@@ -62,6 +62,47 @@ function Item({usedFormSubmit}: DefinitionItemFormProps<EntityList>) {
                     disabled={submitting}
                 />
             </FormRow>
+            <FormRow>
+                <SwitchWidget
+                    control={control}
+                    name={'withTranslations'}
+                    label={t(
+                        'form.entity_type.withTranslations.label',
+                        'Use translations'
+                    )}
+                    disabled={submitting}
+                />
+            </FormRow>
+            <FormRow>
+                <SwitchWidget
+                    control={control}
+                    name={'withSynonyms'}
+                    label={t(
+                        'form.entity_type.withSynonyms.label',
+                        'Use synonyms'
+                    )}
+                    disabled={submitting}
+                />
+            </FormRow>
+            <FormRow>
+                <SwitchWidget
+                    control={control}
+                    name={'withEmojis'}
+                    label={t(
+                        'form.entity_type.withEmojis.label',
+                        'Use emojis as icon'
+                    )}
+                    disabled={submitting}
+                />
+            </FormRow>
+            <FormRow>
+                <SwitchWidget
+                    control={control}
+                    name={'withColors'}
+                    label={t('form.entity_type.withColors.label', 'Use colors')}
+                    disabled={submitting}
+                />
+            </FormRow>
         </>
     );
 }

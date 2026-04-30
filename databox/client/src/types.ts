@@ -316,6 +316,10 @@ export type EntityList = {
     definitions: AttributeDefinition[];
     allowNewValues?: boolean;
     approveNewValues?: boolean;
+    withTranslations?: boolean;
+    withSynonyms?: boolean;
+    withEmojis?: boolean;
+    withColors?: boolean;
     createdAt: string;
     updatedAt: string;
 } & ApiHydraObjectResponse &

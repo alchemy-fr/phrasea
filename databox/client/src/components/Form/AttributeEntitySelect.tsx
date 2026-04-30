@@ -47,7 +47,7 @@ export default function AttributeEntitySelect<
             ? (inputValue, onCreate) => {
                   openModal(CreateAttributeEntityDialog, {
                       value: inputValue,
-                      list: list.id,
+                      list,
                       workspaceId,
                       onCreate: (d: AttributeEntity) => {
                           onCreate({
@@ -84,7 +84,7 @@ export default function AttributeEntitySelect<
     const entityStyle = (data: AttributeEntityOption): CSSObjectWithLabel => {
         const status = data.item?.status;
 
-        return status !== AttributeEntityStatus.Approved
+        return status !== undefined && status !== AttributeEntityStatus.Approved
             ? {
                   'alignItems': 'center',
                   'display': 'flex',

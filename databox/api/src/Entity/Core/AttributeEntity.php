@@ -96,7 +96,8 @@ class AttributeEntity extends AbstractUuidEntity
     final public const int STATUS_PENDING = 1;
     final public const int STATUS_REJECTED = 2;
 
-    private const string DATA_EMOJI = 'emoji';
+    private const string DATA_EMOJI = 'e';
+    private const string DATA_COLOR = 'c';
 
     public const array STATUS_CHOICES = [
         'Approved' => self::STATUS_APPROVED,

@@ -16,15 +16,20 @@ export type DefinitionBase = ApiHydraObjectResponse & Entity;
 export type DefinitionItemProps<D extends DefinitionBase> = {
     data: D;
 };
+export type DefinitionManagerExtraProps = Record<string, any>;
 export type DefinitionListItemProps<D extends DefinitionBase> = {
     onEdit: () => void;
     onDelete?: () => void;
 } & DefinitionItemProps<D>;
-export type DefinitionItemFormProps<D extends DefinitionBase> = {
+export type DefinitionItemFormProps<
+    D extends DefinitionBase,
+    EP extends DefinitionManagerExtraProps = {},
+> = {
     onSave: (data: D) => Promise<D>;
     onItemUpdate: (data: D) => void;
     usedFormSubmit: UseFormSubmitReturn<D>;
     workspace: Workspace;
+    extraProps: EP;
 } & DefinitionItemProps<D>;
 
 type Reload = () => Promise<any>;
@@ -84,6 +89,7 @@ export type BatchAction<D extends DefinitionBase> = {
     label: ReactNode;
     color?: ButtonProps['color'];
     icon?: ButtonProps['startIcon'];
+    confirm?: string;
     process: (
         items: D[],
         props: {

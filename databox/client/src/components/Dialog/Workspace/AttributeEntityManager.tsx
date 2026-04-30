@@ -39,16 +39,22 @@ import {
     DefinitionListItemProps,
 } from './DefinitionManager/managerTypes.ts';
 
+type ExtraProps = {
+    list: EntityList;
+};
+
 function Item({
     usedFormSubmit,
     workspace,
     data,
-}: DefinitionItemFormProps<AttributeEntity>) {
+    extraProps: {list},
+}: DefinitionItemFormProps<AttributeEntity, ExtraProps>) {
     return (
         <AttributeEntityFields
             usedFormSubmit={usedFormSubmit}
             workspace={workspace}
             data={data}
+            list={list}
         />
     );
 }
@@ -87,6 +93,7 @@ function createNewItem(): Partial<AttributeEntity> {
     return {
         value: '',
         translations: {},
+        synonyms: {},
     };
 }
 
@@ -121,6 +128,10 @@ export default function AttributeEntityManager({
                 if (selection.length > 1) {
                     actions.push({
                         id: 'merge',
+                        confirm: t(
+                            'attribute_entity.batch_merge.confirm',
+                            'Are you sure you want to merge these entities? This action cannot be undone.'
+                        ),
                         label: t('attribute_entity.batch_merge.label', 'Merge'),
                         icon: <CallMergeIcon />,
                         process: async (items, {reload}) => {
@@ -132,6 +143,10 @@ export default function AttributeEntityManager({
 
                 actions.push({
                     id: 'delete',
+                    confirm: t(
+                        'attribute_entity.batch_delete.confirm',
+                        'Are you sure you want to delete these entities?'
+                    ),
                     label: t('attribute_entity.batch_delete.label', 'Delete'),
                     icon: <DeleteIcon />,
                     process: async (items, {reload}) => {
@@ -242,6 +257,7 @@ export default function AttributeEntityManager({
             handleSave={handleSave}
             handleDelete={deleteAttributeEntity}
             setSubManagementState={setSubManagementState}
+            extraProps={{list} as ExtraProps}
         />
     );
 }

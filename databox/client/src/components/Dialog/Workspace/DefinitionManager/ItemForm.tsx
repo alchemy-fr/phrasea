@@ -9,12 +9,13 @@ import {DefaultValues} from 'react-hook-form';
 import {
     DefinitionBase,
     DefinitionItemFormProps,
+    DefinitionManagerExtraProps,
     NormalizeData,
 } from './managerTypes.ts';
 
-type Props<D extends DefinitionBase> = {
+type Props<D extends DefinitionBase, EP extends DefinitionManagerExtraProps> = {
     item: D;
-    itemComponent: FunctionComponent<DefinitionItemFormProps<D>>;
+    itemComponent: FunctionComponent<DefinitionItemFormProps<D, EP>>;
     onSave: (data: D) => Promise<D>;
     workspace: Workspace;
     formId: string;
@@ -22,9 +23,13 @@ type Props<D extends DefinitionBase> = {
     setSubmitting: StateSetter<boolean>;
     normalizeData?: NormalizeData<D>;
     denormalizeData?: NormalizeData<D>;
+    extraProps: EP;
 };
 
-export default function ItemForm<D extends DefinitionBase>({
+export default function ItemForm<
+    D extends DefinitionBase,
+    EP extends DefinitionManagerExtraProps,
+>({
     item,
     formId,
     itemComponent,
@@ -34,7 +39,8 @@ export default function ItemForm<D extends DefinitionBase>({
     setSubmitting,
     normalizeData,
     denormalizeData,
-}: Props<D>) {
+    extraProps,
+}: Props<D, EP>) {
     const {t} = useTranslation();
     const usedFormSubmit = useFormSubmit({
         defaultValues: item as DefaultValues<D>,
@@ -84,6 +90,7 @@ export default function ItemForm<D extends DefinitionBase>({
                 onItemUpdate,
                 usedFormSubmit,
                 workspace,
+                extraProps,
             })}
             <RemoteErrors errors={remoteErrors} />
         </form>

@@ -6,6 +6,7 @@ import React, {
     useState,
 } from 'react';
 import {
+    Badge,
     Box,
     Button,
     Checkbox,
@@ -54,11 +55,16 @@ import {
     SetSubManagementState,
     SortableListItemProps,
     SubManagementState,
+    DefinitionManagerExtraProps,
 } from './managerTypes.ts';
 import {SortableListItem} from './SortableListItem.tsx';
 import ListItemContainer from './ListItemContainer.tsx';
 
-type Props<D extends DefinitionBase, F extends Filters> = {
+type Props<
+    D extends DefinitionBase,
+    F extends Filters,
+    EP extends DefinitionManagerExtraProps,
+> = {
     load: (props: {
         nextUrl?: string;
         query?: string;
@@ -66,7 +72,7 @@ type Props<D extends DefinitionBase, F extends Filters> = {
     }) => Promise<NormalizedCollectionResponse<D>>;
     loadItem?: (id: string) => Promise<D>;
     listComponent: FunctionComponent<DefinitionListItemProps<D>>;
-    itemComponent: FunctionComponent<DefinitionItemFormProps<D>>;
+    itemComponent: FunctionComponent<DefinitionItemFormProps<D, EP>>;
     manageItemComponent?: FunctionComponent<DefinitionItemManageProps<D>>;
     createNewItem: () => Partial<D>;
     itemDeletable?: boolean;
@@ -91,11 +97,13 @@ type Props<D extends DefinitionBase, F extends Filters> = {
         data: D
     ) => ConfirmDialogProps<any>['assertions'];
     batchActions?: (selection: string[]) => BatchAction<D>[];
+    extraProps?: EP;
 };
 
 export default function DefinitionManager<
     D extends DefinitionBase,
     F extends Filters,
+    EP extends DefinitionManagerExtraProps = {},
 >({
     load,
     handleDelete,
@@ -122,8 +130,9 @@ export default function DefinitionManager<
     applyFilters,
     settingsNode,
     batchActions,
+    extraProps,
     filters: inputFilters,
-}: Props<D, F>) {
+}: Props<D, F, EP>) {
     const {openModal} = useModals();
     const [selection, setSelection] = useState<string[]>([]);
     const hasPaginationRef = useRef<boolean>(true);
@@ -416,6 +425,7 @@ export default function DefinitionManager<
             selection,
             itemDeletable,
             onDelete,
+            extraProps,
         };
     }, [
         onSort,
@@ -426,6 +436,7 @@ export default function DefinitionManager<
         selection,
         item,
         listComponent,
+        extraProps,
     ]);
 
     const content = (
@@ -513,35 +524,65 @@ export default function DefinitionManager<
                     {selection.length > 0 && batchActions ? (
                         <ListItem disablePadding>
                             <Box>
-                                <Checkbox
-                                    checked={selection.length === list?.length}
-                                    onClick={() => {
-                                        if (selection.length === list?.length) {
-                                            setSelection([]);
-                                        } else {
-                                            setSelection(
-                                                list?.map(i => i.id) ?? []
-                                            );
-                                        }
+                                <Badge
+                                    anchorOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'right',
                                     }}
-                                />
+                                    badgeContent={selection.length}
+                                    color="primary"
+                                    invisible={selection.length === 0}
+                                >
+                                    <Checkbox
+                                        checked={
+                                            selection.length === list?.length
+                                        }
+                                        onClick={() => {
+                                            if (
+                                                selection.length ===
+                                                list?.length
+                                            ) {
+                                                setSelection([]);
+                                            } else {
+                                                setSelection(
+                                                    list?.map(i => i.id) ?? []
+                                                );
+                                            }
+                                        }}
+                                    />
+                                </Badge>
                                 {batchActions(selection).map(a => (
                                     <Button
                                         key={a.id}
                                         color={a.color}
-                                        onClick={() =>
-                                            a.process(
-                                                selection
-                                                    .map(
-                                                        id =>
-                                                            list!.find(
-                                                                i => i.id === id
-                                                            )!
-                                                    )
-                                                    .filter(i => i),
-                                                {reload}
-                                            )
-                                        }
+                                        onClick={async () => {
+                                            const p = async () => {
+                                                await a.process(
+                                                    selection
+                                                        .map(
+                                                            id =>
+                                                                list!.find(
+                                                                    i =>
+                                                                        i.id ===
+                                                                        id
+                                                                )!
+                                                        )
+                                                        .filter(i => i),
+                                                    {reload}
+                                                );
+                                                setSelection([]);
+                                            };
+
+                                            if (a.confirm) {
+                                                openModal(ConfirmDialog, {
+                                                    title: a.confirm,
+                                                    onConfirm: p,
+                                                });
+                                                return;
+                                            }
+
+                                            await p();
+                                        }}
                                         startIcon={a.icon}
                                     >
                                         {a.label}
@@ -680,6 +721,7 @@ export default function DefinitionManager<
                             onItemUpdate={onItemUpdate}
                             normalizeData={normalizeData}
                             denormalizeData={denormalizeData}
+                            extraProps={extraProps ?? ({} as EP)}
                         />
                         {action === ItemAction.Update && onDelete && (
                             <>

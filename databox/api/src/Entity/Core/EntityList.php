@@ -79,9 +79,18 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
 
     private const string ALLOW_NEW_VALUES = 'nv';
     private const string APPROVE_NEW_VALUES = 'av';
+    private const string WITH_EMOJIS = 'we';
+    private const string WITH_COLORS = 'wc';
+    private const string WITH_TRANSLATIONS = 'wt';
+    private const string WITH_SYNONYMS = 'ws';
 
     final public const string GROUP_READ = 'entity-list:r';
     final public const string GROUP_LIST = 'entity-list:i';
+    private const array COMMON_GROUPS = [
+        self::GROUP_READ,
+        self::GROUP_LIST,
+        AttributeDefinition::GROUP_LIST,
+    ];
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
@@ -126,7 +135,7 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
         return $this->definitions;
     }
 
-    #[Groups([self::GROUP_READ, self::GROUP_LIST, AttributeDefinition::GROUP_LIST])]
+    #[Groups(self::COMMON_GROUPS)]
     public function isAllowNewValues(): bool
     {
         return $this->options[self::ALLOW_NEW_VALUES] ?? false;
@@ -137,7 +146,7 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
         $this->options[self::ALLOW_NEW_VALUES] = $allowNewValues;
     }
 
-    #[Groups([self::GROUP_READ, self::GROUP_LIST, AttributeDefinition::GROUP_LIST])]
+    #[Groups(self::COMMON_GROUPS)]
     public function isApproveNewValues(): bool
     {
         return $this->options[self::APPROVE_NEW_VALUES] ?? false;
@@ -146,6 +155,50 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
     public function setApproveNewValues(bool $approveNewValues): void
     {
         $this->options[self::APPROVE_NEW_VALUES] = $approveNewValues;
+    }
+
+    #[Groups(self::COMMON_GROUPS)]
+    public function isWithEmojis(): bool
+    {
+        return $this->options[self::WITH_EMOJIS] ?? false;
+    }
+
+    public function setWithEmojis(bool $withEmojis): void
+    {
+        $this->options[self::WITH_EMOJIS] = $withEmojis;
+    }
+
+    #[Groups(self::COMMON_GROUPS)]
+    public function isWithColors(): bool
+    {
+        return $this->options[self::WITH_COLORS] ?? false;
+    }
+
+    public function setWithColors(bool $withColor): void
+    {
+        $this->options[self::WITH_COLORS] = $withColor;
+    }
+
+    #[Groups(self::COMMON_GROUPS)]
+    public function isWithTranslations(): bool
+    {
+        return $this->options[self::WITH_TRANSLATIONS] ?? false;
+    }
+
+    public function setWithTranslations(bool $withTranslations): void
+    {
+        $this->options[self::WITH_TRANSLATIONS] = $withTranslations;
+    }
+
+    #[Groups(self::COMMON_GROUPS)]
+    public function isWithSynonyms(): bool
+    {
+        return $this->options[self::WITH_SYNONYMS] ?? false;
+    }
+
+    public function setWithSynonyms(bool $withSynonyms): void
+    {
+        $this->options[self::WITH_SYNONYMS] = $withSynonyms;
     }
 
     public function getEntities(): ?Collection
