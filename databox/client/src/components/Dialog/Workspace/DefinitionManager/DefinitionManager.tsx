@@ -90,7 +90,7 @@ type Props<D extends DefinitionBase, F extends Filters> = {
     deleteConfirmAssertions?: (
         data: D
     ) => ConfirmDialogProps<any>['assertions'];
-    batchActions?: BatchAction<D>[];
+    batchActions?: (selection: string[]) => BatchAction<D>[];
 };
 
 export default function DefinitionManager<
@@ -525,7 +525,7 @@ export default function DefinitionManager<
                                         }
                                     }}
                                 />
-                                {batchActions.map(a => (
+                                {batchActions(selection).map(a => (
                                     <Button
                                         key={a.id}
                                         color={a.color}
@@ -538,7 +538,8 @@ export default function DefinitionManager<
                                                                 i => i.id === id
                                                             )!
                                                     )
-                                                    .filter(i => i)
+                                                    .filter(i => i),
+                                                {reload}
                                             )
                                         }
                                         startIcon={a.icon}

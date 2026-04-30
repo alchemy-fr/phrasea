@@ -17,8 +17,10 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\MergeAttributeEntitiesInput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Processor\AddAttributeEntityProcessor;
+use App\Api\Processor\MergeAttributeEntitiesProcessor;
 use App\Api\Provider\AttributeEntityCollectionProvider;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeEntityRepository;
@@ -47,6 +49,12 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             securityPostDenormalize: 'is_granted("CREATE", object)',
             processor: AddAttributeEntityProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/attribute-entities/{id}/merge',
+            input: MergeAttributeEntitiesInput::class,
+            name: 'entities_merge',
+            processor: MergeAttributeEntitiesProcessor::class,
         ),
     ],
     normalizationContext: [

@@ -33,10 +33,16 @@ class AttributeEntityVoter extends AbstractVoter
         $typeEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getList());
         $typeReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getList());
 
+        $isCreator = function () use ($subject): bool {
+            $userId = $this->security->getUser()?->getUserIdentifier();
+
+            return null !== $userId && $userId === $subject->getCreatorId();
+        };
+
         return match ($attribute) {
             self::CREATE => $typeEditor() || $subject->getList()->isAllowNewValues(),
-            self::DELETE, self::EDIT => $typeEditor(),
-            self::READ => $typeReader(),
+            self::EDIT, self::DELETE => $typeEditor() || ($isCreator() && !$subject->isApproved()),
+            self::READ => $typeReader() && ($subject->isApproved() || $isCreator()),
             default => false,
         };
     }

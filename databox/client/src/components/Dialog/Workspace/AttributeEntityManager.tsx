@@ -33,6 +33,7 @@ import CallMergeIcon from '@mui/icons-material/CallMerge';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {DropdownActions} from '@alchemy/phrasea-ui';
 import {
+    BatchAction,
     DefinitionItemFormProps,
     DefinitionItemManageProps,
     DefinitionListItemProps,
@@ -114,17 +115,22 @@ export default function AttributeEntityManager({
     return (
         <DefinitionManager
             itemDeletable={true}
-            batchActions={[
-                {
-                    id: 'merge',
-                    label: t('attribute_entity.batch_merge.label', 'Merge'),
-                    icon: <CallMergeIcon />,
-                    process: async (items, {reload}) => {
-                        await mergeAttributeEntities(items.map(i => i.id));
-                        await reload();
-                    },
-                },
-                {
+            batchActions={selection => {
+                const actions: BatchAction<AttributeEntity>[] = [];
+
+                if (selection.length > 1) {
+                    actions.push({
+                        id: 'merge',
+                        label: t('attribute_entity.batch_merge.label', 'Merge'),
+                        icon: <CallMergeIcon />,
+                        process: async (items, {reload}) => {
+                            await mergeAttributeEntities(items.map(i => i.id));
+                            await reload();
+                        },
+                    });
+                }
+
+                actions.push({
                     id: 'delete',
                     label: t('attribute_entity.batch_delete.label', 'Delete'),
                     icon: <DeleteIcon />,
@@ -135,8 +141,10 @@ export default function AttributeEntityManager({
                         await reload();
                     },
                     color: 'error',
-                },
-            ]}
+                });
+
+                return actions;
+            }}
             settingsNode={({items, reload}) => (
                 <DropdownActions
                     anchorOrigin={{
