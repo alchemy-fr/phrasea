@@ -743,6 +743,14 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return $this->source?->getType();
     }
 
+    /**
+     * Used by ES.
+     */
+    public function getSourceFileExtension(): ?string
+    {
+        return $this->source?->getExtension();
+    }
+
     public function isDeleted(): bool
     {
         return null !== $this->deletedAt

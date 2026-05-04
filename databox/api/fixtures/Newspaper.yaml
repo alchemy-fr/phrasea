@@ -335,45 +335,59 @@ App\Entity\Core\File:
 
     f_story_img_m{1..20} (extends file):
         type: image/jpeg
+        extension: jpg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 1000)>'
     f_story_img_p{1..20} (extends file):
         type: image/jpeg
+        extension: jpg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 500)>'
     f_story_img_t{1..20} (extends file):
         type: image/jpeg
+        extension: jpg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
     f_img_m{1..50} (extends file):
         type: image/jpeg
+        extension: jpg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 1000)>'
     f_img_p{1..50} (extends file):
         type: image/jpeg
+        extension: jpg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 500)>'
     f_img_t{1..50} (extends file):
         type: image/jpeg
+        extension: jpg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
     f_img_ta{1..10} (extends file):
         type: image/jpeg
+        extension: jpg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
     f_audio_o{1..10} (extends file):
         type: audio/mp3
+        extension: mp3
         path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
     f_audio_t{1..10} (extends file):
         type: audio/mp3
+        extension: mp3
         path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
     f_video_o{1..10} (extends file):
         type: video/mp4
+        extension: mp4
         path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
     f_video_p{1..10} (extends file):
         type: video/mp4
+        extension: mp4
         path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
     f_video_t{1..10} (extends file):
         type: video/mp4
+        extension: mp4
         path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
     f_pdf_o{1..10} (extends file):
         type: application/pdf
+        extension: pdf
         path: '<randomMedia(@w_newspaper->id, "pdf", <current()>)>'
     f_pdf_p{1..10} (extends file):
         type: application/pdf
+        extension: pdf
         path: '<randomMedia(@w_newspaper->id, "pdf", <current()>)>'
 
 App\Entity\Core\AssetRendition:

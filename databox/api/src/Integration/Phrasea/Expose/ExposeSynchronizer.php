@@ -127,12 +127,7 @@ final class ExposeSynchronizer
             ]);
 
             if (null === $assetToSync->exposeAsset) {
-                $exposeAssetId = $this->exposeClient->postAsset($config, $token, $publicationId, $asset, [
-                    'clientAnnotations' => json_encode([
-                        'basketAssetId' => $basketAsset->getId(),
-                        'fileId' => $fileId,
-                    ], JSON_THROW_ON_ERROR),
-                ]);
+                $exposeAssetId = $this->exposeClient->postAsset($config, $token, $publicationId, $asset, $assetProperties);
             } else {
                 $exposeAssetId = $assetToSync->exposeAsset->id;
                 if ($assetToSync->exposeAsset->fileId !== $fileId) {

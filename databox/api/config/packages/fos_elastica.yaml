@@ -126,6 +126,9 @@ fos_elastica:
                 fileMimeType:
                     type: keyword
                     property_path: getSourceFileMimeType
+                fileExtension:
+                    type: keyword
+                    property_path: getSourceFileExtension
                 microseconds:
                     type: integer
                 sequence:
