@@ -12,6 +12,9 @@ final readonly class AssetCopy
         private array $groupsId,
         private string $id,
         private string $destination,
+        /**
+         * @var string[]
+         */
         public array $allowedRenditions,
         private ?bool $link = null,
         private array $options = [],

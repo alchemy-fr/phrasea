@@ -62,10 +62,10 @@ class CopyAssetProcessor implements ProcessorInterface
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $asset);
             $symlink = $data->byReference && $this->isGranted(AbstractVoter::EDIT, $asset);
 
-            $allowedRenditions = array_filter(
+            $allowedRenditions = array_map(fn (RenditionDefinition $def): string => $def->getId(), array_filter(
                 $this->renditionManager->getRenditionDefinitions($asset->getWorkspaceId()),
                 fn (RenditionDefinition $definition): bool => $this->isGranted(AbstractVoter::READ, $definition)
-            );
+            ));
 
             $this->bus->dispatch(new AssetCopy(
                 $userId,
