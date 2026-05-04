@@ -15,7 +15,11 @@ import {
     getRatioDimensions,
     getSizeCase,
 } from './src/sizeUtils';
+import {getExtensionFromMIMEType, getMimeTypesMap} from './src/mimeTypes';
+
 export {
+    getMimeTypesMap,
+    getExtensionFromMIMEType,
     initSentry,
     logError,
     ErrorBoundary,
