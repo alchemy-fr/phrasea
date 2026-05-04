@@ -21,6 +21,7 @@ export type FileAnalysis = Record<string, any>;
 export interface ApiFile extends Entity {
     url?: string;
     type: string;
+    extension: string;
     alternateUrls: AlternateUrl[];
     size: number;
     metadata?: Record<string, any>;
