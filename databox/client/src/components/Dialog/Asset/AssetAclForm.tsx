@@ -36,7 +36,7 @@ export default function AssetAclForm({
                 label: t('acl.permission.asset.view.label', 'View'),
                 description: t(
                     'acl.permission.asset.view.desc',
-                    'Can view this asset.'
+                    'Allows viewing this asset, but not necessarily the collection to which it belongs.'
                 ),
             },
             {
@@ -45,7 +45,7 @@ export default function AssetAclForm({
                 label: t('acl.permission.asset.edit.label', 'Edit Attributes'),
                 description: t(
                     'acl.permission.asset.edit.desc',
-                    'Can edit asset attributes.'
+                    'Allows editing the asset’s attributes.'
                 ),
             },
             {
@@ -53,7 +53,8 @@ export default function AssetAclForm({
                 key: AclPermission.OPERATOR,
                 label: t('acl.permission.asset.operator.label', 'Manage'),
                 description: t('acl.permission.asset.operator.desc', {
-                    defaultValue: 'Can manage asset ({{manage_asset_desc}}).',
+                    defaultValue:
+                        'Allows management actions on the asset ({{manage_asset_desc}}).',
                     manage_asset_desc: aclDescriptions.aclOperatorDesc,
                 }),
             },
@@ -68,7 +69,7 @@ export default function AssetAclForm({
                 ),
                 description: t(
                     'acl.permission.asset.edit_permissions.desc',
-                    'Can edit permissions/privacy of assets owned by user.'
+                    'Allows changing permissions and privacy settings for assets you own.'
                 ),
             },
 
@@ -78,7 +79,7 @@ export default function AssetAclForm({
                 label: t('acl.permission.asset.delete.label', 'Delete'),
                 description: t(
                     'acl.permission.asset.delete.desc',
-                    'Can delete this asset.'
+                    'Allows deleting this asset.'
                 ),
             },
 
@@ -88,7 +89,7 @@ export default function AssetAclForm({
                 label: t('acl.permission.asset.owner.label', 'Owner'),
                 description: t(
                     'acl.permission.asset.owner.desc',
-                    'Full control over this asset, except Permissions / Privacy.'
+                    'Full control over this asset, except for permissions and privacy settings.'
                 ),
             },
         ];

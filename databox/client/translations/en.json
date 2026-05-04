@@ -16,27 +16,27 @@
             "all": "All",
             "asset": {
                 "delete": {
-                    "desc": "Can delete this asset.",
+                    "desc": "Allows deleting this asset.",
                     "label": "Delete"
                 },
                 "edit": {
-                    "desc": "Can edit asset attributes.",
+                    "desc": "Allows editing the asset’s attributes.",
                     "label": "Edit Attributes"
                 },
                 "edit_permissions": {
-                    "desc": "Can edit permissions/privacy of assets owned by user.",
+                    "desc": "Allows changing permissions and privacy settings for assets you own.",
                     "label": "Edit Permissions/Privacy"
                 },
                 "operator": {
-                    "desc": "Can manage asset ({{manage_asset_desc}}).",
+                    "desc": "Allows management actions on the asset ({{manage_asset_desc}}).",
                     "label": "Manage"
                 },
                 "owner": {
-                    "desc": "Full control over this asset, except Permissions / Privacy.",
+                    "desc": "Full control over this asset, except for permissions and privacy settings.",
                     "label": "Owner"
                 },
                 "view": {
-                    "desc": "Can view this asset.",
+                    "desc": "Allows viewing this asset, but not necessarily the collection to which it belongs.",
                     "label": "View"
                 }
             },
@@ -51,55 +51,55 @@
             "child_view": "Child View",
             "collection": {
                 "assets_operator": {
-                    "desc": "Can manage assets ({{manage_asset_desc}}) in the collection and child collections.",
+                    "desc": "Allows management actions on assets ({{manage_asset_desc}}) in the collection and child collections.",
                     "label": "Manage Assets"
                 },
                 "assets_owner": {
-                    "desc": "Full control over assets within the collection and child collections, except Permissions / Privacy.",
+                    "desc": "Full control over assets within the collection and child collections, except for permissions and privacy settings.",
                     "label": "Owner of Assets"
                 },
                 "create": {
-                    "desc": "Can create child collections within this collection. New child will inherit same permissions as parent collection.",
+                    "desc": "Allows creating child collections within this collection. New children will inherit the same permissions as the parent collection.",
                     "label": "Create Collections"
                 },
                 "create_assets": {
-                    "desc": "Can create assets in the collection and child collection.",
+                    "desc": "Allows creating assets in the collection and child collections.",
                     "label": "Create Assets"
                 },
                 "delete": {
-                    "desc": "Can delete this collection, child collections and their assets.",
+                    "desc": "Allows deleting this collection, child collections, and their assets.",
                     "label": "Delete"
                 },
                 "delete_assets": {
-                    "desc": "Can delete assets within the collection and child collections.",
+                    "desc": "Allows deleting assets within the collection and child collections.",
                     "label": "Delete Assets"
                 },
                 "edit": {
-                    "desc": "Can manage this collection, but cannot edit assets within the collection.",
+                    "desc": "Allows managing this collection, but not editing assets within the collection.",
                     "label": "Manage Collection"
                 },
                 "edit_assets": {
-                    "desc": "Can edit assets attributes in the collection and child collections.",
-                    "label": "Edit Assets Attributes"
+                    "desc": "Allows editing asset attributes in the collection and child collections.",
+                    "label": "Edit Asset Attributes"
                 },
                 "edit_permissions": {
-                    "desc": "Can edit permissions/privacy of collections and assets owned by user.",
+                    "desc": "Allows editing permissions and privacy of collections and assets you own.",
                     "label": "Manage permissions of owned content"
                 },
                 "owner": {
-                    "desc": "Full control over this collection, child collections, except Permissions / Privacy.",
+                    "desc": "Full control over this collection and child collections, except for permissions and privacy settings.",
                     "label": "Owner"
                 },
                 "share_assets": {
-                    "desc": "Can share assets of the collection and child collections.",
+                    "desc": "Allows sharing assets of the collection and child collections.",
                     "label": "Share Assets"
                 },
                 "view": {
-                    "desc": "Can view this collection, its sub collections and their assets.",
+                    "desc": "Allows viewing this collection, its sub-collections, and their assets.",
                     "label": "View"
                 },
                 "view_assets": {
-                    "desc": "Can view assets of this collection and child collections but not the collections to which they belong.",
+                    "desc": "Allows viewing assets of this collection and child collections, but not the collections they belong to.",
                     "label": "View Assets"
                 }
             },
@@ -113,19 +113,19 @@
             "edit": "Edit",
             "integration": {
                 "child_edit": {
-                    "desc": "Can interact with integration, such as running it or using it in a workflow, but cannot edit its configuration or delete it.",
+                    "desc": "Allows interacting with the integration, such as running it or using it in a workflow, but not editing its configuration or deleting it.",
                     "label": "Interact"
                 },
                 "child_view": {
-                    "desc": "View integration and read its data, but cannot interact with it. This permission is useful for users who need to see the results of an integration, but should not be able to run it or edit its configuration.",
+                    "desc": "Allows viewing the integration and reading its data, but not interacting with it. Useful for users who need to see the results of an integration, but should not be able to run it or edit its configuration.",
                     "label": "Use"
                 },
                 "edit": {
-                    "desc": "Can edit integration configuration.",
+                    "desc": "Allows editing the integration configuration.",
                     "label": "Edit"
                 },
                 "view": {
-                    "desc": "View integration, but cannot interact with it or see its data. This permission is useful for users who need to know an integration exists, but should not be able to run it or see its results.",
+                    "desc": "Allows seeing that the integration exists, but not interacting with it or viewing its data. Useful for users who need to know an integration is present, but should not be able to run it or see its results.",
                     "label": "View"
                 }
             },
@@ -147,55 +147,55 @@
             "view": "View",
             "workspace": {
                 "assets_operator": {
-                    "desc": "Can manage assets ({{manage_asset_desc}}) at the root level of this workspace.",
+                    "desc": "Allows management actions on assets ({{manage_asset_desc}}) at the root level of this workspace.",
                     "label": "Manage Assets"
                 },
                 "assets_owner": {
-                    "desc": "Full control over all the assets of this workspace, except Permissions / Privacy.",
+                    "desc": "Full control over all the assets of this workspace, except for permissions and privacy settings.",
                     "label": "Owner of Assets"
                 },
                 "create": {
-                    "desc": "Can create collections within this workspace, but cannot edit or delete collections created by others.",
+                    "desc": "Allows creating collections within this workspace, but not editing or deleting collections created by others.",
                     "label": "Create Collections"
                 },
                 "create_assets": {
-                    "desc": "Can create assets at the root level of this workspace.",
+                    "desc": "Allows creating assets at the root level of this workspace.",
                     "label": "Create Assets"
                 },
                 "delete": {
-                    "desc": "Can delete this workspace (Not implemented in GUI).",
+                    "desc": "Allows deleting this workspace (not implemented in GUI).",
                     "label": "Delete"
                 },
                 "delete_assets": {
-                    "desc": "Can delete assets at the root level of this workspace.",
+                    "desc": "Allows deleting assets at the root level of this workspace.",
                     "label": "Delete Assets"
                 },
                 "edit": {
-                    "desc": "Can manage this workspace (change title, add locales, tags, entities, renditions, attributes) but cannot edit assets within the workspace.",
+                    "desc": "Allows managing this workspace (change title, add locales, tags, entities, renditions, attributes), but not editing assets within the workspace.",
                     "label": "Manage"
                 },
                 "edit_assets": {
-                    "desc": "Can edit attributes of assets at the root level of this workspace.",
-                    "label": "Edit Assets Attributes"
+                    "desc": "Allows editing attributes of assets at the root level of this workspace.",
+                    "label": "Edit Asset Attributes"
                 },
                 "edit_permissions": {
-                    "desc": "Can edit permissions/privacy of collections and assets owned by user.",
+                    "desc": "Allows editing permissions and privacy of collections and assets you own.",
                     "label": "Edit Permissions"
                 },
                 "owner": {
-                    "desc": "Full control over the workspace, its collections and assets.",
+                    "desc": "Full control over the workspace, its collections, and assets.",
                     "label": "Owner"
                 },
                 "share_assets": {
-                    "desc": "Can share assets at the root level of this workspace.",
+                    "desc": "Allows sharing assets at the root level of this workspace.",
                     "label": "Share Assets"
                 },
                 "view": {
-                    "desc": "Minimal permission a user must  have to access Workspace. Otherwise, you can mark this workspace as public.",
-                    "label": "Can Access"
+                    "desc": "Minimum permission required to access this workspace. Alternatively, the workspace can be marked as public.",
+                    "label": "Access"
                 },
                 "view_assets": {
-                    "desc": "Can view all assets in the workspace, but cannot see the collections they belong to.",
+                    "desc": "Allows viewing all assets in the workspace, but not necessarily the collections to which they belong.",
                     "label": "View Assets"
                 }
             }

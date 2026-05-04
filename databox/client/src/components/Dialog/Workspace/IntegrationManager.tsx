@@ -80,7 +80,7 @@ function Item({
                 label: t('acl.permission.integration.view.label', 'View'),
                 description: t(
                     'acl.permission.integration.view.desc',
-                    'View integration, but cannot interact with it or see its data. This permission is useful for users who need to know an integration exists, but should not be able to run it or see its results.'
+                    'Allows seeing that the integration exists, but not interacting with it or viewing its data. Useful for users who need to know an integration is present, but should not be able to run it or see its results.'
                 ),
             },
             {
@@ -89,7 +89,7 @@ function Item({
                 label: t('acl.permission.integration.edit.label', 'Edit'),
                 description: t(
                     'acl.permission.integration.edit.desc',
-                    'Can edit integration configuration.'
+                    'Allows editing the integration configuration.'
                 ),
             },
             {
@@ -98,7 +98,7 @@ function Item({
                 label: t('acl.permission.integration.child_view.label', 'Use'),
                 description: t(
                     'acl.permission.integration.child_view.desc',
-                    'View integration and read its data, but cannot interact with it. This permission is useful for users who need to see the results of an integration, but should not be able to run it or edit its configuration.'
+                    'Allows viewing the integration and reading its data, but not interacting with it. Useful for users who need to see the results of an integration, but should not be able to run it or edit its configuration.'
                 ),
             },
             {
@@ -110,7 +110,7 @@ function Item({
                 ),
                 description: t(
                     'acl.permission.integration.child_edit.desc',
-                    'Can interact with integration, such as running it or using it in a workflow, but cannot edit its configuration or delete it.'
+                    'Allows interacting with the integration, such as running it or using it in a workflow, but not editing its configuration or deleting it.'
                 ),
             },
         ];

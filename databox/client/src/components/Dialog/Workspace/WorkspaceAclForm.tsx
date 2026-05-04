@@ -24,14 +24,10 @@ export default function WorkspaceAclForm({data, helper}: Props) {
             {
                 type: PermissionType.Mask,
                 key: AclPermission.VIEW,
-                label: t('acl.permission.workspace.view.label', 'Can Access'),
-                description: (
-                    <div>
-                        {t(
-                            'acl.permission.workspace.view.desc',
-                            'Minimal permission a user must  have to access Workspace. Otherwise, you can mark this workspace as public.'
-                        )}
-                    </div>
+                label: t('acl.permission.workspace.view.label', 'Access'),
+                description: t(
+                    'acl.permission.workspace.view.desc',
+                    'Minimum permission required to access this workspace. Alternatively, the workspace can be marked as public.'
                 ),
             },
 
@@ -44,7 +40,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.create.desc',
-                    'Can create collections within this workspace, but cannot edit or delete collections created by others.'
+                    'Allows creating collections within this workspace, but not editing or deleting collections created by others.'
                 ),
             },
             {
@@ -53,7 +49,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 label: t('acl.permission.workspace.edit.label', 'Manage'),
                 description: t(
                     'acl.permission.workspace.edit.desc',
-                    'Can manage this workspace (change title, add locales, tags, entities, renditions, attributes) but cannot edit assets within the workspace.'
+                    'Allows managing this workspace (change title, add locales, tags, entities, renditions, attributes), but not editing assets within the workspace.'
                 ),
             },
             {
@@ -62,7 +58,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 label: t('acl.permission.workspace.delete.label', 'Delete'),
                 description: t(
                     'acl.permission.workspace.delete.desc',
-                    'Can delete this workspace (Not implemented in GUI).'
+                    'Allows deleting this workspace (not implemented in GUI).'
                 ),
             },
             {
@@ -71,7 +67,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 label: t('acl.permission.workspace.owner.label', 'Owner'),
                 description: t(
                     'acl.permission.workspace.owner.desc',
-                    'Full control over the workspace, its collections and assets.'
+                    'Full control over the workspace, its collections, and assets.'
                 ),
             },
             {
@@ -84,7 +80,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.edit_permissions.desc',
-                    'Can edit permissions/privacy of collections and assets owned by user.'
+                    'Allows editing permissions and privacy of collections and assets you own.'
                 ),
             },
             {
@@ -96,7 +92,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.share_assets.desc',
-                    'Can share assets at the root level of this workspace.'
+                    'Allows sharing assets at the root level of this workspace.'
                 ),
             },
             {
@@ -108,7 +104,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.view_assets.desc',
-                    'Can view all assets in the workspace, but cannot see the collections they belong to.'
+                    'Allows viewing all assets in the workspace, but not necessarily the collections to which they belong.'
                 ),
             },
             {
@@ -120,7 +116,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.create_assets.desc',
-                    'Can create assets at the root level of this workspace.'
+                    'Allows creating assets at the root level of this workspace.'
                 ),
             },
             {
@@ -128,11 +124,11 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 key: AclPermission.CHILD_EDIT,
                 label: t(
                     'acl.permission.workspace.edit_assets.label',
-                    'Edit Assets Attributes'
+                    'Edit Asset Attributes'
                 ),
                 description: t(
                     'acl.permission.workspace.edit_assets.desc',
-                    'Can edit attributes of assets at the root level of this workspace.'
+                    'Allows editing attributes of assets at the root level of this workspace.'
                 ),
             },
             {
@@ -146,7 +142,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                     'acl.permission.workspace.assets_operator.desc',
                     {
                         defaultValue:
-                            'Can manage assets ({{manage_asset_desc}}) at the root level of this workspace.',
+                            'Allows management actions on assets ({{manage_asset_desc}}) at the root level of this workspace.',
                         manage_asset_desc: aclDescriptions.aclOperatorDesc,
                     }
                 ),
@@ -160,7 +156,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.delete_assets.desc',
-                    'Can delete assets at the root level of this workspace.'
+                    'Allows deleting assets at the root level of this workspace.'
                 ),
             },
             {
@@ -172,7 +168,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.assets_owner.desc',
-                    'Full control over all the assets of this workspace, except Permissions / Privacy.'
+                    'Full control over all the assets of this workspace, except for permissions and privacy settings.'
                 ),
             },
         ];

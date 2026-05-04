@@ -50,7 +50,7 @@ export default function CollectionAclForm({
                 label: t('acl.permission.collection.view.label', 'View'),
                 description: t(
                     'acl.permission.collection.view.desc',
-                    'Can view this collection, its sub collections and their assets.'
+                    'Allows viewing this collection, its sub-collections, and their assets.'
                 ),
             },
             {
@@ -62,7 +62,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.create.desc',
-                    'Can create child collections within this collection. New child will inherit same permissions as parent collection.'
+                    'Allows creating child collections within this collection. New children will inherit the same permissions as the parent collection.'
                 ),
             },
             {
@@ -74,7 +74,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.edit.desc',
-                    'Can manage this collection, but cannot edit assets within the collection.'
+                    'Allows managing this collection, but not editing assets within the collection.'
                 ),
             },
 
@@ -88,7 +88,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.edit_permissions.desc',
-                    'Can edit permissions/privacy of collections and assets owned by user.'
+                    'Allows editing permissions and privacy of collections and assets you own.'
                 ),
             },
 
@@ -98,7 +98,7 @@ export default function CollectionAclForm({
                 label: t('acl.permission.collection.delete.label', 'Delete'),
                 description: t(
                     'acl.permission.collection.delete.desc',
-                    'Can delete this collection, child collections and their assets.'
+                    'Allows deleting this collection, child collections, and their assets.'
                 ),
             },
 
@@ -108,7 +108,7 @@ export default function CollectionAclForm({
                 label: t('acl.permission.collection.owner.label', 'Owner'),
                 description: t(
                     'acl.permission.collection.owner.desc',
-                    'Full control over this collection, child collections, except Permissions / Privacy.'
+                    'Full control over this collection and child collections, except for permissions and privacy settings.'
                 ),
             },
 
@@ -121,7 +121,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.share_assets.desc',
-                    'Can share assets of the collection and child collections.'
+                    'Allows sharing assets of the collection and child collections.'
                 ),
             },
             {
@@ -133,7 +133,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.view_assets.desc',
-                    'Can view assets of this collection and child collections but not the collections to which they belong.'
+                    'Allows viewing assets of this collection and child collections, but not the collections they belong to.'
                 ),
             },
             {
@@ -145,7 +145,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.create_assets.desc',
-                    'Can create assets in the collection and child collection.'
+                    'Allows creating assets in the collection and child collections.'
                 ),
             },
             {
@@ -153,11 +153,11 @@ export default function CollectionAclForm({
                 key: AclPermission.CHILD_EDIT,
                 label: t(
                     'acl.permission.collection.edit_assets.label',
-                    'Edit Assets Attributes'
+                    'Edit Asset Attributes'
                 ),
                 description: t(
                     'acl.permission.collection.edit_assets.desc',
-                    'Can edit assets attributes in the collection and child collections.'
+                    'Allows editing asset attributes in the collection and child collections.'
                 ),
             },
 
@@ -172,7 +172,7 @@ export default function CollectionAclForm({
                     'acl.permission.collection.assets_operator.desc',
                     {
                         defaultValue:
-                            'Can manage assets ({{manage_asset_desc}}) in the collection and child collections.',
+                            'Allows management actions on assets ({{manage_asset_desc}}) in the collection and child collections.',
                         manage_asset_desc: aclDescriptions.aclOperatorDesc,
                     }
                 ),
@@ -187,7 +187,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.delete_assets.desc',
-                    'Can delete assets within the collection and child collections.'
+                    'Allows deleting assets within the collection and child collections.'
                 ),
             },
 
@@ -200,7 +200,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.assets_owner.desc',
-                    'Full control over assets within the collection and child collections, except Permissions / Privacy.'
+                    'Full control over assets within the collection and child collections, except for permissions and privacy settings.'
                 ),
             },
         ];
