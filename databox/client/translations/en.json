@@ -20,7 +20,7 @@
                     "label": "Delete"
                 },
                 "edit": {
-                    "desc": "Can edit asset attributes",
+                    "desc": "Can edit asset attributes.",
                     "label": "Edit Attributes"
                 },
                 "edit_permissions": {
@@ -28,11 +28,11 @@
                     "label": "Edit Permissions/Privacy"
                 },
                 "operator": {
-                    "desc": "Can manage asset (Title, Tags, move, replace source files, view asset versions, edit renditions).",
+                    "desc": "Can manage asset ({{manage_asset_desc}}).",
                     "label": "Manage"
                 },
                 "owner": {
-                    "desc": "Full control over this asset.",
+                    "desc": "Full control over this asset, except Permissions / Privacy.",
                     "label": "Owner"
                 },
                 "view": {
@@ -51,11 +51,11 @@
             "child_view": "Child View",
             "collection": {
                 "assets_operator": {
-                    "desc": "Can manage assets (Title, Tags, move, replace source files, view asset versions, edit renditions) in the collection and child collections, but cannot change permissions and privacy or share assets.",
+                    "desc": "Can manage assets ({{manage_asset_desc}}) in the collection and child collections.",
                     "label": "Manage Assets"
                 },
                 "assets_owner": {
-                    "desc": "Full control over assets in the collection, except Permissions / Privacy.",
+                    "desc": "Full control over assets within the collection and child collections, except Permissions / Privacy.",
                     "label": "Owner of Assets"
                 },
                 "create": {
@@ -63,7 +63,7 @@
                     "label": "Create Collections"
                 },
                 "create_assets": {
-                    "desc": "Can create assets in the collection and child collection",
+                    "desc": "Can create assets in the collection and child collection.",
                     "label": "Create Assets"
                 },
                 "delete": {
@@ -87,7 +87,7 @@
                     "label": "Manage permissions of owned content"
                 },
                 "owner": {
-                    "desc": "Full control over this collection, child collections, but cannot edit permissions or privacy settings.",
+                    "desc": "Full control over this collection, child collections, except Permissions / Privacy.",
                     "label": "Owner"
                 },
                 "share_assets": {
@@ -95,12 +95,17 @@
                     "label": "Share Assets"
                 },
                 "view": {
-                    "desc": "Can view this collection, its sub collections and their assets",
+                    "desc": "Can view this collection, its sub collections and their assets.",
                     "label": "View"
                 },
                 "view_assets": {
                     "desc": "Can view assets of this collection and child collections but not the collections to which they belong.",
                     "label": "View Assets"
+                }
+            },
+            "common": {
+                "operator": {
+                    "desc": "edit title or tags, move to another collection, edit renditions, view file versions"
                 }
             },
             "create": "Create",
@@ -129,11 +134,11 @@
             "owner": "Owner",
             "rendition_policy": {
                 "child_edit": {
-                    "desc": "Edit rendition of this policy",
+                    "desc": "Edit rendition of this policy.",
                     "label": "Edit"
                 },
                 "child_view": {
-                    "desc": "View rendition of this policy",
+                    "desc": "View rendition of this policy.",
                     "label": "View"
                 }
             },
@@ -142,11 +147,11 @@
             "view": "View",
             "workspace": {
                 "assets_operator": {
-                    "desc": "Can manage assets (Title, Tags, move (create assets needed in destination), replace source files, view asset versions, edit renditions) at the root level of this workspace, but cannot change permissions and privacy or share assets.",
+                    "desc": "Can manage assets ({{manage_asset_desc}}) at the root level of this workspace.",
                     "label": "Manage Assets"
                 },
                 "assets_owner": {
-                    "desc": "Full control over the assets of this workspace",
+                    "desc": "Full control over all the assets of this workspace, except Permissions / Privacy.",
                     "label": "Owner of Assets"
                 },
                 "create": {
@@ -162,7 +167,7 @@
                     "label": "Delete"
                 },
                 "delete_assets": {
-                    "desc": "Can delete assets at the root level of this workspace, but cannot edit assets or change permissions.",
+                    "desc": "Can delete assets at the root level of this workspace.",
                     "label": "Delete Assets"
                 },
                 "edit": {
@@ -174,7 +179,7 @@
                     "label": "Edit Assets Attributes"
                 },
                 "edit_permissions": {
-                    "desc": "Can edit permissions/privacy of collections and assets owned by user",
+                    "desc": "Can edit permissions/privacy of collections and assets owned by user.",
                     "label": "Edit Permissions"
                 },
                 "owner": {

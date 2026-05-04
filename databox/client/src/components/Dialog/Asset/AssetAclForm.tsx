@@ -15,6 +15,7 @@ import React, {useMemo} from 'react';
 import CollectionAclForm from '../Collection/CollectionAclForm.tsx';
 import {AclFormProps} from '../../Permissions/aclTypes.ts';
 import {useTranslation} from 'react-i18next';
+import {getAclDescriptions} from '../Workspace/aclDescriptions.ts';
 
 type Props = AclFormProps<Asset>;
 
@@ -26,6 +27,8 @@ export default function AssetAclForm({
 }: Props) {
     const {t} = useTranslation();
     const definitions: PermissionDefinitionOverride[] = useMemo(() => {
+        const aclDescriptions = getAclDescriptions(t);
+
         return [
             {
                 type: PermissionType.Mask,
@@ -42,17 +45,17 @@ export default function AssetAclForm({
                 label: t('acl.permission.asset.edit.label', 'Edit Attributes'),
                 description: t(
                     'acl.permission.asset.edit.desc',
-                    'Can edit asset attributes'
+                    'Can edit asset attributes.'
                 ),
             },
             {
                 type: PermissionType.Mask,
                 key: AclPermission.OPERATOR,
                 label: t('acl.permission.asset.operator.label', 'Manage'),
-                description: t(
-                    'acl.permission.asset.operator.desc',
-                    'Can manage asset (Title, Tags, move, replace source files, view asset versions, edit renditions).'
-                ),
+                description: t('acl.permission.asset.operator.desc', {
+                    defaultValue: 'Can manage asset ({{manage_asset_desc}}).',
+                    manage_asset_desc: aclDescriptions.aclOperatorDesc,
+                }),
             },
 
             {
@@ -85,7 +88,7 @@ export default function AssetAclForm({
                 label: t('acl.permission.asset.owner.label', 'Owner'),
                 description: t(
                     'acl.permission.asset.owner.desc',
-                    'Full control over this asset.'
+                    'Full control over this asset, except Permissions / Privacy.'
                 ),
             },
         ];

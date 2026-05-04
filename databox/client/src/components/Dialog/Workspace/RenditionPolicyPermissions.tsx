@@ -31,7 +31,7 @@ export default function RenditionPolicyPermissions({
                 ),
                 description: t(
                     'acl.permission.rendition_policy.child_view.desc',
-                    'View rendition of this policy'
+                    'View rendition of this policy.'
                 ),
             },
             {
@@ -43,7 +43,7 @@ export default function RenditionPolicyPermissions({
                 ),
                 description: t(
                     'acl.permission.rendition_policy.child_edit.desc',
-                    'Edit rendition of this policy'
+                    'Edit rendition of this policy.'
                 ),
             },
         ];

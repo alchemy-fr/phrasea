@@ -13,6 +13,7 @@ import ParentAcl from '../../Permissions/ParentAcl.tsx';
 import WorkspaceAclForm from '../Workspace/WorkspaceAclForm.tsx';
 import {getCollection} from '../../../api/collection.ts';
 import {AclFormProps} from '../../Permissions/aclTypes.ts';
+import {getAclDescriptions} from '../Workspace/aclDescriptions.ts';
 
 type Props = AclFormProps<Collection>;
 
@@ -40,6 +41,8 @@ export default function CollectionAclForm({
     }, [data.id]);
 
     const definitions: PermissionDefinitionOverride[] = useMemo(() => {
+        const aclDescriptions = getAclDescriptions(t);
+
         return [
             {
                 type: PermissionType.Mask,
@@ -47,7 +50,7 @@ export default function CollectionAclForm({
                 label: t('acl.permission.collection.view.label', 'View'),
                 description: t(
                     'acl.permission.collection.view.desc',
-                    'Can view this collection, its sub collections and their assets'
+                    'Can view this collection, its sub collections and their assets.'
                 ),
             },
             {
@@ -105,7 +108,7 @@ export default function CollectionAclForm({
                 label: t('acl.permission.collection.owner.label', 'Owner'),
                 description: t(
                     'acl.permission.collection.owner.desc',
-                    'Full control over this collection, child collections, but cannot edit permissions or privacy settings.'
+                    'Full control over this collection, child collections, except Permissions / Privacy.'
                 ),
             },
 
@@ -142,7 +145,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.create_assets.desc',
-                    'Can create assets in the collection and child collection'
+                    'Can create assets in the collection and child collection.'
                 ),
             },
             {
@@ -167,7 +170,11 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.assets_operator.desc',
-                    'Can manage assets (Title, Tags, move, replace source files, view asset versions, edit renditions) in the collection and child collections, but cannot change permissions and privacy or share assets.'
+                    {
+                        defaultValue:
+                            'Can manage assets ({{manage_asset_desc}}) in the collection and child collections.',
+                        manage_asset_desc: aclDescriptions.aclOperatorDesc,
+                    }
                 ),
             },
 
@@ -193,7 +200,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.assets_owner.desc',
-                    'Full control over assets in the collection, except Permissions / Privacy.'
+                    'Full control over assets within the collection and child collections, except Permissions / Privacy.'
                 ),
             },
         ];

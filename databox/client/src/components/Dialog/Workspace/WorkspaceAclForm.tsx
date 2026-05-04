@@ -10,6 +10,7 @@ import {
 import {useTranslation} from 'react-i18next';
 import {useMemo} from 'react';
 import {AclFormProps} from '../../Permissions/aclTypes.ts';
+import {getAclDescriptions} from './aclDescriptions.ts';
 
 type Props = AclFormProps<Workspace>;
 
@@ -17,6 +18,8 @@ export default function WorkspaceAclForm({data, helper}: Props) {
     const {t} = useTranslation();
 
     const definitions: PermissionDefinitionOverride[] = useMemo(() => {
+        const aclDescriptions = getAclDescriptions(t);
+
         return [
             {
                 type: PermissionType.Mask,
@@ -81,7 +84,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.edit_permissions.desc',
-                    'Can edit permissions/privacy of collections and assets owned by user'
+                    'Can edit permissions/privacy of collections and assets owned by user.'
                 ),
             },
             {
@@ -141,7 +144,11 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.assets_operator.desc',
-                    'Can manage assets (Title, Tags, move (create assets needed in destination), replace source files, view asset versions, edit renditions) at the root level of this workspace, but cannot change permissions and privacy or share assets.'
+                    {
+                        defaultValue:
+                            'Can manage assets ({{manage_asset_desc}}) at the root level of this workspace.',
+                        manage_asset_desc: aclDescriptions.aclOperatorDesc,
+                    }
                 ),
             },
             {
@@ -153,7 +160,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.delete_assets.desc',
-                    'Can delete assets at the root level of this workspace, but cannot edit assets or change permissions.'
+                    'Can delete assets at the root level of this workspace.'
                 ),
             },
             {
@@ -165,7 +172,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.assets_owner.desc',
-                    'Full control over the assets of this workspace'
+                    'Full control over all the assets of this workspace, except Permissions / Privacy.'
                 ),
             },
         ];
