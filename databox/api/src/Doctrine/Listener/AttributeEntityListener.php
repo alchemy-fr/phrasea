@@ -15,15 +15,21 @@ use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::onFlush)]
-final readonly class AttributeEntityListener implements EventSubscriber
+final class AttributeEntityListener implements EventSubscriber
 {
+    public bool $disabled = false;
+
     public function __construct(
-        private PostFlushStack $postFlushStack,
+        private readonly PostFlushStack $postFlushStack,
     ) {
     }
 
     public function onFlush(OnFlushEventArgs $args): void
     {
+        if (!$this->disabled) {
+            return;
+        }
+
         $em = $args->getObjectManager();
         $uow = $em->getUnitOfWork();
         foreach ($uow->getScheduledEntityUpdates() as $entityUpdate) {

@@ -21,13 +21,9 @@ class AssetSearchTest extends AbstractSearchTest
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/assets',
-        );
-
-        $data = $this->getDataFromResponse($response, 200);
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets');
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
     }
 
@@ -43,13 +39,10 @@ class AssetSearchTest extends AbstractSearchTest
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/assets',
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets');
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(0, $data);
     }
 
@@ -197,11 +190,12 @@ class AssetSearchTest extends AbstractSearchTest
 
     private function assertSearchResults(string $queryString, array $expectedResults): void
     {
-        $response = $this->request(
-            null,
-            'GET',
-            '/assets?query='.urlencode($queryString)
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', [
+            'query' => [
+                'query' => $queryString,
+            ],
+        ]);
 
         $getMessage = fn (string $m): string => sprintf('%s [case "%s", ["%s"]]',
             $m,
@@ -209,7 +203,7 @@ class AssetSearchTest extends AbstractSearchTest
             implode('", "', $expectedResults)
         );
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertSameSize($expectedResults, $data, $getMessage('Invalid result count'));
         foreach ($expectedResults as $expectedResult) {
             $r = array_shift($data);

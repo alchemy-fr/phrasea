@@ -28,13 +28,9 @@ class CollectionSearchTest extends AbstractSearchTest
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/collections',
-        );
-
-        $data = $this->getDataFromResponse($response, 200);
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(0, $data);
     }
 
@@ -55,13 +51,10 @@ class CollectionSearchTest extends AbstractSearchTest
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/collections',
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(0, $data);
     }
 
@@ -83,13 +76,10 @@ class CollectionSearchTest extends AbstractSearchTest
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/collections',
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
         $this->assertSame('B', $data[0]['title']);
     }
@@ -113,13 +103,10 @@ class CollectionSearchTest extends AbstractSearchTest
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/collections',
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
         $this->assertSame('A', $data[0]['title']);
     }
@@ -132,13 +119,10 @@ class CollectionSearchTest extends AbstractSearchTest
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(0, $data);
     }
 
@@ -155,13 +139,10 @@ class CollectionSearchTest extends AbstractSearchTest
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
         $this->assertEquals($collection->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
@@ -177,13 +158,10 @@ class CollectionSearchTest extends AbstractSearchTest
 
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEmpty($data);
     }
 
@@ -197,13 +175,21 @@ class CollectionSearchTest extends AbstractSearchTest
 
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
+
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
@@ -218,13 +204,14 @@ class CollectionSearchTest extends AbstractSearchTest
 
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(0, $data);
     }
 
@@ -237,13 +224,14 @@ class CollectionSearchTest extends AbstractSearchTest
 
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEmpty($data);
     }
 
@@ -265,13 +253,14 @@ class CollectionSearchTest extends AbstractSearchTest
 
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
         $this->assertEquals($collection->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
@@ -295,13 +284,14 @@ class CollectionSearchTest extends AbstractSearchTest
         );
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
         $this->assertEquals($collection->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);

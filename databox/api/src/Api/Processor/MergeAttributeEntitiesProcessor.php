@@ -6,10 +6,13 @@ namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\MergeAttributeEntitiesInput;
 use App\Attribute\AttributeInterface;
+use App\Consumer\Handler\Search\AttributeEntityMerge;
+use App\Doctrine\Listener\AttributeEntityListener;
 use App\Entity\Core\AttributeEntity;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,6 +23,8 @@ class MergeAttributeEntitiesProcessor implements ProcessorInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
+        private readonly PostFlushStack $postFlushStack,
+        private readonly AttributeEntityListener $attributeEntityListener,
     ) {
     }
 
@@ -44,18 +49,31 @@ class MergeAttributeEntitiesProcessor implements ProcessorInterface
 
         $synonyms = $mainEntity->getSynonyms() ?? [];
 
+        $merged = [];
         foreach ($entities as $entity) {
             $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $entity);
             $synonyms = $this->mergeSynonyms($synonyms, $entity);
             $this->em->remove($entity);
+            $merged[] = $entity->getId();
         }
 
         if (!empty($synonyms)) {
             $mainEntity->setSynonyms($synonyms);
         }
 
+        $this->postFlushStack->addBusMessage(new AttributeEntityMerge(
+            $mainEntity->getId(),
+            $merged,
+        ));
+
         $this->em->persist($mainEntity);
-        $this->em->flush();
+
+        try {
+            $this->attributeEntityListener->disabled = true;
+            $this->em->flush();
+        } finally {
+            $this->attributeEntityListener->disabled = false;
+        }
 
         return $mainEntity;
     }
