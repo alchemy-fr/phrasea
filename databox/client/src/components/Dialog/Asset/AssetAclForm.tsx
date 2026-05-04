@@ -51,7 +51,7 @@ export default function AssetAclForm({
                 label: t('acl.permission.asset.operator.label', 'Manage'),
                 description: t(
                     'acl.permission.asset.operator.desc',
-                    'Can edit asset title, edit its renditions, or substitute source file'
+                    'Can manage asset (Title, Tags, move, replace source files, view asset versions, edit renditions).'
                 ),
             },
 
@@ -65,7 +65,7 @@ export default function AssetAclForm({
                 ),
                 description: t(
                     'acl.permission.asset.edit_permissions.desc',
-                    'Can edit privacy settings and permissions of this asset, such as making it public or private.'
+                    'Can edit permissions/privacy of assets owned by user.'
                 ),
             },
 
@@ -85,7 +85,7 @@ export default function AssetAclForm({
                 label: t('acl.permission.asset.owner.label', 'Owner'),
                 description: t(
                     'acl.permission.asset.owner.desc',
-                    'Full control over this collection, its descendant collections and assets'
+                    'Full control over this asset.'
                 ),
             },
         ];

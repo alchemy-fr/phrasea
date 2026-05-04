@@ -141,7 +141,7 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                 ),
                 description: t(
                     'acl.permission.workspace.assets_operator.desc',
-                    'Can edit assets (Title, Tags, move, replace source files; view asset versions, edit renditions) at the root level of this workspace, but cannot change permissions and privacy or share assets.'
+                    'Can manage assets (Title, Tags, move (create assets needed in destination), replace source files, view asset versions, edit renditions) at the root level of this workspace, but cannot change permissions and privacy or share assets.'
                 ),
             },
             {

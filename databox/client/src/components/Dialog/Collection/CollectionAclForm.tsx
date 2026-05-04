@@ -65,7 +65,10 @@ export default function CollectionAclForm({
             {
                 type: PermissionType.Mask,
                 key: AclPermission.EDIT,
-                label: t('acl.permission.collection.edit.label', 'Manage Collection'),
+                label: t(
+                    'acl.permission.collection.edit.label',
+                    'Manage Collection'
+                ),
                 description: t(
                     'acl.permission.collection.edit.desc',
                     'Can manage this collection, but cannot edit assets within the collection.'
@@ -164,7 +167,7 @@ export default function CollectionAclForm({
                 ),
                 description: t(
                     'acl.permission.collection.assets_operator.desc',
-                    'Can manage assets (Title, source files, renditions, copy by reference), but cannot change permissions or share assets.'
+                    'Can manage assets (Title, Tags, move, replace source files, view asset versions, edit renditions) in the collection and child collections, but cannot change permissions and privacy or share assets.'
                 ),
             },
 

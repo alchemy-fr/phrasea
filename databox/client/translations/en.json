@@ -24,15 +24,15 @@
                     "label": "Edit Attributes"
                 },
                 "edit_permissions": {
-                    "desc": "Can edit privacy settings and permissions of this asset, such as making it public or private.",
+                    "desc": "Can edit permissions/privacy of assets owned by user.",
                     "label": "Edit Permissions/Privacy"
                 },
                 "operator": {
-                    "desc": "Can edit asset title, edit its renditions, or substitute source file",
+                    "desc": "Can manage asset (Title, Tags, move, replace source files, view asset versions, edit renditions).",
                     "label": "Manage"
                 },
                 "owner": {
-                    "desc": "Full control over this collection, its descendant collections and assets",
+                    "desc": "Full control over this asset.",
                     "label": "Owner"
                 },
                 "view": {
@@ -51,7 +51,7 @@
             "child_view": "Child View",
             "collection": {
                 "assets_operator": {
-                    "desc": "Can manage assets (Title, source files, renditions, copy by reference), but cannot change permissions or share assets.",
+                    "desc": "Can manage assets (Title, Tags, move, replace source files, view asset versions, edit renditions) in the collection and child collections, but cannot change permissions and privacy or share assets.",
                     "label": "Manage Assets"
                 },
                 "assets_owner": {
@@ -142,7 +142,7 @@
             "view": "View",
             "workspace": {
                 "assets_operator": {
-                    "desc": "Can edit assets (Title, Tags, move, replace source files; view asset versions, edit renditions) at the root level of this workspace, but cannot change permissions and privacy or share assets.",
+                    "desc": "Can manage assets (Title, Tags, move (create assets needed in destination), replace source files, view asset versions, edit renditions) at the root level of this workspace, but cannot change permissions and privacy or share assets.",
                     "label": "Manage Assets"
                 },
                 "assets_owner": {
