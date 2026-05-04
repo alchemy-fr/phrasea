@@ -20,7 +20,8 @@
                     "label": "Delete"
                 },
                 "edit": {
-                    "desc": "Can edit asset attributes"
+                    "desc": "Can edit asset attributes",
+                    "label": "Edit Attributes"
                 },
                 "edit_permissions": {
                     "desc": "Can edit privacy settings and permissions of this asset, such as making it public or private.",
@@ -28,7 +29,7 @@
                 },
                 "operator": {
                     "desc": "Can edit asset title, edit its renditions, or substitute source file",
-                    "label": "Edit Attributes"
+                    "label": "Manage"
                 },
                 "owner": {
                     "desc": "Full control over this collection, its descendant collections and assets",
@@ -50,7 +51,7 @@
             "child_view": "Child View",
             "collection": {
                 "assets_operator": {
-                    "desc": "Can edit assets (attributes, source files, renditions), but cannot change permissions or share assets.",
+                    "desc": "Can manage assets (Title, source files, renditions, copy by reference), but cannot change permissions or share assets.",
                     "label": "Manage Assets"
                 },
                 "assets_owner": {
@@ -157,7 +158,7 @@
                     "label": "Create Assets"
                 },
                 "delete": {
-                    "desc": "Can delete this workspace ,(Not implemented in GUI).",
+                    "desc": "Can delete this workspace (Not implemented in GUI).",
                     "label": "Delete"
                 },
                 "delete_assets": {
@@ -169,7 +170,7 @@
                     "label": "Manage"
                 },
                 "edit_assets": {
-                    "desc": "Can edit attributes of assets at the root level of this workspace, but cannot change permissions, source files, renditions, or share assets. (for assets not owned by user",
+                    "desc": "Can edit attributes of assets at the root level of this workspace.",
                     "label": "Edit Assets Attributes"
                 },
                 "edit_permissions": {
@@ -664,6 +665,7 @@
         "createdAt": "Created At",
         "deleted": "Deleted",
         "editedAt": "Edited At",
+        "fileExtension": "File Extension",
         "fileMimeType": "File MIME Type",
         "fileSize": "File Size",
         "fileType": "File Type",
@@ -915,6 +917,7 @@
         },
         "link": {
             "dialog": {
+                "dialog_title": "Insert Link",
                 "remove": {
                     "label": "Remove Link"
                 },
@@ -928,7 +931,7 @@
                     }
                 },
                 "title": {
-                    "label": "Insert Link"
+                    "label": "Title (optional)"
                 },
                 "url": {
                     "label": "URL"

@@ -39,10 +39,7 @@ export default function AssetAclForm({
             {
                 type: PermissionType.Mask,
                 key: AclPermission.EDIT,
-                label: t(
-                    'acl.permission.asset.operator.label',
-                    'Edit Attributes'
-                ),
+                label: t('acl.permission.asset.edit.label', 'Edit Attributes'),
                 description: t(
                     'acl.permission.asset.edit.desc',
                     'Can edit asset attributes'

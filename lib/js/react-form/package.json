@@ -40,7 +40,7 @@
         "react-select": "^5.10.2"
     },
     "devDependencies": {
-        "@4rthem/i18next-scanner": "^0.0.1",
+        "@4rthem/i18next-scanner": "^0.0.3",
         "@alchemy/api": "workspace:*",
         "@alchemy/i18n": "workspace:*",
         "@alchemy/navigation": "workspace:*",

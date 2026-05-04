@@ -187,7 +187,7 @@ export default function WorkspaceMenuItem({
                                                     <ListItemText
                                                         primary={t(
                                                             'workspace.item.edit',
-                                                            'Edit'
+                                                            'Edit this workspace'
                                                         )}
                                                     />
                                                 </MenuItem>
