@@ -17,6 +17,5 @@ alchemy_track:
         !php/const:App\Entity\Core\EntityList::OBJECT_INDEX: App\Entity\Core\EntityList
         !php/const:App\Entity\Core\RenditionDefinition::OBJECT_INDEX: App\Entity\Core\RenditionDefinition
         !php/const:App\Entity\Core\RenditionPolicy::OBJECT_INDEX: App\Entity\Core\RenditionPolicy
-        !php/const:App\Entity\Core\RenditionRule::OBJECT_INDEX: App\Entity\Core\RenditionRule
         !php/const:App\Entity\Core\Tag::OBJECT_INDEX: App\Entity\Core\Tag
         !php/const:App\Entity\Core\TagFilterRule::OBJECT_INDEX: App\Entity\Core\TagFilterRule

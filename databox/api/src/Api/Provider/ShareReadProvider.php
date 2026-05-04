@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\State\ProviderInterface;
@@ -12,19 +13,19 @@ use App\Api\Traits\ItemProviderAwareTrait;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Share;
 use App\Repository\Core\AssetRenditionRepository;
-use App\Security\RenditionPermissionManager;
+use App\Security\Voter\AbstractVoter;
 use App\Service\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class ShareReadProvider implements ProviderInterface
 {
     use ItemProviderAwareTrait;
+    use SecurityAwareTrait;
 
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly RenditionManager $renditionManager,
         private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly RenditionPermissionManager $renditionPermissionManager,
     ) {
     }
 
@@ -51,7 +52,7 @@ final class ShareReadProvider implements ProviderInterface
 
         foreach ($renditions as $rendition) {
             $definition = $rendition->getDefinition();
-            if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getPolicy(), null)) {
+            if ($this->isGranted(AbstractVoter::READ, $rendition)) {
                 $item->alternateUrls[] = new ShareAlternateUrlOutput(
                     $definition->getName(),
                     $this->urlGenerator->generate('share_public_rendition', [

@@ -22,10 +22,12 @@ App\Entity\Core\RenditionPolicy:
     workspace: '@w_marketplace'
     name: Public
     public: true
+    editable: true
   m_rc_restricted:
     workspace: '@w_marketplace'
     name: Restricted
     public: false
+    editable: false
 
 App\Entity\Core\RenditionDefinition:
   m_rd_main:

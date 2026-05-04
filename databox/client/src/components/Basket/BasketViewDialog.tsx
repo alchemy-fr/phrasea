@@ -85,7 +85,7 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                     },
                     reload: true,
                     resetSelection: true,
-                    disabled: !data?.capabilities.canEdit,
+                    disabled: !data?.capabilities.edit,
                     apply: async items => {
                         await removeFromBasket(
                             id!,

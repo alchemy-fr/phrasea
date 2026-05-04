@@ -26,6 +26,7 @@ use App\Api\Model\Input\CollectionsDeleteInput;
 use App\Api\Model\Input\CollectionsRestoreInput;
 use App\Api\Model\Input\FollowInput;
 use App\Api\Model\Output\CollectionOutput;
+use App\Api\Model\Output\CollectionPrivacyInfoOutput;
 use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Api\Processor\CollectionsDeleteProcessor;
 use App\Api\Processor\CollectionsRestoreProcessor;
@@ -33,6 +34,7 @@ use App\Api\Processor\FollowProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveCollectionProcessor;
 use App\Api\Processor\UnfollowProcessor;
+use App\Api\Provider\CollectionPrivacyInfoProvider;
 use App\Api\Provider\CollectionProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Entity\FollowableInterface;
@@ -123,6 +125,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             output: ESDocumentStateOutput::class,
             name: 'collection_es_document',
             provider: ItemElasticsearchDocumentProvider::class,
+        ),
+        new Get(
+            uriTemplate: '/collections/{id}/privacy',
+            normalizationContext: [],
+            output: CollectionPrivacyInfoOutput::class,
+            name: 'collection_privacy',
+            provider: CollectionPrivacyInfoProvider::class,
         ),
         new Post(
             uriTemplate: '/collections/{id}/es-document-sync',

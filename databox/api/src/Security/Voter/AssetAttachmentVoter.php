@@ -25,8 +25,8 @@ class AssetAttachmentVoter extends AbstractVoter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         return match ($attribute) {
-            self::READ => $this->security->isGranted(self::READ, $subject->getAsset(), $token),
-            self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(self::EDIT, $subject->getAsset(), $token),
+            self::READ => $this->security->isGranted(self::READ, $subject->getAsset()),
+            self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(self::EDIT, $subject->getAsset()),
             default => false,
         };
     }

@@ -41,7 +41,7 @@
         "sass-loader": "^8.0.2"
     },
     "devDependencies": {
-        "@4rthem/i18next-scanner": "^0.0.1",
+        "@4rthem/i18next-scanner": "^0.0.3",
         "@types/jest": "^26.0.24",
         "@types/node": "^18.19.127",
         "@types/react": "^18.3.24",

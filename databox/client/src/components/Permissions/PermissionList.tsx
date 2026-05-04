@@ -1,27 +1,33 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useMemo} from 'react';
 import {Ace, Entity, UserType} from '../../types';
 import UserSelect from '../Form/UserSelect';
 import GroupSelect from '../Form/GroupSelect';
 import {Grid2 as Grid} from '@mui/material';
 import {FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
-import {DisplayedPermissions, OnPermissionDelete} from './permissions';
-import PermissionTable, {PermissionHelpers} from './PermissionTable';
+import {
+    AclPermission,
+    aclPermissions,
+    FilterPermissions,
+    OnMaskChange,
+    OnPermissionDelete,
+    PermissionDefinition,
+    PermissionDefinitionOverride,
+    PermissionType,
+} from './permissionsTypes.ts';
+import PermissionTable from './PermissionTable';
+import PermissionsHelper from './PermissionsHelper.tsx';
+import useAclPermissionDefinitions from './useAclPermissionDefinitions.ts';
 
 type Props = {
-    displayedPermissions?: DisplayedPermissions;
     loadPermissions: () => Promise<Ace[]>;
-    updatePermission: (
-        userType: UserType,
-        userId: string | null,
-        mask: number
-    ) => Promise<Ace>;
-    deletePermission: (
-        userType: UserType,
-        userId: string | null
-    ) => Promise<void>;
+    updatePermission: OnMaskChange;
+    deletePermission: OnPermissionDelete;
     onListChanged?: (permissions: Ace[]) => void;
-    permissionHelper?: PermissionHelpers;
+    definitions?: PermissionDefinitionOverride[];
+    displayChildPermissions?: boolean;
+    filterDefinitions?: FilterPermissions;
+    helper?: boolean;
 };
 
 export default function PermissionList({
@@ -29,8 +35,45 @@ export default function PermissionList({
     updatePermission,
     deletePermission,
     onListChanged,
+    definitions,
+    filterDefinitions,
+    displayChildPermissions,
+    helper,
     ...rest
 }: Props) {
+    const allDefinitions = useAclPermissionDefinitions({definitions});
+
+    const {columns, hasAll} = useMemo(() => {
+        const columns: PermissionDefinition[] = definitions
+            ? (definitions.map(
+                  d =>
+                      allDefinitions.find(
+                          ad => ad.type === d.type && ad.key === d.key
+                      ) ?? d
+              ) as PermissionDefinition[])
+            : !displayChildPermissions
+              ? allDefinitions.filter(
+                    def =>
+                        def.type !== PermissionType.Mask ||
+                        def.value < aclPermissions[AclPermission.CHILD_CREATE]
+                )
+              : allDefinitions;
+
+        const hasAll = columns.length > 2;
+
+        return {
+            columns: filterDefinitions
+                ? columns.filter(filterDefinitions)
+                : columns,
+            hasAll,
+        };
+    }, [
+        allDefinitions,
+        definitions,
+        displayChildPermissions,
+        filterDefinitions,
+    ]);
+
     const [permissions, setPermissions] = React.useState<Ace[]>();
     const {t} = useTranslation();
 
@@ -152,10 +195,14 @@ export default function PermissionList({
             </Grid>
             <PermissionTable
                 {...rest}
+                definitions={columns}
+                hasAll={hasAll}
                 permissions={permissions}
                 onMaskChange={updatePermission}
                 onDelete={onDelete}
             />
+
+            {helper ? <PermissionsHelper definitions={columns} /> : null}
         </div>
     );
 }

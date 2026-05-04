@@ -49,7 +49,7 @@ export default function BasketDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('basket.manage.edit.title', 'Edit'),
@@ -58,7 +58,7 @@ export default function BasketDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('basket.manage.acl.title', 'Permissions'),
@@ -67,7 +67,7 @@ export default function BasketDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEditPermissions,
+                    enabled: data.capabilities.editPermissions,
                 },
                 {
                     title: t('basket.manage.operations.title', 'Operations'),
@@ -76,7 +76,7 @@ export default function BasketDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -88,7 +88,7 @@ export default function BasketDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
             ]}
         />

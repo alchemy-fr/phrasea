@@ -11,6 +11,8 @@ use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\AssetContainerVoterInterface;
+use App\Security\Voter\WorkspaceVoter;
 use Symfony\Contracts\Cache\CacheInterface;
 
 class WorkspaceOutputTransformer implements OutputTransformerInterface
@@ -65,9 +67,11 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
             $k = $data->getId().$this->getUserCacheId();
             $output->setCapabilities($this->capCache->get($k, function () use ($data): array {
                 return [
-                    'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-                    'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
-                    'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
+                    'createAsset' => $this->isGranted(AssetContainerVoterInterface::ASSET_CREATE, $data),
+                    'createCollection' => $this->isGranted(WorkspaceVoter::CREATE_COLLECTION, $data),
+                    'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                    'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                    'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
                 ];
             }));
         }

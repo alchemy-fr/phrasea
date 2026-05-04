@@ -21,9 +21,9 @@ class AttributeListOutput extends AbstractUuidOutput
     #[ApiProperty(jsonSchemaContext: [
         'type' => 'object',
         'properties' => [
-            'canEdit' => 'boolean',
-            'canDelete' => 'boolean',
-            'canEditPermissions' => 'boolean',
+            'edit' => 'boolean',
+            'delete' => 'boolean',
+            'editPermissions' => 'boolean',
         ],
     ])]
     #[Groups([AttributeList::GROUP_LIST, AttributeList::GROUP_READ])]

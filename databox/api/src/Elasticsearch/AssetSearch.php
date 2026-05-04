@@ -207,7 +207,7 @@ class AssetSearch extends AbstractSearch
         $query = new Query\BoolQuery();
         $hasConditions = false;
 
-        foreach ($ruleSet['workspaces'] as $wId => $rules) {
+        foreach ($ruleSet as $wId => $rules) {
             if (empty($rules['include']) && empty($rules['exclude'])) {
                 continue;
             }
@@ -219,25 +219,6 @@ class AssetSearch extends AbstractSearch
                 }
                 if (!empty($rules['exclude'])) {
                     $query->addMustNot($this->createExcludeQuery('workspaceId', $workspace->getId(), $rules['exclude']));
-                    $hasConditions = true;
-                }
-            }
-        }
-
-        foreach ($ruleSet['collections'] as $cId => $rules) {
-            if (empty($rules['include']) && empty($rules['exclude'])) {
-                continue;
-            }
-
-            $collection = $this->collectionRepository->find($cId);
-            if ($collection instanceof Collection) {
-                $path = $collection->getAbsolutePath();
-                if (!empty($rules['include'])) {
-                    $query->addMust($this->createIncludeQuery('collectionPaths', $path, $rules['include']));
-                    $hasConditions = true;
-                }
-                if (!empty($rules['exclude'])) {
-                    $query->addMustNot($this->createExcludeQuery('collectionPaths', $path, $rules['exclude']));
                     $hasConditions = true;
                 }
             }

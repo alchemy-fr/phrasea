@@ -17,6 +17,7 @@ class WorkspaceIntegrationInput extends AbstractOwnerIdInput
     public $integration;
     public ?string $configYaml = null;
     public ?bool $enabled = null;
+    public ?bool $public = null;
 
     /**
      * @var WorkspaceIntegration[]

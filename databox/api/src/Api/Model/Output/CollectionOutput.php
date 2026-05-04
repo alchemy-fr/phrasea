@@ -26,9 +26,9 @@ class CollectionOutput extends AbstractUuidOutput
     #[ApiProperty(jsonSchemaContext: [
         'type' => 'object',
         'properties' => [
-            'canEdit' => 'boolean',
-            'canDelete' => 'boolean',
-            'canEditPermissions' => 'boolean',
+            'edit' => 'boolean',
+            'delete' => 'boolean',
+            'editPermissions' => 'boolean',
         ],
     ])]
     #[Groups([Collection::GROUP_LIST, Workspace::GROUP_LIST])]
@@ -79,11 +79,14 @@ class CollectionOutput extends AbstractUuidOutput
     #[Groups([Collection::GROUP_ABSOLUTE_TITLE])]
     public ?string $absoluteTitleTranslated = null;
 
-    #[Groups(['collection:parent'])]
-    private ?self $parent = null;
+    #[Groups([
+        Collection::GROUP_READ,
+        Asset::GROUP_LIST,
+    ])]
+    public ?string $parentId = null;
 
     #[MaxDepth(2)]
-    #[Groups([Collection::GROUP_LIST, 'collection:children', Workspace::GROUP_LIST])]
+    #[Groups([Collection::GROUP_LIST, Collection::GROUP_CHILDREN, Workspace::GROUP_LIST])]
     private $children;
 
     #[MaxDepth(1)]
@@ -117,16 +120,6 @@ class CollectionOutput extends AbstractUuidOutput
     public function setTitle(?string $title): void
     {
         $this->title = $title;
-    }
-
-    public function getParent(): ?self
-    {
-        return $this->parent;
-    }
-
-    public function setParent(?self $parent): void
-    {
-        $this->parent = $parent;
     }
 
     public function getOwnerId(): ?string

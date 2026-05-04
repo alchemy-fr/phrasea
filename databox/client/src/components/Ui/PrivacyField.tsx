@@ -1,16 +1,19 @@
 import React from 'react';
 import {Control, FieldPath, FieldValues, useController} from 'react-hook-form';
 import PrivacyWidget from '../Form/PrivacyWidget.tsx';
+import {Privacy} from '../../api/privacy.ts';
 
 type Props<TFieldValues extends FieldValues> = {
     control: Control<TFieldValues>;
     name: FieldPath<TFieldValues>;
-    inheritedPrivacy?: number;
+    inheritedPrivacy?: Privacy;
+    disabled?: boolean;
 };
 
 export default function PrivacyField<TFieldValues extends FieldValues>({
     control,
     name,
+    disabled,
     inheritedPrivacy,
 }: Props<TFieldValues>) {
     const {
@@ -26,6 +29,7 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
             onChange={onChange}
             value={value}
             inheritedPrivacy={inheritedPrivacy}
+            disabled={disabled}
         />
     );
 }

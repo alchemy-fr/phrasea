@@ -20,12 +20,17 @@ class KeycloakClientTestMock implements HttpClientInterface
     final public const string ADMIN_TOKEN = '__VALID_ADMIN_TOKEN__';
 
     final public const string USER_UID = '123';
+    final public const string OTHER_USER_UID = '999';
     final public const string ADMIN_UID = '4242';
 
     private const USERS = [
         self::ADMIN_UID => [
             'username' => 'admin',
             'roles' => ['admin', 'databox', 'expose', 'uploader'],
+        ],
+        self::OTHER_USER_UID => [
+            'username' => 'other_user',
+            'roles' => ['databox', 'expose', 'uploader'],
         ],
         self::USER_UID => [
             'username' => 'user',

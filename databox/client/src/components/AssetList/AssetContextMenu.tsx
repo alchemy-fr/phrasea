@@ -144,11 +144,13 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
     }
 
     if (actionsContext.edit) {
+        const canGoEdit = Boolean(can.edit || can.editAttributes);
+
         children.push(
             <MenuItem
                 key={'edit'}
-                disabled={!can.edit}
-                onClick={can.edit ? onEdit : undefined}
+                disabled={!canGoEdit}
+                onClick={canGoEdit ? onEdit : undefined}
             >
                 <ListItemIcon>
                     <EditIcon />
@@ -175,11 +177,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
 
     if (actionsContext.copy) {
         children.push(
-            <MenuItem
-                key={'copy'}
-                disabled={!can.share}
-                onClick={can.share ? onCopy : undefined}
-            >
+            <MenuItem key={'copy'} onClick={onCopy}>
                 <ListItemIcon>
                     <FileCopyIcon />
                 </ListItemIcon>

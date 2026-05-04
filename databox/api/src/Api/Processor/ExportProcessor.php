@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\StorageBundle\Util\FileUtil;
 use ApiPlatform\Metadata\Operation;
@@ -13,7 +12,7 @@ use ApiPlatform\Validator\ValidatorInterface;
 use App\Entity\Core\AssetRendition;
 use App\Model\Export;
 use App\Repository\Core\AssetRenditionRepository;
-use App\Security\RenditionPermissionManager;
+use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\FileUrlResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -28,7 +27,6 @@ class ExportProcessor implements ProcessorInterface
         private readonly ValidatorInterface $validator,
         private readonly EntityManagerInterface $em,
         private readonly FileUrlResolver $fileUrlResolver,
-        private readonly RenditionPermissionManager $renditionPermissionManager,
     ) {
     }
 
@@ -37,9 +35,6 @@ class ExportProcessor implements ProcessorInterface
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Export
     {
-        $user = $this->getUser();
-        $userId = $user instanceof JwtUser ? $user->getId() : null;
-        $groupsIds = $user instanceof JwtUser ? $user->getGroups() : [];
         $this->validator->validate($data);
 
         $renditionIds = $data->renditions;
@@ -53,12 +48,7 @@ class ExportProcessor implements ProcessorInterface
             /** @var AssetRendition[] $renditions */
             foreach ($renditions as $rendition) {
                 $asset = $rendition->getAsset();
-                if (!$this->renditionPermissionManager->isGranted(
-                    $asset,
-                    $rendition->getDefinition()->getPolicy(),
-                    $userId,
-                    $groupsIds
-                )) {
+                if (!$this->isGranted(AbstractVoter::READ, $rendition)) {
                     continue;
                 }
 

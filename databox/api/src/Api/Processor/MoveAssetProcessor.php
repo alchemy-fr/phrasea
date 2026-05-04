@@ -12,6 +12,7 @@ use App\Api\Model\Input\MoveAssetInput;
 use App\Consumer\Handler\Asset\AssetMove;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\CollectionVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -36,7 +37,7 @@ class MoveAssetProcessor implements ProcessorInterface
             ->findByIds($data->ids);
 
         $dest = $this->iriConverter->getResourceFromIri($data->destination);
-        $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $dest);
+        $this->denyAccessUnlessGranted(CollectionVoter::ASSET_CREATE, $dest);
 
         foreach ($assets as $asset) {
             $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $asset);

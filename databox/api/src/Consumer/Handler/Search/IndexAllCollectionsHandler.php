@@ -14,17 +14,27 @@ final readonly class IndexAllCollectionsHandler extends AbstractBatchHandler
 {
     public function __invoke(IndexAllCollections $message): void
     {
-        parent::doHandle();
+        parent::doHandle($message);
     }
 
-    protected function getIterator(): iterable
+    /**
+     * @param IndexAllCollections $message
+     */
+    protected function getIterator(object $message): iterable
     {
-        return $this
+        $queryBuilder = $this
             ->em
             ->createQueryBuilder()
             ->select('c.id')
             ->from(Collection::class, 'c')
-            ->where('c.storyAsset IS NULL')
+            ->where('c.storyAsset IS NULL');
+
+        if ($message->workspaceId) {
+            $queryBuilder->andWhere('c.workspace = :wid')
+                ->setParameter('wid', $message->workspaceId);
+        }
+
+        return $queryBuilder
             ->getQuery()
             ->toIterable();
     }
@@ -32,8 +42,5 @@ final readonly class IndexAllCollectionsHandler extends AbstractBatchHandler
     protected function flushIndexStack(array $stack): void
     {
         $this->searchIndexer->scheduleObjectsIndex(Collection::class, $stack, Operation::Upsert);
-        foreach ($stack as $collectionId) {
-            $this->bus->dispatch(new IndexCollectionBranch((string) $collectionId));
-        }
     }
 }

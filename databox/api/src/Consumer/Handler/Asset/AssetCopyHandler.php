@@ -52,10 +52,10 @@ readonly class AssetCopyHandler
         } else {
             $this->assetCopier->copyAsset(
                 $message->getUserId(),
-                $message->getGroupsId() ?? [],
                 $asset,
                 $destWorkspace,
                 $destCollection,
+                $message->allowedRenditions,
                 $message->getOptions()
             );
         }

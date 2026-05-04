@@ -1,5 +1,6 @@
 parameters:
   user_id: '123'
+  other_user_id: '999'
   admin_user_id: '4242'
 
 App\Entity\Core\Workspace:
@@ -111,9 +112,11 @@ App\Entity\Core\RenditionPolicy:
   t_rc_public (extends rendition_policy):
     name: Public
     public: true
+    editable: true
   t_rc_restricted (extends rendition_policy):
     name: Restricted
     public: false
+    editable: false
 
 App\Entity\Core\RenditionDefinition:
   rendition_definition (template):

@@ -7,4 +7,7 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 #[MessengerMessage('p1')]
 final readonly class IndexAllAssets
 {
+    public function __construct(public ?string $workspaceId = null)
+    {
+    }
 }

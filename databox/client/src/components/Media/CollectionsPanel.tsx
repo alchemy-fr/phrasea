@@ -27,10 +27,12 @@ import {useTranslation} from 'react-i18next';
 import {SearchContext} from './Search/SearchContext.tsx';
 import {BuiltInField} from './Search/search.ts';
 import SavedSearchList from './Search/SavedSearch/SavedSearchList.tsx';
+import {useAuth} from '@alchemy/react-auth';
 
 type Props = {};
 
 function CollectionsPanel({}: Props) {
+    const {isAuthenticated} = useAuth();
     const searchContext = useContext(SearchContext)!;
     const loadWorkspaces = useWorkspaceStore(state => state.load);
     const loading = useWorkspaceStore(state => state.loading);
@@ -141,11 +143,16 @@ function CollectionsPanel({}: Props) {
                                           absolutePath={c.id}
                                           level={0}
                                           workspace={c.workspace}
+                                          isAuthenticated={isAuthenticated}
                                       />
                                   )
                               )
                             : workspaces?.map(w => (
-                                  <WorkspaceMenuItem data={w} key={w.id} />
+                                  <WorkspaceMenuItem
+                                      data={w}
+                                      key={w.id}
+                                      isAuthenticated={isAuthenticated}
+                                  />
                               ))}
                         <Box
                             sx={theme => ({

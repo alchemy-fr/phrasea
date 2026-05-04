@@ -84,7 +84,6 @@ function AssetAttachments({asset}: Props) {
                                             </IconButton>
                                         ) : null}
                                         <DropdownActions
-                                            disablePortal={false}
                                             mainButton={({...props}) => (
                                                 <IconButton {...props}>
                                                     <MoreVertIcon />
