@@ -41,16 +41,21 @@ final readonly class AttributeEntityUpdateHandler
         $calls = [];
         $params = [];
         $locales = $message->getLocales();
+
+        if (empty($locales)) {
+            return;
+        }
+
         foreach ($definitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
+            $fields[sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, AttributeInterface::NO_LOCALE, $fieldName)] = true;
 
             foreach ($locales as $locale) {
-                $fields[sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, AttributeInterface::NO_LOCALE, $fieldName)] = true;
                 $params[$locale] = [
                     'v' => $attributeEntity->getTranslations()[$locale] ?? (AttributeInterface::NO_LOCALE === $locale ? $attributeEntity->getValue() : ''),
                     's' => $attributeEntity->getSynonymsOfLocale($locale) ?? [],
                 ];
-                $calls[$locale] = sprintf(
+                $calls[$definition->getId().'-'.$locale] = sprintf(
                     'up(ctx._source, \'%1$s\', \'%2$s\', params[\'_id\'], params[\'%1$s\'][\'v\'], params[\'%1$s\'][\'s\'], %3$s);',
                     $locale,
                     $fieldName,
@@ -99,7 +104,9 @@ void up(HashMap src, String locale, String name, String id, String n, def s, boo
         }
     }
 
-    boolean hasValue = !n.isEmpty() || s.size() > 0;
+    boolean hasVal = !n.isEmpty();
+    boolean hasSyn = s.size() > 0;
+    boolean hasValOrSyn = hasVal || hasSyn;
 
     HashMap node = attributes.get(locale);
     if (!(node instanceof Map)) {
@@ -113,45 +120,43 @@ void up(HashMap src, String locale, String name, String id, String n, def s, boo
         }
         for (item in field) {
             if (item['id'] == id) {
-                if (hasValue) {
-                    item['value'] = n;
-                    item['synonyms'] = s;
+                if (hasValOrSyn) {
+                    if (hasVal) {
+                        item['value'] = n;
+                    } else {
+                        item.remove('value');
+                    }
+
+                    if (hasSyn) {
+                        item['synonyms'] = s;
+                    } else {
+                        item.remove('synonyms');
+                    }
                 } else {
                     field.remove(field.indexOf(item));
                 }
-                return;
             }
         }
 
-        if (hasValue) {
-            def ref = attributes['_']?.get(name);
-            if (ref instanceof List) {
-                for (item in ref) {
-                    if (item['id'] == id) {
-                        field.add(["id": id, "value": n, "synonyms": s]);
-                        return;
-                    }
-                }
-            }
-        }
         return;
     }
 
     if (field instanceof Map) {
         if (field['id'] == id) {
-            if (hasValue) {
-                field['value'] = n;
-                field['synonyms'] = s;
+            if (hasValOrSyn) {
+                if (hasVal) {
+                    field['value'] = n;
+                } else {
+                    field.remove('value');
+                }
+
+                if (hasSyn) {
+                    field['synonyms'] = s;
+                } else {
+                    field.remove('synonyms');
+                }
             } else {
                 node.remove(name);
-            }
-        }
-    } else if (hasValue) {
-        def ref = attributes['_']?.get(name);
-
-        if (ref instanceof Map) {
-            if (ref['id'] == id) {
-                node[name] = ["id": id, "value": n, "synonyms": s];
             }
         }
     }

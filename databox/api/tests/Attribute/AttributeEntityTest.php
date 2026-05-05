@@ -162,10 +162,6 @@ class AttributeEntityTest extends AbstractSearchTest
             'json' => [
                 'value' => 'ae1-bis',
                 'synonyms' => [
-                    '_' => [
-                        'ae1en1-bis',
-                        'ae1en2-bis',
-                    ],
                     'en' => ['ae1en1-bis', 'ae1en2-bis'],
                     'fr' => ['ae1fr1-bis', 'ae1fr2-bis'],
                 ],
@@ -175,6 +171,8 @@ class AttributeEntityTest extends AbstractSearchTest
 
         $response = $esClient->request($assetIndexName.'/_search?q=_id:'.$asset->getId());
 
+        $attrs = $response->getData()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
+        dump($attrs);
         $this->assertEquals([
             AttributeInterface::NO_LOCALE => [
                 'many_entity_m' => [
@@ -242,7 +240,7 @@ class AttributeEntityTest extends AbstractSearchTest
                     ],
                 ],
             ],
-        ], $response->getData()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0]);
+        ], $attrs);
 
         $apiClient->request('PUT', '/attribute-entities/'.$entity2->getId().'/merge', [
             'headers' => [
