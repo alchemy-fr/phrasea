@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
@@ -48,11 +49,12 @@ use Symfony\Component\Validator\Constraints as Assert;
     errorPath: 'name',
 )]
 #[ORM\Entity]
-class RenditionPolicy extends AbstractUuidEntity implements \Stringable, LoggableChangeSetInterface
+class RenditionPolicy extends AbstractUuidEntity implements \Stringable, LoggableChangeSetInterface, AclObjectInterface
 {
     use CreatedAtTrait;
     use WorkspaceTrait;
     final public const int OBJECT_INDEX = 17;
+    final public const string OBJECT_TYPE = 'rendition_policy';
     final public const string GROUP_READ = 'rendpol:r';
     final public const string GROUP_LIST = 'rendpol:i';
 
@@ -73,6 +75,11 @@ class RenditionPolicy extends AbstractUuidEntity implements \Stringable, Loggabl
     #[Groups([RenditionPolicy::GROUP_LIST, RenditionPolicy::GROUP_READ])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $public = false;
+
+    #[Groups([RenditionPolicy::GROUP_LIST])]
+    #[ORM\Column(type: Types::BOOLEAN)]
+    #[Assert\NotNull]
+    private ?bool $editable = null;
 
     #[Groups([RenditionPolicy::GROUP_LIST, RenditionPolicy::GROUP_READ])]
     #[ORM\Column(type: Types::JSON, nullable: true)]
@@ -123,5 +130,20 @@ class RenditionPolicy extends AbstractUuidEntity implements \Stringable, Loggabl
     public function setLabels(?array $labels): void
     {
         $this->labels = $labels;
+    }
+
+    public function isEditable(): bool
+    {
+        return $this->editable;
+    }
+
+    public function setEditable(bool $editable): void
+    {
+        $this->editable = $editable;
+    }
+
+    public function getAclOwnerId(): string
+    {
+        return 'no-owner';
     }
 }

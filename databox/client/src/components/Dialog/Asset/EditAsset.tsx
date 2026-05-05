@@ -127,6 +127,8 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
 
     useDirtyFormPrompt(!submitting && (attributesDirty || forbidNavigation));
 
+    const {capabilities} = data;
+
     return (
         <FormTab
             onClose={onClose}
@@ -136,40 +138,49 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
             minHeight={minHeight}
         >
             <form id={formId} onSubmit={handleSubmit}>
-                <FormRow>
-                    <TextField
-                        autoFocus
-                        required={true}
-                        label={t('form.asset.title.label', 'Title')}
-                        disabled={submitting}
-                        {...register('title', {
-                            required: true,
-                        })}
-                    />
-                    <FormFieldErrors field={'title'} errors={errors} />
-                </FormRow>
-                <FormRow>
-                    <FormGroup>
-                        <InputLabel>
-                            {t('form.asset.tags.label', 'Tags')}
-                        </InputLabel>
-                        <TagSelect
-                            multiple={true}
-                            workspaceId={data.workspace.id}
-                            control={control}
-                            name={'tags'}
-                        />
-                        <FormFieldErrors<Asset>
-                            field={'tags'}
-                            errors={errors}
-                        />
-                    </FormGroup>
-                </FormRow>
-                <FormRow>
-                    <PrivacyField control={control} name={'privacy'} />
-                </FormRow>
+                {capabilities.edit ? (
+                    <>
+                        <FormRow>
+                            <TextField
+                                autoFocus
+                                required={true}
+                                label={t('form.asset.title.label', 'Title')}
+                                disabled={submitting}
+                                {...register('title', {
+                                    required: true,
+                                })}
+                            />
+                            <FormFieldErrors field={'title'} errors={errors} />
+                        </FormRow>
+                        <FormRow>
+                            <FormGroup>
+                                <InputLabel>
+                                    {t('form.asset.tags.label', 'Tags')}
+                                </InputLabel>
+                                <TagSelect
+                                    multiple={true}
+                                    workspaceId={data.workspace.id}
+                                    control={control}
+                                    name={'tags'}
+                                />
+                                <FormFieldErrors<Asset>
+                                    field={'tags'}
+                                    errors={errors}
+                                />
+                            </FormGroup>
+                        </FormRow>
+                        {capabilities.editPermissions ? (
+                            <FormRow>
+                                <PrivacyField
+                                    control={control}
+                                    name={'privacy'}
+                                />
+                            </FormRow>
+                        ) : null}
+                    </>
+                ) : null}
             </form>
-            {data.capabilities.canEditAttributes ? (
+            {capabilities.editAttributes ? (
                 attributes && definitionIndex ? (
                     <AttributesEditor
                         attributes={attributes}

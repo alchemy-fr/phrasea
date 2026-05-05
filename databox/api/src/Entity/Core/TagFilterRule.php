@@ -18,13 +18,13 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\TagFilterRuleInput;
 use App\Api\Model\Output\TagFilterRuleOutput;
 use App\Api\Provider\TagFilterRuleCollectionProvider;
+use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\TagFilterRuleRepository;
-use App\Validator\TagFilterRuleConstraint;
+use App\Validator\SameWorkspaceConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Doctrine\UuidType;
 
 #[ApiResource(
     shortName: 'tag-filter-rule',
@@ -46,15 +46,17 @@ use Ramsey\Uuid\Doctrine\UuidType;
 )]
 #[ORM\Table]
 #[ORM\Index(columns: ['user_type', 'user_id'], name: 'tfr_user_idx')]
-#[ORM\Index(columns: ['object_type', 'object_id'], name: 'tfr_object_idx')]
 #[ORM\Index(columns: ['user_type'], name: 'tfr_user_type_idx')]
-#[ORM\UniqueConstraint(name: 'tfr_uniq_ace', columns: ['user_type', 'user_id', 'object_type', 'object_id'])]
+#[ORM\UniqueConstraint(name: 'tfr_uniq_ace', columns: ['user_type', 'user_id', 'workspace_id'])]
 #[ORM\Entity(repositoryClass: TagFilterRuleRepository::class)]
-#[TagFilterRuleConstraint]
+#[SameWorkspaceConstraint(
+    properties: ['workspace', 'include.workspace', 'exclude.workspace']
+)]
 class TagFilterRule extends AbstractUuidEntity implements LoggableChangeSetInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    use WorkspaceTrait;
     final public const int OBJECT_INDEX = 20;
 
     final public const string GROUP_READ = 'tfr:read';
@@ -62,25 +64,12 @@ class TagFilterRule extends AbstractUuidEntity implements LoggableChangeSetInter
 
     final public const int TYPE_USER = 0;
     final public const int TYPE_GROUP = 1;
-    final public const int TYPE_WORKSPACE = 0;
-    final public const int TYPE_COLLECTION = 1;
-
-    final public const array OBJECT_CLASSES = [
-        self::TYPE_WORKSPACE => Workspace::class,
-        self::TYPE_COLLECTION => Collection::class,
-    ];
 
     #[ORM\Column(type: Types::SMALLINT)]
     protected ?int $userType = null;
 
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
     protected ?string $userId = null;
-
-    #[ORM\Column(type: Types::SMALLINT)]
-    protected int $objectType;
-
-    #[ORM\Column(type: UuidType::NAME, nullable: false)]
-    protected string $objectId;
 
     #[ORM\JoinTable(name: 'tfr_includes')]
     #[ORM\ManyToMany(targetEntity: Tag::class)]
@@ -116,26 +105,6 @@ class TagFilterRule extends AbstractUuidEntity implements LoggableChangeSetInter
     public function setUserId(?string $userId): void
     {
         $this->userId = $userId;
-    }
-
-    public function getObjectType(): int
-    {
-        return $this->objectType;
-    }
-
-    public function setObjectType(int $objectType): void
-    {
-        $this->objectType = $objectType;
-    }
-
-    public function getObjectId(): string
-    {
-        return $this->objectId;
-    }
-
-    public function setObjectId(string $objectId): void
-    {
-        $this->objectId = $objectId;
     }
 
     /**

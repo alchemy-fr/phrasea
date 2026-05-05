@@ -12,6 +12,7 @@ use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
 use FOS\ElasticaBundle\Index\IndexManager;
 use FOS\ElasticaBundle\Persister\Event\PostInsertObjectsEvent;
 use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -37,12 +38,15 @@ readonly class PopulateListener implements EventSubscriberInterface
             $this->fosPopulateCache->clear();
         }
 
+        $this->assetPermissionComputer->setWorkspaceCache(new ArrayAdapter(storeSerialized: false));
         $this->assetPermissionComputer->setCollectionCache($this->fosPopulateCache);
     }
 
     public function postIndexPopulate(PostIndexPopulateEvent $event): void
     {
         $this->assetPermissionComputer->disableCollectionCache();
+        $this->assetPermissionComputer->disableWorkspaceCache();
+        $this->assetPermissionComputer->disableAssetCache();
 
         $index = $this->indexManager->getIndex($event->getIndex());
         $index->getClient()->request('_forcemerge?max_num_segments=5', 'POST');

@@ -91,8 +91,8 @@ importers:
         version: 4.5.0(rollup@4.52.5)(typescript@5.9.2)(vite@5.4.21(@types/node@18.19.127)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.46.1))
     devDependencies:
       '@4rthem/i18next-scanner':
-        specifier: ^0.0.1
-        version: 0.0.1(typescript@5.9.2)
+        specifier: ^0.0.3
+        version: 0.0.3(typescript@5.9.2)
       '@types/node':
         specifier: ^18.19.127
         version: 18.19.127
@@ -419,8 +419,8 @@ importers:
         version: 4.5.7(@types/react@18.3.24)(immer@10.1.3)(react@18.3.1)
     devDependencies:
       '@4rthem/i18next-scanner':
-        specifier: ^0.0.1
-        version: 0.0.1(typescript@5.9.2)
+        specifier: ^0.0.3
+        version: 0.0.3(typescript@5.9.2)
       '@mui/system':
         specifier: ^6.5.0
         version: 6.5.0(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
@@ -682,8 +682,8 @@ importers:
         version: 8.0.2(sass@1.93.2)(webpack@5.91.0(@swc/core@1.13.5(@swc/helpers@0.5.21)))
     devDependencies:
       '@4rthem/i18next-scanner':
-        specifier: ^0.0.1
-        version: 0.0.1(typescript@5.9.2)
+        specifier: ^0.0.3
+        version: 0.0.3(typescript@5.9.2)
       '@types/jest':
         specifier: ^26.0.24
         version: 26.0.24
@@ -718,8 +718,8 @@ importers:
   lib/js/api:
     devDependencies:
       '@4rthem/i18next-scanner':
-        specifier: ^0.0.1
-        version: 0.0.1(typescript@5.9.2)
+        specifier: ^0.0.3
+        version: 0.0.3(typescript@5.9.2)
       '@types/react':
         specifier: ^18.3.24
         version: 18.3.24
@@ -857,8 +857,8 @@ importers:
         version: 7.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       '@4rthem/i18next-scanner':
-        specifier: ^0.0.1
-        version: 0.0.1(typescript@5.9.2)
+        specifier: ^0.0.3
+        version: 0.0.3(typescript@5.9.2)
       '@alchemy/phrasea-ui':
         specifier: workspace:*
         version: link:../phrasea-ui
@@ -970,8 +970,8 @@ importers:
         version: 11.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       '@4rthem/i18next-scanner':
-        specifier: ^0.0.1
-        version: 0.0.1(typescript@5.9.2)
+        specifier: ^0.0.3
+        version: 0.0.3(typescript@5.9.2)
       '@types/react':
         specifier: ^18.3.24
         version: 18.3.24
@@ -989,8 +989,8 @@ importers:
         version: 6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       '@4rthem/i18next-scanner':
-        specifier: ^0.0.1
-        version: 0.0.1(typescript@5.9.2)
+        specifier: ^0.0.3
+        version: 0.0.3(typescript@5.9.2)
       '@mui/icons-material':
         specifier: ^6.5.0
         version: 6.5.0(@mui/material@6.5.0(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
@@ -1035,8 +1035,8 @@ importers:
         version: 18.3.1
     devDependencies:
       '@4rthem/i18next-scanner':
-        specifier: ^0.0.1
-        version: 0.0.1(typescript@5.9.2)
+        specifier: ^0.0.3
+        version: 0.0.3(typescript@5.9.2)
       '@jonkoops/matomo-tracker-react':
         specifier: ^0.7.0
         version: 0.7.0(react@18.3.1)
@@ -1123,8 +1123,8 @@ importers:
         version: 5.10.2(@types/react@18.3.24)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       '@4rthem/i18next-scanner':
-        specifier: ^0.0.1
-        version: 0.0.1(typescript@5.9.2)
+        specifier: ^0.0.3
+        version: 0.0.3(typescript@5.9.2)
       '@alchemy/api':
         specifier: workspace:*
         version: link:../api
@@ -1374,8 +1374,8 @@ importers:
         version: 4.5.0(rollup@4.52.5)(typescript@5.9.2)(vite@5.4.21(@types/node@18.19.127)(sass-embedded@1.97.3)(sass@1.93.2)(terser@5.46.1))
     devDependencies:
       '@4rthem/i18next-scanner':
-        specifier: ^0.0.1
-        version: 0.0.1(typescript@5.9.2)
+        specifier: ^0.0.3
+        version: 0.0.3(typescript@5.9.2)
       '@types/node':
         specifier: ^18.19.127
         version: 18.19.127
@@ -1415,8 +1415,8 @@ importers:
 
 packages:
 
-  '@4rthem/i18next-scanner@0.0.1':
-    resolution: {integrity: sha512-SboeB5YOuuaHbMt/Psj+gUWDULBCdiRkcQXFwnrqpWfWwxNFavXR5qon+6p0VLvND9++BHIRavl4TSANJJ20rA==}
+  '@4rthem/i18next-scanner@0.0.3':
+    resolution: {integrity: sha512-x2Q7buLRmhPFgKvZOFIXq2eDmtoHcY1w14qQc/y3l+a23Mh//1sIwpx/OcLo37n2FJYyyxNqh7wt7LWyXscMcA==}
     engines: {node: '>=12'}
     hasBin: true
 
@@ -12656,11 +12656,11 @@ packages:
 
 snapshots:
 
-  '@4rthem/i18next-scanner@0.0.1(typescript@5.9.2)':
+  '@4rthem/i18next-scanner@0.0.3(typescript@5.9.2)':
     dependencies:
-      acorn: 8.15.0
-      acorn-jsx: 5.3.2(acorn@8.15.0)
-      acorn-stage3: 4.0.0(acorn@8.15.0)
+      acorn: 8.16.0
+      acorn-jsx: 5.3.2(acorn@8.16.0)
+      acorn-stage3: 4.0.0(acorn@8.16.0)
       acorn-walk: 8.3.4
       chalk: 4.1.2
       clone-deep: 4.0.1
@@ -17634,10 +17634,10 @@ snapshots:
 
   ace-builds@1.43.3: {}
 
-  acorn-class-fields@0.3.7(acorn@8.15.0):
+  acorn-class-fields@0.3.7(acorn@8.16.0):
     dependencies:
-      acorn: 8.15.0
-      acorn-private-class-elements: 0.2.7(acorn@8.15.0)
+      acorn: 8.16.0
+      acorn-private-class-elements: 0.2.7(acorn@8.16.0)
 
   acorn-globals@4.3.4:
     dependencies:
@@ -17652,34 +17652,30 @@ snapshots:
     dependencies:
       acorn: 7.4.1
 
-  acorn-jsx@5.3.2(acorn@8.15.0):
-    dependencies:
-      acorn: 8.15.0
-
   acorn-jsx@5.3.2(acorn@8.16.0):
     dependencies:
       acorn: 8.16.0
 
-  acorn-private-class-elements@0.2.7(acorn@8.15.0):
+  acorn-private-class-elements@0.2.7(acorn@8.16.0):
     dependencies:
-      acorn: 8.15.0
+      acorn: 8.16.0
 
-  acorn-private-methods@0.3.3(acorn@8.15.0):
+  acorn-private-methods@0.3.3(acorn@8.16.0):
     dependencies:
-      acorn: 8.15.0
-      acorn-private-class-elements: 0.2.7(acorn@8.15.0)
+      acorn: 8.16.0
+      acorn-private-class-elements: 0.2.7(acorn@8.16.0)
 
-  acorn-stage3@4.0.0(acorn@8.15.0):
+  acorn-stage3@4.0.0(acorn@8.16.0):
     dependencies:
-      acorn: 8.15.0
-      acorn-class-fields: 0.3.7(acorn@8.15.0)
-      acorn-private-methods: 0.3.3(acorn@8.15.0)
-      acorn-static-class-features: 0.2.4(acorn@8.15.0)
+      acorn: 8.16.0
+      acorn-class-fields: 0.3.7(acorn@8.16.0)
+      acorn-private-methods: 0.3.3(acorn@8.16.0)
+      acorn-static-class-features: 0.2.4(acorn@8.16.0)
 
-  acorn-static-class-features@0.2.4(acorn@8.15.0):
+  acorn-static-class-features@0.2.4(acorn@8.16.0):
     dependencies:
-      acorn: 8.15.0
-      acorn-private-class-elements: 0.2.7(acorn@8.15.0)
+      acorn: 8.16.0
+      acorn-private-class-elements: 0.2.7(acorn@8.16.0)
 
   acorn-walk@6.2.0: {}
 

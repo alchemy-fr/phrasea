@@ -9,6 +9,7 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Tests\AbstractSearchTestCase;
 
 class AssetTest extends AbstractSearchTestCase
@@ -98,6 +99,7 @@ class AssetTest extends AbstractSearchTestCase
                 'extraMetadata' => [
                     'foo' => 'bar',
                 ],
+                'privacy' => WorkspaceItemPrivacyInterface::SECRET,
             ],
         ]);
 

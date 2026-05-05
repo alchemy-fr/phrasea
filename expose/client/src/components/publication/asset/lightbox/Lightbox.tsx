@@ -232,6 +232,10 @@ export default function Lightbox({publication, thumbs, asset}: Props) {
                                     xs: '100%',
                                     md: 400,
                                 },
+                                minWidth: {
+                                    xs: undefined,
+                                    md: 200,
+                                },
                                 maxHeight: {
                                     xs: '40vh',
                                     md: '90%',

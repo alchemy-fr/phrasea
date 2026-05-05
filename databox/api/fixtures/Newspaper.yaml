@@ -172,9 +172,11 @@ App\Entity\Core\RenditionPolicy:
     n_rc_public (extends rendition_policy_n):
         name: Public
         public: true
+        editable: true
     n_rc_restricted (extends rendition_policy_n):
         name: Restricted
         public: false
+        editable: false
 
 App\Entity\Core\RenditionDefinition:
     rendition_definition_n (template):
@@ -236,44 +238,6 @@ App\Entity\Core\RenditionDefinition:
         policy: '@n_rc_public'
         useAsAnimatedThumbnail: true
         parent: '@n_rd_thumbnail'
-
-# Groups:
-# reporter_sport_football_league
-#     - alice
-#     - harry
-# reporter_sport_football_worldcup
-#     - bob
-# reporter_sport_football
-#     - jack
-# reporter_sport_tennis
-#     - amelia
-#     - harry
-#     - oliver
-# reporter_entertainment
-#     - ava
-# admin_newspaper
-#     - oliver
-# No group:
-#     - john_doe
-#     - super_user
-
-# Collections hierarchy:
-# sport
-#     football
-#         league
-#         worldcup
-#     rugby
-#     tennis
-# entertainment
-#     public_videos
-#         movies
-#         series
-#         tv_shows
-#     archives
-#         movies
-#         series
-#         tv_shows
-# others
 
 App\Entity\Core\Collection:
     collection_n (template):
@@ -343,7 +307,7 @@ App\Entity\Core\Asset:
         source: '@f_video_o<current()>'
     a_pdf{1..10} (extends asset_n):
         title: 'PDF #<ucwords($current)>'
-        ownerId: <keycloakUser("jack")>
+        ownerId: <keycloakUser("carol")>
         source: '@f_pdf_o<current()>'
     astory{1..10} (extends asset_n):
         title: 'Story #<ucwords($current)>'
@@ -371,45 +335,59 @@ App\Entity\Core\File:
 
     f_story_img_m{1..20} (extends file):
         type: image/jpeg
+        extension: jpg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 1000)>'
     f_story_img_p{1..20} (extends file):
         type: image/jpeg
+        extension: jpg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 500)>'
     f_story_img_t{1..20} (extends file):
         type: image/jpeg
+        extension: jpg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
     f_img_m{1..50} (extends file):
         type: image/jpeg
+        extension: jpg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 1000)>'
     f_img_p{1..50} (extends file):
         type: image/jpeg
+        extension: jpg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 500)>'
     f_img_t{1..50} (extends file):
         type: image/jpeg
+        extension: jpg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
     f_img_ta{1..10} (extends file):
         type: image/jpeg
+        extension: jpg
         path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
     f_audio_o{1..10} (extends file):
         type: audio/mp3
+        extension: mp3
         path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
     f_audio_t{1..10} (extends file):
         type: audio/mp3
+        extension: mp3
         path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
     f_video_o{1..10} (extends file):
         type: video/mp4
+        extension: mp4
         path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
     f_video_p{1..10} (extends file):
         type: video/mp4
+        extension: mp4
         path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
     f_video_t{1..10} (extends file):
         type: video/mp4
+        extension: mp4
         path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
     f_pdf_o{1..10} (extends file):
         type: application/pdf
+        extension: pdf
         path: '<randomMedia(@w_newspaper->id, "pdf", <current()>)>'
     f_pdf_p{1..10} (extends file):
         type: application/pdf
+        extension: pdf
         path: '<randomMedia(@w_newspaper->id, "pdf", <current()>)>'
 
 App\Entity\Core\AssetRendition:
@@ -572,15 +550,18 @@ App\Entity\Core\Tag:
 App\Entity\Integration\WorkspaceIntegration:
     wi_toast_ui:
         title: ToastUI
+        public: true
         integration: tui.photo-editor
         workspace: '@w_newspaper'
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
     wi_renditions:
         integration: core.rendition
+        public: true
         workspace: '@w_newspaper'
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
     wi_watermark:
         integration: core.watermark
+        public: true
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
         workspace: '@w_newspaper'
         config:
@@ -592,6 +573,7 @@ App\Entity\Integration\WorkspaceIntegration:
     wi_blurhash:
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
         integration: blurhash
+        public: true
         workspace: '@w_newspaper'
         config:
             rendition: thumbnail
@@ -600,6 +582,7 @@ App\Entity\Integration\WorkspaceIntegration:
     wi_expose:
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
         title: Expose Basket
+        public: true
         integration: phrasea.expose
         config:
             clientId: \${DATABOX_EXPOSE_INTEGRATION_CLIENT_ID}

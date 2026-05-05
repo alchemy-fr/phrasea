@@ -40,7 +40,7 @@
         "vite-plugin-svgr": "^4.5.0"
     },
     "devDependencies": {
-        "@4rthem/i18next-scanner": "^0.0.1",
+        "@4rthem/i18next-scanner": "^0.0.3",
         "@types/node": "^18.19.127",
         "@types/react": "^18.3.24",
         "@types/react-burger-menu": "^2.8.7",

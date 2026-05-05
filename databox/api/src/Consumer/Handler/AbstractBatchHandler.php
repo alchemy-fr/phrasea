@@ -17,9 +17,9 @@ abstract readonly class AbstractBatchHandler
     ) {
     }
 
-    protected function doHandle(): void
+    protected function doHandle(object $message): void
     {
-        $iterator = $this->getIterator();
+        $iterator = $this->getIterator($message);
         $batchSize = $this->getBatchSize();
 
         $stack = [];
@@ -38,7 +38,7 @@ abstract readonly class AbstractBatchHandler
         }
     }
 
-    abstract protected function getIterator(): iterable;
+    abstract protected function getIterator(object $message): iterable;
 
     abstract protected function flushIndexStack(array $stack): void;
 

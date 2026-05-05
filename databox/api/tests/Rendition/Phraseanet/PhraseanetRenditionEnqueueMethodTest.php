@@ -53,6 +53,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         ]);
 
         $integration = new WorkspaceIntegration();
+        $integration->setPublic(true);
         $integration->setWorkspace($workspace);
         $integration->setTitle('Renditions');
         $integration->setIntegration(PhraseanetRenditionIntegration::getName());

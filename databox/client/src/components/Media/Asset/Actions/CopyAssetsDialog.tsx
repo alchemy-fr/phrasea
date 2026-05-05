@@ -93,7 +93,7 @@ export default function CopyAssetsDialog({
                 ...assets
                     .filter(
                         a =>
-                            a.capabilities.canShare &&
+                            a.capabilities.share &&
                             workspaceDest &&
                             (!data.byReference ||
                                 a.workspace.id === workspaceDest)
@@ -125,7 +125,7 @@ export default function CopyAssetsDialog({
     const byRef = watch('byReference');
 
     const nonLinkablePerm: Asset[] = useMemo(
-        () => (byRef ? assets.filter(a => !a.capabilities.canShare) : []),
+        () => (byRef ? assets.filter(a => !a.capabilities.edit) : []),
         [byRef, assets]
     );
     const nonLinkableToOtherWS: Asset[] = useMemo(
@@ -133,7 +133,7 @@ export default function CopyAssetsDialog({
             byRef
                 ? assets.filter(
                       a =>
-                          a.capabilities.canShare &&
+                          a.capabilities.edit &&
                           workspaceDest &&
                           a.workspace.id !== workspaceDest
                   )
@@ -203,9 +203,11 @@ export default function CopyAssetsDialog({
                 </div>
                 <FormRow>
                     <CollectionTreeWidget
-                        isSelectable={node => node.data.capabilities.canEdit}
+                        isSelectable={node =>
+                            node.data.capabilities.createAsset
+                        }
                         onChange={node => {
-                            setWorkspaceDest(node.data?.workspaceId);
+                            setWorkspaceDest(node?.data?.workspaceId);
                         }}
                         control={control}
                         name={'destination'}

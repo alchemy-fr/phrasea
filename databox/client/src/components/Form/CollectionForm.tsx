@@ -1,4 +1,4 @@
-import {TextField} from '@mui/material';
+import {Alert, TextField} from '@mui/material';
 import React, {FC} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Collection} from '../../types';
@@ -60,13 +60,25 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
                 </TranslatedField>
                 <FormFieldErrors field={'title'} errors={errors} />
             </FormRow>
-            <FormRow>
-                <PrivacyField
-                    control={control}
-                    name={'privacy'}
-                    inheritedPrivacy={data?.inheritedPrivacy}
-                />
-            </FormRow>
+            {data?.capabilities.editPermissions ? (
+                <FormRow>
+                    {data?.inheritedPrivacy ? (
+                        <>
+                            <Alert severity={'warning'}>
+                                {t(
+                                    'form.collection.privacy.inherited',
+                                    'This collection cannot be more restricted than its parent collection.'
+                                )}
+                            </Alert>
+                        </>
+                    ) : null}
+                    <PrivacyField
+                        control={control}
+                        name={'privacy'}
+                        inheritedPrivacy={data?.inheritedPrivacy}
+                    />
+                </FormRow>
+            ) : null}
         </form>
     );
 };

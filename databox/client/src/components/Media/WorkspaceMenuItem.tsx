@@ -5,12 +5,14 @@ import {SearchContext} from './Search/SearchContext';
 import {
     CircularProgress,
     Collapse,
+    Divider,
     IconButton,
     ListItem,
     ListItemButton,
     ListItemIcon,
     ListItemText,
     ListSubheader,
+    MenuItem,
 } from '@mui/material';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -24,15 +26,22 @@ import {useModals} from '@alchemy/navigation';
 import {modalRoutes} from '../../routes';
 import {CollectionPager, useCollectionStore} from '../../store/collectionStore';
 import LoadMoreCollections from './Collection/LoadMoreCollections';
+import UploadDialog from '../Upload/UploadDialog.tsx';
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import {MoreActionsButton} from '@alchemy/phrasea-ui';
 
 export type WorkspaceMenuItemProps = {
     data: Workspace;
+    isAuthenticated: boolean;
 };
 
 export const workspaceItemClassName = 'ws-item';
 export const cActionClassName = 'c-action';
 
-export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
+export default function WorkspaceMenuItem({
+    data,
+    isAuthenticated,
+}: WorkspaceMenuItemProps) {
     const {id, nameTranslated, capabilities} = data;
 
     const {t} = useTranslation();
@@ -79,47 +88,113 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
                 <ListItem
                     className={workspaceItemClassName}
                     secondaryAction={
-                        <>
-                            {capabilities.canEdit && (
-                                <IconButton
-                                    color={'inherit'}
-                                    title={t(
-                                        'workspace.item.create_collection',
-                                        'Add collection in this workspace'
-                                    )}
-                                    onClick={() =>
-                                        openModal(CreateCollection, {
-                                            workspaceId: id,
-                                            workspaceTitle: nameTranslated,
-                                            onCreate: coll =>
-                                                addCollection(coll, id),
-                                        })
-                                    }
-                                    className={cActionClassName}
-                                    aria-label="add-child"
-                                >
-                                    <CreateNewFolderIcon />
-                                </IconButton>
-                            )}
-                            {capabilities.canEdit && (
-                                <IconButton
-                                    color={'inherit'}
-                                    component={ModalLink}
-                                    route={modalRoutes.workspaces.routes.manage}
-                                    params={{
-                                        id,
-                                        tab: 'edit',
-                                    }}
-                                    title={t(
-                                        'workspace.item.edit',
-                                        'Edit this workspace'
-                                    )}
-                                    className={cActionClassName}
-                                    aria-label="edit"
-                                >
-                                    <EditIcon />
-                                </IconButton>
-                            )}
+                        <span className={cActionClassName}>
+                            {isAuthenticated &&
+                                (capabilities.edit ||
+                                    capabilities.createCollection ||
+                                    capabilities.createAsset) && (
+                                    <MoreActionsButton
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'left',
+                                        }}
+                                    >
+                                        {closeWrapper => [
+                                            capabilities.createCollection ? (
+                                                <MenuItem
+                                                    key="add-collection"
+                                                    onClick={closeWrapper(() =>
+                                                        openModal(
+                                                            CreateCollection,
+                                                            {
+                                                                workspaceId: id,
+                                                                workspaceTitle:
+                                                                    nameTranslated,
+                                                                onCreate:
+                                                                    coll =>
+                                                                        addCollection(
+                                                                            coll,
+                                                                            id
+                                                                        ),
+                                                            }
+                                                        )
+                                                    )}
+                                                    aria-label="add collection"
+                                                >
+                                                    <ListItemIcon>
+                                                        <CreateNewFolderIcon />
+                                                    </ListItemIcon>
+                                                    <ListItemText
+                                                        primary={t(
+                                                            'workspace.item.create_collection',
+                                                            'Add collection in this workspace'
+                                                        )}
+                                                    />
+                                                </MenuItem>
+                                            ) : null,
+
+                                            capabilities.createAsset ? (
+                                                <MenuItem
+                                                    key="create-asset"
+                                                    onClick={closeWrapper(() =>
+                                                        openModal(
+                                                            UploadDialog,
+                                                            {
+                                                                files: [],
+                                                                workspaceTitle:
+                                                                    data.nameTranslated,
+                                                                workspaceId:
+                                                                    data.id,
+                                                            }
+                                                        )
+                                                    )}
+                                                    aria-label="create-asset"
+                                                >
+                                                    <ListItemIcon>
+                                                        <AddPhotoAlternateIcon />
+                                                    </ListItemIcon>
+                                                    <ListItemText
+                                                        primary={t(
+                                                            'workspace.item.create_asset',
+                                                            'Add Asset to Workspace'
+                                                        )}
+                                                    />
+                                                </MenuItem>
+                                            ) : null,
+                                            capabilities.edit &&
+                                            (capabilities.createCollection ||
+                                                capabilities.createAsset) ? (
+                                                <Divider key="divider2" />
+                                            ) : null,
+                                            capabilities.edit ? (
+                                                <MenuItem
+                                                    key={'edit'}
+                                                    component={ModalLink}
+                                                    route={
+                                                        modalRoutes.workspaces
+                                                            .routes.manage
+                                                    }
+                                                    params={{
+                                                        id,
+                                                        tab: 'edit',
+                                                    }}
+                                                    className={cActionClassName}
+                                                    aria-label="edit"
+                                                >
+                                                    <ListItemIcon>
+                                                        <EditIcon />
+                                                    </ListItemIcon>
+                                                    <ListItemText
+                                                        primary={t(
+                                                            'workspace.item.edit',
+                                                            'Edit this workspace'
+                                                        )}
+                                                    />
+                                                </MenuItem>
+                                            ) : null,
+                                        ]}
+                                    </MoreActionsButton>
+                                )}
                             <IconButton
                                 color={'inherit'}
                                 onClick={expandClick}
@@ -136,7 +211,7 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
                                     <ExpandMoreIcon />
                                 )}
                             </IconButton>
-                        </>
+                        </span>
                     }
                     disablePadding
                 >
@@ -157,6 +232,7 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
                 {pager?.items &&
                     pager!.items.map(c => (
                         <CollectionMenuItem
+                            isAuthenticated={isAuthenticated}
                             collection={c}
                             key={c.id}
                             absolutePath={c.id}

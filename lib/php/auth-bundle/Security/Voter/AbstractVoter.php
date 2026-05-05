@@ -34,11 +34,40 @@ abstract class AbstractVoter extends Voter
         $this->permissionManager = $permissionManager;
     }
 
-    protected function hasAcl(int $attribute, AclObjectInterface $subject, TokenInterface $token): bool
+    protected function hasAcl(array|int $attribute, AclObjectInterface $subject, TokenInterface $token, bool $ownershipGrants = true): bool
     {
         $user = $token->getUser();
         if ($user instanceof AclUserInterface) {
-            return $this->permissionManager->isGranted($user, $subject, $attribute);
+            return $this->permissionManager->isGranted($user, $subject, $attribute, $ownershipGrants);
+        }
+
+        return false;
+    }
+
+    protected function getMetadata(AclObjectInterface $subject, TokenInterface $token): array
+    {
+        $metadata = [];
+        $user = $token->getUser();
+        if ($user instanceof AclUserInterface) {
+            $aces = $this->permissionManager->getAces($user, $subject);
+            foreach ($aces as $ace) {
+                $metadata = array_merge($metadata, $ace->getMetadata());
+            }
+        }
+
+        return $metadata;
+    }
+
+    protected function hasMetadata(int|string $metadata, AclObjectInterface $subject, TokenInterface $token): bool
+    {
+        $user = $token->getUser();
+        if ($user instanceof AclUserInterface) {
+            $aces = $this->permissionManager->getAces($user, $subject);
+            foreach ($aces as $ace) {
+                if (in_array($metadata, $ace->getMetadata(), true)) {
+                    return true;
+                }
+            }
         }
 
         return false;

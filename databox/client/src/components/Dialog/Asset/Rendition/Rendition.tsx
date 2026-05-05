@@ -180,7 +180,6 @@ export function Rendition({
             }
             actions={
                 <MoreActionsButton
-                    disablePortal={false}
                     anchorOrigin={{
                         vertical: 'bottom',
                         horizontal: 'left',
@@ -209,7 +208,11 @@ export function Rendition({
                                     />
                                 </MenuItem>
                             );
-                            if (rendition.definition.substitutable) {
+
+                            if (
+                                asset.capabilities.edit &&
+                                rendition.definition.substitutable
+                            ) {
                                 actions.push(
                                     <MenuItem
                                         key={'replace'}
@@ -238,7 +241,7 @@ export function Rendition({
                                     Component={MenuItem}
                                 />
                             );
-                        } else {
+                        } else if (asset.capabilities.edit) {
                             actions.push(
                                 <MenuItem
                                     key={'upload'}
@@ -257,22 +260,27 @@ export function Rendition({
                             );
                         }
 
-                        actions.push(<Divider key={'div1'} />);
-                        actions.push(
-                            <MenuItem
-                                key={'delete'}
-                                onClick={closeWrapper(deleteRendition)}
-                                disabled={deleting}
-                                color={'error'}
-                            >
-                                <ListItemIcon>
-                                    <DeleteIcon />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary={t('renditions.delete', 'Delete')}
-                                />
-                            </MenuItem>
-                        );
+                        if (asset.capabilities.edit) {
+                            actions.push(<Divider key={'div1'} />);
+                            actions.push(
+                                <MenuItem
+                                    key={'delete'}
+                                    onClick={closeWrapper(deleteRendition)}
+                                    disabled={deleting}
+                                    color={'error'}
+                                >
+                                    <ListItemIcon>
+                                        <DeleteIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={t(
+                                            'renditions.delete',
+                                            'Delete'
+                                        )}
+                                    />
+                                </MenuItem>
+                            );
+                        }
 
                         return actions;
                     }}

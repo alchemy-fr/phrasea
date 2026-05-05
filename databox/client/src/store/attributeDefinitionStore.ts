@@ -293,6 +293,13 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 getValueFromAsset: asset => asset.source?.type,
             },
             {
+                slug: BuiltInField.FileExtension,
+                fieldType: AttributeType.Keyword,
+                searchable: true,
+                name: t('built_in_attr.fileExtension', 'File Extension'),
+                getValueFromAsset: asset => asset.source?.extension,
+            },
+            {
                 slug: BuiltInField.FileSize,
                 fieldType: AttributeType.Number,
                 searchable: true,

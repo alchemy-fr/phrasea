@@ -39,8 +39,8 @@ final readonly class AssetIndexer
             ->getQuery()
             ->toIterable();
 
-        $this->assetPermissionComputer->setCollectionCache(new ArrayAdapter());
-        $this->assetPermissionComputer->setAssetCache(new ArrayAdapter());
+        $this->assetPermissionComputer->setCollectionCache(new ArrayAdapter(storeSerialized: false));
+        $this->assetPermissionComputer->setAssetCache(new ArrayAdapter(storeSerialized: false));
 
         $lastCollectionId = null;
         $progressBar->start();

@@ -34,8 +34,8 @@ export default function ProfileMenuItem({
 }: Props) {
     const {t} = useTranslation();
 
-    const canEdit = data.capabilities.canEdit;
-    const canDelete = data.capabilities.canDelete;
+    const canEdit = data.capabilities.edit;
+    const canDelete = data.capabilities.delete;
 
     const textSx = {
         pr: (canEdit ? 6 : 0) + (canDelete ? 6 : 0),

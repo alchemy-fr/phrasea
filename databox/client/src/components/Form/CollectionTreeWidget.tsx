@@ -19,7 +19,7 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
         RegisterOptions<TFieldValues, FieldPath<TFieldValues>>,
         'valueAsNumber' | 'valueAsDate' | 'setValueAs' | 'disabled'
     >;
-    workspaceId?: string;
+    workspaceId?: string | undefined;
     allowNew?: boolean | undefined;
 } & CollectionTreeViewProps<IsMulti>;
 
@@ -55,7 +55,7 @@ export default function CollectionTreeWidget<
                 control={control}
                 name={name}
                 rules={rules}
-                render={({field: {onChange}}) => {
+                render={({field: {onChange, value}}) => {
                     return (
                         <CollectionsTreeView<IsMulti>
                             {...widgetProps}
@@ -67,6 +67,13 @@ export default function CollectionTreeWidget<
                                 onChange(collections);
                                 extOnChange?.(collections);
                             }}
+                            defaultSelectedNodes={
+                                Array.isArray(value)
+                                    ? value.map(String)
+                                    : value
+                                      ? [String(value)]
+                                      : []
+                            }
                         />
                     );
                 }}

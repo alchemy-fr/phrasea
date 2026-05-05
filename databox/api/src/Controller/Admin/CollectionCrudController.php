@@ -75,10 +75,8 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         yield AssociationField::new('workspace')
             ->autocomplete();
         yield $this->privacyField->create('privacy');
-        yield TextField::new('ownerId')
-            ->onlyOnDetail();
         yield $this->userChoiceField->create('ownerId', 'Owner')
-            ->onlyOnForms();
+            ->hideOnIndex();
         yield TextField::new('key')
             ->onlyOnDetail();
         yield DateTimeField::new('createdAt')

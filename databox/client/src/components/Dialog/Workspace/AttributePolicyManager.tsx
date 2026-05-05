@@ -7,16 +7,18 @@ import {
     putAttributePolicy,
 } from '../../../api/attributes';
 import {Chip, InputLabel, ListItemText, TextField} from '@mui/material';
-import {FormFieldErrors, FormRow} from '@alchemy/react-form';
+import {CheckboxWidget, FormFieldErrors, FormRow} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
 } from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
-import {CheckboxWidget} from '@alchemy/react-form';
-import AclForm from '../../Acl/AclForm';
-import {AclPermission} from '../../Acl/acl';
-import {PermissionObject} from '../../Permissions/permissions';
+import AclForm from '../../Permissions/AclForm.tsx';
+import {
+    AclPermission,
+    PermissionObject,
+    PermissionType,
+} from '../../Permissions/permissionsTypes.ts';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 
 function Item({
@@ -34,9 +36,6 @@ function Item({
 
     const isPublic = watch('public');
     const isEditable = watch('editable');
-    const displayedPermissions = !isPublic
-        ? [AclPermission.VIEW, AclPermission.EDIT, AclPermission.ALL]
-        : [AclPermission.EDIT];
 
     useEffect(() => {
         if (!isPublic && isEditable) {
@@ -83,7 +82,18 @@ function Item({
                     <AclForm
                         objectId={data.id}
                         objectType={PermissionObject.AttributePolicy}
-                        displayedPermissions={displayedPermissions}
+                        filterDefinitions={
+                            isPublic
+                                ? d =>
+                                      d.type === PermissionType.Mask &&
+                                      d.key === AclPermission.EDIT
+                                : d =>
+                                      d.type === PermissionType.Mask &&
+                                      [
+                                          AclPermission.VIEW,
+                                          AclPermission.EDIT,
+                                      ].includes(d.key)
+                        }
                     />
                 </FormRow>
             )}
@@ -106,8 +116,10 @@ function ListItem({data}: DefinitionItemProps<AttributePolicy>) {
     return (
         <ListItemText
             primary={data.name}
-            secondaryTypographyProps={{
-                component: 'div',
+            slotProps={{
+                secondary: {
+                    component: 'div',
+                },
             }}
             secondary={
                 <>

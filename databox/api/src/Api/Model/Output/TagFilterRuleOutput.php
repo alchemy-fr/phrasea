@@ -27,9 +27,6 @@ class TagFilterRuleOutput extends AbstractUuidOutput
     private ?string $workspaceId = null;
 
     #[Groups([TagFilterRule::GROUP_READ])]
-    private ?string $collectionId = null;
-
-    #[Groups([TagFilterRule::GROUP_READ])]
     private ?array $include = null;
 
     #[Groups([TagFilterRule::GROUP_READ])]
@@ -63,16 +60,6 @@ class TagFilterRuleOutput extends AbstractUuidOutput
     public function setWorkspaceId(?string $workspaceId): void
     {
         $this->workspaceId = $workspaceId;
-    }
-
-    public function getCollectionId(): ?string
-    {
-        return $this->collectionId;
-    }
-
-    public function setCollectionId(?string $collectionId): void
-    {
-        $this->collectionId = $collectionId;
     }
 
     public function getInclude(): ?array

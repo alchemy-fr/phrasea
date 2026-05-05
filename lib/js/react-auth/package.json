@@ -32,7 +32,7 @@
         "jwt-decode": "^4.0.0"
     },
     "devDependencies": {
-        "@4rthem/i18next-scanner": "^0.0.1",
+        "@4rthem/i18next-scanner": "^0.0.3",
         "@jonkoops/matomo-tracker-react": "^0.7.0",
         "@mui/lab": "^6.0.1-beta.36",
         "@mui/material": "^6.5.0",

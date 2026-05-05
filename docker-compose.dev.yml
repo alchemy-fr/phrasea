@@ -1,5 +1,7 @@
 services:
   a_client:
+    environment:
+      - REACT_EDITOR
     volumes:
       - ./lib/js:/srv/workspace/lib/js:rw
       - ./package.json:/srv/workspace/package.json:ro

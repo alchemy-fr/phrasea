@@ -84,6 +84,8 @@ export default function useFormSubmit<
                         apiErrors?.mapping,
                         apiErrors?.normalizePath || normalizeApiPlatformPath
                     );
+
+                    return;
                 } else if (
                     e.response &&
                     [400, 500].includes(e.response.status)
@@ -96,9 +98,9 @@ export default function useFormSubmit<
                                 resData['title']
                         )
                     );
-
-                    throw e;
                 }
+
+                throw e;
             }
         } finally {
             setSubmitting(false);
