@@ -13,11 +13,11 @@ readonly class UserPreferencesManager
     {
     }
 
-    public function updatePreferences(string $userId, string $name, $value): UserPreference
+    public function updatePreferences(string $userId, string $name, $value, bool $reset = false): UserPreference
     {
         $userPref = $this->getPreferences($userId);
 
-        $data = $userPref->getData();
+        $data = $reset ? [] : $userPref->getData();
         $data[$name] = $value;
         $userPref->setData($data);
 

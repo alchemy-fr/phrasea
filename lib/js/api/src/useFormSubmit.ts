@@ -70,7 +70,7 @@ export default function useFormSubmit<
             if (toastSuccess) {
                 toast.success(toastSuccess);
             }
-            onSuccess && onSuccess(res);
+            onSuccess?.(res);
         } catch (e: any) {
             // eslint-disable-next-line no-console
             console.log('error', e);

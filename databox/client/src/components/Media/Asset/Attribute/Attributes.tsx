@@ -1,8 +1,4 @@
-import {
-    Asset,
-    AttributeDefinition,
-    AttributeListItemType,
-} from '../../../../types';
+import {Asset, AttributeDefinition, ProfileItemType} from '../../../../types';
 import React, {useContext, useMemo} from 'react';
 import AttributeRowUI, {BaseAttributeRowUIProps} from './AttributeRowUI';
 import {SxProps} from '@mui/material';
@@ -18,8 +14,8 @@ import {
 } from './CopyAttribute.tsx';
 import {
     hasDefinitionInItems,
-    useAttributeListStore,
-} from '../../../../store/attributeListStore.ts';
+    useProfileStore,
+} from '../../../../store/profileStore.ts';
 import {useTranslation} from 'react-i18next';
 import {
     getBuiltInFilters,
@@ -32,7 +28,7 @@ import {NO_LOCALE} from './constants.ts';
 
 type AttributeItem = {
     id: string;
-    type: AttributeListItemType;
+    type: ProfileItemType;
     definition?: AttributeDefinition;
     attribute?: AttributeGroup['attribute'];
     format?: AttributeFormat;
@@ -54,8 +50,8 @@ function Attributes({
     const {t} = useTranslation();
     const formatContext = useContext(AttributeFormatContext);
     const definitionsIndex = useIndexById();
-    const toggleDefinition = useAttributeListStore(s => s.toggleDefinition);
-    const current = useAttributeListStore(s => s.current);
+    const toggleDefinition = useProfileStore(s => s.toggleDefinition);
+    const current = useProfileStore(s => s.current);
     const pinnedAttributes = useMemo(() => current?.items ?? [], [current]);
 
     const attributeItems = useMemo<AttributeItem[]>(() => {
@@ -66,7 +62,7 @@ function Attributes({
         if (pinnedAttributes.length === 0) {
             return attributeGroups.map(ag => ({
                 id: ag.definition.id,
-                type: AttributeListItemType.Definition,
+                type: ProfileItemType.Definition,
                 attribute: ag.attribute,
                 definition: ag.definition,
             }));
@@ -83,7 +79,7 @@ function Attributes({
                 format: item.format || undefined,
             };
 
-            if (item.type === AttributeListItemType.Definition) {
+            if (item.type === ProfileItemType.Definition) {
                 const defId = item.definition!;
                 const group = attributeGroups.find(
                     g => g.definition.id === defId
@@ -101,7 +97,7 @@ function Attributes({
                         definition: definitionsIndex[defId],
                     });
                 }
-            } else if (item.type === AttributeListItemType.BuiltIn) {
+            } else if (item.type === ProfileItemType.BuiltIn) {
                 const definition = builtInDef.find(g => g.id === item.key!);
 
                 if (definition && definition.getValueFromAsset) {
@@ -133,7 +129,7 @@ function Attributes({
                 .forEach(ag => {
                     attributeItems.push({
                         id: ag.definition.id,
-                        type: AttributeListItemType.Definition,
+                        type: ProfileItemType.Definition,
                         attribute: ag.attribute,
                         definition: ag.definition,
                     });
@@ -162,7 +158,7 @@ function Attributes({
             className={attributesClasses.container}
         >
             {attributeItems.map(ai => {
-                if (ai.type === AttributeListItemType.Definition) {
+                if (ai.type === ProfileItemType.Definition) {
                     return (
                         <AttributeRowUI
                             key={ai.id}
@@ -179,7 +175,7 @@ function Attributes({
                             assetAnnotationsRef={assetAnnotationsRef}
                         />
                     );
-                } else if (ai.type === AttributeListItemType.BuiltIn) {
+                } else if (ai.type === ProfileItemType.BuiltIn) {
                     const definition = ai.definition!;
                     if (definition.getValueFromAsset) {
                         const valueFromAsset =
@@ -212,9 +208,9 @@ function Attributes({
                             />
                         );
                     }
-                } else if (ai.type === AttributeListItemType.Divider) {
+                } else if (ai.type === ProfileItemType.Divider) {
                     return <Separator key={ai.id}>{ai.key!}</Separator>;
-                } else if (ai.type === AttributeListItemType.Spacer) {
+                } else if (ai.type === ProfileItemType.Spacer) {
                     return <Spacer key={ai.id} />;
                 }
 

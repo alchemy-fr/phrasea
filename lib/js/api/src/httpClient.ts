@@ -40,6 +40,7 @@ export function createHttpClient(
             return r;
         },
         (error: AxiosError) => {
+            console.log('errorL', error, client.errorListeners);
             client.errorListeners.forEach(l => l(error));
 
             return Promise.reject(error);

@@ -13,6 +13,7 @@ export function CommonAppTopMenu({
     notificationUriHandler,
     keycloakClient,
     config,
+    settingsTopActions,
     ...settingsProps
 }: CommonMenuProps) {
     const {t} = useTranslation();
@@ -102,6 +103,7 @@ export function CommonAppTopMenu({
                     horizontal: 'right',
                 }}
                 {...settingsProps}
+                topActions={settingsTopActions}
             />
         </Box>
     );

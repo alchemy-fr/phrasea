@@ -11,6 +11,7 @@ import {Editor} from '@tiptap/core';
 import {AclExtraPermission} from './components/Permissions/permissionsTypes.ts';
 import {Privacy} from './api/privacy.ts';
 import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/managerTypes.ts';
+import {UserPreferences} from './store/userPreferencesStore.ts';
 
 export type AlternateUrl = {
     type: string;
@@ -401,23 +402,29 @@ export interface Basket
     owner?: User;
 }
 
-export enum AttributeListItemType {
+export enum ProfileItemSection {
+    Attributes = 0,
+    Facets = 1,
+}
+
+export enum ProfileItemType {
     Definition = 0,
     BuiltIn = 1,
     Divider = 2,
     Spacer = 3,
 }
 
-export type AttributeListItem = {
+export type ProfileItem = {
     id: string;
-    type: AttributeListItemType;
+    section: ProfileItemSection;
+    type: ProfileItemType;
     key?: string;
     definition?: string;
     displayEmpty?: boolean;
     format?: string;
 };
 
-export interface AttributeList
+export interface Profile
     extends
         IPermissions<{
             edit: boolean;
@@ -427,10 +434,11 @@ export interface AttributeList
         Entity {
     title: string;
     description?: string;
-    items?: AttributeListItem[];
+    items?: ProfileItem[];
     exclusive?: boolean; // if true, only items in this list well be shown otherwise all attributes
     public?: boolean;
     createdAt: string;
+    data?: UserPreferences;
     updatedAt: string;
     owner?: User;
 }

@@ -96,11 +96,7 @@ export default function SortableList<
                 </SortableContext>
                 <DragOverlay>
                     {activeItem && (
-                        <div
-                            style={{
-                                backgroundColor: '#FFF',
-                            }}
-                        >
+                        <div>
                             {React.createElement(itemComponent, {
                                 itemProps,
                                 data: activeItem!,

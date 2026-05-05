@@ -10,7 +10,7 @@ import {useUserPreferencesStore} from '../../../store/userPreferencesStore.ts';
 import {useAuth} from '@alchemy/react-auth';
 import {updateClientDataLocale} from '../../../store/useDataLocaleStore.ts';
 import {scrollbarWidth} from '../../uiVars.ts';
-import {useAttributeListStore} from '../../../store/attributeListStore.ts';
+import {useProfileStore} from '../../../store/profileStore.ts';
 
 type Props = PropsWithChildren<{}>;
 
@@ -26,7 +26,7 @@ export default function UserPreferencesProvider({children}: Props) {
     const preferences = useUserPreferencesStore(s => s.preferences);
     const loadPreferences = useUserPreferencesStore(s => s.load);
     const loading = useUserPreferencesStore(s => s.loading);
-    const loadCurrentAttributeList = useAttributeListStore(s => s.loadCurrent);
+    const loadCurrentProfile = useProfileStore(s => s.loadCurrent);
 
     const isLoading = loading || loadingRef.current;
 
@@ -38,10 +38,10 @@ export default function UserPreferencesProvider({children}: Props) {
     }, [loadPreferences, user]);
 
     React.useEffect(() => {
-        if (preferences?.attrList) {
-            loadCurrentAttributeList(preferences.attrList);
+        if (preferences?.profile) {
+            loadCurrentProfile(preferences.profile);
         }
-    }, [preferences?.attrList, loadCurrentAttributeList]);
+    }, [preferences?.profile, loadCurrentProfile]);
 
     React.useEffect(() => {
         updateClientDataLocale(preferences?.dataLocale);

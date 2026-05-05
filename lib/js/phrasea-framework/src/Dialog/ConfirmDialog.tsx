@@ -71,7 +71,7 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
                 return;
             }
             closeModal({force: true});
-            onConfirmed && onConfirmed();
+            onConfirmed?.();
         } catch (e: any) {
             if (e.isAxiosError) {
                 const err = e as AxiosError;

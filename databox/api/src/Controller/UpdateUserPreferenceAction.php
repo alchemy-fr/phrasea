@@ -40,7 +40,8 @@ class UpdateUserPreferenceAction extends AbstractController
         $pref = $userPreferencesManager->updatePreferences(
             $user->getId(),
             $name,
-            $value
+            $value,
+            reset: filter_var($data['reset'] ?? false, FILTER_VALIDATE_BOOLEAN)
         );
 
         return $this->createResponse($pref);

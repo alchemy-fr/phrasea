@@ -184,7 +184,9 @@ export default function PermissionList({
                             )}
                             clearOnSelect={true}
                             onChange={option => {
-                                if (option) onSelectUser(option.value);
+                                if (option) {
+                                    onSelectUser(option.value);
+                                }
                             }}
                             disabledValues={permissions
                                 ?.filter(

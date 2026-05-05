@@ -22,6 +22,7 @@ export default function SettingDropdown({
     LocaleDialogComponent = LocaleDialog,
     anchorOrigin,
     transformOrigin,
+    topActions,
 }: SettingDropdownProps) {
     const themeEditorContext = useContext(ThemeEditorContext);
     const {t, i18n} = useTranslation();
@@ -51,35 +52,64 @@ export default function SettingDropdown({
                     }
                 }
             >
-                {closeWrapper => [
-                    appLocales ? (
-                        <MenuItem
-                            key={'change_locale'}
-                            onClick={closeWrapper(() => {
-                                openModal(LocaleDialogComponent, {
-                                    appLocales,
-                                });
-                            })}
-                        >
-                            <ListItemIcon>
-                                <LocaleIcon
-                                    locale={currentLocale}
-                                    height="25"
+                {closeWrapper => {
+                    const actions = [
+                        appLocales ? (
+                            <MenuItem
+                                key={'change_locale'}
+                                onClick={closeWrapper(() => {
+                                    openModal(LocaleDialogComponent, {
+                                        appLocales,
+                                    });
+                                })}
+                            >
+                                <ListItemIcon>
+                                    <LocaleIcon
+                                        locale={currentLocale}
+                                        height="25"
+                                    />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={t(
+                                        'framework.locale.current',
+                                        'English'
+                                    )}
                                 />
-                            </ListItemIcon>
-                            <ListItemText
-                                primary={t(
-                                    'framework.locale.current',
-                                    'English'
-                                )}
-                            />
-                        </MenuItem>
-                    ) : null,
-                    ChangeThemeDialog ? (
+                            </MenuItem>
+                        ) : null,
+                        ChangeThemeDialog ? (
+                            <MenuItem
+                                key={'change_theme'}
+                                onClick={closeWrapper(() => {
+                                    openModal(ChangeThemeDialog);
+                                })}
+                            >
+                                <ListItemIcon>
+                                    <ColorLensIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={t(
+                                        'framework.menu.change_theme',
+                                        'Change theme'
+                                    )}
+                                />
+                            </MenuItem>
+                        ) : null,
                         <MenuItem
-                            key={'change_theme'}
+                            key={'theme_editor'}
                             onClick={closeWrapper(() => {
-                                openModal(ChangeThemeDialog);
+                                openModal(
+                                    ThemeEditor,
+                                    {},
+                                    {
+                                        forwardedContexts: [
+                                            {
+                                                context: ThemeEditorContext,
+                                                value: themeEditorContext,
+                                            },
+                                        ],
+                                    }
+                                );
                             })}
                         >
                             <ListItemIcon>
@@ -87,69 +117,48 @@ export default function SettingDropdown({
                             </ListItemIcon>
                             <ListItemText
                                 primary={t(
-                                    'framework.menu.change_theme',
-                                    'Change theme'
+                                    'framework.menu.theme_editor',
+                                    'Theme Editor'
                                 )}
                             />
-                        </MenuItem>
-                    ) : null,
-                    <MenuItem
-                        key={'theme_editor'}
-                        onClick={closeWrapper(() => {
-                            openModal(
-                                ThemeEditor,
-                                {},
-                                {
-                                    forwardedContexts: [
-                                        {
-                                            context: ThemeEditorContext,
-                                            value: themeEditorContext,
-                                        },
-                                    ],
-                                }
-                            );
-                        })}
-                    >
-                        <ListItemIcon>
-                            <ColorLensIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary={t(
-                                'framework.menu.theme_editor',
-                                'Theme Editor'
-                            )}
-                        />
-                    </MenuItem>,
-                    config.displayServicesMenu ? (
-                        <DashboardMenu
-                            key={'services_menu'}
-                            dashboardBaseUrl={config.dashboardBaseUrl}
-                            children={({icon, open, onClick, ...props}) => {
-                                return (
-                                    <MenuItem
-                                        selected={open}
-                                        style={{
-                                            color: 'inherit',
-                                        }}
-                                        {...props}
-                                        onClick={onClick}
-                                    >
-                                        <ListItemIcon>{icon}</ListItemIcon>
-                                        <ListItemText
-                                            primary={t(
-                                                'framework.menu.services',
-                                                'Services'
-                                            )}
-                                        />
-                                    </MenuItem>
-                                );
-                            }}
-                        />
-                    ) : null,
-                    <Box key={'dark_mode'} sx={{p: 1}}>
-                        <DarkModeSwitch />
-                    </Box>,
-                ]}
+                        </MenuItem>,
+                        config.displayServicesMenu ? (
+                            <DashboardMenu
+                                key={'services_menu'}
+                                dashboardBaseUrl={config.dashboardBaseUrl}
+                                children={({icon, open, onClick, ...props}) => {
+                                    return (
+                                        <MenuItem
+                                            selected={open}
+                                            style={{
+                                                color: 'inherit',
+                                            }}
+                                            {...props}
+                                            onClick={onClick}
+                                        >
+                                            <ListItemIcon>{icon}</ListItemIcon>
+                                            <ListItemText
+                                                primary={t(
+                                                    'framework.menu.services',
+                                                    'Services'
+                                                )}
+                                            />
+                                        </MenuItem>
+                                    );
+                                }}
+                            />
+                        ) : null,
+                        <Box key={'dark_mode'} sx={{p: 1}}>
+                            <DarkModeSwitch />
+                        </Box>,
+                    ];
+
+                    if (topActions) {
+                        return topActions(closeWrapper).concat(actions);
+                    }
+
+                    return actions;
+                }}
             </DropdownActions>
         </>
     );
