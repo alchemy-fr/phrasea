@@ -10,6 +10,7 @@ final readonly class AttributeEntityMerge
     public function __construct(
         private string $id,
         private array $merged,
+        private array $locales,
     ) {
     }
 
@@ -21,5 +22,10 @@ final readonly class AttributeEntityMerge
     public function getMerged(): array
     {
         return $this->merged;
+    }
+
+    public function getLocales(): array
+    {
+        return $this->locales;
     }
 }

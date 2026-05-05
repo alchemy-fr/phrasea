@@ -36,6 +36,10 @@ class MergeAttributeEntitiesProcessor implements ProcessorInterface
         $mainEntity = DoctrineUtil::findStrict($this->em, AttributeEntity::class, $uriVariables['id']);
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $mainEntity);
 
+        $locales = [
+            AttributeInterface::NO_LOCALE => true,
+        ];
+
         /** @var AttributeEntity[] $entities */
         $entities = $this->em->createQueryBuilder()
             ->select('t')
@@ -51,6 +55,13 @@ class MergeAttributeEntitiesProcessor implements ProcessorInterface
 
         $merged = [];
         foreach ($entities as $entity) {
+            foreach ($entity->getSynonyms() ?? [] as $locale => $s) {
+                $locales[$locale] = true;
+            }
+            foreach ($entity->getTranslations() ?? [] as $locale => $s) {
+                $locales[$locale] = true;
+            }
+
             $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $entity);
             $synonyms = $this->mergeSynonyms($synonyms, $entity);
             $this->em->remove($entity);
@@ -64,6 +75,7 @@ class MergeAttributeEntitiesProcessor implements ProcessorInterface
         $this->postFlushStack->addBusMessage(new AttributeEntityMerge(
             $mainEntity->getId(),
             $merged,
+            array_keys($locales),
         ));
 
         $this->em->persist($mainEntity);
@@ -84,7 +96,7 @@ class MergeAttributeEntitiesProcessor implements ProcessorInterface
         $a[AttributeInterface::NO_LOCALE] ??= [];
         $a[AttributeInterface::NO_LOCALE][] = $rightEntity->getValue();
 
-        foreach ($rightEntity->getTranslations() as $locale => $translation) {
+        foreach ($rightEntity->getTranslations() ?? [] as $locale => $translation) {
             $a[$locale] ??= [];
             $a[$locale][] = $translation;
         }

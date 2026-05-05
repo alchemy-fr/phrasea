@@ -79,6 +79,7 @@ trait DataboxTestTrait
                 $a->setAsset($asset);
                 $a->setDefinition($attr['definition']);
                 $a->setLocale($attr['locale'] ?? null);
+                $a->setPosition($attr['position'] ?? null);
                 $a->setOrigin($attr['origin'] ?? Attribute::ORIGIN_MACHINE);
                 $a->setValue($typeRegistry->getStrictType($attr['definition']->getFieldType())->normalizeValue($attr['value']));
 
@@ -134,6 +135,7 @@ trait DataboxTestTrait
         $definition->setMultiple($options['multiple'] ?? false);
         $definition->setSearchable($options['searchable'] ?? true);
         $definition->setName($options['name'] ?? null);
+        $definition->setEntityList($options['list'] ?? null);
         $definition->setFallback($options['fallback'] ?? null);
 
         $em->persist($definition);

@@ -50,7 +50,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             securityPostDenormalize: 'is_granted("CREATE", object)',
             processor: AddAttributeEntityProcessor::class,
         ),
-        new Post(
+        new Put(
             uriTemplate: '/attribute-entities/{id}/merge',
             input: MergeAttributeEntitiesInput::class,
             name: 'entities_merge',

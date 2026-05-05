@@ -35,11 +35,14 @@ final readonly class AttributeEntityMergeHandler
             $mainEntity->getList()->getId(),
         );
 
-        $this->updateAttributeIndex($mainEntity);
+        $merged = $message->getMerged();
+        $this->updateAttributeIndex($mainEntity, $merged);
 
         $fields = [];
         $calls = [];
-        $params = [];
+        $params = [
+            'merged' => $merged,
+        ];
         $locales = $message->getLocales();
         foreach ($definitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
@@ -51,7 +54,7 @@ final readonly class AttributeEntityMergeHandler
                     's' => $mainEntity->getSynonymsOfLocale($locale) ?? [],
                 ];
                 $calls[$locale] = sprintf(
-                    'up(ctx._source, \'%1$s\', \'%2$s\', params[\'_id\'], params[\'%1$s\'][\'v\'], params[\'%1$s\'][\'s\'], %3$s);',
+                    'merge(ctx._source, \'%1$s\', \'%2$s\', params[\'_id\'], params[\'merged\'], params[\'%1$s\'][\'v\'], params[\'%1$s\'][\'s\'], %3$s);',
                     $locale,
                     $fieldName,
                     $definition->isMultiple() ? 'true' : 'false',
@@ -74,10 +77,10 @@ final readonly class AttributeEntityMergeHandler
                             ],
                         ],
                     ],
-                    'should' => array_map(function (string $field) use ($id): array {
+                    'should' => array_map(function (string $field) use ($id, $merged): array {
                         return [
-                            'term' => [
-                                $field.'.id' => $id,
+                            'terms' => [
+                                $field.'.id' => array_merge([$id], $merged),
                             ],
                         ];
                     }, array_keys($fields)),
@@ -85,8 +88,11 @@ final readonly class AttributeEntityMergeHandler
             ],
             [
                 'source' => sprintf(<<<EOF
-void up(HashMap src, String locale, String name, String id, String n, def s, boolean m) {
+void merge(HashMap src, String locale, String name, String id, List merged, String n, def s, boolean m) {
     HashMap attributes;
+
+    List all = new ArrayList(merged);
+    all.add(id);
 
     if (src.%1\$s instanceof List) {
         attributes = src.%1\$s[0];
@@ -111,23 +117,29 @@ void up(HashMap src, String locale, String name, String id, String n, def s, boo
         if (!(field instanceof List)) {
             field = node[name] = [];
         }
+        boolean found = false;
         for (item in field) {
-            if (item['id'] == id) {
+            if (all.contains(item['id'])) {
+                found = true;
                 if (hasValue) {
+                    item['id'] = id;
                     item['value'] = n;
                     item['synonyms'] = s;
                 } else {
                     field.remove(field.indexOf(item));
                 }
-                return;
             }
+        }
+
+        if (found) {
+            return;
         }
 
         if (hasValue) {
             def ref = attributes['_']?.get(name);
             if (ref instanceof List) {
                 for (item in ref) {
-                    if (item['id'] == id) {
+                    if (all.contains(item['id'])) {
                         field.add(["id": id, "value": n, "synonyms": s]);
                         return;
                     }
@@ -138,8 +150,9 @@ void up(HashMap src, String locale, String name, String id, String n, def s, boo
     }
 
     if (field instanceof Map) {
-        if (field['id'] == id) {
+        if (all.contains(field['id'])) {
             if (hasValue) {
+                field['id'] = id;
                 field['value'] = n;
                 field['synonyms'] = s;
             } else {
@@ -150,7 +163,7 @@ void up(HashMap src, String locale, String name, String id, String n, def s, boo
         def ref = attributes['_']?.get(name);
 
         if (ref instanceof Map) {
-            if (ref['id'] == id) {
+            if (all.contains(ref['id'])) {
                 node[name] = ["id": id, "value": n, "synonyms": s];
             }
         }
@@ -166,21 +179,21 @@ EOF, AttributeInterface::ATTRIBUTES_FIELD).implode("\n", $calls),
         );
     }
 
-    private function updateAttributeIndex(AttributeEntity $attributeEntity): void
+    private function updateAttributeIndex(AttributeEntity $mainEntity, array $merged): void
     {
         $this->elasticSearchClient->updateByQuery(
             'attribute',
             [
-                'term' => [
-                    'entityId' => $attributeEntity->getId(),
+                'terms' => [
+                    'entityId' => array_merge([$mainEntity->getId()], $merged),
                 ],
             ],
             [
-                // Change "suggestion" field to new value
-                'source' => 'ctx._source.suggestion = params.value;',
+                'source' => 'ctx._source.entityId = params.id; ctx._source.suggestion = params.value;',
                 'lang' => 'painless',
                 'params' => [
-                    'value' => $attributeEntity->getValue(),
+                    'id' => $mainEntity->getId(),
+                    'value' => $mainEntity->getValue(),
                 ],
             ]
         );

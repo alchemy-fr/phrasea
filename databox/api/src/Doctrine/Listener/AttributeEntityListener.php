@@ -26,7 +26,7 @@ final class AttributeEntityListener implements EventSubscriber
 
     public function onFlush(OnFlushEventArgs $args): void
     {
-        if (!$this->disabled) {
+        if ($this->disabled) {
             return;
         }
 
