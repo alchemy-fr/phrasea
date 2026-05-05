@@ -2,7 +2,6 @@ import type {WithTranslations} from '@alchemy/react-form';
 import {Integration} from './components/Integration/types.ts';
 import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTypes.ts';
 import {RenditionBuildMode} from './api/rendition.ts';
-import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/DefinitionManager.tsx';
 import React from 'react';
 import {AttributeType} from './api/types.ts';
 import {SortBy} from './components/Media/Search/Filter';
@@ -11,6 +10,7 @@ import {ApiHydraObjectResponse} from '@alchemy/api';
 import {Editor} from '@tiptap/core';
 import {AclExtraPermission} from './components/Permissions/permissionsTypes.ts';
 import {Privacy} from './api/privacy.ts';
+import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/managerTypes.ts';
 
 export type AlternateUrl = {
     type: string;
@@ -296,20 +296,35 @@ type EntitySynonyms = {
     [locale: string]: string[];
 };
 
+export enum AttributeEntityStatus {
+    Approved = 0,
+    Pending = 1,
+    Rejected = 2,
+}
+
 export type AttributeEntity = {
     type: string;
     locale: string;
     value: string;
+    emoji?: string;
+    color?: string;
     translations: KeyTranslations;
     synonyms?: EntitySynonyms;
     createdAt: string;
     updatedAt: string;
+    status: AttributeEntityStatus;
 } & ApiHydraObjectResponse &
     Entity;
 
 export type EntityList = {
     name: string;
     definitions: AttributeDefinition[];
+    allowNewValues?: boolean;
+    approveNewValues?: boolean;
+    withTranslations?: boolean;
+    withSynonyms?: boolean;
+    withEmojis?: boolean;
+    withColors?: boolean;
     createdAt: string;
     updatedAt: string;
 } & ApiHydraObjectResponse &

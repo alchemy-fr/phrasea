@@ -9,6 +9,13 @@ import {
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
 import React from 'react';
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
+import {getTagColorStyle} from '../Media/Asset/Facets/TagColor.tsx';
+import {useTheme} from '@mui/material';
+
+type TagOption = Readonly<{
+    item: Tag;
+}> &
+    SelectOption;
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
@@ -23,10 +30,12 @@ export default function TagSelect<
     workspaceId: wsId,
     useIRI = true,
     multiple,
+    styles,
     ...rest
 }: Props<TFieldValues, IsMulti>) {
     const workspaceContext = React.useContext(WorkspaceContext);
     const store = useEntitiesStore(s => s.store);
+    const theme = useTheme();
 
     const workspaceId = wsId ?? workspaceContext?.workspaceId;
 
@@ -53,6 +62,23 @@ export default function TagSelect<
             );
     };
 
+    const tagStyle = (_base: any, state: any) => {
+        return (state.data as TagOption).item?.color
+            ? {
+                  'alignItems': 'center',
+                  'display': 'flex',
+                  ':before': {
+                      ...getTagColorStyle(
+                          theme,
+                          (state.data as TagOption).item.color
+                      ),
+                      content: '" "',
+                      display: 'block',
+                  },
+              }
+            : {};
+    };
+
     return (
         <AsyncRSelectWidget
             cacheId={'tags'}
@@ -60,6 +86,12 @@ export default function TagSelect<
             loadOptions={load}
             isMulti={multiple}
             key={workspaceId}
+            styles={{
+                singleValue: tagStyle,
+                multiValueLabel: tagStyle,
+                option: tagStyle,
+                ...(styles ?? {}),
+            }}
         />
     );
 }

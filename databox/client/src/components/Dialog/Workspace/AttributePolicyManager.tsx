@@ -8,10 +8,7 @@ import {
 } from '../../../api/attributes';
 import {Chip, InputLabel, ListItemText, TextField} from '@mui/material';
 import {CheckboxWidget, FormFieldErrors, FormRow} from '@alchemy/react-form';
-import DefinitionManager, {
-    DefinitionItemFormProps,
-    DefinitionItemProps,
-} from './DefinitionManager/DefinitionManager.tsx';
+import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import AclForm from '../../Permissions/AclForm.tsx';
 import {
@@ -20,6 +17,10 @@ import {
     PermissionType,
 } from '../../Permissions/permissionsTypes.ts';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
+import {
+    DefinitionItemFormProps,
+    DefinitionItemProps,
+} from './DefinitionManager/managerTypes.ts';
 
 function Item({
     data,

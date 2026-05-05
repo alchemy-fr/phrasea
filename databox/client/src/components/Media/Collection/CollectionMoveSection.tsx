@@ -30,8 +30,8 @@ export default function CollectionMoveSection({collection, onMoved}: Props) {
             toast.success(
                 t('form.collection_move.success', 'Collection moved!') as string
             );
-            onMoved && onMoved();
-        } catch (e) {
+            onMoved?.();
+        } catch (_e) {
             setLoading(false);
         }
     };

@@ -1,10 +1,7 @@
 import {RenditionPolicy, Workspace} from '../../../types';
 import {Chip, InputLabel, ListItemText, TextField} from '@mui/material';
 import {FormRow} from '@alchemy/react-form';
-import DefinitionManager, {
-    DefinitionItemFormProps,
-    DefinitionItemProps,
-} from './DefinitionManager/DefinitionManager.tsx';
+import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {FormFieldErrors} from '@alchemy/react-form';
 import {
@@ -16,6 +13,10 @@ import {
 import {CheckboxWidget} from '@alchemy/react-form';
 import RenditionPolicyPermissions from './RenditionPolicyPermissions';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
+import {
+    DefinitionItemFormProps,
+    DefinitionItemProps,
+} from './DefinitionManager/managerTypes.ts';
 
 function Item({
     data,

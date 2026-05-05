@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Search;
 
-use App\Tests\DeprecatedAbstractDataboxTestCase;
+use App\Tests\AbstractDataboxTestCase;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-abstract class AbstractSearchTest extends DeprecatedAbstractDataboxTestCase
+abstract class AbstractSearchTest extends AbstractDataboxTestCase
 {
     use SearchTestTrait;
 
@@ -16,6 +16,7 @@ abstract class AbstractSearchTest extends DeprecatedAbstractDataboxTestCase
         if (static::$kernel) {
             return static::$kernel;
         }
+
         static::bootKernelWithFixtures($options);
         self::bootSearch(static::$kernel);
 

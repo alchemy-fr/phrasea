@@ -28,11 +28,7 @@ import {
     SelectOption,
     TranslatedField,
 } from '@alchemy/react-form';
-import DefinitionManager, {
-    DefinitionItemFormProps,
-    DefinitionItemProps,
-    OnSort,
-} from './DefinitionManager/DefinitionManager.tsx';
+import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import AttributePolicySelect from '../../Form/AttributePolicySelect';
 import FieldTypeSelect from '../../Form/FieldTypeSelect';
@@ -54,6 +50,11 @@ import AssetTypeFilterSelect, {
     denormalizeAssetTypeFilterValue,
 } from '../../Form/AssetTypeFilterSelect.tsx';
 import {apiClient} from '../../../init.ts';
+import {
+    DefinitionItemFormProps,
+    DefinitionItemProps,
+    OnSort,
+} from './DefinitionManager/managerTypes.ts';
 
 function Item({
     usedFormSubmit,

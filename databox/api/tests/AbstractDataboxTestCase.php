@@ -19,4 +19,10 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
     {
         return static::bootKernelWithFixtures($options);
     }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        static::disableFixtures();
+    }
 }

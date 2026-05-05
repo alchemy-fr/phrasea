@@ -3,7 +3,7 @@ import {FieldValues} from 'react-hook-form';
 import {Control} from 'react-hook-form';
 import {FieldPath} from 'react-hook-form';
 import AsyncSelect from 'react-select/async';
-import {ReactNode, useEffect, useState} from 'react';
+import {ReactNode, useEffect, useMemo, useState} from 'react';
 import {InputLabel, useTheme} from '@mui/material';
 import {AsyncProps} from 'react-select/async';
 import {OnChangeValue} from 'react-select';
@@ -20,38 +20,45 @@ type CompositeValue<IsMulti extends boolean> = IsMulti extends true
     ? string[]
     : string | undefined;
 
-type CompositeOption<IsMulti extends boolean> = IsMulti extends true
-    ? SelectOption[]
-    : SelectOption | null;
+type CompositeOption<
+    IsMulti extends boolean,
+    Opt extends SelectOption,
+> = IsMulti extends true ? Opt[] : Opt | null;
 
-export function valueToOption<IsMulti extends boolean>(
+export function valueToOption<IsMulti extends boolean, Opt extends SelectOption>(
     isMulti: IsMulti,
     value: CompositeValue<IsMulti>,
-    lastOptions: Record<string, SelectOption> = {}
-): CompositeOption<IsMulti> {
+    lastOptions: Record<string, Opt> = {}
+): CompositeOption<IsMulti, Opt> {
     if (isMulti) {
         if (!value) {
             return [] as any;
         }
         return (value as string[]).map(v =>
             valueToOption(false, v, lastOptions)
-        ) as CompositeOption<IsMulti>;
+        ) as CompositeOption<IsMulti, Opt>;
     } else if (value) {
-        return (lastOptions[value as string] ??
-            null) as CompositeOption<IsMulti>;
+        return (lastOptions[value as string] ?? null) as CompositeOption<
+            IsMulti,
+            Opt
+        >;
     }
 
-    return null as CompositeOption<IsMulti>;
+    return null as CompositeOption<IsMulti, Opt>;
 }
 
-const cache: Record<string, Record<string, SelectOption>> = {};
+const cache: Record<string, Record<string, any>> = {};
 
-export type RSelectOnCreate = (
+export type RSelectOnCreate<Opt extends SelectOption> = (
     inputValue: string,
-    onCreate: (option: SelectOption) => void
+    onCreate: (option: Opt) => void
 ) => void;
 
-type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = (
+type Props<
+    TFieldValues extends FieldValues,
+    IsMulti extends boolean,
+    Opt extends SelectOption = SelectOption,
+> = (
     | {
           control: Control<TFieldValues>;
           name: FieldPath<TFieldValues>;
@@ -67,17 +74,18 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = (
     clearOnSelect?: boolean;
     disabled?: boolean | undefined;
     cacheOptions?: any;
-    onCreate?: RSelectOnCreate;
+    onCreate?: RSelectOnCreate<Opt>;
     label?: ReactNode;
     inputHeight?: number;
     menuWidth?: number;
-} & AsyncProps<SelectOption, IsMulti, GroupBase<SelectOption>>;
+} & AsyncProps<Opt, IsMulti, GroupBase<Opt>>;
 
 export type {Props as AsyncRSelectProps};
 
 export default function AsyncRSelectWidget<
     TFieldValues extends FieldValues,
     IsMulti extends boolean = false,
+    Opt extends SelectOption = SelectOption,
 >({
     cacheId,
     control,
@@ -98,11 +106,11 @@ export default function AsyncRSelectWidget<
     menuWidth = 300,
     isDisabled,
     ...rest
-}: Props<TFieldValues, IsMulti>) {
+}: Props<TFieldValues, IsMulti, Opt>) {
     const [value, setValue] = useState(initialValue);
-    const [lastOptions, setLastOptions] = useState<
-        Record<string, SelectOption>
-    >(cacheId ? (cache[cacheId] ?? {}) : {});
+    const [lastOptions, setLastOptions] = useState<Record<string, Opt>>(
+        cacheId ? (cache[cacheId] ?? {}) : {}
+    );
     const theme = useTheme();
 
     const componentsProp = {
@@ -110,7 +118,11 @@ export default function AsyncRSelectWidget<
         ...(rest.components ?? {}),
     };
 
-    const updateLastOptions = (options: SelectOption[]) => {
+    const computedStyles = useMemo(() => {
+        return createSelectStyles(theme, error, styles, inputHeight, menuWidth);
+    }, [theme, error, inputHeight, menuWidth]);
+
+    const updateLastOptions = (options: Opt[]) => {
         setLastOptions(p => {
             const last = {...p};
             options.forEach(o => {
@@ -133,8 +145,8 @@ export default function AsyncRSelectWidget<
             typeof initialValue === 'object' &&
             Object.prototype.hasOwnProperty.call(initialValue, 'value')
         ) {
-            updateLastOptions([initialValue as SelectOption]);
-            setValue((initialValue as SelectOption).value as any);
+            updateLastOptions([initialValue as Opt]);
+            setValue((initialValue as Opt).value as any);
         } else {
             setValue(initialValue);
         }
@@ -146,7 +158,7 @@ export default function AsyncRSelectWidget<
                   const options = (await loadOptions!(
                       inputValue,
                       () => {}
-                  )) as SelectOption[];
+                  )) as Opt[];
 
                   updateLastOptions(options);
 
@@ -170,13 +182,10 @@ export default function AsyncRSelectWidget<
                               onCreate(inputValue, option => {
                                   const newValue = (
                                       isMulti ? [option] : option
-                                  ) as OnChangeValue<SelectOption, IsMulti>;
+                                  ) as OnChangeValue<Opt, IsMulti>;
                                   const v = isMulti
-                                      ? (newValue as SelectOption[]).map(
-                                            v => v.value
-                                        )
-                                      : (newValue as SelectOption | null)
-                                            ?.value;
+                                      ? (newValue as Opt[]).map(v => v.value)
+                                      : (newValue as Opt | null)?.value;
 
                                   updateLastOptions([option]);
                                   onChange(v);
@@ -193,7 +202,7 @@ export default function AsyncRSelectWidget<
                         <>
                             {label ? <InputLabel>{label}</InputLabel> : ''}
                             <RSelectStyle />
-                            <SelectComponent<SelectOption, any>
+                            <SelectComponent<Opt, any>
                                 {...rest}
                                 ref={ref}
                                 required={required}
@@ -205,11 +214,11 @@ export default function AsyncRSelectWidget<
                                 )}
                                 onChange={(newValue, meta) => {
                                     const v = isMulti
-                                        ? (newValue as SelectOption[]).map(
+                                        ? (newValue as Opt[]).map(
                                               v => v.value
                                           )
-                                        : ((newValue as SelectOption | null)
-                                              ?.value ?? null);
+                                        : ((newValue as Opt | null)?.value ??
+                                          null);
                                     onChange(v);
                                     onChangeProp &&
                                         onChangeProp(newValue as any, meta);
@@ -230,13 +239,7 @@ export default function AsyncRSelectWidget<
                                 isMulti={isMulti}
                                 menuPortalTarget={document.body}
                                 onCreateOption={onCreateOption}
-                                styles={createSelectStyles(
-                                    theme,
-                                    error,
-                                    styles,
-                                    inputHeight,
-                                    menuWidth
-                                )}
+                                styles={computedStyles}
                             />
                         </>
                     );
@@ -250,7 +253,7 @@ export default function AsyncRSelectWidget<
               onCreate(inputValue, option => {
                   const newValue = (
                       isMulti ? [option] : option
-                  ) as OnChangeValue<SelectOption, IsMulti>;
+                  ) as OnChangeValue<Opt, IsMulti>;
                   updateLastOptions([option]);
                   setValue(newValue);
                   onChangeProp &&
@@ -266,15 +269,15 @@ export default function AsyncRSelectWidget<
         <>
             {label ? <InputLabel>{label}</InputLabel> : ''}
             <RSelectStyle />
-            <SelectComponent<SelectOption, IsMulti>
+            <SelectComponent<Opt, IsMulti>
                 isClearable={!required}
                 {...rest}
                 required={required}
                 components={componentsProp}
                 onChange={(newValue, meta) => {
                     const v = isMulti
-                        ? (newValue as SelectOption[]).map(v => v.value)
-                        : ((newValue as SelectOption | null)?.value ?? null);
+                        ? (newValue as Opt[]).map(v => v.value)
+                        : ((newValue as Opt | null)?.value ?? null);
 
                     onChangeProp && onChangeProp(newValue, meta);
                     setValue(!clearOnSelect ? (v as any) : null);
@@ -297,13 +300,7 @@ export default function AsyncRSelectWidget<
                 isMulti={isMulti}
                 menuPortalTarget={document.body}
                 onCreateOption={onCreateOption}
-                styles={createSelectStyles(
-                    theme,
-                    error,
-                    styles,
-                    inputHeight,
-                    menuWidth
-                )}
+                styles={computedStyles}
             />
         </>
     );

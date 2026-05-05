@@ -35,7 +35,7 @@ export default function AuthenticationMethod({}: Props) {
 
     const loginUrl = getLoginUrl(getRelativeUrl(redirectUri.toString()));
     const onConnect = React.useCallback(() => {
-        setRedirectPath && setRedirectPath(getCurrentPath());
+        setRedirectPath?.(getCurrentPath());
 
         if (isInIframe) {
             openLoginWindow(loginUrl);

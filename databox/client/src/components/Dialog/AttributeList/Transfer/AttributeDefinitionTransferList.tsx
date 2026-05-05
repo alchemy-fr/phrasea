@@ -171,6 +171,7 @@ export default function AttributeDefinitionTransferList({
                         lastWorkspace?.id !==
                             (definition.workspace as Workspace).id
                     ) {
+                        // eslint-disable-next-line react-hooks/immutability
                         lastWorkspace = definition.workspace as Workspace;
                         displayWorkspace = true;
                     }

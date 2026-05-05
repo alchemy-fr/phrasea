@@ -95,7 +95,7 @@ export const useBasketStore = create<State>((set, getState) => ({
                 current: basket,
                 loadingCurrent: false,
             });
-        } catch (e: any) {
+        } catch (_e: any) {
             set({
                 loadingCurrent: false,
             });
@@ -195,7 +195,7 @@ export const useBasketStore = create<State>((set, getState) => ({
                     ? state.baskets
                     : state.baskets.concat([basket]),
             }));
-        } catch (e: any) {
+        } catch (_e: any) {
             if (current) {
                 set(state => {
                     if (state.current?.id === current.id) {
@@ -241,7 +241,7 @@ export const useBasketStore = create<State>((set, getState) => ({
                     ? state.baskets
                     : state.baskets.concat([basket]),
             }));
-        } catch (e: any) {
+        } catch (_e: any) {
             if (current) {
                 set(state => {
                     if (state.current?.id === current!.id) {

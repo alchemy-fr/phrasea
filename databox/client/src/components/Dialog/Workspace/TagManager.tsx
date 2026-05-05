@@ -1,10 +1,7 @@
 import {Tag, Workspace} from '../../../types';
 import {Box, ListItemText, TextField} from '@mui/material';
 import {FormRow, TranslatedField} from '@alchemy/react-form';
-import DefinitionManager, {
-    DefinitionItemFormProps,
-    DefinitionItemProps,
-} from './DefinitionManager/DefinitionManager.tsx';
+import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {Controller} from 'react-hook-form';
 import {FormFieldErrors} from '@alchemy/react-form';
@@ -18,6 +15,10 @@ import KeyIcon from '@mui/icons-material/Key';
 import {getLocaleOptions} from '../../../api/locale.ts';
 import {useWorkspace} from '../../../hooks/useWorkspace.ts';
 import {search} from '../../../lib/search.ts';
+import {
+    DefinitionItemFormProps,
+    DefinitionItemProps,
+} from './DefinitionManager/managerTypes.ts';
 
 function Item({
     data,

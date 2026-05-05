@@ -25,6 +25,7 @@ import {validateQueryAST} from './validation.ts';
 import {QBExpression} from './Builder/builderTypes.ts';
 import {emptyCondition} from './Builder/builder.ts';
 import {AQLExpression, AQLQueryAST} from './aqlTypes.ts';
+import {logError} from '@alchemy/core';
 
 type Props = {
     condition: AQLQuery;
@@ -80,8 +81,7 @@ export default function SearchConditionDialog({
                 );
             }
         } catch (e) {
-            // eslint-disable-next-line no-console
-            console.log('error', e);
+            logError(e);
         }
     }, [textQueryMode]);
 

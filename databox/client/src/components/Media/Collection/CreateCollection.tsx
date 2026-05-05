@@ -54,7 +54,7 @@ export default function CreateCollection({
                 ) as string
             );
             closeModal();
-            onCreate && onCreate(coll);
+            onCreate?.(coll);
         },
     });
 

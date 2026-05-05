@@ -52,7 +52,7 @@ export default function DeleteAssetsConfirmDialog({
             collections: !moveToTrash ? selection : [],
             hardDelete: (moveToTrash || selection.length === 0) && hardDelete,
         });
-        onDelete && onDelete();
+        onDelete?.();
     };
 
     if (collections.length === 0 && !data.canDelete) {

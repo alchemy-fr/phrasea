@@ -6,8 +6,10 @@ import React, {
     useState,
 } from 'react';
 import {
+    Badge,
     Box,
     Button,
+    Checkbox,
     CircularProgress,
     DialogContent,
     Divider,
@@ -26,127 +28,44 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import SortableList, {
     OrderChangeHandler,
     SortableItem,
-    SortableItemProps,
 } from '../../../Ui/Sortable/SortableList.tsx';
-import {Entity, StateSetter, Workspace} from '../../../../types.ts';
+import {Workspace} from '../../../../types.ts';
 import ItemForm from './ItemForm.tsx';
-import {
-    ApiHydraObjectResponse,
-    NormalizedCollectionResponse,
-    UseFormSubmitReturn,
-} from '@alchemy/api';
+import {NormalizedCollectionResponse} from '@alchemy/api';
 import {useModals} from '@alchemy/navigation';
 import {ConfirmDialog, ConfirmDialogProps} from '@alchemy/phrasea-framework';
 import FilterDropdown from './FilterDropdown.tsx';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
+import {
+    BodyProps,
+    BodyWithListLoadedProps,
+    DefinitionBase,
+    DefinitionItemFormProps,
+    DefinitionItemManageProps,
+    DefinitionListItemProps,
+    FilterProps,
+    Filters,
+    ItemAction,
+    ItemState,
+    ListState,
+    BatchAction,
+    NormalizeData,
+    OnSort,
+    SetFilterFunc,
+    SetSubManagementState,
+    SortableListItemProps,
+    SubManagementState,
+    DefinitionManagerExtraProps,
+} from './managerTypes.ts';
+import {SortableListItem} from './SortableListItem.tsx';
+import ListItemContainer from './ListItemContainer.tsx';
+import {logError} from '@alchemy/core';
 
-export type DefinitionBase = ApiHydraObjectResponse & Entity;
-
-export type DefinitionItemProps<D extends DefinitionBase> = {
-    data: D;
-};
-
-export type DefinitionListItemProps<D extends DefinitionBase> = {
-    onEdit: () => void;
-    onDelete?: () => void;
-} & DefinitionItemProps<D>;
-
-export type DefinitionItemFormProps<D extends DefinitionBase> = {
-    onSave: (data: D) => Promise<D>;
-    onItemUpdate: (data: D) => void;
-    usedFormSubmit: UseFormSubmitReturn<D>;
-    workspace: Workspace;
-} & DefinitionItemProps<D>;
-
-export type DefinitionItemManageProps<D extends DefinitionBase> = {
-    workspace: Workspace;
-    setSubManagementState: SetSubManagementState;
-    reload: () => Promise<any>;
-} & DefinitionItemProps<D>;
-
-type ListState<D extends DefinitionBase> = {
-    list: D[] | undefined;
-    loading: boolean;
-    loadingMore: boolean;
-    next: string | undefined;
-    query: string;
-    filters: Filters;
-};
-
-export type ItemState<D extends DefinitionBase> = {
-    item: D | undefined;
-    loading: boolean;
-    action: ItemAction;
-};
-
-export enum ItemAction {
-    None = 0,
-    Create = 1,
-    Update = 2,
-    Manage = 3,
-}
-
-type SortableListItemProps<D extends SortableItem & DefinitionBase> = {
-    selectedItem: D | undefined;
-    listComponent: FunctionComponent<DefinitionItemProps<D>>;
-    onClick: (data: D) => () => void;
-};
-
-const SortableListItem = React.memo(
-    <D extends SortableItem & DefinitionBase>({
-        data,
-        itemProps,
-    }: {
-        itemProps: SortableListItemProps<D>;
-    } & SortableItemProps<D>) => {
-        const {selectedItem, onClick, listComponent} = itemProps;
-
-        return (
-            <ListItem disablePadding key={data.id}>
-                <ListItemButton
-                    selected={data.id === selectedItem?.id}
-                    onClick={onClick(data)}
-                >
-                    {React.createElement(listComponent, {
-                        data,
-                        key: data.id,
-                    })}
-                </ListItemButton>
-            </ListItem>
-        );
-    }
-);
-
-export type OnSort = (ids: string[]) => void;
-
-export type NormalizeData<D extends DefinitionBase> = (data: D) => D;
-
-type SubManagementState = {
-    formId?: string | undefined;
-    action: ItemAction;
-};
-
-type SetSubManagementState = StateSetter<SubManagementState | undefined>;
-
-type BodyProps<D extends DefinitionBase> = {
-    items: D[] | undefined;
-    reload: () => Promise<void>;
-};
-
-type BodyWithListLoadedProps<D extends DefinitionBase> = {
-    items: D[];
-} & BodyProps<D>;
-
-type Filters = Record<string, any>;
-
-type SetFilterFunc<F extends Filters> = (name: keyof F, value: any) => void;
-
-type FilterProps<F extends Filters> = {
-    filters: F;
-    setFilter: SetFilterFunc<F>;
-};
-
-type Props<D extends DefinitionBase, F extends Filters> = {
+type Props<
+    D extends DefinitionBase,
+    F extends Filters,
+    EP extends DefinitionManagerExtraProps,
+> = {
     load: (props: {
         nextUrl?: string;
         query?: string;
@@ -154,10 +73,10 @@ type Props<D extends DefinitionBase, F extends Filters> = {
     }) => Promise<NormalizedCollectionResponse<D>>;
     loadItem?: (id: string) => Promise<D>;
     listComponent: FunctionComponent<DefinitionListItemProps<D>>;
-    itemComponent: FunctionComponent<DefinitionItemFormProps<D>>;
+    itemComponent: FunctionComponent<DefinitionItemFormProps<D, EP>>;
     manageItemComponent?: FunctionComponent<DefinitionItemManageProps<D>>;
     createNewItem: () => Partial<D>;
-    batchDelete?: boolean;
+    itemDeletable?: boolean;
     onClose?: () => void;
     minHeight?: number | undefined;
     newLabel: string;
@@ -171,17 +90,21 @@ type Props<D extends DefinitionBase, F extends Filters> = {
     managerFormId?: string;
     preSearchBody?: (props: BodyProps<D>) => React.ReactNode;
     preListBody?: (props: BodyProps<D>) => React.ReactNode;
+    settingsNode?: (props: BodyProps<D>) => React.ReactNode;
     searchFilter?: (props: BodyWithListLoadedProps<D>, value: string) => D[];
     applyFilters?: (list: D[], filters: F) => D[];
     filters?: (props: FilterProps<F>) => React.ReactNode;
     deleteConfirmAssertions?: (
         data: D
     ) => ConfirmDialogProps<any>['assertions'];
+    batchActions?: (selection: string[]) => BatchAction<D>[];
+    extraProps?: EP;
 };
 
 export default function DefinitionManager<
     D extends DefinitionBase,
     F extends Filters,
+    EP extends DefinitionManagerExtraProps = {},
 >({
     load,
     handleDelete,
@@ -190,7 +113,7 @@ export default function DefinitionManager<
     listComponent,
     loadItem,
     onClose,
-    batchDelete,
+    itemDeletable,
     createNewItem,
     minHeight,
     newLabel,
@@ -206,9 +129,13 @@ export default function DefinitionManager<
     preSearchBody,
     searchFilter,
     applyFilters,
+    settingsNode,
+    batchActions,
+    extraProps,
     filters: inputFilters,
-}: Props<D, F>) {
+}: Props<D, F, EP>) {
     const {openModal} = useModals();
+    const [selection, setSelection] = useState<string[]>([]);
     const hasPaginationRef = useRef<boolean>(true);
     const [listState, setListState] = useState<ListState<D>>({
         list: undefined,
@@ -227,6 +154,18 @@ export default function DefinitionManager<
         action: ItemAction.None,
     });
 
+    const [submitting, setSubmitting] = React.useState(false);
+    const {loading, list} = listState;
+    const {loading: loadingItem, item, action} = itemState;
+    const {t} = useTranslation();
+    const [searchTerm, setSearchTerm] = React.useState('');
+    const [filters, setFilters] = useState<F>({} as F);
+
+    const formId: string =
+        (action === ItemAction.Manage
+            ? subManagementState?.formId
+            : undefined) ?? managerFormId;
+
     const setItemState = useCallback(
         (state: ItemState<D>) => {
             proxiedSetItemState(state);
@@ -237,15 +176,8 @@ export default function DefinitionManager<
                 });
             }
         },
-        [proxiedSetItemState, handleSave, parentSetSubManagementState]
+        [proxiedSetItemState, parentSetSubManagementState]
     );
-
-    const [submitting, setSubmitting] = React.useState(false);
-    const {loading, list} = listState;
-    const {loading: loadingItem, item, action} = itemState;
-    const {t} = useTranslation();
-    const [searchTerm, setSearchTerm] = React.useState('');
-    const [filters, setFilters] = useState<F>({} as F);
 
     const setFilter = useCallback<SetFilterFunc<F>>(
         (name, value) => {
@@ -286,6 +218,7 @@ export default function DefinitionManager<
                 hasPaginationRef.current = !!r.next;
             }
         } catch (e) {
+            logError(e);
             setListState(p => ({
                 ...p,
                 list: [],
@@ -470,11 +403,6 @@ export default function DefinitionManager<
         [t, handleDelete]
     );
 
-    const formId: string =
-        (action === ItemAction.Manage
-            ? subManagementState?.formId
-            : undefined) ?? managerFormId;
-
     const onOrderChange = useCallback<OrderChangeHandler<D & SortableItem>>(
         list => {
             setListState(p => ({
@@ -486,7 +414,7 @@ export default function DefinitionManager<
         [setListState]
     );
 
-    const itemProps = useMemo(() => {
+    const itemProps = useMemo<SortableListItemProps<D> | undefined>(() => {
         if (!onSort) {
             return;
         }
@@ -494,9 +422,24 @@ export default function DefinitionManager<
         return {
             selectedItem: item as (D & SortableItem) | undefined,
             listComponent,
-            onClick: handleItemClick,
+            handleItemClick,
+            setSelection,
+            selection,
+            itemDeletable,
+            onDelete,
+            extraProps,
         };
-    }, [onSort, handleItemClick, item, listComponent]);
+    }, [
+        onSort,
+        handleItemClick,
+        itemDeletable,
+        onDelete,
+        setSelection,
+        selection,
+        item,
+        listComponent,
+        extraProps,
+    ]);
 
     const content = (
         <>
@@ -551,7 +494,8 @@ export default function DefinitionManager<
                                                 ([_, v]) => !!v
                                             ).length
                                         }
-                                        children={() => [
+                                    >
+                                        {() => [
                                             <React.Fragment key={'1'}>
                                                 {inputFilters({
                                                     setFilter,
@@ -559,24 +503,97 @@ export default function DefinitionManager<
                                                 })}
                                             </React.Fragment>,
                                         ]}
-                                    />
+                                    </FilterDropdown>
                                 </div>
                             ) : null}
+                            {settingsNode ? settingsNode(bodyProps) : null}
                         </ListSubheader>
                     ) : null}
                     {preListBody?.(bodyProps)}
-                    <ListItem disablePadding>
-                        <ListItemButton
-                            selected={action === ItemAction.Create}
-                            onClick={createAttribute}
-                            disabled={!list}
-                        >
-                            <ListItemIcon>
-                                <AddBoxIcon />
-                            </ListItemIcon>
-                            <ListItemText primary={newLabel} />
-                        </ListItemButton>
-                    </ListItem>
+                    {selection.length === 0 ? (
+                        <ListItem disablePadding>
+                            <ListItemButton
+                                selected={action === ItemAction.Create}
+                                onClick={createAttribute}
+                                disabled={!list}
+                            >
+                                <ListItemIcon>
+                                    <AddBoxIcon />
+                                </ListItemIcon>
+                                <ListItemText primary={newLabel} />
+                            </ListItemButton>
+                        </ListItem>
+                    ) : null}
+                    {selection.length > 0 && batchActions ? (
+                        <ListItem disablePadding>
+                            <Box>
+                                <Badge
+                                    anchorOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'right',
+                                    }}
+                                    badgeContent={selection.length}
+                                    color="primary"
+                                    invisible={selection.length === 0}
+                                >
+                                    <Checkbox
+                                        checked={
+                                            selection.length === list?.length
+                                        }
+                                        onClick={() => {
+                                            if (
+                                                selection.length ===
+                                                list?.length
+                                            ) {
+                                                setSelection([]);
+                                            } else {
+                                                setSelection(
+                                                    list?.map(i => i.id) ?? []
+                                                );
+                                            }
+                                        }}
+                                    />
+                                </Badge>
+                                {batchActions(selection).map(a => (
+                                    <Button
+                                        key={a.id}
+                                        color={a.color}
+                                        onClick={async () => {
+                                            const p = async () => {
+                                                await a.process(
+                                                    selection
+                                                        .map(
+                                                            id =>
+                                                                list!.find(
+                                                                    i =>
+                                                                        i.id ===
+                                                                        id
+                                                                )!
+                                                        )
+                                                        .filter(i => i),
+                                                    {reload}
+                                                );
+                                                setSelection([]);
+                                            };
+
+                                            if (a.confirm) {
+                                                openModal(ConfirmDialog, {
+                                                    title: a.confirm,
+                                                    onConfirm: p,
+                                                });
+                                                return;
+                                            }
+
+                                            await p();
+                                        }}
+                                        startIcon={a.icon}
+                                    >
+                                        {a.label}
+                                    </Button>
+                                ))}
+                            </Box>
+                        </ListItem>
+                    ) : null}
                     <Divider />
 
                     {filteredList ? (
@@ -595,32 +612,24 @@ export default function DefinitionManager<
                             ) : (
                                 filteredList.map(i => {
                                     return (
-                                        <ListItem disablePadding key={i.id}>
-                                            <ListItemButton
-                                                selected={i.id === item?.id}
-                                                onClick={handleItemClick(i)}
-                                            >
-                                                {React.createElement(
-                                                    listComponent,
-                                                    {
-                                                        data: i,
-                                                        key: i.id,
-                                                        onEdit: handleItemClick(
-                                                            i,
-                                                            true
-                                                        ),
-                                                        onDelete:
-                                                            batchDelete &&
-                                                            onDelete
-                                                                ? () =>
-                                                                      onDelete(
-                                                                          i
-                                                                      )
-                                                                : undefined,
-                                                    }
-                                                )}
-                                            </ListItemButton>
-                                        </ListItem>
+                                        <ListItemContainer<D>
+                                            key={i.id}
+                                            selectedItem={item}
+                                            item={i}
+                                            handleItemClick={handleItemClick}
+                                            selection={
+                                                batchActions
+                                                    ? selection
+                                                    : undefined
+                                            }
+                                            onDelete={
+                                                itemDeletable
+                                                    ? onDelete
+                                                    : undefined
+                                            }
+                                            listComponent={listComponent}
+                                            setSelection={setSelection}
+                                        />
                                     );
                                 })
                             )}
@@ -715,6 +724,7 @@ export default function DefinitionManager<
                             onItemUpdate={onItemUpdate}
                             normalizeData={normalizeData}
                             denormalizeData={denormalizeData}
+                            extraProps={extraProps ?? ({} as EP)}
                         />
                         {action === ItemAction.Update && onDelete && (
                             <>

@@ -16,6 +16,7 @@ export default function RouteProxy({
     if (!isPublic && !isAuthenticated) {
         if (!hasSession) {
             // No session, redirect to login
+            // eslint-disable-next-line react-hooks/immutability
             document.location.href = getLoginUrl();
         }
 

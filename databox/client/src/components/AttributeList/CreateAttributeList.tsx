@@ -37,7 +37,7 @@ export default function CreateAttributeList({onCreate, ...modalProps}: Props) {
             addAttributeList(data);
             closeModal();
 
-            onCreate && onCreate(data);
+            onCreate?.(data);
         },
     });
 

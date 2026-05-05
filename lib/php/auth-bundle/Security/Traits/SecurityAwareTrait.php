@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Alchemy\AuthBundle\Security\Traits;
 
 use Alchemy\AuthBundle\Security\JwtInterface;
-use Alchemy\AuthBundle\Security\JwtOauthClient;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Token\JwtToken;
 use Alchemy\AuthBundle\Security\Voter\SuperAdminVoter;
@@ -66,13 +65,22 @@ trait SecurityAwareTrait
 
     protected function getStrictUserOrOAuthClient(): JwtInterface
     {
-        $user = $this->security->getUser();
-
-        if (!$user instanceof JwtUser && !$user instanceof JwtOauthClient) {
+        if (null === $user = $this->getUserOrOAuthClient()) {
             throw new AccessDeniedHttpException('User must be authenticated');
         }
 
         return $user;
+    }
+
+    protected function getUserOrOAuthClient(): ?JwtInterface
+    {
+        $user = $this->security->getUser();
+
+        if ($user instanceof JwtInterface) {
+            return $user;
+        }
+
+        return null;
     }
 
     protected function getUser(): ?JwtUser
