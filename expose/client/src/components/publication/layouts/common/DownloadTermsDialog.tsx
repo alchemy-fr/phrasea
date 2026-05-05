@@ -73,7 +73,11 @@ export default function DownloadTermsDialog({
                                     }
                                     components={{
                                         link: (
-                                            <a href={url} target={'_blank'} />
+                                            <a
+                                                href={url}
+                                                target={'_blank'}
+                                                rel="noreferrer"
+                                            />
                                         ),
                                     }}
                                     defaults={`Please Read and Accept the Download <link>Terms</link>`}

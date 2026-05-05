@@ -147,6 +147,12 @@ export default function AttributeRowUI({
 
                                   const isRtl = isRtlLocale(a.locale);
 
+                                  const value =
+                                      formatter.formatValue(formatProps);
+                                  if (undefined === value || null === value) {
+                                      return null;
+                                  }
+
                                   return (
                                       <li
                                           key={i}
@@ -162,7 +168,7 @@ export default function AttributeRowUI({
                                               copyToClipBoardContainerClass
                                           }
                                       >
-                                          {formatter.formatValue(formatProps)}
+                                          {value}
                                           {displayControls &&
                                           assetAnnotationsRef?.current &&
                                           a.assetAnnotations ? (
@@ -196,7 +202,7 @@ export default function AttributeRowUI({
                             : null}
                     </ul>
                 ) : (
-                    <>{formatter.formatValue(valueFormatterProps)}</>
+                    formatter.formatValue(valueFormatterProps)
                 )}
             </div>
         </div>

@@ -11,7 +11,6 @@ import LeftPanel from '../Media/LeftPanel.tsx';
 import {useNotificationUriHandler} from '../../hooks/useNotificationUriHandler.ts';
 import AppNav from './AppNav.tsx';
 import {Divider} from '@mui/material';
-import {useModals} from '@alchemy/navigation';
 import ProfileSwitcher from '../Profile/ProfileSwitcher.tsx';
 
 type Props = PropsWithChildren<{
@@ -22,7 +21,6 @@ type Props = PropsWithChildren<{
 export default function AppLayout({children}: Props) {
     const searchContext = useContext(SearchContext)!;
     const notificationUriHandler = useNotificationUriHandler();
-    const {openModal} = useModals();
     const onLogoClick = () => searchContext.reset();
     const {t} = useTranslation();
 

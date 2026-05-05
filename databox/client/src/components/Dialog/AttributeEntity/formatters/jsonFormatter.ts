@@ -11,6 +11,8 @@ export const jsonFormatter: Formatter = (
             id: v.id,
             value: allLocales ? v.value : getLocalizedValue(v, locale),
             translations: allLocales ? v.translations : undefined,
+            emoji: v.emoji,
+            color: v.color,
         })),
         null,
         2

@@ -31,7 +31,7 @@ export default function CollectionMoveSection({collection, onMoved}: Props) {
                 t('form.collection_move.success', 'Collection moved!') as string
             );
             onMoved?.();
-        } catch (e) {
+        } catch (_e) {
             setLoading(false);
         }
     };

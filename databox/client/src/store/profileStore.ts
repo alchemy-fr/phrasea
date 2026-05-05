@@ -22,6 +22,7 @@ import {
     useUserPreferencesStore,
 } from './userPreferencesStore.ts';
 import {deepEquals} from '@alchemy/core';
+import {logError} from '@alchemy/core';
 
 type State = {
     profiles: Profile[];
@@ -81,6 +82,7 @@ export const useProfileStore = create<State>((set, getState) => ({
                 try {
                     current = await getProfile(prefProfile);
                 } catch (e) {
+                    logError(e);
                     current = undefined;
                 }
             }
@@ -150,6 +152,7 @@ export const useProfileStore = create<State>((set, getState) => ({
             });
             await applyProfile(profile);
         } catch (e: any) {
+            logError(e);
             await applyProfile(null);
             set({
                 current: undefined,
@@ -178,6 +181,7 @@ export const useProfileStore = create<State>((set, getState) => ({
                 loadingCurrent: false,
             });
         } catch (e: any) {
+            logError(e);
             set({
                 current: undefined,
                 loadingCurrent: false,
@@ -385,6 +389,7 @@ export const useProfileStore = create<State>((set, getState) => ({
                 profiles: replaceList(state.profiles, profile),
             }));
         } catch (e: any) {
+            logError(e);
             if (profileId) {
                 set(state => {
                     if (state.current?.id === profileId) {

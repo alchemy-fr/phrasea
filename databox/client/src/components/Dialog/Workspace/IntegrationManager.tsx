@@ -12,10 +12,7 @@ import {
     Typography,
 } from '@mui/material';
 import {CheckboxWidget, FormFieldErrors, FormRow} from '@alchemy/react-form';
-import DefinitionManager, {
-    DefinitionItemFormProps,
-    DefinitionItemProps,
-} from './DefinitionManager/DefinitionManager.tsx';
+import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
 import {
@@ -34,6 +31,10 @@ import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import WorkspaceIntegrationSelect from '../../Form/WorkspaceIntegrationSelect.tsx';
 import InfoRow from '../Info/InfoRow.tsx';
 import {search} from '../../../lib/search.ts';
+import {
+    DefinitionItemFormProps,
+    DefinitionItemProps,
+} from './DefinitionManager/managerTypes.ts';
 import AclForm from '../../Permissions/AclForm.tsx';
 import {
     AclPermission,

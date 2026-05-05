@@ -1,7 +1,9 @@
 import {AttributeEntity, EntityList} from '../../../types';
 import {
     deleteAttributeEntity,
+    formatAttributeEntityLabel,
     getAttributeEntities,
+    mergeAttributeEntities,
     postAttributeEntity,
     putAttributeEntity,
 } from '../../../api/attributeEntity';
@@ -12,11 +14,7 @@ import {
     ListItemSecondaryAction,
     ListItemText,
 } from '@mui/material';
-import DefinitionManager, {
-    DefinitionItemFormProps,
-    DefinitionItemManageProps,
-    DefinitionListItemProps,
-} from './DefinitionManager/DefinitionManager.tsx';
+import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import AttributeEntityFields from '../../AttributeEntity/AttributeEntityFields.tsx';
@@ -29,17 +27,34 @@ import ImportExportIcon from '@mui/icons-material/ImportExport';
 import ImportAttributeEntitiesDialog from '../AttributeEntity/ImportAttributeEntitiesDialog.tsx';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
+import CallMergeIcon from '@mui/icons-material/CallMerge';
+import SettingsIcon from '@mui/icons-material/Settings';
+import {DropdownActions} from '@alchemy/phrasea-ui';
+import {
+    BatchAction,
+    DefinitionItemFormProps,
+    DefinitionItemManageProps,
+    DefinitionListItemProps,
+} from './DefinitionManager/managerTypes.ts';
+import {forceObject} from '@alchemy/core';
+import TagColor from '../../Media/Asset/Facets/TagColor.tsx';
+
+type ExtraProps = {
+    list: EntityList;
+};
 
 function Item({
     usedFormSubmit,
     workspace,
     data,
-}: DefinitionItemFormProps<AttributeEntity>) {
+    extraProps: {list},
+}: DefinitionItemFormProps<AttributeEntity, ExtraProps>) {
     return (
         <AttributeEntityFields
             usedFormSubmit={usedFormSubmit}
             workspace={workspace}
             data={data}
+            list={list}
         />
     );
 }
@@ -50,7 +65,12 @@ function EntityListItem({
 }: DefinitionListItemProps<AttributeEntity>) {
     return (
         <>
-            <ListItemText primary={data.value} />
+            <TagColor color={data.color} />
+            <ListItemText
+                primary={formatAttributeEntityLabel(data, {
+                    noTranslate: true,
+                })}
+            />
             {onDelete ? (
                 <ListItemSecondaryAction>
                     <IconButton
@@ -74,6 +94,7 @@ function createNewItem(): Partial<AttributeEntity> {
     return {
         value: '',
         translations: {},
+        synonyms: {},
     };
 }
 
@@ -101,52 +122,123 @@ export default function AttributeEntityManager({
 
     return (
         <DefinitionManager
-            batchDelete={true}
-            preSearchBody={({items, reload}) => (
-                <>
-                    <ListItem disablePadding>
-                        <ListItemButton
-                            onClick={() => {
-                                if (items) {
-                                    openModal(ExportAttributeEntitiesDialog, {
-                                        list: items,
-                                        locales: workspace.enabledLocales ?? [],
-                                    });
-                                }
-                            }}
-                            disabled={!items}
-                        >
-                            <ListItemIcon>
-                                <ContentCopy />
-                            </ListItemIcon>
-                            <ListItemText
-                                primary={t('entity_type.list.export', 'Export')}
-                            />
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem disablePadding>
-                        <ListItemButton
-                            onClick={() => {
-                                if (items) {
-                                    openModal(ImportAttributeEntitiesDialog, {
-                                        list,
-                                        onSuccess: () => {
-                                            reload();
-                                        },
-                                    });
-                                }
-                            }}
-                            disabled={!items}
-                        >
-                            <ListItemIcon>
-                                <ImportExportIcon />
-                            </ListItemIcon>
-                            <ListItemText
-                                primary={t('entity_type.list.import', 'Import')}
-                            />
-                        </ListItemButton>
-                    </ListItem>
-                </>
+            normalizeData={data => {
+                return {
+                    ...data,
+                    translations: forceObject(data.translations ?? {}),
+                    synonyms: forceObject(data.synonyms ?? {}),
+                };
+            }}
+            itemDeletable={true}
+            batchActions={selection => {
+                const actions: BatchAction<AttributeEntity>[] = [];
+
+                if (selection.length > 1) {
+                    actions.push({
+                        id: 'merge',
+                        confirm: t(
+                            'attribute_entity.batch_merge.confirm',
+                            'Are you sure you want to merge these entities? This action cannot be undone.'
+                        ),
+                        label: t('attribute_entity.batch_merge.label', 'Merge'),
+                        icon: <CallMergeIcon />,
+                        process: async (items, {reload}) => {
+                            await mergeAttributeEntities(items.map(i => i.id));
+                            await reload();
+                        },
+                    });
+                }
+
+                actions.push({
+                    id: 'delete',
+                    confirm: t(
+                        'attribute_entity.batch_delete.confirm',
+                        'Are you sure you want to delete these entities?'
+                    ),
+                    label: t('attribute_entity.batch_delete.label', 'Delete'),
+                    icon: <DeleteIcon />,
+                    process: async (items, {reload}) => {
+                        await Promise.all(
+                            items.map(item => deleteAttributeEntity(item.id))
+                        );
+                        await reload();
+                    },
+                    color: 'error',
+                });
+
+                return actions;
+            }}
+            settingsNode={({items, reload}) => (
+                <DropdownActions
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                    }}
+                    mainButton={props => (
+                        <IconButton {...props}>
+                            <SettingsIcon />
+                        </IconButton>
+                    )}
+                >
+                    {closeWrapper => [
+                        <ListItem disablePadding key={'export'}>
+                            <ListItemButton
+                                onClick={closeWrapper(() => {
+                                    if (items) {
+                                        openModal(
+                                            ExportAttributeEntitiesDialog,
+                                            {
+                                                list: items,
+                                                locales:
+                                                    workspace.enabledLocales ??
+                                                    [],
+                                            }
+                                        );
+                                    }
+                                })}
+                                disabled={!items}
+                            >
+                                <ListItemIcon>
+                                    <ContentCopy />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={t(
+                                        'entity_type.list.export',
+                                        'Export'
+                                    )}
+                                />
+                            </ListItemButton>
+                        </ListItem>,
+                        <ListItem disablePadding key={'import'}>
+                            <ListItemButton
+                                onClick={closeWrapper(() => {
+                                    if (items) {
+                                        openModal(
+                                            ImportAttributeEntitiesDialog,
+                                            {
+                                                list,
+                                                onSuccess: () => {
+                                                    reload();
+                                                },
+                                            }
+                                        );
+                                    }
+                                })}
+                                disabled={!items}
+                            >
+                                <ListItemIcon>
+                                    <ImportExportIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={t(
+                                        'entity_type.list.import',
+                                        'Import'
+                                    )}
+                                />
+                            </ListItemButton>
+                        </ListItem>,
+                    ]}
+                </DropdownActions>
             )}
             deleteConfirmAssertions={() => [
                 t(
@@ -174,6 +266,7 @@ export default function AttributeEntityManager({
             handleSave={handleSave}
             handleDelete={deleteAttributeEntity}
             setSubManagementState={setSubManagementState}
+            extraProps={{list} as ExtraProps}
         />
     );
 }

@@ -22,6 +22,8 @@ export const csvFormatter: Formatter = (
     const headers = [
         'id',
         'value',
+        'emoji',
+        'color',
         ...(allLocales ? availableLocales : []),
     ].join(',');
 
@@ -30,6 +32,8 @@ export const csvFormatter: Formatter = (
             return [
                 item.id,
                 allLocales ? item.value : getLocalizedValue(item, locale),
+                item.emoji,
+                item.color,
                 ...(allLocales
                     ? availableLocales.map(
                           (lang: string) => item.translations?.[lang] || ''

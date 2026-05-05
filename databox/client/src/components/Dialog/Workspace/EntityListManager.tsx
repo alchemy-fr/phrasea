@@ -6,12 +6,8 @@ import {
     putEntityList,
 } from '../../../api/entityList.ts';
 import {ListItemSecondaryAction, ListItemText, TextField} from '@mui/material';
-import {FormFieldErrors, FormRow} from '@alchemy/react-form';
-import DefinitionManager, {
-    DefinitionItemFormProps,
-    DefinitionItemManageProps,
-    DefinitionListItemProps,
-} from './DefinitionManager/DefinitionManager.tsx';
+import {FormFieldErrors, FormRow, SwitchWidget} from '@alchemy/react-form';
+import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import AttributeEntityManager from './AttributeEntityManager.tsx';
@@ -19,10 +15,16 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import React from 'react';
 import {search} from '../../../lib/search.ts';
+import {
+    DefinitionItemFormProps,
+    DefinitionItemManageProps,
+    DefinitionListItemProps,
+} from './DefinitionManager/managerTypes.ts';
 
 function Item({usedFormSubmit}: DefinitionItemFormProps<EntityList>) {
     const {t} = useTranslation();
     const {
+        control,
         register,
         submitting,
         formState: {errors},
@@ -37,6 +39,69 @@ function Item({usedFormSubmit}: DefinitionItemFormProps<EntityList>) {
                     disabled={submitting}
                 />
                 <FormFieldErrors field={'name'} errors={errors} />
+            </FormRow>
+            <FormRow>
+                <SwitchWidget
+                    control={control}
+                    name={'allowNewValues'}
+                    label={t(
+                        'form.entity_type.allowNewValues.label',
+                        'Accept new values'
+                    )}
+                    disabled={submitting}
+                />
+            </FormRow>
+            <FormRow>
+                <SwitchWidget
+                    control={control}
+                    name={'approveNewValues'}
+                    label={t(
+                        'form.entity_type.approveNewValues.label',
+                        'Automatically approve new values'
+                    )}
+                    disabled={submitting}
+                />
+            </FormRow>
+            <FormRow>
+                <SwitchWidget
+                    control={control}
+                    name={'withTranslations'}
+                    label={t(
+                        'form.entity_type.withTranslations.label',
+                        'Use translations'
+                    )}
+                    disabled={submitting}
+                />
+            </FormRow>
+            <FormRow>
+                <SwitchWidget
+                    control={control}
+                    name={'withSynonyms'}
+                    label={t(
+                        'form.entity_type.withSynonyms.label',
+                        'Use synonyms'
+                    )}
+                    disabled={submitting}
+                />
+            </FormRow>
+            <FormRow>
+                <SwitchWidget
+                    control={control}
+                    name={'withEmojis'}
+                    label={t(
+                        'form.entity_type.withEmojis.label',
+                        'Use emojis as icon'
+                    )}
+                    disabled={submitting}
+                />
+            </FormRow>
+            <FormRow>
+                <SwitchWidget
+                    control={control}
+                    name={'withColors'}
+                    label={t('form.entity_type.withColors.label', 'Use colors')}
+                    disabled={submitting}
+                />
             </FormRow>
         </>
     );

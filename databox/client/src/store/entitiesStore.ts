@@ -100,7 +100,7 @@ export const useEntitiesStore = create<State>((set, getState) => ({
                     loading: false,
                 };
             });
-        } catch (e: any) {
+        } catch (_e: any) {
             set({loading: false});
         }
     },

@@ -45,7 +45,7 @@ export function useIntegrationAuth({integration}: Props) {
 
         try {
             win.addEventListener('close', handleClosed);
-        } catch (e: any) {
+        } catch (_e: any) {
             // Ignore cross origin security error
         }
     };

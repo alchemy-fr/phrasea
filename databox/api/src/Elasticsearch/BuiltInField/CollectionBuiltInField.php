@@ -127,6 +127,10 @@ final class CollectionBuiltInField extends AbstractBuiltInField
 
     public function normalizeValueForSearch(mixed $value): mixed
     {
+        if (!$value || !is_string($value)) {
+            return null;
+        }
+
         return $this->em->find(Collection::class, $value)?->getAbsolutePath();
     }
 }

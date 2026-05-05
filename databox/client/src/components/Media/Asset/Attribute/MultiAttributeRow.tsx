@@ -77,7 +77,6 @@ export default function MultiAttributeRow({
     return (
         <FormRow
             sx={{
-                mt: 1,
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 1,
@@ -130,6 +129,7 @@ export default function MultiAttributeRow({
 
             <div>
                 <Button
+                    sx={{mt: 1}}
                     startIcon={<AddIcon />}
                     variant="outlined"
                     disabled={readOnly || disabled}

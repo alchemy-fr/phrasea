@@ -14,21 +14,35 @@ export const xmlFormatter: Formatter = (
                 : getLocalizedValue(item, locale);
             const translations = allLocales ? item.translations : undefined;
 
-            let translationElements = '';
-            if (translations) {
-                translationElements = Object.entries(translations)
-                    .map(
-                        ([lang, val]) =>
-                            `<translation lang="${lang}">${val}</translation>`
-                    )
-                    .join('');
-            }
+            const translationElements: string[] = translations
+                ? Object.entries(translations).map(
+                      ([lang, val]) =>
+                          `<translation lang="${lang}">${val}</translation>`
+                  )
+                : [];
 
             return `
     <item id="${id}">
-            <value>${value}</value>
-            ${translationElements}
-        </item>`;
+        <value>${value}</value>${
+            item.emoji
+                ? `
+        <emoji>${item.emoji}</emoji>`
+                : ''
+        }${
+            item.color
+                ? `
+        <color>${item.color}</color>`
+                : ''
+        }${
+            translationElements.length > 0
+                ? `
+        <translations>
+            ${translationElements.join(`
+            `)}
+        </translations>`
+                : ''
+        }
+    </item>`;
         })
         .join('');
 

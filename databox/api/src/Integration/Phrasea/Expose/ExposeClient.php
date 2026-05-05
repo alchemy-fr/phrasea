@@ -118,12 +118,18 @@ final readonly class ExposeClient
                             foreach ($wsLocales as $wsLocale) {
                                 $entityTranslations[$wsLocale] ??= [];
                                 foreach ($attribute as $a) {
-                                    $entityTranslations[$wsLocale][] = $type->getEntityBestTranslation($a->getValue(), $wsLocale);
+                                    $v = $type->getEntityBestTranslation($a->getValue(), $wsLocale);
+                                    if (null !== $v) {
+                                        $entityTranslations[$wsLocale][] = $v;
+                                    }
                                 }
                             }
                         } else {
                             foreach ($wsLocales as $wsLocale) {
-                                $entityTranslations[$wsLocale] = $type->getEntityBestTranslation($attribute->getValue(), $wsLocale);
+                                $v = $type->getEntityBestTranslation($attribute->getValue(), $wsLocale);
+                                if (null !== $v) {
+                                    $entityTranslations[$wsLocale] = $v;
+                                }
                             }
                         }
 

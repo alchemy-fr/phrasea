@@ -1,5 +1,4 @@
 import {
-    Box,
     Checkbox,
     ListItemButton,
     ListItemSecondaryAction,
@@ -10,6 +9,7 @@ import ListFacet from './ListFacet.tsx';
 import {stopPropagation} from '../../../../../lib/stdFuncs.ts';
 import {Tag} from '../../../../../types.ts';
 import {FacetGroupProps} from '../facetTypes.ts';
+import TagColor from './TagColor.tsx';
 
 function TagFacetItem({
     onClick,
@@ -21,18 +21,9 @@ function TagFacetItem({
 
     return (
         <ListItemButton onClick={onClick}>
-            <Box
-                sx={theme => ({
-                    width: 30,
-                    height: 22,
-                    backgroundColor: item!.color,
-                    border: `0.5px solid ${theme.palette.common.black}`,
-                    mr: 1,
-                    borderRadius: theme.shape.borderRadius,
-                })}
-            />
+            <TagColor color={(item as Tag).color} />
             <ListItemText
-                secondary={`${(item as Tag).nameTranslated} (${count})`}
+                primary={`${(item as Tag).nameTranslated} (${count})`}
             />
             <ListItemSecondaryAction>
                 <Checkbox

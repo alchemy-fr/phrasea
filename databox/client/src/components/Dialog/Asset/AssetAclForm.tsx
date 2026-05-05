@@ -114,6 +114,7 @@ export default function AssetAclForm({
             {data.collections?.map(c =>
                 c.storyAsset ? (
                     <ParentAcl
+                        key={c.id}
                         title={
                             <Trans
                                 i18nKey={'collection.acl.parent.story'}
@@ -132,6 +133,7 @@ export default function AssetAclForm({
                     </ParentAcl>
                 ) : (
                     <ParentAcl
+                        key={c.id}
                         title={
                             <Trans
                                 i18nKey={'collection.acl.parent.collection'}

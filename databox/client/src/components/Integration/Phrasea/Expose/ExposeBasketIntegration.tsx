@@ -169,7 +169,11 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                         <Card key={d.id} sx={{mt: 2}}>
                             <CardContent>
                                 <Typography variant="h5" component="div">
-                                    <a href={url} target={'_blank'}>
+                                    <a
+                                        href={url}
+                                        target={'_blank'}
+                                        rel="noreferrer"
+                                    >
                                         #{id.substring(0, 6)}
                                     </a>
                                 </Typography>

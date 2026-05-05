@@ -103,9 +103,8 @@ export default function TagRules({type, workspaceId, id}: Props) {
                     {rules!.map((r: TagFilterRule) => {
                         if (editRule === r.id) {
                             return (
-                                <Box sx={{mt: 2}}>
+                                <Box sx={{mt: 2}} key={r.id}>
                                     <FilterRule
-                                        key={r.id}
                                         data={{
                                             ...r,
                                             include: r.include.map(
@@ -127,8 +126,12 @@ export default function TagRules({type, workspaceId, id}: Props) {
                             );
                         } else {
                             return (
-                                <Paper elevation={2} sx={{p: 2, mt: 2}}>
-                                    <Grid container spacing={2} key={r.id}>
+                                <Paper
+                                    elevation={2}
+                                    sx={{p: 2, mt: 2}}
+                                    key={r.id}
+                                >
+                                    <Grid container spacing={2}>
                                         <Grid size={4}>
                                             <Chip
                                                 icon={

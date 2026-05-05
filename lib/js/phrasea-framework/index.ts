@@ -36,10 +36,12 @@ import {lazyWithRetry} from './src/lazyWithRetry';
 import BetaChip from './src/Ui/BetaChip';
 import DarkModeSwitch from './src/Theme/ThemeEditor/DarkModeSwitch';
 import ListItemLoadingIcon from './src/Ui/ListItemLoadingIcon';
+import {getContrastText} from './src/Ui/colorUtil';
 
 export {
     AppProvider,
     BetaChip,
+    getContrastText,
     initApp,
     createCachedThemeOptions,
     DarkModeSwitch,

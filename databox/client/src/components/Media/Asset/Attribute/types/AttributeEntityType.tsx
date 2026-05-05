@@ -4,12 +4,23 @@ import {
     AttributeWidgetProps,
 } from './types';
 import React from 'react';
-import {InputLabel} from '@mui/material';
-import {AttributeEntity} from '../../../../../types.ts';
+import {Box, InputLabel} from '@mui/material';
+import {AttributeEntity, AttributeEntityStatus} from '../../../../../types.ts';
 import AttributeEntitySelect, {
     AttributeEntityOption,
 } from '../../../../Form/AttributeEntitySelect.tsx';
 import BaseType from './BaseType.tsx';
+import TagColor from '../../Facets/TagColor.tsx';
+import {FlexRow} from '@alchemy/phrasea-ui';
+
+type EntityValue = {
+    id: string;
+    value: string | null;
+    emoji?: string;
+    color?: string;
+    status: AttributeEntityStatus;
+    createdAt: string;
+};
 
 export default class AttributeEntityType
     extends BaseType
@@ -34,6 +45,7 @@ export default class AttributeEntityType
                     list={options.list}
                     disabled={readOnly || disabled}
                     value={value?.id}
+                    workspaceId={options.workspaceId}
                     onChange={newValue => {
                         onChange(
                             (
@@ -52,8 +64,48 @@ export default class AttributeEntityType
         return value?.id;
     }
 
-    formatValue({value}: AttributeFormatterProps): React.ReactNode {
-        return value?.value as React.ReactNode;
+    formatValue(props: AttributeFormatterProps): React.ReactNode {
+        const {value, t} = props;
+
+        const status = (value as EntityValue | undefined)?.status;
+
+        if (undefined !== status && status !== AttributeEntityStatus.Approved) {
+            if (value.status === AttributeEntityStatus.Pending) {
+                return (
+                    <Box
+                        component={'span'}
+                        sx={{
+                            color: 'warning.main',
+                            fontStyle: 'italic',
+                        }}
+                    >
+                        {t(
+                            'attribute.entity.pending',
+                            '[Value Pending for approval]'
+                        )}
+                    </Box>
+                );
+            } else {
+                return null;
+            }
+        }
+
+        if (value) {
+            const label = value.emoji
+                ? `${value.emoji} ${value.value}`
+                : value.value;
+            const color = (value as EntityValue)?.color;
+            if (color) {
+                return (
+                    <FlexRow>
+                        <TagColor color={color} />
+                        <span>{label}</span>
+                    </FlexRow>
+                );
+            }
+
+            return label;
+        }
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {

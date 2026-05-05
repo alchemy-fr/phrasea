@@ -20,11 +20,7 @@ import {
     SelectOption,
     TranslatedField,
 } from '@alchemy/react-form';
-import DefinitionManager, {
-    DefinitionItemFormProps,
-    DefinitionItemProps,
-    OnSort,
-} from './DefinitionManager/DefinitionManager.tsx';
+import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {
     deleteRenditionDefinition,
@@ -48,6 +44,11 @@ import AssetTypeSelect, {
 import {search} from '../../../lib/search.ts';
 import AssetTypeFilterSelect from '../../Form/AssetTypeFilterSelect.tsx';
 import {apiClient} from '../../../init.ts';
+import {
+    DefinitionItemFormProps,
+    DefinitionItemProps,
+    OnSort,
+} from './DefinitionManager/managerTypes.ts';
 
 function Item({
     data,
