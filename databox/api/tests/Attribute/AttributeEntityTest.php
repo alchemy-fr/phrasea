@@ -172,7 +172,6 @@ class AttributeEntityTest extends AbstractSearchTest
         $response = $esClient->request($assetIndexName.'/_search?q=_id:'.$asset->getId());
 
         $attrs = $response->getData()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
-        dump($attrs);
         $this->assertEquals([
             AttributeInterface::NO_LOCALE => [
                 'many_entity_m' => [
@@ -242,6 +241,8 @@ class AttributeEntityTest extends AbstractSearchTest
             ],
         ], $attrs);
 
+        $em->clear();
+
         $apiClient->request('PUT', '/attribute-entities/'.$entity2->getId().'/merge', [
             'headers' => [
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
@@ -257,21 +258,31 @@ class AttributeEntityTest extends AbstractSearchTest
         self::waitForESIndex('asset');
         $response = $esClient->request($assetIndexName.'/_search?q=_id:'.$asset->getId());
 
+        $attrs = $response->getData()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
         $this->assertEquals([
             AttributeInterface::NO_LOCALE => [
                 'many_entity_m' => [
                     [
                         'id' => $entity2->getId(),
                         'value' => 'ae2',
+                        'synonyms' => [
+                            'ae1-bis',
+                        ],
                     ],
                     [
                         'id' => $entity2->getId(),
                         'value' => 'ae2',
+                        'synonyms' => [
+                            'ae1-bis',
+                        ],
                     ],
                 ],
                 'single_entity_s' => [
                     'id' => $entity2->getId(),
                     'value' => 'ae2',
+                    'synonyms' => [
+                        'ae1-bis',
+                    ],
                 ],
             ],
             'en' => [
@@ -281,8 +292,8 @@ class AttributeEntityTest extends AbstractSearchTest
                         'synonyms' => [
                             'ae2en1',
                             'ae2en2',
-                            'ae1en1',
-                            'ae1en2',
+                            'ae1en1-bis',
+                            'ae1en2-bis',
                         ],
                     ],
                     [
@@ -290,8 +301,8 @@ class AttributeEntityTest extends AbstractSearchTest
                         'synonyms' => [
                             'ae2en1',
                             'ae2en2',
-                            'ae1en1',
-                            'ae1en2',
+                            'ae1en1-bis',
+                            'ae1en2-bis',
                         ],
                     ],
                 ],
@@ -300,8 +311,8 @@ class AttributeEntityTest extends AbstractSearchTest
                     'synonyms' => [
                         'ae2en1',
                         'ae2en2',
-                        'ae1en1',
-                        'ae1en2',
+                        'ae1en1-bis',
+                        'ae1en2-bis',
                     ],
                 ],
             ],
@@ -312,8 +323,8 @@ class AttributeEntityTest extends AbstractSearchTest
                         'synonyms' => [
                             'ae2fr1',
                             'ae2fr2',
-                            'ae1fr1',
-                            'ae1fr2',
+                            'ae1fr1-bis',
+                            'ae1fr2-bis',
                         ],
                     ],
                     [
@@ -321,8 +332,8 @@ class AttributeEntityTest extends AbstractSearchTest
                         'synonyms' => [
                             'ae2fr1',
                             'ae2fr2',
-                            'ae1fr1',
-                            'ae1fr2',
+                            'ae1fr1-bis',
+                            'ae1fr2-bis',
                         ],
                     ],
                 ],
@@ -331,11 +342,11 @@ class AttributeEntityTest extends AbstractSearchTest
                     'synonyms' => [
                         'ae2fr1',
                         'ae2fr2',
-                        'ae1fr1',
-                        'ae1fr2',
+                        'ae1fr1-bis',
+                        'ae1fr2-bis',
                     ],
                 ],
             ],
-        ], $response->getData()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0]);
+        ], $attrs);
     }
 }

@@ -55,7 +55,7 @@ final readonly class AttributeEntityUpdateHandler
                     'v' => $attributeEntity->getTranslations()[$locale] ?? (AttributeInterface::NO_LOCALE === $locale ? $attributeEntity->getValue() : ''),
                     's' => $attributeEntity->getSynonymsOfLocale($locale) ?? [],
                 ];
-                $calls[$definition->getId().'-'.$locale] = sprintf(
+                $calls[$fieldName.'-'.$locale] = sprintf(
                     'up(ctx._source, \'%1$s\', \'%2$s\', params[\'_id\'], params[\'%1$s\'][\'v\'], params[\'%1$s\'][\'s\'], %3$s);',
                     $locale,
                     $fieldName,
@@ -116,7 +116,7 @@ void up(HashMap src, String locale, String name, String id, String n, def s, boo
 
     if (m) {
         if (!(field instanceof List)) {
-            field = node[name] = [];
+            return;
         }
         for (item in field) {
             if (item['id'] == id) {

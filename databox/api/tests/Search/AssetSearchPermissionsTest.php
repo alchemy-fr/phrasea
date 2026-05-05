@@ -52,7 +52,6 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         $client = self::createClient();
         $response = $client->request('GET', '/assets');
         $data = $this->getDataFromResponse($response, 200)['hydra:member'];
-        dump($data);
         $this->assertEmpty($data);
     }
 

@@ -53,7 +53,7 @@ final readonly class AttributeEntityMergeHandler
                     'v' => $mainEntity->getTranslations()[$locale] ?? (AttributeInterface::NO_LOCALE === $locale ? $mainEntity->getValue() : ''),
                     's' => $mainEntity->getSynonymsOfLocale($locale) ?? [],
                 ];
-                $calls[$locale] = sprintf(
+                $calls[$fieldName.'-'.$locale] = sprintf(
                     'merge(ctx._source, \'%1$s\', \'%2$s\', params[\'_id\'], params[\'merged\'], params[\'%1$s\'][\'v\'], params[\'%1$s\'][\'s\'], %3$s);',
                     $locale,
                     $fieldName,
@@ -105,7 +105,9 @@ void merge(HashMap src, String locale, String name, String id, List merged, Stri
         }
     }
 
-    boolean hasValue = !n.isEmpty() || s.size() > 0;
+    boolean hasVal = !n.isEmpty();
+    boolean hasSyn = s.size() > 0;
+    boolean hasValOrSyn = hasVal || hasSyn;
 
     HashMap node = attributes.get(locale);
     if (!(node instanceof Map)) {
@@ -115,56 +117,49 @@ void merge(HashMap src, String locale, String name, String id, List merged, Stri
 
     if (m) {
         if (!(field instanceof List)) {
-            field = node[name] = [];
+            return;
         }
-        boolean found = false;
         for (item in field) {
             if (all.contains(item['id'])) {
-                found = true;
-                if (hasValue) {
+                if (hasValOrSyn) {
                     item['id'] = id;
-                    item['value'] = n;
-                    item['synonyms'] = s;
+                    if (hasVal) {
+                        item['value'] = n;
+                    } else {
+                        item.remove('value');
+                    }
+
+                    if (hasSyn) {
+                        item['synonyms'] = s;
+                    } else {
+                        item.remove('synonyms');
+                    }
                 } else {
                     field.remove(field.indexOf(item));
                 }
             }
         }
 
-        if (found) {
-            return;
-        }
-
-        if (hasValue) {
-            def ref = attributes['_']?.get(name);
-            if (ref instanceof List) {
-                for (item in ref) {
-                    if (all.contains(item['id'])) {
-                        field.add(["id": id, "value": n, "synonyms": s]);
-                        return;
-                    }
-                }
-            }
-        }
         return;
     }
 
     if (field instanceof Map) {
         if (all.contains(field['id'])) {
-            if (hasValue) {
+            if (hasValOrSyn) {
                 field['id'] = id;
-                field['value'] = n;
-                field['synonyms'] = s;
+                if (hasVal) {
+                    field['value'] = n;
+                } else {
+                    field.remove('value');
+                }
+
+                if (hasSyn) {
+                    field['synonyms'] = s;
+                } else {
+                    field.remove('synonyms');
+                }
             } else {
                 node.remove(name);
-            }
-        }
-    } else if (hasValue) {
-        def ref = attributes['_']?.get(name);
-
-        if (ref instanceof Map) {
-            if (all.contains(ref['id'])) {
-                node[name] = ["id": id, "value": n, "synonyms": s];
             }
         }
     }
