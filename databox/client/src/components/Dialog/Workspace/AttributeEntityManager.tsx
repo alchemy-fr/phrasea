@@ -37,6 +37,7 @@ import {
     DefinitionListItemProps,
 } from './DefinitionManager/managerTypes.ts';
 import {forceObject} from '@alchemy/core';
+import TagColor from '../../Media/Asset/Facets/TagColor.tsx';
 
 type ExtraProps = {
     list: EntityList;
@@ -64,6 +65,7 @@ function EntityListItem({
 }: DefinitionListItemProps<AttributeEntity>) {
     return (
         <>
+            <TagColor color={data.color} />
             <ListItemText
                 primary={formatAttributeEntityLabel(data, {
                     noTranslate: true,

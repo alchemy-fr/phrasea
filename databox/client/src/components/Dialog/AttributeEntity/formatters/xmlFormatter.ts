@@ -29,6 +29,11 @@ export const xmlFormatter: Formatter = (
         <emoji>${item.emoji}</emoji>`
                 : ''
         }${
+            item.color
+                ? `
+        <color>${item.color}</color>`
+                : ''
+        }${
             translationElements.length > 0
                 ? `
         <translations>

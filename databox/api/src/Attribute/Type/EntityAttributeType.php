@@ -178,6 +178,7 @@ final class EntityAttributeType extends TextAttributeType
             'value' => $entity->isApproved() ? $this->getTranslatedValue($entity) : null,
             'status' => $entity->getStatus(),
             'emoji' => $entity->getEmoji(),
+            'color' => $entity->getColor(),
             'createdAt' => $entity->getCreatedAt(),
         ];
     }

@@ -14,6 +14,7 @@ import {modalRoutes} from '../../../../routes.ts';
 import {WorkspaceDialogTabs} from '../../../Dialog/Workspace/WorkspaceDialog.tsx';
 import {useTranslation} from 'react-i18next';
 import {useNavigateToModal} from '../../../Routing/ModalLink.tsx';
+import {FlexRow} from '@alchemy/phrasea-ui';
 
 export type AttrValue<T = string> = {
     id: T;
@@ -78,8 +79,12 @@ export default function AttributesEditor({
                             mb: 5,
                         }}
                     >
-                        <FormLabel sx={{display: 'flex', alignItems: 'center'}}>
-                            {d.nameTranslated ?? d.name}
+                        <FlexRow>
+                            <FormLabel
+                                sx={{display: 'flex', alignItems: 'center'}}
+                            >
+                                {d.nameTranslated ?? d.name}
+                            </FormLabel>
                             {d.entityList ? (
                                 <Button
                                     sx={{ml: 2, my: 1}}
@@ -103,7 +108,7 @@ export default function AttributesEditor({
                                     )}
                                 </Button>
                             ) : null}
-                        </FormLabel>
+                        </FlexRow>
 
                         <AttributeType
                             labelAlreadyRendered={true}

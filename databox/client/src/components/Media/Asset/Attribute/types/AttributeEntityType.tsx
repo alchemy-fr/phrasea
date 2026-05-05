@@ -10,11 +10,14 @@ import AttributeEntitySelect, {
     AttributeEntityOption,
 } from '../../../../Form/AttributeEntitySelect.tsx';
 import BaseType from './BaseType.tsx';
+import TagColor from '../../Facets/TagColor.tsx';
+import {FlexRow} from '@alchemy/phrasea-ui';
 
 type EntityValue = {
     id: string;
     value: string | null;
     emoji?: string;
+    color?: string;
     status: AttributeEntityStatus;
     createdAt: string;
 };
@@ -88,7 +91,20 @@ export default class AttributeEntityType
         }
 
         if (value) {
-            return value.emoji ? `${value.emoji} ${value.value}` : value.value;
+            const label = value.emoji
+                ? `${value.emoji} ${value.value}`
+                : value.value;
+            const color = (value as EntityValue)?.color;
+            if (color) {
+                return (
+                    <FlexRow>
+                        <TagColor color={color} />
+                        <span>{label}</span>
+                    </FlexRow>
+                );
+            }
+
+            return label;
         }
     }
 

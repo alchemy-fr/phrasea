@@ -27,6 +27,7 @@ export function getTagColorStyle(
     }
 
     return {
+        marginLeft: '0.5px',
         marginRight: theme.spacing(1),
         borderRadius: '50%',
         backgroundColor: color,

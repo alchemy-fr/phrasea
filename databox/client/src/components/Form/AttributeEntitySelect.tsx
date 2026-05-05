@@ -17,6 +17,7 @@ import CreateAttributeEntityDialog from '../AttributeEntity/CreateAttributeEntit
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
 import {useTheme} from '@mui/material';
 import {CSSObjectWithLabel} from 'react-select';
+import {getTagColorStyle} from '../Media/Asset/Facets/TagColor.tsx';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
@@ -81,26 +82,33 @@ export default function AttributeEntitySelect<
     };
 
     const entityStyle = (data: AttributeEntityOption): CSSObjectWithLabel => {
-        const status = data.item?.status;
+        const item = data.item;
+        const status = item?.status;
+        const color = item?.color;
 
-        return status !== undefined && status !== AttributeEntityStatus.Approved
-            ? {
-                  'alignItems': 'center',
-                  'display': 'flex',
-                  ':before': {
-                      marginRight: theme.spacing(1),
-                      borderRadius: '50%',
-                      backgroundColor:
-                          status === AttributeEntityStatus.Rejected
-                              ? theme.palette.error.main
-                              : theme.palette.warning.main,
-                      height: 15,
-                      width: 15,
-                      content: '" "',
-                      display: 'block',
-                  },
-              }
-            : {};
+        const createStyle = (color: string) => ({
+            'alignItems': 'center',
+            'display': 'flex',
+            ':before': {
+                content: '" "',
+                display: 'block',
+                ...getTagColorStyle(theme, color),
+            },
+        });
+
+        if (status !== undefined && status !== AttributeEntityStatus.Approved) {
+            return createStyle(
+                status === AttributeEntityStatus.Rejected
+                    ? theme.palette.error.main
+                    : theme.palette.warning.main
+            );
+        }
+
+        if (color) {
+            return createStyle(color);
+        }
+
+        return {};
     };
     return (
         <AsyncRSelectWidget<TFieldValues, IsMulti, AttributeEntityOption>

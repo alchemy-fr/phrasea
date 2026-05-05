@@ -6,6 +6,7 @@ import {useTranslation} from 'react-i18next';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {
     CollectionWidget,
+    ColorWidget,
     FormFieldErrors,
     FormRow,
     KeyTranslationsWidget,
@@ -26,7 +27,7 @@ export default function AttributeEntityFields({
     workspace,
     data,
     usedFormSubmit,
-    list: {withEmojis, withTranslations, withSynonyms},
+    list: {withColors, withEmojis, withTranslations, withSynonyms},
 }: Props) {
     const {t} = useTranslation();
 
@@ -82,6 +83,18 @@ export default function AttributeEntityFields({
                         }}
                     />
                     <FormFieldErrors field={'emoji'} errors={errors} />
+                </FormRow>
+            )}
+
+            {withColors && (
+                <FormRow>
+                    <ColorWidget
+                        label={t('form.attribute_entity.color.label', 'Color')}
+                        control={control}
+                        name={'color'}
+                        disabled={submitting}
+                    />
+                    <FormFieldErrors field={'color'} errors={errors} />
                 </FormRow>
             )}
 

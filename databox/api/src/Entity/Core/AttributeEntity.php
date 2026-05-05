@@ -288,6 +288,21 @@ class AttributeEntity extends AbstractUuidEntity
         }
     }
 
+    #[Groups([self::GROUP_LIST])]
+    public function getColor(): ?string
+    {
+        return $this->data[self::DATA_COLOR] ?? null;
+    }
+
+    public function setColor(?string $color): void
+    {
+        if (null !== $color) {
+            $this->data[self::DATA_COLOR] = $color;
+        } else {
+            unset($this->data[self::DATA_COLOR]);
+        }
+    }
+
     public function __toString(): string
     {
         return $this->value ?? $this->getId() ?? '';

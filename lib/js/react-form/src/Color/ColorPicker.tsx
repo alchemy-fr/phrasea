@@ -12,6 +12,8 @@ type Props = {
     label?: TextFieldProps['label'];
 };
 
+export type {Props as ColorPickerProps};
+
 export default function ColorPicker({
     color,
     label,

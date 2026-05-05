@@ -307,6 +307,7 @@ export type AttributeEntity = {
     locale: string;
     value: string;
     emoji?: string;
+    color?: string;
     translations: KeyTranslations;
     synonyms?: EntitySynonyms;
     createdAt: string;
