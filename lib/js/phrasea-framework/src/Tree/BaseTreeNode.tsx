@@ -44,11 +44,10 @@ export default function BaseTreeNode<D extends TreeBaseItem>(
     const resolvedBranchDisabled =
         branchDisabled || disabledBranches?.includes(node.id);
 
-    const resolvedDisabled =
-        resolvedBranchDisabled ||
+    const resolvedDisabled = resolvedBranchDisabled ||
         disabled ||
-        (isSelectable && !isSelectable(node)) ||
         disabledNodes?.includes(node.id);
+    const resolvedSelectable = isSelectable ? isSelectable(node) : true;
 
     const [expanding, setExpanding] = useState(false);
 
@@ -59,11 +58,18 @@ export default function BaseTreeNode<D extends TreeBaseItem>(
                     [TreeViewClasses.Node]: true,
                     [TreeViewClasses.NodeSelected]: selected,
                     [TreeViewClasses.NodeExpanded]: expanded,
-                    [TreeViewClasses.NodeDisabled]: resolvedDisabled,
+                    [TreeViewClasses.NodeDisabled]:
+                        resolvedDisabled || !resolvedSelectable,
                 })}
                 disabled={resolvedDisabled}
                 selected={selected}
-                onClick={() => onToggleSelect(node, !selected)}
+                onClick={() => {
+                    if (resolvedSelectable) {
+                        onToggleSelect(node, !selected);
+                    } else {
+                        onToggleExpand(node, true);
+                    }
+                }}
             >
                 <div
                     className={TreeViewClasses.NodeArrow}

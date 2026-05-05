@@ -69,7 +69,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('workspace.manage.edit.title', 'Edit'),
@@ -79,7 +79,7 @@ export default function WorkspaceDialog({}: Props) {
                         data,
                         setData,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('workspace.manage.acl.title', 'Permissions'),
@@ -88,7 +88,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEditPermissions,
+                    enabled: data.capabilities.editPermissions,
                 },
                 {
                     title: t('workspace.manage.tags.title', 'Tags'),
@@ -97,7 +97,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -109,7 +109,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -121,7 +121,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -133,7 +133,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -145,7 +145,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -157,7 +157,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -169,7 +169,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('workspace.manage.tag_rules.title', 'Tag rules'),
@@ -178,7 +178,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
             ]}
         />

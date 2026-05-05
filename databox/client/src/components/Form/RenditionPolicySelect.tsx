@@ -8,7 +8,7 @@ import {
     SelectOption,
 } from '@alchemy/react-form';
 import {EntityName} from '../../api/types.ts';
-import {getIri} from '@alchemy/api';
+import {createIriFromId} from '@alchemy/api';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
@@ -23,7 +23,7 @@ export default function RenditionPolicySelect<
 
             return data.result
                 .map((t: RenditionPolicy) => ({
-                    value: getIri(EntityName.RenditionPolicy, t.id),
+                    value: createIriFromId(EntityName.RenditionPolicy, t.id),
                     label: t.name,
                 }))
                 .filter(i =>

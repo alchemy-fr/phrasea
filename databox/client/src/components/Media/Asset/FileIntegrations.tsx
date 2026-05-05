@@ -22,6 +22,8 @@ import {
     Integration,
 } from '../../Integration/types.ts';
 import {AssetAnnotationRef} from './Annotations/annotationTypes.ts';
+import {useTranslation} from 'react-i18next';
+import IntegrationPanelContent from '../../Integration/Common/IntegrationPanelContent.tsx';
 
 const supportsImage = (file: ApiFile): boolean => {
     return (file && file.type.startsWith('image/')) || false;
@@ -51,12 +53,13 @@ const integrations: Record<
 function IntegrationProxy({
     expanded,
     onExpand,
+    integration,
     ...props
 }: {
     expanded: boolean;
     onExpand: () => void;
 } & AssetIntegrationActionsProps) {
-    const i = props.integration.integration;
+    const i = integration.integration;
 
     if (
         Object.prototype.hasOwnProperty.call(integrations, i) &&
@@ -69,22 +72,40 @@ function IntegrationProxy({
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
-                    <Typography component="div">
-                        {props.integration.title}
-                    </Typography>
+                    <Typography component="div">{integration.title}</Typography>
                 </AccordionSummary>
                 <AccordionDetails
                     sx={{
                         p: 0,
                     }}
                 >
-                    {React.createElement(integrations[i].component, props)}
+                    {integration.capabilities.use ? (
+                        React.createElement(integrations[i].component, {
+                            integration,
+                            ...props,
+                        })
+                    ) : (
+                        <IntegrationNotAllowedForUse />
+                    )}
                 </AccordionDetails>
             </Accordion>
         );
     }
 
     return <></>;
+}
+
+function IntegrationNotAllowedForUse() {
+    const {t} = useTranslation();
+
+    return (
+        <IntegrationPanelContent>
+            {t(
+                'integration.not_allowed_for_use',
+                'You are not allowed to use this integration'
+            )}
+        </IntegrationPanelContent>
+    );
 }
 
 type Props = {

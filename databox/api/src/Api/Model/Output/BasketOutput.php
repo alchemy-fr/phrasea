@@ -21,10 +21,10 @@ class BasketOutput extends AbstractUuidOutput
     #[ApiProperty(jsonSchemaContext: [
         'type' => 'object',
         'properties' => [
-            'canEdit' => 'boolean',
-            'canDelete' => 'boolean',
-            'canShare' => 'boolean',
-            'canEditPermissions' => 'boolean',
+            'edit' => 'boolean',
+            'delete' => 'boolean',
+            'share' => 'boolean',
+            'editPermissions' => 'boolean',
         ],
     ])]
     #[Groups([Basket::GROUP_LIST, Basket::GROUP_READ])]

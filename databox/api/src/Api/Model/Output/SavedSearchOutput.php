@@ -21,9 +21,9 @@ class SavedSearchOutput extends AbstractUuidOutput
     #[ApiProperty(jsonSchemaContext: [
         'type' => 'object',
         'properties' => [
-            'canEdit' => 'boolean',
-            'canDelete' => 'boolean',
-            'canEditPermissions' => 'boolean',
+            'edit' => 'boolean',
+            'delete' => 'boolean',
+            'editPermissions' => 'boolean',
         ],
     ])]
     #[Groups([SavedSearch::GROUP_LIST, SavedSearch::GROUP_READ])]

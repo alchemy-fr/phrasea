@@ -6,16 +6,15 @@ namespace App\Service\Workspace;
 
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
-use App\Entity\Core\RenditionRule;
 use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use Doctrine\ORM\EntityManagerInterface;
 
-class WorkspaceDuplicateManager
+readonly class WorkspaceDuplicateManager
 {
-    public function __construct(private readonly EntityManagerInterface $em)
+    public function __construct(private EntityManagerInterface $em)
     {
     }
 
@@ -70,22 +69,6 @@ class WorkspaceDuplicateManager
             $i->setDefinition($item->getDefinition());
             $this->em->persist($i);
         }
-        /** @var RenditionRule[] $items */
-        $items = $this->em->getRepository(RenditionRule::class)->findBy([
-            'objectType' => RenditionRule::TYPE_WORKSPACE,
-            'objectId' => $from->getId(),
-        ]);
-
-        $replace = fn (RenditionPolicy $class): RenditionPolicy => $classMap[$class->getId()];
-        foreach ($items as $item) {
-            $i = new RenditionRule();
-            $i->setObjectType(RenditionRule::TYPE_WORKSPACE);
-            $i->setObjectId($to->getId());
-            $i->setUserType($item->getUserType());
-            $i->setUserId($item->getUserId());
-            $i->setAllowed($item->getAllowed()->map($replace));
-            $this->em->persist($i);
-        }
     }
 
     private function copyTags(Workspace $from, Workspace $to): void
@@ -106,8 +89,7 @@ class WorkspaceDuplicateManager
 
         /** @var TagFilterRule[] $items */
         $items = $this->em->getRepository(TagFilterRule::class)->findBy([
-            'objectType' => TagFilterRule::TYPE_WORKSPACE,
-            'objectId' => $from->getId(),
+            'workspace' => $from->getId(),
         ]);
 
         $replace = fn (Tag $t): Tag => $map[$t->getId()];
@@ -115,8 +97,7 @@ class WorkspaceDuplicateManager
             $i = new TagFilterRule();
             $i->setExclude($item->getExclude()->map($replace));
             $i->setInclude($item->getInclude()->map($replace));
-            $i->setObjectId($to->getId());
-            $i->setObjectType(TagFilterRule::TYPE_WORKSPACE);
+            $i->setWorkspace($to);
             $i->setUserId($item->getUserId());
             $i->setUserType($item->getUserType());
             $this->em->persist($i);

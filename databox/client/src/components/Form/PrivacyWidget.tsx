@@ -10,7 +10,7 @@ import {
     Select,
 } from '@mui/material';
 import {SelectChangeEvent} from '@mui/material/Select/SelectInput';
-import {useTranslation} from 'react-i18next';
+import {Trans, useTranslation} from 'react-i18next';
 
 const choices: {[key: string]: {label: string; helper?: string}} = {
     secret: {label: 'Secret'},
@@ -153,22 +153,29 @@ export default function PrivacyWidget({
 
     return (
         <>
-            {inheritedPrivacy ? (
+            {undefined !== inheritedPrivacy && (
                 <>
-                    <Alert severity={'warning'}>
-                        {t(
-                            'form.privacy.inherited',
-                            'This collection cannot be more restricted than its parent collection.'
-                        )}
+                    <Alert severity={'info'} sx={{mb: 1}}>
+                        <Trans
+                            i18nKey={'form.privacy.inherited_from_parent'}
+                            defaults={`Privacy is inherited from parent: <strong>{{privacy}}</strong>`}
+                            values={{
+                                privacy: getChoicesTranslated(
+                                    t,
+                                    getFields(inheritedPrivacy)[0]
+                                ).label,
+                            }}
+                        />
                     </Alert>
                 </>
-            ) : null}
+            )}
             <FormControl>
                 <InputLabel>{label}</InputLabel>
                 <Select<string>
                     label={label}
                     value={privacy}
                     onChange={handlePChange}
+                    disabled={disabled}
                 >
                     {Object.keys(choices).map(k => {
                         const choice = getChoicesTranslated(t, k);

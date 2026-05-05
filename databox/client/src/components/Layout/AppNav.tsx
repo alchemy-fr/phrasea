@@ -1,4 +1,9 @@
-import {NavItem, NavMenu, NavMenuProps} from '@alchemy/phrasea-framework';
+import {
+    BetaChip,
+    NavItem,
+    NavMenu,
+    NavMenuProps,
+} from '@alchemy/phrasea-framework';
 import {routes} from '../../routes.ts';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '@alchemy/react-auth';
@@ -33,7 +38,12 @@ export default function AppNav({orientation}: Props) {
             items.push({
                 id: 'pages',
                 icon: <MenuBookIcon />,
-                label: t('appbar.pages', 'Pages'),
+                label: (
+                    <>
+                        {t('appbar.pages', 'Pages')}
+                        <BetaChip sx={{ml: 1}} size={'small'} />
+                    </>
+                ),
                 route: routes.pageAdmin.routes.index,
             });
         }

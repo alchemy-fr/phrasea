@@ -100,7 +100,7 @@ export default function AssetViewActions({asset, file}: Props) {
                 ) : (
                     ''
                 )}
-                {can.edit ? (
+                {can.edit || can.editAttributes ? (
                     <div>
                         <GroupButton
                             id={'edit'}

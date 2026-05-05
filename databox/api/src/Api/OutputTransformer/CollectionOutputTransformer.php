@@ -16,6 +16,8 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\AssetContainerVoterInterface;
+use App\Security\Voter\CollectionVoter;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
@@ -54,6 +56,12 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
         $output->deleted = $data->isDeleted();
+
+        $parent = $data->getParent();
+        if (null !== $parent && $this->isGranted(AbstractVoter::READ, $parent)) {
+            $output->parentId = $parent->getId();
+        }
+
         $storyAsset = $data->getStoryAsset();
         if (null !== $storyAsset) {
             $output->setStoryAsset($storyAsset);
@@ -150,10 +158,17 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         });
 
         if ($this->hasGroup([Collection::GROUP_LIST, Collection::GROUP_READ], $context)) {
+            $virtualColl = new Collection();
+            $virtualColl->setWorkspace($output->getWorkspace());
+            $virtualColl->setParent($data);
+            $virtualColl->setOwnerId($data->getOwnerId());
+
             $output->setCapabilities([
-                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
-                'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
+                'createAsset' => $this->isGranted(AssetContainerVoterInterface::ASSET_CREATE, $data),
+                'createCollection' => $this->isGranted(CollectionVoter::CREATE, $virtualColl),
+                'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
             ]);
         }
 

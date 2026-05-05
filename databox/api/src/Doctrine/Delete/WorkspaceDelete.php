@@ -18,6 +18,7 @@ use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Tag;
+use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
@@ -105,6 +106,7 @@ final readonly class WorkspaceDelete
             $this->deleteDependencies(WorkspaceSecret::class, $workspaceId);
             $this->deleteDependencies(AttributeEntity::class, $workspaceId);
             $this->deleteDependencies(EntityList::class, $workspaceId);
+            $this->deleteDependencies(TagFilterRule::class, $workspaceId);
 
             $nFiles = $this->em->getRepository(File::class)
                 ->createQueryBuilder('t')

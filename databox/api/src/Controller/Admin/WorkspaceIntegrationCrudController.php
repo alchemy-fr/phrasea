@@ -52,6 +52,7 @@ class WorkspaceIntegrationCrudController extends AbstractAdminCrudController
     {
         yield IdField::new();
         yield BooleanField::new('enabled');
+        yield BooleanField::new('public');
         yield TextField::new('title');
         yield AssociationField::new('workspace')
             ->autocomplete();

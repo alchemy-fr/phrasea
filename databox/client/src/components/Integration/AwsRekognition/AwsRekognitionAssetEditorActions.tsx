@@ -266,6 +266,8 @@ export default function AwsRekognitionAssetEditorActions({
         [assetAnnotationsRef, annotations]
     );
 
+    const canInteract = !!integration.capabilities.interact;
+
     return (
         <>
             {categories
@@ -278,7 +280,10 @@ export default function AwsRekognitionAssetEditorActions({
                         <IntegrationPanelContent key={category.type}>
                             <Button
                                 onClick={() => process(category.type)}
-                                disabled={running.includes(category.type)}
+                                disabled={
+                                    running.includes(category.type) ||
+                                    !canInteract
+                                }
                                 variant={'contained'}
                                 startIcon={<ImageSearchIcon />}
                             >

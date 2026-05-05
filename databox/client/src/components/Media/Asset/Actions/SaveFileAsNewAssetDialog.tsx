@@ -114,7 +114,9 @@ export default function SaveFileAsNewAssetDialog({
                 </FormRow>
                 <FormRow>
                     <CollectionTreeWidget
-                        isSelectable={node => node.data.capabilities.canEdit}
+                        isSelectable={node =>
+                            node.data.capabilities.createAsset
+                        }
                         control={control}
                         rules={{
                             required: true,

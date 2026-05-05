@@ -6,7 +6,9 @@ namespace App\Integration;
 
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Env\EnvResolver;
+use App\Security\Voter\WorkspaceIntegrationVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -15,6 +17,7 @@ use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 readonly class IntegrationManager
 {
@@ -22,6 +25,7 @@ readonly class IntegrationManager
         private IntegrationRegistry $integrationRegistry,
         private EntityManagerInterface $em,
         private EnvResolver $envResolver,
+        private Security $security,
     ) {
     }
 
@@ -36,6 +40,10 @@ readonly class IntegrationManager
 
     public function handleAction(WorkspaceIntegration $workspaceIntegration, string $action, Request $request): Response
     {
+        if (!$this->security->isGranted(WorkspaceIntegrationVoter::INTERACT, $workspaceIntegration)) {
+            throw new AccessDeniedHttpException('Cannot interact with this integration');
+        }
+
         $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
         if (!$integration instanceof UserActionsIntegrationInterface) {
             throw new \InvalidArgumentException(sprintf('Integration "%s" does not support file actions', $workspaceIntegration->getIntegration()));

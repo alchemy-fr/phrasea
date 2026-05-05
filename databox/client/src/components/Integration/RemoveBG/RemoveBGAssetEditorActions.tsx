@@ -76,9 +76,14 @@ export default function RemoveBGAssetEditorActions({
 
     const process = async () => {
         setRunning(true);
-        await runIntegrationAction('process', integration.id, {
-            fileId: file.id,
-        });
+        try {
+            await runIntegrationAction('process', integration.id, {
+                fileId: file.id,
+            });
+        } catch (e) {
+            setRunning(false);
+            throw e;
+        }
     };
 
     useChannelRegistration(
@@ -108,7 +113,7 @@ export default function RemoveBGAssetEditorActions({
             <IntegrationPanelContent>
                 <Typography sx={{mb: 3}}>
                     {t(
-                        'remove_bgasset_editor_actions.use_slider_to_compare',
+                        'remove_bg.use_slider_to_compare',
                         `Use slider to compare`
                     )}
                 </Typography>
@@ -116,13 +121,10 @@ export default function RemoveBGAssetEditorActions({
                 <SaveAsButton
                     asset={asset}
                     file={bgRemovedFile}
-                    suggestedTitle={t(
-                        'remove_bgasset_editor_actions.bg_removed',
-                        {
-                            defaultValue: `{{title}} - BG removed`,
-                            title: asset.resolvedTitle,
-                        }
-                    )}
+                    suggestedTitle={t('remove_bg.bg_removed', {
+                        defaultValue: `{{title}} - BG removed`,
+                        title: asset.resolvedTitle,
+                    })}
                 />
             </IntegrationPanelContent>
         );
@@ -130,14 +132,23 @@ export default function RemoveBGAssetEditorActions({
 
     return (
         <IntegrationPanelContent>
-            <Button
-                startIcon={<AutoFixHighIcon />}
-                onClick={process}
-                disabled={running}
-                variant={'contained'}
-            >
-                {t('remove_bgasset_editor_actions.remove_bg', `Remove BG`)}
-            </Button>
+            {integration.capabilities.interact ? (
+                <Button
+                    startIcon={<AutoFixHighIcon />}
+                    onClick={process}
+                    disabled={running}
+                    variant={'contained'}
+                >
+                    {t('remove_bg.remove_bg', `Remove BG`)}
+                </Button>
+            ) : (
+                <Typography>
+                    {t(
+                        'remove_bg.cannot_interact',
+                        `You don't have sufficient permissions to remove BG`
+                    )}
+                </Typography>
+            )}
         </IntegrationPanelContent>
     );
 }

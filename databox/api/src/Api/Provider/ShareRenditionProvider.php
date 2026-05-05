@@ -7,12 +7,10 @@ namespace App\Api\Provider;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\MessengerBundle\Listener\TerminateStackListener;
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\State\ProviderInterface;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Share;
 use App\Repository\Core\ShareRepository;
-use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\FileUrlResolver;
 use App\Service\Storage\RenditionManager;
@@ -28,8 +26,6 @@ final class ShareRenditionProvider implements ProviderInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly RenditionManager $renditionManager,
-        private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly RenditionPermissionManager $renditionPermissionManager,
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly ShareRepository $shareRepository,
         private readonly TerminateStackListener $terminateStackListener,

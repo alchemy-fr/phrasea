@@ -1,6 +1,15 @@
 import {apiClient} from '../init.ts';
-import {Collection, CollectionOptionalWorkspace, Workspace} from '../types';
-import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
+import {
+    Collection,
+    CollectionOptionalWorkspace,
+    CollectionPrivacyInfo,
+    Workspace,
+} from '../types';
+import {
+    createIriFromId,
+    getHydraCollection,
+    NormalizedCollectionResponse,
+} from '@alchemy/api';
 import {clearAssociationIds} from './clearAssociation';
 import {useCollectionStore} from '../store/collectionStore';
 
@@ -9,7 +18,7 @@ import {
     WorkspaceOrCollectionTreeItem,
 } from '../components/Media/Collection/CollectionTree/types.ts';
 import {TreeNode} from '@alchemy/phrasea-framework';
-import {PaginationParams} from './types.ts';
+import {EntityName, PaginationParams} from './types.ts';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
@@ -43,6 +52,12 @@ export function clearWorkspaceCache(): void {
 
 export async function getCollection(id: string): Promise<Collection> {
     return (await apiClient.get(`/collections/${id}`)).data;
+}
+
+export async function getCollectionPrivacyInfo(
+    id: string
+): Promise<CollectionPrivacyInfo> {
+    return (await apiClient.get(`/collections/${id}/privacy`)).data;
 }
 
 export async function putCollection(
@@ -149,9 +164,12 @@ export async function moveAssets(
 export function getWorkspaceOrCollectionIri(
     item: WorkspaceOrCollectionTreeItem
 ): string {
-    return item.type === EntityType.Collection
-        ? `/collections/${item.id}`
-        : `/workspaces/${item.id}`;
+    return createIriFromId(
+        item.type === EntityType.Collection
+            ? EntityName.Collection
+            : EntityName.Workspace,
+        item.id!
+    );
 }
 
 export async function createCollection(
@@ -168,14 +186,20 @@ export async function createCollection(
         if (node.parentNode?.virtual) {
             parent = await createSubCollection(node.parentNode);
         } else if (node.parentNode?.data.type === EntityType.Collection) {
-            parent = `/collections/${node.parentNode.data.id}`;
+            parent = createIriFromId(
+                EntityName.Collection,
+                node.parentNode.data.id!
+            );
         }
 
         return (
             await postCollection({
                 title: node.data.label,
                 parent,
-                workspace: `/workspaces/${newCollection.data.workspaceId}`,
+                workspace: createIriFromId(
+                    EntityName.Workspace,
+                    newCollection.data.workspaceId
+                ),
             })
         )['@id'];
     };

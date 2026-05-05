@@ -9,7 +9,7 @@ import DoNotDisturbIcon from '@mui/icons-material/DoNotDisturb';
 
 type Props = {
     definition: RenditionDefinition;
-    onUpload: (definition: RenditionDefinition) => void;
+    onUpload?: (definition: RenditionDefinition) => void;
     dimensions: Dimensions;
 };
 
@@ -21,9 +21,11 @@ export function RenditionPlaceholder({
     const {t} = useTranslation();
     const {nameTranslated} = definition;
 
-    const uploadRendition = () => {
-        onUpload(definition);
-    };
+    const uploadRendition = onUpload
+        ? () => {
+              onUpload(definition);
+          }
+        : undefined;
 
     return (
         <RenditionStructure
@@ -36,7 +38,7 @@ export function RenditionPlaceholder({
             }
             info={<></>}
             actions={
-                definition.substitutable && (
+                Boolean(uploadRendition && definition.substitutable) && (
                     <Button
                         variant={'contained'}
                         startIcon={<UploadIcon />}

@@ -8,7 +8,7 @@ import {
     AsyncRSelectProps,
 } from '@alchemy/react-form';
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
-import {getIri} from '@alchemy/api';
+import {createIriFromId} from '@alchemy/api';
 import {EntityName} from '../../api/types.ts';
 
 type Props<TFieldValues extends FieldValues> = {
@@ -33,7 +33,10 @@ export default function RenditionDefinitionSelect<
 
                     return {
                         value: useIRI
-                            ? getIri(EntityName.RenditionDefinition, t.id)
+                            ? createIriFromId(
+                                  EntityName.RenditionDefinition,
+                                  t.id
+                              )
                             : t.id,
                         label: t.nameTranslated,
                     };
