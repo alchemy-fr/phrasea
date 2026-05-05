@@ -360,6 +360,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         ]);
 
         $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+
         $this->assertSameSize($expectedResults, $data);
         $hasNamedAsset = function (string $name) use ($data): bool {
             foreach ($data as $asset) {
