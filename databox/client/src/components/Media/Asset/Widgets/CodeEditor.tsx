@@ -25,14 +25,14 @@ export default function CodeEditor({
             if (initialValue) {
                 setValue(prettify ? prettify(initialValue) : initialValue);
             }
-        } catch (e) {
+        } catch (_e) {
             setValue(initialValue);
         }
     }, [initialValue]);
 
     const changeHandler = React.useCallback(
         (value: string) => {
-            onChange && onChange(value);
+            onChange?.(value);
             setValue(value);
         },
         [onChange]

@@ -18,7 +18,7 @@ export function retrieveImageFromClipboardAsBlob(
 
         const blob = items[i].getAsFile();
         if (blob) {
-            callback && callback(blob);
+            callback?.(blob);
         }
     }
 }

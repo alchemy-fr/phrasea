@@ -19,6 +19,7 @@ import {
     UserPreferences,
     useUserPreferencesStore,
 } from './userPreferencesStore.ts';
+import {logError} from '@alchemy/core';
 
 type State = {
     lists: AttributeList[];
@@ -76,6 +77,7 @@ export const useAttributeListStore = create<State>((set, getState) => ({
                 try {
                     current = await getAttributeList(prefAttrList);
                 } catch (e) {
+                    logError(e);
                     current = undefined;
                 }
             }
@@ -147,6 +149,7 @@ export const useAttributeListStore = create<State>((set, getState) => ({
             });
             await updatePref(id);
         } catch (e: any) {
+            logError(e);
             await updatePref(null);
             set({
                 current: undefined,
@@ -175,6 +178,7 @@ export const useAttributeListStore = create<State>((set, getState) => ({
                 loadingCurrent: false,
             });
         } catch (e: any) {
+            logError(e);
             set({
                 current: undefined,
                 loadingCurrent: false,
@@ -339,6 +343,7 @@ export const useAttributeListStore = create<State>((set, getState) => ({
                 lists: replaceList(state.lists, list),
             }));
         } catch (e: any) {
+            logError(e);
             if (listId) {
                 set(state => {
                     if (state.current?.id === listId) {

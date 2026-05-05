@@ -4,6 +4,7 @@ import {grey} from '@mui/material/colors';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
 import {config} from '../../init';
+import {logError} from '@alchemy/core';
 
 export function useAccept(): Accept | undefined {
     return React.useMemo<Accept | undefined>(() => {
@@ -23,8 +24,7 @@ export function useAccept(): Accept | undefined {
                 }
             });
         } catch (e: any) {
-            // eslint-disable-next-line no-console
-            console.error(e.toString());
+            logError(e);
 
             return;
         }

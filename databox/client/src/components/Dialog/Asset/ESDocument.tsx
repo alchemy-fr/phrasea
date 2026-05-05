@@ -39,7 +39,7 @@ export default function ESDocument<T extends Entity>({
         setSynced(true);
         try {
             await syncESDocument(entity, data.id);
-        } catch (e) {
+        } catch (_e) {
             setSynced(false);
         }
     };

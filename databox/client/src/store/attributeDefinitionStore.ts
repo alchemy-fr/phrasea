@@ -388,6 +388,7 @@ function useIndexByKey(
         }
 
         return index;
+        // eslint-disable-next-line react-hooks/use-memo
     }, [definitions, ...Object.values(filters)]);
 }
 const normalizeDefinition = (d: AttributeDefinition): AttributeDefinition =>

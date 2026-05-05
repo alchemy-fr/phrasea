@@ -59,6 +59,7 @@ import {
 } from './managerTypes.ts';
 import {SortableListItem} from './SortableListItem.tsx';
 import ListItemContainer from './ListItemContainer.tsx';
+import {logError} from '@alchemy/core';
 
 type Props<
     D extends DefinitionBase,
@@ -153,6 +154,18 @@ export default function DefinitionManager<
         action: ItemAction.None,
     });
 
+    const [submitting, setSubmitting] = React.useState(false);
+    const {loading, list} = listState;
+    const {loading: loadingItem, item, action} = itemState;
+    const {t} = useTranslation();
+    const [searchTerm, setSearchTerm] = React.useState('');
+    const [filters, setFilters] = useState<F>({} as F);
+
+    const formId: string =
+        (action === ItemAction.Manage
+            ? subManagementState?.formId
+            : undefined) ?? managerFormId;
+
     const setItemState = useCallback(
         (state: ItemState<D>) => {
             proxiedSetItemState(state);
@@ -165,13 +178,6 @@ export default function DefinitionManager<
         },
         [proxiedSetItemState, parentSetSubManagementState]
     );
-
-    const [submitting, setSubmitting] = React.useState(false);
-    const {loading, list} = listState;
-    const {loading: loadingItem, item, action} = itemState;
-    const {t} = useTranslation();
-    const [searchTerm, setSearchTerm] = React.useState('');
-    const [filters, setFilters] = useState<F>({} as F);
 
     const setFilter = useCallback<SetFilterFunc<F>>(
         (name, value) => {
@@ -212,6 +218,7 @@ export default function DefinitionManager<
                 hasPaginationRef.current = !!r.next;
             }
         } catch (e) {
+            logError(e);
             setListState(p => ({
                 ...p,
                 list: [],
@@ -396,11 +403,6 @@ export default function DefinitionManager<
         [t, handleDelete]
     );
 
-    const formId: string =
-        (action === ItemAction.Manage
-            ? subManagementState?.formId
-            : undefined) ?? managerFormId;
-
     const onOrderChange = useCallback<OrderChangeHandler<D & SortableItem>>(
         list => {
             setListState(p => ({
@@ -492,7 +494,8 @@ export default function DefinitionManager<
                                                 ([_, v]) => !!v
                                             ).length
                                         }
-                                        children={() => [
+                                    >
+                                        {() => [
                                             <React.Fragment key={'1'}>
                                                 {inputFilters({
                                                     setFilter,
@@ -500,7 +503,7 @@ export default function DefinitionManager<
                                                 })}
                                             </React.Fragment>,
                                         ]}
-                                    />
+                                    </FilterDropdown>
                                 </div>
                             ) : null}
                             {settingsNode ? settingsNode(bodyProps) : null}

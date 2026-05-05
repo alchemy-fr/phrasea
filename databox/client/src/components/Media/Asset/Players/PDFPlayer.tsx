@@ -43,7 +43,7 @@ export default function PDFPlayer({
                 setRatio(page.view[3] / page.view[2]);
             });
 
-            onLoad && onLoad();
+            onLoad?.();
         },
         [onLoad]
     );
@@ -51,10 +51,7 @@ export default function PDFPlayer({
     useEffect(() => {
         if (annotations && annotations.length > 0) {
             const goTo = annotations[annotations.length - 1].page;
-            numPages &&
-                goTo &&
-                goTo > 0 &&
-                goTo <= numPages &&
+            if (numPages && goTo && goTo > 0 && goTo <= numPages)
                 setPageNumber(goTo);
         }
     }, [annotations, numPages]);

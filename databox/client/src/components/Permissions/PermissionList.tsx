@@ -83,7 +83,7 @@ export default function PermissionList({
 
     useEffect(() => {
         if (permissions) {
-            onListChanged && onListChanged(permissions);
+            onListChanged?.(permissions);
         }
     }, [permissions]);
 
@@ -162,7 +162,9 @@ export default function PermissionList({
                             )}
                             clearOnSelect={true}
                             onChange={option => {
-                                option && onSelectGroup(option.value);
+                                if (option) {
+                                    onSelectGroup(option.value);
+                                }
                             }}
                             disabledValues={permissions
                                 ?.filter(
@@ -182,7 +184,7 @@ export default function PermissionList({
                             )}
                             clearOnSelect={true}
                             onChange={option => {
-                                option && onSelectUser(option.value);
+                                if (option) onSelectUser(option.value);
                             }}
                             disabledValues={permissions
                                 ?.filter(

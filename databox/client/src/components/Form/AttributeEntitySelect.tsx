@@ -15,9 +15,8 @@ import {
 import {useModals} from '@alchemy/navigation';
 import CreateAttributeEntityDialog from '../AttributeEntity/CreateAttributeEntityDialog.tsx';
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
-import {getBestTranslatedValue} from '@alchemy/i18n/src/Locale/localeHelper';
 import {useTheme} from '@mui/material';
-import {CSSObjectWithLabel, StylesConfig} from 'react-select';
+import {CSSObjectWithLabel} from 'react-select';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;

@@ -3,7 +3,6 @@ import {Entity, StateSetter, Workspace} from '../../../../types.ts';
 import React, {ReactNode} from 'react';
 import {ButtonProps} from '@mui/material/Button';
 import {ListItemButtonProps} from '@mui/material';
-import {SortableItemProps} from '../../../Ui/Sortable/SortableList.tsx';
 
 export enum ItemAction {
     None = 0,

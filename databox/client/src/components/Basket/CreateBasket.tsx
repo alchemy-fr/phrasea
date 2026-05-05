@@ -32,7 +32,7 @@ export default function CreateBasket({onCreate, ...modalProps}: Props) {
             addBasket(data);
             closeModal();
 
-            onCreate && onCreate(data);
+            onCreate?.(data);
         },
     });
 

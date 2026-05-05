@@ -58,6 +58,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
     } = useAssetActions({asset, onAction: onClose, actionsContext, reload});
 
     const openUrl = (url: string) => {
+        // eslint-disable-next-line react-hooks/immutability
         document.location.href = url;
     };
 

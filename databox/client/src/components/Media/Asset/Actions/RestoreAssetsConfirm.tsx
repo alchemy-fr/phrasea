@@ -38,7 +38,7 @@ export default function RestoreAssetsConfirm({
 
     const onRestoreAssets = async () => {
         await restoreAssets(restorableAssets.map(a => a.id));
-        onRestore && onRestore();
+        onRestore?.();
     };
 
     const collections: Collection[] = (() => {

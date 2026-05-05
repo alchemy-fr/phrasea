@@ -8,7 +8,6 @@ import {
     putAttributeEntity,
 } from '../../../api/attributeEntity';
 import {
-    Badge,
     ListItem,
     ListItemButton,
     ListItemIcon,
@@ -28,7 +27,6 @@ import ImportExportIcon from '@mui/icons-material/ImportExport';
 import ImportAttributeEntitiesDialog from '../AttributeEntity/ImportAttributeEntitiesDialog.tsx';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CallMergeIcon from '@mui/icons-material/CallMerge';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {DropdownActions} from '@alchemy/phrasea-ui';
@@ -179,7 +177,8 @@ export default function AttributeEntityManager({
                             <SettingsIcon />
                         </IconButton>
                     )}
-                    children={closeWrapper => [
+                >
+                    {closeWrapper => [
                         <ListItem disablePadding key={'export'}>
                             <ListItemButton
                                 onClick={closeWrapper(() => {
@@ -237,7 +236,7 @@ export default function AttributeEntityManager({
                             </ListItemButton>
                         </ListItem>,
                     ]}
-                />
+                </DropdownActions>
             )}
             deleteConfirmAssertions={() => [
                 t(
