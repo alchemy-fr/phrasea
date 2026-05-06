@@ -329,6 +329,23 @@ The `from` value (phraseanet subdef) is a string like `\<document_type>:\<subdef
 
 The build settings will be generated from the phraseanet to match the subdef.
 
+## `importStatusBits`
+
+Controls whether to import Phraseanet status bits as tags in the Phrasea workspace.
+
+By default, all status bits from the Phraseanet databox are imported as tags (unless `importStatusBits` is set to `false`).
+Status bits with empty `label_on` and `label_off` are automatically skipped to prevent errors.
+
+To **completely disable** the import of status bits for a databox mapping, set:
+```json
+"importStatusBits": false
+```
+
+_note:_
+- If `importStatusBits` **is not set**, all non-empty status bits are imported.
+- Status bits with empty labels are silently skipped, so the import will not fail.
+
+
 
 ## e.g.
 
