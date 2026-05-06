@@ -9,7 +9,7 @@ import ListFacet from './ListFacet.tsx';
 import {stopPropagation} from '../../../../../lib/stdFuncs.ts';
 import {Tag} from '../../../../../types.ts';
 import {FacetGroupProps} from '../facetTypes.ts';
-import TagColor from './TagColor.tsx';
+import TagColor from '../TagColor.tsx';
 
 function TagFacetItem({
     onClick,
