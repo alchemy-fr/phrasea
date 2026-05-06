@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {Button, Checkbox, FormControlLabel, TextField} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import CheckIcon from '@mui/icons-material/Check';
-import {AxiosError} from 'axios';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {useModals} from '@alchemy/navigation';
 import {ConfirmDialogProps, ConfirmOptions, ConfirmOptionValues} from './types';

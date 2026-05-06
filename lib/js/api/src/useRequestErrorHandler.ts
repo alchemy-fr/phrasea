@@ -23,7 +23,7 @@ export default function useRequestErrorHandler({onError, logout}: Options) {
         const axiosRetry = config?.['axios-retry'];
         if (axiosRetry && axiosRetry.retries) {
             const rc = axiosRetry.retryCondition;
-            if (!rc || await rc(error)) {
+            if (!rc || (await rc(error))) {
                 if ((axiosRetry.retryCount ?? 0) < axiosRetry.retries!) {
                     return;
                 }

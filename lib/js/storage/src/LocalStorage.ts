@@ -10,7 +10,7 @@ declare global {
 export function getLocalStorage(): IStorage {
     try {
         return window.localStorage;
-    } catch (e) {
+    } catch (_e) {
         return (
             window.localStorageFallback ??
             (window.localStorageFallback = new MemoryStorage())

@@ -129,6 +129,7 @@ export default function useFormSubmit<
     };
 
     const setOnSubmit: SetOnSubmit<T, R> = fn => {
+        // eslint-disable-next-line react-hooks/immutability
         onSubmit = fn;
     };
 

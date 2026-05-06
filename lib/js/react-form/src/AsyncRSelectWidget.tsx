@@ -25,7 +25,10 @@ type CompositeOption<
     Opt extends SelectOption,
 > = IsMulti extends true ? Opt[] : Opt | null;
 
-export function valueToOption<IsMulti extends boolean, Opt extends SelectOption>(
+export function valueToOption<
+    IsMulti extends boolean,
+    Opt extends SelectOption,
+>(
     isMulti: IsMulti,
     value: CompositeValue<IsMulti>,
     lastOptions: Record<string, Opt> = {}
@@ -213,9 +216,7 @@ export default function AsyncRSelectWidget<
                                 )}
                                 onChange={(newValue, meta) => {
                                     const v = isMulti
-                                        ? (newValue as Opt[]).map(
-                                              v => v.value
-                                          )
+                                        ? (newValue as Opt[]).map(v => v.value)
                                         : ((newValue as Opt | null)?.value ??
                                           null);
                                     onChange(v);

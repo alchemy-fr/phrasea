@@ -7,7 +7,6 @@ import {createHttpClient} from './src/httpClient';
 import useFormSubmit from './src/useFormSubmit';
 import {getObjectPropertyPath} from './src/form';
 
-
 export {
     useCancelRequest,
     useCancelRequestCallback,

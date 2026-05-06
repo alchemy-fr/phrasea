@@ -44,9 +44,8 @@ export default function BaseTreeNode<D extends TreeBaseItem>(
     const resolvedBranchDisabled =
         branchDisabled || disabledBranches?.includes(node.id);
 
-    const resolvedDisabled = resolvedBranchDisabled ||
-        disabled ||
-        disabledNodes?.includes(node.id);
+    const resolvedDisabled =
+        resolvedBranchDisabled || disabled || disabledNodes?.includes(node.id);
     const resolvedSelectable = isSelectable ? isSelectable(node) : true;
 
     const [expanding, setExpanding] = useState(false);
