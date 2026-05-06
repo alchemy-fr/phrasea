@@ -129,6 +129,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield TextField::new('locale')
             ->onlyOnDetail();
         yield AssociationField::new('collections')
+            ->setCrudController(CollectionCrudController::class)
             ->autocomplete()
             ->onlyOnDetail();
         yield AssociationField::new('referenceCollection')
@@ -140,9 +141,6 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield Field::new('file')
             ->onlyOnDetail();
         yield AssociationField::new('renditions')
-            ->autocomplete()
-            ->onlyOnDetail();
-        yield AssociationField::new('fileVersions')
             ->autocomplete()
             ->onlyOnDetail();
         yield JsonField::new('notificationSettings')
