@@ -92,7 +92,7 @@ class IntegrationDataManager
             'name' => $name,
         ];
 
-        if (!$this->security->isGranted(AbstractVoter::EDIT, $workspaceIntegration)) {
+        if (null !== $keyId || !$this->security->isGranted(AbstractVoter::EDIT, $workspaceIntegration)) {
             $criteria['userId'] = $userId;
         }
 
