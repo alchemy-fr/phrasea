@@ -7,6 +7,7 @@ import {AppDialog} from '@alchemy/phrasea-ui';
 import {useModals} from '@alchemy/navigation';
 import {ConfirmDialogProps, ConfirmOptions, ConfirmOptionValues} from './types';
 import {RemoteErrors} from '@alchemy/react-form';
+import {getAxiosError} from '@alchemy/api';
 
 export default function ConfirmDialog<CO extends ConfirmOptions>({
     onCancel,
@@ -73,19 +74,10 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
             closeModal({force: true});
             onConfirmed?.();
         } catch (e: any) {
-            if (e.isAxiosError) {
-                const err = e as AxiosError;
-                if (
-                    err.response &&
-                    [400, 500, 404].includes(err.response.status)
-                ) {
-                    setErrors(p =>
-                        p.concat(
-                            (err.response!.data as any)[
-                                'hydra:description'
-                            ] as string
-                        )
-                    );
+            const error = getAxiosError(e);
+            if (error) {
+                if ([400, 500, 404].includes(error.code)) {
+                    setErrors(p => p.concat(error.message));
                 }
             }
         } finally {
