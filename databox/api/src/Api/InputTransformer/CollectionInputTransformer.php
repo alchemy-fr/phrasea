@@ -28,7 +28,6 @@ class CollectionInputTransformer extends AbstractInputTransformer
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Collection();
         $object->setTitle($data->title);
-        $this->transformPrivacy($data, $object);
 
         $workspace = null;
         if ($data->workspace) {
@@ -80,6 +79,8 @@ class CollectionInputTransformer extends AbstractInputTransformer
         if (null !== $data->translations) {
             $object->setTranslations($data->translations);
         }
+
+        $this->transformPrivacy($data, $object);
 
         return $this->processOwnerId($object);
     }
