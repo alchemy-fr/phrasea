@@ -109,12 +109,8 @@ class DateTimeAttributeType extends AbstractAttributeType
             return;
         }
 
-        try {
-            new \DateTimeImmutable($value);
-        } catch (\Exception) {
+        if (null === DateUtil::normalizeDate($value)) {
             $context->addViolation('Invalid date');
-
-            return;
         }
     }
 

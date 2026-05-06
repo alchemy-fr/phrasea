@@ -57,6 +57,8 @@ class DateUtilTest extends TestCase
     public function testNormalizeDateWithInvalidString()
     {
         $this->assertNull(DateUtil::normalizeDate('not-a-date'));
+        $this->assertNull(DateUtil::normalizeDate('0000-00-00T00:00:00+00:00'));
+        $this->assertNull(DateUtil::normalizeDate('0000-00-00T00:00:00+99:00'));
     }
 
     public function testNormalizeDateWithUnsupportedType()

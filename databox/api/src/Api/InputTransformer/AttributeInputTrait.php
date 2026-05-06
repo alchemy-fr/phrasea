@@ -9,7 +9,6 @@ use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Input\Template\TemplateAttributeInput;
 use App\Api\Processor\AttributeInputProcessorInterface;
 use App\Attribute\AttributeValidator;
-use App\Attribute\InvalidAttributeValueException;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -89,12 +88,9 @@ trait AttributeInputTrait
                         $attr = clone $attribute;
                         $attr->value = $value;
 
-                        try {
-                            /** @var Attribute|TemplateAttribute $returnedAttribute */
-                            $returnedAttribute = $attributeInputProcessor->transform($attr, Attribute::class, $subContext);
-                            $object->addAttribute($returnedAttribute);
-                        } catch (InvalidAttributeValueException) {
-                        }
+                        /** @var Attribute|TemplateAttribute $returnedAttribute */
+                        $returnedAttribute = $attributeInputProcessor->transform($attr, Attribute::class, $subContext);
+                        $object->addAttribute($returnedAttribute);
                     }
 
                     continue;
@@ -102,12 +98,9 @@ trait AttributeInputTrait
                 // else add single attr below
             }
 
-            try {
-                /** @var Attribute|TemplateAttribute $returnedAttribute */
-                $returnedAttribute = $attributeInputProcessor->transform($attribute, Attribute::class, $subContext);
-                $object->addAttribute($returnedAttribute);
-            } catch (InvalidAttributeValueException) {
-            }
+            /** @var Attribute|TemplateAttribute $returnedAttribute */
+            $returnedAttribute = $attributeInputProcessor->transform($attribute, Attribute::class, $subContext);
+            $object->addAttribute($returnedAttribute);
         }
     }
 }
