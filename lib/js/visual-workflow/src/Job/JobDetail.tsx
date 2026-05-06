@@ -20,7 +20,7 @@ export default function JobDetail({job}: Props) {
         [`Status`, undefined !== job.status ? jobStatuses[job.status] : '-'],
         [`Duration`, job.duration ?? '-'],
         [`#`, (job.number ?? '-').toString()],
-        [`Started At`, <DateValue date={job.startedAt} />],
+        [`Started At`, <DateValue key={'start'} date={job.startedAt} />],
     ];
 
     if (
@@ -31,6 +31,7 @@ export default function JobDetail({job}: Props) {
         values.push([
             ``,
             <Button
+                key={'rerun'}
                 disabled={rerunning}
                 loading={rerunning}
                 onClick={() => {

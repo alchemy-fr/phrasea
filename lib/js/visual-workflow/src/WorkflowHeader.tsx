@@ -57,7 +57,7 @@ export default function WorkflowHeader({
                 : '-',
         ],
         [`Duration`, workflow.duration ?? '-'],
-        [`Started At`, <DateValue date={workflow.startedAt} />],
+        [`Started At`, <DateValue key={'start'} date={workflow.startedAt} />],
     ];
 
     const Arrow = expanded ? ArrowDropDownIcon : ArrowDropUpIcon;

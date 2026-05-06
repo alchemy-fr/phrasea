@@ -5,9 +5,8 @@ export function getApiResponseError(e: any): string | undefined {
     const error = getAxiosError(e);
 
     if (error) {
-        const data = e.response.data;
-        if (error.code === 422 && data.violations) {
-            return data.violations
+        if (error.code === 422 && error.data?.violations) {
+            return error.data.violations
                 .map((v: {message: string}) => v.message)
                 .join('\n');
         }
@@ -39,14 +38,17 @@ export function isErrorOfCode(e: any, codes: number[]): e is AxiosError {
     return axios.isAxiosError(e) && codes.includes(e.response?.status ?? 0);
 }
 
-export function getAxiosError(error: any): SimpleAxiosError | undefined {
+export function getAxiosError<Data = any>(
+    error: any
+): SimpleAxiosError<Data> | undefined {
     if (axios.isAxiosError(error)) {
+        const data = (error as AxiosError).response?.data as Data | undefined;
+
         return {
+            data,
             error,
             code: error.response?.status ?? 0,
-            message:
-                getBestErrorProp((error as AxiosError).response?.data) ??
-                ApiConstant.UnknownError,
+            message: getBestErrorProp(data) ?? ApiConstant.UnknownError,
         };
     }
 }
