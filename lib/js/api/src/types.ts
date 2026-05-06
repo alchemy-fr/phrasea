@@ -89,3 +89,9 @@ export type HydraCollectionResponse<T, E extends {} = {}> = {
     };
     'hydra:member': T[];
 } & E;
+
+export enum ApiConstant {
+    HydraTitle = 'hydra:title',
+    HydraDescription = 'hydra:description',
+    UnknownError = 'Unknown error',
+}

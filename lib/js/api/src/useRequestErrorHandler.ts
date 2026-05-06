@@ -1,8 +1,8 @@
 import React from 'react';
 import axios, {AxiosError} from 'axios';
 import {useTranslation} from 'react-i18next';
-import {hydraDescriptionKey} from './utils';
 import {ToastOptions} from 'react-toastify';
+import {ApiConstant} from './types';
 
 type OnError = (message: string, options: ToastOptions) => void;
 
@@ -74,14 +74,14 @@ export default function useRequestErrorHandler({onError, logout}: Options) {
                 break;
             case 400:
                 onError(
-                    error.response?.data[hydraDescriptionKey] ??
+                    error.response?.data[ApiConstant.HydraDescription] ??
                         t('lib.api.error.http_bad_request', 'Bad Request'),
                     defaultOptions
                 );
                 break;
             case 404:
                 onError(
-                    error.response?.data[hydraDescriptionKey] ??
+                    error.response?.data[ApiConstant.HydraDescription] ??
                         t('lib.api.error.http_not_found', 'Not Found'),
                     defaultOptions
                 );
@@ -91,7 +91,7 @@ export default function useRequestErrorHandler({onError, logout}: Options) {
                 break;
             case 429:
                 onError(
-                    data?.[hydraDescriptionKey] ||
+                    data?.[ApiConstant.HydraDescription] ||
                         data?.detail ||
                         t('lib.api.http_error.429', {
                             defaultValue:
