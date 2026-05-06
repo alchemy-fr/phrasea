@@ -38,7 +38,7 @@ export function ImageOption<Opt extends Option>(props: OptionProps<Opt>) {
             {props.data.label}
         </components.Option>
     );
-};
+}
 
 const componentsProp = {
     Option: ImageOption,

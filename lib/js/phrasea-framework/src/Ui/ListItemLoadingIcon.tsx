@@ -4,7 +4,11 @@ type Props = {
     loading?: boolean;
 } & ListItemIconProps;
 
-export default function ListItemLoadingIcon({loading, children, ...props}: Props) {
+export default function ListItemLoadingIcon({
+    loading,
+    children,
+    ...props
+}: Props) {
     return (
         <ListItemIcon
             sx={{

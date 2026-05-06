@@ -182,13 +182,6 @@ class CollectionSearchTest extends AbstractSearchTest
             ],
         ]);
 
-        $client = self::createClient();
-        $response = $client->request('GET', '/collections', [
-            'headers' => [
-                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            ],
-        ]);
-
         $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
         $this->assertEquals($asset->getId(), $data[0]['id']);

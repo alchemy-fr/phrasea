@@ -27,7 +27,8 @@ export function createSelectStyles<
         option,
         input,
         indicatorsContainer,
-        ...stylesRest} = styles;
+        ...stylesRest
+    } = styles;
 
     return {
         menuPortal: (provided, state) => ({

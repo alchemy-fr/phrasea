@@ -4,19 +4,23 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Repository\Integration\IntegrationDataRepository;
+use App\Security\Voter\AbstractVoter;
 use Arthem\ObjectReferenceBundle\Mapper\ObjectMapper;
 use Doctrine\ORM\EntityManagerInterface;
 
-readonly class IntegrationDataManager
+class IntegrationDataManager
 {
+    use SecurityAwareTrait;
+
     public function __construct(
-        private EntityManagerInterface $em,
-        private IntegrationDataRepository $repository,
-        private ObjectMapper $objectMapper,
+        private readonly EntityManagerInterface $em,
+        private readonly IntegrationDataRepository $repository,
+        private readonly ObjectMapper $objectMapper,
     ) {
     }
 
@@ -86,8 +90,11 @@ readonly class IntegrationDataManager
             'integration' => $workspaceIntegration->getId(),
             'object' => $object,
             'name' => $name,
-            'userId' => $userId,
         ];
+
+        if (null !== $keyId || !$this->security->isGranted(AbstractVoter::EDIT, $workspaceIntegration)) {
+            $criteria['userId'] = $userId;
+        }
 
         if (null !== $keyId) {
             $criteria['keyId'] = $keyId;
@@ -109,12 +116,17 @@ readonly class IntegrationDataManager
 
     public function getById(WorkspaceIntegration $workspaceIntegration, string $id, ?string $userId): IntegrationData
     {
+        $criteria = [
+            'id' => $id,
+            'integration' => $workspaceIntegration->getId(),
+        ];
+
+        if (!$this->security->isGranted(AbstractVoter::EDIT, $workspaceIntegration)) {
+            $criteria['userId'] = $userId;
+        }
+
         $data = $this->repository
-            ->findOneBy([
-                'id' => $id,
-                'integration' => $workspaceIntegration->getId(),
-                'userId' => $userId,
-            ]);
+            ->findOneBy($criteria);
 
         if (null === $data) {
             throw new \InvalidArgumentException(sprintf('%s "%s" not found', IntegrationData::class, $id));

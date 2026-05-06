@@ -2,11 +2,11 @@ import {Theme} from '@mui/material';
 
 export function getContrastText(
     theme: Theme,
-    color: string | undefined,
+    color: string | undefined
 ): string {
     try {
         return theme.palette.getContrastText(color || '#FFFFFF');
-    } catch (e) {
+    } catch (_e) {
         return '#000000'; // Fallback to black if there's an error
     }
 }
