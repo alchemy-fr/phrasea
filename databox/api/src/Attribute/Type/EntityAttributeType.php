@@ -111,14 +111,23 @@ final class EntityAttributeType extends TextAttributeType
                 'value' => $bucket['key'],
                 'label' => $translatedValue,
                 'item' => [
-                    'id' => $entity->getId(),
-                    'value' => $entity->getValue(),
+                    ...$this->normalizeEntity($entity),
                     'translatedValue' => $translatedValue,
                 ],
             ];
 
             return $bucket;
         }, $buckets);
+    }
+
+    private function normalizeEntity(AttributeEntity $entity): array
+    {
+        return [
+            'id' => $entity->getId(),
+            'value' => $entity->isApproved() ? $this->getTranslatedValue($entity) : null,
+            'emoji' => $entity->getEmoji(),
+            'color' => $entity->getColor(),
+        ];
     }
 
     protected function getTranslatedValue(AttributeEntity $entity, ?string $locale = null): ?string
@@ -174,11 +183,8 @@ final class EntityAttributeType extends TextAttributeType
         }
 
         return [
-            'id' => $entity->getId(),
-            'value' => $entity->isApproved() ? $this->getTranslatedValue($entity) : null,
+            ...$this->normalizeEntity($entity),
             'status' => $entity->getStatus(),
-            'emoji' => $entity->getEmoji(),
-            'color' => $entity->getColor(),
             'createdAt' => $entity->getCreatedAt(),
         ];
     }

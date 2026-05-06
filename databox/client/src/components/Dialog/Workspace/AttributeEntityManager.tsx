@@ -1,7 +1,6 @@
 import {AttributeEntity, EntityList} from '../../../types';
 import {
     deleteAttributeEntity,
-    formatAttributeEntityLabel,
     getAttributeEntities,
     mergeAttributeEntities,
     postAttributeEntity,
@@ -37,7 +36,7 @@ import {
     DefinitionListItemProps,
 } from './DefinitionManager/managerTypes.ts';
 import {forceObject} from '@alchemy/core';
-import TagColor from '../../Media/Asset/Facets/TagColor.tsx';
+import AttributeEntityListText from '../../Media/Asset/Attribute/AttributeEntityListText.tsx';
 
 type ExtraProps = {
     list: EntityList;
@@ -65,11 +64,12 @@ function EntityListItem({
 }: DefinitionListItemProps<AttributeEntity>) {
     return (
         <>
-            <TagColor color={data.color} />
-            <ListItemText
-                primary={formatAttributeEntityLabel(data, {
+            <AttributeEntityListText
+                data={data}
+                options={{
                     noTranslate: true,
-                })}
+                }}
+                inList={true}
             />
             {onDelete ? (
                 <ListItemSecondaryAction>

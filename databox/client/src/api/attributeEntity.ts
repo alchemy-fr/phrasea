@@ -12,11 +12,13 @@ type AttributeEntityOptions = {
     list?: string;
 } & PaginationParams;
 
+export type FormatAttributeEntityLabelOptions = {
+    noTranslate?: boolean;
+};
+
 export function formatAttributeEntityLabel(
     {emoji, value, translations}: AttributeEntity,
-    options: {
-        noTranslate?: boolean;
-    } = {}
+    options: FormatAttributeEntityLabelOptions = {}
 ): string {
     const tValue = !options.noTranslate
         ? getBestTranslatedValue(translations, value)

@@ -10,8 +10,7 @@ import AttributeEntitySelect, {
     AttributeEntityOption,
 } from '../../../../Form/AttributeEntitySelect.tsx';
 import BaseType from './BaseType.tsx';
-import TagColor from '../../Facets/TagColor.tsx';
-import {FlexRow} from '@alchemy/phrasea-ui';
+import AttributeEntityListText from '../AttributeEntityListText.tsx';
 
 type EntityValue = {
     id: string;
@@ -90,22 +89,7 @@ export default class AttributeEntityType
             }
         }
 
-        if (value) {
-            const label = value.emoji
-                ? `${value.emoji} ${value.value}`
-                : value.value;
-            const color = (value as EntityValue)?.color;
-            if (color) {
-                return (
-                    <FlexRow>
-                        <TagColor color={color} />
-                        <span>{label}</span>
-                    </FlexRow>
-                );
-            }
-
-            return label;
-        }
+        return <AttributeEntityListText data={value as AttributeEntity} />;
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {

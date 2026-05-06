@@ -1,9 +1,10 @@
-import {Checkbox, ListItem, ListItemText} from '@mui/material';
+import {Checkbox, ListItem} from '@mui/material';
 import {ListFacetItemProps} from './TextFacetItem.tsx';
 import ListFacet from './ListFacet.tsx';
-import {getBestLocaleOfTranslations} from '@alchemy/i18n/src/Locale/localeHelper.ts';
 import {stopPropagation} from '../../../../../lib/stdFuncs.ts';
 import {FacetGroupProps} from '../facetTypes.ts';
+import {AttributeEntity} from '../../../../../types.ts';
+import AttributeEntityListText from '../../Attribute/AttributeEntityListText.tsx';
 
 function EntityFacetItem({
     onClick,
@@ -11,10 +12,7 @@ function EntityFacetItem({
     labelValue,
     count,
 }: ListFacetItemProps) {
-    const {item, label, value} = labelValue;
-
-    const l = getBestLocaleOfTranslations(item?.translations ?? {});
-    const finalLabel = l ? item!.translations![l]! : label;
+    const {item, value} = labelValue;
 
     return (
         <ListItem
@@ -29,7 +27,11 @@ function EntityFacetItem({
                 />
             }
         >
-            <ListItemText secondary={`${finalLabel} (${count})`} />
+            <AttributeEntityListText
+                data={item as AttributeEntity}
+                suffix={` (${count})`}
+                inList={true}
+            />
         </ListItem>
     );
 }
