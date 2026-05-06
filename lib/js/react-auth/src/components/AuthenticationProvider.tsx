@@ -111,7 +111,7 @@ export default function AuthenticationProvider<
     const updateTokens = React.useCallback<SetTokens>(
         tokens => {
             setTokens(tokens);
-            onNewTokens && onNewTokens(tokens);
+            onNewTokens?.(tokens);
         },
         [setTokens]
     );

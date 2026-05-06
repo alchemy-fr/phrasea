@@ -103,10 +103,11 @@ export function useExtensions({editing}: {editing: boolean}) {
                 },
                 shouldAutoLink: url => {
                     try {
-                        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-                        url.includes(':')
-                            ? new URL(url)
-                            : new URL(`https://${url}`);
+                        if (url.includes(':')) {
+                            new URL(url);
+                        } else {
+                            new URL(`https://${url}`);
+                        }
 
                         return true;
                     } catch {

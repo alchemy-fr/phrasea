@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Api;
+namespace App\Tests\Api;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use ApiPlatform\Symfony\Bundle\Test\Client;

@@ -1,9 +1,7 @@
 import {AttributeEntity, EntityList} from '../../../types';
 import {
     deleteAttributeEntity,
-    formatAttributeEntityLabel,
     getAttributeEntities,
-    mergeAttributeEntities,
     postAttributeEntity,
     putAttributeEntity,
 } from '../../../api/attributeEntity';
@@ -37,7 +35,8 @@ import {
     DefinitionListItemProps,
 } from './DefinitionManager/managerTypes.ts';
 import {forceObject} from '@alchemy/core';
-import TagColor from '../../Media/Asset/Facets/TagColor.tsx';
+import AttributeEntityListText from '../../Media/Asset/Attribute/AttributeEntityListText.tsx';
+import MergeEntitiesDialog from './MergeEntitiesDialog.tsx';
 
 type ExtraProps = {
     list: EntityList;
@@ -65,11 +64,12 @@ function EntityListItem({
 }: DefinitionListItemProps<AttributeEntity>) {
     return (
         <>
-            <TagColor color={data.color} />
-            <ListItemText
-                primary={formatAttributeEntityLabel(data, {
+            <AttributeEntityListText
+                data={data}
+                options={{
                     noTranslate: true,
-                })}
+                }}
+                inList={true}
             />
             {onDelete ? (
                 <ListItemSecondaryAction>
@@ -136,15 +136,13 @@ export default function AttributeEntityManager({
                 if (selection.length > 1) {
                     actions.push({
                         id: 'merge',
-                        confirm: t(
-                            'attribute_entity.batch_merge.confirm',
-                            'Are you sure you want to merge these entities? This action cannot be undone.'
-                        ),
                         label: t('attribute_entity.batch_merge.label', 'Merge'),
                         icon: <CallMergeIcon />,
                         process: async (items, {reload}) => {
-                            await mergeAttributeEntities(items.map(i => i.id));
-                            await reload();
+                            openModal(MergeEntitiesDialog, {
+                                items,
+                                reload,
+                            });
                         },
                     });
                 }

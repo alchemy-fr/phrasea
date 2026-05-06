@@ -159,8 +159,7 @@ export default function RSelectWidget<
                                         ? denormalizeValue(v)
                                         : v;
                                     onChange(denormValue);
-                                    onChangeProp &&
-                                        onChangeProp(newValue as any, meta);
+                                    onChangeProp?.(newValue as any, meta);
                                 }}
                                 isClearable={!required}
                                 isMulti={isMulti}

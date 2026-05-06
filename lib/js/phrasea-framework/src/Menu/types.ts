@@ -12,6 +12,7 @@ export type CommonMenuProps = {
     keycloakClient: KeycloakClient;
     notificationUriHandler?: NotificationUriHandler;
     topChildren?: ReactNode;
+    settingsTopActions?: SettingDropdownProps['topActions'];
 } & SettingDropdownBaseProps;
 
 export type SettingDropdownBaseProps = {
@@ -23,6 +24,7 @@ export type SettingDropdownBaseProps = {
 };
 
 export type SettingDropdownProps = {
+    topActions?: DropdownActionsProps['children'];
     mainButton: DropdownActionsProps['mainButton'];
     anchorOrigin?: DropdownActionsProps['anchorOrigin'];
     transformOrigin?: DropdownActionsProps['transformOrigin'];

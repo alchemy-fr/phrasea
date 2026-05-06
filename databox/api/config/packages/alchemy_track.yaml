@@ -6,7 +6,7 @@ alchemy_track:
         !php/const:App\Entity\Core\AttributePolicy::OBJECT_INDEX: App\Entity\Core\AttributePolicy
         !php/const:App\Entity\Template\AssetDataTemplate::OBJECT_INDEX: App\Entity\Template\AssetDataTemplate
         !php/const:App\Entity\Basket\Basket::OBJECT_INDEX: App\Entity\Basket\Basket
-        !php/const:App\Entity\AttributeList\AttributeList::OBJECT_INDEX: App\Entity\AttributeList\AttributeList
+        !php/const:App\Entity\Profile\Profile::OBJECT_INDEX: App\Entity\Profile\Profile
         !php/const:App\Entity\SavedSearch\SavedSearch::OBJECT_INDEX: App\Entity\SavedSearch\SavedSearch
         !php/const:App\Entity\Integration\WorkspaceEnv::OBJECT_INDEX: App\Entity\Integration\WorkspaceEnv
         !php/const:App\Entity\Integration\WorkspaceIntegration::OBJECT_INDEX: App\Entity\Integration\WorkspaceIntegration

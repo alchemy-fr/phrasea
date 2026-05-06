@@ -12,11 +12,13 @@ type AttributeEntityOptions = {
     list?: string;
 } & PaginationParams;
 
+export type FormatAttributeEntityLabelOptions = {
+    noTranslate?: boolean;
+};
+
 export function formatAttributeEntityLabel(
     {emoji, value, translations}: AttributeEntity,
-    options: {
-        noTranslate?: boolean;
-    } = {}
+    options: FormatAttributeEntityLabelOptions = {}
 ): string {
     const tValue = !options.noTranslate
         ? getBestTranslatedValue(translations, value)
@@ -71,11 +73,10 @@ export async function deleteAttributeEntity(id: string): Promise<void> {
 }
 
 export async function mergeAttributeEntities(
+    keptEntityId: string,
     ids: string[]
 ): Promise<AttributeEntity> {
-    const firstId = ids.shift();
-
-    return await apiClient.post(`${attributeEntityNS}/${firstId}/merge`, {
-        ids,
+    return await apiClient.put(`${attributeEntityNS}/${keptEntityId}/merge`, {
+        ids: ids.filter(id => id !== keptEntityId),
     });
 }

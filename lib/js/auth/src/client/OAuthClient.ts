@@ -551,7 +551,7 @@ function createAxiosInterceptor<UIR extends UserInfoResponse>(
                         if (err.response && 400 === err.response.status) {
                             oauthClient.logout();
 
-                            onTokenError && onTokenError(err);
+                            onTokenError?.(err);
 
                             throw e;
                         }

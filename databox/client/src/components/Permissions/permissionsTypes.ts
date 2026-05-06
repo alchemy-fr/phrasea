@@ -63,14 +63,14 @@ export type OnPermissionDelete = (
 ) => Promise<void>;
 
 export enum PermissionObject {
-    Collection = 'collection',
     Asset = 'asset',
-    Workspace = 'workspace',
-    Basket = 'basket',
-    SavedSearch = 'saved_search',
     AttributePolicy = 'attribute_policy',
+    Basket = 'basket',
+    Collection = 'collection',
+    Profile = 'profile',
     RenditionPolicy = 'rendition_policy',
-    AttributeList = 'attribute_list',
+    SavedSearch = 'saved_search',
+    Workspace = 'workspace',
     WorkspaceIntegration = 'integration',
 }
 

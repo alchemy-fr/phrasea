@@ -53,7 +53,7 @@
         "@toast-ui/react-image-editor": "^3.15.2",
         "@wavesurfer/react": "^1.0.12",
         "ace-builds": "^1.43.3",
-        "axios": "^1.13.5",
+        "axios": "^1.15.0",
         "byte-size": "^8.2.1",
         "classnames": "^2.5.1",
         "clipboard-copy": "^4.0.1",

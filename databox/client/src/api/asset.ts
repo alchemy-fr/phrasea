@@ -11,7 +11,6 @@ import {
     Share,
 } from '../types';
 import {AxiosRequestConfig} from 'axios';
-import {TFacets} from '../components/Media/Asset/Facets';
 import {
     AttributeBatchAction,
     AttributeBatchActionEnum,
@@ -39,6 +38,7 @@ import {
 } from './file.ts';
 import moment from 'moment/moment';
 import {TFunction} from '@alchemy/i18n';
+import {TFacets} from '../components/Media/Asset/Facets/facetTypes.ts';
 
 export interface GetAssetOptions {
     limit?: number;
