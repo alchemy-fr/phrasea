@@ -73,11 +73,10 @@ export async function deleteAttributeEntity(id: string): Promise<void> {
 }
 
 export async function mergeAttributeEntities(
+    keptEntityId: string,
     ids: string[]
 ): Promise<AttributeEntity> {
-    const firstId = ids.shift();
-
-    return await apiClient.post(`${attributeEntityNS}/${firstId}/merge`, {
-        ids,
+    return await apiClient.put(`${attributeEntityNS}/${keptEntityId}/merge`, {
+        ids: ids.filter(id => id !== keptEntityId),
     });
 }

@@ -424,13 +424,14 @@ export default function DefinitionManager<
             listComponent,
             handleItemClick,
             setSelection,
-            selection,
+            selection: batchActions ? selection : undefined,
             itemDeletable,
             onDelete,
             extraProps,
         };
     }, [
         onSort,
+        batchActions,
         handleItemClick,
         itemDeletable,
         onDelete,
