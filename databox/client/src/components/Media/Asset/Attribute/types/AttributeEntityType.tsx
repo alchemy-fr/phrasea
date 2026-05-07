@@ -66,6 +66,10 @@ export default class AttributeEntityType
     formatValue(props: AttributeFormatterProps): React.ReactNode {
         const {value, t} = props;
 
+        if (!value) {
+            return null;
+        }
+
         const status = (value as EntityValue | undefined)?.status;
 
         if (undefined !== status && status !== AttributeEntityStatus.Approved) {
