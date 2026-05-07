@@ -137,13 +137,16 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             );
 
             logger.info(`Importing status-bits structure`);
-            const tagIndex = await importStatusBitsStructure(
-                databoxClient,
-                workspaceId,
-                phraseanetDatabox.databox_id,
-                phraseanetClient,
-                logger
-            );
+            let tagIndex: TagIndex = {};
+            if (dm.importStatusBits !== false) {
+                tagIndex = await importStatusBitsStructure(
+                    databoxClient,
+                    workspaceId,
+                    phraseanetDatabox.databox_id,
+                    phraseanetClient,
+                    logger
+                );
+            }
 
             logger.info(`Importing subdefs structure`);
             const subdefToRendition = await importSubdefsStructure(
