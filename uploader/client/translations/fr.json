@@ -4,18 +4,35 @@
     },
     "menu": {
         "account": "Mon compte",
-        "logout": "Déconnexion"
+        "logout": "Déconnexion",
+        "form_editor": "Editeur de formulaire",
+        "target_data_editor": "Paramétrage des données de destination"
     },
     "targets": {
         "none_available": "Vous n'avez accès à aucune cible de téléchargement."
     },
     "download": {
         "back": "Retour",
-        "your_file_will_be_downloaded": "Votre fichier va être téléchargé!"
+        "your_file_will_be_downloaded": "Votre fichier va être téléchargé!",
+        "done": {
+            "your_file_will_be_downloaded": "Votre fichier va être téléchargé !"
+        },
+        "download_asset": "Télécharger l'Asset",
+        "file_url": "URL du fichier",
+        "fill_the_form_to_download_your_asset": "Veuillez remplir le formulaire pour télécharger votre Asset."
     },
     "file_picker": {
         "drag_n_drop_some_files_here_or_click_to_select_files": "Glissez-déposez des fichiers ici ou cliquez pour sélectionner des fichiers",
-        "next": "Suivant"
+        "next": "Suivant",
+        "alternative_upload_methods": "ou <l>téléchargez </l> les URL.",
+        "file_count_one": "Vous avez sélectionné {{count}} fichier",
+        "file_count_many": "Vous avez sélectionné {{count}} fichiers",
+        "file_count_other": "Vous avez sélectionné{{count}} fichiers",
+        "max_file_size": "Taille de fichier maximale : {{size}}",
+        "total_max_file_count_exceeded": "Nombre maximum de fichiers dépassé ({{fileCount}} > {{maxFileCount}})",
+        "total_max_file_size_exceeded": "Taille de fichier maximale totale dépassée ({{actualSize}} > {{maxSize}})",
+        "total_size": "Taille totale : {{size}}/{{maxCommitSize}}",
+        "total_size_no_limit": "Taille totale : {{size}}"
     },
     "upload_done": {
         "all_files_have_been_uploaded": "Tous les fichiers ont été importés.",
@@ -31,5 +48,65 @@
         "cancel": "Annuler",
         "next": "Suivant",
         "uploader": "Ajouter des fichiers"
+    },
+    "form": {
+        "addItem": "Ajouter",
+        "selectPlaceholder": "Choisissez une option"
+    },
+    "form_editor": {
+        "create": {
+            "title": "Création d'un nouveau schéma de formulaire"
+        },
+        "edit": {
+            "title": "Modification du schéma du formulaire : {{name}}"
+        },
+        "form_saved": "Formulaire enregistré avec succès",
+        "form_submitted": "Formulaire soumis avec les données : <pre> {{json}}} </pre>",
+        "form_submitted_title": "Formulaire soumis",
+        "invalid_json": "JSON non valide : {{message}}",
+        "locale": {
+            "helper": "Paramètres régionaux facultatifs pour ce schéma de formulaire (par exemple : en, fr, etc.). Laissez le champ vide pour toutes les locales.",
+            "label": "Locale"
+        },
+        "save_form": "Enregistrer le formulaire",
+        "target": {
+            "label": "Destination"
+        }
+    },
+    "form_schema": {
+        "list": {
+            "create_button": "Créer un nouveau schéma de formulaire",
+            "delete": "Supprimer",
+            "delete_confirm_message": "Êtes-vous sûr de vouloir supprimer le schéma de formulaire pour {{name}} ?",
+            "delete_confirm_title": "Supprimer le schéma du formulaire",
+            "edit": "Modifier",
+            "empty": "Aucun schéma de formulaire n'a été trouvé. Cliquez sur le bouton ci-dessous pour en créer un nouveau.",
+            "title": "Schémas de formulaires"
+        }
+    },
+    "target_param": {
+        "create": {
+            "title": "Création de nouveaux paramètres de destination"
+        },
+        "edit": {
+            "title": "Modification des paramètres de destination : {{name}}"
+        },
+        "form_saved": "Formulaire enregistré avec succès",
+        "list": {
+            "create_button": "Créer de nouveaux paramètres de destination",
+            "delete": "Supprimer",
+            "delete_confirm_message": "Êtes-vous sûr de vouloir supprimer les paramètres de destination {{name}} ?",
+            "delete_confirm_title": "Supprimer le schéma du formulaire",
+            "edit": "Modifier",
+            "empty": "Aucun",
+            "title": "Paramètres de destination"
+        },
+        "save_form": "Enregistrer le formulaire",
+        "target": {
+            "label": "Destination"
+        }
+    },
+    "upload": {
+        "cancelConfirmation": "Êtes-vous sûr de vouloir annuler le chargement en cours ?"
     }
 }
