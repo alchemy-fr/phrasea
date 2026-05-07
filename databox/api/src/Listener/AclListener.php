@@ -7,6 +7,7 @@ namespace App\Listener;
 use Alchemy\AclBundle\Event\AclDeleteEvent;
 use Alchemy\AclBundle\Event\AclUpsertEvent;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
+use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Api\OutputTransformer\CollectionOutputTransformer;
@@ -29,11 +30,67 @@ readonly class AclListener
         private ObjectMapping $objectMapping,
         private MessageBusInterface $bus,
         private TagAwareCacheInterface $collectionCache,
+        private AclIndexUpdateService $aclIndexUpdateService,
     ) {
+    }
+
+    private function hasPermission(int $permissions, int $permissionToCheck): bool
+    {
+        return ($permissions & $permissionToCheck) === $permissionToCheck;
+    }
+
+    private function hasOneOfPermissions(int $permissions, array $permissionsToCheck): bool
+    {
+        foreach ($permissionsToCheck as $permission) {
+            if ($this->hasPermission($permissions, $permission)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function onAclUpsert(AclUpsertEvent $event): void
     {
+        $objectClass = $this->objectMapping->getClassName($event->getObjectType());
+
+        switch ($objectClass) {
+            case Workspace::class:
+                $discriminantPerms = [
+                    PermissionInterface::CHILD_VIEW,
+                    PermissionInterface::CHILD_OWNER,
+                    PermissionInterface::OWNER,
+                ];
+
+                $didNotHavePermission = null === $event->getPreviousPermissions()
+                    || !$this->hasOneOfPermissions($event->getPreviousPermissions(), $discriminantPerms);
+
+                if ($didNotHavePermission) {
+                    if ($this->hasOneOfPermissions($event->getPermissions(), $discriminantPerms)) {
+                        $this->aclIndexUpdateService->addAllowedUserOrGroupToWorkspace($event->getObjectId(), $event->getUserType(), $event->getUserId());
+                    }
+
+                    return;
+                }
+                // no break
+            case Collection::class:
+                $discriminantPerms = [
+                    PermissionInterface::VIEW,
+                    PermissionInterface::CHILD_VIEW,
+                    PermissionInterface::CHILD_OWNER,
+                    PermissionInterface::OWNER,
+                ];
+
+                if ($this->hasOneOfPermissions($event->getPermissions(), $discriminantPerms) && (
+                    null === $event->getPreviousPermissions()
+                    || !$this->hasOneOfPermissions($event->getPreviousPermissions(), $discriminantPerms)
+                )) {
+                    $this->aclIndexUpdateService->addAllowedUserOrGroupToCollection($event->getObjectId(), $event->getUserType(), $event->getUserId());
+
+                    return;
+                }
+        }
+
         $this->indexObject($event->getObjectType(), $event->getObjectId());
     }
 
