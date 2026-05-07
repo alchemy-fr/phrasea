@@ -103,6 +103,13 @@
                 "edit_assets": {
                     "desc": "Ermöglicht das Bearbeiten von Asset-Attributen in der Kollektion und in untergeordneten Kollektionen.",
                     "label": "Asset-Attribute bearbeiten"
+                },
+                "edit_permissions": {
+                    "desc": "Ermöglicht Bearbeitungsberechtigungen und den Datenschutz von Kollektionen und Assets, die Sie besitzen.",
+                    "label": "Berechtigungen für eigene Inhalte verwalten"
+                },
+                "owner": {
+                    "desc": "Volle Kontrolle über Assets innerhalb der Kollektion und untergeordneter Kollektionen, mit Ausnahme von Berechtigungen und Datenschutzeinstellungen."
                 }
             }
         },
