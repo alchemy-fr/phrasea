@@ -42,6 +42,12 @@ abstract class DateUtil
                 return null;
             }
 
+            $formatted = $value->format(\DateTimeInterface::ATOM);
+            if (str_starts_with($formatted, '-') || str_starts_with($formatted, '0000-00-00')) {
+                // NULL dates
+                return null;
+            }
+
             return $value;
         }
 

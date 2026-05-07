@@ -71,6 +71,8 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
             console.error('e', e);
             const error = getAxiosError(e);
             setError(error?.message ?? e.toString());
+
+            throw e;
         }
     }, [getActions]);
 

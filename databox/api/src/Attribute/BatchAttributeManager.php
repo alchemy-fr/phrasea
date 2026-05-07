@@ -106,6 +106,7 @@ class BatchAttributeManager
 
                     if ($action->value) {
                         $type = $this->typeRegistry->getStrictType($definition->getFieldType());
+                        $validationContext->setNode($action->value, $action, null, sprintf('actions[%d].value', $i));
                         $type->validate($action->value, $validationContext);
                     }
 
@@ -417,12 +418,8 @@ class BatchAttributeManager
                 $attribute->setDefinition($definition);
             }
 
-            try {
-                $this->attributeAssigner->assignAttributeFromInput($attribute, $action);
-                $this->em->persist($attribute);
-            } catch (InvalidAttributeValueException) {
-                // Ignore invalid values
-            }
+            $this->attributeAssigner->assignAttributeFromInput($attribute, $action);
+            $this->em->persist($attribute);
 
             $attribute = null;
         }

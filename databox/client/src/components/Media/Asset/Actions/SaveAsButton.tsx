@@ -46,13 +46,13 @@ export default function SaveAsButton({
     const anchorRef = React.useRef<HTMLDivElement>(null);
     const {openModal} = useModals();
 
-    if (!closeWrapper) {
-        closeWrapper = handler => e => {
+    const closeWrapperFinal =
+        closeWrapper ??
+        ((handler => e => {
             handler?.(e);
 
             return () => {};
-        };
-    }
+        }) as CloseWrapper);
 
     const options = [
         {
@@ -171,7 +171,7 @@ export default function SaveAsButton({
                                     {options.map((option, index) => (
                                         <MenuItem
                                             key={option.id}
-                                            onClick={closeWrapper(event =>
+                                            onClick={closeWrapperFinal(event =>
                                                 handleMenuItemClick(
                                                     event,
                                                     index

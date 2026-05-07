@@ -65,6 +65,13 @@ final readonly class RenditionBuilder
             }
         }
 
+        $buildHash = $this->buildHashManager->getBuildHash($source, $renditionDefinition);
+
+        $existingRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $renditionDefinition);
+        if (!$force && $existingRendition?->getBuildHash() === $buildHash) {
+            return;
+        }
+
         if (!$source->isAnalyzed()) {
             throw new RenditionBuildException(false, 'Source file is not analyzed yet');
         }
@@ -86,13 +93,6 @@ final readonly class RenditionBuilder
         $buildDef = $renditionDefinition->getDefinition();
         if (empty($buildDef)) {
             throw new RenditionBuildException(true, 'Rendition definition is empty');
-        }
-
-        $buildHash = $this->buildHashManager->getBuildHash($source, $renditionDefinition);
-
-        $existingRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $renditionDefinition);
-        if (!$force && $existingRendition?->getBuildHash() === $buildHash) {
-            return;
         }
 
         $metadataContainer = new AssetMetadataContainer($asset, $this->attributesResolver, $this->assetTitleResolver);

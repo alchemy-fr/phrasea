@@ -91,7 +91,7 @@ final readonly class ExposeClient
             $resolvedTitleAttr = $this->assetTitleResolver->resolveTitle($asset, $attributesIndex, []);
             if ($resolvedTitleAttr instanceof Attribute) {
                 $type = $this->attributeTypeRegistry->getStrictType($resolvedTitleAttr->getDefinition()->getFieldType());
-                $resolvedTitle = $type->getStringValue($resolvedTitleAttr->getValue());
+                $resolvedTitle = $type->getStringValue($resolvedTitleAttr->getValue(), null);
             } else {
                 $resolvedTitle = $resolvedTitleAttr;
             }
@@ -104,13 +104,6 @@ final readonly class ExposeClient
                     $definition = $definitionIndex->getDefinition();
                     $fieldType = $definition->getFieldType();
                     $type = $this->attributeTypeRegistry->getStrictType($fieldType);
-
-                    $attrTranslations[$locale] = $this->getAttributeHtml(
-                        $definition,
-                        $definition->isMultiple() ? array_map(fn (Attribute $a,
-                        ): ?string => $type->getStringValue($a->getValue()), $attribute) : $type->getStringValue($attribute->getValue()),
-                        $locale
-                    );
 
                     if ($type instanceof EntityAttributeType) {
                         $entityTranslations = [];
@@ -134,11 +127,25 @@ final readonly class ExposeClient
                         }
 
                         foreach ($entityTranslations as $eLocale => $entityTranslation) {
-                            $attrTranslations[$eLocale] = $this->getAttributeHtml(
+                            $attributeHtml = $this->getAttributeHtml(
                                 $definition,
-                                $definition->isMultiple() ? array_map(fn (?string $v): ?string => $v, $entityTranslation) : $entityTranslation,
+                                $definition->isMultiple() ? array_map(fn (?string $v,
+                                ): ?string => $v, $entityTranslation) : $entityTranslation,
                                 $eLocale
                             );
+                            if (!empty($attributeHtml)) {
+                                $attrTranslations[$eLocale] = $attributeHtml;
+                            }
+                        }
+                    } else {
+                        $attributeHtml = $this->getAttributeHtml(
+                            $definition,
+                            $definition->isMultiple() ? array_map(fn (Attribute $a,
+                            ): ?string => $type->getStringValue($a->getValue(), $locale), $attribute) : $type->getStringValue($attribute->getValue(), $locale),
+                            $locale
+                        );
+                        if (!empty($attributeHtml)) {
+                            $attrTranslations[$locale] = $attributeHtml;
                         }
                     }
                 }
@@ -190,7 +197,11 @@ final readonly class ExposeClient
         AttributeDefinition $definition,
         string|array|null $value,
         ?string $locale = null,
-    ): string {
+    ): ?string {
+        if (empty($value)) {
+            return null;
+        }
+
         $hasLocale = $locale && AttributeInterface::NO_LOCALE !== $locale;
 
         $attributeName = $definition->getName();

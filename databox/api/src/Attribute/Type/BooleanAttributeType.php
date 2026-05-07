@@ -74,7 +74,7 @@ final class BooleanAttributeType extends AbstractAttributeType
         return false;
     }
 
-    public function getStringValue(?string $value): string
+    public function getStringValue(?string $value, ?string $locale): string
     {
         $bool = $this->denormalizeValue($value);
         if (null === $bool) {

@@ -189,9 +189,9 @@ final class EntityAttributeType extends TextAttributeType
         ];
     }
 
-    public function getStringValue(?string $value): string
+    public function getStringValue(?string $value, ?string $locale): string
     {
-        return $this->getEntityBestTranslation($value, null) ?? '';
+        return $this->getEntityBestTranslation($value, $locale) ?? '';
     }
 
     public function getElasticSearchMapping(string $locale): ?array

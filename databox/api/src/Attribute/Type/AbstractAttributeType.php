@@ -28,7 +28,7 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return $value;
     }
 
-    public function getStringValue(?string $value): string
+    public function getStringValue(?string $value, ?string $locale): string
     {
         return (string) $this->denormalizeValue($value);
     }
