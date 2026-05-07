@@ -26,5 +26,10 @@
         "selected_files_one": "{{count}} fichier sélectionné",
         "selected_files_many": "{{count}} fichiers sélectionnés",
         "selected_files_other": "{{count}} fichiers sélectionnés"
+    },
+    "common": {
+        "cancel": "Annuler",
+        "next": "Suivant",
+        "uploader": "Ajouter des fichiers"
     }
 }
