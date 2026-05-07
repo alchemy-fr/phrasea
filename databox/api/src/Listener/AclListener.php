@@ -12,6 +12,8 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Api\OutputTransformer\CollectionOutputTransformer;
+use App\Consumer\Handler\Search\AclAddUserToCollectionAssets;
+use App\Consumer\Handler\Search\AclAddUserToWorkspaceAssets;
 use App\Consumer\Handler\Search\IndexAllAssets;
 use App\Consumer\Handler\Search\IndexAllCollections;
 use App\Consumer\Handler\Search\IndexCollectionBranch;
@@ -31,7 +33,6 @@ readonly class AclListener
         private ObjectMapping $objectMapping,
         private MessageBusInterface $bus,
         private TagAwareCacheInterface $collectionCache,
-        private AclIndexUpdateService $aclIndexUpdateService,
     ) {
     }
 
@@ -76,6 +77,7 @@ readonly class AclListener
     private function handleChange(AclEvent $event, int $newPermissions, int $previousPermissions): void
     {
         $objectClass = $this->objectMapping->getClassName($event->getObjectType());
+        $assetsHandled = false;
 
         switch ($objectClass) {
             case Workspace::class:
@@ -87,10 +89,10 @@ readonly class AclListener
 
                 if (!$this->hasOneOfPermissions($previousPermissions, $discriminantPerms)) {
                     if ($this->hasOneOfPermissions($newPermissions, $discriminantPerms)) {
-                        $this->aclIndexUpdateService->addAllowedUserOrGroupToWorkspace($event->getObjectId(), $event->getUserType(), $event->getUserId());
+                        $this->bus->dispatch(new AclAddUserToWorkspaceAssets($event->getObjectId(), $event->getUserType(), $event->getUserId()));
                     }
 
-                    return;
+                    $assetsHandled = true;
                 }
                 // no break
             case Collection::class:
@@ -105,20 +107,20 @@ readonly class AclListener
                     if ($this->hasOneOfPermissions($newPermissions, $discriminantPerms)) {
                         $collectionId = $event->getObjectId();
                         if (null === $collectionId) {
-                            $this->aclIndexUpdateService->addAllowedUserOrGroupToWorkspace(null, $event->getUserType(), $event->getUserId());
+                            $this->bus->dispatch(new AclAddUserToWorkspaceAssets(null, $event->getUserType(), $event->getUserId()));
                         } else {
-                            $this->aclIndexUpdateService->addAllowedUserOrGroupToCollection($collectionId, $event->getUserType(), $event->getUserId());
+                            $this->bus->dispatch(new AclAddUserToCollectionAssets($collectionId, $event->getUserType(), $event->getUserId()));
                         }
                     }
 
-                    return;
+                    $assetsHandled = true;
                 }
         }
 
-        $this->indexObject($event->getObjectType(), $event->getObjectId());
+        $this->indexObject($event->getObjectType(), $event->getObjectId(), $assetsHandled);
     }
 
-    private function indexObject(string $objectType, ?string $objectId = null): void
+    private function indexObject(string $objectType, ?string $objectId, bool $assetsHandled): void
     {
         $this->collectionCache->invalidateTags([CollectionOutputTransformer::COLLECTION_CACHE_NS]);
 
@@ -128,11 +130,15 @@ readonly class AclListener
             switch ($objectClass) {
                 case Workspace::class:
                 case Asset::class:
-                    $this->bus->dispatch(new IndexAllAssets());
+                    if (!$assetsHandled) {
+                        $this->bus->dispatch(new IndexAllAssets());
+                    }
                     break;
                 case Collection::class:
                     $this->bus->dispatch(new IndexAllCollections());
-                    $this->bus->dispatch(new IndexAllAssets());
+                    if (!$assetsHandled) {
+                        $this->bus->dispatch(new IndexAllAssets());
+                    }
                     break;
             }
 
@@ -141,7 +147,9 @@ readonly class AclListener
 
         switch ($objectClass) {
             case Workspace::class:
-                $this->bus->dispatch(new IndexAllAssets($objectId));
+                if (!$assetsHandled) {
+                    $this->bus->dispatch(new IndexAllAssets($objectId));
+                }
                 $this->bus->dispatch(new IndexAllCollections($objectId));
                 break;
             case Asset::class:
