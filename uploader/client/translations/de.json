@@ -89,6 +89,9 @@
         "edit": {
             "title": "Zielparameter bearbeiten: {{name}}"
         },
-        "form_saved": "Formular wurde erfolgreich gespeichert"
+        "form_saved": "Formular wurde erfolgreich gespeichert",
+        "list": {
+            "create_button": "Neue Zielparameter erstellen"
+        }
     }
 }
