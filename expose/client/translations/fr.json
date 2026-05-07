@@ -59,5 +59,12 @@
     },
     "asset_proxy": {
         "unsupported_media_type": "Type de média non pris en charge"
+    },
+    "appbar": {
+        "profiles": "Profils",
+        "publications": "Publications"
+    },
+    "common": {
+        "close": "Fermer"
     }
 }
