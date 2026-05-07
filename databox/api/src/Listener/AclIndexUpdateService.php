@@ -15,13 +15,16 @@ final readonly class AclIndexUpdateService
     ) {
     }
 
-    public function addAllowedUserOrGroupToWorkspace(string $workspaceId, int $userType, string $userId): void
+    public function addAllowedUserOrGroupToWorkspace(?string $workspaceId, int $userType, string $userId): void
     {
-        $this->addAllowedUserOrGroup($userType, $userId, [
-            'term' => [
+        $query = [];
+        if (null !== $workspaceId) {
+            $query['term'] = [
                 'workspaceId' => $workspaceId,
-            ],
-        ]);
+            ];
+        }
+
+        $this->addAllowedUserOrGroup($userType, $userId, $query);
     }
 
     public function addAllowedUserOrGroupToCollection(string $collectionId, int $userType, string $userId): void
@@ -33,10 +36,8 @@ final readonly class AclIndexUpdateService
         }
 
         $this->addAllowedUserOrGroup($userType, $userId, [
-            [
-                'terms' => [
-                    'collectionPaths' => $collection->getAbsolutePath(),
-                ],
+            'term' => [
+                'collectionPaths' => $collection->getAbsolutePath(),
             ],
         ]);
     }

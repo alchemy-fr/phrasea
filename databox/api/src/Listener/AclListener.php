@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Listener;
 
 use Alchemy\AclBundle\Event\AclDeleteEvent;
+use Alchemy\AclBundle\Event\AclEvent;
 use Alchemy\AclBundle\Event\AclUpsertEvent;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AclBundle\Security\PermissionInterface;
@@ -52,6 +53,28 @@ readonly class AclListener
 
     public function onAclUpsert(AclUpsertEvent $event): void
     {
+        $this->handleChange(
+            $event,
+            $event->getPermissions(),
+            $event->getPreviousPermissions() ?? 0
+        );
+    }
+
+    public function onAclDelete(AclDeleteEvent $event): void
+    {
+        if (null === $event->getPreviousPermissions()) {
+            throw new \LogicException('Previous permissions must be set for ACL delete events');
+        }
+
+        $this->handleChange(
+            $event,
+            0,
+            $event->getPreviousPermissions()
+        );
+    }
+
+    private function handleChange(AclEvent $event, int $newPermissions, int $previousPermissions): void
+    {
         $objectClass = $this->objectMapping->getClassName($event->getObjectType());
 
         switch ($objectClass) {
@@ -62,11 +85,8 @@ readonly class AclListener
                     PermissionInterface::OWNER,
                 ];
 
-                $didNotHavePermission = null === $event->getPreviousPermissions()
-                    || !$this->hasOneOfPermissions($event->getPreviousPermissions(), $discriminantPerms);
-
-                if ($didNotHavePermission) {
-                    if ($this->hasOneOfPermissions($event->getPermissions(), $discriminantPerms)) {
+                if (!$this->hasOneOfPermissions($previousPermissions, $discriminantPerms)) {
+                    if ($this->hasOneOfPermissions($newPermissions, $discriminantPerms)) {
                         $this->aclIndexUpdateService->addAllowedUserOrGroupToWorkspace($event->getObjectId(), $event->getUserType(), $event->getUserId());
                     }
 
@@ -81,21 +101,20 @@ readonly class AclListener
                     PermissionInterface::OWNER,
                 ];
 
-                if ($this->hasOneOfPermissions($event->getPermissions(), $discriminantPerms) && (
-                    null === $event->getPreviousPermissions()
-                    || !$this->hasOneOfPermissions($event->getPreviousPermissions(), $discriminantPerms)
-                )) {
-                    $this->aclIndexUpdateService->addAllowedUserOrGroupToCollection($event->getObjectId(), $event->getUserType(), $event->getUserId());
+                if (!$this->hasOneOfPermissions($previousPermissions, $discriminantPerms)) {
+                    if ($this->hasOneOfPermissions($newPermissions, $discriminantPerms)) {
+                        $collectionId = $event->getObjectId();
+                        if (null === $collectionId) {
+                            $this->aclIndexUpdateService->addAllowedUserOrGroupToWorkspace(null, $event->getUserType(), $event->getUserId());
+                        } else {
+                            $this->aclIndexUpdateService->addAllowedUserOrGroupToCollection($collectionId, $event->getUserType(), $event->getUserId());
+                        }
+                    }
 
                     return;
                 }
         }
 
-        $this->indexObject($event->getObjectType(), $event->getObjectId());
-    }
-
-    public function onAclDelete(AclDeleteEvent $event): void
-    {
         $this->indexObject($event->getObjectType(), $event->getObjectId());
     }
 
