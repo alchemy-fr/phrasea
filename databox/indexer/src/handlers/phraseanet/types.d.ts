@@ -48,7 +48,7 @@ export type ConfigDataboxMapping = {
     fieldMap?: Record<string, FieldMap>;
     sourceFile?: string;
     renditions?: Record<string, ConfigPhraseanetSubdef> | false;
-    importStatusBits?: Record<string, any> | false;
+    importStatusBits?: false;
 };
 
 export type PhraseanetConfig = {
