@@ -71,7 +71,7 @@ final class GeoPointAttributeType extends AbstractAttributeType
         ];
     }
 
-    public function getStringValue(?string $value): string
+    public function getStringValue(?string $value, ?string $locale): string
     {
         $value = $this->denormalizeValue($value);
         if (null === $value) {

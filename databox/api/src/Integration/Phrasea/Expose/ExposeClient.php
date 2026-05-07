@@ -91,7 +91,7 @@ final readonly class ExposeClient
             $resolvedTitleAttr = $this->assetTitleResolver->resolveTitle($asset, $attributesIndex, []);
             if ($resolvedTitleAttr instanceof Attribute) {
                 $type = $this->attributeTypeRegistry->getStrictType($resolvedTitleAttr->getDefinition()->getFieldType());
-                $resolvedTitle = $type->getStringValue($resolvedTitleAttr->getValue());
+                $resolvedTitle = $type->getStringValue($resolvedTitleAttr->getValue(), null);
             } else {
                 $resolvedTitle = $resolvedTitleAttr;
             }
@@ -108,7 +108,7 @@ final readonly class ExposeClient
                     $attrTranslations[$locale] = $this->getAttributeHtml(
                         $definition,
                         $definition->isMultiple() ? array_map(fn (Attribute $a,
-                        ): ?string => $type->getStringValue($a->getValue()), $attribute) : $type->getStringValue($attribute->getValue()),
+                        ): ?string => $type->getStringValue($a->getValue(), $locale), $attribute) : $type->getStringValue($attribute->getValue()),
                         $locale
                     );
 

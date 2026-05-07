@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use App\Attribute\AttributeInterface;
 use App\Elasticsearch\ESFacetInterface;
 use App\Elasticsearch\SearchType;
 use App\Util\DateUtil;
@@ -93,11 +94,16 @@ class DateTimeAttributeType extends AbstractAttributeType
         return DateUtil::normalizeDate($value);
     }
 
-    public function getStringValue(?string $value): string
+    public function getStringValue(?string $value, ?string $locale): string
     {
         $date = $this->denormalizeValue($value);
         if ($date) {
-            return $date->format(\DateTimeInterface::ATOM);
+            if (AttributeInterface::NO_LOCALE === $locale) {
+                $locale = 'en';
+            }
+            $formatter = new \IntlDateFormatter($locale, \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT);
+
+            return $date->format($formatter->getPattern());
         }
 
         return '';
@@ -114,10 +120,12 @@ class DateTimeAttributeType extends AbstractAttributeType
         }
     }
 
-    public function normalizeBucket(array $bucket): ?array
+    public function normalizeElasticsearchValue(?string $value)
     {
-        $bucket['key'] /= 1000;
+        if (empty($value)) {
+            return null;
+        }
 
-        return $bucket;
+        return $value;
     }
 }
