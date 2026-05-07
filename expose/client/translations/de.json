@@ -94,6 +94,15 @@
                         "grid": "Gitter",
                         "mapbox": "Mapbox"
                     }
+                },
+                "overridden": {
+                    "label": "Einstellungen überschreiben"
+                },
+                "publiclyListed": {
+                    "label": "Öffentlich gelistet"
+                },
+                "securityMethod": {
+                    "label": "Sicherheitsmethode"
                 }
             }
         }
