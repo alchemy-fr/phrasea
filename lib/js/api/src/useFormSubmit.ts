@@ -10,8 +10,9 @@ import {
 import {useForm} from 'react-hook-form';
 import {FieldValues} from 'react-hook-form';
 import {toast} from 'react-toastify';
-import {hydraDescriptionKey} from './utils';
+import {getBestErrorProp} from './utils';
 import {
+    ApiConstant,
     OnBeforeSubmit,
     OnSubmit,
     RemoteErrors,
@@ -94,8 +95,8 @@ export default function useFormSubmit<
 
                     setRemoteErrors(p =>
                         p.concat(
-                            (resData[hydraDescriptionKey] as string) ??
-                                resData['title']
+                            getBestErrorProp(resData) ??
+                                ApiConstant.UnknownError
                         )
                     );
                 }
@@ -128,6 +129,7 @@ export default function useFormSubmit<
     };
 
     const setOnSubmit: SetOnSubmit<T, R> = fn => {
+        // eslint-disable-next-line react-hooks/immutability
         onSubmit = fn;
     };
 

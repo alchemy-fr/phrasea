@@ -74,12 +74,20 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
             }
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $object);
 
+            $criteria = [
+                'integration' => $data->getId(),
+                'objectType' => $objectType,
+                'objectId' => $object->getId(),
+            ];
+
+            if (!$this->security->isGranted(AbstractVoter::EDIT, $object)) {
+                $criteria['userId'] = $this->getStrictUserOrOAuthClient()->getUserIdentifier();
+            }
+
             $subData = $this->integrationDataManager
-                ->findBy([
-                    'integration' => $data->getId(),
-                    'objectType' => $objectType,
-                    'objectId' => $object->getId(),
-                ]);
+                ->findBy($criteria, [
+                    'createdAt' => 'DESC',
+                ], 200);
 
             $output->setData($subData);
         }

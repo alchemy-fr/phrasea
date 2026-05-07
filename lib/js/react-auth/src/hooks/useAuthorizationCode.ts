@@ -87,7 +87,7 @@ export function useAuthorizationCode({
 
                             return;
                         }
-                    } catch (e: any) {
+                    } catch (_e: any) {
                         // Ignore
                     }
                 }

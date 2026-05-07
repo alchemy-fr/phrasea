@@ -32,7 +32,10 @@ final class IntegrationDataProvider implements ProviderInterface
         $this->denyAccessUnlessGranted(AbstractVoter::READ, $integration->getWorkspace());
 
         $filters = $context['filters'] ?? [];
-        $filters['integrationId'] = $integrationId;
+
+        if (!$this->security->isGranted(AbstractVoter::EDIT, $integration)) {
+            $filters['userId'] = $this->getStrictUserOrOAuthClient()->getUserIdentifier();
+        }
         $context['filters'] = $filters;
 
         return $this->collectionProvider->provide($operation, $uriVariables, $context);

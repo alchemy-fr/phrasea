@@ -44,7 +44,8 @@ export function CommonAppLeftMenu({
                     socketUrl={config.notifications.socketUrl}
                     apiUrl={config.notifications.apiUrl}
                     uriHandler={notificationUriHandler}
-                    children={({open, onClick, bellIcon}) => {
+                >
+                    {({open, onClick, bellIcon}) => {
                         return (
                             <MenuItem selected={open} onClick={onClick}>
                                 <ListItemIcon>{bellIcon}</ListItemIcon>
@@ -57,7 +58,7 @@ export function CommonAppLeftMenu({
                             </MenuItem>
                         );
                     }}
-                />
+                </Notifications>
             ) : null}
             {!user ? (
                 <MenuItem component={'a'} href={getLoginUrl()}>

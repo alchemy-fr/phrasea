@@ -1,7 +1,7 @@
 import {Asset, AssetTypeFilter, Tag} from '../../../types';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'react-toastify';
-import {useFormSubmit} from '@alchemy/api';
+import {getAxiosError, useFormSubmit} from '@alchemy/api';
 import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {
@@ -69,14 +69,8 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
         } catch (e: any) {
             // eslint-disable-next-line no-console
             console.error('e', e);
-            if (e.response && typeof e.response.data === 'object') {
-                const data = e.response.data;
-                setError(
-                    `${data['hydra:title']}: ${data['hydra:description']}`
-                );
-            } else {
-                setError(e.toString());
-            }
+            const error = getAxiosError(e);
+            setError(error?.message ?? e.toString());
         }
     }, [getActions]);
 

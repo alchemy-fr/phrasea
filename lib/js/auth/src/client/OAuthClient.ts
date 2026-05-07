@@ -585,7 +585,7 @@ export function normalizeRedirectUri(uri: string): string {
 export function inIframe(): boolean {
     try {
         return window.self !== window.top;
-    } catch (e) {
+    } catch (_e) {
         return true;
     }
 }

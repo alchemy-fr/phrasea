@@ -126,7 +126,8 @@ export default function SettingDropdown({
                             <DashboardMenu
                                 key={'services_menu'}
                                 dashboardBaseUrl={config.dashboardBaseUrl}
-                                children={({icon, open, onClick, ...props}) => {
+                            >
+                                {({icon, open, onClick, ...props}) => {
                                     return (
                                         <MenuItem
                                             selected={open}
@@ -146,7 +147,7 @@ export default function SettingDropdown({
                                         </MenuItem>
                                     );
                                 }}
-                            />
+                            </DashboardMenu>
                         ) : null,
                         <Box key={'dark_mode'} sx={{p: 1}}>
                             <DarkModeSwitch />

@@ -46,11 +46,11 @@
         "@types/node": "^18.19.127",
         "@types/react": "^18.3.24",
         "@types/react-dom": "^18.3.7",
-        "@vitejs/plugin-react-swc": "^3.11.0",
+        "@vitejs/plugin-react-swc": "^4.3.0",
         "ts-node": "^10.9.2",
         "typescript": "^5.9.2",
-        "vite": "^5.4.21",
-        "vite-plugin-checker": "^0.6.4",
-        "vite-plugin-svgr": "^4.5.0"
+        "vite": "^7.3.2",
+        "vite-plugin-checker": "^0.13.0",
+        "vite-plugin-svgr": "^5.2.0"
     }
 }

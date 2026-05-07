@@ -176,9 +176,7 @@ export function createRouterProviderRoutes(
             Component: () => (
                 <ErrorBoundaryComponent fallback={ErrorComponent}>
                     {WrapperComponent ? (
-                        React.createElement(WrapperComponent, {
-                            children: <Outlet />,
-                        })
+                        React.createElement(WrapperComponent, {}, <Outlet />)
                     ) : (
                         <Outlet />
                     )}

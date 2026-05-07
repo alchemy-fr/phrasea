@@ -38,7 +38,18 @@ export function CommonAppTopMenu({
                     socketUrl={config.notifications.socketUrl}
                     apiUrl={config.notifications.apiUrl}
                     uriHandler={notificationUriHandler}
-                    children={({open, onClick, bellIcon}) => {
+                    popoverProps={{
+                        anchorOrigin: {
+                            vertical: 'bottom',
+                            horizontal: 'right',
+                        },
+                        transformOrigin: {
+                            vertical: 'top',
+                            horizontal: 'right',
+                        },
+                    }}
+                >
+                    {({open, onClick, bellIcon}) => {
                         return (
                             <IconButton
                                 title={t(
@@ -52,17 +63,7 @@ export function CommonAppTopMenu({
                             </IconButton>
                         );
                     }}
-                    popoverProps={{
-                        anchorOrigin: {
-                            vertical: 'bottom',
-                            horizontal: 'right',
-                        },
-                        transformOrigin: {
-                            vertical: 'top',
-                            horizontal: 'right',
-                        },
-                    }}
-                />
+                </Notifications>
             ) : null}
             {!user ? (
                 <Button
