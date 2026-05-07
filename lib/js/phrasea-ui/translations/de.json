@@ -4,6 +4,9 @@
             "menu": {
                 "account": "Mein Konto",
                 "logout": "Abmelden"
+            },
+            "load_more": {
+                "label": "Mehr laden"
             }
         }
     }
