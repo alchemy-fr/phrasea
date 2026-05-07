@@ -18,7 +18,13 @@
     "download_original": "Télécharger le fichier original",
     "download_via_email": {
         "cta": "Télécharger via email",
-        "sent": "Vous allez recevoir votre lien de téléchargement par email."
+        "sent": "Vous allez recevoir votre lien de téléchargement par email.",
+        "cancel": "Annuler",
+        "email": {
+            "helper": "Entrez l'adresse e-mail à laquelle vous souhaitez recevoir le lien de téléchargement.",
+            "label": "Email"
+        },
+        "submit_request": "Demande de téléchargement"
     },
     "email": {
         "label": "Email"
@@ -28,10 +34,119 @@
         "not_found": "Introuvable"
     },
     "error": {
-        "invalid_password": "Mot de passe invalide"
+        "invalid_password": "Mot de passe invalide",
+        "authentication_required": "Authentification requise",
+        "forbidden": "Interdit",
+        "not_found": "Introuvable",
+        "unexpected": "Erreur inattendue"
     },
     "form": {
-        "continue": "Continuer"
+        "continue": "Continuer",
+        "profile": {
+            "config": {
+                "label": "Configuration"
+            },
+            "create": {
+                "success": "Profil créé !",
+                "title": "Créer un Profil"
+            },
+            "edit": {
+                "submit": "Enregistrer le Profil",
+                "success": "Profil enregistré !",
+                "title": "Modifier le Profil"
+            },
+            "name": {
+                "label": "Nom"
+            }
+        },
+        "publication": {
+            "config": {
+                "beginsAt": {
+                    "label": "Commence à"
+                },
+                "downloadEnabled": {
+                    "label": "Téléchargement activé"
+                },
+                "downloadTerms": {
+                    "enabledLabel": "Activer les conditions générales de téléchargement"
+                },
+                "downloadViaEmail": {
+                    "label": "Télécharger par Email"
+                },
+                "enabled": {
+                    "label": "Activé"
+                },
+                "expiresAt": {
+                    "label": "Expire le"
+                },
+                "includeDownloadTermsInZippy": {
+                    "label": "Inclure les Conditions de téléchargement dans l'archive"
+                },
+                "label": "Configuration",
+                "layout": {
+                    "label": "Mise en page",
+                    "options": {
+                        "download": "Télécharger",
+                        "gallery": "Galerie",
+                        "grid": "Grille",
+                        "mapbox": "Mapbox"
+                    }
+                },
+                "overridden": {
+                    "label": "Ignorer les paramètres"
+                },
+                "publiclyListed": {
+                    "label": "Listé en mode public"
+                },
+                "securityMethod": {
+                    "label": "Méthode de sécurité",
+                    "options": {
+                        "authentication": "Authentification",
+                        "password": "Mot de passe",
+                        "public": "Public"
+                    }
+                },
+                "securityOptions": {
+                    "password": {
+                        "label": "Mot de passe"
+                    }
+                },
+                "terms": {
+                    "enabledLabel": "Activer les termes et conditions"
+                }
+            },
+            "date": {
+                "label": "Date"
+            },
+            "edit": {
+                "submit": "Enregistrer la Publication",
+                "success": "Publication enregistrée !",
+                "title": "Modifier la publication"
+            },
+            "parent": {
+                "label": "Publication parente"
+            },
+            "profile": {
+                "edit": "Modifier le Profil",
+                "label": "Profil"
+            },
+            "slug": {
+                "helper": "Le slug est utilisé dans l'URL de publication.",
+                "label": "Slug"
+            },
+            "terms": {
+                "text": {
+                    "label": "Contenu des Conditions d'utilisation"
+                },
+                "url": {
+                    "helper": "Vous pouvez également fournir une URL vers les conditions d'utilisation.",
+                    "label": "URL des Conditions d'utilisation"
+                }
+            },
+            "title": {
+                "label": "Titre"
+            }
+        }
     },
     "modal": {
         "close": "Fermer",
@@ -47,7 +162,34 @@
         "password_required": {
             "enter_password": "Saisir le mot de passe",
             "submit": "OK"
-        }
+        },
+        "asset": {
+            "download": "Télécharger"
+        },
+        "delete_confirm": "Supprimer la publication",
+        "delete_title": "Supprimer la publication « {{title}} »",
+        "disabled": "Cette publication est actuellement désactivée. Seuls les administrateurs peuvent la voir.",
+        "layout": {
+            "download": {
+                "download_original": "Télécharger le fichier original",
+                "download_subdef": "Télécharger {{name}}"
+            }
+        },
+        "noAssetAvailable": "Aucun Asset disponible",
+        "security": {
+            "password": {
+                "form": {
+                    "password": {
+                        "label": "Mot de passe"
+                    },
+                    "submit": {
+                        "label": "Entrer"
+                    }
+                },
+                "intro": "Cette publication est protégée par un mot de passe. Entrez le mot de passe pour y accéder."
+            }
+        },
+        "sort_by": "Trier par {{order}}"
     },
     "publication_security_proxy": {
         "sorry_you_cannot_access_this_publication": "Désolé ! Vous ne pouvez pas accéder à cette publication."
@@ -55,7 +197,13 @@
     "terms": {
         "accept": "Accepter",
         "please_read_accept": "Merci de lire et d'accepter les <link>conditions</link>",
-        "terms": "Conditions"
+        "terms": "Conditions",
+        "dialog": {
+            "accept": "Accepter",
+            "please_read_accept": "Veuillez lire et accepter les <link> Conditions d'utilisation</link>",
+            "terms_cta": "Conditions d'utilisation",
+            "title": "Termes et conditions"
+        }
     },
     "asset_proxy": {
         "unsupported_media_type": "Type de média non pris en charge"
@@ -68,5 +216,38 @@
         "close": "Fermer",
         "expose": "Expose",
         "soon": "Bientôt disponible"
+    },
+    "download_terms": {
+        "dialog": {
+            "accept": "Accepter et télécharger",
+            "cancel": "Annuler",
+            "please_read_accept": "Veuillez lire et accepter les <link> conditions de téléchargement</link>",
+            "terms_cta": "Afficher les Conditions de téléchargement",
+            "title": "Télécharger les termes et conditions"
+        }
+    },
+    "embeded_asset": {
+        "publication_disabled": "La publication de cet asset est désactivée. Seuls les administrateurs peuvent le voir."
+    },
+    "profile": {
+        "delete_confirm": "Supprimer le Profil",
+        "delete_title": "Supprimer le Profil « {{title}} »",
+        "list": {
+            "create_button": "Créer un Profil",
+            "title": "Profils",
+            "using_publications_one": "{{count}} publication utilisant ce profil",
+            "using_publications_many": "{{count}} publications utilisant ce profil",
+            "using_publications_other": "{{count}} publications utilisant ce profil"
+        }
+    },
+    "publicationHeader": {
+        "editButton": "Modifier",
+        "homeLink": "Accueil"
+    },
+    "publication_card": {
+        "delete": "Supprimer",
+        "disabled_tooltip": "Cette publication est désactivée, seuls les opérateurs peuvent y accéder.",
+        "edit": "Modifier",
+        "unlisted": "Cette publication n'est pas répertoriée, vous pouvez la voir car vous disposez des autorisations"
     }
 }
