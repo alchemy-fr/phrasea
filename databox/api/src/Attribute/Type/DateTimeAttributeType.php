@@ -101,9 +101,9 @@ class DateTimeAttributeType extends AbstractAttributeType
             if (AttributeInterface::NO_LOCALE === $locale) {
                 $locale = 'en';
             }
-            $formatter = new \IntlDateFormatter($locale, \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT);
+            $formatter = new \IntlDateFormatter($locale, \IntlDateFormatter::LONG, \IntlDateFormatter::SHORT);
 
-            return $date->format($formatter->getPattern());
+            return $formatter->format($date);
         }
 
         return '';
