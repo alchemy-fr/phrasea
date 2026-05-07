@@ -91,7 +91,9 @@
         },
         "form_saved": "Formular wurde erfolgreich gespeichert",
         "list": {
-            "create_button": "Neue Zielparameter erstellen"
+            "create_button": "Neue Zielparameter erstellen",
+            "delete": "Löschen",
+            "delete_confirm_message": "Sind Sie sicher, dass Sie die Parameter von Ziel {{name}} löschen möchten?"
         }
     }
 }
