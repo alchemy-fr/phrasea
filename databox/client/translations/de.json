@@ -101,7 +101,8 @@
                     "label": "Kollektion verwalten"
                 },
                 "edit_assets": {
-                    "desc": "Ermöglicht das Bearbeiten von Asset-Attributen in der Kollektion und in untergeordneten Kollektionen."
+                    "desc": "Ermöglicht das Bearbeiten von Asset-Attributen in der Kollektion und in untergeordneten Kollektionen.",
+                    "label": "Asset-Attribute bearbeiten"
                 }
             }
         },
