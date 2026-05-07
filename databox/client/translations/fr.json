@@ -34,7 +34,7 @@
             }
         },
         "permission": {
-            "all": "TOUS",
+            "all": "Toutes",
             "create": "CRÉER",
             "delete": "SUPPRIMER",
             "edit": "MODIFIER",
@@ -45,6 +45,9 @@
             "share": "PARTAGER",
             "undelete": "RETABLIR",
             "view": "VISUALISER"
+        },
+        "parent": {
+            "show": "Afficher les autorisations des parents <strong> {{name}} </strong>"
         }
     },
     "Asset": {
