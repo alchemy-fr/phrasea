@@ -65,6 +65,8 @@
         "publications": "Publications"
     },
     "common": {
-        "close": "Fermer"
+        "close": "Fermer",
+        "expose": "Expose",
+        "soon": "Bientôt disponible"
     }
 }
