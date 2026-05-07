@@ -5,3 +5,4 @@
 .turbo
 .pnpm-store
 node_modules
+phrasea-manifest.json
