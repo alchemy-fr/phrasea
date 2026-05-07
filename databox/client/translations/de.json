@@ -43,8 +43,70 @@
             "owner": "BESITZER",
             "share": "TEILEN",
             "undelete": "WIEDERHERSTELLEN",
-            "all": "ALLE",
-            "view": "ANSEHEN"
+            "all": "Alle",
+            "view": "ANSEHEN",
+            "asset": {
+                "delete": {
+                    "desc": "Ermöglicht das Löschen dieses Assets.",
+                    "label": "Löschen"
+                },
+                "edit": {
+                    "desc": "Ermöglicht das Bearbeiten der Attribute des Assets.",
+                    "label": "Attribute bearbeiten"
+                },
+                "edit_permissions": {
+                    "desc": "Ermöglicht das Ändern von Berechtigungen und Datenschutzeinstellungen für Assets, die Sie besitzen.",
+                    "label": "Genehmigungen bearbeiten/Datenschutz"
+                },
+                "operator": {
+                    "desc": "Ermöglicht Verwaltungsaktionen für das Asset ({{manage_asset_desc}}).",
+                    "label": "Verwalten"
+                },
+                "owner": {
+                    "desc": "Volle Kontrolle über dieses Asset, mit Ausnahme der Berechtigungen und Datenschutzeinstellungen.",
+                    "label": "Besitzer"
+                },
+                "view": {
+                    "desc": "Ermöglicht das Anzeigen dieses Assets, aber nicht unbedingt der Kollektion, zu der es gehört.",
+                    "label": "Ansehen"
+                }
+            },
+            "collection": {
+                "assets_operator": {
+                    "desc": "Ermöglicht Verwaltungsaktionen für Assets ({{manage_asset_desc}}) in der Kollektion und in untergeordneten Kollektionen.",
+                    "label": "Assets verwalten"
+                },
+                "assets_owner": {
+                    "desc": "Volle Kontrolle über Assets innerhalb der Kollektion und untergeordneter Kollektionen, mit Ausnahme von Berechtigungen und Datenschutzeinstellungen.",
+                    "label": "Besitzer von Assets"
+                },
+                "create": {
+                    "desc": "Ermöglicht das Erstellen untergeordneter Kollektionen innerhalb dieser Kollektion. Neue Kinder erben dieselben Berechtigungen wie die übergeordnete Kollektion.",
+                    "label": "Kollektionen erstellen"
+                },
+                "create_assets": {
+                    "desc": "Ermöglicht das Erstellen von Assets in der Kollektion und in untergeordneten Kollektionen.",
+                    "label": "Assets erstellen"
+                },
+                "delete": {
+                    "desc": "Ermöglicht das Löschen dieser Kollektion, untergeordneter Kollektionen und ihrer Assets.",
+                    "label": "Löschen"
+                },
+                "delete_assets": {
+                    "desc": "Ermöglicht das Löschen von Assets innerhalb der Kollektion und untergeordneter Kollektionen.",
+                    "label": "Assets Löschen"
+                },
+                "edit": {
+                    "desc": "Ermöglicht die Verwaltung dieser Kollektion, aber nicht die Bearbeitung von Assets innerhalb der Kollektion.",
+                    "label": "Kollektion verwalten"
+                },
+                "edit_assets": {
+                    "desc": "Ermöglicht das Bearbeiten von Asset-Attributen in der Kollektion und in untergeordneten Kollektionen."
+                }
+            }
+        },
+        "parent": {
+            "show": "Elternberechtigungen anzeigen <strong> {{name}} </strong>"
         }
     },
     "asset": {
