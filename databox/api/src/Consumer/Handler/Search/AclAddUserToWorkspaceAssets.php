@@ -8,7 +8,7 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 final readonly class AclAddUserToWorkspaceAssets
 {
     public function __construct(
-        public ?string $workspaceId = null,
+        public ?string $workspaceId,
         public int $userType,
         public string $userId,
     ) {
