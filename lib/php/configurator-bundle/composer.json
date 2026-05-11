@@ -18,8 +18,8 @@
         "php": "^8.5",
         "alchemy/core-bundle": "@dev",
         "aws/aws-sdk-php": "^3.325",
-        "symfony/framework-bundle": "^6",
-        "symfony/validator": "^6.4"
+        "symfony/framework-bundle": "^7",
+        "symfony/validator": "^7"
     },
     "config": {
         "sort-packages": true,

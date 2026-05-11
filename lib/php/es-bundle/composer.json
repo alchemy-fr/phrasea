@@ -9,12 +9,15 @@
     "license": "MIT",
     "require": {
         "php": "^8.5",
-        "symfony/framework-bundle": "^6.4",
-        "friendsofsymfony/elastica-bundle": "^6.3",
-        "symfony/messenger": "^6.4"
+        "symfony/framework-bundle": "^7",
+        "friendsofsymfony/elastica-bundle": "^7.1",
+        "symfony/messenger": "^7.4"
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
     },
     "scripts": {
         "cs": "vendor/bin/php-cs-fixer fix",

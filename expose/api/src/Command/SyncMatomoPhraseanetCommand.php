@@ -27,10 +27,10 @@ final class SyncMatomoPhraseanetCommand extends Command
         $this->matomoClient = $matomoClient;
         $this->phraseanetClient = $phraseanetClient;
 
-        parent::__construct();
+        parent::__construct(self::$defaultName);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $limit = 500;
         $offset = 0;

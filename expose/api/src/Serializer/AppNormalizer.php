@@ -32,12 +32,19 @@ final class AppNormalizer implements NormalizerInterface, NormalizerAwareInterfa
         return !isset($context[$this->getObjectKey($data)]);
     }
 
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($object, $format = null, array $context = []): array|\ArrayObject|bool|float|int|string|null
     {
         $context[$this->getObjectKey($object)] = true;
         $this->entityNormalizer->normalize($object, $context);
 
         return $this->normalizer->normalize($object, $format, $context);
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            '*' => true,
+        ];
     }
 
     private function getObjectKey(object $object): string
