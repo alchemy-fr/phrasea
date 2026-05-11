@@ -26,7 +26,6 @@ doctrine:
             App:
                 type: attribute
                 is_bundle: false
-                type: attribute
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App

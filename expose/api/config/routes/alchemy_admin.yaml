@@ -1,7 +1,9 @@
 alchemy_admin:
     resource: '@AlchemyAdminBundle/Resources/config/routes.yaml'
     prefix: /admin
+    type: attribute
 
 alchemy_admin_acl:
     resource: '@AlchemyAdminBundle/Resources/config/routes_acl.yaml'
     prefix: /admin
+    type: attribute
