@@ -7,7 +7,7 @@ use App\Elasticsearch\ElasticSearchClient;
 use App\Entity\Core\Collection;
 use App\Repository\Core\CollectionRepository;
 
-final readonly class AclIndexUpdateService
+final readonly class AclAssetIndexUpdateService
 {
     public function __construct(
         private ElasticSearchClient $elasticSearchClient,

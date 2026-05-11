@@ -12,8 +12,10 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Api\OutputTransformer\CollectionOutputTransformer;
+use App\Consumer\Handler\Search\AclAddUserToCollection;
 use App\Consumer\Handler\Search\AclAddUserToCollectionAssets;
 use App\Consumer\Handler\Search\AclAddUserToWorkspaceAssets;
+use App\Consumer\Handler\Search\AclAddUserToWorkspaceCollections;
 use App\Consumer\Handler\Search\IndexAllAssets;
 use App\Consumer\Handler\Search\IndexAllCollections;
 use App\Consumer\Handler\Search\IndexCollectionBranch;
@@ -78,33 +80,46 @@ readonly class AclListener
     {
         $objectClass = $this->objectMapping->getClassName($event->getObjectType());
         $assetsHandled = false;
+        $collectionsHandled = false;
 
         switch ($objectClass) {
             case Workspace::class:
-                $discriminantPerms = [
+                $assetDiscriminantPerms = [
                     PermissionInterface::CHILD_VIEW,
                     PermissionInterface::CHILD_OWNER,
                     PermissionInterface::OWNER,
                 ];
 
-                if (!$this->hasOneOfPermissions($previousPermissions, $discriminantPerms)) {
-                    if ($this->hasOneOfPermissions($newPermissions, $discriminantPerms)) {
+                if (!$this->hasOneOfPermissions($previousPermissions, $assetDiscriminantPerms)) {
+                    if ($this->hasOneOfPermissions($newPermissions, $assetDiscriminantPerms)) {
                         $this->bus->dispatch(new AclAddUserToWorkspaceAssets($event->getObjectId(), $event->getUserType(), $event->getUserId()));
                     }
 
                     $assetsHandled = true;
                 }
-                // no break
+
+                $collectionDiscriminantPerms = [
+                    PermissionInterface::OWNER,
+                ];
+
+                if (!$this->hasOneOfPermissions($previousPermissions, $collectionDiscriminantPerms)) {
+                    if ($this->hasOneOfPermissions($newPermissions, $collectionDiscriminantPerms)) {
+                        $this->bus->dispatch(new AclAddUserToWorkspaceCollections($event->getObjectId(), $event->getUserType(), $event->getUserId()));
+                    }
+
+                    $collectionsHandled = true;
+                }
+                break;
             case Collection::class:
-                $discriminantPerms = [
+                $assetDiscriminantPerms = [
                     PermissionInterface::VIEW,
                     PermissionInterface::CHILD_VIEW,
                     PermissionInterface::CHILD_OWNER,
                     PermissionInterface::OWNER,
                 ];
 
-                if (!$this->hasOneOfPermissions($previousPermissions, $discriminantPerms)) {
-                    if ($this->hasOneOfPermissions($newPermissions, $discriminantPerms)) {
+                if (!$this->hasOneOfPermissions($previousPermissions, $assetDiscriminantPerms)) {
+                    if ($this->hasOneOfPermissions($newPermissions, $assetDiscriminantPerms)) {
                         $collectionId = $event->getObjectId();
                         if (null === $collectionId) {
                             $this->bus->dispatch(new AclAddUserToWorkspaceAssets(null, $event->getUserType(), $event->getUserId()));
@@ -115,12 +130,31 @@ readonly class AclListener
 
                     $assetsHandled = true;
                 }
+
+                $collectionDiscriminantPerms = [
+                    PermissionInterface::VIEW,
+                    PermissionInterface::OWNER,
+                ];
+
+                if (!$this->hasOneOfPermissions($previousPermissions, $collectionDiscriminantPerms)) {
+                    if ($this->hasOneOfPermissions($newPermissions, $collectionDiscriminantPerms)) {
+                        $collectionId = $event->getObjectId();
+                        if (null === $collectionId) {
+                            $this->bus->dispatch(new AclAddUserToWorkspaceCollections(null, $event->getUserType(), $event->getUserId()));
+                        } else {
+                            $this->bus->dispatch(new AclAddUserToCollection($collectionId, $event->getUserType(), $event->getUserId()));
+                        }
+                    }
+
+                    $collectionsHandled = true;
+                }
+                break;
         }
 
-        $this->indexObject($event->getObjectType(), $event->getObjectId(), $assetsHandled);
+        $this->indexObject($event->getObjectType(), $event->getObjectId(), $assetsHandled, $collectionsHandled);
     }
 
-    private function indexObject(string $objectType, ?string $objectId, bool $assetsHandled): void
+    private function indexObject(string $objectType, ?string $objectId, bool $assetsHandled, bool $collectionsHandled): void
     {
         $this->collectionCache->invalidateTags([CollectionOutputTransformer::COLLECTION_CACHE_NS]);
 
@@ -135,7 +169,9 @@ readonly class AclListener
                     }
                     break;
                 case Collection::class:
-                    $this->bus->dispatch(new IndexAllCollections());
+                    if (!$collectionsHandled) {
+                        $this->bus->dispatch(new IndexAllCollections());
+                    }
                     if (!$assetsHandled) {
                         $this->bus->dispatch(new IndexAllAssets());
                     }
@@ -150,13 +186,17 @@ readonly class AclListener
                 if (!$assetsHandled) {
                     $this->bus->dispatch(new IndexAllAssets($objectId));
                 }
-                $this->bus->dispatch(new IndexAllCollections($objectId));
+                if (!$collectionsHandled) {
+                    $this->bus->dispatch(new IndexAllCollections($objectId));
+                }
                 break;
             case Asset::class:
                 $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], Operation::Upsert);
                 break;
             case Collection::class:
-                $this->bus->dispatch(new IndexCollectionBranch($objectId, !$assetsHandled));
+                if (!$collectionsHandled) {
+                    $this->bus->dispatch(new IndexCollectionBranch($objectId, !$assetsHandled));
+                }
                 break;
         }
     }
