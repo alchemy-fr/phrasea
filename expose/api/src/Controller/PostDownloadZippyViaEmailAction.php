@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(path: '/publications/{id}/zippy/download-request', name: 'download_zippy_request_create', methods: ['POST'])]
 final class PostDownloadZippyViaEmailAction extends AbstractController
