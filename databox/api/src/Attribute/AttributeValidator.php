@@ -87,28 +87,27 @@ final readonly class AttributeValidator
                 throw new BadRequestHttpException(sprintf('Attribute "%s" is not translatable but locale was provided', $definition->getName()));
             }
 
-            if (null !== $attributeInput->value) {
+            $value = $attributeInput->value;
+            if (null !== $value) {
                 $type = $this->typeRegistry->getStrictType($definition->getFieldType());
-                $validationContext->setNode($attributeInput->value, $attributeInput, null, sprintf('%s[%d].value', $contextName, $i));
+                $validationContext->setNode($value, $attributeInput, null, sprintf('%s[%d].value', $contextName, $i));
 
                 if ($definition->isMultiple()) {
-                    if (!is_array($attributeInput->value)) {
-                        throw new BadRequestHttpException(sprintf('Attribute "%s" expects an array of values', $definition->getName()));
+                    if (!is_array($value)) {
+                        $value = [$value];
                     }
 
-                    foreach ($attributeInput->value as $j => $value) {
-                        $validationContext->setNode($attributeInput->value, $attributeInput, null, sprintf('%s[%d].value[%s]', $contextName, $i, $j));
-                        if (null !== $value) {
-                            $type->validate($value, $validationContext);
+                    foreach ($value as $j => $v) {
+                        $validationContext->setNode($value, $attributeInput, null, sprintf('%s[%d].value[%s]', $contextName, $i, $j));
+                        if (null !== $v) {
+                            $type->validate($v, $validationContext);
                         }
                     }
 
                     continue;
                 }
-                if (null !== $attributeInput->value) {
-                    $type->validate($attributeInput->value, $validationContext);
-                }
 
+                $type->validate($value, $validationContext);
             }
         }
 
