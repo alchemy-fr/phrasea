@@ -93,7 +93,18 @@
         "list": {
             "create_button": "Neue Zielparameter erstellen",
             "delete": "Löschen",
-            "delete_confirm_message": "Sind Sie sicher, dass Sie die Parameter von Ziel {{name}} löschen möchten?"
+            "delete_confirm_message": "Sind Sie sicher, dass Sie die Parameter von Ziel {{name}} löschen möchten?",
+            "delete_confirm_title": "Formularschema löschen",
+            "edit": "Bearbeiten",
+            "empty": "Keine",
+            "title": "Zielparameter"
+        },
+        "save_form": "Formular speichern",
+        "target": {
+            "label": "Ziel"
         }
+    },
+    "upload": {
+        "cancelConfirmation": "Möchten Sie den aktuellen Upload wirklich abbrechen?"
     }
 }
