@@ -7,6 +7,13 @@ doctrine:
         server_version: '11.2'
         charset: utf8
         url: '%env(resolve:DATABASE_URL)%'
+
+        # IMPORTANT: You MUST configure your server version,
+        # either here or in the DATABASE_URL env var (see .env file)
+        #server_version: '16'
+
+        profiling_collect_backtrace: '%kernel.debug%'
+        use_savepoints: true
     orm:
         connection: default
         auto_generate_proxy_classes: true
@@ -17,6 +24,7 @@ doctrine:
         auto_mapping: true
         mappings:
             App:
+                type: attribute
                 is_bundle: false
                 type: attribute
                 dir: '%kernel.project_dir%/src/Entity'
