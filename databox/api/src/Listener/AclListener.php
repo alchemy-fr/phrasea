@@ -156,7 +156,7 @@ readonly class AclListener
                 $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], Operation::Upsert);
                 break;
             case Collection::class:
-                $this->bus->dispatch(new IndexCollectionBranch($objectId));
+                $this->bus->dispatch(new IndexCollectionBranch($objectId, !$assetsHandled));
                 break;
         }
     }

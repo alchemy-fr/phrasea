@@ -104,10 +104,6 @@ final class BooleanAttributeType extends AbstractAttributeType
 
     public function validate($value, ExecutionContextInterface $context): void
     {
-        if (null === $value) {
-            return;
-        }
-
         if (!is_bool($value)) {
             $context->addViolation('Invalid boolean');
         }
