@@ -40,6 +40,10 @@ final class Version20260512113431 extends AbstractMigration
         $this->addSql('DROP INDEX uniq_integration_key');
         $this->addSql('ALTER TABLE workspace_integration RENAME COLUMN title TO name');
         $this->addSql('CREATE UNIQUE INDEX uniq_integration_key ON workspace_integration (workspace_id, name, integration)');
+
+        $this->addSql(<<<SQL
+            UPDATE collection SET translations = translations::jsonb - 'title' || jsonb_build_object('name', translations::jsonb->'title') WHERE translations IS NOT NULL AND translations::jsonb ? 'title';
+        SQL);
     }
 
     public function down(Schema $schema): void
@@ -71,5 +75,9 @@ final class Version20260512113431 extends AbstractMigration
         $this->addSql('ALTER TABLE basket RENAME COLUMN name TO title');
         $this->addSql('ALTER TABLE profile RENAME COLUMN name TO title');
         $this->addSql('ALTER TABLE collection RENAME COLUMN name TO title');
+
+        $this->addSql(<<<SQL
+            UPDATE collection SET translations = translations::jsonb - 'name' || jsonb_build_object('title', translations::jsonb->'name') WHERE translations IS NOT NULL AND translations::jsonb ? 'name';
+        SQL);
     }
 }
