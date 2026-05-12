@@ -31,7 +31,7 @@ type Props = {
 const GridWidget: WidgetInterface<Props> = {
     name: 'grid',
 
-    getTitle(t: TFunction): string {
+    getDisplayName(t: TFunction): string {
         return t('editor.widgets.grid.title', 'Grid');
     },
 

@@ -107,7 +107,7 @@ export default function Widget<T extends {}>({
                         }}
                     >
                         {React.createElement(widget.optionsComponent, {
-                            name: widget.getTitle(t),
+                            title: widget.getDisplayName(t),
                             options: attrs.options,
                             updateOptions: (options: Partial<T>) => {
                                 updateAttributes({
@@ -125,7 +125,7 @@ export default function Widget<T extends {}>({
                 </Popper>
             )}
             {React.createElement(widget.component, {
-                name: widget.getTitle(t),
+                title: widget.getDisplayName(t),
                 options: attrs.options,
             })}
         </NodeViewWrapper>

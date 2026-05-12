@@ -17,7 +17,7 @@ import Footer from './Footer.tsx';
 const FooterWidget: WidgetInterface<FooterWidgetProps> = {
     name: 'footer',
 
-    getTitle(t: TFunction): string {
+    getDisplayName(t: TFunction): string {
         return t('editor.widgets.footer.title', 'Footer');
     },
 

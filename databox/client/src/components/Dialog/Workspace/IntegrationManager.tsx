@@ -141,11 +141,11 @@ function Item({
 
             <FormRow>
                 <TextField
-                    label={t('form.integration.title.label', 'Title')}
-                    {...register('title')}
+                    label={t('form.integration.name.label', 'Name')}
+                    {...register('name')}
                     disabled={submitting}
                 />
-                <FormFieldErrors field={'title'} errors={errors} />
+                <FormFieldErrors field={'name'} errors={errors} />
             </FormRow>
 
             {data.configInfo && data.configInfo.length > 0 && (

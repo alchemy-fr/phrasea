@@ -22,13 +22,13 @@ export const BasketForm: FC<FormProps<Basket>> = function ({
                 <TextField
                     autoFocus
                     required={true}
-                    label={t('form.basket.title.label', 'Title')}
+                    label={t('form.basket.name.label', 'Name')}
                     disabled={submitting}
-                    {...register('title', {
+                    {...register('name', {
                         required: true,
                     })}
                 />
-                <FormFieldErrors field={'title'} errors={errors} />
+                <FormFieldErrors field={'name'} errors={errors} />
             </FormRow>
             <FormRow>
                 <TextField

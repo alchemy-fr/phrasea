@@ -54,7 +54,7 @@ type Props = {
     files: File[];
     workspaceId?: string;
     collectionId?: string;
-    titlePath?: string[];
+    namePath?: string[];
     workspaceTitle?: string;
 } & StackedModalProps;
 
@@ -63,7 +63,7 @@ export default function UploadDialog({
     workspaceId: initWsId,
     workspaceTitle,
     collectionId: initCollectionId,
-    titlePath,
+    namePath,
     ...modalProps
 }: Props) {
     const [urlMode, setUrlMode] = React.useState(false);
@@ -291,7 +291,7 @@ export default function UploadDialog({
     const formId = 'upload';
 
     const title = workspaceTitle ? (
-        titlePath ? (
+        namePath ? (
             <>
                 <div>
                     {t(
@@ -299,7 +299,7 @@ export default function UploadDialog({
                         'Create Asset under'
                     )}{' '}
                     <WorkspaceChip label={workspaceTitle} />
-                    {titlePath.map((t: string, i: number) => (
+                    {namePath.map((t: string, i: number) => (
                         <React.Fragment key={i}>
                             {' / '}
                             <CollectionChip label={t} />

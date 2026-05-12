@@ -4,7 +4,7 @@ import React, {PropsWithChildren, ReactNode} from 'react';
 import {SubContent} from '../Editor/extensions/widgets/extension.ts';
 
 export interface WidgetInterface<T extends {} = {}> {
-    getTitle: (t: TFunction) => string;
+    getDisplayName: (t: TFunction) => string;
     name: string;
     component: React.FC<RenderWidgetProps<T>>;
     optionsComponent: React.FC<RenderWidgetOptionsProps<T>>;

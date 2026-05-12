@@ -28,7 +28,7 @@ import AddIcon from '@mui/icons-material/Add';
 const HeaderBarWidget: WidgetInterface<HeaderBarWidgetProps> = {
     name: 'header_bar',
 
-    getTitle(t: TFunction): string {
+    getDisplayName(t: TFunction): string {
         return t('editor.widgets.header_bar.title', 'Header Bar');
     },
 

@@ -140,13 +140,13 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
                             <TextField
                                 autoFocus
                                 required={true}
-                                label={t('form.asset.title.label', 'Title')}
+                                label={t('form.asset.name.label', 'Name')}
                                 disabled={submitting}
-                                {...register('title', {
+                                {...register('name', {
                                     required: true,
                                 })}
                             />
-                            <FormFieldErrors field={'title'} errors={errors} />
+                            <FormFieldErrors field={'name'} errors={errors} />
                         </FormRow>
                         <FormRow>
                             <FormGroup>

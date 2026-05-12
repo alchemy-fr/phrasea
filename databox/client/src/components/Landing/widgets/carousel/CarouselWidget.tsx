@@ -28,7 +28,7 @@ type Props = {
 const CarouselWidget: WidgetInterface<Props> = {
     name: 'carousel',
 
-    getTitle(t: TFunction): string {
+    getDisplayName(t: TFunction): string {
         return t('editor.widgets.carousel.title', 'Carousel');
     },
 

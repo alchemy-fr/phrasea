@@ -103,14 +103,14 @@ export default function SaveFileAsNewAssetDialog({
                     <TextField
                         autoFocus
                         label={t(
-                            'save_file_as_new_asset_dialog.title.label',
-                            'Title'
+                            'save_file_as_new_asset_dialog.name.label',
+                            'Name'
                         )}
                         disabled={submitting}
                         fullWidth={true}
-                        {...register('title')}
+                        {...register('name')}
                     />
-                    <FormFieldErrors field={'title'} errors={errors} />
+                    <FormFieldErrors field={'name'} errors={errors} />
                 </FormRow>
                 <FormRow>
                     <CollectionTreeWidget
