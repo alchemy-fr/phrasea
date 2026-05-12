@@ -249,5 +249,8 @@
         "disabled_tooltip": "Cette publication est désactivée, seuls les opérateurs peuvent y accéder.",
         "edit": "Modifier",
         "unlisted": "Cette publication n'est pas répertoriée, vous pouvez la voir car vous disposez des autorisations"
+    },
+    "downloadArchiveButton": {
+        "downloadArchive": "Télécharger l'archive"
     }
 }
