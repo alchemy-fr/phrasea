@@ -651,21 +651,21 @@ export function isAssetEligibleForAttributeDefinition(
 
     return !(definition.target && (definition.target & type) === 0);
 }
-export function extractTitleFromUrl(url: string): string {
+export function extractNameFromUrl(url: string): string {
     const s = url.split('/').filter(Boolean);
     return s[s.length - 1];
 }
 
-export function getAssetTitleFromFile(
+export function getAssetNameFromFile(
     file: File,
     t: TFunction<'translation', undefined>
 ) {
     return file.name === 'image.png'
-        ? createPastedImageTitle(t)
+        ? createPastedImageName(t)
         : file.name.replace(/\.[^/.]+$/, '');
 }
 
-function createPastedImageTitle(t: TFunction): string {
+function createPastedImageName(t: TFunction): string {
     return t('pasted_image.filename', {
         defaultValue: `Pasted-image-{{date}}`,
         date: moment().format('YYYY-MM-DD_HH-mm-ss'),

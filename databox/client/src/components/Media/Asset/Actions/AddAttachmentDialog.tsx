@@ -10,8 +10,8 @@ import SingleFileUploadWidget, {
 import UploadIcon from '@mui/icons-material/Upload';
 import {postAttachment} from '../../../../api/attachment.ts';
 import {
-    extractTitleFromUrl,
-    getAssetTitleFromFile,
+    extractNameFromUrl,
+    getAssetNameFromFile,
     postAsset,
     uploadAsset,
 } from '../../../../api/asset.ts';
@@ -46,12 +46,12 @@ export default function AddAttachmentDialog({
                     ? await uploadAsset({
                           file: uploadForm.file,
                           asset: {
-                              name: getAssetTitleFromFile(uploadForm.file, t),
+                              name: getAssetNameFromFile(uploadForm.file, t),
                               workspace: workspaceIri,
                           },
                       })
                     : await postAsset({
-                          name: extractTitleFromUrl(uploadForm.url),
+                          name: extractNameFromUrl(uploadForm.url),
                           sourceFile: {
                               url: uploadForm.url,
                               importFile: uploadForm.importFile,

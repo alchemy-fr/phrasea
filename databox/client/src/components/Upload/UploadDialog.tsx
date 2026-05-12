@@ -29,8 +29,8 @@ import FileToUploadCard from './FileToUploadCard.tsx';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {createCollection} from '../../api/collection.ts';
 import {
-    extractTitleFromUrl,
-    getAssetTitleFromFile,
+    extractNameFromUrl,
+    getAssetNameFromFile,
     importAssets,
     NewAssetInput,
     parseUrls,
@@ -216,7 +216,7 @@ export default function UploadDialog({
                         importFile: importFiles,
                         asset: {
                             ...assetBase,
-                            title: extractTitleFromUrl(u),
+                            title: extractNameFromUrl(u),
                         },
                     })),
                     destinationIri,
@@ -239,7 +239,7 @@ export default function UploadDialog({
                         file: f.file,
                         asset: {
                             ...assetBase,
-                            title: getAssetTitleFromFile(f.file, t),
+                            title: getAssetNameFromFile(f.file, t),
                         },
                     })),
                     destinationIri,
