@@ -139,11 +139,11 @@ export default function AssetAclForm({
                                 i18nKey={'collection.acl.parent.collection'}
                                 defaults={`Permissions on <strong>{{name}}</strong>`}
                                 values={{
-                                    name: c.localizedName,
+                                    name: c.displayName,
                                 }}
                             />
                         }
-                        name={c.localizedName}
+                        name={c.displayName}
                         parentDisplay={parentDisplay}
                     >
                         <CollectionAclForm data={c} parentDisplay={true} />
@@ -153,13 +153,13 @@ export default function AssetAclForm({
 
             {workspaceInheritance ? (
                 <ParentAcl
-                    name={data.workspace.nameTranslated}
+                    name={data.workspace.displayName}
                     title={
                         <Trans
                             i18nKey={'collection.acl.parent.workspace'}
                             defaults={`Permissions on Workspace <strong>{{name}}</strong>`}
                             values={{
-                                name: data.workspace.nameTranslated,
+                                name: data.workspace.displayName,
                             }}
                         />
                     }

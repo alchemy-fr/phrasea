@@ -28,7 +28,7 @@ class TagOutputTransformer implements OutputTransformerInterface
         $output->setId($data->getId());
         $output->setName($data->getName());
 
-        $output->nameTranslated = $data->getTranslatedField('name', $preferredLocales, $data->getName());
+        $output->displayName = $data->getTranslatedField('name', $preferredLocales, $data->getName());
         $output->translations = $data->getTranslations();
         $output->setColor($data->getColor());
 

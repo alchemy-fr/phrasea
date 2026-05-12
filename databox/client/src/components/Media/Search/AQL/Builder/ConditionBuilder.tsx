@@ -78,7 +78,7 @@ export default function ConditionBuilder({
                         .filter(def => def.searchable)
                         .map(def => ({
                             value: def.slug,
-                            label: def.nameTranslated ?? def.name,
+                            label: def.displayName ?? def.name,
                             builtIn: def.builtIn,
                         }))
                         .sort(

@@ -22,6 +22,6 @@ export default class WorkspaceType
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {
-        return value?.nameTranslated;
+        return value?.displayName;
     }
 }

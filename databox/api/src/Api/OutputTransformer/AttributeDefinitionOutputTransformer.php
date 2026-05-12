@@ -36,7 +36,7 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
-        $output->nameTranslated = $data->getTranslatedField('name', $this->getPreferredLocales($data->getWorkspace()), $data->getName());
+        $output->displayName = $data->getTranslatedField('name', $this->getPreferredLocales($data->getWorkspace()), $data->getName());
         $output->workspace = $data->getWorkspace();
         $output->policy = $data->getPolicy();
         $output->name = $data->getName();

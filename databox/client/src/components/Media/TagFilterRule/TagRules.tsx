@@ -157,7 +157,7 @@ export default function TagRules({type, workspaceId, id}: Props) {
                                                     <Chip
                                                         color={'success'}
                                                         key={t.id}
-                                                        label={t.nameTranslated}
+                                                        label={t.displayName}
                                                     />
                                                 ))}
                                             </span>
@@ -166,7 +166,7 @@ export default function TagRules({type, workspaceId, id}: Props) {
                                                     <Chip
                                                         color={'error'}
                                                         key={t.id}
-                                                        label={t.nameTranslated}
+                                                        label={t.displayName}
                                                     />
                                                 ))}
                                             </span>

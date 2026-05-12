@@ -164,7 +164,7 @@ export interface AssetFileVersion extends Entity {
 
 export interface AttributeDefinition extends IPermissions, Entity {
     name: string;
-    nameTranslated?: string;
+    displayName: string;
     slug: string;
     searchSlug: string;
     enabled: boolean;
@@ -222,7 +222,7 @@ export interface FieldType extends ApiHydraObjectResponse {
 
 export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
     name: string;
-    nameTranslated: string;
+    displayName: string;
     parent?: RenditionDefinition | string | undefined | null;
     policy: RenditionPolicy | string | null;
     workspace: Workspace | string;
@@ -239,7 +239,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
 
 export interface AssetRendition extends ApiHydraObjectResponse, Entity {
     name: string;
-    nameTranslated: string;
+    displayName: string;
     file: ApiFile | undefined;
     ready: boolean;
     dirty?: boolean;
@@ -333,7 +333,7 @@ export type EntityList = {
 
 export interface Tag extends ApiHydraObjectResponse, WithTranslations, Entity {
     name: string;
-    nameTranslated: string;
+    displayName: string;
     color: string | null;
     workspace: Workspace | string;
 }
@@ -365,7 +365,7 @@ export interface Collection
         ApiHydraObjectResponse {
     name: string;
     parentId?: string;
-    localizedName: string;
+    displayName: string;
     nameHighlight?: string;
     storyAsset?: Asset;
     absoluteName?: string;
@@ -537,7 +537,7 @@ export interface Workspace
         }>,
         Entity {
     name: string;
-    nameTranslated: string;
+    displayName: string;
     fileAnalyzers?: string;
     trashRetentionDelay?: number;
     enabledLocales?: string[] | undefined;

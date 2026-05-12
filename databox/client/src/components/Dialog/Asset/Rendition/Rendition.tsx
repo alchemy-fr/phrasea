@@ -49,7 +49,7 @@ export function Rendition({
     const {t} = useTranslation();
     const [deleting, setDeleting] = React.useState(false);
     const navigateToModal = useNavigateToModal();
-    const {nameTranslated, file, dirty, substituted, projection, locked} =
+    const {displayName, file, dirty, substituted, projection, locked} =
         rendition;
 
     const deleteRendition = async () => {
@@ -79,7 +79,7 @@ export function Rendition({
                         },
                     }}
                 >
-                    <div>{nameTranslated}</div>
+                    <div>{displayName}</div>
                     {locked && (
                         <Tooltip
                             title={t(

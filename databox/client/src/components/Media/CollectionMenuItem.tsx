@@ -59,7 +59,7 @@ export default function CollectionMenuItem({
     workspace,
     isAuthenticated,
 }: Props) {
-    const {id, localizedName, children, capabilities} = collection;
+    const {id, displayName, children, capabilities} = collection;
     const {t} = useTranslation();
     const {openModal} = useModals();
     const searchContext = useContext(SearchContext)!;
@@ -121,7 +121,7 @@ export default function CollectionMenuItem({
     const onClick = () => {
         searchContext.selectCollection(
             id,
-            (namePath ?? []).concat(localizedName).join(` / `),
+            (namePath ?? []).concat(displayName).join(` / `),
             selected
         );
         expand(true);
@@ -179,12 +179,12 @@ export default function CollectionMenuItem({
                                             openModal(UploadDialog, {
                                                 files: [],
                                                 workspaceTitle:
-                                                    workspace.nameTranslated,
+                                                    workspace.displayName,
                                                 workspaceId: workspace.id,
                                                 collectionId: id,
                                                 namePath: (
                                                     namePath ?? []
-                                                ).concat(localizedName),
+                                                ).concat(displayName),
                                             })
                                         )}
                                         aria-label="create-asset"
@@ -208,10 +208,10 @@ export default function CollectionMenuItem({
                                             openModal(CreateCollection, {
                                                 parent: collection['@id'],
                                                 workspaceTitle:
-                                                    workspace.nameTranslated,
+                                                    workspace.displayName,
                                                 namePath: (
                                                     namePath ?? []
-                                                ).concat(localizedName),
+                                                ).concat(displayName),
                                                 onCreate: coll => {
                                                     addCollection(
                                                         coll,
@@ -345,7 +345,7 @@ export default function CollectionMenuItem({
                         primary={
                             collection.nameHighlight
                                 ? replaceHighlight(collection.nameHighlight)
-                                : localizedName
+                                : displayName
                         }
                         secondary={
                             isSearch ? (
@@ -382,7 +382,7 @@ export default function CollectionMenuItem({
                                     key={`${c.id}-${c.children ? 'c' : ''}`}
                                     absolutePath={`${absolutePath}/${c.id}`}
                                     namePath={(namePath ?? []).concat(
-                                        localizedName
+                                        displayName
                                     )}
                                     level={level + 1}
                                 />

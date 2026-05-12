@@ -49,7 +49,7 @@ export default function InfoCollection({data, onClose, minHeight}: Props) {
                 <InfoRow
                     icon={<BusinessIcon />}
                     label={t('collection.info.workspace', `Workspace`)}
-                    value={`${data.workspace.nameTranslated}${data.workspace.nameTranslated !== data.workspace.name ? ` (${data.workspace.name})` : ''}`}
+                    value={`${data.workspace.displayName}${data.workspace.displayName !== data.workspace.name ? ` (${data.workspace.name})` : ''}`}
                     copyValue={data.workspace.id}
                     onClick={() => {
                         navigateToModal(modalRoutes.workspaces.routes.manage, {

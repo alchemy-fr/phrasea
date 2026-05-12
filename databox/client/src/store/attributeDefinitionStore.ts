@@ -159,7 +159,7 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 slug: BuiltInField.Collection,
                 entityIri: 'collections',
                 resolveLabel: (entity: Collection) =>
-                    entity.localizedName ?? entity.name ?? '',
+                    entity.displayName ?? entity.name ?? '',
                 searchable: true,
                 fieldType: AttributeType.CollectionPath,
                 name: t('built_in_attr.collections', 'Collections'),
@@ -171,7 +171,7 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 slug: BuiltInField.Workspace,
                 fieldType: AttributeType.Workspace,
                 resolveLabel: (entity: Workspace) =>
-                    entity.nameTranslated ?? entity.name ?? '',
+                    entity.displayName ?? entity.name ?? '',
                 entityIri: 'workspaces',
                 searchable: true,
                 name: t('built_in_attr.workspace', 'Workspace'),
@@ -232,7 +232,7 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 fieldType: AttributeType.Tag,
                 entityIri: 'tags',
                 resolveLabel: (entity: Tag) =>
-                    entity.nameTranslated ?? entity.name ?? '',
+                    entity.displayName ?? entity.name ?? '',
                 searchable: true,
                 sortable: true,
                 multiple: true,
@@ -250,7 +250,7 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 fieldType: AttributeType.Rendition,
                 entityIri: 'rendition-definitions',
                 resolveLabel: (entity: RenditionDefinition) =>
-                    entity.nameTranslated ?? entity.name ?? '',
+                    entity.displayName ?? entity.name ?? '',
                 searchable: true,
                 sortable: true,
                 multiple: true,

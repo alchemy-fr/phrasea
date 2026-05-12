@@ -53,7 +53,7 @@ export default function TagSelect<
 
                 return {
                     value: useIRI ? `${tagNS}/${t.id}` : t.id,
-                    label: t.nameTranslated,
+                    label: t.displayName,
                     item: t,
                 } as TagOptions;
             })

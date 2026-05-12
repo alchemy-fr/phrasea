@@ -383,7 +383,7 @@ export function replaceFieldFromDefinitions(
         } else if (isAQLField(expression)) {
             const def = definitionsIndex[expression.field];
             if (def) {
-                expression.field = def.nameTranslated ?? def.name;
+                expression.field = def.displayName ?? def.name;
             }
         } else if (isAQLAndOrExpression(expression)) {
             expression.conditions.forEach(c => replace(c));

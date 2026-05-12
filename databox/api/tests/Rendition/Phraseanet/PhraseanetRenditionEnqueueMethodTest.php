@@ -80,7 +80,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
-                'title' => 'Dummy asset',
+                'name' => 'Dummy asset',
                 'workspace' => $workspaceIri,
             ],
             'extra' => [
@@ -93,7 +93,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
         $this->assertJsonContains([
             '@type' => 'asset',
-            'title' => 'Dummy asset',
+            'name' => 'Dummy asset',
         ]);
         $json = json_decode($response->getContent(), true);
         $assetId = $json['id'];
@@ -191,7 +191,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains([
             '@type' => 'asset',
-            'title' => 'Dummy asset',
+            'name' => 'Dummy asset',
             'thumbnail' => [
                 'file' => [
                     'url' => $thumbnailRemoteUrl,

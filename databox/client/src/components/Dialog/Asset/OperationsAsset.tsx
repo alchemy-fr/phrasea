@@ -83,7 +83,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                                 collection:
                                     data.referenceCollection
                                         .absoluteLocalizedName,
-                                workspace: data.workspace.nameTranslated,
+                                workspace: data.workspace.displayName,
                             }}
                             components={{
                                 strong: (
@@ -101,7 +101,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                         <Trans
                             i18nKey={'asset_collections.reference_workspace'}
                             values={{
-                                workspace: data.workspace.nameTranslated,
+                                workspace: data.workspace.displayName,
                             }}
                             components={{
                                 strong: (

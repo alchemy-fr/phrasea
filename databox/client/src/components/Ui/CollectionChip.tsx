@@ -22,7 +22,7 @@ export const CollectionChip = ({children, collection, ...props}: Props) => {
             label={
                 children ||
                 props.label ||
-                collection?.localizedName ||
+                collection?.displayName ||
                 collection?.name
             }
         />

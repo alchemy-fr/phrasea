@@ -83,7 +83,7 @@ export default function AttributesEditor({
                             <FormLabel
                                 sx={{display: 'flex', alignItems: 'center'}}
                             >
-                                {d.nameTranslated ?? d.name}
+                                {d.displayName ?? d.name}
                             </FormLabel>
                             {d.entityList ? (
                                 <Button

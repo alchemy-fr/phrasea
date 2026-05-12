@@ -19,7 +19,7 @@ final class TagBuiltInField extends AbstractEntityBuiltInField
     {
         return [
             'name' => $this->resolveLabel($value),
-            'nameTranslated' => $this->resolveTranslatedLabel($value),
+            'displayName' => $this->resolveDisplayName($value),
             'color' => $value->getColor(),
         ];
     }
@@ -29,10 +29,10 @@ final class TagBuiltInField extends AbstractEntityBuiltInField
      */
     protected function resolveLabel($value): string
     {
-        return $this->resolveTranslatedLabel($value);
+        return $this->resolveDisplayName($value);
     }
 
-    protected function resolveTranslatedLabel(Tag $value): string
+    protected function resolveDisplayName(Tag $value): string
     {
         $preferredLocales = $this->getPreferredLocales($value->getWorkspace());
 

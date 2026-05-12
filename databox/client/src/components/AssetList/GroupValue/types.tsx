@@ -7,9 +7,9 @@ import {CollectionChip} from '../../Ui/CollectionChip.tsx';
 export const groupValueTypes: Record<string, (value: any) => React.ReactNode> =
     {
         t: (value: Tag) => (
-            <TagNode name={value.nameTranslated} color={value.color} />
+            <TagNode name={value.displayName} color={value.color} />
         ),
         c: (value: Collection) => (
-            <CollectionChip label={value.localizedName} collection={value} />
+            <CollectionChip label={value.displayName} collection={value} />
         ),
     };
