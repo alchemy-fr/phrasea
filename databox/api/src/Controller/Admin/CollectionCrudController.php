@@ -47,16 +47,16 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Collection')
             ->setEntityLabelInPlural('Collections')
-            ->setSearchFields(['id', 'title', 'ownerId', 'key', 'locale', 'privacy'])
+            ->setSearchFields(['id', 'name', 'ownerId', 'key', 'locale', 'privacy'])
             ->setPaginatorPageSize(100)
-            ->setDefaultSort(['workspace.name' => 'ASC', 'title' => 'ASC']);
+            ->setDefaultSort(['workspace.name' => 'ASC', 'name' => 'ASC']);
     }
 
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
             ->add(EntityFilter::new('workspace'))
-            ->add(TextFilter::new('title'))
+            ->add(TextFilter::new('name'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
     }
@@ -64,7 +64,7 @@ class CollectionCrudController extends AbstractAclAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield TextField::new('title');
+        yield TextField::new('name');
         yield JsonField::new('translations')
             ->hideOnIndex();
         yield AssociationField::new('parent')

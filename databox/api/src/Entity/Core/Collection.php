@@ -38,7 +38,7 @@ use App\Api\Provider\CollectionPrivacyInfoProvider;
 use App\Api\Provider\CollectionProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Entity\FollowableInterface;
-use App\Entity\ObjectTitleInterface;
+use App\Entity\ObjectDisplayableNameInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\ExtraMetadataTrait;
 use App\Entity\Traits\LocaleTrait;
@@ -172,7 +172,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         'groups' => [
             self::GROUP_LIST,
             self::GROUP_READ,
-            self::GROUP_ABSOLUTE_TITLE,
+            self::GROUP_ABSOLUTE_NAME,
         ],
     ],
     input: CollectionInput::class,
@@ -182,7 +182,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: CollectionRepository::class)]
-class Collection extends AbstractUuidEntity implements FollowableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, ESIndexableDependencyInterface, ESIndexableDeleteDependencyInterface, ESIndexableInterface, HighlightableModelInterface, ObjectTitleInterface, \Stringable
+class Collection extends AbstractUuidEntity implements FollowableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, ESIndexableDependencyInterface, ESIndexableDeleteDependencyInterface, ESIndexableInterface, HighlightableModelInterface, ObjectDisplayableNameInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -201,17 +201,19 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
     final public const string GROUP_READ = 'coll:r';
     final public const string GROUP_LIST = 'coll:i';
     final public const string GROUP_CHILDREN = 'coll:ic';
-    final public const string GROUP_ABSOLUTE_TITLE = 'coll:absTitle';
+    final public const string GROUP_ABSOLUTE_NAME = 'coll:absName';
 
     final public const string EVENT_ASSET_ADD = 'asset_add';
     final public const string EVENT_ASSET_UPDATE = 'asset_update';
     final public const string EVENT_ASSET_NEW_COMMENT = 'asset_new_comment';
     final public const string EVENT_ASSET_REMOVE = 'asset_remove';
 
+    final public const string TR_FIELD_NAME = 'name';
+
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
-    private ?string $title = null;
+    private ?string $name = null;
 
     #[ORM\ManyToOne(targetEntity: Collection::class, inversedBy: 'children')]
     #[ORM\JoinColumn(nullable: true)]
@@ -265,14 +267,14 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
         $this->referenceAssets = new ArrayCollection();
     }
 
-    public function getTitle(): ?string
+    public function getName(): ?string
     {
-        return $this->title;
+        return $this->name;
     }
 
-    public function setTitle(?string $title): void
+    public function setName(?string $name): void
     {
-        $this->title = $title;
+        $this->name = $name;
     }
 
     public function getParent(): ?self
@@ -291,7 +293,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
 
     public function getSortName(): string
     {
-        return strtolower($this->title ?? '');
+        return strtolower($this->name ?? '');
     }
 
     /**
@@ -392,11 +394,11 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
         return $this->privacy >= WorkspaceItemPrivacyInterface::PRIVATE;
     }
 
-    public function getAbsoluteTitle(): ?string
+    public function getAbsoluteName(): ?string
     {
-        $path = $this->getTitle();
+        $path = $this->getName();
         if (null !== $this->parent) {
-            return $this->parent->getAbsoluteTitle().' / '.$path;
+            return $this->parent->getAbsoluteName().' / '.$path;
         }
 
         return $path;
@@ -409,7 +411,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
 
     public function __toString(): string
     {
-        return $this->getAbsoluteTitle() ?? $this->getId();
+        return $this->getAbsoluteName() ?? $this->getId();
     }
 
     public function getKey(): ?string
@@ -466,9 +468,9 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
         return 'collection:'.$id.':'.$event;
     }
 
-    public function getObjectTitle(): string
+    public function getObjectDisplayName(): string
     {
-        return sprintf('Collection %s', $this->getTitle() ?: $this->getId());
+        return sprintf('Collection %s', $this->getName() ?: $this->getId());
     }
 
     public function getRelationExtraMetadata(): array
@@ -496,8 +498,8 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
      */
     public function setStoryAsset(?Asset $storyAsset): void
     {
-        if ($storyAsset && null !== $this->getTitle()) {
-            throw new \LogicException('Story collection should not have a title');
+        if ($storyAsset && null !== $this->getName()) {
+            throw new \LogicException('Story collection should not have a name');
         }
         $this->storyAsset = $storyAsset;
     }

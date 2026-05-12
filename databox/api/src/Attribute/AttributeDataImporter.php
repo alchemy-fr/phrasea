@@ -44,14 +44,14 @@ final readonly class AttributeDataImporter
                             }
                         }
                         break;
-                    case 'title':
+                    case 'name':
                         if (is_string($value) && !$asset->isStory()) {
-                            $asset->setTitle($value);
+                            $asset->setName($value);
                         }
                         break;
-                    case 'story_title':
+                    case 'story_name':
                         if (is_string($value) && $asset->isStory()) {
-                            $asset->setTitle($value);
+                            $asset->setName($value);
                         }
                         break;
                 }

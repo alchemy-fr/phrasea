@@ -109,7 +109,7 @@ class TagTest extends AbstractSearchTestCase
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
         $this->assertJsonContains([
             'name' => 'Foo translation',
-            'nameTranslated' => 'Foo translation',
+            'displayName' => 'Foo translation',
             'translations' => [
                 'name' => [
                     'fr' => 'Fou',
@@ -154,7 +154,7 @@ class TagTest extends AbstractSearchTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
             'json' => [
-                'name' => 'updated title',
+                'name' => 'updated name',
             ],
         ]);
 
@@ -165,14 +165,14 @@ class TagTest extends AbstractSearchTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
-                'name' => 'updated title',
+                'name' => 'updated name',
             ],
         ]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
             '@id' => $iri,
-            'name' => 'updated title',
+            'name' => 'updated name',
         ]);
     }
 

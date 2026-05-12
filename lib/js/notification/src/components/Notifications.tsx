@@ -3,7 +3,7 @@ import {Popover, PopoverProps, useTheme} from '@mui/material';
 import React from 'react';
 import {NotificationUriHandler} from '../types';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import {dark} from '@novu/react/themes';
+import {inboxDarkTheme} from '@novu/react/themes';
 
 type Props = {
     appIdentifier: string;
@@ -48,11 +48,13 @@ export default function Notifications({
         <>
             <Inbox
                 applicationIdentifier={appIdentifier}
-                subscriberId={userId}
+                subscriber={userId}
                 socketUrl={socketUrl}
                 backendUrl={apiUrl}
                 routerPush={uriHandler}
-                appearance={{baseTheme: isDarkMode ? dark : undefined}}
+                appearance={{
+                    baseTheme: isDarkMode ? inboxDarkTheme : undefined,
+                }}
             >
                 {children({
                     open,

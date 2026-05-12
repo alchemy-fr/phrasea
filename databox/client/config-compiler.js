@@ -78,7 +78,7 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
     let notifications = undefined;
     if (env.NOTIFICATIONS_ENABLED) {
         notifications = {
-            applicationIdentifier: env.NOVU_APPLICATION_IDENTIFIER,
+            appIdentifier: env.NOVU_APPLICATION_IDENTIFIER,
             socketUrl: env.NOVU_WS_URL,
             apiUrl: env.NOVU_API_URL,
         };

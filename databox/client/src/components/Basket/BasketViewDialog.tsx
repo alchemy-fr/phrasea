@@ -134,7 +134,7 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                             <Trans
                                 i18nKey={'basket_view_dialog.title'}
                                 values={{
-                                    name: data?.title,
+                                    name: data?.name,
                                 }}
                                 defaults={'Basket <strong>{{name}}</strong>'}
                             />

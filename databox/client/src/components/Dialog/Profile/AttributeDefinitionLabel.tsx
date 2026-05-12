@@ -7,9 +7,9 @@ export default function AttributeDefinitionLabel({data}: Props) {
     return (
         <>
             {data.builtIn ? (
-                <strong>{data.nameTranslated ?? data.name}</strong>
+                <strong>{data.displayName ?? data.name}</strong>
             ) : (
-                (data.nameTranslated ?? data.name)
+                (data.displayName ?? data.name)
             )}
         </>
     );

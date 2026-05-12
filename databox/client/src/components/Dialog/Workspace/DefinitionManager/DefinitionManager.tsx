@@ -580,6 +580,7 @@ export default function DefinitionManager<
                                             if (a.confirm) {
                                                 openModal(ConfirmDialog, {
                                                     title: a.confirm,
+
                                                     onConfirm: p,
                                                 });
                                                 return;

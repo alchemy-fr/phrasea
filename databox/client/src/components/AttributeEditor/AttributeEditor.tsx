@@ -182,7 +182,7 @@ export default function AttributeEditor({
                             displayPrefKey={'displayBatchEdit'}
                             defaultState={{
                                 thumbSize: defaultThumbSize,
-                                displayTitle: false,
+                                displayName: false,
                                 displayPreview: true,
                                 displayCollections: false,
                                 displayTags: false,

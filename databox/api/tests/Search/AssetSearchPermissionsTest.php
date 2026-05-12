@@ -25,7 +25,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         ]);
         $asset = $this->createAsset([
             'workspace' => $workspace,
-            'title' => 'Foo',
+            'name' => 'Foo',
             'public' => true,
         ]);
         self::releaseIndex();
@@ -36,13 +36,13 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchNonPublicAssetsAsAnonymousUser(): void
     {
         $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'public' => false,
             'ownerId' => 'OWNER',
         ]);
@@ -64,7 +64,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         );
 
         $asset = $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'ownerId' => KeycloakClientTestMock::USER_UID,
         ]);
 
@@ -79,13 +79,13 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchNonOwnedAssetsAsOwner(): void
     {
         $this->createAsset([
-            'title' => 'Bar',
+            'name' => 'Bar',
             'ownerId' => 'another_owner',
         ]);
 
@@ -113,7 +113,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             'ownerId' => KeycloakClientTestMock::USER_UID,
         ]);
         $asset = $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'collectionId' => $collection->getId(),
         ]);
 
@@ -129,7 +129,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchAssetsFromNonOwnedCollectionAsOwner(): void
@@ -138,7 +138,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             'ownerId' => 'another_owner',
         ]);
         $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'collectionId' => $collection->getId(),
         ]);
 
@@ -166,7 +166,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             'ownerId' => 'another_owner',
         ]);
         $asset = $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'collectionId' => $collection->getId(),
         ]);
         self::releaseIndex();
@@ -188,7 +188,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchAssetsWithACEOnAllAssets(): void
@@ -202,7 +202,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             'ownerId' => 'another_owner',
         ]);
         $asset = $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'collectionId' => $collection->getId(),
         ]);
         self::releaseIndex();
@@ -226,7 +226,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchAssetsWithACEOnCollection(): void
@@ -235,7 +235,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             'ownerId' => 'another_owner',
         ]);
         $asset = $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'collectionId' => $collection->getId(),
         ]);
         self::releaseIndex();
@@ -264,7 +264,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchAssetsWithACEOnAllCollections(): void
@@ -278,7 +278,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             'ownerId' => 'another_owner',
         ]);
         $asset = $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'collectionId' => $collection->getId(),
         ]);
         self::releaseIndex();
@@ -302,7 +302,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     /**
@@ -325,7 +325,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         foreach ($assets as $assetName => $tags) {
             $this->createAsset([
                 'workspace' => $workspace,
-                'title' => $assetName,
+                'name' => $assetName,
                 'public' => true,
                 'collectionId' => $collection->getId(),
                 'tags' => $tags,
@@ -362,7 +362,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         $this->assertSameSize($expectedResults, $data);
         $hasNamedAsset = function (string $name) use ($data): bool {
             foreach ($data as $asset) {
-                if ($asset['title'] === $name) {
+                if ($asset['name'] === $name) {
                     return true;
                 }
             }

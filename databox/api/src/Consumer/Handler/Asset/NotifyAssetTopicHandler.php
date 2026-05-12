@@ -32,7 +32,7 @@ readonly class NotifyAssetTopicHandler
         };
 
         $notificationParams = [
-            'title' => $asset?->getTitle() ?? $asset?->getId() ?? $message->getAssetTitle() ?? 'Undefined',
+            'name' => $asset?->getName() ?? $asset?->getId() ?? $message->getAssetName() ?? 'Undefined',
             'url' => '/assets/'.$assetId,
         ];
 
@@ -46,7 +46,7 @@ readonly class NotifyAssetTopicHandler
 
         if (Asset::EVENT_UPDATE === $message->getEvent()) {
             foreach ($asset->getCollections() as $assetCollection) {
-                $notificationParams['collection'] = $assetCollection->getCollection()->getAbsoluteTitle();
+                $notificationParams['collection'] = $assetCollection->getCollection()->getAbsoluteName();
 
                 $this->objectNotifier->notifyObject(
                     $assetCollection->getCollection(),

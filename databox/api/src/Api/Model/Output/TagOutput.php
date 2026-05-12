@@ -26,7 +26,7 @@ class TagOutput extends AbstractUuidOutput
         Tag::GROUP_READ,
         ResolveEntitiesOutput::GROUP_READ,
     ])]
-    public string $nameTranslated;
+    public string $displayName;
 
     #[Groups([Tag::GROUP_READ])]
     public ?array $translations = null;

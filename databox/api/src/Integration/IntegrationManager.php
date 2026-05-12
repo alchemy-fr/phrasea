@@ -87,7 +87,7 @@ readonly class IntegrationManager
     {
         $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
         if (null === $workspaceIntegration->getWorkspace() && $integration::requiresWorkspace()) {
-            throw new InvalidConfigurationException(sprintf('Integration "%s" must have a workspace', $integration::getTitle()));
+            throw new InvalidConfigurationException(sprintf('Integration "%s" must have a workspace', $integration::getDisplayName()));
         }
 
         $config = $this->getConfiguration(

@@ -69,7 +69,7 @@ final class ExposeSynchronizer
                         $asset['id'],
                         $basketAssetId,
                         $annotations['fileId'] ?? '',
-                        $asset['title'] ?? null,
+                        $asset['name'] ?? null,
                         $asset['description'] ?? null,
                         $asset['translations'] ?? [],
                         $subDefinitions,
@@ -141,14 +141,14 @@ final class ExposeSynchronizer
                             $exposeAssetId,
                             $basketAsset->getId(),
                             $fileId,
-                            $assetProperties['title'],
+                            $assetProperties['name'],
                             $assetProperties['description'],
                             $assetProperties['translations'],
                             [],
                         )
                     );
                 } elseif (
-                    $assetProperties['title'] !== ($assetToSync->exposeAsset->title ?? null)
+                    $assetProperties['name'] !== ($assetToSync->exposeAsset->name ?? null)
                     || $assetProperties['description'] !== ($assetToSync->exposeAsset->description ?? null)
                     || $assetProperties['translations'] !== ($assetToSync->exposeAsset->translations ?? null)
                 ) {

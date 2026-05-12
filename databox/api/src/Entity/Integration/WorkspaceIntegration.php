@@ -59,7 +59,7 @@ use Symfony\Component\Yaml\Yaml;
     provider: WorkspaceIntegrationCollectionProvider::class,
 )]
 #[ORM\Table]
-#[ORM\UniqueConstraint(name: 'uniq_integration_key', columns: ['workspace_id', 'title', 'integration'])]
+#[ORM\UniqueConstraint(name: 'uniq_integration_key', columns: ['workspace_id', 'name', 'integration'])]
 #[ORM\Entity]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 #[ValidIntegrationOptionsConstraint]
@@ -81,7 +81,7 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
     protected ?Workspace $workspace = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    private ?string $title = null;
+    private ?string $name = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     #[Assert\NotNull]
@@ -116,14 +116,14 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
         $this->needs = new ArrayCollection();
     }
 
-    public function getTitle(): ?string
+    public function getName(): ?string
     {
-        return $this->title;
+        return $this->name;
     }
 
-    public function setTitle(?string $title): void
+    public function setName(?string $name): void
     {
-        $this->title = $title;
+        $this->name = $name;
     }
 
     public function getIntegration(): ?string

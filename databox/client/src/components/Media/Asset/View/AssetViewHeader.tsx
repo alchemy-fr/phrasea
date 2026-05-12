@@ -60,7 +60,7 @@ function AssetViewHeader({
                 <Trans
                     i18nKey={'asset_view.edit_asset'}
                     values={{
-                        name: asset.resolvedTitle,
+                        name: asset.resolvedName,
                     }}
                     defaults={'Asset <strong>{{name}}</strong>'}
                 />

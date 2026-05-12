@@ -59,7 +59,7 @@ export default function WorkspaceDialog({}: Props) {
             routeParams={{id}}
             maxWidth={'lg'}
             title={t('workspace.manage.title', 'Manage Workspace {{name}}', {
-                name: data.nameTranslated,
+                name: data.displayName,
             })}
             tabs={[
                 {

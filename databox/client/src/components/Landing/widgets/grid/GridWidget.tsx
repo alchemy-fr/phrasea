@@ -31,7 +31,7 @@ type Props = {
 const GridWidget: WidgetInterface<Props> = {
     name: 'grid',
 
-    getTitle(t: TFunction): string {
+    getDisplayName(t: TFunction): string {
         return t('editor.widgets.grid.title', 'Grid');
     },
 
@@ -124,7 +124,7 @@ function Component({options}: RenderWidgetProps<Props>) {
                     >
                         <MemoizedFilePlayer
                             file={asset.thumbnail!.file as AssetFile}
-                            title={asset.resolvedTitle}
+                            title={asset.resolvedName}
                             dimensions={{
                                 width: size,
                                 height: size,

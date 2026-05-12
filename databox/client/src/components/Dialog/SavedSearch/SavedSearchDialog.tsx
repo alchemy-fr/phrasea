@@ -41,7 +41,7 @@ export default function SavedSearchDialog({}: Props) {
                 'saved_search.manage.title',
                 'Manage Saved Search {{name}}',
                 {
-                    name: data.title,
+                    name: data.name,
                 }
             )}
             tabs={[

@@ -142,7 +142,7 @@ export default function TagManager({
     return (
         <DefinitionManager
             searchFilter={({items}, value) =>
-                search<Tag>(items, ['nameTranslated', 'name'], value)
+                search<Tag>(items, ['displayName', 'name'], value)
             }
             itemComponent={Item}
             listComponent={ListItem}

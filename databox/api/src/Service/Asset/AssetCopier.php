@@ -53,7 +53,7 @@ class AssetCopier
                     $userId,
                     $file->getId(),
                     $collection ? [$collection->getId()] : [],
-                    $asset->getTitle(),
+                    $asset->getName(),
                     $file->getFilename()
                 ));
             }
@@ -83,7 +83,7 @@ class AssetCopier
         $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
         $copy = new Asset();
         $copy->setOwnerId($userId);
-        $copy->setTitle($asset->getTitle());
+        $copy->setName($asset->getName());
         $copy->setPrivacy($asset->getPrivacy());
         $copy->setLocale($asset->getLocale());
         $copy->setWorkspace($workspace);

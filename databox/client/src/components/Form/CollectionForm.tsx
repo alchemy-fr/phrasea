@@ -40,25 +40,25 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
             <FormRow>
                 <TranslatedField<Collection>
                     locales={enabledLocales}
-                    field={'title'}
+                    field={'name'}
                     getData={getValues}
                     getLocales={getLocaleOptions}
                     title={t(
-                        'form.collection.title.translate.title',
-                        'Translate Title'
+                        'form.collection.title.translate.name',
+                        'Translate Name'
                     )}
-                    onUpdate={createSaveTranslations('title')}
+                    onUpdate={createSaveTranslations('name')}
                 >
                     <TextField
                         autoFocus
-                        label={t('form.collection.title.label', 'Title')}
+                        label={t('form.collection.name.label', 'Name')}
                         disabled={submitting}
-                        {...register('title', {
+                        {...register('name', {
                             required: true,
                         })}
                     />
                 </TranslatedField>
-                <FormFieldErrors field={'title'} errors={errors} />
+                <FormFieldErrors field={'name'} errors={errors} />
             </FormRow>
             {data?.capabilities.editPermissions ? (
                 <FormRow>

@@ -193,7 +193,7 @@ export default function EntityListManager({
                             'attribute_entity.delete.confirm.assertion.delete_attr_def',
                             `I understand that attribute definition "{{ definitionName }}" will be deleted because it's using it.`,
                             {
-                                definitionName: def.nameTranslated ?? def.name,
+                                definitionName: def.displayName ?? def.name,
                             }
                         )
                     );

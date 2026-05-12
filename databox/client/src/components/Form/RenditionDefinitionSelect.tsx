@@ -38,7 +38,7 @@ export default function RenditionDefinitionSelect<
                                   t.id
                               )
                             : t.id,
-                        label: t.nameTranslated,
+                        label: t.displayName,
                     };
                 })
                 .filter(i =>

@@ -32,8 +32,8 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var WorkspaceIntegration $object */
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new WorkspaceIntegration();
-        if (null !== $data->title) {
-            $object->setTitle($data->title);
+        if (null !== $data->name) {
+            $object->setName($data->name);
         }
 
         $integrationTypeName = IntegrationType::denormalizeId($data->integration ?? '');

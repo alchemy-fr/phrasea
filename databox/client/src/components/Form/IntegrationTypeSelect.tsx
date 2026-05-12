@@ -23,7 +23,7 @@ export default function IntegrationTypeSelect<
             return data.result
                 .map((t: IntegrationType) => ({
                     value: t.id,
-                    label: t.title,
+                    label: t.displayName,
                 }))
                 .filter(i =>
                     i.label

@@ -37,8 +37,7 @@ export default function ProfileSwitcher({closeWrapper}: Props) {
                 <AccountBoxIcon />
             </ListItemLoadingIcon>
             <ListItemText>
-                {current?.title ||
-                    t('profile.default.title', 'Default Profile')}
+                {current?.name || t('profile.default.title', 'Default Profile')}
             </ListItemText>
         </MenuItem>
     );

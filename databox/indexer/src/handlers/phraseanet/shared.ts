@@ -125,7 +125,7 @@ export async function createAsset(
         key: key,
         path: path,
         collectionKeyPrefix: collectionKeyPrefix,
-        title: record.title,
+        name: record.title,
         importFile: importFiles,
         publicUrl: sourceFileUrl,
         isPrivate: false,

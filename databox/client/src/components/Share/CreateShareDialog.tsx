@@ -31,7 +31,7 @@ export default function CreateShareDialog({
         forbidNavigation,
     } = useFormSubmit<Share>({
         defaultValues: {
-            title: '',
+            name: '',
             startsAt: '',
             expiresAt: '',
         },
@@ -63,15 +63,15 @@ export default function CreateShareDialog({
                 <FormRow>
                     <TextField
                         autoFocus
-                        label={t('create_share_link.form.title.label', 'Title')}
+                        label={t('create_share_link.form.name.label', 'Name')}
                         disabled={submitting}
-                        {...register('title')}
+                        {...register('name')}
                         helperText={t(
-                            'create_share_link.form.title.helper',
+                            'create_share_link.form.name.helper',
                             'You can name the audience of this share link'
                         )}
                     />
-                    <FormFieldErrors field={'title'} errors={errors} />
+                    <FormFieldErrors field={'name'} errors={errors} />
                 </FormRow>
                 <FormRow>
                     <TextField

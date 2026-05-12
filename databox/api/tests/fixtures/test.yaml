@@ -19,20 +19,20 @@ Alchemy\AclBundle\Entity\AccessControlEntry:
 
 App\Entity\Core\Asset:
   asset{1..60}:
-    title: 'Asset #<current()>'
+    name: 'Asset #<current()>'
     ownerId: <{user_id}>
     workspace: '@w_test'
     privacy: 4
 
   asset_foo:
-    title: 'Asset Foo'
+    name: 'Asset Foo'
     key: foo
     ownerId: <{user_id}>
     workspace: '@w_test'
     privacy: 4
 
   asset_bar:
-    title: 'Asset Bar'
+    name: 'Asset Bar'
     key: bar
     ownerId: <{user_id}>
     workspace: '@w_test'
@@ -40,7 +40,7 @@ App\Entity\Core\Asset:
 
 App\Entity\Core\Collection:
     collection{1..2}:
-        title: 'Collection #<current()>'
+        name: 'Collection #<current()>'
         ownerId: <{admin_user_id}>
         workspace: '@w_test'
         privacy: 4

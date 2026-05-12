@@ -35,7 +35,7 @@ class WorkspaceIntegrationCrudController extends AbstractAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(TextFilter::new('title'))
+            ->add(TextFilter::new('name'))
             ->add(EntityFilter::new('workspace'))
             ->add($this->integrationChoiceField->createFilter('integration'))
             ->add(BooleanFilter::new('enabled'))
@@ -45,7 +45,7 @@ class WorkspaceIntegrationCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setSearchFields(['id', 'title', 'integration', 'config']);
+            ->setSearchFields(['id', 'name', 'integration', 'config']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -53,7 +53,7 @@ class WorkspaceIntegrationCrudController extends AbstractAdminCrudController
         yield IdField::new();
         yield BooleanField::new('enabled');
         yield BooleanField::new('public');
-        yield TextField::new('title');
+        yield TextField::new('name');
         yield AssociationField::new('workspace')
             ->autocomplete();
         yield TextField::new('ownerId')

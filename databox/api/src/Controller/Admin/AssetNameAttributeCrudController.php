@@ -4,7 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
-use App\Entity\Core\AssetTitleAttribute;
+use App\Entity\Core\AssetNameAttribute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -14,18 +14,18 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
-class AssetTitleAttributeCrudController extends AbstractAdminCrudController
+class AssetNameAttributeCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return AssetTitleAttribute::class;
+        return AssetNameAttribute::class;
     }
 
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('Asset Title Attribute')
-            ->setEntityLabelInPlural('Asset Title Attributes')
+            ->setEntityLabelInSingular('Asset Name Attribute')
+            ->setEntityLabelInPlural('Asset Name Attributes')
             ->setSearchFields(['id', 'priority'])
             ->setPaginatorPageSize(200);
     }

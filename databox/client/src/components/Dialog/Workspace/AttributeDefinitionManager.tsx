@@ -379,7 +379,7 @@ function ListItem({data}: DefinitionItemProps<AttributeDefinition>) {
                 )}
             </ListItemIcon>
             <ListItemText
-                primary={data.nameTranslated ?? data.name}
+                primary={data.displayName ?? data.name}
                 primaryTypographyProps={{
                     color: data.enabled ? undefined : 'error',
                 }}
@@ -452,7 +452,7 @@ export default function AttributeDefinitionManager({
             searchFilter={({items}, value) =>
                 search<AttributeDefinition>(
                     items,
-                    ['nameTranslated', 'name'],
+                    ['displayName', 'name'],
                     value
                 )
             }

@@ -32,7 +32,7 @@ class CreateAssetWithAttributeTest extends AbstractSearchTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
-                'title' => 'Batch attribute Asset',
+                'name' => 'Batch attribute Asset',
                 'workspace' => $this->findIriBy(Workspace::class, [
                     'slug' => 'test-workspace',
                 ]),
@@ -62,7 +62,7 @@ class CreateAssetWithAttributeTest extends AbstractSearchTestCase
             }
             $this->assertJsonContains([
                 '@type' => 'asset',
-                'title' => 'Batch attribute Asset',
+                'name' => 'Batch attribute Asset',
                 'attributes' => $attrAssertions,
             ]);
             $this->assertMatchesRegularExpression('~^/assets/'.AlchemyApiTestCase::UUID_REGEX.'$~', $response->toArray()['@id']);

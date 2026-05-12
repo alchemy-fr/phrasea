@@ -66,6 +66,7 @@ export default function SaveAsButton({
         options.push({
             id: 'rendition',
             title: t('save_as_button.rendition', `Rendition`),
+
             component: SaveFileAsRenditionDialog,
         });
         if (asset.source?.id !== file.id) {

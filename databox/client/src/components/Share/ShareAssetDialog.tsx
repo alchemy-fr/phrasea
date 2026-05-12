@@ -57,7 +57,7 @@ export default function ShareAssetDialog({asset, ...modalProps}: Props) {
         data && data.length === 1 ? data[0] : undefined;
     const isSimple =
         (!!publicShare &&
-            !publicShare.title &&
+            !publicShare.name &&
             !publicShare.expiresAt &&
             !publicShare.startsAt) ||
         (data && data.length === 0);

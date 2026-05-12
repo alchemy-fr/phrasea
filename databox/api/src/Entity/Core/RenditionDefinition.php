@@ -150,6 +150,8 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
     final public const string GROUP_WRITE = 'renddef:w';
     private const string GRANT_ADMIN_PROP = 'object ? is_granted(\''.RenditionDefinitionVoter::READ_ADMIN.'\', object) : true';
 
+    final public const string TR_FIELD_NAME = 'name';
+
     /**
      * Override trait for annotation.
      */

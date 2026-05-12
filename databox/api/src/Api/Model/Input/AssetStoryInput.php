@@ -12,7 +12,7 @@ class AssetStoryInput extends AbstractOwnerIdInput
 {
     use ExtraMetadataDTOTrait;
 
-    public ?string $title = null;
+    public ?string $name = null;
     /**
      * @var Tag[]
      */
