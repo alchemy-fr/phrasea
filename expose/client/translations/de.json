@@ -184,6 +184,9 @@
                 "form": {
                     "password": {
                         "label": "Passwort"
+                    },
+                    "submit": {
+                        "label": "Eingeben"
                     }
                 },
                 "intro": "Diese Veröffentlichung ist passwortgeschützt. Bitte geben Sie das Passwort ein, um darauf zuzugreifen."
@@ -245,5 +248,8 @@
         "disabled_tooltip": "Diese Veröffentlichung ist deaktiviert, nur Operatoren können darauf zugreifen.",
         "edit": "Bearbeiten",
         "unlisted": "Diese Veröffentlichung ist nicht aufgeführt, Sie können sie sehen, weil Sie über solche Berechtigungen verfügen"
+    },
+    "downloadArchiveButton": {
+        "downloadArchive": "Archiv herunterladen"
     }
 }
