@@ -42,8 +42,8 @@ readonly class NotifyCollectionTopicHandler
         }
 
         $notificationParams = [
-            'collectionTitle' => $collection?->getTitle() ?? $collection?->getId() ?? $message->getAssetTitle() ?? 'Undefined',
-            'assetTitle' => $asset?->getTitle() ?? $message->getAssetTitle() ?? $asset?->getId() ?? 'Undefined',
+            'collectionName' => $collection?->getName() ?? $collection?->getId() ?? $message->getAssetName() ?? 'Undefined',
+            'assetName' => $asset?->getName() ?? $message->getAssetName() ?? $asset?->getId() ?? 'Undefined',
             'url' => $uri,
         ];
 

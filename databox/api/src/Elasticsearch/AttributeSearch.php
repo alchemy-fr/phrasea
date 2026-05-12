@@ -149,7 +149,7 @@ class AttributeSearch
             'fields' => [],
         ];
         $clusters[self::GROUP_ALL]['locales'] = array_keys($locales);
-        $clusters[self::GROUP_ALL]['fields']['title'] = [
+        $clusters[self::GROUP_ALL]['fields']['name'] = [
             'b' => 1,
             'type' => $this->typeRegistry->getStrictType(TextAttributeType::NAME),
         ];
@@ -347,7 +347,7 @@ class AttributeSearch
             $nameTranslated = $definition->getTranslatedField('name', $this->getPreferredLocales($definition->getWorkspace()), $definition->getName());
 
             $meta = [
-                'title' => $nameTranslated,
+                'name' => $nameTranslated,
                 'sortable' => $definition->isSortable(),
             ];
             if (AttributeInterface::NO_LOCALE !== $l) {

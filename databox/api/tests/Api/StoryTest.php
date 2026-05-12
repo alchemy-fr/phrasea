@@ -90,7 +90,7 @@ class StoryTest extends AbstractSearchTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
-                'title' => 'Dummy story-asset',
+                'anme' => 'Dummy story-asset',
                 'workspace' => $this->findIriBy(Workspace::class, [
                     'slug' => 'test-workspace',
                 ]),

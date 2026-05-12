@@ -58,10 +58,10 @@ final class ShareRenditionProvider implements ProviderInterface
             $matomoTracker = new \MatomoTracker((int) $this->matomoSiteId, $this->matomoUrl);
             $asset = $item->getAsset();
             $trackingId = $asset->getResolvedTrackingId();
-            $title = $asset->getTitle();
+            $name = $asset->getName();
 
-            $this->terminateStackListener->addCallback(function () use ($matomoTracker, $title, $trackingId) {
-                $matomoTracker->doTrackContentImpression($title, $trackingId);
+            $this->terminateStackListener->addCallback(function () use ($matomoTracker, $name, $trackingId) {
+                $matomoTracker->doTrackContentImpression($name, $trackingId);
             });
 
             return new RedirectResponse($this->fileUrlResolver->resolveUrl($file));

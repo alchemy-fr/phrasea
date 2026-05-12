@@ -40,12 +40,12 @@ class CollectionOutput extends AbstractUuidOutput
         Workspace::GROUP_LIST,
         ResolveEntitiesOutput::GROUP_READ,
     ])]
-    private ?string $title = null;
+    private ?string $name = null;
 
     #[Groups([
         Collection::GROUP_LIST,
     ])]
-    public ?string $titleHighlight = null;
+    public ?string $nameHighlight = null;
 
     #[Groups([
         Collection::GROUP_LIST,
@@ -53,7 +53,7 @@ class CollectionOutput extends AbstractUuidOutput
         Workspace::GROUP_LIST,
         ResolveEntitiesOutput::GROUP_READ,
     ])]
-    public ?string $titleTranslated = null;
+    public ?string $localizedName = null;
 
     #[Groups([Collection::GROUP_LIST, Workspace::GROUP_LIST])]
     private ?string $ownerId = null;
@@ -73,11 +73,11 @@ class CollectionOutput extends AbstractUuidOutput
     #[Groups([Collection::GROUP_LIST, Workspace::GROUP_LIST])]
     public bool $public;
 
-    #[Groups([Collection::GROUP_ABSOLUTE_TITLE])]
-    public ?string $absoluteTitle = null;
+    #[Groups([Collection::GROUP_ABSOLUTE_NAME])]
+    public ?string $absoluteName = null;
 
-    #[Groups([Collection::GROUP_ABSOLUTE_TITLE])]
-    public ?string $absoluteTitleTranslated = null;
+    #[Groups([Collection::GROUP_ABSOLUTE_NAME])]
+    public ?string $localizedAbsoluteName = null;
 
     #[Groups([
         Collection::GROUP_READ,
@@ -112,14 +112,14 @@ class CollectionOutput extends AbstractUuidOutput
     #[Groups([Collection::GROUP_LIST, Asset::GROUP_LIST])]
     public bool $deleted;
 
-    public function getTitle(): ?string
+    public function getName(): ?string
     {
-        return $this->title;
+        return $this->name;
     }
 
-    public function setTitle(?string $title): void
+    public function setName(?string $name): void
     {
-        $this->title = $title;
+        $this->name = $name;
     }
 
     public function getOwnerId(): ?string

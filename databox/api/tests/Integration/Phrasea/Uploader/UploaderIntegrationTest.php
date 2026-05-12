@@ -38,7 +38,7 @@ class UploaderIntegrationTest extends ApiTestCase
         $integration = new WorkspaceIntegration();
         $integration->setPublic(true);
         $integration->setWorkspace($workspace);
-        $integration->setTitle('Uploader');
+        $integration->setName('Uploader');
         $integration->setIntegration(UploaderIntegration::getName());
         $token = 'test-token';
         $integration->setConfig([

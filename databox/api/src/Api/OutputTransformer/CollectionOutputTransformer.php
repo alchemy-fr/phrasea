@@ -66,12 +66,12 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         if (null !== $storyAsset) {
             $output->setStoryAsset($storyAsset);
         } else {
-            $output->setTitle($data->getTitle());
-            $output->titleTranslated = $data->getTranslatedField('title', $preferredLocales, $data->getTitle());
+            $output->setName($data->getName());
+            $output->localizedName = $data->getTranslatedField(Collection::TR_FIELD_NAME, $preferredLocales, $data->getName());
         }
 
         $highlights = $data->getElasticHighlights();
-        $output->titleHighlight = $highlights['title'][0] ?? null;
+        $output->nameHighlight = $highlights['name'][0] ?? null;
 
         $output->setPrivacy($data->getPrivacy());
         if ($this->hasGroup([
@@ -91,9 +91,9 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             $output->owner = $this->transformUser($data->getOwnerId());
         }
 
-        if ($this->hasGroup([Collection::GROUP_ABSOLUTE_TITLE], $context)) {
-            $output->absoluteTitle = $data->getAbsoluteTitle();
-            $output->absoluteTitleTranslated = $this->getAbsoluteTitleTranslated($data, $preferredLocales);
+        if ($this->hasGroup([Collection::GROUP_ABSOLUTE_NAME], $context)) {
+            $output->absoluteName = $data->getAbsoluteName();
+            $output->localizedAbsoluteName = $this->getLocalizedAbsoluteName($data, $preferredLocales);
         }
 
         if ($this->hasGroup(Collection::GROUP_CHILDREN, $context)) {
@@ -188,13 +188,13 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         return $output;
     }
 
-    public function getAbsoluteTitleTranslated(Collection $collection, array $preferredLocales): ?string
+    public function getLocalizedAbsoluteName(Collection $collection, array $preferredLocales): ?string
     {
         $ptr = $collection;
-        $path = $ptr->getTranslatedField('title', $preferredLocales, $ptr->getTitle());
+        $path = $ptr->getTranslatedField(Collection::TR_FIELD_NAME, $preferredLocales, $ptr->getName());
         $ptr = $ptr->getParent();
         while ($ptr) {
-            $path = $ptr->getTranslatedField('title', $preferredLocales, $ptr->getTitle()).' / '.$path;
+            $path = $ptr->getTranslatedField(Collection::TR_FIELD_NAME, $preferredLocales, $ptr->getName()).' / '.$path;
             $ptr = $ptr->getParent();
         }
 

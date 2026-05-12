@@ -42,6 +42,7 @@ final class CollectionBuiltInField extends AbstractBuiltInField
             return self::extractIdFromPath($bucket['key']);
         }, $buckets);
 
+        /** @var Collection[] $collections */
         $collections = DoctrineUtil::getIndexFromIds($this->em->getRepository(Collection::class), $ids);
 
         return array_map(function (array $bucket) use ($collections): ?array {
@@ -59,7 +60,7 @@ final class CollectionBuiltInField extends AbstractBuiltInField
                     break;
                 }
 
-                $levels[] = $pColl->getTranslatedField('title', $preferredLocales, $pColl->getTitle()) ?? $pColl->getId();
+                $levels[] = $pColl->getTranslatedField('name', $preferredLocales, $pColl->getName()) ?? $pColl->getId();
                 $pColl = $pColl->getParent();
             }
 
@@ -89,7 +90,7 @@ final class CollectionBuiltInField extends AbstractBuiltInField
      */
     public function resolveLabel($value): string
     {
-        return $value->getTitle();
+        return $value->getName();
     }
 
     /**

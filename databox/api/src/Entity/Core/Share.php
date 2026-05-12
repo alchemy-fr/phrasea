@@ -97,7 +97,7 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Groups([self::GROUP_READ])]
-    private ?string $title = null;
+    private ?string $name = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     #[Groups([self::GROUP_READ])]
@@ -185,14 +185,14 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
         $this->config = $config;
     }
 
-    public function getTitle(): ?string
+    public function getName(): ?string
     {
-        return $this->title;
+        return $this->name;
     }
 
-    public function setTitle(?string $title): void
+    public function setName(?string $name): void
     {
-        $this->title = $title;
+        $this->name = $name;
     }
 
     public function isEnabled(): bool

@@ -57,7 +57,7 @@ class ExportProcessor implements ProcessorInterface
                 $ext = $extension ? '.'.$extension : '';
                 $files[] = [
                     'uri' => $this->fileUrlResolver->resolveUrl($file),
-                    'path' => sprintf('%s-%s-%s%s', $rendition->getName(), $asset->getTitle(), $assetId, $ext),
+                    'path' => sprintf('%s-%s-%s%s', $rendition->getName(), $asset->getName(), $assetId, $ext),
                 ];
             }
         }

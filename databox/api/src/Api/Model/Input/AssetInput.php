@@ -17,7 +17,7 @@ class AssetInput extends AbstractOwnerIdInput
     use UploadInputTrait;
     use ExtraMetadataDTOTrait;
 
-    public ?string $title = null;
+    public ?string $name = null;
     public ?string $externalId = null;
     public ?string $trackingId = null;
     public ?string $key = null;

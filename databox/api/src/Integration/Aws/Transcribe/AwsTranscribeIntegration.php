@@ -177,7 +177,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
         return 'aws.transcribe';
     }
 
-    public static function getTitle(): string
+    public static function getDisplayName(): string
     {
         return 'AWS Transcribe';
     }

@@ -59,7 +59,7 @@ class AssetOutput extends AbstractUuidOutput
         Share::GROUP_PUBLIC_READ,
         ResolveEntitiesOutput::GROUP_READ,
     ])]
-    private ?string $title = null;
+    private ?string $name = null;
 
     #[Groups([
         Asset::GROUP_LIST,
@@ -69,10 +69,10 @@ class AssetOutput extends AbstractUuidOutput
         Share::GROUP_PUBLIC_READ,
         ResolveEntitiesOutput::GROUP_READ,
     ])]
-    private ?string $resolvedTitle = null;
+    private ?string $resolvedName = null;
 
     #[Groups([Asset::GROUP_LIST])]
-    private ?string $titleHighlight = null;
+    private ?string $nameHighlight = null;
 
     #[Groups([Asset::GROUP_READ])]
     public ?Thread $thread = null;
@@ -195,14 +195,14 @@ class AssetOutput extends AbstractUuidOutput
         $this->animatedThumbnail = $animatedThumbnail;
     }
 
-    public function getTitle(): ?string
+    public function getName(): ?string
     {
-        return $this->title;
+        return $this->name;
     }
 
-    public function setTitle(?string $title): void
+    public function setName(?string $name): void
     {
-        $this->title = $title;
+        $this->name = $name;
     }
 
     public function getPrivacy(): int
@@ -258,24 +258,24 @@ class AssetOutput extends AbstractUuidOutput
         $this->attributes = $attributes;
     }
 
-    public function getTitleHighlight(): ?string
+    public function getNameHighlight(): ?string
     {
-        return $this->titleHighlight;
+        return $this->nameHighlight;
     }
 
-    public function setTitleHighlight(?string $titleHighlight): void
+    public function setNameHighlight(?string $nameHighlight): void
     {
-        $this->titleHighlight = $titleHighlight;
+        $this->nameHighlight = $nameHighlight;
     }
 
-    public function getResolvedTitle(): ?string
+    public function getResolvedName(): ?string
     {
-        return $this->resolvedTitle;
+        return $this->resolvedName;
     }
 
-    public function setResolvedTitle(?string $resolvedTitle): void
+    public function setResolvedName(?string $resolvedName): void
     {
-        $this->resolvedTitle = $resolvedTitle;
+        $this->resolvedName = $resolvedName;
     }
 
     public function getGroupValue(): ?GroupValue

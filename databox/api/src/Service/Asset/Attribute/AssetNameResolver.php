@@ -6,7 +6,7 @@ namespace App\Service\Asset\Attribute;
 
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\Asset;
-use App\Entity\Core\AssetTitleAttribute;
+use App\Entity\Core\AssetNameAttribute;
 use App\Entity\Core\Attribute;
 use App\Model\AssetTypeEnum;
 use App\Service\Asset\Attribute\Index\AttributeIndex;
@@ -14,7 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
-final readonly class AssetTitleResolver
+final readonly class AssetNameResolver
 {
     private CacheInterface $cache;
 
@@ -27,19 +27,19 @@ final readonly class AssetTitleResolver
         $this->cache = $cacheFactory->createCache();
     }
 
-    public function resolveTitle(Asset $asset, AttributeIndex $attributesIndex, array $preferredLocales): Attribute|string|null
+    public function resolveName(Asset $asset, AttributeIndex $attributesIndex, array $preferredLocales): Attribute|string|null
     {
         $target = $asset->isStory() ? AssetTypeEnum::Story : AssetTypeEnum::Asset;
-        if (empty($asset->getTitle()) || $this->hasTitleOverride($asset->getWorkspaceId())) {
-            $titleAttrs = $this->getTitleAttributes($asset->getWorkspaceId());
-            foreach ($titleAttrs as $attrTitle) {
-                if (!$attrTitle->isForTarget($target)) {
+        if (empty($asset->getName()) || $this->hasNameOverride($asset->getWorkspaceId())) {
+            $nameAttributes = $this->getNameAttributes($asset->getWorkspaceId());
+            foreach ($nameAttributes as $nameAttribute) {
+                if (!$nameAttribute->isForTarget($target)) {
                     continue;
                 }
 
-                $attributeDefinition = $attrTitle->getDefinition();
+                $attributeDefinition = $nameAttribute->getDefinition();
                 if ($attributeDefinition->isMultiple()) {
-                    $this->logger->warning(sprintf('Cannot use multiple attribute definition "%s" as title', $attributeDefinition->getId()));
+                    $this->logger->warning(sprintf('Cannot use multiple attribute definition "%s" as name', $attributeDefinition->getId()));
                     continue;
                 }
                 $definitionId = $attributeDefinition->getId();
@@ -52,23 +52,23 @@ final readonly class AssetTitleResolver
             }
         }
 
-        if (null !== $title = $asset->getTitle()) {
-            return $title;
+        if (null !== $name = $asset->getName()) {
+            return $name;
         }
 
         return $asset->getSource()?->getOriginalName();
     }
 
-    public function resolveTitleWithoutIndex(Asset $asset, array $preferredLocales): Attribute|string|null
+    public function resolveNameWithoutIndex(Asset $asset, array $preferredLocales): Attribute|string|null
     {
-        return $this->resolveTitle($asset, $this->attributesResolver->resolveAssetAttributes($asset, true), $preferredLocales);
+        return $this->resolveName($asset, $this->attributesResolver->resolveAssetAttributes($asset, true), $preferredLocales);
     }
 
-    public function hasTitleOverride(string $workspaceId): bool
+    public function hasNameOverride(string $workspaceId): bool
     {
-        $titleAttrs = $this->getTitleAttributes($workspaceId);
-        foreach ($titleAttrs as $attrTitle) {
-            if ($attrTitle->isOverrides()) {
+        $nameAttributes = $this->getNameAttributes($workspaceId);
+        foreach ($nameAttributes as $nameAttribute) {
+            if ($nameAttribute->isOverrides()) {
                 return true;
             }
         }
@@ -77,13 +77,13 @@ final readonly class AssetTitleResolver
     }
 
     /**
-     * @return AssetTitleAttribute[]
+     * @return AssetNameAttribute[]
      */
-    private function getTitleAttributes(string $workspaceId): array
+    private function getNameAttributes(string $workspaceId): array
     {
         return $this->cache->get($workspaceId, function () use ($workspaceId): array {
             return $this->em
-                ->getRepository(AssetTitleAttribute::class)
+                ->getRepository(AssetNameAttribute::class)
                 ->findBy([
                     'workspace' => $workspaceId,
                 ], [

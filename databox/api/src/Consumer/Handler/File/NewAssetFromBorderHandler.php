@@ -25,7 +25,7 @@ final readonly class NewAssetFromBorderHandler
     public function __invoke(NewAssetFromBorder $message): void
     {
         $collectionIds = $message->getCollectionIds();
-        $title = $message->getTitle();
+        $name = $message->getName();
         $filename = $message->getFilename();
         $formData = $message->getFormData();
         $locale = $message->getLocale();
@@ -38,7 +38,7 @@ final readonly class NewAssetFromBorderHandler
 
         $asset->setSource($file);
         $asset->setOwnerId($message->getUserId());
-        $asset->setTitle($title
+        $asset->setName($name
             ?? ($filename ? FileUtil::stripExtension($filename) : null)
             ?? ($file->getPath() ? FileUtil::stripExtension($file->getPath()) : null));
         $asset->setWorkspace($file->getWorkspace());

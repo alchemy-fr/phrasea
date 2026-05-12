@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints\NotNull;
 
 class WorkspaceIntegrationInput extends AbstractOwnerIdInput
 {
-    public ?string $title = null;
+    public ?string $name = null;
     public $config;
 
     #[NotNull]

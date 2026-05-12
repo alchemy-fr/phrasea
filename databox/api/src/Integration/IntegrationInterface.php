@@ -13,7 +13,7 @@ interface IntegrationInterface
 
     public static function requiresWorkspace(): bool;
 
-    public static function getTitle(): string;
+    public static function getDisplayName(): string;
 
     public function buildConfiguration(NodeBuilder $builder): void;
 
