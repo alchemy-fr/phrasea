@@ -29,7 +29,7 @@ export function RenditionPlaceholder({
 
     return (
         <RenditionStructure
-            title={nameTranslated}
+            name={nameTranslated}
             dimensions={dimensions}
             media={
                 <div>

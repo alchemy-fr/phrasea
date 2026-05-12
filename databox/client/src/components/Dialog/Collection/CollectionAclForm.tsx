@@ -234,11 +234,11 @@ export default function CollectionAclForm({
                             i18nKey={'collection.acl.parent.collection'}
                             defaults={`Permissions on <strong>{{name}}</strong>`}
                             values={{
-                                name: parentCollection.titleTranslated,
+                                name: parentCollection.localizedName,
                             }}
                         />
                     }
-                    name={data.titleTranslated}
+                    name={data.localizedName}
                     parentDisplay={parentDisplay}
                 >
                     <CollectionAclForm

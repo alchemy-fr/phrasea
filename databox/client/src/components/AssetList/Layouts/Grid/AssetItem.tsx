@@ -101,10 +101,10 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
             </div>
             <AssetThumb asset={asset} onPreviewToggle={onPreviewToggle} />
             <div className={assetClasses.legend}>
-                <div className={assetClasses.title}>
-                    {asset.titleHighlight
-                        ? replaceHighlight(asset.titleHighlight)
-                        : (asset.resolvedTitle ?? asset.title)}
+                <div className={assetClasses.name}>
+                    {asset.nameHighlight
+                        ? replaceHighlight(asset.nameHighlight)
+                        : (asset.resolvedName ?? asset.name)}
                 </div>
                 {asset.tags && asset.tags.length > 0 && (
                     <AssetTagList tags={asset.tags!} />

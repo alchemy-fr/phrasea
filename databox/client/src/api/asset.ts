@@ -382,7 +382,7 @@ export async function putAsset(
 }
 
 export type AssetApiInput = {
-    title?: string;
+    name?: string;
     privacy?: number;
     tags?: string[];
     collection?: string;
@@ -517,7 +517,7 @@ function getStoryPropsFromOptions(options: CreateAssetsOptions) {
     const {story: storyOptions} = options;
 
     return {
-        title: storyOptions?.title,
+        name: storyOptions?.name,
         tags: storyOptions?.tags || [],
         attributes: storyOptions?.attributes,
     };

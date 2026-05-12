@@ -19,7 +19,7 @@ export default function DownloadPage({}: Props) {
         required: ['url'],
         properties: {
             url: {
-                title: t('download.file_url', 'File URL'),
+                name: t('download.file_url', 'File URL'),
                 type: 'string',
                 widget: 'url',
             },

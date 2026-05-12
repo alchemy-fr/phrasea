@@ -20,7 +20,7 @@ export default function CreateBasket({onCreate, ...modalProps}: Props) {
 
     const usedFormSubmit = useFormSubmit<Basket>({
         defaultValues: {
-            title: '',
+            name: '',
         },
         onSubmit: async (data: Basket) => {
             return await postBasket(data);

@@ -43,7 +43,7 @@ export const collectionItemClassName = 'collection-item';
 type Props = {
     level: number;
     absolutePath: string;
-    titlePath?: string[];
+    namePath?: string[];
     collection: Collection;
     workspace: Workspace;
     isSearch?: boolean;
@@ -54,12 +54,12 @@ export default function CollectionMenuItem({
     isSearch,
     collection,
     absolutePath,
-    titlePath,
+    namePath,
     level,
     workspace,
     isAuthenticated,
 }: Props) {
-    const {id, titleTranslated, children, capabilities} = collection;
+    const {id, localizedName, children, capabilities} = collection;
     const {t} = useTranslation();
     const {openModal} = useModals();
     const searchContext = useContext(SearchContext)!;
@@ -121,7 +121,7 @@ export default function CollectionMenuItem({
     const onClick = () => {
         searchContext.selectCollection(
             id,
-            (titlePath ?? []).concat(titleTranslated).join(` / `),
+            (namePath ?? []).concat(localizedName).join(` / `),
             selected
         );
         expand(true);
@@ -182,9 +182,9 @@ export default function CollectionMenuItem({
                                                     workspace.nameTranslated,
                                                 workspaceId: workspace.id,
                                                 collectionId: id,
-                                                titlePath: (
-                                                    titlePath ?? []
-                                                ).concat(titleTranslated),
+                                                namePath: (
+                                                    namePath ?? []
+                                                ).concat(localizedName),
                                             })
                                         )}
                                         aria-label="create-asset"
@@ -209,9 +209,9 @@ export default function CollectionMenuItem({
                                                 parent: collection['@id'],
                                                 workspaceTitle:
                                                     workspace.nameTranslated,
-                                                titlePath: (
-                                                    titlePath ?? []
-                                                ).concat(titleTranslated),
+                                                namePath: (
+                                                    namePath ?? []
+                                                ).concat(localizedName),
                                                 onCreate: coll => {
                                                     addCollection(
                                                         coll,
@@ -343,9 +343,9 @@ export default function CollectionMenuItem({
                     </ListItemIcon>
                     <ListItemText
                         primary={
-                            collection.titleHighlight
-                                ? replaceHighlight(collection.titleHighlight)
-                                : titleTranslated
+                            collection.nameHighlight
+                                ? replaceHighlight(collection.nameHighlight)
+                                : localizedName
                         }
                         secondary={
                             isSearch ? (
@@ -381,8 +381,8 @@ export default function CollectionMenuItem({
                                     workspace={workspace}
                                     key={`${c.id}-${c.children ? 'c' : ''}`}
                                     absolutePath={`${absolutePath}/${c.id}`}
-                                    titlePath={(titlePath ?? []).concat(
-                                        titleTranslated
+                                    namePath={(namePath ?? []).concat(
+                                        localizedName
                                     )}
                                     level={level + 1}
                                 />

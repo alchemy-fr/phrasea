@@ -433,7 +433,9 @@ export async function importStatusBitsStructure(
         const tagName = sb.label_on?.trim() || sb.label_off?.trim() || '';
 
         if (!tagName) {
-            logger.info(`  Skipping status bit ${sb.bit} with empty label_on and label_off`);
+            logger.info(
+                `  Skipping status bit ${sb.bit} with empty label_on and label_off`
+            );
             continue;
         }
 

@@ -10,7 +10,7 @@ import {IndexOptions} from './command';
 export type Asset = {
     workspaceId: string;
     key: string;
-    title?: string;
+    name?: string;
     path: string;
     collectionKeyPrefix?: string;
     publicUrl?: string;

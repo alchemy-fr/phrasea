@@ -27,9 +27,9 @@ export default function DisplayOptionsMenu({}: Props) {
     const {
         state: {
             thumbSize,
-            displayTitle,
+            displayName,
             displayCollections,
-            titleRows,
+            nameRows,
             collectionsLimit,
             playVideos,
             displayTags,
@@ -130,24 +130,24 @@ export default function DisplayOptionsMenu({}: Props) {
 
                 <ToggleWithLimit
                     label={t(
-                        'layout.options.display_title.label',
-                        'Display title'
+                        'layout.options.display_name.label',
+                        'Display Name'
                     )}
-                    unit={t('layout.options.title_rows.label', 'rows')}
-                    value={displayTitle}
+                    unit={t('layout.options.name_rows.label', 'rows')}
+                    value={displayName}
                     toggle={() => {
                         setDisplayPreferences(p => ({
                             ...p,
-                            displayTitle: !p.displayTitle,
+                            displayName: !p.displayName,
                         }));
                     }}
                     setLimit={v => {
                         setDisplayPreferences(p => ({
                             ...p,
-                            titleRows: v,
+                            nameRows: v,
                         }));
                     }}
-                    limit={titleRows}
+                    limit={nameRows}
                 />
                 <ToggleWithLimit
                     label={t(

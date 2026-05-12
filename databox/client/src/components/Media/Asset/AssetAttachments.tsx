@@ -259,7 +259,7 @@ function AssetAttachments({asset}: Props) {
                                 <ListItemText
                                     primary={
                                         attachment.name ||
-                                        attachment.attachment.resolvedTitle
+                                        attachment.attachment.resolvedName
                                     }
                                     secondary={
                                         !file.accepted ? (

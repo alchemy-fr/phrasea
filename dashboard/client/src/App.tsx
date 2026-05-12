@@ -116,7 +116,7 @@ export default function App({}: Props) {
                                       {
                                           icon: <AdminPanelSettingsIcon />,
                                           href: `${config.keycloakUrl}/admin/master/console`,
-                                          title: `Master Admin`,
+                                          name: `Master Admin`,
                                       },
                                   ]
                                 : undefined

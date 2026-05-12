@@ -159,7 +159,7 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 slug: BuiltInField.Collection,
                 entityIri: 'collections',
                 resolveLabel: (entity: Collection) =>
-                    entity.titleTranslated ?? entity.title ?? '',
+                    entity.localizedName ?? entity.name ?? '',
                 searchable: true,
                 fieldType: AttributeType.CollectionPath,
                 name: t('built_in_attr.collections', 'Collections'),
@@ -219,7 +219,7 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 slug: BuiltInField.Story,
                 entityIri: 'assets',
                 resolveLabel: (entity: Asset) =>
-                    entity.resolvedTitle ?? entity.title ?? '',
+                    entity.resolvedName ?? entity.name ?? '',
                 searchable: true,
                 fieldType: AttributeType.Story,
                 name: t('built_in_attr.stories', 'Stories'),

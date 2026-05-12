@@ -101,7 +101,7 @@ function Component({options}: RenderWidgetProps<AssetWidgetProps>) {
             >
                 <MemoizedFilePlayer
                     file={data.preview!.file as AssetFile}
-                    title={data.resolvedTitle}
+                    title={data.resolvedName}
                     dimensions={{
                         width: maxWidth,
                         height: maxHeight,

@@ -22,8 +22,8 @@ export const CollectionChip = ({children, collection, ...props}: Props) => {
             label={
                 children ||
                 props.label ||
-                collection?.titleTranslated ||
-                collection?.title
+                collection?.localizedName ||
+                collection?.name
             }
         />
     );

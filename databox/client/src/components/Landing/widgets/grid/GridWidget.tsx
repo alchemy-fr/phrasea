@@ -124,7 +124,7 @@ function Component({options}: RenderWidgetProps<Props>) {
                     >
                         <MemoizedFilePlayer
                             file={asset.thumbnail!.file as AssetFile}
-                            title={asset.resolvedTitle}
+                            title={asset.resolvedName}
                             dimensions={{
                                 width: size,
                                 height: size,

@@ -45,10 +45,10 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
         (theme: Theme) => {
             const spacing = Number(theme.spacing(1).slice(0, -2));
 
-            const titleHeight = d.displayTitle
-                ? spacing * 1.8 + lineHeight * d.titleRows
+            const nameHeight = d.displayName
+                ? spacing * 1.8 + lineHeight * d.nameRows
                 : 0;
-            let totalHeight = d.thumbSize + titleHeight;
+            let totalHeight = d.thumbSize + nameHeight;
             if (d.displayCollections) {
                 totalHeight += collLineHeight * d.collectionsLimit;
             }
@@ -118,21 +118,19 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                 [`.${assetClasses.animatedThumb}`]: {
                     display: 'none',
                 },
-                [`.${assetClasses.title}`]: {
+                [`.${assetClasses.name}`]: {
                     fontSize: 14,
                     lineHeight: `${lineHeight}px`,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    ...(d.titleRows > 1
+                    ...(d.nameRows > 1
                         ? {
-                              'display': d.displayTitle
-                                  ? '-webkit-box'
-                                  : 'none',
-                              '-webkit-line-clamp': `${d.titleRows}`,
+                              'display': d.displayName ? '-webkit-box' : 'none',
+                              '-webkit-line-clamp': `${d.nameRows}`,
                               '-webkit-box-orient': 'vertical',
                           }
                         : {
-                              display: d.displayTitle ? 'block' : 'none',
+                              display: d.displayName ? 'block' : 'none',
                               whiteSpace: 'nowrap',
                           }),
                 },

@@ -52,7 +52,7 @@ export type ShareAlternateUrl = {
 };
 
 export type Share = {
-    title?: string | undefined;
+    name?: string | undefined;
     asset: Asset;
     token: string;
     startsAt?: string | undefined | null;
@@ -107,9 +107,9 @@ export interface Asset
             delete: boolean;
         }>,
         Entity {
-    title?: string | undefined;
-    resolvedTitle?: string;
-    titleHighlight: string | null;
+    name?: string | undefined;
+    resolvedName?: string;
+    nameHighlight: string | null;
     description?: string;
     privacy: number;
     tags: Tag[] | undefined;
@@ -217,7 +217,7 @@ export interface RenditionPolicy extends ApiHydraObjectResponse, Entity {
 
 export interface FieldType extends ApiHydraObjectResponse {
     name: string;
-    title: string;
+    displayName: string;
 }
 
 export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
@@ -363,13 +363,13 @@ export interface Collection
         }>,
         Entity,
         ApiHydraObjectResponse {
-    title: string;
+    name: string;
     parentId?: string;
-    titleTranslated: string;
-    titleHighlight?: string;
+    localizedName: string;
+    nameHighlight?: string;
     storyAsset?: Asset;
-    absoluteTitle?: string;
-    absoluteTitleTranslated?: string;
+    absoluteName?: string;
+    absoluteLocalizedName?: string;
     children?: CollectionOptionalWorkspace[];
     workspace: Workspace;
     public: boolean;
@@ -392,8 +392,8 @@ export interface Basket
             editPermissions: boolean;
         }>,
         Entity {
-    title: string;
-    titleHighlight?: string | undefined;
+    name: string;
+    nameHighlight?: string | undefined;
     description?: string | undefined;
     descriptionHighlight?: string | undefined;
     assetCount?: number;
@@ -432,7 +432,7 @@ export interface Profile
             editPermissions: boolean;
         }>,
         Entity {
-    title: string;
+    name: string;
     description?: string;
     items?: ProfileItem[];
     exclusive?: boolean; // if true, only items in this list well be shown otherwise all attributes
@@ -457,7 +457,7 @@ export interface SavedSearch
             editPermissions: boolean;
         }>,
         Entity {
-    title: string;
+    name: string;
     public?: boolean;
     createdAt: string;
     updatedAt: string;
@@ -513,7 +513,7 @@ export interface ThreadMessage extends Entity {
 export interface BasketAsset extends Entity {
     asset: Asset;
     context?: any;
-    titleHighlight: string;
+    nameHighlight: string;
     position: number;
     createdAt: string;
     owner?: User;
@@ -567,11 +567,11 @@ export interface WorkspaceIntegration
             use: boolean;
             interact: boolean;
         }> {
-    title: string;
+    name: string;
     public: boolean;
     enabled: boolean;
     integration: Integration;
-    integrationTitle: string;
+    integrationName: string;
     data: IntegrationData[];
     config: object;
     configYaml: string;
@@ -586,7 +586,7 @@ export interface WorkspaceIntegration
 
 export interface IntegrationType {
     id: string;
-    title: string;
+    displayName: string;
     name: string;
     reference: string;
 }

@@ -121,9 +121,9 @@ export default function RemoveBGAssetEditorActions({
                 <SaveAsButton
                     asset={asset}
                     file={bgRemovedFile}
-                    suggestedTitle={t('remove_bg.bg_removed', {
-                        defaultValue: `{{title}} - BG removed`,
-                        title: asset.resolvedTitle,
+                    suggestedName={t('remove_bg.bg_removed', {
+                        defaultValue: `{{name}} - BG removed`,
+                        name: asset.resolvedName,
                     })}
                 />
             </IntegrationPanelContent>

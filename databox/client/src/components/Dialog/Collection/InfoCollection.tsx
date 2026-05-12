@@ -61,7 +61,7 @@ export default function InfoCollection({data, onClose, minHeight}: Props) {
                 <InfoRow
                     icon={<FolderIcon />}
                     label={t('collection.info.absolute_path', `Absolute Path`)}
-                    value={data.absoluteTitleTranslated}
+                    value={data.absoluteLocalizedName}
                 />
             </MenuList>
         </ContentTab>

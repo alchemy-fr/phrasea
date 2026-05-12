@@ -152,9 +152,9 @@ export default function DeleteAssetsConfirmDialog({
                                                 values={{
                                                     name:
                                                         collection.storyAsset
-                                                            .resolvedTitle ||
+                                                            .resolvedName ||
                                                         collection.storyAsset
-                                                            .title,
+                                                            .name,
                                                 }}
                                                 defaults={`Remove from story <strong>{{name}}</strong>`}
                                                 components={{
@@ -171,7 +171,7 @@ export default function DeleteAssetsConfirmDialog({
                                             <Trans
                                                 i18nKey="asset.delete.remove_from_collection"
                                                 values={{
-                                                    name: collection.absoluteTitleTranslated,
+                                                    name: collection.absoluteLocalizedName,
                                                 }}
                                                 defaults={`Remove from collection <strong>{{name}}</strong>`}
                                                 components={{

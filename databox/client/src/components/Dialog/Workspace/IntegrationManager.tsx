@@ -309,11 +309,11 @@ function ListItem({data}: DefinitionItemProps<WorkspaceIntegration>) {
     return (
         <>
             <ListItemText
-                primary={data.title || data.integrationTitle}
+                primary={data.name || data.integrationName}
                 primaryTypographyProps={{
                     color: data.enabled ? undefined : 'error',
                 }}
-                secondary={data.title ? data.integrationTitle : undefined}
+                secondary={data.name ? data.integrationName : undefined}
             />
         </>
     );
@@ -321,7 +321,7 @@ function ListItem({data}: DefinitionItemProps<WorkspaceIntegration>) {
 
 function createNewItem(): Partial<WorkspaceIntegration> {
     return {
-        title: '',
+        name: '',
         config: {},
         public: true,
         enabled: true,
@@ -353,7 +353,7 @@ export default function IntegrationManager({
             searchFilter={({items}, value) =>
                 search<WorkspaceIntegration>(
                     items,
-                    ['title', 'integrationTitle'],
+                    ['name', 'integrationName'],
                     value
                 )
             }

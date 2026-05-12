@@ -25,7 +25,7 @@ export default function ClientApp({
     links.push({
         icon: <ApiIcon />,
         href: apiUrl,
-        title: `API documentation of ${props.title}`,
+        name: `API documentation of ${props.title}`,
     });
     return <Service mainUrl={clientUrl} links={links} {...props} />;
 }

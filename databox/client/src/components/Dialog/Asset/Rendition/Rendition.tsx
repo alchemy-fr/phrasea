@@ -31,7 +31,7 @@ import SaveIcon from '@mui/icons-material/Save';
 
 type Props = {
     asset: Asset;
-    title: string | undefined;
+    name: string | undefined;
     rendition: AssetRendition;
     dimensions: Dimensions;
     onDelete: () => Promise<void>;
@@ -39,7 +39,7 @@ type Props = {
 };
 
 export function Rendition({
-    title,
+    name,
     asset,
     dimensions,
     rendition,
@@ -67,7 +67,7 @@ export function Rendition({
 
     return (
         <RenditionStructure
-            title={
+            name={
                 <Box
                     sx={{
                         'display': 'flex',
@@ -131,7 +131,7 @@ export function Rendition({
                     <FilePlayer
                         file={file}
                         trackingId={asset.resolvedTrackingId}
-                        title={title}
+                        title={name}
                         dimensions={dimensions}
                         autoPlayable={false}
                         controls={true}

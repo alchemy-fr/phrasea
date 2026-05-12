@@ -37,9 +37,9 @@ export default function BasketMenuItem({
                     <ListItemText
                         className={Classes.ellipsisText}
                         primary={
-                            data.titleHighlight
-                                ? replaceHighlight(data.titleHighlight)
-                                : data.title ||
+                            data.nameHighlight
+                                ? replaceHighlight(data.nameHighlight)
+                                : data.name ||
                                   t('basket.default.title', 'My Basket')
                         }
                         secondary={

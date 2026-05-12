@@ -26,6 +26,7 @@ const FooterWidget: WidgetInterface<FooterWidgetProps> = {
 
     defaultOptions: {
         title: 'App Name',
+
         links: [],
         backgroundColor: '#333',
         textColor: '#fff',

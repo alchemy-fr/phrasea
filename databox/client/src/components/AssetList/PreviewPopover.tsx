@@ -131,7 +131,7 @@ export default function PreviewPopover({
                                         width: previewWidth,
                                         height: height - spacingInt * 2,
                                     }}
-                                    title={asset.resolvedTitle}
+                                    title={asset.resolvedName}
                                     noInteraction={!previewLocked}
                                     controls={previewLocked}
                                     autoPlayable={true}

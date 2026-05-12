@@ -22,7 +22,7 @@ export default function CreateProfileDialog({onCreate, ...modalProps}: Props) {
 
     const usedFormSubmit = useFormSubmit<Profile>({
         defaultValues: {
-            title: '',
+            name: '',
         },
         onSubmit: async (data: Profile) => {
             return await postProfile({

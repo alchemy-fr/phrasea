@@ -34,10 +34,10 @@ export default function DisplayProvider({
     const [state, setState] = useState<DisplayPreferences>({
         layout: Layout.Grid,
         thumbSize: 200,
-        displayTitle: true,
+        displayName: true,
         displayTags: true,
         displayPreview: true,
-        titleRows: 1,
+        nameRows: 1,
         displayCollections: true,
         displayAttributes: true,
         playVideos: true,

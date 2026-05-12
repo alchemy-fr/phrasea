@@ -29,7 +29,7 @@ function AssetThumb({
     const {t} = useTranslation();
     const {
         id,
-        resolvedTitle,
+        resolvedName,
         thumbnail,
         animatedThumbnail,
         source,
@@ -46,7 +46,7 @@ function AssetThumb({
         thumb = (
             <FilePlayer
                 file={thumbnail.file}
-                title={resolvedTitle}
+                title={resolvedName}
                 autoPlayable={false}
             />
         );
@@ -121,7 +121,7 @@ function AssetThumb({
                     <div className={assetClasses.animatedThumb}>
                         <FilePlayer
                             file={animatedThumbnail.file}
-                            title={resolvedTitle}
+                            title={resolvedName}
                             autoPlay={true}
                             autoPlayable={true}
                             controls={false}

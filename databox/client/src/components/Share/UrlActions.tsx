@@ -18,5 +18,5 @@ export function UrlActions({url}: Props) {
 }
 
 export function getShareTitle(share: Share): string {
-    return share.asset?.resolvedTitle ?? 'Databox';
+    return share.asset?.resolvedName ?? 'Databox';
 }

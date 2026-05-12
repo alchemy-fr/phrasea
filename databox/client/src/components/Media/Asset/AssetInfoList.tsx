@@ -75,7 +75,7 @@ export default function AssetInfoList({data}: Props) {
                     icon={<FolderIcon />}
                     label={t('asset.info.collection', `Collection`)}
                     value={
-                        data.referenceCollection?.absoluteTitleTranslated ??
+                        data.referenceCollection?.absoluteLocalizedName ??
                         t('asset.info.collections.none', 'None')
                     }
                     copyValue={data.referenceCollection?.id}

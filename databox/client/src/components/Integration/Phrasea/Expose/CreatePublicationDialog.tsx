@@ -40,7 +40,7 @@ export default function CreatePublicationDialog({
         forbidNavigation,
     } = useFormSubmit({
         defaultValues: {
-            title: basket.title,
+            title: basket.name,
             slug: '',
             description: basket.description,
             enabled: true,

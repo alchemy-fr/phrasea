@@ -125,7 +125,7 @@ function Component({options}: RenderWidgetProps<Props>) {
                         <FilePlayer
                             cover={cover}
                             file={asset.preview!.file as AssetFile}
-                            title={asset.resolvedTitle}
+                            title={asset.resolvedName}
                             dimensions={{
                                 width: 300,
                                 height,

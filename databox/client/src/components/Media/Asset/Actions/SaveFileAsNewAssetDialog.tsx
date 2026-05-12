@@ -14,14 +14,14 @@ import {FormFieldErrors, FormRow} from '@alchemy/react-form';
 import {postAsset} from '../../../../api/asset';
 
 type FormData = {
-    title: string;
+    name: string;
     destination: string;
 };
 
 export type BaseSaveAsProps = {
     asset: Asset;
     file: ApiFile;
-    suggestedTitle?: string | undefined;
+    suggestedName?: string | undefined;
     integrationId?: string | undefined;
 };
 
@@ -30,7 +30,7 @@ type Props = {} & BaseSaveAsProps & StackedModalProps;
 export default function SaveFileAsNewAssetDialog({
     asset,
     file,
-    suggestedTitle,
+    suggestedName,
     integrationId,
     ...modalProps
 }: Props) {
@@ -49,7 +49,7 @@ export default function SaveFileAsNewAssetDialog({
         forbidNavigation,
     } = useFormSubmit({
         defaultValues: {
-            title: suggestedTitle || asset.resolvedTitle,
+            name: suggestedName || asset.resolvedName,
             destination: undefined,
         },
         onSubmit: async (data: FormData) => {
@@ -59,7 +59,7 @@ export default function SaveFileAsNewAssetDialog({
             const collection = !workspace ? data.destination : undefined;
 
             return await postAsset({
-                title: data.title,
+                name: data.name,
                 collection,
                 workspace,
                 sourceFileId: file.id,

@@ -46,12 +46,12 @@ export default function AddAttachmentDialog({
                     ? await uploadAsset({
                           file: uploadForm.file,
                           asset: {
-                              title: getAssetTitleFromFile(uploadForm.file, t),
+                              name: getAssetTitleFromFile(uploadForm.file, t),
                               workspace: workspaceIri,
                           },
                       })
                     : await postAsset({
-                          title: extractTitleFromUrl(uploadForm.url),
+                          name: extractTitleFromUrl(uploadForm.url),
                           sourceFile: {
                               url: uploadForm.url,
                               importFile: uploadForm.importFile,
