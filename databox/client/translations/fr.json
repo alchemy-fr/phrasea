@@ -67,7 +67,7 @@
                     "label": "Propriétaire"
                 },
                 "view": {
-                    "desc": "Permet de visualiser cet asset, mais pas nécessairement la collection à laquelle elle appartient.",
+                    "desc": "Permet de visualiser cet Asset, mais pas nécessairement la collection à laquelle elle appartient.",
                     "label": "Visualiser"
                 }
             },
@@ -150,10 +150,12 @@
             },
             "rendition_policy": {
                 "child_edit": {
-                    "label": "Modifier"
+                    "label": "Modifier",
+                    "desc": "Modifier la politique de renditions"
                 },
                 "child_view": {
-                    "label": "Visualiser"
+                    "label": "Visualiser",
+                    "desc": "Visualiser la politique de rendition"
                 }
             },
             "workspace": {
@@ -209,7 +211,16 @@
                     "desc": "Permet de visualiser tous les Assets du Workspace, mais pas nécessairement les collections auxquelles ils appartiennent.",
                     "label": "Voir les Assets"
                 }
-            }
+            },
+            "child_create": "Création de sous-éléments",
+            "child_delete": "Suppression de sous-éléments",
+            "child_edit": "Edition de sous-éléments",
+            "child_master": "Master des sous-éléments",
+            "child_operator": "Opérateur des sous-éléments",
+            "child_owner": "Propriétaire des sous-éléments",
+            "child_share": "Partage des sous-éléments",
+            "child_undelete": "Restauration des sous-éléments",
+            "child_view": "Visualisation des sous-éléments"
         },
         "parent": {
             "show": "Afficher les autorisations des parents <strong> {{name}} </strong>"
@@ -2371,7 +2382,7 @@
                         "label": "Largeur maximale (px)"
                     },
                     "position": {
-                        "fixed": "Fixé",
+                        "fixed": "Fixe",
                         "label": "Position de l'image",
                         "static": "Statique"
                     },
@@ -2564,7 +2575,8 @@
             "play_rate": "Taux de lecture",
             "sum_daily_nb_uniq_visitors": "Somme quotidienne de visiteurs uniques",
             "sum_fullscreen_plays": "Somme des lectures en plein écran",
-            "sum_time_progress": "Somme du temps de progression"
+            "sum_time_progress": "Somme du temps de progression",
+            "nb_plays_with_tip": "Lectures avec pourboire"
         }
     },
     "page": {
@@ -2650,7 +2662,7 @@
             "info": {
                 "title": "Informations"
             },
-            "title": "Gérer la recherche sauvegardée {{name}}"
+            "title": "Gérer la recherche sauvegardée : {{name}}"
         }
     },
     "workspaces": {
