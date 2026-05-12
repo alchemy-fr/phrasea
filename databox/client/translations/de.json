@@ -211,7 +211,16 @@
                     "desc": "Ermöglicht die Anzeige aller Assets im Workspace, aber nicht unbedingt der Kollektionen, zu denen sie gehören.",
                     "label": "Assets ansehen"
                 }
-            }
+            },
+            "child_create": "Unterelemente erstellen",
+            "child_delete": "Unterelemente löschen",
+            "child_edit": "Unterelemente bearbeiten",
+            "child_master": "Unter-Master",
+            "child_operator": "Unter-Operator",
+            "child_owner": "Unter-Besitzer",
+            "child_share": "Unterelemente teilen",
+            "child_undelete": "Unterelemente wiederherstellen",
+            "child_view": "Unterelemente ansehen"
         },
         "parent": {
             "show": "Elternberechtigungen anzeigen <strong> {{name}} </strong>"
@@ -2392,7 +2401,8 @@
             "play_rate": "Wiedergaberate",
             "sum_daily_nb_uniq_visitors": "Summe eindeutige Besucher (täglich)",
             "sum_fullscreen_plays": "Gesamt Vollbild-Plays",
-            "sum_time_progress": "Summe Wiedergabezeit"
+            "sum_time_progress": "Summe Wiedergabezeit",
+            "nb_plays_with_tip": "Wiedergaben mit Tips"
         }
     },
     "page": {
@@ -2435,7 +2445,7 @@
         "helper_desc": "Berechtigungsstufen:"
     },
     "remove_bg": {
-        "cannot_interact": "Sie verfügen nicht über ausreichende Berechtigungen, um BG zu entfernen",
+        "cannot_interact": "Sie verfügen nicht über ausreichende Berechtigungen, um Bildhintergrund zu entfernen",
         "remove_bg": "Bildhintergrund entfernen",
         "bg_removed": "{{title}} - Bildhintergrund entfernt",
         "use_slider_to_compare": "Verwenden Sie den Slider zum Vergleichen"
@@ -2478,7 +2488,7 @@
             "info": {
                 "title": "Informationen"
             },
-            "title": "Gespeicherte Suche verwalten {{name}}"
+            "title": "Gespeicherte Suche verwalten: {{name}}"
         }
     },
     "workspaces": {
