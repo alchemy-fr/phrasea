@@ -150,11 +150,8 @@ export default function DeleteAssetsConfirmDialog({
                                             <Trans
                                                 i18nKey="asset.delete.remove_from_story"
                                                 values={{
-                                                    name:
-                                                        collection.storyAsset
-                                                            .resolvedName ||
-                                                        collection.storyAsset
-                                                            .name,
+                                                    name: collection.storyAsset
+                                                        .resolvedName,
                                                 }}
                                                 defaults={`Remove from story <strong>{{name}}</strong>`}
                                                 components={{

@@ -207,7 +207,7 @@ export default function CollectionMenuItem({
                                         onClick={closeWrapper(() =>
                                             openModal(CreateCollection, {
                                                 parent: collection['@id'],
-                                                workspaceTitle:
+                                                workspaceName:
                                                     workspace.displayName,
                                                 namePath: (
                                                     namePath ?? []

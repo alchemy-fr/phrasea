@@ -16,7 +16,7 @@ type Props = {
     parent?: string;
     namePath?: string[];
     workspaceId?: string;
-    workspaceTitle: string;
+    workspaceName: string;
     onCreate?: OnCollectionEdit;
 } & StackedModalProps;
 
@@ -24,7 +24,7 @@ export default function CreateCollection({
     parent,
     namePath,
     workspaceId,
-    workspaceTitle,
+    workspaceName,
     onCreate,
     ...modalProps
 }: Props) {
@@ -68,7 +68,7 @@ export default function CreateCollection({
                 'form.collection_create.title_with_parent',
                 'Create Collection under'
             )}{' '}
-            <WorkspaceChip label={workspaceTitle} />
+            <WorkspaceChip label={workspaceName} />
             {namePath.map((t, i) => (
                 <React.Fragment key={i}>
                     {' / '}
@@ -79,7 +79,7 @@ export default function CreateCollection({
     ) : (
         <>
             {t('form.collection_create.title', 'Create Collection in')}{' '}
-            <WorkspaceChip label={workspaceTitle} />
+            <WorkspaceChip label={workspaceName} />
         </>
     );
 

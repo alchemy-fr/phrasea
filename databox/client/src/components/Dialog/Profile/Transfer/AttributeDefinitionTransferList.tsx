@@ -180,8 +180,7 @@ export default function AttributeDefinitionTransferList({
                         <React.Fragment key={definition.id}>
                             {displayWorkspace ? (
                                 <ListSubheader>
-                                    {lastWorkspace!.displayName ||
-                                        lastWorkspace!.name}
+                                    {lastWorkspace!.displayName}
                                 </ListSubheader>
                             ) : null}
                             <ListItemButton

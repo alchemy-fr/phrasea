@@ -87,7 +87,7 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
                 data: {
                     id: collection.id,
                     type: EntityType.Collection,
-                    label: collection.displayName || collection.name,
+                    label: collection.displayName,
                     capabilities: collection.capabilities,
                     workspaceId,
                 },
@@ -107,7 +107,7 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
                 data: {
                     id: w.id,
                     type: EntityType.Workspace,
-                    label: w.displayName || w.name,
+                    label: w.displayName,
                     capabilities: w.capabilities,
                     workspaceId: w.id,
                 },

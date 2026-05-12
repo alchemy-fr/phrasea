@@ -108,7 +108,7 @@ export default function WorkspaceMenuItem({
                                                             CreateCollection,
                                                             {
                                                                 workspaceId: id,
-                                                                workspaceTitle:
+                                                                workspaceName:
                                                                     displayName,
                                                                 onCreate:
                                                                     coll =>
